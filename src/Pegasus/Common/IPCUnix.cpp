@@ -35,6 +35,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 Mutex::Mutex()
 {
+   pthread_mutexattr_init(&_mutex.mutatt);
    pthread_mutex_init(&_mutex.mut, NULL);
    _mutex.owner = 0;
 }

@@ -52,8 +52,4 @@ XMLSCRIPTS = \
 #   DeleteCapability02 \
 #   DeleteCapability03 \
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

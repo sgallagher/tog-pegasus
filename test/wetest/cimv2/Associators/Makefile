@@ -6,10 +6,5 @@ include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = Associators33000
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-
-tests: $(XMLRESPONSES)
-
+include $(ROOT)/test/configend.mak
 

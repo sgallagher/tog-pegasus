@@ -13,7 +13,7 @@ include $(ROOT)/mak/config.mak
 # Defines subdirectorys to go to recursively
 
 # DIRS = src cgi
-DIRS = src
+DIRS = src test
 
 # Define the inclusion of the recurse.mak file to execute the next
 # level of makefiles defined by the DIRS variable
@@ -34,17 +34,13 @@ world: depend all repository
 repository:
 	@ $(MAKE) -SC Schemas/Pegasus repository
 
-config:
-	@ $(MAKE) -SC src/Providers/generic/ConfigSettingProvider/load config
+testrepository:
+	@ $(MAKE) -SC src/Providers/sample/Load repository
+	@ $(MAKE) -SC test/wetest repository
 
-user:
-	@ $(MAKE) -SC src/Providers/generic/UserManagerProvider/load user
-
-registration:
-	@ $(MAKE) -SC src/Providers/generic/PG_RegistrationProvider/load registration
-
-shutdownService:
-	@ $(MAKE) -SC src/Providers/generic/ShutdownProvider/load shutdownService
+removetestrepository:
+	@ $(MAKE) -SC src/Providers/sample/Load removerepository
+	@ $(MAKE) -SC test/wetest removerepository
 
 # the collections of tests that we run with the server active.
 # For now, these are centralized and do not include startup

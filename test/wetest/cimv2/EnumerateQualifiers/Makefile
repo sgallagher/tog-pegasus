@@ -8,8 +8,4 @@ XMLSCRIPTS = EnumerateQualifiers31001
 
 BROKENXMLSCRIPTS = EnumerateQualifiers31000
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

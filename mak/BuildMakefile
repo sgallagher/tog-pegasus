@@ -90,6 +90,8 @@ checkout:
 	
 rebuild: clean buildmu all tests
 
+build: all tests
+
 all: buildmu
 	$(MAKE) --directory=pegasus -f Makefile depend
 	$(MAKE) --directory=pegasus -f Makefile all
@@ -106,18 +108,17 @@ prestarttests:
 	$(CIMSERVER_STOP_SERVICE)
 	$(SLEEP)
 	$(MAKE) --directory=pegasus -f Makefile repository
+	$(MAKE) --directory=pegasus -f Makefile testrepository
 	$(MAKE) --directory=pegasus -f Makefile tests
 	$(MAKE) --directory=pegasus/src/Server -f Makefile install
-	$(MAKE) --directory=pegasus/test -f Makefile clean
 
 poststarttests:
+	$(MAKE) --directory=pegasus/test/wetest -f Makefile clean
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP)
-	TestClient
-	Client
-	$(MAKE) --directory=pegasus/test -f Makefile tests
-	@ echo Terminating cimserver...
+	$(MAKE) --directory=pegasus -f Makefile poststarttests
 	@ $(CIMSERVER_STOP_SERVICE)
+	$(SLEEP)
 
 tests: $(TESTS)
 	@ echo Finished Tests

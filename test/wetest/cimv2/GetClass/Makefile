@@ -16,10 +16,4 @@ XMLSCRIPTS = \
 	   GetClass00016 \
 	   GetClass00017
 
-
-clean:
-	$(RM) $(XMLRESPONSES)
-	
-
-tests: $(XMLRESPONSES)
-
+include $(ROOT)/test/configend.mak

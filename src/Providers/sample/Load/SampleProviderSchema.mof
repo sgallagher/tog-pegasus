@@ -1,0 +1,3 @@
+#pragma include ("SampleProvider.mof")
+#pragma include ("MethodProvider.mof")
+

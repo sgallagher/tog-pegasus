@@ -18,6 +18,9 @@ else
   COMPARERESULTS = @$(ECHO) "Results not compared."
 endif
 
+default:
+
+
 cimstop:
 	$(CIMSERVER_STOP_SERVICE)
 	$(SLEEP)

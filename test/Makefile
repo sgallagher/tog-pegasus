@@ -1,16 +1,10 @@
 ROOT = ..
 
 include $(ROOT)/mak/config.mak
-include $(ROOT)/test/config.mak
 
-all: clean tests
+DIRS = \
+   TestProviders \
+   wetest
 
-clean:
-	$(MAKE) --directory=TestProviders clean
-	$(MAKE) --directory=TestProviders all
-	$(MAKE) --directory=wetest clean
+include $(ROOT)/mak/recurse.mak
 
-tests:
-	$(MAKE) --directory=wetest tests
-
-# DO NOT DELETE

@@ -5,8 +5,5 @@ include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = ModifyClass43000 ModifyClass43001 ModifyClass43002 ModifyClass43003 ModifyClass43004 ModifyClass43005
 
-clean:
-	$(RM) $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak
 
-
-tests: $(XMLRESPONSES)

@@ -9,7 +9,4 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 XMLSCRIPTS += GetInstance52004
 endif
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

@@ -6,8 +6,4 @@ include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = EnumerateInstanceNames25000 EnumerateInstanceNames25001 EnumerateInstanceNames25002
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

@@ -8,8 +8,4 @@ XMLSCRIPTS = \
    GetProperty82100 \
    SetProperty82200
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

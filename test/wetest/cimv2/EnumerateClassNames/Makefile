@@ -7,8 +7,4 @@ include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = EnumerateClassNames20001 EnumerateClassNames20002 EnumerateClassNames20003
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

@@ -9,8 +9,4 @@ XMLSCRIPTS = GetQualifier37001 GetQualifier37002
 
 BROKERNXMLSCRIPTS = GetQualifier37000 
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

@@ -12,8 +12,8 @@ MOF_PATH = $(ROOT)/Schemas/CIM25
 
 tests:
 	@ $(RMDIRHIER) ./repository
-	@ cimmof -R. -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core25.mof
-	@ cimmof -R. -nroot CompAssoc.mof
+	@ cimmofl -R. -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core25.mof
+	@ cimmofl -R. -nroot CompAssoc.mof
 	@ $(PROGRAM)
 	@ $(RMDIRHIER) ./repository
 

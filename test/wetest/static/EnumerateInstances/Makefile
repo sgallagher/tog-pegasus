@@ -9,8 +9,4 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 XMLSCRIPTS += EnumerateInstances51000
 endif
 
-clean:
-	$(RM) $(XMLRESPONSES)
-
-
-tests: $(XMLRESPONSES)
+include $(ROOT)/test/configend.mak

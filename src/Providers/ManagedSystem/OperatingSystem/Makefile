@@ -31,20 +31,11 @@
 
 ROOT = ../../../..
 
-PROVIDERROOT = $(ROOT)/src/Providers/linux
-PROVIDERINCLUDE_ROOT = $(PROVIDERROOT)/Include
-PROVIDERSUPPORT_ROOT = $(PROVIDERROOT)/ProviderSupport
-PROVIDERDATA_ROOT    = $(PROVIDERROOT)/ProviderData
-
 DIR = Providers/ManagedSystem/OperatingSystem
 
 include $(ROOT)/mak/config.mak
 
 LIBRARY = OSProvider
-
-EXTRA_INCLUDES = -I$(PROVIDERDATA_ROOT)/OperatingSystem \
-		-I$(PROVIDERDATA_ROOT)/Include \
-		-I$(PROVIDERDATA_ROOT)
 
 SOURCES = \
 	OperatingSystemProvider.cpp \

@@ -56,7 +56,7 @@
 
 PEGASUS_USING_STD;
 
-#define DEBUG(X) // Logger::put(Logger::DEBUG_LOG, "Linux OSProvider",Logger::INFORMATION, "$0", X)
+#define OSP_DEBUG(X) // Logger::put(Logger::DEBUG_LOG, "Linux OSProvider",Logger::INFORMATION, "$0", X)
 
 OperatingSystem::OperatingSystem(void)
 {

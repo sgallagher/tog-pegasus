@@ -43,7 +43,7 @@
 
 PEGASUS_USING_STD;
 
-#define DEBUG(X) // cout << "OperatingSystemProvider" <<  X << endl;
+#define OSP_DEBUG(X) // cout << "OperatingSystemProvider" <<  X << endl;
 
 #define STANDARDOPERATINGSYSTEMCLASS CIMName ("CIM_OperatingSystem")
 #define EXTENDEDOPERATINGSYSTEMCLASS CIMName ("PG_OperatingSystem")
@@ -144,19 +144,19 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
         throw CIMInvalidParameterException("Wrong keys");
      }
 
-    DEBUG("losp-> getInstance got the right keys");
+    OSP_DEBUG("losp-> getInstance got the right keys");
 
     handler.processing();
 
     //-- fill 'er up...
     instance = _build_instance(ref);
 
-    DEBUG("losp-> getInstance built an instance");
+    OSP_DEBUG("losp-> getInstance built an instance");
 
     handler.deliver(instance);
     handler.complete();
 
-    DEBUG("losp-> getInstance done");
+    OSP_DEBUG("losp-> getInstance done");
     return;
 }
 

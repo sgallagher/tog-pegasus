@@ -38,7 +38,7 @@
 
 #include "OperatingSystemProvider.h"
 
-#define DEBUG(X) // cout << "OS Provider" << X << endl;
+#define OSP_DEBUG(X) // cout << "OS Provider" << X << endl;
 #define OPERATINGSYSTEMPROVIDERNAME "PG_OperatingSystemProvider" 
 
 extern "C" 
@@ -46,10 +46,10 @@ PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
    if (String::equalNoCase(providerName, OPERATINGSYSTEMPROVIDERNAME))
    {
-	DEBUG("losp-> started up provider");
+	OSP_DEBUG("losp-> started up provider");
 	return(new OperatingSystemProvider());
    }
-   DEBUG("losp-> started with ?" + providerName);
+   OSP_DEBUG("losp-> started with ?" + providerName);
    return NULL;
 }
 

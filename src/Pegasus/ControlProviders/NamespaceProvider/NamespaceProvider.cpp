@@ -90,18 +90,16 @@ void NamespaceProvider::createInstance(
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::createInstance()");
 
-	KeyBinding        kb;
-        String            keyName;
         String            keyValueString;
        //
        // check if the class name requested is correct
        //
        if ((!CIMName::equal(instanceReference.getNameSpace(), __NAMESPACE_NAMESPACE)) ||
-           (!CIMName::equal(instanceReference.getClassName(), CLASSNAME)))
+           (!CIMName::equal(myInstance.getClassName(), CLASSNAME)))
        {
 	   PEG_METHOD_EXIT();
 	   throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-				       instanceReference.getClassName());
+				       myInstance.getClassName());
        }
 
        try
@@ -174,7 +172,19 @@ void NamespaceProvider::createInstance(
                    CIM_ERR_FAILED, e.getMessage());
        }
 
-       handler.deliver(instanceReference);
+       Array<KeyBinding> kbArray;
+       KeyBinding        kb;
+
+       kb.setName(NAMESPACE_NAME);
+       kb.setValue(keyValueString);
+       kb.setType(KeyBinding::STRING);
+       kbArray.append(kb);
+
+       CIMObjectPath newInstanceReference = instanceReference;
+       newInstanceReference.setClassName(CLASSNAME);
+       newInstanceReference.setKeyBindings(kbArray);
+           
+       handler.deliver(newInstanceReference);
 
        // complete processing the request
        handler.complete();

@@ -151,12 +151,14 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 	//    instanceNames   
 	//}
 	// Create the new instance
+
+        CIMObjectPath newInstanceName;
 	try
 	{
 	    // Build the new instance
 	    CIMInstance newInstance(instanceName);
 	    newInstance.addProperty(CIMProperty("name", testNamespaceName));
-	    client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
+	    newInstanceName = client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
 	}
 	catch(CIMClientException& e)
 	{
@@ -170,8 +172,25 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 	    PEGASUS_STD(cerr) << "Exception NameSpace Creation: " << e.getMessage() << PEGASUS_STD(endl);
 	    return;
 	}
+        // Now try getting the instance.
+	try
+	{
+	    client.getInstance(__NAMESPACE_NAMESPACE, newInstanceName);
+	}
+	catch(CIMClientException& e)
+	{
+	     PEGASUS_STD(cerr) << "CIMClientException NameSpace getInstance: "
+			<< e.getMessage() << " Retrieving " << instanceName
+		        << PEGASUS_STD(endl);
+	     return;
+	}
+	catch(Exception& e)
+	{
+	    PEGASUS_STD(cerr) << "Exception NameSpace getInstance: " << e.getMessage() << PEGASUS_STD(endl);
+	    return;
+	}
 
-	// Creation was OK.  Now delete it
+	// Now delete it
 
 	try
 	{

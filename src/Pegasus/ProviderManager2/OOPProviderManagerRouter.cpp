@@ -529,13 +529,6 @@ void ProviderAgentContainer::_startAgentProcess()
     _pipeToAgent.reset(pipeToAgent.release());
     _pipeFromAgent.reset(pipeFromAgent.release());
 
-#if defined (PEGASUS_OS_VMS)
-    //
-    // Denote end of switch
-    //
-    }
-#endif
-
     PEG_METHOD_EXIT();
 }
 

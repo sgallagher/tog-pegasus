@@ -3,7 +3,8 @@
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    CGIClient \
+    CLITestClients \
+	CGIClient \
     TestClient \
     cliutils \
     cimconfig \
@@ -14,9 +15,8 @@ DIRS = \
     osinfo \
     wbemexec \
     wbemexec/tests \
-    ToMofClient\
-    tomof \
-    CLITestClients
+    tomof
+
 
 #The following tests are NOT included as part of the standard
 #regession test.  The cimuser tests require PrivilegedUser

@@ -7,9 +7,17 @@
 ##
 ################################################################################
 
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+  _NO_TMP_O = yes
+endif
+
+ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
+  _NO_TMP_O = yes
+endif
+
 _TMP_O = $(PEGASUS_PLATFORM).o
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(_NO_TMP_O), yes)
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)
 	$(CXX) -c -o $@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 	@ $(TOUCH) $@

@@ -49,6 +49,8 @@ ProviderMessageFacade::~ProviderMessageFacade(void)
 
 Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 {
+   Message * response = 0;
+
    try
    {
 
@@ -56,16 +58,16 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
     switch(message->getType())
     {
     case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-        return _handleGetInstanceRequest(message);
+        response = _handleGetInstanceRequest(message);
         break;
     case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-	return _handleEnumerateInstancesRequest(message);
+	response = _handleEnumerateInstancesRequest(message);
 	break;
     case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-	return _handleEnumerateInstanceNamesRequest(message);
+	response = _handleEnumerateInstanceNamesRequest(message);
 	break;
     case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-	return _handleCreateInstanceRequest(message);
+	response = _handleCreateInstanceRequest(message);
 	break;
        case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
        {
@@ -76,37 +78,37 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
        cout << " modify instance response " << "type " << ret->getType() << " dest " << ret->dest << endl;
 
        cout << " leaving ProviderMessageFacade::handleRequestMessage " << endl;
-       return ret;
+       response = ret;
        }
 
        break;
 
     case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-       return _handleDeleteInstanceRequest(message);
+       response = _handleDeleteInstanceRequest(message);
 	break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-	return _handleExecuteQueryRequest(message);
+	response = _handleExecuteQueryRequest(message);
 	break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-	return _handleAssociatorsRequest(message);
+	response = _handleAssociatorsRequest(message);
 	break;
     case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-	return _handleAssociatorNamesRequest(message);
+	response = _handleAssociatorNamesRequest(message);
 	break;
     case CIM_REFERENCES_REQUEST_MESSAGE:
-	return _handleReferencesRequest(message);
+	response = _handleReferencesRequest(message);
 	break;
     case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-	return _handleReferenceNamesRequest(message);
+	response = _handleReferenceNamesRequest(message);
 	break;
     case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-	return _handleGetPropertyRequest(message);
+	response = _handleGetPropertyRequest(message);
 	break;
     case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-	return _handleSetPropertyRequest(message);
+	response = _handleSetPropertyRequest(message);
 	break;
     case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-	return _handleInvokeMethodRequest(message);
+	response = _handleInvokeMethodRequest(message);
 	break;
     case CIM_GET_CLASS_REQUEST_MESSAGE:
     case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
@@ -125,7 +127,9 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
       ;
    }
 
-    return(0);
+    delete message;
+
+    return(response);
 }
 
 Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) throw()

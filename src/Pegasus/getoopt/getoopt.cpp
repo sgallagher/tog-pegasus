@@ -130,10 +130,14 @@ void Optarg::Value (int &i) const  throw (TypeMismatchException)
     }
     if (valid)
     {
-        if (!(sscanf (s, "%d", &i)))
+        Sint64 i64;
+        if ( !(sscanf (s, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", &i64)) ||
+             (i64 != Sint64(Sint32(i64))) )
         {
             throw TypeMismatchException ();
         }
+
+        i = Sint32(i64);
     }
     else
     {
@@ -159,10 +163,14 @@ void Optarg::Value (unsigned int &i) const throw (TypeMismatchException)
     }
     if (valid)
     {
-        if (!(sscanf (s, "%u", &i)))
+        Uint64 i64;
+        if ( !(sscanf (s, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", &i64)) ||
+             (i64 != Uint64(Uint32(i64))) )
         {
             throw TypeMismatchException ();
         }
+
+        i = Uint32(i64);
     }
     else
     {

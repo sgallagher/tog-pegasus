@@ -242,24 +242,14 @@ void XmlWriter::append(Array<Sint8>& out, Sint32 x)
 void XmlWriter::append(Array<Sint8>& out, Uint64 x)
 {
     char buffer[32];  // Should need 21 chars max
-    // I know I shouldn't put platform flags here, but the other way is too hard
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    sprintf(buffer, "%I64u", x);
-#else
-    sprintf(buffer, "%llu", x);
-#endif
+    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
     append(out, buffer);
 }
 
 void XmlWriter::append(Array<Sint8>& out, Sint64 x)
 {
     char buffer[32];  // Should need 21 chars max
-    // I know I shouldn't put platform flags here, but the other way is too hard
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    sprintf(buffer, "%I64d", x);
-#else
-    sprintf(buffer, "%lld", x);
-#endif
+    sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
     append(out, buffer);
 }
 

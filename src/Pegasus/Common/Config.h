@@ -148,6 +148,11 @@
 #define PEGASUS_UINT64_LITERAL(X) (Uint64 (X##ULL))
 #endif
 
+// Used in printf and scanf conversion strings for Uint64 and Sint64 arguments
+#ifndef PEGASUS_64BIT_CONVERSION_WIDTH
+#define PEGASUS_64BIT_CONVERSION_WIDTH "ll"
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 typedef bool Boolean;  // If platform w/o bool, add flag and include Boolean.h

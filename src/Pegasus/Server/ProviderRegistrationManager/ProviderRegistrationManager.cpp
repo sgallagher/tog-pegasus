@@ -2975,8 +2975,10 @@ void ProviderRegistrationManager::_deleteInstance(
         // otherwise, remove the instance.
         //
 
-        for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+        Table::Iterator k=_registrationTable->table.start();
+        for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
         {
+            k++;
             instances = i.value()->getInstances();
 
             for (Uint32 j = 0; j < instances.size(); j++)
@@ -3160,8 +3162,10 @@ void ProviderRegistrationManager::_deleteInstance(
         // otherwise, remove the instance.
         //
 
-        for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+        Table::Iterator k=_registrationTable->table.start();
+        for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
         {
+            k++;
             Array<CIMInstance> instances;
 
             //
@@ -3355,8 +3359,10 @@ void ProviderRegistrationManager::_deleteInstance(
         // table; if the entry only has one instance, remove the entry;
         // otherwise, remove the instance.
         //
-        for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+        Table::Iterator k=_registrationTable->table.start();
+        for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
         {
+            k++;
             Array<CIMInstance> instances;
 
             //

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -141,7 +141,7 @@ Boolean _containsProperty(CIMProperty& property, const CIMPropertyList& property
    NOTE: This would be logical to be moved to CIMClass since it may be more general
    than this usage.
 */
-void _removeAllQualifiers(CIMClass cimClass)
+void _removeAllQualifiers(CIMClass & cimClass)
 {
     // remove qualifiers of the class
     Uint32 count = 0;
@@ -187,7 +187,7 @@ void _removeAllQualifiers(CIMClass cimClass)
    NOTE: This could be logical to be moved to CIMClass since it may be more general
    than the usage here.
 */
-void _removePropagatedQualifiers(CIMClass cimClass)
+void _removePropagatedQualifiers(CIMClass & cimClass)
 {
     Uint32 count = cimClass.getQualifierCount();
     // Remove nonlocal qualifiers from Class
@@ -1514,7 +1514,7 @@ void CIMRepository::_modifyClass(
     // instances in other repositories or in providers. We should do
     // an enumerate instance names at a higher level (above the repository).
     //
-    
+
 
     //
     // Delete the old file containing the class:
@@ -1551,7 +1551,7 @@ void CIMRepository::_modifyClass(
 	AssocClassTable::deleteAssociation(assocFileName[0], cimClass.getClassName());
 	// Create the association again.
 	_createAssocClassEntries(nameSpace, cimClass);
-      } 
+      }
       else
 	{
 	  PEG_METHOD_EXIT();
@@ -3034,7 +3034,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     // All chars above 0x7F will be escape.
       CIMQualifierDecl qualifier =
             _getQualifier(nameSpace, escapeStringDecoder(qualifierNames[i]));
-#else     
+#else
       CIMQualifierDecl qualifier =
             _getQualifier(nameSpace, qualifierNames[i]);
 #endif

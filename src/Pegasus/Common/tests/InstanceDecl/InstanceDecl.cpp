@@ -322,7 +322,9 @@ void test03()
     assert(px.identical(assocInstancePath));
 
 }
-
+//
+// Test of the Instance creation and instance filtering
+//
 void test04()
 {
     if (verbose)
@@ -372,8 +374,10 @@ void test04()
     Resolver::resolveClass (class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
 
+
 	if(verbose) {
 		XmlWriter::printClassElement(class1);
+
 	}
     //
     // Create instance with qualifiers, classorigin, and Null propertyList
@@ -416,16 +420,13 @@ void test04()
         assert(newInstance.getQualifierCount() == 0);
         assert(newInstance.getPropertyCount() == 0);
     }
-
     //
     // Test with a property that exists in property list.
     //
     {
         Array<CIMName> pl1Array;
-        CIMPropertyList pl1(pl1Array);
-        pl1.clear();
         pl1Array.append("ratio");
-        pl1.set(pl1Array);
+        CIMPropertyList pl1(pl1Array);
     
         CIMInstance newInstance = class1.buildInstance(false, true, pl1);
     
@@ -433,13 +434,11 @@ void test04()
             cout << "Test with one property in new instance" << endl;
     		XmlWriter::printInstanceElement(newInstance);
     	}
-        cout << " count of properties: " << newInstance.getPropertyCount() << endl;
         assert(newInstance.getPropertyCount() == 1);
         assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
         assert(newInstance.findProperty("message") == PEG_NOT_FOUND);
         assert(newInstance.getQualifierCount() == 0);
     }
-
     //
     // Test with a property that Does Not exist in property list and one that exists
     //
@@ -453,17 +452,168 @@ void test04()
     
         CIMInstance newInstance = class1.buildInstance(false, true, pl1);
     
-        if(verbose) {
-            cout << "Test with one property in new instance" << endl;
-    		XmlWriter::printInstanceElement(newInstance);
-    	}
-        cout << " count of properties: " << newInstance.getPropertyCount() << endl;
         assert(newInstance.getPropertyCount() == 1);
         assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
         assert(newInstance.findProperty("blob") == PEG_NOT_FOUND);
         assert(newInstance.findProperty("message") == PEG_NOT_FOUND);
         assert(newInstance.getQualifierCount() == 0);
+    }
+    ///////////////////////////////////////////////////////////////////////
+    //
+    // Instance Filtering function tests
+    //
+    ///////////////////////////////////////////////////////////////////////
 
+    // build instance as starting point for tests.
+    CIMInstance tstInstance = class1.buildInstance(true, true, CIMPropertyList());
+    //
+    // Test complete copy, no change
+    //
+    {
+        if (verbose){cout << "Test1" << endl;}
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, CIMPropertyList());
+
+        assert(tstInstance.identical(filterInstance));
+        assert(filterInstance.getPropertyCount() == 3);
+        assert(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+    //
+    // Filter to one property, ratio
+    //
+    {
+        if (verbose){cout << "Test2" << endl;}
+        Array<CIMName> pl1Array;
+        pl1Array.append("ratio");
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        if(verbose) {
+    		XmlWriter::printInstanceElement(filterInstance);
+    	}
+        assert(filterInstance.getPropertyCount() == 1);
+        assert(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        assert(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+
+    //
+    // Filter to one property, message
+    //
+    {
+        if (verbose){cout << "Test3" << endl;}
+        Array<CIMName> pl1Array;
+        pl1Array.append("message");
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        if(verbose) {
+    		XmlWriter::printInstanceElement(filterInstance);
+    	}
+        assert(filterInstance.getPropertyCount() == 1);
+        assert(filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        assert(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+
+    //
+    // Filter to one property, count
+    //
+    {
+        if (verbose){cout << "Test4" << endl;}
+        Array<CIMName> pl1Array;
+        pl1Array.append("count");
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        if(verbose) {
+    		XmlWriter::printInstanceElement(filterInstance);
+    	}
+        assert(filterInstance.getPropertyCount() == 1);
+        assert(filterInstance.findProperty("count") != PEG_NOT_FOUND);
+        assert(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+    //
+    // Filter to no properties
+    //
+    {
+        if (verbose){cout << "Test5" << endl;}
+        Array<CIMName> pl1Array;
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(true, true, pl1);
+
+        assert(filterInstance.getPropertyCount() == 0);
+        assert(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        assert(filterInstance.getQualifierCount() ==
+                tstInstance.getQualifierCount());
+    }
+    //
+    // Filter to two no qualifiers
+    //
+    {
+        if (verbose){cout << "Test6" << endl;}
+        Array<CIMName> pl1Array;
+        CIMPropertyList pl1(pl1Array);
+
+        CIMInstance filterInstance = tstInstance.clone();
+        filterInstance.filter(false, true, pl1);
+
+        assert(filterInstance.getPropertyCount() == 0);
+        assert(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        assert(filterInstance.getQualifierCount() == 0);
+    }
+
+    //
+    // Test Class Origin Filter
+    //
+    {
+        if (verbose){cout << "Test7 Class Origin" << endl;}
+
+        // Create a subclass to do classOrigin testing
+        CIMClass MySubClass(CIMName("subclass"));
+        MySubClass.setSuperClassName(CIMName("MyClass"));
+
+
+        Resolver::resolveClass (MySubClass, context, NAMESPACE);
+        context->addClass(NAMESPACE, MySubClass);
+        // build instance
+        CIMInstance filterInstance = MySubClass.buildInstance(true, true, CIMPropertyList());
+        filterInstance.filter(false, true, CIMPropertyList());
+
+        assert(filterInstance.getPropertyCount() == 3);
+        assert(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        assert(filterInstance.getQualifierCount() == 0);
+        for (Uint32 i = 0 ; i < filterInstance.getPropertyCount() ; i++)
+        {
+            CIMProperty p = filterInstance.getProperty(i);
+            assert(!(p.getClassOrigin() == CIMName()));
+
+        }
+        filterInstance.filter(false, false, CIMPropertyList());
+
+        for (Uint32 i = 0 ; i < filterInstance.getPropertyCount() ; i++)
+        {
+            CIMProperty p = filterInstance.getProperty(i);
+            assert(p.getClassOrigin() == CIMName());
+        }
+
+        CIMInstance filterInstance2 = MySubClass.buildInstance(true, false, CIMPropertyList());
+
+        for (Uint32 i = 0 ; i < filterInstance2.getPropertyCount() ; i++)
+        {
+            CIMProperty p = filterInstance2.getProperty(i);
+            assert(p.getClassOrigin() == CIMName());
+        }
     }
     delete context;
 }

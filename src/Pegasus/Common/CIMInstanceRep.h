@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObjectRep.h>
 #include <Pegasus/Common/Linkage.h>
-
+#include <Pegasus/Common/CIMPropertyList.h>
 PEGASUS_NAMESPACE_BEGIN
 
 class DeclContext;
@@ -71,6 +71,9 @@ public:
 
     CIMObjectPath buildPath(const CIMConstClass& cimClass) const;
 
+    void filter(Boolean includeQualifiers,
+            Boolean includeClassOrigin,
+            const CIMPropertyList & propertyList);
 private:
 
     CIMInstanceRep();

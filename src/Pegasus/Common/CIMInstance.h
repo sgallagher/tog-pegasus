@@ -40,6 +40,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -244,6 +245,44 @@ public:
                  false otherwise.
      */
     Boolean isUninitialized() const;
+
+    /**
+    Filter the properties, qualifiers and class origin attributes from this 
+    instance based on filtering criteria defined in the input parameters.  
+    Note that this function does not add anything that was not in the instance 
+    at the beginning of the call.  This function does NOT clone the instance 
+    but modifies the existing instance.  The function was defined specifically 
+    for providers to allow creating instances for a specific instance 
+    operation response corresponding to the parameters provided with the 
+    operation call (includeQualifiers, etc.) from a more general instance 
+    template.  
+    
+    @param includeQualifiers If false, qualifiers are removed from the 
+    instance and any properties included in the instance; otherwise no 
+    qualifiers are removed.  Because there is still confusion over the exact 
+    operation of this parameter in the CIM specifications and the concept of 
+    instance level qualifiers, the behavior of this function when the 
+    parameter is true MAY change in the future to match any future 
+    clarifications of interoperable behavior in the CIM specifications.  
+    
+    @param includeClassOrigin If false, ClassOrigin attributes are removed from
+    all properties.  Otherwise, ClassOrigin attributes are not filtered.
+    
+    @param propertyList This CIMPropertyList defines the list of properties that should be on the
+    instance after completion of the call. If not NULL, properties absent from this list will
+    be removed from the list. If NULL, no properties will be removed from the instance.
+    If empty, all properties will be removed from the instance.
+    
+    @return The CIMInstance with properties and qualifiers from this
+    instance based on the filtering criteria. 
+    
+    EXAMPLE: 
+        <Will be supplied with the code>
+    */ 
+
+    void filter(Boolean includeQualifiers,
+            Boolean includeClassOrigin,
+            const CIMPropertyList & propertyList);
 
 private:
 

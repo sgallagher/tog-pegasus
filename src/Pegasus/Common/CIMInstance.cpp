@@ -216,6 +216,14 @@ void CIMInstance::_checkRep() const
         throw UninitializedObjectException();
 }
 
+
+void CIMInstance::filter(Boolean includeQualifiers, Boolean includeClassOrigin,
+                        const CIMPropertyList& propertyList)
+{
+    _checkRep();
+    _rep->filter(includeQualifiers, includeClassOrigin, propertyList);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMConstInstance

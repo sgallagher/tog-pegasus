@@ -40,12 +40,12 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOMHandle::CIMOMHandle(void)
-    : _service(0), _cimom(0), _id(peg_credential_types::PROVIDER)
+    : _service(0), _cimom(0), _id(peg_credential_types::PROVIDER), _controller(0), _client_handle(0)
 {
 }
 
 CIMOMHandle::CIMOMHandle(MessageQueueService * service)
-    : _service(service), _cimom(0), _id(peg_credential_types::PROVIDER)
+    : _service(service), _cimom(0), _id(peg_credential_types::PROVIDER), _controller(0), _client_handle(0)
 {
     MessageQueue * queue =
         MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
@@ -53,7 +53,7 @@ CIMOMHandle::CIMOMHandle(MessageQueueService * service)
     _cimom = dynamic_cast<MessageQueueService *>(queue);
     _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
 
-    if((_service == 0) || (_cimom == 0) || (_client_handle == NULL))
+    if((_service == 0) || (_cimom == 0) || (_client_handle == 0))
     {
         ThrowUninitializedHandle();
     }
@@ -61,8 +61,10 @@ CIMOMHandle::CIMOMHandle(MessageQueueService * service)
 
 CIMOMHandle::~CIMOMHandle(void)
 {
-   _controller->return_client_handle(_client_handle);
-   
+    if(_controller != 0)
+    {
+        _controller->return_client_handle(_client_handle);
+    }
 }
 
 CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)

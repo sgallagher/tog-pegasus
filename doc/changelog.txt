@@ -29,6 +29,11 @@ Version 0.98.0 - Work in progress
 7. (Chip Vincent) - Update Provider2 interfaces. Made changes to Dispatcher and
    CIMProvider to support both interfaces. Added CIMOMHandle and sample 
    ResponseHandler for Provider2 interface.
+
+8. (Mike Brasher) - Replaced dispatcher with a queue-based dispatcher.
+
+9. (Mike Brasher) - Retrofited CIMOMHandle to be queue-based.
+
 ------------------------------------------------------------------------------
 --
 

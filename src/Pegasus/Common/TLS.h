@@ -1,70 +1,75 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////-*-c++-*-///////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_TLS_h
 #define Pegasus_TLS_h
 
+#ifdef PEGASUS_HAS_SSL
+#include <openssl/err.h>
+#include <openssl/ssl.h>
+#include <openssl/rand.h>
+#else
+#define SSL_CTX void
+#endif // end of PEGASUS_HAS_SSL
+
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/ReadWriteSem.h>
+
+// REVIEW: Figure out how this works (note to myself)?
+
 
 PEGASUS_NAMESPACE_BEGIN
+
 
 #ifdef PEGASUS_HAS_SSL
 class PEGASUS_COMMON_LINKAGE SSLSocket
 {
 public:
 
-    SSLSocket(
-        SocketHandle socket,
-        SSLContext * sslcontext,
-        ReadWriteSem * sslContextObjectLock,
-        const String& ipAddress);
+    SSLSocket(Sint32 socket, SSLContext * sslcontext)
+        throw(SSLException);
 
     ~SSLSocket();
 
-    Boolean incompleteSecureReadOccurred(Sint32 retCode);
+    Boolean incompleteReadOccurred(Sint32 retCode);
 
     Sint32 read(void* ptr, Uint32 size);
 
-    Sint32 timedWrite(const void* ptr,
-                      Uint32 size,
-                      Uint32 socketWriteTimeout);
+    Sint32 write(const void* ptr, Uint32 size);
 
     void close();
+
+    void enableBlocking();
 
     void disableBlocking();
 
@@ -72,58 +77,25 @@ public:
 
     static void uninitializeInterface();
 
-    SocketHandle getSocket() {return _socket;}
+    Sint32 getSocket() {return _socket;}
 
-    /**
-        Accepts the connection, performing the necessary SSL handshake.
-
-        @return Returns -1 on failure, 0 if not enough data is available to
-        complete the operation (retry needed), and 1 on success.
-     */
     Sint32 accept();
 
-    Sint32 connect(Uint32 timeoutMilliseconds);
-
-    Boolean isPeerVerificationEnabled();
-
-    Boolean isCertificateVerified();
-
-    /**
-        Gets peer certificate chain.
-
-        @return array of SSLCertificateInfo pointers if there is an
-                    SSLCallbackInfo pointer,
-                Otherwise an empty array
-     */
-    Array<SSLCertificateInfo*> getPeerCertificateChain();
+    Sint32 connect();
 
 private:
 
-    /**
-        This member is of type SSL*, but we don't want to expose a dependency
-        on the SSL include files in a header file.
-    */
-    void* _SSLConnection;
+    X509 *   _SSLCertificate;
+    SSL * _SSLConnection;
 
-    SocketHandle _socket;
+    Sint32 _socket;
     SSLContext * _SSLContext;
-    /**
-        Keeps a copy of the CRL store from the _SSLContext to prevent using a
-        dangling pointer when the CRL store is reloaded in the _SSLContext.
-    */
-    void* _crlStore;
-    ReadWriteSem * _sslContextObjectLock;
-    Uint32 _sslReadErrno;
-
-    AutoPtr<SSLCallbackInfo> _SSLCallbackInfo;
-    String _ipAddress;
-    Boolean _certificateVerified;
 };
 #else
 
 // offer a non ssl dummy class for use in MP_Socket
 
-class SSLSocket {};
+class PEGASUS_COMMON_LINKAGE SSLSocket {};
 
 #endif // end of PEGASUS_HAS_SSL
 
@@ -134,21 +106,18 @@ class SSLSocket {};
 class MP_Socket {
 
 public:
-    MP_Socket(SocketHandle socket);                          // "normal" socket
+    MP_Socket(Uint32 socket);                          // "normal" socket
 
-    MP_Socket(
-        SocketHandle socket,
-        SSLContext * sslcontext,
-        ReadWriteSem * sslContextObjectLock,
-        const String& ipAddress = String::EMPTY);
+    MP_Socket(Uint32 socket, SSLContext * sslcontext)
+         throw(SSLException);                          // secure socket
 
     ~MP_Socket();
 
     Boolean isSecure();
 
-    Boolean incompleteSecureReadOccurred(Sint32 retCode);
+    Boolean incompleteReadOccurred(Sint32 retCode);
 
-    SocketHandle getSocket();
+    Sint32 getSocket();
 
     Sint32 read(void* ptr, Uint32 size);
 
@@ -156,62 +125,105 @@ public:
 
     void close();
 
+    void enableBlocking();
+
     void disableBlocking();
 
-    /**
-        Accepts the connection, performing an SSL handshake if applicable.
-
-        @return Returns -1 on failure, 0 if not enough data is available to
-        complete the operation (retry needed), and 1 on success.
-     */
     Sint32 accept();
 
-    Sint32 connect(Uint32 timeoutMilliseconds);
-
-    Boolean isPeerVerificationEnabled();
-
-    Array<SSLCertificateInfo*> getPeerCertificateChain();
-
-    Boolean isCertificateVerified();
-
-    void setSocketWriteTimeout(Uint32 socketWriteTimeout);
-
-#ifdef PEGASUS_OS_ZOS
-    // Return the authenicated user name
-    String getAuthenticatedUser() { return String(_username); }
-    // Is the client authenticated ?
-    Boolean isClientAuthenticated() { return _userAuthenticated; }
-    // What was type of authentication ?
-    String getAuthType() { return _authType; }
-#endif
+    Sint32 connect();
 
     union {
-        SocketHandle _socket;
+        Uint32    _socket;
         SSLSocket *_sslsock;
     };
 
 private:
     Boolean   _isSecure;
-    Uint32    _socketWriteTimeout;
-
-#ifdef PEGASUS_OS_ZOS
-    // Query a AT-TLS secured socket for the authenticated
-    // client userID.
-    int ATTLS_zOS_query();
-
-    // Query a UNIX Domain socket (local socket) for
-    // the connected client userID.
-    int LocalSocket_zOS_query();
-
-    // The user name if authenticated.
-    char _username[10];
-    // Was a user authenticated ?
-    Boolean _userAuthenticated;
-    // Was it AT-TLS or UNIX Domain authentication ?
-    String _authType;
-#endif
-
 };
+
+
+//  <<< Thu Jul  3 13:50:29 2003 mdd >>> pep_88
+/*****************************************************************
+ *
+ *  The socket support in pegasus is schizophrenic. Some code uses 
+ *  an Sint32 (fd) as a socket, while other code uses a pointer to an 
+ *  MP_Socket, which is kind of a container for either an Sint32 socket 
+ *  or an SSL socket. 
+ *
+ *  Then there is also the local socket. (AF_UNIX). 
+ *
+ *  What we need to make all of this coherent is a general-purpose
+ *  socket class that uses polymorphism to provide a good sockets
+ *  interface.
+ *  Because of what we are planning for the pep_88 connection management
+ *  code this general-purpose socket class should be reference counted.
+ *
+ *****************************************************************/ 
+
+
+
+class PEGASUS_COMMON_LINKAGE abstract_socket 
+{
+
+   public:
+      abstract_socket(void);
+      abstract_socket(int type, int style, int protocol);
+      abstract_socket(int type, int style, int protocol, SSL_Context * ssl_context);
+      abstract_socket(const abstract_socket& s);
+      ~abstract_socket(void);
+      
+      abstract_socket& operator=(const abstract_socket& s);
+      operator Sint32() const;
+
+      socket(int type, int style, int protocol);
+      socket(int type, int style, int protocol, SSL_Context *ssl_context);
+      
+      
+      
+      Sint32 read(void* ptr, Uint32 size);
+      Sint32 write(const void* ptr, Uint32 size);
+      void close(void);
+      void enableBlocking(void);
+      void disableBlocking(void);
+      void initializeInterface(void);
+      void uninitializeInterface(void);
+      
+
+      int getsockname (struct sockaddr *addr, socklen_t *length-ptr);
+      int bind (socket, struct sockaddr *addr, socklen_t length);
+     
+      // change socklen_t to size_t for ZOS and windows
+      abstract_socket accept (struct sockaddr *addr, socklen_t *length-ptr);
+      int connect (int socket, struct sockaddr *addr, socklen_t length);
+      int shutdown(int how);
+      int listen(int q);
+      int getpeername (struct sockaddr *addr, size_t *length-ptr);
+      int send (void *buffer, size_t size, int flags);
+      int recv (void *buffer, size_t size, int flags);
+      int sendto(void *buffer. size_t size, int flags, struct sockaddr *addr, socklen_t length);
+      int recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, socklen_t *length-ptr);
+      int setsockopt (int level, int optname, void *optval, socklen_t optlen);
+      int getsockopt (int level, int optname, void *optval, socklen_t *optlen-ptr);
+
+
+      Boolean incompleteReadOccurred(Sint32 retCode);
+      Boolean is_secure(void);
+      void set_close_on_exec(void);
+      
+
+   private:
+      class abstract_socket_rep;
+      abstract_socket_rep * _rep;
+
+      int _type;
+      int _style;
+      int _protocol;
+
+      AtomicInt _initialized;
+      
+};
+
 
 
 

@@ -54,13 +54,51 @@
 
 #include "PAMBasicAuthenticator.h"
 
+#ifdef PEGASUS_HAS_SIGNALS
+
+#if defined (PEGASUS_OS_LINUX)
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/signal.h>
+#endif
+
+#else // PEGASUS_HAS_SIGNALS
+
+
+#endif // PEGASUS_HAS_SIGNALS
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+
 #include <security/pam_appl.h>
 
 #define BUFFERLEN 1024
+
+#if defined (PEGASUS_OS_LINUX)
+
+void childSignalHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
+{
+    pid_t cpid = 0;
+    int waitcode = 0;
+    PEG_METHOD_ENTER(TRC_SERVER, "childSignalHandler");
+
+    if (s_n == PEGASUS_SIGCHLD)  {
+    	Tracer::trace(TRC_SERVER, Tracer::LEVEL4, "Signal from a child %d", s_n);
+	while( (cpid = waitpid(waitcode, NULL, WNOHANG)) > 0) 
+		;
+	
+	if(cpid < 0)
+	{
+    		Tracer::trace(TRC_SERVER, Tracer::LEVEL4, "waitpid error: %d", errno);
+		/* Reset the error */
+		errno=0;
+	}
+    }
+    PEG_METHOD_EXIT();
+}
+#endif
 
 /**
     Constant representing the Basic authentication challenge header.
@@ -479,7 +517,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
     }
     if (continue_PAMauthentication)
     {
-#if defined (PEGASUS_OS_HPUX)
+#if defined (PEGASUS_OS_LINUX)
 	/*
 	From signal manpage on Linux:
 	"  According  to  POSIX  (3.3.1.3)  it  is  unspecified  what happens when
@@ -495,7 +533,9 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
 
 	HP-UX being a SYSV system behaves differently. 
 	*/
-
+	getSigHandle()->registerHandler(PEGASUS_SIGCHLD, childSignalHandler);
+	getSigHandle()->activate(PEGASUS_SIGCHLD);
+#else
         SignalHandler::ignore(PEGASUS_SIGCHLD);  // Allows child death
 #endif
         if ((pid = fork()) < 0)

@@ -5650,10 +5650,17 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
    exception=true;
 #else
    if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false) {
-	   	SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
-	      cimException =
-         PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
-         sub_cntr.getQueryLanguage());
+		try { 
+	   		SubscriptionFilterConditionContainer sub_cntr =  request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
+			cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, sub_cntr.getQueryLanguage());
+		} catch (Exception) 
+			{
+			cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
+			}
+		catch (...)
+			{
+			cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,"Caught unhandled exception (...)");
+			}
       exception=true;
    }
 #endif

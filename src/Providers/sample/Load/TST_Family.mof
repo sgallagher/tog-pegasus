@@ -31,10 +31,10 @@
 // we can test the use of association in the repository and in a sample provider.
 // We chose person because it is easy to see the relationships.
 
-    [Description (" Top Level Class that defines "
+    [Version(1.0.0), Description (" Top Level Class that defines "
         "a person. We will use this in static assoociation "
         "relationship ")]
-class TST_Person
+class TST_Person: CIM_ManagedElement
 {
     [key]
     string name;
@@ -42,7 +42,7 @@ class TST_Person
 
 // This is the first one we want to make dynamic
 
-    [ Description ( "Defines a subclass that is "
+    [Version(1.0.0), Description ( "Defines a subclass that is "
         "supported by a provider for the test. "
         "See the SamplePerson Provider. ") ]
 class TST_PersonDynamic:TST_Person
@@ -50,14 +50,14 @@ class TST_PersonDynamic:TST_Person
 };
 
 // Second level Subclass 
-    [ Description ( "Defines a 2nd levelsubclass that is "
+    [Version(1.0.0), Description ( "Defines a 2nd levelsubclass that is "
         "supported by a provider for the test. "
         "See the SamplePerson Provider. ") ]
 class TST_PersonDynamicSubClass:TST_PersonDynamic
 {
 };
 
-[Association, Description(" Lineage defines the "
+[Association, Version(1.0.0), Description(" Lineage defines the "
 "relationship between parents and children.") ]
 class TST_Lineage
 {
@@ -65,7 +65,8 @@ class TST_Lineage
     [key] TST_Person ref child;
 };
 
-[association]
+
+[association,Version(1.0.0), Description("Adds a Property."]
 class TST_LabeledLineage
 {
     string label;
@@ -83,6 +84,13 @@ class TST_LineageDynamic
     [key] TST_Person ref child;
 };
 
+[Association, Description(" Lineage defines the "
+"relationship between parents and children.") ]
+class TST_LineageDynamicSubClass
+{
+    [key] TST_PersonDynamic ref parent;
+    [key] TST_PersonDynamic ref child;
+};
 [association]
 class TST_LabeledLineageDynamic
 {

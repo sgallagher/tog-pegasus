@@ -1,0 +1,14 @@
+
+Notes on building for TRU64:
+
+1. Be sure GNU make is on your path before the ordinary make (it must be called
+   "make".
+
+2. Set the PEGASUS_PLATFORM variable to "TRU64_ALPHA_DECXX"
+
+3. Need bison and flex
+
+4. Be sure to put PEGASUS_HOME/bin on your PATH
+
+5. Be sure to put PEGASUS_HOME/lib on your LD_LIBRARY_PATH
+

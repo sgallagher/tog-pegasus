@@ -41,7 +41,11 @@
    Includes.
    ========================================================================== */
 
-#include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/CIMDateTime.h>
+
 #include <sys/dirent.h>   // readdir
 #include <time.h>         // localtime
 #include <sys/param.h>    // pstat

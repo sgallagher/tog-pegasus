@@ -557,8 +557,6 @@ CIMInstance CIMRepository::getInstance(
 
     Uint32 index;
 
-    // ATTN-A: Need to put instance name in standard form:
-
     if (!InstanceIndexFile::lookup(indexPath, instanceName, index))
 	throw CIMException(CIMException::FAILED);
 

@@ -84,7 +84,7 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 
 	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			  "Creating Provider " + *(parms->providerName) );
-	 
+
 	 ProviderModule *module;
 	 if( false  == _modules.lookup(*(parms->fileName), module) )
 	 {
@@ -190,11 +190,17 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	       }
 	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 				"Destroying Provider " + pr->_name );
+
 	       delete pr->_module;
 	    }
 	    
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			     "Destroying Provider's CIMOM Handle " + pr->_name );
+
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            	"ProviderManager::_provider_crtl -  Unload provider $0",
+	       		    pr->_name);
+
 	    delete pr->_cimom_handle;
 	    delete pr;
 	 }
@@ -343,6 +349,11 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	       delete provider->_cimom_handle;
 	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 				"Destroying Provider: " + provider->getName());
+
+	       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	             	   "ProviderManager::_provider_crtl -  Unload provider $0",
+	       		       provider->getName());
+
 	       delete provider;
 	    }
 	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
@@ -402,6 +413,10 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 
 		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 				      "Removing Provider " + provider->getName());
+
+	             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	                   	     "ProviderManager::_provider_crtl -  Unload idle provider $0",
+	       		              provider->getName());
 
 		     myself->_providers.remove(provider->_name);
 		     i = myself->_providers.start();

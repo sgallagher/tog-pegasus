@@ -699,10 +699,16 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
 
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->instanceName.getClassName().getString());	
+	
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
-            request->nameSpace,
+            request->nameSpace.getString(),
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
@@ -798,6 +804,11 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
 
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleEnumerateInstancesRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->className.getString());	
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -893,6 +904,12 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
     // process the request
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleEnumerateInstanceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->className.getString());	
+
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -982,6 +999,12 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
 
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleCreateInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->newInstance.getPath().getClassName().getString());	
+
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1073,6 +1096,12 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
 
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->modifiedInstance.getPath().getClassName().getString());	
+
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1168,6 +1197,12 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
 
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->instanceName.getClassName().getString());	
+
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1332,6 +1367,12 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
     // process the request
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleAssociationNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->objectName.getClassName().getString());	
+
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1433,6 +1474,12 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
     // process the request
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->objectName.getClassName().getString());	
+
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1541,6 +1588,12 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
     // process the request
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleReferenceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->objectName.getClassName().getString());	
+
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1648,6 +1701,12 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
 
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleGetPropertyRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->instanceName.getClassName().getString());	
+
     	// make target object path
     	CIMObjectPath objectPath(
     	    System::getHostName(),
@@ -1742,6 +1801,12 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
 
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleSetPropertyRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->instanceName.getClassName().getString());	
+
     	// make target object path
     	CIMObjectPath objectPath(
     	    System::getHostName(),
@@ -1843,6 +1908,12 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
 
     try
     {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	            "ProviderManagerService::handleInvokeMethodRequest - Host name: $0  Name space: $1  Class name: $2",
+	            System::getHostName(),
+	   	    request->nameSpace.getString(),
+ 	            request->instanceName.getClassName().getString());	
+
         // make target object path
         CIMObjectPath objectPath(
             System::getHostName(),
@@ -1965,6 +2036,12 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 		request->nameSpace,
 		request->classNames[i]);
 
+	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	                "ProviderManagerService::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+	                System::getHostName(),
+	   	        request->nameSpace.getString(),
+ 	                className.toString());
+
 	    classNames.append(className);
 	}
 	
@@ -2063,6 +2140,12 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
                 request->nameSpace,
                 request->classNames[i]);
 
+	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	                "ProviderManagerService::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+	                System::getHostName(),
+	   	        request->nameSpace.getString(),
+ 	                className.toString());
+
             classNames.append(className);
         }
 
@@ -2158,6 +2241,12 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
                 System::getHostName(),
                 request->nameSpace,
                 request->classNames[i]);
+
+	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	                "ProviderManagerService::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+	                System::getHostName(),
+	   	        request->nameSpace.getString(),
+ 	                className.toString());
 
             classNames.append(className);
         }

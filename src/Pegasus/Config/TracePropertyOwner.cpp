@@ -295,9 +295,7 @@ void TracePropertyOwner::initCurrentValue(
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        _traceComponents->currentValue = value;
-	Tracer::setTraceComponents(_traceComponents->currentValue);
-        if (_traceFilePath->currentValue != String::EMPTY && _traceComponents->currentValue != String::EMPTY)
+        if (_traceFilePath->currentValue != String::EMPTY && value != String::EMPTY)
         {
             CString fileName = _traceFilePath->currentValue.getCString();
 	    if (Tracer::isValidFileName(fileName))
@@ -320,6 +318,8 @@ void TracePropertyOwner::initCurrentValue(
                 }
             }
         }
+        _traceComponents->currentValue = value;
+	Tracer::setTraceComponents(_traceComponents->currentValue);
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {

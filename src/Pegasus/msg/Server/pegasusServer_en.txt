@@ -2842,7 +2842,7 @@ en:table {
         *   Do not translate the word 'IPARAMVALUE' since it is a standard element name for CIM in XML 
         * @version 2.4 
         */
-        Common.XmlReader.INVALID_NULL_IPARAMVALUE:string {"PGS09669: A null value is not valid for IPARAMVALUE \"{0}\"."
+        Common.XmlReader.INVALID_NULL_IPARAMVALUE:string {"PGS09669: A null value is not valid for IPARAMVALUE \"{0}\"."}
 
 
         // ==========================================================

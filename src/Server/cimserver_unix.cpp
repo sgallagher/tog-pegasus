@@ -27,7 +27,6 @@
 //		 Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //       Marek Szermutzky, IBM (ddt6szer@de.ibm.com)
 //%/////////////////////////////////////////////////////////////////////////////
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #if defined(PEGASUS_OS_HPUX)
@@ -45,7 +44,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 Boolean handleSigUsr1 = false;
-
+Boolean graveError = false;
 void cim_server_service(int argc, char **argv ) { return; }  
 
 pid_t server_pid;
@@ -55,17 +54,24 @@ void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
     handleSigUsr1 = true;
 }
 
+void sigTermHandler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
+{
+    graveError= handleSigUsr1=true;
+} 
 // daemon_init , RW Stevens, "Advance UNIX Programming"
 
 int cimserver_fork(void) 
 { 
 getSigHandle()->registerHandler(PEGASUS_SIGUSR1, sigUsr1Handler);
 getSigHandle()->activate(PEGASUS_SIGUSR1);
+getSigHandle()->registerHandler(SIGTERM, sigTermHandler);
+getSigHandle()->activate(SIGTERM);
  
   pid_t pid;
   if( (pid = fork() ) < 0) 
   {
       getSigHandle()->deactivate(PEGASUS_SIGUSR1);
+      getSigHandle()->deactivate(SIGTERM);
       return(-1);
   }
   else if (pid != 0)
@@ -82,7 +88,7 @@ getSigHandle()->activate(PEGASUS_SIGUSR1);
 	    sleep(1);
 	    waitTime--;
       }
-      exit(0);
+      exit(graveError);
   }
   
   setsid();
@@ -90,7 +96,6 @@ getSigHandle()->activate(PEGASUS_SIGUSR1);
 
   // get the pid of the cimserver process
   server_pid = getpid();
-
   return(0);
 }
 
@@ -324,9 +329,11 @@ int cimserver_kill(void)
 
 // notify parent process to terminate so user knows that cimserver
 // is ready to serve CIM requests.
-void notify_parent(void)
+void notify_parent(int id)
 {
   pid_t ppid = getppid();
-
-  kill(ppid, PEGASUS_SIGUSR1); 
+  if (id)
+   kill(ppid, SIGTERM);
+  else
+   kill(ppid, PEGASUS_SIGUSR1); 
 }

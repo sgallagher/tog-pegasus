@@ -297,7 +297,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
         PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
 #endif
-        cimserver_exit(0);
+        cimserver_exit(1);
     }
 
     try
@@ -823,7 +823,7 @@ int main(int argc, char** argv)
     {
         if(-1 == cimserver_fork())
 #ifndef PEGASUS_OS_OS400
-	{
+	{	
 	    exit(-1);
 	}
 #else
@@ -866,7 +866,7 @@ int main(int argc, char** argv)
         // notify parent process (if there is a parent process) to terminate
         //
         if (daemonOption)
-                notify_parent();
+                notify_parent(1);
 
         exit(1);
     }
@@ -929,9 +929,9 @@ int main(int argc, char** argv)
         server.bind();
 
 	// notify parent process (if there is a parent process) to terminate 
-        // so user knows that cimserver is ready to serve CIM requests.
+        // so user knows that there is cimserver ready to serve CIM requests.
 	if (daemonOption)
-		notify_parent();
+		notify_parent(0);
 
 	time_t last = 0;
 
@@ -1019,10 +1019,10 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-#ifdef PEGASUS_OS_OS400
 	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
 		    "Error: $0", e.getMessage()); 
-#else
+
+#ifndef PEGASUS_OS_OS400
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 #endif
 
@@ -1030,7 +1030,7 @@ int main(int argc, char** argv)
         // notify parent process (if there is a parent process) to terminate
         //
         if (daemonOption)
-                notify_parent();
+                notify_parent(1);
 
         return 1;
     }

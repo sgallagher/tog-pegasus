@@ -160,9 +160,9 @@ redo_accept:
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
        TLS_DEBUG(cerr << "Shutdown SSL_accept()\n";)
        TLS_DEBUG(cerr << "Error Code: " << ssl_rsn << " \n";)
-       char *errStr =  ERR_error_string(ssl_rc, NULL);
-       TLS_DEBUG(cerr << "Error string: " << errStr << " \n";)
-       ERR_print_errors_fp(stderr);
+
+       TLS_DEBUG(cerr << "Error string: " << ERR_error_string(ssl_rc, NULL) << " \n";)
+       TLS_DEBUG(ERR_print_errors_fp(stderr));
 
        return -1;
     }
@@ -221,7 +221,7 @@ redo_connect:
     else if (ssl_rc == 0)
     {
        TLS_DEBUG(cerr << "--->Shutdown SSL_connect()\n";)
-       ERR_print_errors_fp(stderr);
+       TLS_DEBUG(ERR_print_errors_fp(stderr));
        return -1;
     }
     TLS_DEBUG(cerr << "--->Connected\n";)

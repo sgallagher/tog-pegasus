@@ -20,6 +20,7 @@ DIRS = \
     FileSystem \
     InstanceDecl \
     Method \
+    Object \
     Parameter \
     Property \
     Qualifier \
@@ -29,11 +30,11 @@ DIRS = \
     Stack \
     Stopwatch \
     String \
-    String \
     StrToInstName \
     Thread \
     ThreadPool \
     TimeValue \
+    ToMof \
     Tracer \
     ValidateClass \
     Value \

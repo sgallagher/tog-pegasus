@@ -72,7 +72,7 @@
 #include "AssocInstTable.h"
 #include "AssocClassTable.h"
 
-#ifdef PEGASUS_COMPRESS_REPOSITORY
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 // #define win32 
 # include <zlib.h>
 # include <sstream>
@@ -114,7 +114,7 @@ PEGASUS_NAMESPACE_BEGIN
 static const Uint32 _MAX_FREE_COUNT = 16;
 static int binaryMode = -1; // PEP 164
 
-#ifdef PEGASUS_COMPRESS_REPOSITORY 
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY 
 static int compressMode = 0; // PEP214
 #endif
 
@@ -138,7 +138,7 @@ static int compressMode = 0; // PEP214
 void _LoadFileToMemory(Array<char>& data, const String& path)
 {
 
-#ifdef PEGASUS_COMPRESS_REPOSITORY 
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY 
 
     Uint32 fileSize;
 
@@ -163,7 +163,7 @@ void _LoadFileToMemory(Array<char>& data, const String& path)
 
     FileSystem::loadFileToMemory(data, path);
 
-#endif /* PEGASUS_COMPRESS_REPOSITORY */
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
 }
 
 
@@ -486,7 +486,7 @@ void _SaveObject(const String& path, Array<char>& objectXml,
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
 
-#ifdef PEGASUS_COMPRESS_REPOSITORY
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
     if (compressMode)            // PEP214
       {
 	PEGASUS_STD(ostringstream) os;
@@ -511,7 +511,7 @@ void _SaveObject(const String& path, Array<char>& objectXml,
 	gzclose(fp);
       }
     else
-#endif /* PEGASUS_COMPRESS_REPOSITORY */
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
       {
 	PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
 
@@ -548,11 +548,11 @@ CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_M
 
     binaryMode = mode.flag & CIMRepository_Mode::BIN;
     
-#ifdef PEGASUS_COMPRESS_REPOSITORY    // PEP214
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY    // PEP214
     // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
     compressMode=1;
 
-    char *s = getenv("PEGASUS_COMPRESS_REPOSITORY");
+    char *s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
     if (s && (strcmp(s, "build_non_compressed") == 0))
       {
 	compressMode =0;
@@ -560,7 +560,7 @@ CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_M
 	cout << "In Compress mode: build_non_compresed found" << endl;
 #endif /* TEST_OUTPUT */
       }
-#endif /* PEGASUS_COMPRESS_REPOSITORY */ 
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */ 
 
 #ifdef TEST_OUTPUT  
     cout << "repositoryRoot = " << repositoryRoot << endl; 
@@ -599,11 +599,11 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
     }
 
 
-#ifdef PEGASUS_COMPRESS_REPOSITORY    // PEP214
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY    // PEP214
     // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
     compressMode=1;
 
-    char *s = getenv("PEGASUS_COMPRESS_REPOSITORY");
+    char *s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
     if (s && (strcmp(s, "build_non_compressed") == 0))
       {
 	compressMode =0;
@@ -611,7 +611,7 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
 	cout << "In Compress mode: build_non_compresed found" << endl;
 #endif /* TEST_OUTPUT */
       }
-#endif /* PEGASUS_COMPRESS_REPOSITORY */ 
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */ 
 
 #ifdef TEST_OUTPUT  
     cout << "repositoryRoot = " << repositoryRoot << endl; 

@@ -56,11 +56,11 @@ REPO_CMP = repository_cmp
 FORCE: 
 
 ##
-## if PEGASUS_COMPRESS_REPOSITORY then
+## if PEGASUS_ENABLE_COMPRESSED_REPOSITORY then
 ##   its built for compression - run the test
 ## else
 ##   its not built for compression - see if test should be run anyway
-##    if PEGASUS_COMPRESS_REPOSITORY_TEST then run the test
+##    if PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST then run the test
 ##        recompile the repository for compression 
 ##	  run test
 ##        recompile the repository for no compression	
@@ -69,13 +69,13 @@ FORCE:
 ##
 ##
 ##
-ifdef PEGASUS_COMPRESS_REPOSITORY
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 
 tests:  repo_build run_test clean
 	@ $(ECHO) $(TESTNAME) +++++ FINISHED with test
 else
 
-ifdef PEGASUS_COMPRESS_REPOSITORY_TEST
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST
 
 tests: repo_compress_compile repo_build run_test clean repo_regular_compile
 	@ $(ECHO) $(TESTNAME) +++++ FINISHED with test
@@ -91,8 +91,8 @@ endif
 #
 repo_compress_compile:
 	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
-	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend PEGASUS_COMPRESS_REPOSITORY=1
-	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository PEGASUS_COMPRESS_REPOSITORY=1
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
 #
 # used to compile the repository for no compression
 #
@@ -150,20 +150,20 @@ run_test:
 repo_build: repo_build_Internal
 
 repo_build_all:
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_COMPRESS_REPOSITORY=build_non_compressed
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_ENABLE_COMPRESSED_REPOSITORY=build_non_compressed
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_CMP) REPOSITORY_MODE=XML
 
 
 repo_build_Internal:
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_COMPRESS_REPOSITORY=build_non_compressed
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_ENABLE_COMPRESSED_REPOSITORY=build_non_compressed
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_CMP) REPOSITORY_MODE=XML
 
 repo_build_InterOp:
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/InterOp repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_COMPRESS_REPOSITORY=build_non_compressed
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/InterOp repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_ENABLE_COMPRESSED_REPOSITORY=build_non_compressed
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/InterOp repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_CMP) REPOSITORY_MODE=XML
 
 repo_build_ManagedSystems:
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/ManagedSystems repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_COMPRESS_REPOSITORY=build_non_compressed
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/ManagedSystems repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_ENABLE_COMPRESSED_REPOSITORY=build_non_compressed
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/ManagedSystems repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_CMP) REPOSITORY_MODE=XML
 
 #
@@ -171,7 +171,7 @@ repo_build_ManagedSystems:
 # build the CMP in a local file
 #
 repo_Server_build:
-	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repositoryServer REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_COMPRESS_REPOSITORY=build_non_compressed
+	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repositoryServer REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_XML) REPOSITORY_MODE=XML PEGASUS_ENABLE_COMPRESSED_REPOSITORY=build_non_compressed
 	@ $(MAKE) "-SC" $(ROOT)/Schemas/Pegasus/Internal repository REPOSITORY_DIR=$(REPO_DIR) REPOSITORY_NAME=$(REPO_CMP) REPOSITORY_MODE=XML
 
 

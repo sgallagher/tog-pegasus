@@ -31,15 +31,15 @@ endif
 ##    The compression logic is installed as a conditionally compiled option. 
 ##    To enable the compressed repository functionality:
 ##	1. Install zlib
-##	2. define PEGASUS_COMPRESS_REPOSITORY=on in the environment
+##	2. define PEGASUS_ENABLE_COMPRESSED_REPOSITORY=on in the environment
 ##      3. build Pegasus.
 ##  
 ##   Please refer to readme.compression in the main pegasus directory 
 ##   for more information about repository compression.
 ##
 
-ifdef PEGASUS_COMPRESS_REPOSITORY
-  LOCAL_DEFINES += -DPEGASUS_COMPRESS_REPOSITORY
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+  LOCAL_DEFINES += -DPEGASUS_ENABLE_COMPRESSED_REPOSITORY
 
   ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
     EXTRA_LINK_FLAGS += -defaultlib:libz -libpath:/"Program Files"/GnuWin32/lib
@@ -78,5 +78,5 @@ include $(ROOT)/mak/library.mak
 
 compress:
 	make clean
-	make depend PEGASUS_COMPRESS_REPOSITORY=1
-	make PEGASUS_COMPRESS_REPOSITORY=1
+	make depend PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
+	make PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1

@@ -5040,11 +5040,6 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
                 source.addValue (propertyName,
                     WQLOperand ());
                 break;
-
-            case CIMTYPE_NONE :
-                source.addValue(propertyName,
-                    WQLOperand());
-                break;
         }
     }
 

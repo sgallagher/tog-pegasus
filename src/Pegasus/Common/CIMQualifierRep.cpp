@@ -56,9 +56,6 @@ CIMQualifierRep::CIMQualifierRep(
     _flavor(flavor),
     _propagated(propagated)
 {
-    //cout << "KSTEST Qualifer create " << name << " Flavor " << flavor << endl;
-    if (_value.getType() == CIMTYPE_NONE)
-	throw NullType();
 }
 
 CIMQualifierRep::~CIMQualifierRep()
@@ -195,9 +192,6 @@ Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 void CIMQualifierRep::setValue(const CIMValue& value) 
 {
     _value = value; 
-
-    if (_value.getType() == CIMTYPE_NONE)
-	throw NullType();
 }
 
 PEGASUS_NAMESPACE_END

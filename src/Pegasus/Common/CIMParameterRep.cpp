@@ -49,9 +49,6 @@ CIMParameterRep::CIMParameterRep(
     _isArray(isArray), _arraySize(arraySize), 
     _referenceClassName(referenceClassName)
 {
-    if (_type == CIMTYPE_NONE)
-	throw NullType();
-
     if (_arraySize && !_isArray)
 	throw IncompatibleTypesException();
 

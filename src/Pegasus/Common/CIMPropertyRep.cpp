@@ -55,10 +55,7 @@ CIMPropertyRep::CIMPropertyRep(
     if (arraySize && (!value.isArray() || value.getArraySize() != arraySize))
 		throw IncompatibleTypesException();
 
-    if (_value.getType() == CIMTYPE_NONE)
-		throw NullType();
-
-	// If referenceClassName exists, must be legal namd and CIMType REFERENCE.
+    // If referenceClassName exists, must be legal namd and CIMType REFERENCE.
     if (!referenceClassName.isNull())
     {
         if (_value.getType() != CIMTYPE_REFERENCE)

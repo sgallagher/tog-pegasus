@@ -480,9 +480,10 @@ CIMName XmlReader::getSuperClassAttribute(
 //
 //------------------------------------------------------------------------------
 
-CIMType XmlReader::getCimTypeAttribute(
+Boolean XmlReader::getCimTypeAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry, 
+    CIMType& cimType,  // Output parameter
     const char* tagName,
     const char* attributeName,
     Boolean required)
@@ -499,11 +500,12 @@ CIMType XmlReader::getCimTypeAttribute(
 	}
 	else
 	{
-	    return CIMTYPE_NONE;
+	    return false;
 	}
     }
 
-    CIMType type = CIMTYPE_NONE;
+    CIMType type = CIMTYPE_BOOLEAN;
+    Boolean unrecognizedType = false;
 
     if (strcmp(typeName, "boolean") == 0)
 	type = CIMTYPE_BOOLEAN;
@@ -535,8 +537,9 @@ CIMType XmlReader::getCimTypeAttribute(
 	type = CIMTYPE_REAL64;
     else if (strcmp(typeName, "reference") == 0)
 	type = CIMTYPE_REFERENCE;
+    else unrecognizedType = true;
 
-    if ((type == CIMTYPE_NONE) ||
+    if (unrecognizedType ||
         ((type == CIMTYPE_REFERENCE) &&
          (strcmp(attributeName, "PARAMTYPE") != 0)))
     {
@@ -546,7 +549,8 @@ CIMType XmlReader::getCimTypeAttribute(
 	throw XmlSemanticError(lineNumber, message);
     }
 
-    return type;
+    cimType = type;
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -1519,7 +1523,8 @@ Boolean XmlReader::getQualifierElement(
 
     // Get QUALIFIER.TYPE attribute:
 
-    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "QUALIFIER");
+    CIMType type;
+    getCimTypeAttribute(parser.getLine(), entry, type, "QUALIFIER");
 
     // Get QUALIFIER.PROPAGATED
 
@@ -1612,7 +1617,8 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
     // Get PROPERTY.TYPE attribute:
 
-    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
+    CIMType type;
+    getCimTypeAttribute(parser.getLine(), entry, type, "PROPERTY");
 
     // Create property: Sets type and !isarray
 
@@ -1705,7 +1711,8 @@ Boolean XmlReader::getPropertyArrayElement(
 
     // Get PROPERTY.TYPE attribute:
 
-    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY.ARRAY");
+    CIMType type;
+    getCimTypeAttribute(parser.getLine(), entry, type, "PROPERTY.ARRAY");
 
     // Get PROPERTY.ARRAYSIZE attribute:
 
@@ -2509,7 +2516,8 @@ Boolean XmlReader::getParameterElement(
 
     // Get PARAMETER.TYPE attribute:
 
-    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PARAMETER");
+    CIMType type;
+    getCimTypeAttribute(parser.getLine(), entry, type, "PARAMETER");
 
     // Create parameter:
 
@@ -2555,7 +2563,8 @@ Boolean XmlReader::getParameterArrayElement(
 
     // Get PARAMETER.ARRAY.TYPE attribute:
 
-    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PARAMETER.ARRAY");
+    CIMType type;
+    getCimTypeAttribute(parser.getLine(), entry, type, "PARAMETER.ARRAY");
 
     // Get PARAMETER.ARRAYSIZE attribute:
 
@@ -2733,8 +2742,8 @@ Boolean XmlReader::getQualifierDeclElement(
 
     // Get TYPE attribute:
 
-    CIMType type = getCimTypeAttribute(
-	parser.getLine(), entry, "QUALIFIER.DECLARATION");
+    CIMType type;
+    getCimTypeAttribute(parser.getLine(), entry, type, "QUALIFIER.DECLARATION");
 
     // Get ISARRAY attribute:
 
@@ -2757,6 +2766,7 @@ Boolean XmlReader::getQualifierDeclElement(
 
     CIMScope scope = CIMScope ();
     CIMValue value;
+    Boolean gotValue = false;
 
     if (!empty)
     {
@@ -2781,6 +2791,8 @@ Boolean XmlReader::getQualifierDeclElement(
 		    "VALUE.ARRAY size is not the same as "
 		    "ARRAYSIZE attribute");
 	    }
+
+            gotValue = true;
 	}
 	else if (getValueElement(parser, type, value))
 	{
@@ -2789,6 +2801,8 @@ Boolean XmlReader::getQualifierDeclElement(
 		throw XmlSemanticError(parser.getLine(),
 		    "ISARRAY attribute used but VALUE element encountered");
 	    }
+
+            gotValue = true;
 	}
 
 	// Now get the closing tag:
@@ -2796,7 +2810,7 @@ Boolean XmlReader::getQualifierDeclElement(
 	expectEndTag(parser, "QUALIFIER.DECLARATION");
     }
 
-    if (value.getType() == CIMTYPE_NONE)
+    if (!gotValue)
     {
 	if (isArray)
 	    value.setNullValue(type, true, arraySize);
@@ -2833,7 +2847,8 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, CIMMethod& method)
 
     String name = getCimNameAttribute(parser.getLine(), entry, "PROPERTY");
 
-    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
+    CIMType type;
+    getCimTypeAttribute(parser.getLine(), entry, type, "PROPERTY");
 
     CIMName classOrigin = 
 	getClassOriginAttribute(parser.getLine(), entry, "PROPERTY");
@@ -3601,23 +3616,25 @@ Boolean XmlReader::getParamValueElement(
 
     // Get PARAMVALUE.PARAMTYPE attribute:
 
-    type = getCimTypeAttribute(parser.getLine(), entry, "PARAMVALUE",
-			       "PARAMTYPE", false);
+    Boolean gotType = getCimTypeAttribute(parser.getLine(), entry, type,
+                                          "PARAMVALUE", "PARAMTYPE", false);
 
     if (!empty)
     {
         // Parse VALUE.REFERENCE and VALUE.REFARRAY type
-        if ( (type == CIMTYPE_REFERENCE) || (type == CIMTYPE_NONE) )
+        if ( (type == CIMTYPE_REFERENCE) || !gotType )
         {
 	    CIMObjectPath reference;
 	    if (XmlReader::getValueReferenceElement(parser, reference))
 	    {
 	        value.set(reference);
 	        type = CIMTYPE_REFERENCE;
+                gotType = true;
 	    }
             else if (XmlReader::getValueReferenceArrayElement(parser, value))
 	    {
 	        type = CIMTYPE_REFERENCE;
+                gotType = true;
 	    }
             // If type==reference but no VALUE.REFERENCE found, use null value
         }
@@ -3625,11 +3642,15 @@ Boolean XmlReader::getParamValueElement(
         // Parse non-reference value
         if ( type != CIMTYPE_REFERENCE )
         {
-	    // If we don't know what type the value is, read it as a String
-            CIMType effectiveType = type;
-            if ( effectiveType == CIMTYPE_NONE)
+            CIMType effectiveType;
+            if (!gotType)
 	    {
+	        // If we don't know what type the value is, read it as a String
 		effectiveType = CIMTYPE_STRING;
+	    }
+            else
+	    {
+		effectiveType = type;
 	    }
 
             if ( !XmlReader::getValueArrayElement(parser, effectiveType, value) &&
@@ -3642,7 +3663,7 @@ Boolean XmlReader::getParamValueElement(
         expectEndTag(parser, "PARAMVALUE");
     }
 
-    paramValue = CIMParamValue(name, value, Boolean(type!=CIMTYPE_NONE));
+    paramValue = CIMParamValue(name, value, gotType);
 
     return true;
 }
@@ -3671,17 +3692,18 @@ Boolean XmlReader::getReturnValueElement(
     // Get RETURNVALUE.PARAMTYPE attribute:
     // NOTE: Array type return values are not allowed (2/20/02)
 
-    type = getCimTypeAttribute(parser.getLine(), entry, "RETURNVALUE",
-			       "PARAMTYPE", false);
+    Boolean gotType = getCimTypeAttribute(parser.getLine(), entry, type,
+                                          "RETURNVALUE", "PARAMTYPE", false);
 
     // Parse VALUE.REFERENCE type
-    if ( (type == CIMTYPE_REFERENCE) || (type == CIMTYPE_NONE) )
+    if ( (type == CIMTYPE_REFERENCE) || !gotType )
     {
         CIMObjectPath reference;
         if (XmlReader::getValueReferenceElement(parser, reference))
         {
             returnValue.set(reference);
             type = CIMTYPE_REFERENCE;
+            gotType = true;
         }
         else if (type == CIMTYPE_REFERENCE)
         {
@@ -3693,9 +3715,9 @@ Boolean XmlReader::getReturnValueElement(
     // Parse non-reference return value
     if ( type != CIMTYPE_REFERENCE )
     {
-        // If we don't know what type the value is, read it as a String
-        if ( type == CIMTYPE_NONE)
+        if (!gotType)
         {
+            // If we don't know what type the value is, read it as a String
             type = CIMTYPE_STRING;
         }
 

@@ -1734,10 +1734,7 @@ void XmlWriter::appendReturnValueElement(
     out << "<RETURNVALUE";
 
     CIMType type = value.getType();
-    if (type != CIMTYPE_NONE)
-    {
-        out << " PARAMTYPE=\"" << cimTypeToString (type) << "\"";
-    }
+    out << " PARAMTYPE=\"" << cimTypeToString (type) << "\"";
 
     out << ">\n";
 

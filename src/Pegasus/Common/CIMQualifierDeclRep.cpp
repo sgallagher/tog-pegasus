@@ -58,10 +58,6 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     _flavor(flavor),
     _arraySize(arraySize)
 {
-    //cout << "KSTEST Qualifier Declflavor " << flavor << endl;
-    if (_value.getType() == CIMTYPE_NONE)
-	throw NullType();
-
 	// Set the flavor defaults. Must actively set them in case input flavor
 	// sets some but not all the defaults.	Also Make sure no conflicts. This covers
 	// the fact that we have separate flags for on and off for the toelement
@@ -222,9 +218,6 @@ Boolean CIMQualifierDeclRep::identical(const CIMQualifierDeclRep* x) const
 void CIMQualifierDeclRep::setValue(const CIMValue& value)
 {
     _value = value;
-
-    if (_value.getType() == CIMTYPE_NONE)
-	throw NullType();
 }
 
 PEGASUS_NAMESPACE_END

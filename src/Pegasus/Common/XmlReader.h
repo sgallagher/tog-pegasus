@@ -134,9 +134,10 @@ public:
 	const XmlEntry& entry,
 	const char* tagName);
 
-    static CIMType getCimTypeAttribute(
+    static Boolean getCimTypeAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry, 
+        CIMType& cimType,  // Output parameter
 	const char* tagName,
 	const char* attributeName = "TYPE",
 	Boolean required = true);

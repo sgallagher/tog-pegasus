@@ -364,7 +364,6 @@ build_array_value(CIMType type, unsigned int arrayDimension,
     return new CIMValue(*a);
   }
   case CIMTYPE_REFERENCE:
-  case CIMTYPE_NONE:
     break;
   }  // end switch
   return 0;
@@ -408,7 +407,6 @@ valueFactory::createValue(CIMType type, int arrayDimension,
     case CIMTYPE_STRING:   return new CIMValue(rep);
     case CIMTYPE_DATETIME: return new CIMValue(StoDT(rep, dt));
     case CIMTYPE_REFERENCE: return build_reference_value(rep);
-    case CIMTYPE_NONE:     return(new CIMValue((Uint32) 0));
     }
     return(new CIMValue((Uint32) 0));    // default
   } else { // an array type, either fixed or variable

@@ -3767,8 +3767,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    //
    // Only do the conversion if the type is not already set
    //
-   if ((inValue.getType() != CIMTYPE_STRING) &&
-       (inValue.getType() != CIMTYPE_NONE))
+   if ((inValue.getType() != CIMTYPE_STRING))
    {
       PEG_METHOD_EXIT();
       return;

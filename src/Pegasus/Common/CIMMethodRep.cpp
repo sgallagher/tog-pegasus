@@ -48,8 +48,6 @@ CIMMethodRep::CIMMethodRep(
     : _name(name), _type(type),
     _classOrigin(classOrigin), _propagated(propagated)
 {
-    if (type == CIMTYPE_NONE)
-	throw NullType();
 }
 
 CIMMethodRep::~CIMMethodRep()
@@ -275,9 +273,6 @@ Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
 void CIMMethodRep::setType(CIMType type)
 {
     _type = type;
-
-    if (type == CIMTYPE_NONE)
-	throw NullType();
 }
 
 PEGASUS_NAMESPACE_END

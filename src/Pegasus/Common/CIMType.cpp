@@ -35,7 +35,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static const char* _typeStrings[] =
 {
-    "none", "boolean", "uint8", "sint8", "uint16", "sint16", "uint32", "sint32",
+    "boolean", "uint8", "sint8", "uint16", "sint16", "uint32", "sint32",
     "uint64", "sint64", "real32", "real64", "char16", "string", "datetime",
     "reference"
 };

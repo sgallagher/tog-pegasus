@@ -67,8 +67,6 @@ const char BadQualifierOverride::MSG[] = "qualifier not overridable: ";
 const char BadQualifierType::MSG[] =
     "CIMType of qualifier different than its declaration: ";
 
-const char NullType::MSG[] = "type is null";
-
 const char ClassAlreadyResolved::MSG[] =
     "attempt to resolve a class that is already resolved: ";
 

@@ -77,8 +77,6 @@ union Union
     Array<String>* _stringArray;
     Array<CIMDateTime>* _dateTimeArray;
     Array<CIMObjectPath>* _referenceArray;
-
-    void* _voidPtr;
 };
 
 PEGASUS_NAMESPACE_END

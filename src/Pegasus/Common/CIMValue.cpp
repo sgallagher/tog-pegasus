@@ -118,10 +118,10 @@ public:
 
     void reset()
     {
-        _type = CIMTYPE_NONE;
+        _type = CIMTYPE_BOOLEAN;
         _isArray = false;
         _isNull = true;
-        _u._voidPtr = 0;
+        _u._booleanValue = false;
     }
 
     CIMType _type;
@@ -356,7 +356,6 @@ void CIMValue::assign(const CIMValue& x)
     _rep->_type = x._rep->_type;
     _rep->_isArray = x._rep->_isArray;
     _rep->_isNull = x._rep->_isNull;
-    _rep->_u._voidPtr = 0;
 
     if (_rep->_isArray)
     {
@@ -444,9 +443,6 @@ void CIMValue::assign(const CIMValue& x)
     {
         switch (_rep->_type)
         {
-            case CIMTYPE_NONE:
-                break;
-
             case CIMTYPE_BOOLEAN:
                 _rep->_u._booleanValue = x._rep->_u._booleanValue;
                 break;
@@ -650,10 +646,6 @@ Uint32 CIMValue::getArraySize() const
 
     switch (_rep->_type)
     {
-        case CIMTYPE_NONE:
-            return 0;
-            break;
-
         case CIMTYPE_BOOLEAN:
             return _rep->_u._booleanArray->size();
             break;
@@ -730,7 +722,6 @@ CIMType CIMValue::getType() const
 
 void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
 {
-
     clear();
 
     if (isArray)

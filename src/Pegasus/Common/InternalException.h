@@ -147,16 +147,6 @@ public:
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE NullType : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    NullType() : Exception(MSG) { }
-};
-
-// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE ClassAlreadyResolved : public Exception
 {
 public:

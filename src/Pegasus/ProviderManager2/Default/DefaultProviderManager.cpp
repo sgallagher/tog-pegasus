@@ -2531,182 +2531,145 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
     CIMException cimException;
 
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-     
-    try
-    {
-    // get provider module name
-    String moduleName;
-    CIMInstance mInstance = request->providerModule;
-    Uint32 pos = mInstance.findProperty(CIMName ("Name"));
+   
+    try {
+      // get provider module name
+      String moduleName;
+      CIMInstance mInstance = request->providerModule;
+      Uint32 pos = mInstance.findProperty(CIMName ("Name"));
 
-    if(pos != PEG_NOT_FOUND)
-    {
-        mInstance.getProperty(pos).getValue().get(moduleName);
-    }
+      if(pos != PEG_NOT_FOUND) {
+         mInstance.getProperty(pos).getValue().get(moduleName);
+      }
 
-    Boolean disableProviderOnly = request->disableProviderOnly;
+      Boolean disableProviderOnly = request->disableProviderOnly;
 
-    //
-    // get operational status
-    //
-        if (!disableProviderOnly)
-    {
-        Uint32 pos2 = mInstance.findProperty(CIMName ("OperationalStatus"));
-            if (pos2 != PEG_NOT_FOUND)
-        {
-            //
-            //  ATTN-CAKG-P2-20020821: Check for null status?
-            //
-            mInstance.getProperty(pos2).getValue().get(operationalStatus);
-        }
+      //
+      // get operational status
+      //
+      if (!disableProviderOnly) {
+         Uint32 pos2 = mInstance.findProperty(CIMName ("OperationalStatus"));
+               if (pos2 != PEG_NOT_FOUND) {
+               //
+               //  ATTN-CAKG-P2-20020821: Check for null status?
+               //
+               mInstance.getProperty(pos2).getValue().get(operationalStatus);
+         }
 
-        //
-        // update module status from OK to Stopping
-        //
-            for (Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-        {
-                if (operationalStatus[i] == _MODULE_OK)
-            {
-                operationalStatus.remove(i);
+         //
+         // update module status from OK to Stopping
+         //
+         for (Uint32 i=0, n = operationalStatus.size(); i < n; i++) {
+                  if (operationalStatus[i] == _MODULE_OK) {
+                  operationalStatus.remove(i);
+               }
+         }
+
+         operationalStatus.append(_MODULE_STOPPING);
+
+         if(_providerRegistrationManager->setProviderModuleStatus
+               (moduleName, operationalStatus) == false) {
+               //l10n
+               //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+                  throw PEGASUS_CIM_EXCEPTION_L(
+                     CIM_ERR_FAILED,
+                     MessageLoaderParms("ProviderManager.ProviderManagerService."
+                              "SET_MODULE_STATUS_FAILED","set module status failed."));
+         }
+      }
+
+      // Unload providers
+      Array<CIMInstance> _pInstances = request->providers;
+         Array<Boolean> _indicationProviders = request->indicationProviders;
+
+         String physicalName=_resolvePhysicalName(
+            mInstance.getProperty(
+               mInstance.findProperty("Location")).getValue().toString());
+
+      for (Uint32 i = 0, n = _pInstances.size(); i < n; i++) {
+         String pName(_pInstances[i].getProperty(
+                  _pInstances[i].findProperty("Name")).getValue().toString());
+
+         Sint16 ret_value = providerManager.disableProvider(physicalName,pName);
+
+         if (ret_value == 0) {
+            // disable failed since there are pending requests, 
+            // update module status from Stopping to OK if 
+            // disableProviderOnly is not true
+            if (!disableProviderOnly) {
+               for(Uint32 j=0, m = operationalStatus.size(); j < m; j++) {
+                  if (operationalStatus[j] == _MODULE_STOPPING) {
+                     operationalStatus.remove(j);
+                  }
+               }
+
+               operationalStatus.append(_MODULE_OK);
+
+               if (_providerRegistrationManager->setProviderModuleStatus
+                     (moduleName, operationalStatus) == false) {
+                  throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                     MessageLoaderParms("ProviderManager.ProviderManagerService."
+                        "SET_MODULE_STATUS_FAILED","set module status failed."));
+               }
             }
-        }
+         }
 
-        operationalStatus.append(_MODULE_STOPPING);
-
-        if(_providerRegistrationManager->setProviderModuleStatus
-            (moduleName, operationalStatus) == false)
-        {
-            //l10n
-            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_FAILED,
-                    MessageLoaderParms(
-                        "ProviderManager.ProviderManagerService."
-                            "SET_MODULE_STATUS_FAILED",
-                "set module status failed."));
-        }
-    }
-
-    // Unload providers
-    Array<CIMInstance> _pInstances = request->providers;
-        Array<Boolean> _indicationProviders = request->indicationProviders;
-        
-        String physicalName=_resolvePhysicalName(
-           mInstance.getProperty(
-              mInstance.findProperty("Location")).getValue().toString());
-
-    for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
-    {
-            String pName(_pInstances[i].getProperty(
-               _pInstances[i].findProperty("Name")).getValue().toString());
-
-            Sint16 ret_value = providerManager.disableProvider(physicalName,pName);
-
-            if (ret_value == 0)
-            {
-                // disable failed since there are pending requests, 
-                // update module status from Stopping to OK if 
-                // disableProviderOnly is not true
-                if (!disableProviderOnly)
-                {
-            	    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
-            	    {
-                        if (operationalStatus[j] == _MODULE_STOPPING)
-                        {
-                            operationalStatus.remove(j);
-    }
-		    }
-
-                    operationalStatus.append(_MODULE_OK);
-
-                    if(_providerRegistrationManager->setProviderModuleStatus
-                        (moduleName, operationalStatus) == false)
-    {
-                        throw PEGASUS_CIM_EXCEPTION_L(
-                            CIM_ERR_FAILED,
-                            MessageLoaderParms(
-                                "ProviderManager.ProviderManagerService."
-                                    "SET_MODULE_STATUS_FAILED",
-                                "set module status failed."));
-                    }
-                }
-	    }
-	    else if (ret_value == 1)
-        {
-                // if It is an indication provider
-                // remove the entry from the table since the 
-                // provider has been disabled
-                if (_indicationProviders[i])
-            {
-                    _removeEntry(_generateKey(pName,physicalName));
-		}
-	    }
-            else
-            {
-		// disable failed for other reason, throw exception
-                // update module status from Stopping to OK if 
-		// disableProviderOnly is not true
-                if (!disableProviderOnly)
-                {
-            	    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
-            	    {
-                        if (operationalStatus[j] == _MODULE_STOPPING)
-                        {
-                            operationalStatus.remove(j);
-                        }
-		    }
-
-                    operationalStatus.append(_MODULE_OK);
-
-                    if(_providerRegistrationManager->setProviderModuleStatus
-                        (moduleName, operationalStatus) == false)
-                    {
-                        throw PEGASUS_CIM_EXCEPTION_L(
-                            CIM_ERR_FAILED,
-                            MessageLoaderParms(
-                                "ProviderManager.ProviderManagerService."
-                                    "SET_MODULE_STATUS_FAILED",
-                                "set module status failed."));
+         else if (ret_value == 1) {
+            // if It is an indication provider
+            // remove the entry from the table since the 
+            // provider has been disabled
+            if (_indicationProviders[i]) {
+               _removeEntry(_generateKey(pName,physicalName));
             }
-        }
+         }
+         else {
+            // disable failed for other reason, throw exception
+            // update module status from Stopping to OK if 
+            // disableProviderOnly is not true
+            if (!disableProviderOnly) {
+               for (Uint32 j=0, m = operationalStatus.size(); j < m; j++) {
+                  if (operationalStatus[j] == _MODULE_STOPPING) {
+                     operationalStatus.remove(j);
+                  }
+               }
 
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_FAILED,
-                    MessageLoaderParms(
-                        "ProviderManager.ProviderManagerService."
-                            "DISABLE_PROVIDER_FAILED",
-                        "Failed to disable the provider."));
-            }
-        }
-        // disable succeed 
-        // update module status from Stopping to Stopped if 
-	// disableProviderOnly is not true
-        if (!disableProviderOnly)
-        {
-            // update module status from Stopping to Stopped
-            for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
-            {
-                if (operationalStatus[j] == _MODULE_STOPPING)
-                {
-                    operationalStatus.remove(j);
-        operationalStatus.append(_MODULE_STOPPED);
-                }
+               operationalStatus.append(_MODULE_OK);
+
+               if (_providerRegistrationManager->setProviderModuleStatus
+                           (moduleName, operationalStatus) == false) {
+                  throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                     MessageLoaderParms("ProviderManager.ProviderManagerService."
+                        "SET_MODULE_STATUS_FAILED","set module status failed."));
+               }
             }
 
-        if(_providerRegistrationManager->setProviderModuleStatus
-            (moduleName, operationalStatus) == false)
-        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+               MessageLoaderParms("ProviderManager.ProviderManagerService."
+                  "DISABLE_PROVIDER_FAILED","Failed to disable the provider."));
+         }
+      }
+      // disable succeed 
+      // update module status from Stopping to Stopped if 
+      // disableProviderOnly is not true
+      if (!disableProviderOnly) {
+         // update module status from Stopping to Stopped
+         for (Uint32 j=0, m = operationalStatus.size(); j < m; j++) {
+            if (operationalStatus[j] == _MODULE_STOPPING) {
+               operationalStatus.remove(j);
+               operationalStatus.append(_MODULE_STOPPED);
+            }
+         }
+
+         if (_providerRegistrationManager->setProviderModuleStatus
+               (moduleName, operationalStatus) == false) {
             //l10n
             //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             //"set module status failed.");
-                throw PEGASUS_CIM_EXCEPTION_L(
-                      CIM_ERR_FAILED,
-                      MessageLoaderParms(
-                      "ProviderManager.ProviderManagerService."
-                       "SET_MODULE_STATUS_FAILED",
-                "set module status failed."));
-        }
-    }
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+               MessageLoaderParms("ProviderManager.ProviderManagerService."
+                  "SET_MODULE_STATUS_FAILED","set module status failed."));
+         }
+      }
     }
     catch(CIMException & e)
     {
@@ -2720,8 +2683,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
                          "Exception: " + e.getMessage());
         cimException = CIMException(CIM_ERR_FAILED, e.getMessage());
     }
-    catch(...)
-    {
+    catch(...) {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
                          "Exception: Unknown");
         //l10n

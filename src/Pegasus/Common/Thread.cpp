@@ -306,6 +306,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
          PEG_METHOD_EXIT();
 	 throw NullPointer();
       }
+      if(_work == &_undertaker)
+	 _work(parm);
       gettimeofday(deadlock_timer, NULL);
       try 
       {
@@ -330,7 +332,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 PEG_METHOD_EXIT();
 	 myself->exit_self(0);
       }
-      
    }
    // wait to be awakend by the thread pool destructor
    sleep_sem->wait();

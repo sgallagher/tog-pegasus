@@ -134,25 +134,25 @@ inline int pegasus_gettimeofday(struct timeval *tv)
 	return(0);
 }
 	
-inline int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz)
+inline int PEGASUS_COMMON_LINKAGE gettimeofday(struct timeval *tv, struct timezone *tz)
 {
   return(pegasus_gettimeofday(tv));
 }
 
 PEGASUS_NAMESPACE_BEGIN
 
-inline PEGASUS_EXPORT void pegasus_yield(void)
+inline PEGASUS_COMMON_LINKAGE void pegasus_yield(void)
 {
   Sleep(0);
 }
 
 // pthreads cancellation calls 
-inline  PEGASUS_EXPORT void disable_cancel(void)
+inline  PEGASUS_COMMON_LINKAGE void disable_cancel(void)
 {
   ;
 }
 
-inline  PEGASUS_EXPORT void enable_cancel(void)
+inline  PEGASUS_COMMON_LINKAGE void enable_cancel(void)
 {
   ;
 }
@@ -162,46 +162,46 @@ inline  PEGASUS_EXPORT void enable_cancel(void)
 // operating systems. Be careful using these next two 
 // macros. There is no pop routine in windows. Further, windows
 // does not allow passing parameters to exit functions. !!
-inline PEGASUS_EXPORT void native_cleanup_push( void (*)(void *), void *) { ; }
+inline PEGASUS_COMMON_LINKAGE void native_cleanup_push( void (*)(void *), void *) { ; }
 
-inline PEGASUS_EXPORT void native_cleanup_pop(Boolean) { ; }
+inline PEGASUS_COMMON_LINKAGE void native_cleanup_pop(Boolean) { ; }
 
-inline void PEGASUS_EXPORT init_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_COMMON_LINKAGE init_crit(PEGASUS_CRIT_TYPE *crit)
 {
    InitializeCriticalSection(crit);
 }
 
-inline void PEGASUS_EXPORT enter_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_COMMON_LINKAGE enter_crit(PEGASUS_CRIT_TYPE *crit)
 {
    EnterCriticalSection(crit);
 }
 
-inline void PEGASUS_EXPORT try_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_COMMON_LINKAGE try_crit(PEGASUS_CRIT_TYPE *crit)
 {
   EnterCriticalSection(crit); 
 }
 
-inline void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_COMMON_LINKAGE exit_crit(PEGASUS_CRIT_TYPE *crit)
 {
    LeaveCriticalSection(crit);
 }
 
-inline void PEGASUS_EXPORT destroy_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_COMMON_LINKAGE destroy_crit(PEGASUS_CRIT_TYPE *crit)
 {
    DeleteCriticalSection(crit);
 }
 
-inline PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void) 
+inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void) 
 { 
    return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
 }
 
-inline void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc)
+inline void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc)
 {
   _endthreadex(rc);
 }
 
-inline void PEGASUS_EXPORT pegasus_sleep(int ms)
+inline void PEGASUS_COMMON_LINKAGE pegasus_sleep(int ms)
 {
    if(ms == 0)
    {
@@ -224,7 +224,7 @@ inline void PEGASUS_EXPORT pegasus_sleep(int ms)
 }
 
 
-inline void PEGASUS_EXPORT destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
+inline void PEGASUS_COMMON_LINKAGE destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
 {
    TerminateThread(th, rc);
 }

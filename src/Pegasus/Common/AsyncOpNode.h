@@ -70,7 +70,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 
-class PEGASUS_EXPORT AsyncOpNode
+class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
    public:
 
@@ -106,6 +106,7 @@ class PEGASUS_EXPORT AsyncOpNode
       void complete(OperationContext *context) throw(IPCException);
       
    private:
+      Semaphore _client_sem;
       Mutex _mut;
       Message *_request;
       Message *_response;

@@ -40,30 +40,46 @@ PEGASUS_NAMESPACE_BEGIN
 
 class AsyncOpNode;
 
-class PEGASUS_EXPORT CimomRequest : public Message
+enum cimom_results
+{
+   OK,
+   PARAMETER_ERROR,
+   MODULE_ALREADY_REGISTERED,
+   INTERNAL_ERROR,
+
+   NUMBER_RESULTS
+};
+
+enum cimom_messages
+{
+   HEARTBEAT,
+   MODULE_REGISTER,
+   ASYNC_OP,
+   
+   NUMBER_MESSAGES
+};
+
+
+class PEGASUS_CIMOM_LINKAGE CimomRequest : public Message
 {
    public:
       CimomRequest(Uint32 type, 
 		   Uint32 key,
 		   QueueIdStack queue_ids = QueueIdStack(MessageQueue::_CIMOM_Q_ID),
 		   Uint32 mask = message_mask::type_cimom | message_mask::type_request)
-	 : Message(type, key, mask), queues(queue_ids), _sem(1) {   }
+	 : Message(type, key, mask), queues(queue_ids) {   }
       
       virtual ~CimomRequest(void);
       QueueIdStack queues;
-   protected:
-      Semaphore & get_sem(void);
-      Semaphore _sem;
 } ;
 
-class PEGASUS_EXPORT CimomReply : public Message
+class PEGASUS_CIMOM_LINKAGE CimomReply : public Message
 {
    public:
       CimomReply(Uint32 type,
 		 Uint32 key, 
 		 Uint32 result_code,
 		 QueueIdStack queue_ids,
-		 Semaphore sem = Semaphore(1),
 		 Uint32 mask = message_mask::type_cimom | message_mask::type_reply)
 	 : Message(type, key, mask), result(result_code), queues(queue_ids)  {   }
 
@@ -74,7 +90,44 @@ class PEGASUS_EXPORT CimomReply : public Message
 };
 
 
-// class PEGASUS_EXPORT ModuleRegister : public CimomRequest 
+class PEGASUS_CIMOM_LINKAGE ModuleRegister : public CimomRequest 
+{
+   public:
+      ModuleRegister(Uint32 key, 
+		     QueueIdStack queue_ids,
+		     const String & module_name,
+		     Uint32 module_capabilities,
+		     Uint32 module_queue)
+	 : CimomRequest(MODULE_REGISTER, key, queue_ids ),
+	   name(module_name), capabilities(module_capabilities),
+	   mask(message_mask::type_cimom | message_mask::type_request | message_mask::type_control ), 
+	   q_id(module_queue)  {   }
+      
+      virtual ~ModuleRegister(void);
+      
+      String name;
+      Uint32 capabilities;
+      Uint32 mask;
+      Uint32 q_id;
+};
+
+
+class PEGASUS_CIMOM_LINKAGE AsyncDispatch : public CimomRequest
+{
+   public:
+      AsyncDispatch(Uint32 type,
+		    Uint32 key, 
+		    Uint32 mask,
+		    AsyncOpNode *operation)
+	 :CimomRequest(ASYNC_OP, key, 
+		       QueueIdStack(MessageQueue::_CIMOM_Q_ID)),
+	  op(operation) {  }
+      
+      AsyncOpNode *op;
+};
+
+
+
 
 PEGASUS_NAMESPACE_END
 

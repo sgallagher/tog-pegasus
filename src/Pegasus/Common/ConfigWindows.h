@@ -91,6 +91,12 @@
 # define PEGASUS_HANDLER_LINKAGE PEGASUS_IMPORT
 #endif
 
+#ifdef PEGASUS_CIMOM_INTERNAL
+#define PEGASUS_CIMOM_LINKAGE PEGASUS_EXPORT
+#else
+#define PEGASUS_CIMOM_LINKAGE PEGASUS_IMPORT
+#endif
+
 // Suppress this warning: "identifier was truncated to '255' characters in the
 // debug information":
 #pragma warning( disable : 4786 )

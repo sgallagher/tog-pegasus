@@ -48,5 +48,5 @@
 #define PEGASUS_PROVIDER_LINKAGE /* empty */
 #define PEGASUS_CMDLINE_LINKAGE /* empty */
 #define PEGASUS_HANDLER_LINKAGE /* empty */
-
+#define PEGASUS_CIMOM_LINKAGE /* empty */
 #endif  /* Pegasus_ConfigUnix_h */

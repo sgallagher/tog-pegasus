@@ -35,7 +35,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEG_DQUEUE_LAST 1
 
 
-class PEGASUS_EXPORT internal_dq {
+class PEGASUS_COMMON_LINKAGE internal_dq {
    private:
       void *_rep;
       internal_dq *_next;
@@ -222,7 +222,7 @@ class PEGASUS_EXPORT internal_dq {
 } ;
 
 
-template<class L> class PEGASUS_EXPORT unlocked_dq : virtual public internal_dq
+template<class L> class PEGASUS_COMMON_LINKAGE unlocked_dq : virtual public internal_dq
 {
 public:
       typedef internal_dq  Base;

@@ -36,7 +36,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 template<class object_type>
-class PEGASUS_EXPORT ResponseHandler
+class PEGASUS_COMMON_LINKAGE ResponseHandler
 {
 public:
 //    enum ProcessingClass { POLL, SIGNAL };

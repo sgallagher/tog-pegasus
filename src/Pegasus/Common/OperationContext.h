@@ -64,12 +64,12 @@ PEGASUS_NAMESPACE_BEGIN
 #define OPERATION_COMPLETE                  0x00000200
 
 
-//void PEGASUS_EXPORT default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotSupported);
-void PEGASUS_EXPORT default_delete(void * data) ;
-void PEGASUS_EXPORT stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall);
-void PEGASUS_EXPORT binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, BufferTooSmall);
+//void PEGASUS_COMMON_LINKAGE default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotSupported);
+void PEGASUS_COMMON_LINKAGE default_delete(void * data) ;
+void PEGASUS_COMMON_LINKAGE stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall);
+void PEGASUS_COMMON_LINKAGE binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, BufferTooSmall);
 
-class PEGASUS_EXPORT context
+class PEGASUS_COMMON_LINKAGE context
 {
    public:
       context(Uint32 data_size,
@@ -207,7 +207,7 @@ class PEGASUS_EXPORT context
 } ;
 
 
-class PEGASUS_EXPORT OperationContext
+class PEGASUS_COMMON_LINKAGE OperationContext
 {
    public:
       OperationContext(void)

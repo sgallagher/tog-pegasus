@@ -32,7 +32,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class L> class PEGASUS_EXPORT DQueue : virtual public unlocked_dq<L>
+template<class L> class PEGASUS_COMMON_LINKAGE DQueue : virtual public unlocked_dq<L>
 {
    private: 
 
@@ -174,7 +174,7 @@ template<class L> class PEGASUS_EXPORT DQueue : virtual public unlocked_dq<L>
 } ;
 
 
-template<class L> class PEGASUS_EXPORT AsyncDQueue: virtual public internal_dq
+template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public internal_dq
 {
    private: // asyncdqueue
 

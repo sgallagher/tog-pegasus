@@ -28,13 +28,14 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Cimom.h"
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-Uint32 module_capabilities::async =   0x00000000;
-Uint32 module_capabilities::remote =  0x00000001;
-Uint32 module_capabilities::trusted = 0x00000002; 
+const Uint32 module_capabilities::async =   0x00000000;
+const Uint32 module_capabilities::remote =  0x00000001;
+const Uint32 module_capabilities::trusted = 0x00000002; 
 
 void cimom::_enqueueResponse(
     CimomRequest* request,
@@ -52,5 +53,92 @@ void cimom::_enqueueResponse(
 
     queue->enqueue(response);
 }
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_proc(void *parm)
+{
+   Thread *myself = reinterpret_cast<Thread *>(parm);
+   cimom *cim_manager = reinterpret_cast<cimom *>(myself->get_parm());
+   while( 0 == cim_manager->_die.value() )
+   {
+      myself->sleep(1);
+   }
+   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+   return(0);
+}
+
+
+// the cimom's mutex is unlocked upon entry into this routine 
+void cimom::handleEnqueue(void)
+{
+    Message* request = dequeue();
+
+    if (!request)
+       return;
+   // at a gross level, look at the message and decide if it is for the cimom or
+   // for another module
+    Uint32 mask = request->getMask();
+    
+    if( mask == message_mask::type_legacy)
+    {
+       // an existing (pre-asynchronous) message type
+    }
+    else if (mask & message_mask::type_cimom)
+    {
+       // a message that must be handled by the cimom 
+       if(mask & message_mask::type_control )
+       {
+	  // a message that we can handle synchronously on the caller's thread
+	  switch(request->getType())
+	  {
+	     case MODULE_REGISTER:
+		
+		break;
+
+		
+	     default:
+		break;
+		
+
+	  }
+
+	  delete request;
+       }
+       
+    }
+
+
+}
+
+
+void cimom::register_module(ModuleRegister *msg)
+{
+   // first see if the module is already registered
+   Uint32 result = OK;
+   
+   if( _modules.exists( reinterpret_cast<void *>(&(msg->name)) ) )
+      result = MODULE_ALREADY_REGISTERED;
+   else 
+   {
+      message_module *new_mod =  new message_module(msg->name,
+						    msg->capabilities,
+						    msg->mask, 
+						    msg->q_id);
+      try 
+      {
+	 _modules.insert_first(new_mod);
+      }
+      catch(IPCException& e)
+      {
+	 result = INTERNAL_ERROR;
+      }
+   }
+   
+   CimomReply *reply = new CimomReply(  msg->getType(), msg->getKey(), 
+				       result, msg->queues.copyAndPop() );
+   _enqueueResponse(msg, reply);
+   return;
+   
+}
+
 
 PEGASUS_NAMESPACE_END

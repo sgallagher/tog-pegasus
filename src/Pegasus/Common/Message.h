@@ -100,6 +100,17 @@ public:
 
     void setKey(Uint32 key) { _key = key; }
 
+      Uint32 getMask() const 
+      {
+	 return _mask;
+      }
+      
+      void setMask(Uint32 mask) 
+      {
+	 _mask = mask;
+      }
+      
+
     Message* getNext() { return _next; }
 
     const Message* getNext() const { return _next; }

@@ -42,8 +42,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class PEGASUS_EXPORT object_type>
-class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
+template<class PEGASUS_COMMON_LINKAGE object_type>
+class PEGASUS_COMMON_LINKAGE AsyncResponseHandler : public ResponseHandler<object_type>
 {
    public:
   
@@ -268,7 +268,7 @@ inline Boolean AsyncResponseHandler<object_type>::operator == (
 //     Represents a WQL Select clause, or any grammar construct that specifies
 //     a collection of CIM classes, instances, or properties.
 // */
-// class PEGASUS_EXPORT CIMSelect
+// class PEGASUS_COMMON_LINKAGE CIMSelect
 // {
 //       CIMSelect(void);
 //       ~CIMSelect(void);
@@ -338,7 +338,7 @@ inline Boolean AsyncResponseHandler<object_type>::operator == (
 //    handler's AsyncResponseHandler.</li>
 //    </ol>
 // */
-// class PEGASUS_EXPORT CIMSubscription
+// class PEGASUS_COMMON_LINKAGE CIMSubscription
 // {
 
 //    public:

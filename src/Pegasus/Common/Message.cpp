@@ -48,7 +48,7 @@ Uint32 message_mask::type_http =            0x00000080;
 Uint32 message_mask::type_cimom =           0x00000100;
 
 Uint32 message_mask::type_request =         0x20000000;
-Uint32 message_mask::type_reply =          0x40000000;
+Uint32 message_mask::type_reply =           0x40000000;
 Uint32 message_mask::type_control =         0x80000000;
 
 Uint32 Message::_nextKey = 0;

@@ -34,21 +34,23 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/_cimom/CimomMessage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_EXPORT module_capabilities 
+
+class PEGASUS_CIMOM_LINKAGE module_capabilities 
 {
    public:
-      static Uint32 async;
-      static Uint32 remote;
-      static Uint32 trusted;
+      static const Uint32 async;
+      static const Uint32 remote;
+      static const Uint32 trusted;
 } ;
 
-class PEGASUS_EXPORT message_module
+class PEGASUS_CIMOM_LINKAGE message_module
 {
    public:
       message_module(const String & name,
@@ -59,9 +61,11 @@ class PEGASUS_EXPORT message_module
 	 : _name(name), _capabilities(capabilities),
 	   _messages(messages), _q_id(queue)  { }
       
-      Boolean operator == (const message_module *mm);
-      Boolean operator == (const String & name );
-      Boolean operator == (const message_module & mm );
+      Boolean operator == (const message_module *mm) const;
+      Boolean operator == (const String & name ) const ;
+      Boolean operator == (const message_module & mm ) const ;
+      Boolean operator == (const void *) const;
+      
       
    private:
       String _name;
@@ -71,22 +75,43 @@ class PEGASUS_EXPORT message_module
 };
 
 
-class PEGASUS_EXPORT cimom : public MessageQueue
+class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
 {
   
    public : cimom(void)
-      : MessageQueue("cimom"), _modules(true, 20) {  }
+      : MessageQueue("cimom"), _modules(true ), 
+	_internal_ops(true ), _new_ops(true, 20), 
+	_pending_ops(true, 100), _completed_ops(true, 100),
+	_thread( _proc, this, false), _die(0)
+      
+      
+      {  }
             
+      virtual void handleEnqueue();
+      void cimom::register_module(ModuleRegister *);
+      
+
    protected:
       Uint32 get_module_q(const String & name);
       void _enqueueResponse(CimomRequest *req, CimomReply *rep);
       
    private:
-      AsyncDQueue<message_module> _modules;
+      DQueue<message_module> _modules;
+      DQueue<AsyncOpNode> _internal_ops; // a place to put messages to me that I
+                                         // need to process asynchronously
+      AsyncDQueue<AsyncOpNode> _new_ops;
+      AsyncDQueue<AsyncOpNode> _pending_ops;
+      AsyncDQueue<AsyncOpNode> _completed_ops;
+      
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _proc(void *);
+      
+      Thread _thread;
+      AtomicInt _die;
+      
 };
 
 
-inline Boolean message_module::operator == (const message_module *mm)
+inline Boolean message_module::operator == (const message_module *mm) const 
 {
    if(this == mm)
       return true;
@@ -94,7 +119,7 @@ inline Boolean message_module::operator == (const message_module *mm)
 }
 
 
-inline Boolean message_module::operator == (const String & name )
+inline Boolean message_module::operator == (const String & name ) const 
 {
    if(name == this->_name)
       return true;
@@ -102,7 +127,7 @@ inline Boolean message_module::operator == (const String & name )
    
 }
 
-inline Boolean message_module::operator == (const message_module & mm)
+inline Boolean message_module::operator == (const message_module & mm) const
 {
    if(*this == mm)
       return true;
@@ -116,6 +141,11 @@ inline Boolean message_module::operator == (const message_module & mm)
    
 }
 
+inline Boolean message_module::operator == (const void *key) const
+{
+   return this->operator == (reinterpret_cast<const String &>(*key));
+      
+}
 
 PEGASUS_NAMESPACE_END
 

@@ -42,7 +42,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
    
-extern void PEGASUS_EXPORT _BubbleSort(Array<KeyBinding>& x);
+extern void PEGASUS_COMMON_LINKAGE _BubbleSort(Array<KeyBinding>& x);
 enum LogicalOperator { AND, NOT, OR };
 enum ExpressionOperator { EQUAL, NE, GT, GTE, LT, LTE, PRESENT };
 

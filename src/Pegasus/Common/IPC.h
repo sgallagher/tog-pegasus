@@ -55,25 +55,25 @@ PEGASUS_NAMESPACE_BEGIN
 // ----- NOTE - these functions are PRIMITIVES that MUST be implemented
 //               by the platform. e.g., see IPCUnix.cpp
 
-void PEGASUS_EXPORT disable_cancel(void);
-void PEGASUS_EXPORT enable_cancel(void);
-//void PEGASUS_EXPORT native_cleanup_push( void (*)(void *), void * );
-void PEGASUS_EXPORT native_cleanup_pop(Boolean execute);
-void PEGASUS_EXPORT init_crit(PEGASUS_CRIT_TYPE *crit);
-void PEGASUS_EXPORT enter_crit(PEGASUS_CRIT_TYPE *crit);
-void PEGASUS_EXPORT try_crit(PEGASUS_CRIT_TYPE *crit);
-void PEGASUS_EXPORT destroy_crit(PEGASUS_CRIT_TYPE *crit);
-void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit);
-PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void);
-void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc); 
-void PEGASUS_EXPORT pegasus_sleep(int ms);
-void PEGASUS_EXPORT destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc);
+void PEGASUS_COMMON_LINKAGE disable_cancel(void);
+void PEGASUS_COMMON_LINKAGE enable_cancel(void);
+//void PEGASUS_COMMON_LINKAGE native_cleanup_push( void (*)(void *), void * );
+void PEGASUS_COMMON_LINKAGE native_cleanup_pop(Boolean execute);
+void PEGASUS_COMMON_LINKAGE init_crit(PEGASUS_CRIT_TYPE *crit);
+void PEGASUS_COMMON_LINKAGE enter_crit(PEGASUS_CRIT_TYPE *crit);
+void PEGASUS_COMMON_LINKAGE try_crit(PEGASUS_CRIT_TYPE *crit);
+void PEGASUS_COMMON_LINKAGE destroy_crit(PEGASUS_CRIT_TYPE *crit);
+void PEGASUS_COMMON_LINKAGE exit_crit(PEGASUS_CRIT_TYPE *crit);
+PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void);
+void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc); 
+void PEGASUS_COMMON_LINKAGE pegasus_sleep(int ms);
+void PEGASUS_COMMON_LINKAGE destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc);
 
 
 
 //%//////// -------- IPC Exception Classes -------- ///////////////////////////////
 
-class PEGASUS_EXPORT IPCException
+class PEGASUS_COMMON_LINKAGE IPCException
 {
    public:
       IPCException(PEGASUS_THREAD_TYPE owner): _owner(owner) { }
@@ -84,7 +84,7 @@ class PEGASUS_EXPORT IPCException
 
 };
 
-class PEGASUS_EXPORT Deadlock: public IPCException
+class PEGASUS_COMMON_LINKAGE Deadlock: public IPCException
 {
    public:
       Deadlock(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
@@ -92,7 +92,7 @@ class PEGASUS_EXPORT Deadlock: public IPCException
       Deadlock(void);
 };
 
-class PEGASUS_EXPORT AlreadyLocked: public IPCException
+class PEGASUS_COMMON_LINKAGE AlreadyLocked: public IPCException
 {
    public: 
       AlreadyLocked(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
@@ -100,7 +100,7 @@ class PEGASUS_EXPORT AlreadyLocked: public IPCException
       AlreadyLocked(void);
 };
 
-class PEGASUS_EXPORT TimeOut: public IPCException
+class PEGASUS_COMMON_LINKAGE TimeOut: public IPCException
 {
    public: 
       TimeOut(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
@@ -108,7 +108,7 @@ class PEGASUS_EXPORT TimeOut: public IPCException
       TimeOut(void);
 };
 
-class PEGASUS_EXPORT Permission: public IPCException
+class PEGASUS_COMMON_LINKAGE Permission: public IPCException
 {
    public: 
       Permission(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
@@ -116,7 +116,7 @@ class PEGASUS_EXPORT Permission: public IPCException
       Permission(void);
 } ;
 
-class PEGASUS_EXPORT WaitFailed: public IPCException
+class PEGASUS_COMMON_LINKAGE WaitFailed: public IPCException
 {
    public: 
       WaitFailed(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
@@ -124,7 +124,7 @@ class PEGASUS_EXPORT WaitFailed: public IPCException
       WaitFailed(void);
 } ;
 
-class PEGASUS_EXPORT TooManyReaders: public IPCException
+class PEGASUS_COMMON_LINKAGE TooManyReaders: public IPCException
 {
    public:
       TooManyReaders(PEGASUS_THREAD_TYPE owner) : IPCException(owner) { }
@@ -133,7 +133,7 @@ class PEGASUS_EXPORT TooManyReaders: public IPCException
 };
 
 
-class PEGASUS_EXPORT ListFull: public IPCException
+class PEGASUS_COMMON_LINKAGE ListFull: public IPCException
 {
    public:
       ListFull(Uint32 count) : IPCException(pegasus_thread_self())
@@ -149,7 +149,7 @@ class PEGASUS_EXPORT ListFull: public IPCException
       Uint32 _capacity;
 };
 
-class PEGASUS_EXPORT ListClosed: public IPCException
+class PEGASUS_COMMON_LINKAGE ListClosed: public IPCException
 {
    public:
       ListClosed(void) : IPCException(pegasus_thread_self()) 
@@ -160,7 +160,7 @@ class PEGASUS_EXPORT ListClosed: public IPCException
 
 
 //%////////////////////////////////////////////////////////////////////////////
-class PEGASUS_EXPORT Mutex
+class PEGASUS_COMMON_LINKAGE Mutex
 {
 
    public:
@@ -207,7 +207,7 @@ class PEGASUS_EXPORT Mutex
 
 //%////////////////////////////////////////////////////////////////////////////
  
-class PEGASUS_EXPORT Semaphore
+class PEGASUS_COMMON_LINKAGE Semaphore
 {
   
    public:
@@ -271,7 +271,7 @@ typedef struct {
 /// Atomic Integer class definition
 //-----------------------------------------------------------------
 
-class PEGASUS_EXPORT AtomicInt
+class PEGASUS_COMMON_LINKAGE AtomicInt
 {
    public:
 
@@ -338,7 +338,7 @@ typedef struct pegasus_rwlock {
 
 #endif
 
-class PEGASUS_EXPORT ReadWriteSem
+class PEGASUS_COMMON_LINKAGE ReadWriteSem
 {
  
    public:
@@ -420,7 +420,7 @@ class PEGASUS_EXPORT ReadWriteSem
 
 // typedef PEGASUS_SEMAPHORE_TYPE PEGASUS_COND_TYPE;
 
-class PEGASUS_EXPORT cond_waiter {
+class PEGASUS_COMMON_LINKAGE cond_waiter {
    public:
       cond_waiter( PEGASUS_THREAD_TYPE caller, Sint32 time = -1) : 
 	 waiter(caller), signalled(0) { }
@@ -453,7 +453,7 @@ typedef struct peg_condition{
 
 #endif 
 
-class PEGASUS_EXPORT Condition
+class PEGASUS_COMMON_LINKAGE Condition
 { 
    public:
       // create the condition variable

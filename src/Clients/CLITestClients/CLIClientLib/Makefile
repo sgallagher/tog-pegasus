@@ -14,8 +14,7 @@ LIBRARIES = \
     pegcommon \
     pegclient
 
-SOURCES = \
-    CLIClientLib.cpp    
+SOURCES = CLIClientLib.cpp    
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

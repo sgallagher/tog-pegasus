@@ -38,29 +38,78 @@
 #include <Pegasus/Common/Tracer.h>
 #include "CLIClientLib.h"
 #include <Pegasus/Common/Stopwatch.h>
-
+#include <Pegasus/Common/PegasusVersion.h>
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
 
+
+/** Select one item from an array of items presented to
+    the user. This preents the list and requests user input for
+    the response.
+    @param selectList Array<String> list of items from which the
+    user is to select one.  Each item should be a printable string.
+    @param what String that defines for the output string what type 
+    of items the select is based on (ex: "Instance Names");
+    @return Uint32 representing the item to be selected.
+    TODO: Find a way to do a reject.
+
+*/
+Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
+{
+    Uint32 rtn = 0;
+    for (Uint32 i = 0 ; i < selectList.size() ; i++)
+        cout << i + 1 << ": " << selectList[i] << endl;
+    while (rtn < 1 || rtn > selectList.size())
+    {
+        cout << "Select " << what << " (1.." << selectList.size() << ")? " << flush;
+        cin >> rtn;
+    }
+    return (rtn - 1);
+}
+
+
+/** Allow user to select one instance name. Enumerates names given className and
+    requests input of one index
+    @param
+    @param
+    @param className CIMName for the class to enumerate.
+    @return CIMObjectPath with the path that was selected.  If there were no
+    paths selected or the enumerate returned no instances the returned CIMObjectPath
+    is Null. Note that we do not have a clean way to test for null CIMObjectPath today.
+*/
+CIMObjectPath _selectInstance(CIMClient& client, Options& opts, CIMName& className)
+{
+    Array<CIMObjectPath> instanceNames =
+        client.enumerateInstanceNames(opts.nameSpace,
+			                          className);
+    Array<String> list;
+    for (Uint32 i = 0 ; i < instanceNames.size() ; i++)
+        list.append(instanceNames[i].toString());
+
+    Uint32 rtn = _selectStringItem(list, "instance to delete");
+
+    return(instanceNames[rtn]);
+}
+
 String _toString(Boolean x)
 {
 	return(x ? "true" : "false");
 }
-// Character sequences used in help/usage output.
 
+// Character sequences used in help/usage output.
 String buildPropertyListString(CIMPropertyList& pl)
 {
 	String rtn;	
 	Array<CIMName> pls = pl.getPropertyNameArray();
 	if (pl.isNull())
 	{
-		return("List_NULL");	
+		return("NULL");	
 	}
-	if (!pl.isNull() && pl.size() == 0)
+	if (pl.size() == 0)
 	{
-		return("List_EMPTY");
+		return("EMPTY");
 	}
 	for (Uint32 i = 0 ; i < pls.size() ; i++)
 	{
@@ -75,12 +124,12 @@ void printPropertyList(CIMPropertyList& pl)
 {
 	cout << buildPropertyListString(pl);
 }
-static const char * version = "2.01";
-static const char * usage = "This command executes single WBEM Operations.";
+static const char * version = "2.1";
+static const char * usage = "This command executes single CIM Operations.";
 
 
 // Note that the following is one long string.
-static const char * usageDetails = "Using CLI examples:n \
+static const char * usageDetails = "Using CLI examples:\n \
 CLI enumerateinstancenames pg_computersystem  -- enumerateinstances of class\n \
     or \n \
 CLI ei pg_computersystem    -- Same as above \n\n \
@@ -109,7 +158,6 @@ void _displaySummary(Uint32 count, String& description, String item, Options& op
             cout << "Failed count test. Expected= " << opts.count << " Actual rcvd= " << count << endl;
             opts.termCondition = 1;
         }
-
 }
 
 /**** NOT TESTED
@@ -138,7 +186,7 @@ String _nextToken(String& input, Uint32 start, Char16 separator)
  * @param separator character
  * @returns Array of separated strings
  * */
-Array<String> _tokenize(String& input, Char16 separator)
+Array<String> _tokenize(const String& input, const Char16 separator)
 {
     Array<String> tokens;
     if (input.size() != 0)
@@ -160,7 +208,7 @@ Array<String> _tokenize(String& input, Char16 separator)
     return tokens;
 }
 
-Uint32 validType(String& typeString)
+Uint32 validType(const String& typeString)
 {
 	static const char* _typeStrings[] =
 	{
@@ -180,36 +228,61 @@ Uint32 validType(String& typeString)
 	}
 	return -1;
 }
-
-CIMParamValue _createMethodParamValue(String& input, Options& opts)
+Boolean _tokenPair(const String& input, String& key, String& value)
 {
+
     Array<String> pair = _tokenize(input, '=');
-    if (pair.size() != 2)
+    if (pair.size() < 2)
     {
+        return(false);
         cout << "Input Parameter error. Expected name=value. Received  " << input << input;
         exit(1);
     }
+    // If there is more than 1 "=" it is part of the reference and we
+    // rebuild the reference.
+    if (pair.size() < 2)
+    {
+        for (Uint32 i = 2 ; i < pair.size() ; i++)
+        {
+            pair[1].append("=");
+            pair[i].append(pair[i]);
+
+        }
+    }
+    key = pair[0];
+    value = pair[1];
+    return(true);
+}
+CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
+{
+    String key;
+    String value;
+    if (!_tokenPair(input, key, value))
+    {
+        cout <<"Error in param parsing with input " << input << endl;
+        exit(1);
+    }
+
 	if (opts.verboseTest)
 	{
-		cout << "Name = " << pair[0] << ", Value= " << pair[1] << endl;
+		cout << "Name = " << key << ", Value= " << value << endl;
 	}
-	// ATTN: KS 20030423 P2This is incomplete since it only allows us to do string input.
-	// ATTN: KS 20030424 P2. We don't have any documentation on the isTyped function.
+	// ATTN: KS 20030423 P2 This is incomplete since it only allows us to do string input.
+	// We don't include the typing information.
 	//Array<String> valuePair = _tokenize(pair[1], ':');
 	//if (validType(valuePair[0] >= 0)
 	//{
 	//	
 	//}
-	CIMValue v(pair[1]);
-	
-	CIMParamValue pv(pair[0], v, false);
 
+    CIMValue v(value);
+	CIMParamValue pv(key, v, false);
     return pv;
 }
 
-
-int OutputFormatInstance(OutputType format, CIMInstance& instance)
+void outputFormatInstance(const OutputType format, CIMInstance& instance)
 {
+    cout << "path= " << instance.getPath().toString() << endl;
     if (format == OUTPUT_XML)
         XmlWriter::printInstanceElement(instance, cout);
     else if (format == OUTPUT_MOF)
@@ -229,9 +302,8 @@ int OutputFormatInstance(OutputType format, CIMInstance& instance)
 
         mofFormat(cout, x.getData(), 4);
     }
-    return 0;
 }
-int OutputFormatParamValue(OutputType format, CIMParamValue& pv)
+void outputFormatParamValue(const OutputType format, const CIMParamValue& pv)
 {
     if (format == OUTPUT_XML)
 		XmlWriter::printParamValueElement(pv, cout);
@@ -255,11 +327,9 @@ int OutputFormatParamValue(OutputType format, CIMParamValue& pv)
     }
     else
         cout << "Error, Format Definition Error" << endl;
-    return 0;
 }
 
-
-int OutputFormatClass(OutputType format, CIMClass& myClass)
+void outputFormatClass(const OutputType format, CIMClass& myClass)
 {
     if (format == OUTPUT_XML)
         XmlWriter::printClassElement(myClass, cout);
@@ -286,28 +356,26 @@ int OutputFormatClass(OutputType format, CIMClass& myClass)
     }
     else
         cout << "Error, Format Definition Error" << endl;
-    return 0;
 }
 
-int OutputFormatObject(OutputType format, CIMObject& myObject)
+void outputFormatObject(const OutputType format, const CIMObject& myObject)
 {
 
     if (myObject.isClass())
     {
         CIMClass c(myObject);
-        OutputFormatClass(format, c);
+        outputFormatClass(format, c);
     }
     else if (myObject.isInstance())
     {
         CIMInstance i(myObject);
-        OutputFormatInstance(format, i);
+        outputFormatInstance(format, i);
     }
     else
         cout << "Error, Object is neither class or instance" << endl;
-    return 0;
 }
 
-int OutputFormatQualifierDecl(OutputType format, CIMQualifierDecl& myQualifierDecl)
+void outputFormatQualifierDecl(const OutputType format, const CIMQualifierDecl& myQualifierDecl)
 {
     if (format == OUTPUT_XML)
         XmlWriter::printQualifierDeclElement(myQualifierDecl, cout);
@@ -322,10 +390,9 @@ int OutputFormatQualifierDecl(OutputType format, CIMQualifierDecl& myQualifierDe
     }
     else
         cout << "Format type error" << endl;
-    return 0;
 }
 
-int OutputFormatCIMValue(OutputType format, CIMValue& myValue)
+void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
 {
     if (format == OUTPUT_XML)
         XmlWriter::printValueElement(myValue, cout);
@@ -340,7 +407,6 @@ int OutputFormatCIMValue(OutputType format, CIMValue& myValue)
     }
     else
         cout << " Format type error" << endl;
-    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -403,7 +469,9 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
                         cout << instanceNames[i].toString() << endl;
         }
     }
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    if (opts.time) 
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+
     return 0;
 }
 
@@ -431,7 +499,7 @@ int enumerateInstanceNames(CIMClient& client, Options& opts)
     }
     else
     {
-        //simply output the list one per line for the moment.
+        //Output the list one per line for the moment.
         for (Uint32 i = 0; i < instanceNames.size(); i++)
                     cout << instanceNames[i].toString() << endl;
     }
@@ -477,7 +545,7 @@ int enumerateInstances(CIMClient& client, Options& opts)
         {
             CIMInstance instance = instances[i];
             // Check Output Format to print results
-            OutputFormatInstance(opts.outputType, instance);
+            outputFormatInstance(opts.outputType, instance);
         }
     }
     return 0;
@@ -511,9 +579,8 @@ int executeQuery(CIMClient& client, Options& opts)
     {
         // Output the returned instances
         for (Uint32 i = 0; i < objects.size(); i++)
-        {
-            OutputFormatObject(opts.outputType, objects[i]);
-        }
+            outputFormatObject(opts.outputType, objects[i]);
+
     }
     return 0;
 }
@@ -527,9 +594,22 @@ int deleteInstance(CIMClient& client, Options& opts)
             << ", Object = " << opts.objectName
             << endl;
     }
-    if (opts.time) opts.elapsedTime.reset();
+    // if request is class only, do this interactively
+    // Need to get this into objectpath format before doing the call.
+    CIMObjectPath thisObject(opts.objectName);
+    if ((thisObject.getKeyBindings().size() == 0) ? true : false)
+    {
+        // get the instance to delete
+        thisObject = 
+          _selectInstance(client, opts, CIMName(opts.objectName));
+        // convert back to the opts.objectName
+    }
+
+    if (opts.time) 
+        opts.elapsedTime.reset();
+
     client.deleteInstance(opts.nameSpace,
-						  opts.objectName);
+                          thisObject);
 
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
     return 0;
@@ -569,9 +649,18 @@ int getInstance(CIMClient& client, Options& opts)
             << endl;
     }
 
+    CIMObjectPath thisObject(opts.objectName);
+
+    if ((thisObject.getKeyBindings().size() == 0) ? true : false)
+    {
+        // get the instance to delete
+        thisObject = 
+          _selectInstance(client, opts, CIMName(opts.objectName));
+        // convert back to the opts.objectName
+    }
     if (opts.time) opts.elapsedTime.reset();
     CIMInstance cimInstance = client.getInstance(opts.nameSpace,
-                                                 opts.objectName,
+                                                 thisObject,
 											     opts.localOnly,
 		                                         opts.includeQualifiers,
 											     opts.includeClassOrigin,
@@ -582,12 +671,87 @@ int getInstance(CIMClient& client, Options& opts)
 	if (opts.summary)
     {
 		if (opts.time)
-		{
 			cout << opts.saveElapsedTime << endl;
-		}
+
 	}
 	else
-		OutputFormatInstance(opts.outputType, cimInstance);
+		outputFormatInstance(opts.outputType, cimInstance);
+
+    return 0;
+}
+
+/****
+    CIMObjectPath createInstance(
+	const CIMNamespaceName& nameSpace,
+	const CIMInstance& newInstance
+    );
+ ***/
+int createInstance(CIMClient& client, Options& opts)
+{
+    if (opts.verboseTest)
+    {
+        cout << "createInstance "
+            << "Namespace = " << opts.nameSpace
+            << ", ClassName = " << opts.className
+            << endl;
+    }
+    // get the class. Exceptions including class_not_found are automatic
+    CIMClass thisClass = 
+        client.getClass(opts.nameSpace, opts.className,false,true,true,CIMPropertyList());
+
+    // Tokenize the parameter pairs
+    //Array<keyValuePair> inputs;
+
+    Array<CIMName> propertyNameList;
+    Array<String> propertyValueList;
+
+    // ATTN: Need to account for returning key without value here.
+    if (opts.extraParams != 0)
+    {
+        for (Uint32 i = 0 ; i < opts.extraParams.size() ; i++)
+        {
+            String key;
+            String value;
+            _tokenPair(opts.extraParams[i], key, value);
+            propertyNameList.append(CIMName(key));
+            propertyValueList.append(value);
+            if (thisClass.findProperty(CIMName(key)) == PEG_NOT_FOUND)
+                cout << "Warning property Name not in class: " << opts.extraParams[i] << endl;
+        }
+
+        if (opts.verboseTest)
+        {
+            cout << "Property: " << propertyNameList[propertyNameList.size()] 
+            << " value: " << propertyValueList[propertyValueList.size()]
+            << endl;
+        }
+    }
+
+    CIMPropertyList myPropertyList(propertyNameList);
+    // create the instance with the defined properties
+    CIMInstance newInstance = thisClass.buildInstance(true, true, myPropertyList);
+
+    // Now add the parameters from the input. Array.
+    //Note that we do NO checking.  Each input parameter is a simple
+    //name=value.
+    // At this point we also treat them all as strings since we have not
+    // defined a means to handle typing.
+
+    if (opts.time) opts.elapsedTime.reset();
+    CIMObjectPath rtndPath = client.createInstance(opts.nameSpace,
+                                                 newInstance);
+
+    // Need to put values into the parameters.
+
+    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+    // Check Output Format to print results
+	if (opts.summary)
+    {
+		if (opts.time)
+			cout << opts.saveElapsedTime << endl;
+	}
+	else
+		cout << rtndPath.toString() << endl;;
     return 0;
 }
 
@@ -668,7 +832,7 @@ int enumerateClasses(CIMClient& client, Options& opts)
         for (Uint32 i = 0; i < classes.size(); i++)
         {
             CIMClass myClass = classes[i];
-            OutputFormatClass(opts.outputType, myClass);
+            outputFormatClass(opts.outputType, myClass);
         }
     }
     return 0;
@@ -714,8 +878,10 @@ int getClass(CIMClient& client, Options& opts)
                                         opts.includeClassOrigin,
                                         opts.propertyList);
 
-    if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
-    OutputFormatClass(opts.outputType, cimClass);
+    if (opts.time) 
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+
+    outputFormatClass(opts.outputType, cimClass);
     return 0;
 }
 
@@ -743,7 +909,6 @@ int getProperty(CIMClient& client, Options& opts)
     return 0;
 }
 
-
 int setProperty(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
@@ -764,7 +929,6 @@ int setProperty(CIMClient& client, Options& opts)
 
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
 
- // ATTN: TODO:
     return 0;
 }
 
@@ -779,7 +943,6 @@ int getQualifier(CIMClient& client, Options& opts)
             << endl;
     }
 
-
     CIMQualifierDecl cimQualifierDecl;
     if (opts.time) opts.elapsedTime.reset();
 
@@ -789,7 +952,7 @@ int getQualifier(CIMClient& client, Options& opts)
 
     // display new qualifier
 
-    OutputFormatQualifierDecl(opts.outputType, cimQualifierDecl);
+    outputFormatQualifierDecl(opts.outputType, cimQualifierDecl);
 
     return 0;
 }
@@ -840,17 +1003,14 @@ int enumerateQualifiers(CIMClient& client, Options& opts)
     if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
 
     if (opts.summary)
-    {
         cout << qualifierDecls.size() << " returned." << endl;
-    }
     else
     {
         // Output the returned instances
         for (Uint32 i = 0; i < qualifierDecls.size(); i++)
         {
             CIMQualifierDecl myQualifierDecl = qualifierDecls[i];
-
-            OutputFormatQualifierDecl(opts.outputType, myQualifierDecl);
+            outputFormatQualifierDecl(opts.outputType, myQualifierDecl);
         }
     }
 
@@ -956,9 +1116,7 @@ int references(CIMClient& client, Options& opts)
     {
         // Output the returned instances
         for (Uint32 i = 0; i < objects.size(); i++)
-        {
-            OutputFormatObject(opts.outputType, objects[i]);
-        }
+            outputFormatObject(opts.outputType, objects[i]);
     }
     return 0;
 }
@@ -1074,9 +1232,7 @@ int associators(CIMClient& client, Options& opts)
     {
         // Output the returned instances
         for (Uint32 i = 0; i < objects.size(); i++)
-        {
-            OutputFormatObject(opts.outputType, objects[i]);
-        }
+            outputFormatObject(opts.outputType, objects[i]);
     }
     return 0;
 }
@@ -1093,6 +1249,16 @@ int associators(CIMClient& client, Options& opts)
  int invokeMethod(CIMClient& client, Options& opts)
  {
      {
+         // Append any parameters found to the list.  This can be used
+         // inplace of the -ip function to create space separated
+         // key=value pairs.
+         for (Uint32 i = 0 ; i < opts.extraParams.size() ; i++)
+         {
+             CIMParamValue cv = _createMethodParamValue(opts.extraParams[i], opts);
+             opts.inParams.append(cv);
+         }
+
+         // Display the parameter set if verbose requested.
 		 if (opts.verboseTest)
 		 {
 			 cout << "invokeMethod"
@@ -1102,38 +1268,35 @@ int associators(CIMClient& client, Options& opts)
 				 << ", inParams Count= " << opts.inParams.size()
 				 << endl;
 			 for (Uint32 i=0; i< opts.inParams.size(); i++)
-			 {
-				 OutputFormatParamValue(opts.outputType, opts.inParams[i]);
-			 }
+				 outputFormatParamValue(opts.outputType, opts.inParams[i]);
 		}
 
-         CIMValue retValue;
-         Array<CIMParamValue> outParams;
+         // Create array for output parameters
+        CIMValue retValue;
+        Array<CIMParamValue> outParams;
+        
+        if (opts.time) opts.elapsedTime.reset();
 
-         if (opts.time) opts.elapsedTime.reset();
-
-         retValue = client.invokeMethod(opts.nameSpace, opts.objectName,
-             opts.methodName, opts.inParams, outParams);
-
-         if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
-
-		 // Display the return value CIMValue
-         cout << "Return Value= ";
-		 if (opts.outputType == OUTPUT_XML)
-			 XmlWriter::printValueElement(retValue, cout);
-		 else
-			 cout << retValue.toString() << endl;
-
-		 // Display any outparms
-         for (Uint32 i = 0; i < outParams.size() ; i++)
-        {
-			 OutputFormatParamValue(opts.outputType, outParams[i]);
-        }
+        // Call invoke method with the parameters
+        retValue = client.invokeMethod(opts.nameSpace, opts.objectName,
+            opts.methodName, opts.inParams, outParams);
+        
+        if (opts.time) {opts.saveElapsedTime = opts.elapsedTime.getElapsed();}
+        
+        // Display the return value CIMValue
+        cout << "Return Value= ";
+        if (opts.outputType == OUTPUT_XML)
+            XmlWriter::printValueElement(retValue, cout);
+        else
+            cout << retValue.toString() << endl;
+        
+        // Display any outparms
+        for (Uint32 i = 0; i < outParams.size() ; i++)
+            outputFormatParamValue(opts.outputType, outParams[i]);
 
      }
      return 0;
  }
-
 
  /* Enumerate the Namespaces.  This function is based on using the __Namespace class
     and either returns all namespaces or simply the ones starting at the namespace input
@@ -1270,20 +1433,23 @@ void GetOptions(
                             "DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default. See !lo "},
 
         {"!localOnly", "false", false, Option::BOOLEAN, 0, 0, "!lo",
+                            "When set, sets LocalOnly = false on operations. DEPRECATED, ! confuses bash. Use -nlo "},
+
+        {"notLocalOnly", "false", false, Option::BOOLEAN, 0, 0, "nlo",
                             "When set, sets LocalOnly = false on operations "},
 
         {"includeQualifiers", "true", false, Option::BOOLEAN, 0, 0, "iq",
                             "Deprecated. Sets includeQualifiers = True. However, default = true "},
 
         {"!includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "!iq",
-                            "Sets includeQualifiers = false on operations"},
+                            "Sets includeQualifiers = false on operations. DEPRECATED, ! confuses bash. Use -niq"},
 
-        {"includeClassOrigin", "false", false, Option::BOOLEAN, 0, 0, "ic",
-                            "If set includeClassOriginOption set toTrue"},
+        {"notIncludeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "niq",
+                            "Sets includeQualifiers = false on operations"},
 
 		// Uses a magic string as shown below to indicate never used.
         {"propertyList", "###!###", false, Option::STRING, 0, 0, "pl",
-                            "Defines a propertyNameList. Format is p1,p2,p3 (without spaces). "},
+                            "Defines a propertyNameList. Format is p1,p2,p3 (without spaces). Use \"\" for empty."},
 
         {"assocClass", "", false, Option::STRING, 0, 0, "ac",
                             "Defines a assocClass string for Associator calls"},
@@ -1293,7 +1459,6 @@ void GetOptions(
 
         {"role", "", false, Option::STRING, 0, 0, "r",
                             "Defines a role string for reference role parameter"},
-
 
         {"resultClass", "", false, Option::STRING, 0, 0, "rc",
                             "Defines a resultClass string for References and Associatiors "},
@@ -1305,10 +1470,11 @@ void GetOptions(
                             "Defines an invokeMethod input parameter list. Format is p1=v1,p2=v2,..,pn=vn (without spaces) "},
 
         {"filter", "", false, Option::STRING, 0, 0, "f",
-                            "defines a filter to use for query. One String input "},
+                            "defines a filter to use for query. Single String input "},
 
-        {"substitute", "", false, Option::STRING, 0, 0, "-s",
-                            "Defines a conditional substition of input parameters. ) "},
+        // This was never used.  Delete. KS
+        //{"substitute", "", false, Option::STRING, 0, 0, "-s",
+        //                    "Defines a conditional substition of input parameters. ) "},
 
         // KS change the output formats to use the enum options function
         // Deprecate this function.
@@ -1318,7 +1484,7 @@ void GetOptions(
         {"xmlOutput", "false", false, Option::BOOLEAN, 0,0, "x",
                             "Output objects in xml instead of mof format"},
 
-        {"version", "false", false, Option::BOOLEAN, 0, 0, "-v",
+        {"version", "false", false, Option::BOOLEAN, 0, 0, "-version",
                             "Displays software Version "},
 
         {"verbose", "false", false, Option::BOOLEAN, 0, 0, "v",
@@ -1329,8 +1495,18 @@ void GetOptions(
                             "Displays only summary count for enumerations, associators, etc. "},
 
         {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
-                            "Prints help message with command line options "},
+                            "Prints help usage message "},
 
+        {"full help", "false", false, Option::BOOLEAN, 0, 0, "-help",
+                            "Prints full help message with commands, options, examples "},
+        {"help options", "false", false, Option::BOOLEAN, 0, 0, "ho",
+                            "Prints list of options "},
+
+        {"help commands", "false", false, Option::BOOLEAN, 0, 0, "hc",
+                            "Prints CIM Operation command list "},
+
+        {"connecttimeout", "0", false, Option::WHOLE_NUMBER, 0, 0, "-timeout",
+                            "Set the connection timeout in seconds. "},
 
         {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
                             "More detailed debug messages "},
@@ -1399,9 +1575,19 @@ String formatLongString (const char * input, Uint32 pos, Uint32 length)
     }
     return(output);
 }
+
+void showUsage(const char* pgmName)
+{
+    cout << "Usage: " << pgmName << "<command> <CIMObject> <Options> *<extra parameters>" << endl
+        << "    -hc    for <command> set and <CimObject> for each command\n"
+        << "    -ho    for <Options> set\n"
+        << "    -h     for this summary\n"
+        << "    --help for full help" << endl;
+}
 /* showCommands - Display the list of operation commands.
 */
-void showCommands()
+const char * helpSummary = " -h for all help, -hc for commands, -ho for options";
+void showCommands(const char* pgmName)
 {
     for( Uint32 i = 0; i < NUM_COMMANDS; i++ )
     {
@@ -1411,6 +1597,21 @@ void showCommands()
         printf("%-5s %-21s",CommandTable[i].ShortCut, CommandTable[i].CommandName);
         cout << txtFormat << endl;
     }
+    cout << helpSummary << endl;
+}
+void showVersion(const char* pgmName, OptionManager& om)
+{
+    cout << endl << pgmName << " V"<< version << " " 
+        " using Pegasus version " << PEGASUS_VERSION << endl;
+}
+
+void showOptions(const char* pgmName, OptionManager& om)
+{
+
+    String optionsTrailer = "Options vary by command consistent with CIM Operations";
+    cout << "The options for this command are:" << endl;
+    om.printOptionsHelpTxt(usage, optionsTrailer);
+    //om.printHelp(const char* pgmName, OptionManager om);
 }
 
 /* PrintHelpMsg - This is temporary until we expand the options manager to allow
@@ -1420,22 +1621,17 @@ void showCommands()
 void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
                 OptionManager& om)
 {
-    String header = "Usage: cli <CIMOperationName> <CIMOperationObject> <Options>";
-    String header2 = "  Execute the <CimOperationName> on the <CIMOperationObject> with <Options>";
+    showUsage(pgmName);
 
-    String optionsTrailer = "Options vary by command consistent with CIM Operations";
-    cout << endl << pgmName << " V"<< version << " " << header << endl <<header2 << endl;
-    cout << endl;
-    cout << "The options for this command are:" << endl;
-    om.printOptionsHelpTxt(usage, optionsTrailer);
-    //om.printHelp(const char* pgmName, OptionManager om);
+    showVersion(pgmName, om);
 
-    showCommands();
+    showOptions(pgmName, om);
+
+    showCommands(pgmName);
 
     cout << endl;
 
     cout << extraHelp << endl;
-
 }
 
 void printUsageMsg(const char* pgmName,OptionManager& om)
@@ -1445,10 +1641,10 @@ void printUsageMsg(const char* pgmName,OptionManager& om)
 
 int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 {
-    // Check to see if user asked for help (-h otpion):
+    // Catch the verbose and debug options first so they can control other
+    // processing
     Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
     Boolean debug = (om.valueEquals("debug", "true")) ? true :false;
-
 
     if (verboseTest)
         opts.verboseTest = verboseTest;
@@ -1478,11 +1674,34 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             }
     }*/
 
-
-    if (om.isTrue("help"))
+    
+    if (om.isTrue("full help"))
     {
                 printHelpMsg(argv[0], usage, usageDetails, om);
                 exit(0);
+    }
+
+    if (om.isTrue("help"))
+    {
+                showUsage(argv[0]);
+                exit(0);
+    }
+    if (om.isTrue("version"))
+    {
+        showVersion(argv[0], om);
+        exit(0);
+    }
+
+    if (om.isTrue("help options"))
+    {
+        showOptions(argv[0], om);
+        exit(0);
+    }
+
+    if (om.isTrue("help commands"))
+    {
+        showCommands(argv[0]);
+        exit(0);
     }
 
     // Establish the namespace from the input parameters
@@ -1559,6 +1778,11 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     {
             opts.delay = 0;
     }
+
+    if(!om.lookupIntegerValue("connectiontimeout", opts.connectionTimeout))
+    {
+            opts.connectionTimeout = 0;
+    }
     if (verboseTest && debug && opts.delay != 0)
     {
         cout << "delay= " << opts.delay << " Seconds" << endl;
@@ -1570,11 +1794,15 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
 	// process localOnly and !localOnly parameters
     opts.localOnly = om.isTrue("localOnly");
-	if (om.isTrue("!localOnly"))
+	if (om.isTrue("!localOnly") || om.isTrue("notNocalOnly"))
 	{
 		opts.localOnly = false;
 	}
-	if (verboseTest && debug && om.isTrue("!localOnly"))
+
+    // Use two options for the not command because the ! confuses bash
+    // Either is legal and they do the same thing.
+    // Used the not version because the DMTF and pegasus default is true
+	if (verboseTest && debug && (om.isTrue("!localOnly") || om.isTrue("notLocalOnly")))
 	{					
 		cout << "localOnly= " << _toString(opts.localOnly) << endl;;
 	}
@@ -1582,12 +1810,12 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 	// Process includeQualifiers and !includeQualifiers
     opts.includeQualifiers = om.isTrue("includeQualifiers");
 	
-	if (om.isTrue("!includeQualifiers"))
+	if (om.isTrue("!includeQualifiers") || om.isTrue("notIncludeQualifiers"))
 	{
 		opts.includeQualifiers = false;
 	}
 
-	if (verboseTest && debug && om.isTrue("!includeQualifiers"))
+	if (verboseTest && debug && (om.isTrue("!includeQualifiers") || om.isTrue("notIncludeQualifiers" )))
 	{
 		cout << "includeQualifiers = " << _toString(opts.includeQualifiers) << endl;
 	}
@@ -1632,7 +1860,6 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     {
         cout << "Pegasus Trace set to  Level  " << opts.trace << endl;
     }
-
 
     opts.summary = om.isTrue("summary");
 
@@ -1709,6 +1936,8 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     /*  Property List parameter.
         Separate an input stream into an array of Strings
 		Two special situations, empty list and NULL list
+        Use NULL when there is no list.
+        Use empty if 
     */
     {
         String properties;
@@ -1738,16 +1967,16 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         }
     }
 
-
     /* Method input parameters processing.  Process as one
        string containing multiple parameters in the form
        name=value
        ATTN: KS 20030426 Note that we have not accounted for
-       the typing on parameters. We must do that at some point
+       the typing on parameters.
     */
     String inputParameters;
     if(om.lookupValue("inputParameters", inputParameters))
     {
+        // first tokenization is the ','
         Array<String> pList =  _tokenize(inputParameters, ',');
         for (Uint32 i = 0 ; i< pList.size() ; i++)
         {

@@ -65,7 +65,7 @@ Boolean _getClassNameInput(int argc, char** argv, Options& opts, Boolean rqd)
     {
         if (rqd)
         {
-                cerr << "Class Name Required" << endl;
+                cerr << "Class Name Required. ex. gc CIM_Door" << endl;
                 return(false);
         }
         else
@@ -127,38 +127,30 @@ Boolean _getQualifierNameInput(int argc, char** argv, Options& opts)
 }
 
 ///////////////////////////////////////////////////////////////////////
+//            Main
+///////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
 
     // If no arguments, simply print usage message and terminate.
-    OptionManager om;
-    Options opts;
     if (argc == 1)
     {
-        printUsageMsg(argv[0], om);
+        showUsage(argv[0]);
         exit(0);
     }
 
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments from the command
-    // line.
-
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments from the command
-    // line.
-    //****** Show the args diagnostic display
     
     // The following is a temporary hack to get around the fact that I cannot input the
     // double quote character from the commandline, either with or without the escape
     // character.  I simply replace all @ characters with the " charcter
+    
     for (int i = 0; i < argc; i++)
     {
         char *p;
         while ((p = strchr(argv[i], '@')) != NULL)
-        {
             *p = '\"';
-        }
     }
+    //****** Show the args diagnostic display
     if (strcmp(argv[1],"displayargs") == 0)
     {
         cout << "argc = " << argc << endl;
@@ -166,13 +158,22 @@ int main(int argc, char** argv)
             cout << "argv[" << i << "] = " << argv[i] << endl;
     }
 
+    // Get options (from command line and from configuration file); this
+    // removes corresponding options and their arguments from the command
+    // line.
+
+    // Get options (from command line and from configuration file); this
+    // removes corresponding options and their arguments from the command
+    // line.
+    OptionManager om;
+    Options opts;
     try
     {
+        // assume that the config file is local to directory where called.
         String testHome = ".";
         GetOptions(om, argc, argv, testHome);
-        //om.print();
 
-
+        // Initialize all of the function input parameters.
 		opts.location =   "localhost:5988";
 		opts.nameSpace = "root/cimv2";
 		opts.cimCmd = "unknown";
@@ -208,9 +209,15 @@ int main(int argc, char** argv)
 		opts.debug = false;
 		opts.queryLanguage = "WQL";
 
+        // move any other input parameters left to the extraParams List
 		CheckCommonOptionValues(om, argv, opts);
-
+        if (argc > 2)
+        {
+            for (Uint32 i = 2 ; i < argc ; i++ )
+                opts.extraParams.append(argv[i]);
+        }
     }
+
 	catch(CIMException& e)
 	{
 		cerr << argv[0] << " Caught CIMException during init: "
@@ -218,6 +225,7 @@ int main(int argc, char** argv)
 			 << endl;
 		exit(1);
 	}
+
     catch (Exception& e)
     {
         cerr << argv[0] << ": " << e.getMessage() << endl;
@@ -245,6 +253,7 @@ int main(int argc, char** argv)
         exit(1);
     }
 
+    // if the trace option was set initialize the trace function.
     if (opts.trace != 0)
     {
         const char* tmpDir = getenv ("PEGASUS_TMP");
@@ -274,29 +283,32 @@ int main(int argc, char** argv)
             break;
     }
     Stopwatch totalElapsedExecutionTime;
-    // No try to open the connection to the cim server
+    // Now try to open the connection to the cim server
     CIMClient client;
     try
     {
-        if (opts.verboseTest)
+        if (CommandTable[cmdIndex].ID_Command != ID_ShowOptions)
         {
-            cout << "Connecting to " << opts.location
-                 << " for User = " << opts.user 
-                 << " password = " << opts.password
-                 << endl;
+            if (opts.verboseTest)
+            {
+                cout << "Connecting to " << opts.location
+                     << " for User = " << opts.user 
+                     << " password = " << opts.password
+                     << endl;
+            }
+            // Take off port number if it is on host name
+            Uint32 index = opts.location.find (':');
+            String host = opts.location.subString (0, index);
+            
+            Uint32 portNumber = WBEM_DEFAULT_HTTP_PORT;
+            if (index != PEG_NOT_FOUND)
+            {
+                String portStr = opts.location.subString (index + 1,
+                    opts.location.size ());
+                sscanf (portStr.getCString (), "%u", &portNumber);
+            }
+            client.connect(host, portNumber, opts.user, opts.password);
         }
-        // Take off port number if it is on host name
-        Uint32 index = opts.location.find (':');
-        String host = opts.location.subString (0, index);
-        
-        Uint32 portNumber = WBEM_DEFAULT_HTTP_PORT;
-        if (index != PEG_NOT_FOUND)
-        {
-            String portStr = opts.location.subString (index + 1,
-                opts.location.size ());
-            sscanf (portStr.getCString (), "%u", &portNumber);
-        }
-        client.connect(host, portNumber, opts.user, opts.password);
     }    
     catch(Exception &e) 
     {
@@ -309,11 +321,19 @@ int main(int argc, char** argv)
         // This was a test because of some delay caused problems.
         pegasus_sleep(opts.delay * 1000);
     }
+
+    // If the timeout is not zero, set the timeout for this connection.
+    if (opts.connectionTimeout != 0)
+    {
+        client.setTimeout(opts.connectionTimeout * 1000);
+    }
+
     double totalTime = 0;
     Uint32 repeatCount = opts.repeat;
     double maxTime = 0;
     double minTime = 10000000;
 
+    // Process the input command within a try block.
     try
     {
         // Loop to repeat the command a number of times.
@@ -364,8 +384,9 @@ int main(int argc, char** argv)
                     break;
                     
                 case ID_CreateInstance :
-                    cout << " Create Instance Not Implemented" << endl;
-                    opts.inputObjectName = argv[2];
+                    if (!_getClassNameInput(argc, argv, opts, true))
+                        exit(1);
+                    createInstance(client, opts);
                     break;
 
                 case ID_DeleteInstance :
@@ -387,25 +408,22 @@ int main(int argc, char** argv)
                 case ID_GetProperty :
                     // ATTN: This one is wrong
                     if (argc != 4)
-                    {
                         cout << "Usage: cli getproperty <instancename> <propertyname>" << endl;
-                    }
+
                     if (argc > 2)
                     {
                         opts.instanceName = argv[2];
                         opts.inputObjectName = argv[2];
                     }
+
                     if (argc > 3)
-                    {
                         opts.propertyName = argv[3];
-                    }
+
                     getProperty(client, opts);
                     break;
                 case ID_SetProperty :
                     if (argc != 5)
-                    {
                         cout << "Usage: cli setproperty instancename propertyname value " << endl;
-                    }
                     setProperty(client, opts);
                     break;
 
@@ -474,6 +492,7 @@ int main(int argc, char** argv)
                     }
                     else
                         opts.nameSpace = "root";
+
                     enumerateNamespaces_Namespace(client,opts);
                     break;
 
@@ -515,11 +534,13 @@ int main(int argc, char** argv)
                     break;
 
                 case ID_ShowOptions :
-                    showCommands();
+                    showUsage(argv[0]);
                     break;
+
                 case ID_ExecQuery:
-		    opts.query = argv[2];
-                    if (argc==4) opts.queryLanguage = argv[3];
+        		    opts.query = argv[2];
+                    if (argc==4)
+                        opts.queryLanguage = argv[3];
                     executeQuery(client, opts);
 		    break; 
                 //case ID_Unknown :
@@ -558,7 +579,6 @@ int main(int argc, char** argv)
                     << " min= " << minTime << " max= " << maxTime << endl; 
             }
         }
-    
     }
     catch(CIMException& e)
     {

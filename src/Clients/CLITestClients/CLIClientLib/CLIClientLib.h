@@ -130,8 +130,8 @@ CMD_STRUCT CommandTable[] =
          "Get class. <classname> (cli gc CIM_Door"                  },
     {ID_GetInstance,             "getinstance",   2 ,       "gi",
          "Get instance <objectname> "  },
-    {ID_CreateInstance,          "createinstance",2 ,       "ci", "Not supported "  },
-    {ID_DeleteInstance,          "deleteinstance",2 ,       "di", "Delete one Instance <objectname> "  },
+    {ID_CreateInstance,          "createinstance",2 ,       "ci", "Create one Instance <Class> *<name=param> "  },
+    {ID_DeleteInstance,          "deleteinstance",2 ,       "di", "Delete one Instance <objectname> or interactive <className> "  },
     {ID_CreateClass   ,          "createclass",   2 ,       "cc", "Not supported "  },
     {ID_ModifyInstance,          "modifyclass",   2 ,       "mi", "Not supported "  },
     {ID_DeleteClass,             "deleteinstance",2 ,       "dc", "Delete one Class <classname> "  },
@@ -158,6 +158,8 @@ CMD_STRUCT CommandTable[] =
 const Uint32 NUM_COMMANDS = sizeof(CommandTable) / sizeof(CommandTable[0]);
 
 // ************* Options Functions
+// The input options used by the individual commands. Note that
+// Use of these varies by command.
 
 struct  OPTION_STRUCT
 {
@@ -211,28 +213,36 @@ struct  OPTION_STRUCT
     Uint32 termCondition;
     String queryLanguage;
     String query;
+    Uint32 connectionTimeout;    // Connection timeout in seconds
+    Array<String> extraParams;   // additional parameter list. depends on command.
 };
 
 typedef struct OPTION_STRUCT Options;
 
-Array<String> PEGASUS_CLI_LINKAGE _tokenize(String& input, Char16 separator);
+Array<String> PEGASUS_CLI_LINKAGE _tokenize(const String& input, const Char16 separator);
 
-CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(String& input, Options& opts);
+CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(const String& input, const Options& opts);
 
-void PEGASUS_CLI_LINKAGE showCommands();
+void PEGASUS_CLI_LINKAGE showCommands(const char* pgmName);
 
-void PEGASUS_CLI_LINKAGE printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp, 
-                OptionManager& om);
+void PEGASUS_CLI_LINKAGE showUsage(const char* pgmName);
+
+void PEGASUS_CLI_LINKAGE printHelpMsg(const char* pgmName, const char* usage,
+     const char* extraHelp, 
+     OptionManager& om);
 
 void PEGASUS_CLI_LINKAGE printHelp(char* name, OptionManager& om);
 
 void PEGASUS_CLI_LINKAGE printUsageMsg(const char* pgmName,OptionManager& om);
 
-void  PEGASUS_CLI_LINKAGE GetOptions(OptionManager& om, int& argc, char** argv,  const String& testHome);
+void  PEGASUS_CLI_LINKAGE GetOptions(OptionManager& om, int& argc, char** argv,
+      const String& testHome);
 
-int PEGASUS_CLI_LINKAGE CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts);
+int PEGASUS_CLI_LINKAGE CheckCommonOptionValues(OptionManager& om, char** argv,
+     Options& opts);
 
-void PEGASUS_CLI_LINKAGE mofFormat(PEGASUS_STD(ostream)& os, const char* text, Uint32 indentSize);
+void PEGASUS_CLI_LINKAGE mofFormat(PEGASUS_STD(ostream)& os, const char* text,
+     Uint32 indentSize);
 
 // ************* CIMClient Functions
 int PEGASUS_CLI_LINKAGE enumerateClassNames(CIMClient& client, Options& opts);
@@ -250,6 +260,8 @@ int PEGASUS_CLI_LINKAGE enumerateInstanceNames(CIMClient& client, Options& opts)
 int PEGASUS_CLI_LINKAGE enumerateAllInstanceNames(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE enumerateInstances(CIMClient& client, Options& opts);
+
+int PEGASUS_CLI_LINKAGE createInstance(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE getInstance(CIMClient& client, Options& opts);
                                            

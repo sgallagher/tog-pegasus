@@ -15,59 +15,279 @@ All platforms that support the Pegasus CIMOM
 
 .I CLI
 is a test tool for executing CIM client operations from the command line. It implements
-all of the CIM operations except for the modify and create operations and includes several
-other operations that are useful in testing including getting all namespaces, enumerating all
+all of the CIM operations except for the modify and create  class operations and includes several
+other operations that are useful in testing including getting all namespaces and enumerating all
 instances in a namespace.
 .P
-each execution of CLI involves a 
+Each execution of CLI invokes a CIM Operation and the corresponding command parameters equivalent
+to the CIM Operations defined in the CIM Operations over HTTP specification. 
+In addition to the basic
+CIM Operations defined in the specification, this tool implements a number of other specific operations
+that support testing and querying CIM servers including
+
+enumerate namespaces (ns) - Displays a list of the namespaces available from the CIMOM
+enumerate all instance names (niall) - Displays all instance names in the defined namespace
+
+The format of the command line is:
+
+CLI [Operation] [object] [option] [extra parameters]
+
+
 .TP 12
-[command] defines the CIM operation (ex. getclass) or the compound operation (enumeratenamespace)
+[Operation] defines the CIM operation (ex. getclass) or the compound operation (enumeratenamespaces). There
+are two forms for each Operation, a short form typically two characters (i.e. gc) and the long form which is the
+full name of the operation (i.e. getclass).
 .TP
-[object] This is the name of the object input with the command.  For example, with the get class
-operation the object is a class name.  With the getinstance command the object is an objectname. Note
+[object] This is the name of the object input with the command. It is Operation dependent.
+For example, with the getClass operation the object is a class name.
+With the getinstance command the object is an objectname. Note
 that some of the commands do not require an object.   Thus, for example the [object] is optional with
-the enumerateClassnames command as it is with the equivalent CIM operation.
+the enumerateClassNames operation as it is with the equivalent  enumerateClassNames CIM operation.
 .TP
 [option...] 
-Options are defined with the - or -- notation.  There are two types of options
-1. A set of options that are universal and modify or define the execution of the command or the the 
+Options are identified on the command line with the - or -- notation.  There are two types of options
+1. A set of options that are universal and modify or define the execution of the command or the 
 form of the return.  This includes options like setting the output format for object responses or
 requesting only summary operation.
 2. A set of options that represent the optional input parameters for selected commands
 and a set of options on the command line. The
-command defines the CIM Operation that will be executed and the options define the optional
+command defines the CIM Operation that will be executed and the options define the optional.
+3. A set of options to display help (-h, --help, --ho to get a list of all options, and
+-hc to get a list of all commands
 
 
 .SH COMMANDS
+
+There is a set of options which are general to all of the CIM Operations and most of the compound operations
+including:
+
+        -n - namespace name for this operation (ex. -n root)
+        -l - location (host name or IP address and optionally port) for this operation. The default is localhost:5988
+        -u - User name
+        -p - password
+        
+
+In addition there is a set of options that modifies the manner in which the command is executed or
+the display of information on response including the following:
+
+        --t  Measure time for the operation to be completed.
+        -r [n]repeat the operation n times
+        -delay [n] Delay n seconds between connect and operation.
+        -s summary - present only summary information, not full output
+        -o [xml |mof} output type for commands that output objects
+        TBD
 .TP 10
 ni     enumerateinstancenames
-Execute the enumerateInstanceNames CIM Operation.  This operation takes as input options TBD
-and returns a list of instanceNames.
+Execute the enumerateInstanceNames CIM Operation.  This operation takes as input options specific
+to this command the following:
+
+        -nlo - not local only
+        -niq - do not return qualifiers
+        -ic - include class origin
+        -di - deep inheritance
+
+and returns a list of instanceNames, one per line.
 
 .TP 
 .TP
 niall enumerateallinstanceNames
-Execute a CLI function that gets all instance names within the defined namespace.  This function
+Execute a enumerateinstancenames to get all instance names within the defined namespace.  This function
 searches the complete namespace using the CIM getClass operation to get the classes and the
 enumerateInstanceNames command to enumerate all of the instances for each class. It returns
-the list of instances found.
+the list of instance names found.
 .TP
 ei    EnumerateInstances
 Execute the CIM operation enumerateInstances.  This function takes as input options specific to the command
-the deep inheritance (-di), TBD options.  It returns the instances found either as MOF or
+
+        -nlo - not local only
+        -niq - do not return qualifiers
+        -ic - include class origin
+        -di - deep inheritance
+        -pl [property List] optional property list for the operation.
+        
+.  It returns the instances found either as MOF or
 XML depending on the output options.
 .TP
+
 nc    EnumerateClassNames
-Text TBD
+Enumerate Class Names. [ <classname> ] [options] where the used options are:
+
+        -niq - do not include qualifiers
+        -nlo - not localOnly
+        -pl - propertyList
+        -cl - class origin
+
 .TP
 ec    EnumerateClasses
-Text
+[ <classname> ] [options] where the possible options are:
+
+        -iq - include qualifiers
+        -niq - do not include qualifiers
+        -lo - localOnly (default so ignored)
+        -nlo - do not include qualifiers
+        -pl - propertyList
+        -cl - class origin
+
 .TP
+ci    createinstance
+This command issues the CIM operation create instance with the parameters provided.
+It requires the [object] parameter defining the class for which the instance is to
+be created and also allows for an optional set of parameters that defined properties
+to be provided in the following format
+
+  [propertyName]=value
+
+If the propertyName parameter is provided with no value, the default is inserted.
+Note that the CIM operation is issued even if the property name is illegal since this 
+is considered to be a test program.
+
+The command actually reads the CIM_Class, inserts the properties that have been defined
+on the command line using the value type from the class.
+
+The command will be rejected if the class does not exist in the namespace.
+
+Example:
+
+cli ci CIM_door name=abc size=zyx
+
+Returns the object path of the created instance if the call to the cim server was executed.
+Otherwise it returns the exception received.
+.TP
+mi    modifyinstance
+This is the same format as the createinstance.  The difference is that the instance
+must already exist to be modified.
+
+.TP
+gi    GetInstance
+gets the instance defined by the instance name parameter and displays it
+as in the format chosen for this operation (xml or mof).
+
+This command requiers the [object] parameter.  If the parameter is an instance with
+keys defined (a CIMObjectPath), the a getInstance CIM operation is executed and the
+return from the CIM Server presented (in either xml or mof depending on the ouput option).
+If the input is a class name, a enumerateinstanceNames CIM Operation is executed and if
+any instance names are returned the result is presented to the console for the user to
+select one of the instances to be deleted.
+
+If there are no instances, the return from this command is simply an empty response.
+
+CLI [instance name] [options]
+
+Where possible options are:
+
+-iq  include qualifiers
+-lo  localonly
+-pl  optional property list that defines which properties to return.
+
+OR
+
+CLI [class name] [options]
+
+.TP
+di    deleteinstance
+Delete instance executed a single deleteInstance command to the CIM Server.  
+
+This command requires the [object] parameter.  If this parameter is a full instance
+name with className and key bindings, the deleteInstance CIM Operation is executed
+directly.  If it is a class name with no keybindings, the  enumerateInstances command
+is executed and the list of returned instances presented to the console for the user
+to select one to delete.  CLI then executes deleteInstance with the selected instance
+name and returns the response,
+
+return - there is an empty response if the instance was successfully deleted or
+an exception return if there were any errors.
+
+CLI di [object]
+
+Examples:
+
+CLI di PG_test - esecutes enumerateInstanceName on PG_test and allows the user to select the
+instance to be deleted.
+
+CLI di PG_test.name="abc" - attempts to delete that object.
+
+.TP
+gq    getQualifier
+getQualifier displays the target qualifier
+
+CLI gq [qualifier name]
+
+.TP
+sq    setQualifier
+This command is not implemented.
+
+.TP
+eq    enumeratequalifiers
+Enumerate all of the qualifiers defined in the target namespace
+
+CLI eq
+
+There are no options for this command.
+
+.TP
+dq    deletequalifier
+Deletes the target qualifier.
+
+CLI dq [qualifier name]
+.TP
+a     associatiors
+Enumerate the associators for the target object.  The syntax for this operation
+is 
+    CLI a [object] [options]
+where the possible options are:
+
+
+Text
+
+.TP
+an    associatornames
+Enumerate teh associator names for the target object.  The syntax for this operation
+is:
+
+    CLI an [object name] [options]
+
+where ObjectName can be either a class name or an instance name
+
+options can be as follows:
+
+TBD
+
+.TP
+r     references
+Text
+
+.TP
+rn    referencenames
+Text
+
+.TP
+im    invokeMethod
+This command executes the extrinsic operation to execute a method on a CIM class or instance
+
+The form of the command is
+
+CLI [object] [methodname] *[parameters]
+
+
+.TP
+eq    executeQuery
+Not Supported
+
+.TP
+ns    enumeratenamespaces
+Request an Enumeration of all the namespaces in the target CIM Server.  This command uses both
+the CIM_Namespace class and if that fails, the __Namespace class to determine the list of namespaces.
+
+RETURN - It returns a list of the namespace names returned by the CIM Server.
+.TP
+?     Show Command Opetions
 
 
 .SH OPTIONS 
 There are a significant number of options to this utility, some if which provide specific information 
-for one or more commands and some of which are universal across all of the commands.
+for one or more commands and some of which are universal across all of the commands.   In general, the
+program does not check for spurious options so that if you input an option that is not used by a particular
+operation, it is ignored.
 .TP 5 
 -u  
 User. Allows input of a user name for authentication
@@ -93,9 +313,119 @@ See the commands for more information.
 .TP
 -iq
 includeQualifiers. Specifies the includeQualifiers operation input paramter for selected commands. if the option is set.
-.TP
+
 -is
 includeClassOrigin
+
+
+.TP
+-u
+User
+Defines User Name for authentication. Default()
+
+.TP 
+-p
+Password
+Defines password for authentication. Default()
+
+.TP
+-l
+location
+Specifies system and port (HostName:port). Port is optional. Default(localhost:5988)
+
+.TP
+ -n
+   namespace. 
+   Specifies namespace to use for operation. Default(root/cimv2)
+
+.TP
+ -di
+   deepInheritance. 
+   If set deepInheritance parameter set true . Default(false)
+
+.TP 
+-lo  
+localOnly. 
+DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default. See !lo . Default(true)
+
+.TP 
+-!lo  
+!localOnly. 
+When set, sets LocalOnly = false on operations. DEPRECATED,!confuses bash. Use -nlo . Default(false)
+
+.TP 
+-nlo  
+notLocalOnly. 
+When set, sets LocalOnly = false on operations . Default(false)
+
+.TP 
+-iq  
+includeQualifiers. 
+Deprecated. Sets includeQualifiers = True. However, default = true . Default(true)
+
+.TP 
+-!iq  
+!includeQualifiers. 
+Sets includeQualifiers = false on operations. DEPRECATED, ! confuses bash. Use -niq. Default(false)
+
+.TP 
+-niq  
+notIncludeQualifiers
+Sets includeQualifiers = false on operations. Default(false)
+
+.TP 
+-pl  
+propertyList
+Defines a propertyNameList. Format is p1,p2,p3 (without spaces). . Default(###!###)
+
+.TP -ac  assocClass. Defines a assocClass string for Associator calls. Default()
+
+.TP -ar  assocRole. Defines a role string for Associatiors AssocRole parameter. Default()
+
+.TP -r  role. Defines a role string for reference role parameter. Default()
+
+.TP -rc  resultClass. Defines a resultClass string for References and Associatiors. Default()
+
+.TP -rr  resultRole. Defines a role string for associators operation resultRole parameter. . Default()
+
+.TP -ip  inputParameters. Defines an invokeMethod input parameter list. Format is p1=v1,p2=v2,..,pn=vn (without spaces) . Default()
+
+.TP -f  filter. defines a filter to use for query. One String input . Default()
+
+.TP --s  substitute. Defines a conditional substition of input parameters. ) . Default()
+
+.TP -o  outputformats. Output in xml, mof, txt. Default(mof)
+
+.TP -x  xmlOutput. Output objects in xml instead of mof format. Default(false)
+
+.TP --v  version. Displays software Version . Default(false)
+
+.TP -v  verbose. Verbose Display. Includes Detailed Param Input display . Default(false)
+
+.TP -s  summary. Displays only summary count for enumerations, associators, etc. .Default(false)
+
+.TP -h  help. Prints help usage message . Default(false)
+
+.TP --help  helpfull. Prints full help message with commands, options, examples . Default(false)
+
+.TP -ho  helpoptions. Prints list of options . Default(false)
+
+.TP -hc  helpcommands. Prints CIM Operation command list . Default(false)
+
+.TP --timeout  connecttimeout. Set the connection timeout in seconds. . Default(0)
+
+.TP -d  debug. More detailed debug messages . Default(false)
+
+.TP -trace  trace. Set Pegasus Common Components Trace. Sets the Trace level. 0 isoff. Default(0)
+
+.TP -delay  delay. Delay between connection and request . Default(0)
+
+.TP -count  count. Expected count of objects returned if the summary set. Tests this count and display difference. Term nonzero if test fails  . Default(29346)
+
+.TP --r  repeat. Number of times to repeat the function. Zero means one time . Default(0)
+
+.TP --t  time. Measure time for the operation and present results. . Default(false)
+
 .SH EXAMPLES
 .P
 Execute an enumerateinstancenames CIM operation for the pg_computersystem Class
@@ -118,7 +448,7 @@ Enumerate class names from the namespace "root"
  CLI ec -o xml   -- Enumerate classes with XML output starting at root CLI enumerateclasses CIM_Computersystem -o xml
     -- Enumerate classes in MOF starting with CIM_Computersystem
 .P
- CLI getclass CIM_door -a -u guest =p guest
+ CLI getclass CIM_door -a -u guest -p guest
     -- Get class with authentication set and user = guest, password = guest.
 .P
  CLI rn TST_Person.name=@MIKE@ -n root/sampleprovider -rc TST_Lineage.
@@ -127,8 +457,26 @@ Enumerate class names from the namespace "root"
 .P
  CLI getqualifiers -- Get the qualifiers in mof output format
 .SH BUGS
+Currently at least some platforms and shells have problems with the double-quote which
+is used extensively in object names within CIM. To get around this, the
+character '@' has been mapped to the double-quote so that inputting
+a command line with this character in place of quotes is acceptable.
+Thus, for example, 
+
+CLI rn TST_Person.name=@MIKE@ ...
+
+is equivalent to
+
+CLI rn TST_Person.name-"MIKE" ...
+
+In this version there is no way to turn this character mapping off which
+means that the @ character is lost.
+
 .SH WARNINGS
+
 .SH "RETURN VALUE"
+
+CLI returns the following codes
 .SH AUTHOR 
 
-Karl Schopmeyer
+Karl Schopmeyer k.schopmeyer@opengroup.org

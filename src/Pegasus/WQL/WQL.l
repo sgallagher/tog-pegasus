@@ -23,81 +23,81 @@ IDENT_CHAR [A-Za-z_]
 
 [Ss][Ee][Ll][Ee][Cc][Tt] {
 
-    WQL_TRACE(("LEX: TOK_SELECT: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_SELECT]\n", yytext));
     return TOK_SELECT;
 }
 
 [Ff][Rr][Oo][Mm] {
 
-    WQL_TRACE(("LEX: TOK_FROM: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_FROM]\n", yytext));
     return TOK_FROM;
 }
 
 [Ww][Hh][Ee][Rr][Ee] {
 
-    WQL_TRACE(("LEX: TOK_WHERE: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_WHERE]\n", yytext));
     return TOK_WHERE;
 }
 
 [Tt][Rr][Uu][Ee] {
 
-    WQL_TRACE(("LEX: TOK_TRUE: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_TRUE]\n", yytext));
     return TOK_TRUE;
 }
 
 [Ff][Aa][Ll][Ss][Ee] {
 
-    WQL_TRACE(("LEX: TOK_FALSE: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_FALSE]\n", yytext));
     return TOK_FALSE;
 }
 
 [Nn][Ul][Ul] {
 
-    WQL_TRACE(("LEX: TOK_NULL: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_NULL]\n", yytext));
     return TOK_NULL;
 }
 
 [Nn][Oo][Tt] {
 
-    WQL_TRACE(("LEX: TOK_NOT: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_NOT]\n", yytext));
     return TOK_NOT;
 }
 
 [Aa][Nn][Dd] {
 
-    WQL_TRACE(("LEX: TOK_AND: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_AND]\n", yytext));
     return TOK_AND;
 }
 
 [Oo][Rr] {
 
-    WQL_TRACE(("LEX: TOK_OR: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_OR]\n", yytext));
     return TOK_OR;
 }
 
 [Ii][Ss] {
 
-    WQL_TRACE(("LEX: TOK_IS: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_IS]\n", yytext));
     return TOK_IS;
 }
 
 [-+]?{POSITIVE_DECIMAL_DIGIT}{DECIMAL_DIGIT}* {
 
-    WQL_TRACE(("LEX: TOK_INTEGER: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_INTEGER]\n", yytext));
     WQL_lval.intValue = strtol(yytext, (char**)0, 10);
     return TOK_INTEGER;
 }
 
 [+-]?0 {
 
-    WQL_TRACE(("LEX: TOK_INTEGER: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_INTEGER]\n", yytext));
     WQL_lval.intValue = 0;
     return TOK_INTEGER;
 }
 
 [-+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)? {
 
-    WQL_TRACE(("LEX: TOK_DOUBLE: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_DOUBLE]\n", yytext));
     WQL_lval.doubleValue = strtod((char*)yytext, (char**)0);
     return TOK_DOUBLE;
 }
@@ -106,7 +106,7 @@ IDENT_CHAR [A-Za-z_]
 
     /* ATTN: Can long string literals overflow the buffer? */
 
-    WQL_TRACE(("LEX: TOK_STRING: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_STRING]\n", yytext));
     WQL_lval.strValue = strdup(yytext);
     return TOK_STRING;
 }
@@ -123,43 +123,43 @@ IDENT_CHAR [A-Za-z_]
 }
 
 "=" { 
-    WQL_TRACE(("LEX: TOK_EQ: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_EQ]\n", yytext));
     return TOK_EQ; 
 }
 
 "!=" { 
 
-    WQL_TRACE(("LEX: TOK_NE: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_NE]\n", yytext));
     return TOK_NE; 
 }
 
 "<=" { 
 
-    WQL_TRACE(("LEX: TOK_LE: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_LE]\n", yytext));
     return TOK_LE; 
 }
 
 "<" { 
 
-    WQL_TRACE(("LEX: TOK_LT: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_LT]\n", yytext));
     return TOK_LT; 
 }
 
 ">=" { 
 
-    WQL_TRACE(("LEX: TOK_GE: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_GE]\n", yytext));
     return TOK_GE; 
 }
 
 ">" { 
 
-    WQL_TRACE(("LEX: TOK_GT: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_GT]\n", yytext));
     return TOK_GT; 
 }
 
 {IDENT_CHAR}({IDENT_CHAR}|{DECIMAL_DIGIT})*  {
 
-    WQL_TRACE(("LEX: TOK_IDENTIFIER: %s\n", yytext));
+    WQL_TRACE(("LEX: %s [TOK_IDENTIFIER]\n", yytext));
     WQL_lval.strValue = strdup((char*)yytext);
     return TOK_IDENTIFIER;
 }

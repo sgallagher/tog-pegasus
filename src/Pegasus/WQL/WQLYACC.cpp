@@ -767,7 +767,7 @@ yyreduce:
 case 1:
 #line 113 "wql.y"
 {
-
+	printf("YACC: start\n");
     ;
     break;}
 case 2:

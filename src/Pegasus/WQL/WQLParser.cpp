@@ -79,6 +79,5 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     _offset += numRequested;
     numRead = numRequested;
 
-    PEGASUS_OUT(numRead);
     return numRead;
 }

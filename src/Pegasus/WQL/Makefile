@@ -14,6 +14,7 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
 SOURCES = \
+    WQLOperand.cpp \
     WQLYACC.cpp \
     WQLLEX.cpp \
     WQLParser.cpp

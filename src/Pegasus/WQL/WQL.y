@@ -111,7 +111,7 @@ extern int WQL_error(char*);
 start
     : selectStatement
     {
-
+	printf("YACC: start\n");
     }
 
 selectStatement

@@ -1995,6 +1995,7 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 
         // get cached or load new provider module
         Provider provider = providerManager.getProvider(pair.first, pair.second);
+
         provider.enableIndications(handler);
     }
     catch(CIMException & e)

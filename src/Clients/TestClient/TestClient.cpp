@@ -120,7 +120,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
 
     // Build the namespaces incrementally starting at the root
     // ATTN: 20030319 KS today we start with the "root" directory but this is wrong. We should be
-    // starting with null (no directoyr) but today we get an xml error return in Pegasus
+    // starting with null (no directory) but today we get an xml error return in Pegasus
     // returned for this call. Note that the specification requires that the root namespace be used
     // when __namespace is defined but does not require that it be the root for allnamespaces. That
     // is a hole is the spec, not in our code.
@@ -202,6 +202,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
     	instanceName.append( ".Name=\"");
     	instanceName.append(testNamespaceName.getString());
     	instanceName.append("\"");
+
     	if(verboseTest)
     	{
     	    cout << "Creating " << instanceName << endl;
@@ -254,14 +255,14 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
     	     return;
     	}
 
-    	// Now delete it
-
+    	// Now delete the namespace
     	try
     	{
     		CIMObjectPath myReference(instanceName);
-		if(verboseTest)
+            if(verboseTest)
     	    		cout << "Deleting namespace = " << instanceName << endl;
-    	    	client->deleteInstance(__NAMESPACE_NAMESPACE, myReference);
+
+    	   client->deleteInstance(__NAMESPACE_NAMESPACE, myReference);
     	}
     	catch(Exception& e)
     	{
@@ -713,6 +714,7 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
     It does not capture exceptions
 */
 static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
+        Boolean verboseTest,
         CIMObjectPath& objectName,
         CIMName assocClass,
         CIMName resultClass,
@@ -732,6 +734,11 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
         	resultClass,
         	role);
 
+    if (verboseTest)
+    {
+        cout << "Test references results for class: " << objectName.getClassName() 
+            << " returned " << result.size() << "reference names" << endl;
+    }
     if (result.size() != resultObjects.size())
     {
         cout << "ERROR, Reference and reference Name count difference" << endl;
@@ -762,6 +769,13 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
         	resultClass,
         	role,
             resultRole);
+
+
+    if (verboseTest)
+    {
+        cout << "Test associations results for class: " << objectName.getClassName() 
+            << " returned " << result.size() << "associator names" << endl;
+    }
     if (assocResult.size() != assocResultObjects.size())
     {
         cout << "ERROR, Associator and AssociatorName count returned different counts "
@@ -805,8 +819,8 @@ static void TestAssociationOperations(CIMClient* client, Boolean
         CIMObjectPath o1("CIM_ManagedElement");
         CIMObjectPath o2("CIM_ManagedElement.name=\"karl\"");
 
-        testRefandAssoc(client, globalNamespace, o1, CIMName(), CIMName());
-        testRefandAssoc(client, globalNamespace, o2, CIMName(), CIMName());
+        testRefandAssoc(client, globalNamespace, verboseTest, o1, CIMName(), CIMName());
+        testRefandAssoc(client, globalNamespace, verboseTest, o2, CIMName(), CIMName());
     }
 
     // Now Test to see if the namespace and class exist before
@@ -838,10 +852,10 @@ static void TestAssociationOperations(CIMClient* client, Boolean
         CIMObjectPath TST_PersonDynamicClass = CIMObjectPath("TST_PersonDynamic");
         CIMObjectPath TST_PersonDynamicInstance = CIMObjectPath( "TST_PersonDynamic.name=\"Father\"");
 
-        testRefandAssoc(client, nameSpace, TST_PersonClass , CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, TST_PersonInstance , CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, TST_PersonDynamicClass , CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, TST_PersonDynamicInstance , CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, verboseTest, TST_PersonClass , CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, verboseTest, TST_PersonInstance , CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, verboseTest, TST_PersonDynamicClass , CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, verboseTest, TST_PersonDynamicInstance , CIMName(), CIMName());
     }
 
     return;
@@ -1229,7 +1243,7 @@ Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, Boole
         parms->testCount = testCount;
         parms->activeTest = (activeTest) ? 1 : 0;
         parms->verboseTest = (verboseTest) ? 1 : 0;
-	parms->uniqueID = uniqueID;
+        parms->uniqueID = uniqueID;
         AutoPtr<Thread> t(new Thread(executeTests, (void*)parms.release(), false));
 
 	// zzzzz... (1 second) zzzzz...
@@ -1245,10 +1259,10 @@ void connectClient(CIMClient *client, String host, Uint32 portNumber, String use
 	client->setTimeout(timeout);
         if (useSSL){
 		if (localConnection)
-                {
-                             cout << "Using local connection mechanism " << endl;
-                             client->connectLocal();
-                }
+        {
+             cout << "Using local connection mechanism " << endl;
+             client->connectLocal();
+        }
 		else
 		{
         	//
@@ -1420,7 +1434,8 @@ int main(int argc, char** argv)
    	Uint32 index = connectionList[i].find (':');
     	host = connectionList[i].subString (0, index);
     	portNumber = 0;
-    	if (index != PEG_NOT_FOUND){
+    	if (index != PEG_NOT_FOUND)
+        {
     		String portStr = connectionList[i].subString(index + 1, connectionList[i].size ());
         	sscanf (portStr.getCString (), "%u", &portNumber);
     	}
@@ -1429,35 +1444,42 @@ int main(int argc, char** argv)
         Array<CIMClient*> clientConnections;
 
     	CIMClient* client;
-    	for(Uint32 i = 0; i < clients; i++){
-		client = new CIMClient();
-		clientConnections.append(client);
+    	for(Uint32 i = 0; i < clients; i++)
+        {
+    		client = new CIMClient();
+    		clientConnections.append(client);
     	}
 
     	// connect the clients
-    	for(Uint32 i=0; i<clients; i++){
-		connectClient(clientConnections[i], host, portNumber, userName, password, useSSL, localConnection, timeout);
+    	for(Uint32 i=0; i<clients; i++)
+        {
+            connectClient(clientConnections[i], host, portNumber, userName, password, useSSL, localConnection, timeout);
     	}
 
     	// run tests
     	Array<Thread *> clientThreads;
-	Stopwatch elapsed;
+        Stopwatch elapsed;
         testStart("Begin tests...");
-	elapsed.reset();
-    	for(Uint32 i=0; i< clientConnections.size(); i++){
-		clientThreads.append(runTests(clientConnections[i], repeatTestCount, activeTest, verboseTest, i));
+        elapsed.reset();
+
+    	for(Uint32 i=0; i< clientConnections.size(); i++)
+        {
+            clientThreads.append(runTests(clientConnections[i], repeatTestCount, activeTest, verboseTest, i));
     	}
-	testEnd(elapsed.getElapsed());
-    	for(Uint32 i=0; i< clientThreads.size(); i++){
-		clientThreads[i]->join();
+
+        testEnd(elapsed.getElapsed());
+
+    	for(Uint32 i=0; i< clientThreads.size(); i++)
+        {
+            clientThreads[i]->join();
     	}
 
     	// clean up
     	for(Uint32 i=0; i< clientConnections.size(); i++){
 		if(clientConnections[i]) delete clientConnections[i];
     	}
-    	for(Uint32 i=0; i < clientThreads.size(); i++){
-        	if(clientThreads[i]) delete clientThreads[i];
+        	for(Uint32 i=0; i < clientThreads.size(); i++){
+            	if(clientThreads[i]) delete clientThreads[i];
     	}
     }
     PEGASUS_STD(cout) << "+++++ "<< argv[0] << " Terminated Normally" << PEGASUS_STD(endl);
@@ -1466,10 +1488,7 @@ int main(int argc, char** argv)
 }
 
 /*
-    TODO:  1. put in the option manager		    DONE
-           2. Make passive tests only option. DONE
-		    3. Make test loop tool
-		    4. Make display an option		  DONE
+    TODO:   3. Make test loop tool
 		    5. Make test multiple systems.
 		    6. Get rid of diagnostics and clean display
 		    7. Add correct successful at end

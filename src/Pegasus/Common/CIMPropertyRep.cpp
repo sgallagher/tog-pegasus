@@ -183,7 +183,8 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 
 	_qualifiers.toXml(out);
 
-	_value.toXml(out);
+        // Output XML but output nothing if Null (the false)
+	_value.toXml(out, false);
 
 	out << "</PROPERTY.ARRAY>\n";
     }
@@ -204,8 +205,9 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 	out << ">\n";
 
 	_qualifiers.toXml(out);
-
-	_value.toXml(out);
+        
+        // Output XML but output nothing if Null (the false)
+	_value.toXml(out, false);
 
 	out << "</PROPERTY.REFERENCE>\n";
     }
@@ -225,8 +227,9 @@ void CIMPropertyRep::toXml(Array<Sint8>& out) const
 	out << ">\n";
 
 	_qualifiers.toXml(out);
-
-	_value.toXml(out);
+        
+        // Output XML but output nothing if Null (the false)
+	_value.toXml(out, false);
 
 	out << "</PROPERTY>\n";
     }

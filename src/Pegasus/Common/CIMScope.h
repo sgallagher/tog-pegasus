@@ -55,6 +55,15 @@ struct PEGASUS_COMMON_LINKAGE CIMScope
 
 PEGASUS_COMMON_LINKAGE String ScopeToString(Uint32 scope);
 
+/** Generate Scope output string for Mof.  Differs from the Socpe to string
+    in that it allows "any" (which is not defined in xml> and lower cases
+    the output.
+    COMMENT; Probably should not be in core but cheap hack
+*/
+PEGASUS_COMMON_LINKAGE String ScopeToMofString(Uint32 scope);
+
+/** 
+*/
 PEGASUS_COMMON_LINKAGE void ScopeToXml(Array<Sint8>& out, Uint32 scope);
 
 PEGASUS_NAMESPACE_END

@@ -72,7 +72,18 @@ String ScopeToString(Uint32 scope)
 
     return tmp;
 }
+/* Generate the output string for Mof by first testing for
+   any and if not any, getting scopeToString and lowercasing
+   the whole thing.
+   Did this becasue XML does not accept the any definition.
+*/
+String ScopeToMofString(Uint32 scope)
+{
+    String tmp = (scope & CIMScope::ANY) ? "any" : ScopeToString(scope);
 
+    tmp.toLower();
+    return tmp;
+}
 void ScopeToXml(Array<Sint8>& out, Uint32 scope)
 {
     if (scope)

@@ -694,7 +694,7 @@ Uint32 CIMValue::getArraySize() const
 
 //ATTN: P1  KS Problem with Compiler when I added the defaults to clear, the compiler
 // gets an exception very early.  Disabled the exceptions to keep compiler running for
-// the minute.
+// the minute. Note that the case statement is not complete. None missing.
 void CIMValue::clear()
 {
     // ATTN: KS P1 should we be setting NULL=true here????. Right now it only
@@ -806,15 +806,21 @@ void CIMValue::clear()
     _init();
 }
 
-void CIMValue::toXml(Array<Sint8>& out) const
+void CIMValue::toXml(Array<Sint8>& out, Boolean forceTag) const
 {
-    // If the CIMValue is Null, no element is returned.
-    //ATTNCH: Feb 12 added the isNull test KS
-    // Note that I output absolutely nothing
+    /* If the CIMValue is Null, no element is returned.
+     Note that it output absolutely nothing. This works for
+     everything except qualifiers where the value tag is required in
+     any case per the XML specification
+    */
 
     if (_isNull)
     {
-        // out << "\n";
+        if (forceTag)
+            if (_isArray)
+		out << "<VALUE.ARRAY></VALUE.ARRAY>\n";
+            else
+                out << "<VALUE></VALUE>\n";
         return;
     }
     if (_isArray)
@@ -974,10 +980,10 @@ void CIMValue::toXml(Array<Sint8>& out) const
     }
 }
 
-String CIMValue::toXml() const
+String CIMValue::toXml(Boolean forceTag) const
 {
     Array<Sint8> out;
-    toXml(out);
+    toXml(out, forceTag);
     out.append('\0');
     return String(out.getData());
 }
@@ -985,8 +991,13 @@ String CIMValue::toXml() const
 void CIMValue::toMof(Array<Sint8>& out) const
 {
     // if the CIMValue is Null we return nothing.
+    // The alternative is to return the Null indicator.
     if (_isNull)
-        return;
+    {
+        out << "null";
+        return ;
+    }
+
 
     if (_isArray)
     {
@@ -1130,10 +1141,10 @@ void CIMValue::toMof(Array<Sint8>& out) const
 }
 
 
-void CIMValue::print(PEGASUS_STD(ostream) &os) const
+void CIMValue::print( Boolean forceTag, PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
-    toXml(tmp);
+    toXml(tmp, forceTag);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
 }

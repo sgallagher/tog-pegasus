@@ -69,7 +69,7 @@ void test01(const T& x)
     v3 = v2;
 #ifdef IO
     cout << "\n----------------------\n";
-    v3.print();
+    v3.print(true);
 #endif
     try
     {
@@ -91,7 +91,8 @@ void test01(const T& x)
         mofout.append('\0');
 
         // Test toXml
-        String xmlString = v.toXml();
+        String xmlString = v.toXml(false);
+        String xmlString1 = v.toXml(true);
 
         // Test toString
         String valueString = v.toString();
@@ -121,7 +122,7 @@ void test01(const T& x)
 
         // get the String and XML outputs for v
         String valueString2 = v.toString();
-        String xmlString2 = v.toXml();
+        String xmlString2 = v.toXml(false);
 
         Array<Sint8> mofOutput2;
         v.toMof(mofOutput2);
@@ -159,7 +160,7 @@ void test02(const Array<T>& x)
     CIMValue va4(type,true);
 #ifdef IO
     cout << "\n----------------------\n";
-    va3.print();
+    va3.print(true);
 #endif
     try
     {
@@ -191,8 +192,8 @@ void test02(const Array<T>& x)
 
 
         // Test toXml
-        String xmlString = va.toXml();
-
+        String xmlString = va.toXml(false);
+        String xmlString1 = va.toXml(true);
         // Test toString
         String valueString = va.toString();
 #ifdef IO
@@ -224,7 +225,7 @@ void test02(const Array<T>& x)
 
         // get the String and XML outputs for v
         String valueString2 = va.toString();
-        String xmlString2 = va.toXml();
+        String xmlString2 = va.toXml(false);
 
         Array<Sint8> mofOutput2;
         va.toMof(mofOutput2);

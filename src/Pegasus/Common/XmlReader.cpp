@@ -788,6 +788,11 @@ CIMValue XmlReader::stringToValue(
 
     if (strlen(valueString)==0) 
     {
+        // This needs to reflect the Null result. KSTESTNULL
+        // ATTN: review the other code for this characteristic
+        // In all cases, XML with an empty entry is NULL <VALUE></VALUE>
+        return CIMValue(type, false);
+        /* KS 27 Feb 2002 Droped this code in favor of inserting the Null version
         switch (type) 
 	{
 	    case CIMType::BOOLEAN: return CIMValue(false);
@@ -804,6 +809,7 @@ CIMValue XmlReader::stringToValue(
 	    case CIMType::REAL32: return CIMValue(Real32(0));
 	    case CIMType::REAL64: return CIMValue(Real64(0));
         }
+        */
     }
 
     switch (type)
@@ -954,7 +960,7 @@ Boolean XmlReader::getValueElement(
     }
 
     value = stringToValue(parser.getLine(), valueString,type);
-
+    
     return true;
 }
 
@@ -1004,8 +1010,10 @@ Boolean XmlReader::getStringValueElement(
 //
 //     PropertyValue is one of:
 //
-//         <!ELEMENT VALUE (#PCDATA)>
 //
+//	<!ELEMENT VALUE.ARRAY (VALUE*)>
+//
+//	<!ELEMENT VALUE.REFERENCE (CLASSPATH|LOCALCLASSPATH|CLASSNAME|
 //         <!ELEMENT VALUE.ARRAY (VALUE*)>
 //
 //         <!ELEMENT VALUE.REFERENCE (CLASSPATH|LOCALCLASSPATH|CLASSNAME|
@@ -1157,6 +1165,10 @@ Boolean XmlReader::getValueArrayElement(
 
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE.ARRAY"))
 	return false;
+
+    //ATTN: P1 KS KSTESTNULL - Need to relook at this one.
+    //if (entry.type == XmlEntry::EMPTY_TAG)
+    //    return true;
 
     if (entry.type != XmlEntry::EMPTY_TAG)
     {

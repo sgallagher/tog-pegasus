@@ -67,8 +67,8 @@ void CIMParamValueRep::toXml(Array<Sint8>& out) const
     }
 
     out << ">\n";
-
-    _value.toXml(out);
+    /*KSTEST*/
+    _value.toXml(out, false);
 
     out << "</PARAMVALUE>\n";
 }

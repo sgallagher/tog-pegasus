@@ -734,7 +734,7 @@ void XmlWriter::appendReturnValueElement(
     }
 
     out << ">\n";
-    value.toXml(out);
+    value.toXml(out, false);
     out << "</RETURNVALUE>\n";
 }
 
@@ -947,7 +947,7 @@ void XmlWriter::appendPropertyValueIParameter(
     const CIMValue& value)
 {
     _appendIParamValueElementBegin(out, name);
-    value.toXml(out);
+    value.toXml(out, false);
     _appendIParamValueElementEnd(out);
 }
 

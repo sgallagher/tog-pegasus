@@ -103,8 +103,8 @@ void CIMQualifierDeclRep::toXml(Array<Sint8>& out) const
     out << ">\n";
 
     ScopeToXml(out, _scope);
-
-    _value.toXml(out);
+    /*KSTESTNULL*/
+    _value.toXml(out, true);
 
     out << "</QUALIFIER.DECLARATION>\n";
 }
@@ -152,14 +152,14 @@ void CIMQualifierDeclRep::toMof(Array<Sint8>& out) const
     //if (!_value.isNull() || !(_value.getType() == CIMType::BOOLEAN) )
     //{
         // KS With CIM Qualifier, this should be =
-	out << " =";
+	out << " = ";
 	hasValueField = true;
 	_value.toMof(out);
     //}
 
     // Output Scope Information
     String scopeString;
-    scopeString = ScopeToString(_scope);
+    scopeString = ScopeToMofString(_scope);
     //if (scopeString.size())
     //{
 	out << ", Scope(" << scopeString << ")";

@@ -25,6 +25,7 @@
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/25/01
 //              added NSK platform support and PEGASUS_HAVE_NO_STD option
+//              K. Schopmeyer. Added  PEGASUS_TEST_EXCEPTION_DECLARATION Feb 27 2002
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,6 +96,29 @@
 # define PEGASUS_TEMPLATE_SPECIALIZATION template <>
 #else
 # define PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+
+/** Test to determine if we use the exception declarations as part
+    of the function declaration.
+    If PEGASUS_TEST_EXCEPTION is set, we create a macro that
+    uses the exception declaration.  If not, we throw it away.
+    We expect the PEGASUS_TEST_EXCEPTION to be defined within
+    the config files for particular platforms at the same time
+    and compiler options are set to test for the exception declaration
+    The exception declaration is a component of the functon declaration
+    that adds a list of exceptions thrown by the function.
+    <pre>
+    For example:
+    void fun1(String& a, Unit32 b) PG_THROW(BadJunkException);
+    </PRE>
+    States that this function throws only this exception.
+*/    
+    
+#ifdef PEGASUS_TEST_EXCEPTION_DECLARATION
+#define PG_THROW(X) throw X
+#else
+#define PG_THROW(X) /* Empty */
+
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

@@ -228,7 +228,7 @@ static const char* _xmlMessages[] =
 
 static const char* _xmlKeys[] = 
 {
-	"Common.XmlParser.BAD_START_TAG",
+    "Common.XmlParser.BAD_START_TAG",
     "Common.XmlParser.BAD_END_TAG",
     "Common.XmlParser.BAD_ATTRIBUTE_NAME",
     "Common.XmlParser.EXPECTED_EQUAL_SIGN",
@@ -278,7 +278,7 @@ static MessageLoaderParms _formMessage(Uint32 code, Uint32 line, const String& m
     dftMsg.append(": on line $0");
     if (message.size())
     {
-    	msg = ":" + msg;
+    	msg = ": " + msg;
     	dftMsg.append("$1");
     }    
 

@@ -60,7 +60,7 @@ AssertionFailureException::AssertionFailureException(
 const char NullPointer::MSG[] = "null pointer";
 const char NullPointer::KEY[] = "Common.InternalException.NullPointer";
 
-const char UndeclaredQualifier::MSG[] = "undeclared qualifier:$0";
+const char UndeclaredQualifier::MSG[] = "undeclared qualifier: $0";
 const char UndeclaredQualifier::KEY[] = "Common.InternalException.UndeclaredQualifier";
 
 const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: ";

@@ -152,12 +152,12 @@ public:
 	/**
 	 * Equality based on language fields only
 	 */
-	Boolean operator==(LanguageElementContainer rhs);
+	Boolean operator==(const LanguageElementContainer rhs);
 
 	/**
 	 * Inequality based on language fields only
 	 */
-	Boolean operator!=(LanguageElementContainer rhs);
+	Boolean operator!=(const LanguageElementContainer rhs);
 	
 	/**
 	 * Finds the element in the container and returns its position.

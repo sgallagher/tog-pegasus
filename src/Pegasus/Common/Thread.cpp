@@ -279,9 +279,25 @@ class try_mutex
       Mutex* _mut;
 };
 
+class auto_int
+{
+   public:
+      auto_int(AtomicInt* num)
+	 : _int(num)
+      {
+	 _int->operator++();
+      }
+      ~auto_int(void)
+      {
+	 _int->operator--();
+      }
+      AtomicInt *_int;
+};
+
+
+AtomicInt _idle_control;
 
 DQueue<ThreadPool> ThreadPool::_pools(true);
-
 
 void ThreadPool::kill_idle_threads(void)
 {
@@ -355,24 +371,8 @@ ThreadPool::~ThreadPool(void)
    try 
    {      
       // Set the dying flag so all thread know the destructor has been entered
-      {
-         // ThreadPool::~ThreadPool will wait to set the _dying flag until
-         // it can acquire the lock. Once this lock is acquired, the thread
-         // acquiring the lock must be able to assume that the value of 
-         // _dying will not change until the lock is released.
-
-         // Once the _dying flag is set, functions (e.g., kill_dead_threads,
-         // and allocate_and_awaken) that manipulate the ThreadPool
-         // queues (_pool, _dead, and _running), should not be allowed 
-         // to run.
-
-         Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-             "Attempting to aquire _monitor lock");
-	 auto_mutex dying_lock(&(this->_monitor));
-         Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
-             "Acquired _monitor lock");
-	 _dying++;
-      }
+      _dying++;
+      
       // remove from the global pools list 
       _pools.remove(this);
 
@@ -409,12 +409,15 @@ ThreadPool::~ThreadPool(void)
 	 th = _pool.remove_first();
       }
 
+      while(_idle_control.value())
+	 pegasus_yield();
+      
       th = _dead.remove_first();
       while(th != 0)
       {
 	 sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
          PEGASUS_ASSERT(sleep_sem != 0);
-
+	 
 	 if(sleep_sem == 0)
 	 {
 	    th->dereference_tsd();
@@ -424,7 +427,7 @@ ThreadPool::~ThreadPool(void)
             //ATTN-DME-P3-20030322: _dead queue processing in
             //ThreadPool::~ThreadPool is inconsistent with the
             //processing in kill_dead_threads.  Is this correct?
-	 
+	    
 	    // signal the thread's sleep semaphore
 	    sleep_sem->signal();
 	    sleep_sem->signal();
@@ -536,6 +539,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 
    while(1)
    {
+      if(pool->_dying.value())
+	 break;
+      
       try 
       {
 	 sleep_sem->wait();
@@ -666,7 +672,6 @@ void ThreadPool::allocate_and_awaken(void *parm,
    
    try
    {
-      auto_mutex dying_lock(&(this->_monitor));
       if (_dying.value())
       {
          Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -749,18 +754,18 @@ Uint32 ThreadPool::kill_dead_threads(void)
    // manipulate the threads on the ThreadPool queues, they should never 
    // be allowed to run at the same time. 
 
-   // kill_dead_threads will "hold" the _monitor lock until it has
-   // completed executing. ~ThreadPool will not set the dying flag until 
-   // it can get access to the lock.
+   // << Thu Oct 23 14:41:02 2003 mdd >> 
+   // not true, the queues are thread safe. they are syncrhonized. 
 
+   auto_int do_not_destruct(&_idle_control);
+   
    try
    {
-      try_mutex dying_lock(&(this->_monitor));
       if (_dying.value())
       {
          return 0;
       }
-
+      
       struct timeval now;
       gettimeofday(&now, NULL);
       Uint32 bodies = 0;
@@ -768,21 +773,26 @@ Uint32 ThreadPool::kill_dead_threads(void)
       // first go thread the dead q and clean it up as much as possible
       try 
       {
-         while(_dead.count() > 0)
+         while(_dying.value() == 0 && _dead.count() > 0)
          {
 	    Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "ThreadPool:: removing and joining dead thread");
             Thread *dead = _dead.remove_first();
-	 
-	    if(dead == 0)
-	       throw NullPointer();
-	    dead->join();
-	    delete dead;
+	    
+	    if(dead )
+	    {
+	       dead->join();
+	       delete dead;
+	    }
          }
       }
       catch(...)
       {
       }
    
+      if (_dying.value())
+      {
+         return 0;
+      }
    
       DQueue<Thread> * map[2] =
          {
@@ -793,7 +803,9 @@ Uint32 ThreadPool::kill_dead_threads(void)
       DQueue<Thread> *q = 0;
       int i = 0;
       AtomicInt needed(0);
-
+      Thread *th = 0;
+      internal_dq idq;
+      
 #ifdef PEGASUS_DISABLE_KILLING_HUNG_THREADS
       // This change prevents the thread pool from killing "hung" threads.
       // The definition of a "hung" thread is one that has been on the run queue
@@ -827,7 +839,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 
 	    struct timeval dt = { 0, 0 };
 	    struct timeval *dtp;
-	    Thread *th = 0;
+
 	    th = q->next(th);
 	    while (th != 0 )
 	    {
@@ -880,48 +892,50 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	          }
 	
 	          th = q->remove_no_lock((void *)th);
-	
-	          if(th != 0)
-	          {
-		     if( i == 0 )
-		     {
-		        th->delete_tsd("work func");
-		        th->put_tsd("work func", NULL,
-				 sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
-				 (void *)&_undertaker);
-		        th->delete_tsd("work parm");
-		        th->put_tsd("work parm", NULL, sizeof(void *), th);
-		     
-		        // signal the thread's sleep semaphore to awaken it
-		        Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-		     
-		        if(sleep_sem == 0)
-		        {
-		   	   q->unlock();
-			   th->dereference_tsd();
-			   throw NullPointer();
-		        }
-		     
-		        bodies++;
-		        th->dereference_tsd();
-		        _dead.insert_first(th);
-		        sleep_sem->signal();
-		        th = 0;
-		     }
-		     else 
-		     {
-		        // deadlocked threads
-		        Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Killing a deadlocked thread");
-		        th->cancel();
-		        delete th;
-		     }
-	          }
+		  idq.insert_first((void*)th);
 	       }
 	       th = q->next(th);
-	       pegasus_yield();
 	    }
 	    q->unlock();
          }
+
+	 th = (Thread*)idq.remove_last();
+	 while(th != 0)
+	 {
+	    if( i == 0 )
+	    {
+	       th->delete_tsd("work func");
+	       th->put_tsd("work func", NULL,
+			   sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
+			   (void *)&_undertaker);
+	       th->delete_tsd("work parm");
+	       th->put_tsd("work parm", NULL, sizeof(void *), th);
+	       
+	       // signal the thread's sleep semaphore to awaken it
+	       Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+	       
+	       if(sleep_sem == 0)
+	       {
+		  q->unlock();
+		  th->dereference_tsd();
+		  throw NullPointer();
+	       }
+	       
+	       bodies++;
+	       th->dereference_tsd();
+	       _dead.insert_first(th);
+	       sleep_sem->signal();
+	       th = 0;
+	    }
+	    else 
+	    {
+	       // deadlocked threads
+	       Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Killing a deadlocked thread");
+	       th->cancel();
+	       delete th;
+	    }
+	    th = (Thread*)idq.remove_last();
+	 }
       }
 
       while (needed.value() > 0)   {
@@ -931,15 +945,8 @@ Uint32 ThreadPool::kill_dead_threads(void)
       }
        return bodies; 
     }
-    catch (AlreadyLocked &)
+    catch (...)
     {
-       // kill_dead_threads was not able to obtain the
-       // _monitor lock that controls access to the 
-       // _dying flag and the ThreadPool queues.
-       // This means that one of the queue manipulating 
-       // functions (e.g., ~ThreadPool or allocate_and_awaken)
-       // is running.  Since cleanup is opportunistic, this
-       // function just returns.
     }
     return 0;
 }

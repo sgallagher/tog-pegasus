@@ -76,21 +76,21 @@ int main(int argc, char **argv)
       
       try 
       {
-	 tp.allocate_and_awaken((void *)0, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
+	 tp.allocate_and_awaken((void *)10, work_func );
+	 tp.allocate_and_awaken((void *)10, work_func );
+	 tp.allocate_and_awaken((void *)10, work_func );
+	 tp.allocate_and_awaken((void *)100, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
 	 tp.allocate_and_awaken((void *)5, work_func );
 	 tp.allocate_and_awaken((void *)6, work_func );
+	 tp.allocate_and_awaken((void *)100, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
+	 tp.allocate_and_awaken((void *)1000, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)13, work_func );  
-	 tp.allocate_and_awaken((void *)14, work_func ); 
+	 tp.allocate_and_awaken((void *)13000, work_func );  
+	 tp.allocate_and_awaken((void *)140000, work_func ); 
 	 tp.allocate_and_awaken((void *)15, work_func );
 	 tp.allocate_and_awaken((void *)16, work_func );   
       }   

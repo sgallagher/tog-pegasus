@@ -46,7 +46,6 @@ LocalProviderManager::LocalProviderManager(void)
     : _idle_timeout(300), _unload_idle_flag(1)
 {
     my_instance = this;
-
 }
 
 LocalProviderManager::~LocalProviderManager(void)
@@ -327,7 +326,7 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
             LocalProviderManager *myself = reinterpret_cast<LocalProviderManager *>(parm);
             Provider * provider;
             ProviderTable::Iterator i = myself->_providers.start();
-            try
+            if (myself->_providers.size()) try
             {
                 for(; i != 0; i++)
                 {
@@ -382,7 +381,7 @@ Sint32 LocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                     "Clearing Module Cache");
                 myself->_modules.clear();
-            }
+	    }
             catch(...)
             {
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,

@@ -59,11 +59,9 @@ class AutoMutex {
  public:
   AutoMutex(Mutex *mtx) {
      mutx=mtx;
-//     std::cout<<"--- AutoMutex() lock: "<<(void*)mutx<<std::endl;
      mtx->lock(pegasus_thread_self());
   }
   ~AutoMutex() {
-//     std::cout<<"--- AutoMutex() unlock: "<<(void*)mutx<<std::endl;
      mutx->unlock();
   }
 };

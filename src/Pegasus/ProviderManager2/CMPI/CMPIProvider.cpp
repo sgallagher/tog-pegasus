@@ -96,7 +96,7 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
         broker.eft=CMPI_BrokerEnc_Ftab;
         broker.clsCache=NULL;
         broker.name=name;
-std::cout<<"--- CMPIProvider::initialize: "<<name<<std::endl;
+
         const OperationContext opc;
         CMPI_ContextOnStack eCtx(opc);
 

@@ -82,7 +82,8 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
 
     if ((miVector.createGenInstMI=(CREATE_GEN_INST_MI)
            System::loadDynamicSymbol(_library,"_Generic_Create_InstanceMI"))) {
-       miVector.miTypes|=CMPI_MIType_Instance;
+       if (miVector.createGenInstMI)
+         miVector.miTypes|=CMPI_MIType_Instance;
        miVector.genericMode=1;
     }
 
@@ -90,14 +91,16 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcat(symbolName,"_Create_InstanceMI");
     if ((miVector.createInstMI=(CREATE_INST_MI)
           System::loadDynamicSymbol(_library,symbolName))) {
-       miVector.miTypes|=CMPI_MIType_Instance;
+       if (miVector.createInstMI)
+          miVector.miTypes|=CMPI_MIType_Instance;
        specificMode=1;
     }
 
 
     if ((miVector.createGenAssocMI=(CREATE_GEN_ASSOC_MI)
           System::loadDynamicSymbol(_library,"_Generic_Create_AssociationMI"))) {
-       miVector.miTypes|=CMPI_MIType_Association;
+       if (miVector.createGenAssocMI)
+          miVector.miTypes|=CMPI_MIType_Association;
        miVector.genericMode=1;
     }
 
@@ -105,14 +108,16 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcat(symbolName,"_Create_AssociationMI");
     if ((miVector.createAssocMI=(CREATE_ASSOC_MI)
           System::loadDynamicSymbol(_library,symbolName))) {
-       miVector.miTypes|=CMPI_MIType_Association;
+       if (miVector.createAssocMI)
+         miVector.miTypes|=CMPI_MIType_Association;
        specificMode=1;
     }
 
 
     if ((miVector.createGenMethMI=(CREATE_GEN_METH_MI)
           System::loadDynamicSymbol(_library,"_Generic_Create_MethodMI"))) {
-       miVector.miTypes|=CMPI_MIType_Method;
+       if (miVector.createGenMethMI)
+          miVector.miTypes|=CMPI_MIType_Method;
        miVector.genericMode=1;
     }
 
@@ -120,14 +125,16 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcat(symbolName,"_Create_MethodMI");
     if ((miVector.createMethMI=(CREATE_METH_MI)
           System::loadDynamicSymbol(_library,symbolName))) {
-       miVector.miTypes|=CMPI_MIType_Method;
+       if (miVector.createMethMI)
+          miVector.miTypes|=CMPI_MIType_Method;
        specificMode=1;
     }
 
 
     if ((miVector.createGenPropMI=(CREATE_GEN_PROP_MI)
           System::loadDynamicSymbol(_library,"_Generic_Create_PropertyMI"))) {
-       miVector.miTypes|=CMPI_MIType_Property;
+       if (miVector.createGenPropMI)
+          miVector.miTypes|=CMPI_MIType_Property;
        miVector.genericMode=1;
     }
 
@@ -135,14 +142,16 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcat(symbolName,"_Create_PropertyMI");
     if ((miVector.createPropMI=(CREATE_PROP_MI)
               System::loadDynamicSymbol(_library,symbolName))) {
-       miVector.miTypes|=CMPI_MIType_Property;
+       if (miVector.createPropMI)
+          miVector.miTypes|=CMPI_MIType_Property;
        specificMode=1;
     }
 
 
     if ((miVector.createGenIndMI=(CREATE_GEN_IND_MI)
           System::loadDynamicSymbol(_library,"_Generic_Create_IndicationMI"))) {
-       miVector.miTypes|=CMPI_MIType_Indication;
+       if (miVector.createGenIndMI)
+          miVector.miTypes|=CMPI_MIType_Indication;
        miVector.genericMode=1;
     }
 
@@ -150,7 +159,8 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     strcat(symbolName,"_Create_IndicationMI");
     if ((miVector.createIndMI=(CREATE_IND_MI)
            System::loadDynamicSymbol(_library,symbolName))) {
-       miVector.miTypes|=CMPI_MIType_Indication;
+       if (miVector.createIndMI)
+          miVector.miTypes|=CMPI_MIType_Indication;
        specificMode=1;
     }
 

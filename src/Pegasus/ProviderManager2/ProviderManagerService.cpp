@@ -389,24 +389,43 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 
     Message * response = 0;
     String ifc;
-   
+
     // get the responsible provider Manager
     ProviderManager * pm = locateProviderManager(message,ifc);
-
     if(pm) {
         response = pm->processMessage(request);
     }
     else
     {
-        CIMRequestMessage * req =
-           dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
-       CIMResponseMessage  *resp=new CIMResponseMessage(0,req->messageId,CIMException(),
+       if (request->getType()==CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) {
+          for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++) {
+              ProviderManagerContainer *pmc=_providerManagers[i];
+// ---- next instruction is disabled because of a bug
+//             response=pmc->getProviderManager()->processMessage(request);
+// ---- this block is an workaround
+	    CIMStopAllProvidersResponseMessage * resp =
+              new CIMStopAllProvidersResponseMessage(
+                 request->messageId,
+                 CIMException(),
+                 ((CIMStopAllProvidersRequestMessage*)request)->queueIds.copyAndPop());
+             resp->setKey(request->getKey());
+             resp->setHttpMethod (request->getHttpMethod ());
+	     response=resp;
+	     break;
+// ---- end of  workaround
+           }
+       }
+       else {
+          CIMRequestMessage * req =
+              dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
+          CIMResponseMessage  *resp=new CIMResponseMessage(0,req->messageId,CIMException(),
              req->queueIds.copyAndPop());
-       response=resp;
-       resp->synch_response(req);
-       OperationResponseHandler handler(req, resp);
-       handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-   }
+          response=resp;
+          resp->synch_response(req);
+          OperationResponseHandler handler(req, resp);
+          handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+       }
+    }
 
     // preserve message key
     response->setKey(request->getKey());
@@ -426,7 +445,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     PEG_METHOD_EXIT();
 }
 
-ProviderManager* ProviderManagerService::locateProviderManager(const Message *message, 
+ProviderManager* ProviderManagerService::locateProviderManager(const Message *message,
              String & it)
 {
     String nameSpace;
@@ -440,7 +459,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
        if (p->providerType==ProviderType::ASSOCIATION)
           className=((CIMAssociatorsRequestMessage*)p)->assocClass;
        else className=p->className;
-        
+
        ProviderName name(
            CIMObjectPath(String::EMPTY, nameSpace, className).toString(),
            String::EMPTY,

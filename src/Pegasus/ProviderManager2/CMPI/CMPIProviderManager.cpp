@@ -181,14 +181,12 @@ Message * CMPIProviderManager::processMessage(Message * request) throw()
     case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
         response = handleEnableModuleRequest(request);
 
-        break;
+        break; */
     case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
         response = handleStopAllProvidersRequest(request);
 
-        break; */
+        break;
     default:
-        std::cout<<"*** Unsupported Request ??"<<request->getType()<<std::endl;
-        asm("int $3");
         response = handleUnsupportedRequest(request);
 
         break;
@@ -582,7 +580,6 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             ph.GetProvider().getName());
 
         DDD(std::cerr<<"--- CMPIProviderManager::createInstances"<<std::endl);
-
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);

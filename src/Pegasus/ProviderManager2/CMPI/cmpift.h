@@ -880,7 +880,7 @@ extern "C" {
 
    //---------------------------------------------------
    //--
-   //	_CMPIInstance Function Table
+   //	_CMPIObjectPath Function Table
    //--
    //---------------------------------------------------
 
@@ -1014,7 +1014,7 @@ extern "C" {
      CMPIStatus (*setHostAndNameSpaceFromObjectPath)
               (CMPIObjectPath* op,
                CMPIObjectPath* src);
-
+	       
 
 
 		// optional qualifier support
@@ -1071,6 +1071,17 @@ extern "C" {
                char *pName,
                char *qName,
                CMPIStatus *rc);
+	       
+   #if defined(CMPI_VER_86)
+      /** Generates a well formed string representation of this ObjectPath
+	 @param op ObjectPath this pointer.
+	 @param rc Output: Service return status (suppressed when NULL).
+	 @return String representation.
+      */
+     CMPIString *(*toString)
+              (CMPIObjectPath* op, CMPIStatus *rc);
+    #endif
+
    };
 
 

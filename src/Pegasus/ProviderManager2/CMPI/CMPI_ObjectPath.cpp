@@ -191,6 +191,14 @@ static CMPIStatus refSetHostAndNameSpaceFromObjectPath(CMPIObjectPath* eRef,
    CMReturn(CMPI_RC_OK);
 }
 
+static CMPIString *refToString(CMPIObjectPath* eRef, CMPIStatus* rc) {
+   CIMObjectPath* ref=(CIMObjectPath*)eRef->hdl;
+   String str=ref->toString();
+   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   return (CMPIString*) new CMPI_Object(str);
+}
+
+
 CMPIObjectPathFT objectPath_FT={
      CMPICurrentVersion,
      refRelease,
@@ -210,7 +218,8 @@ CMPIObjectPathFT objectPath_FT={
      NULL,
      NULL,
      NULL,
-     NULL
+     NULL,
+     refToString
 };
 
 CMPIObjectPathFT *CMPI_ObjectPath_Ftab=&objectPath_FT;
@@ -234,7 +243,8 @@ CMPIObjectPathFT objectPathOnStack_FT={
      NULL,
      NULL,
      NULL,
-     NULL
+     NULL,
+     refToString
 };
 
 CMPIObjectPathFT *CMPI_ObjectPathOnStack_Ftab=&objectPathOnStack_FT;

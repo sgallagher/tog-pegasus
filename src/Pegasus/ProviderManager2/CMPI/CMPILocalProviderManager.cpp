@@ -53,7 +53,7 @@ CMPILocalProviderManager::~CMPILocalProviderManager(void)
 {
     Uint32 ccode;
 
-    _provider_ctrl(UNLOAD_ALL_PROVIDERS, this, &ccode);
+//    _provider_ctrl(UNLOAD_ALL_PROVIDERS, this, &ccode);
 }
 
 Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)

@@ -694,6 +694,19 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
                      ((p)->ft->setHostAndNameSpaceFromObjectPath((p),(s)))
 #endif
 
+#ifdef CMPI_INLINE
+      /** Set/replace hostname, namespace and classname components from <src>.
+	 @param op ObjectPath this pointer.
+	 @param src Source input.
+	 @return Service return status.
+      */
+   inline static   CMPISring* CMObjectPathToString
+              (CMPIObjectPath* op, CMPIStatus* rc)
+	{ return ((op)->ft->toString(op),(rc))); }
+#else
+  #define CMObjectPathToString(p,rc) \
+                     ((p)->ft->toString((p),(rc)))
+#endif
 
 
     // CMPIArray macros

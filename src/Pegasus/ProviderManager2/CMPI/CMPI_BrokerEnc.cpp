@@ -170,7 +170,7 @@ static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
       return (CMPIString*)new CMPI_Object(msg);
    }
-
+   
    if (obj->getFtab()==(void*)CMPI_Instance_Ftab ||
        obj->getFtab()==(void*)CMPI_InstanceOnStack_Ftab) {
       sprintf(msg,"** Object not supported (0x%x) **",(int)o);

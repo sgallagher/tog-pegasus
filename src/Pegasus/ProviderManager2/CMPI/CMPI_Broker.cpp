@@ -88,7 +88,6 @@ CIMClass* mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop) {
 static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *cop, char **properties, CMPIStatus *rc) {
    DDD(cout<<"--- mbGetInstance()"<<std::endl);
-   cout<<"--- mbGetInstance(): "<<CM_ObjectPath(cop)->toString()<<endl;
    CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
    CIMPropertyList *props=getList(properties);
    CIMObjectPath qop(String::EMPTY,CIMNamespaceName(),

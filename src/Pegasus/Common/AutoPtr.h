@@ -27,7 +27,7 @@
 //
 // Author: Amit Arora, IBM (amita@in.ibm.com) (based on PEP101 by David Dillard)
 //
-// Modified By:
+// Modified By: Amit Arora, IBM (amita@in.ibm.com) for Bug#2168
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -138,6 +138,12 @@ public:
      // Overloading of "=" operator makes sure that the ownership of the memory
      // gets transferred properly to 'this' AutoPtr object.
      // Example:   AutoPtr<HTTPConnection> httpConnectionB = httpConnectionA;
+     AutoPtr<X> &operator=(AutoPtr<X>& a) throw()
+     {
+       reset(a.release());
+       return(*this);
+     }
+
     inline AutoPtr<X> &operator=(AutoPtrRef<X> &a) throw()
     {
         reset((a.get()).release());
@@ -247,6 +253,12 @@ public:
      {
      }
  
+     AutoArrayPtr<X> &operator=(AutoArrayPtr<X>& a) throw()
+     {
+       reset(a.release());
+       return(*this);
+     }
+
      inline AutoArrayPtr<X> &operator=(AutoArrayPtrRef<X> &a) throw()
      {
          reset((a.get()).release());

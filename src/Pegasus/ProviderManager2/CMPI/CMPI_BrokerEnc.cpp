@@ -212,11 +212,13 @@ CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, char *type, C
    if (tcn==cop->getClassName()) return 1;
 
    CIMClass *cc=mbGetClass(mb,*cop);
+   if (cc==NULL) return 0;
    CIMObjectPath  scp(*cop);
    scp.setClassName(cc->getSuperClassName());
 
    for (; !scp.getClassName().isNull(); ) {
       cc=mbGetClass(mb,scp);
+      if (cc==NULL) return 0;
       if (cc->getClassName()==tcn) return 1;
       scp.setClassName(cc->getSuperClassName());
    };

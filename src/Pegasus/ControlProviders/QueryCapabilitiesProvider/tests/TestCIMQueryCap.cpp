@@ -45,28 +45,36 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 // To add more capabilities, change the below static variables
-const Uint16 CIMQueryCapabilitiesProvider::FeatureSet[] = {2,8};
-const int CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES = 2;
+const Uint16 FeatureSet[] = {2,8};
+const int NUM_QUERY_CAPABILITIES = 2;
 
 #define NAMESPACE_CIMV2 "root/cimv2"
 #define NAMESPACE_SAMPLEPROVIDER "root/SampleProvider"
 static const String CIM_QUERYCAPCLASS_NAME("CIM_QueryCapabilities");
 
+void getFeatureSet(Array<Uint16>& features)
+{
+  for(int i=0; i<NUM_QUERY_CAPABILITIES; i++)
+  {
+    features[i] = FeatureSet[i];
+  }
+}
+
 
 void _checkIfReturnedValueIsCorrect(Array<Uint16>& providerReturnedVal)
 {
 
-   Array<Uint16> actualVal(CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES);
+   Array<Uint16> actualVal(NUM_QUERY_CAPABILITIES);
 
-   if(providerReturnedVal.size() != (unsigned)CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES)
+   if(providerReturnedVal.size() != (unsigned)NUM_QUERY_CAPABILITIES)
    {
       Exception e("Number of capabilities returned by the Provider does not match the actual value.");
       throw e;
    }
 
-   CIMQueryCapabilitiesProvider::getFeatureSet(actualVal);
+   getFeatureSet(actualVal);
 
-   for(unsigned int j=0; j<(unsigned)CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES; j++)
+   for(unsigned int j=0; j<(unsigned)NUM_QUERY_CAPABILITIES; j++)
    {
      if(providerReturnedVal[j] != actualVal[j])
      {

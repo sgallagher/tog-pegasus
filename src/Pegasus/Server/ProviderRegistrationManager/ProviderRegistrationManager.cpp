@@ -1438,6 +1438,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			    throw CIMException(CIM_ERR_INVALID_PARAMETER);
 			}
 
+                        // ATTN-RK-P2-20020506: Check for null vs. empty array
 			Uint32 methodsCount = supportedMethods.size();
 			
 			for (Uint32 k=0; k < namespaces.size(); k++)
@@ -1447,7 +1448,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			    // method name and providerType
 			    //
 
-			    if (supportedMethods == EmptyStringArray())
+			    if (methodsCount == 0)
 			    {
 	    		        Array<CIMInstance> instances;
 
@@ -1776,7 +1777,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 			        CIMInstance _providerInstance;
 			    	CIMInstance _moduleInstance;
 
-			      	Array<String> _oldNamespaces = EmptyStringArray();
+			      	Array<String> _oldNamespaces;
 			    	// 
 			    	// get provider instance and module instance from the
 			    	// registration table
@@ -1784,7 +1785,8 @@ CIMReference ProviderRegistrationManager::_createInstance(
 			    	_getInstances(_providerName, _providerModule, 
 					  _providerInstance, _moduleInstance);
 
-			    	CIMPropertyList _oldPropertyNames(EmptyStringArray());
+                                Array<String> emptyList;
+			    	CIMPropertyList _oldPropertyNames(emptyList);
 			    	CIMPropertyList _newPropertyNames;
 
 			    	//
@@ -2580,7 +2582,8 @@ void ProviderRegistrationManager::_getPropertyNames(
 	//
 	// no properties
      	//
-	CIMPropertyList _propertyList(EmptyStringArray());
+        Array<String> emptyList;
+	CIMPropertyList _propertyList(emptyList);
 	propertyNames = _propertyList;
     }
     else
@@ -2647,7 +2650,8 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
     _getInstances(_providerName, _providerModule,
 		  _providerInstance, _moduleInstance);
 
-    CIMPropertyList _newPropertyNames(EmptyStringArray());
+    Array<String> emptyList;
+    CIMPropertyList _newPropertyNames(emptyList);
     CIMPropertyList _oldPropertyNames;
 
     //
@@ -2668,7 +2672,7 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
 	    _providerInstance,
 	    _moduleInstance,
 	    _className,
-	    EmptyStringArray(),
+	    Array<String>(),
 	    _namespaces,
 	    _newPropertyNames,
 	    _oldPropertyNames,

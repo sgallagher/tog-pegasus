@@ -203,7 +203,7 @@ inline Boolean AsyncOpNodeLocal::_test_bits(Uint32 *subject, Uint32 mask)
    throw(IPCException)
 {
    check_owner();
-   return ((Boolean)(*subject & mask));
+   return (Boolean((*subject & mask) != 0));
 }
 
 

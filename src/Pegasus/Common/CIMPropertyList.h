@@ -1,31 +1,29 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM, 
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,168 +32,94 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMProperty.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMPropertyListRep;
 
-/**
-    The CIMPropertyList class represents a propertyList parameter in a CIM
-    operation request, as defined in the DMTF Specification for CIM
-    Operations over HTTP.
+/** This class is for representing property lists in the CIM interface.
 
-    <p>This class consists of an array of property names and a flag
-    indicating whether the list is null.  A null property list indicates
-    that no filtering is performed on the basis of this parameter.  A
-    non-null property list indicates that any property not specified in the
-    list is to be filtered from the CIM operation response.  (An empty
-    property list implies that all properties should be filtered from the
-    response.)
+    This class comprises an array of properties and a flag indicating whether
+    the list is null. There are three possibilties which must be represented;
+    the property list is:
 
-    <p>A null property list is created by using the default constructor or the
-    clear method.  An empty property list is created by setting the value to
-    an empty Array.
+    <ul>
+	<li>Non-empty (and non-null)</li>
+	<li>Empty (and non-null)</li>
+	<li>Null</li>
+    </ul>
+
+    The isNull member is used to indicate whether the parameter list is
+    null (or not).
+
+    To create a null property list use the default constructor. Otherwise 
+    use the constructor which takes a property array (pass an empty property
+    array to get an empty property list object).
+
+    Members are provided for accessing elements of the the internal property
+    list. There are none for modifying elements (the entire array must be
+    formed and passed to the constructor or replaced by calling set()).
 */
-class PEGASUS_COMMON_LINKAGE CIMPropertyList
+class CIMPropertyList
 {
 public:
 
-    /**
-        Constructs a null property list.
-        <p><b>Example:</b>
-        <pre>
-            CIMPropertyList pl;
-            assert(pl.isNull());
-        </pre>
+    /** Default constructor (sets isNull to true).
     */
     CIMPropertyList();
 
-    /**
-        Constructs a CIMPropertyList object from the value of a specified
-        CIMPropertyList object.
-        @param x The CIMPropertyList object from which to construct a new
-            CIMPropertyList object.
+    /** Copy constructor.
     */
     CIMPropertyList(const CIMPropertyList& x);
 
-    /**
-        Constructs a non-null property list with the specified property names.
-        <p><b>Example:</b>
-        <pre>
-            Array<CIMName> n;
-            n.append("name");
-            n.append("type");
-            CIMPropertyList pl(n);
-        </pre>
-        @param propertyNames An Array of CIMNames specifying the property
-            names in the list.
-        @Exception UninitializedObjectException if any CIMName in
-                   the array argument is NULL
+    /** Constructor. Initializes properties (sets isNull to false).
     */
-    CIMPropertyList(const Array<CIMName>& propertyNames);
+    CIMPropertyList(const Array<CIMProperty>& properties);
 
-    /**
-        Destructs the CIMPropertyList object.
+    /** Modifier for properties (sets isNull to false).
     */
-    ~CIMPropertyList();
+    void set(const Array<CIMProperty>& properties);
 
-    /**
-        Sets the property list with the specified property names.  The
-        resulting property list is non-null.
-        <p><b>Example:</b>
-        <pre>
-            Array<CIMName> n;
-            n.append("name");
-            n.append("type");
-            CIMPropertyList pl;
-            pl.set(n);
-            assert(pl.size() = 2);
-        </pre>
-        @param propertyNames An Array of CIMNames specifying the property
-            names in the list.
-        @Exception UninitializedObjectException if any CIMName in
-                   the array argument is NULL
-    */
-    void set(const Array<CIMName>& propertyNames);
-
-    /**
-        Assigns the value of the specified CIMPropertyList object to this
-        object.
-        @param x The CIMPropertyList object from which to assign this
-            CIMPropertyList object.
-        @return A reference to this CIMPropertyList object.
+    /** Assignment operator.
     */
     CIMPropertyList& operator=(const CIMPropertyList& x);
 
-    /**
-        Sets the property list to a null value.
+    /** Clears the properties array (sets isNull to true).
     */
     void clear();
 
-    /**
-        Determines whether the property list is null.
-        @return True if the property list is null, false otherwise.
+    /** Returns true if the property list is null.
     */
-    Boolean isNull() const;
+    Boolean isNull() const { return _isNull; }
 
-    /**
-        Gets the number of property names in the property list.
-        @return An integer count of the property names in the CIMPropertyList.
-        A value of 0 is returned if the list is null or empty.
+    /** Get the number of properties in the list.
     */
-    Uint32 size() const;
+    Uint32 getNumProperties() const { return _properties.size(); }
 
-    /**
-        Gets the property name at a specified index.
-        <p><b>Example:</b>
-        <pre>
-            Array<CIMName> n;
-            n.append("name");
-            n.append("type");
-            CIMPropertyList pl(n);
-            assert(pl[0] == CIMName("name"));
-        </pre>
-        @param index The index of the property name to be retrieved.
-        @return A CIMName containing the property name at the specified index.
-        @exception IndexOutOfBoundsException If the index is outside the
-            range of property names in the property list or if the property
-            list is null.
+    /** Returns true if the property list is empty.
     */
-    const CIMName& operator[](Uint32 index) const;
+    Boolean isEmpty() const { return getNumProperties() == 0; }
 
-    /**
-        Gets an Array of the property names in the property list.
-        <p><b>Example:</b>
-        <pre>
-            Array<CIMName> n = pl.getPropertyNameArray();
-        </pre>
-        @return An Array of CIMName objects containing the property names
-        in the property list.
+    /** Get the property at the given position.
     */
-    Array<CIMName> getPropertyNameArray() const;
+    CIMProperty getProperty(Uint32 pos)
+    {
+	return _properties[pos];
+    }
 
-    Uint32 getCIMNameTag(Uint32 index) const;
-
-    void append(Array<String> & propertyListArray);
-
-    void appendCIMNameTag(Uint32 nameTag);
-
-    /**
-        Return as a String the comma-separated list of properties in
-        a property list.  If the list is empty or NULL set the
-        corresponding string value (EMPTY or NULL).  This method is
-        only for display of information in a property list.
-        @return String containing the list of properties
-                comma-separated.
-     */
-    String toString() const;
+    /** Get the (const) property at the given position.
+    */
+    CIMConstProperty getProperty(Uint32 pos) const
+    {
+	return _properties[pos];
+    }
 
 private:
 
-    CIMPropertyListRep* _rep;
+    Array<CIMProperty> _properties;
+    Boolean _isNull;
 };
+
 
 PEGASUS_NAMESPACE_END
 

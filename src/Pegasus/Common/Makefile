@@ -51,6 +51,7 @@ SOURCES = \
     CIMParamValueRep.cpp \
     CIMProperty.cpp \
     CIMPropertyRep.cpp \
+    CIMPropertyList.cpp \
     CIMQualifier.cpp \
     CIMQualifierDecl.cpp \
     CIMQualifierDeclRep.cpp \

@@ -1,4 +1,4 @@
-//%2003////////////////////////////////////////////////////////////////////////
+///%2003////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
 // Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
@@ -73,6 +73,10 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 # endif
 #elif defined(PEGASUS_OS_OS400)
     libraryName = handlerId;
+#elif defined(PEGASUS_OS_DARWIN)
+    libraryName =
+              ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    libraryName.append(String("/lib") + handlerId + String(".dylib"));
 #else
     libraryName = 
               ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));

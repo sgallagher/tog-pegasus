@@ -78,6 +78,19 @@ REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIMPrelim271
 CIM_SCHEMA_VER=27
 
+# ***** CIM_SCHEMA_DIR INFO ****
+# If CIM_SCHEMA_DIR changes to use a preliminary schema which
+# has experimentals make sure and change the path below to appopriate
+# directory path.  Example:  CIMPrelim271 is preliminary and has
+# experimental classes.  Since experimental classes exist the -aE
+# option of the mof compiler needs to be set.
+# *****
+ifeq ($(CIM_SCHEMA_DIR), $(PEGASUS_ROOT)/Schemas/CIMPrelim271)
+ALLOW_EXPERIMENTAL = -aE
+else
+ALLOW_EXPERIMENTAL = -aE
+endif
+
 LEX = flex
 
 ################################################################################

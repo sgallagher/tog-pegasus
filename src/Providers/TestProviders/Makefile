@@ -20,10 +20,8 @@ DIRS = \
 	DynamicIndicationProvider
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-ifdef PEGASUS_CMPI_CQL_PROVIDER
 DIRS += \
 	CMPI/TestIndications \
 	CMPI/TestIndications/tests
-endif
 endif
 include $(ROOT)/mak/recurse.mak

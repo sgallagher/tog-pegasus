@@ -314,17 +314,21 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 
    MessageQueueService* _mqs = static_cast<MessageQueueService*>(_controller);
    
-   Uint32 _queueId = _mqs->find_service(*_client_handle, String(serviceName));
+   Array<Uint32> _services;
+   Uint32 _queueId;
+   
+   _mqs->find_services(String(serviceName), 0, 0, &_services);
    
    
-   if (queueId == 0)
+   if (_services.size() == 0 )
    {
       // service not found, just return
       return;
    }
-
+   _queueId = _services[0];
+   
     // send a stop, start, and CLOSE << Wed Oct 15 08:51:57 2003 mdd >>
-    CimServiceStop* stop_message = new CimServiceStop(_service->get_next_xid(),
+    CimServiceStop* stop_message = new CimServiceStop(_mqs->get_next_xid(),
 						      NULL, 
 						      _queueId, 
 						      _controller->getQueueId(),
@@ -332,7 +336,7 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 
     _controller->ClientSendForget(*_client_handle, _queueId, stop_message);
 
-    CimServiceStart* start_message = new CimServiceStart(_service->get_next_xid(),
+    CimServiceStart* start_message = new CimServiceStart(_mqs->get_next_xid(),
 							 NULL, 
 							 _queueId, 
 							 _controller->getQueueId(),
@@ -344,7 +348,7 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 
     // create a CLOSE request and send it to the service 
 
-    AsyncIoctl* close_request = new AsyncIoctl(_service->get_next_xid(),
+    AsyncIoctl* close_request = new AsyncIoctl(_mqs->get_next_xid(),
 					       NULL,
 					       _queueId,
 					       _controller->getQueueId(),

@@ -121,11 +121,6 @@ void QueryContext::insertClassPath(const QueryIdentifier& inIdentifier, String i
     }
   }
 
-  if (!found)
-  {  
-    _fromList.append(inIdentifier);
-  }
-
   if(inAlias != String::EMPTY)
   {
     if (!_AliasClassTable.insert(inAlias, inIdentifier))
@@ -141,6 +136,11 @@ void QueryContext::insertClassPath(const QueryIdentifier& inIdentifier, String i
         }
       }
     }
+  }
+
+  if (!found)
+  {  
+    _fromList.append(inIdentifier);
   }
 }
 

@@ -285,6 +285,10 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
             message = _deserializeCIMInitializeProviderRequestMessage(parser);
             break;
+        case CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE:
+            message =
+                _deserializeCIMInitializeProviderAgentRequestMessage(parser);
+            break;
 
         default:
             PEGASUS_ASSERT(0);
@@ -444,6 +448,10 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             break;
         case CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE:
             message = _deserializeCIMInitializeProviderResponseMessage(parser);
+            break;
+        case CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE:
+            message =
+                _deserializeCIMInitializeProviderAgentResponseMessage(parser);
             break;
 
         default:
@@ -1807,6 +1815,53 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderRequestMessage(
     return(message);
 }
 
+//
+// _deserializeCIMInitializeProviderAgentRequestMessage
+//
+CIMInitializeProviderAgentRequestMessage*
+CIMMessageDeserializer::_deserializeCIMInitializeProviderAgentRequestMessage(
+    XmlParser& parser)
+{
+    XmlEntry entry;
+    CIMValue genericValue;
+    String pegasusHome;
+    Array<Pair<String, String> > configProperties;
+    Boolean bindVerbose;
+
+    XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+    genericValue.get(pegasusHome);
+
+    // Get configProperties array
+    XmlReader::expectStartTag(parser, entry, "PGCONFARRAY");
+    while (XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue))
+    {
+        String propertyName;
+        String propertyValue;
+
+        genericValue.get(propertyName);
+
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(propertyValue);
+
+        configProperties.append(
+            Pair<String, String>(propertyName, propertyValue));
+    }
+    XmlReader::expectEndTag(parser, "PGCONFARRAY");
+
+    XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
+    genericValue.get(bindVerbose);
+
+    CIMInitializeProviderAgentRequestMessage* message =
+        new CIMInitializeProviderAgentRequestMessage(
+            String::EMPTY,         // messageId
+            pegasusHome,
+            configProperties,
+            bindVerbose,
+            QueueIdStack());       // queueIds
+
+    return(message);
+}
+
 
 //
 //
@@ -2384,6 +2439,22 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderResponseMessage(
 {
     CIMInitializeProviderResponseMessage* message =
         new CIMInitializeProviderResponseMessage(
+            String::EMPTY,         // messageId
+            CIMException(),        // cimException
+            QueueIdStack());       // queueIds
+
+    return(message);
+}
+
+//
+// _deserializeCIMInitializeProviderAgentResponseMessage
+//
+CIMInitializeProviderAgentResponseMessage*
+CIMMessageDeserializer::_deserializeCIMInitializeProviderAgentResponseMessage(
+    XmlParser& parser)
+{
+    CIMInitializeProviderAgentResponseMessage* message =
+        new CIMInitializeProviderAgentResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
             QueueIdStack());       // queueIds

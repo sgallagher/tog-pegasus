@@ -254,9 +254,13 @@ public:
     */
     static Boolean changeFilePermissions(const char* path, mode_t mode);
 
-#if defined(PEGASUS_OS_HPUX)
+    /**
+        Flag indicating whether shared libraries are loaded with the
+        BIND_VERBOSE option.
+
+        THIS FLAG IS USED ON HP-UX ONLY.
+     */
     static Boolean bindVerbose;
-#endif
 
     /** This function is an abstraction for the openlog interface used in the Logger
         class.  Each platform intending to use system logs should support this interface

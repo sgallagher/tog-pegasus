@@ -164,6 +164,9 @@ private:
     static CIMInitializeProviderRequestMessage*
         _deserializeCIMInitializeProviderRequestMessage(XmlParser& parser);
 
+    static CIMInitializeProviderAgentRequestMessage*
+        _deserializeCIMInitializeProviderAgentRequestMessage(XmlParser& parser);
+
     //
     // CIMIndicationRequestMessages
     //
@@ -256,6 +259,10 @@ private:
 
     static CIMInitializeProviderResponseMessage*
         _deserializeCIMInitializeProviderResponseMessage(XmlParser& parser);
+
+    static CIMInitializeProviderAgentResponseMessage*
+        _deserializeCIMInitializeProviderAgentResponseMessage(
+            XmlParser& parser);
 
     //
     // CIM Indication Response Messages

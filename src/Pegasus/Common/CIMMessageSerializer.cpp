@@ -285,6 +285,10 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
             _serializeCIMInitializeProviderRequestMessage(
                 out, (CIMInitializeProviderRequestMessage*)cimMessage);
             break;
+        case CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE:
+            _serializeCIMInitializeProviderAgentRequestMessage(
+                out, (CIMInitializeProviderAgentRequestMessage*)cimMessage);
+            break;
 
         default:
             PEGASUS_ASSERT(0);
@@ -470,6 +474,10 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
         case CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE:
             _serializeCIMInitializeProviderResponseMessage(
                 out, (CIMInitializeProviderResponseMessage*)cimMessage);
+            break;
+        case CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE:
+            _serializeCIMInitializeProviderAgentResponseMessage(
+                out, (CIMInitializeProviderAgentResponseMessage*)cimMessage);
             break;
 
         default:
@@ -1251,6 +1259,27 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderRequestMessage(
     // No additional attributes to serialize!
 }
 
+//
+// _serializeCIMInitializeProviderAgentRequestMessage
+//
+void CIMMessageSerializer::_serializeCIMInitializeProviderAgentRequestMessage(
+    Array<Sint8>& out,
+    CIMInitializeProviderAgentRequestMessage* message)
+{
+    XmlWriter::appendValueElement(out, message->pegasusHome);
+
+    // Use PGCONFARRAY element to encapsulate the config property elements
+    XmlWriter::append(out, "<PGCONFARRAY>\n");
+    for (Uint32 i=0; i < message->configProperties.size(); i++)
+    {
+        XmlWriter::appendValueElement(out, message->configProperties[i].first);
+        XmlWriter::appendValueElement(out, message->configProperties[i].second);
+    }
+    XmlWriter::append(out, "</PGCONFARRAY>\n");
+
+    XmlWriter::appendValueElement(out, message->bindVerbose);
+}
+
 
 //
 //
@@ -1594,6 +1623,16 @@ void CIMMessageSerializer::_serializeCIMStopAllProvidersResponseMessage(
 void CIMMessageSerializer::_serializeCIMInitializeProviderResponseMessage(
     Array<Sint8>& out,
     CIMInitializeProviderResponseMessage* message)
+{
+    // No additional attributes to serialize!
+}
+
+//
+// _serializeCIMInitializeProviderAgentResponseMessage
+//
+void CIMMessageSerializer::_serializeCIMInitializeProviderAgentResponseMessage(
+    Array<Sint8>& out,
+    CIMInitializeProviderAgentResponseMessage* message)
 {
     // No additional attributes to serialize!
 }

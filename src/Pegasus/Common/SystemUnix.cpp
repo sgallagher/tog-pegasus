@@ -87,9 +87,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#if defined(PEGASUS_OS_HPUX)
 Boolean System::bindVerbose = false;
-#endif
 
 #ifdef PEGASUS_OS_OS400
 typedef struct os400_pnstruct

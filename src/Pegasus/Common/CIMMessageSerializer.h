@@ -240,6 +240,10 @@ private:
         Array<Sint8>& out,
         CIMInitializeProviderRequestMessage* message);
 
+    static void _serializeCIMInitializeProviderAgentRequestMessage(
+        Array<Sint8>& out,
+        CIMInitializeProviderAgentRequestMessage* message);
+
 
     //
     //
@@ -359,6 +363,9 @@ private:
         Array<Sint8>& out,
         CIMInitializeProviderResponseMessage* message);
 
+    static void _serializeCIMInitializeProviderAgentResponseMessage(
+        Array<Sint8>& out,
+        CIMInitializeProviderAgentResponseMessage* message);
 };
 
 PEGASUS_NAMESPACE_END

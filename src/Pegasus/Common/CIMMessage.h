@@ -58,6 +58,8 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/AcceptLanguages.h>  // l10n
 #include <Pegasus/Common/ContentLanguages.h>  // l10n
+#include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 /*   ProviderType should become part of Pegasus/Common     PEP# 99
    #include <Pegasus/ProviderManager2/ProviderType.h>
@@ -181,6 +183,11 @@ public:
     QueueIdStack queueIds;
     CIMException cimException;
 };
+
+
+//
+// CIMRequestMessages
+//
 
 class PEGASUS_COMMON_LINKAGE CIMOperationRequestMessage
     : public CIMRequestMessage
@@ -1574,6 +1581,39 @@ public:
     virtual CIMResponseMessage* buildResponse();
 };
 
+// Used to pass initialization data to an Out-of-Process Provider Agent process
+class PEGASUS_COMMON_LINKAGE CIMInitializeProviderAgentRequestMessage
+    : public CIMRequestMessage
+{
+public:
+    CIMInitializeProviderAgentRequestMessage(
+	const String & messageId_,
+        const String& pegasusHome_,
+        const Array<Pair<String, String> >& configProperties_,
+        Boolean bindVerbose_,
+        const QueueIdStack& queueIds_)
+    : CIMRequestMessage(
+	CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE,
+	messageId_,
+        queueIds_),
+      pegasusHome(pegasusHome_),
+      configProperties(configProperties_),
+      bindVerbose(bindVerbose_)
+    {
+    }
+
+    virtual CIMResponseMessage* buildResponse();
+
+    String pegasusHome;
+    Array<Pair<String, String> > configProperties;
+    Boolean bindVerbose;
+};
+
+
+//
+// CIMResponseMessages
+//
+
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
     : public CIMResponseMessage
 {
@@ -2242,6 +2282,20 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_INITIALIZE_PROVIDER_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_)
+    {
+    }
+};
+
+class PEGASUS_COMMON_LINKAGE CIMInitializeProviderAgentResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMInitializeProviderAgentResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_)
     {
     }

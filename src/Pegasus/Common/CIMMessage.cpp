@@ -650,4 +650,19 @@ CIMResponseMessage* CIMInitializeProviderRequestMessage::buildResponse()
     return response;
 }
 
+CIMResponseMessage* CIMInitializeProviderAgentRequestMessage::buildResponse()
+{
+    CIMInitializeProviderAgentResponseMessage* response;
+    response = new CIMInitializeProviderAgentResponseMessage(
+        messageId,
+        CIMException(),
+        queueIds.copyAndPop());
+    AutoPtr<CIMInitializeProviderAgentResponseMessage> responsePtr(response);
+
+    response->syncAttributes(this);
+
+    responsePtr.release();
+    return response;
+}
+
 PEGASUS_NAMESPACE_END

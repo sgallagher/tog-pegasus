@@ -39,8 +39,10 @@
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <strings.h>       // for strcasecmp
+
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#define strcasecmp stricmp
 #endif
 
 PEGASUS_USING_STD;

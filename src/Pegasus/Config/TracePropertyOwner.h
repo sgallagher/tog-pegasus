@@ -38,6 +38,7 @@
 #define Pegasus_TracePropertyOwner_h
 
 #include <Pegasus/Config/ConfigPropertyOwner.h>
+#include <Pegasus/Config/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -49,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
     This is Trace property owner class that extends ConfigPropertyOwner
     class and provide implementation.
 */
-class PEGASUS_COMMON_LINKAGE TracePropertyOwner : ConfigPropertyOwner
+class PEGASUS_CONFIG_LINKAGE TracePropertyOwner : ConfigPropertyOwner
 {
 public:
 

@@ -37,6 +37,7 @@
 
 
 #include <Pegasus/Config/PropertyException.h>
+#include <Pegasus/Config/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN

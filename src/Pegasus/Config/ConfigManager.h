@@ -45,6 +45,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
+#include <Pegasus/Config/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -57,7 +58,7 @@ struct OwnerTable;
   properties to owners, and implements access methods.
 */
 
-class PEGASUS_COMMON_LINKAGE ConfigManager
+class PEGASUS_CONFIG_LINKAGE ConfigManager
 {
 
 private:

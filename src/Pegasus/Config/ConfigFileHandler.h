@@ -34,6 +34,7 @@
 #include <cctype>
 #include <Pegasus/Config/ConfigExceptions.h>
 #include <Pegasus/Config/ConfigFile.h>
+#include <Pegasus/Config/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -60,7 +61,7 @@ static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
   This class provides methods to read/write config properties 
   from the config file.
 */
-class PEGASUS_COMMON_LINKAGE ConfigFileHandler
+class PEGASUS_CONFIG_LINKAGE ConfigFileHandler
 {
 public:
 

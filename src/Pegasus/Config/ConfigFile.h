@@ -31,6 +31,7 @@
 #define Pegasus_ConfigFile_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Config/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Config/ConfigExceptions.h>
@@ -47,7 +48,7 @@ struct ConfigTable;
   This class provides methods to read/write configuration properties from the 
   config file.
 */
-class PEGASUS_COMMON_LINKAGE ConfigFile
+class PEGASUS_CONFIG_LINKAGE ConfigFile
 {
 public:
 

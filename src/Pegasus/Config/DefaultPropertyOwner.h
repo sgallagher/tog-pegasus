@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
+#include <Pegasus/Config/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -63,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
 This is default property owner class that extends ConfigPropertyOwner
 class and provide implementation.
 */
-class PEGASUS_COMMON_LINKAGE DefaultPropertyOwner : ConfigPropertyOwner
+class PEGASUS_CONFIG_LINKAGE DefaultPropertyOwner : ConfigPropertyOwner
 {
 public:
 

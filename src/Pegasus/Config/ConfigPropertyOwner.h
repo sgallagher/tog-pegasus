@@ -41,6 +41,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Config/ConfigExceptions.h>
+#include <Pegasus/Config/Linkage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -54,7 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
     This is an abstract class that the individual config property 
     owners will extend and provide implementation. 
 */
-class PEGASUS_COMMON_LINKAGE ConfigPropertyOwner
+class PEGASUS_CONFIG_LINKAGE ConfigPropertyOwner
 {
 public:
 

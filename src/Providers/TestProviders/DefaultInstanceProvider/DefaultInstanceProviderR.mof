@@ -1,0 +1,20 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Pegasus Default Instance Provider Module";
+    Caption = "Pegasus Default Instance Provider Module";
+    Name = "PG_DefaultInstanceProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.2.0";
+    Location = "PG_DefaultInstanceProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "PG_DefaultInstanceProviderModule";
+    Name = "PG_DefaultInstanceProvider";
+};
+

@@ -1,0 +1,13 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "PG_DefaultInstanceProviderModule";
+    ProviderName = "PG_DefaultInstanceProvider";
+    CapabilityID = "SampleClass";
+    ClassName = "SampleClass";
+    Namespaces = { "root/SampleNamespace" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

@@ -231,7 +231,8 @@ const char* MessageTypeToString(Uint32 messageType)
 }
 
 
-/*static CIMOperationType Message::convertMessageTypetoCIMOpType(const Uint32 type)
+#if 0
+static CIMOperationType Message::convertMessageTypetoCIMOpType(const Uint32 type)
 {
     Uint32 in_type, enum_type;
     CIMOperationType cT;
@@ -256,7 +257,8 @@ const char* MessageTypeToString(Uint32 messageType)
     cT = (CIMOperationType)enum_type;
     return cT;
 
-}*/
+}
+#endif
 
 
 #ifndef PEGASUS_DISABLE_PERFINST

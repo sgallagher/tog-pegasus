@@ -3,7 +3,7 @@
 <MESSAGE ID="30002" PROTOCOLVERSION="1.0">
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="AssociatorNames">
-<ERROR CODE="5" DESCRIPTION="NameSpaceManager.cpp(145): CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;NotObject&quot;"/>
+<ERROR CODE="5" DESCRIPTION="CIM_ERR_INVALID_CLASS: The specified class does not exist: &quot;NotObject&quot;"/>
 </IMETHODRESPONSE>
 </SIMPLERSP>
 </MESSAGE>

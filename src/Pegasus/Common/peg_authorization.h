@@ -47,6 +47,7 @@ class PEGASUS_COMMON_LINKAGE peg_identity_types
       static const Uint32 PKCS6;
       static const Uint32 HTTP_DIGEST_USER_AND_REALM;
       static const Uint32 UNIX_ID;
+      static const Uint32 INTERNAL;
 };
 
 // these constants will certainly change with implementation
@@ -56,6 +57,9 @@ class PEGASUS_COMMON_LINKAGE peg_credential_types
       static const Uint32 CLEAR_PASSWORD;
       static const Uint32 CRYPT_PASSWORD;
       static const Uint32 HTTP_DIGEST;
+      static const Uint32 SERVICE;
+      static const Uint32 MODULE;
+      static const Uint32 PROVIDER;
 };
 
 
@@ -78,17 +82,15 @@ class PEGASUS_COMMON_LINKAGE pegasus_identity_rep
       
       virtual ~pegasus_identity_rep(void)
       {
-	 _thread_safety.unlock();
+
       }
       
       pegasus_identity_rep * operator = (pegasus_identity_rep *rep)
       {
-	 _thread_safety.lock(pegasus_thread_self());
 	 if (rep != this )
 	 {
 	    _reference++;
 	 }
-	 _thread_safety.unlock();
 	 return this;
       }
             
@@ -99,24 +101,14 @@ class PEGASUS_COMMON_LINKAGE pegasus_identity_rep
       
       void dereference(void)
       {
-	 _thread_safety.lock(pegasus_thread_self());
 	 _reference--;
-	 _thread_safety.unlock();
       }
       
       Uint32 get_reference(void)
       {
-	 Uint32 ret;
-	 _thread_safety.lock(pegasus_thread_self());
-	 ret =  _reference.value();
-	 _thread_safety.unlock();
-	 return ret;
+	 return  _reference.value();
+
       }
-      Uint32 get_reference_no_lock(void)
-      {
-	 return _reference.value();
-      }
-      
 
       Uint32 get_identity_type(void)
       {
@@ -125,7 +117,6 @@ class PEGASUS_COMMON_LINKAGE pegasus_identity_rep
       
       Uint32 get_credential_type(void)
       {
-	 
 	 return _credential_type;
       }
       
@@ -153,7 +144,6 @@ class PEGASUS_COMMON_LINKAGE pegasus_identity_rep
 	 _thread_safety.unlock();
       }
       
-
    private:
       Uint32 _identity_type;
       void *_identity;
@@ -179,7 +169,17 @@ class PEGASUS_COMMON_LINKAGE pegasus_base_identity
    protected:
       pegasus_base_identity & operator=(const pegasus_base_identity & id);
       pegasus_base_identity(const pegasus_base_identity & id);
-
+      
+      Uint32 get_base_id_type(void)
+      {
+	 return _rep->get_identity_type();
+      }
+      
+      Uint32 get_base_cred_type(void)
+      {
+	 return _rep->get_credential_type();
+      }
+      
       void *get_base_identity(void)
       {
 	 return _rep->get_identity();
@@ -213,8 +213,48 @@ class PEGASUS_COMMON_LINKAGE pegasus_basic_identity : pegasus_base_identity
       
    private:
       pegasus_basic_identity(void);
-      pegasus_basic_identity & operator= (pegasus_base_identity * id);
+      pegasus_basic_identity  operator= (pegasus_base_identity & id);
       
+};
+
+
+class PEGASUS_COMMON_LINKAGE pegasus_internal_identity : pegasus_base_identity
+{
+   public:
+      typedef pegasus_base_identity Base;
+      pegasus_internal_identity(Uint32 identity);
+      pegasus_internal_identity(const pegasus_internal_identity & id);
+      virtual ~pegasus_internal_identity(void);
+      const Uint32 get_credential(void);
+      Boolean authenticate(void);
+   private:
+      pegasus_internal_identity(void);
+      pegasus_internal_identity & operator = (pegasus_internal_identity & id);
+      
+      
+};
+
+
+
+class PEGASUS_COMMON_LINKAGE pegasus_authorization_handle
+{
+   public:
+      pegasus_authorization_handle(pegasus_base_identity &id)
+	 : _id(id)
+      {
+	 
+      }
+      
+      virtual ~pegasus_authorization_handle(void)
+      {
+
+      }
+      
+      virtual Boolean authorized(Uint32 operation) = 0;
+      virtual Boolean authorized(void) = 0;
+   private:
+      pegasus_authorization_handle(void);
+      pegasus_base_identity & _id;
 };
 
 

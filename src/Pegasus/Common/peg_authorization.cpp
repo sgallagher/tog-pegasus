@@ -39,11 +39,14 @@ const Uint32 peg_identity_types::X509     =                   0x00000004;
 const Uint32 peg_identity_types::PKCS6    =                   0x00000005;
 const Uint32 peg_identity_types::HTTP_DIGEST_USER_AND_REALM = 0x00000006;
 const Uint32 peg_identity_types::UNIX_ID =                    0x00000007;
+const Uint32 peg_identity_types::INTERNAL =                   0x00000008;
 
 const Uint32 peg_credential_types::CLEAR_PASSWORD =           0x00000001;
 const Uint32 peg_credential_types::CRYPT_PASSWORD =           0x00000002;
 const Uint32 peg_credential_types::HTTP_DIGEST =              0x00000003;
-
+const Uint32 peg_credential_types::SERVICE =                  0x00000004;
+const Uint32 peg_credential_types::MODULE =                   0x00000005;
+const Uint32 peg_credential_types::PROVIDER =                 0x00000006;
 
 pegasus_base_identity::pegasus_base_identity(Uint32 identity_type, 
 					     void *identity,
@@ -76,14 +79,11 @@ pegasus_base_identity & pegasus_base_identity::operator=(const pegasus_base_iden
 pegasus_base_identity::~pegasus_base_identity(void)
 {
    _rep->dereference();
-   _rep->lock();
-   
-   if ( _rep->get_reference_no_lock() == 0 )
+
+   if ( _rep->get_reference() == 0 )
    {
       delete _rep;
    }
-   else
-      _rep->unlock();
 }
 
 
@@ -123,6 +123,41 @@ const String & pegasus_basic_identity::get_password(void)
 Boolean pegasus_basic_identity::authenticate(void)
 {
    return true;
+}
+
+
+// credential should be SERVICE, MODULE, or PROVIDER
+pegasus_internal_identity::pegasus_internal_identity(Uint32 credential)
+   : Base(peg_identity_types::INTERNAL, 
+	  (void *)0,
+	  credential, 
+	  (void *)credential)
+{
+}
+
+pegasus_internal_identity::pegasus_internal_identity(const pegasus_internal_identity & id)
+   : Base(id)
+{
+}
+
+pegasus_internal_identity::~pegasus_internal_identity(void)
+{
+}
+
+const Uint32 pegasus_internal_identity::get_credential(void)
+{
+   return reinterpret_cast<Uint32>(get_base_credential());
+}
+
+Boolean pegasus_internal_identity::authenticate(void)
+{
+   Uint32 cred = get_base_cred_type();
+   
+   if( (cred == peg_credential_types::SERVICE) ||
+       (cred == peg_credential_types::MODULE) ||
+       (cred == peg_credential_types::PROVIDER))
+      return true;
+   return false;
 }
 
 

@@ -38,8 +38,8 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/peg_authorization.h>
 
-#include <bitset>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -164,61 +164,39 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
    public:
       typedef MessageQueueService Base;
       
-      enum 
-      {
-	 GET_CLIENT_HANDLE,
-	 REGISTER_MODULE,
-	 DEREGISTER_MODULE,
-	 FIND_SERVICE,
-	 FIND_MODULE_IN_SERVICE,
-	 GET_MODULE_REFERENCE,
-	 MODULE_SEND_WAIT,
-	 MODULE_SEND_WAIT_MODULE,
-	 MODULE_SEND_ASYNC,
-	 MODULE_SEND_ASYNC_MODULE,
-	 BLOCKING_THREAD_EXEC,
-	 ASYNC_THREAD_EXEC,
-	 NUMBER_OPERATIONS
-      } ;
+      static const Uint32 GET_CLIENT_HANDLE;
+      static const Uint32 REGISTER_MODULE;
+      static const Uint32 DEREGISTER_MODULE;
+      static const Uint32 FIND_SERVICE;
+      static const Uint32 FIND_MODULE_IN_SERVICE;
+      static const Uint32 GET_MODULE_REFERENCE;
+      static const Uint32 MODULE_SEND_WAIT;
+      static const Uint32 MODULE_SEND_WAIT_MODULE;
+      static const Uint32 MODULE_SEND_ASYNC;
+      static const Uint32 MODULE_SEND_ASYNC_MODULE;
+      static const Uint32 BLOCKING_THREAD_EXEC;
+      static const Uint32 ASYNC_THREAD_EXEC;
+      static const Uint32 CLIENT_SEND_WAIT;
+      static const Uint32 CLIENT_SEND_WAIT_MODULE;
+      static const Uint32 CLIENT_SEND_ASYNC;
+      static const Uint32 CLIENT_SEND_ASYNC_MODULE;
+
    private: 
-      class PEGASUS_COMMON_LINKAGE client_handle 
+      class PEGASUS_COMMON_LINKAGE client_handle : pegasus_authorization_handle
       {
 	 public:
-	    client_handle(void)
-	       : _allowed_operations(0),
-		 _allowed_destinations(0),
-		 _allowed_sources(0),
-		 _identity(NULL)
+	    typedef pegasus_authorization_handle Base;
+	    
+	    client_handle(pegasus_base_identity & id)
+	       :Base(id)
 	    {
 	    }
-	    
 	    ~client_handle(void);
-
+	    virtual Boolean authorized(Uint32 operation);
+	    virtual Boolean authorized(void);
+	    
 	 private:
-	    friend class ModuleController;
-	    client_handle(Uint32 operations, 
-			  Uint32 destinations, 
-			  Uint32 sources,
-			  void *identity)
-	       : _allowed_operations(operations),
-		 _allowed_destinations(destinations),
-		 _allowed_sources(sources),
-		 _identity(identity)
-	    {
-	    }
-	    
-	    bitset<NUMBER_OPERATIONS>  _allowed_operations;
-	    bitset<128> _allowed_destinations;
-	    bitset<128> _allowed_sources;
-	    void *_identity;
-	    
-	    Boolean allowed(Uint32 operation, 
-			    Uint32 destination, 
-			    Uint32 source, 
-			    void *identity)
-	    {
-	       return true;
-	    }
+	    bitset<32> allowed_operations;
       };
       
    public:
@@ -293,6 +271,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       void async_thread_exec(pegasus_module & handle, 
 			     PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
 			     void *parm) throw(Permission, Deadlock, IPCException);
+
       Boolean verify_handle(pegasus_module *);
    protected:
       // ATTN-RK-P2-20010322:  These methods are pure virtual in superclass

@@ -183,7 +183,7 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 	// get the module location
 	String location = moduleInstance.getProperty(moduleInstance.findProperty("Location")).getValue().toString();
 	
-	if(location.size == 0)
+	if(location.size() == 0)
 	{
 		throw CIMException(CIM_ERR_FAILED, "Invalid provider location.");
 	}
@@ -203,7 +203,7 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 	// get the provider name
 	String providerName = providerInstance.getProperty(providerInstance.findProperty("Name")).getValue().toString();
 
-	if(providerName.size == 0)
+	if(providerName.size() == 0)
 	{
 		throw CIMException(CIM_ERR_FAILED, "Invalid provider name.");
 	}

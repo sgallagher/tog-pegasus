@@ -32,55 +32,56 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
 
-template<class object_type>
+template<class T>
 class Lockable
 {
 public:
 	Lockable(void);
 	virtual ~Lockable(void);
 
-	operator const object_type &(void) const;
-	operator object_type &(void);
+	operator const T &(void) const;
+	operator T &(void);
 	
 	void lock(void);
 	void unlock(void);
 
 protected:
+	T _object;
 	//Mutex _mutex;
 
 };
 
-template<class object_type>
-inline Lockable<object_type>::Lockable(void)
+template<class T>
+inline Lockable<T>::Lockable(void)
 {
 }
 
-template<class object_type>
-inline Lockable<object_type>::~Lockable(void)
+template<class T>
+inline Lockable<T>::~Lockable(void)
 {
 	//_mutex.unlock();
 }
 
-template<class object_type>
-inline Lockable<object_type>::operator const object_type &(void) const
+template<class T>
+inline Lockable<T>::operator const T &(void) const
 {
 	return(_object);
 }
 
-template<class object_type>
-inline Lockable<object_type>::operator object_type &(void)
+template<class T>
+inline Lockable<T>::operator T &(void)
 {
 	return(_object);
 }
 
-template<class object_type>
-inline void Lockable<object_type>::lock(void)
+template<class T>
+inline void Lockable<T>::lock(void)
 {
 	//_mutex.lock(pegasus_thread_self());
 }
 
-template<class object_type>
-inline void Lockable<object_type>::unlock(void)
+template<class T>
+inline void Lockable<T>::unlock(void)
 {
 	//_mutex.unlock();
 }

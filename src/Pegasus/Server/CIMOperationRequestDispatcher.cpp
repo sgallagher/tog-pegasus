@@ -2390,7 +2390,8 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                             paramType);
                     }
 
-                    inParameters[i] = CIMParamValue(paramName, newValue, true);
+                    inParameters[i].setValue(newValue);
+                    inParameters[i].setIsTyped(true);
                     break;
                 }
             }

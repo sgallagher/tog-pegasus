@@ -15,9 +15,6 @@ PROGRAM = TestSSLClientVerification
 
 SOURCES = SSLClientVerification.cpp
 
-CLIENT_KEY_FILES = \
-	client_cert.pem \
-	client_key.pem
 
 # for testing purposes, the username can be anything, as long as its a valid username
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
@@ -45,11 +42,16 @@ ifdef PEGASUS_HAS_SSL
 	$(MKDIRHIER) $(PEGASUS_HOME)/truststore
 	$(COPY) client_cert.pem $(PEGASUS_HOME)/truststore/a692aa3b.0
 	$(MKDIRHIER) $(PEGASUS_HOME)/clientkeystore
-	$(COPY) -f $(CLIENT_KEY_FILES) $(PEGASUS_HOME)/clientkeystore
+	$(COPY) client_key.pem $(PEGASUS_HOME)/clientkeystore/client_key.pem
+	$(COPY) client_cert.pem $(PEGASUS_HOME)/clientkeystore/client_cert.pem
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+	$(COPY) cimserver_planned.conf.win32 $(PEGASUS_HOME)/cimserver_planned.conf
+else
 	$(COPY) cimserver_planned.conf $(PEGASUS_HOME)/cimserver_planned.conf
 	@$(ECHO) user is $(CURRENT_USER)
 	sed 's/%CURRENT_USER%/'$(CURRENT_USER)'/' $(PEGASUS_HOME)/cimserver_planned.conf > $(PEGASUS_HOME)/cimserver_planned.conf.2
 	$(MOVE) $(PEGASUS_HOME)/cimserver_planned.conf.2 $(PEGASUS_HOME)/cimserver_planned.conf
+endif
 	@$(ECHO) Starting cimserver
 	cd $(PEGASUS_HOME)/bin && $(CIMSERVER_START_SERVICE)
 	@$(ECHO) Running

@@ -132,34 +132,34 @@ class                                 { return(TOK_CLASS); }
                                     */                                               
 \"                                  { BEGIN(myStr); strbuf_p = strbuf; 
                                       /**strbuf_p++ = '"';*/ }
-<str>\"                             { BEGIN(INITIAL);  
+<myStr>\"                             { BEGIN(INITIAL);  
                                       /**strbuf_p++ = '"';*/  *strbuf_p = '\0';
                                       cimmof_leng = strbuf_p - strbuf;
                                       cimmof_lval.strval = new String(strbuf);
                                       return TOK_STRING_VALUE; }
-<str><<EOF>>                        |
-<str>\n                             { BEGIN(INITIAL); 
+<myStr><<EOF>>                        |
+<myStr>\n                             { BEGIN(INITIAL); 
                                       /**strbuf_p++ = '"';*/  *strbuf_p = '\0';
                                       cimmof_leng = strbuf_p - strbuf;
                                       cimmof_lval.strval = new String(strbuf);
                                       return TOK_UNEXPECTED_CHAR; }
-<str>\\b                            { /* backspace */        *strbuf_p++ = '\b'; }
-<str>\\f                            { /* form feed */        *strbuf_p++ = '\f'; }
-<str>\\n                            { /* line feed */        *strbuf_p++ = '\n'; }
-<str>\\r                            { /* carriage return */  *strbuf_p++ = '\r'; }
-<str>\\t                            { /* horizontal tab */   *strbuf_p++ = '\t'; }
-<str>\\'                            { /* single quote */     *strbuf_p++ = '\''; }
-<str>\\\"                           { /* double quote */     *strbuf_p++ = '"';  }
-<str>\\\\                           { /* backslash */        *strbuf_p++ = '\\'; }
-<str>\\[xX]                         { yy_push_state(myHex);
+<myStr>\\b                            { /* backspace */        *strbuf_p++ = '\b'; }
+<myStr>\\f                            { /* form feed */        *strbuf_p++ = '\f'; }
+<myStr>\\n                            { /* line feed */        *strbuf_p++ = '\n'; }
+<myStr>\\r                            { /* carriage return */  *strbuf_p++ = '\r'; }
+<myStr>\\t                            { /* horizontal tab */   *strbuf_p++ = '\t'; }
+<myStr>\\'                            { /* single quote */     *strbuf_p++ = '\''; }
+<myStr>\\\"                           { /* double quote */     *strbuf_p++ = '"';  }
+<myStr>\\\\                           { /* backslash */        *strbuf_p++ = '\\'; }
+<myStr>\\[xX]                         { yy_push_state(myHex);
                                       memcpy(slashx,yytext,2);
                                       }
-<str>\\(.|\n)                       { *strbuf_p++ = '\\';
+<myStr>\\(.|\n)                       { *strbuf_p++ = '\\';
                                       *strbuf_p++ = yytext[1]; }
-<str>[^\\\n\"]+                     { char *t = yytext;
+<myStr>[^\\\n\"]+                     { char *t = yytext;
                                       while( *t ) *strbuf_p++ = *t++;
                                       *strbuf_p = '\0'; }
-<hex>[0-9A-Fa-f]{1,4}               { /* get escaped hex digits */
+<myHex>[0-9A-Fa-f]{1,4}               { /* get escaped hex digits */
                                       char  hexfmt[4];   unsigned int n;
                                       sprintf( hexfmt, "%%%dx", yyleng );
                                       sscanf(yytext, hexfmt, &n);
@@ -172,7 +172,7 @@ class                                 { return(TOK_CLASS); }
                                       else *strbuf_p++ = *(char*)&n;
                                       yy_pop_state();     
                                       }
-<hex>.                              { memcpy(strbuf_p,slashx,2);
+<myHex>.                              { memcpy(strbuf_p,slashx,2);
                                       strbuf_p += 2;
                                       *strbuf_p++ = *yytext;
                                       yy_pop_state();

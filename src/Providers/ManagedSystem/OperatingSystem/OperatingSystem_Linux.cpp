@@ -145,7 +145,6 @@ Boolean OperatingSystem::getName(String& osName)
             {
                if (fgets(buffer, MAXPATHLEN, vf) != NULL)
 	       {
-		  fclose(vf);
                   buffer_s.assign(buffer);
 	    
 		  // parse the text to extract Distribution Name
@@ -156,6 +155,7 @@ Boolean OperatingSystem::getName(String& osName)
 		     s.assign(buffer_s.subString(0,buffer_index));
 		  }
 	       }
+	       fclose(vf);
 	    }
          }
       }
@@ -591,8 +591,8 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
             }
             regfree(&pattern);
          }
+	 fclose(vf);
       }
-      fclose(vf);
    }
 
    if(mTotalSwapSpaceSize) return true;
@@ -663,8 +663,8 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
             }
             regfree(&pattern);
          }
+	 fclose(vf);
       }
-      fclose(vf);
       if (freeVirtualMemory) return true;  // did get info
       else return false;       // didn't get info
    }
@@ -701,8 +701,8 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
             }
             regfree(&pattern);
          }
+	 fclose(vf);
       }
-      fclose(vf);
       if (total) return true;  // did get info
       else return false;       // didn't get info
    }
@@ -741,8 +741,8 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
             }
             regfree(&pattern);
          }
+	 fclose(vf);
       }
-      fclose(vf);
    }
 
    return true;
@@ -845,9 +845,10 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
          if (sscanf(read_buffer, " %lu.", &uptime))
          {
          mUpTime = uptime;
+	 fclose(procfile);
          return true;
          }
-        fclose(procfile);
+      fclose(procfile);
    }
    return false;
 }

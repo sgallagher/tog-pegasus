@@ -227,7 +227,9 @@ class abstract_socket : public Sharable
 
 
 /** 
- * designed to be overriden by ssl_socket_rep
+ * internet socket class
+ * designed to be overriden by ssl_socket_rep and file_socket_rep
+ * 
  */
 class bsd_socket_rep : public abstract_socket
 {
@@ -347,6 +349,18 @@ int bsd_socket_rep::socket(int sock_type, int sock_style, int sock_protocol, voi
 Sint32 bsd_socket_rep::read(void* ptr, Uint32 size)
 {
    return Socket::read(_socket, ptr, size);
+}
+
+
+Sint32 bsd_socket_rep::write(const void* ptr, Uint32 size)
+{
+   return Socket::write(_socket, ptr, size);
+}
+
+
+int bsd_socket_rep::close(void)
+{
+   
 }
 
 

@@ -43,11 +43,16 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+Boolean verbose = false;
+
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 
 int main(int argc, char** argv)
 {
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    if (verbose) cout << argv[0] << ": started" << endl;
+
     String repositoryRootPath =
        ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 
@@ -55,39 +60,43 @@ int main(int argc, char** argv)
 
     try {
        CIMNamespaceName ok1(WildCardNamespaceNames::add(String("root/ci*")));
-       cout<<"--- ok1: "<<ok1.getString()<<endl;
+       if (verbose) cout<<argv[0]<<" --- ok1: "<<ok1.getString()<<endl;
+
        CIMNamespaceName ok0(WildCardNamespaceNames::add(String("root/cimv2")));
-       cout<<"--- ok0: "<<ok0.getString()<<endl;
+       if (verbose) cout<<argv[0]<<" --- ok0: "<<ok0.getString()<<endl;
+
        CIMNamespaceName ok2(WildCardNamespaceNames::add(String("root/cim*")));
-       cout<<"--- ok2: "<<ok2.getString()<<endl;
+       if (verbose) cout<<argv[0]<<" --- ok2: "<<ok2.getString()<<endl;
+
        CIMNamespaceName ok3(WildCardNamespaceNames::add(String("root/ci*")));
-       cout<<"--- ok3: "<<ok1.getString()<<endl;
+       if (verbose) cout<<argv[0]<<" --- ok3: "<<ok1.getString()<<endl;
 
        CIMNamespaceName ok11(WildCardNamespaceNames::check(String("root/ci33")));
-       cout<<"--- ok11: "<<ok11.getString()<<endl;
+       if (verbose) cout<<argv[0]<<" --- ok11: "<<ok11.getString()<<endl;
+
        CIMNamespaceName ok12(WildCardNamespaceNames::check(String("root/cim3")));
-       cout<<"--- ok12: "<<ok12.getString()<<endl;
+       if (verbose) cout<<argv[0]<<" --- ok12: "<<ok12.getString()<<endl;
 
        const Array<String> ar=WildCardNamespaceNames::getArray();
        for (int i=0,m=ar.size(); i<m; i++ ) {
-          cout<<"--- "<<i<<" "<<ar[i]<<endl;
+	 if (verbose) cout<<argv[0]<<" --- "<<i<<" "<<ar[i]<<endl;
        }
 
        Array<CIMNamespaceName> nss=_repository->enumerateNameSpaces();
        for (int i=0,m=nss.size(); i<m; i++ ) {
-          cout<<"--- "<<i<<" "<<nss[i].getString()<<endl;
+          if (verbose) cout<<argv[0]<<" --- "<<i<<" "<<nss[i].getString()<<endl;
        }
 
     }
 
     catch(Exception& e) {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << "+++++ modify instances failed"
+	PEGASUS_STD (cout) << argv[0] << " +++++ modify instances failed"
                            << PEGASUS_STD (endl);
 	exit(-1);
     }
 
-    PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" << PEGASUS_STD(endl);
 
     exit (0);
 }

@@ -43,6 +43,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+Boolean verbose = false;
+
 const String NAMESPACE = "root/test";
 const String CLASSNAME = "PG_ProviderModule";
 const String CLASSNAME2 = "PG_Provider";
@@ -246,6 +248,9 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
 int main(int argc, char** argv)
 {
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    if (verbose) cout << argv[0] << ": started" << endl;
+
     const char* tmpDir = getenv ("PEGASUS_TMP");
     String repositoryRoot;
     if (tmpDir == NULL)
@@ -273,12 +278,12 @@ endl);
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << "+++++ lookup indication provider failed"
+	PEGASUS_STD (cout) << argv[0] << " +++++ lookup indication provider failed"
                            << PEGASUS_STD (endl);
 	exit(-1);
     }
 
-    PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
     
     exit (0);
 }

@@ -36,6 +36,7 @@
 #include <cassert>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>

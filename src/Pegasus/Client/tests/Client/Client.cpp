@@ -31,6 +31,7 @@
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/OptionManager.h>
 
 PEGASUS_USING_PEGASUS;

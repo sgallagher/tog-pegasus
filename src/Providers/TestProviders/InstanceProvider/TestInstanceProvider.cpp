@@ -166,11 +166,10 @@ void TestInstanceProvider::getInstance(
     handler.processing();
 
     // create relative object path for comparison
-    CIMObjectPath cimObjectPath(
-        String(),
-        CIMNamespaceName(),
-        instanceReference.getClassName(),
-        instanceReference.getKeyBindings());
+    CIMObjectPath cimObjectPath(instanceReference);
+
+    cimObjectPath.setHost(String());
+    cimObjectPath.setNameSpace(CIMNamespaceName());
 
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {

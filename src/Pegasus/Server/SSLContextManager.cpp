@@ -87,6 +87,19 @@ SSLContextManager::SSLContextManager()
 
 }
 
+SSLContextManager::~SSLContextManager()
+{
+    if (_sslContext)
+    {
+        delete _sslContext;
+    }
+
+    if (_exportSSLContext)
+    {
+        delete _exportSSLContext;
+    }
+}
+
 //
 // Original code for this method comes from the former _getSSLContext()
 // and _getExportSSLContext() methods in CIMServer.cpp
@@ -95,8 +108,8 @@ SSLContext* SSLContextManager::getSSLContext(Uint32 contextType)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::getSSLContext()");
 
-    if ( (contextType == SERVER_CONTEXT && _sslContext.get() == 0) ||
-         (contextType == EXPORT_CONTEXT && _exportSSLContext.get() == 0) )
+    if ( (contextType == SERVER_CONTEXT && !_sslContext ) ||
+         (contextType == EXPORT_CONTEXT && !_exportSSLContext ) )
     {
         static const String PROPERTY_NAME__SSL_CERT_FILEPATH = 
                                                "sslCertificateFilePath";
@@ -293,33 +306,33 @@ SSLContext* SSLContextManager::getSSLContext(Uint32 contextType)
             //
             if (String::equal(verifyClient, "required"))
             {
-                Tracer::trace(TRC_SSL, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
                     "SSL Client verification REQUIRED.");
 
-                _sslContext.reset(new SSLContext(_trustStore, certPath, 
-                    keyPath, _crlStore, 0, randFile));
+                _sslContext = new SSLContext(_trustStore, certPath, 
+                    keyPath, _crlStore, 0, randFile);
             }
             else if (String::equal(verifyClient, "optional"))
             {
-                Tracer::trace(TRC_SSL, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
                     "SSL Client verification OPTIONAL.");
 
-                _sslContext.reset (new SSLContext(_trustStore, certPath, 
+                _sslContext = new SSLContext(_trustStore, certPath, 
                     keyPath, _crlStore, 
                     (SSLCertificateVerifyFunction*)verifyClientOptionalCallback,
-                    randFile) );
+                    randFile);
             }
             else if (String::equal(verifyClient, "disabled") || 
                      verifyClient == String::EMPTY)
             {
-                Tracer::trace(TRC_SSL, Tracer::LEVEL2,
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
                     "SSL Client verification DISABLED.");
 
-                _sslContext.reset(new SSLContext(String::EMPTY, certPath, 
-                    keyPath, _crlStore, 0, randFile));
+                _sslContext = new SSLContext(String::EMPTY, certPath, 
+                    keyPath, _crlStore, 0, randFile);
             }
             PEG_METHOD_EXIT();
-            return _sslContext.release();
+            return _sslContext;
         }
         else if ( contextType == EXPORT_CONTEXT )
         {
@@ -329,11 +342,12 @@ SSLContext* SSLContextManager::getSSLContext(Uint32 contextType)
             // Note: Trust store is used by default on Export connections,
             // verification callback function is not used.
             //
-            _exportSSLContext.reset(new SSLContext(_exportTrustStore, certPath, 
-                keyPath, _crlStore, 0, randFile));
+
+            _exportSSLContext = new SSLContext(_exportTrustStore, certPath, 
+                keyPath, _crlStore, 0, randFile);
 
             PEG_METHOD_EXIT();
-            return _exportSSLContext.release();
+            return _exportSSLContext;
         }
     }
 
@@ -353,14 +367,18 @@ void SSLContextManager::reloadTrustStore(Uint32 contextType)
     SSL_CTX* sslContext;
     String trustStore = String::EMPTY;
 
-    if ( contextType == SERVER_CONTEXT && _sslContext.get() != 0 )
+    if ( contextType == SERVER_CONTEXT && _sslContext )
     {
-        sslContext = _sslContext.get()->_rep->getContext();
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            "Context Type is Server Context.");
+        sslContext = _sslContext->_rep->getContext();
         trustStore = _trustStore;
     }
-    else if ( contextType == EXPORT_CONTEXT && _exportSSLContext.get() != 0 )
+    else if ( contextType == EXPORT_CONTEXT && _exportSSLContext )
     {
-        sslContext = _exportSSLContext.get()->_rep->getContext();
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
+            "Context Type is Export Context.");
+        sslContext = _exportSSLContext->_rep->getContext();
         trustStore = _exportTrustStore;
     }
     else
@@ -404,7 +422,7 @@ void SSLContextManager::reloadCRLStore()
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::reloadCRLStore()");
 
-    if (_sslContext.get() == 0 && _exportSSLContext.get() == 0)
+    if (!_sslContext && !_exportSSLContext)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
         "Could not reload the crl store, SSL Context is not initialized.");
@@ -438,16 +456,16 @@ void SSLContextManager::reloadCRLStore()
     {
         WriteLock contextLock(_sslContextObjectLock);
 
-        if (_sslContext.get() != 0)
+        if (_sslContext)
         {
             SSL_CTX_set_cert_store(
-                _sslContext.get()->_rep->getContext(), newStore);
+                _sslContext->_rep->getContext(), newStore);
         }
 
-        if (_exportSSLContext.get() != 0)
+        if (_exportSSLContext)
         {
             SSL_CTX_set_cert_store(
-                _exportSSLContext.get()->_rep->getContext(), newStore);
+                _exportSSLContext->_rep->getContext(), newStore);
         }
     }
 

@@ -69,6 +69,8 @@ public:
 
     SSLContextManager();
 
+    ~SSLContextManager();
+
     /**
         Gets an SSLContext object for use by either the CIM Server or 
         Indication Server based on the context type.
@@ -113,8 +115,8 @@ private:
         first lock this for write access.
      */
     ReadWriteSem _sslContextObjectLock;
-    AutoPtr<SSLContext> _sslContext; 
-    AutoPtr<SSLContext> _exportSSLContext;
+    SSLContext* _sslContext; 
+    SSLContext* _exportSSLContext;
 
     String _trustStore;
 

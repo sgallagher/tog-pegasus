@@ -1,37 +1,60 @@
+# Makefile for mu.
+# Because mu is required for almost everything else, this makefile
+# was built with minimal dependencies on other makes.
+# Builds mu.exe in the local directory unless MU_BIN_DIR defined.
+#
+# Set default to windows if OS type not set.
 ifdef PEGASUS_OS_TYPE
     OS_TYPE=$(PEGASUS_OS_TYPE)
 else
     OS_TYPE = windows
 endif
 
+# Set Parameters for OS type
+ifeq ($(OS_TYPE),COMPAQ_OSS)
+    OS_TYPE = oss 
+    CXX = c89
+    CXXFLAGS = -Wversion2 -I /cw/rudys/nsm/pegasus/src                     
+    LIBFLAGS = /usr/lib/crtlmain.o -obey /usr/lib/libc.obey
+    SRLFLAGS = -l zrwslsrl -l zcplsrl -verbose
+    LXX = nld                 
+    DEFINES = -DOS_TYPE_OSS
+    PROGRAM = mu
+    EXE_OUT = -o
+    RM = rm -f
+    OBJ = .o
+    PLATFORM_SOURCES = FilesUnix.cpp
+endif
+
 ifeq ($(OS_TYPE),windows)
     OS_TYPE = windows
     CXX = cl
+    LXX = $(CXX)
     CXXFLAGS = -nologo -W3 -GX
     DEFINES = -DOS_TYPE_WINDOWS
     PROGRAM = mu.exe
     EXE_OUT = -Fe
     RM = erase
     OBJ = .obj
-else
+    PLATFORM_SOURCES = FilesWindows.cpp
+endif
+
+ifeq ($(OS_TYPE),unix) 
     OS_TYPE = unix
     CXX = g++
+    LXX = $(CXX)
     CXXFLAGS = -g -Wall -Wno-unused -pedantic
     DEFINES = -DOS_TYPE_UNIX
     PROGRAM = mu
     EXE_OUT = -o
     RM = rm -f
     OBJ = .o
+    PLATFORM_SOURCES = FilesUnix.cpp
 endif
 
+#Setup MU_BIN_DIR Directory
 ifndef MU_BIN_DIR
 MU_BIN_DIR = ./
-endif
-
-ifeq ($(OS_TYPE),windows)
-    PLATFORM_SOURCES = FilesWindows.cpp
-else
-    PLATFORM_SOURCES = FilesUnix.cpp
 endif
 
 SOURCES = \
@@ -66,14 +89,10 @@ HEADERS = \
 OBJECTS=$(SOURCES:.cpp=$(OBJ))
 
 $(MU_BIN_DIR)$(PROGRAM): $(OBJECTS)
-	$(CXX) $(EXE_OUT)$(MU_BIN_DIR)$(PROGRAM) $(OBJECTS)
+	$(CXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(MU_BIN_DIR)$(PROGRAM) $(OBJECTS)
 
-ifeq ($(OS_TYPE),windows)
-%.obj : %.cpp
-else
-%.o : %.cpp
-endif
-	$(CXX) -c $(CXXFLAGS) $(CXXFLAGS) $(DEFINES) $*.cpp
+%$(OBJ) : %.cpp
+	$(LXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp
 
 ifeq ($(OS_TYPE),windows)
     TMP_MU_BIN_DIR = $(subst /,\,$(MU_BIN_DIR))

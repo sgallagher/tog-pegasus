@@ -128,9 +128,9 @@ PEGASUS_USING_PEGASUS;
 // Class names and references
 #define CLASSNAME "Sample_LocalizedProviderClass"
 #define SUBCLASSNAME "Sample_LocalizedProviderSubClass"
-#define REFERENCE1 "Sample_LocalizedProviderClass.Identifier=0"
-#define REFERENCE2 "Sample_LocalizedProviderClass.Identifier=1"
-#define REFERENCE3 "Sample_LocalizedProviderSubClass.Identifier=2"
+#define REFERENCE1 NAMESPACE ":Sample_LocalizedProviderClass.Identifier=0"
+#define REFERENCE2 NAMESPACE ":Sample_LocalizedProviderClass.Identifier=1"
+#define REFERENCE3 NAMESPACE ":Sample_LocalizedProviderSubClass.Identifier=2"
 
 // Properties on the Sample_ProviderClass
 #define IDENTIFIER_PROP "Identifier"		// Key
@@ -252,6 +252,7 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
    instance1.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(0)));   
    instance1.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));	
    instance1.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));
+   instance1.setPath(reference1);
 				 
    _instances.append(instance1);
    _instanceNames.append(reference1);
@@ -264,6 +265,8 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
    instance2.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(1)));   
    instance2.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
    instance2.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
+   instance2.setPath(reference2);
+
    _instances.append(instance2);	
    _instanceNames.append(reference2);
    _instanceLangs.append(ContentLanguages::EMPTY);	
@@ -274,7 +277,9 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
  	
    instance3.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(2)));   
    instance3.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
-   instance3.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
+   instance3.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));
+   instance3.setPath(reference3);
+	
    _instances.append(instance3);	
    _instanceNames.append(reference3);
    _instanceLangs.append(ContentLanguages::EMPTY);	
@@ -304,7 +309,7 @@ void LocalizedProvider::getInstance(
 
         CIMObjectPath instanceName = CIMObjectPath(
             String(),
-            CIMNamespaceName(),
+            NAMESPACE,
             instanceReference.getClassName(),
             instanceReference.getKeyBindings());
 
@@ -465,6 +470,8 @@ void LocalizedProvider::enumerateInstances(
                }
 	
                // deliver instance
+	       CIMObjectPath localReference = buildRefFromInstance(foundInstances[j]);
+	       foundInstances[j].setPath(localReference);
                handler.deliver(foundInstances[j]);
             }  // end for
 
@@ -547,7 +554,9 @@ void LocalizedProvider::modifyInstance(
            }  // end for
 	
            if (i == _instanceNames.size())
+	     {
               throw CIMObjectNotFoundException(instanceReference.toString());
+	     }
 
         }  // mutex unlocks here
 
@@ -619,7 +628,7 @@ void LocalizedProvider::deleteInstance(
 
         CIMObjectPath instanceName = CIMObjectPath(
             String(),
-            CIMNamespaceName(),
+            NAMESPACE,
             instanceReference.getClassName(),
             instanceReference.getKeyBindings());
 
@@ -1038,7 +1047,9 @@ ContentLanguages LocalizedProvider::getRequestContentLanguages(	const OperationC
 CIMObjectPath LocalizedProvider::buildRefFromInstance(const CIMInstance& instanceObject)
 {
     // Build the local reference (maybe there is a better way to do this)
-    String local = instanceObject.getClassName().getString();
+    String local = NAMESPACE;
+    local.append(":");
+    local.append(instanceObject.getClassName().getString());
     Uint32 index = instanceObject.findProperty(IDENTIFIER_PROP);	
     if (index == PEG_NOT_FOUND)
     {

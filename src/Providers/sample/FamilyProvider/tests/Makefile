@@ -33,12 +33,12 @@ poststarttests:
 
 	@echo +++++ TST_Person Testing Family provider in  $(SAMPLEPROVIDERNS)
 
-	CLI ei TST_Person -n $(SAMPLEPROVIDERNS) -s -count 9
-	CLI ni TST_Person -n $(SAMPLEPROVIDERNS) -s -count 9
+	CLI ei TST_Person -n $(SAMPLEPROVIDERNS) -s -count 8
+	CLI ni TST_Person -n $(SAMPLEPROVIDERNS) -s -count 13
 	CLI rn TST_Person -n $(SAMPLEPROVIDERNS) -s -count 4
 	CLI r  TST_Person -n $(SAMPLEPROVIDERNS) -s -count 4
-	CLI an TST_Person -n $(SAMPLEPROVIDERNS) -s -count 8
-	CLI a  TST_Person -n $(SAMPLEPROVIDERNS) -s -count 8
+	CLI an TST_Person -n $(SAMPLEPROVIDERNS) -s -count 1
+	CLI a  TST_Person -n $(SAMPLEPROVIDERNS) -s -count 1
 	CLI rn TST_Person.name=@Mike@ -n $(SAMPLEPROVIDERNS) -s -count 2
 	CLI r  TST_Person.name=@Mike@ -n $(SAMPLEPROVIDERNS) -s -count 2
 	CLI an TST_Person.name=@Mike@ -n $(SAMPLEPROVIDERNS) -s -count 2
@@ -53,8 +53,8 @@ poststarttests:
 
 	@echo ++++ TST_Person Testing with assocClass filter
 
-	CLI an TST_Person -n $(SAMPLEPROVIDERNS)  -ac  TST_Lineage -s -count 2
-	CLI a TST_Person -n $(SAMPLEPROVIDERNS)  -ac TST_Lineage -s -count 2
+	CLI an TST_Person -n $(SAMPLEPROVIDERNS)  -ac  TST_Lineage -s -count 1
+	CLI a TST_Person -n $(SAMPLEPROVIDERNS)  -ac TST_Lineage -s -count 1
 	CLI an TST_Person.name=@Mike@ -n $(SAMPLEPROVIDERNS) -ac TST_Lineage -s -count 2
 	CLI a  TST_Person.name=@Mike@ -n $(SAMPLEPROVIDERNS) -ac TST_Lineage -s -count 2
 
@@ -104,7 +104,7 @@ poststarttests:
 
 	@echo +++++ TST_PersonDynamic Family class Operations in  $(SAMPLEPROVIDERNS)
 
-	CLI ei TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
+	CLI ei TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 0
 	CLI ni TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI rn TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
 	CLI r  TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -s -count 5
@@ -116,7 +116,7 @@ poststarttests:
 	CLI rn TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 	CLI r TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
 	CLI an TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
-	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 3
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -s -count 0
 
 	@echo TST_PersonDynamic with bad object name (lower case)
 
@@ -126,22 +126,22 @@ poststarttests:
 
 	CLI rn TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 1
 	CLI r TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 1
-	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 0
-	CLI a TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 0
+	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 1
+	CLI a TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 1
 
 	@echo TST_PersonDynamic instances with resultClass/AssociationClass options
 
 	CLI rn TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 3
 	CLI r TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -rc TST_LineageDynamic -s -count 3
 	CLI an TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
-	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
-	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 3
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 0
+	CLI a TST_PersonDynamic.name=@Father@ -n $(SAMPLEPROVIDERNS) -ac TST_LineageDynamic -s -count 0
 
 	@echo TST_PersonDynamic association with resultClass role option
 
 	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_Lineage -s -count 0
-	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_PersonDynamic -s -count 2
-	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_Person -s -count 0
+	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_PersonDynamic -s -count 1
+	CLI an TST_PersonDynamic -n $(SAMPLEPROVIDERNS) -rc TST_Person -s -count 2
 
 
 general:

@@ -159,19 +159,5 @@ endif
 RMREPOSITORY = $(RMDIRHIER)
 
 
-###########################################################
-# 
-# Define an environment variable that allows console
-# printing of debug statements
-#
-# << Wed Apr  9 11:23:42 2003 mdd >>
-###########################################################
-ifdef PEGASUS_ROOT
-    ROOT =  $(subst \,/,$(PEGASUS_ROOT))
-else
-    ERROR = pegasus_root_undefined
-pegasus_root_undefined:
-	@ echo PEGASUS_ROOT environment variable undefined
-	@ exit 1
-endif
+
 

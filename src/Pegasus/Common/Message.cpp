@@ -201,7 +201,7 @@ const char* MessageTypeToString(Uint32 messageType)
 }
 
 #ifdef PEGASUS_HAS_PERFINST
-inline void Message::startServer()
+void Message::startServer()
 {
     pegasus_gettimeofday(&_timeServerStart);
 }
@@ -232,12 +232,12 @@ void Message::endServer()
         statType, StatisticalData::PROVIDER );
 }
 
-inline void Message::startProvider()
+void Message::startProvider()
 {
     pegasus_gettimeofday(&_timeProviderStart);
 }
 
-inline void Message::endProvider()
+void Message::endProvider()
 {
     pegasus_gettimeofday(&_timeProviderEnd);
 }

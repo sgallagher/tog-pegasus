@@ -2,7 +2,9 @@
 // Developer's notes:
 //
 // 1)  The message key naming convention is:
-//           <directory-name>.<sourcecode-file-name>.KEY
+//        <directory-name>.<sourcecode-file-name>.<MESSAGE_IDENTIFIER_UPPER_CASE>
+//     For example:
+//	  ProviderManager.ProviderAdapter.ADAPTER_NOT_PA
 //
 //     This will allow us to tell which source code file is using a message.
 //     Please try to follow this naming convention.
@@ -11,17 +13,44 @@
 //     new messages for a source code file, please add those messages to the same 
 //     group as the other messages for that file.
 //
-// 3)  Place any platform-specific messages in the section at the end of this file.
+//     Be sure to include the message identifier as the first element of the 
+//     message and include the documented message prefix at the beginning of
+//     the message identifier (in upper case):
+//       <MESSAGEPREFIX><MESSAGEIDENTIFIER>: <message>  
+//
+//     For example:
+//	  "CIMPROVAD_ADAPTER_NOT_PA:  Adapter {0} is not a ProviderAdapter."
+//          (1) where CIMPROVAD_ is the documented message prefix for
+//	        ProviderAdapter messages,
+//          (2) ADAPTER_NOT_PA is the message identifier
+//          (3) and 'Adapter {0} is not a ProviderAdapter.' is the message
+//
+//     Also - please use a @note inside a comment block to document any
+//     substitution data and indicate any words that should not be translated.
+//     For example:
+//
+//	* @note CIMPROVAD_ADAPTER_NOT_PA
+// 	*    Substitution {0} is the name of the provider adapter (a string)
+//	*    Do not translate the word 'ProviderAdapter' since it is a class name.
+//
+//
+// 3)  Place any messages from platform-specific source files in the section
+//     at the end of this file.
 //
 // 4)  To compile this message bundle, run make messages (but refer to 
 //     pegasus/doc/Globalization_HOWTO.htm for details of how to set up ICU).
 // ==============================================================================
 
+
 	/**
-	* @TRNOTE  Do not translate the following strings in this file:
-	* @TRNOTE   'CIM', 'CIMOM', 'CIMMOF','DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME', 
-	* @TRNOTE   'root/cimv2', 'SNMP', 'SSL', 'URL', 'URI', 'UTF-8', 'XML',
-	* @TRNOTE   'NT', 'Windows NT', 'OS/400',
+	*
+ 	* @note  Do not translate the message identifiers which are located at the beginning of
+	*          each message prior to the colon ':'.
+	*
+ 	*        Do not translate the following strings in this file:
+	*         'CGI', 'CIM', 'CIMOM', 'CIMMOF','DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME', 
+	*         'root/cimv2', 'SNMP', 'SSL', 'URL', 'URI', 'UTF-8', 'XML',
+	*         'NT', 'Windows NT', 'OS/400',
 	*/
 
 
@@ -35,8 +64,8 @@ pegasusCLI_en:table {
 
 
         /**
- 	* @comment CIMCONFIG MENU.STANDARD:
-	* @TRNOTE  Do not translate the cimconfig command or options.  Just translate the text that explains the options.
+ 	* @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
+	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
 	*/
 	Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
 	"Usage: cimconfig -g name [-c | -p | -d]\n"
@@ -45,43 +74,43 @@ pegasusCLI_en:table {
 	"       cimconfig -l [-c | -p]\n"
 	"  Options:\n"
 	"     -g name            - Gets the current value of the specified configuration property.\n" 
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -g name -c         - Gets the current value of the specified configuration property.\n"
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -g name -p         - Gets the planned value of the specified configuration property.\n"
 	"     -g name -d         - Gets the default value of the specified configuration property.\n"
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -s name=value      - Indicates that a configuration property is to be added or updated by setting\n"
 	"                          its current value to the specified value. \n"
-	"                          Returns an error when the CIMOM is not running or the specified \n"
-	"                          property can not be updated dynamically.\n"
+	"                          Returns an error when the CIM server is not running or the specified \n"
+	"                          property cannot be updated dynamically.\n"
 	"     -s name=value -c   - Indicates that a configuration property is to be added or updated by setting\n" 
 	"                          its current value to the specified value.\n"
-	"                          Returns an error when the CIMOM is not running or the specified \n"
-	"                          property can not be updated dynamically.\n"
+	"                          Returns an error when the CIM server is not running or the specified \n"
+	"                          property cannot be updated dynamically.\n"
 	"     -s name=value -p   - Indicates that a configuration property is to be added or updated by setting\n"
 	"                          its planned value to the specified value.\n"
 	"     -u name            - Indicates that the current value of the specified configuration property\n"
  	"                          is to be reset to the default value.\n"
-	"                          Returns an error when the CIMOM is not running or the specified \n"
-	"                          property can not be updated dynamically.\n"
+	"                          Returns an error when the CIM server is not running or the specified \n"
+	"                          property cannot be updated dynamically.\n"
 	"     -u name -c         - Indicates that the current value of the specified configuration property\n"
  	"                          is to be reset to the default value.\n"
-	"                          Returns an error when the CIMOM is not running or the specified \n"
-	"                          property can not be updated dynamically.\n"
+	"                          Returns an error when the CIM server is not running or the specified \n"
+	"                          property cannot be updated dynamically.\n"
 	"     -u name -p         - Indicates that the planned value of the specified configuration property\n"
  	"                          is to be reset to the default value.\n"
 	"     -l                 - Displays the name of all the configuration properties.\n"  
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -l -c              - Displays the name and value pair of all the current configuration properties.\n"  
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -l -p              - Displays the name and value pair of all the planned configuration properties.\n"  
 	"\n"
 	}
 
         /**
- 	* @comment CIMCONFIG MENU.PEGASUS_OS_OS400:
-	* @TRNOTE  Do not translate the cimconfig command or options.  Just translate the text that explains the options.
+ 	* @note Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400:
+	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
  	*/
 	Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400:string {
 	"Usage: cimconfig -g name [-c | -p | -d] [ -q ] \n"
@@ -90,46 +119,46 @@ pegasusCLI_en:table {
 	"       cimconfig -l [-c | -p]\n"
 	"  Options:\n"
 	"     -g name            - Gets the current value of the specified configuration property.\n" 
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -g name -c         - Gets the current value of the specified configuration property.\n"
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -g name -p         - Gets the planned value of the specified configuration property.\n"
 	"     -g name -d         - Gets the default value of the specified configuration property.\n"
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -s name=value      - Indicates that a configuration property is to be added or updated by setting\n"
 	"                          its current value to the specified value. \n"
-	"                          Returns an error when the CIMOM is not running or the specified \n"
-	"                          property can not be updated dynamically.\n"
+	"                          Returns an error when the CIM server is not running or the specified \n"
+	"                          property cannot be updated dynamically.\n"
 	"     -s name=value -c   - Indicates that a configuration property is to be added or updated by setting\n" 
 	"                          its current value to the specified value.\n"
-	"                          Returns an error when the CIMOM is not running or the specified \n"
-	"                          property can not be updated dynamically.\n"
+	"                          Returns an error when the CIM server is not running or the specified \n"
+	"                          property cannot be updated dynamically.\n"
 	"     -s name=value -p   - Indicates that a configuration property is to be added or updated by setting\n"
 	"                          its planned value to the specified value.\n"
 	"     -u name            - Indicates that the current value of the specified configuration property\n"
  	"                          is to be reset to the default value.\n"
-	"                          Returns an error when the CIMOM is not running or the specified \n"
-	"                          property can not be updated dynamically.\n"
+	"                          Returns an error when the CIM server is not running or the specified \n"
+	"                          property cannot be updated dynamically.\n"
 	"     -u name -c         - Indicates that the current value of the specified configuration property\n"
  	"                          is to be reset to the default value.\n"
-	"                          Returns an error when the CIMOM is not running or the specified \n"
-	"                          property can not be updated dynamically.\n"
+	"                          Returns an error when the CIM server is not running or the specified \n"
+	"                          property cannot be updated dynamically.\n"
 	"     -u name -p         - Indicates that the planned value of the specified configuration property\n"
  	"                          is to be reset to the default value.\n"
 	"     -l                 - Displays the name of all the configuration properties.\n"  
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -l -c              - Displays the name and value pair of all the current configuration properties.\n"  
-	"                          Returns an error when the CIMOM is not running.\n"
+	"                          Returns an error when the CIM server is not running.\n"
 	"     -l -p              - Displays the name and value pair of all the planned configuration properties.\n"
 	"     -q                 - Quiet option specifies no output is sent to standard output or standard error.\n"
 	"\n"
 	}
 
-        Clients.CIMConfig.CIMConfigCommand.CIMOM_NOT_RUNNING:string {"CIMCFGCMD_CIMOM_NOT_RUNNING: CIM server may not be running."}
+        Clients.CIMConfig.CIMConfigCommand.CIMOM_NOT_RUNNING:string {"CIMCFGCMD_CIMOM_NOT_RUNNING: The CIM server may not be running."}
 
-        Clients.CIMConfig.CIMConfigCommand.FILE_NOT_EXIST:string {"CIMCFGCMD_FILE_NOT_EXIST: Configuration file does not exist."}
+        Clients.CIMConfig.CIMConfigCommand.FILE_NOT_EXIST:string {"CIMCFGCMD_FILE_NOT_EXIST: The configuration file does not exist."}
 
-        Clients.CIMConfig.CIMConfigCommand.FILE_NOT_READABLE:string {"CIMCFGCMD_FILE_NOT_READABLE: Configuration file can not be read."}
+        Clients.CIMConfig.CIMConfigCommand.FILE_NOT_READABLE:string {"CIMCFGCMD_FILE_NOT_READABLE: The configuration file cannot be read."}
 
         Clients.CIMConfig.CIMConfigCommand.FAILED_TO_GET_PROPERTY:string {"CIMCFGCMD_FAILED_TO_GET_PROPERTY: Failed to get the configuration property."}
 
@@ -139,146 +168,150 @@ pegasusCLI_en:table {
 
         Clients.CIMConfig.CIMConfigCommand.FAILED_TO_LIST_PROPERTIES:string {"CIMCFGCMD_FAILED_TO_LIST_PROPERTIES: Failed to list the configuration properties."}
 
-        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_PROPERTY:string {"CIMCFGCMD_CURRENT_VALUE_PROPERTY: Current value for the property is '"}
-
-        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_PROPERTY:string {"CIMCFGCMD_PLANNED_VALUE_PROPERTY: Planned value for the property is '"}
-
-        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_PROPERTY:string {"CIMCFGCMD_DEFAULT_VALUE_PROPERTY: Default value for the property is '"}
+	/** 
+	*  These messages are not used and have been commented out:
+	*
+        * Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_PROPERTY:string {"CIMCFGCMD_CURRENT_VALUE_PROPERTY: The current value for the property is '"}
+	* 
+        * Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_PROPERTY:string {"CIMCFGCMD_PLANNED_VALUE_PROPERTY: The planned value for the property is '"}
+	* 
+        * Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_PROPERTY:string {"CIMCFGCMD_DEFAULT_VALUE_PROPERTY: The default value for the property is '"}
+	*/
 
         Clients.CIMConfig.CIMConfigCommand.CONFIG_SCHEMA_NOT_LOADED:string {"CIMCFGCMD_CONFIG_SCHEMA_NOT_LOADED: The internal repository on the CIM server must be restored."}
 
-        Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_FOUND:string {"CIMCFGCMD_PROPERTY_NOT_FOUND: Specified property name is not found."}
+        Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_FOUND:string {"CIMCFGCMD_PROPERTY_NOT_FOUND: The specified property name is not found."}
 
-        Clients.CIMConfig.CIMConfigCommand.INVALID_PROPERTY_VALUE:string {"CIMCFGCMD_INVALID_PROPERTY_VALUE: Specified property value is not valid."}
+        Clients.CIMConfig.CIMConfigCommand.INVALID_PROPERTY_VALUE:string {"CIMCFGCMD_INVALID_PROPERTY_VALUE: The specified property value is not valid."}
 
-        Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_MODIFIED:string {"CIMCFGCMD_PROPERTY_NOT_MODIFIED: Specified property can not be modified."}
+        Clients.CIMConfig.CIMConfigCommand.PROPERTY_NOT_MODIFIED:string {"CIMCFGCMD_PROPERTY_NOT_MODIFIED: The specified property cannot be modified."}
 
 	/**
-	* @comment CIMCFGCMD_OPTION_INVALID_CIM_RUNNING: substitution {0} is an option name (char)
+	* @note CIMCFGCMD_OPTION_INVALID_CIM_RUNNING: substitution {0} is an option name (char)
  	*/
         Clients.CIMConfig.CIMConfigCommand.OPTION_INVALID_CIM_RUNNING:string {"CIMCFGCMD_OPTION_INVALID_CIM_RUNNING: Option -{0} is not valid for this command when the CIM server is not running."}
 
 	/**
-	* @comment CIMCFGCMD_PLANNED_VALUE_IS: substitution {0} is a property value (string)
+	* @note CIMCFGCMD_PLANNED_VALUE_IS: substitution {0} is a property value (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_IS:string {"CIMCFGCMD_PLANNED_VALUE_IS: Planned property value is {0}."}
+        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_IS:string {"CIMCFGCMD_PLANNED_VALUE_IS: The planned property value is {0}."}
 
 	/**
-	* @comment CIMCFGCMD_CURRENT_VALUE_IS: substitution {0} is a property value (string)
+	* @note CIMCFGCMD_CURRENT_VALUE_IS: substitution {0} is a property value (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_IS:string {"CIMCFGCMD_CURRENT_VALUE_IS: Current property value is {0}."}
+        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_IS:string {"CIMCFGCMD_CURRENT_VALUE_IS: The current property value is {0}."}
 
 	/**
-	* @comment CIMCFGCMD_DEFAULT_VALUE_IS: substitution {0} is a property value (string)
+	* @note CIMCFGCMD_DEFAULT_VALUE_IS: substitution {0} is a property value (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_IS:string {"CIMCFGCMD_DEFAULT_VALUE_IS: Default property value is {0}."}
+        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_IS:string {"CIMCFGCMD_DEFAULT_VALUE_IS: The default property value is {0}."}
 
-        Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING:string {"CIMCFGCMD_CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING: Planned value can not be determined because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING:string {"CIMCFGCMD_CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING: The planned value cannot be determined because the CIM server is not running."}
 
-        Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING:string {"CIMCFGCMD_CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING: Current value can not be determined because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING:string {"CIMCFGCMD_CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING: The current value cannot be determined because the CIM server is not running."}
         
-        Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING:string {"CIMCFGCMD_CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING: Default value can not be determined because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING:string {"CIMCFGCMD_CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING: The default value cannot be determined because the CIM server is not running."}
 
 	/**
-	* @comment CIMCFGCMD_PLANNED_VALUE_OF_PROPERTY_IS: substitution {0} name of the property (string)
-	* @comment  substitution {1} value of the property (string)
+	* @note CIMCFGCMD_PLANNED_VALUE_OF_PROPERTY_IS: substitution {0} name of the property (string)
+	*         substitution {1} value of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_IS:string {"CIMCFGCMD_PLANNED_VALUE_OF_PROPERTY_IS: Planned value for property {0} is set to {1} in the CIM server."}
+        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_IS:string {"CIMCFGCMD_PLANNED_VALUE_OF_PROPERTY_IS: The planned value for property {0} is set to {1} in the CIM server."}
  
 	/**
-	* @comment CIMCFGCMD_CURRENT_VALUE_OF_PROPERTY_IS: substitution {0} name of the property (string)
-	* @comment  substitution {1} value of the property (string)
+	* @note CIMCFGCMD_CURRENT_VALUE_OF_PROPERTY_IS: substitution {0} name of the property (string)
+	*        substitution {1} value of the property (string)
  	*/ 
-        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_IS:string {"CIMCFGCMD_CURRENT_VALUE_OF_PROPERTY_IS: Current value for property {0} is set to {1} in the CIM server."}
+        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_IS:string {"CIMCFGCMD_CURRENT_VALUE_OF_PROPERTY_IS: The current value for property {0} is set to {1} in the CIM server."}
         
 	/**
-	* @comment CIMCFGCMD_DEFAULT_VALUE_OF_PROPERTY_IS: substitution {0} name of the property (string)
-	* @comment  substitution {1} value of the property (string)
+	* @note CIMCFGCMD_DEFAULT_VALUE_OF_PROPERTY_IS: substitution {0} name of the property (string)
+	*         substitution {1} value of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_IS:string {"CIMCFGCMD_DEFAULT_VALUE_OF_PROPERTY_IS: Default value for property {0} is set to {1} in CIM server."}
+        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_IS:string {"CIMCFGCMD_DEFAULT_VALUE_OF_PROPERTY_IS: The default value for property {0} is set to {1} in CIM server."}
 
 	/**
-	* @comment CIMCFGCMD_PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"CIMCFGCMD_PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET: Planned value for property {0} can not be set because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"CIMCFGCMD_PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET: The planned value for property {0} cannot be set because the CIM server is not running."}
 
 	/**
-	* @comment CIMCFGCMD_CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"CIMCFGCMD_CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET: Current value for property {0} can not be set because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"CIMCFGCMD_CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET: The current value for property {0} cannot be set because the CIM server is not running."}
         
 	/**
-	* @comment CIMCFGCMD_DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"CIMCFGCMD_DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET: Default value for property {0} can not be set because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"CIMCFGCMD_DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET: The default value for property {0} cannot be set because the CIM server is not running."}
 
 	/**
-	* @comment CIMCFGCMD_FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE:string {"CIMCFGCMD_FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE: Failed to update the planned value of property {0} in configuration file."}
+        Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE:string {"CIMCFGCMD_FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE: Failed to update the planned value of property {0} in the configuration file."}
 
 	/**
-	* @comment CIMCFGCMD_FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE:string {"CIMCFGCMD_FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE: Failed to update the current value of property {0} in configuration file."}
+        Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE:string {"CIMCFGCMD_FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE: Failed to update the current value of property {0} in the configuration file."}
 
 	/**
-	* @comment CIMCFGCMD_FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE:string {"CIMCFGCMD_FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE: Failed to update the default value of property {0} in configuration file."}
+        Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE:string {"CIMCFGCMD_FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE: Failed to update the default value of property {0} in the configuration file."}
 
 	/**
-	* @comment CIMCFGCMD_PROPERTY_UPDATED_IN_FILE: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_PROPERTY_UPDATED_IN_FILE: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FILE:string {"CIMCFGCMD_PROPERTY_UPDATED_IN_FILE: Property {0} is updated in the configuration file."}
+        Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FILE:string {"CIMCFGCMD_PROPERTY_UPDATED_IN_FILE: The {0} property is updated in the configuration file."}
 
 	/**
-	* @comment CIMCFGCMD_PROPERTY_VALUE_ALREADY_SET_TO: substitution {0} name of the property (string)
-	* @comment  substitution {1} value of the property (string)
+	* @note CIMCFGCMD_PROPERTY_VALUE_ALREADY_SET_TO: substitution {0} name of the property (string)
+	*          substitution {1} value of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_SET_TO:string {"CIMCFGCMD_PROPERTY_VALUE_ALREADY_SET_TO: Property {0} value is already set to {1}."}
+        Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_SET_TO:string {"CIMCFGCMD_PROPERTY_VALUE_ALREADY_SET_TO: The {0} property value is already set to {1}."}
 
 	/**
-	* @comment CIMCFGCMD_PLANNED_PROPERTY_SET_TO_DEFAULT: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_PLANNED_PROPERTY_SET_TO_DEFAULT: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_SET_TO_DEFAULT:string {"CIMCFGCMD_PLANNED_PROPERTY_SET_TO_DEFAULT: Planned value for property {0} is set to the default value in the CIM server."}
+        Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_SET_TO_DEFAULT:string {"CIMCFGCMD_PLANNED_PROPERTY_SET_TO_DEFAULT: The planned value for property {0} is set to the default value in the CIM server."}
      
 	/**
-	* @comment CIMCFGCMD_CURRENT_PROPERTY_SET_TO_DEFAULT: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_CURRENT_PROPERTY_SET_TO_DEFAULT: substitution {0} name of the property (string)
  	*/   
-        Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_SET_TO_DEFAULT:string {"CIMCFGCMD_CURRENT_PROPERTY_SET_TO_DEFAULT: Current value for property {0} is set to the default value in the CIM server."}
+        Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_SET_TO_DEFAULT:string {"CIMCFGCMD_CURRENT_PROPERTY_SET_TO_DEFAULT: The current value for property {0} is set to the default value in the CIM server."}
         
 	/**
-	* @comment CIMCFGCMD_PROPERTY_UNSET_IN_FILE: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_PROPERTY_UNSET_IN_FILE: substitution {0} name of the property (string)
  	*/   
-        Clients.CIMConfig.CIMConfigCommand.PROPERTY_UNSET_IN_FILE:string {"CIMCFGCMD_PROPERTY_UNSET_IN_FILE: Property {0} is reset in the configuration file."}
+        Clients.CIMConfig.CIMConfigCommand.PROPERTY_UNSET_IN_FILE:string {"CIMCFGCMD_PROPERTY_UNSET_IN_FILE: The {0} property is reset in the configuration file."}
 
 	/**
-	* @comment CIMCFGCMD_PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: 
-	* @comment   substitution {0} name of the property (string)
+	* @note CIMCFGCMD_PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: 
+	*        substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"CIMCFGCMD_PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: Planned value for property {0} can not be reset because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"CIMCFGCMD_PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: The planned value for property {0} cannot be reset because the CIM server is not running."}
 
 	/**
-	* @comment CIMCFGCMD_CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"CIMCFGCMD_CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: Current value for property {0} can not be reset because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"CIMCFGCMD_CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: The current value for property {0} cannot be reset because the CIM server is not running."}
 
 	/**
-	* @comment CIMCFGCMD_DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"CIMCFGCMD_DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: Default value for property {0} can not be reset because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"CIMCFGCMD_DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING: The default value for property {0} cannot be reset because the CIM server is not running."}
 
 	/**
-	* @comment CIMCFGCMD_PROPERTY_VALUE_ALREADY_UNSET: substitution {0} name of the property (string)
+	* @note CIMCFGCMD_PROPERTY_VALUE_ALREADY_UNSET: substitution {0} name of the property (string)
  	*/
-        Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_UNSET:string {"CIMCFGCMD_PROPERTY_VALUE_ALREADY_UNSET: Property {0} value is already reset."}
+        Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_UNSET:string {"CIMCFGCMD_PROPERTY_VALUE_ALREADY_UNSET: The {0} property value is already reset."}
 
-        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING:string {"CIMCFGCMD_PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING: Planned value of properties can not be listed because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING:string {"CIMCFGCMD_PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING: The planned value of properties cannot be listed because the CIM server is not running."}
         
-        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING:string {"CIMCFGCMD_CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING: Current value of properties can not be listed because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING:string {"CIMCFGCMD_CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING: The current value of properties cannot be listed because the CIM server is not running."}
         
-        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING:string {"CIMCFGCMD_DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING: Default value of properties can not be listed because the CIM server is not running."}
+        Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING:string {"CIMCFGCMD_DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING: The default value of properties cannot be listed because the CIM server is not running."}
 
         Clients.CIMConfig.CIMConfigCommand.NO_PROPERTIES_FOUND_IN_FILE:string {"CIMCFGCMD_NO_PROPERTIES_FOUND_IN_FILE: No configuration properties are found in the configuration file."}
 
@@ -291,9 +324,9 @@ pegasusCLI_en:table {
 
         Clients.cimauth.CIMAuthCommand.NOT_PRIVILEGED_USER:string {"CIMAUTHCMD_NOT_PRIVILEGED_USER: Superuser authority is required to run this command."}
 
-        Clients.cimauth.CIMAuthCommand.CIMOM_NOT_RUNNING:string {"CIMAUTHCMD_CIMOM_NOT_RUNNING: CIM server may not be running."}
+        Clients.cimauth.CIMAuthCommand.CIMOM_NOT_RUNNING:string {"CIMAUTHCMD_CIMOM_NOT_RUNNING: The CIM server may not be running."}
 
-        Clients.cimauth.CIMAuthCommand.FILE_NOT_READABLE:string {"CIMAUTHCMD_FILE_NOT_READABLE: Configuration file can not be read."}
+        Clients.cimauth.CIMAuthCommand.FILE_NOT_READABLE:string {"CIMAUTHCMD_FILE_NOT_READABLE: The configuration file cannot be read."}
 
         Clients.cimauth.CIMAuthCommand.ADD_AUTH_FAILURE:string {"CIMAUTHCMD_ADD_AUTH_FAILURE: Failed to add authorizations."}
 
@@ -315,9 +348,9 @@ pegasusCLI_en:table {
 
         Clients.cimauth.CIMAuthCommand.REQUIRED_ARGS_MISSING:string {"CIMAUTHCMD_REQUIRED_ARGS_MISSING: Required arguments missing."}
 
-        Clients.cimauth.CIMAuthCommand.AUTH_ALREADY_EXISTS:string {"CIMAUTHCMD_AUTH_ALREADY_EXISTS: Specified user authorizations already exist."}
+        Clients.cimauth.CIMAuthCommand.AUTH_ALREADY_EXISTS:string {"CIMAUTHCMD_AUTH_ALREADY_EXISTS: The specified user authorizations already exist."}
 
-        Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND:string {"CIMAUTHCMD_AUTH_NOT_FOUND: Specified user authorizations are not found."}
+        Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND:string {"CIMAUTHCMD_AUTH_NOT_FOUND: The specified user authorizations are not found."}
 
 
 	// ==========================================================
@@ -327,8 +360,8 @@ pegasusCLI_en:table {
 
 
         /**
- 	* @comment CIMPROVIDER MENU.STANDARD:
-	* @TRNOTE  Do not translate the cimprovider command or options.  Just translate the text that explains the options.
+ 	* @note Clients.cimprovider.CIMProviderCommand.MENU.STANDARD:
+	*    Do not translate the cimprovider command or options.  Just translate the text that explains the options.
 	*/
 	Clients.cimprovider.CIMProviderCommand.MENU.STANDARD:string {
 	"Usage: cimprovider -d -m module\n"
@@ -337,7 +370,7 @@ pegasusCLI_en:table {
 	"       cimprovider -l [ -s | -m module ]\n"
 	"  Options:\n"
 	"     -d           Disables the specified CIM provider module.\n" 
-	"                  If the module is already disabled an error message is returned.\n"
+	"                  If the module is already disabled, an error message is returned.\n"
 	"     -e           Enables the specified CIM provider module.\n" 
 	"                  If the module is already enabled or is currently being disabled,\n"
 	"                  an error message is returned.\n"
@@ -352,8 +385,8 @@ pegasusCLI_en:table {
 	}
 
         /**
- 	* @comment CIMPROVIDER MENU.PEGASUS_OS_OS400:
-	* @TRNOTE  Do not translate the cimprovider command or options.  Just translate the text that explains the options.
+ 	* @note Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400:
+	*   Do not translate the cimprovider command or options.  Just translate the text that explains the options.
  	*/
 	Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400:string {
 	"Usage: cimprovider -d -m module [ -q ] \n"
@@ -362,7 +395,7 @@ pegasusCLI_en:table {
 	"       cimprovider -l [ -s | -m module ] \n"
 	"  Options:\n"
 	"     -d           Disables the specified CIM provider module.\n" 
-	"                  If the module is already disabled an error message is returned.\n"
+	"                  If the module is already disabled, an error message is returned.\n"
 	"     -e           Enables the specified CIM provider module.\n" 
 	"                  If the module is already enabled or is currently being disabled,\n"
 	"                  an error message is returned.\n"
@@ -379,8 +412,8 @@ pegasusCLI_en:table {
 
 
 	/*
- 	* @comment CIMPRVCMD_NOT_PRIVILEGED_USER:
-	* @TRNOTE "cimprovider" should not be translated since it is the name of the command
+ 	* @note CIMPRVCMD_NOT_PRIVILEGED_USER:
+	*     "cimprovider" should not be translated since it is the name of the command
 	*/
         Clients.cimprovider.CIMProviderCommand.NOT_PRIVILEGED_USER:string {"CIMPRVCMD_NOT_PRIVILEGED_USER: Superuser authority is required to run the cimprovider command."}
 
@@ -394,36 +427,36 @@ pegasusCLI_en:table {
 
         Clients.cimprovider.CIMProviderCommand.LIST_PROVIDERS_FAILURE:string {"CIMPRVCMD_LIST_PROVIDERS_FAILURE: Failed to list the providers. "}
 
-        Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_MODULE_SUCCESS:string {"CIMPRVCMD_DELETE_PROVIDER_MODULE_SUCCESS: Provider module deleted successfully."}
+        Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_MODULE_SUCCESS:string {"CIMPRVCMD_DELETE_PROVIDER_MODULE_SUCCESS: The provider module is deleted successfully."}
 
-        Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_SUCCESS:string {"CIMPRVCMD_DELETE_PROVIDER_SUCCESS: Provider deleted successfully."}
+        Clients.cimprovider.CIMProviderCommand.DELETE_PROVIDER_SUCCESS:string {"CIMPRVCMD_DELETE_PROVIDER_SUCCESS: The provider is deleted successfully."}
 
-        Clients.cimprovider.CIMProviderCommand.START_PROVIDER_SUCCESS:string {"CIMPRVCMD_START_PROVIDER_SUCCESS: Provider module enabled successfully."}
+        Clients.cimprovider.CIMProviderCommand.START_PROVIDER_SUCCESS:string {"CIMPRVCMD_START_PROVIDER_SUCCESS: The provider module is enabled successfully."}
 
-        Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_SUCCESS:string {"CIMPRVCMD_STOP_PROVIDER_SUCCESS: Provider module disabled successfully."}
+        Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_SUCCESS:string {"CIMPRVCMD_STOP_PROVIDER_SUCCESS: The provider module is disabled successfully."}
 
-        Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STOPPED:string {"CIMPRVCMD_PROVIDER_ALREADY_STOPPED: Provider module already disabled."}
+        Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STOPPED:string {"CIMPRVCMD_PROVIDER_ALREADY_STOPPED: The provider module is already disabled."}
 
-        Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STARTED:string {"CIMPRVCMD_PROVIDER_ALREADY_STARTED: Provider module already enabled."}
+        Clients.cimprovider.CIMProviderCommand.PROVIDER_ALREADY_STARTED:string {"CIMPRVCMD_PROVIDER_ALREADY_STARTED: The provider module is already enabled."}
 
-        Clients.cimprovider.CIMProviderCommand.CANNOT_START_PROVIDER:string {"CIMPRVCMD_CANNOT_START_PROVIDER: Provider module can not be enabled because it is currently being disabled."}
+        Clients.cimprovider.CIMProviderCommand.CANNOT_START_PROVIDER:string {"CIMPRVCMD_CANNOT_START_PROVIDER: The provider module cannot be enabled because it is currently being disabled."}
 
-        Clients.cimprovider.CIMProviderCommand.PROVIDER_NOT_REGISTERED:string {"CIMPRVCMD_PROVIDER_NOT_REGISTERED: Specified provider is not registered."}
+        Clients.cimprovider.CIMProviderCommand.PROVIDER_NOT_REGISTERED:string {"CIMPRVCMD_PROVIDER_NOT_REGISTERED: The specified provider is not registered."}
 
-        Clients.cimprovider.CIMProviderCommand.DELETEING_PROVIDER_MODULE:string {"CIMPRVCMD_DELETEING_PROVIDER_MODULE: Deleting provider module..."}
+        Clients.cimprovider.CIMProviderCommand.DELETEING_PROVIDER_MODULE:string {"CIMPRVCMD_DELETEING_PROVIDER_MODULE: Deleting the provider module..."}
 
-        Clients.cimprovider.CIMProviderCommand.DELETEING_PROVIDER:string {"CIMPRVCMD_DELETEING_PROVIDER: Deleting provider..."}
+        Clients.cimprovider.CIMProviderCommand.DELETEING_PROVIDER:string {"CIMPRVCMD_DELETEING_PROVIDER: Deleting the provider..."}
 
-        Clients.cimprovider.CIMProviderCommand.STARTING_PROVIDER_MODULE:string {"CIMPRVCMD_STARTING_PROVIDER_MODULE: Enabling provider module..."}
+        Clients.cimprovider.CIMProviderCommand.STARTING_PROVIDER_MODULE:string {"CIMPRVCMD_STARTING_PROVIDER_MODULE: Enabling the provider module..."}
 
-        Clients.cimprovider.CIMProviderCommand.STOPING_PROVIDER_MODULE:string {"CIMPRVCMD_STOPING_PROVIDER_MODULE: Disabling provider module..."}
+        Clients.cimprovider.CIMProviderCommand.STOPING_PROVIDER_MODULE:string {"CIMPRVCMD_STOPPING_PROVIDER_MODULE: Disabling the provider module..."}
 
-        Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED:string {"CIMPRVCMD_NO_MODULE_REGISTERED: No provider modules registered."}
+        Clients.cimprovider.CIMProviderCommand.NO_MODULE_REGISTERED:string {"CIMPRVCMD_NO_MODULE_REGISTERED: No provider modules are registered."}
 
 
 	/**
- 	* @comment CIMPRVCMD_ERR_OPTION_NOT_SUPPORTED:
-	* @TRNOTE  "-p" should not be translated because it is the name of an option
+ 	* @note CIMPRVCMD_ERR_OPTION_NOT_SUPPORTED:
+	*    "-p" should not be translated because it is the name of an option
  	*/
         Clients.cimprovider.CIMProviderCommand.ERR_OPTION_NOT_SUPPORTED:string {"CIMPRVCMD_ERR_OPTION_NOT_SUPPORTED: -p option is not supported."}
 
@@ -431,15 +464,16 @@ pegasusCLI_en:table {
 
         Clients.cimprovider.CIMProviderCommand.ERR_PROVIDER_NOT_REGISTERED:string {"CIMPRVCMD_ERR_PROVIDER_NOT_REGISTERED: Specified provider is not registered."}
 
-        Clients.cimprovider.CIMProviderCommand.PG_PROVIDER_SCHEMA_NOT_LOADED:string {"CIMPRVCMD_PG_PROVIDER_SCHEMA_NOT_LOADED: The registration schema may not be loaded on the CIMOM."}
+        Clients.cimprovider.CIMProviderCommand.PG_PROVIDER_SCHEMA_NOT_LOADED:string {"CIMPRVCMD_PG_PROVIDER_SCHEMA_NOT_LOADED: The provider registration schema may not be loaded on the CIMOM."}
 
-        Clients.cimprovider.CIMProviderCommand.REQUIRED_ARGS_MISSING:string {"CIMPRVCMD_REQUIRED_ARGS_MISSING: Required arguments missing."}
+        Clients.cimprovider.CIMProviderCommand.REQUIRED_ARGS_MISSING:string {"CIMPRVCMD_REQUIRED_ARGS_MISSING: Required arguments are missing."}
 
-        Clients.cimprovider.CIMProviderCommand.INVALID_ARGS:string {"CIMPRVCMD_INVALID_ARGS: Invalid arguments."}
+        Clients.cimprovider.CIMProviderCommand.INVALID_ARGS:string {"CIMPRVCMD_INVALID_ARGS: Arguments are not valid."}
 
         Clients.cimprovider.CIMProviderCommand.UNEXPECTED_OPTION:string {"CIMPRVCMD_UNEXPECTED_OPTION: Unexpected option."}
 
-		Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE:string {"Failed to disable the provider module.  Provider is busy."} // 485
+	Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE:string {"CIMPRVCMD_PENDING_REQUESTS_STOP_PROVIDER_FAILURE: Failed to disable the provider module.  Provider is busy."} // 485
+
 
 	// ==========================================================
         // Messages for CIMUserCommand
@@ -448,38 +482,38 @@ pegasusCLI_en:table {
 
         Clients.cimuser.CIMUserCommand.NOT_PRIVILEGED_USER:string {"CIMUSRCMD_NOT_PRIVILEGED_USER: Superuser authority is required to run this command."}
 
-        Clients.cimuser.CIMUserCommand.CIMOM_NOT_RUNNING:string {"CIMUSRCMD_CIMOM_NOT_RUNNING: CIM server may not be running."}
+        Clients.cimuser.CIMUserCommand.CIMOM_NOT_RUNNING:string {"CIMUSRCMD_CIMOM_NOT_RUNNING: The CIM server may not be running."}
 
-        Clients.cimuser.CIMUserCommand.ADD_USER_FAILURE:string {"CIMUSRCMD_ADD_USER_FAILURE: Failed to add user."}
+        Clients.cimuser.CIMUserCommand.ADD_USER_FAILURE:string {"CIMUSRCMD_ADD_USER_FAILURE: Failed to add the user."}
 
-        Clients.cimuser.CIMUserCommand.REMOVE_USER_FAILURE:string {"CIMUSRCMD_REMOVE_USER_FAILURE: Failed to remove user."}
+        Clients.cimuser.CIMUserCommand.REMOVE_USER_FAILURE:string {"CIMUSRCMD_REMOVE_USER_FAILURE: Failed to remove the user."}
 
-        Clients.cimuser.CIMUserCommand.CHANGE_PASSWORD_FAILURE:string {"CIMUSRCMD_CHANGE_PASSWORD_FAILURE: Failed to change password."}
+        Clients.cimuser.CIMUserCommand.CHANGE_PASSWORD_FAILURE:string {"CIMUSRCMD_CHANGE_PASSWORD_FAILURE: Failed to change the password."}
 
         Clients.cimuser.CIMUserCommand.LIST_USERS_FAILURE:string {"CIMUSRCMD_LIST_USERS_FAILURE: Failed to list the users."}
 
-        Clients.cimuser.CIMUserCommand.ADD_USER_SUCCESS:string {"CIMUSRCMD_ADD_USER_SUCCESS: User added successfully."}
+        Clients.cimuser.CIMUserCommand.ADD_USER_SUCCESS:string {"CIMUSRCMD_ADD_USER_SUCCESS: User is added successfully."}
 
-        Clients.cimuser.CIMUserCommand.REMOVE_USER_SUCCESS:string {"CIMUSRCMD_REMOVE_USER_SUCCESS: User removed successfully."}
+        Clients.cimuser.CIMUserCommand.REMOVE_USER_SUCCESS:string {"CIMUSRCMD_REMOVE_USER_SUCCESS: User is removed successfully."}
 
-        Clients.cimuser.CIMUserCommand.CHANGE_PASSWORD_SUCCESS:string {"CIMUSRCMD_CHANGE_PASSWORD_SUCCESS: Password changed successfully."}
+        Clients.cimuser.CIMUserCommand.CHANGE_PASSWORD_SUCCESS:string {"CIMUSRCMD_CHANGE_PASSWORD_SUCCESS: Password is changed successfully."}
 
-        Clients.cimuser.CIMUserCommand.PASSWORD_BLANK:string {"CIMUSRCMD_PASSWORD_BLANK: Password can not be blank. Enter password again."}
+        Clients.cimuser.CIMUserCommand.PASSWORD_BLANK:string {"CIMUSRCMD_PASSWORD_BLANK: Password cannot be blank. Enter password again."}
 
 	
         Clients.cimuser.CIMUserCommand.NO_USERS_FOUND:string {"CIMUSRCMD_NO_USERS_FOUND: No users found."}
 
         Clients.cimuser.CIMUserCommand.AUTH_SCHEMA_NOT_LOADED:string {"CIMUSRCMD_AUTH_SCHEMA_NOT_LOADED: The internal repository on the CIM server must be restored."}
 
-        Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING:string {"CIMUSRCMD_REQUIRED_ARGS_MISSING: Required arguments missing."}
+        Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING:string {"CIMUSRCMD_REQUIRED_ARGS_MISSING: Required arguments are missing."}
 
-        Clients.cimuser.CIMUserCommand.INVALID_ARGS:string {"CIMUSRCMD_INVALID_ARGS: Invalid arguments."}
+        Clients.cimuser.CIMUserCommand.INVALID_ARGS:string {"CIMUSRCMD_INVALID_ARGS: Arguments are not valid."}
 
-        Clients.cimuser.CIMUserCommand.USER_ALREADY_EXISTS:string {"CIMUSRCMD_USER_ALREADY_EXISTS: Specified user already exists."}
+        Clients.cimuser.CIMUserCommand.USER_ALREADY_EXISTS:string {"CIMUSRCMD_USER_ALREADY_EXISTS: The specified user already exists."}
 
-        Clients.cimuser.CIMUserCommand.USER_NOT_FOUND:string {"CIMUSRCMD_USER_NOT_FOUND: Specified user is not found."}
+        Clients.cimuser.CIMUserCommand.USER_NOT_FOUND:string {"CIMUSRCMD_USER_NOT_FOUND: The specified user is not found."}
 
-        Clients.cimuser.CIMUserCommand.USERNAME_REQUIRED:string {"CIMUSRCMD_USERNAME_REQUIRED: User name is required."}
+        Clients.cimuser.CIMUserCommand.USERNAME_REQUIRED:string {"CIMUSRCMD_USERNAME_REQUIRED: The user name is required."}
 
         Clients.cimuser.CIMUserCommand.PASSWORD_PROMPT:string {"CIMUSRCMD_PASSWORD_PROMPT: Enter password: "}
 
@@ -491,18 +525,18 @@ pegasusCLI_en:table {
 
         Clients.cimuser.CIMUserCommand.PASSWORD_DOES_NOT_MATCH:string {"CIMUSRCMD_PASSWORD_DOES_NOT_MATCH: Passwords do not match.  Enter password again."}
 
-        Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR:string {"CIMUSRCMD_PASSWORD_SAME_ERROR: New and old passwords can not be same."}
+        Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR:string {"CIMUSRCMD_PASSWORD_SAME_ERROR: New and old passwords cannot be the same."}
 
         Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION:string {"CIMUSRCMD_UNEXPECTED_OPTION: Unexpected option."}
 
 
                         // ==========================================================
-                        // Start of platform-specific messages
+                        // Start of messages from platform-specific files
                         // ==========================================================
                         
                         
                         // ==========================================================
-                        // End of platform-specific messages
+                        // End of messages from platform-specific files
                         // ==========================================================
 
 }

@@ -105,6 +105,7 @@ MessageQueueService::~MessageQueueService(void)
    {
       _meta_dispatcher->_shutdown_routed_queue();
       delete _meta_dispatcher;
+      _meta_dispatcher = 0;
    }
    _meta_dispatcher_mutex.unlock();
    

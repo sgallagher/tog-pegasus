@@ -191,6 +191,11 @@ ifdef PEGASUS_CLIENT_TRACE_ENABLE
     DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
 endif
 
+# Allow PEGASUS_ASSERT statements to be disabled.
+ifdef PEGASUS_NOASSERTS
+    DEFINES += -DNDEBUG
+endif
+
 # do not compile trace code. sometimes it causes problems debugging
 ifdef PEGASUS_REMOVE_TRACE
     DEFINES += -DPEGASUS_REMOVE_TRACE

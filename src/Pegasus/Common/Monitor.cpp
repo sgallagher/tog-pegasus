@@ -33,6 +33,14 @@
 #include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+# if defined(FD_SETSIZE) && FD_SETSIZE != 1024
+#  error "FD_SETSIZE was not set to 1024 prior to the last inclusion \
+of <winsock.h>. It may have been indirectly included (e.g., by including \
+<windows.h>). Find the inclusion of that header which is visible to this \
+compilation unit and #define FD_SETZIE to 1024 prior to that inclusion; \
+otherwise, less than 64 clients (the default) will be able to connect to the \
+CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
+# endif
 # define FD_SETSIZE 1024
 # include <winsock2.h>
 #else

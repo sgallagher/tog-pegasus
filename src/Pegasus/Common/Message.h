@@ -40,23 +40,23 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_EXPORT message_mask 
+class PEGASUS_COMMON_LINKAGE message_mask 
 {
-   public:
-      static Uint32 type_legacy;
-      static Uint32 type_CIMClass;
-      static Uint32 type_CIMInstance;
-      static Uint32 type_CIMIndication;
-      static Uint32 type_CIMQualifier;
-      static Uint32 type_CIMSubscription;
-      static Uint32 type_socket;
-      static Uint32 type_connection;
-      static Uint32 type_http;
-      static Uint32 type_cimom;
+public:
+    static Uint32 type_legacy;
+    static Uint32 type_CIMClass;
+    static Uint32 type_CIMInstance;
+    static Uint32 type_CIMIndication;
+    static Uint32 type_CIMQualifier;
+    static Uint32 type_CIMSubscription;
+    static Uint32 type_socket;
+    static Uint32 type_connection;
+    static Uint32 type_http;
+    static Uint32 type_cimom;
 
-      static Uint32 type_request;
-      static Uint32 type_reply;
-      static Uint32 type_control;
+    static Uint32 type_request;
+    static Uint32 type_reply;
+    static Uint32 type_control;
 };
 
 class MessageQueue;
@@ -76,9 +76,19 @@ class PEGASUS_COMMON_LINKAGE Message
 {
 public:
 
-    Message(Uint32 type, Uint32 key = getNextKey(), Uint32 mask = message_mask::type_legacy) 
-	: _type(type), _key(key), _mask(mask), _next(0), _prev(0) { }
+    Message(
+	Uint32 type, 
+	Uint32 key = getNextKey(), 
+	Uint32 mask = message_mask::type_legacy) 
+	: 
+	_type(type), 
+	_key(key), 
+	_mask(mask), 
+	_next(0), 
+	_prev(0) 
+    { 
 
+    }
 
     virtual ~Message(); 
 

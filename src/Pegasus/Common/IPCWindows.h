@@ -31,7 +31,16 @@
 #endif 
 #include <process.h>  
 
+//
+// PLEASE DO NOT REMOVE THE DEFINTION OF FD_SETSIZE!
+//
+
+#ifndef FD_SETSIZE
+# define FD_SETSIZE 1024
+#endif
+
 #include <windows.h>
+
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/timeb.h> 

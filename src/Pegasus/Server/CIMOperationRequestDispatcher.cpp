@@ -1307,21 +1307,24 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
         poA->_className.getString(),
         poA->numberResponses());
 
-    // Work backward and delete each response off the end of the array
+    // Aggregate the multiple responses into one response.  This moves the
+    // individual objects from response 1 ... n to the first response
+    // working backward and deleting each response off the end of the array
     //CDEBUG("AssociatorNames aggregating responses. Count =  " << poA->numberResponses());
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMAssociatorNamesResponseMessage *fromResponse =
     	    (CIMAssociatorNamesResponseMessage *)poA->getResponse(i);
+        // For this response, move the objects to the zeroth response.
         //CDEBUG("AssociatorNames aggregation from " << i << "contains " << fromResponse->objectNames.size());
     	for (Uint32 j = 0; j < fromResponse->objectNames.size(); j++)
     	{
             // Insert path information if it is not already installed
-            if (fromResponse->objectNames[i].getHost().size() == 0)
-                fromResponse->objectNames[i].setHost(cimAggregationLocalHost);
+            if (fromResponse->objectNames[j].getHost().size() == 0)
+                fromResponse->objectNames[j].setHost(cimAggregationLocalHost);
 
-            if (fromResponse->objectNames[i].getNameSpace().isNull())
-                fromResponse->objectNames[i].setNameSpace(poA->_nameSpace);
+            if (fromResponse->objectNames[j].getNameSpace().isNull())
+                fromResponse->objectNames[j].setNameSpace(poA->_nameSpace);
 
             toResponse->objectNames.append(fromResponse->objectNames[j]);
     	}
@@ -1399,14 +1402,19 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
         poA->_className.getString(),
         poA->numberResponses());
 
-    // Work backward and delete each response off the end of the array
+    // Work backward copying the names to the first response
+    // and delete each response off the end of the array
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMReferencesResponseMessage *fromResponse =
     	    (CIMReferencesResponseMessage *)poA->getResponse(i);
 
+        // for each response, move the objects to the first response
     	for (Uint32 j = 0; j < fromResponse->cimObjects.size(); j++)
     	{
+    	    
+            // Test for existence of Namespace and host and if not
+            // in the path component, add them.
     	    CIMObjectPath p = fromResponse->cimObjects[j].getPath();
             Boolean isChanged = false;
             if (p.getHost().size() ==0)
@@ -1439,31 +1447,32 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
         "CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation");
     CIMReferenceNamesResponseMessage * toResponse =
 	(CIMReferenceNamesResponseMessage *) poA->getResponse(0);
+    
     // Work backward and delete each response off the end of the array
     // adding it to the toResponse, which is really the first response.
-    CDEBUG("handleRefNameResponse " << poA->_nameSpace.getString() << " "
-        <<  poA->_className.getString() << " " << poA->numberResponses());
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "CIMOperationRequestDispatcher::Referencenames Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
         poA->numberResponses());
 
-
+    // Aggregate all names into the first response, deleting the others.
+    // Work backwards for efficiency.
+    // For responses 1 ... n, move the names to the zeroth response
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
     {
     	CIMReferenceNamesResponseMessage *fromResponse =
     	    (CIMReferenceNamesResponseMessage *)poA->getResponse(i);
 
-        // Move each object name
+        // Move each object name to the zeroth response.
         for (Uint32 j = 0; j < fromResponse->objectNames.size(); j++)
     	{
             // Insert path information if it is not already in
-            if (fromResponse->objectNames[i].getHost().size() == 0)
-                fromResponse->objectNames[i].setHost(cimAggregationLocalHost);
+            if (fromResponse->objectNames[j].getHost().size() == 0)
+                fromResponse->objectNames[j].setHost(cimAggregationLocalHost);
 
-            if (fromResponse->objectNames[i].getNameSpace().isNull())
-                fromResponse->objectNames[i].setNameSpace(poA->_nameSpace);
+            if (fromResponse->objectNames[j].getNameSpace().isNull())
+                fromResponse->objectNames[j].setNameSpace(poA->_nameSpace);
 
             toResponse->objectNames.append(fromResponse->objectNames[j]);
     	}
@@ -1506,12 +1515,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponseAggregat
 }
 
 /* The function aggregates individual EnumerateInstance Responses into a single response
-   for return to the client. It simply aggregates the responses into the
+   for return to the client. It aggregates the responses into the
    first response (0).
    ATTN: KS 28 May 2002 - At this time we do not do the following:
    1. eliminate duplicates.
-   2. Order so we eliminate duplicates from top down
-   3. prune the properties if localOnly or deepInheritance are set.
+   2. prune the properties if localOnly or deepInheritance are set.
    This function does not send any responses.
 */
 void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(OperationAggregate* poA)

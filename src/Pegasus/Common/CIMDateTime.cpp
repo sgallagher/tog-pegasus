@@ -44,6 +44,7 @@
 #include <errno.h>
 #include "CIMDateTime.h" 
 #include "InternalException.h" 
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <cassert>
@@ -307,7 +308,11 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
 CIMDateTime::CIMDateTime()
 {
     _rep = new CIMDateTimeRep();
+    AutoPtr<CIMDateTimeRep> rep(_rep);
+
     clear();
+
+    rep.release();
 }
 
 /*Takes properly formated string and creates a CIMDateTime out of it
@@ -315,12 +320,14 @@ CIMDateTime::CIMDateTime()
 CIMDateTime::CIMDateTime(const String & str)
 {
     _rep = new CIMDateTimeRep();
+    AutoPtr<CIMDateTimeRep> rep(_rep);
+
     if (!_set(str))
     {
-        delete _rep;
         throw InvalidDateTimeFormatException();
     }
-   
+
+    rep.release();
 }
 
 /*Copy constructor
@@ -328,7 +335,11 @@ CIMDateTime::CIMDateTime(const String & str)
 CIMDateTime::CIMDateTime(const CIMDateTime& x)
 {
     _rep = new CIMDateTimeRep();
+    AutoPtr<CIMDateTimeRep> rep(_rep);
+
     _rep->copy(x._rep);
+
+    rep.release();
 }  
 
 /*constructs a CIMDateTime object from micro second value.
@@ -598,13 +609,15 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
     //cout << "when at the end of constructor that takes Uint64 created string is  " << final  << endl << endl; 
 
     _rep = new CIMDateTimeRep();
+    AutoPtr<CIMDateTimeRep> rep(_rep);
+
     if (!_set(final)) {
-        delete _rep;
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                     "CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval) failed");
         throw InvalidDateTimeFormatException(); //can't pass message to this exceptions
     }
  
+    rep.release();
 }
 
 

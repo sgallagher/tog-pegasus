@@ -2,7 +2,7 @@ ROOT=../../../../..
 PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
 LIBRARIES= \
-    pegcommon \
-    pegexportserver \
     pegdynlistener \
-    pegprovider
+    pegexportserver \
+    pegprovider \
+    pegcommon 

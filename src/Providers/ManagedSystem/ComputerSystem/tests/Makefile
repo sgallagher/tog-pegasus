@@ -54,8 +54,7 @@ LIBRARIES = \
     pegprovider \
     pegclient \
     pegconfig \
-    pegcommon \
-    pegprovider
+    pegcommon
 
 include $(ROOT)/mak/program.mak
 

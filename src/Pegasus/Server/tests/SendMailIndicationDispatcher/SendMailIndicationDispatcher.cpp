@@ -29,7 +29,7 @@
 
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Server/CIMExportRequestDispatcher.h>
+#include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 
 PEGASUS_USING_PEGASUS;
 

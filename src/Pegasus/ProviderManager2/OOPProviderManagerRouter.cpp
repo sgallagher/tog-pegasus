@@ -455,6 +455,10 @@ void ProviderAgentContainer::_startAgentProcess()
 
         PEG_METHOD_EXIT();
     }
+#elif defined (PEGASUS_OS_OS400)
+
+    //Out of provider support for OS400 goes here when needed.
+
 #else
     pid_t pid = fork();
     if (pid < 0)

@@ -88,7 +88,7 @@ public:
 #if defined (PEGASUS_OS_VMS)
         _physicalName = FileSystem::buildLibraryFileName(physicalName);
 #elif defined (PEGASUS_OS_OS400)
-        _physcialName = physicalName;
+        _physicalName = physicalName;
 #else
         _physicalName = ConfigManager::getHomedPath(PEGASUS_DEST_LIB_DIR) +
             String("/") + FileSystem::buildLibraryFileName(physicalName);

@@ -9,7 +9,6 @@ LIBRARIES = \
     pegcliutils \
     peggetoopt \
     pegclient \
-    pegconfig \
     pegcommon
 
 PROGRAM = ntpinfo

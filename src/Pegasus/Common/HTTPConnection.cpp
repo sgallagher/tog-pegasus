@@ -39,7 +39,6 @@
 #include <iostream>
 #include <cctype>
 #include <cstdlib>
-#include <strings.h>
 #include "Socket.h"
 #include "TLS.h"
 #include "HTTPConnection.h"

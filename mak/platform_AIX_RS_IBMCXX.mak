@@ -27,7 +27,7 @@ SYS_LIBS = -ldl
 # SSL support
 FLAGS += -DPEGAUS_HAS_SSL
 SYS_INCLUDES += -I/usr/linux/include
-SYS_LIBS += -L/usr/linux/lib -lgsk4ssl
+SYS_LIBS += -L/usr/linux/lib -lssl
 
 CXX = xlC_r
 

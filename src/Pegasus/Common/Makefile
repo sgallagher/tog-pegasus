@@ -8,18 +8,12 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 
 LIBRARY = pegcommon
 
-ifeq (0,0)
-ifeq ($(OS_TYPE),windows)
-WINDOWS_SOURCES = \
+
+SOURCES = \
     Channel.cpp \
     Selector.cpp \
     WindowsSelector.cpp \
     WindowsChannel.cpp
-endif
-endif
-
-SOURCES = \
-    $(WINDOWS_SOURCES) \
     Logger.cpp \
     Formatter.cpp \
     CIMInstanceRep.cpp \

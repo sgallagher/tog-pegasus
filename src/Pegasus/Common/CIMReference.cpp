@@ -58,6 +58,12 @@ PEGASUS_NAMESPACE_BEGIN
 // ATTN: also check to see that the reference refers to a class that is the
 // same or derived from the _className member.
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Local routines:
+//
+////////////////////////////////////////////////////////////////////////////////
+
 static String _escapeSpecialCharacters(const String& str)
 {
     String result;
@@ -90,12 +96,6 @@ static String _escapeSpecialCharacters(const String& str)
     return result;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Local routines:
-//
-////////////////////////////////////////////////////////////////////////////////
-
 static void _BubbleSort(Array<KeyBinding>& x)
 {
     Uint32 n = x.size();
@@ -123,60 +123,101 @@ static void _BubbleSort(Array<KeyBinding>& x)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+class KeyBindingRep
+{
+public:
+    KeyBindingRep()
+    {
+    }
+
+    KeyBindingRep(const KeyBindingRep& x)
+        : _name(x._name), _value(x._value), _type(x._type)
+    {
+    }
+
+    KeyBindingRep(
+        const String& name,
+        const String& value,
+        KeyBinding::Type type)
+        : _name(name), _value(value), _type(type)
+    {
+    }
+
+    ~KeyBindingRep()
+    {
+    }
+
+    KeyBindingRep& operator=(const KeyBindingRep& x)
+    {
+        if (&x != this)
+        {
+            _name = x._name;
+            _value = x._value;
+            _type = x._type;
+            return *this;
+        }
+    }
+
+    String _name;
+    String _value;
+    KeyBinding::Type _type;
+};
+
+
 KeyBinding::KeyBinding()
 {
+    _rep = new KeyBindingRep();
 }
 
 KeyBinding::KeyBinding(const KeyBinding& x)
-    : _name(x._name), _value(x._value), _type(x._type)
 {
+    _rep = new KeyBindingRep(*x._rep);
 }
 
 KeyBinding::KeyBinding(const String& name, const String& value, Type type)
-    : _name(name), _value(value), _type(type)
 {
+    _rep = new KeyBindingRep(name, value, type);
 }
 
 KeyBinding::~KeyBinding()
 {
+    delete _rep;
 }
 
 KeyBinding& KeyBinding::operator=(const KeyBinding& x)
 {
-    _name = x._name;
-    _value = x._value;
-    _type = x._type;
+    *_rep = *x._rep;
     return *this;
 }
 
 const String& KeyBinding::getName() const
 {
-    return _name;
+    return _rep->_name;
 }
 
 void KeyBinding::setName(const String& name)
 {
-    _name = name;
+    _rep->_name = name;
 }
 
 const String& KeyBinding::getValue() const
 {
-    return _value;
+    return _rep->_value;
 }
 
 void KeyBinding::setValue(const String& value)
 {
-    _value = value;
+    _rep->_value = value;
 }
 
 KeyBinding::Type KeyBinding::getType() const
 {
-    return _type;
+    return _rep->_type;
 }
 
 void KeyBinding::setType(KeyBinding::Type type)
 {
-    _type = type;
+    _rep->_type = type;
 }
 
 const char* KeyBinding::typeToString(KeyBinding::Type type)
@@ -215,25 +256,82 @@ Boolean operator==(const KeyBinding& x, const KeyBinding& y)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+class CIMReferenceRep
+{
+public:
+    CIMReferenceRep()
+    {
+    }
+
+    CIMReferenceRep(const CIMReferenceRep& x)
+        : _host(x._host), _nameSpace(x._nameSpace),
+        _className(x._className), _keyBindings(x._keyBindings)
+    {
+    }
+
+    CIMReferenceRep(
+        const String& host,
+        const String& nameSpace,
+        const String& className,
+        const Array<KeyBinding>& keyBindings)
+        : _host(host), _nameSpace(nameSpace),
+        _className(className), _keyBindings(keyBindings)
+    {
+    }
+
+    ~CIMReferenceRep()
+    {
+    }
+
+    CIMReferenceRep& operator=(const CIMReferenceRep& x)
+    {
+        if (&x != this)
+        {
+            _host = x._host;
+            _nameSpace = x._nameSpace;
+            _className = x._className;
+            _keyBindings = x._keyBindings;
+        }
+        return *this;
+    }
+
+    //
+    // Contains port as well (e.g., myhost:1234).
+    //
+    String _host;
+
+    String _nameSpace;
+    String _className;
+    Array<KeyBinding> _keyBindings;
+};
+
+
 CIMReference::CIMReference()
 {
+    _rep = new CIMReferenceRep();
 }
 
 CIMReference::CIMReference(const CIMReference& x)
-    : _host(x._host), _nameSpace(x._nameSpace),
-    _className(x._className), _keyBindings(x._keyBindings)
 {
-    _BubbleSort(_keyBindings);
+    _rep = new CIMReferenceRep(*x._rep);
 }
 
 CIMReference::CIMReference(const String& objectName)
 {
-    set(objectName);
+    // Test the objectName out to see if we get an exception
+    CIMReference tmpRef;
+    tmpRef.set(objectName);
+
+    _rep = new CIMReferenceRep(*tmpRef._rep);
 }
 
 CIMReference::CIMReference(const char* objectName)
 {
-    set(objectName);
+    // Test the objectName out to see if we get an exception
+    CIMReference tmpRef;
+    tmpRef.set(objectName);
+
+    _rep = new CIMReferenceRep(*tmpRef._rep);
 }
 
 CIMReference::CIMReference(
@@ -241,33 +339,31 @@ CIMReference::CIMReference(
     const String& nameSpace,
     const String& className,
     const Array<KeyBinding>& keyBindings)
-
 {
-   set(host, nameSpace, className, keyBindings);
+    // Test the objectName out to see if we get an exception
+    CIMReference tmpRef;
+    tmpRef.set(host, nameSpace, className, keyBindings);
+
+    _rep = new CIMReferenceRep(*tmpRef._rep);
 }
 
 CIMReference::~CIMReference()
 {
+    delete _rep;
 }
 
 CIMReference& CIMReference::operator=(const CIMReference& x)
 {
-    if (&x != this)
-    {
-	_host = x._host;
-	_nameSpace = x._nameSpace;
-	_className = x._className;
-	_keyBindings = x._keyBindings;
-    }
+    *_rep = *x._rep;
     return *this;
 }
 
 void CIMReference::clear()
 {
-    _host.clear();
-    _nameSpace.clear();
-    _className.clear();
-    _keyBindings.clear();
+    _rep->_host.clear();
+    _rep->_nameSpace.clear();
+    _rep->_className.clear();
+    _rep->_keyBindings.clear();
 }
 
 void CIMReference::set(
@@ -328,16 +424,16 @@ Boolean CIMReference::_parseHostElement(
 
         // Finally, assign the host name:
 
-        _host.assign(p, q - p);
+        host.assign(p, q - p);
     }
     else
     {
-        _host.assign(p, q - p);
+        host.assign(p, q - p);
 
         // Assign the default port number:
 
-        _host.append(":");
-        _host.append(PEGASUS_CIMOM_DEFAULT_PORT_STRING);
+        host.append(":");
+        host.append(PEGASUS_CIMOM_DEFAULT_PORT_STRING);
     }
 
     // Check for slash terminating the entire sequence:
@@ -600,10 +696,7 @@ void CIMReference::_parseKeyBindingPairs(
 
 void CIMReference::set(const String& objectName)
 {
-    _host.clear();
-    _nameSpace.clear();
-    _className.clear();
-    _keyBindings.clear();
+    clear();
 
     //--------------------------------------------------------------------------
     // We will extract components from an object name. Here is an sample
@@ -623,8 +716,8 @@ void CIMReference::set(const String& objectName)
     // ATTN-RK-P3-20020301: Is the +1 correct?
     p[objectName.size() + 1]= '\0';
 
-    gotHost = _parseHostElement(objectName, p, _host);
-    gotNamespace = _parseNamespaceElement(objectName, p, _nameSpace);
+    gotHost = _parseHostElement(objectName, p, _rep->_host);
+    gotNamespace = _parseNamespaceElement(objectName, p, _rep->_nameSpace);
 
     if (gotHost && !gotNamespace)
     {
@@ -645,17 +738,17 @@ void CIMReference::set(const String& objectName)
 	// ATTN: remove this later: a reference should only be able to hold
 	// an instance name.
 
-	_className.assign(p);
+	_rep->_className.assign(p);
 	return;
     }
 
-    _className.assign(p, dot - p);
+    _rep->_className.assign(p, dot - p);
 
     // Advance past dot:
 
     p = dot + 1;
 
-    _parseKeyBindingPairs(objectName, p, _keyBindings);
+    _parseKeyBindingPairs(objectName, p, _rep->_keyBindings);
 }
 
 CIMReference& CIMReference::operator=(const String& objectName)
@@ -672,17 +765,17 @@ CIMReference& CIMReference::operator=(const char* objectName)
 
 const String& CIMReference::getHost() const
 {
-    return _host;
+    return _rep->_host;
 }
 
 void CIMReference::setHost(const String& host)
 {
-    _host = host;
+    _rep->_host = host;
 }
 
 const String& CIMReference::getNameSpace() const
 {
-    return _nameSpace;
+    return _rep->_nameSpace;
 }
 
 void CIMReference::setNameSpace(const String& nameSpace)
@@ -706,12 +799,12 @@ void CIMReference::setNameSpace(const String& nameSpace)
 	}
     }
 
-   _nameSpace = nameSpace;
+   _rep->_nameSpace = nameSpace;
 }
 
 const String& CIMReference::getClassName() const
 {
-    return _className;
+    return _rep->_className;
 }
 
 const Boolean CIMReference::equalClassName(const String& classname) const
@@ -724,18 +817,18 @@ void CIMReference::setClassName(const String& className)  throw(IllegalName)
     if (!CIMName::legal(className))
 	throw IllegalName();
 
-    _className = className;
+    _rep->_className = className;
 }
 
 const Array<KeyBinding>& CIMReference::getKeyBindings() const
 {
-    return _keyBindings;
+    return _rep->_keyBindings;
 }
 
 void CIMReference::setKeyBindings(const Array<KeyBinding>& keyBindings)
 {
-    _keyBindings = keyBindings;
-    _BubbleSort(_keyBindings);
+    _rep->_keyBindings = keyBindings;
+    _BubbleSort(_rep->_keyBindings);
 }
 
 String CIMReference::toString(Boolean includeHost) const
@@ -744,18 +837,18 @@ String CIMReference::toString(Boolean includeHost) const
 
     // Get the host:
 
-    if (_host.size() && includeHost)
+    if (_rep->_host.size() && includeHost)
     {
 	objectName = "//";
-	objectName += _host;
+	objectName += _rep->_host;
 	objectName += "/";
     }
 
     // Get the namespace (if we have a host name, we must write namespace):
 
-    if (_nameSpace.size() || _host.size())
+    if (_rep->_nameSpace.size() || _rep->_host.size())
     {
-	objectName += _nameSpace;
+	objectName += _rep->_nameSpace;
 	objectName += ":";
     }
 
@@ -804,23 +897,30 @@ String CIMReference::toStringCanonical(Boolean includeHost) const
 {
     CIMReference ref = *this;
 
-    ref._className.toLower();
+    // ATTN-RK-P2-20020510: Need to make hostname and namespace lower case?
 
-    for (Uint32 i = 0, n = ref._keyBindings.size(); i < n; i++)
+    ref._rep->_className.toLower();
+
+    for (Uint32 i = 0, n = ref._rep->_keyBindings.size(); i < n; i++)
     {
-        ref._keyBindings[i]._name.toLower();
+        ref._rep->_keyBindings[i]._rep->_name.toLower();
     }
 
     return ref.toString(includeHost);
 }
 
+CIMReference CIMReference::clone() const
+{
+    return CIMReference(*this);
+}
+
 Boolean CIMReference::identical(const CIMReference& x) const
 {
     return
-	String::equal(_host, x._host) &&
-	CIMName::equal(_nameSpace, x._nameSpace) &&
-	CIMName::equal(_className, x._className) &&
-	_keyBindings == x._keyBindings;
+	String::equal(_rep->_host, x._rep->_host) &&
+	CIMName::equal(_rep->_nameSpace, x._rep->_nameSpace) &&
+	CIMName::equal(_rep->_className, x._rep->_className) &&
+	_rep->_keyBindings == x._rep->_keyBindings;
 }
 
 void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
@@ -831,13 +931,13 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
 
-    if (_keyBindings.size())
+    if (_rep->_keyBindings.size())
     {
-	if (_host.size())
+	if (_rep->_host.size())
 	{
 	    XmlWriter::appendInstancePathElement(out, *this);
 	}
-	else if (_nameSpace.size())
+	else if (_rep->_nameSpace.size())
 	{
 	    XmlWriter::appendLocalInstancePathElement(out, *this);
 	}
@@ -846,16 +946,16 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
     }
     else
     {
-	if (_host.size())
+	if (_rep->_host.size())
 	{
 	    XmlWriter::appendClassPathElement(out, *this);
 	}
-	else if (_nameSpace.size())
+	else if (_rep->_nameSpace.size())
 	{
 	    XmlWriter::appendLocalClassPathElement(out, *this);
 	}
 	else
-	    XmlWriter::appendClassNameElement(out, _className);
+	    XmlWriter::appendClassNameElement(out, _rep->_className);
     }
 
     if (putValueWrapper)
@@ -872,13 +972,13 @@ void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
 
-    if (_keyBindings.size())
+    if (_rep->_keyBindings.size())
     {
-	if (_host.size())
+	if (_rep->_host.size())
 	{
 	    XmlWriter::appendInstancePathElement(out, *this);
 	}
-	else if (_nameSpace.size())
+	else if (_rep->_nameSpace.size())
 	{
 	    XmlWriter::appendLocalInstancePathElement(out, *this);
 	}
@@ -887,16 +987,16 @@ void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
     }
     else
     {
-	if (_host.size())
+	if (_rep->_host.size())
 	{
 	    XmlWriter::appendClassPathElement(out, *this);
 	}
-	else if (_nameSpace.size())
+	else if (_rep->_nameSpace.size())
 	{
 	    XmlWriter::appendLocalClassPathElement(out, *this);
 	}
 	else
-	    XmlWriter::appendClassNameElement(out, _className);
+	    XmlWriter::appendClassNameElement(out, _rep->_className);
     }
 
     if (putValueWrapper)
@@ -913,19 +1013,12 @@ void CIMReference::print(PEGASUS_STD(ostream)& os) const
 
 Uint32 CIMReference::makeHashCode() const
 {
-    CIMReference ref = *this;
-
-    ref._className.toLower();
-
-    for (Uint32 i = 0, n = ref._keyBindings.size(); i < n; i++)
-	ref._keyBindings[i]._name.toLower();
-
-    return HashFunc<String>::hash(ref.toString());
+    return HashFunc<String>::hash(toStringCanonical());
 }
 
 Boolean CIMReference::isInstanceName() const
 {
-    return _keyBindings.size() != 0;
+    return _rep->_keyBindings.size() != 0;
 }
 
 KeyBindingArray CIMReference::getKeyBindingArray()

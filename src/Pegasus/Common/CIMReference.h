@@ -30,7 +30,6 @@
 #define Pegasus_Reference_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
@@ -40,6 +39,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMReference;
+class KeyBindingRep;
+class CIMReferenceRep;
 
 /** The KeyBinding class associates a key name, value, and type.
     It is used by the reference class to represent key bindings.
@@ -100,9 +101,7 @@ public:
 
 private:
 
-    String _name;
-    String _value;
-    Type _type;
+    KeyBindingRep* _rep;
 
     friend class CIMReference;
 };
@@ -512,6 +511,9 @@ public:
     */
     String toStringCanonical(Boolean includeHost=true) const;
 
+    /** Makes a deep copy (clone) of the given object. */
+    CIMReference clone() const;
+
     /** Returns true if this reference is identical to the one given
 	by the x argument. Since CIMReferences are normalized when they
 	are created, any differences in the ordering of keybindings is accounted
@@ -577,14 +579,7 @@ private:
         char*& p,
         Array<KeyBinding>& keyBindings);
 
-    //
-    // Contains port as well (e.g., myhost:1234).
-    //
-    String _host;
-
-    String _nameSpace;
-    String _className;
-    Array<KeyBinding> _keyBindings;
+    CIMReferenceRep* _rep;
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(

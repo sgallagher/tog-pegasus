@@ -23,7 +23,8 @@
 //
 // Author: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company 
+//                                (sushma_fernandes@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -156,7 +157,6 @@ public:
         }
         catch (Exception& e)
         {
- cout << "ShutdownProvider:  shutdown method failed." << endl;
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
         }
 
@@ -183,9 +183,10 @@ public:
 // NOTE: The name of the provider must be correct to be loadable.
 
 extern "C" PEGASUS_EXPORT CIMBaseProvider *
-PegasusCreateProvider(const String &classname)
+PegasusCreateProvider(const String &providerName)
 {
-    if (String::equalNoCase(classname, "PG_ShutdownService"))
+    const String PROVIDER_NAME = "ShutdownProvider";
+    if (String::equalNoCase(providerName, PROVIDER_NAME))
     {
         return(new ShutdownProvider());
     }

@@ -5,7 +5,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = mod_control	
+PROGRAM = mod_control
 SOURCES = mod_control.cpp
 
 include $(ROOT)/mak/program.mak

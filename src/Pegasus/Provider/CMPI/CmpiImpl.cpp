@@ -1100,13 +1100,10 @@ CmpiBoolean CmpiInstance::instanceIsA(const char *className) {
 void *CmpiInstance::makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
 
-   fprintf(stderr,"CmpiInstance::makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop) called\n");
-   fprintf(stderr," CMPIBroker *mb %p\n",mb);
 
    void *inst=mb->eft->newInstance(mb,((CmpiObjectPath&)cop).getEnc(),&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 
-   fprintf(stderr,"CmpiInstance::makeInstance(CMPIBroker *mb, const CmpiObjectPath& cop) exited\n");
    return inst;
 }
 

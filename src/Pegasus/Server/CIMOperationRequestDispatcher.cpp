@@ -346,8 +346,8 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
 	response->setKey(request->getKey());
 
-	if( true == Base::_enqueueResponse(request, response))
-	   return;
+	//if( true == Base::_enqueueResponse(request, response))
+	   //return;
 	
 	// Lookup the message queue:
 
@@ -888,11 +888,16 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
                     this->getQueueId());
 
             AsyncReply* reply = SendWait(req);
-            cout << "Received Response" << endl;
+            CIMCreateInstanceResponseMessage * response =
+                reinterpret_cast<CIMCreateInstanceResponseMessage *>
+                    ((static_cast<AsyncLegacyOperationResult *>(reply))->res);
 
-            _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0);
+            _enqueueResponse(request, response);
+         
+            delete reply;
+            delete req;
+            delete response;
 
-            cout << "Completed Response" << endl;
             return;
 	}
 

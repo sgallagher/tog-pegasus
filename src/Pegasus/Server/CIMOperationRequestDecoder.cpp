@@ -1841,9 +1841,9 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
    STAT_GETSTARTTIME
 
    CIMName className;
-   Boolean deepInheritance = false;
+   Boolean deepInheritance = true;
    Boolean localOnly = true;
-   Boolean includeQualifiers = true;
+   Boolean includeQualifiers = false;
    Boolean includeClassOrigin = false;
    CIMPropertyList propertyList;
    Boolean duplicateParameter = false;

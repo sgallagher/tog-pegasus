@@ -1,4 +1,11 @@
 %{
+extern int CQLInput(char* buffer, int& numRead, int numRequested);
+extern int CQL_error(const char*);
+
+#ifdef CQLINPUT
+#define YY_INPUT(BUF, NREAD, NREQUESTED) CQLInput(BUF, NREAD, NREQUESTED)
+#endif
+
 #include <Pegasus/Common/Config.h>
 #include "CQLParserState.h"
 #include <stdlib.h>

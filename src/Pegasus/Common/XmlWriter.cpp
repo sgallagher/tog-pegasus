@@ -913,7 +913,9 @@ void XmlWriter::appendValueReferenceElement(
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
 
-    KeyBindingArray kbs = reference.getKeyBindingArray();
+    //KeyBindingArray kbs = reference.getKeyBindingArray();
+    KeyBindingArray kbs = reference.getKeyBindings();
+
     if (kbs.size())
     {
         if (reference.getHost().size())

@@ -29,7 +29,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,257 +52,265 @@ OperatingSystem::~OperatingSystem(void)
 
 String OperatingSystem::GetCSCreationClassName(void) const
 {
-   // get from CIM_ComputerSystem.CreationClassName
-   return(String());
+    // get from CIM_ComputerSystem.CreationClassName
+    return(String());
 }
 
 String OperatingSystem::GetCSName(void) const
 {
-   // get from CIM_ComputerSystem.CreationClassName
-   return(String());
+    // get from CIM_ComputerSystem.CreationClassName
+    return(String());
 }
 
 String OperatingSystem::GetCreationClassName(void) const
 {
-   String CreationClassName("Pegasus_OperatingSystem");
+    String CreationClassName("Pegasus_OperatingSystem");
 
-   return(CreationClassName);
+    return(CreationClassName);
 }
 
 String OperatingSystem::GetName(void) const
 {
-   String name;
+    String name;
 
-   switch(GetOSType()) {
-   case OSTYPE::Unknown:
-      name = "Unknown";
+    switch(GetOSType())
+    {
+        case Unknown:
+            name = "Unknown";
+            break;
 
-      break;
-   case OSTYPE::Other:
-      name = "Other";
+        case Other:
+            name = "Other";
+            break;
 
-      break;
-   case OSTYPE::WIN95:
-      name = "Microsoft Windows 95";
+        case WIN95:
+            name = "Microsoft Windows 95";
+            break;
 
-      break;
-   case OSTYPE::WIN98:
-      name = "Microsoft Windows 98";
+        case WIN98:
+            name = "Microsoft Windows 98";
+            break;
 
-      break;
-   case OSTYPE::WINNT:
-      name = "Microsoft Windows NT";
+        case WINNT:
+            name = "Microsoft Windows NT";
+            break;
 
-      break;
-   case OSTYPE::Windows_2000:
-      name = "Microsoft Windows 2000";
+        case Windows_2000:
+            name = "Microsoft Windows 2000";
+            break;
 
-      break;
-   case OSTYPE::Windows_Me:
-      name = "Microsoft Windows Me";
+        case Windows_Me:
+            name = "Microsoft Windows Me";
+            break;
 
-      break;
-   default:
-      break;
-   }
+        default:
+            break;
+    }
 
-   return(name);
+    return(name);
 }
 
 Uint16 OperatingSystem::GetOSType(void) const
 {
-   Uint16 type = OSTYPE::Unknown;
+    Uint16 type = Unknown;
 
-   OSVERSIONINFO ver;
+    OSVERSIONINFO ver;
 
-   ::memset(&ver, 0, sizeof(ver));
+    ::memset(&ver, 0, sizeof(ver));
 
-   ver.dwOSVersionInfoSize = sizeof(ver);
+    ver.dwOSVersionInfoSize = sizeof(ver);
 
-   ::GetVersionEx(&ver);
+    ::GetVersionEx(&ver);
 
-   // values defined under the topic "Getting the System Version" in the Win32 platform SDK
-   if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion <= 4)) {
-      type = OSTYPE::WINNT;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion == 5) && (ver.dwMinorVersion == 0)) {
-      type = OSTYPE::Windows_2000;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion == 5) && (ver.dwMinorVersion == 1)) {
-      type = OSTYPE::Windows_2000;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 0)) {
-      type = OSTYPE::WIN95;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 10)) {
-      type = OSTYPE::WIN98;
+    // values defined under the topic "Getting the System Version" in the Win32 platform SDK
+    if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion <= 4)) {
+        type = WINNT;
+    }
+    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion == 5) && (ver.dwMinorVersion == 0)) {
+        type = Windows_2000;
+    }
+    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion == 5) && (ver.dwMinorVersion == 1)) {
+        type = Windows_2000;
+    }
+    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 0)) {
+        type = WIN95;
+    }
+    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 10)) {
+        type = WIN98;
    }
    else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 90)) {
-      type = OSTYPE::Windows_Me;
-   }
+        type = Windows_Me;
+    }
 
-   return(type);
+    return(type);
 }
 
 String OperatingSystem::GetOtherTypeDescription(void) const
 {
-   return(String());
+    return(String());
 }
 
 String OperatingSystem::GetVersion(void) const
 {
-   String Version;
+    String Version;
 
-   OSVERSIONINFO ver;
+    OSVERSIONINFO ver;
 
-   ::memset(&ver, 0, sizeof(ver));
+    ::memset(&ver, 0, sizeof(ver));
 
-   ver.dwOSVersionInfoSize = sizeof(ver);
+    ver.dwOSVersionInfoSize = sizeof(ver);
 
-   ::GetVersionEx(&ver);
+    ::GetVersionEx(&ver);
 
-   std::stringstream ss;
+    std::stringstream ss;
 
-   ss << ver.dwMajorVersion << '.' << ver.dwMinorVersion << '.' << ver.dwBuildNumber;
+    ss << ver.dwMajorVersion << '.' << ver.dwMinorVersion << '.' << ver.dwBuildNumber;
 
-   Version = ss.str().c_str();
+    Version = ss.str().c_str();
 
-   return(Version);
+    return(Version);
 }
 
 CIMDateTime OperatingSystem::GetLastBootUpTime(void) const
 {
-   CIMDateTime LastBootUpTime;
+    CIMDateTime LastBootUpTime;
 
-   DWORD dw = ::GetTickCount();
+    DWORD dw = ::GetTickCount();
 
-   return(LastBootUpTime);
+    return(LastBootUpTime);
 }
 
 CIMDateTime OperatingSystem::GetLocalDateTime(void) const
 {
-   CIMDateTime LocalDateTime;
+    CIMDateTime LocalDateTime;
 
-   SYSTEMTIME time;
+    SYSTEMTIME time;
 
-   ::memset(&time, 0, sizeof(time));
+    ::memset(&time, 0, sizeof(time));
 
-   ::GetLocalTime(&time);
+    ::GetLocalTime(&time);
 
-   std::stringstream ss;
+    std::stringstream ss;
 
-   ss << std::setfill('0');
-   ss << std::setw(4) << time.wYear;
-   ss << std::setw(2) << time.wMonth;
-   ss << std::setw(2) << time.wDay;
-   ss << std::setw(2) << time.wHour;
-   ss << std::setw(2) << time.wMinute;
-   ss << std::setw(2) << time.wSecond;
-   ss << ".";
-   ss << std::setw(6) << time.wMilliseconds * 1000;
-   ss << (GetCurrentTimeZone() < 0 ? "-" : "+");
-   ss << std::setw(3) << ::abs(GetCurrentTimeZone());
+    ss << std::setfill('0');
+    ss << std::setw(4) << time.wYear;
+    ss << std::setw(2) << time.wMonth;
+    ss << std::setw(2) << time.wDay;
+    ss << std::setw(2) << time.wHour;
+    ss << std::setw(2) << time.wMinute;
+    ss << std::setw(2) << time.wSecond;
+    ss << ".";
+    ss << std::setw(6) << time.wMilliseconds * 1000;
+    ss << (GetCurrentTimeZone() < 0 ? "-" : "+");
+    ss << std::setw(3) << ::abs(GetCurrentTimeZone());
 
-   LocalDateTime = CIMDateTime (String (ss.str().c_str()));
+    LocalDateTime = CIMDateTime (String (ss.str().c_str()));
 
-   return(LocalDateTime);
+    return(LocalDateTime);
 }
 
 CIMDateTime OperatingSystem::GetInstallDate(void) const
 {
-   CIMDateTime InstallDate;
+    CIMDateTime InstallDate;
 
-   return(InstallDate);
+    return(InstallDate);
 }
 Sint16 OperatingSystem::GetCurrentTimeZone(void) const
 {
-   Sint16 CurrentTimeZone = 0;
+    Sint16 CurrentTimeZone = 0;
 
-   TIME_ZONE_INFORMATION timezone;
+    TIME_ZONE_INFORMATION timezone;
 
-   ::memset(&timezone, 0, sizeof(timezone));
+    ::memset(&timezone, 0, sizeof(timezone));
 
-   switch(::GetTimeZoneInformation(&timezone)) {
-   case TIME_ZONE_ID_UNKNOWN:
-      CurrentTimeZone = static_cast<Sint16>(timezone.Bias);
-   case TIME_ZONE_ID_STANDARD:
-      CurrentTimeZone = static_cast<Sint16>(timezone.Bias + timezone.StandardBias);
-   case TIME_ZONE_ID_DAYLIGHT:
-      CurrentTimeZone = static_cast<Sint16>(timezone.Bias + timezone.DaylightBias);
-   default:
-      break;
-   }
+    switch(::GetTimeZoneInformation(&timezone))
+    {
+        case TIME_ZONE_ID_UNKNOWN:
+            CurrentTimeZone = static_cast<Sint16>(timezone.Bias);
+            break;
 
-   // the bias used to calculate the time zone is a factor that is used to determine the
-   // UTC time from the local time. to get the UTC offset from the local time, use the inverse.
-   if(CurrentTimeZone != 0) {
-      CurrentTimeZone *= -1;
-   }
+        case TIME_ZONE_ID_STANDARD:
+            CurrentTimeZone = static_cast<Sint16>(timezone.Bias + timezone.StandardBias);
+            break;
 
-   return(CurrentTimeZone);
+        case TIME_ZONE_ID_DAYLIGHT:
+            CurrentTimeZone = static_cast<Sint16>(timezone.Bias + timezone.DaylightBias);
+            break;
+
+        default:
+            break;
+    }
+
+    // the bias used to calculate the time zone is a factor that is used to determine the
+    // UTC time from the local time. to get the UTC offset from the local time, use the inverse.
+    if(CurrentTimeZone != 0) {
+        CurrentTimeZone *= -1;
+    }
+
+    return(CurrentTimeZone);
 }
 
 Uint32 OperatingSystem::GetNumberOfLicensedUsers(void) const
 {
-   return(0);
+    return(0);
 }
 
 Uint32 OperatingSystem::GetNumberOfUsers(void) const
 {
-   return(0);
+    return(0);
 }
 
 Uint32 OperatingSystem::GetNumberOfProcesses(void) const
 {
-   Uint32 NumberOfProcesses = 0;
+    Uint32 NumberOfProcesses = 0;
 
-   return(NumberOfProcesses);
+    return(NumberOfProcesses);
 }
 
 Uint32 OperatingSystem::GetMaxNumberOfProcesses(void) const
 {
-   Uint32 MaxNumberOfProcesses = 0;
+    Uint32 MaxNumberOfProcesses = 0;
 
-   //MaxNumberOfProcesses = 0xffffffff;
+    //MaxNumberOfProcesses = 0xffffffff;
 
-   return(MaxNumberOfProcesses);
+    return(MaxNumberOfProcesses);
 }
 
 Uint64 OperatingSystem::GetTotalSwapSpaceSize(void) const
 {
-   Uint64 TotalSwapSpaceSize = 0;
+    Uint64 TotalSwapSpaceSize = 0;
 
-   return(TotalSwapSpaceSize);
+    return(TotalSwapSpaceSize);
 }
 
 Uint64 OperatingSystem::GetTotalVirtualMemorySize(void) const
 {
-   Uint64 TotalVirtualMemorySize = 0;
+    Uint64 TotalVirtualMemorySize = 0;
 
-   MEMORYSTATUS mem;
+    MEMORYSTATUS mem;
 
-   ::memset(&mem, 0, sizeof(mem));
+    ::memset(&mem, 0, sizeof(mem));
 
-   mem.dwLength = sizeof(mem);
+    mem.dwLength = sizeof(mem);
 
-   ::GlobalMemoryStatus(&mem);
+    ::GlobalMemoryStatus(&mem);
 
-   TotalVirtualMemorySize = mem.dwTotalVirtual / 1024;
+    TotalVirtualMemorySize = mem.dwTotalVirtual / 1024;
 
-   return(TotalVirtualMemorySize);
+    return(TotalVirtualMemorySize);
 }
 
 Uint64 OperatingSystem::GetFreeVirtualMemory(void) const
 {
-   Uint64 FreeVirtualMemory = 0;
+    Uint64 FreeVirtualMemory = 0;
 
-   MEMORYSTATUS mem;
+    MEMORYSTATUS mem;
 
-   ::memset(&mem, 0, sizeof(mem));
+    ::memset(&mem, 0, sizeof(mem));
 
-   mem.dwLength = sizeof(mem);
+    mem.dwLength = sizeof(mem);
 
-   ::GlobalMemoryStatus(&mem);
+    ::GlobalMemoryStatus(&mem);
 
    FreeVirtualMemory = mem.dwAvailVirtual / 1024;
 
@@ -310,90 +319,90 @@ Uint64 OperatingSystem::GetFreeVirtualMemory(void) const
 
 Uint64 OperatingSystem::GetFreePhysicalMemory(void) const
 {
-   Uint64 FreePhysicalMemory = 0;
+    Uint64 FreePhysicalMemory = 0;
 
-   MEMORYSTATUS mem;
+    MEMORYSTATUS mem;
 
-   ::memset(&mem, 0, sizeof(mem));
+    ::memset(&mem, 0, sizeof(mem));
 
-   mem.dwLength = sizeof(mem);
+    mem.dwLength = sizeof(mem);
 
-   ::GlobalMemoryStatus(&mem);
+    ::GlobalMemoryStatus(&mem);
 
-   FreePhysicalMemory = mem.dwAvailPhys / 1024;
+    FreePhysicalMemory = mem.dwAvailPhys / 1024;
 
-   return(FreePhysicalMemory);
+    return(FreePhysicalMemory);
 }
 
 Uint64 OperatingSystem::GetTotalVisibleMemorySize(void) const
 {
-   Uint64 TotalVisibleMemorySize = 0;
+    Uint64 TotalVisibleMemorySize = 0;
 
-   MEMORYSTATUS mem;
+    MEMORYSTATUS mem;
 
-   ::memset(&mem, 0, sizeof(mem));
+    ::memset(&mem, 0, sizeof(mem));
 
-   mem.dwLength = sizeof(mem);
+    mem.dwLength = sizeof(mem);
 
-   ::GlobalMemoryStatus(&mem);
+    ::GlobalMemoryStatus(&mem);
 
-   TotalVisibleMemorySize = mem.dwAvailVirtual / 1024;
+    TotalVisibleMemorySize = mem.dwAvailVirtual / 1024;
 
-   return(TotalVisibleMemorySize);
+    return(TotalVisibleMemorySize);
 }
 
 Uint64 OperatingSystem::GetSizeStoredInPagingFiles(void) const
 {
-   Uint64 SizeStoredInPagingFiles = 0;
+    Uint64 SizeStoredInPagingFiles = 0;
 
-   MEMORYSTATUS mem;
+    MEMORYSTATUS mem;
 
-   ::memset(&mem, 0, sizeof(mem));
+    ::memset(&mem, 0, sizeof(mem));
 
-   mem.dwLength = sizeof(mem);
+    mem.dwLength = sizeof(mem);
 
-   ::GlobalMemoryStatus(&mem);
+    ::GlobalMemoryStatus(&mem);
 
-   SizeStoredInPagingFiles = mem.dwTotalPageFile / 1024;
+    SizeStoredInPagingFiles = mem.dwTotalPageFile / 1024;
 
-   return(SizeStoredInPagingFiles);
+    return(SizeStoredInPagingFiles);
 }
 
 Uint64 OperatingSystem::GetFreeSpaceInPagingFiles(void) const
 {
-   Uint64 FreeSpaceInPagingFiles = 0;
+    Uint64 FreeSpaceInPagingFiles = 0;
 
-   MEMORYSTATUS mem;
+    MEMORYSTATUS mem;
 
-   ::memset(&mem, 0, sizeof(mem));
+    ::memset(&mem, 0, sizeof(mem));
 
-   mem.dwLength = sizeof(mem);
+    mem.dwLength = sizeof(mem);
 
-   ::GlobalMemoryStatus(&mem);
+    ::GlobalMemoryStatus(&mem);
 
-   FreeSpaceInPagingFiles = mem.dwAvailPageFile / 1024;
+    FreeSpaceInPagingFiles = mem.dwAvailPageFile / 1024;
 
-   return(FreeSpaceInPagingFiles);
+    return(FreeSpaceInPagingFiles);
 }
 
 Uint64 OperatingSystem::GetMaxProcessMemorySize(void) const
 {
-   Uint64 MaxProcessMemorySize = 0;
+    Uint64 MaxProcessMemorySize = 0;
 
-   SYSTEM_INFO sys;
+    SYSTEM_INFO sys;
 
-   ::memset(&sys, 0, sizeof(sys));
+    ::memset(&sys, 0, sizeof(sys));
 
-   ::GetSystemInfo(&sys);
+    ::GetSystemInfo(&sys);
 
-   MaxProcessMemorySize = (DWORD(sys.lpMaximumApplicationAddress) - DWORD(sys.lpMinimumApplicationAddress)) / 1024;
+    MaxProcessMemorySize = (DWORD(sys.lpMaximumApplicationAddress) - DWORD(sys.lpMinimumApplicationAddress)) / 1024;
 
-   return(MaxProcessMemorySize);
+    return(MaxProcessMemorySize);
 }
 
 Boolean OperatingSystem::GetDistributed(void) const
 {
-   return(false);
+    return(false);
 }
 
 PEGASUS_NAMESPACE_END

@@ -614,6 +614,9 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     {
         CIMProperty referenceProperty = referenceClass.getProperty(i).clone();
 
+        // the propagated value only applies to class properties, not instances. set it to false.
+        referenceProperty.setPropagated(false);
+
         referenceInstance.addProperty(referenceProperty);
     }
 

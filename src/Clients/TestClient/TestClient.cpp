@@ -50,6 +50,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 String globalNamespace = "root/cimv2";
+static const char __NAMESPACE_NAMESPACE [] = "root";
 
 static const char CERTIFICATE[] = "server.pem";
 static const char RANDOMFILE[] = "ssl.rnd";
@@ -100,7 +101,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     {
 		 // cout << " Enumerate Namespaces " << className << endl;
 		 instanceNames = client.enumerateInstanceNames(
-		     globalNamespace, className);
+		     __NAMESPACE_NAMESPACE, className);
     
 		 cout << instanceNames.size() << " Namespaces" << endl;
 		 // Convert from CIMObjectPath to String form
@@ -155,7 +156,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 	    // Build the new instance
 	    CIMInstance newInstance(instanceName);
 	    newInstance.addProperty(CIMProperty("name", testNamespaceName));
-	    client.createInstance(globalNamespace, newInstance);
+	    client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
 	}
 	catch(CIMClientException& e)
 	{
@@ -175,9 +176,8 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 	try
 	{
 	    CIMObjectPath myReference(instanceName);
-	    cout << "CIMObjectPath for delete";
-	    XmlWriter::printValueReferenceElement(myReference, cout);
-	    client.deleteInstance(globalNamespace, myReference);
+	    cout << "Deleting namespace = " << instanceName << endl;
+	    client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
 	}
 	catch(CIMClientException& e)
 	{

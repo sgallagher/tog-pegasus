@@ -73,8 +73,9 @@ PEGASUS_NAMESPACE_BEGIN
     The constants representing the string literals.
 */
 
+static const char __NAMESPACE_NAMESPACE [] = "root";
 
-static const char NAMESPACE_NAME[] = "Name";
+static const char NAMESPACE_NAME [] = "Name";
 
 /**
     The constant representing the __namespace class name
@@ -87,7 +88,7 @@ void NamespaceProvider::createInstance(
         const CIMInstance& myInstance,
 	ResponseHandler<CIMObjectPath> & handler)
     {
-        PEG_METHOD_ENTER(TRC_CONFIG, "NamespaceProvider::createInstance()");
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::createInstance()");
 
 	KeyBinding        kb;
         String            keyName;
@@ -95,36 +96,14 @@ void NamespaceProvider::createInstance(
        //
        // check if the class name requested is correct
        //
-       if (!CIMName::equal(instanceReference.getClassName(), CLASSNAME))
+       if ((!CIMName::equal(instanceReference.getNameSpace(), __NAMESPACE_NAMESPACE)) ||
+           (!CIMName::equal(instanceReference.getClassName(), CLASSNAME)))
        {
 	   PEG_METHOD_EXIT();
 	   throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
 				       instanceReference.getClassName());
        }
-#ifdef NEVER
-       //
-       // validate key bindings
-       //
 
-       Array<KeyBinding> kbArray = instanceReference.getKeyBindings();
-       if ( (kbArray.size() != 1) ||
-	    (!String::equalNoCase(kbArray[0].getName(), NAMESPACE_NAME)) )
-       //instanceReference.print(cout);
-       //myInstance.print(cout);
-       {
-	   instanceReference.print(cout);
-	   PEG_METHOD_EXIT();
-	   throw PEGASUS_CIM_EXCEPTION(
-	       CIM_ERR_INVALID_PARAMETER,
-	       "Invalid instance name "	+
-	       ((kbArray.size() != 1) ?
-		String("Incorrect number of keys") :
-	         String(kbArray[0].getName())));
-       }
-
-       // Get the name property from the object
-       keyValue.assign(kbArray[0].getValue());
-#else
        try
        {
            Uint32 pos = myInstance.findProperty(NAMESPACE_NAME);
@@ -148,7 +127,6 @@ void NamespaceProvider::createInstance(
            throw InvalidParameter("Invalid property " 
                                          + String(NAMESPACE_NAME));
        }
-#endif
        Array<String> namespaceNames;
        try
        {
@@ -175,8 +153,8 @@ void NamespaceProvider::createInstance(
        // If found, put out error that cannot create twice.
        if(found)
        {
-	       PEG_METHOD_EXIT();
-	       throw PEGASUS_CIM_EXCEPTION(
+           PEG_METHOD_EXIT();
+           throw PEGASUS_CIM_EXCEPTION(
 		       CIM_ERR_ALREADY_EXISTS,
 		       String("Namespace \"") + keyValueString + "\"");
        }
@@ -194,8 +172,6 @@ void NamespaceProvider::createInstance(
            PEG_METHOD_EXIT();
            throw PEGASUS_CIM_EXCEPTION(
                    CIM_ERR_FAILED, e.getMessage());
-
-            //       String("Namespace \"") + keyValueString + "\"" + " creation error");
        }
 
        handler.deliver(instanceReference);
@@ -217,7 +193,17 @@ void NamespaceProvider::deleteInstance(
         String                  namespaceNameStr;
         Array<KeyBinding>       kbArray;
 
-        PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::deleteInstance");
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"NamespaceProvider::deleteInstance");
+       //
+       // check if the class name requested is correct
+       //
+       if ((!CIMName::equal(instanceName.getNameSpace(), __NAMESPACE_NAMESPACE)) ||
+           (!CIMName::equal(instanceName.getClassName(), CLASSNAME)))
+       {
+	   PEG_METHOD_EXIT();
+	   throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+				       instanceName.getClassName());
+       }
         // begin processing the request
         handler.processing();
 
@@ -308,7 +294,7 @@ void NamespaceProvider::getInstance(
         const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
     {
-        PEG_METHOD_ENTER(TRC_CONFIG, "NamespaceProvider::getInstance()");
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::getInstance()");
 
         Array<String>     propertyInfo;
         KeyBinding        kb;
@@ -318,7 +304,8 @@ void NamespaceProvider::getInstance(
         //
         // check if the class name requested is correct
         //
-        if (!CIMName::equal(instanceName.getClassName(), CLASSNAME))
+        if ((!CIMName::equal(instanceName.getNameSpace(), __NAMESPACE_NAMESPACE)) ||
+            (!CIMName::equal(instanceName.getClassName(), CLASSNAME)))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
@@ -365,36 +352,14 @@ void NamespaceProvider::getInstance(
 
 	if(!found)
 	{
-		PEG_METHOD_EXIT();
-		throw PEGASUS_CIM_EXCEPTION(
-			CIM_ERR_NOT_FOUND,
-			String("Namespace \"") + keyValue + "\"");
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND,
+		String("Namespace \"") + keyValue + "\"");
 	}
-
-
 
 
         // begin processing the request
         handler.processing();
-
-        //
-        // Get values for the property
-        //
-
-	/*************************
-        try
-        {
-            _configManager->getPropertyInfo(keyValue, propertyInfo);
-        }
-        catch (UnrecognizedConfigProperty& ucp)
-        {
-            PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_NOT_FOUND,
-                String("Configuration property \"") + keyValue + "\"");
-        }
-	**************/
-
 
 	//Set Name of Class
 	CIMInstance instance(CLASSNAME);
@@ -403,11 +368,6 @@ void NamespaceProvider::getInstance(
 	// construct the instance
 	//
 	instance.addProperty(CIMProperty(NAMESPACE_NAME, keyValue));
-	//instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
-	//instance.addProperty(CIMProperty(CURRENT_VALUE, propertyInfo[2]));
-	//instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
-	//instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
-	//    Boolean(propertyInfo[4]=="true"?true:false)));
 
 	handler.deliver(instance);
 
@@ -424,14 +384,15 @@ void NamespaceProvider::enumerateInstances(
         const CIMPropertyList& propertyList,
 	ResponseHandler<CIMInstance> & handler)
     {
-        PEG_METHOD_ENTER(TRC_CONFIG, "NamespaceProvider::enumerateInstances()");
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::enumerateInstances()");
         Array<CIMInstance> instanceArray;
         Array<String> propertyNames;
 
         //
         // check if the class name requested is PG_ConfigSetting
         //
-        if (!String::equalNoCase(CLASSNAME, ref.getClassName()))
+        if ((!CIMName::equal(ref.getNameSpace(), __NAMESPACE_NAMESPACE)) ||
+            (!CIMName::equal(ref.getClassName(), CLASSNAME)))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
@@ -444,7 +405,6 @@ void NamespaceProvider::enumerateInstances(
 
         try
         {
-
 	    namespaceNames = _repository->enumerateNameSpaces();
 
 	    // Build the instances. For now simply build the __Namespace instances
@@ -456,24 +416,9 @@ void NamespaceProvider::enumerateInstances(
                 CIMInstance        instance(CLASSNAME);
 
                 propertyInfo.clear();
-		/*
-                _configManager->getPropertyInfo(propertyNames[i], propertyInfo);
 
-                Array<KeyBinding> keyBindings;
-                keyBindings.append(KeyBinding(PROPERTY_NAME, propertyInfo[0],
-                    KeyBinding::STRING));
-                CIMObjectPath instanceName(ref.getHost(), ref.getNameSpace(),
-                    __NAMESPACE, keyBindings);
-                */
                 // construct the instance
                 instance.addProperty(CIMProperty(NAMESPACE_NAME, namespaceNames[i]));
-                //instance.addProperty(CIMProperty(DEFAULT_VALUE, propertyInfo[1]));
-                //instance.addProperty(CIMProperty(CURRENT_VALUE, propertyInfo[2]));
-                //instance.addProperty(CIMProperty(PLANNED_VALUE, propertyInfo[3]));
-                //instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
-                //    Boolean(propertyInfo[4]=="true"?true:false)));
-                //namedInstanceArray.append(
-                //    CIMNamedInstance(instanceName, instance));
                 instanceArray.append(instance);
             }
         }
@@ -497,7 +442,7 @@ void NamespaceProvider::enumerateInstanceNames(
         ResponseHandler<CIMObjectPath> & handler)
     {
         
-	PEG_METHOD_ENTER(TRC_CONFIG,
+	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "NamespaceProvider::enumerateInstanceNames()");
 
         Array<CIMObjectPath> instanceRefs;
@@ -511,7 +456,8 @@ void NamespaceProvider::enumerateInstanceNames(
 	const String& className = classReference.getClassName();
 	const String& nameSpace = classReference.getNameSpace();
 
-        if (!String::equalNoCase(CLASSNAME, className))
+        if ((!CIMName::equal(nameSpace, __NAMESPACE_NAMESPACE)) ||
+            (!CIMName::equal(className, CLASSNAME)))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION( CIM_ERR_NOT_SUPPORTED, className );
@@ -548,8 +494,8 @@ void NamespaceProvider::enumerateInstanceNames(
         catch(Exception& e)
         {
             // ATTN: Not sure how to handle this error
-            cout << "__Namespace Provider Exception ";
-            cout << e.getMessage() <<  endl;
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
         }
 	*/
         try

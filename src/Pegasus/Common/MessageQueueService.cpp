@@ -220,10 +220,19 @@ MessageQueueService::MessageQueueService(const char *name,
 MessageQueueService::~MessageQueueService(void)
 {
    _die = 1;
-   if (_incoming_queue_shutdown.value() == 0 )
-   {
-      _shutdown_incoming_queue();
-   }
+   // IBM-KR: This causes a new message (IO_CLOSE) to be spawned, which 
+   // doesn't get picked up anyone. The idea was that the message would be
+   // picked up handle_AsyncIoctl which closes the queue and does cleaning.
+   // That described behavior has never surfaced itself. If it does appear, 
+   // uncomment the if ( ..) { } block below.
+
+   // Note: The handle_AsyncIcotl does get called when force_shutdown(void) gets
+   // called during Pegasus shutdown procedure (in case you ever wondered).
+ 
+   //if (_incoming_queue_shutdown.value() == 0 )
+   //{
+   //   _shutdown_incoming_queue();
+   //}
    _callback_ready.signal();
 //   _callback_thread.join();
    
@@ -244,6 +253,11 @@ MessageQueueService::~MessageQueueService(void)
    }
    _meta_dispatcher_mutex.unlock();
    _polling_list.remove(this);
+   // Clean up in case there are extra stuff on the queue. 
+  while (_incoming.count())
+  {
+	delete _incoming.remove_first();
+  }
 } 
 
 void MessageQueueService::_shutdown_incoming_queue(void)

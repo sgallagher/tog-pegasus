@@ -23,6 +23,7 @@
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
 // Modified By: 
+//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +53,6 @@ NTPProviderSecurity::NTPProviderSecurity(const OperationContext & context)
 //------------------------------------------------------------------------------
 NTPProviderSecurity::~NTPProviderSecurity(void)
 {
-	delete this;    
 }    
 
 //------------------------------------------------------------------------------
@@ -67,30 +67,12 @@ NTPProviderSecurity::~NTPProviderSecurity(void)
 //											  		OPT_READ_WRITE or
 //											  		OPT_EXECUTE
 //
-// RETURN: TRUE, if user have privileges, otherwise FALSE
+// RETURN: TRUE, if user has privileges, otherwise FALSE
 //------------------------------------------------------------------------------
 Boolean
-NTPProviderSecurity::checkAccess(const String username, 
-                              const String filename,
-                              const String chkoper) 
+NTPProviderSecurity::checkAccess(const String filename,
+                                 const String chkoper) 
 {
     // Insert your code here
     return true;    
-}
-
-//------------------------------------------------------------------------------
-// FUNCTION: getUserContext
-//
-// REMARKS: Retrieves the context user name
-//
-// PARAMETERS: 
-//
-// RETURN: string that will contain the context user
-//------------------------------------------------------------------------------
-String
-NTPProviderSecurity::getUserContext() 
-{    
-	String user;
-	// Insert your code here
-    return user;   
 }

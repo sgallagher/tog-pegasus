@@ -88,7 +88,8 @@ NTPProviderSecurity::checkAccess(const String filename,
    		    okUser = (secUsername.size() > 0);
     char buffer[500];
     char *member;
-    gid_t grps[100];
+    // Groups array
+    Array<gid_t> grps;
     // store user id
 	uid_t user_id = -1; 
 	// store group id  - is there only one group id?
@@ -124,11 +125,11 @@ NTPProviderSecurity::checkAccess(const String filename,
 		// DLH set the group and user id
 		user_id = pwd->pw_uid;
 		group_id = pwd->pw_gid;
-	    memset(&grps, 0, sizeof(grps));
+        grps.clear();
         isRoot = (user_id == 0);
     
 	    if(!isRoot) {
-			grps[ngr++] = group_id;
+            grps.append(group_id);
 
 		    // Find the groups to which this user belongs and store the list in "member"
 			strValue.clear(); 
@@ -146,7 +147,7 @@ NTPProviderSecurity::checkAccess(const String filename,
 		        	strValue.assign(strMembers[i]);
 		        	ps = strValue.find(secUsername);
 		        	if(ps >= 0) {
-		            	grps[ngr++] = grp->gr_gid;
+                        grps.append(grp->gr_gid);
 		            	break;
 		            }
 		        }
@@ -198,7 +199,7 @@ NTPProviderSecurity::checkAccess(const String filename,
 		else if(user_id > 0) 
         {            
 			// Use getaccess to check permission instead of stat so that we get consistent response from OS
-			accessrights = getaccess( strTmp.getCString(), user_id, ngr, grps,(void *) 0,(void *) 0);
+			accessrights = getaccess( strTmp.getCString(), user_id, grps.size(), grps.getData(),(void *) 0,(void *) 0);
         	if ( accessrights == -1) 
 			// if error - just return with ok set to false
 				return ok;

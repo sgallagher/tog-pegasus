@@ -93,14 +93,14 @@ void NTPInfo::displayProperties()
 {
    // interesting properties are stored off in class variables
 
-   cout << "Network Time Protocol(NTP) Service Information" << endl;
+   cout << "Network Time Protocol (NTP) Service Information" << endl;
    cout << endl;
 
    // expect to have values for the keys (even if Unknown)
    cout << "  System Name                : " << ntpSystemName << endl;
    cout << "  System Creation Class Name : " << ntpSystemCreationClassName << endl;
    cout << "  Name                       : " << ntpName << endl;
-   cout << "  Create Class Name          : " << ntpCreationClassName << endl;
+   cout << "  Creation Class Name        : " << ntpCreationClassName << endl;
    cout << "  Caption                    : " << ntpCaption << endl;
    cout << "  Description                : " << ntpDescription << endl;
    if (ntpServerAddress.size() == 0)

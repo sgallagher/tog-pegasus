@@ -8,14 +8,53 @@
 </head>
 
 <body>
-<H1>Expanding the Pegasus Provider Interface Proposal</H1>
+<H1 align="center">Pegasus Project Working Paper</H1>
 
-Mike Brasher, Karl Schopmeyer, Chip Vincent
+<H1 align="center">Expanding the Pegasus Provider Interface Proposal</H1>
+
+<b>AUTHORS:</b> Mike Brasher, Karl Schopmeyer, Chip Vincent
 22 May 2001
+<p><font size="1">Last Update <!--webbot bot="Timestamp" startspan
+S-Type="EDITED" S-Format="%A, %B %d, %Y %I:%M %p" -->Thursday, May 31, 2001 02:38 PM<!--webbot
+bot="Timestamp" I-CheckSum="62134" endspan -->
+</font></p>
+<p>Revision Status</p>
+<table border="1" width="80%">
+  <tr>
+    <td width="25%">Revision</td>
+    <td width="25%">Date</td>
+    <td width="25%">Author(s)</td>
+    <td width="25%">Reason</td>
+  </tr>
+  <tr>
+    <td width="25%">1.0</td>
+    <td width="25%">20 May 2001</td>
+    <td width="25%">Karl</td>
+    <td width="25%">Original</td>
+  </tr>
+  <tr>
+    <td width="25%">1.1</td>
+    <td width="25%">30 May 2001</td>
+    <td width="25%">Karl</td>
+    <td width="25%">Add comments.</td>
+  </tr>
+  <tr>
+    <td width="25%">&nbsp;</td>
+    <td width="25%">&nbsp;</td>
+    <td width="25%">&nbsp;</td>
+    <td width="25%">&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="25%">&nbsp;</td>
+    <td width="25%">&nbsp;</td>
+    <td width="25%">&nbsp;</td>
+    <td width="25%">&nbsp;</td>
+  </tr>
+</table>
 
 <h2>Introduction</h2>
 
-We defined a set of interfaces for Pegasus providers based on the CIM Operations.
+We have already defined a set of interfaces for Pegasus providers based on the CIM Operations.
 
 We recognized several limitations in that first set of interfaces, particularly the fact that there was no easy path back to the CIMOM from the provider.  The initial interfaces provides a handle to get to the repository but not to put CIM operations back into the CIMOM.
 
@@ -62,10 +101,8 @@ In addition, there will be additional requirements for the provider to request
 information for things like system parameters, system state information, etc.
 <p>As part of this we also want to create a handle so that CIM Operations can be
 effecitively passed from the provider back to the Object Manager.</p>
-<p>&nbsp;</p>
 <p>We propose modifying both the provider context and adding an operational
 context parameter.&nbsp;&nbsp;</p>
-<p>&nbsp;</p>
 <h4>Provider Context</h4>
 <p>Today - one parameter, the CIM Repository handle provided with the initialize
 as follows:</p>
@@ -281,24 +318,68 @@ Would be modified simply be modified by removing the nameSpace parameter.
 </OL>
 <h3>Subdivide Provider Interface</h3>
 
-    TBD
+Today the provider interface consists of all of the possible operations gathered
+together.&nbsp; It has been requested that we break this down into multiple
+interfaces that represent the major catagory of provider
+<ol>
+  <li>Instance Provider</li>
+  <li>Property Provider</li>
+  <li>Method Provider</li>
+  <li>Association Provider</li>
+  <li>Indication Provider</li>
+</ol>
+<p>Generally the provider writers feel that they would prefer these simpler
+interfaces.&nbsp; The proposal made by IBM is that the operations be broken up
+as follows:</p>
+<ol>
+  <li>Instance Provider - All Instance operations</li>
+  <li>Property Provider - Get and Set Properyt</li>
+  <li>Method Provider - Invoke method</li>
+  <li>Association provider - The association and reference operations</li>
+  <li>Indication Provider - TBD</li>
+</ol>
+<p>This implies that a single provider that does all of the above then must set
+up interfaces for all of the different provider types.</p>
+<p>Today, the current interface has one provider type with all of the operations
+built in.&nbsp; In effect, we view this as our interpretation of the instance
+provider.&nbsp; It provides for instances and those other entities such as
+properties, etc.&nbsp;&nbsp; We can provide either type of interface or both (we
+are preparing a separate proposal on a solution to maintaining multiple provider
+interfaces.).</p>
 
-<h3>Terminate Provider Operation</h3>
+<h3>Terminate Provider Operations</h3>
 
-    This one is simple.  The method name is:
+Requirement: We need a way to quies providers - to tell them to stop what they
+are doing.&nbsp; This is probably not very important in the case of simple
+responding providers.&nbsp; They simply respond to requests and await the next
+request.&nbsp; However, providers that do their own monitoring, that establish
+and manage separate threads (and in the future remote providers) should be shut
+down systematically as part of the shutdown of the CIMOM environment.&nbsp;
+Thus, an additional provider interface is needed that can issue a terminate
+command.
+<p>
+
+    This one is simple.  The method name is:</p>
     <pre>
     Terminate();
     </pre>
 
-    It will be issued by the Object Manager to all active providers in the process of Object Manager shutdown.    
-    This means that ALL providers must implement this interface just as they must implement the <TT>Initialize()</TT> interface today.    
+    It will be issued by the Object Manager to all active providers in the process of Object Manager
+shutdown, possibly operator command, etc..&nbsp; Note that in the future when
+providers are visible through the CIM_Services objects, they could be stopped
+through methods attached to the provider CIM_Service objects. This means that ALL providers must implement this interface just as they must implement the <TT>Initialize()</TT> interface today.    
     Normally the requirement on the provider would be to stop any continuous operations that are in process and then return a response.
     
-    At this point we have not proposed any special requirements such as timers for shutdown,etc. 
+    At this point we have not proposed any special requirements such as timers for shutdown,etc.
+<p>Our proposed behavior is that the provider not return completion on this
+request until it has terminated operations and is prepared to be shutdonwn.</p>
+<p>QUESTION: Is this a problem?.&nbsp;</p>
 
 <h3>Indication Interface</h3>
 
 We will discuss this as part of another document on indication implementation.
+<p>&nbsp;</p>
+<p>---END OF _DOCUMENT---</p>
 </body>
 
 </html>

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMProvider.cpp,v $
+// Revision 1.2  2001/02/18 19:02:17  mike
+// Fixed CIM debacle
+//
 // Revision 1.1  2001/02/16 02:08:26  mike
 // Renamed several classes
 //
@@ -280,7 +283,7 @@ CIMValue CIMProvider::invokeMethod(
     return CIMValue();
 }
 
-void CIMProvider::initialize(Repository& repository)
+void CIMProvider::initialize(CIMRepository& repository)
 {
 
 }

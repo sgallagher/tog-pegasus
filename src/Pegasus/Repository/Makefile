@@ -14,6 +14,6 @@ LIBRARY = pegrepository
 
 SOURCES = \
     InstanceIndexFile.cpp \
-    CimRepository.cpp 
+    CIMRepository.cpp 
 
 include $(ROOT)/mak/library.mak

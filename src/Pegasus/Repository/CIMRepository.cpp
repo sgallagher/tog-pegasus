@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.2  2001/02/18 19:02:17  mike
+// Fixed CIM debacle
+//
 // Revision 1.1  2001/02/18 18:50:50  mike
 // new
 //
@@ -36,7 +39,7 @@
 // Added partial createInstance() method to repository.
 //
 // Revision 1.5  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in Repository
+// Added case insensitive logic for files in CIMRepository
 //
 // Revision 1.4  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
@@ -456,7 +459,7 @@ class RepositoryDeclContext : public DeclContext
 {
 public:
 
-    RepositoryDeclContext(Repository* repository);
+    RepositoryDeclContext(CIMRepository* repository);
 
     virtual ~RepositoryDeclContext();
 
@@ -470,10 +473,10 @@ public:
 
 private:
 
-    Repository* _repository;
+    CIMRepository* _repository;
 };
 
-RepositoryDeclContext::RepositoryDeclContext(Repository* repository) 
+RepositoryDeclContext::RepositoryDeclContext(CIMRepository* repository) 
     : _repository(repository)
 {
 
@@ -520,11 +523,11 @@ CIMClass RepositoryDeclContext::lookupClassDecl(
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Repository
+// CIMRepository
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Repository::Repository(const String& path)
+CIMRepository::CIMRepository(const String& path)
 {
     const char REPOSITORY[] = "/repository";
     _root = path;
@@ -539,12 +542,12 @@ Repository::Repository(const String& path)
     _context = new RepositoryDeclContext(this);
 }
 
-Repository::~Repository()
+CIMRepository::~CIMRepository()
 {
 
 }
 
-CIMClass Repository::getClass(
+CIMClass CIMRepository::getClass(
     const String& nameSpace,
     const String& className,
     Boolean localOnly,
@@ -565,7 +568,7 @@ CIMClass Repository::getClass(
     return CIMClass(classDecl);
 }
 
-CIMInstance Repository::getInstance(
+CIMInstance CIMRepository::getInstance(
     const String& nameSpace,
     const CIMReference& instanceName,
     Boolean localOnly,
@@ -577,7 +580,7 @@ CIMInstance Repository::getInstance(
     return CIMInstance();
 }
 
-void Repository::deleteClass(
+void CIMRepository::deleteClass(
     const String& nameSpace,
     const String& className)
 {
@@ -599,14 +602,14 @@ void Repository::deleteClass(
 	throw FailedToRemoveFile(path);
 }
 
-void Repository::deleteInstance(
+void CIMRepository::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
-void Repository::createClass(
+void CIMRepository::createClass(
     const String& nameSpace,
     CIMClass& newClass) 
 {
@@ -634,7 +637,7 @@ void Repository::createClass(
     _SaveObject(realPath, newClass);
 }
 
-void Repository::createInstance(
+void CIMRepository::createInstance(
     const String& nameSpace,
     CIMInstance& newInstance) 
 {
@@ -674,7 +677,7 @@ void Repository::createInstance(
     _SaveObject(path, newInstance);
 }
 
-void Repository::modifyClass(
+void CIMRepository::modifyClass(
     const String& nameSpace,
     CIMClass& modifiedClass) 
 {
@@ -699,14 +702,14 @@ void Repository::modifyClass(
     createClass(nameSpace, modifiedClass);
 }
 
-void Repository::modifyInstance(
+void CIMRepository::modifyInstance(
     const String& nameSpace,
     const CIMInstance& modifiedInstance) 
 {
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
-Array<CIMClass> Repository::enumerateClasses(
+Array<CIMClass> CIMRepository::enumerateClasses(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -728,7 +731,7 @@ Array<CIMClass> Repository::enumerateClasses(
     return result;
 }
 
-Array<String> Repository::enumerateClassNames(
+Array<String> CIMRepository::enumerateClassNames(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance)
@@ -778,7 +781,7 @@ Array<String> Repository::enumerateClassNames(
     return Array<String>();
 }
 
-Array<CIMInstance> Repository::enumerateInstances(
+Array<CIMInstance> CIMRepository::enumerateInstances(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -791,7 +794,7 @@ Array<CIMInstance> Repository::enumerateInstances(
     return Array<CIMInstance>();
 }
 
-Array<CIMReference> Repository::enumerateInstanceNames(
+Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className) 
 { 
@@ -799,7 +802,7 @@ Array<CIMReference> Repository::enumerateInstanceNames(
     return Array<CIMReference>();
 }
 
-Array<CIMInstance> Repository::execQuery(
+Array<CIMInstance> CIMRepository::execQuery(
     const String& queryLanguage,
     const String& query) 
 { 
@@ -807,7 +810,7 @@ Array<CIMInstance> Repository::execQuery(
     return Array<CIMInstance>();
 }
 
-Array<CIMInstance> Repository::associators(
+Array<CIMInstance> CIMRepository::associators(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& assocClass,
@@ -822,7 +825,7 @@ Array<CIMInstance> Repository::associators(
     return Array<CIMInstance>();
 }
 
-Array<CIMReference> Repository::associatorNames(
+Array<CIMReference> CIMRepository::associatorNames(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& assocClass,
@@ -834,7 +837,7 @@ Array<CIMReference> Repository::associatorNames(
     return Array<CIMReference>();
 }
 
-Array<CIMInstance> Repository::references(
+Array<CIMInstance> CIMRepository::references(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& resultClass,
@@ -847,7 +850,7 @@ Array<CIMInstance> Repository::references(
     return Array<CIMInstance>();
 }
 
-Array<CIMReference> Repository::referenceNames(
+Array<CIMReference> CIMRepository::referenceNames(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& resultClass,
@@ -857,7 +860,7 @@ Array<CIMReference> Repository::referenceNames(
     return Array<CIMReference>();
 }
 
-CIMValue Repository::getProperty(
+CIMValue CIMRepository::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName) 
@@ -866,7 +869,7 @@ CIMValue Repository::getProperty(
     return CIMValue();
 }
 
-void Repository::setProperty(
+void CIMRepository::setProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName,
@@ -875,7 +878,7 @@ void Repository::setProperty(
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
-CIMQualifierDecl Repository::getQualifier(
+CIMQualifierDecl CIMRepository::getQualifier(
     const String& nameSpace,
     const String& qualifierName) 
 {
@@ -901,7 +904,7 @@ CIMQualifierDecl Repository::getQualifier(
     return CIMQualifierDecl(qualifierDecl);
 }
 
-void Repository::setQualifier(
+void CIMRepository::setQualifier(
     const String& nameSpace,
     const CIMQualifierDecl& qualifierDecl) 
 {
@@ -927,7 +930,7 @@ void Repository::setQualifier(
     _SaveObject(realPath, qualifierDecl);
 }
 
-void Repository::deleteQualifier(
+void CIMRepository::deleteQualifier(
     const String& nameSpace,
     const String& qualifierName) 
 {
@@ -943,7 +946,7 @@ void Repository::deleteQualifier(
 	throw FailedToRemoveFile(path);
 }
 
-Array<CIMQualifierDecl> Repository::enumerateQualifiers(
+Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     const String& nameSpace)
 {
     // Build the path to the qualifiers directory:
@@ -976,7 +979,7 @@ Array<CIMQualifierDecl> Repository::enumerateQualifiers(
     return result;
 }
 
-CIMValue Repository::invokeMethod(
+CIMValue CIMRepository::invokeMethod(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& methodName,
@@ -993,7 +996,7 @@ CIMValue Repository::invokeMethod(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void Repository::createNameSpace(const String& nameSpace)
+void CIMRepository::createNameSpace(const String& nameSpace)
 {
     String path;
     _MakeNameSpacePath(_root, nameSpace, path);
@@ -1029,7 +1032,7 @@ void Repository::createNameSpace(const String& nameSpace)
 	throw CannotCreateDirectory(instancesDir);
 }
 
-Array<String> Repository::enumerateNameSpaces() const
+Array<String> CIMRepository::enumerateNameSpaces() const
 {
     Array<String> result;
 
@@ -1052,7 +1055,7 @@ Array<String> Repository::enumerateNameSpaces() const
 
 // Recall flavor defaults: TOSUBCLASS | OVERRIDABLE
 
-void Repository::createMetaQualifiers(const String& nameSpace)
+void CIMRepository::createMetaQualifiers(const String& nameSpace)
 {
     // CIMQualifier CimType : string = null, 
     //     CIMScope(property, parameter)

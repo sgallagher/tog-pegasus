@@ -1,18 +1,18 @@
 // 
 // interface definition for the cimmofRepository class, a specialiazation
-// of the Pegasus Repository class with error handling.
+// of the Pegasus CIMRepository class with error handling.
 //
 
 #ifndef _CIMMOFREPOSITORY_H_
 #define _CIMMOFREPOSITORY_H_
 
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Compiler/cimmofParser.h>
 
 using namespace Pegasus;
 
-class PEGASUS_COMPILER_LINKAGE cimmofRepository : public Repository {
+class PEGASUS_COMPILER_LINKAGE cimmofRepository : public CIMRepository {
  public:
   cimmofRepository(const String &path);
   ~cimmofRepository();

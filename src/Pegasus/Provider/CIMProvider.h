@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMProvider.h,v $
+// Revision 1.3  2001/02/18 19:02:17  mike
+// Fixed CIM debacle
+//
 // Revision 1.2  2001/02/18 02:49:00  mike
 // Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
 //
@@ -57,7 +60,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class Repository;
+class CIMRepository;
 
 class PEGASUS_PROVIDER_LINKAGE CIMProvider : public CIMOperations
 {
@@ -210,7 +213,7 @@ public:
 	passing the repository.
     */
 
-    virtual void initialize(Repository& repository);
+    virtual void initialize(CIMRepository& repository);
 };
 
 PEGASUS_NAMESPACE_END

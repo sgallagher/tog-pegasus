@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadRepository.cpp,v $
+// Revision 1.6  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.5  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -47,7 +50,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -64,7 +67,7 @@ static const String ROOT_NAMESPACE = "root";
 //
 //------------------------------------------------------------------------------
 
-Boolean ProcessValueObjectElement(Repository& repository, XmlParser& parser)
+Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
 {
     XmlEntry entry;
 
@@ -94,7 +97,7 @@ Boolean ProcessValueObjectElement(Repository& repository, XmlParser& parser)
 //
 //------------------------------------------------------------------------------
 
-Boolean ProcessDeclGroupElement(Repository& repository, XmlParser& parser)
+Boolean ProcessDeclGroupElement(CIMRepository& repository, XmlParser& parser)
 {
     XmlEntry entry;
 
@@ -118,7 +121,7 @@ Boolean ProcessDeclGroupElement(Repository& repository, XmlParser& parser)
 //
 //------------------------------------------------------------------------------
 
-Boolean ProcessDeclarationElement(Repository& repository, XmlParser& parser)
+Boolean ProcessDeclarationElement(CIMRepository& repository, XmlParser& parser)
 {
     XmlEntry entry;
 
@@ -145,7 +148,7 @@ Boolean ProcessDeclarationElement(Repository& repository, XmlParser& parser)
 //
 //------------------------------------------------------------------------------
 
-Boolean ProcessCimElement(Repository& repository, XmlParser& parser)
+Boolean ProcessCimElement(CIMRepository& repository, XmlParser& parser)
 {
     XmlEntry entry;
 
@@ -198,7 +201,7 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
     text.append('\0');
     XmlParser parser((char*)text.getData());
 
-    Repository repository(repositoryRoot);
+    CIMRepository repository(repositoryRoot);
     repository.createNameSpace(CIMV20_NAMESPACE);
     repository.createNameSpace(ROOT_NAMESPACE);
 

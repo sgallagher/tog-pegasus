@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.cpp,v $
+// Revision 1.3  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.2  2001/02/18 03:56:01  mike
 // Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
@@ -53,7 +56,7 @@
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Server/Dispatcher.h>
@@ -1190,7 +1193,7 @@ public:
 	return 0;
     }
 
-    Repository _repository;
+    CIMRepository _repository;
     Dispatcher* _dispatcher;
 };
 

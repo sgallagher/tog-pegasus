@@ -23,21 +23,24 @@
 // Author:
 //
 // $Log: NameSpace.cpp,v $
-// Revision 1.1  2001/01/14 19:53:58  mike
-// Initial revision
+// Revision 1.2  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
+// Revision 1.1.1.1  2001/01/14 19:53:58  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 using namespace Pegasus;
 using namespace std;
 
 void test()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     try
     {
@@ -72,7 +75,7 @@ void test()
 
 int main()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     try 
     {

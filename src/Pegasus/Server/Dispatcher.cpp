@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.cpp,v $
+// Revision 1.4  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.3  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -36,12 +39,12 @@
 //END_HISTORY
 
 #include "Dispatcher.h"
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 #include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-Dispatcher::Dispatcher(Repository* repository)
+Dispatcher::Dispatcher(CIMRepository* repository)
     : _repository(repository)
 {
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: EnumerateClassNames.cpp,v $
+// Revision 1.3  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.2  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -53,7 +56,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include <cassert>
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -70,7 +73,7 @@ void print(const Array<String>& array)
 
 void TestCase1()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     // Enumerate the class names:
 
@@ -91,7 +94,7 @@ void TestCase1()
 
 void TestCase2()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     // Enumerate the class names:
 
@@ -123,7 +126,7 @@ void TestCase2()
 
 void TestCase3()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     // Enumerate the class names:
 
@@ -145,7 +148,7 @@ void TestCase3()
 
 void TestCase4()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     // Enumerate the class names:
 
@@ -170,7 +173,7 @@ void TestCase4()
 }
 
 static void CreateClass(
-    Repository& r,
+    CIMRepository& r,
     const String& className, 
     const String superClassName = String())
 {
@@ -180,7 +183,7 @@ static void CreateClass(
 
 int main()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     try 
     {

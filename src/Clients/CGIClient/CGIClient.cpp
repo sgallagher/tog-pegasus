@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.13  2001/02/18 19:02:16  mike
+// Fixed CIM debacle
+//
 // Revision 1.12  2001/02/18 03:56:00  mike
 // Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
@@ -30,7 +33,7 @@
 // Renamed many classes and headers.
 //
 // Revision 1.10  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in Repository
+// Added case insensitive logic for files in CIMRepository
 //
 // Revision 1.9  2001/02/06 15:47:56  karl
 // add propety functions

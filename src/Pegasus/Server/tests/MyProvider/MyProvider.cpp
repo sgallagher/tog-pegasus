@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: MyProvider.cpp,v $
+// Revision 1.8  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.7  2001/02/18 02:49:01  mike
 // Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
 //
@@ -105,7 +108,7 @@ public:
 	return instanceNames;
     }
 
-    void initialize(Repository& repository)
+    void initialize(CIMRepository& repository)
     {
 	cout << "MyProvider::initialize() called" << endl;
     }

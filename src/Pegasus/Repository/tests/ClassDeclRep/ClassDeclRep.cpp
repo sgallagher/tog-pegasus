@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
+// Revision 1.4  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.3  2001/02/18 03:56:01  mike
 // Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
@@ -36,7 +39,7 @@
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/FileSystem.h>
 
 using namespace Pegasus;
@@ -44,7 +47,7 @@ using namespace std;
 
 void Test01()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     // Create a namespace:
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.h,v $
+// Revision 1.5  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.4  2001/02/18 02:49:01  mike
 // Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
 //
@@ -54,14 +57,14 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class Repository;
+class CIMRepository;
 class ProviderTable;
 
 class PEGASUS_SERVER_LINKAGE Dispatcher : public CIMOperations
 {
 public:
 
-    Dispatcher(Repository* repository);
+    Dispatcher(CIMRepository* repository);
     
     virtual ~Dispatcher();
 
@@ -208,7 +211,7 @@ private:
 	const String& nameSpace,
 	const String& className);
 
-    Repository* _repository;
+    CIMRepository* _repository;
     ProviderTable _providerTable;
 };
 

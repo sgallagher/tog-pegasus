@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: cimmofParser.cpp,v $
+// Revision 1.3  2001/02/18 19:02:17  mike
+// Fixed CIM debacle
+//
 // Revision 1.2  2001/02/18 02:45:49  mike
 // Added bison.simple to distribution so that there
 // would be no dependency on an external directory.
@@ -170,10 +173,10 @@ cimmofParser::setRepository(void) {
       try {
       _repository = new cimmofRepository(rep);
       } catch(CannotCreateDirectory &e) {
-	cerr << "Creating Repository: " << e.getMessage() << endl;
+	cerr << "Creating CIMRepository: " << e.getMessage() << endl;
 	return false;
       } catch(CimException &e) {
-	cerr << "Creating Repository: " << e.codeToString(e.getCode()) << 
+	cerr << "Creating CIMRepository: " << e.codeToString(e.getCode()) << 
 	  "(" << e.getMessage() << endl;
 	return false;
       } 
@@ -182,8 +185,8 @@ cimmofParser::setRepository(void) {
       } catch(AlreadyExists &) {
 	// OK, that's what we expect
       } catch(IllegalName &) {
-        cerr << "Creating Repository namespace: " << 
-	cerr << "Repository reported " << s << " is not a legal CIM name"
+        cerr << "Creating CIMRepository namespace: " << 
+	cerr << "CIMRepository reported " << s << " is not a legal CIM name"
 	     << endl;
 	return false;
       } catch(Exception &e) {
@@ -192,7 +195,7 @@ cimmofParser::setRepository(void) {
       }
     } else {
       //FIXME:  Bad repository name
-      cerr << "Internal Error: Bad Repository CIMName" << endl;
+      cerr << "Internal Error: Bad CIMRepository CIMName" << endl;
     }
   } else {
     // FIXME:  Invalid call -- somebody has to set the cmdline
@@ -216,7 +219,7 @@ cimmofParser::setCurrentNamespacePath(const String &path) {
 }
 
 //------------------------------------------------------------------
-// Return a pointer to our Repository object
+// Return a pointer to our CIMRepository object
 //------------------------------------------------------------------
 const cimmofRepository *
 cimmofParser::getRepository() const {

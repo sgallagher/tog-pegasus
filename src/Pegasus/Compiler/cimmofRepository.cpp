@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: cimmofRepository.cpp,v $
+// Revision 1.2  2001/02/18 19:02:17  mike
+// Fixed CIM debacle
+//
 // Revision 1.1  2001/02/16 23:59:09  bob
 // Initial checkin
 //
@@ -32,14 +35,14 @@
 // implementation of valueFactory 
 //
 //
-// Repository implementation for use in the cimmof compiler.
+// CIMRepository implementation for use in the cimmof compiler.
 // Basically, it adds compiler-level methods and provides error handling
 //
 
 #include "cimmofRepository.h"
 
 cimmofRepository::cimmofRepository(const String &path) :
-	Repository(path)
+	CIMRepository(path)
 {;}
 
 cimmofRepository::~cimmofRepository() {;}
@@ -48,7 +51,7 @@ int
 cimmofRepository::addClass(CIMClass *classdecl)
 {
   const String &Sns = (cimmofParser::Instance())->getNamespacePath();
-  Repository::createClass( Sns,  *classdecl);
+  CIMRepository::createClass( Sns,  *classdecl);
   // FIXME:  catch errors
   return 0;
 }
@@ -58,7 +61,7 @@ int
 cimmofRepository::addInstance(CIMInstance *instance)
 { 
   const String &Sns = (cimmofParser::Instance())->getNamespacePath();
-  Repository::createInstance(Sns, *instance);
+  CIMRepository::createInstance(Sns, *instance);
   // FIXME:  catch errors
   return 0;
 }
@@ -67,7 +70,7 @@ int
 cimmofRepository::addQualifier(CIMQualifierDecl *qualifier)
 { 
   const String &Sns = cimmofParser::Instance()->getNamespacePath();
-  Repository::setQualifier(Sns, *qualifier);
+  CIMRepository::setQualifier(Sns, *qualifier);
   // FIXME:  catch errors
   return 0; 
 }
@@ -76,7 +79,7 @@ CIMQualifierDecl
 cimmofRepository::getQualifierDecl(const String &name)
 {
   const String &Sns = cimmofParser::Instance()->getNamespacePath();
-  return Repository::getQualifier(Sns, name);
+  return CIMRepository::getQualifier(Sns, name);
 }
 
 

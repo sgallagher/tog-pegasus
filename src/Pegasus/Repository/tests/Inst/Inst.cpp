@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Inst.cpp,v $
+// Revision 1.5  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.4  2001/02/13 07:07:08  mike
 // new things
 //
@@ -40,7 +43,7 @@
 
 #include <fstream>
 #include <cassert>
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Repository/InstanceIndexFile.h>
 

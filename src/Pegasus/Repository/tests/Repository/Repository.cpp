@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.5  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.4  2001/02/18 03:56:01  mike
 // Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
@@ -39,14 +42,14 @@
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Repository/Repository.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 using namespace Pegasus;
 using namespace std;
 
 void test01()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     const String NAMESPACE = "aa/bb";
 
@@ -82,7 +85,7 @@ void test01()
 
 void test02()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     const String NAMESPACE = "aa/bb";
 
@@ -103,7 +106,7 @@ void test02()
 
 int main()
 {
-    Repository r(".");
+    CIMRepository r(".");
 
     try 
     {

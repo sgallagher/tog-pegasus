@@ -50,13 +50,13 @@ help() {
   cout << "  -E -- syntax check only." << endl;
   cout << "  -w -- suppress warnings." << endl;
   cout << "  -Rrepository -- specify the repository path." << endl;
-  cout << "  --Repository=repository -- specify repository path." << endl;
+  cout << "  --CIMRepository=repository -- specify repository path." << endl;
   cout << "  -Ipath -- specify an include path." << endl;
   cout << "  -ffile -- specify file containing a list of MOFs to compile."
        << endl;
   cout << " --file=file -- specify file containing list of MOFs." << endl;
-  cout << " -npath -- override the default Repository namespace." << endl;
-  cout << " --namespace=path -- override default Repository namespace." 
+  cout << " -npath -- override the default CIMRepository namespace." << endl;
+  cout << " --namespace=path -- override default CIMRepository namespace." 
        << endl;
   cout << " -t -- trace." << endl;
 }
@@ -88,7 +88,7 @@ optspecs[] = {{"", FILESPEC, false, true},
 {"I", INCLUDEPATH, false, true},
 {"Include", INCLUDEPATH, true, true},
 {"R", REPOSITORYNAME, false, true},
-{"Repository", REPOSITORYNAME, true, true},
+{"CIMRepository", REPOSITORYNAME, true, true},
 {"E", SYNTAXFLAG, false, true}, 
 {"w", SUPPRESSFLAG, false, true},
 {"t", TRACEFLAG, false, false},

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.cpp,v $
+// Revision 1.6  2001/02/18 19:02:17  mike
+// Fixed CIM debacle
+//
 // Revision 1.5  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
 //
@@ -30,7 +33,7 @@
 // removed some coments
 //
 // Revision 1.3  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in Repository
+// Added case insensitive logic for files in CIMRepository
 //
 // Revision 1.2  2001/01/25 02:12:05  mike
 // Added meta-qualifiers to LoadRepository program.

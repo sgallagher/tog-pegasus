@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.h,v $
+// Revision 1.2  2001/02/18 19:02:18  mike
+// Fixed CIM debacle
+//
 // Revision 1.1  2001/02/18 18:50:50  mike
 // new
 //
@@ -36,7 +39,7 @@
 // Added partial createInstance() method to repository.
 //
 // Revision 1.6  2001/02/11 05:45:33  mike
-// Added case insensitive logic for files in Repository
+// Added case insensitive logic for files in CIMRepository
 //
 // Revision 1.5  2001/02/08 00:31:51  mike
 // Clean up on CIMOperations class.
@@ -80,15 +83,15 @@ class RepositoryDeclContext;
     </pre>
 */
 
-class PEGASUS_REPOSITORY_LINKAGE Repository : public CIMOperations
+class PEGASUS_REPOSITORY_LINKAGE CIMRepository : public CIMOperations
 {
 public:
 
     /// Constructor
-    Repository(const String& path);
+    CIMRepository(const String& path);
 
     /// Descructor
-    virtual ~Repository();
+    virtual ~CIMRepository();
 
     /// virtual class CIMClass. From the operations class
     virtual CIMClass getClass(

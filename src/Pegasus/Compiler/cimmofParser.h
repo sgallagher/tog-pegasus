@@ -62,7 +62,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Set a default root namespace path for the repository
   void setDefaultNamespacePath(const String &path);
   void setCurrentNamespacePath(const String &path); // current override
-  // If someone wants a pointer to the Repository object, return it
+  // If someone wants a pointer to the CIMRepository object, return it
   const cimmofRepository *getRepository() const;
   const String &getDefaultNamespacePath() const;
   const String &getCurrentNamespacePath() const;

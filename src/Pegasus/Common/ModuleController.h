@@ -30,6 +30,7 @@
 #define Pegasus_Module_Controller_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/IPC.h>
@@ -80,7 +81,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 
 	    Message * module_receive_message(Message *msg);
 	    
-	    void _send_async_callback(Uint32 msg_handle, Message *msg);
+	    void _send_async_callback(Uint32 msg_handle, Message *msg, void *parm);
 	    
 	    void _send_shutdown_notify(void);
 	    void lock(void) { _thread_safety.lock(pegasus_thread_self()); }
@@ -141,7 +142,6 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
       virtual Boolean authorized(Uint32 operation);
       virtual Boolean authorized(void);
       
-      Boolean operator == (const pegasus_module *mod) const;
       Boolean operator == (const pegasus_module & mod) const ; 
       Boolean operator == (const String &  mod) const;
       Boolean operator == (const void *mod) const;
@@ -156,10 +156,13 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 
       module_rep *_rep;
 
-      pegasus_module(void);
+      pegasus_module(void)
+      {
+      }
+      
       Boolean _rcv_msg(Message *) ;
       Message * _receive_message(Message *msg);
-      void _send_async_callback(Uint32 msg_handle, Message *msg) ;
+      void _send_async_callback(Uint32 msg_handle, Message *msg, void *) ;
       void _send_shutdown_notify(void);
       Boolean _shutdown(void);
       bitset<32> _allowed_operations;
@@ -230,6 +233,25 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 	    
       };
       
+      class callback_handle 
+      {
+	 public:
+	    callback_handle(pegasus_module * module, void *parm)
+	       : _module(module), _parm(parm)
+	    {
+	    }
+	    
+	    ~callback_handle()
+	    {
+	       if( _module->get_name() == String(PEGASUS_CONTROL_TEMP_MODULE) )
+		  delete _module;
+	    }
+	    
+	    pegasus_module * _module;
+	    void *_parm;
+      };
+      
+      
    public:
       
 
@@ -244,8 +266,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 
       ~ModuleController(void);
 
-      static ModuleController & get_client_handle(const String & controller_name, 
-						  void **handle);
+
       
 
       // module api 
@@ -256,6 +277,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 						void (*async_callback)(Uint32, Message *, void *),
 						void (*shutdown_notify)(Uint32, void *), 
 						pegasus_module **instance = NULL) 
+
 	 throw(AlreadyExists, IncompatibleTypes);
 
       Boolean deregister_module(const String & module_name)
@@ -287,14 +309,16 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       Boolean ModuleSendAsync(pegasus_module & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 
-			      AsyncRequest *message) throw(Permission, IPCException);
+			      AsyncRequest *message, 
+			      void *callback_parm) throw(Permission, IPCException);
 
       // send an async message to another module via another service
       Boolean ModuleSendAsync(pegasus_module & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 
 			      String & destination_module,
-			      AsyncRequest *message) throw(Permission, IPCException);
+			      AsyncRequest *message, 
+			      void *callback_parm) throw(Permission, IPCException);
 
       void blocking_thread_exec(pegasus_module & handle,
 				PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
@@ -304,6 +328,54 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 			     void *parm) throw(Permission, Deadlock, IPCException);
 
       Boolean verify_handle(pegasus_module *);
+
+      static ModuleController & get_client_handle(const pegasus_identity & id, 
+						  client_handle **handle)
+	 throw(IncompatibleTypes);
+
+      void return_client_handle(client_handle *handle);
+      
+      // send a message to another service
+      AsyncReply *ClientSendWait(const client_handle & handle,
+				 Uint32 destination_q, 
+				 AsyncRequest *request) 
+	 throw(Permission, IPCException);
+      
+      // send a message to another module via another service
+      AsyncReply *ClientSendWait(const client_handle & handle,
+				 Uint32 destination_q,
+				 String & destination_module,
+				 AsyncRequest *message) 
+	 throw(Permission, Deadlock, IPCException);
+
+      // send an async message to another service
+      Boolean ClientSendAsync(const client_handle & handle,
+			      Uint32 msg_handle, 
+			      Uint32 destination_q, 
+			      AsyncRequest *message,
+			      void (*async_callback)(Uint32, Message *, void *) ,
+			      void *callback_parm)
+	 throw(Permission, IPCException);
+
+      // send an async message to another module via another service
+      Boolean ClientSendAsync(const client_handle & handle,
+			      Uint32 msg_handle, 
+			      Uint32 destination_q, 
+			      String & destination_module,
+			      AsyncRequest *message, 
+			      void (*async_callback)(Uint32, Message *, void *),
+			      void *callback_parm )
+	 throw(Permission, IPCException);
+
+      void client_blocking_thread_exec(const client_handle & handle,
+				       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+				       void *parm) 
+	 throw(Permission, Deadlock, IPCException);
+      void client_async_thread_exec(const client_handle & handle, 
+				    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+				    void *parm) 
+	 throw(Permission, Deadlock, IPCException);
+      
    protected:
       // ATTN-RK-P2-20010322:  These methods are pure virtual in superclass
       virtual void handleEnqueue(void) {}
@@ -311,10 +383,23 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       virtual void _handle_async_request(AsyncRequest *rq);
       virtual void _handle_async_callback(AsyncOpNode *op);
 
+
+      
+
    private:
       static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
       DQueue<pegasus_module> _modules;
       ThreadPool _thread_pool;
+      pegasus_module _internal_module;
+      AsyncReply *_send_wait(Uint32, AsyncRequest *);
+      AsyncReply *_send_wait(Uint32, String &, AsyncRequest *);
+      void _blocking_thread_exec(
+	 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+	 void *parm) ;
+      void _async_thread_exec(
+	 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+	 void *parm) ;
+      
 };
 
 

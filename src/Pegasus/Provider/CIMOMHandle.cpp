@@ -38,21 +38,27 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMOMHandle::CIMOMHandle(void)
-    : _service(0), _cimom(0)
+   : _service(0), _cimom(0), _id(peg_credential_types::PROVIDER)
 {
+   _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+   if(_client_handle == NULL)
+      ThrowUnitializedHandle();
+   
 }
 
 CIMOMHandle::CIMOMHandle(MessageQueueService * service)
-    : _service(service), _cimom(0)
+   : _service(service), _cimom(0), _id(peg_credential_types::PROVIDER)
 {
     MessageQueue * queue = MessageQueue::lookup("CIMOpRequestDispatcher");
 
     _cimom = dynamic_cast<MessageQueueService *>(queue);
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
 
-    if((_service == 0) || (_cimom == 0))
+    if((_service == 0) || (_cimom == 0) || (_client_handle == NULL))
     {
 	ThrowUnitializedHandle();
     }
+
 }
 
 CIMOMHandle::~CIMOMHandle(void)
@@ -70,6 +76,16 @@ CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
     _cimom = handle._cimom;
 
     return(*this);
+}
+
+
+void CIMOMHandle::async_callback(Uint32 user_data, 
+				 Message *reply, 
+				 void *parm)
+{
+   callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
+   cb_data->reply = reply;
+   cb_data->client_sem.signal();
 }
 
 CIMClass CIMOMHandle::getClass(
@@ -99,32 +115,43 @@ CIMClass CIMOMHandle::getClass(
 	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
     // create an op node
-    AsyncOpNode * op = _service->get_op();
+    //    AsyncOpNode * op = _service->get_op();
+
+    callback_data *cb_data = new callback_data(this);
+    
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
 	new AsyncLegacyOperationStart (
 	    _service->get_next_xid(),
-	    op,
+	    NULL,
 	    _cimom->getQueueId(),
 	    request,
 	    _cimom->getQueueId());
 
-    // send request and wait for response
-    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
-
-    CIMGetClassResponseMessage * response =
-	reinterpret_cast<CIMGetClassResponseMessage *>(
-	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-
-    //_service->return_op(op);
-
-    delete asyncRequest;
-    delete asyncReply;
-
-    CIMClass cimClass = response->cimClass;
-
-    return(cimClass);
+    if( false  == _controller->ClientSendAsync(*_client_handle, 
+					     0, 
+					     _cimom->getQueueId(),
+					     asyncRequest,
+					     async_callback,
+					     (void *)cb_data) )
+    {
+       delete asyncRequest;
+       delete cb_data;
+       throw CIMException(CIM_ERR_NOT_FOUND);
+       
+    }
+       cb_data->client_sem.wait();
+       AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->reply) ;
+       CIMGetClassResponseMessage * response =
+	  reinterpret_cast<CIMGetClassResponseMessage *>(
+	     (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+       CIMClass cimClass = response->cimClass;
+       delete asyncRequest;
+       delete asyncReply;
+       delete response;
+       delete cb_data;
+       return(cimClass);
 }
 
 void CIMOMHandle::getClassAsync(

@@ -32,7 +32,8 @@
 #define Pegasus_CIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+//#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -46,7 +47,34 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
-public:
+   public:
+
+      class callback_data
+      {
+	 public:
+
+	    
+	    Message *reply;
+	    Semaphore client_sem;
+	    CIMOMHandle & cimom_handle;
+	    
+	    callback_data(CIMOMHandle *handle)
+	       : reply(0), client_sem(0), cimom_handle(*handle)
+	    {
+
+	    }
+	    ~callback_data() 
+	    {
+	       delete reply;
+	    }
+	 private:
+	    callback_data(void);
+      };
+
+
+      static void async_callback(Uint32 user_data, Message *reply, void *parm);
+      
+
     /** */
     CIMOMHandle(void);
 
@@ -371,10 +399,12 @@ public:
 	ResponseHandler<CIMValue> & handler);
     */
 
-protected:
-    MessageQueueService * _service;
-    MessageQueueService * _cimom;
-
+   protected:
+      MessageQueueService * _service;
+      MessageQueueService * _cimom;
+      pegasus_internal_identity _id;
+      ModuleController * _controller;
+      ModuleController::client_handle *_client_handle;
 };
 
 PEGASUS_NAMESPACE_END

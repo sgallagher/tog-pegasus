@@ -79,10 +79,10 @@ Message * pegasus_module::module_rep::module_receive_message(Message *msg)
    return ret;
 }
 
-void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message *msg)
+void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message *msg, void *parm)
 {
    _thread_safety.lock(pegasus_thread_self());
-   try  { _async_callback(msg_handle, msg, _module_address); }
+   try  { _async_callback(msg_handle, msg, parm); }
    catch(...) { _thread_safety.unlock(); throw; }
 }
  
@@ -182,14 +182,6 @@ pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
    return *this;
 }
 
-Boolean pegasus_module::operator== (const pegasus_module *mod) const
-{
-   if(mod->_rep == _rep)
-      return true;
-   return false;
-}
-
-
 Boolean pegasus_module::operator== (const pegasus_module & mod) const 
 {
    if( mod._rep == _rep )
@@ -237,9 +229,9 @@ Message * pegasus_module::_receive_message(Message *msg)
    return _rep->module_receive_message(msg);
 }
 
-void pegasus_module::_send_async_callback(Uint32 msg_handle, Message *msg) 
+void pegasus_module::_send_async_callback(Uint32 msg_handle, Message *msg, void *parm) 
 {
-   _rep->_send_async_callback(msg_handle, msg);
+   _rep->_send_async_callback(msg_handle, msg, parm);
 }
 
 void pegasus_module::_send_shutdown_notify(void)
@@ -303,7 +295,8 @@ ModuleController::ModuleController(const char *name )
 	 module_capabilities::async),
     _modules(true),
    _thread_pool(2, "Module Controller",  1, 10,
-                createTime, destroyTime, deadlockTime)   
+                createTime, destroyTime, deadlockTime),
+    _internal_module(this, String("INTERNAL"), this, NULL, NULL, NULL)
 { 
 
 }
@@ -472,6 +465,11 @@ Boolean ModuleController::verify_handle(pegasus_module *handle)
    pegasus_module *module;
    Boolean ret = false;
    
+   // ATTN change to use authorization and the pegasus_id class
+   // << Fri Apr  5 12:43:19 2002 mdd >>
+   if( handle->_rep->_module_address == (void *)this)
+      return true;
+   
    _modules.lock();
    module = _modules.next(0);
    while(module != NULL)
@@ -556,6 +554,15 @@ pegasus_module * ModuleController::get_module_reference(pegasus_module & my_hand
 }
 
 
+AsyncReply *ModuleController::_send_wait(Uint32 destination_q, 
+					 AsyncRequest *request)
+{
+   request->dest = destination_q;
+   AsyncReply *reply = Base::SendWait(request);
+   return reply;
+}
+
+
 // sendwait to another service
 AsyncReply * ModuleController::ModuleSendWait(pegasus_module & handle, 
 					      Uint32 destination_q,
@@ -565,22 +572,13 @@ AsyncReply * ModuleController::ModuleSendWait(pegasus_module & handle,
    if ( false == verify_handle(&handle))
       throw(Permission(pegasus_thread_self()));
 
-   request->dest = destination_q;
-   AsyncReply *reply = Base::SendWait(request);
-   return reply;
+   return _send_wait(destination_q, request);
 }
 
-// sendwait to another module controlled by another service. 
-// throws Deadlock() if destination_q is this->queue_id
-AsyncReply * ModuleController::ModuleSendWait(pegasus_module & handle, 
-					      Uint32 destination_q, 
-					      String & destination_module,
-					      AsyncRequest *message)
-   throw(Permission, Deadlock, IPCException)
+AsyncReply *ModuleController::_send_wait(Uint32 destination_q, 
+					 String & destination_module, 
+					 AsyncRequest *message)
 {
-   if ( false == verify_handle(&handle))
-      throw(Permission(pegasus_thread_self()));
-   
    AsyncModuleOperationStart *request = 
       new AsyncModuleOperationStart(get_next_xid(),
 				    0, 
@@ -589,7 +587,7 @@ AsyncReply * ModuleController::ModuleSendWait(pegasus_module & handle,
 				    true, 
 				    destination_module,
 				    message);
-    
+   
    request->dest = destination_q;
    AsyncModuleOperationResult *response = 
       static_cast<AsyncModuleOperationResult *>(SendWait(request));
@@ -607,6 +605,21 @@ AsyncReply * ModuleController::ModuleSendWait(pegasus_module & handle,
    return ret;
 }
 
+
+// sendwait to another module controlled by another service. 
+// throws Deadlock() if destination_q is this->queue_id
+AsyncReply * ModuleController::ModuleSendWait(pegasus_module & handle, 
+					      Uint32 destination_q, 
+					      String & destination_module,
+					      AsyncRequest *message)
+   throw(Permission, Deadlock, IPCException)
+{
+   if ( false == verify_handle(&handle))
+      throw(Permission(pegasus_thread_self()));
+   
+   return _send_wait(destination_q, destination_module, message);
+}
+
 void ModuleController::_async_handleEnqueue(AsyncOpNode *op, 
 					    MessageQueue *q, 
 					    void *parm)
@@ -614,7 +627,7 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    ModuleController *myself = static_cast<ModuleController *>(q);
    Message *request = op->get_request();
    Message *response = op->get_response();
-   pegasus_module *mod = reinterpret_cast<pegasus_module *>(parm);
+
    if( ! (request->getMask() & message_mask::ha_async) )
       throw TypeMismatch();
    if( ! (response->getMask() & message_mask::ha_async) )
@@ -641,9 +654,13 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
       response->setRouting(rp->getRouting());
       delete rp;
    }
-   
 
-   mod->_send_async_callback(request->getRouting(), response);
+
+   callback_handle *cb = reinterpret_cast<callback_handle *>(parm);
+   
+   cb->_module->_send_async_callback(request->getRouting(), response, cb->_parm);
+   delete cb;
+   
    return;
 }
 
@@ -652,7 +669,8 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
 Boolean ModuleController::ModuleSendAsync(pegasus_module & handle,
 					  Uint32 msg_handle, 
 					  Uint32 destination_q, 
-					  AsyncRequest *message) 
+					  AsyncRequest *message, 
+					  void *callback_parm) 
    throw(Permission, IPCException)
 {
    
@@ -665,6 +683,8 @@ Boolean ModuleController::ModuleSendAsync(pegasus_module & handle,
       message->op->put_request(message);
    }
 
+   callback_handle *cb = new callback_handle(&handle, callback_parm);
+   
    message->setRouting(msg_handle);
    message->resp = getQueueId();
    message->block = false;
@@ -673,7 +693,7 @@ Boolean ModuleController::ModuleSendAsync(pegasus_module & handle,
 		    destination_q,
 		    _async_handleEnqueue,
 		    this,
-		    &handle);
+		    cb);
 }
 
 // send a message to a module within another service asynchronously 
@@ -681,7 +701,8 @@ Boolean ModuleController::ModuleSendAsync(pegasus_module & handle,
 					  Uint32 msg_handle, 
 					  Uint32 destination_q, 
 					  String & destination_module,
-					  AsyncRequest *message) 
+					  AsyncRequest *message, 
+					  void *callback_parm) 
    throw(Permission, IPCException)
 {
    
@@ -698,24 +719,45 @@ Boolean ModuleController::ModuleSendAsync(pegasus_module & handle,
 				    destination_module,
 				    message);
    request->dest = destination_q;
+   callback_handle *cb = new callback_handle(&handle, callback_parm); 
    return SendAsync(op, 
 		    destination_q,
 		    _async_handleEnqueue,
 		    this,
-		    &handle);
+		    &cb);
 }
 
-void ModuleController::blocking_thread_exec(pegasus_module & handle, 
-					    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
-					    void *parm) throw(Permission, Deadlock, IPCException)
+void ModuleController::_blocking_thread_exec(
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+   void *parm) 
 {
-   if ( false == verify_handle(&handle))
-      throw(Permission(pegasus_thread_self()));
    Semaphore *blocking_sem = new Semaphore(0);
    _thread_pool.allocate_and_awaken(parm, thread_func, blocking_sem);
    blocking_sem->wait();
-   return;
+   delete blocking_sem;
 }
+
+
+void ModuleController::blocking_thread_exec(
+   pegasus_module & handle, 
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+   void *parm) throw(Permission, Deadlock, IPCException)
+{
+   if ( false == verify_handle(&handle))
+      throw(Permission(pegasus_thread_self()));
+   _blocking_thread_exec(thread_func, parm);
+   
+}
+
+
+void ModuleController::_async_thread_exec(
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+   void *parm) 
+{
+   _thread_pool.allocate_and_awaken(parm, thread_func);
+}
+
+
 
 void ModuleController::async_thread_exec(pegasus_module & handle, 
 					    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
@@ -723,8 +765,7 @@ void ModuleController::async_thread_exec(pegasus_module & handle,
 {
    if ( false == verify_handle(&handle))
       throw(Permission(pegasus_thread_self()));
-   _thread_pool.allocate_and_awaken(parm, thread_func);
-   return;
+   _async_thread_exec(thread_func, parm);
 }
 
 void ModuleController::_handle_async_request(AsyncRequest *rq)
@@ -784,6 +825,146 @@ void ModuleController::_handle_async_callback(AsyncOpNode *op)
 }
 
 
+// called by a non-module client to get the interface and authorization to use the controller
+
+ModuleController & ModuleController::get_client_handle(const pegasus_identity & id, 
+						       client_handle **handle) 
+   throw(IncompatibleTypes)
+{
+   
+   if(handle == NULL)
+      throw NullPointer();
+      
+   Array<Uint32> services;
+   
+   MessageQueue *message_queue = MessageQueue::lookup(PEGASUS_SERVICENAME_CONTROLSERVICE);
+   
+   if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
+   {
+      throw IncompatibleTypes();
+   }
+
+   MessageQueueService *service = static_cast<MessageQueueService *>(message_queue);
+   if( (service == NULL) ||  ! ( service->get_capabilities() & module_capabilities::module_controller ))
+   {
+      throw IncompatibleTypes();
+   }
+
+   ModuleController *controller = static_cast<ModuleController *>(service);
+   if(true == const_cast<pegasus_identity &>(id).authenticate())
+      *handle = new client_handle(id);
+   else
+      *handle = NULL;
+   
+   return *controller;
+}
+
+
+void ModuleController::return_client_handle(client_handle *handle)
+{
+   delete handle;
+}
+
+
+// send a message to another service
+AsyncReply *ModuleController::ClientSendWait(const client_handle & handle,
+					     Uint32 destination_q, 
+					     AsyncRequest *request) 
+   throw(Permission, IPCException)
+{
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_WAIT)) 
+      throw Permission(pegasus_thread_self());
+   return _send_wait(destination_q, request);
+}
+
+
+// send a message to another module via another service
+AsyncReply *ModuleController::ClientSendWait(const client_handle & handle,
+					     Uint32 destination_q,
+					     String & destination_module,
+					     AsyncRequest *request) 
+   throw(Permission, Deadlock, IPCException)
+{
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_WAIT_MODULE)) 
+      throw Permission(pegasus_thread_self());
+   return _send_wait(destination_q, destination_module, request);
+}
+
+
+// send an async message to another service
+Boolean ModuleController::ClientSendAsync(const client_handle & handle,
+					  Uint32 msg_handle, 
+					  Uint32 destination_q, 
+					  AsyncRequest *message,
+					  void (*async_callback)(Uint32, Message *, void *) ,
+					  void *callback_parm)
+   throw(Permission, IPCException)
+{
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC)) 
+      throw Permission(pegasus_thread_self());
+   pegasus_module *temp = new pegasus_module(this, 
+					     String(PEGASUS_CONTROL_TEMP_MODULE),
+					     this, 
+					     0, 
+					     async_callback, 
+					     0);
+   return ModuleSendAsync( *temp, 
+			   msg_handle, 
+			   destination_q, 
+			   message, 
+			   callback_parm);
+}
+
+
+// send an async message to another module via another service
+Boolean ModuleController::ClientSendAsync(const client_handle & handle,
+					  Uint32 msg_handle, 
+					  Uint32 destination_q, 
+					  String & destination_module,
+					  AsyncRequest *message, 
+					  void (*async_callback)(Uint32, Message *, void *),
+					  void *callback_parm)
+   throw(Permission, IPCException)
+{
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC_MODULE)) 
+      throw Permission(pegasus_thread_self());
+   
+   pegasus_module *temp = new pegasus_module(this, 
+					     String(PEGASUS_CONTROL_TEMP_MODULE),
+					     this, 
+					     0, 
+					     async_callback, 
+					     0);
+   return ModuleSendAsync(*temp, 
+			  msg_handle, 
+			  destination_q, 
+			  destination_module,
+			  message,
+			  callback_parm);
+}
+
+
+void ModuleController::client_blocking_thread_exec(
+   const client_handle & handle,
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+   void *parm) throw(Permission, Deadlock, IPCException)
+{
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_BLOCKING_THREAD_EXEC)) 
+      throw Permission(pegasus_thread_self());
+   _blocking_thread_exec(thread_func, parm);
+   
+}
+
+void ModuleController::client_async_thread_exec(
+   const client_handle & handle, 
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+   void *parm)    throw(Permission, Deadlock, IPCException)
+{
+
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_ASYNC_THREAD_EXEC)) 
+      throw Permission(pegasus_thread_self());
+   _async_thread_exec(thread_func, parm);
+}
 
 
 PEGASUS_NAMESPACE_END

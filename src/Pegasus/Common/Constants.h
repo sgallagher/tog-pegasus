@@ -40,6 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_SERVICENAME_CIMOPREQAUTHORIZER  "CIMOpRequestAuthorizer"
 #define PEGASUS_SERVICENAME_HTTPAUTHDELEGATOR   "HTTPAuthenticatorDelegator"
 #define PEGASUS_SERVICENAME_CONTROLSERVICE      "ControlService"
+#define PEGASUS_CONTROL_TEMP_MODULE             "ControlService::temp::do not use this name"
 #define PEGASUS_SERVICENAME_INDICATIONSERVICE   "Server::IndicationService"
 #define PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP "Server::ProviderManagerService"
 #define PEGASUS_SERVICENAME_HANDLERMANAGER      "IndicationHandlerService"

@@ -62,11 +62,25 @@ tests:  repo_build run_test clean
 	@ $(ECHO) $(TESTNAME) +++++ FINISHED with test
 else
 
-tests:
+tests: repo_compress_compile repo_build run_test clean repo_regular_compile
+	@ $(ECHO) $(TESTNAME) +++++ FINISHED with test
 
 endif
 
-
+#
+# used to compile the repository for compression
+#
+repo_compress_compile:
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend PEGASUS_COMPRESS_REPOSITORY=1
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository PEGASUS_COMPRESS_REPOSITORY=1
+#
+# used to compile the repository for no compression
+#
+repo_regular_compile:
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend 
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository 
 
 
 #

@@ -91,38 +91,43 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE SignalHandler
 {
-   public:
-      SignalHandler();
+public:
+    SignalHandler();
 
-      ~SignalHandler(); // deactivate all registered handlers
+    ~SignalHandler(); // deactivate all registered handlers
 
-      // these functions should throw exceptions
+    // these functions should throw exceptions
 
-      void registerHandler(Uint32 signum, signal_handler _sighandler);
+    void registerHandler(Uint32 signum, signal_handler _sighandler);
 
-      void activate(Uint32 signum);
+    void activate(Uint32 signum);
 
-      //void activateAll();
+    //void activateAll();
 
-      void deactivate(Uint32 signum);
+    void deactivate(Uint32 signum);
 
-      void deactivateAll();
+    void deactivateAll();
 
-      static void ignore(Uint32 signum);
+    static void ignore(Uint32 signum);
 
-   private:
+private:
 
 #ifdef PEGASUS_HAS_SIGNALS
-      typedef struct {
-          int active;
-          signal_handler sh;
-          struct sigaction oldsa;
-      } register_handler;
+    static const unsigned PEGASUS_NSIG = 32;
 
-      register_handler reg_handler[32];
-      Mutex reg_mutex;
+    typedef struct {
+        int signum;
+        int active;
+        signal_handler sh;
+        struct sigaction oldsa;
+    } register_handler;
 
-      void deactivate_i(Uint32 signum);
+    register_handler reg_handler[PEGASUS_NSIG + 1];
+    Mutex reg_mutex;
+
+    void deactivate_i(register_handle &rh);
+
+    register_handler &getHandler(Uint32 sigum) const;
 #endif
 
 };

@@ -288,7 +288,7 @@ public:
     @exception Throw OutOfBound exception if the index is outside
     the range of existing qualifier objects for this class
     */
-    void removeQualifier(Uint32 pos) const
+    void removeQualifier(Uint32 pos)
     {
 	_checkRep();
 	_rep->removeQualifier(pos);
@@ -476,7 +476,7 @@ public:
     @exception Throw OutOfBound exception if the index is outside
     the range of existing method objects for this class
     */
-    void removeMethod(Uint32 pos) const
+    void removeMethod(Uint32 pos)
     {
 	_checkRep();
 	_rep->removeMethod(pos);

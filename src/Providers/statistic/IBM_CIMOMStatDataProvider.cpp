@@ -46,7 +46,7 @@ void IBM_CIMOMStatDataProvider::initialize(CIMOMHandle & cimom)
       char buffer[32];
       sprintf(buffer, "%d", i);
       _references[i] = CIMObjectPath(
-        "IBM_CIMOMStatData.instancdID=\"IBM_CIMOMStatData"+String(buffer)+"\"");
+        "IBM_CIMOMStatData.InstanceID=\"IBM_CIMOMStatData"+String(buffer)+"\"");
    }
 
 }
@@ -167,7 +167,7 @@ CIMInstance IBM_CIMOMStatDataProvider::getInstance(Uint16 type)
       CIMValue(String("CIMOM performance statistics for CIM request type <reqx>"))));
    requestedInstance.addProperty(CIMProperty("Caption",
       CIMValue(String("CIMOM performance statistics for CIM request type <reqx>"))));
-   requestedInstance.addProperty(CIMProperty("InstanceId",
+   requestedInstance.addProperty(CIMProperty("InstanceID",
       CIMValue("IBM_CIMOMStatData"+String(buffer))));
    requestedInstance.addProperty(CIMProperty("Name",
       CIMValue(StatisticalData::requestName[type])));

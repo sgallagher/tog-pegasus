@@ -107,7 +107,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
   ConfigManager::setPegasusHome(pegasusHome);
 
   ConfigManager* configManager = ConfigManager::getInstance();
-  
+  configManager->useConfigFiles = true;
   int dummy = 0;
 
   try

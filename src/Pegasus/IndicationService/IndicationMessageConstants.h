@@ -155,6 +155,24 @@ static const char _MSG_NON_PRIVILEGED_ACCESS_DISABLED [] =
 static const char _MSG_NON_PRIVILEGED_ACCESS_DISABLED_KEY [] =
     "IndicationService.IndicationService._MSG_NON_PRIVILEGED_ACCESS_DISABLED";
 
+static const char _MSG_ARRAY_NOT_SUPPORTED_IN_WHERE [] =
+    "Array property $0 is not supported in the WQL WHERE clause";
+
+static const char _MSG_ARRAY_NOT_SUPPORTED_IN_WHERE_KEY [] =
+    "IndicationService.IndicationService._MSG_ARRAY_NOT_SUPPORTED_IN_WHERE";
+
+static const char _MSG_WHERE_PROPERTY_NOT_FOUND [] =
+    "Property $0 referenced in the WQL WHERE clause was not found in the indication class $1";
+
+static const char _MSG_WHERE_PROPERTY_NOT_FOUND_KEY [] =
+    "IndicationService.IndicationService._MSG_WHERE_PROPERTY_NOT_FOUND";
+
+static const char _MSG_SELECT_PROPERTY_NOT_FOUND [] =
+    "Property $0 referenced in the WQL SELECT clause was not found in the indication class $1";
+
+static const char _MSG_SELECT_PROPERTY_NOT_FOUND_KEY [] =
+    "IndicationService.IndicationService._MSG_SELECT_PROPERTY_NOT_FOUND";
+
 PEGASUS_NAMESPACE_END
 
 #endif  /* Pegasus_IndicationMessageConstants_h */

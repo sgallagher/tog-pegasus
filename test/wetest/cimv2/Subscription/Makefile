@@ -40,6 +40,7 @@ XMLSCRIPTS = \
     CreateFilter07 CreateFilter08 CreateFilter09 CreateFilter10 \
     CreateFilter11 CreateFilter12 CreateFilter14 \
     CreateFilter16 CreateFilter17 CreateFilter18 \
+    CreateFilter19 CreateFilter20 CreateFilter21 \
     CreateHandler04 CreateHandler05 CreateHandler06 CreateHandler07 \
     CreateHandler08 \
     CreateHandler10 CreateHandler11 CreateHandler12 CreateHandler13 \

@@ -2925,6 +2925,87 @@ Boolean IndicationService::_canCreate (
                 _getSelectStatement (filterQuery);
             CIMName indicationClassName = _getIndicationClassName 
                 (selectStatement, sourceNameSpace);
+
+            //
+            //  Validate properties in the WHERE clause
+            //  Properties referenced in the WQL WHERE clause may not be array 
+            //  properties, and must exist in the indication class referenced 
+            //  in the FROM clause
+            //
+            CIMClass indicationClass = _subscriptionRepository->getClass
+                (sourceNameSpace, indicationClassName,
+                false, false, false, CIMPropertyList ());
+            Uint16 numWhereProperties =
+                selectStatement.getWherePropertyNameCount ();
+            for (Uint32 i = 0; i < numWhereProperties; i++)
+            {
+                CIMName wherePropertyName = 
+                    selectStatement.getWherePropertyName (i);
+                Uint32 propertyPos = indicationClass.findProperty
+                    (wherePropertyName);
+                if (propertyPos != PEG_NOT_FOUND)
+                {
+                    //
+                    //  Property exists in class
+                    //  Verify it is not an array property
+                    //
+                    CIMProperty classProperty = indicationClass.getProperty
+                        (propertyPos);
+                    if (classProperty.isArray ())
+                    {
+                        String exceptionStr = _MSG_ARRAY_NOT_SUPPORTED_IN_WHERE;
+                        PEG_METHOD_EXIT ();
+                        throw PEGASUS_CIM_EXCEPTION_L 
+                            (CIM_ERR_NOT_SUPPORTED, MessageLoaderParms 
+                                (_MSG_ARRAY_NOT_SUPPORTED_IN_WHERE_KEY, 
+                                exceptionStr,
+                                wherePropertyName.getString ()));
+                    }
+                }
+                else
+                {
+                    //
+                    //  Property does not exist in class
+                    //
+                    String exceptionStr = _MSG_WHERE_PROPERTY_NOT_FOUND;
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION_L 
+                        (CIM_ERR_INVALID_PARAMETER, MessageLoaderParms 
+                            (_MSG_WHERE_PROPERTY_NOT_FOUND_KEY, 
+                            exceptionStr,
+                            wherePropertyName.getString (),
+                            indicationClassName.getString ()));
+                }
+            }
+
+            //
+            //  Validate properties in the SELECT clause
+            //  Properties referenced in the WQL SELECT clause must exist in 
+            //  the indication class referenced in the FROM clause
+            //
+            Uint16 numSelectProperties =
+                selectStatement.getSelectPropertyNameCount ();
+            for (Uint32 j = 0; j < numSelectProperties; j++)
+            {
+                CIMName selectPropertyName = 
+                    selectStatement.getSelectPropertyName (j);
+                Uint32 propertyPos = indicationClass.findProperty
+                    (selectPropertyName);
+                if (propertyPos == PEG_NOT_FOUND)
+                {
+                    //
+                    //  Property does not exist in class
+                    //
+                    String exceptionStr = _MSG_SELECT_PROPERTY_NOT_FOUND;
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION_L 
+                        (CIM_ERR_INVALID_PARAMETER, MessageLoaderParms 
+                            (_MSG_SELECT_PROPERTY_NOT_FOUND_KEY, 
+                            exceptionStr,
+                            selectPropertyName.getString (),
+                            indicationClassName.getString ()));
+                }
+            }
         }
 
         //

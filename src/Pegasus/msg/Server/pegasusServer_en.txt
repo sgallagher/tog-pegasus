@@ -2747,6 +2747,29 @@ CIM server listening on HTTPS port {0}."}
         */
         IndicationService.IndicationService._MSG_UNSUPPORTED_VALUE_FOR_PROPERTY:string {"PGS10217: The value {0} is not supported for property {1}."}
 
+        /**
+        * @note  PGS10218:
+        *    do not translate 'WHERE' since it is a WQL keyword
+        *    Substitution {0} is a string containing the property name
+        */
+        IndicationService.IndicationService._MSG_ARRAY_NOT_SUPPORTED_IN_WHERE:string {"PGS10218: The array property {0} is not supported in the WQL WHERE clause."}
+
+        /**
+        * @note  PGS10219:
+        *    do not translate 'WHERE' since it is a WQL keyword
+        *    Substitution {0} is a string containing the property name
+        *    Substitution {1} is a string containing the class name
+        */
+        IndicationService.IndicationService._MSG_WHERE_PROPERTY_NOT_FOUND:string {"PGS10219: The property {0} referenced in the WQL WHERE clause was not found in the indication class {1}."}
+
+        /**
+        * @note  PGS10220:
+        *    do not translate 'SELECT' since it is a WQL keyword
+        *    Substitution {0} is a string containing the property name
+        *    Substitution {1} is a string containing the class name
+        */
+        IndicationService.IndicationService._MSG_SELECT_PROPERTY_NOT_FOUND:string {"PGS10220: The property {0} referenced in the WQL SELECT clause was not found in the indication class {1}."}
+
 
         // ==========================================================
         // Messages for IndicationHandlerService

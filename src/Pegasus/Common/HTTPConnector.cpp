@@ -70,21 +70,33 @@ static Boolean _MakeAddress(
    int port, 
    sockaddr_in& address)
 {
-   if (!hostname)
+    if (!hostname)
       return false;
 	
    struct hostent *entry;
-	
    if (isalpha(hostname[0]))
       entry = gethostbyname((char *)hostname);
    else
    {
-      unsigned long tmp = inet_addr((char *)hostname);
+      // KS 20020926 Temp change to bypass the gethostbyaddress
+      // and simply use whatever address was supplied.
+      // This needs to be verified. Drops following two
+      // lines and replace with memset through return lines.
+      //unsigned long tmp = inet_addr((char *)hostname);
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+      memset(&address, 0, sizeof(address));
+      address.sin_family = AF_INET;
+      address.sin_addr.s_addr = inet_addr((char *)hostname);
+      address.sin_port = htons(port);
+      return true;
+#else     
       entry = gethostbyaddr((char *)&tmp, sizeof(tmp), AF_INET);
+#endif      
+
    }
 
    if (!entry)
-      return false;
+       return false;
 
    memset(&address, 0, sizeof(address));
    memcpy(&address.sin_addr, entry->h_addr, entry->h_length);
@@ -221,7 +233,7 @@ HTTPConnection* HTTPConnector::connect(
    {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
-      throw InvalidLocatorException(host + ":" + portStr);
+      throw InvalidLocatorException("Invalid port number " + host + ":" + portStr);
    }
 
 

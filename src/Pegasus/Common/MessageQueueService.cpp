@@ -154,27 +154,6 @@ void MessageQueueService::enqueue(Message *msg) throw(IPCException)
    Base::enqueue(msg);
 
    PEG_METHOD_EXIT();
-   
-//    PEGASUS_ASSERT(msg != 0 );
-   
-//    cout << "inside overriden enqueue" << endl;
-//    if (!msg) 
-//     {
-//        Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
-//         "MessageQueue::enqueue failure");
-//        throw NullPointer();
-//     }
-
-//     if (getenv("PEGASUS_TRACE"))
-//     {
-//        cout << "===== " << getQueueName() << ": ";
-//        msg->print(cout);
-//     }
-
-//    msg->dest = _queueId;
-   
-//    SendForget(msg);
-   
 }
 
 
@@ -221,49 +200,45 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
 {
    if ( operation != 0 )
    {
-
+      
 // ATTN: optimization 
 // << Tue Feb 19 14:10:38 2002 mdd >>
       operation->lock();
-      if ((operation->_state & ASYNC_OPFLAGS_CALLBACK) &&  
-	 (operation->_state & ASYNC_OPSTATE_COMPLETE))
-      {
-	 operation->unlock();
-	 _handle_async_callback(operation);
-      }
-      
+            
       Message *rq = operation->_request.next(0);
-      PEGASUS_ASSERT(rq != 0 );
-
+     
       // divert legacy messages to handleEnqueue
-      if ( ! (rq->getMask() & message_mask::ha_async) )
+      if ((rq != 0) && (!(rq->getMask() & message_mask::ha_async)))
       {
-	 
 	 rq = operation->_request.remove_first() ;
 	 operation->unlock();
 	 // delete the op node 
 	 delete operation;
 
-//	Attn:  change to handleEnqueue(msg) when we have that method in all messagequeueservices
-//             make handleEnqueue pure virtual !!!
-//      << Fri Feb 22 13:39:09 2002 mdd >>
-
 	 handleEnqueue(rq);
 	 return;
       }
 
-      operation->unlock();
-      static_cast<AsyncMessage *>(rq)->_myself = thread;
-      static_cast<AsyncMessage *>(rq)->_service = queue;
-      _handle_async_request(static_cast<AsyncRequest *>(rq));
+      if ( operation->_state & ASYNC_OPFLAGS_CALLBACK && 
+	   (operation->_state & ASYNC_OPSTATE_COMPLETE))
+      {
+	 operation->unlock();
+	 _handle_async_callback(operation);
+      }
+      else 
+      {
+	 PEGASUS_ASSERT(rq != 0 );
+	 // ATTN: optimization
+	 // << Wed Mar  6 15:00:39 2002 mdd >>
+	 // put thread and queue into the asyncopnode structure. 
+	 (static_cast<AsyncMessage *>(rq))->_myself = thread;
+	 (static_cast<AsyncMessage *>(rq))->_service = queue;
+	 operation->unlock();
+	 _handle_async_request(static_cast<AsyncRequest *>(rq));
+      }
    }
-   
    return;
-   
 }
-
-
-
 
 void MessageQueueService::_handle_async_request(AsyncRequest *req)
 {
@@ -386,15 +361,17 @@ Boolean MessageQueueService::messageOK(const Message *msg)
    return true;
 }
 
+
+// made pure virtual 
+// << Wed Mar  6 15:11:31 2002 mdd >> 
 // void MessageQueueService::handleEnqueue(Message *msg)
 // {
-   
-   
 //    if ( msg )
 //       delete msg;
 // }
 
-
+// made pure virtual 
+// << Wed Mar  6 15:11:56 2002 mdd >>
 // void MessageQueueService::handleEnqueue(void)
 // {
 //     Message *msg = dequeue();
@@ -571,6 +548,20 @@ void MessageQueueService::return_op(AsyncOpNode *op)
 }
 
 
+Boolean MessageQueueService::ForwardOp(AsyncOpNode *op, 
+				       Uint32 destination)
+{
+   PEGASUS_ASSERT(op != 0 );
+   if ( 0 == (op->_op_dest = MessageQueue::lookup(destination)))
+      return false;
+
+   op->_flags |= (ASYNC_OPFLAGS_FIRE_AND_FORGET | ASYNC_OPFLAGS_FORWARD);
+   op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK);
+
+   return  _meta_dispatcher->route_async(op);
+}
+
+
 Boolean MessageQueueService::SendAsync(AsyncOpNode *op, 
 				       Uint32 destination,
 				       void (*callback)(AsyncOpNode *, 
@@ -587,7 +578,6 @@ Boolean MessageQueueService::SendAsync(AsyncOpNode *op,
    op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET);
    op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    
-
    return  _meta_dispatcher->route_async(op);
 }
 

@@ -210,11 +210,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 //          the service is registered with the meta dispatcher. 
 //          if speed is an issue we can remove this lookup
 //          because we have converted to MessageQueueService from 
-//          MessageQueue, and because we register in the constructore, 
+//          MessageQueue, and because we register in the constructor, 
 //          the safety check is unecessary
 //
 //   << Tue Feb 19 11:40:37 2002 mdd >>
-//   moved the lookup to sendwait/nowait/forget functions. 
+//   moved the lookup to sendwait/nowait/forget/forward functions. 
 
 	    MessageQueueService *dest_svc = 0;
 	    

@@ -58,6 +58,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPFLAGS_FIRE_AND_FORGET   0x00000080
 #define ASYNC_OPFLAGS_SIMPLE_STATUS     0x00000100
 #define ASYNC_OPFLAGS_CALLBACK          0x00000200
+#define ASYNC_OPFLAGS_FORWARD           0x00000400
 
 #define ASYNC_OPSTATE_UNKNOWN           0x00000000
 #define ASYNC_OPSTATE_OFFERED           0x00000001
@@ -134,7 +135,6 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       Uint32 _user_data;
       Uint32 _completion_code;
       MessageQueue *_op_dest;
-      
             
       struct timeval _start;
       struct timeval _lifetime;

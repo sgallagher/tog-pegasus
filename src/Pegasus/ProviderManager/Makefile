@@ -13,6 +13,7 @@ LIBRARY = pegprovidermanager
 LIBRARIES = \
     pegcommon \
     pegprovider \
+    pegprm \
 	pegconfig
 
 SOURCES = \

@@ -35,7 +35,7 @@
 #include <Pegasus/Server/ProviderRegistrationManager/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/MessageQueueService.h>
-#include <Pegasus/Server/ServiceCIMOMHandle.h>
+//#include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 

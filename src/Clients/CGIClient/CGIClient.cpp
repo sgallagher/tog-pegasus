@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.20  2001/03/27 18:06:45  karl
+// Add new operations
+//
 // Revision 1.19  2001/03/13 01:22:02  karl
 // Add delete Namespace
 //
@@ -107,8 +110,6 @@ Pegasus.
 #include <Pegasus/Common/CGIQueryString.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
-
-#define HAVE_STOPWATCH
 
 using namespace Pegasus;
 using namespace std;
@@ -465,6 +466,13 @@ void PrintClass(
     Boolean includeClassOrigin)
 {
     PrintHTMLHead("GetClass", cimClass.getClassName());
+
+    cout << "<h2>SuperClass Name:</h2>\n";
+    if (cimClass.getSuperClassName() == "")
+	cout << "No Super Class" <<endl;
+    else
+	cout << cimClass.getSuperClassName() << endl;
+
     
     if (includeQualifiers)
 	PrintQualifiers(cimClass);
@@ -633,7 +641,7 @@ static void PrintClassNames(
     // cout << "<body bgcolor=\"#CCCCCC\">\n";
 
     // PrintHeader("EnumerateClassNames Result");
-    //PrintRule();
+    //PrintRule(); 
 
     cout << "<table border=1>\n";
     cout << "<tr><th>Class Names</th><tr>\n";
@@ -697,9 +705,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     try
     {
 	// Time the connection
-#ifdef HAVE_STOPWATCH
 	Stopwatch elapsedTime;
-#endif
 	
 	// Make the Connection
 	CIMClient client;
@@ -709,11 +715,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	    nameSpace, className, deepInheritance);
 
 	// Print the results
-#ifdef HAVE_STOPWATCH
 	PrintClassNames(nameSpace, classNames, elapsedTime.getElapsed());
-#else
-	PrintClassNames(nameSpace, classNames, 0.0);
-#endif
 
     }
     catch(Exception& e)
@@ -990,9 +992,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
     try
     {
 	// Time the connection
-#ifdef HAVE_STOPWATCH
 	Stopwatch elapsedTime;
-#endif
 
 	CIMClient client;
 	client.connect("localhost", 8888);
@@ -1011,12 +1011,8 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	}
 
 	// Print the name array
-#ifdef HAVE_STOPWATCH
 	PrintInstanceNames(
 	    nameSpace, tmpInstanceNames, elapsedTime.getElapsed());
-#else
-	PrintInstanceNames(nameSpace, tmpInstanceNames, 0.0);
-#endif
         }
     catch(Exception& e)
     {
@@ -1184,9 +1180,8 @@ static void CreateNameSpace(const CGIQueryString& qs)
     try
     {
 	// Time the connection
-#ifdef HAVE_STOPWATCH
 	Stopwatch elapsedTime;
-#endif
+
 	CIMClient client;
 	client.connect("localhost", 8888);
     
@@ -1195,11 +1190,7 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	client.createInstance(nameSpace, newInstance);
 	PrintHTMLHead("CreateNameSpace", "Create a NameSpace Result");
 	cout << "<h1>Namespace " << nameSpaceName << " Created</H1>";
-#ifdef HAVE_STOPWATCH
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
-#else
-	cout << " in " << 0.0 << " Seconds</p>\n";
-#endif
 	cout << "</body>\n" << "</html>\n";
     } 
     catch(Exception& e)
@@ -1207,6 +1198,7 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	ErrorExit(e.getMessage());
     }
 }
+
 /**
 DeleteNameSpace - Deletes the Namespace defined.
 Namespace deletion is done by deleting the instance of
@@ -1243,10 +1235,9 @@ static void DeleteNameSpace(const CGIQueryString& qs)
     // the Namespace.
     try
     {  
-			 	// Time the connection
-#ifdef HAVE_STOPWATCH
+	// Time the connection
 	Stopwatch elapsedTime;
-#endif
+
 	CIMClient client;
 	client.connect("localhost", 8888);
     
@@ -1255,11 +1246,7 @@ static void DeleteNameSpace(const CGIQueryString& qs)
 	PrintHTMLHead("DeleteNameSpace", "Delete a NameSpace Result");
 	cout << "<h1>Namespace " << nameSpaceToDelete << " Deleted</H1>";
 
-#ifdef HAVE_STOPWATCH
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
-#else
-	cout << " in " << 0.0 << " Seconds</p>\n";
-#endif
 	cout << "</body>\n" << "</html>\n";
     } 
     catch(Exception& e)
@@ -1287,9 +1274,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
     try
     {
 	// Time the connection
-#ifdef HAVE_STOPWATCH
 	Stopwatch elapsedTime;
-#endif
 
 	CIMClient client;
 	client.connect("localhost", 8888);
@@ -1308,7 +1293,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	}
 
 	// Print the name array
-	PrintHTMLHead("GetNameSpaces", "Enumerate NameSpaces Result");
+	PrintHTMLHead("EnumerateNameSpaces", "Enumerate NameSpaces Result");
 
 	cout << "<table border=1>\n";
 	cout << "<tr><th>Namespaces</th><tr>\n";
@@ -1345,11 +1330,7 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	// Close the Page
 	cout << "<p>Click on a namespace to enumerate class Names</p>";
 	cout << "<p>Returned " << instanceNames.getSize() << " Names";
-#ifdef HAVE_STOPWATCH
 	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
-#else
-	cout << " in " << 0.0 << " Seconds</p>\n";
-#endif
 	cout << "</body>\n" << "</html>\n";
          
 	}
@@ -1387,9 +1368,109 @@ static void DefineHostParameters(const CGIQueryString& qs)
     cout << hostInfo.getHostPortString();
     cout << "\n";
     cout << "</body>\n" << "</html>\n";
-
-
+     
 }
+
+/**
+    ClassTree
+    This function operates on the same parameters as the enumerate classes
+    
+*/
+static void ClassTree(const CGIQueryString& qs)
+{
+    // Get NameSpace:
+    cout << "ClassTree" << endl;
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String className;
+
+    const char* tmp;
+
+    // Get the ClassName field:
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+
+    // Get DeepInheritance: 
+    Boolean deepInheritance = false;
+
+    if (qs.findValue("DeepInheritance"))
+	deepInheritance = true;
+
+
+    // Invoke the method: 
+    try
+    {
+	// Time the connection
+	Stopwatch elapsedTime;
+	
+	// Make the Connection
+	Boolean localOnly = false;
+	Boolean includeQualifiers = false;
+	Boolean includeClassOrigin = true;
+
+  
+	CIMClient client;
+	client.connect("localhost", 8888);
+	
+	Array<CIMClass> classArray = client.enumerateClasses(
+					nameSpace,
+					className,
+					deepInheritance,
+					localOnly,
+					includeQualifiers,
+					includeClassOrigin);
+	// Organize and Print the Class Tree results
+
+	PrintHTMLHead("GetClasseTree", "EnumerateClasses Tree Result");
+    
+	cout << "<table border=1>\n";
+	cout << "<tr><th>Super Class Names<th>Class Names<tr></th>\n";
+	    
+	String classNameHrefBuilder;
+    
+	for (Uint32 i = 0, n = classArray.getSize(); i < n; i++)
+	{
+	    cout << "<tr><td>\n";
+    
+	    cout << "Test " << i << " "  << classArray[i].getSuperClassName();
+	    cout << "<td>\n";
+	    
+    
+	    String href = "/pegasus/cgi-bin/CGIClient?";
+	    href.append("Operation=GetClass&");
+	    href.append("NameSpace=");
+	    href.append(EncodeQueryStringValue(nameSpace));
+	    href.append("&");
+    
+	    href.append("ClassName=");
+	    href.append(classArray[i].getClassName());
+	    href.append("&");
+    
+	    href.append("LocalOnly=true");
+    
+	    PrintA(href, classArray[i].getClassName());
+    
+	    cout << "</td></tr>\n";
+	}
+	// Close the Table
+	cout << "</table>\n";
+    
+	// Close the Page
+	cout << "<p>Returned " << classArray.getSize() << " Classes ";
+	cout << " in " << elapsedTime.getElapsed << " Seconds</p>\n";
+	cout << "</body>\n" << "</html>\n";
+
+
+
+    }
+    catch(Exception& e)
+    {
+        ErrorExit(e.getMessage());
+    }
+        
+    }
+
 /******************************************************************
    MAIN - Main function of CGIClient.
    Outputs the top line of the HTML, gets the function type
@@ -1412,6 +1493,7 @@ int main(int argc, char** argv)
     try
     {
         char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
+	// DEBUG cout << "Query String " << tmp << endl;
 
 	CGIQueryString qs(queryString);
 
@@ -1449,7 +1531,11 @@ int main(int argc, char** argv)
 	else if (strcmp(operation, "DeleteNameSpace") == 0)
 	    DeleteNameSpace(qs);
 	else if (strcmp(operation, "EnumerateNameSpaces") == 0)
-	    EnumerateNameSpaces(qs);
+	    EnumerateNameSpaces(qs); 	
+	else if (strcmp(operation, "ClassTree") == 0)
+	    ClassTree(qs);
+
+
         else
 	{
 	    String message = "CGIClient - Unknown operation: ";

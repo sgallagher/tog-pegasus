@@ -11,7 +11,6 @@ DOC_HEAD = PegasusDoc.dxx
 
 all:
 	$(RM) $(DOC_OUTPUT)/*
-	$(RM) PegasusDocTOC.htm
 	gawk --file=PegasusDocTOC.awk $(DOC_HEAD) >pegdocsidebarleft.shtml
 	docxx --dir $(DOC_OUTPUT)  --verbose -H $(DOC_HEAD)
 	$(COPY) $(DOC_DIR)/*.gif $(DOC_OUTPUT)

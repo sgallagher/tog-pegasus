@@ -43,6 +43,10 @@ typedef struct os400_pnstruct
 } OS400_PNSTRUCT;
 #endif
 
+#ifdef PEGASUS_OS_SOLARIS
+#include <sys/param.h>
+#endif
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -76,7 +80,17 @@ struct DirRep
 #ifdef PEGASUS_OS_OS400
     struct dirent_lg buffer;
 #else
+#ifdef PEGASUS_OS_SOLARIS
+private:
+	char buf[sizeof(dirent) + MAXNAMELEN];
+public:
+	struct dirent &buffer;
+	inline DirRep()
+		: buffer(*reinterpret_cast<struct dirent *>(buf))
+	{ }
+#else
     struct dirent buffer;
+#endif
 #endif
 #endif
 };

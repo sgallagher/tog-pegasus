@@ -359,6 +359,8 @@ void cimserver_exitRC(int rc){
 	AtoE(rc_tmp);  // qycmctlcim wants ebcdic
  	write(fifo,rc_tmp,strlen(rc_tmp));
     }
+
+    exit(rc);
 }
 
 ////////////////////////////////////////////////////

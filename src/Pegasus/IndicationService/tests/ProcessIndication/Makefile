@@ -28,6 +28,10 @@ poststarttests:
 	@$(PROGRAM) sendNormal wql
 	@$(ECHO) "TestProcessIndication checkNormal wql"
 	@$(PROGRAM) checkNormal wql
+	@$(ECHO) "TestProcessIndication sendSubclass wql"
+	@$(PROGRAM) sendSubclass wql
+	@$(ECHO) "TestProcessIndication checkSubclass wql"
+	@$(PROGRAM) checkSubclass wql
 	@$(ECHO) "TestProcessIndication sendMissing wql"
 	@$(PROGRAM) sendMissing wql
 	@$(ECHO) "TestProcessIndication checkMissing wql"
@@ -76,6 +80,10 @@ poststarttests:
 	@$(PROGRAM) sendNormal cim:cql
 	@$(ECHO) "TestProcessIndication checkNormal cim:cql"
 	@$(PROGRAM) checkNormal cim:cql
+	@$(ECHO) "TestProcessIndication sendSubclass cim:cql"
+	@$(PROGRAM) sendSubclass cim:cql
+	@$(ECHO) "TestProcessIndication checkSubclass cim:cql"
+	@$(PROGRAM) checkSubclass cim:cql
 	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
 	@$(PROGRAM) sendMissing cim:cql
 	@$(ECHO) "TestProcessIndication checkMissing cim:cql"

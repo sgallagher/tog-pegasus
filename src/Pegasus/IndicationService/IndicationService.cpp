@@ -568,7 +568,7 @@ void IndicationService::_initialize (void)
         }
 // l10n end
 
-        _sendCreateRequests (indicationProviders, sourceNameSpace,
+        _sendAsyncCreateRequests (indicationProviders, sourceNameSpace,
             propertyList, condition, query, queryLanguage,
             activeSubscriptions [i],
             AcceptLanguages(acceptLangs), // l10n
@@ -825,7 +825,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //  Send Create request message to each provider
                     //
                     // l10n
-                    _sendCreateRequests (indicationProviders,
+                    _sendAsyncCreateRequests (indicationProviders,
                         sourceNameSpace, requiredProperties, condition,
                         query, queryLanguage, instance,
                         acceptLangs,
@@ -1542,7 +1542,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     instanceReference.setNameSpace (request->nameSpace);
                     instance.setPath (instanceReference);
 // l10n
-                    _sendCreateRequests (indicationProviders,
+                    _sendAsyncCreateRequests (indicationProviders,
                         sourceNameSpace, requiredProperties, condition,
                         query,
                         queryLanguage,
@@ -1578,7 +1578,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 //l10n
                     if (indicationProviders.size () > 0)
                     {
-                        _sendDeleteRequests (indicationProviders,
+                        _sendAsyncDeleteRequests (indicationProviders,
                             sourceNameSpace,
                             instance,
                             acceptLangs,
@@ -1732,7 +1732,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                         //  Send Delete requests
                         //
 // l10n
-                        _sendDeleteRequests (indicationProviders,
+                        _sendAsyncDeleteRequests (indicationProviders,
                             sourceNamespaceName, subscriptionInstance,
                             ((AcceptLanguageListContainer)
                             request->operationContext.get
@@ -2044,7 +2044,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                   // not matching the subscription, just swallow the exception,
                   // and skip this subscription.
                   PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                                    "Apply Projection error: " + re.getMessage());
+                      "Apply Projection error: " + re.getMessage());
                   continue;
                 }
 
@@ -2181,7 +2181,6 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         (CIMNotifyProviderRegistrationRequestMessage*) message;
 
     CIMException cimException;
-    Boolean responseSent = false;
 
     ProviderIdContainer pidc = request->operationContext.get
         (ProviderIdContainer::NAME);
@@ -2324,19 +2323,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //  Send Modify requests
                     //
 // l10n
-                    _sendModifyRequests (indicationProviders,
+                    _sendWaitModifyRequests (indicationProviders,
                         sourceNameSpace,
                         requiredProperties, condition, query, queryLanguage,
                         newSubscriptions [i],
                         AcceptLanguages(acceptLangs),
                         ContentLanguages(contentLangs),
-                        request,
                         creator);
-
-                    //
-                    //  Response is sent from _handleModifyResponseAggregation
-                    //
-                    responseSent = true;
                 }
                 else
                 {
@@ -2344,19 +2337,23 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //  Send Create requests
                     //
 // l10n
-                    _sendCreateRequests (indicationProviders,
+                    Uint32 accepted = _sendWaitCreateRequests
+                        (indicationProviders,
                         sourceNameSpace, requiredProperties, condition,
                         query, queryLanguage, newSubscriptions [i],
                         AcceptLanguages(acceptLangs),
                         ContentLanguages(contentLangs),
-                        request,
-                        indicationSubclasses,
                         creator);
 
-                    //
-                    //  Response is sent from _handleCreateResponseAggregation
-                    //
-                    responseSent = true;
+                    if (accepted > 0)
+                    {
+                        //
+                        //  Provider is not yet in the list for this
+                        //  subscription; add provider to the list
+                        //
+                        _subscriptionTable->updateProviders
+                            (instance.getPath (), indicationProvider, true);
+                    }
                 }
             }
             else
@@ -2383,12 +2380,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         CIMInstance providerCopy = provider.clone ();
         CIMObjectPath path = providerCopy.buildPath (providerClass);
         providerCopy.setPath (path);
+        String logString1 = getProviderLogString (providerCopy);
+
         for (Uint32 j = 0; j < newSubscriptions.size (); j++)
         {
             //
             //  Get Provider Name, Subscription Filter Name and Handler Name
             //
-            String logString1 = getProviderLogString (providerCopy);
             String logString2 = _getSubscriptionLogString
                 (newSubscriptions [j]);
 
@@ -2426,16 +2424,18 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 // l10n start
             String acceptLangs = String::EMPTY;
-            Uint32 propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+            Uint32 propIndex = instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                 instance.getProperty(propIndex).getValue().get(acceptLangs);
+                instance.getProperty(propIndex).getValue().get(acceptLangs);
             }
             String contentLangs = String::EMPTY;
-            propIndex = instance.findProperty(PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
+            propIndex = instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                 instance.getProperty(propIndex).getValue().get(contentLangs);
+                instance.getProperty(propIndex).getValue().get(contentLangs);
             }
 // l10n end
 
@@ -2471,20 +2471,18 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                             [0].equal (className)))
                     {
 // l10n
-                        _sendDeleteRequests (indicationProviders,
+                        _sendWaitDeleteRequests (indicationProviders,
                             sourceNameSpace,
                             formerSubscriptions [i],
                             AcceptLanguages(acceptLangs),
                             ContentLanguages(contentLangs),
-                            request,
-                            indicationSubclasses,
                             creator);
 
                         //
-                        //  Response is sent from
-                        //  _handleDeleteResponseAggregation
                         //
-                        responseSent = true;
+                        //
+                        _subscriptionTable->updateProviders
+                            (instance.getPath (), indicationProvider, false);
                     }
 
                     //
@@ -2496,25 +2494,18 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                             (className, tableValue.providers [providerIndex]);
                         if (classIndex != PEG_NOT_FOUND)
                         {
-                        //
-                        //  Send Modify requests
-                        //
+                            //
+                            //  Send Modify requests
+                            //
 // l10n
-                        _sendModifyRequests (indicationProviders,
-                            sourceNameSpace,
-                            requiredProperties, condition,
-                            query, queryLanguage,
-                            formerSubscriptions [i],
-                            AcceptLanguages(acceptLangs),
-                            ContentLanguages(contentLangs),
-                            request,
-                            creator);
-
-                            //
-                            //  Response is sent from
-                            //  _handleModifyResponseAggregation
-                            //
-                            responseSent = true;
+                            _sendWaitModifyRequests (indicationProviders,
+                                sourceNameSpace,
+                                requiredProperties, condition,
+                                query, queryLanguage,
+                                formerSubscriptions [i],
+                                AcceptLanguages(acceptLangs),
+                                ContentLanguages(contentLangs),
+                                creator);
                         }
                         else
                         {
@@ -2572,12 +2563,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         CIMInstance providerCopy = provider.clone ();
         CIMObjectPath path = providerCopy.buildPath (providerClass);
         providerCopy.setPath (path);
+        String logString1 = getProviderLogString (providerCopy);
+
         for (Uint32 j = 0; j < formerSubscriptions.size (); j++)
         {
             //
             //  Get Provider Name, Subscription Filter Name and Handler Name
             //
-            String logString1 = getProviderLogString (providerCopy);
             String logString2 = _getSubscriptionLogString
                 (formerSubscriptions [j]);
 
@@ -2588,15 +2580,11 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     }
 
     //
-    //  Send response, if not sent from callback
-    //  (for example, if there were no matching subscriptions)
+    //  Send response
     //
-    if (!responseSent)
-    {
-        CIMResponseMessage * response = request->buildResponse ();
-        response->cimException = cimException;
-        _enqueueResponse (request, response);
-    }
+    CIMResponseMessage * response = request->buildResponse ();
+    response->cimException = cimException;
+    _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
 }
@@ -2703,7 +2691,8 @@ void IndicationService::_handleNotifyProviderEnableRequest
     Array <CIMInstance> capabilities = request->capInstances;
 
     CIMException cimException;
-    Boolean responseSent = false;
+    Array <CIMInstance> subscriptions;
+    Array <ProviderClassList> indicationProviders;
 
     //
     //  Get class name, namespace names, and property list
@@ -2715,7 +2704,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
         CIMName className;
         Array <CIMNamespaceName> namespaceNames;
         CIMPropertyList propertyList;
-        Array <CIMInstance> subscriptions;
+        Array <CIMInstance> currentSubscriptions;
 
         try
         {
@@ -2782,118 +2771,187 @@ void IndicationService::_handleNotifyProviderEnableRequest
         //
         //  Get matching subscriptions
         //
-        subscriptions = _getMatchingSubscriptions (className, namespaceNames,
-            propertyList);
+        currentSubscriptions = _getMatchingSubscriptions
+            (className, namespaceNames, propertyList);
 
-        if (subscriptions.size () > 0)
+        for (Uint32 c = 0; c < currentSubscriptions.size (); c++)
         {
-            //
-            //  Construct provider class list from input provider and class name
-            //
-            Array <ProviderClassList> indicationProviders;
-            ProviderClassList indicationProvider;
-            indicationProvider.provider = provider;
-            indicationProvider.providerModule = providerModule;
-            indicationProvider.classList.append (className);
-            indicationProviders.append (indicationProvider);
+            Boolean inList = false;
 
-            CIMPropertyList requiredProperties;
-            String condition;
-            String query;
-            String queryLanguage;
-
-            for (Uint32 s = 0; s < subscriptions.size (); s++)
+            for (Uint32 m = 0; m < subscriptions.size (); m++)
             {
-                CIMNamespaceName sourceNameSpace;
-                Array <CIMName> indicationSubclasses;
-                CIMInstance instance = subscriptions [s];
-                _getCreateParams
-                    (instance.getPath ().getNameSpace (), instance,
-                     indicationSubclasses, requiredProperties, sourceNameSpace,
-                     condition, query, queryLanguage);
-
                 //
-                //  NOTE: These Create requests are not associated with a
-                //  user request, so there is no associated authType or userName
-                //  The Creator from the subscription instance is used for
-                //  userName, and authType is not set
+                //  If the current subscription is already in the list of
+                //  matching subscriptions, add the current class to the
+                //  indication provider class list for the subscription
                 //
-                //  NOTE: the subscriptions in the subscriptions list came from
-                //  the IndicationService's internal hash tables, and thus
-                //  each instance is known to have a valid Creator property
-                //
-                String creator = instance.getProperty (instance.findProperty
-                    (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue
-                    ().toString ();
-
-                String acceptLangs = String::EMPTY;
-                Uint32 propIndex = instance.findProperty
-                    (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
-                if (propIndex != PEG_NOT_FOUND)
+                if (currentSubscriptions [c].identical (subscriptions [m]))
                 {
-                    instance.getProperty (propIndex).getValue ().get
-                        (acceptLangs);
+                    inList = true;
+                    indicationProviders [m].classList.append (className);
+                    break;
                 }
-                String contentLangs = String::EMPTY;
-                propIndex = instance.findProperty
-                    (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
-                if (propIndex != PEG_NOT_FOUND)
-                {
-                    instance.getProperty (propIndex).getValue ().get
-                        (contentLangs);
-                }
+            }
 
+            if (!inList)
+            {
                 //
-                //  Send Create requests
+                //  If the current subscription is not already in the list of
+                //  matching subscriptions, add it to the list and add the
+                //  indication provider class list for the subscription
                 //
-                _sendCreateRequests (indicationProviders,
-                    sourceNameSpace, requiredProperties, condition,
-                    query, queryLanguage, instance,
-                    AcceptLanguages (acceptLangs),
-                    ContentLanguages (contentLangs),
-                    request,
-                    indicationSubclasses,
-                    creator);
-
-                //
-                //  Response is sent from _handleCreateResponseAggregation
-                //
-                responseSent = true;
-
-                //
-                //  NOTE: When a provider that was previously not serving a
-                //  subscription now serves the subscription due to a provider
-                //  being enabled, a log message is sent, even if there
-                //  were previously other providers serving the subscription
-                //
-
-                //
-                //  Get Provider Name, Subscription Filter Name and Handler Name
-                //
-                String logString1 = getProviderLogString (provider);
-                String logString2 = _getSubscriptionLogString
-                    (subscriptions [s]);
-
-                //
-                //  Log a message for each subscription
-                //
-                Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::WARNING, _MSG_PROVIDER_NOW_SERVING_KEY,
-                    _MSG_PROVIDER_NOW_SERVING, logString1, logString2);
+                subscriptions.append (currentSubscriptions [c]);
+                ProviderClassList indicationProvider;
+                indicationProvider.provider = provider;
+                indicationProvider.providerModule = providerModule;
+                indicationProvider.classList.append (className);
+                indicationProviders.append (indicationProvider);
             }
         }
-    }
+    }  //  for each capability instance
+
+    if (subscriptions.size () > 0)
+    {
+        CIMPropertyList requiredProperties;
+        String condition;
+        String query;
+        String queryLanguage;
+
+        //
+        //  Get Provider Name
+        //
+        String logString1 = getProviderLogString (provider);
+
+        for (Uint32 s = 0; s < subscriptions.size (); s++)
+        {
+            CIMNamespaceName sourceNameSpace;
+            Array <CIMName> indicationSubclasses;
+            CIMInstance instance = subscriptions [s];
+            _getCreateParams
+                (instance.getPath ().getNameSpace (), instance,
+                 indicationSubclasses, requiredProperties, sourceNameSpace,
+                 condition, query, queryLanguage);
+
+            //
+            //  NOTE: These Create requests are not associated with a
+            //  user request, so there is no associated authType or userName
+            //  The Creator from the subscription instance is used for
+            //  userName, and authType is not set
+            //
+            //  NOTE: the subscriptions in the subscriptions list came from
+            //  the IndicationService's internal hash tables, and thus
+            //  each instance is known to have a valid Creator property
+            //
+            String creator = instance.getProperty (instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue
+                ().toString ();
+
+            String acceptLangs = String::EMPTY;
+            Uint32 propIndex = instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                instance.getProperty (propIndex).getValue ().get
+                    (acceptLangs);
+            }
+            String contentLangs = String::EMPTY;
+            propIndex = instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                instance.getProperty (propIndex).getValue ().get
+                    (contentLangs);
+            }
+
+            //
+            //  Send Create requests
+            //
+            Array <ProviderClassList> currentIndicationProviders;
+            currentIndicationProviders.append (indicationProviders [s]);
+            Uint32 accepted = _sendWaitCreateRequests
+                (currentIndicationProviders,
+                sourceNameSpace, requiredProperties, condition,
+                query, queryLanguage, instance,
+                AcceptLanguages (acceptLangs),
+                ContentLanguages (contentLangs),
+                creator);
+
+            if (accepted > 0)
+            {
+                //
+                //  Get Subscription entry from Active Subscriptions table
+                //
+                ActiveSubscriptionsTableEntry tableValue;
+                if (_subscriptionTable->getSubscriptionEntry
+                    (instance.getPath (), tableValue))
+                {
+                    //
+                    //  Look for the provider in the subscription's list
+                    //
+                    Uint32 providerIndex =
+                        _subscriptionTable->providerInList
+                            (indicationProviders [s].provider, tableValue);
+                    if (providerIndex != PEG_NOT_FOUND)
+                    {
+                        //
+                        //  Provider is already in the list for this
+                        //  subscription; add class to provider class list
+                        //
+                        for (Uint32 cn = 0;
+                             cn < indicationProviders [s].classList.size ();
+                             cn++)
+                        {
+                            _subscriptionTable->updateClasses
+                                (instance.getPath (),
+                                indicationProviders [s].provider,
+                                indicationProviders [s].classList [cn]);
+                        }
+                    }
+                    else
+                    {
+                        //
+                        //  Provider is not yet in the list for this
+                        //  subscription; add provider to the list
+                        //
+                        _subscriptionTable->updateProviders
+                            (instance.getPath (), indicationProviders [s],
+                            true);
+
+                        //
+                        //  NOTE: When a provider that was previously not
+                        //  serving a subscription now serves the
+                        //  subscription due to a provider being enabled, a
+                        //  log message is sent, even if there were
+                        //  previously other providers serving the
+                        //  subscription
+                        //
+
+                        //
+                        //  Get Subscription Filter Name and Handler Name
+                        //
+                        String logString2 = _getSubscriptionLogString
+                            (subscriptions [s]);
+
+                        //
+                        //  Log a message for each subscription
+                        //
+                        Logger::put_l (Logger::STANDARD_LOG,
+                            System::CIMSERVER, Logger::WARNING,
+                            _MSG_PROVIDER_NOW_SERVING_KEY,
+                            _MSG_PROVIDER_NOW_SERVING, logString1,
+                            logString2);
+                    }
+                }
+            }  //  if any provider accepted the create subscription request
+        }  //  for each matching subscription
+    }  //  if any matching subscriptions
 
     //
-    //  Send response, if not sent from callback
-    //  (for example, if there were no matching subscriptions)
+    //  Send response
     //
-    if (!responseSent)
-    {
-        CIMResponseMessage * response = request->buildResponse ();
-        response->cimException = cimException;
-        _enqueueResponse (request, response);
-    }
+    CIMResponseMessage * response = request->buildResponse ();
+    response->cimException = cimException;
+    _enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
 }
@@ -4195,7 +4253,6 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                                                             queryLanguage,
                                                             sourceNameSpace);
 
-
             //
             //  Get indication class name from filter query
             //
@@ -4883,7 +4940,7 @@ void IndicationService::_deleteReferencingSubscriptions (
         instanceName.setNameSpace (nameSpace);
         deletedSubscriptions [i].setPath (instanceName);
 // l10n
-        _sendDeleteRequests (indicationProviders, sourceNamespaceName,
+        _sendAsyncDeleteRequests (indicationProviders, sourceNamespaceName,
             deletedSubscriptions [i],
             AcceptLanguages (acceptLangs),
             ContentLanguages (contentLangs),
@@ -5003,7 +5060,7 @@ void IndicationService::_deleteExpiredSubscription (
 
 // l10n
             subscriptionInstance.setPath (subscription);
-            _sendDeleteRequests (indicationProviders,
+            _sendAsyncDeleteRequests (indicationProviders,
                 sourceNamespaceName, subscriptionInstance,
                 AcceptLanguages(acceptLangs),
                 ContentLanguages(contentLangs),
@@ -5298,7 +5355,7 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
 }
 
 // l10n
-void IndicationService::_sendCreateRequests
+void IndicationService::_sendAsyncCreateRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
      const CIMPropertyList & propertyList,
@@ -5314,7 +5371,7 @@ void IndicationService::_sendCreateRequests
      const String & authType)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_sendCreateRequests");
+        "IndicationService::_sendAsyncCreateRequests");
 
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
@@ -5345,8 +5402,7 @@ void IndicationService::_sendCreateRequests
     else
     {
         //
-        //  Create Instance, Modify Instance, Provider Registration Change, or
-        //  Provider Enable
+        //  Create Instance or Modify Instance
         //
         switch (origRequest->getType ())
         {
@@ -5370,32 +5426,13 @@ void IndicationService::_sendCreateRequests
                 break;
             }
 
-            case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
-            {
-                CIMNotifyProviderRegistrationRequestMessage * request =
-                    (CIMNotifyProviderRegistrationRequestMessage *) origRequest;
-                CIMNotifyProviderRegistrationRequestMessage * requestCopy =
-                    new CIMNotifyProviderRegistrationRequestMessage (* request);
-                aggRequest = requestCopy;
-                break;
-            }
-
-            case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
-            {
-                CIMNotifyProviderEnableRequestMessage * request =
-                    (CIMNotifyProviderEnableRequestMessage *) origRequest;
-                CIMNotifyProviderEnableRequestMessage * requestCopy =
-                    new CIMNotifyProviderEnableRequestMessage (* request);
-                aggRequest = requestCopy;
-                break;
-            }
-
             default:
             {
                 PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                     Tracer::LEVEL2, "Unexpected origRequest type " +
                     String (MessageTypeToString (origRequest->getType ())) +
-                    " in _sendCreateRequests");
+                    " in _sendAsyncCreateRequests");
+                PEGASUS_ASSERT (false);
                 break;
             }
         }
@@ -5447,8 +5484,8 @@ void IndicationService::_sendCreateRequests
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
             (condition,queryLanguage));
-          request->operationContext.insert(SubscriptionFilterQueryContainer
-              (query,queryLanguage,nameSpace));
+        request->operationContext.insert(SubscriptionFilterQueryContainer
+            (query,queryLanguage,nameSpace));
         request->operationContext.insert(SubscriptionLanguageListContainer
             (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
@@ -5477,8 +5514,7 @@ void IndicationService::_sendCreateRequests
     PEG_METHOD_EXIT ();
 }
 
-// l10n
-void IndicationService::_sendModifyRequests
+Uint32 IndicationService::_sendWaitCreateRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
      const CIMPropertyList & propertyList,
@@ -5488,12 +5524,127 @@ void IndicationService::_sendModifyRequests
      const CIMInstance & subscription,
      const AcceptLanguages & acceptLangs,
      const ContentLanguages & contentLangs,
-     const CIMRequestMessage * origRequest,
      const String & userName,
      const String & authType)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_sendModifyRequests");
+        "IndicationService::_sendWaitCreateRequests");
+
+    CIMValue propValue;
+    Uint16 repeatNotificationPolicy;
+    Uint32 accepted = 0;
+
+    // If there are no providers to accept the subscription, just return
+    if (indicationProviders.size() == 0)
+    {
+        return accepted;
+    }
+
+    //
+    //  Get repeat notification policy value from subscription instance
+    //
+    propValue = subscription.getProperty
+        (subscription.findProperty
+        (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
+    propValue.get (repeatNotificationPolicy);
+
+    //
+    //  Send Create request to each provider
+    //
+    for (Uint32 i = 0; i < indicationProviders.size (); i++)
+    {
+        //
+        //  Create the create subscription request
+        //
+        CIMCreateSubscriptionRequestMessage * request =
+            new CIMCreateSubscriptionRequestMessage
+                (XmlWriter::getNextMessageId (),
+                nameSpace,
+                subscription,
+                indicationProviders [i].classList,
+                propertyList,
+                repeatNotificationPolicy,
+                query,
+                QueueIdStack (_providerManager, getQueueId ()),
+                authType,
+                userName);
+
+        //
+        //  Set operation context
+        //
+        request->operationContext.insert(ProviderIdContainer
+            (indicationProviders [i].providerModule,
+            indicationProviders [i].provider));
+        request->operationContext.insert(SubscriptionInstanceContainer
+            (subscription));
+        request->operationContext.insert(SubscriptionFilterConditionContainer
+            (condition,queryLanguage));
+        request->operationContext.insert(SubscriptionFilterQueryContainer
+            (query,queryLanguage,nameSpace));
+        request->operationContext.insert(SubscriptionLanguageListContainer
+            (acceptLangs));
+        request->operationContext.insert(IdentityContainer(userName));
+        request->operationContext.set(ContentLanguageListContainer
+            (contentLangs));
+        request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
+
+        AsyncOpNode * op = this->get_op ();
+
+        AsyncLegacyOperationStart * asyncRequest =
+            new AsyncLegacyOperationStart
+                (get_next_xid (),
+                op,
+                _providerManager,
+                request,
+                _queueId);
+
+        AsyncReply * asyncReply = SendWait (asyncRequest);
+
+        CIMCreateSubscriptionResponseMessage * response =
+            reinterpret_cast <CIMCreateSubscriptionResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *>
+            (asyncReply))->get_result ());
+
+        if (response->cimException.getCode () == CIM_ERR_SUCCESS)
+        {
+            accepted++;
+        }
+        else
+        {
+            //
+            //  Provider rejected the subscription
+            //
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3,
+                "Provider (" +
+                indicationProviders [i].provider.getPath ().toString () +
+                ") rejected create subscription: " +
+                response->cimException.getMessage ());
+        }
+
+        delete asyncRequest;
+        delete asyncReply;
+    }  //  for each indication provider
+
+    PEG_METHOD_EXIT ();
+    return accepted;
+}
+
+// l10n
+void IndicationService::_sendWaitModifyRequests
+    (const Array <ProviderClassList> & indicationProviders,
+     const CIMNamespaceName & nameSpace,
+     const CIMPropertyList & propertyList,
+     const String & condition,
+     const String & query,
+     const String & queryLanguage,
+     const CIMInstance & subscription,
+     const AcceptLanguages & acceptLangs,
+     const ContentLanguages & contentLangs,
+     const String & userName,
+     const String & authType)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_sendWaitModifyRequests");
 
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
@@ -5511,44 +5662,6 @@ void IndicationService::_sendModifyRequests
         (subscription.findProperty
         (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
     propValue.get (repeatNotificationPolicy);
-
-    CIMRequestMessage * aggRequest = 0;
-
-    //
-    //  Create an aggregate object for the modify subscription requests
-    //
-    if (origRequest)
-    {
-        //
-        //  Provider Registration Change
-        //
-        if (origRequest->getType () ==
-            CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE)
-        {
-            CIMNotifyProviderRegistrationRequestMessage * request =
-                (CIMNotifyProviderRegistrationRequestMessage *) origRequest;
-            CIMNotifyProviderRegistrationRequestMessage * requestCopy =
-                new CIMNotifyProviderRegistrationRequestMessage (* request);
-            aggRequest = requestCopy;
-        }
-        else
-        {
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "Unexpected origRequest type " +
-                String (MessageTypeToString (origRequest->getType ())) +
-                " in _sendModifyRequests");
-        }
-    }
-    else
-    {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-            "No origRequest in _sendModifyRequests");
-    }
-
-    Array <CIMName> indicationSubclasses;  //  empty array -- not needed
-    IndicationOperationAggregate * operationAggregate =
-        new IndicationOperationAggregate (aggRequest, indicationSubclasses);
-    operationAggregate->setNumberIssued (indicationProviders.size ());
 
     //
     //  Send Modify request to each provider
@@ -5570,15 +5683,8 @@ void IndicationService::_sendModifyRequests
                 userName);
 
         //
-        //  Store a copy of the request in the operation aggregate instance
+        //  Set operation context
         //
-        CIMModifySubscriptionRequestMessage * requestCopy =
-            new CIMModifySubscriptionRequestMessage (* request);
-        requestCopy->operationContext.insert(ProviderIdContainer
-            (indicationProviders [i].providerModule,
-            indicationProviders [i].provider));
-        operationAggregate->appendRequest (requestCopy);
-
         request->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule,
             indicationProviders [i].provider));
@@ -5586,8 +5692,8 @@ void IndicationService::_sendModifyRequests
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
             (condition,queryLanguage));
-          request->operationContext.insert(SubscriptionFilterQueryContainer
-              (query,queryLanguage,nameSpace));
+        request->operationContext.insert(SubscriptionFilterQueryContainer
+            (query,queryLanguage,nameSpace));
         request->operationContext.insert(SubscriptionLanguageListContainer
             (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
@@ -5597,7 +5703,7 @@ void IndicationService::_sendModifyRequests
 
         AsyncOpNode * op = this->get_op ();
 
-        AsyncLegacyOperationStart * async_req =
+        AsyncLegacyOperationStart * asyncRequest =
             new AsyncLegacyOperationStart
                 (get_next_xid (),
                 op,
@@ -5605,19 +5711,34 @@ void IndicationService::_sendModifyRequests
                 request,
                 _queueId);
 
-        SendAsync
-            (op,
-            _providerManager,
-            IndicationService::_aggregationCallBack,
-            this,
-            operationAggregate);
-    }
+        AsyncReply * asyncReply = SendWait (asyncRequest);
+
+        CIMModifySubscriptionResponseMessage * response =
+            reinterpret_cast <CIMModifySubscriptionResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *>
+            (asyncReply))->get_result ());
+
+        if (!(response->cimException.getCode () == CIM_ERR_SUCCESS))
+        {
+            //
+            //  Provider rejected the subscription
+            //
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3,
+                "Provider (" +
+                indicationProviders [i].provider.getPath ().toString () +
+                ") rejected modify subscription: " +
+                response->cimException.getMessage ());
+        }
+
+        delete asyncRequest;
+        delete asyncReply;
+    }  //  for each indication provider
 
     PEG_METHOD_EXIT ();
 }
 
 // l10n
-void IndicationService::_sendDeleteRequests
+void IndicationService::_sendAsyncDeleteRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
      const CIMInstance & subscription,
@@ -5629,7 +5750,7 @@ void IndicationService::_sendDeleteRequests
      const String & authType)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_sendDeleteRequests");
+        "IndicationService::_sendAsyncDeleteRequests");
 
     // If there are no providers to delete the subscription, just return
     if (indicationProviders.size() == 0)
@@ -5650,7 +5771,7 @@ void IndicationService::_sendDeleteRequests
     else
     {
         //
-        //  Delete Instance, Modify Instance, or Provider Registration Change
+        //  Delete Instance or Modify Instance
         //
         switch (origRequest->getType ())
         {
@@ -5674,22 +5795,13 @@ void IndicationService::_sendDeleteRequests
                 break;
             }
 
-            case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
-            {
-                CIMNotifyProviderRegistrationRequestMessage * request =
-                    (CIMNotifyProviderRegistrationRequestMessage *) origRequest;
-                CIMNotifyProviderRegistrationRequestMessage * requestCopy =
-                    new CIMNotifyProviderRegistrationRequestMessage (* request);
-                aggRequest = requestCopy;
-                break;
-            }
-
             default:
             {
                 PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
                     Tracer::LEVEL2, "Unexpected origRequest type " +
                     String (MessageTypeToString (origRequest->getType ())) +
-                    " in _sendDeleteRequests");
+                    " in _sendAsyncDeleteRequests");
+                PEGASUS_ASSERT (false);
                 break;
             }
         }
@@ -5761,6 +5873,90 @@ void IndicationService::_sendDeleteRequests
     PEG_METHOD_EXIT ();
 }
 
+void IndicationService::_sendWaitDeleteRequests
+    (const Array <ProviderClassList> & indicationProviders,
+     const CIMNamespaceName & nameSpace,
+     const CIMInstance & subscription,
+     const AcceptLanguages & acceptLangs,
+     const ContentLanguages & contentLangs,
+     const String & userName,
+     const String & authType)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_sendWaitDeleteRequests");
+
+    // If there are no providers to delete the subscription, just return
+    if (indicationProviders.size() == 0)
+    {
+        return;
+    }
+
+    //
+    //  Send Delete request to each provider
+    //
+    for (Uint32 i = 0; i < indicationProviders.size (); i++)
+    {
+        CIMDeleteSubscriptionRequestMessage * request =
+            new CIMDeleteSubscriptionRequestMessage
+                (XmlWriter::getNextMessageId (),
+                nameSpace,
+                subscription,
+                indicationProviders [i].classList,
+                QueueIdStack (_providerManager, getQueueId ()),
+                authType,
+                userName);
+
+        //
+        //  Set operation context
+        //
+        request->operationContext.insert(ProviderIdContainer
+            (indicationProviders [i].providerModule,
+            indicationProviders [i].provider));
+        request->operationContext.insert(SubscriptionInstanceContainer
+            (subscription));
+        request->operationContext.insert(SubscriptionLanguageListContainer
+            (acceptLangs));
+        request->operationContext.insert(IdentityContainer(userName));
+        request->operationContext.set(ContentLanguageListContainer
+            (contentLangs));
+        request->operationContext.set(AcceptLanguageListContainer(acceptLangs));
+
+        AsyncOpNode * op = this->get_op ();
+
+        AsyncLegacyOperationStart * asyncRequest =
+            new AsyncLegacyOperationStart
+                (get_next_xid (),
+                op,
+                _providerManager,
+                request,
+                _queueId);
+
+        AsyncReply * asyncReply = SendWait (asyncRequest);
+
+        CIMDeleteSubscriptionResponseMessage * response =
+            reinterpret_cast <CIMDeleteSubscriptionResponseMessage *>
+            ((static_cast <AsyncLegacyOperationResult *>
+            (asyncReply))->get_result ());
+
+        if (!(response->cimException.getCode () == CIM_ERR_SUCCESS))
+        {
+            //
+            //  Provider rejected the subscription
+            //
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3,
+                "Provider (" +
+                indicationProviders [i].provider.getPath ().toString () +
+                ") rejected delete subscription: " +
+                response->cimException.getMessage ());
+        }
+
+        delete asyncRequest;
+        delete asyncReply;
+    }  //  for each indication provider
+
+    PEG_METHOD_EXIT ();
+}
+
 void IndicationService::_aggregationCallBack (
     AsyncOpNode * op,
     MessageQueue * q,
@@ -5828,12 +6024,6 @@ void IndicationService::_handleOperationResponseAggregation (
             break;
         }
 
-        case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-        {
-            _handleModifyResponseAggregation (operationAggregate);
-            break;
-        }
-
         case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
         {
             _handleDeleteResponseAggregation (operationAggregate);
@@ -5846,6 +6036,7 @@ void IndicationService::_handleOperationResponseAggregation (
                 "Unexpected request type " + String (MessageTypeToString
                     (operationAggregate->getRequest (0)->getType ())) +
                 " in _handleOperationResponseAggregation");
+            PEGASUS_ASSERT (false);
             break;
         }
     }
@@ -5963,9 +6154,8 @@ void IndicationService::_handleCreateResponseAggregation (
         else if (operationAggregate->requiresResponse ())
         {
             //
-            //  For Create Instance, Modify Instance, Notify Provider Enable or
-            //  Notify Provider Registration request, set CIM exception for
-            //  response
+            //  For Create Instance or Modify Instance request, set CIM
+            //  exception for response
             //
             // l10n
             cimException = PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
@@ -5979,66 +6169,6 @@ void IndicationService::_handleCreateResponseAggregation (
         //  At least one provider accepted the subscription
         //
         if (operationAggregate->getOrigType () ==
-            CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE)
-        {
-            //
-            //  Provider Registration Change
-            //
-            CIMNotifyProviderRegistrationRequestMessage * origRequest =
-                (CIMNotifyProviderRegistrationRequestMessage *)
-                    operationAggregate->getOrigRequest ();
-            ProviderClassList provider;
-            ProviderIdContainer pidc = origRequest->operationContext.get
-                (ProviderIdContainer::NAME);
-            provider.provider = pidc.getProvider();
-            provider.providerModule = pidc.getModule();
-            provider.classList.append (origRequest->className);
-
-            //
-            //  Update the entry in the active subscriptions hash table
-            //
-            _subscriptionTable->updateProviders
-                (request->subscriptionInstance.getPath (), provider, true);
-        }
-        else if (operationAggregate->getOrigType () ==
-            CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE)
-        {
-            //
-            //  Provider Enable
-            //
-            CIMNotifyProviderEnableRequestMessage * origRequest =
-                (CIMNotifyProviderEnableRequestMessage *)
-                    operationAggregate->getOrigRequest ();
-            ProviderClassList provider;
-            ProviderIdContainer pidc = origRequest->operationContext.get
-                (ProviderIdContainer::NAME);
-            provider.provider = pidc.getProvider();
-            provider.providerModule = pidc.getModule();
-            for (Uint32 j = 0; j < origRequest->capInstances.size (); j++)
-            {
-                //
-                //  If class not yet there, add to provider class list
-                //
-                String cName;
-                origRequest->capInstances [j].getProperty
-                    (origRequest->capInstances [j].findProperty
-                    (_PROPERTY_CLASSNAME)).getValue ().get (cName);
-                CIMName className = CIMName (cName);
-                Uint32 classIndex = _subscriptionTable->classInList
-                    (className, provider);
-                if (classIndex == PEG_NOT_FOUND)
-                {
-                    provider.classList.append (className);
-                }
-            }
-
-            //
-            //  Update the entry in the active subscriptions hash table
-            //
-            _subscriptionTable->updateProviders
-                (request->subscriptionInstance.getPath (), provider, true);
-        }
-        else if (operationAggregate->getOrigType () ==
             CIM_CREATE_INSTANCE_REQUEST_MESSAGE)
         {
             //
@@ -6122,8 +6252,7 @@ void IndicationService::_handleCreateResponseAggregation (
     }
 
     //
-    //  For Create Instance, Modify Instance, Notify Provider Enable or
-    //  Notify Provider Registration request, send response
+    //  For Create Instance or Modify Instance request, send response
     //
     if (operationAggregate->requiresResponse ())
     {
@@ -6140,9 +6269,10 @@ void IndicationService::_handleCreateResponseAggregation (
             _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
-        else if (operationAggregate->getOrigType () ==
-            CIM_MODIFY_INSTANCE_REQUEST_MESSAGE)
+        else  //  CIM_MODIFY_INSTANCE_REQUEST_MESSAGE
         {
+            PEGASUS_ASSERT (operationAggregate->getOrigType () ==
+                            CIM_MODIFY_INSTANCE_REQUEST_MESSAGE);
             // l10n
             // Note: don't need to set Content-language in the response
             //
@@ -6151,101 +6281,6 @@ void IndicationService::_handleCreateResponseAggregation (
             response->cimException = cimException;
             _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
-
-        else if (operationAggregate->getOrigType () ==
-            CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE)
-        {
-            CIMResponseMessage * response =
-                operationAggregate->getOrigRequest ()->buildResponse ();
-            response->cimException = cimException;
-            _enqueueResponse (operationAggregate->getOrigRequest (), response);
-        }
-
-        else //  CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE
-        {
-            PEGASUS_ASSERT (operationAggregate->getOrigType () ==
-                            CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE);
-
-            CIMResponseMessage * response =
-                operationAggregate->getOrigRequest ()->buildResponse ();
-            response->cimException = cimException;
-            _enqueueResponse (operationAggregate->getOrigRequest (), response);
-        }
-    }
-
-    PEG_METHOD_EXIT ();
-}
-
-void IndicationService::_handleModifyResponseAggregation (
-    IndicationOperationAggregate * operationAggregate)
-{
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "IndicationService::_handleModifyResponseAggregation");
-
-    CIMException cimException;
-
-    //
-    //  Examine provider responses
-    //
-    for (Uint32 i = 0; i < operationAggregate->getNumberResponses (); i++)
-    {
-        //
-        //  If response is not SUCCESS, provider rejected the modification
-        //
-        CIMResponseMessage * response = operationAggregate->getResponse (i);
-        if (response->cimException.getCode () != CIM_ERR_SUCCESS)
-        {
-            //
-            //  Find provider from which response was sent
-            //  Log a trace message
-            //
-            ProviderClassList provider = operationAggregate->findProvider
-                (response->messageId);
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3,
-                "Provider (" + provider.provider.getPath ().toString() +
-                ") rejected modify subscription: " +
-                response->cimException.getMessage ());
-
-            //
-            //  NOTE: if there are multiple non-success responses, the last will
-            //  be returned in the response
-            //
-            cimException = response->cimException;
-        }
-    }
-
-    //
-    //  Update active subscriptions hash table
-    //
-    CIMModifySubscriptionRequestMessage * request =
-        (CIMModifySubscriptionRequestMessage *)
-            operationAggregate->getRequest (0);
-
-    CIMNotifyProviderRegistrationRequestMessage * origRequest =
-        (CIMNotifyProviderRegistrationRequestMessage *)
-            operationAggregate->getOrigRequest ();
-
-    ProviderIdContainer pidc = origRequest->operationContext.get
-        (ProviderIdContainer::NAME);
-    CIMInstance provider = pidc.getProvider();
-
-    _subscriptionTable->updateClasses
-        (request->subscriptionInstance.getPath (), provider,
-        origRequest->className);
-
-    //
-    //  For Notify Provider Registration request, send response
-    //
-    if (operationAggregate->requiresResponse ())
-    {
-        PEGASUS_ASSERT (operationAggregate->getOrigType () ==
-                        CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE);
-
-        CIMResponseMessage * response;
-
-        response = operationAggregate->getOrigRequest ()->buildResponse ();
-        response->cimException = cimException;
-        _enqueueResponse (operationAggregate->getOrigRequest (), response);
     }
 
     PEG_METHOD_EXIT ();
@@ -6290,49 +6325,21 @@ void IndicationService::_handleDeleteResponseAggregation (
 
     //
     //  Update subscription hash tables
+    //  Delete Instance, Modify Instance, or Delete Referencing or Expired
+    //  Subscription
     //
     CIMDeleteSubscriptionRequestMessage * request =
         (CIMDeleteSubscriptionRequestMessage *)
             operationAggregate->getRequest (0);
 
-    if (operationAggregate->getOrigType () ==
-        CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE)
-    {
-        CIMNotifyProviderRegistrationRequestMessage * origRequest =
-            (CIMNotifyProviderRegistrationRequestMessage *)
-                operationAggregate->getOrigRequest ();
-
-        //
-        //  Update the entry in the active subscriptions hash table
-        //
-        ProviderClassList provider;
-        ProviderIdContainer pidc = origRequest->operationContext.get
-            (ProviderIdContainer::NAME);
-        provider.provider = pidc.getProvider();
-        provider.providerModule = pidc.getModule();
-        _subscriptionTable->updateProviders
-            (request->subscriptionInstance.getPath (), provider, false);
-    }
+    _subscriptionTable->removeSubscription
+        (request->subscriptionInstance,
+        operationAggregate->getIndicationSubclasses (),
+        request->nameSpace,
+        checkProviders);
 
     //
-    //  Delete Instance, Modify Instance, or Delete Referencing or Expired
-    //  Subscription
-    //
-    else
-    {
-        //
-        //  Remove entries from the subscription hash tables
-        //
-        _subscriptionTable->removeSubscription
-            (request->subscriptionInstance,
-            operationAggregate->getIndicationSubclasses (),
-            request->nameSpace,
-            checkProviders);
-    }
-
-    //
-    //  For Delete Instance, Modify Instance, or Notify Provider Registration
-    //  request, send response
+    //  For Delete Instance or Modify Instance request, send response
     //
     if (operationAggregate->requiresResponse ())
     {
@@ -6346,20 +6353,12 @@ void IndicationService::_handleDeleteResponseAggregation (
             response->cimException = cimException;
         }
 
-        else if (operationAggregate->getOrigType () ==
-            CIM_MODIFY_INSTANCE_REQUEST_MESSAGE)
-        {
-            // l10n
-            // Note: don't need to set Content-language in the response
-            response = operationAggregate->getOrigRequest ()->buildResponse ();
-            response->cimException = cimException;
-        }
-
-        else  // CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE
+        else  //  CIM_MODIFY_INSTANCE_REQUEST_MESSAGE
         {
             PEGASUS_ASSERT (operationAggregate->getOrigType () ==
-                            CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE);
-
+                            CIM_MODIFY_INSTANCE_REQUEST_MESSAGE);
+            // l10n
+            // Note: don't need to set Content-language in the response
             response = operationAggregate->getOrigRequest ()->buildResponse ();
             response->cimException = cimException;
         }

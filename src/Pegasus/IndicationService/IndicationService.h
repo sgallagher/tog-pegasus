@@ -706,17 +706,16 @@ private:
 
     /**
         Sends Create subscription request for the specified subscription
-        to each provider in the list.  Create Subscription requests must be 
-        sent to the indication providers in the following cases: (1) on 
-        initialization, for each enabled subscription retrieved from the 
-        repository, (2) on creation of an enabled subscription instance, (3) on
-        modification of a subscription instance, when the state changes to 
-        enabled, and (4) on notification of a provider registration change 
-        newly enabling the provider to serve the subscription.  In cases (2) and
-        (3), there is an original Create Instance or Modify Instance request to
-        which the Indication Service must respond.  In cases (1) and (4), there
-        is an original request (Notify Provider Registration Request), but no 
-        response is required.
+        to each provider in the list.  The requests are sent using SendAsync,
+        and the responses are aggregated in the callback methods.  Create 
+        Subscription requests are sent to the indication providers using 
+        SendAsync in the following cases: (1) on initialization, for each 
+        enabled subscription retrieved from the repository, (2) on creation of 
+        an enabled subscription instance, and (3) on modification of a 
+        subscription instance, when the state changes to enabled.  In cases (2)
+        and (3), there is an original Create Instance or Modify Instance 
+        request to which the Indication Service must respond.  In case (1), 
+        there is no original request and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being
@@ -734,16 +733,15 @@ private:
         @param   acceptLangs           the language of the response, and
                                            future indications
         @param   contentLangs          the language of the subscription
-        @param   origRequest           the original request, if any (e.g. Create
-                                           Instance, Modify Instance, Provider 
-                                           Registration change, Provider Enable)
+        @param   origRequest           the original request, if any (Create
+                                           Instance, Modify Instance)
         @param   indicationSubclasses  the indication subclasses for the 
                                            subscription
         @param   userName              the userName for authentication
         @param   authType              the authentication type
 
      */
-    void _sendCreateRequests (
+    void _sendAsyncCreateRequests (
         const Array <ProviderClassList> & indicationProviders,
         const CIMNamespaceName & nameSpace,
         const CIMPropertyList & propertyList,
@@ -759,17 +757,64 @@ private:
         const String & authType = String::EMPTY);
 
     /**
+        Sends Create subscription request for the specified subscription
+        to each provider in the list.  The requests are sent using SendWait,
+        so no callback methods are required.  Create Subscription requests are
+        sent to the indication providers using SendWait in the following cases:
+        (1) on notification of a provider registration change newly enabling 
+        the provider to serve the subscription, and (2) on notification that a 
+        provider has been enabled and may now serve the subscription.  In both
+        cases (1) and (2), there is an original Notify Provider Registration or
+        Notify Provider Enable request to which the Indication Service must
+        respond.  
+
+        @param   indicationProviders   list of providers with associated classes
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
+                                           property of the CIM_IndicationFilter
+                                           instance for the specified
+                                           subscription
+        @param   propertyList          the properties referenced by the
+                                           subscription
+        @param   condition             the condition part of the filter query
+        @param   query                 the filter query
+        @param   queryLanguage         the query language in which the filter
+                                           query is expressed
+        @param   subscription          the subscription to be created
+        @param   acceptLangs           the language of the response, and
+                                           future indications
+        @param   contentLangs          the language of the subscription
+        @param   userName              the userName for authentication
+        @param   authType              the authentication type
+
+        @return  Number of providers that accepted subscription
+     */
+    Uint32 _sendWaitCreateRequests (
+        const Array <ProviderClassList> & indicationProviders,
+        const CIMNamespaceName & nameSpace,
+        const CIMPropertyList & propertyList,
+        const String & condition,
+        const String & query,
+        const String & queryLanguage,
+        const CIMInstance & subscription,
+        const AcceptLanguages & acceptLangs,
+        const ContentLanguages & contentLangs,
+        const String & userName,
+        const String & authType = String::EMPTY);
+
+    /**
         Sends Modify subscription request for the specified subscription
-        to each provider in the list.  Modify Subscription requests must be
-        sent to the indication providers on notification of a provider 
+        to each provider in the list.   The requests are sent using SendWait,
+        so no callback methods are required.  Modify Subscription requests must
+        be sent to the indication providers on notification of a provider 
         registration change, when the provider was formerly serving the 
         subscription, and is still serving the subscription, in the following 
         cases: (1) the provider is newly serving an additional indication 
-        subclass specified by the subscription, and (2) the provider is
+        subclass specified by the subscription, or (2) the provider is
         no longer serving an indication subclass specified by the subscription 
         (but is still serving at least one of the indication subclasses).
-        In cases (1) and (2), there is an original request (Notify Provider 
-        Registration Request), but no response is required.
+        In cases (1) and (2), there is an original Notify Provider Registration
+        request to which the Indication Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being
@@ -787,12 +832,10 @@ private:
         @param   acceptLangs           the language of the response, and
                                            future indications
         @param   contentLangs          the language of the subscription    
-        @param   origRequest           the original request (Provider 
-                                           Registration change)
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
-    void _sendModifyRequests (
+    void _sendWaitModifyRequests (
         const Array <ProviderClassList> & indicationProviders,
         const CIMNamespaceName & nameSpace,
         const CIMPropertyList & propertyList,
@@ -802,22 +845,22 @@ private:
         const CIMInstance & subscription,
         const AcceptLanguages & acceptLangs,
         const ContentLanguages & contentLangs,  
-        const CIMRequestMessage * origRequest,
         const String & userName,
         const String & authType = String::EMPTY);
 
     /**
         Sends Delete subscription request for the specified subscription
-        to each provider in the list.  Delete Subscription requests must be
-        sent to the indication providers in the following cases: (1) on deletion
-        of an enabled subscription instance, (2) on modification of a 
-        subscription instance, when the state changes to disabled, and (3) on 
-        notification of a provider registration change newly preventing the 
-        provider from serving the subscription.  
-        In cases (1) and (2), there is an original Delete Instance or Modify 
-        Instance request to which the Indication Service must respond.  In case
-        (1), there is an original request (Notify Provider Registration 
-        Request), but no response is required.
+        to each provider in the list.  The requests are sent using SendAsync,
+        and the responses are aggregated in the callback methods.  Delete 
+        Subscription requests are sent to the indication providers using 
+        SendAsync in the following cases: (1) on deletion of an enabled 
+        subscription instance, (2) on modification of a subscription instance, 
+        when the state changes to disabled, (3) on deletion of an expired 
+        subscription, and (4) on deletion of a subscription referencing a 
+        deleted transient handler.  In cases (1) and (2), there is an original 
+        Delete Instance or Modify Instance request to which the Indication 
+        Service must respond.  In cases (3) and (4), there is no orginal request
+        and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being 
@@ -828,15 +871,14 @@ private:
         @param   subscription          the subscription to be modified
         @param   acceptLangs           the language of the response
         @param   contentLangs          the language of the subscription    
-        @param   origRequest           the original request, if any (e.g. Delete
-                                           Instance, Modify Instance, Provider 
-                                           Registration change)
+        @param   origRequest           the original request (Delete Instance, 
+                                           Modify Instance)
         @param   indicationSubclasses  the indication subclasses for the 
                                            subscription
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
-    void _sendDeleteRequests (
+    void _sendAsyncDeleteRequests (
         const Array <ProviderClassList> & indicationProviders,
         const CIMNamespaceName & nameSpace,
         const CIMInstance & subscription,
@@ -844,6 +886,37 @@ private:
         const ContentLanguages & contentLangs,  
         const CIMRequestMessage * origRequest,
         const Array <CIMName> & indicationSubclasses,
+        const String & userName,
+        const String & authType = String::EMPTY);
+
+    /**
+        Sends Delete subscription request for the specified subscription
+        to each provider in the list.  The requests are sent using SendWait,
+        so no callback methods are required.  Delete Subscription requests are
+        sent to the indication providers using SendWait in the following case: 
+        (1) on notification of a provider registration change newly preventing 
+        the provider from serving the subscription.  In case (1), there is an 
+        original Notify Provider Registration request to which the Indication 
+        Service must respond.  
+
+        @param   indicationProviders   list of providers with associated classes
+        @param   nameSpace             the nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
+                                           property of the CIM_IndicationFilter
+                                           instance for the specified
+                                           subscription
+        @param   subscription          the subscription to be modified
+        @param   acceptLangs           the language of the response
+        @param   contentLangs          the language of the subscription
+        @param   userName              the userName for authentication
+        @param   authType              the authentication type
+     */
+    void _sendWaitDeleteRequests (
+        const Array <ProviderClassList> & indicationProviders,
+        const CIMNamespaceName & nameSpace,
+        const CIMInstance & subscription,
+        const AcceptLanguages & acceptLangs,
+        const ContentLanguages & contentLangs,
         const String & userName,
         const String & authType = String::EMPTY);
 

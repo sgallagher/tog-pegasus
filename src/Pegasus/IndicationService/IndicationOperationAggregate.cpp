@@ -129,9 +129,7 @@ Boolean IndicationOperationAggregate::requiresResponse ()
 {
     if ((getOrigType () == CIM_CREATE_INSTANCE_REQUEST_MESSAGE) ||
         (getOrigType () == CIM_MODIFY_INSTANCE_REQUEST_MESSAGE) ||
-        (getOrigType () == CIM_DELETE_INSTANCE_REQUEST_MESSAGE) ||
-        (getOrigType () == CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE) ||
-        (getOrigType () == CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE))
+        (getOrigType () == CIM_DELETE_INSTANCE_REQUEST_MESSAGE))
     {
         return true;
     }
@@ -242,18 +240,8 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                 {
                     CIMCreateSubscriptionRequestMessage * request =
                         (CIMCreateSubscriptionRequestMessage *) getRequest (i);
-					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
-                    provider.provider = pidc.getProvider();
-                    provider.providerModule = pidc.getModule();
-                    provider.classList = request->classNames;
-                    break;
-                }
-        
-                case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-                {
-                    CIMModifySubscriptionRequestMessage * request =
-                        (CIMModifySubscriptionRequestMessage *) getRequest (i);
-					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    ProviderIdContainer pidc = request->operationContext.get
+                        (ProviderIdContainer::NAME); 
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
@@ -264,7 +252,8 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                 {
                     CIMDeleteSubscriptionRequestMessage * request =
                         (CIMDeleteSubscriptionRequestMessage *) getRequest (i);
-					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    ProviderIdContainer pidc = request->operationContext.get
+                        (ProviderIdContainer::NAME); 
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;

@@ -211,7 +211,7 @@ Boolean _checkIndicationLog
                 {
                     if(String::equalNoCase(qlang, "cim:cql"))
                     {
-                      id += 9;
+                      id += 10;
                     }
 
                     char idStr[10];
@@ -362,15 +362,33 @@ void _sendTestIndication
     Array <CIMKeyBinding> keyBindings;
     Sint32 result;
 
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
-        CIMName ("RT_TestIndication"), keyBindings);
+    CIMValue retValue;
 
-    CIMValue retValue = client.invokeMethod 
-        (SOURCENAMESPACE,
-        className,
-        methodName,
-        inParams,
-        outParams);
+    if (methodName.equal ("SendTestIndicationSubclass"))
+    {
+        CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
+            CIMName ("RT_TestIndicationSubclass"), keyBindings);
+
+        retValue = client.invokeMethod
+            (SOURCENAMESPACE,
+            className,
+            methodName,
+            inParams,
+            outParams);
+    }
+    else
+    {
+        CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+            CIMName ("RT_TestIndication"), keyBindings);
+
+        retValue = client.invokeMethod 
+            (SOURCENAMESPACE,
+            className,
+            methodName,
+            inParams,
+            outParams);
+    }
+
     retValue.get (result);
     PEGASUS_ASSERT (result == 0);
 
@@ -384,6 +402,12 @@ void _sendTestIndicationNormal
     (CIMClient & client)
 {
     _sendTestIndication (client, CIMName ("SendTestIndicationNormal"));
+}
+
+void _sendTestIndicationSubclass
+    (CIMClient & client)
+{
+    _sendTestIndication (client, CIMName ("SendTestIndicationSubclass"));
 }
 
 void _sendTestIndicationMissing
@@ -610,6 +634,23 @@ void _sendNormal (CIMClient & client)
                        << PEGASUS_STD (endl);
 }
 
+void _sendSubclass (CIMClient & client)
+{
+    try
+    {
+        _sendTestIndicationSubclass (client);
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "sendSubclass failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ sendSubclass completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
 void _sendMissing (CIMClient & client)
 {
     try
@@ -791,6 +832,10 @@ int _test(CIMClient& client, const char* opt, String& qlang)
   {
     _sendNormal (client);
   }
+  else if (String::equalNoCase (opt, "sendSubclass"))
+  {
+    _sendSubclass (client);
+  }
   else if (String::equalNoCase (opt, "sendMissing"))
   {
     _sendMissing (client);
@@ -821,6 +866,15 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     _check (opt, 1, String ("SendTestIndicationNormal"), 
             false, false, qlang);
   }
+  else if (String::equalNoCase (opt, "checkSubclass"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  Only the properties included in the SELECT list of the filter
+    //  query should be included in the indication instance
+    //
+    _check (opt, 2, String ("SendTestIndicationSubclass"), false, false, qlang);
+  }
   else if (String::equalNoCase (opt, "checkMissing"))
   {
     //
@@ -828,7 +882,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  None should be received in this case, since a required property
     //  is missing from the indication instance
     //
-    _check (opt, 2, 
+    _check (opt, 3, 
             String ("SendTestIndicationMissingProperty"), false, true, qlang);
   }
   else if (String::equalNoCase (opt, "checkExtra"))
@@ -840,7 +894,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter 
     //  query should be included in the indication instance
     //
-    _check (opt, 3, 
+    _check (opt, 4, 
             String ("SendTestIndicationExtraProperty"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkMatching"))
@@ -850,7 +904,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  Only the properties included in the SELECT list of the filter 
     //  query should be included in the indication instance
     //
-    _check (opt, 4, 
+    _check (opt, 5, 
             String ("SendTestIndicationMatchingInstance"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkUnmatchingNamespace"))
@@ -862,7 +916,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  source namespace of the subscription instance name in the 
     //  operation context
     //
-    _check (opt, 5, 
+    _check (opt, 6, 
             String ("SendTestIndicationUnmatchingNamespace"), false, true, qlang);
   }
   else if (String::equalNoCase (opt, "checkUnmatchingClassName"))
@@ -874,7 +928,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  query indication class of the subscription instance name in the
     //  operation context
     //
-    _check (opt, 6, 
+    _check (opt, 7, 
             String ("SendTestIndicationUnmatchingClassName"), false, true, qlang);
   }
   else if (String::equalNoCase (opt, "checkNormalAll"))
@@ -884,7 +938,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  All properties should be included in the indication instance,
     //  since the filter query specifies SELECT *
     //
-    _check (opt, 7, 
+    _check (opt, 8, 
             String ("SendTestIndicationNormal"), true, false, qlang);
    }
   else if (String::equalNoCase (opt, "checkMissingAll"))
@@ -894,7 +948,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  None should be received in this case, since a required property
     //  is missing from the indication instance
     //
-    _check (opt, 8, 
+    _check (opt, 9, 
             String ("SendTestIndicationMissingProperty"), true, true, qlang);
   }
   else if (String::equalNoCase (opt, "checkExtraAll"))
@@ -906,7 +960,7 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     //  All properties should be included in the indication instance,
     //  since the filter query specifies SELECT *
     //
-    _check (opt, 9, 
+    _check (opt, 10, 
             String ("SendTestIndicationExtraProperty"), true, false, qlang);
   }
   else if (String::equalNoCase (opt, "delete1"))

@@ -45,7 +45,7 @@ static CIMQualifier _resolveQualifier(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "_resolveQualifier(%s)",
-        (const char*)referenceQualifier.getName().getString().getCString());
+        (const char *)referenceQualifier.getName().getString().getCString());
 
     CIMName qualifierName = referenceQualifier.getName();
     CIMValue qualifierValue = referenceQualifier.getValue();
@@ -76,7 +76,7 @@ static CIMProperty _resolveProperty(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "_resolveProperty(%s) : includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)referenceProperty.getName().getString().getCString(),
+        (const char *)referenceProperty.getName().getString().getCString(),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));
 
@@ -105,8 +105,8 @@ static CIMProperty _resolveProperty(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "%s : value = %s",
-        (const char*)newProperty.getName().getString().getCString(),
-        (const char*)newProperty.getValue().toString().getCString());
+        (const char *)newProperty.getName().getString().getCString(),
+        (const char *)newProperty.getValue().toString().getCString());
 
     // set class origin
     if(includeClassOrigin)
@@ -124,8 +124,8 @@ static CIMProperty _resolveProperty(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "%s : class origin = %s",
-        (const char*)newProperty.getName().getString().getCString(),
-        (const char*)newProperty.getClassOrigin().getString().getCString());
+        (const char *)newProperty.getName().getString().getCString(),
+        (const char *)newProperty.getClassOrigin().getString().getCString());
 
     // add qualifiers
     if(includeQualifiers)
@@ -139,7 +139,7 @@ static CIMProperty _resolveProperty(
             Tracer::trace(
                 TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
                 "adding qualifier %s",
-                (const char*)referenceQualifier.getName().getString().getCString());
+                (const char *)referenceQualifier.getName().getString().getCString());
 
             newProperty.addQualifier(referenceQualifier);
         }
@@ -159,7 +159,7 @@ static CIMProperty _resolveProperty(
             Tracer::trace(
                 TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
                 "updating qualifier %s",
-                (const char*)cimQualifier.getName().getString().getCString());
+                (const char *)cimQualifier.getName().getString().getCString());
 
             newProperty.getQualifier(pos).setValue(cimQualifier.getValue());
         }
@@ -176,7 +176,7 @@ static CIMParameter _resolveParameter(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "_resolveParameter(%s) : includeQualifiers = %s",
-        (const char*)referenceParameter.getName().getString().getCString(),
+        (const char *)referenceParameter.getName().getString().getCString(),
         (includeQualifiers == true ? "true" : "false"));
 
     // TODO:
@@ -194,7 +194,7 @@ static CIMMethod _resolveMethod(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "_resolveMethod(%s) : includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)referenceMethod.getName().getString().getCString(),
+        (const char *)referenceMethod.getName().getString().getCString(),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));
 
@@ -215,7 +215,7 @@ static CIMClass _resolveClass(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "_resolveClass(%s) : localOnly = %s, includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)referenceClass.getClassName().getString().getCString(),
+        (const char *)referenceClass.getClassName().getString().getCString(),
         (localOnly == true ? "true" : "false"),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));
@@ -246,7 +246,7 @@ static CIMClass _resolveClass(
             Tracer::trace(
                 TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
                 "adding qualifier %s",
-                (const char*)referenceQualifier.getName().getString().getCString());
+                (const char *)referenceQualifier.getName().getString().getCString());
 
             newClass.addQualifier(referenceQualifier);
         }
@@ -260,13 +260,13 @@ static CIMClass _resolveClass(
 
             if(pos == PEG_NOT_FOUND)
             {
-                // ATTN: is it legal to specify qualifiers not in the property definition?
+                // ATTN: is it legal to specify qualifiers not in the class definition?
             }
 
             Tracer::trace(
                 TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
                 "updating qualifier %s",
-                (const char*)cimQualifier.getName().getString().getCString());
+                (const char *)cimQualifier.getName().getString().getCString());
 
             newClass.getQualifier(pos).setValue(cimQualifier.getValue());
         }
@@ -281,7 +281,7 @@ static CIMClass _resolveClass(
         Tracer::trace(
             TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
             "adding property %s",
-            (const char*)referenceProperty.getName().getString().getCString());
+            (const char *)referenceProperty.getName().getString().getCString());
 
         CIMProperty cimProperty = referenceClass.getProperty(i).clone();
 
@@ -297,7 +297,7 @@ static CIMClass _resolveClass(
         Tracer::trace(
             TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
             "adding method %s",
-            (const char*)referenceMethod.getName().getString().getCString());
+            (const char *)referenceMethod.getName().getString().getCString());
 
         CIMMethod cimMethod = referenceClass.getMethod(i).clone();
 
@@ -367,7 +367,7 @@ static CIMInstance _resolveInstance(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "_resolveInstance(%s) : localOnly = %s, includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)referenceInstance.getClassName().getString().getCString(),
+        (const char *)referenceInstance.getClassName().getString().getCString(),
         (localOnly == true ? "true" : "false"),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));
@@ -393,7 +393,7 @@ static CIMInstance _resolveInstance(
             Tracer::trace(
                 TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
                 "adding qualifier %s",
-                (const char*)referenceQualifier.getName().getString().getCString());
+                (const char *)referenceQualifier.getName().getString().getCString());
 
             newInstance.addQualifier(referenceQualifier);
         }
@@ -407,15 +407,27 @@ static CIMInstance _resolveInstance(
 
             if(pos == PEG_NOT_FOUND)
             {
-                // ATTN: is it legal to specify qualifiers not in the property definition?
+                // add qualifiers not in the reference class
+
+                // TODO: ensure the qualifier is exists and is valid in this scope
+
+                Tracer::trace(
+                    TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
+                    "adding qualifier %s",
+                    (const char *)cimQualifier.getName().getString().getCString());
+
+                newInstance.addQualifier(cimQualifier);
             }
+            else
+            {
+                // update qualifier
+                Tracer::trace(
+                    TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
+                    "updating qualifier %s",
+                    (const char *)cimQualifier.getName().getString().getCString());
 
-            Tracer::trace(
-                TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
-                "updating qualifier %s",
-                (const char*)cimQualifier.getName().getString().getCString());
-
-            newInstance.getQualifier(pos).setValue(cimQualifier.getValue());
+                newInstance.getQualifier(pos).setValue(cimQualifier.getValue());
+            }
         }
     }
 
@@ -478,11 +490,15 @@ static CIMInstance _resolveInstance(
         Tracer::trace(
             TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
             "adding property %s",
-            (const char*)cimProperty.getName().getString().getCString());
+            (const char *)cimProperty.getName().getString().getCString());
 
         newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
 
+    // simple propgate the object's path
+    newInstance.setPath(cimInstance.getPath());
+
+    /*
     // update keys
     Array<CIMKeyBinding> keys = referenceInstance.getPath().getKeyBindings();
 
@@ -508,6 +524,7 @@ static CIMInstance _resolveInstance(
     path.setKeyBindings(keys);
 
     newInstance.setPath(path);
+    */
 
     return(newInstance);
 }
@@ -523,7 +540,7 @@ static CIMInstance _resolveIndication(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "_resolveIndication(%s) : localOnly = %s, includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)referenceIndication.getClassName().getString().getCString(),
+        (const char *)referenceIndication.getClassName().getString().getCString(),
         (localOnly == true ? "true" : "false"),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));
@@ -551,7 +568,7 @@ CIMClass ObjectNormalizer::normalizeClass(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "ObjectNormalizer::normalizeClass(%s) : localOnly = %s, includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)cimClass.getClassName().getString().getCString(),
+        (const char *)cimClass.getClassName().getString().getCString(),
         (localOnly == true ? "true" : "false"),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));
@@ -584,7 +601,7 @@ CIMInstance ObjectNormalizer::normalizeInstance(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "ObjectNormalizer::normalizeInstance(%s) : localOnly = %s, includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)cimInstance.getClassName().getString().getCString(),
+        (const char *)cimInstance.getClassName().getString().getCString(),
         (localOnly == true ? "true" : "false"),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));
@@ -619,7 +636,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "ObjectNormalizer::normalizeInstances(%s) : localOnly = %s, includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)cimInstances[0].getClassName().getString().getCString(),
+        (const char *)cimInstances[0].getClassName().getString().getCString(),
         (localOnly == true ? "true" : "false"),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));
@@ -671,28 +688,18 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     // propagate host and namespace in object
     referenceInstance.setPath(CIMObjectPath(hostName, nameSpace, className, keyBindings));
 
-    // copy qualifiers (if includeQualfiers == false, the class should have none
-    // the following code will do nothing)
+    // copy all qualifiers to reference instance. no attempt is made at this time
+    // to propagate based on flavor.
     for(Uint32 i = 0, n = referenceClass.getQualifierCount(); i < n; i++)
     {
         CIMQualifier referenceQualifier = referenceClass.getQualifier(i).clone();
 
-        if(referenceQualifier.getFlavor().hasFlavor(CIMFlavor::TOINSTANCE))
-        {
-            Tracer::trace(
-                TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
-                "adding qualifier %s",
-                (const char*)referenceQualifier.getName().getString().getCString());
+        Tracer::trace(
+            TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
+            "adding qualifier %s",
+            (const char *)referenceQualifier.getName().getString().getCString());
 
-            referenceInstance.addQualifier(referenceQualifier);
-        }
-        else
-        {
-            Tracer::trace(
-                TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
-                "ignoring qualifier %s",
-                (const char*)referenceQualifier.getName().getString().getCString());
-        }
+        referenceInstance.addQualifier(referenceQualifier);
     }
 
     // copy properties (if localOnly == true, the class should only have
@@ -700,15 +707,6 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     for(Uint32 i = 0, n = referenceClass.getPropertyCount(); i < n; i++)
     {
         CIMProperty referenceProperty = referenceClass.getProperty(i).clone();
-
-        /*
-        DEBUG_PRINT(referenceProperty.getName().getString() << " qualifiers");
-
-        for(Uint32 i = 0, n = referenceProperty.getQualifierCount(); i < n; i++)
-        {
-            DEBUG_PRINT(referenceProperty.getQualifier(i).getName().getString());
-        }
-        */
 
         // the propagated value only applies to class properties, not instances. set it to false.
         referenceProperty.setPropagated(false);
@@ -747,7 +745,7 @@ CIMIndication ObjectNormalizer::normalizeIndication(
     Tracer::trace(
         TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
         "ObjectNormalizer::normalizeIndication(%s) : localOnly = %s, includeQualifiers = %s, includeClassOrigin = %s",
-        (const char*)cimIndication.getClassName().getString().getCString(),
+        (const char *)cimIndication.getClassName().getString().getCString(),
         (localOnly == true ? "true" : "false"),
         (includeQualifiers == true ? "true" : "false"),
         (includeClassOrigin == true ? "true" : "false"));

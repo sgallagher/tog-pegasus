@@ -82,6 +82,7 @@ void TraceFileHandler::handleMessage(
         // Set permissions on the trace file to 0400
         //
         //
+#ifndef PEGASUS_OS_ZOS
         if ( !FileSystem::changeFilePermissions(String(_fileName), S_IRUSR) )
 #else
         if ( !FileSystem::changeFilePermissions(String(_fileName), (S_IRUSR|S_IWUSR)) )

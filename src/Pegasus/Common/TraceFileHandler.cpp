@@ -125,7 +125,11 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
     // Set permissions on the trace file to 0400
     //
     //
+#if !defined(PEGASUS_OS_ZOS)
     if ( !FileSystem::changeFilePermissions(String(_fileName), S_IRUSR) )
+#else
+    if ( !FileSystem::changeFilePermissions(String(_fileName), (S_IRUSR|S_IWUSR)) )
+#endif
 #else
     if ( !FileSystem::changeFilePermissions(String(_fileName), (_S_IREAD | _S_IWRITE )) )
 #endif

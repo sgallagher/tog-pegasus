@@ -11,7 +11,7 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_WIN32_WINNT=0x0400 -DPEGASUS
 #-D_WIN32_WINNT=0x0400 -DWINVER=0x0400
 
 ifdef PEGASUS_DEBUG
-  FLAGS = -GX -GR -W3 -Od -Zi -MDd
+  FLAGS = -GX -GR -W3 -Od -Zi -MDd -Fd$(OBJ_DIR)
   LINK_FLAGS = -debug
 else
   FLAGS = -GX -GR -W3 -O2 -MD
@@ -48,6 +48,14 @@ OBJ = .obj
 OBJ_OUT = -Fo
 
 EXE = .exe
+
+DLL = .dll
+
+ILK = .ilk
+
+PDB = .pdb
+
+EXP = .exp
 
 AR = LINK -nologo -dll
 

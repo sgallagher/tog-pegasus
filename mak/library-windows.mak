@@ -1,6 +1,8 @@
-FULL_LIB = $(LIB_DIR)/$(LIBRARY).lib
-FULL_DLL = $(BIN_DIR)/$(LIBRARY).dll
-FULL_EXP = $(BIN_DIR)/$(LIBRARY).exp
+FULL_LIB = $(LIB_DIR)/$(LIBRARY)$(LIB_SUFFIX)
+FULL_DLL = $(BIN_DIR)/$(LIBRARY)$(DLL)
+FULL_EXP = $(BIN_DIR)/$(LIBRARY)$(EXP)
+FULL_ILK = $(BIN_DIR)/$(LIBRARY)$(ILK)
+FULL_PDB = $(BIN_DIR)/$(LIBRARY)$(PDB)
 
 ##
 ## ws2_32.lib is needed to get the WINSOCK routines!
@@ -13,7 +15,7 @@ $(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(
 	@ $(ECHO)
 
 FILES_TO_CLEAN = \
-    $(OBJECTS) $(FULL_LIB) $(FULL_DLL) $(FULL_EXP) depend.mak depend.mak.bak
+    $(OBJECTS) $(FULL_LIB) $(FULL_DLL) $(FULL_EXP) $(FULL_ILK) $(FULL_PDB) $(OBJ_DIR)$(PDB) depend.mak depend.mak.bak
 
 clean-lib: $(ERROR)
 	mu rm $(FULL_LIB) $(FULL_DLL) $(FULL_EXP)

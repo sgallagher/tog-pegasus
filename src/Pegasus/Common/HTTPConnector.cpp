@@ -253,7 +253,7 @@ HTTPConnection* HTTPConnector::connect(
 
    // Conect the socket to the address:
 
-   if (::connect(socket, (sockaddr*)&address, sizeof(address)) < 0)
+   if (::connect(socket, reinterpret_cast<sockaddr*>(&address), sizeof(address)) < 0)
       throw CannotConnect(locator);
 
    // Create HTTPConnection object:

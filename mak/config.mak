@@ -14,6 +14,16 @@ pegasus_home_undefined:
 	@ exit 1
 endif
 
+VALID_PLATFORMS = win32_iX86_msvc linux_iX86_gnu
+
+ifndef PEGASUS_PLATFORM
+  ERROR = pegasus_platform_undefined
+pegasus_platform_undefined:
+	@ echo PEGASUS_PLATFORM environment variable undefined. Please set to\
+	    one of the following: $(VALID_PLATFORMS)
+	@ exit 1
+endif
+
 ################################################################################
 
 OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
@@ -25,4 +35,26 @@ LEX = flex
 
 YACC = bison
 
-include $(ROOT)/mak/config-platform.mak
+################################################################################
+##
+## Attempt to include a platform configuration file:
+##
+################################################################################
+
+ifeq ($(PEGASUS_PLATFORM),win32_iX86_msvc)
+  include $(ROOT)/mak/config-$(PEGASUS_PLATFORM).mak
+  FOUND = true
+endif
+
+ifeq ($(PEGASUS_PLATFORM),linux_iX86_gnu)
+  include $(ROOT)/mak/config-$(PEGASUS_PLATFORM).mak
+  FOUND = true
+endif
+
+ifneq ($(FOUND),true)
+  ERROR = pegasus_unknown_platform
+pegasus_unknown_platform:
+	@ echo PEGASUS_PLATFORM environment variable must be set to one of\
+	    the following: $(VALID_PLATFORMS)
+	@ exit 1
+endif

@@ -367,7 +367,9 @@ public:
 	CIMProcessIndicationRequestMessage * request =
 	    new CIMProcessIndicationRequestMessage(
 		getRequest()->messageId,
-		static_cast<CIMEnableIndicationsRequestMessage *>(getRequest())->nameSpace,
+                // ATTN-RK-P2-20020408: Need to get the namespace from provider
+		//static_cast<CIMEnableIndicationsRequestMessage *>(getRequest())->nameSpace,
+		String::EMPTY,
 		cimInstance,
 		QueueIdStack(_target->getQueueId(), _source->getQueueId()));
 

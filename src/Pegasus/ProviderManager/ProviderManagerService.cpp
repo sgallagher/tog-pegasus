@@ -69,32 +69,12 @@ ProviderManager * ProviderManagerService::getProviderManager(void)
     return(&providerManager);
 }
 
-Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMObjectPath & objectPath)
+Pair<String, String> _getProviderRegPair(const CIMInstance& pInstance, const CIMInstance& pmInstance)
 {
-    CIMInstance pInstance;
-    CIMInstance pmInstance;
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_getProviderRegPair");
+
     String providerName;
     String location;
-
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForClass");
-
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-	"nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName());
-
-    // ATTN: try all provider type lookups
-
-    // get the provider and provider module instance from the registration manager
-    if(_providerRegistrationManager->lookupInstanceProvider(
-	objectPath.getNameSpace(), objectPath.getClassName(),
-	pInstance, pmInstance) == false)
-    {
-	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-	    "Provider registration not found.");
-
-	PEG_METHOD_EXIT();
-
-	throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
-    }
 
     // get the provider name from the provider instance
     Uint32 pos = pInstance.findProperty("Name");
@@ -147,6 +127,40 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
     PEG_METHOD_EXIT();
 
     return(Pair<String, String>(fileName, providerName));
+}
+
+Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMObjectPath & objectPath)
+{
+    CIMInstance pInstance;
+    CIMInstance pmInstance;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForClass");
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	"nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName());
+
+    // ATTN: try all provider type lookups
+
+    // get the provider and provider module instance from the registration manager
+    if(_providerRegistrationManager->lookupInstanceProvider(
+	objectPath.getNameSpace(), objectPath.getClassName(),
+	pInstance, pmInstance) == false)
+    {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+	    "Provider registration not found.");
+
+	PEG_METHOD_EXIT();
+
+	throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+    }
+
+    Pair<String, String> pair;
+
+    pair = _getProviderRegPair(pInstance, pmInstance);
+
+    PEG_METHOD_EXIT();
+
+    return pair;
 }
 
 Boolean ProviderManagerService::messageOK(const Message * message)
@@ -1109,14 +1123,8 @@ void ProviderManagerService::handleCreateSubscriptionRequest(const Message * mes
 
     try
     {
-	// make target object path
-	CIMObjectPath objectPath(
-	    System::getHostName(),
-	    request->nameSpace,
-	    request->classNames[0]);
-
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -1169,14 +1177,8 @@ void ProviderManagerService::handleModifySubscriptionRequest(const Message * mes
 
     try
     {
-	// make target object path
-	CIMObjectPath objectPath(
-	    System::getHostName(),
-	    request->nameSpace,
-	    request->classNames[0]);
-
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -1229,14 +1231,8 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * mes
 
     try
     {
-	// make target object path
-	CIMObjectPath objectPath(
-	    System::getHostName(),
-	    request->nameSpace,
-	    request->classNames[0]);
-
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -1288,14 +1284,8 @@ void ProviderManagerService::handleEnableIndicationsRequest(const Message * mess
 
     try
     {
-	// make target object path
-	CIMObjectPath objectPath(
-	    System::getHostName(),
-	    request->nameSpace,
-	    request->classNames[0]);
-
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
@@ -1340,14 +1330,8 @@ void ProviderManagerService::handleDisableIndicationsRequest(const Message * mes
 
     try
     {
-	// make target object path
-	CIMObjectPath objectPath(
-	    System::getHostName(),
-	    request->nameSpace,
-	    request->classNames[0]);
-
 	// get the provider file name and logical name
-	Pair<String, String> pair = _lookupProviderForClass(objectPath);
+	Pair<String, String> pair = _getProviderRegPair(request->provider, request->providerModule);
 
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);

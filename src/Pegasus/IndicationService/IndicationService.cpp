@@ -4396,7 +4396,7 @@ void IndicationService::_sendModifyRequests
 		  this, 
 		  (void *)epl);
 
-//        AsyncReply * async_reply = SendWait (async_req);
+        // AsyncReply * async_reply = SendWait (async_req);
 
     }
 
@@ -4505,8 +4505,7 @@ void IndicationService::_sendDisableRequests
 		  (void *)epl);
 
 	// <<< Fri Apr  5 06:05:55 2002 mdd >>>
-	//        AsyncReply * async_reply = SendWait (async_req);
-        //
+	// AsyncReply * async_reply = SendWait (async_req);
 
     }
 
@@ -4761,9 +4760,8 @@ void IndicationService::_sendAlerts (
 	
 		  
 
-        // <<< Fri Apr  5 06:24:14 2002 mdd >>>
-	//  AsyncReply *async_reply = SendWait(async_req);
-
+	// <<< Fri Apr  5 06:24:14 2002 mdd >>>
+	// AsyncReply *async_reply = SendWait(async_req);
 
     }
 
@@ -4777,54 +4775,11 @@ void IndicationService::_sendStart (
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
  
-    //
-    //  ATTN-CAKG-P2-20020408: the following code is temporary
-    //  The start message temporarily incudes a provider name/module
-    //  location pair (and a namespace and list of classnames that are unused). 
-    //  In the future, it will include only the provider and provider module 
-    //  instances.
-    //
-    Array <String> emptyArray;
-    CIMInstance pmInstance;
-    String providerName;
-    String location;
-
-    Uint32 pos = startProvider.provider.findProperty ("Name");
-    if(pos == PEG_NOT_FOUND)
-    {
-        throw CIMException (CIM_ERR_FAILED);
-    }
-
-    startProvider.provider.getProperty (pos).getValue ().get (providerName);
-
-    pos = startProvider.providerModule.findProperty ("Location");
-    if(pos == PEG_NOT_FOUND)
-    {
-        throw CIMException (CIM_ERR_FAILED);
-    }
-
-    startProvider.providerModule.getProperty (pos).getValue ().get (location);
-
-    String fileName;
-
-    #ifdef PEGASUS_OS_TYPE_WINDOWS
-    fileName = location + String (".dll");
-    #elif defined(PEGASUS_OS_HPUX)
-    fileName = ConfigManager::getHomedPath 
-        (ConfigManager::getInstance ()->getCurrentValue ("providerDir"));
-    fileName += String ("/lib") + location + String (".sl");
-    #else
-    fileName = ConfigManager::getHomedPath
-        (ConfigManager::getInstance ()->getCurrentValue ("providerDir"));
-    fileName += String ("/lib") + location + String (".so");
-    #endif
-
     CIMEnableIndicationsRequestMessage * request =
         new CIMEnableIndicationsRequestMessage
             (XmlWriter::getNextMessageId (),
-             String::EMPTY,
-             emptyArray,
-             Pair <String, String> (fileName, providerName),
+             startProvider.provider,
+             startProvider.providerModule,
              QueueIdStack (_providerManager, getQueueId ()));
 
     AsyncOpNode* op = this->get_op (); 

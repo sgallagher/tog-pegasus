@@ -30,6 +30,7 @@
 
 #include <cstdio>
 #include "Exception.h"
+#include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -61,6 +62,9 @@ AssertionFailureException::AssertionFailureException(
     _message.append(lineStr);
     _message.append("): ");
     _message.append(message);
+
+    // ATTN-RK-P3-20020408: Should define a "test" trace component
+    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL2, _message);
 }
 
 const char OutOfBounds::MSG[] = "out of bounds";

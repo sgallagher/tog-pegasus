@@ -1030,29 +1030,21 @@ class CIMEnableIndicationsRequestMessage : public CIMRequestMessage
 public:
     CIMEnableIndicationsRequestMessage(
 	const String & messageId_,
-	const String & nameSpace_,
-	const Array<String> & classNames_,
-        //
-        //  ATTN-CAKG-P2-20020408: Temporary; will be replaced with provider
-        //  and provider module instances
-        //
-        const Pair <String, String> & pair_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
 	QueueIdStack queueIds_)
     :
     CIMRequestMessage(
 	CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE,
         messageId_,
         queueIds_),
-    nameSpace(nameSpace_),
-    classNames(classNames_),
-    pair (pair_)
+    provider(provider_),
+    providerModule(providerModule_)
     {
     }
 
-    String nameSpace;
-    Array<String> classNames;
-    Pair <String, String> pair;
-
+    CIMInstance provider;
+    CIMInstance providerModule;
 };
 
 class CIMDisableIndicationsRequestMessage : public CIMRequestMessage
@@ -1060,23 +1052,22 @@ class CIMDisableIndicationsRequestMessage : public CIMRequestMessage
 public:
     CIMDisableIndicationsRequestMessage(
 	const String & messageId_,
-	const String & nameSpace_,
-	const Array<String> & classNames_,
+        const CIMInstance & provider_,
+        const CIMInstance & providerModule_,
 	QueueIdStack queueIds_)
     :
     CIMRequestMessage(
 	CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE,
         messageId_,
         queueIds_),
-    nameSpace(nameSpace_),
-    classNames(classNames_)
+    provider(provider_),
+    providerModule(providerModule_)
 
     {
     }
 
-    String nameSpace;
-    Array<String> classNames;
-
+    CIMInstance provider;
+    CIMInstance providerModule;
 };
 
 

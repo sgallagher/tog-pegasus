@@ -191,7 +191,7 @@ CIMStatusCode ConsumerTable::registerConsumer(
 
 	for (Uint8 i = 0; i < _consumerList.size(); i++)
 	{
-	    if (String::matchNoCase(_consumerList[i].consumerId, consumerId))
+	    if (String::compareNoCase(_consumerList[i].consumerId, consumerId))
 	    {
 		errorCode = CIM_ERR_FAILED;
 		errorDescription = "Consumer Already registered";

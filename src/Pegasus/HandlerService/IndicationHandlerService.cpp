@@ -327,8 +327,8 @@ void IndicationHandlerService::_handleIndication(const Message* message)
        }
    }
 
-   CIMExportIndicationResponseMessage* response =
-         new CIMExportIndicationResponseMessage(
+   CIMHandleIndicationResponseMessage* response =
+         new CIMHandleIndicationResponseMessage(
             request->messageId,
             cimException,
             request->queueIds.copyAndPop());

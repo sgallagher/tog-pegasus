@@ -269,7 +269,16 @@ ClientCIMOMHandleRep::~ClientCIMOMHandleRep()
 {
     if (_client != 0)
     {
-        _client->disconnect();
+        // Must not throw an exception from a destructor
+        try
+        {
+            _client->disconnect();
+        }
+        catch (...)
+        {
+            // Ignore disconnect exceptions
+        }
+
         delete _client;
     }
 }

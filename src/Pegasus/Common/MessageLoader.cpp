@@ -288,6 +288,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle");
 				msg = extractICUMessage(resbundl,parms);
 				//parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
+			        ures_close(resbundl);
 			}else { 
 				//cout << "EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle" << endl; 
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle");

@@ -51,6 +51,7 @@
 
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 
@@ -518,7 +519,7 @@ public:
 // l10n
         CIMProcessIndicationRequestMessage * request =
             new CIMProcessIndicationRequestMessage(
-	     _request_copy.messageId,
+            XmlWriter::getNextMessageId(),
             cimInstance.getPath().getNameSpace(),
             cimInstance,
 	    subscriptionInstanceNames,

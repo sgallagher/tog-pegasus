@@ -2027,7 +2027,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		k++;
 		instances = i.value()->getInstances();
 
-		for (Sint32 j = 0; j < instances.size(); j++)
+		for (Uint32 j = 0; j < instances.size(); j++)
 		{
 	    	    String capabilityID;
 		    String module;
@@ -2212,7 +2212,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		{
 		    instances = i.value()->getInstances();
 
-		    for (Sint32 j = 0; j < instances.size(); j++)
+		    for (Uint32 j = 0; j < instances.size(); j++)
 		    {
 	    	    	String _providerName;
 	    	    	String _moduleName;

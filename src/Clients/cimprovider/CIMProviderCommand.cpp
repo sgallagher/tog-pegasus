@@ -93,27 +93,27 @@ static const char GETOPT_ARGUMENT_DESIGNATOR   = ':';
 /**
     This constant signifies that an operation option has not been recorded
 */
-static const int OPERATION_TYPE_UNINITIALIZED  = 0;
+static const Uint32 OPERATION_TYPE_UNINITIALIZED  = 0;
 
 /**
     This constant represents a disable provider operation
 */
-static const int OPERATION_TYPE_DISABLE            = 1;
+static const Uint32 OPERATION_TYPE_DISABLE            = 1;
 
 /**
     This constant represents a remove provider operation
 */
-static const int OPERATION_TYPE_REMOVE         = 2;
+static const Uint32 OPERATION_TYPE_REMOVE         = 2;
 
 /**
     This constant represents a enable provider operation
 */
-static const int OPERATION_TYPE_ENABLE         = 3;
+static const Uint32 OPERATION_TYPE_ENABLE         = 3;
 
 /**
     This constant represents a list operation
 */
-static const int OPERATION_TYPE_LIST           = 4;
+static const Uint32 OPERATION_TYPE_LIST           = 4;
 
 /**
     The constants representing the messages.

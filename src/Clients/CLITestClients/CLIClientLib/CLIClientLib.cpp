@@ -39,9 +39,20 @@ PEGASUS_NAMESPACE_BEGIN
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
 
+// Character sequences used in help/usage output.
+
 static const char * usage = "This command executes single WBEM Operations.";
-static const char * usageDetails = "Using CLI/n \
-CLI enumerateinstancenames pg_computersystem /n ";
+
+// Note that the following is one long string.
+static const char * usageDetails = "Using CLI examples:n \
+CLI enumerateinstancenames pg_computersystem  -- enumerateinstances of class\n \
+CLI enumerateclassnames -- Enumerate classnames from root\n \
+CLI enumerateclasses    -- Enumerate classes with MOF output starting at root\n \
+CLI enumerateclasses CIM_Computersystem -- Enumerate classes in MOF starting with \
+CIM_Computersystem\n \
+CLI getclass CIM_door -a -u guest =p guest - Get class with authentication set and \
+user = guest, password = guest.\n \
+CLI enumerateclasses -XML -- enumerate classes and output XML rather than MOF. \n";
 
 int OutputFormatInstance(OutputType format, CIMInstance& instance)
 {
@@ -72,6 +83,24 @@ int OutputFormatClass(OutputType format, CIMClass& myClass)
 
         mofFormat(cout, x.getData(), 4);
     }   
+    return 0;
+}
+
+int OutputFormatObject(OutputType format, CIMObject& myObject)
+{
+       
+    if (myObject.isClass())
+    {
+        CIMClass c(myObject);
+        OutputFormatClass(format, c);
+    }
+    else if (myObject.isInstance())
+    {
+        CIMInstance i(myObject);
+        OutputFormatInstance(format, i);
+    }
+    else
+        cout << "Error, Object is neither class or instance" << endl;
     return 0;
 }
 
@@ -210,11 +239,17 @@ int enumerateClassNames(CIMClient& client, Options& opts)
             << ", deepInheritance = " << (opts.deepInheritance? "true" : "false")
             << endl;
     }
+    // Added to allow "" string input to represent NULL CIMName.
+    CIMName& myClassName = CIMName();
+    if (opts.className != "")
+    {
+        myClassName = opts.className;
+    }
     
     Array<CIMName> classNames; 
     
     classNames = client.enumerateClassNames(opts.nameSpace,
-                                        opts.className,
+                                        myClassName,
                                         opts.deepInheritance);
     
     if (opts.summary)
@@ -243,11 +278,17 @@ int enumerateClasses(CIMClient& client, Options& opts)
             << ", includeClassOrigin = " << (opts.includeClassOrigin? "true" : "false")
             << endl;
     }
+    // Added to allow "" string input to represent NULL CIMName.
+    CIMName& myClassName = CIMName();
+    if (opts.className != "")
+    {
+        myClassName = opts.className;
+    }
     
     Array<CIMClass> classes; 
     
     classes = client.enumerateClasses(opts.nameSpace,
-                                        opts.className,
+                                        myClassName,
                                         opts.deepInheritance,
                                         opts.localOnly,
                                         opts.includeQualifiers,
@@ -463,6 +504,181 @@ int enumerateQualifiers(CIMClient& client, Options& opts)
     return 0;
 }
 
+int referenceNames(CIMClient& client, Options& opts)
+{
+    if (opts.verboseTest)
+    {
+        cout << "ReferenceNames "
+            << "Namespace = " << opts.nameSpace
+            << ", Object = " << opts.objectName
+            << endl;
+    }
+    Array<CIMObjectPath> referenceNames = 
+    
+    client.referenceNames( opts.nameSpace, opts.objectName);
+    
+    /*
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY */
+    
+    if (opts.summary)
+    {
+        cout << referenceNames.size() << " returned." << endl;
+    }
+    else
+    {
+        //simply output the list one per line for the moment.
+        for (Uint32 i = 0; i < referenceNames.size(); i++)
+                    cout << referenceNames[i].toString() << endl;
+    }
+    return 0;
+}        
+
+
+/****
+     Array<CIMObject> references(
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList& propertyList = CIMPropertyList()
+    );
+    */
+int references(CIMClient& client, Options& opts)
+{
+    if (opts.verboseTest)
+    {
+        cout << "References "
+            << "Namespace = " << opts.nameSpace
+            << ", Object = " << opts.objectName
+            << endl;
+    }
+    Array<CIMObject> objects =  
+    client.references( opts.nameSpace, opts.objectName);
+    
+    if (opts.summary)
+    {
+        cout << objects.size() << " returned." << endl;
+    }
+    else
+    {
+        Uint32 cnt = 0;
+        opts.outputFormat.toLower();
+    
+        for( ; cnt < NUM_OUTPUTS; cnt++ ) 
+        {
+            if (opts.outputFormat == OutputTable[cnt].OutputName)
+                    break;
+        }
+        // Output the returned instances
+        for (Uint32 i = 0; i < objects.size(); i++)
+        {
+            CIMObject object = objects[i];
+            // Check Output Format to print results
+            OutputFormatObject(OutputTable[cnt].OutputType, object);
+        }
+    }
+    return 0;
+}        
+
+/*
+    Array<CIMObjectPath> associatorNames(
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& assocClass = CIMName(),
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY,
+	const String& resultRole = String::EMPTY
+    );
+
+*/
+int associatorNames(CIMClient& client, Options& opts)
+{
+    if (opts.verboseTest)
+    {
+        cout << "associatorNames "
+            << "Namespace = " << opts.nameSpace
+            << ", Object = " << opts.objectName
+            << endl;
+    }
+    Array<CIMObjectPath> associatorNames = 
+    
+    client.associatorNames( opts.nameSpace, opts.objectName);
+    
+    /*
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY */
+    
+    if (opts.summary)
+    {
+        cout << associatorNames.size() << " returned." << endl;
+    }
+    else
+    {
+        //simply output the list one per line for the moment.
+        for (Uint32 i = 0; i < associatorNames.size(); i++)
+                    cout << associatorNames[i].toString() << endl;
+    }
+    return 0;
+}        
+
+
+/****
+    Array<CIMObject> associators(
+	const CIMNamespaceName& nameSpace,
+	const CIMObjectPath& objectName,
+	const CIMName& assocClass = CIMName(),
+	const CIMName& resultClass = CIMName(),
+	const String& role = String::EMPTY,
+	const String& resultRole = String::EMPTY,
+	Boolean includeQualifiers = false,
+	Boolean includeClassOrigin = false,
+	const CIMPropertyList& propertyList = CIMPropertyList()
+    );
+    */
+int associators(CIMClient& client, Options& opts)
+{
+    if (opts.verboseTest)
+    {
+        cout << "Associators "
+            << "Namespace = " << opts.nameSpace
+            << ", Object = " << opts.objectName
+            << endl;
+    }
+    Array<CIMObject> objects =  
+    client.associators( opts.nameSpace, opts.objectName);
+    
+    if (opts.summary)
+    {
+        cout << objects.size() << " returned." << endl;
+    }
+    else
+    {
+        Uint32 cnt = 0;
+        opts.outputFormat.toLower();
+    
+        for( ; cnt < NUM_OUTPUTS; cnt++ ) 
+        {
+            if (opts.outputFormat == OutputTable[cnt].OutputName)
+                    break;
+        }
+        // Output the returned instances
+        for (Uint32 i = 0; i < objects.size(); i++)
+        {
+            CIMObject object = objects[i];
+            // Check Output Format to print results
+            OutputFormatObject(OutputTable[cnt].OutputType, object);
+        }
+    }
+    return 0;
+}        
+
 
 void GetOptions(
     OptionManager& om,
@@ -477,13 +693,13 @@ void GetOptions(
     static OptionRow optionsTable[] =
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
+        {"authenticate", "false" , false, Option::BOOLEAN, 0, 0, "a",
+                                        "Defines whether user authentication is used" },
         {"User", "unknown", false, Option::STRING, 0, 0, "u",
                                         "Defines User Name for authentication" },
         
         {"Password", "unknown", false, Option::STRING, 0, 0, "p",
                                         "Defines password for authentication" },
-        {"authenticate", "false" , false, Option::BOOLEAN, 0, 0, "a",
-                                        "Defines whether user authentication is used" },
         
         
         // We don't need this one. Force command to first param since always used
@@ -504,14 +720,14 @@ void GetOptions(
         
         // KS change the output formats to use the enum options function
         {"outputformats", "mof", false, Option::STRING, 0,
-                                         NUM_OUTPUTFORMATS, "-o",
+                                         NUM_OUTPUTFORMATS, "o",
                                         "Output in xml, mof, txt"},
         
-        {"deepinheritance", "false", false, Option::BOOLEAN, 0, 0, "d",
-                                        "If set does deep enum "},
+        {"deepInheritance", "false", false, Option::BOOLEAN, 0, 0, "di",
+                                        "If set does deep enumeration "},
         
-        {"localOnly", "false", false, Option::BOOLEAN, 0, 0, "l",
-                                        "If set does deep enum "},
+        {"localOnly", "false", false, Option::BOOLEAN, 0, 0, "lo",
+                                        "If set sets localonly param true "},
         
         {"includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "iq",
                                         "If set sets includeQualifiers option "},
@@ -519,14 +735,14 @@ void GetOptions(
         {"includeClassOrigin", "false", false, Option::BOOLEAN, 0, 0, "ic",
                                         "If set includeClassOriginOption True"},
 
-        {"propertyName", "unknown", false, Option::STRING, 0, 0, "-l",
-                                        "If set does deep enum "},
+        {"propertyName", "unknown", false, Option::STRING, 0, 0, "-pn",
+                                        "This parameter defines a propertyNameList "},
         
         {"version", "false", false, Option::BOOLEAN, 0, 0, "-v",
                                         "Displays software Version "},
         
         {"verbose", "false", false, Option::BOOLEAN, 0, 0, "v",
-                                        "Displays software Version "},
+                                        "Verbose Display. Includes Detailed Param Input display "},
         
         
         {"summary", "false", false, Option::BOOLEAN, 0, 0, "-s",
@@ -557,14 +773,19 @@ void GetOptions(
 
 }
 
-// ATTN: KS Think I stuck these together.
 void printHelp(char* name, OptionManager& om)
 {
-    String header = "Usage ";
-    String trailer = "trailer";
+    String header = "Usage: cli <CIMOperationName> <CIMOperationParameters> <Options>";
+    String trailer = "Trailer";
     header.append(name);
 
     om.printOptionsHelpTxt(header, trailer);
+    
+    cout << "Possible CIMOperations are:" << endl;
+    for( Uint32 i = 0; i < NUM_COMMANDS; i++ ) 
+    {
+        cout << CommandTable[i].CommandName << ", ";
+    }
 }
 
 /* PrintHelp - This is temporary until we expand the options manager to allow
@@ -579,6 +800,14 @@ void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
     cout << endl;
     om.printOptionsHelpTxt(usage, extraHelp);
     //om.printHelp(const char* pgmName, OptionManager om);
+    
+    cout << "\nPossible CIMOperations are: ";
+    for( Uint32 i = 0; i < NUM_COMMANDS; i++ ) 
+    {
+        cout << CommandTable[i].CommandName << ", ";
+    }
+    cout << endl;
+    
     cout << extraHelp << endl;
 
 }
@@ -608,18 +837,25 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     if(om.lookupValue("cimCmd", opts.cimCmd))
     {
-       cout << "CIM command = " << opts.cimCmd << endl;
+       if (verboseTest)
+           cout << "CIM command = " << opts.cimCmd << endl;
     }
     if(om.lookupValue("className", opts.className))
     {
-       cout << "Class Name = " << opts.className << endl;
+       if (verboseTest)
+           cout << "Class Name = " << opts.className << endl;
     }
 
     if(om.lookupValue("cimObjectPath", opts.cimObjectPath))
     {
-       cout << "CIM ObjectPath = " << opts.cimObjectPath << endl;
+       if (verboseTest)
+           cout << "CIM ObjectPath = " << opts.cimObjectPath << endl;
     }
     opts.deepInheritance = om.isTrue("deepInheritance");
+    if (om.isTrue("deepInheritance")  & verboseTest)
+    {
+        cout << "deepInteritance set" << endl;
+    }
     
     opts.localOnly = om.isTrue("localOnly");
     

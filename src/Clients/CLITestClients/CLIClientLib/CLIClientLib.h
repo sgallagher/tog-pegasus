@@ -125,7 +125,7 @@ CMD_STRUCT CommandTable[] =
     {   ID_InvokeMethod,            "InvokeMethod"              },
     {   ID_ExecQuery,               "execquery"                 },
     
-    {   ID_Unknown,                 "unknown"                   }
+//    {   ID_Unknown,                 "unknown"                   }
 //    { 0,                           NULL,                      }
 };
 
@@ -138,6 +138,7 @@ struct  OPTION_STRUCT
     String location;
     String nameSpace;
     String className;
+    String objectName;
     String cimCmd;
     String outputFormat;
     int outputFormatType;
@@ -199,6 +200,14 @@ int PEGASUS_CLI_LINKAGE getQualifier(CIMClient& client, Options& opts);
 int PEGASUS_CLI_LINKAGE deleteQualifier(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE enumerateQualifiers(CIMClient& client, Options& opts);
+
+int PEGASUS_CLI_LINKAGE referenceNames(CIMClient& client, Options& opts);
+
+int PEGASUS_CLI_LINKAGE references(CIMClient& client, Options& opts);
+
+int PEGASUS_CLI_LINKAGE associators(CIMClient& client, Options& opts);
+
+int PEGASUS_CLI_LINKAGE associatorNames(CIMClient& client, Options& opts);
 
 
 PEGASUS_NAMESPACE_END

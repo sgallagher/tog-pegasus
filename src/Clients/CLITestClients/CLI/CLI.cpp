@@ -70,6 +70,7 @@ int main(int argc, char** argv)
     opts.nameSpace = "root/cimv2";
     opts.cimCmd = "unknown";
     opts.className = "unknown";
+    opts.objectName = "unknown";
     opts.outputFormat;
     opts.outputFormatType = OUTPUT_MOF;
     opts.cimObjectPath = "";
@@ -84,11 +85,13 @@ int main(int argc, char** argv)
 
     CheckCommonOptionValues(om, argv, opts);
     
-    /*cout << "argc = " << argc << endl;
+    /****** Show the args diagnostic display
+    cout << "argc = " << argc << endl;
     for (Uint32 i = 0; i < argc; i++)
     {
         cout << "argv[" << i << "] = " << argv[i] << endl;
-    }*/
+    }
+    */
     // if there is still an arg1, assume it is the command name.
     if (argc > 1)
     {
@@ -126,15 +129,24 @@ int main(int argc, char** argv)
         Uint32 i = 0;
         opts.cimCmd.toLower();
         
-        for( ; i < NUM_COMMANDS; i++ ) 
+        for( ; i <= NUM_COMMANDS; i++ ) 
         {
             if (opts.cimCmd == CommandTable[i].CommandName)
             break;
         }
-                // make sure command exist by checking value of i
-        if ( i < NUM_COMMANDS)
+        if ( i > NUM_COMMANDS)
         {
-            switch(CommandTable[i].ID_Command)
+            cout << "Invalid Command. Command name must be first parm or --c parameter."
+                << " \n  ex. cli enumerateclasses\n" 
+                << "Enter " << argv[0] << " -h for help."
+                << endl;
+            exit(1);
+        }
+        
+                // make sure command exist by checking value of i
+        //if ( i < NUM_COMMANDS)
+        //{
+        switch(CommandTable[i].ID_Command)
             {
             case ID_EnumerateInstanceNames :
                 if (argc > 2)
@@ -146,7 +158,7 @@ int main(int argc, char** argv)
 
             case ID_EnumerateInstances :
                 {
-                if (argc < 2)
+                if (argc > 2)
                 {
                     opts.className = argv[2];
                 }
@@ -166,9 +178,11 @@ int main(int argc, char** argv)
             case ID_EnumerateClassNames :
                 {
                     if (argc > 2)
-                    {
                         opts.className = argv[2];
-                    }
+                    
+                    if (argc == 2)
+                        opts.className = "";
+                    
                     enumerateClassNames(client, opts);
                 }
                 
@@ -177,9 +191,11 @@ int main(int argc, char** argv)
             case ID_EnumerateClasses :
                 {
                     if (argc > 2)
-                    {
                         opts.className = argv[2];
-                    }
+                    
+                    if (argc == 2)
+                        opts.className = "";
+                    
                     enumerateClasses(client, opts);
                 }
                 break;
@@ -264,13 +280,51 @@ int main(int argc, char** argv)
                     }
                     deleteQualifier(client, opts);
                 }
-                
-                
-                
-            case ID_Unknown :
-                cout << "Invalid Command. Must be first parm or --c parm" << endl;
                 break;
-            }
+                
+        case ID_References  :
+                {
+                    if (argc > 2)
+                    {
+                        opts.objectName = argv[2];
+                    }
+                    references(client, opts);
+                }
+                break;
+        case ID_ReferenceNames :
+                {
+                    if (argc > 2)
+                    {
+                        opts.objectName = argv[2];
+                    }
+                    referenceNames(client, opts);
+                }
+                break;
+        case ID_Associators :
+                {
+                    if (argc > 2)
+                    {
+                        opts.objectName = argv[2];
+                    }
+                }
+                break;
+        case ID_AssociatorNames :
+                {
+                    if (argc > 2)
+                    {
+                        opts.objectName = argv[2];
+                    }
+                    associatorNames(client,opts);
+                }
+                break;
+                
+            //case ID_Unknown :
+            default:
+                cout << "Invalid Command. Command name must be first parm or --c parameter."
+                    << " \n  ex. cli enumerateclasses\n" 
+                    << "Enter " << argv[0] << " -h for help."
+                    << endl;
+                break;
         }
     }
     catch(Exception& e)

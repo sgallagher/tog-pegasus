@@ -32,6 +32,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Provider/CIMOMHandleInternal.h>
 
 #include "MutexLock.h"
 
@@ -127,7 +128,7 @@ void ProviderManager::loadProvider(
 
     PEGASUS_ASSERT(service != 0);
 
-    CIMOMHandle _cimom(service);
+    CIMOMHandleInternal _cimom(service);
 
     // initialize provider
     provider.initialize(_cimom);

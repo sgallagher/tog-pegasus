@@ -32,7 +32,7 @@
 #include "ProviderFacade.h"
 
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
-
+#include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Destroyer.h>
 
 PEGASUS_NAMESPACE_BEGIN

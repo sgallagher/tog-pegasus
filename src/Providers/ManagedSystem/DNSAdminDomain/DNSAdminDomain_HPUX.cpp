@@ -32,6 +32,7 @@
 
 //used by gethostname function
 #include <unistd.h>
+#include <cctype>  // For toupper()
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

@@ -42,6 +42,7 @@
 #include <netdb.h>       // gethostbyname()
 #include <time.h>        // localtime()
 #include <sys/utsname.h> // uname()
+#include <sys/param.h>   // MAXHOSTNAMELEN
 
 #include <Pegasus/Common/InternalException.h>
 #include "ComputerSystemProvider.h"

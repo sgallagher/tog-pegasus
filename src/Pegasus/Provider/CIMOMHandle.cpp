@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,41 +36,64 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
-#include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Provider/CIMOMHandleInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMHandle::CIMOMHandle(void)
-    : _service(0), _cimom(0), _id(peg_credential_types::PROVIDER), _controller(0), _client_handle(0)
+class callback_data
 {
+public:
+    Message *reply;
+    Semaphore client_sem;
+    CIMOMHandle & cimom_handle;
+
+    callback_data(CIMOMHandle *handle)
+        : reply(0), client_sem(0), cimom_handle(*handle)
+    {
+    }
+
+    ~callback_data()
+    {
+        delete reply;
+    }
+
+    Message *get_reply(void)
+    {
+        Message *ret = reply;
+        reply = NULL;
+        return(ret);
+    }
+
+private:
+    callback_data(void);
+};
+
+void async_callback(Uint32 user_data, Message *reply, void *parm)
+{
+    callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
+    cb_data->reply = reply;
+    cb_data->client_sem.signal();
 }
 
-CIMOMHandle::CIMOMHandle(MessageQueueService * service)
-    : _service(service), _cimom(0), _id(peg_credential_types::PROVIDER), _controller(0), _client_handle(0)
+
+CIMOMHandle::CIMOMHandle(void)
 {
-    MessageQueue * queue =
-        MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
-
-    _cimom = dynamic_cast<MessageQueueService *>(queue);
-
-    if((_service == 0) || (_cimom == 0))
-    {
-        throw UninitializedObjectException();
-    }
-
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
-    if(_client_handle == 0)
-    {
-        throw UninitializedObjectException();
-    }
+    _rep = new CIMOMHandleRep();
+    _rep->service = 0;
+    _rep->cimom = 0;
+    _rep->controller = 0;
+    _rep->client_handle = 0;
 }
 
 CIMOMHandle::~CIMOMHandle(void)
 {
-    if(_controller != 0)
+    if(_rep->controller != 0)
     {
-        _controller->return_client_handle(_client_handle);
+        _rep->controller->return_client_handle(_rep->client_handle);
     }
+
+    delete _rep;
 }
 
 CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
@@ -79,22 +103,13 @@ CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
         return(*this);
     }
 
-    _service = handle._service;
-    _cimom = handle._cimom;
-    _controller = handle._controller;
-    _client_handle = handle._client_handle;
-    _client_handle->reference_count++;  // ATTN-RK-P2-20020712: This is a hack
+    _rep->service = handle._rep->service;
+    _rep->cimom = handle._rep->cimom;
+    _rep->controller = handle._rep->controller;
+    _rep->client_handle = handle._rep->client_handle;
+    _rep->client_handle->reference_count++;  // ATTN-RK-P2-20020712: This is a hack
 
     return(*this);
-}
-
-void CIMOMHandle::async_callback(Uint32 user_data,
-    Message *reply,
-    void *parm)
-{
-    callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
-    cb_data->reply = reply;
-    cb_data->client_sem.signal();
 }
 
 CIMClass CIMOMHandle::getClass(
@@ -106,7 +121,7 @@ CIMClass CIMOMHandle::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -121,10 +136,10 @@ CIMClass CIMOMHandle::getClass(
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     // create an op node
-    //    AsyncOpNode * op = _service->get_op();
+    //    AsyncOpNode * op = _rep->service->get_op();
 
     callback_data *cb_data = new callback_data(this);
 
@@ -132,15 +147,15 @@ CIMClass CIMOMHandle::getClass(
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart (
-        _service->get_next_xid(),
+        _rep->service->get_next_xid(),
         NULL,
-        _cimom->getQueueId(),
+        _rep->cimom->getQueueId(),
         request,
-        _cimom->getQueueId());
+        _rep->cimom->getQueueId());
 
-    if(false  == _controller->ClientSendAsync(*_client_handle,
+    if(false  == _rep->controller->ClientSendAsync(*_rep->client_handle,
         0,
-        _cimom->getQueueId(),
+        _rep->cimom->getQueueId(),
         asyncRequest,
         async_callback,
         (void *)cb_data))
@@ -172,7 +187,7 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -186,7 +201,7 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
         localOnly,
         includeQualifiers,
         includeClassOrigin,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     Array<CIMClass> cimClasses;
 
@@ -199,7 +214,7 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
     const CIMName& className,
     Boolean deepInheritance)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -210,7 +225,7 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
         nameSpace,
         className,
         deepInheritance,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     Array<CIMName> classNames;
 
@@ -222,7 +237,7 @@ void CIMOMHandle::createClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& newClass)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -232,7 +247,7 @@ void CIMOMHandle::createClass(
         XmlWriter::getNextMessageId(),
         nameSpace,
         newClass,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     return;
 }
@@ -242,7 +257,7 @@ void CIMOMHandle::modifyClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& modifiedClass)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -252,7 +267,7 @@ void CIMOMHandle::modifyClass(
         XmlWriter::getNextMessageId(),
         nameSpace,
         modifiedClass,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     return;
 }
@@ -262,7 +277,7 @@ void CIMOMHandle::deleteClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -273,7 +288,7 @@ void CIMOMHandle::deleteClass(
         XmlWriter::getNextMessageId(),
         nameSpace,
         className,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     return;
 }
@@ -287,7 +302,7 @@ CIMInstance CIMOMHandle::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -302,26 +317,26 @@ CIMInstance CIMOMHandle::getInstance(
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     // create an op node
-    //    AsyncOpNode * op = _service->get_op();
+    //    AsyncOpNode * op = _rep->service->get_op();
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart (
-        _service->get_next_xid(),
+        _rep->service->get_next_xid(),
         0,
-        _cimom->getQueueId(),
+        _rep->cimom->getQueueId(),
         request,
-        _cimom->getQueueId());
+        _rep->cimom->getQueueId());
 
 
     callback_data *cb_data = new callback_data(this);
 
-    if(false == _controller->ClientSendAsync(*_client_handle,
+    if(false == _rep->controller->ClientSendAsync(*_rep->client_handle,
         0,
-        _cimom->getQueueId(),
+        _rep->cimom->getQueueId(),
         asyncRequest,
         async_callback,
         (void *)cb_data))
@@ -336,7 +351,7 @@ CIMInstance CIMOMHandle::getInstance(
 
     // send request and wait for response
     // <<< Wed Apr 10 20:24:22 2002 mdd >>>
-    //    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
+    //    AsyncReply * asyncReply = _rep->service->SendWait(asyncRequest);
 
     // decode response
     CIMGetInstanceResponseMessage * response =
@@ -365,7 +380,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -381,31 +396,31 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     // obtain an op node
-    // AsyncOpNode * op = _service->get_op();
+    // AsyncOpNode * op = _rep->service->get_op();
 
     callback_data *cb_data = new callback_data(this);
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart (
-        _service->get_next_xid(),
+        _rep->service->get_next_xid(),
         0,
-        _cimom->getQueueId(),
+        _rep->cimom->getQueueId(),
         request,
-        _cimom->getQueueId());
+        _rep->cimom->getQueueId());
 
 
     // send request and wait for response
     // <<< Wed Apr 10 20:24:36 2002 mdd >>>
-    // AsyncReply * asyncReply = _service->SendWait(asyncRequest);
+    // AsyncReply * asyncReply = _rep->service->SendWait(asyncRequest);
 
 
-    if(false == _controller->ClientSendAsync(*_client_handle,
+    if(false == _rep->controller->ClientSendAsync(*_rep->client_handle,
         0,
-        _cimom->getQueueId(),
+        _rep->cimom->getQueueId(),
         asyncRequest,
         async_callback,
         (void *)cb_data))
@@ -431,7 +446,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     }
 
     // release the op node
-    //_service->return_op(op);
+    //_rep->service->return_op(op);
 
     // release the request objects
     delete asyncRequest;
@@ -447,7 +462,7 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -458,25 +473,25 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
         XmlWriter::getNextMessageId(),
         nameSpace,
         className,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     // create an op node
-    // AsyncOpNode * op = _service->get_op();
+    // AsyncOpNode * op = _rep->service->get_op();
 
     callback_data *cb_data = new callback_data(this);
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart (
-        _service->get_next_xid(),
+        _rep->service->get_next_xid(),
         0,
-        _cimom->getQueueId(),
+        _rep->cimom->getQueueId(),
         request,
-        _cimom->getQueueId());
+        _rep->cimom->getQueueId());
 
-    if(false == _controller->ClientSendAsync(*_client_handle,
+    if(false == _rep->controller->ClientSendAsync(*_rep->client_handle,
         0,
-        _cimom->getQueueId(),
+        _rep->cimom->getQueueId(),
         asyncRequest,
         async_callback,
         (void *)cb_data))
@@ -490,7 +505,7 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
 
     // send request and wait for response
     // <<< Wed Apr 10 20:30:31 2002 mdd >>>
-    // AsyncReply * asyncReply = _service->SendWait(asyncRequest);
+    // AsyncReply * asyncReply = _rep->service->SendWait(asyncRequest);
     cb_data->client_sem.wait();
     AsyncReply * asyncReply = static_cast<AsyncReply *>(cb_data->get_reply());
     // decode response
@@ -498,7 +513,7 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
         reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>(
         (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
     Array<CIMObjectPath> cimReferences = response->instanceNames;
-    //_service->return_op(op);
+    //_rep->service->return_op(op);
 
     delete asyncRequest;
     delete asyncReply;
@@ -513,7 +528,7 @@ CIMObjectPath CIMOMHandle::createInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& newInstance)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -523,7 +538,7 @@ CIMObjectPath CIMOMHandle::createInstance(
         XmlWriter::getNextMessageId(),
         nameSpace,
         newInstance,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     CIMObjectPath cimReference;
 
@@ -537,7 +552,7 @@ void CIMOMHandle::modifyInstance(
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -549,7 +564,7 @@ void CIMOMHandle::modifyInstance(
         CIMInstance(),
         includeQualifiers,
         propertyList,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     return;
 }
@@ -559,7 +574,7 @@ void CIMOMHandle::deleteInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -569,7 +584,7 @@ void CIMOMHandle::deleteInstance(
         XmlWriter::getNextMessageId(),
         nameSpace,
         instanceName,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     return;
 }
@@ -580,7 +595,7 @@ Array<CIMInstance> CIMOMHandle::execQuery(
     const String& queryLanguage,
     const String& query)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -591,7 +606,7 @@ Array<CIMInstance> CIMOMHandle::execQuery(
         nameSpace,
         queryLanguage,
         query,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     Array<CIMInstance> cimInstances;
 
@@ -610,7 +625,7 @@ Array<CIMObject> CIMOMHandle::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -627,7 +642,7 @@ Array<CIMObject> CIMOMHandle::associators(
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     Array<CIMObject> cimObjects;
 
@@ -643,7 +658,7 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -657,7 +672,7 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
         resultClass,
         role,
         resultRole,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     Array<CIMObjectPath> cimObjectPaths;
 
@@ -674,7 +689,7 @@ Array<CIMObject> CIMOMHandle::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -689,7 +704,7 @@ Array<CIMObject> CIMOMHandle::references(
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     Array<CIMObject> cimObjects;
 
@@ -703,7 +718,7 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
     const CIMName& resultClass,
     const String& role)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -715,7 +730,7 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
         objectName,
         resultClass,
         role,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     Array<CIMObjectPath> cimObjectPaths;
 
@@ -728,7 +743,7 @@ CIMValue CIMOMHandle::getProperty(
     const CIMObjectPath& instanceName,
     const CIMName& propertyName)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -739,7 +754,7 @@ CIMValue CIMOMHandle::getProperty(
         nameSpace,
         instanceName,
         propertyName,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     CIMValue cimValue;
 
@@ -753,7 +768,7 @@ void CIMOMHandle::setProperty(
     const CIMName& propertyName,
     const CIMValue& newValue)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -765,12 +780,11 @@ void CIMOMHandle::setProperty(
         instanceName,
         propertyName,
         newValue,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
     return;
 }
 
-/*
 CIMValue CIMOMHandle::invokeMethod(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
@@ -779,7 +793,7 @@ CIMValue CIMOMHandle::invokeMethod(
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters)
 {
-    if((_service == 0) || (_cimom == 0))
+    if((_rep->service == 0) || (_rep->cimom == 0))
     {
         throw UninitializedObjectException();
     }
@@ -790,10 +804,11 @@ CIMValue CIMOMHandle::invokeMethod(
     instanceName,
     methodName,
     inParameters,
-        QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+        QueueIdStack(_rep->cimom->getQueueId(), _rep->service->getQueueId()));
 
-    return(response->retValue);
+    //outParameters = response->outParameters;
+    //return(response->retValue);
+    return CIMValue();
 }
-*/
 
 PEGASUS_NAMESPACE_END

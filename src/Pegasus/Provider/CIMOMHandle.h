@@ -33,8 +33,7 @@
 #define Pegasus_CIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Provider/Linkage.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMObject.h>
@@ -42,55 +41,18 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
-
-#include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/Provider/Linkage.h>
+#include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class CIMOMHandleRep;
 
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
 public:
-
-    class callback_data
-    {
-    public:
-
-
-        Message *reply;
-        Semaphore client_sem;
-        CIMOMHandle & cimom_handle;
-
-        callback_data(CIMOMHandle *handle)
-        : reply(0), client_sem(0), cimom_handle(*handle)
-        {
-
-        }
-        ~callback_data()
-        {
-            delete reply;
-        }
-
-        Message *get_reply(void)
-        {
-            Message *ret = reply;
-            reply = NULL;
-            return(ret);
-        }
-
-    private:
-        callback_data(void);
-    };
-
-
-    static void async_callback(Uint32 user_data, Message *reply, void *parm);
-
-
     /** */
     CIMOMHandle(void);
-
-    /** */
-    CIMOMHandle(MessageQueueService * service);
 
     /** */
     ~CIMOMHandle(void);
@@ -235,23 +197,16 @@ public:
         const CIMName& propertyName,
         const CIMValue& newValue);
 
-    /*
     CIMValue invokeMethod(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& methodName,
-    const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters);
-    */
+        const OperationContext & context,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& inParameters,
+        Array<CIMParamValue>& outParameters);
 
 protected:
-    MessageQueueService * _service;
-    MessageQueueService * _cimom;
-    pegasus_internal_identity _id;
-    ModuleController * _controller;
-    ModuleController::client_handle *_client_handle;
-
+    CIMOMHandleRep * _rep;
 };
 
 PEGASUS_NAMESPACE_END

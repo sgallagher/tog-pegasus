@@ -495,6 +495,44 @@ class PEGASUS_COMMON_LINKAGE ReadWriteSem
       friend void extricate_read_write(void *);
    } ;
 
+
+// Classes used for safe locking of ReadWriteSem
+
+class ReadLock
+{
+public:
+    ReadLock(ReadWriteSem & rwsem) : _rwsem(rwsem)
+    {
+        _rwsem.wait_read(pegasus_thread_self());
+    }
+
+    ~ReadLock(void)
+    {
+        _rwsem.unlock_read(pegasus_thread_self());
+    }
+
+private:
+    ReadWriteSem & _rwsem;
+};
+
+class WriteLock
+{
+public:
+    WriteLock(ReadWriteSem & rwsem) : _rwsem(rwsem)
+    {
+        _rwsem.wait_write(pegasus_thread_self());
+    }
+
+    ~WriteLock(void)
+    {
+        _rwsem.unlock_write(pegasus_thread_self());
+    }
+
+private:
+    ReadWriteSem & _rwsem;
+};
+
+
 //-----------------------------------------------------------------
 /// Generic definition of conditional semaphore
 //-----------------------------------------------------------------

@@ -24,10 +24,9 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//               (carolann_graves@hp.com)
-//
-// Modified By:  Ben Heilbronn, Hewlett-Packard Company
-//               (ben_heilbronn@hp.com)
+//                   (carolann_graves@hp.com)
+//               Ben Heilbronn, Hewlett-Packard Company (ben_heilbronn@hp.com)
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1046,7 +1045,21 @@ private:
         const CIMObjectPath & subscriptionRef);
 
     /**
-        Inserts an entry into the Active Subscriptions table.
+        Locks the _subscriptionClassesTableLock for write access and looks
+        up an entry in the Active Subscriptions table.
+
+        @param   key                   the hash table key
+        @param   tableEntry            the table entry retrieved
+
+        @return  true if the key is found in the table, false otherwise
+     */
+    Boolean _lockedLookupActiveSubscriptionsEntry (
+        const String & key,
+        ActiveSubscriptionsTableEntry & tableEntry);
+
+    /**
+        Inserts an entry into the Active Subscriptions table.  The caller
+        must first lock _activeSubscriptionsTableLock for write access.
 
         @param   subscription          the subscription instance
         @param   providers             the list of providers 
@@ -1054,6 +1067,15 @@ private:
     void _insertActiveSubscriptionsEntry (
         const CIMInstance & subscription,
         const Array <ProviderClassList> & providers);
+
+    /**
+        Removes an entry from the Active Subscriptions table.  The caller
+        must first lock _activeSubscriptionsTableLock for write access.
+
+        @param   key                   the key of the entry to remove
+     */
+    void _removeActiveSubscriptionsEntry (
+        const String & key);
 
     /**
         Generates a unique String key for the Subscription Classes table from
@@ -1069,16 +1091,39 @@ private:
         const CIMNamespaceName & sourceNamespaceName);
 
     /**
-        Inserts an entry into the Subscription Classes table.
+        Locks the _subscriptionClassesTableLock for read access and looks
+        up an entry in the Subscription Classes table.
+
+        @param   key                   the hash table key
+        @param   tableEntry            the table entry retrieved
+
+        @return  true if the key is found in the table, false otherwise
+     */
+    Boolean _lockedLookupSubscriptionClassesEntry (
+        const String & key,
+        SubscriptionClassesTableEntry & tableEntry);
+
+    /**
+        Locks the _subscriptionClassesTableLock for write access and inserts
+        an entry into the Subscription Classes table.
 
         @param   indicationClassName   the indication class name
         @param   sourceNamespaceName   the source namespace name
         @param   subscriptions         the list of subscription instances
      */
-    void _insertSubscriptionClassesEntry (
+    void _lockedInsertSubscriptionClassesEntry (
         const CIMName & indicationClassName,
         const CIMNamespaceName & sourceNamespaceName,
         const Array <CIMInstance> & subscriptions);
+
+    /**
+        Locks the _subscriptionClassesTableLock for write access and removes
+        an entry from the Subscription Classes table.
+
+        @param   key                   the key of the entry to remove
+     */
+    void _lockedRemoveSubscriptionClassesEntry (
+        const String & key);
 
     /**
         Inserts entries (or updates existing entries) in the 
@@ -1215,14 +1260,30 @@ private:
     //Uint32 _repository;
 
     /**
-        Active Subscriptions information table
+        Active Subscriptions information table.  Access to this table is
+        controlled by the _activeSubscriptionsTableLock.
      */
     ActiveSubscriptionsTable _activeSubscriptionsTable;
+    /**
+        A lock to control access to the _activeSubscriptionsTable.  Before
+        accessing the _activeSubscriptionsTable, one must first lock this for
+        read access.  Before updating the _activeSubscriptionsTable, one must
+        first lock this for write access.
+     */
+    ReadWriteSem _activeSubscriptionsTableLock;
 
     /**
-        Subscription Classes information table
+        Subscription Classes information table.  Access to this table is
+        controlled by the _subscriptionClassesTableLock.
      */
     SubscriptionClassesTable _subscriptionClassesTable;
+    /**
+        A lock to control access to the _subscriptionClassesTable.  Before
+        accessing the _subscriptionClassesTable, one must first lock this for
+        read access.  Before updating the _subscriptionClassesTable, one must
+        first lock this for write access.
+     */
+    ReadWriteSem _subscriptionClassesTableLock;
 
     Array <Uint16> _validStates;
     Array <Uint16> _validRepeatPolicies;

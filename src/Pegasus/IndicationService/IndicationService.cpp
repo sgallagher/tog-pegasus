@@ -24,11 +24,11 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company 
-//               (carolann_graves@hp.com)
-// 		 Ben Heilbronn, Hewlett-Packard Company
-//               (ben_heilbronn@hp.com)
+//                   (carolann_graves@hp.com)
+// 		 Ben Heilbronn, Hewlett-Packard Company (ben_heilbronn@hp.com)
 // 		 Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //               Dave Rosckes (rosckes@us.ibm.com)
+// 		 Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1926,8 +1926,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 String activeSubscriptionsKey = _generateActiveSubscriptionsKey
                     (request->subscriptionInstanceNames [i]);
                 ActiveSubscriptionsTableEntry tableValue;
-                if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey, 
-                    tableValue))
+                if (_lockedLookupActiveSubscriptionsEntry(
+                        activeSubscriptionsKey, 
+                        tableValue))
                 {
                     matchedSubscriptions.append (tableValue.subscription);
                 }
@@ -2252,7 +2253,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String activeSubscriptionsKey = _generateActiveSubscriptionsKey
                 (newSubscriptions [i].getPath ());
             ActiveSubscriptionsTableEntry tableValue;
-            if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey,
+            if (_lockedLookupActiveSubscriptionsEntry (activeSubscriptionsKey,
                 tableValue))
             {
                 Boolean update = false;
@@ -2340,13 +2341,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 //
                 if (update)
                 {
-                    _activeSubscriptionsTable.remove (activeSubscriptionsKey);
-#ifdef PEGASUS_INDICATION_HASHTRACE
-                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
-                        Tracer::LEVEL3, 
-                        "REMOVED _activeSubscriptionsTable entry: " + 
-                        activeSubscriptionsKey);
-#endif
+                    WriteLock lock(_activeSubscriptionsTableLock);
+
+                    _removeActiveSubscriptionsEntry (activeSubscriptionsKey);
                     _insertActiveSubscriptionsEntry (tableValue.subscription,
                         tableValue.providers);
                 }
@@ -2413,7 +2410,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String activeSubscriptionsKey = _generateActiveSubscriptionsKey
                 (formerSubscriptions [i].getPath ());
             ActiveSubscriptionsTableEntry tableValue;
-            if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey,
+            if (_lockedLookupActiveSubscriptionsEntry (activeSubscriptionsKey,
                 tableValue))
             {
                 Uint32 providerIndex = _providerInList (provider, tableValue);
@@ -2478,15 +2475,15 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                             //
                         }
                     }
-                    _activeSubscriptionsTable.remove (activeSubscriptionsKey);
-#ifdef PEGASUS_INDICATION_HASHTRACE
-                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
-                        Tracer::LEVEL3, 
-                        "REMOVED _activeSubscriptionsTable entry: " + 
-                        activeSubscriptionsKey);
-#endif
-                    _insertActiveSubscriptionsEntry (tableValue.subscription,
-                        tableValue.providers);
+
+                    {
+                        WriteLock lock(_activeSubscriptionsTableLock);
+                        _removeActiveSubscriptionsEntry (
+                            activeSubscriptionsKey);
+                        _insertActiveSubscriptionsEntry (
+                            tableValue.subscription,
+                            tableValue.providers);
+                    }
                 }
                 else
                 {
@@ -3597,7 +3594,10 @@ Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getActiveSubscriptions");
-              
+
+    // Do not call any other methods that need _activeSubscriptionsTableLock
+    ReadLock lock(ReadWriteSem(_activeSubscriptionsTableLock));
+
     //
     //  Iterate through the subscription table
     //
@@ -3635,7 +3635,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
         String subscriptionClassesKey = _generateSubscriptionClassesKey 
             (supportedClass, nameSpaces [i]);
         SubscriptionClassesTableEntry tableValue;
-        if (_subscriptionClassesTable.lookup (subscriptionClassesKey, 
+        if (_lockedLookupSubscriptionClassesEntry (subscriptionClassesKey, 
             tableValue))
         {
             subscriptions = tableValue.subscriptions;
@@ -3751,7 +3751,7 @@ void IndicationService::_getModifiedSubscriptions (
         String subscriptionClassesKey = _generateSubscriptionClassesKey
             (supportedClass, newNameSpaces [i]);
         SubscriptionClassesTableEntry tableValue;
-        if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
+        if (_lockedLookupSubscriptionClassesEntry (subscriptionClassesKey,
             tableValue))
         {
             for (Uint32 j = 0; j < tableValue.subscriptions.size (); j++)
@@ -3772,7 +3772,7 @@ void IndicationService::_getModifiedSubscriptions (
         String subscriptionClassesKey = _generateSubscriptionClassesKey
             (supportedClass, oldNameSpaces [k]);
         SubscriptionClassesTableEntry tableValue;
-        if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
+        if (_lockedLookupSubscriptionClassesEntry (subscriptionClassesKey,
             tableValue))
         {
             for (Uint32 m = 0; m < tableValue.subscriptions.size (); m++)
@@ -4038,6 +4038,9 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getProviderSubscriptions");
 
+    // Do not call any other methods that need _activeSubscriptionsTableLock
+    WriteLock lock(_activeSubscriptionsTableLock);
+
     //
     //  Iterate through the subscription table
     //
@@ -4062,12 +4065,7 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
                 //  subscription
                 //
                 tableValue.providers.remove (j);
-                _activeSubscriptionsTable.remove (i.key ());
-#ifdef PEGASUS_INDICATION_HASHTRACE
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
-                    Tracer::LEVEL3, 
-                    "REMOVED _activeSubscriptionsTable entry: " + i.key ());
-#endif
+                _removeActiveSubscriptionsEntry (i.key ());
 
                 if (tableValue.providers.size () > 0)
                 {
@@ -5146,7 +5144,7 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
     String activeSubscriptionsKey = _generateActiveSubscriptionsKey
         (subscriptionInstance.getPath ());
     ActiveSubscriptionsTableEntry tableValue;
-    if (_activeSubscriptionsTable.lookup (activeSubscriptionsKey, 
+    if (_lockedLookupActiveSubscriptionsEntry (activeSubscriptionsKey, 
                     tableValue))
     {
         indicationProviders = tableValue.providers;
@@ -5593,6 +5591,20 @@ String IndicationService::_generateActiveSubscriptionsKey (
     return activeSubscriptionsKey;
 }
 
+Boolean IndicationService::_lockedLookupActiveSubscriptionsEntry (
+    const String & key,
+    ActiveSubscriptionsTableEntry & tableEntry)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_lockedLookupActiveSubscriptionsEntry");
+
+    ReadLock lock(_activeSubscriptionsTableLock);
+
+    return (_activeSubscriptionsTable.lookup (key, tableEntry));
+
+    PEG_METHOD_EXIT ();
+}
+
 void IndicationService::_insertActiveSubscriptionsEntry (
     const CIMInstance & subscription,
     const Array <ProviderClassList> & providers)
@@ -5605,6 +5617,7 @@ void IndicationService::_insertActiveSubscriptionsEntry (
     ActiveSubscriptionsTableEntry entry;
     entry.subscription = subscription;
     entry.providers = providers;
+
     _activeSubscriptionsTable.insert (activeSubscriptionsKey, entry);
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
@@ -5627,6 +5640,22 @@ void IndicationService::_insertActiveSubscriptionsEntry (
     
     PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
         "INSERTED _activeSubscriptionsTable entry: " + traceString);
+#endif
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_removeActiveSubscriptionsEntry (
+    const String & key)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "IndicationService::_removeActiveSubscriptionsEntry");
+
+    _activeSubscriptionsTable.remove (key);
+#ifdef PEGASUS_INDICATION_HASHTRACE
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
+                      Tracer::LEVEL3, 
+                      "REMOVED _activeSubscriptionsTable entry: " + key);
 #endif
 
     PEG_METHOD_EXIT ();
@@ -5655,13 +5684,27 @@ String IndicationService::_generateSubscriptionClassesKey (
     return subscriptionClassesKey;
 }
 
-void IndicationService::_insertSubscriptionClassesEntry (
+Boolean IndicationService::_lockedLookupSubscriptionClassesEntry (
+    const String & key,
+    SubscriptionClassesTableEntry & tableEntry)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_lockedLookupSubscriptionClassesEntry");
+
+    ReadLock lock(_subscriptionClassesTableLock);
+
+    return (_subscriptionClassesTable.lookup (key, tableEntry));
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_lockedInsertSubscriptionClassesEntry (
     const CIMName & indicationClassName,
     const CIMNamespaceName & sourceNamespaceName,
     const Array <CIMInstance> & subscriptions)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-                      "IndicationService::_insertSubscriptionClassesEntry");
+        "IndicationService::_lockedInsertSubscriptionClassesEntry");
 
     String subscriptionClassesKey = _generateSubscriptionClassesKey
         (indicationClassName, sourceNamespaceName);
@@ -5669,7 +5712,10 @@ void IndicationService::_insertSubscriptionClassesEntry (
     entry.indicationClassName = indicationClassName;
     entry.sourceNamespaceName = sourceNamespaceName;
     entry.subscriptions = subscriptions;
-    _subscriptionClassesTable.insert (subscriptionClassesKey, entry);
+    {
+        WriteLock lock(_subscriptionClassesTableLock);
+        _subscriptionClassesTable.insert (subscriptionClassesKey, entry);
+    }
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
     String traceString;
@@ -5688,6 +5734,24 @@ void IndicationService::_insertSubscriptionClassesEntry (
     PEG_METHOD_EXIT ();
 }
 
+void IndicationService::_lockedRemoveSubscriptionClassesEntry (
+    const String & key)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_lockedRemoveSubscriptionClassesEntry");
+
+    WriteLock lock(_subscriptionClassesTableLock);
+
+    _subscriptionClassesTable.remove (key);
+
+#ifdef PEGASUS_INDICATION_HASHTRACE
+    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
+        "REMOVED _subscriptionClassesTable entry: " + key);
+#endif
+
+    PEG_METHOD_EXIT ();
+}
+
 void IndicationService::_insertToHashTables (
     const CIMInstance & subscription,
     const Array <ProviderClassList> & providers,
@@ -5700,7 +5764,10 @@ void IndicationService::_insertToHashTables (
     //
     //  Insert entry into active subscriptions table 
     //
-    _insertActiveSubscriptionsEntry (subscription, providers);
+    {
+        WriteLock lock(_activeSubscriptionsTableLock);
+        _insertActiveSubscriptionsEntry (subscription, providers);
+    }
 
     //
     //  Insert or update entries in subscription classes table 
@@ -5710,7 +5777,7 @@ void IndicationService::_insertToHashTables (
         String subscriptionClassesKey = _generateSubscriptionClassesKey
             (indicationSubclassNames [i], sourceNamespaceName);
         SubscriptionClassesTableEntry tableValue;
-        if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
+        if (_lockedLookupSubscriptionClassesEntry (subscriptionClassesKey,
             tableValue))
         {
             //
@@ -5719,13 +5786,8 @@ void IndicationService::_insertToHashTables (
             //
             Array <CIMInstance> subscriptions = tableValue.subscriptions;
             subscriptions.append (subscription);
-            _subscriptionClassesTable.remove (subscriptionClassesKey);
-#ifdef PEGASUS_INDICATION_HASHTRACE
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
-                "REMOVED _subscriptionClassesTable entry: " + 
-                subscriptionClassesKey);
-#endif
-            _insertSubscriptionClassesEntry (indicationSubclassNames [i],
+            _lockedRemoveSubscriptionClassesEntry (subscriptionClassesKey);
+            _lockedInsertSubscriptionClassesEntry (indicationSubclassNames [i],
                 sourceNamespaceName, subscriptions);
         }
         else
@@ -5736,7 +5798,7 @@ void IndicationService::_insertToHashTables (
             //
             Array <CIMInstance> subscriptions;
             subscriptions.append (subscription);
-            _insertSubscriptionClassesEntry (indicationSubclassNames [i],
+            _lockedInsertSubscriptionClassesEntry (indicationSubclassNames [i],
                 sourceNamespaceName, subscriptions);
         }
     }
@@ -5755,15 +5817,12 @@ void IndicationService::_removeFromHashTables (
     //
     //  Remove entry from active subscriptions table 
     //
-    String activeSubscriptionsKey = _generateActiveSubscriptionsKey
-        (subscription.getPath ());
-    _activeSubscriptionsTable.remove (activeSubscriptionsKey);
+    {
+        WriteLock lock(_activeSubscriptionsTableLock);
 
-#ifdef PEGASUS_INDICATION_HASHTRACE
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
-        "REMOVED _activeSubscriptionsTable entry: " + 
-        activeSubscriptionsKey);
-#endif
+        _removeActiveSubscriptionsEntry (
+            _generateActiveSubscriptionsKey (subscription.getPath ()));
+    }
 
     //
     //  Remove or update entries in subscription classes table 
@@ -5773,7 +5832,7 @@ void IndicationService::_removeFromHashTables (
         String subscriptionClassesKey = _generateSubscriptionClassesKey
             (indicationSubclassNames [i], sourceNamespaceName);
         SubscriptionClassesTableEntry tableValue;
-        if (_subscriptionClassesTable.lookup (subscriptionClassesKey,
+        if (_lockedLookupSubscriptionClassesEntry (subscriptionClassesKey,
             tableValue))
         {
             //
@@ -5793,12 +5852,7 @@ void IndicationService::_removeFromHashTables (
             //
             //  Remove the old entry
             //
-            _subscriptionClassesTable.remove (subscriptionClassesKey);
-#ifdef PEGASUS_INDICATION_HASHTRACE
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL3, 
-                "REMOVED _subscriptionClassesTable entry: " + 
-                subscriptionClassesKey);
-#endif
+            _lockedRemoveSubscriptionClassesEntry (subscriptionClassesKey);
 
             //
             //  If there are still subscriptions in the list, insert the 
@@ -5806,7 +5860,8 @@ void IndicationService::_removeFromHashTables (
             //
             if (subscriptions.size () > 0)
             {
-                _insertSubscriptionClassesEntry (indicationSubclassNames [i],
+                _lockedInsertSubscriptionClassesEntry (
+                    indicationSubclassNames [i],
                     sourceNamespaceName, subscriptions);
             }
         }

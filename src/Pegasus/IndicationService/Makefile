@@ -15,7 +15,8 @@ LIBRARIES = \
     pegprovider \
     pegrepository \
     pegprm \
-    pegwql
+    pegwql \
+    pegconfig
 
 SOURCES = \
     IndicationOperationAggregate.cpp \

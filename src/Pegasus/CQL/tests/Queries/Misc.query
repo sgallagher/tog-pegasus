@@ -76,6 +76,7 @@ SELECT * FROM CQL_TestPropertyTypes alias, CQL_TestElement alias
 SELECT * FROM CQL_TestPropertyTypes, CQL_TestPropertyTypes
 SELECT * FROM CQL_TestPropertyTypes alias, CQL_TestPropertyTypes
 SELECT * FROM CQL_TestPropertyTypes, CQL_TestPropertyTypes alias
+SELECT * FROM CQL_TestPropertyTypes, alias1, CQL_TestPropertyTypes alias2
 
 # Bad UTF-8 
 select * from CQL_TestPropertyTypes where PropertyString = 'ÿÿºæ°—ã‚µã‚¤ãƒˆ'

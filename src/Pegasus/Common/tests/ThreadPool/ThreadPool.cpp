@@ -47,10 +47,14 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+AtomicInt function_count;
+
+
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 {
    Uint32 sleep_interval = (Uint32)parm;
    pegasus_sleep(sleep_interval);
+   function_count++;
    
    return 0; 
 }  
@@ -85,8 +89,8 @@ int main(int argc, char **argv)
 	 tp.allocate_and_awaken((void *)1, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
 	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)13, work_func );
-	 tp.allocate_and_awaken((void *)14, work_func );
+	 tp.allocate_and_awaken((void *)13, work_func );  
+	 tp.allocate_and_awaken((void *)14, work_func ); 
 	 tp.allocate_and_awaken((void *)15, work_func );
 	 tp.allocate_and_awaken((void *)16, work_func );   
       }   
@@ -105,6 +109,8 @@ int main(int argc, char **argv)
    {
       pegasus_sleep(1);
    }
+   
+   cout << "thread routine executed " << function_count.value() << " times" << endl;
    
    return(0);
    

@@ -18,8 +18,11 @@ LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-SOURCES = Server.cpp
+SOURCES = Server.cpp ProviderTable.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak
+
+run:
+	Server $(REPOSITORY_ROOT)

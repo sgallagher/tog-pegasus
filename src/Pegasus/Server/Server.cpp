@@ -23,8 +23,11 @@
 // Author: Mike Brasher
 //
 // $Log: Server.cpp,v $
-// Revision 1.1  2001/01/14 19:54:04  mike
-// Initial revision
+// Revision 1.2  2001/01/29 02:19:18  mike
+// added primitive provider dispatching
+//
+// Revision 1.1.1.1  2001/01/14 19:54:04  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -40,6 +43,7 @@
 #include <Pegasus/Repository/Repository.h>
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Server/Server.h>
+#include <Pegasus/Server/ProviderTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -59,14 +63,16 @@ static const Uint32 _M_POST_LEN = sizeof(_M_POST) - 1;
 //
 // ServerHandler
 //
+//	This is a one-per-connection class.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 class ServerHandler : public Handler
 {
 public:
 
-    ServerHandler() : _repository(0) 
-    { 
+    ServerHandler() : _repository(0), _providerTable(0)
+    {
     }
 
     virtual int handleMessage();
@@ -82,6 +88,11 @@ public:
 	const char* description);
 
     void handleGetClass(
+	XmlParser& parser, 
+	Uint32 messageId,
+	const String& nameSpace);
+
+    void handleGetInstance(
 	XmlParser& parser, 
 	Uint32 messageId,
 	const String& nameSpace);
@@ -138,9 +149,15 @@ public:
 	_repository = repository;
     }
 
+    void setProviderTable(ProviderTable* providerTable)
+    {
+	_providerTable = providerTable;
+    }
+
 private:
 
     Repository* _repository;
+    ProviderTable* _providerTable;
 };
 
 //------------------------------------------------------------------------------
@@ -291,6 +308,10 @@ int ServerHandler::handleMethodCall()
     XmlParser parser((char*)getContent());
     XmlEntry entry;
 
+#if 0
+cout << "CONTENT[" << (char*)getContent() << "]" << endl;
+#endif
+
     //--------------------------------------------------------------------------
     // Expect "<?xml ...>":
     //--------------------------------------------------------------------------
@@ -360,6 +381,8 @@ int ServerHandler::handleMethodCall()
 
     if (strcmp(iMethodCallName, "GetClass") == 0)
 	handleGetClass(parser, messageId, nameSpace);
+    else if (strcmp(iMethodCallName, "GetInstance") == 0)
+	handleGetInstance(parser, messageId, nameSpace);
     //STUB{
     else if (strcmp(iMethodCallName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNames(parser, messageId, nameSpace);
@@ -484,6 +507,136 @@ void ServerHandler::handleGetClass(
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetClass", body);
+
+    sendMessage(message);
+}
+
+//------------------------------------------------------------------------------
+//
+// ServerHandler::handleGetInstance()
+//
+//------------------------------------------------------------------------------
+
+void ServerHandler::handleGetInstance(
+    XmlParser& parser, 
+    Uint32 messageId,
+    const String& nameSpace)
+{
+    //--------------------------------------------------------------------------
+    // <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
+    //     |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
+    //     |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
+    // <!ATTLIST IPARAMVALUE %CIMName;>
+    //--------------------------------------------------------------------------
+
+    Reference instanceName;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = false;
+
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+    {
+	if (strcmp(name, "InstanceName") == 0)
+	{
+	    String className;
+	    Array<KeyBinding> keyBindings;
+	    XmlReader::getInstanceNameElement(parser, className, keyBindings);
+
+	    // ATTN: do we need the namespace here?
+
+	    instanceName.set(String(), String(), className, keyBindings);
+	}
+	else if (strcmp(name, "LocalOnly") == 0)
+	    XmlReader::getBooleanValueElement(parser, localOnly, true);
+	else if (strcmp(name, "IncludeQualifiers") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
+	else if (strcmp(name, "IncludeClassOrigin") == 0)
+	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    }
+
+    assert(_repository != 0);
+
+    ConstInstanceDecl instanceDecl;
+    
+    try
+    {
+	// ATTN: this code should be moved into some kind of dispatcher
+	// class since it has nothing to do with communication!
+
+	String className = instanceName.getClassName();
+
+	//----------------------------------------------------------------------
+	// Look up the class:
+	//----------------------------------------------------------------------
+
+	ClassDecl classDecl = _repository->getClass(nameSpace, className);
+
+	if (!classDecl)
+	    throw CimException(CimException::INVALID_CLASS);
+
+	// classDecl.print();
+
+	//----------------------------------------------------------------------
+	// Get the provider qualifier:
+	//----------------------------------------------------------------------
+
+	Uint32 pos = classDecl.findQualifier("provider");
+
+	if (pos == Uint32(-1))
+	    throw CimException(CimException::FAILED);
+
+	Qualifier q = classDecl.getQualifier(pos);
+	String providerId;
+	q.getValue().get(providerId);
+
+	//----------------------------------------------------------------------
+	// Get the provider (initialize it if not already initialize)
+	// ATTN: move this block so that it can be shared.
+	//----------------------------------------------------------------------
+
+	Provider* provider = _providerTable->lookupProvider(providerId);
+
+	if (!provider)
+	{
+	    provider = _providerTable->loadProvider(providerId);
+
+	    if (!provider)
+		throw CimException(CimException::FAILED);
+
+	    provider->initialize(*_repository);
+	}
+
+	//----------------------------------------------------------------------
+	// Get instance from provider:
+	//----------------------------------------------------------------------
+
+	instanceDecl = provider->getInstance(nameSpace, instanceName, 
+	    localOnly, includeQualifiers, includeClassOrigin);
+
+	// ATTN: Need code here to fill out the class?
+
+	instanceName.print();
+    }
+    catch (CimException& e)
+    {
+	sendError(
+	    messageId, "GetInstance", e.getCode(), e.codeToString(e.getCode()));
+	return;
+    }
+    catch (Exception&)
+    {
+	sendError(messageId, "GetInstance", CimException::FAILED, 
+	    CimException::codeToString(CimException::FAILED));
+	return;
+    }
+
+    Array<Sint8> body;
+    instanceDecl.toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"GetInstance", body);
 
     sendMessage(message);
 }
@@ -998,6 +1151,8 @@ void ServerHandler::handleDeleteClass(
 //
 // Acceptor
 //
+//	This is a one-per-process class.
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef ACE_Acceptor<ServerHandler, ACE_SOCK_ACCEPTOR> AcceptorBase;
@@ -1017,6 +1172,7 @@ public:
     {
 	handler = new ServerHandler;
 	handler->setRepository(&_repository);
+	handler->setProviderTable(&_providerTable);
 
 	if (reactor())
 	    handler->reactor(reactor());
@@ -1025,6 +1181,7 @@ public:
     }
 
     Repository _repository;
+    ProviderTable _providerTable;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

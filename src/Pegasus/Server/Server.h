@@ -23,8 +23,11 @@
 // Author: Mike Brasher
 //
 // $Log: Server.h,v $
-// Revision 1.1  2001/01/14 19:54:05  mike
-// Initial revision
+// Revision 1.2  2001/01/29 02:19:18  mike
+// added primitive provider dispatching
+//
+// Revision 1.1.1.1  2001/01/14 19:54:05  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -63,7 +66,10 @@ public:
 
 private:
 
+    /// This object was created to hide the ACE headers
+
     ServerRep* _rep;
+
     String _rootPath;
     String _repositoryRootPath;
 };

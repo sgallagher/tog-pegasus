@@ -321,6 +321,7 @@ extern "C" {
         #define CMPI_nameString      (CMPI_string | ((16+10)<<8))
 
    typedef unsigned short CMPIValueState;
+
         #define CMPI_goodValue (0)
         #define CMPI_nullValue (1<<8)
         #define CMPI_keyValue  (2<<8)

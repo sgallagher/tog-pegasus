@@ -69,7 +69,7 @@ public:
     CIMClient();
 
     ///
-    virtual ~CIMClient();
+    ~CIMClient();
 
     /** TBD
     */
@@ -231,7 +231,7 @@ public:
 		<LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
 	</UL>
     */
-    virtual CIMClass getClass(
+    CIMClass getClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className,
 	Boolean localOnly = true,
@@ -242,7 +242,7 @@ public:
 
     /** ATTN TBD
     */
-    virtual CIMInstance getInstance(
+    CIMInstance getInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
 	Boolean localOnly = true,
@@ -253,38 +253,38 @@ public:
 
     /** ATTN TBD
     */
-    virtual void deleteClass(
+    void deleteClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className
     );
 
     /** ATTN TBD
     */ 
-    virtual void deleteInstance(
+    void deleteInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName
     );
 
     /** ATTN TBD
     */
-    virtual void createClass(
+    void createClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMClass& newClass
     );
 
-    virtual CIMObjectPath createInstance(
+    CIMObjectPath createInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMInstance& newInstance
     );
 
     ///
-    virtual void modifyClass(
+    void modifyClass(
 	const CIMNamespaceName& nameSpace,
 	const CIMClass& modifiedClass
     );
 
     ///
-    virtual void modifyInstance(
+    void modifyInstance(
 	const CIMNamespaceName& nameSpace,
 	const CIMInstance& modifiedInstance,
 	Boolean includeQualifiers = true,
@@ -292,7 +292,7 @@ public:
     );
 
     ///
-    virtual Array<CIMClass> enumerateClasses(
+    Array<CIMClass> enumerateClasses(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className = CIMName(),
 	Boolean deepInheritance = false,
@@ -302,14 +302,14 @@ public:
     );
 
     ///
-    virtual Array<CIMName> enumerateClassNames(
+    Array<CIMName> enumerateClassNames(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className = CIMName(),
 	Boolean deepInheritance = false
     );
 
     ///
-    virtual Array<CIMInstance> enumerateInstances(
+    Array<CIMInstance> enumerateInstances(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className,
 	Boolean deepInheritance = true,
@@ -320,20 +320,20 @@ public:
     );
 
     ///
-    virtual Array<CIMObjectPath> enumerateInstanceNames(
+    Array<CIMObjectPath> enumerateInstanceNames(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& className
     );
 
     ///
-    virtual Array<CIMObject> execQuery(
+    Array<CIMObject> execQuery(
 	const CIMNamespaceName& nameSpace,
 	const String& queryLanguage,
 	const String& query
     );
 
     ///
-    virtual Array<CIMObject> associators(
+    Array<CIMObject> associators(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& objectName,
 	const CIMName& assocClass = CIMName(),
@@ -346,7 +346,7 @@ public:
     );
 
     ///
-    virtual Array<CIMObjectPath> associatorNames(
+    Array<CIMObjectPath> associatorNames(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& objectName,
 	const CIMName& assocClass = CIMName(),
@@ -356,7 +356,7 @@ public:
     );
 
     ///
-    virtual Array<CIMObject> references(
+    Array<CIMObject> references(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& objectName,
 	const CIMName& resultClass = CIMName(),
@@ -367,7 +367,7 @@ public:
     );
 
     ///
-    virtual Array<CIMObjectPath> referenceNames(
+    Array<CIMObjectPath> referenceNames(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& objectName,
 	const CIMName& resultClass = CIMName(),
@@ -375,14 +375,14 @@ public:
     );
 
     ///
-    virtual CIMValue getProperty(
+    CIMValue getProperty(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
 	const CIMName& propertyName
     );
 
     ////
-    virtual void setProperty(
+    void setProperty(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
 	const CIMName& propertyName,
@@ -390,30 +390,30 @@ public:
     );
 
     ///
-    virtual CIMQualifierDecl getQualifier(
+    CIMQualifierDecl getQualifier(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& qualifierName
     );
 
     ///
-    virtual void setQualifier(
+    void setQualifier(
 	const CIMNamespaceName& nameSpace,
 	const CIMQualifierDecl& qualifierDeclaration
     );
 
     ///
-    virtual void deleteQualifier(
+    void deleteQualifier(
 	const CIMNamespaceName& nameSpace,
 	const CIMName& qualifierName
     );
 
     ///
-    virtual Array<CIMQualifierDecl> enumerateQualifiers(
+    Array<CIMQualifierDecl> enumerateQualifiers(
 	const CIMNamespaceName& nameSpace
     );
 
     ///
-    virtual CIMValue invokeMethod(
+    CIMValue invokeMethod(
 	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& instanceName,
 	const CIMName& methodName,

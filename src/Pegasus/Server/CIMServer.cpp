@@ -467,7 +467,6 @@ void CIMServer::runForever()
             ProviderManagerService::getProviderManager()->unload_idle_providers();
             #endif
 
-		    _monitor->kill_idle_threads();
 		  }
 		catch(...)
 		  {

@@ -37,6 +37,7 @@
 #include "Socket.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/MessageQueueService.h>
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
@@ -120,18 +121,6 @@ Monitor::Monitor(Boolean async)
        _MonitorEntry entry(0, 0, 0);
        _entries.append(entry);
     }
-    if( _async == true )
-    {
-       _thread_pool = new ThreadPool(0, 
-				     "Monitor", 
-				     0, 
-				     0,
-				     create_time, 
-				     destroy_time, 
-				     deadlock_time);
-    }
-    else 
-       _thread_pool = 0;
 }
 
 Monitor::~Monitor()
@@ -151,32 +140,7 @@ Monitor::~Monitor()
     Socket::uninitializeInterface();
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "returning from monitor destructor");
-    if(_async == true)
-       delete _thread_pool;
 }
-
-
-int Monitor::kill_idle_threads()
-{
-   static struct timeval now, last;
-   gettimeofday(&now, NULL);
-   int dead_threads = 0;
-   
-   if( now.tv_sec - last.tv_sec > 120 )
-   {
-      gettimeofday(&last, NULL);
-      try 
-      {
-	 dead_threads =  _thread_pool->kill_dead_threads();
-      }
-      catch(IPCException& )
-      {
-      }
-      
-   }
-   return dead_threads;
-}
-
 
 Boolean Monitor::run(Uint32 milliseconds)
 {
@@ -315,7 +279,8 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   static_cast<HTTPConnection *>(q)->_entry_index = indx;
 		   _entries[indx]._status = _MonitorEntry::BUSY;
                    // If allocate_and_awaken failure, retry on next iteration
-                   if (!_thread_pool->allocate_and_awaken((void *)q, _dispatch))
+                   if (!MessageQueueService::get_thread_pool()->allocate_and_awaken(
+                           (void *)q, _dispatch))
                    {
                       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                           "Monitor::run: Insufficient resources to process request.");

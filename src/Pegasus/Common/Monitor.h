@@ -38,7 +38,6 @@
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/pegasus_socket.h>
-#include <Pegasus/Common/internal_dq.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h> 
@@ -219,9 +218,13 @@ public:
   void unsolicitSocketMessages(Sint32);
 
   /** dispatch a message to the cimom on an independent thread 
+      Note: The Monitor class uses the MessageQueueService ThreadPool.
+      This ThreadPool is only available if it has been initialized by
+      the MessageQueueService.  Therefore, the Monitor class should
+      only be used when the MessageQueueService is active in the
+      system.
    */
   static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
-  int kill_idle_threads(void);
       
   /** stop listening for client connections 
    */
@@ -234,7 +237,6 @@ private:
   pegasus_module * _module_handle;
   ModuleController * _controller;
   Boolean _async;
-  ThreadPool *_thread_pool;
   Mutex _entry_mut;
   AtomicInt _stopConnections;
   friend class HTTPConnection;

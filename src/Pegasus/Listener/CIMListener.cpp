@@ -210,7 +210,7 @@ void CIMListenerService::runForever()
 				{
 					//MessageQueueService::_check_idle_flag = 1;
 					//MessageQueueService::_polling_sem.signal();
-					_monitor->kill_idle_threads();
+                                        MessageQueueService::get_thread_pool()->kill_idle_threads();
 				}
 				catch(...)
 				{

@@ -51,8 +51,8 @@ CString::CString()
 
 CString::CString(const CString& cstr)
 {
-    _rep = new char[strlen(cstr._rep)+1];
-    _rep = strcpy(_rep, cstr._rep);
+    _rep = (void*)new char[strlen((char*)cstr._rep)+1];
+    strcpy((char*)_rep, (char*)cstr._rep);
 }
 
 CString::CString(char* cstr)
@@ -63,19 +63,19 @@ CString::CString(char* cstr)
 CString::~CString()
 {
     if (_rep)
-        delete [] _rep;
+        delete [] (char*)_rep;
 }
 
 CString& CString::operator=(const CString& cstr)
 {
-    _rep = new char[strlen(cstr._rep)+1];
-    _rep = strcpy(_rep, cstr._rep);
+    _rep = (char*)new char[strlen((char*)cstr._rep)+1];
+    strcpy((char*)_rep, (char*)cstr._rep);
     return *this;
 }
 
 CString::operator const char*() const
 {
-    return _rep;
+    return (char*)_rep;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

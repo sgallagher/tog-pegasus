@@ -65,7 +65,7 @@ private:
 
     friend class String;
 
-    char* _rep;
+    void* _rep;
 };
 
 /**

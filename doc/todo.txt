@@ -1,6 +1,8 @@
 Urgent
 ======
 
+    -   Add CIMOM handle to provider interface.
+
     -	Fix case sensitivity problems in repository (just add an _Open method
 	that ignores the case of the file).
 

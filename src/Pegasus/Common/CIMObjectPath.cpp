@@ -569,61 +569,22 @@ Boolean _parseNamespaceElement(
 }
 
 /**
-    ATTN: RK - Association classes have keys whose types are
-    references.  These reference values must be treated specially
-    in the XML encoding, using the VALUE.REFERENCE tag structure.
+    ATTN-RK: The DMTF specification for the string form of an
+    object path makes it impossible for a parser to distinguish
+    between a key values of String type and Reference type.
 
-    Pegasus had been passing reference values simply as String
-    values.  For example, EnumerateInstanceNames returned
-    KEYVALUEs of string type rather than VALUE.REFERENCEs.
+    Given the ambiguity, this implementation takes a guess at the
+    type of a quoted key value.  If the value can be parsed into
+    a CIMObjectPath with at least one key binding, the type is
+    set to REFERENCE.  Otherwise, the type is set to STRING.
+    Note: This algorithm appears to be in line with what the Sun
+    WBEM Services implementation does.
 
-    I've modified the XmlReader::getKeyBindingElement() and
-    XmlWriter::appendInstanceNameElement() methods to read and write
-    the XML in the proper format.  However, making that change
-    required that a CIMObjectPath object be able to distinguish
-    between a key of String type and a key of reference type.
-
-    I've modified the String format of CIMObjectPaths slightly to
-    allow efficient processing of references whose keys are also
-    of reference type.  The "official" form uses the same
-    encoding for key values of String type and of reference type,
-    and so it would be necessary to retrieve the class definition
-    and look up the types of the key properties to determine how
-    to treat the key values.  This is clearly too inefficient for
-    internal transformations between CIMObjectPaths and String
-    values.
-
-    The workaround is to encode a 'R' at the beginning of the
-    value for a key of reference type (before the opening '"').
-    This allows the parser to know a priori whether the key is of
-    String or reference type.
-
-    In this example:
-
-        MyClass.Key1="StringValue",Key2=R"RefClass.KeyA="StringA",KeyB=10"
-
-    Property Key1 of class MyClass is of String type, and so it
-    gets the usual encoding.  Key2 is a reference property, so
-    the extra 'R' is inserted before its encoded value.  Note
-    that this algorithm is recursive, such that RefClass could
-    include KeyC of reference type, which would also get encoded
-    with the 'R' notation.
-
-    The toString() method inserts the 'R' to provide symmetry.  A
-    new CIMKeyBinding type (REFERENCE) has been defined to denote
-    keys in a CIMObjectPath that are of reference type.  This
-    CIMKeyBinding type must be used appropriately for
-    CIMObjectPath::toString() to behave correctly.
-
-    A result of this change is that instances names in the
-    instance repository will include this extra 'R' character.
-    Note that for user-facing uses of the String encoding of
-    instance names (such as might appear in MOF for static
-    association instances or in the CGI client), this solution
-    is non-standard and therefore unacceptable.  It is likely
-    that these points will need to process the more expensive
-    operation of retrieving the class definition to determine
-    the key property types.
+    To be totally correct, it would be necessary to retrieve the
+    class definition and look up the types of the key properties
+    to determine how to interpret the key values.  This is clearly
+    too inefficient for internal transformations between
+    CIMObjectPaths and String values.
 */
 void _parseKeyBindingPairs(
     const String& objectName,
@@ -655,14 +616,11 @@ void _parseKeyBindingPairs(
         p = equalsign + 1;
         CIMKeyBinding::Type type;
 
-        if (*p == 'R')
+        if (*p == '"')
         {
+            // Could be CIMKeyBinding::STRING or CIMKeyBinding::REFERENCE
+
             p++;
-
-            type = CIMKeyBinding::REFERENCE;
-
-            if (*p++ != '"')
-                throw MalformedObjectNameException(objectName);
 
             while (*p && *p != '"')
             {
@@ -681,30 +639,28 @@ void _parseKeyBindingPairs(
 
             if (*p++ != '"')
                 throw MalformedObjectNameException(objectName);
-        }
-        else if (*p == '"')
-        {
-            p++;
 
+            /*
+                Guess at the type of this quoted key value.  If the value
+                can be parsed into a CIMObjectPath with at least one key
+                binding, the type is assumed to be a REFERENCE.  Otherwise,
+                the type is set to STRING.  (See method header for details.)
+             */
             type = CIMKeyBinding::STRING;
 
-            while (*p && *p != '"')
+            try
             {
-                if (*p == '\\')
+                CIMObjectPath testForPath(valueString);
+                if (testForPath.getKeyBindings().size() > 0)
                 {
-                    *p++;
-
-                    if ((*p != '\\') && (*p != '"'))
-                    {
-                        throw MalformedObjectNameException(objectName);
-                    }
+                    // We've found a reference value!
+                    type = CIMKeyBinding::REFERENCE;
                 }
-
-                valueString.append(*p++);
             }
-
-            if (*p++ != '"')
-                throw MalformedObjectNameException(objectName);
+            catch (Exception & e)
+            {
+                // Not a reference value; leave type as STRING
+            }
         }
         else if (toupper(*p) == 'T' || toupper(*p) == 'F')
         {
@@ -932,9 +888,6 @@ String CIMObjectPath::toString() const
 
             CIMKeyBinding::Type type = keyBindings[i].getType();
         
-            if (type == CIMKeyBinding::REFERENCE)
-                objectName.append('R');
-
             if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
                 objectName.append('"');
 

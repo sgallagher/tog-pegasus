@@ -311,7 +311,7 @@ void test03()
         cout << "DaughterInstancePath = " << daughterInstancePath.toString()<< endl;
         cout << "AssocInstancePath = " << assocInstancePath.toString()<< endl;
     }
-    String x ="MY_AssocClass.child=R\"My_PersonClass.name=\\\"daughter\\\"\",parent=R\"MY_PersonClass.name=\\\"father\\\"\"";
+    String x ="MY_AssocClass.child=\"My_PersonClass.name=\\\"daughter\\\"\",parent=\"MY_PersonClass.name=\\\"father\\\"\"";
     assert(x == assocInstancePath.toString());
     CIMObjectPath px = x;
     assert(px.identical(assocInstancePath));

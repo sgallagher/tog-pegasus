@@ -42,7 +42,7 @@
 #else
 #include <unistd.h>
 #endif 
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
 # include <memory>
 #endif
 #include <cassert>

@@ -25,7 +25,7 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1917
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +41,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #if defined (CMPI_VER_85)
   #include <Pegasus/Common/MessageLoader.h>
@@ -85,11 +86,12 @@ extern "C" {
    static CMPI_THREAD_TYPE newThread
          (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
    {
-      thrd_data *data=new thrd_data();
+      AutoPtr<thrd_data> data(new thrd_data());
       data->pgm=(CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *)(void*))start;
       data->parm=parm;
 
-      Thread *t=new Thread(start_driver,data,detached==1);
+      Thread *t=new Thread(start_driver,data.get(),detached==1);
+      data.release();
       t->run();
       return (CMPI_THREAD_TYPE)t;
    }

@@ -3091,6 +3091,15 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
     return _nameSpaceManager.getNameSpaceAttributes(nameSpace, attributes);
 }
 
+Boolean CIMRepository::isRemoteNameSpace(const CIMNamespaceName& nameSpaceName,
+        String & remoteInfo)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isRemoteNamespace");
+    ReadLock lock(const_cast<ReadWriteSem&>(_lock));
+    PEG_METHOD_EXIT();
+    return _nameSpaceManager.isRemoteNameSpace(nameSpaceName, remoteInfo);
+}
+
 //----------------------------------------------------------------------
 //
 // _getInstanceIndexFilePath()

@@ -42,6 +42,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define CM_BROKER (CMPI_ThreadContext::getBroker())
 #define CM_CIMOM(mb) ((CIMOMHandle*)mb->hdl)
 
 #define CM_Context(ctx) (((CMPI_Context*)ctx)->ctx)

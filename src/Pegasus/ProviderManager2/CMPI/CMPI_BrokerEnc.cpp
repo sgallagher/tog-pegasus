@@ -164,7 +164,7 @@ CMPIString* mbIntNewString(const char *s) {
    return mbEncNewString(NULL,s,NULL);
 }
 
-static CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
+CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
                                 CMPIStatus *rc) {
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    CMPIData *dta=new CMPIData[count+1];
@@ -259,6 +259,8 @@ static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
 static CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, const char *type, CMPIStatus *rc) {
    CIMObjectPath* cop=(CIMObjectPath*)eCp->hdl;
    const CIMName tcn(type);
+
+   if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
    if (tcn==cop->getClassName()) return 1;
 
@@ -468,6 +470,27 @@ static CMPISelectExp* mbEncNewSelectExp(CMPIBroker* mb, const char *query, const
    return (CMPISelectExp*) new CMPI_SelectExp(stmt);
 }  
 
+CMPIArray * mbEncGetKeyList(CMPIBroker *mb, CMPIContext *ctx,
+                 CMPIObjectPath *cop, CMPIStatus *rc) {
+   CIMObjectPath *op=(CIMObjectPath*)cop->hdl;
+   CIMClass *cls=mbGetClass(mb,*op);
+   Array<String> keys;
+   for (int i=0,m=cls->getPropertyCount(); i<m; i++) {
+      CIMConstProperty p=cls->getProperty(i);
+      Uint32 k=p.findQualifier("key");
+      if (k!=PEG_NOT_FOUND) {
+          keys.append(p.getName().getString());
+      }
+   }
+   CMPIArray *ar=mb->eft->newArray(mb,keys.size(),CMPI_string,NULL);
+   for (Uint32 i=0,m=keys.size(); i<m; i++) {
+      String s=keys[i];
+      CMPIString *str=string2CMPIString(s);
+      ar->ft->setElementAt(ar,i,(CMPIValue*)&str,CMPI_string);
+   }
+   if (rc) CMSetStatus(rc,CMPI_RC_OK);
+   return ar;
+}
 
 static CMPIBrokerEncFT brokerEnc_FT={
      CMPICurrentVersion,
@@ -487,6 +510,7 @@ static CMPIBrokerEncFT brokerEnc_FT={
 #if defined (CMPI_VER_85)     
      mbEncGetMessage,
 #endif     
+     mbEncGetKeyList
 };
 
 CMPIBrokerEncFT *CMPI_BrokerEnc_Ftab=&brokerEnc_FT;

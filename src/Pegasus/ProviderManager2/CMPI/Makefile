@@ -28,6 +28,7 @@ SOURCES = \
 	CMPI_ContextArgs.cpp \
 	CMPI_Object.cpp \
 	CMPI_BrokerEnc.cpp \
+	CMPI_BrokerExt.cpp \
 	CMPI_Array.cpp \
 	CMPI_DateTime.cpp \
 	CMPI_Enumeration.cpp \

@@ -32,6 +32,7 @@
 #include "CMPI_Version.h"
 
 #include "CMPI_String.h"
+#include "CMPI_Value.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -53,11 +54,26 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
    if (rc) *rc=CMPI_RC_OK;
 
    if (type & CMPI_ARRAY) {
+
+      if (data==NULL || data->array==NULL) {
+         CMPIType aType=type&~CMPI_ARRAY;
+         return CIMValue(type2CIMType(aType),true);
+      }
+
       CMPIArray *ar=data->array;
       CMPIData *aData=(CMPIData*)ar->hdl;
       CMPIType aType=aData->type&~CMPI_ARRAY;
       int aSize=aData->value.sint32;
       aData++;
+
+     if (aType & CMPI_ENC && (data==NULL || data->array==NULL)) {
+         if (aType==CMPI_chars || aType==CMPI_string)
+            return CIMValue(CIMTYPE_STRING,true);
+         if (aType==CMPI_dateTime)
+            return CIMValue(CIMTYPE_DATETIME,true);
+         if (aType==CMPI_ref)
+            return CIMValue(CIMTYPE_REFERENCE,true);
+      }
 
       if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
          switch (aType) {
@@ -95,6 +111,23 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
       return CIMValue(v);
    } // end of array processing
 
+
+
+   else if (type==CMPI_chars) {
+      if (data) v.set(String((char*)data));
+      else return CIMValue(CIMTYPE_STRING,false);
+   }
+
+   else if (type & CMPI_ENC &&
+      (data==NULL || data->string==NULL || data->string->hdl==NULL)) {
+         if (type==CMPI_string)
+            return CIMValue(CIMTYPE_STRING,false);
+         if (type==CMPI_dateTime)
+            return CIMValue(CIMTYPE_DATETIME,false);
+         if (type==CMPI_ref)
+            return CIMValue(CIMTYPE_REFERENCE,false);
+   }
+
    else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
       switch (type) {
          case CMPI_sint32: v.set((Sint32)data->sint32); break;
@@ -105,8 +138,6 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
       }
    }
 
-   else if (type==CMPI_chars)  v.set(data ?
-        String((char*)data) : String::EMPTY );
    else if (type==CMPI_string) v.set(data->string->hdl ?
         String((char*)data->string->hdl) : String::EMPTY);
 
@@ -153,7 +184,13 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
 CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
 
    data->type=t;
-   data->state=CMPI_goodValue;
+   data->state=0;
+   data->value.uint64=0;
+
+   if (v.isNull()) {
+      data->state=CMPI_nullValue;
+      return CMPI_RC_OK;
+   }
 
    if (t & CMPI_ARRAY) {
       int aSize=v.getArraySize();
@@ -161,9 +198,14 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
       CMPIData *aData=new CMPIData[aSize+1];
       aData->type=aType;
       aData->value.sint32=aSize;
+
+      for (int i=1; i<aSize+1; i++) {
+         aData[i].type=aType;
+         aData[i].state=0;
+      }
       aData++;
 
-      if (aType & (CMPI_UINT|CMPI_SINT)==CMPI_SINT) {
+      if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_SINT) {
          switch (aType) {
             case CMPI_sint32: CopyFromArray(Sint32,sint32); break;
             case CMPI_sint16: CopyFromArray(Sint16,sint16); break;
@@ -173,7 +215,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data) {
          }
       }
       else if (aType==CMPI_string) CopyFromStringArray(String,string)
-      else if (aType & (CMPI_UINT|CMPI_SINT)==CMPI_UINT) {
+      else if ((aType & (CMPI_UINT|CMPI_SINT))==CMPI_UINT) {
          switch (aType) {
             case CMPI_uint32: CopyFromArray(Uint32,uint32); break;
             case CMPI_uint16: CopyFromArray(Uint16,uint16); break;
@@ -267,23 +309,49 @@ CMPIType type2CMPIType(CIMType pt, int array) {
     return (CMPIType)t;
 }
 
+CIMType type2CIMType(CMPIType pt) {
+   switch (pt) {
+   case CMPI_null:      return (CIMType)0;
+   case CMPI_boolean:   return CIMTYPE_BOOLEAN;
+   case CMPI_char16:    return CIMTYPE_CHAR16;
+
+   case CMPI_real32:    return CIMTYPE_REAL32;
+   case CMPI_real64:    return CIMTYPE_REAL64;
+
+   case CMPI_uint8:     return CIMTYPE_UINT8;
+   case CMPI_uint16:    return CIMTYPE_UINT16;
+   case CMPI_uint32:    return CIMTYPE_UINT32;
+   case CMPI_uint64:    return CIMTYPE_UINT64;
+
+   case CMPI_sint8:     return CIMTYPE_SINT8;
+   case CMPI_sint16:    return CIMTYPE_SINT16;
+   case CMPI_sint32:    return CIMTYPE_SINT32;
+   case CMPI_sint64:    return CIMTYPE_SINT64;
+
+   case CMPI_string:    return CIMTYPE_STRING;
+   case CMPI_chars:     return CIMTYPE_STRING;
+   case CMPI_dateTime:  return CIMTYPE_DATETIME;
+   case CMPI_ref:       return CIMTYPE_REFERENCE;
+
+   default:             return (CIMType)0;
+   }
+ }
+
 CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data) {
    data->state=CMPI_keyValue;
    switch (t) {
    case CIMKeyBinding::NUMERIC: {
  //        const char *vp=v.getCString();
          CString vp=v.getCString();
-       #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+        #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
           data->value.sint64=strtoll((const char*)vp, NULL, 10);
-         #elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+        #elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
           data->value.sint64 = 0;
           sscanf((const char*)vp, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
                  &data->value.sint64);
-         #elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-          data->value.sint64=strtoll((const char*)vp, NULL, 10);
-         #else
+        #else
           data->value.sint64=atoll((const char*)vp);
-         #endif
+        #endif
          data->type=CMPI_sint64;
 //         delete vp;
       }

@@ -134,6 +134,7 @@ public:
                            ProviderVector & miVector,
 			   String & name,
                            CMPI_Broker & broker);
+    void setLocation(String loc) { _location=loc; }
 
     virtual Boolean tryTerminate(void);
     virtual void terminate(void);
@@ -167,6 +168,7 @@ public:
     virtual void unprotect(void);
 
 protected:
+    String _location;
     Status _status;
     CMPIProviderModule *_module;
     ProviderVector miVector;

@@ -200,6 +200,12 @@ extern "C" {
      CMPIString* (*getMessage)
                  (CMPIBroker* mb, const char *msgId, const char *defMsg, CMPIStatus* rc, unsigned int count, ...);
      #endif // CMPI_VER_85	 
+
+     #if defined(CMPI_VER_90)
+     CMPIArray *(*getKeyList)
+                (CMPIBroker *mb, CMPIContext *ctx,
+                 CMPIObjectPath *op, CMPIStatus *rc);
+     #endif // CMPI_VER_90
    };
 
 
@@ -322,7 +328,7 @@ extern "C" {
      */
      CMPIStatus (*setInstance)
                 (CMPIBroker* mb, CMPIContext* ctx,
-		 CMPIObjectPath* op, CMPIInstance* inst);
+                 CMPIObjectPath* op, CMPIInstance* inst, char ** properties);
 
       /** Delete an existing Instance using <op> as reference.
 	 @param mb Broker this pointer.
@@ -521,9 +527,85 @@ extern "C" {
      CMPIData (*getProperty)
                 (CMPIBroker *mb, CMPIContext *ctx,
                  CMPIObjectPath *op, const char *name, CMPIStatus *rc);
+
    };
 
 
+    //---------------------------------------------------
+   //--
+   //	_CMPIBrokerExtFT Function Table
+   //--
+   //---------------------------------------------------
+
+#if defined(CMPI_VER_90)
+
+#include "cmpios.h"
+
+   struct timespec;
+
+   /** This structure is a table of pointers to extended broker CIMOM
+       services This table is made available by the Management Broker,
+       whenever a provider is loaded and initialized.
+       This is an extension used by Pegasus to support platform dependencies.
+   */
+   struct _CMPIBrokerExtFT {
+     /** Function table version
+     */
+     int ftVersion;
+
+     char *(*resolveFileName)
+         (const char *filename);
+
+
+
+     CMPI_THREAD_TYPE (*newThread)
+        (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start)(void *), void *parm, int detached);
+
+     unsigned int (*createThreadKey)
+        (CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*));
+
+     void *(*getThreadSpecific)
+        (CMPI_THREAD_KEY_TYPE key);
+
+     unsigned int (*setThreadSpecific)
+        (CMPI_THREAD_KEY_TYPE key, void * value);
+
+     int (*joinThread)
+        (CMPI_THREAD_TYPE thread, void ** retval );
+
+     int (*threadOnce)
+        (int *once, void (*init)(void));
+
+
+
+     CMPI_MUTEX_TYPE (*newMutex)
+        (int opt);
+
+     void (*destroyMutex)
+        (CMPI_MUTEX_TYPE);
+
+     void (*lockMutex)
+        (CMPI_MUTEX_TYPE);
+
+     void (*unlockMutex)
+        (CMPI_MUTEX_TYPE);
+
+
+
+     CMPI_COND_TYPE (*newCondition)
+        (int opt);
+
+     void (*destroyCondition)
+        (CMPI_COND_TYPE);
+
+     int (*timedCondWait)
+        (CMPI_COND_TYPE cond, CMPI_MUTEX_TYPE mutex, struct timespec *wait);
+
+     int (*signalCondition)
+        (CMPI_COND_TYPE cond);
+  };
+
+#endif
 
    //---------------------------------------------------
    //--
@@ -547,6 +629,12 @@ extern "C" {
        /** Pointer to MB factory service routines function table.
        */
      CMPIBrokerEncFT *eft;
+
+       /** Pointer to MB extended services function table..
+       */
+  #if defined(CMPI_VER_90)
+     CMPIBrokerExtFT *xft;
+  #endif
    };
 
 
@@ -708,7 +796,7 @@ extern "C" {
 	 @return Service return status.
       */
      CMPIStatus (*returnData)
-              (CMPIResult* rslt,CMPIValue* value,CMPIType type);
+              (CMPIResult* rslt,const CMPIValue* value,CMPIType type);
 
        /** Return a Instance object.
 	 @param rslt Result this pointer.

@@ -62,7 +62,7 @@ static CMPIEnumeration* enumClone(CMPIEnumeration* eEnum, CMPIStatus* rc) {
    return NULL;
 }
 
-CMPIData enumGetNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+static CMPIData enumGetNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
    CMPIData data={0,0,{0}};
    if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
       CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
@@ -102,7 +102,7 @@ CMPIData enumGetNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
    return data;
 }
 
-CMPIBoolean enumHasNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+static CMPIBoolean enumHasNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
       CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
@@ -119,8 +119,47 @@ CMPIBoolean enumHasNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
    return false;
 }
 
-CMPIArray* enumToArray(CMPIEnumeration* eEnum, CMPIStatus* rc) {
-   return NULL;
+extern CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
+                                CMPIStatus *rc);
+extern CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
+                                    CMPIValue *val, CMPIType type);
+
+static CMPIArray* enumToArray(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+   Uint32 size;
+   CMPI_Object* obj;
+   CMPIArray *nar=NULL;
+
+   if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab ||
+       (void*)eEnum->ft==(void*)CMPI_InstEnumeration_Ftab) {
+      Array<CIMInstance>* ia;
+      if ((void*)eEnum->ft==(void*)CMPI_ObjEnumeration_Ftab) {
+         CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eEnum;
+         ia=(Array<CIMInstance>*)ie->hdl;
+      }
+      else {
+         CMPI_InstEnumeration* ie=(CMPI_InstEnumeration*)eEnum;
+         ia=(Array<CIMInstance>*)ie->hdl;
+      }
+      size=ia->size();
+      nar=mbEncNewArray(NULL,size,CMPI_instance,NULL);
+      for (Uint32 i=0; i<size; i++) {
+         CIMInstance &inst=(*ia)[i];
+         obj=new CMPI_Object(new CIMInstance(inst));
+         arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_instance);
+      }
+   }
+   else {
+      CMPI_OpEnumeration* oe=(CMPI_OpEnumeration*)eEnum;
+      Array<CIMObjectPath>* opa=(Array<CIMObjectPath>*)oe->hdl;
+      size=opa->size();
+      nar=mbEncNewArray(NULL,size,CMPI_ref,NULL);
+      for (Uint32 i=0; i<size; i++) {
+         CIMObjectPath &op=(*opa)[i];
+         obj=new CMPI_Object(new CIMObjectPath(op));
+         arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_ref);
+      }
+   }
+   return nar;
 }
 
 

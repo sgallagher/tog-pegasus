@@ -219,7 +219,7 @@ struct NameSpaceManagerRep
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct parentNameSpace;
+struct specialNameSpace;
 
 class NameSpace
 {
@@ -227,7 +227,7 @@ class NameSpace
 public:
 
     NameSpace(const String& nameSpacePath, 
-        const CIMNamespaceName& nameSpaceName, parentNameSpace *pns=NULL, String *extDir=NULL);
+        const CIMNamespaceName& nameSpaceName, specialNameSpace *pns=NULL, String *extDir=NULL);
 
     void modify(Boolean shareable, Boolean updatesAllowed,const String& nameSpacePath);
 
@@ -264,29 +264,74 @@ private:
     NameSpace *dependent;
     NameSpace *nextDependent;
     Boolean ro,final;
-    String extDirName;
+    String sharedDirName;
+    String remoteDirName;
 };
 
 static Array<String> *nameSpaceNames=NULL;
-static Array<parentNameSpace*> *parentNames=NULL;
+static Array<specialNameSpace*> *specialNames=NULL;
 
+#define PEGASUS_ENABLE_REMOTE_CMPI
 
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+struct specialNameSpace {
+   specialNameSpace()
+      : shared(false), parentSpace(NULL), parent(String::EMPTY),
+      sharedDirName(String::EMPTY), remote(false) {}
+   void setShared(bool r, bool f, String p, String x) {
+      shared=true;
+      ro=r;
+      final=f;
+      parentSpace=NULL;
+      parent=p;
+      sharedDirName=x;
+   }
+   void setShared(bool r, bool f, NameSpace *pns, String p, String x) {
+      shared=true;
+      ro=r;
+      final=f;
+      parentSpace=pns;
+      parent=p;
+      sharedDirName=x;
+   }
+   void setRemote(String id, String host, String port, String x) {
+      remote=true;
+      remId=id;
+      remHost=host;
+      remPort=port;
+      remDirName=x;
+   }
 
-struct parentNameSpace {
-   parentNameSpace(bool r, bool f, String p, String x)
-      : ro(r), final(f), parentSpace(NULL), parent(p), extDir(x) {}
-   parentNameSpace(bool r, bool f, NameSpace *pns, String p, String x)
-      : ro(r), final(f), parentSpace(pns), parent(p), extDir(x) {}
+   Boolean shared;
    Boolean ro;
    Boolean final;
    NameSpace *parentSpace;
    String parent;
-   String extDir;
+   String sharedDirName;
+
+   Boolean remote;
+   String remId;
+   String remHost;
+   String remPort;
+   String remDirName;
 };
+#else
+struct specialNameSpace {
+   specialNameSpace(bool r, bool f, String p, String x)
+      : ro(r), final(f), parentSpace(NULL), parent(p), sharedDirName(x) {}
+   specialNameSpace(bool r, bool f, NameSpace *pns, String p, String x)
+       : ro(r), final(f), parentSpace(pns), parent(p), sharedDirName(x) {}
+   Boolean ro;
+   Boolean final;
+   NameSpace *parentSpace;
+   String parent;
+   String sharedDirName;
+};
+#endif
 
 NameSpace::NameSpace(const String& nameSpacePath, 
                      const CIMNamespaceName& nameSpaceName,
-                     parentNameSpace *pns, String *extDir)
+                     specialNameSpace *pns, String *extDir)
     : _nameSpacePath(nameSpacePath), _nameSpaceName(nameSpaceName),
       parent(NULL), dependent(NULL), nextDependent(NULL),
       ro(false), final(false)
@@ -296,6 +341,7 @@ NameSpace::NameSpace(const String& nameSpacePath,
     if (pns==NULL) _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
 
     else {
+       if (pns->shared) {
        ro=pns->ro;
        final=pns->final;
        parent=pns->parentSpace;
@@ -311,7 +357,14 @@ NameSpace::NameSpace(const String& nameSpacePath,
           ens->dependent=this;
        }
     }
-    if (extDir) extDirName=*extDir;
+       else _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
+       
+       if (pns->remote) {
+          cout<<"--- remote namespace: "<<nameSpacePath<<" >"<<pns->remDirName<<"<"<<endl;
+          remoteDirName=pns->remDirName;
+       }
+    }
+    if (extDir) sharedDirName=*extDir;
 }
 
 NameSpace::~NameSpace()
@@ -329,9 +382,9 @@ NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &rep
     nameSpace.reset(nsm->lookupNameSpace(nameSpaceName));
         if ((nameSpace.get()) != 0) return nameSpace.release();
 
-        parentNameSpace *pns=(*parentNames)[index];
+    specialNameSpace *pns=(*specialNames)[index];
 
-        if (pns && pns->parent.size()) {
+    if (pns && pns->shared && pns->parent.size()) {
            int j=0,m=0;
            for (m=nameSpaceNames->size(); j<m; j++)
               if ((*nameSpaceNames)[j]==pns->parent) break;
@@ -351,7 +404,7 @@ void NameSpace::modify(Boolean shareable, Boolean updatesAllowed, const String& 
 {
      PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::modify()");
 
-    String newDir=extDirName;
+    String newDir=sharedDirName;
     if (newDir.size()==0) newDir="SWF";
 
     newDir[0]='S';
@@ -362,17 +415,17 @@ void NameSpace::modify(Boolean shareable, Boolean updatesAllowed, const String& 
     tmp.toLower();
 
     if (tmp=="swf") {
-       String path = nameSpacePath+"/"+extDirName;
+       String path = nameSpacePath+"/"+sharedDirName;
        FileSystem::removeFileNoCase(path);
        newDir="";
     }
 
-    else if (extDirName!=newDir) {
+    else if (sharedDirName!=newDir) {
        String path = nameSpacePath+"/"+newDir;
        if (!FileSystem::makeDirectory(path))
            throw CannotCreateDirectory(path);
-       path = nameSpacePath+"/"+extDirName;
-       if (extDirName.size())
+       path = nameSpacePath+"/"+sharedDirName;
+       if (sharedDirName.size())
           if (!FileSystem::removeDirectoryHier(path))
               throw CannotRemoveDirectory(path);
     }
@@ -380,7 +433,7 @@ void NameSpace::modify(Boolean shareable, Boolean updatesAllowed, const String& 
     ro=!updatesAllowed;
     final=!shareable;
 
-    extDirName=newDir;
+    sharedDirName=newDir;
 }
 
 NameSpace *NameSpace::primaryParent()
@@ -531,42 +584,97 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
     _rep = new NameSpaceManagerRep;
 
     nameSpaceNames=new Array<String>;
-    parentNames=new Array<parentNameSpace*>;
+    specialNames=new Array<specialNameSpace*>;
     String tmp;
 
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
     for (Dir dir(repositoryRoot); dir.more(); dir.next()) {
 	String dirName = dir.getName();
 	if (dirName == ".." || dirName == ".") continue;
-	String parentName=" ";
+	String specialName=" ";
+
+        specialNameSpace *sns=NULL;
+        for (Dir dir(repositoryRoot+"/"+dirName); dir.more(); dir.next()) {
+	   specialName = dir.getName();
+	   tmp=specialName;
+	   tmp.toLower();
+	   if (specialName == ".." || specialName == ".") continue;
+
+           switch (tmp[0]) {
+           case 's': {
+                 if ((tmp[1]=='w' || tmp[1]=='r') &&
+                     (tmp[2]=='f' || tmp[2]=='s')) { 
+		    if (sns==NULL) sns=new specialNameSpace();
+                    sns->setShared(tmp[1]=='r',
+                       tmp[2]=='f',
+                       specialName.subString(3),
+                       specialName);
+                 }
+                 else cout<<"--- Namespace "<<dirName<<
+                    " ignored - using incorrect parent namespace specification: "<<specialName<<endl;
+		 break;
+              }
+              case 'r': {
+	         String id=tmp.subString(1,2);
+		 Uint32 pos=specialName.find('@');
+		 String host,port;
+		 if (pos!=PEG_NOT_FOUND) {
+		    host=specialName.subString(3,pos-3);
+		    port=specialName.subString(pos+1);
+		 }
+		 else host=specialName.subString(3);
+		 if (sns==NULL) sns=new specialNameSpace();
+                 sns->setRemote(id,host,port,specialName);
+                 cout<<"--- Remote Namespace "<<dirName<<" >"<<specialName<<"<"<<endl;
+		 break;
+	      }
+	   }
+        }
+        if (sns==NULL) {
+           nameSpaceNames->prepend(dirName);
+           specialNames->prepend(NULL);
+        }
+	else {
+           nameSpaceNames->append(dirName);
+           specialNames->append(sns);
+	}
+     }
+#else
+    for (Dir dir(repositoryRoot); dir.more(); dir.next()) {
+	String dirName = dir.getName();
+	if (dirName == ".." || dirName == ".") continue;
+	String specialName=" ";
 
         for (Dir dir(repositoryRoot+"/"+dirName); dir.more(); dir.next())
         {
-	   parentName = dir.getName();
-	   tmp=parentName;
+	   specialName = dir.getName();
+	   tmp=specialName;
 	   tmp.toLower();
-	   if (parentName == ".." || parentName == ".") continue;
+	   if (specialName == ".." || specialName == ".") continue;
            if (tmp[0]=='s') break;
         }
+
         if (tmp[0]=='s') {
            if ((tmp[1]=='w' || tmp[1]=='r') &&
                (tmp[2]=='f' || tmp[2]=='s')) {
               nameSpaceNames->append(dirName);
-              parentNames->append(new parentNameSpace(tmp[1]=='r',
+              specialNames->append(new specialNameSpace(tmp[1]=='r',
                  tmp[2]=='f',
-                 parentName.subString(3),
-                 parentName));
+                 specialName.subString(3),
+                 specialName));
 
 	    continue;
            }
            cout<<"--- Namespace "<<dirName<<
                  " ignored - using incorrect parent namespace specification: "<<
-                 parentName<<endl;
+                 specialName<<endl;
         }
         else {
            nameSpaceNames->prepend(dirName);
-           parentNames->prepend(NULL);
+           specialNames->prepend(NULL);
         }
     }
+#endif
 
     for (int i=0,m=nameSpaceNames->size(),j=0; i<m; i++) {
        String dirName = (*nameSpaceNames)[i];
@@ -580,7 +688,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
           continue;
        }
 
-       parentNameSpace *pns=(*parentNames)[i];
+       specialNameSpace *pns=(*specialNames)[i];
        if (pns && pns->parent.size()) {
           if ((*nameSpaceNames)[i].size()) {
              if ((*nameSpaceNames)[i].size()) {
@@ -612,13 +720,13 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 	}
 
     delete nameSpaceNames;
-    if (parentNames) {
-       for (int i=0,m=parentNames->size(); i<m; i++)
-          if ((*parentNames)[i]) delete (*parentNames)[i];
-       delete parentNames;
+    if (specialNames) {
+//       for (int i=0,m=specialNames->size(); i<m; i++)
+//          if ((*specialNames)[i]) delete (*specialNames)[i];
+       delete specialNames;
     }
     nameSpaceNames=NULL;
-    parentNames=NULL;
+    specialNames=NULL;
 }
 
 NameSpaceManager::~NameSpaceManager()
@@ -718,7 +826,12 @@ void NameSpaceManager::createNameSpace(const CIMNamespaceName& nameSpaceName,
     String extDir =
        _CreateNameSpaceDirectories(nameSpacePath,shareable,updatesAllowed,parentPath);
 
-    parentNameSpace pns(!updatesAllowed,!shareable,parentSpace,parent,extDir);
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    specialNameSpace pns;
+    pns.setShared(!updatesAllowed,!shareable,parentSpace,parent,extDir);
+#else
+    specialNameSpace pns(!updatesAllowed,!shareable,parentSpace,parent,extDir);
+#endif
 
     // Create NameSpace object and register it:
 
@@ -843,6 +956,18 @@ void NameSpaceManager::deleteNameSpace(const CIMNamespaceName& nameSpaceName)
     delete nameSpace;
 
     PEG_METHOD_EXIT();
+}
+
+Boolean NameSpaceManager::isRemoteNameSpace(const CIMNamespaceName& nameSpaceName,
+        String & remoteInfo)
+{
+    NameSpace* nameSpace = 0;
+    if (!_rep->table.lookup(nameSpaceName.getString (), nameSpace)) return false;
+
+    if (nameSpace->remoteDirName.size()==0) return false;
+
+    remoteInfo=nameSpace->remoteDirName;
+    return true;
 }
 
 void NameSpaceManager::getNameSpaceNames(Array<CIMNamespaceName>& nameSpaceNames) const

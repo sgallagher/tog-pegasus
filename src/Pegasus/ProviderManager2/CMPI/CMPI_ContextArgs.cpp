@@ -94,7 +94,7 @@ static CMPIStatus argsAddArg(CMPIArgs* eArg, const char *name, CMPIValue* data, 
 static CMPIData argsGetArgAt(CMPIArgs* eArg, CMPICount pos, CMPIString** name,
                CMPIStatus* rc) {
    Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-   CMPIData data={0,0,{0}};
+   CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
 
    if (pos>arg->size()) {
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
@@ -123,7 +123,7 @@ static CMPIData argsGetArg(CMPIArgs* eArg, const char *name, CMPIStatus* rc) {
    long i=locateArg(*arg,eName);
    if (i>=0) return argsGetArgAt(eArg,i,NULL,rc);
 
-   CMPIData data={0,0,{0}};
+   CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
    return data;
 }

@@ -29,6 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "CMPI_Version.h"
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 

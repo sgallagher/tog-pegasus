@@ -98,6 +98,9 @@ public:
     */
     void deleteNameSpace(const CIMNamespaceName& nameSpaceName);
 
+    Boolean isRemoteNameSpace(const CIMNamespaceName& nameSpaceName,
+        String & remoteInfo);
+
     /** Gets array of all namespace names.
 	@param nameSpaceNames filled with names of all namespaces.
     */

@@ -57,6 +57,8 @@ static const Uint16 _MODULE_OK       = 2;
 static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
 
+CIMRepository* ProviderManagerService::_repository=NULL;
+
 inline Boolean _isSupportedRequestType(const Message * message)
 {
     // ATTN: needs implementation

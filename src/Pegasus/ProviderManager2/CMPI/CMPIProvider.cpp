@@ -52,8 +52,8 @@ PEGASUS_NAMESPACE_BEGIN
 CMPIProvider::CMPIProvider(const String & name,
 		   CMPIProviderModule *module,
 		   ProviderVector *mv)
-   : _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0), _rm(0), _status(UNINITIALIZED)
+   : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
+     _no_unload(0), _rm(0)
 {
    _current_operations = 1;
    if (mv) miVector=*mv;
@@ -61,8 +61,8 @@ CMPIProvider::CMPIProvider(const String & name,
 }
 
 CMPIProvider::CMPIProvider(CMPIProvider *pr)
-  : _module(pr->_module), _cimom_handle(0), _name(pr->_name),
-    _no_unload(0), _rm(0), _status(UNINITIALIZED)
+  : _status(UNINITIALIZED), _module(pr->_module), _cimom_handle(0), _name(pr->_name),
+    _no_unload(0), _rm(0)
 {
    _current_operations = 1;
    miVector=pr->miVector;
@@ -116,6 +116,7 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
         broker.hdl=new CIMOMHandle(cimom);
         broker.bft=CMPI_Broker_Ftab;
         broker.eft=CMPI_BrokerEnc_Ftab;
+        broker.xft=CMPI_BrokerExt_Ftab;
         broker.clsCache=NULL;
         broker.name=name;
 
@@ -154,18 +155,16 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
 
     if(_status == UNINITIALIZED)
   {
-
-      try
-      {
-	      // yield beasmfore a potentially lengthy operation.
+      String compoundName=_location+":"+_name;
+      try {
+	 // yield before a potentially lengthy operation.
         pegasus_yield();
-	      CMPIProvider::initialize(cimom,miVector,_name,broker);
+	 CMPIProvider::initialize(cimom,miVector,compoundName,broker);
 	      if (miVector.miTypes & CMPI_MIType_Method) {
 	        if (miVector.methMI->ft->miName==NULL) noUnload=true;
 	      }
       }
-        catch(...) 
-      {
+      catch(...) {
         _current_operations = 0;
 	      throw;
       }

@@ -351,6 +351,10 @@ public:
                                              subClassNames);
     }
 
+    virtual Boolean isRemoteNameSpace(
+        const CIMNamespaceName& nameSpaceName,
+	String & remoteInfo);
+	
 protected:
 
     // Internal getClass implementation that does not do access control

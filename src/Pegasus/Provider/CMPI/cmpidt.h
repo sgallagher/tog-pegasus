@@ -32,6 +32,7 @@
 #ifndef _CMPIDT_H_
 #define _CMPIDT_H_
 
+#include "cmpipl.h"
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -48,6 +49,7 @@ extern "C" {
    #define CMPIVersion085 85     //  0.85
    #define CMPIVersion086 86     //  0.86
    #define CMPIVersion087 87     //  0.87
+   #define CMPIVersion090 90     //  0.90
 
 
 // CMPI_VERSION compile switch should be used during MI compilation only.
@@ -63,6 +65,8 @@ extern "C" {
      #define CMPI_VER_86 1
    #elif (CMPI_VERSION==87)
      #define CMPI_VER_87 1
+   #elif (CMPI_VERSION==90)
+     #define CMPI_VER_90 1
   #else
      #error Unsupported CMPI_VERSION defined
   #endif
@@ -83,7 +87,14 @@ extern "C" {
 //  <mi-name>_Create<mi-type>MI.miVersion<=<mi-name>_Create<mi-type>MI.ftVersion
 // If this is not the case, the MI might require higher version MB support.
 
-#if   defined (CMPI_VER_87) || defined(CMPI_VER_ALL)
+#if   defined (CMPI_VER_90) || defined(CMPI_VER_ALL)
+   // added Ext function table and getKeyList
+  #define CMPI_VER_87
+  #define CMPI_VER_86
+  #define CMPI_VER_85
+  #define CMPI_VER_80
+  #define CMPICurrentVersion CMPIVersion090
+#elif   defined (CMPI_VER_87) || defined(CMPI_VER_ALL)
    // added evaluateUsingAccessor in _CMPISelectExp
   #define CMPI_VER_86
   #define CMPI_VER_85
@@ -103,11 +114,12 @@ extern "C" {
 #elif defined (CMPI_VER_80) || defined(CMPI_VER_ALL)
   #define CMPICurrentVersion CMPIVersion080
 #else  // default version
+  #define CMPI_VER_90
   #define CMPI_VER_87
   #define CMPI_VER_86
   #define CMPI_VER_85
   #define CMPI_VER_80
-  #define CMPICurrentVersion CMPIVersion087
+  #define CMPICurrentVersion CMPIVersion090
 #endif
 
 
@@ -161,6 +173,7 @@ extern "C" {
 
    typedef struct _CMPIBrokerFT        CMPIBrokerFT;
    typedef struct _CMPIBrokerEncFT     CMPIBrokerEncFT;
+   typedef struct _CMPIBrokerExtFT     CMPIBrokerExtFT;
    typedef struct _CMPIInstanceFT      CMPIInstanceFT;
    typedef struct _CMPIObjectPathFT    CMPIObjectPathFT;
    typedef struct _CMPIArgsFT          CMPIArgsFT;
@@ -181,7 +194,7 @@ extern "C" {
    typedef unsigned char              CMPIUint8;
    typedef unsigned short             CMPIUint16;
    typedef unsigned long              CMPIUint32;
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#ifndef CMPI_PLATFORM_WIN32_IX86_MSVC
    typedef unsigned long long         CMPIUint64;
 #else
    typedef unsigned __int64           CMPIUint64;
@@ -189,7 +202,7 @@ extern "C" {
    typedef signed char                CMPISint8;
    typedef short                      CMPISint16;
    typedef long                       CMPISint32;
-#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#ifndef CMPI_PLATFORM_WIN32_IX86_MSVC
    typedef long long                  CMPISint64;
 #else
    typedef __int64                    CMPISint64;
@@ -297,6 +310,8 @@ extern "C" {
         #define CMPI_stringA      (CMPI_ARRAY | CMPI_string)
         #define CMPI_charsA       (CMPI_ARRAY | CMPI_chars)
         #define CMPI_dateTimeA    (CMPI_ARRAY | CMPI_dateTime)
+        #define CMPI_instanceA    (CMPI_ARRAY | CMPI_instance)
+        #define CMPI_refA         (CMPI_ARRAY | CMPI_ref)
 
 	// the following are CMPIObjectPath key-types synonyms
 	// and are valid only when CMPI_keyValue of CMPIValueState is set
@@ -321,6 +336,7 @@ extern "C" {
         #define CMPI_goodValue (0)
         #define CMPI_nullValue (1<<8)
         #define CMPI_keyValue  (2<<8)
+        #define CMPI_notFound  (4<<8)
         #define CMPI_badValue  (0x80<<8)
 
    typedef struct _CMPIData {

@@ -226,6 +226,10 @@ public:
    /** test for null value
    */
    int isNullValue() const;
+
+   /** test for not found value
+   */
+   int isNotFound() const;
 };
 
 #endif

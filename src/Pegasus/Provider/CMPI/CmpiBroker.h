@@ -36,6 +36,7 @@
 #include "cmpidt.h"
 #include "cmpift.h"
 
+class CmpiInstance;
 class CmpiObject;
 class CmpiEnumeration;
 class CmpiArgs;
@@ -136,7 +137,7 @@ public:
    */
    void setInstance
       (const CmpiContext& ctx, const CmpiObjectPath& op,
-       const CmpiInstance& inst);
+       const CmpiInstance& inst, const char** properties);
 
    /** Delete an existing Instance using <op> as reference.
    @param ctx Context object

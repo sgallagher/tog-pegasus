@@ -131,7 +131,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #endif
 
 #ifndef DOC_ONLY
-  #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+  #ifdef CMPI_PLATFORM_WIN32_IX86_MSVC
 	#define  CMPI_EXTERN_C __declspec(dllexport)
   #else
 	#ifdef __cplusplus
@@ -1475,7 +1475,25 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
                              ((b)->bft->createInstance((b),(c),(p),(i),(rc)))
 #endif
 
-#ifdef CMPI_INLINE
+#if defined(CMPI_VER_90)
+  #ifdef CMPI_INLINE
+      /** Replace an existing Instance from <inst> using <op> as reference.
+	 @param mb Broker this pointer.
+	 @param ctx Context object
+	 @param op ObjectPath containing namespace, classname and key components.
+	 @param inst Complete instance.
+	 @param properties Specifies which properties to set. All properties will be ste if NULL.
+	 @return Service return status.
+     */
+   inline static   CMPIStatus CBSetInstance
+                (CMPIBroker* mb, CMPIContext* ctx,
+		 CMPIObjectPath* op, CMPIInstance* inst, char** properties)
+	{ return ((mb)->bft->setInstance((mb),(ctx),(op),(inst)(properties))); }
+  #else
+    #define CBSetInstance(b,c,p,i,pr)      ((b)->bft->setInstance((b),(c),(p),(i),(pr)))
+  #endif
+#else
+  #ifdef CMPI_INLINE
       /** Replace an existing Instance from <inst> using <op> as reference.
 	 @param mb Broker this pointer.
 	 @param ctx Context object
@@ -1487,9 +1505,10 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
                 (CMPIBroker* mb, CMPIContext* ctx,
 		 CMPIObjectPath* op, CMPIInstance* inst)
 	{ return ((mb)->bft->setInstance((mb),(ctx),(op),(inst))); }
-#else
+  #else
   #define CBSetInstance(b,c,p,i)      ((b)->bft->setInstance((b),(c),(p),(i)))
-#endif
+  #endif
+#endif //version 90
 
 #ifdef CMPI_INLINE
       /** Delete an existing Instance using <op> as reference.

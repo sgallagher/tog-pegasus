@@ -74,8 +74,9 @@ public:
     // temp
     void unloadIdleProviders();
 
-    static void indicationCallback(
-        CIMProcessIndicationRequestMessage* request);
+    static void indicationCallback(CIMProcessIndicationRequestMessage* request);
+
+    static CIMRepository* getRepository() { return _repository; }
 
 protected:
     virtual Boolean messageOK(const Message * message);
@@ -84,7 +85,7 @@ protected:
 
     virtual void _handle_async_request(AsyncRequest * request);
 
-    CIMRepository* _repository;
+    static CIMRepository* _repository;
 
 private:
     //static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();

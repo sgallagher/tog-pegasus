@@ -43,6 +43,8 @@
 /** This class acts as a container to holding provider functions context information.
 */
 
+class CmpiData;
+
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiContext : public CmpiObject {
    friend class CmpiBroker;
    friend class CmpiInstanceMI;

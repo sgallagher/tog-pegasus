@@ -70,6 +70,8 @@ public:
     String getPhysicalName() const;
     void   setPhysicalName(const String & physicalName);
     String getInterfaceName(void) const;
+    String getLocation(void) const;
+    void   setLocation(const String &);
     Uint32 getCapabilitiesMask(void) const;
     CIMName getMethodName(void) const;
     CIMNamespaceName getNameSpace() const;
@@ -81,6 +83,7 @@ private:
     String _physicalName;
     String _interfaceName;
     String _logicalName;
+    String _location;
     Uint32 _capabilities;
     
     CIMName _method;

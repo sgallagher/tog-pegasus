@@ -57,8 +57,9 @@ public:
     virtual ~CMPILocalProviderManager(void);
 
 public:
-    CMPIProvider::OpProviderHolder getProvider(const String & fileName, const String & providerName,
-         const String & interfaceName = String::EMPTY);
+    CMPIProvider::OpProviderHolder getProvider(const String & fileName, const String & providerName);
+         
+    CMPIProvider::OpProviderHolder getRemoteProvider(const String & fileName, const String & providerName);
 
     void unloadProvider(const String & fileName, const String & providerName);
 
@@ -93,7 +94,7 @@ private:
     {
         const String *providerName;
         const String *fileName;
-        const String *interfaceName;
+        const String *location;
     } CTRL_STRINGS;
 
     friend class ProviderManagerService;
@@ -103,20 +104,16 @@ private:
     ModuleTable _modules;
     Uint32 _idle_timeout;
 
-    CMPIProvider *_getResolver(const String & fileName, const String & interfaceType);
-    CMPIResolverModule *_loadResolver(const String & fileName);
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
     CMPIProvider* _initProvider(CMPIProvider * provider,
-                            const String & moduleFileName,
-                            const String & interfaceName);
+                            const String & moduleFileName); 
 
     void _unloadProvider(CMPIProvider * provider);
 
     CMPIProvider * _lookupProvider(const String & providerName);
 
-    CMPIProviderModule * _lookupModule(const String & moduleFileName,
-                                    const String & interfaceName);
+    CMPIProviderModule * _lookupModule(const String & moduleFileName);
     Mutex _providerTableMutex;
                                     
     

@@ -31,4 +31,4 @@
 
 // This file sets the CMPI implementation version.
 
-#define CMPI_VER_87 1
+#define CMPI_VER_90 1

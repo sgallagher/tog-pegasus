@@ -1,0 +1,242 @@
+//%2003////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author:      Adrian Schuur, schuur@de.ibm.com
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#include <pthread.h>
+#include "tool.h"
+#include "native.h"
+#include "debug.h"
+#include <stdlib.h>
+
+static char *resolveFileName (const char *filename)
+{
+   char dlName[1024];
+#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+    strcpy(dlName,filename);
+    strcat(dlName,".dll");
+#elif defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+    strcpy(dlName,"lib");
+    strcat(dlName,filename);
+    strcat(dlName,".so");
+#elif defined(CMPI_OS_HPUX)
+    #ifdef CMPI_PLATFORM_HPUX_PARISC_ACC
+        strcpy(dlName,"lib");
+        strcat(dlName,filename);
+        strcat(dlName,".so");
+    #else
+        strcpy(dlName,"lib");
+        strcat(dlName,filename);
+        strcat(dlName,".so");
+    #endif
+#elif defined(CMPI_OS_OS400)
+    strcpy(dlName,filename);
+#elif defined(CMPI_OS_DARWIN)
+    strcpy(dlName,"lib");
+    strcat(dlName,filename);
+    strcat(dlName,".dylib");
+#else
+    strcpy(dlName,"lib");
+    strcat(dlName,filename);
+    strcat(dlName,".so");
+#endif
+
+   return strdup(dlName);
+}
+
+static CMPI_THREAD_TYPE newThread
+        (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   pthread_t t;
+    pthread_attr_t tattr;
+    if (detached) {
+       pthread_attr_init(&tattr);
+       pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
+       pthread_create(&t, &tattr, (void *(*)(void *)) start, parm);
+    }
+    else pthread_create(&t, NULL, (void *(*)(void *)) start, parm);
+    return (CMPI_THREAD_TYPE)t;
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+static unsigned int createThreadKey(CMPI_THREAD_KEY_TYPE *key, void (*cleanup)(void*))
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   return pthread_key_create ( key, cleanup );
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+static void *getThreadSpecific(CMPI_THREAD_KEY_TYPE key)
+{
+ #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+  return pthread_getspecific(key);
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+static unsigned int setThreadSpecific(CMPI_THREAD_KEY_TYPE key, void * value)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   return pthread_setspecific(key,value);
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+static int threadOnce (int *once, void (*init)(void))
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+  return pthread_once ( once, init );
+
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+
+static CMPI_MUTEX_TYPE newMutex (int opt)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   static pthread_mutex_t tmpl=PTHREAD_MUTEX_INITIALIZER;
+   pthread_mutex_t *m=calloc(1,sizeof(pthread_mutex_t));
+   *m=tmpl;
+   return m;
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+static void destroyMutex (CMPI_MUTEX_TYPE m)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   free(m);
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+static void lockMutex (CMPI_MUTEX_TYPE m)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+  pthread_mutex_lock ((pthread_mutex_t *)m );
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+static void unlockMutex (CMPI_MUTEX_TYPE m)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   pthread_mutex_unlock ((pthread_mutex_t *)m );
+#else
+   #error Platform no yet supported
+   #error Platform for Remote CMPI daemon no yet supported
+
+#endif
+}
+
+
+
+static CMPI_COND_TYPE newCondition (int opt)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+  pthread_cond_t tmpl=PTHREAD_COND_INITIALIZER;
+   pthread_cond_t *c=calloc(1,sizeof(pthread_cond_t));
+   *c=tmpl;
+   return c;
+#else
+   #error Platform for Remote CMPI daemon no yet supported
+#endif
+}
+
+static void destroyCondition (CMPI_COND_TYPE c)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+  free(c);
+#else
+   #error Platform for Remote CMPI daemon no yet supported
+#endif
+}
+
+static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *wait)
+{
+#if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
+   return pthread_cond_timedwait((pthread_cond_t*)c, (pthread_mutex_t*)m, wait );
+#else
+   #error Platform for Remote CMPI daemon no yet supported
+#endif
+}
+
+
+static CMPIBrokerExtFT brokerExt_FT={
+     CMPICurrentVersion,
+     resolveFileName,
+     newThread,
+     createThreadKey,
+     getThreadSpecific,
+     setThreadSpecific,
+     NULL,                      // Join not supported yet
+     threadOnce,
+     newMutex,
+     destroyMutex,
+     lockMutex,
+     unlockMutex,
+     newCondition,
+     destroyCondition,
+     timedCondWait,
+     NULL                       // Signal not supported yet
+};
+
+CMPIBrokerExtFT *CMPI_BrokerExt_Ftab=&brokerExt_FT;
+
+
+
+

@@ -70,6 +70,7 @@ extern CMPISelectCondFT *CMPI_SelectCond_Ftab;
 
 extern CMPIBrokerFT *CMPI_Broker_Ftab;
 extern CMPIBrokerEncFT *CMPI_BrokerEnc_Ftab;
+extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 
 extern CMPIEnumerationFT *CMPI_ObjEnumeration_Ftab;
 extern CMPIEnumerationFT *CMPI_InstEnumeration_Ftab;

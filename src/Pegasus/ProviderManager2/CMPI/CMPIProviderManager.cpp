@@ -105,6 +105,7 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
    mode=m;
    if (getenv("CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
+   _repository=ProviderManagerService::getRepository();
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)
@@ -317,13 +318,21 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
+        Boolean remote=false;
+	String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+	}
+	else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
-                                        name.getLogicalName());
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }      
 
         // convert arguments
         OperationContext context;
@@ -351,6 +360,11 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -405,14 +419,21 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             request->nameSpace,
             request->className);
 
+        Boolean remote=false;
+	String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+	}
+	else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
-               String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }   
 
         // convert arguments
         OperationContext context;
@@ -443,6 +464,11 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -499,13 +525,21 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
             request->nameSpace,
             request->className);
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
         // convert arguments
         OperationContext context;
@@ -528,6 +562,11 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -582,15 +621,23 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             request->nameSpace,
             request->newInstance.getPath().getClassName(),
             request->newInstance.getPath().getKeyBindings());
+	request->newInstance.setPath(objectPath);
+
+        Boolean remote=false;
+	String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+	}
+	else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
-                   String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }   
 
         // convert arguments
         OperationContext context;
@@ -615,6 +662,11 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -671,13 +723,21 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             request->modifiedInstance.getPath ().getClassName(),
             request->modifiedInstance.getPath ().getKeyBindings());
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
         // convert arguments
         OperationContext context;
@@ -705,6 +765,11 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -761,13 +826,21 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
         // convert arguments
         OperationContext context;
@@ -789,6 +862,11 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -845,14 +923,21 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             request->nameSpace,
             request->className);
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
-               String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
         // convert arguments
         OperationContext context;
@@ -881,6 +966,11 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -945,13 +1035,21 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             request->nameSpace,
             request->assocClass.getString());
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
        // convert arguments
         OperationContext context;
@@ -985,6 +1083,11 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1048,13 +1151,21 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             request->nameSpace,
             request->assocClass.getString());
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
         // convert arguments
         OperationContext context;
@@ -1084,6 +1195,11 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1147,13 +1263,21 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             request->nameSpace,
             request->resultClass.getString());
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
         // convert arguments
         OperationContext context;
@@ -1184,6 +1308,11 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1247,13 +1376,21 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             request->nameSpace,
             request->resultClass.getString());
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
         // convert arguments
         OperationContext context;
@@ -1279,6 +1416,11 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1336,13 +1478,21 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             request->instanceName.getClassName(),
             request->instanceName.getKeyBindings());
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         // resolve provider name
         ProviderName name = _resolveProviderName(
             request->operationContext.get(ProviderIdContainer::NAME));
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getRemoteProvider(name.getLocation(), name.getLogicalName());
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+           ph = providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
+        }
 
         // convert arguments
         OperationContext context;
@@ -1374,6 +1524,11 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         CMPIFlags flgs=0;
         eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1447,11 +1602,19 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             request->nameSpace.getString(),
             providerName);
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         String fileName = _resolvePhysicalName(providerLocation);
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getProvider("CMPIRProxyProvider", providerName);
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+           ph = providerManager.getProvider(fileName, providerName);
+        }
 
         indProvRecord *prec=NULL;
         provTab.lookup(providerName,prec);
@@ -1513,6 +1676,11 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
 
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
+
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
@@ -1571,11 +1739,19 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             request->nameSpace.getString(),
             providerName);
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         String fileName = _resolvePhysicalName(providerLocation);
 
+        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getProvider("CMPIRProxyProvider", providerName);
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+           ph = providerManager.getProvider(fileName, providerName);
+        }
 
 
         indProvRecord *prec=NULL;
@@ -1614,6 +1790,11 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             "Calling provider.deleteSubscriptionRequest: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::deleteSubscriptionRequest"<<endl);
+
+        if (remote) {
+           CString info=remoteInfo.getCString();
+           eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
+        }
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1674,11 +1855,20 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
                request, response, request->provider, _indicationCallback);
         }
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         String fileName = _resolvePhysicalName(providerLocation);
 
+/*        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getProvider("CMPIRProxyProvider", providerName);
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+           ph = providerManager.getProvider(fileName, providerName);
+        } */
+        ph = providerManager.getProvider(fileName, providerName);
 
         // convert arguments
         OperationContext context;
@@ -1737,11 +1927,20 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
            provRec->handler=NULL;
         }
 
+        Boolean remote=false;
+        String remoteInfo;
+        CMPIProvider::OpProviderHolder ph;
+        
         String fileName = _resolvePhysicalName(providerLocation);
 
+/*        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
+           ph = providerManager.getProvider("CMPIRProxyProvider", providerName);
+        }
+        else {
         // get cached or load new provider module
-        CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
+           ph = providerManager.getProvider(fileName, providerName);
+        } */
+        ph = providerManager.getProvider(fileName, providerName);
 
         // convert arguments
         OperationContext context;
@@ -1923,8 +2122,7 @@ Message * CMPIProviderManager::handleInitializeProviderRequest(const Message * m
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), 
-		name.getLogicalName(), String::EMPTY);
+           providerManager.getProvider(name.getPhysicalName(), name.getLogicalName());
 
     }
     HandlerCatch(handler);
@@ -1949,7 +2147,7 @@ ProviderName CMPIProviderManager::_resolveProviderName(
 {
     String providerName;
     String fileName;
-    String interfaceName;
+    String location;
     CIMValue genericValue;
 
     genericValue = providerId.getProvider().getProperty(
@@ -1958,15 +2156,13 @@ ProviderName CMPIProviderManager::_resolveProviderName(
 
     genericValue = providerId.getModule().getProperty(
         providerId.getModule().findProperty("Location")).getValue();
-    genericValue.get(fileName);
-    fileName = _resolvePhysicalName(fileName);
+    genericValue.get(location);
+    fileName = _resolvePhysicalName(location);
 
-    // ATTN: This attribute is probably not required
-    genericValue = providerId.getModule().getProperty(
-        providerId.getModule().findProperty("InterfaceType")).getValue();
-    genericValue.get(interfaceName);
-
-    return ProviderName(providerName, fileName, interfaceName, 0);
+    ProviderName name(providerName, fileName, String::EMPTY, 0);
+    name.setLocation(location);
+    return name;
+//    return ProviderName(providerName, fileName, interfaceName, 0);
 }
 
 PEGASUS_NAMESPACE_END

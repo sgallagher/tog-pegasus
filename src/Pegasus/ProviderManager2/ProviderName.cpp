@@ -100,6 +100,16 @@ String ProviderName::getInterfaceName(void) const
     return(_interfaceName);
 }
 
+String ProviderName::getLocation(void) const
+{
+    return(_location);
+}
+
+void ProviderName::setLocation(const String &location)
+{
+    _location=location;
+}
+
 Uint32 ProviderName::getCapabilitiesMask(void) const
 {
     return(_capabilities);

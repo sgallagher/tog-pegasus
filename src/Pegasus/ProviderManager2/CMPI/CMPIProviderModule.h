@@ -64,29 +64,23 @@ public:
 
 protected:
     String _fileName;
-    String _interfaceName;
     AtomicInt _ref_count;
     DynamicLibraryHandle _library;
     Uint32 _refCount;
 
 private:
-    CMPIProviderModule(const String & fileName, const String & interfaceName);
+    CMPIProviderModule(const String & fileName);
     const String & getProviderName(void) const;
-    const String & getInterfaceName(void) const ;
     virtual CIMProvider * getProvider(void) const;
 
     String _providerName;
     CIMProvider * _provider;
+    Boolean genericProviderModule;
 };
 
 inline const String & CMPIProviderModule::getFileName(void) const
 {
     return(_fileName);
-}
-
-inline const String & CMPIProviderModule::getInterfaceName(void) const
-{
-    return(_interfaceName);
 }
 
 inline const String & CMPIProviderModule::getProviderName(void) const

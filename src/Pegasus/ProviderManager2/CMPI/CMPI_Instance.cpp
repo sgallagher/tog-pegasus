@@ -80,6 +80,7 @@ static CMPIData instGetPropertyAt(CMPIInstance* eInst, CMPICount pos, CMPIString
 
    if (pos>inst->getPropertyCount()) {
      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+      CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
       return data;
    }
    const CIMProperty& p=inst->getProperty(pos);
@@ -106,7 +107,7 @@ static CMPIData instGetProperty(CMPIInstance* eInst, const char *name, CMPIStatu
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return instGetPropertyAt(eInst,pos,NULL,rc);
    }
-   CMPIData data={0,CMPI_nullValue,{0}};
+   CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
    if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
    return data;
 }

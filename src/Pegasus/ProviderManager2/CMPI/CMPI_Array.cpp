@@ -84,7 +84,7 @@ static CMPIData arrayGetElementAt(CMPIArray* eArray, CMPICount pos, CMPIStatus* 
    return data;
 }
 
-static CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
+CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
                                     CMPIValue *val, CMPIType type) {
    CMPIData *dta=(CMPIData*)eArray->hdl;
 

@@ -40,11 +40,21 @@ DIRS += \
 	ProviderManager/tests
 else
 DIRS += \
-    ProviderManager2 \
+        Provider/CMPI \
+        ProviderManager2 \
 	ProviderManager2/Default \
 	ProviderManager2/CMPI \
 	ProviderManager2/tests \
 	ProviderManager2/Default/tests
+endif
+
+ifdef ENABLE_REMOTE_CMPI
+DIRS += \
+	ProviderManager2/CMPIR \
+	ProviderManager2/CMPIR/tcpcomm \
+	ProviderManager2/CMPIR/native \
+	ProviderManager2/CMPIR/tcpcommrem \
+	ProviderManager2/CMPIR/daemon
 endif
 
 ifdef ENABLE_JMPI_PROVIDER_MANAGER

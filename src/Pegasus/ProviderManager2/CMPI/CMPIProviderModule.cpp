@@ -31,6 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "CMPI_Version.h"
+
 #include "CMPIProviderModule.h"
 
 #include <Pegasus/Common/Destroyer.h>
@@ -43,13 +45,12 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-CMPIProviderModule::CMPIProviderModule(const String & fileName,
-                                       const String & interfaceName)
+CMPIProviderModule::CMPIProviderModule(const String & fileName)
     : _fileName(fileName),
-    _interfaceName(interfaceName),
     _ref_count(0),
     _library(0)
 {
+   genericProviderModule=0;
 #ifdef PEGASUS_OS_TYPE_WINDOWS
    if (fileName[1] != ':')
 #else
@@ -65,6 +66,7 @@ CMPIProviderModule::~CMPIProviderModule(void)
 
 ProviderVector CMPIProviderModule::load(const String & providerName)
 {
+   if (!genericProviderModule)
     _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
 
     if(_library == 0)
@@ -179,22 +181,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
            " onflicting generic/specfic CMPI style provider");
     }
 
-/*    // test for the appropriate interface
-    if(dynamic_cast<CIMProvider *>(provider) == 0)
-    {
-        //l10n
-        //String errorString = "provider is not a CIMProvider.";
-        //throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
-        String s0 = "ProviderLoadFailure";
-        String s3 = "CIMProvider";
-        throw Exception(MessageLoaderParms("ProviderManager.CMPIProviderModule.PROVIDER_IS_NOT_A",
-            "$0 ($1:$2):provider is not a $3.",
-            s0,
-            _fileName,
-            providerName,
-            s3));
-    }
-*/
+    genericProviderModule=miVector.genericMode!=0;
     _ref_count++;
 
     return miVector;
@@ -209,8 +196,8 @@ void CMPIProviderModule::unloadModule(void)
 
     _ref_count = 0;
 
-    if(_library != 0)
-    {
+    if (_library != 0) {
+        if (genericProviderModule) return;
         System::unloadDynamicLibrary(_library);
         _library = 0;
     }

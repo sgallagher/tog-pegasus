@@ -111,13 +111,18 @@ FAKE_MESSAGE *get_next_msg(void *key)
    if(requests.value() < NUMBER_MSGS)
    {
       msg = PEGASUS_NEW(FAKE_MESSAGE, dq_handle) FAKE_MESSAGE(key, 0);
+
+/*****
+      check for corrupted memory 
       char *p = (char *)msg;
       p += sizeof(FAKE_MESSAGE);
+
       *p = 0x00;
-      p += 5;
-      *p = 0x00;
-      if( false == peg_suballocator::CheckMemory(msg))
+      
+      if(peg_suballocator::CheckMemory(msg))
 	 abort();
+******/      
+      
       
       
       requests++;

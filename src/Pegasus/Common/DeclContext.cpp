@@ -48,7 +48,7 @@ void SimpleDeclContext::addQualifierDecl(
     const CIMQualifierDecl& x)
 {
     if (!lookupQualifierDecl(nameSpace, x.getName()).isUninitialized())
-	throw AlreadyExists();
+	throw AlreadyExists("declaration of qualifier \"" + x.getName() + "\"");
 
     _qualifierDeclarations.append(QPair(nameSpace, x));
 }
@@ -58,7 +58,7 @@ void SimpleDeclContext::addClass(
     const CIMClass& x)
 {
     if (!lookupClass(nameSpace, x.getClassName()).isUninitialized())
-	throw AlreadyExists();
+	throw AlreadyExists("class \"" + x.getClassName() + "\"");
 
     _classDeclarations.append(CPair(nameSpace, x));
 }

@@ -53,7 +53,7 @@ CIMName::CIMName(const String& name)
     if (!legal(name))
     {
         // ATTN: Does this clean up String memory properly?
-        throw IllegalName(name);
+        throw InvalidNameException(name);
     }
 }
 
@@ -63,7 +63,7 @@ CIMName::CIMName(const char* name)
     if (!legal(name))
     {
         // ATTN: Does this clean up String memory properly?
-        throw IllegalName(name);
+        throw InvalidNameException(name);
     }
 }
 
@@ -77,7 +77,7 @@ CIMName& CIMName::operator=(const String& name)
 {
     if (!legal(name))
     {
-        throw IllegalName(name);
+        throw InvalidNameException(name);
     }
     cimName=name;
     return *this;
@@ -176,7 +176,7 @@ CIMNamespaceName::CIMNamespaceName(const String& name)
     if (!legal(name))
     {
         // ATTN: Does this clean up String memory properly?
-        throw IllegalNamespaceName(name);
+        throw InvalidNamespaceNameException(name);
     }
 }
 
@@ -186,7 +186,7 @@ CIMNamespaceName::CIMNamespaceName(const char* name)
     if (!legal(name))
     {
         // ATTN: Does this clean up String memory properly?
-        throw IllegalNamespaceName(name);
+        throw InvalidNamespaceNameException(name);
     }
 }
 
@@ -200,7 +200,7 @@ CIMNamespaceName& CIMNamespaceName::operator=(const String& name)
 {
     if (!legal(name))
     {
-        throw IllegalNamespaceName(name);
+        throw InvalidNamespaceNameException(name);
     }
     cimNamespaceName=name;
     return *this;

@@ -200,7 +200,7 @@ void InstanceProvider::createInstance(
 	{
 		if(localReference == _instanceNames[i])
 		{
-			throw AlreadyExists();
+			throw ObjectAlreadyExists(localReference.toString());
 		}
 	}
 			

@@ -105,7 +105,7 @@ void CIMClassRep::addProperty(const CIMProperty& x)
     // Reject addition of duplicate property name:
 
     if (findProperty(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists();
+	throw AlreadyExists("property \"" + x.getName() + "\"");
 
     // Reject addition of references to non-associations:
 
@@ -133,7 +133,7 @@ void CIMClassRep::addMethod(const CIMMethod& x)
     // Reject duplicate method names:
 
     if (findMethod(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists();
+	throw AlreadyExists("method \"" + x.getName() + "\"");
 
     // Add the method:
 

@@ -376,7 +376,7 @@ Boolean CIMObjectPath::_parseHostElement(
     char* q = p;
 
     if (!isalpha(*q))
-        throw IllformedObjectName(objectName);
+        throw MalformedObjectNameException(objectName);
 
     q++;
 
@@ -391,7 +391,7 @@ Boolean CIMObjectPath::_parseHostElement(
         // Check for a port number:
 
         if (!isdigit(*q))
-            throw IllformedObjectName(objectName);
+            throw MalformedObjectNameException(objectName);
         
         while (isdigit(*q))
             q++;
@@ -415,7 +415,7 @@ Boolean CIMObjectPath::_parseHostElement(
     if (*q != '/')
     {
         host.clear();
-        throw IllformedObjectName(objectName);
+        throw MalformedObjectNameException(objectName);
     }
 
     p = ++q;
@@ -445,7 +445,7 @@ Boolean CIMObjectPath::_parseNamespaceElement(
     String namespaceName = String(p, colon - p);
     if (!CIMNamespaceName::legal(namespaceName))
     {
-        throw IllformedObjectName(objectName);
+        throw MalformedObjectNameException(objectName);
     }
     nameSpace = namespaceName;
 
@@ -524,14 +524,14 @@ void CIMObjectPath::_parseKeyBindingPairs(
         char* equalsign = strchr(p, '=');
         if (!equalsign)
         {
-            throw IllformedObjectName(objectName);
+            throw MalformedObjectNameException(objectName);
         }
 
         *equalsign = 0;
         CIMName keyString(p);
 
         if (!CIMName::legal(keyString))
-            throw IllformedObjectName(objectName);
+            throw MalformedObjectNameException(objectName);
 
         // Get the value part:
 
@@ -546,7 +546,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
             type = KeyBinding::REFERENCE;
 
             if (*p++ != '"')
-                throw IllformedObjectName(objectName);
+                throw MalformedObjectNameException(objectName);
 
             while (*p && *p != '"')
             {
@@ -559,7 +559,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
             }
 
             if (*p++ != '"')
-                throw IllformedObjectName(objectName);
+                throw MalformedObjectNameException(objectName);
         }
         else if (*p == '"')
         {
@@ -578,7 +578,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
             }
 
             if (*p++ != '"')
-                throw IllformedObjectName(objectName);
+                throw MalformedObjectNameException(objectName);
         }
         else if (toupper(*p) == 'T' || toupper(*p) == 'F')
         {
@@ -596,7 +596,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
 
             if (!(((strncmp(p, "TRUE", n) == 0) && n == 4) ||
                   ((strncmp(p, "FALSE", n) == 0) && n == 5)))
-                throw IllformedObjectName(objectName);
+                throw MalformedObjectNameException(objectName);
 
             valueString.assign(p, n);
 
@@ -625,7 +625,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
             Sint64 x;
 
             if (!XmlReader::stringToSignedInteger(p, x))
-                throw IllformedObjectName(objectName);
+                throw MalformedObjectNameException(objectName);
 
             valueString.assign(p, n);
 
@@ -643,7 +643,7 @@ void CIMObjectPath::_parseKeyBindingPairs(
         {
             if (*p++ != ',')
             {
-                throw IllformedObjectName(objectName);
+                throw MalformedObjectNameException(objectName);
             }
         }
     }
@@ -674,7 +674,7 @@ void CIMObjectPath::set(const String& objectName)
 
     if (gotHost && !gotNamespace)
     {
-        throw IllformedObjectName(objectName);
+        throw MalformedObjectNameException(objectName);
     }
 
     // Extract the class name:
@@ -685,7 +685,7 @@ void CIMObjectPath::set(const String& objectName)
     {
         if (!CIMName::legal(p))
         {
-            throw IllformedObjectName(objectName);
+            throw MalformedObjectNameException(objectName);
         }
 
         // ATTN: remove this later: a reference should only be able to hold
@@ -698,7 +698,7 @@ void CIMObjectPath::set(const String& objectName)
     String className = String(p, dot - p);
     if (!CIMName::legal(className))
     {
-        throw IllformedObjectName(objectName);
+        throw MalformedObjectNameException(objectName);
     }
     _rep->_className = className;
 

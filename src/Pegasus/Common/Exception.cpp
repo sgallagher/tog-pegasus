@@ -42,68 +42,143 @@ Exception::Exception(const String& message) : _message(message)
 {
 }
 
-Exception::Exception(const char* message) : _message(message)
-{
-}
-
 Exception::~Exception()
 {
 }
 
+const String& Exception::getMessage() const
+{
+    return _message;
+}
 
-const char OutOfBounds::MSG[] = "out of bounds";
 
-const char AlreadyExists::MSG[] = "already exists: ";
+OutOfBounds::OutOfBounds()
+    : Exception("out of bounds")
+{
+}
 
-const char IllegalName::MSG[] = "illegal CIM name";
+AlreadyExists::AlreadyExists(const String& message)
+    : Exception("already exists: " + message)
+{
+}
 
-const char IllegalNamespaceName::MSG[] = "illegal CIM namespace name";
+InvalidNameException::InvalidNameException(const String& name)
+    : Exception("invalid CIM name: " + name)
+{
+}
 
-const char UninitializedHandle::MSG[] = "uninitialized handle";
+InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
+    : Exception("invalid CIM namespace name: " + name)
+{
+}
 
-const char UninitializedObject::MSG[] = "uninitialized object";
+UninitializedHandle::UninitializedHandle()
+    : Exception("uninitialized handle")
+{
+}
 
-const char AddedReferenceToClass::MSG[] =
-    "attempted to add reference to a non-association class: ";
+UninitializedObject::UninitializedObject()
+    : Exception("uninitialized object")
+{
+}
 
-const char TruncatedCharacter::MSG[] =
-    "truncated character during conversion from Char16 to char";
+AddedReferenceToClass::AddedReferenceToClass(const String& className)
+    : Exception("attempted to add reference to a non-association class: " +
+                    className)
+{
+}
 
-const char ExpectedReferenceValue::MSG[] =
-    "Expected CIMValue object to be of type reference "
-    "in this context";
+TruncatedCharacter::TruncatedCharacter()
+    : Exception("truncated character during conversion from Char16 to char")
+{
+}
 
-const char MissingReferenceClassName::MSG[] = "missing reference class name";
+ExpectedReferenceValue::ExpectedReferenceValue()
+    : Exception("Expected CIMValue object to be of type reference "
+                    "in this context")
+{
+}
 
-const char TypeMismatch::MSG[] = "type mismatch";
+MissingReferenceClassName::MissingReferenceClassName()
+    : Exception("missing reference class name")
+{
+}
 
-const char CIMValueInvalidType::MSG[] = "invalid CIMValue type";
+TypeMismatch::TypeMismatch()
+    : Exception("type mismatch")
+{
+}
 
-const char DynamicCastFailed::MSG[] = "dynamic cast failed";
+CIMValueInvalidType::CIMValueInvalidType()
+    : Exception("invalid CIMValue type")
+{
+}
 
-const char BadDateTimeFormat::MSG[] = "bad datetime format";
+DynamicCastFailed::DynamicCastFailed()
+    : Exception("dynamic cast failed")
+{
+}
 
-const char IncompatibleTypes::MSG[] = "incompatible types";
+BadDateTimeFormat::BadDateTimeFormat()
+    : Exception("bad datetime format")
+{
+}
 
-const char IllformedObjectName::MSG[] = "illformed object name: ";
+IncompatibleTypes::IncompatibleTypes()
+    : Exception("incompatible types")
+{
+}
 
-const char BindFailedException::MSG[] = "Bind failed: ";
+MalformedObjectNameException::MalformedObjectNameException(
+    const String& objectName)
+    : Exception("malformed object name: " + objectName)
+{
+}
 
-const char InvalidLocatorException::MSG[] = "Invalid locator: ";
+BindFailedException::BindFailedException(const String& message)
+    : Exception("Bind failed: " + message)
+{
+}
 
-const char CannotCreateSocketException::MSG[] = "Cannot create socket";
+InvalidLocatorException::InvalidLocatorException(const String& locator)
+    : Exception("Invalid locator: " + locator)
+{
+}
 
-const char CannotConnectException::MSG[] = "Cannot connect to: ";
+CannotCreateSocketException::CannotCreateSocketException()
+    : Exception("Cannot create socket")
+{
+}
 
-const char UnexpectedFailureException::MSG[] = "Unexpected failure";
+CannotConnectException::CannotConnectException(const String& locator)
+    : Exception("Cannot connect to: " + locator)
+{
+}
 
-const char AlreadyConnectedException::MSG[] = "already connected";
+UnexpectedFailureException::UnexpectedFailureException()
+    : Exception("Unexpected failure")
+{
+}
 
-const char NotConnectedException::MSG[] = "not connected";
+AlreadyConnectedException::AlreadyConnectedException()
+    : Exception("already connected")
+{
+}
 
-const char ConnectionTimeoutException::MSG[] = "connection timed out";
+NotConnectedException::NotConnectedException()
+    : Exception("not connected")
+{
+}
 
-const char SSLException::MSG[] = "SSL Exception ";
+ConnectionTimeoutException::ConnectionTimeoutException()
+    : Exception("connection timed out")
+{
+}
+
+SSLException::SSLException(const String& message)
+    : Exception("SSL Exception: " + message)
+{
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////

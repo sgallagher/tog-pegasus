@@ -53,7 +53,7 @@ void CIMObjectRep::addProperty(const CIMProperty& x)
     // Reject duplicate property names:
 
     if (findProperty(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists();
+        throw AlreadyExists("property \"" + x.getName() + "\"");
 
     // Append property:
 

@@ -64,11 +64,9 @@ public:
 
     Exception(const String& message);
 
-    Exception(const char* message);
+    virtual ~Exception();
 
-    ~Exception();
-
-    const String& getMessage() const { return _message; }
+    const String& getMessage() const;
 
 protected:
 
@@ -80,241 +78,162 @@ protected:
 class PEGASUS_COMMON_LINKAGE OutOfBounds : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    OutOfBounds() : Exception(MSG) { }
+    OutOfBounds();
 };
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE AlreadyExists : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    AlreadyExists(const String& x = String()) : Exception(MSG + x) { }
+    AlreadyExists(const String& message);
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE IllegalName : public Exception
+class PEGASUS_COMMON_LINKAGE InvalidNameException : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    IllegalName(const String& name = String::EMPTY) : Exception(MSG + String(": ") + name) { }
+    InvalidNameException(const String& name);
 };
 
 // ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE IllegalNamespaceName : public Exception
+class PEGASUS_COMMON_LINKAGE InvalidNamespaceNameException : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    IllegalNamespaceName(const String& name = String::EMPTY) : Exception(MSG + String(": ") + name) { }
+    InvalidNamespaceNameException(const String& name);
 };
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE UninitializedHandle : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    UninitializedHandle() : Exception(MSG) { }
+    UninitializedHandle();
 };
 
 class PEGASUS_COMMON_LINKAGE UninitializedObject : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    UninitializedObject() : Exception(MSG) { }
+    UninitializedObject();
 };
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE AddedReferenceToClass : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    AddedReferenceToClass(const String& className)
-	: Exception(MSG + className) { }
+    AddedReferenceToClass(const String& className);
 };
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE TruncatedCharacter : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    TruncatedCharacter() : Exception(MSG) { }
+    TruncatedCharacter();
 };
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE ExpectedReferenceValue : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    ExpectedReferenceValue() : Exception(MSG) { }
+    ExpectedReferenceValue();
 };
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE MissingReferenceClassName : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    MissingReferenceClassName() : Exception(MSG) { }
+    MissingReferenceClassName();
 };
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE TypeMismatch : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    TypeMismatch() : Exception(MSG) { }
+    TypeMismatch();
 };
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE CIMValueInvalidType : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    CIMValueInvalidType() : Exception(MSG) { }
+    CIMValueInvalidType();
 };
-
 
 // ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE DynamicCastFailed : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    DynamicCastFailed() : Exception(MSG) { }
+    DynamicCastFailed();
 };
 
 class PEGASUS_COMMON_LINKAGE BadDateTimeFormat : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    BadDateTimeFormat() : Exception(MSG) { }
+    BadDateTimeFormat();
 };
 
 class PEGASUS_COMMON_LINKAGE IncompatibleTypes : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    IncompatibleTypes() : Exception(MSG) { }
+    IncompatibleTypes();
 };
 
-class PEGASUS_COMMON_LINKAGE IllformedObjectName : public Exception
+class PEGASUS_COMMON_LINKAGE MalformedObjectNameException : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    IllformedObjectName(const String& instanceName)
-	: Exception(MSG + instanceName) { }
+    MalformedObjectNameException(const String& objectName);
 };
 
 class PEGASUS_COMMON_LINKAGE BindFailedException : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    BindFailedException(const String& message) : Exception(MSG + message) { }
+    BindFailedException(const String& message);
 };
 
 class PEGASUS_COMMON_LINKAGE InvalidLocatorException : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    InvalidLocatorException(const String& locator) : Exception(MSG + locator) { }
+    InvalidLocatorException(const String& locator);
 };
 
 class PEGASUS_COMMON_LINKAGE CannotCreateSocketException : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    CannotCreateSocketException() : Exception(MSG) { }
+    CannotCreateSocketException();
 };
 
 class PEGASUS_COMMON_LINKAGE CannotConnectException : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    CannotConnectException(const String& locator) : Exception(MSG + locator) { }
+    CannotConnectException(const String& locator);
 };
 
 class PEGASUS_COMMON_LINKAGE UnexpectedFailureException : public Exception
 {
 public:
-
-    static const char MSG[];
-
-    UnexpectedFailureException() : Exception(MSG) { }
+    UnexpectedFailureException();
 };
 
 class PEGASUS_COMMON_LINKAGE AlreadyConnectedException: public Exception
 {
 public:
-
-    static const char MSG[];
-
-    AlreadyConnectedException() : Exception(MSG) { }
+    AlreadyConnectedException();
 };
 
 class PEGASUS_COMMON_LINKAGE NotConnectedException: public Exception
 {
 public:
-
-    static const char MSG[];
-
-    NotConnectedException() : Exception(MSG) { }
+    NotConnectedException();
 };
 
 class PEGASUS_COMMON_LINKAGE ConnectionTimeoutException: public Exception
 {
 public:
-
-    static const char MSG[];
-
-    ConnectionTimeoutException() : Exception(MSG) { }
+    ConnectionTimeoutException();
 };
 
 class PEGASUS_COMMON_LINKAGE SSLException: public Exception
 {
 public:
-
-    static const char MSG[];
-
-    SSLException(const String& message)
-       : Exception(MSG + message) { }
+    SSLException(const String& message);
 };
 
 

@@ -435,7 +435,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
       if(module->get_name() == module_name )
       {
 	 controller->_modules.unlock();
-	 throw AlreadyExists();
+	 throw AlreadyExists("module \"" + module_name + "\"");
       }
       module = controller->_modules.next(module);
    }
@@ -460,7 +460,7 @@ ModuleController & ModuleController::register_module(const String & controller_n
    delete request; 
    delete response;
    if ( result == async_results::MODULE_ALREADY_REGISTERED)
-      throw AlreadyExists();
+      throw AlreadyExists("module \"" + module_name + "\"");
    
    // the module does not exist, go ahead and create it. 
    module = new pegasus_module(controller, 

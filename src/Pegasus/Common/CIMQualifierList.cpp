@@ -58,7 +58,7 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 	throw UninitializedObject();
 
     if (find(qualifier.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists();
+	throw AlreadyExists("qualifier \"" + qualifier.getName() + "\"");
 
     _qualifiers.append(qualifier);
 

@@ -354,7 +354,7 @@ public:
     /** Initializes a CIMObjectPath object from a CIM object name.
         @param objectName String representing the object name.
         @return Returns the initialized CIMObjectPath
-        @exception IllformedObjectName if the name is not parsable.
+        @exception MalformedObjectNameException if the name is not parsable.
         <PRE>
             CIMObjectPath r1 = "MyClass.z=true,y=1234,x=\"Hello World\"";
         </PRE>
@@ -392,7 +392,7 @@ public:
     /** Sets this reference from constituent elements. The effect is same
         as if the object was initialized using the constructor above that
         has the same arguments.
-        @exception IllformedObjectName if host name is illformed.
+        @exception MalformedObjectNameException if host name is illformed.
     */
     void set(
         const String& host,

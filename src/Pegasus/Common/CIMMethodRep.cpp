@@ -73,7 +73,7 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
 	throw UninitializedObject();
 
     if (findParameter(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExists();
+	throw AlreadyExists("parameter \"" + x.getName() + "\"");
 
     _parameters.append(x);
 }

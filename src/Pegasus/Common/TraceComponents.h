@@ -106,7 +106,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "MessageQueueService",
     "ProviderManager",
     "ObjectResolution",
-    "WQL"
+    "WQL",
+    "Thread"
 };
 /** Constants identifying the Trace components. These constants are used by 
     the component to identify its Trace messages. The component ID needs to
@@ -150,7 +151,8 @@ enum TRACE_COMPONENT_ID
     TRC_MESSAGEQUEUESERVICE,
     TRC_PROVIDERMANAGER,
     TRC_OBJECTRESOLUTION,
-    TRC_WQL
+    TRC_WQL,
+    TRC_THREAD
 };
 
 PEGASUS_NAMESPACE_END

@@ -30,6 +30,7 @@
 
 #include "Thread.h"
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Tracer.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "ThreadWindows.cpp"
@@ -200,12 +201,20 @@ ThreadPool::~ThreadPool(void)
 // make this static to the class
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 {
+   PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::_loop");
+
    Thread *myself = (Thread *)parm;
    if(myself == 0)
+   {
+      PEG_METHOD_EXIT();
       throw NullPointer();
+   }
    ThreadPool *pool = (ThreadPool *)myself->get_parm();
-   if(pool == 0 )
+   if(pool == 0 ) 
+   {
+      PEG_METHOD_EXIT();
       throw NullPointer();
+   }
    Semaphore *sleep_sem = 0;
    Semaphore *blocking_sem = 0;
    
@@ -220,11 +229,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    }
    catch(IPCException &)
    {
-
+      PEG_METHOD_EXIT();
       myself->exit_self(0);
    }
    if(sleep_sem == 0 || deadlock_timer == 0)
+   {
+      PEG_METHOD_EXIT();
       throw NullPointer();
+   }
 
    while(pool->_dying < 1)
    {
@@ -250,12 +262,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
-	
+	 PEG_METHOD_EXIT();
 	 myself->exit_self(0);
       }
 
       if(_work == 0)
+      {
+         PEG_METHOD_EXIT();
 	 throw NullPointer();
+      }
       gettimeofday(deadlock_timer, NULL);
       _work(parm);
 	
@@ -270,13 +285,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       catch(IPCException &)
       {
-	
+	 PEG_METHOD_EXIT();
 	 myself->exit_self(0);
       }
    }
    // wait to be awakend by the thread pool destructor
    sleep_sem->wait();
    myself->test_cancel();
+
+   PEG_METHOD_EXIT();
    myself->exit_self(0);
    return((PEGASUS_THREAD_RETURN)0);
 }
@@ -288,6 +305,7 @@ void ThreadPool::allocate_and_awaken(void *parm,
 
    throw(IPCException)
 {
+   PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::allocate_and_awaken");
    struct timeval start;
    gettimeofday(&start, NULL);
 
@@ -311,6 +329,10 @@ void ThreadPool::allocate_and_awaken(void *parm,
    if(_dying < 1)
    {
       // initialize the thread data with the work function and parameters
+      Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
+          "Initializing thread with work function and parameters: parm = %p",
+          parm);
+
       th->remove_tsd("work func");
       th->put_tsd("work func", NULL,
 		  sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
@@ -330,13 +352,17 @@ void ThreadPool::allocate_and_awaken(void *parm,
       if(sleep_sem == 0)
       {
 	 th->dereference_tsd();
+         PEG_METHOD_EXIT();
 	 throw NullPointer();
       }
+      Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Signal thread to awaken");
       sleep_sem->signal();
       th->dereference_tsd();
    }
    else
       _pool.insert_first(th);
+
+   PEG_METHOD_EXIT();
 }
 
 // caller is responsible for only calling this routine during slack periods

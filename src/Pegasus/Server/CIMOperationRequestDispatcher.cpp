@@ -54,14 +54,14 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
       _providerRegistrationManager(providerRegistrationManager)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher()");
+      "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher");
    PEG_METHOD_EXIT();
 }
 
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)	
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()");
+      "CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher");
    _dying = 1;
    PEG_METHOD_EXIT();
 }
@@ -69,7 +69,7 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
 void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::_handle_async_request()");
+      "CIMOperationRequestDispatcher::_handle_async_request");
 
    	// pass legacy operations to handleEnqueue
 	if(req->getType() == async_messages::ASYNC_LEGACY_OP_START)
@@ -96,7 +96,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
    String& provider)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_lookupInternalProvider()");
+        "CIMOperationRequestDispatcher::_lookupInternalProvider");
 
     if (String::equalNoCase(className, PEGASUS_CLASSNAME_CONFIGSETTING))
     {
@@ -186,7 +186,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
    const String& methodName)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CIMOperationRequestDispatcher::_lookupMethodProvider()");
+        "CIMOperationRequestDispatcher::_lookupMethodProvider");
 
     CIMInstance pInstance;
     CIMInstance pmInstance;
@@ -224,7 +224,7 @@ String CIMOperationRequestDispatcher::_lookupIndicationProvider(
    const String& className)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CIMOperationRequestDispatcher::_lookupIndicationProvider()");
+        "CIMOperationRequestDispatcher::_lookupIndicationProvider");
 
     PEG_METHOD_EXIT();
     return(String::EMPTY);
@@ -236,7 +236,7 @@ String CIMOperationRequestDispatcher::_lookupAssociationProvider(
    const String& className)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "CIMOperationRequestDispatcher::_lookupAssociationProvider()");
+        "CIMOperationRequestDispatcher::_lookupAssociationProvider");
 
     PEG_METHOD_EXIT();
     return(String::EMPTY);
@@ -248,6 +248,9 @@ void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
 							      MessageQueue *q,
 							      void *parm)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "CIMOperationRequestDispatcher::_forwardToServiceCallBack");
+
    CIMOperationRequestDispatcher *service = 
       static_cast<CIMOperationRequestDispatcher *>(q);
 
@@ -259,10 +262,16 @@ void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
       ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
    PEGASUS_ASSERT(response != 0);
    // ensure that the destination queue is in response->dest
+#ifdef PEGASUS_ARCHITECTURE_IA64
+   response->dest = (Uint64)parm;
+#else
    response->dest = (Uint32)parm;
+#endif
    service->SendForget(response);
    delete asyncRequest;
    delete asyncReply;
+
+   PEG_METHOD_EXIT();
 }
 
 
@@ -273,7 +282,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
     CIMResponseMessage*& response)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardRequestToService()");
+        "CIMOperationRequestDispatcher::_forwardRequestToService");
 
     Array<Uint32> serviceIds;
     find_services(serviceName, 0, 0, &serviceIds);
@@ -303,13 +312,16 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 //    delete asyncReply;
 //    delete asyncRequest;
 
-    PEG_METHOD_EXIT();
+      PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op, 
 							     MessageQueue *q, 
 							     void *parm)
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "CIMOperationRequestDispatcher::_forwardToModuleCallBack");
+
    CIMOperationRequestDispatcher *service = 
       static_cast<CIMOperationRequestDispatcher *>(q);
    
@@ -320,10 +332,16 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
    CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
       ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
    PEGASUS_ASSERT(response != 0);
+#ifdef PEGASUS_ARCHITECTURE_IA64
+   response->dest = (Uint64)parm;
+#else
    response->dest = (Uint32)parm;
+#endif
    service->SendForget(response);
    delete asyncRequest;
    delete asyncReply;
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
@@ -332,8 +350,8 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
     CIMRequestMessage* request,
     CIMResponseMessage*& response)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMOperationRequestDispatcher::_forwardRequestToControlProvider()");
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "CIMOperationRequestDispatcher::_forwardRequestToControlProvider");
 
     Array<Uint32> serviceIds;
     find_services(serviceName, 0, 0, &serviceIds);
@@ -376,7 +394,7 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
    CIMResponseMessage* response)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::_enqueueResponse()");
+      "CIMOperationRequestDispatcher::_enqueueResponse");
 
    // Use the same key as used in the request:
 
@@ -539,7 +557,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 void CIMOperationRequestDispatcher::handleEnqueue()
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleEnqueue()");
+      "CIMOperationRequestDispatcher::handleEnqueue");
 
    Message* request = dequeue();
 
@@ -558,7 +576,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    CIMGetClassRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleGetClassRequest()");
+      "CIMOperationRequestDispatcher::handleGetClassRequest");
 
    // ATTN: Need code here to expand partial class!
 
@@ -607,7 +625,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    CIMGetInstanceRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleGetInstanceRequest()");
+      "CIMOperationRequestDispatcher::handleGetInstanceRequest");
 
    // ATTN: Need code here to expand partial instance!
 
@@ -713,7 +731,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
    CIMDeleteClassRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleDeleteClassRequest()");
+      "CIMOperationRequestDispatcher::handleDeleteClassRequest");
 
    CIMException cimException;
 
@@ -757,7 +775,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    CIMDeleteInstanceRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleDeleteInstanceRequest()");
+      "CIMOperationRequestDispatcher::handleDeleteInstanceRequest");
 
    // get the class name
    String className = request->instanceName.getClassName();
@@ -855,7 +873,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
    CIMCreateClassRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleCreateClassRequest()");
+      "CIMOperationRequestDispatcher::handleCreateClassRequest");
 
    CIMException cimException;
 
@@ -1045,7 +1063,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
    CIMModifyClassRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleModifyClassRequest()");
+      "CIMOperationRequestDispatcher::handleModifyClassRequest");
 
    CIMException cimException;
 
@@ -1089,7 +1107,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    CIMModifyInstanceRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleModifyInstanceRequest()");
+      "CIMOperationRequestDispatcher::handleModifyInstanceRequest");
 
    // ATTN: Who makes sure the instance name and the instance match?
 
@@ -1192,7 +1210,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
    CIMEnumerateClassesRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleEnumerateClassesRequest()");
+      "CIMOperationRequestDispatcher::handleEnumerateClassesRequest");
 
    CIMException cimException;
    Array<CIMClass> cimClasses;
@@ -1242,7 +1260,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
    CIMEnumerateClassNamesRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest()");
+      "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest");
 
    CIMException cimException;
    Array<String> classNames;
@@ -1289,7 +1307,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    CIMEnumerateInstancesRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest()");
+      "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
 
    // get the class name
    String className = request->className;
@@ -1395,7 +1413,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    CIMEnumerateInstanceNamesRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest()");
+      "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
 
    // get the class name
    String className = request->className;
@@ -1496,7 +1514,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    CIMAssociatorsRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleAssociatorsRequest()");
+      "CIMOperationRequestDispatcher::handleAssociatorsRequest");
 
    String className = request->objectName.getClassName();
    CIMResponseMessage * response;
@@ -1579,7 +1597,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    CIMAssociatorNamesRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleAssociatorNamesRequest()");
+      "CIMOperationRequestDispatcher::handleAssociatorNamesRequest");
 
    String className = request->objectName.getClassName();
    CIMResponseMessage * response;
@@ -1659,7 +1677,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
    CIMReferencesRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleReferencesRequest()");
+      "CIMOperationRequestDispatcher::handleReferencesRequest");
 
    String className = request->objectName.getClassName();
    CIMResponseMessage * response;
@@ -1740,7 +1758,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
    CIMReferenceNamesRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleReferenceNamesRequest()");
+      "CIMOperationRequestDispatcher::handleReferenceNamesRequest");
 
    String className = request->objectName.getClassName();
    CIMResponseMessage * response;
@@ -1817,7 +1835,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    CIMGetPropertyRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleGetPropertyRequest()");
+      "CIMOperationRequestDispatcher::handleGetPropertyRequest");
 
    String className = request->instanceName.getClassName();
    CIMResponseMessage * response;
@@ -1893,7 +1911,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    CIMSetPropertyRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleSetPropertyRequest()");
+      "CIMOperationRequestDispatcher::handleSetPropertyRequest");
 
    {
       CIMException cimException;
@@ -2003,7 +2021,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    CIMGetQualifierRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleGetQualifierRequest()");
+      "CIMOperationRequestDispatcher::handleGetQualifierRequest");
 
    CIMException cimException;
    CIMQualifierDecl cimQualifierDecl;
@@ -2048,7 +2066,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    CIMSetQualifierRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleSetQualifierRequest()");
+      "CIMOperationRequestDispatcher::handleSetQualifierRequest");
 
    CIMException cimException;
 
@@ -2091,7 +2109,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
    CIMDeleteQualifierRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleDeleteQualifierRequest()");
+      "CIMOperationRequestDispatcher::handleDeleteQualifierRequest");
 
    CIMException cimException;
 
@@ -2135,7 +2153,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
    CIMEnumerateQualifiersRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest()");
+      "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest");
 
    CIMException cimException;
    Array<CIMQualifierDecl> qualifierDeclarations;
@@ -2180,7 +2198,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
    CIMExecQueryRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleExecQueryRequest()");
+      "CIMOperationRequestDispatcher::handleExecQueryRequest");
 
    CIMException cimException =
        PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ExecQuery");
@@ -2202,7 +2220,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    CIMInvokeMethodRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleInvokeMethodRequest()");
+      "CIMOperationRequestDispatcher::handleInvokeMethodRequest");
 
    CIMResponseMessage * response;
 
@@ -2311,7 +2329,7 @@ void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
    CIMProcessIndicationRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleProcessIndicationRequest()");
+      "CIMOperationRequestDispatcher::handleProcessIndicationRequest");
 
    //
    // forward request to IndicationService. IndicationService will take care
@@ -2341,7 +2359,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
    CIMType type)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::_convertValueType()");
+      "CIMOperationRequestDispatcher::_convertValueType");
 
    CIMValue newValue;
 
@@ -2424,7 +2442,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
    CIMInvokeMethodRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes()");
+      "CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes");
 
    Boolean gotMethodDefinition = false;
    CIMMethod method;
@@ -2546,7 +2564,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    CIMSetPropertyRequestMessage* request)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::_fixSetPropertyValueType()");
+      "CIMOperationRequestDispatcher::_fixSetPropertyValueType");
 
    CIMValue inValue = request->newValue;
 

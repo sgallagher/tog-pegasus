@@ -298,6 +298,8 @@ Boolean MessageQueueService::_enqueueResponse(
    Message* response)
    
 {
+   PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
+                    "MessageQueueService::_enqueueResponse");
 
    if( request->getMask() & message_mask::ha_async)
    {
@@ -306,6 +308,7 @@ Boolean MessageQueueService::_enqueueResponse(
 	 _completeAsyncResponse(static_cast<AsyncRequest *>(request), 
 				static_cast<AsyncReply *>(response), 
 				ASYNC_OPSTATE_COMPLETE, 0 );
+         PEG_METHOD_EXIT();
 	 return true;
       }
    }
@@ -332,10 +335,12 @@ Boolean MessageQueueService::_enqueueResponse(
 			     async_result,
 			     ASYNC_OPSTATE_COMPLETE, 
 			     0);
+      PEG_METHOD_EXIT();
       return true;
    }
    
    // ensure that the destination queue is in response->dest
+   PEG_METHOD_EXIT();
    return SendForget(response);
    
 }
@@ -351,7 +356,12 @@ void MessageQueueService::_completeAsyncResponse(AsyncRequest *request,
 						Uint32 state, 
 						Uint32 flag)
 {
+   PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
+                    "MessageQueueService::_completeAsyncResponse");
+
    cimom::_completeAsyncResponse(request, reply, state, flag);
+
+   PEG_METHOD_EXIT();
 }
 
 

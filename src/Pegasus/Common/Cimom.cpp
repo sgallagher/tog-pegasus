@@ -30,6 +30,7 @@
 #include "Cimom.h"
 
 #include <iostream>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -354,6 +355,9 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
 				   Uint32 state,
 				   Uint32 flag)
 {
+   PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
+                    "cimom::_completeAsyncResponse");
+
    PEGASUS_ASSERT(request != 0);
 
    AsyncOpNode *op = request->op;
@@ -375,6 +379,7 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
       op->unlock();
       
       delete op;
+      PEG_METHOD_EXIT();
       return;
    }
    
@@ -386,6 +391,7 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
       PEGASUS_ASSERT(reply != 0 );
       
       op->_completion_code = reply->result;
+      PEG_METHOD_EXIT();
       delete reply;
    }
    else
@@ -396,6 +402,7 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
    
    op->unlock();
    op->_client_sem.signal();
+   PEG_METHOD_EXIT();
 }
 
 cimom *cimom::_global_this;

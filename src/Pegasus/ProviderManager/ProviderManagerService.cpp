@@ -213,6 +213,9 @@ void ProviderManagerService::handleEnqueue(Message * message)
 
 void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                     "ProviderManagerService::_handle_async_request");
+
     PEGASUS_ASSERT(request != 0);
 
     if(request->getType() == async_messages::ASYNC_LEGACY_OP_START)
@@ -229,11 +232,13 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 	// get thread and start request method
 	_threadPool.allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
 
+        PEG_METHOD_EXIT();
 	return;
     }
 
     // pass all other operations to the default handler
     MessageQueueService::_handle_async_request(request);
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleServiceOperation(void * arg) throw()
@@ -1085,6 +1090,9 @@ void ProviderManagerService::handleSetPropertyRequest(const Message * message) t
 
 void ProviderManagerService::handleInvokeMethodRequest(const Message * message) throw()
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                     "ProviderManagerService::handleInvokeMethodRequest");
+
     CIMInvokeMethodRequestMessage * request =
 	dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
 
@@ -1184,6 +1192,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message) 
     }
 
     _enqueueResponse(handler.getRequest(), handler.getResponse());
+    PEG_METHOD_EXIT();
 }
 
 /*

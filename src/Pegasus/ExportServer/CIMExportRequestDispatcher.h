@@ -35,7 +35,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Provider/CIMIndicationConsumer.h>
+#include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/ExportServer/Linkage.h>
 
 #include "ConsumerTable.h"
@@ -64,7 +64,11 @@ protected:
 
     CIMIndicationConsumer* _lookupConsumer(const String& url);
 
-    virtual void handleEnqueue();
+    virtual void _handle_async_request(AsyncRequest *req);
+
+    Boolean handleEnqueue(Message *);
+
+    AtomicInt dienow;
 
     virtual const char* getQueueName() const;
         
@@ -72,10 +76,6 @@ private:
 
     void _handleExportIndicationRequest(
 	CIMExportIndicationRequestMessage* request);
-
-    void _enqueueResponse(
-	CIMRequestMessage* request,
-	CIMResponseMessage* response);
 
     ConsumerTable _consumerTable;
 

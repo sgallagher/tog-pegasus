@@ -14,12 +14,13 @@ DIRS = \
     ExportClient \
     Provider \
     ProviderManager \
-	ExportServer \
+    ExportServer \
     Listener \
     Security/UserManager \
     Security/Authentication \
     WQL \
     HandlerService \
+    IndicationService \
     Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
@@ -32,7 +33,7 @@ DIRS = \
     Client/tests \
     Compiler/tests \
     Security/UserManager/tests \
-    Server/IndicationService/tests \
+    IndicationService/tests \
     Listener/tests \
     Consumer/tests
 

@@ -50,7 +50,6 @@
 
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
-#include <Pegasus/Server/IndicationService/IndicationService.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -172,8 +171,6 @@ protected:
       ServiceCIMOMHandle _cimom;
 
       ConfigurationManagerQueue _configurationManager;
-
-      IndicationService _indicationService;
 
       AtomicInt _dying;
 

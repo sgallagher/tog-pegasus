@@ -52,12 +52,9 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
    Base("CIMOpRequestDispatcher", MessageQueue::getNextQueueId()),
    _repository(repository),
    _cimom(this, server, repository),
-   _configurationManager(_cimom),
-   _indicationService(_cimom)
+   _configurationManager(_cimom)
 {
    DDD(cout << _DISPATCHER << endl;)
-
-   _indicationService.initialize(_cimom);
 }
 
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)	
@@ -67,6 +64,8 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
 
 void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 {
+   cout << "_handle_async_request" << endl;
+
    if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
    {
       req->op->processing();
@@ -593,7 +592,15 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
-	    _indicationService.enqueue(new CIMGetInstanceRequestMessage(*request));
+
+            // lookup IndicationService
+            MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+
+            PEGASUS_ASSERT(queue != 0);
+
+            // forward to indication service. make a copy becuase the original request is
+            // deleted by this service.
+	    queue->enqueue(new CIMGetInstanceRequestMessage(*request));
 
 	    return;
 	}
@@ -730,7 +737,15 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
-	    _indicationService.enqueue(new CIMDeleteInstanceRequestMessage(*request));
+
+            // lookup IndicationService
+            MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+
+            PEGASUS_ASSERT(queue != 0);
+
+            // forward to indication service. make a copy becuase the original request is
+            // deleted by this service.
+	    queue->enqueue(new CIMDeleteInstanceRequestMessage(*request));
 
 	    return;
 	}
@@ -858,15 +873,62 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    String::equalNoCase(className, "CIM_IndicationHandlerSNMP") ||
 	    String::equalNoCase(className, "CIM_IndicationFilter"))
 	{
-	    //
-	    // Send to the indication service. It will generate the
-	    // appropriate response message.
-	    //
-	    _indicationService.enqueue(new CIMCreateInstanceRequestMessage(*request));
+            Array<Uint32> iService;
 
-	    return;
+            find_services(String("Server::IndicationService"), 0, 0, &iService);
+
+            AsyncOpNode* op = this->get_op();
+
+            AsyncLegacyOperationStart *req =
+                new AsyncLegacyOperationStart(
+                    get_next_xid(),
+                    op,
+                    iService[0],
+                    request,
+                    this->getQueueId());
+
+            AsyncReply* reply = SendWait(req);
+            cout << "Received Response" << endl;
+
+            _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0);
+
+            cout << "Completed Response" << endl;
+            return;
 	}
 
+        // TEMP: Test code for ProcessIndication
+        if (className == "Sample_HelloWorldIndication")
+	{
+	    CIMProcessIndicationRequestMessage* message =
+		new CIMProcessIndicationRequestMessage(
+		    "1234",
+		    request->nameSpace,
+		    request->newInstance,
+		    request->queueIds);
+	    
+	    //_indicationService.enqueue(message);
+            //return;
+
+            Array<Uint32> iService;
+
+            find_services(String("Server::IndicationService"), 0, 0, &iService);
+
+            AsyncOpNode* op = this->get_op();
+
+            AsyncLegacyOperationStart *req =
+                new AsyncLegacyOperationStart(
+                    get_next_xid(),
+                    op,
+                    iService[0],
+                    message,
+                    _queueId);
+                    //getQueueId());
+
+            AsyncReply* reply = SendWait(req);
+            return;
+	}
+        // End test block
+ 
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
 	if(providerName.size() != 0)
@@ -997,7 +1059,15 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
-	    _indicationService.enqueue(new CIMModifyInstanceRequestMessage(*request));
+
+            // lookup IndicationService
+            MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+
+            PEGASUS_ASSERT(queue != 0);
+
+            // forward to indication service. make a copy becuase the original request is
+            // deleted by this service.
+	    queue->enqueue(new CIMModifyInstanceRequestMessage(*request));
 
 	    return;
 	}
@@ -1183,7 +1253,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	    // Send to the indication service. It will generate the
 	    // appropriate response message.
 	    //
-	    _indicationService.enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+
+            // lookup IndicationService
+            MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+
+            PEGASUS_ASSERT(queue != 0);
+
+            // forward to indication service. make a copy becuase the original request is
+            // deleted by this service.
+	    queue->enqueue(new CIMEnumerateInstancesRequestMessage(*request));
 
 	    return;
 	}
@@ -1281,7 +1359,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 		// Send to the indication service. It will generate the
 		// appropriate response message.
 		//
-		_indicationService.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+
+                // lookup IndicationService
+                MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+
+                PEGASUS_ASSERT(queue != 0);
+
+                // forward to indication service. make a copy becuase the original request is
+                // deleted by this service.
+		queue->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
 		return;
 	}
@@ -2067,9 +2153,17 @@ void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
     // forward request to IndicationService. IndicartionService will take care
     // of response to this request.
     //
-    _indicationService.enqueue(new CIMProcessIndicationRequestMessage(*request));
 
-	return;
+    // lookup IndicationService
+    MessageQueue * queue = MessageQueue::lookup("Server::IndicationService");
+
+    PEGASUS_ASSERT(queue != 0);
+
+    // forward to indication service. make a copy becuase the original request is
+    // deleted by this service.
+    queue->enqueue(new CIMProcessIndicationRequestMessage(*request));
+
+    return;
 }
 
 //

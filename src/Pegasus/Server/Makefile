@@ -19,13 +19,13 @@ LIBRARIES = \
     pegcommon \
     pegrepository \
     pegprovider \
-	pegprovidermanager \
+    pegprovidermanager \
     pegexportserver \
     pegconfig \
     peguser \
     peglocalauth \
-    pegwql \
-    peghandlerservice
+    peghandlerservice \
+    pegindicationservice
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -40,8 +40,7 @@ SOURCES = \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
-    ConfigurationManager/PG_RegistrationProvider.cpp \
-    IndicationService/IndicationService.cpp
+    ConfigurationManager/PG_RegistrationProvider.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

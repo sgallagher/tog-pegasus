@@ -49,6 +49,11 @@ IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
 {
 }
 
+const char* IndicationHandlerService::getQueueName() const
+{
+    return "IndicationHandlerService";
+}
+
 void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
 {
     if ( req->getType() == async_messages::CIMSERVICE_STOP )
@@ -63,7 +68,6 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest *req)
         if (false == handleEnqueue(legacy))
             _make_response(req, async_results::CIM_NAK);
         return;
-	//handle_LegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
     }
     else
 	Base::_handle_async_request(req);
@@ -87,6 +91,16 @@ Boolean IndicationHandlerService::handleEnqueue(Message* message)
     return ret;
 }
 
+void IndicationHandlerService::handleEnqueue()
+{
+    Message * message = dequeue();
+
+    PEGASUS_ASSERT(message != 0);
+    handleEnqueue(message);
+
+    delete message;
+}
+
 void IndicationHandlerService::_handleIndication(const Message* message)
 {
     CIMHandleIndicationRequestMessage* request = 
@@ -98,6 +112,8 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
     CIMInstance indication = request->indicationInstance;
     CIMInstance handler = request->handlerInstance;
+
+    CIMExportIndicationResponseMessage* response;
 
     Uint32 pos = handler.findProperty("destination");
     if (pos == PEG_NOT_FOUND)
@@ -112,33 +128,58 @@ void IndicationHandlerService::_handleIndication(const Message* message)
     if (destination.size() == 0)
 	throw CIMException(CIM_ERR_FAILED);
  
+    char* hostname = destination.allocateCString();
+    char* p = strchr(hostname, ':');
+
+    if (!p)
+    {
+	delete [] hostname;
+    }
+
+    *p++ = '\0';
+
+    char* end = 0;
+    int port = strtol(p, &end, 10);
+
+    if (!end || *end != '\0')
+    {
+	delete [] hostname;
+    }
+
     if ((className == "CIM_IndicationHandlerCIMXML") &&
-	(String::equalNoCase(destination, String("localhost"))))
+	(destination.subString(0, 9) == String("localhost")))
     {
 	// Listener is build with Cimom, so send message to ExportServer
 	
 	CIMExportIndicationRequestMessage* exportmessage =
 	    new CIMExportIndicationRequestMessage(
-		XmlWriter::getNextMessageId(),
+		"1234",
 		destination,
 		indication,
 		QueueIdStack());
 	
 	Array<Uint32> exportServer;
 
-	find_services(String("ExportServer"), 0, 0, &exportServer);
-	    
+	find_services(String("CIMExportRequestDispatcher"), 0, 0, &exportServer);
+        
+        AsyncOpNode* op = this->get_op();
+
 	AsyncLegacyOperationStart *req =
 	    new AsyncLegacyOperationStart(
 		get_next_xid(),
-		0,
+		op,
                 exportServer[0],
                 exportmessage,
-		getQueueId());
+		_queueId);
+		//getQueueId());
 
-	AsyncMessage* reply = SendWait(req);
+	AsyncReply* reply = SendWait(req);
+
+        _completeAsyncResponse(req, reply, ASYNC_OPSTATE_COMPLETE, 0 );
+
 	delete req;
 	delete exportmessage;
+        delete reply;
     }
     else
     {

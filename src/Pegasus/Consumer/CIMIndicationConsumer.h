@@ -51,6 +51,8 @@ public:
 
     virtual ~CIMIndicationConsumer(void) { };
 
+    virtual void initialize() { };
+
     /**
     @param contex contains security and locale information relevant for the lifetime
     of this operation.

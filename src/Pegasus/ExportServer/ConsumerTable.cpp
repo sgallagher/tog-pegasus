@@ -222,7 +222,8 @@ typedef CIMIndicationConsumer* (*CreateIndicationConsumerFunc)();
 
 CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 {
-    String consumerName = _GetConsumerName(consumerId);
+    //String consumerName = _GetConsumerName(consumerId);
+    String consumerName = consumerId;
 
     if (consumerName.size() != 0)
     {
@@ -285,7 +286,6 @@ CIMIndicationConsumer* ConsumerTable::loadConsumer(const String& consumerId)
 	    _consumers.append(entry);
 	}
         return consumer;
-
     }
     else
         return 0;

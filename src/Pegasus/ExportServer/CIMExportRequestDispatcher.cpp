@@ -64,40 +64,43 @@ const char* CIMExportRequestDispatcher::getQueueName() const
     return "CIMExportRequestDispatcher";
 }
 
-void CIMExportRequestDispatcher::handleEnqueue()
+void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
 {
-    Message* request = dequeue();
+    if ( req->getType() == async_messages::CIMSERVICE_STOP )
+    {
+        req->op->processing();
+        handle_CimServiceStop(static_cast<CimServiceStop *>(req));
+    }
+    else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
+    {
+        req->op->processing();
+        Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->act);
+        if (false == handleEnqueue(legacy))
+            _make_response(req, async_results::CIM_NAK);
+        return;
+    }
+    else
+        Base::_handle_async_request(req);
+}
 
-    if (!request)
-	return;
+Boolean CIMExportRequestDispatcher::handleEnqueue(Message* message)
+{
+    Boolean ret = true;
 
-    switch (request->getType())
+    switch (message->getType())
     {
 	case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
 	    _handleExportIndicationRequest(
-		(CIMExportIndicationRequestMessage*)request);
+		(CIMExportIndicationRequestMessage*) message);
 	    break;
+
+        default:
+            ret = false;
+            break;
     }
+    delete message;
 
-    delete request;
-}
-
-void CIMExportRequestDispatcher::_enqueueResponse(
-    CIMRequestMessage* request,
-    CIMResponseMessage* response)
-{
-    // Use the same key as used in the request:
-
-    response->setKey(request->getKey());
-
-    // Lookup the message queue:
-
-    MessageQueue* queue = MessageQueue::lookup(request->queueIds.top());
-    PEGASUS_ASSERT(queue != 0);
-
-    // Enqueue the response:
-
-    queue->enqueue(response);
+    return ret;
 }
 
 void CIMExportRequestDispatcher::_handleExportIndicationRequest(
@@ -133,7 +136,8 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     }
     else
     {
-	CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
+	//CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
+	CIMIndicationConsumer* consumer = _lookupConsumer(String("DisplayConsumer"));
 
 	if (consumer)
 	{
@@ -177,7 +181,8 @@ CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
 	//ATTN: How will get this handle? Defining just to proceed further.
 	CIMOMHandle cimom;
 
-	consumer->initialize(cimom);
+	//consumer->initialize(cimom);
+	consumer->initialize();
     }
 
     return consumer;

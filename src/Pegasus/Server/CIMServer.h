@@ -52,6 +52,8 @@ class CIMExportResponseEncoder;
 class CIMExportRequestDecoder;
 class HTTPAcceptor;
 
+class IndicationHandlerService;
+class IndicationService;
 class ProviderManagerService;
 
 class PEGASUS_SERVER_LINKAGE CIMServer
@@ -131,7 +133,9 @@ private:
     HTTPAcceptor*   _acceptor;
     CIMServerState* _serverState;
 
-	ProviderManagerService * _providerManager;
+    IndicationHandlerService * _handlerService;
+    IndicationService * _indicationService;
+    ProviderManagerService * _providerManager;
 };
 
 PEGASUS_NAMESPACE_END

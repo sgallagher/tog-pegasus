@@ -77,6 +77,10 @@ public:
     virtual void _handle_async_request(AsyncRequest *req);
 
     Boolean handleEnqueue(Message *);
+
+    virtual void handleEnqueue(void);
+
+    virtual const char* getQueueName() const;
     
     AtomicInt dienow;
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.11  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
 // Revision 1.10  2001/02/11 05:45:33  mike
 // Added case insensitive logic for files in Repository
 //
@@ -62,7 +65,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <Pegasus/Common/CGIQueryString.h>
-#include <Pegasus/Client/Client.h>
+#include <Pegasus/Client/CIMClient.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -72,7 +75,7 @@ This info must be maintained between calls to CGI client
 so is maintained in a configuration file for the client.
 These are set initially to localhost and 8888.
 HostInfo is defined as those parameters associated with a particular
-CIMOM Server and user of that server
+CIMOM CIMServer and user of that server
 */
 class HostInfo
 {
@@ -219,13 +222,13 @@ static void PrintTableHeader(const String& tableName)
     cout << "<h2>" << tableName << "</h2>\n";
     cout << "<table border=1 width=\"50%\">\n";
     cout << "<tr>\n";
-    cout << "<th>Name</th>\n";
-    cout << "<th>Type</th>\n";
-    cout << "<th>Value</th>\n";
+    cout << "<th>CIMName</th>\n";
+    cout << "<th>CIMType</th>\n";
+    cout << "<th>CIMValue</th>\n";
     cout << "</tr>\n";
 }
 /** Header for the Properties HTML table
-Columns in the table are Property Name, type, Vlaue, ClassOrigin,
+Columns in the table are CIMProperty CIMName, type, Vlaue, ClassOrigin,
 Propogated indicator.
 */
 static void PrintPropertiesTableHeader(const String& tableName)
@@ -233,9 +236,9 @@ static void PrintPropertiesTableHeader(const String& tableName)
     cout << "<h2>" << tableName << "</h2>\n";
     cout << "<table border=1 width=\"50%\">\n";
     cout << "<tr>\n";
-    cout << "<th>Name</th>\n";
-    cout << "<th>Type</th>\n";
-    cout << "<th>Value</th>\n";
+    cout << "<th>CIMName</th>\n";
+    cout << "<th>CIMType</th>\n";
+    cout << "<th>CIMValue</th>\n";
     cout << "<th>ClassOrigin</th>\n";
     cout << "<th>Propagated</th>\n";
     cout << "</tr>\n";
@@ -273,11 +276,11 @@ static void PrintLogo()
     cout << "</table>\n";
 }
 
-void PrintSingleProperty(Property& property)
+void PrintSingleProperty(CIMProperty& property)
 {
-    PrintTableHeader("Property:");
+    PrintTableHeader("CIMProperty:");
 
-    const Value& value = property.getValue();
+    const CIMValue& value = property.getValue();
 
     PrintRow(
 	property.getName(),
@@ -309,8 +312,8 @@ void PrintObjectProperties(
     // Loop for each property
     for (Uint32 i = 0, n = object.getPropertyCount(); i < n; i++)
     {
-	Property property = object.getProperty(i);
-	const Value& value = property.getValue();
+	CIMProperty property = object.getProperty(i);
+	const CIMValue& value = property.getValue();
 	// Define href with the property name
 	String href = "/pegasus/cgi-bin/CGIClient?";
 	href.append("Operation=GetPropertyDeclaration&");
@@ -356,7 +359,7 @@ void PrintQualifiers(OBJECT& object)
     for (Uint32 i = 0, n = object.getQualifierCount(); i < n; i++)
     {
 	ConstQualifier qualifier = object.getQualifier(i);
-	const Value& value = qualifier.getValue();
+	const CIMValue& value = qualifier.getValue();
 
 	PrintRow(
 	    qualifier.getName(),
@@ -367,24 +370,24 @@ void PrintQualifiers(OBJECT& object)
     PrintTableTrailer();
 }
 /** Prepare an HTML table with a header and an entry
-    for each method defined in the class with the Name
-    and type of the Method in each entry
+    for each method defined in the class with the CIMName
+    and type of the CIMMethod in each entry
     @param Classdecl - Class for which methods to be output
 */
-void PrintClassMethods(ClassDecl& classDecl)
+void PrintClassMethods(CIMClass& classDecl)
 {
     cout << "<h2>Methods:</h2>\n";
     // Create the table
     cout << "<table border=1 width=\"50%\">\n";
     cout << "<tr>\n";
-    cout << "<th>Name</th>\n";
-    cout << "<th>Type</th>\n";
+    cout << "<th>CIMName</th>\n";
+    cout << "<th>CIMType</th>\n";
     cout << "</tr>\n";
 
     for (Uint32 i = 0, n = classDecl.getMethodCount(); i < n; i++)
     {
-	Method method = classDecl.getMethod(i);
-	Type type = method.getType();
+	CIMMethod method = classDecl.getMethod(i);
+	CIMType type = method.getType();
 
 	cout << "<tr>\n";
 	cout << "<td>" << method.getName() << "</td>\n";
@@ -411,7 +414,7 @@ void PrintClassMethods(ClassDecl& classDecl)
 */
 void PrintClass(
     const String& nameSpace,
-    ClassDecl& classDecl,
+    CIMClass& classDecl,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
@@ -439,7 +442,7 @@ void PrintClass(
 */
 void PrintInstance(
 const String& nameSpace,
-    InstanceDecl& instanceDecl,
+    CIMInstance& instanceDecl,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
@@ -452,7 +455,7 @@ const String& nameSpace,
     cout << "</html>\n";
 }
 
-void PrintPropertyDeclaration(Property& property)
+void PrintPropertyDeclaration(CIMProperty& property)
 {
     PrintHTMLHead("GetPropertyDeclaration", property.getName());
     
@@ -498,11 +501,11 @@ static void GetClass(const CGIQueryString& qs)
 
     try
     {
-	Client client;
+	CIMClient client;
 	HostInfo hostinfo;
 	client.connect(hostinfo.getHostName(), hostinfo.getHostPort());
 
-	ClassDecl classDecl = client.getClass(nameSpace, className,
+	CIMClass classDecl = client.getClass(nameSpace, className,
 	    localOnly, includeQualifiers, includeClassOrigin);
 
 	PrintClass(nameSpace, classDecl,localOnly, includeQualifiers, 
@@ -551,10 +554,10 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
 	// get the class
-	ClassDecl classDecl = client.getClass(
+	CIMClass classDecl = client.getClass(
 	    nameSpace, className, false, true, true);
 	// 
 	Uint32 pos = classDecl.findProperty(propertyName);
@@ -565,7 +568,7 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 	    return;
 	}
 	// Now Get the property
-	Property property = classDecl.getProperty(pos);
+	CIMProperty property = classDecl.getProperty(pos);
 
 	PrintPropertyDeclaration(property);
     }
@@ -641,7 +644,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
     // Invoke the method: 
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
 	
 	Array<String> classNames = client.enumerateClassNames(
@@ -673,7 +676,7 @@ static void DeleteClass(const CGIQueryString& qs)
 
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
 
 	client.deleteClass(nameSpace, className);
@@ -692,11 +695,11 @@ static void DeleteClass(const CGIQueryString& qs)
     }
 }
 
-void PrintQualifierRow(const String& nameSpace, const QualifierDecl& qd)
+void PrintQualifierRow(const String& nameSpace, const CIMQualifierDecl& qd)
 {
     cout << "<tr>\n";
 
-    const Value& value = qd.getValue();
+    const CIMValue& value = qd.getValue();
 
     String href = "/pegasus/cgi-bin/CGIClient?";
     href.append("Operation=GetQualifier&");
@@ -720,7 +723,7 @@ void PrintQualifierRow(const String& nameSpace, const QualifierDecl& qd)
 
 void PrintGetQualifier(
     const String& nameSpace,
-    QualifierDecl qualifierDecl)
+    CIMQualifierDecl qualifierDecl)
 {
     PrintHTMLHead("GetQualifier", "GetQualifier");
     // cout << "<html>\n";
@@ -732,16 +735,16 @@ void PrintGetQualifier(
 
     cout << "<table border=1 width=\"50%\">\n";
     cout << "  <tr>\n";
-    cout << "    <th>Name</th>\n";
-    cout << "    <th>Type</th>\n";
-    cout << "    <th>Value</th>\n";
-    cout << "    <th>Scope</th>\n";
-    cout << "    <th>Flavor</th>\n";
+    cout << "    <th>CIMName</th>\n";
+    cout << "    <th>CIMType</th>\n";
+    cout << "    <th>CIMValue</th>\n";
+    cout << "    <th>CIMScope</th>\n";
+    cout << "    <th>CIMFlavor</th>\n";
     cout << "    <th>ArraySize</th>\n";
     cout << "  </tr>\n";
     cout << "</tr>\n";
 
-    cout << "<h1>Qualifier:</h1>\n";
+    cout << "<h1>CIMQualifier:</h1>\n";
     PrintQualifierRow(nameSpace, qualifierDecl);
 
     cout << "</table>\n";
@@ -752,7 +755,7 @@ void PrintGetQualifier(
 
 void PrintEnumerateQualifiers(
     const String& nameSpace,
-    const Array<QualifierDecl>& qualifierDecls)
+    const Array<CIMQualifierDecl>& qualifierDecls)
 {
     // Check this, why no HTML header here.????
 
@@ -764,11 +767,11 @@ void PrintEnumerateQualifiers(
 
     cout << "<table border=1 width=\"50%\">\n";
     cout << "  <tr>\n";
-    cout << "    <th>Name</th>\n";
-    cout << "    <th>Type</th>\n";
-    cout << "    <th>Value</th>\n";
-    cout << "    <th>Scope</th>\n";
-    cout << "    <th>Flavor</th>\n";
+    cout << "    <th>CIMName</th>\n";
+    cout << "    <th>CIMType</th>\n";
+    cout << "    <th>CIMValue</th>\n";
+    cout << "    <th>CIMScope</th>\n";
+    cout << "    <th>CIMFlavor</th>\n";
     cout << "    <th>ArraySize</th>\n";
     cout << "  </tr>\n";
     cout << "</tr>\n";
@@ -785,7 +788,7 @@ void PrintEnumerateQualifiers(
     cout << "</body>\n";
     cout << "</html>\n";
 }
-/* Method to execute the EnumerateQualifiers operation
+/* CIMMethod to execute the EnumerateQualifiers operation
 */
 static void EnumerateQualifiers(const CGIQueryString& qs)
 {
@@ -793,10 +796,10 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
 
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
 
-	Array<QualifierDecl> qualifierDecls =
+	Array<CIMQualifierDecl> qualifierDecls =
 	    client.enumerateQualifiers(nameSpace);
 
 	PrintEnumerateQualifiers(nameSpace, qualifierDecls);
@@ -807,13 +810,13 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
     }
 }
 
-/* Method to execute the getQualifier Operation
+/* CIMMethod to execute the getQualifier Operation
 */
 static void GetQualifier(const CGIQueryString& qs)
 {
     String nameSpace = GetNameSpaceQueryField(qs);
 
-    // Get Qualifier name:
+    // Get CIMQualifier name:
     const char* tmp;
 
     if (!(tmp = qs.findValue("QualifierName")))
@@ -826,10 +829,10 @@ static void GetQualifier(const CGIQueryString& qs)
 
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
 
-	QualifierDecl qd = client.getQualifier(nameSpace, qualifierName);
+	CIMQualifierDecl qd = client.getQualifier(nameSpace, qualifierName);
 
 	PrintGetQualifier(nameSpace, qd);
     }
@@ -897,7 +900,7 @@ static void PrintInstanceNames(
 /** EnumerateInstanceNames Function
     Called for evaluation of the EvaluateInstance Names operation.
     Gets the parameters from the CGIQuery String and calls
-    the enumerateInstanceNames Client function.
+    the enumerateInstanceNames CIMClient function.
     The resulting string array of names is printed by
     the function printInstanceNames
 */
@@ -918,11 +921,11 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
 	/*
 	*/
-	Array<Reference> instanceNames = client.enumerateInstanceNames(
+	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
 	    nameSpace, className);
 	
 	Array<String> tmpInstanceNames;
@@ -930,7 +933,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	for (Uint32 i = 0; i < instanceNames.getSize(); i++)
 	{
 	    String tmp;
-	    Reference::referenceToInstanceName(instanceNames[i], tmp);
+	    CIMReference::referenceToInstanceName(instanceNames[i], tmp);
 	    tmpInstanceNames.append(tmp);
 	}
 
@@ -946,7 +949,7 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 /** GetInstance Function
 This function is executed for the getInstance Operation
 It takes the parameters from the CGIQueryString
-to create parameters for the getInstance Client
+to create parameters for the getInstance CIMClient
 method call.
 The results of the call are printed in an HTML page.
 */
@@ -961,10 +964,10 @@ static void GetInstance(const CGIQueryString& qs)
 	ErrorExit("Missing InstanceName field");
 
     // This must be modified for the toString ATTN KS
-    Reference referenceName;
+    CIMReference referenceName;
     try
     {
-    Reference::instanceNameToReference(tmp,referenceName);
+    CIMReference::instanceNameToReference(tmp,referenceName);
     }
     catch(Exception& e)
     {
@@ -983,10 +986,10 @@ static void GetInstance(const CGIQueryString& qs)
 
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
           
-	InstanceDecl instanceDecl = client.getInstance(nameSpace, 
+	CIMInstance instanceDecl = client.getInstance(nameSpace, 
 	    referenceName, localOnly, includeClassOrigin, includeClassOrigin);
 
 	PrintInstance(nameSpace, instanceDecl, localOnly, includeQualifiers, 
@@ -1016,7 +1019,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
     ErrorExit(message);
     //try
     //{
-    //    Client client;
+    //    CIMClient client;
     //    client.connect("localhost", 8888);
     //
     //    Array<String> classNames = client.enumerateInstancs(
@@ -1102,7 +1105,7 @@ static void DefineHostParameters(const CGIQueryString& qs)
     /// Respond with the new parameters
     PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Result");
 
-    cout << "<B>Host Name</B>  ";
+    cout << "<B>Host CIMName</B>  ";
     cout << hostInfo.getHostName();
     cout << "\n";
     cout << "<P><B>Host Port</B>  ";

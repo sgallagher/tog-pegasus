@@ -23,15 +23,18 @@
 // Author:
 //
 // $Log: Qualifier.cpp,v $
-// Revision 1.1  2001/01/14 19:53:47  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:47  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Common/Qualifier.h>
-#include <Pegasus/Common/Property.h>
+#include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMProperty.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -42,8 +45,8 @@ int main()
 {
     try
     {
-	Qualifier q1("Description", "Hello", Flavor::TOINSTANCE);
-	Qualifier q2("Abstract", true);
+	CIMQualifier q1("Description", "Hello", CIMFlavor::TOINSTANCE);
+	CIMQualifier q2("Abstract", true);
 	ConstQualifier q3 = q1;
 	ConstQualifier q4;
 	q4 = q3;
@@ -54,9 +57,9 @@ int main()
 	q2.print(true);
 #endif
 
-	Qualifier qual1("qual1", "This is a test");
+	CIMQualifier qual1("qual1", "This is a test");
 
-	Qualifier qual3("qual3", "This is a test");
+	CIMQualifier qual3("qual3", "This is a test");
 	assert(!qual1.identical(qual3));
 
 #ifdef IO

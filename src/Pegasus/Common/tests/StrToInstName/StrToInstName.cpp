@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: StrToInstName.cpp,v $
+// Revision 1.3  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/01/28 07:05:18  mike
 // added instance name/reference converters
 //
@@ -36,7 +39,7 @@
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Common/Reference.h>
+#include <Pegasus/Common/CIMReference.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -44,11 +47,11 @@ using namespace std;
 void test(const String& instanceName)
 {
 
-    Reference reference;
-    Reference::instanceNameToReference(instanceName, reference);
+    CIMReference reference;
+    CIMReference::instanceNameToReference(instanceName, reference);
 
     String tmpInstanceName;
-    Reference::referenceToInstanceName(reference, tmpInstanceName);
+    CIMReference::referenceToInstanceName(reference, tmpInstanceName);
 
     // cout << "instanceName[" << instanceName << "]" << endl;
     // cout << "tmpInstanceName[" << tmpInstanceName << "]" << endl;
@@ -60,7 +63,7 @@ int main()
 {
     try
     {
-	Reference reference;
+	CIMReference reference;
 	String instanceName;
 	
 	test("X.key1=\"Hello World\"");

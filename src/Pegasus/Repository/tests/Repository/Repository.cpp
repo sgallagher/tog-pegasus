@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.3  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/02/13 07:00:18  mike
 // Added partial createInstance() method to repository.
 //
@@ -53,15 +56,15 @@ void test01()
 	// Ignore this!
     }
 
-    ClassDecl c("MyClass");
+    CIMClass c("MyClass");
 
-    r.setQualifier(NAMESPACE, QualifierDecl("key", true, Scope::PROPERTY));
+    r.setQualifier(NAMESPACE, CIMQualifierDecl("key", true, CIMScope::PROPERTY));
 
     c.addProperty(
-	Property("key", Uint32(0))
-	    .addQualifier(Qualifier("key", true)))
-	.addProperty(Property("ratio", Real32(1.5)))
-	.addProperty(Property("message", "Hello World"));
+	CIMProperty("key", Uint32(0))
+	    .addQualifier(CIMQualifier("key", true)))
+	.addProperty(CIMProperty("ratio", Real32(1.5)))
+	.addProperty(CIMProperty("message", "Hello World"));
 
     r.createClass(NAMESPACE, c);
 
@@ -89,8 +92,8 @@ void test02()
 	// Ignore this!
     }
 
-    InstanceDecl inst("MyClass");
-    inst.addProperty(Property("key", Uint32(0)));
+    CIMInstance inst("MyClass");
+    inst.addProperty(CIMProperty("key", Uint32(0)));
 
     r.createInstance(NAMESPACE, inst);
 }

@@ -23,14 +23,17 @@
 // Author:
 //
 // $Log: InstanceDecl.cpp,v $
-// Revision 1.1  2001/01/14 19:53:46  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:46  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
-#include <Pegasus/Common/InstanceDecl.h>
-#include <Pegasus/Common/ClassDecl.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
 
 using namespace Pegasus;
@@ -45,34 +48,34 @@ void test01()
     SimpleDeclContext* context = new SimpleDeclContext;
 
     context->addQualifierDecl(
-	NAMESPACE, QualifierDecl("counter", false, Scope::PROPERTY));
+	NAMESPACE, CIMQualifierDecl("counter", false, CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-	NAMESPACE, QualifierDecl("min", String(), Scope::PROPERTY));
+	NAMESPACE, CIMQualifierDecl("min", String(), CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-	NAMESPACE, QualifierDecl("max", String(), Scope::PROPERTY));
+	NAMESPACE, CIMQualifierDecl("max", String(), CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-	NAMESPACE, QualifierDecl("Description", String(), Scope::PROPERTY));
+	NAMESPACE, CIMQualifierDecl("Description", String(), CIMScope::PROPERTY));
 
-    ClassDecl class1("MyClass");
+    CIMClass class1("MyClass");
 
     class1
-	.addProperty(Property("count", Uint32(55))
-	    .addQualifier(Qualifier("counter", true))
-	    .addQualifier(Qualifier("min", "0"))
-	    .addQualifier(Qualifier("max", "1")))
-	.addProperty(Property("message", "Hello")
-	    .addQualifier(Qualifier("description", "My Message")))
-	.addProperty(Property("ratio", Real32(1.5)));
+	.addProperty(CIMProperty("count", Uint32(55))
+	    .addQualifier(CIMQualifier("counter", true))
+	    .addQualifier(CIMQualifier("min", "0"))
+	    .addQualifier(CIMQualifier("max", "1")))
+	.addProperty(CIMProperty("message", "Hello")
+	    .addQualifier(CIMQualifier("description", "My Message")))
+	.addProperty(CIMProperty("ratio", Real32(1.5)));
 
     class1.resolve(context, NAMESPACE);
     context->addClassDecl(NAMESPACE, class1);
     // class1.print();
 
-    InstanceDecl instance1("MyClass");
-    instance1.addProperty(Property("message", "Goodbye"));
+    CIMInstance instance1("MyClass");
+    instance1.addProperty(CIMProperty("message", "Goodbye"));
     instance1.resolve(context, NAMESPACE);
 }
 

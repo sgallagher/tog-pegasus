@@ -23,27 +23,30 @@
 // Author:
 //
 // $Log: Property.cpp,v $
-// Revision 1.1  2001/01/14 19:53:47  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:47  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Common/Property.h>
+#include <Pegasus/Common/CIMProperty.h>
 
 using namespace Pegasus;
 using namespace std;
 
 int main()
 {
-    Property pnull;
+    CIMProperty pnull;
 
     assert(!pnull);
 
-    Property p1("message", "Hi There");
-    p1.addQualifier(Qualifier("Key", true));
-    p1.addQualifier(Qualifier("Description", "Blah Blah"));
+    CIMProperty p1("message", "Hi There");
+    p1.addQualifier(CIMQualifier("Key", true));
+    p1.addQualifier(CIMQualifier("Description", "Blah Blah"));
     ConstProperty p2 = p1;
 
     cout << "+++++ passed all tests" << endl;

@@ -1,8 +1,8 @@
-s-\<ClassDecl\>-CIMClassDecl-g
-s-\<ClassDeclRep\>-CIMClassDeclRep-g
+s-\<ClassDecl\>-CIMClass-g
+s-\<ClassDeclRep\>-CIMClassRep-g
 s-\<Flavor\>-CIMFlavor-g
-s-\<InstanceDecl\>-CIMInstanceDecl-g
-s-\<InstanceDeclRep\>-CIMInstanceDeclRep-g
+s-\<InstanceDecl\>-CIMInstance-g
+s-\<InstanceDeclRep\>-CIMInstanceRep-g
 s-\<Method\>-CIMMethod-g
 s-\<MethodRep\>-CIMMethodRep-g
 s-\<Name\>-CIMName-g

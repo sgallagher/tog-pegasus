@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ValidateClass.cpp,v $
+// Revision 1.3  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/01/23 01:25:35  mike
 // Reworked resolve scheme.
 //
@@ -32,7 +35,7 @@
 //
 //END_HISTORY
 
-#include <Pegasus/Common/ClassDecl.h>
+#include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
 
 using namespace Pegasus;
@@ -47,17 +50,17 @@ int main()
 
 	SimpleDeclContext context;
 
-	ClassDecl x("X");
-	x.addProperty(Property("one", Uint32(111)));
-	x.addProperty(Property("two", Real32(222.222)));
-	x.addProperty(Property("three", "Three"));
+	CIMClass x("X");
+	x.addProperty(CIMProperty("one", Uint32(111)));
+	x.addProperty(CIMProperty("two", Real32(222.222)));
+	x.addProperty(CIMProperty("three", "Three"));
 	context.addClassDecl(NAMESPACE, x);
 	x.resolve(&context, NAMESPACE);
 
-	ClassDecl y("Y", "X");
-	y.addProperty(Property("three", String("Three - Three")));
-	y.addProperty(Property("four", Boolean(false)));
-	y.addProperty(Property("five", Real32(555.555)));
+	CIMClass y("Y", "X");
+	y.addProperty(CIMProperty("three", String("Three - Three")));
+	y.addProperty(CIMProperty("four", Boolean(false)));
+	y.addProperty(CIMProperty("five", Real32(555.555)));
 	context.addClassDecl(NAMESPACE, y);
 	y.resolve(&context, NAMESPACE);
 

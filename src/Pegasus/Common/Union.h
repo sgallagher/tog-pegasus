@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Union.h,v $
+// Revision 1.3  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/01/30 08:00:43  karl
 // DOC++ Documentation update for header files
 //
@@ -38,8 +41,8 @@
 //
 //	This union is used to represent the values of properties, qualifiers,
 //	method return values, and method arguments. All of the types
-//	defined in Type.h are represented by a Union. The 
-//	Union is used as the the basis for the Value implementation.
+//	defined in CIMType.h are represented by a Union. The 
+//	Union is used as the the basis for the CIMValue implementation.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,18 +50,18 @@
 #define Pegasus_Union_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Type.h>
+#include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/DateTime.h>
-#include <Pegasus/Common/Reference.h>
+#include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
 /** union Union
     This union is used to represent the values of properties, qualifiers,
     method return values, and method arguments. All of the types
-    defined in Type.h are represented by a Union. The 
-    Union is used as the the basis for the Value implementation.
+    defined in CIMType.h are represented by a Union. The 
+    Union is used as the the basis for the CIMValue implementation.
 */
 union Union
 {
@@ -75,8 +78,8 @@ union Union
     Real64 _real64Value;
     Uint16 _char16Value;
     String* _stringValue;
-    DateTime* _dateTimeValue;
-    Reference* _referenceValue;
+    CIMDateTime* _dateTimeValue;
+    CIMReference* _referenceValue;
 
     ArrayRep<Boolean>* _booleanArray;
     ArrayRep<Uint8>* _uint8Array;
@@ -91,7 +94,7 @@ union Union
     ArrayRep<Real64>* _real64Array;
     ArrayRep<Char16>* _char16Array;
     ArrayRep<String>* _stringArray;
-    ArrayRep<DateTime>* _dateTimeArray;
+    ArrayRep<CIMDateTime>* _dateTimeArray;
 
     void* _voidPtr;
 };

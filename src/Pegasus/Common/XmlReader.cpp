@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: XmlReader.cpp,v $
-// Revision 1.1  2001/01/14 19:53:32  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:32  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -33,13 +36,13 @@
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
-#include "Name.h"
+#include "CIMName.h"
 #include "XmlReader.h"
 #include "XmlWriter.h"
-#include "Qualifier.h"
-#include "QualifierDecl.h"
-#include "ClassDecl.h"
-#include "InstanceDecl.h"
+#include "CIMQualifier.h"
+#include "CIMQualifierDecl.h"
+#include "CIMClass.h"
+#include "CIMInstance.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -333,7 +336,7 @@ String XmlReader::getCimNameAttribute(
     if (acceptNull && name.getLength() == 0)
 	return name;
 
-    if (!Name::legal(name))
+    if (!CIMName::legal(name))
     {
 	char buffer[MESSAGE_SIZE];
 	sprintf(buffer, "Illegal value for %s.NAME attribute", elementName);
@@ -365,7 +368,7 @@ String XmlReader::getClassNameAttribute(
 	throw XmlValidationError(lineNumber, buffer);
     }
 
-    if (!Name::legal(name))
+    if (!CIMName::legal(name))
     {
 	char buffer[MESSAGE_SIZE];
 	sprintf(buffer, 
@@ -394,7 +397,7 @@ String XmlReader::getClassOriginAttribute(
     if (!entry.getAttributeValue("CLASSORIGIN", name))
 	return String();
 
-    if (!Name::legal(name))
+    if (!CIMName::legal(name))
     {
 	char buffer[MESSAGE_SIZE];
 	sprintf(buffer, 
@@ -423,7 +426,7 @@ String XmlReader::getReferenceClassAttribute(
     if (!entry.getAttributeValue("REFERENCECLASS", name))
 	return String();
 
-    if (!Name::legal(name))
+    if (!CIMName::legal(name))
     {
 	char buffer[MESSAGE_SIZE];
 	sprintf(buffer, 
@@ -452,7 +455,7 @@ String XmlReader::getSuperClassAttribute(
     if (!entry.getAttributeValue("SUPERCLASS", superClass))
 	return String();
 
-    if (!Name::legal(superClass))
+    if (!CIMName::legal(superClass))
     {
 	char buffer[MESSAGE_SIZE];
 	sprintf(
@@ -472,7 +475,7 @@ String XmlReader::getSuperClassAttribute(
 //
 //------------------------------------------------------------------------------
 
-Type XmlReader::getCimTypeAttribute(
+CIMType XmlReader::getCimTypeAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry, 
     const char* tagName)
@@ -486,43 +489,43 @@ Type XmlReader::getCimTypeAttribute(
 	throw XmlValidationError(lineNumber, message);
     }
 
-    Type type = Type::NONE;
+    CIMType type = CIMType::NONE;
 
     if (strcmp(typeName, "boolean") == 0)
-	type = Type::BOOLEAN;
+	type = CIMType::BOOLEAN;
     else if (strcmp(typeName, "string") == 0)
-	type = Type::STRING;
+	type = CIMType::STRING;
     else if (strcmp(typeName, "char16") == 0)
-	type = Type::CHAR16;
+	type = CIMType::CHAR16;
     else if (strcmp(typeName, "uint8") == 0)
-	type = Type::UINT8;
+	type = CIMType::UINT8;
     else if (strcmp(typeName, "sint8") == 0)
-	type = Type::SINT8;
+	type = CIMType::SINT8;
     else if (strcmp(typeName, "uint16") == 0)
-	type = Type::UINT16;
+	type = CIMType::UINT16;
     else if (strcmp(typeName, "sint16") == 0)
-	type = Type::SINT16;
+	type = CIMType::SINT16;
     else if (strcmp(typeName, "uint32") == 0)
-	type = Type::UINT32;
+	type = CIMType::UINT32;
     else if (strcmp(typeName, "sint32") == 0)
-	type = Type::SINT32;
+	type = CIMType::SINT32;
     else if (strcmp(typeName, "uint64") == 0)
-	type = Type::UINT64;
+	type = CIMType::UINT64;
     else if (strcmp(typeName, "sint64") == 0)
-	type = Type::SINT64;
+	type = CIMType::SINT64;
     else if (strcmp(typeName, "datetime") == 0)
-	type = Type::DATETIME;
+	type = CIMType::DATETIME;
     else if (strcmp(typeName, "real32") == 0)
-	type = Type::REAL32;
+	type = CIMType::REAL32;
     else if (strcmp(typeName, "real64") == 0)
-	type = Type::REAL64;
+	type = CIMType::REAL64;
     else if (strcmp(typeName, "reference") == 0)
-	type = Type::REFERENCE;
+	type = CIMType::REFERENCE;
 
     // ATTN: "reference" is not legal according to the DTD; however, it is
     // used by the XML version of the CIM schema.
 
-    if (type == Type::NONE)
+    if (type == CIMType::NONE)
     {
 	char message[MESSAGE_SIZE];
 	sprintf(message, "Illegal value for %s.TYPE attribute", tagName);
@@ -768,43 +771,43 @@ Boolean XmlReader::stringToUnsignedInteger(
 //
 //------------------------------------------------------------------------------
 
-Value XmlReader::stringToValue(
+CIMValue XmlReader::stringToValue(
     Uint32 lineNumber, 
     const char* valueString, 
-    Type type)
+    CIMType type)
 {
     // ATTN-B: accepting only UTF-8 for now! (affects string and char16):
 
     switch (type)
     {
-	case Type::BOOLEAN:
+	case CIMType::BOOLEAN:
 	{
 	    if (strcmp(valueString, "TRUE") == 0)
-		return Value(true);
+		return CIMValue(true);
 	    else if (strcmp(valueString, "FALSE") == 0)
-		return Value(false);
+		return CIMValue(false);
 	    else
 		throw XmlSemanticError(
 		    lineNumber, "Bad boolean value");
 	}
 
-	case Type::STRING:
+	case CIMType::STRING:
 	{
-	    return Value(valueString);
+	    return CIMValue(valueString);
 	}
 
-	case Type::CHAR16:
+	case CIMType::CHAR16:
 	{
 	    if (strlen(valueString) != 1)
 		throw XmlSemanticError(lineNumber, "Bad char16 value");
 
-	    return Value(Char16(valueString[0]));
+	    return CIMValue(Char16(valueString[0]));
 	}
 
-	case Type::UINT8:
-	case Type::UINT16:
-	case Type::UINT32:
-	case Type::UINT64:
+	case CIMType::UINT8:
+	case CIMType::UINT16:
+	case CIMType::UINT32:
+	case CIMType::UINT64:
 	{
 	    Uint64 x;
 
@@ -816,18 +819,18 @@ Value XmlReader::stringToValue(
 
 	    switch (type)
 	    {
-		case Type::UINT8: return Value(Uint8(x));
-		case Type::UINT16: return Value(Uint16(x));
-		case Type::UINT32: return Value(Uint32(x));
-		case Type::UINT64: return Value(Uint64(x));
+		case CIMType::UINT8: return CIMValue(Uint8(x));
+		case CIMType::UINT16: return CIMValue(Uint16(x));
+		case CIMType::UINT32: return CIMValue(Uint32(x));
+		case CIMType::UINT64: return CIMValue(Uint64(x));
 		default: break;
 	    }
 	}
 
-	case Type::SINT8:
-	case Type::SINT16:
-	case Type::SINT32:
-	case Type::SINT64:
+	case CIMType::SINT8:
+	case CIMType::SINT16:
+	case CIMType::SINT32:
+	case CIMType::SINT64:
 	{
 	    Sint64 x;
 
@@ -839,17 +842,17 @@ Value XmlReader::stringToValue(
 
 	    switch (type)
 	    {
-		case Type::SINT8: return Value(Sint8(x));
-		case Type::SINT16: return Value(Sint16(x));
-		case Type::SINT32: return Value(Sint32(x));
-		case Type::SINT64: return Value(Sint64(x));
+		case CIMType::SINT8: return CIMValue(Sint8(x));
+		case CIMType::SINT16: return CIMValue(Sint16(x));
+		case CIMType::SINT32: return CIMValue(Sint32(x));
+		case CIMType::SINT64: return CIMValue(Sint64(x));
 		default: break;
 	    }
 	}
 
-	case Type::DATETIME:
+	case CIMType::DATETIME:
 	{
-	    DateTime tmp;
+	    CIMDateTime tmp;
 
 	    try
 	    {
@@ -860,27 +863,27 @@ Value XmlReader::stringToValue(
 		throw XmlSemanticError(lineNumber, "Bad datetime value");
 	    }
 
-	    return Value(tmp);
+	    return CIMValue(tmp);
 	}
 
-	case Type::REAL32:
+	case CIMType::REAL32:
 	{
 	    Real64 x;
 
 	    if (!stringToReal(valueString, x))
 		throw XmlSemanticError(lineNumber, "Bad real value");
 
-	    return Value(Real32(x));
+	    return CIMValue(Real32(x));
 	}
 
-	case Type::REAL64:
+	case CIMType::REAL64:
 	{
 	    Real64 x;
 
 	    if (!stringToReal(valueString, x))
 		throw XmlSemanticError(lineNumber, "Bad real value");
 
-	    return Value(x);
+	    return CIMValue(x);
 	}
 
 	default:
@@ -901,8 +904,8 @@ Value XmlReader::stringToValue(
 
 Boolean XmlReader::getValueElement(
     XmlParser& parser, 
-    Type type, 
-    Value& value)
+    CIMType type, 
+    CIMValue& value)
 {
     // Get VALUE start tag:
 
@@ -936,17 +939,17 @@ Boolean XmlReader::getValueElement(
 //------------------------------------------------------------------------------
 
 template<class T>
-Value StringArrayToValueAux(
+CIMValue StringArrayToValueAux(
     Uint32 lineNumber, 
     const Array<const char*>& stringArray,
-    Type type,
+    CIMType type,
     T*)
 {
     Array<T> array;
 
     for (Uint32 i = 0, n = stringArray.getSize(); i < n; i++)
     {
-	Value value = XmlReader::stringToValue(
+	CIMValue value = XmlReader::stringToValue(
 	    lineNumber, stringArray[i], type);
 
 	T x;
@@ -954,56 +957,56 @@ Value StringArrayToValueAux(
 	array.append(x);
     }
 
-    return Value(array);
+    return CIMValue(array);
 }
 
-Value XmlReader::stringArrayToValue(
+CIMValue XmlReader::stringArrayToValue(
     Uint32 lineNumber, 
     const Array<const char*>& array, 
-    Type type)
+    CIMType type)
 {
     switch (type)
     {
-	case Type::BOOLEAN: 
+	case CIMType::BOOLEAN: 
 	    return StringArrayToValueAux(lineNumber, array, type, (Boolean*)0);
 
-	case Type::STRING:
+	case CIMType::STRING:
 	    return StringArrayToValueAux(lineNumber, array, type, (String*)0);
 
-	case Type::CHAR16:
+	case CIMType::CHAR16:
 	    return StringArrayToValueAux(lineNumber, array, type, (Char16*)0);
 
-	case Type::UINT8:
+	case CIMType::UINT8:
 	    return StringArrayToValueAux(lineNumber, array, type, (Uint8*)0);
 
-	case Type::UINT16:
+	case CIMType::UINT16:
 	    return StringArrayToValueAux(lineNumber, array, type, (Uint16*)0);
 
-	case Type::UINT32:
+	case CIMType::UINT32:
 	    return StringArrayToValueAux(lineNumber, array, type, (Uint32*)0);
 
-	case Type::UINT64:
+	case CIMType::UINT64:
 	    return StringArrayToValueAux(lineNumber, array, type, (Uint64*)0);
 
-	case Type::SINT8:
+	case CIMType::SINT8:
 	    return StringArrayToValueAux(lineNumber, array, type, (Sint8*)0);
 
-	case Type::SINT16:
+	case CIMType::SINT16:
 	    return StringArrayToValueAux(lineNumber, array, type, (Sint16*)0);
 
-	case Type::SINT32:
+	case CIMType::SINT32:
 	    return StringArrayToValueAux(lineNumber, array, type, (Sint32*)0);
 
-	case Type::SINT64:
+	case CIMType::SINT64:
 	    return StringArrayToValueAux(lineNumber, array, type, (Sint64*)0);
 
-	case Type::DATETIME:
-	    return StringArrayToValueAux(lineNumber, array, type, (DateTime*)0);
+	case CIMType::DATETIME:
+	    return StringArrayToValueAux(lineNumber, array, type, (CIMDateTime*)0);
 
-	case Type::REAL32:
+	case CIMType::REAL32:
 	    return StringArrayToValueAux(lineNumber, array, type, (Real32*)0);
 
-	case Type::REAL64:
+	case CIMType::REAL64:
 	    return StringArrayToValueAux(lineNumber, array, type, (Real64*)0);
 
 	default:
@@ -1011,7 +1014,7 @@ Value XmlReader::stringArrayToValue(
     }
 
     // Unreachable:
-    return Value();
+    return CIMValue();
 }
 
 //------------------------------------------------------------------------------
@@ -1024,8 +1027,8 @@ Value XmlReader::stringArrayToValue(
 
 Boolean XmlReader::getValueArrayElement(
     XmlParser& parser, 
-    Type type, 
-    Value& value)
+    CIMType type, 
+    CIMValue& value)
 {
     value.clear();
 
@@ -1105,16 +1108,16 @@ Uint32 XmlReader::getFlavor(
     Uint32 flavor = 0;
 
     if (overridable)
-	flavor |= Flavor::OVERRIDABLE;
+	flavor |= CIMFlavor::OVERRIDABLE;
 
     if (toSubClass)
-	flavor |= Flavor::TOSUBCLASS;
+	flavor |= CIMFlavor::TOSUBCLASS;
 
     if (toInstance)
-	flavor |= Flavor::TOINSTANCE;
+	flavor |= CIMFlavor::TOINSTANCE;
 
     if (translatable)
-	flavor |= Flavor::TRANSLATABLE;
+	flavor |= CIMFlavor::TRANSLATABLE;
 
     return flavor;
 }
@@ -1157,27 +1160,27 @@ Uint32 XmlReader::getOptionalScope(XmlParser& parser)
     Uint32 scope = 0;
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "CLASS", false, false))
-	scope |= Scope::CLASS;
+	scope |= CIMScope::CLASS;
 
     if (getCimBooleanAttribute(
 	line, entry, "SCOPE", "ASSOCIATION", false, false))
-	scope |= Scope::ASSOCIATION;
+	scope |= CIMScope::ASSOCIATION;
 
     if (getCimBooleanAttribute(
 	line, entry, "SCOPE", "REFERENCE", false, false))
-	scope |= Scope::REFERENCE;
+	scope |= CIMScope::REFERENCE;
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "PROPERTY", false, false))
-	scope |= Scope::PROPERTY;
+	scope |= CIMScope::PROPERTY;
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "METHOD", false, false))
-	scope |= Scope::METHOD;
+	scope |= CIMScope::METHOD;
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "PARAMETER", false, false))
-	scope |= Scope::PARAMETER;
+	scope |= CIMScope::PARAMETER;
 
     if (getCimBooleanAttribute(line, entry, "SCOPE", "INDICATION",false, false))
-	scope |= Scope::INDICATION;
+	scope |= CIMScope::INDICATION;
 
     if (!isEmptyTag)
 	expectEndTag(parser, "SCOPE");
@@ -1200,7 +1203,7 @@ Uint32 XmlReader::getOptionalScope(XmlParser& parser)
 
 Boolean XmlReader::getQualifierElement(
     XmlParser& parser, 
-    Qualifier& qualifier)
+    CIMQualifier& qualifier)
 {
     // Get QUALIFIER element:
 
@@ -1214,7 +1217,7 @@ Boolean XmlReader::getQualifierElement(
 
     // Get QUALIFIER.TYPE attribute:
 
-    Type type = getCimTypeAttribute(parser.getLine(), entry, "QUALIFIER");
+    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "QUALIFIER");
 
     // Get QUALIFIER.PROPAGATED
 
@@ -1227,7 +1230,7 @@ Boolean XmlReader::getQualifierElement(
 
     // Get VALUE or VALUE.ARRAY element:
 
-    Value value;
+    CIMValue value;
 
     if (!getValueElement(parser, type, value) &&
 	!getValueArrayElement(parser, type, value))
@@ -1242,7 +1245,7 @@ Boolean XmlReader::getQualifierElement(
 
     // Build qualifier:
 
-    qualifier = Qualifier(name, value, flavor, propagated);
+    qualifier = CIMQualifier(name, value, flavor, propagated);
     return true;
 }
 
@@ -1255,7 +1258,7 @@ Boolean XmlReader::getQualifierElement(
 template<class CONTAINER>
 void getQualifierElements(XmlParser& parser, CONTAINER& container)
 {
-    Qualifier qualifier;
+    CIMQualifier qualifier;
 
     while (XmlReader::getQualifierElement(parser, qualifier))
     {
@@ -1283,7 +1286,7 @@ void getQualifierElements(XmlParser& parser, CONTAINER& container)
 //
 //------------------------------------------------------------------------------
 
-Boolean XmlReader::getPropertyElement(XmlParser& parser, Property& property)
+Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 {
     XmlEntry entry;
 
@@ -1308,13 +1311,13 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, Property& property)
 
     // Get PROPERTY.TYPE attribute:
 
-    Type type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
+    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
 
     // Create property:
 
-    Value value;
+    CIMValue value;
     value.setNullValue(type, false);
-    property = Property(
+    property = CIMProperty(
 	name, value, 0, String(), classOrigin, propagated);
 
     if (!empty)
@@ -1385,7 +1388,7 @@ Boolean XmlReader::getArraySizeAttribute(
 
 Boolean XmlReader::getPropertyArrayElement(
     XmlParser& parser, 
-    Property& property)
+    CIMProperty& property)
 {
     // Get PROPERTY element:
 
@@ -1403,7 +1406,7 @@ Boolean XmlReader::getPropertyArrayElement(
 
     // Get PROPERTY.TYPE attribute:
 
-    Type type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY.ARRAY");
+    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY.ARRAY");
 
     // Get PROPERTY.ARRAYSIZE attribute:
 
@@ -1422,9 +1425,9 @@ Boolean XmlReader::getPropertyArrayElement(
 
     // Create property:
 
-    Value nullValue;
+    CIMValue nullValue;
     nullValue.setNullValue(type, true, arraySize);
-    property = Property(
+    property = CIMProperty(
 	name, nullValue, arraySize, String(), classOrigin, propagated);
 
     if (!empty)
@@ -1435,7 +1438,7 @@ Boolean XmlReader::getPropertyArrayElement(
 
 	// Get value:
 
-	Value value;
+	CIMValue value;
 
 	if (getValueArrayElement(parser, type, value))
 	{
@@ -1631,7 +1634,7 @@ Boolean XmlReader::getClassNameElement(
 //
 //------------------------------------------------------------------------------
 
-KeyBinding::Type XmlReader::getValueTypeAttribute(
+KeyBinding::CIMType XmlReader::getValueTypeAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry,
     const char* elementName)
@@ -1652,7 +1655,7 @@ KeyBinding::Type XmlReader::getValueTypeAttribute(
 
     sprintf(buffer, 
 	"Illegal value for %s.VALUETYPE attribute; "
-	"Value must be one of \"string\", \"boolean\", or \"numeric\"",
+	"CIMValue must be one of \"string\", \"boolean\", or \"numeric\"",
 	elementName);
 
     throw XmlSemanticError(lineNumber, buffer);
@@ -1673,7 +1676,7 @@ KeyBinding::Type XmlReader::getValueTypeAttribute(
 
 Boolean XmlReader::getKeyValueElement(
     XmlParser& parser,
-    KeyBinding::Type& type,
+    KeyBinding::CIMType& type,
     String& value)
 {
     XmlEntry entry;
@@ -1719,7 +1722,7 @@ Boolean XmlReader::getKeyBindingElement(
     XmlParser& parser,
     String& name,
     String& value,
-    KeyBinding::Type& type)
+    KeyBinding::CIMType& type)
 {
     XmlEntry entry;
 
@@ -1768,7 +1771,7 @@ Boolean XmlReader::getInstanceNameElement(
     if (!empty)
     {
 	String name;
-	KeyBinding::Type type;
+	KeyBinding::CIMType type;
 	String value;
 
 	while (getKeyBindingElement(parser, name, value, type))
@@ -1791,7 +1794,7 @@ Boolean XmlReader::getInstanceNameElement(
 
 Boolean XmlReader::getInstancePathElement(
     XmlParser& parser,
-    Reference& reference)
+    CIMReference& reference)
 {
     XmlEntry entry;
 
@@ -1832,7 +1835,7 @@ Boolean XmlReader::getInstancePathElement(
 
 Boolean XmlReader::getLocalInstancePathElement(
     XmlParser& parser,
-    Reference& reference)
+    CIMReference& reference)
 {
     XmlEntry entry;
 
@@ -1872,7 +1875,7 @@ Boolean XmlReader::getLocalInstancePathElement(
 
 Boolean XmlReader::getClassPathElement(
     XmlParser& parser,
-    Reference& reference)
+    CIMReference& reference)
 {
     XmlEntry entry;
 
@@ -1912,7 +1915,7 @@ Boolean XmlReader::getClassPathElement(
 
 Boolean XmlReader::getLocalClassPathElement(
     XmlParser& parser,
-    Reference& reference)
+    CIMReference& reference)
 {
     XmlEntry entry;
 
@@ -1954,7 +1957,7 @@ Boolean XmlReader::getLocalClassPathElement(
 
 Boolean XmlReader::getValueReferenceElement(
     XmlParser& parser,
-    Reference& reference)
+    CIMReference& reference)
 {
     XmlEntry entry;
 
@@ -2028,7 +2031,7 @@ Boolean XmlReader::getValueReferenceElement(
 
 Boolean XmlReader::getPropertyReferenceElement(
     XmlParser& parser, 
-    Property& property)
+    CIMProperty& property)
 {
     XmlEntry entry;
 
@@ -2059,16 +2062,16 @@ Boolean XmlReader::getPropertyReferenceElement(
 
     // Create property:
 
-    Value value;
-    value.set(Reference());
-    property = Property(
+    CIMValue value;
+    value.set(CIMReference());
+    property = CIMProperty(
 	name, value, 0, referenceClass, classOrigin, propagated);
 
     if (!empty)
     {
 	getQualifierElements(parser, property);
 
-	Reference reference;
+	CIMReference reference;
 
 	if (getValueReferenceElement(parser, reference))
 	    property.setValue(reference);
@@ -2088,7 +2091,7 @@ Boolean XmlReader::getPropertyReferenceElement(
 template<class CONTAINER>
 void GetPropertyElements(XmlParser& parser, CONTAINER& container)
 {
-    Property property;
+    CIMProperty property;
 
     while (XmlReader::getPropertyElement(parser, property) ||
 	XmlReader::getPropertyArrayElement(parser, property) ||
@@ -2118,7 +2121,7 @@ void GetPropertyElements(XmlParser& parser, CONTAINER& container)
 
 Boolean XmlReader::getParameterElement(
     XmlParser& parser, 
-    Parameter& parameter)
+    CIMParameter& parameter)
 {
     XmlEntry entry;
 
@@ -2133,11 +2136,11 @@ Boolean XmlReader::getParameterElement(
 
     // Get PARAMETER.TYPE attribute:
 
-    Type type = getCimTypeAttribute(parser.getLine(), entry, "PARAMETER");
+    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PARAMETER");
 
     // Create parameter:
 
-    parameter = Parameter(name, type);
+    parameter = CIMParameter(name, type);
 
     if (!empty)
     {
@@ -2163,7 +2166,7 @@ Boolean XmlReader::getParameterElement(
 
 Boolean XmlReader::getParameterArrayElement(
     XmlParser& parser, 
-    Parameter& parameter)
+    CIMParameter& parameter)
 {
     XmlEntry entry;
 
@@ -2179,7 +2182,7 @@ Boolean XmlReader::getParameterArrayElement(
 
     // Get PARAMETER.ARRAY.TYPE attribute:
 
-    Type type = getCimTypeAttribute(parser.getLine(), entry, "PARAMETER.ARRAY");
+    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PARAMETER.ARRAY");
 
     // Get PARAMETER.ARRAYSIZE attribute:
 
@@ -2188,7 +2191,7 @@ Boolean XmlReader::getParameterArrayElement(
 
     // Create parameter:
 
-    parameter = Parameter(name, type, true, arraySize);
+    parameter = CIMParameter(name, type, true, arraySize);
 
     if (!empty)
     {
@@ -2213,7 +2216,7 @@ Boolean XmlReader::getParameterArrayElement(
 
 Boolean XmlReader::getParameterReferenceElement(
     XmlParser& parser, 
-    Parameter& parameter)
+    CIMParameter& parameter)
 {
     XmlEntry entry;
 
@@ -2234,7 +2237,7 @@ Boolean XmlReader::getParameterReferenceElement(
 
     // Create parameter:
 
-    parameter = Parameter(name, Type::REFERENCE, false, 0, referenceClass);
+    parameter = CIMParameter(name, CIMType::REFERENCE, false, 0, referenceClass);
 
     if (!empty)
     {
@@ -2254,7 +2257,7 @@ Boolean XmlReader::getParameterReferenceElement(
 template<class CONTAINER>
 void GetParameterElements(XmlParser& parser, CONTAINER& container)
 {
-    Parameter parameter;
+    CIMParameter parameter;
 
     while (XmlReader::getParameterElement(parser, parameter) ||
 	XmlReader::getParameterArrayElement(parser, parameter) ||
@@ -2287,7 +2290,7 @@ void GetParameterElements(XmlParser& parser, CONTAINER& container)
 
 Boolean XmlReader::getQualifierDeclElement(
     XmlParser& parser, 
-    QualifierDecl& qualifierDecl)
+    CIMQualifierDecl& qualifierDecl)
 {
     XmlEntry entry;
 
@@ -2303,7 +2306,7 @@ Boolean XmlReader::getQualifierDeclElement(
 
     // Get TYPE attribute:
 
-    Type type = getCimTypeAttribute(
+    CIMType type = getCimTypeAttribute(
 	parser.getLine(), entry, "QUALIFIER.DECLARATION");
 
     // Get ISARRAY attribute:
@@ -2324,8 +2327,8 @@ Boolean XmlReader::getQualifierDeclElement(
 
     // No need to look for interior elements if empty tag:
 
-    Uint32 scope = Scope::NONE;
-    Value value;
+    Uint32 scope = CIMScope::NONE;
+    CIMValue value;
 
     if (!empty)
     {
@@ -2365,7 +2368,7 @@ Boolean XmlReader::getQualifierDeclElement(
 	expectEndTag(parser, "QUALIFIER.DECLARATION");
     }
 
-    if (value.getType() == Type::NONE)
+    if (value.getType() == CIMType::NONE)
     {
 	if (isArray)
 	    value.setNullValue(type, true, arraySize);
@@ -2373,8 +2376,8 @@ Boolean XmlReader::getQualifierDeclElement(
 	    value.setNullValue(type, false);
     }
 
-    QualifierDecl tmp(name, value, scope, flavor, arraySize);
-    qualifierDecl = QualifierDecl(name, value, scope, flavor, arraySize);
+    CIMQualifierDecl tmp(name, value, scope, flavor, arraySize);
+    qualifierDecl = CIMQualifierDecl(name, value, scope, flavor, arraySize);
     return true;
 }
 
@@ -2391,7 +2394,7 @@ Boolean XmlReader::getQualifierDeclElement(
 //
 //------------------------------------------------------------------------------
 
-Boolean XmlReader::getMethodElement(XmlParser& parser, Method& method)
+Boolean XmlReader::getMethodElement(XmlParser& parser, CIMMethod& method)
 {
     XmlEntry entry;
 
@@ -2402,7 +2405,7 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, Method& method)
 
     String name = getCimNameAttribute(parser.getLine(), entry, "PROPERTY");
 
-    Type type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
+    CIMType type = getCimTypeAttribute(parser.getLine(), entry, "PROPERTY");
 
     String classOrigin = 
 	getClassOriginAttribute(parser.getLine(), entry, "PROPERTY");
@@ -2410,7 +2413,7 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, Method& method)
     Boolean propagated = getCimBooleanAttribute(
 	parser.getLine(), entry, "PROPERTY", "PROPAGATED", false, false);
 
-    method = Method(name, type, classOrigin, propagated);
+    method = CIMMethod(name, type, classOrigin, propagated);
 
     if (!empty)
     {
@@ -2433,7 +2436,7 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, Method& method)
 //
 //------------------------------------------------------------------------------
 
-Boolean XmlReader::getClassElement(XmlParser& parser, ClassDecl& classDecl)
+Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& classDecl)
 {
     XmlEntry entry;
 
@@ -2444,7 +2447,7 @@ Boolean XmlReader::getClassElement(XmlParser& parser, ClassDecl& classDecl)
 
     String superClass = getSuperClassAttribute(parser.getLine(), entry,"CLASS");
 
-    classDecl = ClassDecl(name, superClass);
+    classDecl = CIMClass(name, superClass);
 
     // Get QUALIFIER elements:
 
@@ -2456,7 +2459,7 @@ Boolean XmlReader::getClassElement(XmlParser& parser, ClassDecl& classDecl)
 
     // Get METHOD elements:
 
-    Method method;
+    CIMMethod method;
 
     while (getMethodElement(parser, method))
 	classDecl.addMethod(method);	
@@ -2480,7 +2483,7 @@ Boolean XmlReader::getClassElement(XmlParser& parser, ClassDecl& classDecl)
 
 Boolean XmlReader::getInstanceElement(
     XmlParser& parser, 
-    InstanceDecl& instanceDecl)
+    CIMInstance& instanceDecl)
 {
     XmlEntry entry;
 
@@ -2490,7 +2493,7 @@ Boolean XmlReader::getInstanceElement(
     String className = getClassNameAttribute(
 	parser.getLine(), entry, "INSTANCE");
 
-    instanceDecl = InstanceDecl(className);
+    instanceDecl = CIMInstance(className);
 
     // Get QUALIFIER elements:
 

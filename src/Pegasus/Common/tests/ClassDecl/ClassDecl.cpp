@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDecl.cpp,v $
+// Revision 1.3  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/02/11 05:42:33  mike
 // new
 //
@@ -32,8 +35,8 @@
 //
 //END_HISTORY
 
-#include <Pegasus/Common/ClassDecl.h>
-#include <Pegasus/Common/Name.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMName.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -45,17 +48,17 @@ void test01()
     //     string message = "Hello";
     // }
 
-    ClassDecl class1("MyClass", "YourClass");
+    CIMClass class1("MyClass", "YourClass");
 
     class1
-	.addQualifier(Qualifier("association", true))
-	.addQualifier(Qualifier("q1", Uint32(55)))
-	.addQualifier(Qualifier("q2", "Hello"))
-	.addProperty(Property("message", "Hello"))
-	.addProperty(Property("count", Uint32(77)))
-	.addMethod(Method("isActive", Type::BOOLEAN)
-	    .addParameter(Parameter("hostname", Type::STRING))
-	    .addParameter(Parameter("port", Type::UINT32)));
+	.addQualifier(CIMQualifier("association", true))
+	.addQualifier(CIMQualifier("q1", Uint32(55)))
+	.addQualifier(CIMQualifier("q2", "Hello"))
+	.addProperty(CIMProperty("message", "Hello"))
+	.addProperty(CIMProperty("count", Uint32(77)))
+	.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
+	    .addParameter(CIMParameter("hostname", CIMType::STRING))
+	    .addParameter(CIMParameter("port", CIMType::UINT32)));
 
     // class1.print();
 }

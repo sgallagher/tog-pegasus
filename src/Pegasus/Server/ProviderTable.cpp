@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ProviderTable.cpp,v $
+// Revision 1.3  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/02/11 05:45:33  mike
 // Added case insensitive logic for files in Repository
 //
@@ -43,7 +46,7 @@ ProviderTable::ProviderTable()
 
 }
 
-Provider* ProviderTable::lookupProvider(const String& providerId)
+CIMProvider* ProviderTable::lookupProvider(const String& providerId)
 {
     for (Uint32 i = 0, n = _providers.getSize(); i < n; i++)
 	if (_providers[i].providerId == providerId)
@@ -52,9 +55,9 @@ Provider* ProviderTable::lookupProvider(const String& providerId)
     return 0;
 }
 
-typedef Provider* (*CreateProviderFunc)();
+typedef CIMProvider* (*CreateProviderFunc)();
 
-Provider* ProviderTable::loadProvider(const String& providerId)
+CIMProvider* ProviderTable::loadProvider(const String& providerId)
 {
     // Load the dynamic library:
 
@@ -85,7 +88,7 @@ Provider* ProviderTable::loadProvider(const String& providerId)
 
     // Create the provider:
 
-    Provider* provider = func();
+    CIMProvider* provider = func();
 
     if (!provider)
 	throw CreateProviderReturnedNull(

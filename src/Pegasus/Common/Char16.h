@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Char16.h,v $
+// Revision 1.4  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
 // Revision 1.3  2001/02/05 03:40:28  mike
 // new documentation
 //
@@ -48,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
     as the element type in the String class (used to represent the CIM
     string type). Ordinarily Uint16 could be used; however, a distinguishable
     type was needed for the purposes of function overloaded which occurs in
-    the Value class.
+    the CIMValue class.
 */
 class PEGASUS_COMMON_LINKAGE Char16 
 {

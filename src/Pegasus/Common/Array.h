@@ -23,11 +23,14 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.8  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
 // Revision 1.7  2001/02/11 05:42:33  mike
 // new
 //
 // Revision 1.6  2001/02/08 00:31:51  mike
-// Clean up on Operations class.
+// Clean up on CIMOperations class.
 // Reformmatted documentation.
 //
 // Revision 1.5  2001/02/05 03:40:28  mike
@@ -54,7 +57,7 @@
 #include <new>
 #include <cstring>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Type.h>
+#include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Memory.h>
 
@@ -190,11 +193,11 @@ ArrayRep<T>* ArrayRep<T>::getNullRep()
     return nullRep;
 }
 
-class Value;
+class CIMValue;
 
 PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
 
-class Value;
+class CIMValue;
 
 /** @name Array Class
     This clas is used to represent arrays of intrinsic data types in CIM. And
@@ -363,7 +366,7 @@ private:
 
     Rep* _rep;
 
-    friend Value;
+    friend CIMValue;
 };
 
 template<class T>

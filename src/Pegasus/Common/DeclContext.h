@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: DeclContext.h,v $
-// Revision 1.1  2001/01/14 19:51:13  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:51:13  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -34,8 +37,8 @@
 // DeclContext.h
 //
 //	This class is used internally as a source of CIM declarations.
-//	It is passed to the _resolve() method of several classes (ClassDecl,
-//	Method, Property, Reference, Qualifier). Methods are provided for
+//	It is passed to the _resolve() method of several classes (CIMClass,
+//	CIMMethod, CIMProperty, CIMReference, CIMQualifier). Methods are provided for
 //	looking up class, qualifier, and instance declarations. This is
 //	an abstract base class: implementations must be provided by derived
 //	classes.
@@ -47,8 +50,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/ClassDecl.h>
-#include <Pegasus/Common/QualifierDecl.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,11 +61,11 @@ public:
 
     virtual ~DeclContext();
 
-    virtual QualifierDecl lookupQualifierDecl(
+    virtual CIMQualifierDecl lookupQualifierDecl(
 	const String& nameSpace,
 	const String& name) const = 0;
 
-    virtual ClassDecl lookupClassDecl(
+    virtual CIMClass lookupClassDecl(
 	const String& nameSpace,
 	const String& name) const = 0;
 };
@@ -75,24 +78,24 @@ public:
 
     void addQualifierDecl(
 	const String& nameSpace,
-	const QualifierDecl& x);
+	const CIMQualifierDecl& x);
 
     void addClassDecl(
 	const String& nameSpace,
-	const ClassDecl& x);
+	const CIMClass& x);
 
-    virtual QualifierDecl lookupQualifierDecl(
+    virtual CIMQualifierDecl lookupQualifierDecl(
 	const String& nameSpace,
 	const String& name) const;
 
-    virtual ClassDecl lookupClassDecl(
+    virtual CIMClass lookupClassDecl(
 	const String& nameSpace,
 	const String& name) const;
 
 private:
 
-    typedef Pair<String, ClassDecl> CPair;
-    typedef Pair<String, QualifierDecl> QPair;
+    typedef Pair<String, CIMClass> CPair;
+    typedef Pair<String, CIMQualifierDecl> QPair;
 
     Array<CPair> _classDeclarations;
     Array<QPair> _qualifierDeclarations;

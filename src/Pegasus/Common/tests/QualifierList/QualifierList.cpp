@@ -23,15 +23,18 @@
 // Author:
 //
 // $Log: QualifierList.cpp,v $
-// Revision 1.1  2001/01/14 19:53:48  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:48  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
-#include <Pegasus/Common/Qualifier.h>
-#include <Pegasus/Common/QualifierList.h>
-#include <Pegasus/Common/Property.h>
+#include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMQualifierList.h>
+#include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/DeclContext.h>
 
 using namespace Pegasus;
@@ -47,42 +50,42 @@ int main()
 
 	SimpleDeclContext* context = new SimpleDeclContext;
 
-	context->addQualifierDecl(NAMESPACE, QualifierDecl("abstract", 
-	    false, Scope::CLASS, Flavor::OVERRIDABLE));
+	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("abstract", 
+	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
-	context->addQualifierDecl(NAMESPACE, QualifierDecl("description", 
-	    String(), Scope::CLASS, Flavor::OVERRIDABLE));
+	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("description", 
+	    String(), CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
-	context->addQualifierDecl(NAMESPACE, QualifierDecl("q1", 
-	    false, Scope::CLASS, Flavor::OVERRIDABLE | Flavor::TOSUBCLASS));
+	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("q1", 
+	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE | CIMFlavor::TOSUBCLASS));
 
-	context->addQualifierDecl(NAMESPACE, QualifierDecl("q2", 
-	    false, Scope::CLASS, Flavor::TOSUBCLASS));
+	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl("q2", 
+	    false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS));
 
 	// Create qualifier list 1:
 
-	QualifierList qualifiers0;
-	QualifierList qualifiers1;
+	CIMQualifierList qualifiers0;
+	CIMQualifierList qualifiers1;
 
 	qualifiers1
-	    .add(Qualifier("Abstract", true))
-	    .add(Qualifier("Description", "Qualifier List 1"))
-	    .add(Qualifier("q1", false))
-	    .add(Qualifier("q2", false));
+	    .add(CIMQualifier("Abstract", true))
+	    .add(CIMQualifier("Description", "CIMQualifier List 1"))
+	    .add(CIMQualifier("q1", false))
+	    .add(CIMQualifier("q2", false));
 
 	qualifiers1.resolve(
-	    context, NAMESPACE, Scope::CLASS, false, qualifiers0);
+	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers0);
 
 	// Create qualifier list 2:
 
-	QualifierList qualifiers2;
+	CIMQualifierList qualifiers2;
 
 	qualifiers2
-	    .add(Qualifier("Description", "Qualifier List 1"))
-	    .add(Qualifier("q1", true, Flavor::OVERRIDABLE));
+	    .add(CIMQualifier("Description", "CIMQualifier List 1"))
+	    .add(CIMQualifier("q1", true, CIMFlavor::OVERRIDABLE));
 
 	qualifiers2.resolve(
-	    context, NAMESPACE, Scope::CLASS, false, qualifiers1);
+	    context, NAMESPACE, CIMScope::CLASS, false, qualifiers1);
     }
     catch (Exception& e)
     {

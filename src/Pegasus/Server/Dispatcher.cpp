@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.cpp,v $
+// Revision 1.3  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/02/13 16:35:32  mike
 // Fixed compiler error with createInstance()
 //
@@ -49,7 +52,7 @@ Dispatcher::~Dispatcher()
 
 }
 
-ClassDecl Dispatcher::getClass(
+CIMClass Dispatcher::getClass(
     const String& nameSpace,
     const String& className,
     Boolean localOnly,
@@ -66,9 +69,9 @@ ClassDecl Dispatcher::getClass(
 	propertyList);
 }
 
-InstanceDecl Dispatcher::getInstance(
+CIMInstance Dispatcher::getInstance(
     const String& nameSpace,
-    const Reference& instanceName,
+    const CIMReference& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -76,9 +79,9 @@ InstanceDecl Dispatcher::getInstance(
 {
     String className = instanceName.getClassName();
 
-    Provider* provider = _lookupProviderForClass(nameSpace, className);
+    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
-    InstanceDecl instanceDecl = provider->getInstance(nameSpace, instanceName, 
+    CIMInstance instanceDecl = provider->getInstance(nameSpace, instanceName, 
 	localOnly, includeQualifiers, includeClassOrigin);
 
     // ATTN: Need code here to fill out the class?
@@ -95,40 +98,40 @@ void Dispatcher::deleteClass(
 
 void Dispatcher::deleteInstance(
     const String& nameSpace,
-    const Reference& instanceName) 
+    const CIMReference& instanceName) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
 void Dispatcher::createClass(
     const String& nameSpace,
-    ClassDecl& newClass) 
+    CIMClass& newClass) 
 {
     _repository->createClass(nameSpace, newClass);
 }
 
 void Dispatcher::createInstance(
     const String& nameSpace,
-    InstanceDecl& newInstance) 
+    CIMInstance& newInstance) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
 void Dispatcher::modifyClass(
     const String& nameSpace,
-    ClassDecl& modifiedClass) 
+    CIMClass& modifiedClass) 
 {
     _repository->modifyClass(nameSpace, modifiedClass);
 }
 
 void Dispatcher::modifyInstance(
     const String& nameSpace,
-    const InstanceDecl& modifiedInstance) 
+    const CIMInstance& modifiedInstance) 
 {
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
-Array<ClassDecl> Dispatcher::enumerateClasses(
+Array<CIMClass> Dispatcher::enumerateClasses(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -156,7 +159,7 @@ Array<String> Dispatcher::enumerateClassNames(
 	deepInheritance);
 }
 
-Array<InstanceDecl> Dispatcher::enumerateInstances(
+Array<CIMInstance> Dispatcher::enumerateInstances(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -166,29 +169,29 @@ Array<InstanceDecl> Dispatcher::enumerateInstances(
     const Array<String>& propertyList)
 {
     std::cout << "Dispatcher::enumerateInstances()" << std::endl;
-    return Array<InstanceDecl>();
+    return Array<CIMInstance>();
 }
 
-Array<Reference> Dispatcher::enumerateInstanceNames(
+Array<CIMReference> Dispatcher::enumerateInstanceNames(
     const String& nameSpace,
     const String& className) 
 {
-    Provider* provider = _lookupProviderForClass(nameSpace, className);
+    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
     return provider->enumerateInstanceNames(nameSpace, className);
 }
 
-Array<InstanceDecl> Dispatcher::execQuery(
+Array<CIMInstance> Dispatcher::execQuery(
     const String& queryLanguage,
     const String& query) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<InstanceDecl>();
+    return Array<CIMInstance>();
 }
 
-Array<InstanceDecl> Dispatcher::associators(
+Array<CIMInstance> Dispatcher::associators(
     const String& nameSpace,
-    const Reference& objectName,
+    const CIMReference& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -198,24 +201,24 @@ Array<InstanceDecl> Dispatcher::associators(
     const Array<String>& propertyList)
 {
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<InstanceDecl>();
+    return Array<CIMInstance>();
 }
 
-Array<Reference> Dispatcher::associatorNames(
+Array<CIMReference> Dispatcher::associatorNames(
     const String& nameSpace,
-    const Reference& objectName,
+    const CIMReference& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
     const String& resultRole)
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<Reference>();
+    return Array<CIMReference>();
 }
 
-Array<InstanceDecl> Dispatcher::references(
+Array<CIMInstance> Dispatcher::references(
     const String& nameSpace,
-    const Reference& objectName,
+    const CIMReference& objectName,
     const String& resultClass,
     const String& role,
     Boolean includeQualifiers,
@@ -223,38 +226,38 @@ Array<InstanceDecl> Dispatcher::references(
     const Array<String>& propertyList)
 {
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<InstanceDecl>();
+    return Array<CIMInstance>();
 }
 
-Array<Reference> Dispatcher::referenceNames(
+Array<CIMReference> Dispatcher::referenceNames(
     const String& nameSpace,
-    const Reference& objectName,
+    const CIMReference& objectName,
     const String& resultClass,
     const String& role)
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<Reference>();
+    return Array<CIMReference>();
 }
 
-Value Dispatcher::getProperty(
+CIMValue Dispatcher::getProperty(
     const String& nameSpace,
-    const Reference& instanceName,
+    const CIMReference& instanceName,
     const String& propertyName) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Value();
+    return CIMValue();
 }
 
 void Dispatcher::setProperty(
     const String& nameSpace,
-    const Reference& instanceName,
+    const CIMReference& instanceName,
     const String& propertyName,
-    const Value& newValue)
+    const CIMValue& newValue)
 { 
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
-QualifierDecl Dispatcher::getQualifier(
+CIMQualifierDecl Dispatcher::getQualifier(
     const String& nameSpace,
     const String& qualifierName) 
 {
@@ -263,7 +266,7 @@ QualifierDecl Dispatcher::getQualifier(
 
 void Dispatcher::setQualifier(
     const String& nameSpace,
-    const QualifierDecl& qualifierDecl) 
+    const CIMQualifierDecl& qualifierDecl) 
 {
     _repository->setQualifier(nameSpace, qualifierDecl);
 }
@@ -275,24 +278,24 @@ void Dispatcher::deleteQualifier(
     _repository->deleteQualifier(nameSpace, qualifierName);
 }
 
-Array<QualifierDecl> Dispatcher::enumerateQualifiers(
+Array<CIMQualifierDecl> Dispatcher::enumerateQualifiers(
     const String& nameSpace)
 {
     return _repository->enumerateQualifiers(nameSpace);
 }
 
-Value Dispatcher::invokeMethod(
+CIMValue Dispatcher::invokeMethod(
     const String& nameSpace,
-    const Reference& instanceName,
+    const CIMReference& instanceName,
     const String& methodName,
-    const Array<Value>& inParameters,
-    Array<Value>& outParameters) 
+    const Array<CIMValue>& inParameters,
+    Array<CIMValue>& outParameters) 
 {
     throw CimException(CimException::NOT_SUPPORTED);
-    return Value();
+    return CIMValue();
 }
 
-Provider* Dispatcher::_lookupProviderForClass(
+CIMProvider* Dispatcher::_lookupProviderForClass(
     const String& nameSpace,
     const String& className)
 {
@@ -300,7 +303,7 @@ Provider* Dispatcher::_lookupProviderForClass(
     // Look up the class:
     //----------------------------------------------------------------------
 
-    ClassDecl classDecl = _repository->getClass(nameSpace, className);
+    CIMClass classDecl = _repository->getClass(nameSpace, className);
 
     if (!classDecl)
 	throw CimException(CimException::INVALID_CLASS);
@@ -316,7 +319,7 @@ Provider* Dispatcher::_lookupProviderForClass(
     if (pos == Uint32(-1))
 	throw CimException(CimException::FAILED);
 
-    Qualifier q = classDecl.getQualifier(pos);
+    CIMQualifier q = classDecl.getQualifier(pos);
     String providerId;
     q.getValue().get(providerId);
 
@@ -325,7 +328,7 @@ Provider* Dispatcher::_lookupProviderForClass(
     // ATTN: move this block so that it can be shared.
     //----------------------------------------------------------------------
 
-    Provider* provider = _providerTable.lookupProvider(providerId);
+    CIMProvider* provider = _providerTable.lookupProvider(providerId);
 
     if (!provider)
     {

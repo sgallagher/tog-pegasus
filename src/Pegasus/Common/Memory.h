@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Memory.h,v $
-// Revision 1.1  2001/01/14 19:52:41  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:52:41  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -50,7 +53,7 @@
 
 #include <cstring>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Type.h>
+#include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -17,7 +17,7 @@ LIBRARIES = \
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-    Client.cpp \
+    CIMClient.cpp \
     ClientException.cpp \
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))

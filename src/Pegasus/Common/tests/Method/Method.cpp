@@ -23,14 +23,17 @@
 // Author:
 //
 // $Log: Method.cpp,v $
-// Revision 1.1  2001/01/14 19:53:47  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:47  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Common/Method.h>
+#include <Pegasus/Common/CIMMethod.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -39,9 +42,9 @@ int main()
 {
     try
     {
-	Method m1("getHostName", Type::STRING);
-	m1.addQualifier(Qualifier("stuff", true));
-	m1.addParameter(Parameter("ipaddress", Type::STRING));
+	CIMMethod m1("getHostName", CIMType::STRING);
+	m1.addQualifier(CIMQualifier("stuff", true));
+	m1.addParameter(CIMParameter("ipaddress", CIMType::STRING));
     }
     catch(Exception& e)
     {

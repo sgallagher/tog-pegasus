@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: ProviderTable.h,v $
+// Revision 1.2  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.1  2001/01/29 02:24:15  mike
 // Added support for GetInstance.
 //
@@ -41,7 +44,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Provider/Provider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -77,13 +80,13 @@ public:
 	Lookup the provider with the given identifier
     */
 
-    Provider* lookupProvider(const String& providerId);
+    CIMProvider* lookupProvider(const String& providerId);
 
     /** 
 	Dynamically load the provider with the given identifier.
     */
 
-    Provider* loadProvider(const String& providerId);
+    CIMProvider* loadProvider(const String& providerId);
 
 private:
 
@@ -91,7 +94,7 @@ private:
     struct Entry
     {
 	String providerId;
-	Provider* provider;
+	CIMProvider* provider;
     };
 
     Array<Entry> _providers;

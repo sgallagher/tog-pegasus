@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: QualifierDeclRep.cpp,v $
-// Revision 1.1  2001/01/14 19:53:59  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:59  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -47,7 +50,7 @@ void test()
 
     // Create a qualifier declaration:
 
-    QualifierDecl q1(ABSTRACT, Boolean(true), Scope::CLASS);
+    CIMQualifierDecl q1(ABSTRACT, Boolean(true), CIMScope::CLASS);
     r.setQualifier(NAMESPACE, q1);
 
     // Get it back and check to see if it is identical:
@@ -73,15 +76,15 @@ void test()
 
     // Create two qualifiers:
 
-    QualifierDecl q3("q3", Uint32(66), Scope::CLASS);
-    QualifierDecl q4("q4", String("Hello World"), Scope::CLASS);
+    CIMQualifierDecl q3("q3", Uint32(66), CIMScope::CLASS);
+    CIMQualifierDecl q4("q4", String("Hello World"), CIMScope::CLASS);
 
     r.setQualifier(NAMESPACE, q3);
     r.setQualifier(NAMESPACE, q4);
 
     // Enumerate the qualifier names:
 
-    Array<QualifierDecl> qualifiers = r.enumerateQualifiers(NAMESPACE);
+    Array<CIMQualifierDecl> qualifiers = r.enumerateQualifiers(NAMESPACE);
 
     assert(qualifiers.getSize() == 2);
 

@@ -23,22 +23,25 @@
 // Author:
 //
 // $Log: Parameter.cpp,v $
-// Revision 1.1  2001/01/14 19:53:47  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:47  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Common/Parameter.h>
+#include <Pegasus/Common/CIMParameter.h>
 
 using namespace Pegasus;
 using namespace std;
 
 int main()
 {
-    Parameter p1("message", Type::STRING);
-    p1.addQualifier(Qualifier("in", true));
+    CIMParameter p1("message", CIMType::STRING);
+    p1.addQualifier(CIMQualifier("in", true));
     // p1.print(1);
 
     cout << "+++++ passed all tests" << endl;

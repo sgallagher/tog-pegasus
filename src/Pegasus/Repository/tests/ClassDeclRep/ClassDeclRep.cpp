@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
-// Revision 1.1  2001/01/14 19:53:56  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:56  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -47,7 +50,7 @@ void Test01()
 
     // Create a qualifier (and read it back):
 
-    QualifierDecl q1("abstract", false, Scope::CLASS);
+    CIMQualifierDecl q1("abstract", false, CIMScope::CLASS);
     r.setQualifier(NAMESPACE, q1);
 
     ConstQualifierDecl q2 = r.getQualifier(NAMESPACE, "abstract");
@@ -55,9 +58,9 @@ void Test01()
 
     // Create two simple classes:
 
-    ClassDecl class1("Class1");
-    class1.addQualifier(Qualifier("abstract", true));
-    ClassDecl class2("Class2", "Class1");
+    CIMClass class1("Class1");
+    class1.addQualifier(CIMQualifier("abstract", true));
+    CIMClass class2("Class2", "Class1");
 
     r.createClass(NAMESPACE, class1);
     r.createClass(NAMESPACE, class2);

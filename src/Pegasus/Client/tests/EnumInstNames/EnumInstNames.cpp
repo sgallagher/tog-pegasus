@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: EnumInstNames.cpp,v $
+// Revision 1.2  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
 // Revision 1.1  2001/01/31 08:19:09  mike
 // new
 //
@@ -39,7 +42,7 @@
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Client/Client.h>
+#include <Pegasus/Client/CIMClient.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -50,18 +53,18 @@ int main(int argc, char** argv)
 {
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
 
 	String instanceName = "Process.pid=123456";
 
-	Array<Reference> instanceNames = 
+	Array<CIMReference> instanceNames = 
 	    client.enumerateInstanceNames(NAMESPACE, "Process");
 
 	for (Uint32 i = 0; i < instanceNames.getSize(); i++)
 	{
 	    String tmp;
-	    Reference::referenceToInstanceName(instanceNames[i], tmp);
+	    CIMReference::referenceToInstanceName(instanceNames[i], tmp);
 	    cout << tmp << endl;
 	}
     }

@@ -23,30 +23,33 @@
 // Author:
 //
 // $Log: Headers.cpp,v $
-// Revision 1.1  2001/01/14 19:51:53  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:51:53  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include "Array.h"
 #include "Char16.h"
-#include "DateTime.h"
+#include "CIMDateTime.h"
 #include "Exception.h"
 #include "Indentor.h"
 #include "Memory.h"
-#include "Name.h"
-#include "Scope.h"
+#include "CIMName.h"
+#include "CIMScope.h"
 #include "String.h"
 #include "String.h"
 #include "String.h"
-#include "Type.h"
+#include "CIMType.h"
 #include "Union.h"
-#include "Value.h"
+#include "CIMValue.h"
 #include "Sharable.h"
-#include "Qualifier.h"
-#include "Method.h"
-#include "Parameter.h"
-#include "Property.h"
-#include "Reference.h"
-#include "QualifierDecl.h"
+#include "CIMQualifier.h"
+#include "CIMMethod.h"
+#include "CIMParameter.h"
+#include "CIMProperty.h"
+#include "CIMReference.h"
+#include "CIMQualifierDecl.h"

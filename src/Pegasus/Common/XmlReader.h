@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: XmlReader.h,v $
-// Revision 1.1  2001/01/14 19:53:33  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:33  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -40,19 +43,19 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/XmlParser.h>
-#include <Pegasus/Common/Flavor.h>
-#include <Pegasus/Common/Scope.h>
-#include <Pegasus/Common/Reference.h>
+#include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/CIMScope.h>
+#include <Pegasus/Common/CIMReference.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class Qualifier;
-class QualifierDecl;
-class ClassDecl;
-class InstanceDecl;
-class Property;
-class Parameter;
-class Method;
+class CIMQualifier;
+class CIMQualifierDecl;
+class CIMClass;
+class CIMInstance;
+class CIMProperty;
+class CIMParameter;
+class CIMMethod;
 
 class PEGASUS_COMMON_LINKAGE XmlReader
 {
@@ -132,7 +135,7 @@ public:
 	const XmlEntry& entry,
 	const char* tagName);
 
-    static Type getCimTypeAttribute(
+    static CIMType getCimTypeAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry, 
 	const char* tagName);
@@ -157,25 +160,25 @@ public:
 	const char* stringValue, 
 	Uint64& x);
 
-    static Value stringToValue(
+    static CIMValue stringToValue(
 	Uint32 lineNumber, 
 	const char* valueString, 
-	Type type);
+	CIMType type);
 
     static Boolean getValueElement(
 	XmlParser& parser, 
-	Type type, 
-	Value& value);
+	CIMType type, 
+	CIMValue& value);
 
-    static Value stringArrayToValue(
+    static CIMValue stringArrayToValue(
 	Uint32 lineNumber, 
 	const Array<const char*>& array, 
-	Type type);
+	CIMType type);
 
     static Boolean getValueArrayElement(
 	XmlParser& parser, 
-	Type type, 
-	Value& value);
+	CIMType type, 
+	CIMValue& value);
 
     static Uint32 getFlavor(
 	XmlEntry& entry, 
@@ -187,11 +190,11 @@ public:
 
     static Boolean getQualifierElement(
 	XmlParser& parser, 
-	Qualifier& qualifier);
+	CIMQualifier& qualifier);
 
     static Boolean getPropertyElement(
 	XmlParser& parser, 
-	Property& property);
+	CIMProperty& property);
 
     static Boolean getArraySizeAttribute(
 	Uint32 lineNumber,
@@ -201,7 +204,7 @@ public:
 
     static Boolean getPropertyArrayElement(
 	XmlParser& parser, 
-	Property& property);
+	CIMProperty& property);
 
     static Boolean getHostElement(
 	XmlParser& parser,
@@ -225,21 +228,21 @@ public:
 	String& className,
 	Boolean required = false);
 
-    static KeyBinding::Type getValueTypeAttribute(
+    static KeyBinding::CIMType getValueTypeAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,
 	const char* elementName);
 
     static Boolean getKeyValueElement(
 	XmlParser& parser,
-	KeyBinding::Type& type,
+	KeyBinding::CIMType& type,
 	String& value);
 
     static Boolean getKeyBindingElement(
 	XmlParser& parser,
 	String& name,
 	String& value,
-	KeyBinding::Type& type);
+	KeyBinding::CIMType& type);
 
     static Boolean getInstanceNameElement(
 	XmlParser& parser,
@@ -248,57 +251,57 @@ public:
 
     static Boolean getInstancePathElement(
 	XmlParser& parser,
-	Reference& reference);
+	CIMReference& reference);
 
     static Boolean getLocalInstancePathElement(
 	XmlParser& parser,
-	Reference& reference);
+	CIMReference& reference);
 
     static Boolean getClassPathElement(
 	XmlParser& parser,
-	Reference& reference);
+	CIMReference& reference);
 
     static Boolean getLocalClassPathElement(
 	XmlParser& parser,
-	Reference& reference);
+	CIMReference& reference);
 
     static Boolean getValueReferenceElement(
 	XmlParser& parser,
-	Reference& reference);
+	CIMReference& reference);
 
     static Boolean getPropertyReferenceElement(
 	XmlParser& parser, 
-	Property& property);
+	CIMProperty& property);
 
     static Boolean getParameterElement(
 	XmlParser& parser, 
-	Parameter& parameter);
+	CIMParameter& parameter);
 
     static Boolean getParameterArrayElement(
 	XmlParser& parser, 
-	Parameter& parameter);
+	CIMParameter& parameter);
 
     static Boolean getParameterReferenceElement(
 	XmlParser& parser, 
-	Parameter& parameter);
+	CIMParameter& parameter);
 
     static Boolean getQualifierDeclElement(
 	XmlParser& parser, 
-	QualifierDecl& qualifierDecl);
+	CIMQualifierDecl& qualifierDecl);
 
     static Boolean getMethodElement(
 	XmlParser& parser, 
-	Method& method);
+	CIMMethod& method);
 
     static Boolean getClassElement(
 	XmlParser& parser, 
-	ClassDecl& classDecl);
+	CIMClass& classDecl);
 
     static Boolean getInstanceElement(
 	XmlParser& parser, 
-	InstanceDecl& instanceDecl);
+	CIMInstance& instanceDecl);
 
-    static void getObject(XmlParser& parser, ClassDecl& x)
+    static void getObject(XmlParser& parser, CIMClass& x)
     {
 	if (!getClassElement(parser, x))
 	{
@@ -307,7 +310,7 @@ public:
 	}
     }
 
-    static void getObject(XmlParser& parser, QualifierDecl& x)
+    static void getObject(XmlParser& parser, CIMQualifierDecl& x)
     {
 	if (!getQualifierDeclElement(parser, x))
 	{

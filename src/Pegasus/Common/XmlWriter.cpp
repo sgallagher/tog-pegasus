@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
+// Revision 1.4  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
 // Revision 1.3  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -38,8 +41,8 @@
 
 #include <cstdlib>
 #include <cstdio>
-#include "ClassDecl.h"
-#include "QualifierDecl.h"
+#include "CIMClass.h"
+#include "CIMQualifierDecl.h"
 #include "XmlWriter.h"
 #include "XmlParser.h"
 
@@ -222,7 +225,7 @@ Array<Sint8> XmlWriter::formatMPostHeader(
 
     out << "M-POST /cimom HTTP/1.1\r\n";
     out << "HOST: " << host << "\r\n";
-    out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << content.getSize() << "\r\n";
     out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
     out << nn <<"\r\n";
@@ -249,7 +252,7 @@ Array<Sint8> XmlWriter::formatMethodResponseHeader(
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     out << "HTTP/1.1 200 OK\r\n";
-    out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << content.getSize() << "\r\n";
     out << "Ext:\r\n";
     out << "Cache-Control: no-cache\r\n";
@@ -499,7 +502,7 @@ Array<Sint8>& XmlWriter::appendClassParameter(
 Array<Sint8>& XmlWriter::appendInstanceNameParameter(
     Array<Sint8>& out,
     const char* parameterName,
-    const Reference& instanceName)
+    const CIMReference& instanceName)
 {
     Array<Sint8> tmp;
     instanceName.instanceNameToXml(tmp);
@@ -543,7 +546,7 @@ Array<Sint8>& XmlWriter::appendClassNameElement(
 
 Array<Sint8>& XmlWriter::appendInstanceNameElement(
     Array<Sint8>& out,
-    const Reference& instanceName)
+    const CIMReference& instanceName)
 {
     instanceName.instanceNameToXml(out);
     return out;

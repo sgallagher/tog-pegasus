@@ -1,12 +1,12 @@
 #include <iostream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/Provider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 
 using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
-class MyProvider : public Provider
+class MyProvider : public CIMProvider
 {
 public:
 
@@ -20,9 +20,9 @@ public:
 	// cout << "MyProvider::~MyProvider()" << endl;
     }
 
-    virtual InstanceDecl getInstance(
+    virtual CIMInstance getInstance(
 	const String& nameSpace,
-	const Reference& instanceName,
+	const CIMReference& instanceName,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
@@ -31,28 +31,28 @@ public:
 	cout << "MyProvider::getInstance() called" << endl;
 
 	String tmp;
-	Reference::referenceToInstanceName(instanceName, tmp);
+	CIMReference::referenceToInstanceName(instanceName, tmp);
 	cout << "instanceName=" << tmp << endl;
 
-	InstanceDecl instance("Process");
-	instance.addProperty(Property("pid", Uint32(2001)));
-	instance.addProperty(Property("name", "awk"));
-	instance.addProperty(Property("age", Uint32(300)));
+	CIMInstance instance("Process");
+	instance.addProperty(CIMProperty("pid", Uint32(2001)));
+	instance.addProperty(CIMProperty("name", "awk"));
+	instance.addProperty(CIMProperty("age", Uint32(300)));
 
 	return instance;
     }
 
-    Array<Reference> enumerateInstanceNames(
+    Array<CIMReference> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className) 
     {
-	Array<Reference> instanceNames;
+	Array<CIMReference> instanceNames;
 
-	Reference ref1;
-	Reference::instanceNameToReference("Process.pid=777",ref1);
+	CIMReference ref1;
+	CIMReference::instanceNameToReference("Process.pid=777",ref1);
 
-	Reference ref2;
-	Reference::instanceNameToReference("Process.pid=888",ref2);
+	CIMReference ref2;
+	CIMReference::instanceNameToReference("Process.pid=888",ref2);
 
 	instanceNames.append(ref1);
 	instanceNames.append(ref2);
@@ -71,7 +71,7 @@ public:
 // to form a symbol name. This function is called by the ProviderTable
 // to load this provider.
 
-extern "C" PEGASUS_EXPORT Provider* PegasusCreateProvider_MyProvider()
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider_MyProvider()
 {
     // std::cout << "Called PegasusCreateProvider_MyProvider" << std::endl;
     return new MyProvider;

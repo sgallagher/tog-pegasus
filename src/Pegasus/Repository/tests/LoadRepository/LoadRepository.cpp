@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadRepository.cpp,v $
+// Revision 1.5  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.4  2001/02/15 21:35:02  mike
 // new
 //
@@ -68,7 +71,7 @@ Boolean ProcessValueObjectElement(Repository& repository, XmlParser& parser)
     if (!XmlReader::testStartTag(parser, entry, "VALUE.OBJECT"))
 	return false;
 
-    ClassDecl classDecl;
+    CIMClass classDecl;
 
     XmlReader::getClassElement(parser, classDecl);
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlWriter.h,v $
+// Revision 1.4  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
 // Revision 1.3  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -51,7 +54,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Indentor.h>
-#include <Pegasus/Common/Reference.h>
+#include <Pegasus/Common/CIMReference.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -160,7 +163,7 @@ public:
     static Array<Sint8>& appendInstanceNameParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
-	const Reference& instanceName);
+	const CIMReference& instanceName);
 
     static Array<Sint8>& appendQualifierDeclarationParameter(
 	Array<Sint8>& out,
@@ -173,7 +176,7 @@ public:
 
     static Array<Sint8>& appendInstanceNameElement(
 	Array<Sint8>& out,
-	const Reference& instanceName);
+	const CIMReference& instanceName);
 
     static void indentedPrint(
 	std::ostream& os,

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Server.cpp,v $
+// Revision 1.3  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/01/29 07:03:48  mike
 // reworked build environment variables
 //
@@ -34,7 +37,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <Pegasus/Server/Server.h>
+#include <Pegasus/Server/CIMServer.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -62,10 +65,10 @@ int main(int argc, char** argv)
 
     try
     {
-	Server server(pegasusHome);
+	CIMServer server(pegasusHome);
 
 	const Uint32 PORT = 8888;
-	server.bind(Server::PROPRIETARY, PORT);
+	server.bind(CIMServer::PROPRIETARY, PORT);
 
 	std::cout << "Listening on port " << PORT << std::endl;
 	server.runForever();

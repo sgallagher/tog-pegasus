@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: XmlParser.h,v $
-// Revision 1.1  2001/01/14 19:53:24  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:24  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -104,7 +107,7 @@ struct XmlAttribute
 
 struct PEGASUS_COMMON_LINKAGE XmlEntry
 {
-    enum Type
+    enum CIMType
     {
 	XML_DECLARATION,
 	START_TAG, 
@@ -118,7 +121,7 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
 
     enum { MAX_ATTRIBUTES = 10 };
 
-    Type type;
+    CIMType type;
     const char* text;
     XmlAttribute attributes[MAX_ATTRIBUTES];
     Uint32 attributeCount;

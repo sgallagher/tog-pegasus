@@ -23,14 +23,17 @@
 // Author:
 //
 // $Log: DeclContext.cpp,v $
-// Revision 1.1  2001/01/14 19:51:13  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:51:13  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include "DeclContext.h"
-#include "Name.h"
+#include "CIMName.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -46,7 +49,7 @@ SimpleDeclContext::~SimpleDeclContext()
 
 void SimpleDeclContext::addQualifierDecl(
     const String& nameSpace,
-    const QualifierDecl& x)
+    const CIMQualifierDecl& x)
 {
     if (lookupQualifierDecl(nameSpace, x.getName()))
 	throw AlreadyExists();
@@ -56,7 +59,7 @@ void SimpleDeclContext::addQualifierDecl(
 
 void SimpleDeclContext::addClassDecl(
     const String& nameSpace,
-    const ClassDecl& x)
+    const CIMClass& x)
 {
     if (lookupClassDecl(nameSpace, x.getClassName()))
 	throw AlreadyExists();
@@ -64,44 +67,44 @@ void SimpleDeclContext::addClassDecl(
     _classDeclarations.append(CPair(nameSpace, x));
 }
 
-QualifierDecl SimpleDeclContext::lookupQualifierDecl(
+CIMQualifierDecl SimpleDeclContext::lookupQualifierDecl(
     const String& nameSpace,
     const String& name) const
 {
     for (Uint32 i = 0, n = _qualifierDeclarations.getSize(); i < n; i++)
     {
 	const String& first = _qualifierDeclarations[i].first;
-	const QualifierDecl& second = _qualifierDeclarations[i].second;
+	const CIMQualifierDecl& second = _qualifierDeclarations[i].second;
 
-	if (Name::equal(first, nameSpace) && 
-	    Name::equal(second.getName(), name))
+	if (CIMName::equal(first, nameSpace) && 
+	    CIMName::equal(second.getName(), name))
 	{
 	    return second;
 	}
     }
 
     // Not found:
-    return QualifierDecl();
+    return CIMQualifierDecl();
 }
 
-ClassDecl SimpleDeclContext::lookupClassDecl(
+CIMClass SimpleDeclContext::lookupClassDecl(
     const String& nameSpace,
     const String& name) const
 {
     for (Uint32 i = 0, n = _classDeclarations.getSize(); i < n; i++)
     {
 	const String& first = _classDeclarations[i].first;
-	const ClassDecl& second = _classDeclarations[i].second;
+	const CIMClass& second = _classDeclarations[i].second;
 
-	if (Name::equal(first, nameSpace) && 
-	    Name::equal(second.getClassName(), name))
+	if (CIMName::equal(first, nameSpace) && 
+	    CIMName::equal(second.getClassName(), name))
 	{
 	    return second;
 	}
     }
 
     // Not found:
-    return ClassDecl();
+    return CIMClass();
 }
 
 PEGASUS_NAMESPACE_END

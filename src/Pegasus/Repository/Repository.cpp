@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.7  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.6  2001/02/13 07:00:18  mike
 // Added partial createInstance() method to repository.
 //
@@ -450,11 +453,11 @@ public:
 
     virtual ~RepositoryDeclContext();
 
-    virtual QualifierDecl lookupQualifierDecl(
+    virtual CIMQualifierDecl lookupQualifierDecl(
 	const String& nameSpace, 
 	const String& qualifierName) const;
 
-    virtual ClassDecl lookupClassDecl(
+    virtual CIMClass lookupClassDecl(
 	const String& nameSpace, 
 	const String& className) const;
 
@@ -474,7 +477,7 @@ RepositoryDeclContext::~RepositoryDeclContext()
 
 }
 
-QualifierDecl RepositoryDeclContext::lookupQualifierDecl(
+CIMQualifierDecl RepositoryDeclContext::lookupQualifierDecl(
     const String& nameSpace,
     const String& qualifierName) const
 {
@@ -487,11 +490,11 @@ QualifierDecl RepositoryDeclContext::lookupQualifierDecl(
     }
     catch (Exception&)
     {
-	return QualifierDecl();
+	return CIMQualifierDecl();
     }
 }
 
-ClassDecl RepositoryDeclContext::lookupClassDecl(
+CIMClass RepositoryDeclContext::lookupClassDecl(
     const String& nameSpace,
     const String& className) const
 {
@@ -504,7 +507,7 @@ ClassDecl RepositoryDeclContext::lookupClassDecl(
     }
     catch (Exception&)
     {
-	return ClassDecl();
+	return CIMClass();
     }
 }
 
@@ -534,7 +537,7 @@ Repository::~Repository()
 
 }
 
-ClassDecl Repository::getClass(
+CIMClass Repository::getClass(
     const String& nameSpace,
     const String& className,
     Boolean localOnly,
@@ -549,22 +552,22 @@ ClassDecl Repository::getClass(
 
     // Load the class:
 
-    ClassDecl classDecl;
+    CIMClass classDecl;
     _LoadObject(path, classDecl);
 
-    return ClassDecl(classDecl);
+    return CIMClass(classDecl);
 }
 
-InstanceDecl Repository::getInstance(
+CIMInstance Repository::getInstance(
     const String& nameSpace,
-    const Reference& instanceName,
+    const CIMReference& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
     throw CimException(CimException::NOT_SUPPORTED);
-    return InstanceDecl();
+    return CIMInstance();
 }
 
 void Repository::deleteClass(
@@ -591,14 +594,14 @@ void Repository::deleteClass(
 
 void Repository::deleteInstance(
     const String& nameSpace,
-    const Reference& instanceName) 
+    const CIMReference& instanceName) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
 void Repository::createClass(
     const String& nameSpace,
-    ClassDecl& newClass) 
+    CIMClass& newClass) 
 {
     // Form the path to the class:
 
@@ -626,7 +629,7 @@ void Repository::createClass(
 
 void Repository::createInstance(
     const String& nameSpace,
-    InstanceDecl& newInstance) 
+    CIMInstance& newInstance) 
 {
     // Form the reference to this instance:
 
@@ -634,7 +637,7 @@ void Repository::createInstance(
 
 #if 0
     // ATTN: fix this:
-    Reference::referenceToInstanceName(
+    CIMReference::referenceToInstanceName(
 	newInstance.makeReference(), instanceName);
 #else
     instanceName = "MyClass.key1=123456";
@@ -661,19 +664,18 @@ void Repository::createInstance(
 
     newInstance.resolve(_context, nameSpace);
 
-    std::cout << "path: " << path << std::endl;
     _SaveObject(path, newInstance);
 }
 
 void Repository::modifyClass(
     const String& nameSpace,
-    ClassDecl& modifiedClass) 
+    CIMClass& modifiedClass) 
 {
     // ATTN: need lots of semantic checking here:
 
     // Get the old class:
 
-    ClassDecl oldClass = getClass(
+    CIMClass oldClass = getClass(
 	nameSpace, modifiedClass.getClassName(), false, true, true);
 
     // Disallow changing the name of the super-class:
@@ -692,12 +694,12 @@ void Repository::modifyClass(
 
 void Repository::modifyInstance(
     const String& nameSpace,
-    const InstanceDecl& modifiedInstance) 
+    const CIMInstance& modifiedInstance) 
 {
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
-Array<ClassDecl> Repository::enumerateClasses(
+Array<CIMClass> Repository::enumerateClasses(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -708,7 +710,7 @@ Array<ClassDecl> Repository::enumerateClasses(
     Array<String> classNames = 
 	enumerateClassNames(nameSpace, className, deepInheritance);
 
-    Array<ClassDecl> result;
+    Array<CIMClass> result;
 
     for (Uint32 i = 0; i < classNames.getSize(); i++)
     {
@@ -769,7 +771,7 @@ Array<String> Repository::enumerateClassNames(
     return Array<String>();
 }
 
-Array<InstanceDecl> Repository::enumerateInstances(
+Array<CIMInstance> Repository::enumerateInstances(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -779,28 +781,28 @@ Array<InstanceDecl> Repository::enumerateInstances(
     const Array<String>& propertyList)
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<InstanceDecl>();
+    return Array<CIMInstance>();
 }
 
-Array<Reference> Repository::enumerateInstanceNames(
+Array<CIMReference> Repository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<Reference>();
+    return Array<CIMReference>();
 }
 
-Array<InstanceDecl> Repository::execQuery(
+Array<CIMInstance> Repository::execQuery(
     const String& queryLanguage,
     const String& query) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<InstanceDecl>();
+    return Array<CIMInstance>();
 }
 
-Array<InstanceDecl> Repository::associators(
+Array<CIMInstance> Repository::associators(
     const String& nameSpace,
-    const Reference& objectName,
+    const CIMReference& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -810,24 +812,24 @@ Array<InstanceDecl> Repository::associators(
     const Array<String>& propertyList)
 {
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<InstanceDecl>();
+    return Array<CIMInstance>();
 }
 
-Array<Reference> Repository::associatorNames(
+Array<CIMReference> Repository::associatorNames(
     const String& nameSpace,
-    const Reference& objectName,
+    const CIMReference& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
     const String& resultRole)
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<Reference>();
+    return Array<CIMReference>();
 }
 
-Array<InstanceDecl> Repository::references(
+Array<CIMInstance> Repository::references(
     const String& nameSpace,
-    const Reference& objectName,
+    const CIMReference& objectName,
     const String& resultClass,
     const String& role,
     Boolean includeQualifiers,
@@ -835,38 +837,38 @@ Array<InstanceDecl> Repository::references(
     const Array<String>& propertyList)
 {
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<InstanceDecl>();
+    return Array<CIMInstance>();
 }
 
-Array<Reference> Repository::referenceNames(
+Array<CIMReference> Repository::referenceNames(
     const String& nameSpace,
-    const Reference& objectName,
+    const CIMReference& objectName,
     const String& resultClass,
     const String& role)
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Array<Reference>();
+    return Array<CIMReference>();
 }
 
-Value Repository::getProperty(
+CIMValue Repository::getProperty(
     const String& nameSpace,
-    const Reference& instanceName,
+    const CIMReference& instanceName,
     const String& propertyName) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
-    return Value();
+    return CIMValue();
 }
 
 void Repository::setProperty(
     const String& nameSpace,
-    const Reference& instanceName,
+    const CIMReference& instanceName,
     const String& propertyName,
-    const Value& newValue)
+    const CIMValue& newValue)
 { 
     throw CimException(CimException::NOT_SUPPORTED);
 }
 
-QualifierDecl Repository::getQualifier(
+CIMQualifierDecl Repository::getQualifier(
     const String& nameSpace,
     const String& qualifierName) 
 {
@@ -884,17 +886,17 @@ QualifierDecl Repository::getQualifier(
 
     // Load the qualifier:
 
-    QualifierDecl qualifierDecl;
+    CIMQualifierDecl qualifierDecl;
     _LoadObject(realPath, qualifierDecl);
 
     // Return the qualifier:
 
-    return QualifierDecl(qualifierDecl);
+    return CIMQualifierDecl(qualifierDecl);
 }
 
 void Repository::setQualifier(
     const String& nameSpace,
-    const QualifierDecl& qualifierDecl) 
+    const CIMQualifierDecl& qualifierDecl) 
 {
     // Form the path of the qualifier:
 
@@ -934,7 +936,7 @@ void Repository::deleteQualifier(
 	throw FailedToRemoveFile(path);
 }
 
-Array<QualifierDecl> Repository::enumerateQualifiers(
+Array<CIMQualifierDecl> Repository::enumerateQualifiers(
     const String& nameSpace)
 {
     // Build the path to the qualifiers directory:
@@ -956,26 +958,26 @@ Array<QualifierDecl> Repository::enumerateQualifiers(
 
     // Load each qualifier into the result array:
 
-    Array<QualifierDecl> result;
+    Array<CIMQualifierDecl> result;
 
     for (Uint32 i = 0, n = qualifierNames.getSize(); i < n; i++)
     {
-	QualifierDecl tmp = getQualifier(nameSpace, qualifierNames[i]);
+	CIMQualifierDecl tmp = getQualifier(nameSpace, qualifierNames[i]);
 	result.append(tmp);
     }
 
     return result;
 }
 
-Value Repository::invokeMethod(
+CIMValue Repository::invokeMethod(
     const String& nameSpace,
-    const Reference& instanceName,
+    const CIMReference& instanceName,
     const String& methodName,
-    const Array<Value>& inParameters,
-    Array<Value>& outParameters) 
+    const Array<CIMValue>& inParameters,
+    Array<CIMValue>& outParameters) 
 {
     throw CimException(CimException::NOT_SUPPORTED);
-    return Value();
+    return CIMValue();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1045,393 +1047,393 @@ Array<String> Repository::enumerateNameSpaces() const
 
 void Repository::createMetaQualifiers(const String& nameSpace)
 {
-    // Qualifier CimType : string = null, 
-    //     Scope(property, parameter)
+    // CIMQualifier CimType : string = null, 
+    //     CIMScope(property, parameter)
 
-    setQualifier(nameSpace, QualifierDecl("cimtype", String(),
-	Scope::PROPERTY | Scope::REFERENCE | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("cimtype", String(),
+	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::PARAMETER));
 
-    // Qualifier id : sint32 = null, 
-    //     Scope(any), 
-    //     Flavor(toinstance)
+    // CIMQualifier id : sint32 = null, 
+    //     CIMScope(any), 
+    //     CIMFlavor(toinstance)
 
-    setQualifier(nameSpace, QualifierDecl("id", Sint32(0),
-	Scope::ANY,
-	Flavor::TOINSTANCE));
+    setQualifier(nameSpace, CIMQualifierDecl("id", Sint32(0),
+	CIMScope::ANY,
+	CIMFlavor::TOINSTANCE));
 
-    // Qualifier OctetString : boolean = false, Scope(property)
+    // CIMQualifier OctetString : boolean = false, CIMScope(property)
 
-    setQualifier(nameSpace, QualifierDecl("octetstring", false,
-	Scope::PROPERTY));
+    setQualifier(nameSpace, CIMQualifierDecl("octetstring", false,
+	CIMScope::PROPERTY));
     
-    // Qualifier Abstract : boolean = false, 
-    //     Scope(class, association, indication),
-    //     Flavor(disableoverride, restricted);
+    // CIMQualifier Abstract : boolean = false, 
+    //     CIMScope(class, association, indication),
+    //     CIMFlavor(disableoverride, restricted);
 
-    setQualifier(nameSpace, QualifierDecl("abstract", false, 
-	Scope::CLASS | Scope::ASSOCIATION | Scope::INDICATION,
-	Flavor::NONE));
+    setQualifier(nameSpace, CIMQualifierDecl("abstract", false, 
+	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope::INDICATION,
+	CIMFlavor::NONE));
 
-    // Qualifier Aggregate : boolean = false, 
-    //    Scope(reference),
-    //    Flavor(disableoverride, tosubclass);
+    // CIMQualifier Aggregate : boolean = false, 
+    //    CIMScope(reference),
+    //    CIMFlavor(disableoverride, tosubclass);
 
-    setQualifier(nameSpace, QualifierDecl("aggregate", false, 
-	Scope::REFERENCE, Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("aggregate", false, 
+	CIMScope::REFERENCE, CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Aggregation : boolean = false, 
-    //     Scope(association),
-    //     Flavor(disableoverride, tosubclass);
+    // CIMQualifier Aggregation : boolean = false, 
+    //     CIMScope(association),
+    //     CIMFlavor(disableoverride, tosubclass);
 
-    setQualifier(nameSpace, QualifierDecl("aggregation", false, 
-	Scope::ASSOCIATION, Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("aggregation", false, 
+	CIMScope::ASSOCIATION, CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Alias : string = null, 
-    //     Scope(property, reference, method), 
-    //     Flavor(translatable);
+    // CIMQualifier Alias : string = null, 
+    //     CIMScope(property, reference, method), 
+    //     CIMFlavor(translatable);
 
-    setQualifier(nameSpace, QualifierDecl("alias", String(),
-	Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD,
-	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("alias", String(),
+	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD,
+	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
 
-    // Qualifier ArrayType : string = "Bag", 
-    //     Scope(property, parameter);
+    // CIMQualifier ArrayType : string = "Bag", 
+    //     CIMScope(property, parameter);
 
-    setQualifier(nameSpace, QualifierDecl("arraytype", "Bag",
-	Scope::PROPERTY | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("arraytype", "Bag",
+	CIMScope::PROPERTY | CIMScope::PARAMETER));
 
-    // Qualifier Association : boolean = false, 
-    //     Scope(class, association),
-    //     Flavor(disableoverride);
+    // CIMQualifier Association : boolean = false, 
+    //     CIMScope(class, association),
+    //     CIMFlavor(disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("association", false,
-	Scope::CLASS | Scope::ASSOCIATION,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("association", false,
+	CIMScope::CLASS | CIMScope::ASSOCIATION,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier BitMap : string[], 
-    //     Scope(property, method, parameter);
+    // CIMQualifier BitMap : string[], 
+    //     CIMScope(property, method, parameter);
 
-    setQualifier(nameSpace, QualifierDecl("bitmap", Array<String>(),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("bitmap", Array<String>(),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
 
-    // Qualifier BitValues : string[], 
-    //     Scope(property, method, parameter),
-    //     Flavor(Translatable);
+    // CIMQualifier BitValues : string[], 
+    //     CIMScope(property, method, parameter),
+    //     CIMFlavor(Translatable);
 
-    setQualifier(nameSpace, QualifierDecl("bitvalues", Array<String>(),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER,
-	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("bitvalues", Array<String>(),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER,
+	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
 
-    // Qualifier Counter : boolean = false, 
-    //     Scope(property, method, parameter);
+    // CIMQualifier Counter : boolean = false, 
+    //     CIMScope(property, method, parameter);
 
-    setQualifier(nameSpace, QualifierDecl("counter", false,
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("counter", false,
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
 
-    // Qualifier Delete : boolean = false, 
-    //     Scope(association, reference);
+    // CIMQualifier Delete : boolean = false, 
+    //     CIMScope(association, reference);
 
-    setQualifier(nameSpace, QualifierDecl("delete", false,
-	Scope::ASSOCIATION | Scope::REFERENCE));
+    setQualifier(nameSpace, CIMQualifierDecl("delete", false,
+	CIMScope::ASSOCIATION | CIMScope::REFERENCE));
 
-    // Qualifier Description : string = null, 
-    //     Scope(any), 
-    //     Flavor(translatable);
+    // CIMQualifier Description : string = null, 
+    //     CIMScope(any), 
+    //     CIMFlavor(translatable);
 
-    setQualifier(nameSpace, QualifierDecl("description", String(),
-	Scope::ANY, 
-	Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("description", String(),
+	CIMScope::ANY, 
+	CIMFlavor::TRANSLATABLE));
 
-    // Qualifier DisplayName : string = null, 
-    //     Scope(any), 
-    //     Flavor(translatable);
+    // CIMQualifier DisplayName : string = null, 
+    //     CIMScope(any), 
+    //     CIMFlavor(translatable);
 
-    setQualifier(nameSpace, QualifierDecl("displayname", String(),
-	Scope::ANY,
-	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("displayname", String(),
+	CIMScope::ANY,
+	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
 
-    // Qualifier Expensive : boolean = false,
-    //     Scope(property, reference, method, class, association);
+    // CIMQualifier Expensive : boolean = false,
+    //     CIMScope(property, reference, method, class, association);
 
-    setQualifier(nameSpace, QualifierDecl("expensive", false,
-	Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD | Scope::CLASS |
-	Scope::ASSOCIATION));
+    setQualifier(nameSpace, CIMQualifierDecl("expensive", false,
+	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD | CIMScope::CLASS |
+	CIMScope::ASSOCIATION));
 
-    // Qualifier Gauge : boolean = false, 
-    //     Scope(property, method, parameter);
+    // CIMQualifier Gauge : boolean = false, 
+    //     CIMScope(property, method, parameter);
 
-    setQualifier(nameSpace, QualifierDecl("gauge", false,
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("gauge", false,
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
 
-    // Qualifier Ifdeleted : boolean = false, 
-    //     Scope(association, reference);
+    // CIMQualifier Ifdeleted : boolean = false, 
+    //     CIMScope(association, reference);
 
-    setQualifier(nameSpace, QualifierDecl("ifdeleted", false,
-	Scope::ASSOCIATION | Scope::REFERENCE));
+    setQualifier(nameSpace, CIMQualifierDecl("ifdeleted", false,
+	CIMScope::ASSOCIATION | CIMScope::REFERENCE));
 
-    // Qualifier In : boolean = true, 
-    //     Scope(parameter), 
-    //     Flavor(disableoverride);
+    // CIMQualifier In : boolean = true, 
+    //     CIMScope(parameter), 
+    //     CIMFlavor(disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("in", true,
-	Scope::PARAMETER,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("in", true,
+	CIMScope::PARAMETER,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Indication : boolean = false, 
-    //     Scope(class, indication),
-    //     Flavor(disableoverride);
+    // CIMQualifier Indication : boolean = false, 
+    //     CIMScope(class, indication),
+    //     CIMFlavor(disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("indication", false,
-	Scope::CLASS | Scope::INDICATION,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("indication", false,
+	CIMScope::CLASS | CIMScope::INDICATION,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Invisible : boolean = false,
-    //     Scope(reference, association, class, property, method);
+    // CIMQualifier Invisible : boolean = false,
+    //     CIMScope(reference, association, class, property, method);
 
-    setQualifier(nameSpace, QualifierDecl("invisible", false,
-	Scope::REFERENCE | Scope::ASSOCIATION | Scope::CLASS | Scope::PROPERTY |
-	Scope::METHOD));
+    setQualifier(nameSpace, CIMQualifierDecl("invisible", false,
+	CIMScope::REFERENCE | CIMScope::ASSOCIATION | CIMScope::CLASS | CIMScope::PROPERTY |
+	CIMScope::METHOD));
 
-    // Qualifier Key : boolean = false, 
-    //     Scope(property, reference),
-    //     Flavor(disableoverride);
+    // CIMQualifier Key : boolean = false, 
+    //     CIMScope(property, reference),
+    //     CIMFlavor(disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("key", false,
-	Scope::PROPERTY | Scope::REFERENCE,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("key", false,
+	CIMScope::PROPERTY | CIMScope::REFERENCE,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Large : boolean = false, 
-    //     Scope(property, class);
+    // CIMQualifier Large : boolean = false, 
+    //     CIMScope(property, class);
 
-    setQualifier(nameSpace, QualifierDecl("large", false,
-	Scope::PROPERTY | Scope::CLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("large", false,
+	CIMScope::PROPERTY | CIMScope::CLASS));
 
-    // Qualifier MappingStrings : string[],
-    //     Scope(class, property, association, indication, reference);
+    // CIMQualifier MappingStrings : string[],
+    //     CIMScope(class, property, association, indication, reference);
 
-    setQualifier(nameSpace, QualifierDecl("mappingstrings", Array<String>(),
-	Scope::CLASS | Scope::PROPERTY | Scope::ASSOCIATION | 
-	Scope::INDICATION | Scope::REFERENCE));
+    setQualifier(nameSpace, CIMQualifierDecl("mappingstrings", Array<String>(),
+	CIMScope::CLASS | CIMScope::PROPERTY | CIMScope::ASSOCIATION | 
+	CIMScope::INDICATION | CIMScope::REFERENCE));
 
-    // Qualifier Max : uint32 = null, Scope(reference);
+    // CIMQualifier Max : uint32 = null, CIMScope(reference);
 
-    setQualifier(nameSpace, QualifierDecl("max", Sint32(0),
-	Scope::PROPERTY | Scope::REFERENCE));
+    setQualifier(nameSpace, CIMQualifierDecl("max", Sint32(0),
+	CIMScope::PROPERTY | CIMScope::REFERENCE));
 
-    // Qualifier MaxLen : uint32 = null, 
-    //     Scope(property, method, parameter);
+    // CIMQualifier MaxLen : uint32 = null, 
+    //     CIMScope(property, method, parameter);
 
 #if 0
-    setQualifier(nameSpace, QualifierDecl("maxlen", Uint32(0),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("maxlen", Uint32(0),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
 #else
-    setQualifier(nameSpace, QualifierDecl("maxlen", Sint32(0),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("maxlen", Sint32(0),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
 #endif
 
-    // Qualifier MaxValue : sint64 = null, 
-    //     Scope(property, method, parameter);
+    // CIMQualifier MaxValue : sint64 = null, 
+    //     CIMScope(property, method, parameter);
     // ATTN: XML schema requires sint32!
 
-    setQualifier(nameSpace, QualifierDecl("maxvalue", Sint32(0),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("maxvalue", Sint32(0),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
     
-    // Qualifier Min : sint32 = null, Scope(reference);
+    // CIMQualifier Min : sint32 = null, CIMScope(reference);
 
-    setQualifier(nameSpace, QualifierDecl("min", Sint32(0),
-	Scope::REFERENCE));
+    setQualifier(nameSpace, CIMQualifierDecl("min", Sint32(0),
+	CIMScope::REFERENCE));
 
-    // Qualifier MinValue : sint64 = null, 
-    //     Scope(property, method, parameter);
-    // ATTN: Type expected by XML spec is sint32!
+    // CIMQualifier MinValue : sint64 = null, 
+    //     CIMScope(property, method, parameter);
+    // ATTN: CIMType expected by XML spec is sint32!
 
-    setQualifier(nameSpace, QualifierDecl("minvalue", Sint32(0),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("minvalue", Sint32(0),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
 
-    // Qualifier ModelCorrespondence : string[], 
-    //     Scope(property);
+    // CIMQualifier ModelCorrespondence : string[], 
+    //     CIMScope(property);
 
-    setQualifier(nameSpace, QualifierDecl("modelcorrespondence", 
+    setQualifier(nameSpace, CIMQualifierDecl("modelcorrespondence", 
 	Array<String>(),
-	Scope::PROPERTY));
+	CIMScope::PROPERTY));
 
-    // Qualifier NonLocal : string = null, 
-    //     Scope(reference);
+    // CIMQualifier NonLocal : string = null, 
+    //     CIMScope(reference);
 
-    setQualifier(nameSpace, QualifierDecl("nonlocal", String(),
-	Scope::REFERENCE));
+    setQualifier(nameSpace, CIMQualifierDecl("nonlocal", String(),
+	CIMScope::REFERENCE));
 
-    // Qualifier NullValue : string = null, 
-    //     Scope(property),
-    //     Flavor(tosubclass, disableoverride);
+    // CIMQualifier NullValue : string = null, 
+    //     CIMScope(property),
+    //     CIMFlavor(tosubclass, disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("nullvalue", String(),
-	Scope::PROPERTY,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("nullvalue", String(),
+	CIMScope::PROPERTY,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Out : boolean = false, 
-    //     Scope(parameter), 
-    //     Flavor(disableoverride);
+    // CIMQualifier Out : boolean = false, 
+    //     CIMScope(parameter), 
+    //     CIMFlavor(disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("out", false,
-	Scope::PARAMETER,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("out", false,
+	CIMScope::PARAMETER,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Override : string = null, 
-    //     Scope(property, method, reference),
-    //     Flavor(disableoverride);
+    // CIMQualifier Override : string = null, 
+    //     CIMScope(property, method, reference),
+    //     CIMFlavor(disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("override", String(),
-	Scope::PROPERTY | Scope::METHOD | Scope::REFERENCE,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("override", String(),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::REFERENCE,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Propagated : string = null, 
-    //     Scope(property, reference),
-    //     Flavor(disableoverride);
+    // CIMQualifier Propagated : string = null, 
+    //     CIMScope(property, reference),
+    //     CIMFlavor(disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("propagated", String(),
-	Scope::PROPERTY | Scope::REFERENCE,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("propagated", String(),
+	CIMScope::PROPERTY | CIMScope::REFERENCE,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Provider : string = null, 
-    //     Scope(any);
+    // CIMQualifier Provider : string = null, 
+    //     CIMScope(any);
 
-    setQualifier(nameSpace, QualifierDecl("provider", String(),
-	Scope::ANY));
+    setQualifier(nameSpace, CIMQualifierDecl("provider", String(),
+	CIMScope::ANY));
 
-    // Qualifier Read : boolean = true, Scope(property);
+    // CIMQualifier Read : boolean = true, CIMScope(property);
 
-    setQualifier(nameSpace, QualifierDecl("read", true,
-	Scope::PROPERTY));
+    setQualifier(nameSpace, CIMQualifierDecl("read", true,
+	CIMScope::PROPERTY));
 
-    // Qualifier Required : boolean = false, 
-    //     Scope(property);
+    // CIMQualifier Required : boolean = false, 
+    //     CIMScope(property);
 
-    setQualifier(nameSpace, QualifierDecl("required", false,
-	Scope::PROPERTY));
+    setQualifier(nameSpace, CIMQualifierDecl("required", false,
+	CIMScope::PROPERTY));
 
-    // Qualifier Revision : string = null,
-    //     Scope(schema, class, association, indication),
-    //     Flavor(translatable);
-    // ATTN: No such scope as Scope::SCHEMA
+    // CIMQualifier Revision : string = null,
+    //     CIMScope(schema, class, association, indication),
+    //     CIMFlavor(translatable);
+    // ATTN: No such scope as CIMScope::SCHEMA
 
-    setQualifier(nameSpace, QualifierDecl("revision", String(),
-	Scope::CLASS | Scope::ASSOCIATION | Scope::INDICATION,
-	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("revision", String(),
+	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope::INDICATION,
+	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
 
-    // Qualifier Schema : string = null, 
-    //     Scope(property, method),
-    //     Flavor(disableoverride, translatable);
+    // CIMQualifier Schema : string = null, 
+    //     CIMScope(property, method),
+    //     CIMFlavor(disableoverride, translatable);
 
-    setQualifier(nameSpace, QualifierDecl("schema", String(),
-	Scope::PROPERTY | Scope::METHOD,
-	Flavor::TOSUBCLASS | Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("schema", String(),
+	CIMScope::PROPERTY | CIMScope::METHOD,
+	CIMFlavor::TOSUBCLASS | CIMFlavor::TRANSLATABLE));
 
-    // Qualifier Source : string = null, 
-    //     Scope(class, association, indication);
+    // CIMQualifier Source : string = null, 
+    //     CIMScope(class, association, indication);
 
-    setQualifier(nameSpace, QualifierDecl("source", String(),
-	Scope::CLASS | Scope::ASSOCIATION | Scope::INDICATION));
+    setQualifier(nameSpace, CIMQualifierDecl("source", String(),
+	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope::INDICATION));
 
-    // Qualifier SourceType : string = null,
-    //     Scope(class, association, indication,reference);
+    // CIMQualifier SourceType : string = null,
+    //     CIMScope(class, association, indication,reference);
 
-    setQualifier(nameSpace, QualifierDecl("sourcetype", String(),
-	Scope::CLASS | Scope::ASSOCIATION | Scope:: INDICATION |
-	Scope::REFERENCE));
+    setQualifier(nameSpace, CIMQualifierDecl("sourcetype", String(),
+	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope:: INDICATION |
+	CIMScope::REFERENCE));
     
-    // Qualifier Static : boolean = false,
-    //     Scope(property, method), Flavor(disableoverride);
+    // CIMQualifier Static : boolean = false,
+    //     CIMScope(property, method), CIMFlavor(disableoverride);
 
-    setQualifier(nameSpace, QualifierDecl("static", false,
-	Scope::PROPERTY | Scope::METHOD,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("static", false,
+	CIMScope::PROPERTY | CIMScope::METHOD,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Syntax : string = null,
-    //     Scope(property, reference, method, parameter);
+    // CIMQualifier Syntax : string = null,
+    //     CIMScope(property, reference, method, parameter);
 
-    setQualifier(nameSpace, QualifierDecl("syntax", String(),
-	Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("syntax", String(),
+	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD | CIMScope::PARAMETER));
 
-    // Qualifier SyntaxType : string = null,
-    //     Scope(property, reference, method, parameter);
+    // CIMQualifier SyntaxType : string = null,
+    //     CIMScope(property, reference, method, parameter);
 
-    setQualifier(nameSpace, QualifierDecl("syntaxtype", String(),
-	Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("syntaxtype", String(),
+	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD | CIMScope::PARAMETER));
 
-    // Qualifier Terminal : boolean = false, 
-    //     Scope(class);
+    // CIMQualifier Terminal : boolean = false, 
+    //     CIMScope(class);
 
-    setQualifier(nameSpace, QualifierDecl("terminal", false,
-	Scope::CLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("terminal", false,
+	CIMScope::CLASS));
 
-    // Qualifier TriggerType : string = null,
-    //     Scope(class, property, reference, method, association, indication);
+    // CIMQualifier TriggerType : string = null,
+    //     CIMScope(class, property, reference, method, association, indication);
 
-    setQualifier(nameSpace, QualifierDecl("triggertype", String(),
-	Scope::CLASS | Scope::PROPERTY | Scope::REFERENCE | Scope::METHOD |
-	Scope::ASSOCIATION | Scope::INDICATION));
+    setQualifier(nameSpace, CIMQualifierDecl("triggertype", String(),
+	CIMScope::CLASS | CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD |
+	CIMScope::ASSOCIATION | CIMScope::INDICATION));
 
-    // Qualifier Units : string = null, 
-    //     Scope(property, method, parameter),
-    //     Flavor(translatable);
+    // CIMQualifier Units : string = null, 
+    //     CIMScope(property, method, parameter),
+    //     CIMFlavor(translatable);
 
-    setQualifier(nameSpace, QualifierDecl("units", String(),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER,
-	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("units", String(),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER,
+	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
 
-    // Qualifier UnknownValues : string[], 
-    //     Scope(property), 
-    //     Flavor(disableoverride, tosubclass);
+    // CIMQualifier UnknownValues : string[], 
+    //     CIMScope(property), 
+    //     CIMFlavor(disableoverride, tosubclass);
 
-    setQualifier(nameSpace, QualifierDecl("unknownvalues", Array<String>(),
-	Scope::PROPERTY,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("unknownvalues", Array<String>(),
+	CIMScope::PROPERTY,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier UnsupportedValues : string[], 
-    //     Scope(property),
-    //     Flavor(disableoverride, tosubclass);
+    // CIMQualifier UnsupportedValues : string[], 
+    //     CIMScope(property),
+    //     CIMFlavor(disableoverride, tosubclass);
 
-    setQualifier(nameSpace, QualifierDecl("unsupportedvalues", Array<String>(),
-	Scope::PROPERTY,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("unsupportedvalues", Array<String>(),
+	CIMScope::PROPERTY,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier ValueMap : string[], 
-    //     Scope(property, method, parameter);
+    // CIMQualifier ValueMap : string[], 
+    //     CIMScope(property, method, parameter);
 
-    setQualifier(nameSpace, QualifierDecl("valuemap", Array<String>(),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER));
+    setQualifier(nameSpace, CIMQualifierDecl("valuemap", Array<String>(),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
 
-    // Qualifier Values : string[], 
-    //     Scope(property, method, parameter),
-    //     Flavor(translatable);
+    // CIMQualifier Values : string[], 
+    //     CIMScope(property, method, parameter),
+    //     CIMFlavor(translatable);
 
-    setQualifier(nameSpace, QualifierDecl("values", Array<String>(),
-	Scope::PROPERTY | Scope::METHOD | Scope::PARAMETER,
-	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("values", Array<String>(),
+	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER,
+	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
 
-    // Qualifier Version : string = null,
-    //     Scope(schema, class, association, indication), 
-    //     Flavor(translatable);
-    // ATTN: No such scope as Scope::SCHEMA
+    // CIMQualifier Version : string = null,
+    //     CIMScope(schema, class, association, indication), 
+    //     CIMFlavor(translatable);
+    // ATTN: No such scope as CIMScope::SCHEMA
 
-    setQualifier(nameSpace, QualifierDecl("version", String(),
-	Scope::CLASS | Scope::ASSOCIATION | Scope::INDICATION,
-	Flavor::DEFAULTS | Flavor::TRANSLATABLE));
+    setQualifier(nameSpace, CIMQualifierDecl("version", String(),
+	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope::INDICATION,
+	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
 
-    // Qualifier Weak : boolean = false, 
-    //     Scope(reference),
-    //     Flavor(disableoverride, tosubclass);
+    // CIMQualifier Weak : boolean = false, 
+    //     CIMScope(reference),
+    //     CIMFlavor(disableoverride, tosubclass);
 
-    setQualifier(nameSpace, QualifierDecl("weak", false,
-	Scope::REFERENCE,
-	Flavor::TOSUBCLASS));
+    setQualifier(nameSpace, CIMQualifierDecl("weak", false,
+	CIMScope::REFERENCE,
+	CIMFlavor::TOSUBCLASS));
 
-    // Qualifier Write : boolean = false, 
-    //     Scope(property);
+    // CIMQualifier Write : boolean = false, 
+    //     CIMScope(property);
 
-    setQualifier(nameSpace, QualifierDecl("write", false,
-	Scope::PROPERTY));
+    setQualifier(nameSpace, CIMQualifierDecl("write", false,
+	CIMScope::PROPERTY));
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.cpp,v $
+// Revision 1.5  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
 // Revision 1.4  2001/02/11 06:21:24  mike
 // removed some coments
 //
@@ -39,35 +42,35 @@
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Client/Client.h>
+#include <Pegasus/Client/CIMClient.h>
 
 using namespace Pegasus;
 using namespace std;
 
 const String NAMESPACE = "root/cimv20";
 
-static void TestGetClass(Client& client)
+static void TestGetClass(CIMClient& client)
 {
-    ClassDecl c = client.getClass(
+    CIMClass c = client.getClass(
 	NAMESPACE, "CIM_ComputerSystem", false, false, true);
 
     c.print();
 }
 
-static void TestClassOperations(Client& client)
+static void TestClassOperations(CIMClient& client)
 {
     // CreateClass:
 
-    ClassDecl c1("SubClass", "CIM_ManagedElement");
-    c1.addQualifier(Qualifier("abstract", Boolean(true)));
-    c1.addProperty(Property("count", Uint32(99)));
-    c1.addProperty(Property("ratio", Real64(66.66)));
-    c1.addProperty(Property("message", String("Hello World")));
+    CIMClass c1("SubClass", "CIM_ManagedElement");
+    c1.addQualifier(CIMQualifier("abstract", Boolean(true)));
+    c1.addProperty(CIMProperty("count", Uint32(99)));
+    c1.addProperty(CIMProperty("ratio", Real64(66.66)));
+    c1.addProperty(CIMProperty("message", String("Hello World")));
     client.createClass(NAMESPACE, c1);
 
     // GetClass:
 
-    ClassDecl c2 = client.getClass(NAMESPACE, "SubClass", false);
+    CIMClass c2 = client.getClass(NAMESPACE, "SubClass", false);
     // assert(c1.identical(c2));
 
     // Modify the class:
@@ -77,7 +80,7 @@ static void TestClassOperations(Client& client)
 
     // GetClass:
 
-    ClassDecl c3 = client.getClass(NAMESPACE, "SubClass", false);
+    CIMClass c3 = client.getClass(NAMESPACE, "SubClass", false);
     // assert(c3.identical(c2));
 
     // EnumerateClassNames:
@@ -104,14 +107,14 @@ static void TestClassOperations(Client& client)
 
     classNames = client.enumerateClassNames(NAMESPACE, String(), false);
 
-    Array<ClassDecl> classDecls = client.enumerateClasses(
+    Array<CIMClass> classDecls = client.enumerateClasses(
 	NAMESPACE, String(), false, false, true, true);
 
     assert(classDecls.getSize() == classNames.getSize());
 
     for (Uint32 i = 0; i < classNames.getSize(); i++)
     {
-	ClassDecl tmp = client.getClass(
+	CIMClass tmp = client.getClass(
 	    NAMESPACE, classNames[i], false, true, true);
 
 	assert(classDecls[i].getClassName() == classNames[i]);
@@ -120,32 +123,32 @@ static void TestClassOperations(Client& client)
     }
 }
 
-static void TestQualifierOperations(Client& client)
+static void TestQualifierOperations(CIMClient& client)
 {
     // Create two qualifier declarations:
 
-    QualifierDecl qd1("qd1", false, Scope::CLASS, Flavor::TOSUBCLASS);
+    CIMQualifierDecl qd1("qd1", false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS);
     client.setQualifier(NAMESPACE, qd1);
 
-    QualifierDecl qd2("qd2", "Hello", Scope::PROPERTY | Scope::CLASS, 
-	Flavor::OVERRIDABLE);
+    CIMQualifierDecl qd2("qd2", "Hello", CIMScope::PROPERTY | CIMScope::CLASS, 
+	CIMFlavor::OVERRIDABLE);
     client.setQualifier(NAMESPACE, qd2);
 
     // Get them and compare:
 
-    QualifierDecl tmp1 = client.getQualifier(NAMESPACE, "qd1");
+    CIMQualifierDecl tmp1 = client.getQualifier(NAMESPACE, "qd1");
     assert(tmp1.identical(qd1));
 
-    QualifierDecl tmp2 = client.getQualifier(NAMESPACE, "qd2");
+    CIMQualifierDecl tmp2 = client.getQualifier(NAMESPACE, "qd2");
     assert(tmp2.identical(qd2));
 
     // Enumerate the qualifiers:
 
-    Array<QualifierDecl> qualifierDecls = client.enumerateQualifiers(NAMESPACE);
+    Array<CIMQualifierDecl> qualifierDecls = client.enumerateQualifiers(NAMESPACE);
 
     for (Uint32 i = 0; i < qualifierDecls.getSize(); i++)
     {
-	QualifierDecl tmp = qualifierDecls[i];
+	CIMQualifierDecl tmp = qualifierDecls[i];
 
 	if (tmp.getName() == "qd1")
 	    assert(tmp1.identical(tmp));
@@ -164,7 +167,7 @@ int main(int argc, char** argv)
 {
     try
     {
-	Client client;
+	CIMClient client;
 	client.connect("localhost", 8888);
 	TestQualifierOperations(client);
 	TestClassOperations(client);

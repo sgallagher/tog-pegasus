@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: QualifierDecl.cpp,v $
+// Revision 1.3  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/01/25 02:12:05  mike
 // Added meta-qualifiers to LoadRepository program.
 //
@@ -32,7 +35,7 @@
 //
 //END_HISTORY
 
-#include <Pegasus/Common/QualifierDecl.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -41,15 +44,15 @@ int main()
 {
     try
     {
-	QualifierDecl qual1(
+	CIMQualifierDecl qual1(
 	    "CIMTYPE", 
 	    String(),
-	    Scope::PROPERTY,
-	    Flavor::TOINSTANCE);
+	    CIMScope::PROPERTY,
+	    CIMFlavor::TOINSTANCE);
 
 	// qual1.print();
 
-	QualifierDecl q2("Abstract", true, Scope::CLASS);
+	CIMQualifierDecl q2("Abstract", true, CIMScope::CLASS);
 
     }
     catch(Exception& e)

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.h,v $
+// Revision 1.3  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/02/13 16:35:32  mike
 // Fixed compiler error with createInstance()
 //
@@ -43,7 +46,7 @@
 #define PegasusDispatcher_Dispatcher_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Operations.h>
+#include <Pegasus/Common/CIMOperations.h>
 #include <Pegasus/Server/ProviderTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -51,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 class Repository;
 class ProviderTable;
 
-class PEGASUS_SERVER_LINKAGE Dispatcher : public Operations
+class PEGASUS_SERVER_LINKAGE Dispatcher : public CIMOperations
 {
 public:
 
@@ -59,7 +62,7 @@ public:
     
     virtual ~Dispatcher();
 
-    virtual ClassDecl getClass(
+    virtual CIMClass getClass(
 	const String& nameSpace,
 	const String& className,
 	Boolean localOnly = true,
@@ -67,9 +70,9 @@ public:
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
 
-    virtual InstanceDecl getInstance(
+    virtual CIMInstance getInstance(
 	const String& nameSpace,
-	const Reference& instanceName,
+	const CIMReference& instanceName,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
@@ -81,25 +84,25 @@ public:
 
     virtual void deleteInstance(
 	const String& nameSpace,
-	const Reference& instanceName);
+	const CIMReference& instanceName);
 
     virtual void createClass(
 	const String& nameSpace,
-	ClassDecl& newClass);
+	CIMClass& newClass);
 
     virtual void createInstance(
 	const String& nameSpace,
-	InstanceDecl& newInstance) ;
+	CIMInstance& newInstance) ;
 
     virtual void modifyClass(
 	const String& nameSpace,
-	ClassDecl& modifiedClass);
+	CIMClass& modifiedClass);
 
     virtual void modifyInstance(
 	const String& nameSpace,
-	const InstanceDecl& modifiedInstance);
+	const CIMInstance& modifiedInstance);
 
-    virtual Array<ClassDecl> enumerateClasses(
+    virtual Array<CIMClass> enumerateClasses(
 	const String& nameSpace,
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false,
@@ -112,7 +115,7 @@ public:
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false);
 
-    virtual Array<InstanceDecl> enumerateInstances(
+    virtual Array<CIMInstance> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
 	Boolean deepInheritance = true,
@@ -121,17 +124,17 @@ public:
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
 
-    virtual Array<Reference> enumerateInstanceNames(
+    virtual Array<CIMReference> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className);
 
-    virtual Array<InstanceDecl> execQuery(
+    virtual Array<CIMInstance> execQuery(
 	const String& queryLanguage,
 	const String& query) ;
 
-    virtual Array<InstanceDecl> associators(
+    virtual Array<CIMInstance> associators(
 	const String& nameSpace,
-	const Reference& objectName,
+	const CIMReference& objectName,
 	const String& assocClass = String::EMPTY,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY,
@@ -140,65 +143,65 @@ public:
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
 
-    virtual Array<Reference> associatorNames(
+    virtual Array<CIMReference> associatorNames(
 	const String& nameSpace,
-	const Reference& objectName,
+	const CIMReference& objectName,
 	const String& assocClass = String::EMPTY,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY,
 	const String& resultRole = String::EMPTY);
 
-    virtual Array<InstanceDecl> references(
+    virtual Array<CIMInstance> references(
 	const String& nameSpace,
-	const Reference& objectName,
+	const CIMReference& objectName,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = _getStringArray());
 
-    virtual Array<Reference> referenceNames(
+    virtual Array<CIMReference> referenceNames(
 	const String& nameSpace,
-	const Reference& objectName,
+	const CIMReference& objectName,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY);
 
-    virtual Value getProperty(
+    virtual CIMValue getProperty(
 	const String& nameSpace,
-	const Reference& instanceName,
+	const CIMReference& instanceName,
 	const String& propertyName);
 
     virtual void setProperty(
 	const String& nameSpace,
-	const Reference& instanceName,
+	const CIMReference& instanceName,
 	const String& propertyName,
-	const Value& newValue = Value());
+	const CIMValue& newValue = CIMValue());
 
-    virtual QualifierDecl getQualifier(
+    virtual CIMQualifierDecl getQualifier(
 	const String& nameSpace,
 	const String& qualifierName);
 
     virtual void setQualifier(
 	const String& nameSpace,
-	const QualifierDecl& qualifierDecl);
+	const CIMQualifierDecl& qualifierDecl);
 
     virtual void deleteQualifier(
 	const String& nameSpace,
 	const String& qualifierName);
 
-    virtual Array<QualifierDecl> enumerateQualifiers(
+    virtual Array<CIMQualifierDecl> enumerateQualifiers(
 	const String& nameSpace);
 
-    virtual Value invokeMethod(
+    virtual CIMValue invokeMethod(
 	const String& nameSpace,
-	const Reference& instanceName,
+	const CIMReference& instanceName,
 	const String& methodName,
-	const Array<Value>& inParameters,
-	Array<Value>& outParameters);
+	const Array<CIMValue>& inParameters,
+	Array<CIMValue>& outParameters);
 
 private:
 	
-    Provider* _lookupProviderForClass(
+    CIMProvider* _lookupProviderForClass(
 	const String& nameSpace,
 	const String& className);
 

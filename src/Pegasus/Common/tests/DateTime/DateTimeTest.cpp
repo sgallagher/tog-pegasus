@@ -23,14 +23,17 @@
 // Author:
 //
 // $Log: DateTimeTest.cpp,v $
-// Revision 1.1  2001/01/14 19:53:45  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:45  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Common/DateTime.h>
+#include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/Exception.h>
 
 using namespace Pegasus;
@@ -38,7 +41,7 @@ using namespace std;
 
 int main()
 {
-    DateTime dt;
+    CIMDateTime dt;
     dt.set("19991224120000.000000+360");
 
     dt.clear();

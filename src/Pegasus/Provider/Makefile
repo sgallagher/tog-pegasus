@@ -12,6 +12,6 @@ LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
 LIBRARY = pegprovider
 
-SOURCES = Provider.cpp 
+SOURCES = CIMProvider.cpp 
 
 include $(ROOT)/mak/library.mak

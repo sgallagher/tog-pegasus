@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.cpp,v $
+// Revision 1.7  2001/02/16 02:06:06  mike
+// Renamed many classes and headers.
+//
 // Revision 1.6  2001/02/11 05:42:33  mike
 // new
 //
@@ -104,7 +107,7 @@ const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: ";
 const char BadQualifierOverride::MSG[] = "qualifier not overridable: ";
 
 const char BadQualifierType::MSG[] = 
-    "Type of qualifier different than its declaration: ";
+    "CIMType of qualifier different than its declaration: ";
 
 const char NullType::MSG[] = "type is null";
 
@@ -129,7 +132,7 @@ const char TruncatedCharacter::MSG[] =
     "truncated character during conversion from Char16 to char";
 
 const char ExpectedReferenceValue::MSG[] = 
-    "Expected Value object to be Type::REFERENCE or Type::REFERENCE_ARRAY "
+    "Expected CIMValue object to be CIMType::REFERENCE or CIMType::REFERENCE_ARRAY "
     "in this context";
 
 const char MissingReferenceClassName::MSG[] = "missing reference class name";

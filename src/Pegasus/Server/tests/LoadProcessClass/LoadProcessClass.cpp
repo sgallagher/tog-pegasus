@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
+// Revision 1.3  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
 // Revision 1.2  2001/01/29 02:58:31  mike
 // fixed makefile rule
 //
@@ -68,15 +71,15 @@ int main(int argc, char** argv)
 	    // Ignore not such class error:
 	}
 
-	ClassDecl c("Process");
+	CIMClass c("Process");
 
-	c.addQualifier(Qualifier("provider", "MyProvider"));
+	c.addQualifier(CIMQualifier("provider", "MyProvider"));
 
-	c.addProperty(Property("pid", Uint32(0))
-	    .addQualifier(Qualifier("key", true)));
+	c.addProperty(CIMProperty("pid", Uint32(0))
+	    .addQualifier(CIMQualifier("key", true)));
 
-	c.addProperty(Property("name", Uint32(0)));
-	c.addProperty(Property("age", Uint32(0)));
+	c.addProperty(CIMProperty("name", Uint32(0)));
+	c.addProperty(CIMProperty("age", Uint32(0)));
 
 	r.createClass(NAMESPACE, c);
     }

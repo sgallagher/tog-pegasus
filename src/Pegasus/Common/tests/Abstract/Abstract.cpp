@@ -23,13 +23,16 @@
 // Author:
 //
 // $Log: Abstract.cpp,v $
-// Revision 1.1  2001/01/14 19:53:43  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:43  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
-#include <Pegasus/Common/ClassDecl.h>
+#include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
 
 using namespace Pegasus;
@@ -45,15 +48,15 @@ int main()
 
 	SimpleDeclContext* context = new SimpleDeclContext;
 
-	context->addQualifierDecl(NAMESPACE, QualifierDecl(
-	    "abstract", false, Scope::CLASS, Flavor::OVERRIDABLE));
+	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl(
+	    "abstract", false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
 	// Create some classes:
 
-	ClassDecl class1("PeskySuperClass");
-	class1.addQualifier(Qualifier("abstract", true));
+	CIMClass class1("PeskySuperClass");
+	class1.addQualifier(CIMQualifier("abstract", true));
 
-	ClassDecl class2("Class", "PeskySuperClass");
+	CIMClass class2("Class", "PeskySuperClass");
 
 	class1.resolve(context, NAMESPACE);
 	context->addClassDecl(NAMESPACE, class1);

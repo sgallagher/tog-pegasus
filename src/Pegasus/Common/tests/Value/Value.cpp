@@ -23,14 +23,17 @@
 // Author:
 //
 // $Log: Value.cpp,v $
-// Revision 1.1  2001/01/14 19:53:49  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:07  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:49  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include <cassert>
-#include <Pegasus/Common/Value.h>
+#include <Pegasus/Common/CIMValue.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -40,9 +43,9 @@ using namespace std;
 template<class T>
 void test01(const T& x)
 {
-    Value v(x);
-    Value v2(v);
-    Value v3;
+    CIMValue v(x);
+    CIMValue v2(v);
+    CIMValue v3;
     v3 = v2;
 #ifdef IO
     v3.print();
@@ -63,7 +66,7 @@ void test01(const T& x)
 int main()
 {
     Array<Uint32> aa;
-    Value vv(aa);
+    CIMValue vv(aa);
 
     test01(Boolean(true));
     test01(Boolean(false));
@@ -85,7 +88,7 @@ int main()
     arr.append("One");
     arr.append("Two");
     arr.append("Three");
-    Value v(arr);
+    CIMValue v(arr);
 
 #ifdef IO
     v.print();

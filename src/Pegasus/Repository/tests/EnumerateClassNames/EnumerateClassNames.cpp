@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: EnumerateClassNames.cpp,v $
-// Revision 1.1  2001/01/14 19:53:57  mike
-// Initial revision
+// Revision 1.2  2001/02/16 02:06:09  mike
+// Renamed many classes and headers.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:57  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -171,7 +174,7 @@ static void CreateClass(
     const String& className, 
     const String superClassName = String())
 {
-    ClassDecl c(className, superClassName);
+    CIMClass c(className, superClassName);
     r.createClass(NAMESPACE, c);
 }
 

@@ -50,12 +50,6 @@ PEGASUS_USING_PEGASUS;
     #define EOF_CHAR 1
 #endif
 
-inline void __dummy() { }
-
-//#define PEG_METHOD_ENTER(X,Y)
-//#define PEG_METHOD_EXIT __dummy
-//#define PEG_TRACE_STRING(X,Y,Z)
-
 // Trace files for test purposes
 // Will be created in the $(PEGASUS_TMP) directory, or if not set,
 // in the current directory

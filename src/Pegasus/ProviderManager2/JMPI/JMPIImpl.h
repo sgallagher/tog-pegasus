@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -37,7 +37,7 @@
 #ifndef _Provider_JMPIImpl_h
 #define _Provider_JMPIImpl_h
 
-#include <jni.h> 
+#include <jni.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,7 +69,7 @@ PEGASUS_NAMESPACE_BEGIN
    }
 
 typedef struct jvmVector {
-   int       initRc; 
+   int       initRc;
    JavaVM    *jvm;
    JNIEnv    *env;
    jclass    *classRefs;
@@ -104,7 +104,7 @@ class _nameSpace {
    _nameSpace();
    _nameSpace(String hn);
    _nameSpace(String hn, String ns);
-   
+
    int port();
    String hostName();
    String nameSpace();
@@ -136,7 +136,7 @@ static int pTypeToJType[]=
 //   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14      15
 
 static int jTypeToPType[]=
-   {0, 1, 2, 3, 4, 5, 6, 7, 8,12, 0, 9,10,12,14,15}; 
+   {0, 1, 2, 3, 4, 5, 6, 7, 8,12, 0, 9,10,12,14,15};
 //  0  1  2  3  4  5  6  7  8  9 10 11 12 13,??,15
 
    static char *jTypeToChars[]= {

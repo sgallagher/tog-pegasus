@@ -34,6 +34,7 @@
 //              Magda Vacarelu
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Mark Hamzy
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,6 +47,7 @@
 #include <dlfcn.h>
 #endif
 #include <iostream>
+#include <sstream>
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
@@ -65,6 +67,8 @@ PEGASUS_NAMESPACE_BEGIN
 JavaVM *JMPIjvm::jvm=NULL;
 JvmVector JMPIjvm::jv;
 int JMPIjvm::trace=0;
+
+#define DDD(x) if (JMPIjvm::trace) x;
 
 typedef struct {
   int clsIndex;
@@ -174,11 +178,16 @@ static jclass providerClassRef;
 
 jclass JMPIjvm::getGlobalClassRef(JNIEnv *env, const char* name) {
   jclass localRefCls=env->FindClass(name);
-//  if (env->ExceptionOccurred())
-//  env->ExceptionDescribe();
-  if (localRefCls==NULL) return JNI_FALSE;
+
+  DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": localRefCls = "<<PEGASUS_STD(hex)<<(int)localRefCls<<PEGASUS_STD(dec)<<", name = "<<name<<PEGASUS_STD(endl));
+
+  if (localRefCls==NULL)
+     return JNI_FALSE;
+
   jclass globalRefCls=(jclass) env->NewGlobalRef(localRefCls);
+
   env->DeleteLocalRef(localRefCls);
+
   return globalRefCls;
 }
 
@@ -191,36 +200,49 @@ JMPIjvm::~JMPIjvm() {
 }
 
 int JMPIjvm::cacheIDs(JNIEnv *env) {
-   if (JMPIjvm::trace)
-      cout<<" --- cacheIDs()"<<endl;
-   if (methodInitDone==1) return JNI_TRUE;
-   if (methodInitDone==-1) return JNI_FALSE;
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): enter"<<PEGASUS_STD(endl));
+
+   if (methodInitDone==1)
+      return JNI_TRUE;
+   if (methodInitDone==-1)
+      return JNI_FALSE;
 
    methodInitDone=-1;
+
    for (unsigned i=0; i<(sizeof(classNames)/sizeof(char*)); i++) {
-//      cerr<<"--- Trying "<< classNames[i]<<endl;
-      if ((classRefs[i]=getGlobalClassRef(env,classNames[i]))==NULL) return JNI_FALSE;
+//////DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): Trying "<<classNames[i]<<PEGASUS_STD(endl));
+      if ((classRefs[i]=getGlobalClassRef(env,classNames[i]))==NULL)
+      {
+         DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): Error: Count not find global class ref for "<<classNames[i]<<PEGASUS_STD(endl));
+
+         return JNI_FALSE;
+      }
    }
 
    for (unsigned j=0; j<(sizeof(instanceMethodNames)/sizeof(METHOD_STRUCT)); j++) {
-//      cerr<<"--- Trying "<<j<<": "<<classNames[instanceMethodNames[j].clsIndex]<<": "<<instanceMethodNames[j].methodName<<endl;
-      if ((instanceMethodIDs[j]=env->GetMethodID(
-           classRefs[instanceMethodNames[j].clsIndex],
-           instanceMethodNames[j].methodName,instanceMethodNames[j].signature))==NULL) return 0;
-      if ((instanceMethodIDs[j]=env->GetMethodID(classRefs[instanceMethodNames[j].clsIndex],instanceMethodNames[j].methodName,instanceMethodNames[j].signature))==NULL)
+//////DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): Trying "<<j<<": "<<classNames[instanceMethodNames[j].clsIndex]<<": "<<instanceMethodNames[j].methodName<<PEGASUS_STD(endl));
+      if ((instanceMethodIDs[j]=env->GetMethodID(classRefs[instanceMethodNames[j].clsIndex],
+                                                 instanceMethodNames[j].methodName,instanceMethodNames[j].signature))==NULL)
+      {
+         DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): Error could not get method id for "<<classNames[instanceMethodNames[j].clsIndex]<<": "<<instanceMethodNames[j].methodName<<PEGASUS_STD(endl));
          return 0;
+   }
    }
 
    for (unsigned k=0; k<(sizeof(staticMethodNames)/sizeof(METHOD_STRUCT)); k++) {
-//      cerr<<"--- Trying "<<k<<endl;
-      if ((staticMethodIDs[k]=env->GetStaticMethodID(
-          classRefs[staticMethodNames[k].clsIndex],
-          staticMethodNames[k].methodName,staticMethodNames[k].signature))==NULL) return 0;
+//////DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): Trying "<<k<<": "<<classNames[staticMethodNames[k].clsIndex]<<": "<<staticMethodNames[k].methodName<<PEGASUS_STD(endl));
+      if ((staticMethodIDs[k]=env->GetStaticMethodID(classRefs[staticMethodNames[k].clsIndex],
+                                                     staticMethodNames[k].methodName,staticMethodNames[k].signature))==NULL)
+      {
+         DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): Error could not get method id for "<<classNames[staticMethodNames[k].clsIndex]<<": "<<staticMethodNames[k].methodName<<PEGASUS_STD(endl));
+         return 0;
+      }
    }
-//   cerr<<"--- cacheIDs() done"<<endl;
-   if (JMPIjvm::trace)
-      cout<<" --- cacheIDs() ok"<<endl;
+
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::cacheIDs(): exit"<<PEGASUS_STD(endl));
+
    methodInitDone=1;
+
    return JNI_TRUE;
 }
 
@@ -230,8 +252,8 @@ static void throwCIMException(JNIEnv *env,char *e) {
 
 int JMPIjvm::destroyJVM()
 {
-   if (JMPIjvm::trace)
-      cerr<<"--- JPIjvm::destroyJVM()\n";
+   DDD(PEGASUS_STD(cerr)<<"--- JPIjvm::destroyJVM()"<<PEGASUS_STD(endl));
+
    #ifdef JAVA_DESTROY_VM_WORKS
    if (jvm!=NULL) {
       JvmVector *jv;
@@ -241,49 +263,97 @@ int JMPIjvm::destroyJVM()
       return 0;
    }
    #endif
+
    return -1;
 }
 
 int JMPIjvm::initJVM()
 {
    JavaVMInitArgs vm_args;
-   JavaVMOption options[1];
    jint res;
-   char *envcp;
-   char classpath[1024]="-Djava.class.path=";
+   char *envstring;
    JNIEnv *env;
-
+   JavaVMOption *poptions = 0;
+   int maxoption = 0;
+   Array<std::string> JNIoptions;
+   static const char *aENVoptions[][2] = {
+      { "CLASSPATH",                           "-Djava.class.path=" },
+      { "PEGASUS_JMPI_MAX_HEAP",               "-Xmx" },
+      { "PEGASUS_JMPI_INITIAL_HEAP",           "-Xms" },
+      { "PEGASUS_JMPI_JAVA_THREAD_STACK_SIZE", "-Xss" }
+   };
+   std::ostringstream oss;
 
 #ifdef PEGASUS_DEBUG
-   if (getenv("JMPI_TRACE")) trace=1;
-   else trace=0;
+   if (getenv("PEGASUS_JMPI_TRACE")) JMPIjvm::trace=1;
+   else JMPIjvm::trace=0;
 #else
-   trace=0;
+   JMPIjvm::trace=0;
 #endif
 
-   if (JMPIjvm::trace)
-      cout<<"--- JPIjvm::initJVM()\n";
+   DDD(PEGASUS_STD(cout) << "--- JMPIjvm::initJVM()" << PEGASUS_STD(endl));
+
    jv.initRc=0;
 
-   envcp=getenv("CLASSPATH");
-   if (envcp==NULL) {
+   envstring=getenv("CLASSPATH");
+   if (envstring==NULL) {
       jv.initRc=1;
-      if (JMPIjvm::trace)
-         cerr<<"--- jmpiJvm::initJVM(): No PEGASUS_PROVIDER_CLASSPATH environment variable found\n";
+
+      DDD(PEGASUS_STD(cerr) << "--- JMPIjvm::initJVM(): No CLASSPATH environment variable found" << PEGASUS_STD(endl));
+
       return -1;
    }
 
-   strcat(classpath,envcp);
-   options[0].optionString=classpath;
+   for (Uint32 i = 0; i < (int)(sizeof (aENVoptions)/sizeof (aENVoptions[0])); i++)
+   {
+      const char *name = aENVoptions[i][0];
+
+      envstring = getenv (name);
+      if (envstring)
+      {
+         maxoption++;
+
+         oss.str ("");
+         oss << aENVoptions[i][1] << envstring;
+
+         JNIoptions.append (oss.str ());
+
+         DDD(PEGASUS_STD(cout) << "--- JMPIjvm::initJVM(): " << name << " found!  Specifying \"" << oss.str () << "\"" << PEGASUS_STD(endl));
+      }
+   }
+
+   poptions = (JavaVMOption *)calloc (maxoption, sizeof (JavaVMOption));
+   if (!poptions)
+   {
+      jv.initRc=1;
+
+      DDD(PEGASUS_STD(cerr) << "--- JMPIjvm::initJVM(): Could not allocate " << maxoption << " structures of size " << sizeof (JavaVMOption) << PEGASUS_STD(endl));
+
+      return -1;
+   }
+
+   for (Uint32 i=0; i < JNIoptions.size(); i++)
+   {
+      poptions[i].optionString = (char *)JNIoptions[i].c_str ();
+
+      DDD(PEGASUS_STD(cout) << "--- JMPIjvm::initJVM(): Setting option " << i << " to \"" << poptions[i].optionString << "\"" << PEGASUS_STD(endl));
+   }
+
    vm_args.version=0x00010002;
-   vm_args.options=options;
-   vm_args.nOptions=1;
+   vm_args.options=poptions;
+   vm_args.nOptions=maxoption;
    vm_args.ignoreUnrecognized=JNI_TRUE;
 
    res=JNI_CreateJavaVM(&jvm,(void**)&env,&vm_args);
+
+   if (poptions)
+   {
+      free (poptions);
+   }
+
    if (res!=0) {
-      if (JMPIjvm::trace)
-         cerr<<"Can not create Java VM"<<endl;
+      DDD(PEGASUS_STD(cerr) << "--- JMPIjvm::initJVM(): Can not create Java VM"<<PEGASUS_STD(endl));
+
       exit(1);
    }
    jv.jvm=jvm;
@@ -319,14 +389,18 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
 {
    static jobject gProv=NULL;
    static jclass scls=NULL;
+
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": jar = "<<jar<<", cln = "<<cln<<", cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
    if (gProv) {
       *cls=scls;
       return gProv;
    }
 
    /*
-   cout<<"--- jar: "<<jar<<endl;
-   cout<<"--- cln: "<<cln<<endl;
+   DDD(PEGASUS_STD(cout)<<"--- jar: "<<jar<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- cln: "<<cln<<PEGASUS_STD(endl));
 
    jstring jjar=env->NewStringUTF((const char*)jar.getCString());
    jstring jcln=env->NewStringUTF((const char*)cln.getCString());
@@ -335,15 +409,16 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
       jjar,jcln);
    if (env->ExceptionCheck()) {
       env->ExceptionDescribe();
-      cerr<<"--- Unable to instantiate provider "<<cn<<endl;
- //     return NULL;
+      PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<cn<<PEGASUS_STD(endl);
+////////return NULL;
    }
 */
 
    scls=getGlobalClassRef(env,(const char*)cln.getCString());
    if (env->ExceptionCheck()) {
-   if (JMPIjvm::trace)
-      cerr<<"--- Provider "<<cn<<" not found"<<endl;
+      DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::"<<__FUNCTION__<<": Provider "<<cn<<" not found"<<PEGASUS_STD(endl));
+      DDD(env->ExceptionDescribe());
+
       return NULL;
    }
 	*cls=scls;
@@ -352,8 +427,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
    jobject lProv=env->NewObject(*cls,id);
    gProv=(jobject)env->NewGlobalRef(lProv);
    if (env->ExceptionCheck()) {
-   if (JMPIjvm::trace)
-      cerr<<"--- Unable to instantiate provider "<<cn<<endl;
+      DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<cn<<PEGASUS_STD(endl));
       return NULL;
    }
    return gProv;
@@ -363,6 +437,10 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 {
    static jobject gProv=NULL;
    static jclass scls=NULL;
+
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": cn = "<<cn<<", cls = "<<cls<<PEGASUS_STD(endl));
+   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": gProv = "<<PEGASUS_STD(hex)<<(int)gProv<<", scls = "<<(int)scls<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+
    if (gProv) {
       *cls=scls;
       return gProv;
@@ -370,8 +448,9 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 
    scls=getGlobalClassRef(env,cn);
    if (env->ExceptionCheck()) {
-   if (JMPIjvm::trace)
-      cerr<<"--- Provider "<<cn<<" not found"<<endl;
+      DDD(PEGASUS_STD(cerr)<<"--- JMPIjvm::"<<__FUNCTION__<<": Provider "<<cn<<" not found"<<PEGASUS_STD(endl));
+      DDD(env->ExceptionDescribe());
+
       return NULL;
    }
 	*cls=scls;
@@ -380,8 +459,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
    jobject lProv=env->NewObject(*cls,id);
    gProv=(jobject)env->NewGlobalRef(lProv);
    if (env->ExceptionCheck()) {
-   if (JMPIjvm::trace)
-      cerr<<"--- Unable to instantiate provider "<<cn<<endl;
+      DDD(PEGASUS_STD(cerr)<<"--- Unable to instantiate provider "<<cn<<PEGASUS_STD(endl));
       return NULL;
    }
    return gProv;
@@ -389,7 +467,6 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 
 void JMPIjvm::checkException(JNIEnv *env)
 {
-
    if (env->ExceptionCheck()) {
       jstring jMsg=NULL,jId=NULL;
       int code;
@@ -397,8 +474,7 @@ void JMPIjvm::checkException(JNIEnv *env)
       String msg=String::EMPTY,id=String::EMPTY;
 
       jthrowable err=env->ExceptionOccurred();
-      if (JMPIjvm::trace)
-         env->ExceptionDescribe();
+      DDD(env->ExceptionDescribe());
       if (env->IsInstanceOf(err,JMPIjvm::jv.CIMExceptionClassRef)) {
          env->ExceptionClear();
          if (err) {
@@ -416,8 +492,9 @@ void JMPIjvm::checkException(JNIEnv *env)
                msg=String(cp);
                env->ReleaseStringUTFChars(jMsg,cp);
             }
-	    if (JMPIjvm::trace)
-               cerr<<"--- throwing Pegasus exception: "<<code<<" "<<id<<" ("<<msg<<")"<<endl;
+
+            DDD(PEGASUS_STD(cerr)<<"--- throwing Pegasus exception: "<<code<<" "<<id<<" ("<<msg<<")"<<PEGASUS_STD(endl));
+
             throw CIMException((CIMStatusCode)code,id+" ("+msg+")");
 	 }
       }
@@ -1038,8 +1115,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent
       }
    }
    else {
-   if (JMPIjvm::trace)
-      cerr<<"_deliverEvent() "<<name<<" not found"<<endl;
+      DDD(PEGASUS_STD(cerr)<<"--- Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent() "<<name<<" not found"<<PEGASUS_STD(endl));
    }
 }
 
@@ -1128,7 +1204,9 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMClass__1getProperties
 
    for (int i=0,s=cls->getPropertyCount(); i<s; i++) {
       CIMProperty *cp=new CIMProperty(cls->getProperty(i));
+
       jobject prop=jEnv->NewObject(classRefs[15],instanceMethodIDs[14],(jint)cp);
+
       jEnv->CallVoidMethod(jVec,instanceMethodIDs[15],prop);
    }
    return jVec;
@@ -1332,11 +1410,9 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMInstance__1setProperty
          if (cp.getType()==cv->getType())
             cp.setValue(*cv);
          else {
-         if (JMPIjvm::trace)
-            cerr<<"!!! CIMInstance.setProperty - Wrong type of CIMValue (instance name:"
-              <<ci->getClassName().getString()<<", property name: "<<str<<")";
-          if (JMPIjvm::trace)
-             cerr<<"!!! CIMInstance.setProperty : "<<cp.getType()<<" <> "<<cv->getType()<<endl;
+            DDD(PEGASUS_STD(cerr)<<"!!! CIMInstance.setProperty - Wrong type of CIMValue (instance name:"<<ci->getClassName().getString()<<", property name: "<<str<<")");
+            DDD(PEGASUS_STD(cerr)<<"!!! CIMInstance.setProperty : "<<cp.getType()<<" <> "<<cv->getType()<<PEGASUS_STD(endl));
+
             throw CIMException(CIM_ERR_FAILED, String("Type mismatch"));
          }
          ci->removeProperty(pos);
@@ -1420,11 +1496,15 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1clone
 JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMInstance__1getProperties
       (JNIEnv *jEnv, jobject jThs, jint jInst, jobject jVec) {
    CIMInstance *ci=(CIMInstance*)jInst;
+
    for (int i=0,s=ci->getPropertyCount(); i<s; i++) {
       CIMProperty *cp=new CIMProperty(ci->getProperty(i));
+
       jobject prop=jEnv->NewObject(classRefs[15],instanceMethodIDs[14],(jint)cp);
+
       jEnv->CallVoidMethod(jVec,instanceMethodIDs[15],prop);
    }
+
    return jVec;
 }
 
@@ -3311,11 +3391,21 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClient__1execQuery
    CIMClient *cCc=(CIMClient*)jCc;
    CIMObjectPath *cop=(CIMObjectPath*)jCop;
 
+/* Note:
+** This does not work for some reason on the client java code:
+**   DDD(PEGASUS_STD(cout)<<"--- JMPIjvm::"<<__FUNCTION__<<": jEnv = "<<PEGASUS_STD(hex)<<(int)jEnv<<", jThs = "<<(int)jThs<<PEGASUS_STD(dec)<<", jCc = "<<jCc<<", jNs = "<<jNs<<", jCop = "<<jCop<<", jQuery = "<<PEGASUS_STD(hex)<<(int)jQuery<<", jQl = "<<(int)jQl<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+** What does work is:
+**   printf ("This is a test\n");
+*/
+
    const char *str=jEnv->GetStringUTFChars(jQuery,NULL);
    String query(str);
+
    jEnv->ReleaseStringUTFChars(jQuery,str);
+
    str=jEnv->GetStringUTFChars(jQl,NULL);
    String ql(str);
+
    jEnv->ReleaseStringUTFChars(jQl,str);
 
    try {
@@ -3503,7 +3593,8 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMClient__1enumerateNameSpaces
          CIMObjectPath &cop=enm[i];
          const Array<CIMKeyBinding>& kb=cop.getKeyBindings();
 	 const String &n=kb[0].getValue();
-	 if (!deep && n.find('/')!=PEG_NOT_FOUND) continue;
+         if (!deep && n.find('/')!=PEG_NOT_FOUND)
+            continue;
 	 String x=ns+"/"+n;
 	 jstring str=jEnv->NewStringUTF(x.getCString());
          jEnv->CallVoidMethod(jVec,instanceMethodIDs[15],str);
@@ -3540,10 +3631,3 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1deleteNameSpace
 } // extern "C"
 
 PEGASUS_NAMESPACE_END
-
-
-
-
-
-
-

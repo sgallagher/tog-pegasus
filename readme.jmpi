@@ -30,11 +30,22 @@ Environment settings
    export LD_ASSUME_KERNEL=2.2.5
    cd $PEGASUS_HOME
 
+   There are a couple of optional environment variables to determine how the JRE is initialized.  These are
+   as follows (the variable name and what JRE option that it corresponds to):
+
+   PEGASUS_JMPI_MAX_HEAP               -Xmx
+   PEGASUS_JMPI_INITIAL_HEAP           -Xms
+   PEGASUS_JMPI_JAVA_THREAD_STACK_SIZE -Xss
+
+   So, for example, you would perform the following if you want to change the maximum heap size to 128 megabytes.
+
+   export PEGASUS_JMPI_MAX_HEAP=128m
+
    When using this script, place a copy of this script above your PEGASUS_HOME directory.
    "cd" to PEGASUS_HOME, and issue ". ../setJPeg". Then do a normal make.
 
 
-This installent has a number of restrictios:
+This installment has a number of restrictios:
 
    The provider interfaces follow the SNIA OpenWBEM APIs
    Only Instance and Association providers are supported at the moment.

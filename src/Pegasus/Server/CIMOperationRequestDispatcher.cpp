@@ -42,8 +42,8 @@
 //               Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //               Dave Rosckes (rosckes@us.ibm.com)
 //               Adrian Schuur (schuur@de.ibm.com)
-//				 Seema Gupta (gseema@in.ibm.com for PEP135)
-//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//               Seema Gupta (gseema@in.ibm.com for PEP135)
+//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090,#1716
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2149,6 +2149,10 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                         Formatter::format("Aggregation Processor Error Discard. Error $0"
                                           , response->cimException.getCode()));
+
+               if (response->cimException.getCode() != CIM_ERR_NOT_SUPPORTED)
+                   poA->getResponse(0)->cimException = response->cimException;
+
     	       poA->deleteResponse(j);
                j--;
            }

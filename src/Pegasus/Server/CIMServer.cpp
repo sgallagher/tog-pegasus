@@ -130,7 +130,7 @@ CIMServer::CIMServer(
 
         sslcontext = new SSLContext(certPath);
     }
-    else 
+    else
         sslcontext = NULL;
 
     _acceptor = new HTTPAcceptor(_monitor, serverQueue, sslcontext);
@@ -138,8 +138,10 @@ CIMServer::CIMServer(
     /**
         Create indication subscription service
      */
-    IndicationSubscription * subscriptionService = 
+    /* ATTN: temporarilty disabled
+	IndicationSubscription * subscriptionService =
         IndicationSubscription::getInstance ();
+		*/
 
     /** load registered providers from repository, and creates
         provider block table
@@ -190,7 +192,7 @@ CIMOperationRequestDispatcher* CIMServer::getDispatcher()
 void CIMServer::setState(Uint32 state)
 {
     _serverState->setState(state);
-   
+
     if (state == CIMServerState::TERMINATING)
     {
         // tell decoder that CIMServer is terminating

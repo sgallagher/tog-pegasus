@@ -27,7 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <process.h>  
-#include <winbase.h>
+#include <windows.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/timeb.h> 
@@ -35,7 +35,7 @@
 
 typedef CRITICAL_SECTION  PEGASUS_CRIT_TYPE;
 typedef HANDLE  PEGASUS_SEMAPHORE_TYPE;
-typedef unsigned long PEGASUS_THREAD_TYPE;
+typedef HANDLE  PEGASUS_THREAD_TYPE;
 typedef HANDLE  PEGASUS_MUTEX_TYPE;
 
 typedef struct {
@@ -49,9 +49,11 @@ typedef struct {
 } PEGASUS_MUTEX_HANDLE ;
 
 
+typedef void *PEGASUS_CLEANUP_HANDLE;
+
 typedef DWORD PEGASUS_THREAD_RETURN;
 
-#define PEGASUS_THREAD_CDECL WINAPI
+#define PEGASUS_THREAD_CDECL __stdcall
 
 typedef struct {
       PEGASUS_THREAD_TYPE thid;

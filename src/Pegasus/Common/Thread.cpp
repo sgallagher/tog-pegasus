@@ -52,7 +52,8 @@ void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCExcepti
     } 
     catch(IPCException& e) 
     { 
-	delete cu; 
+        e = e;
+	delete cu;
 	throw; 
     }
     return;
@@ -66,7 +67,8 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
 	cu = _cleanup.remove_first() ;
     }
     catch(IPCException& e) 
-    { 
+    {
+       e = e;
 	PEGASUS_ASSERT(0); 
     }
     if(execute == true)
@@ -92,13 +94,17 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
        }
        catch(IPCException& e) 
        { 
-	   PEGASUS_ASSERT(0); 
-	       break; 
+	  e = e;
+	  PEGASUS_ASSERT(0); 
+	  break; 
        } 
    }
-       _exit_code = exit_code;
+   _exit_code = exit_code;
+   exit_thread(exit_code);
 }
+
 
 #endif
 
 PEGASUS_NAMESPACE_END
+

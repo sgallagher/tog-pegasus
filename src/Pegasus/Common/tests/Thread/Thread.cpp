@@ -18,7 +18,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//=============================================================================
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
@@ -30,7 +30,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <sys/types.h>
-#include <unistd.h>
+// #include <unistd.h>
 #include <cassert>
 #include <iostream>
 #include <stdio.h>
@@ -43,9 +43,8 @@ PEGASUS_USING_STD;
 
 Boolean die = false;
 
-void *reading_thread(void *parm);
-void *writing_thread(void *parm);
-
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm);
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm);
 
 int main(int argc, char **argv)
 {
@@ -64,9 +63,9 @@ int main(int argc, char **argv)
       writers[i] = new Thread(writing_thread, rw, false);
       writers[i]->run();
    }
-   sleep(10);
+   sleep(20000); 
    die = true;
-   delete rw;
+  
    for(int i = 0; i < 40; i++)
    {
       cout << " joining reader thread " << i << endl;
@@ -80,19 +79,19 @@ int main(int argc, char **argv)
       writers[i]->join();
       delete writers[i];
    }
-   
+   delete rw; 
    return(0);
 }
 
 
-void *reading_thread(void *parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
 {
    Thread *my_handle = (Thread *)parm;
    ReadWriteSem * my_parm = (ReadWriteSem *)my_handle->get_parm();
    
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
    
-   cout << "I am a reader thread:" << myself  << endl;
+   cout << "r";
    
    while(die == false) 
    {
@@ -106,7 +105,7 @@ void *reading_thread(void *parm)
 	 abort();
       }
       
-      cout << "Thread " << myself << " reading..." << endl;
+      cout << "R";
       my_handle->sleep(1);
       
       try 
@@ -114,18 +113,17 @@ void *reading_thread(void *parm)
 	 my_parm->unlock_read(myself);
       }
       catch(IPCException& e)
-      {
+	{
 	 cout << "Exception while trying to release a read lock" << endl;
 	 abort();
       }
    }
-   cout << "dying .." << myself << endl;
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
 }
 
 
-void *writing_thread(void *parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
 {
    
    Thread *my_handle = (Thread *)parm;
@@ -133,7 +131,7 @@ void *writing_thread(void *parm)
    
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
    
-   cout << "I am a writer  thread:" << myself  << endl;
+   cout << endl << "w";
    
    while(die == false) 
    {
@@ -146,7 +144,7 @@ void *writing_thread(void *parm)
 	 cout << "Exception while trying to get a write lock" << endl;
 	 abort();
       }
-      cout << "Thread " << myself << " writing...writing...writing....writing..." << endl;
+      cout << endl << "W";
       my_handle->sleep(1);
       try 
       {
@@ -159,14 +157,12 @@ void *writing_thread(void *parm)
       }
    }
 
-   cout << "dying .." << myself << endl;
-   
-   my_handle->exit_self((void *)1);
+   my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
 }
 
 
-void *tsd_thread(void *parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL tsd_thread(void *parm)
 {
    Thread *my_handle = (Thread *)parm;
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
@@ -198,6 +194,6 @@ void *tsd_thread(void *parm)
       abort();
    }
    cout << "dying .." << myself << endl;
-   my_handle->exit_self((void *)1);
+   my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
 }

@@ -65,6 +65,14 @@ inline void enable_cancel(void)
 #define native_cleanup_pop(execute) \
    pthread_cleanup_pop_restore_np(execute)
 
+void sleep(int msec)
+{
+  struct timespec timeout;
+  timeout.tv_sec = msec / 1000;
+  timeout.tv_nsec = (msec & 1000) * 1000;
+  nanosleep(&timeout,NULL);
+}
+
 #ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 // ATTN: RK - Need to determine HP-UX equivalents
 
@@ -92,6 +100,12 @@ inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
 {
    pthread_spin_destroy(crit);
 }
+
+inline void exit_thread(PEGASUS_THREAD_RETURN rc)
+{
+  pthread_exit(rc);
+}
+
 #endif
    
 #ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC

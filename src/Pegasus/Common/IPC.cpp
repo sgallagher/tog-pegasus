@@ -36,10 +36,10 @@
 # error "Unsupported platform"
 #endif
 
-PEGASUS_NAMESPACE_BEGIN
 
-const Uint32 PEG_SEM_READ = 1 ;
-const Uint32 PEG_SEM_WRITE = 2 ;
+
+
+PEGASUS_NAMESPACE_BEGIN
 
 //-----------------------------------------------------------------
 /// Generic Implementation of read/write semaphore class
@@ -78,11 +78,11 @@ ReadWriteSem::~ReadWriteSem(void)
    }
    catch(Deadlock& d) 
    {
-      // no problem - we own the lock, which is what we want
+      d = d; // no problem - we own the lock, which is what we want
    }
    catch(IPCException& e) 
    {
-      // oops - this is really bad
+      e = e; // oops - this is really bad
       PEGASUS_ASSERT(0);
    }
    while(_readers > 0 || _writers > 0) 
@@ -269,6 +269,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    {
 	       // the wait failed, there must be too many readers already. 
 	       // unlock the object
+	      e = e;
 	       _rwlock._internal_lock.unlock();
 	       caught = new TooManyReaders(pegasus_thread_self());
 	    }
@@ -587,16 +588,16 @@ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
 }
 
 void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
-   throw(TimeOut, Permission)
+  throw(TimeOut, Permission)
 {
 
    IPCException *caught = NULL;
    
-   if(_disallow == 1)
-      throw(TimeOut(caller));
+   if(_disallow == 1) 
+      throw(TimeOut((PEGASUS_THREAD_TYPE)caller));
    // enforce that the caller owns the conditional lock
    if(_cond_mutex._mutex.owner != caller)
-      throw(Permission(caller));
+      throw(Permission((PEGASUS_THREAD_TYPE)caller));
    cond_waiter *waiter = new cond_waiter(caller, milliseconds);
    {
       native_cleanup_push(extricate_condition, this);
@@ -616,7 +617,7 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
       }
       catch(TimeOut& t) 
       {
-	 ;
+	 t = t;
       }
       catch(IPCException& e)
       {
@@ -641,7 +642,7 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
       return;
       // enforce that the caller owns the conditional lock
    if(_cond_mutex._mutex.owner != caller)
-      throw(Permission(caller));
+      throw(Permission((PEGASUS_THREAD_TYPE)caller));
 
    // lock the internal list
    _condition._spin.lock(caller);

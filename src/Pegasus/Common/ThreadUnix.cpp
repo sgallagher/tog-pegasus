@@ -153,10 +153,16 @@ PEGASUS_THREAD_TYPE SimpleThread::self(void) { return(_handle.thid); }
 
 
 Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
-		void *parameter, Boolean detached ) : _is_detached(detached), 
-	      _cancel_enabled(true), _cancelled(false),
-	      _suspend_count(), _start(start), 
-	      _tsd(), _thread_parm(parameter), _exit_code(0)
+		void *parameter, 
+		Boolean detached ) : _is_detached(detached), 
+				     _cancel_enabled(true), 
+				   _cancelled(false),
+				     _suspend_count(), 
+				     _start(start), 
+				     _cleanup(true),
+				     _tsd(true),
+				     _thread_parm(parameter), 
+				     _exit_code(0)
 {
 
     pthread_attr_init(&_handle.thatt);
@@ -165,7 +171,7 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 
 Thread::~Thread()
 {
-    if (!_is_detached && _handle.thid != 0 )
+   if( (! _is_detached) && (_handle.thid != 0))
         pthread_join(_handle.thid,NULL);
 }
 
@@ -202,7 +208,7 @@ void Thread::sleep(Uint32 msec)
 
 void Thread::join(void) 
 { 
-   if(! _is_detached)
+   if((! _is_detached) && (_handle.thid != 0))
       pthread_join(_handle.thid, &_exit_code) ; 
 }
 

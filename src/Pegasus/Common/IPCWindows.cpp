@@ -34,8 +34,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct timeval 
 {
-      long int tv_sec;
-      long int tv_usec;
+      long int tv_sec;      long int tv_usec;
 };
 
 struct timezone
@@ -44,10 +43,6 @@ struct timezone
       int tz_dsttime;
 };
 
-static int gettimeofday(struct timeval *tv, struct timezone *tz)
-{
-   return(pegasus_gettimeofday(tv));
-}
 
 static int pegasus_gettimeofday(struct timeval *tv)
 {
@@ -58,22 +53,27 @@ static int pegasus_gettimeofday(struct timeval *tv)
 	tv->tv_sec = timebuffer.time;
 	tv->tv_usec = ( timebuffer.millitm / 1000 );
 	return(0);
-}	
+}
+	
+static int gettimeofday(struct timeval *tv, struct timezone *tz)
+{
+   return(pegasus_gettimeofday(tv));
+}
 
 inline void pegasus_yield(void)
 {
-   SwitchToThread();
+  Sleep(0);
 }
 
 // pthreads cancellation calls 
 inline void disable_cancel(void)
 {
-   InterlockedExchange(&(LONG *)_cancel_enabled, (LONG)false);
+  ;
 }
 
 inline void enable_cancel(void)
 {
-   InterlockedExchange(&(LONG *)_cancel_enabled, (LONG)true);
+  ;
 }
 
 
@@ -81,50 +81,60 @@ inline void enable_cancel(void)
 // operating systems. Be careful using these next two 
 // macros. There is no pop routine in windows. Further, windows
 // does not allow passing parameters to exit functions. !!
-#define native_cleanup_push( func, arg ) atexit(func)
+#define native_cleanup_push( func, arg ) 
 
 #define native_cleanup_pop(execute) 
 
-inline void init_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_EXPORT init_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   InitializeCriticalSectionAndSpinCount(crit, 1000);
+   InitializeCriticalSection(crit);
 }
 
-inline void enter_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_EXPORT enter_crit(PEGASUS_CRIT_TYPE *crit)
 {
    EnterCriticalSection(crit);
 }
 
-inline void try_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_EXPORT try_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   TryEnterCriticalSection(crit); 
+  EnterCriticalSection(crit); 
 }
 
-inline void exit_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit)
 {
    LeaveCriticalSection(crit);
 }
 
-inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
+inline void PEGASUS_EXPORT destroy_crit(PEGASUS_CRIT_TYPE *crit)
 {
    DeleteCriticalSection(crit);
 }
    
-PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
+PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void) 
 { 
-   return(GetCurrentThread());
+   return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
+}
+
+inline void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc)
+{
+  _endthreadex(rc);
+}
+
+inline void PEGASUS_EXPORT sleep(int ms)
+{
+  Sleep(ms);
 }
 
 Mutex::Mutex()
 {
    _mutex.mut = CreateMutex(NULL, false, NULL);
-   _mutex.owner = GetCurrentThread();
+   _mutex.owner = (PEGASUS_THREAD_TYPE)GetCurrentThreadId();
 }
 
 Mutex::Mutex(int mutex_type)
 {
    _mutex.mut = CreateMutex(NULL, false, NULL);
-   _mutex.owner = GetCurrentThread();
+   _mutex.owner = (PEGASUS_THREAD_TYPE)GetCurrentThreadId();
 }
 
 Mutex::~Mutex()
@@ -188,12 +198,13 @@ void Mutex::unlock() throw(Permission)
    ReleaseMutex(_mutex.mut);
 }
 
+static const int SEM_VALUE_MAX = 0x0000ffff;
 Semaphore::Semaphore(Uint32 initial) 
 {
    if(initial > SEM_VALUE_MAX)
       initial = SEM_VALUE_MAX - 1;
    _count = initial;
-   _semaphore.owner = GetCurrentThread();
+   _semaphore.owner = (PEGASUS_THREAD_TYPE)GetCurrentThreadId();
    _semaphore.sem = CreateSemaphore(NULL, initial, SEM_VALUE_MAX, NULL);
 }
 
@@ -217,7 +228,7 @@ void Semaphore::try_wait(void) throw(WaitFailed)
 {
    DWORD errorcode = WaitForSingleObject(_semaphore.sem, 0);
    if(errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
-      throw(WaitFailed(GetCurrentThread()));
+      throw(WaitFailed((PEGASUS_THREAD_TYPE)GetCurrentThreadId()));
    _count--;
 }
 
@@ -227,9 +238,9 @@ void Semaphore::try_wait(void) throw(WaitFailed)
 void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
    DWORD errorcode = WaitForSingleObject(_semaphore.sem, milliseconds);
-   if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILIED)
-      throw(TimeOut(GetCurrentThread()));
-   count--;
+   if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
+      throw(TimeOut((PEGASUS_THREAD_TYPE)GetCurrentThreadId()));
+   _count--;
 }
 
 // increment the count of the semaphore 
@@ -292,7 +303,7 @@ inline Uint32 AtomicInt::operator+(Uint32 val)
 inline Uint32 AtomicInt::operator-(const AtomicInt& val) 
 { 
    LONG temp_operand, temp_result;
-   temp_operand = InterlockedExchangeAdd(&(val._rep), 0);
+   temp_operand = InterlockedExchangeAdd((long *)&(val._rep), 0);
    temp_result = InterlockedExchangeAdd(&_rep, 0);
    return(temp_result - temp_operand);
 }
@@ -300,7 +311,7 @@ inline Uint32 AtomicInt::operator-(const AtomicInt& val)
 inline Uint32 AtomicInt::operator-(Uint32 val) 
 {  
    LONG temp_operand, temp_result;
-   temp_operand = InterlockedExchangeAdd( &val, 0);
+   temp_operand = InterlockedExchangeAdd( (long *)&val, 0);
    temp_result = InterlockedExchangeAdd(&_rep, 0);
    return(temp_result - temp_operand);
 }
@@ -329,7 +340,7 @@ inline AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
 inline AtomicInt& AtomicInt::operator-=(Uint32 val) 
 {  
    LONG temp ;
-   InterlockedExchange(&temp, val._rep);
+   InterlockedExchange(&temp, val);
    enter_crit(&_crit);
    _rep -= temp;
    exit_crit(&_crit);

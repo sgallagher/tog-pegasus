@@ -84,7 +84,7 @@ SOURCES = \
 ##
 ## Took these out again. They broke the NT build.
 ##
-ifeq ($(OS),linux)
+ifdef PEGASUS_CONCURRENT
 SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp MT_MessageQueue.cpp
 endif
 

@@ -60,7 +60,7 @@ class PEGASUS_EXPORT cleanup_handler
       }
       void *_arg; 
       PEGASUS_CLEANUP_HANDLE _cleanup_buffer;
-      template<class cleanup_handler> friend class DQueue;
+      friend DQueue<class cleanup_handler>;
       friend class Thread;
 };
 
@@ -201,8 +201,7 @@ class  PEGASUS_EXPORT thread_data
       void *_data;
       Uint32 _size;
       Sint8 *_key;
-  
-      template<class thread_data> friend class DQueue;
+      friend DQueue<thread_data>;
       friend class Thread;
 };
 
@@ -270,7 +269,7 @@ class PEGASUS_EXPORT Thread
       {
 	 thread_data *tsd = new thread_data(key, size, buffer);
 	 try { _tsd.insert_first(tsd); }
-	 catch(IPCException& e) { delete tsd; throw; }
+	 catch(IPCException& e) { e = e; delete tsd; throw; }
       }
 
       // get the buffer associated with the key
@@ -313,7 +312,7 @@ class PEGASUS_EXPORT Thread
 	 thread_data *ntsd = new thread_data(key);
 	 ntsd->put_data(delete_func, size, value);
 	 try { _tsd.insert_first(ntsd); }
-	 catch(IPCException& e) { delete ntsd; throw; }
+	 catch(IPCException& e) { e = e; delete ntsd; throw; }
 	 return(tsd);
       }
       inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
@@ -325,7 +324,7 @@ class PEGASUS_EXPORT Thread
       {
 	 thread_data *tsd = new thread_data(key);
 	 try { _tsd.insert_first(tsd); }
-	 catch(IPCException& e) { delete tsd; throw; }
+	 catch(IPCException& e) { e = e; delete tsd; throw; }
       }
       PEGASUS_THREAD_HANDLE _handle;
       Boolean _is_detached;
@@ -338,8 +337,8 @@ class PEGASUS_EXPORT Thread
       // store the user parameter in _thread_parm 
 
       PEGASUS_THREAD_RETURN  ( PEGASUS_THREAD_CDECL *_start)(void *) ;
-      DQueue<cleanup_handler> _cleanup;
-      DQueue<thread_data> _tsd;
+      DQueue<class cleanup_handler> _cleanup;
+      DQueue<class thread_data> _tsd;
 
       void *_thread_parm;
       PEGASUS_THREAD_RETURN _exit_code;

@@ -44,25 +44,25 @@
 
 
 PEGASUS_NAMESPACE_BEGIN
-extern const Uint32 PEG_SEM_READ;
-extern const Uint32 PEG_SEM_WRITE;
-
+#define PEG_SEM_READ 1
+#define PEG_SEM_WRITE 2
 
 //%///////////////// ----- IPC related functions ------- //////////////////////
 // ----- NOTE - these functions are PRIMITIVES that MUST be implemented
 //               by the platform. e.g., see IPCUnix.cpp
 
-void disable_cancel(void);
-void enable_cancel(void);
-void native_cleanup_push( void (*)(void *), void * );
-void native_cleanup_pop(Boolean execute);
-void init_crit(PEGASUS_CRIT_TYPE *crit);
-void enter_crit(PEGASUS_CRIT_TYPE *crit);
-void try_crit(PEGASUS_CRIT_TYPE *crit);
-void destroy_crit(PEGASUS_CRIT_TYPE *crit);
-void exit_crit(PEGASUS_CRIT_TYPE *crit);
-PEGASUS_THREAD_TYPE pegasus_thread_self(void);
-
+void PEGASUS_EXPORT disable_cancel(void);
+void PEGASUS_EXPORT enable_cancel(void);
+void PEGASUS_EXPORT native_cleanup_push( void (*)(void *), void * );
+void PEGASUS_EXPORT native_cleanup_pop(Boolean execute);
+void PEGASUS_EXPORT init_crit(PEGASUS_CRIT_TYPE *crit);
+void PEGASUS_EXPORT enter_crit(PEGASUS_CRIT_TYPE *crit);
+void PEGASUS_EXPORT try_crit(PEGASUS_CRIT_TYPE *crit);
+void PEGASUS_EXPORT destroy_crit(PEGASUS_CRIT_TYPE *crit);
+void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit);
+PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void);
+void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc);
+void PEGASUS_EXPORT sleep(int ms);
 
 //%//////// -------- IPC Exception Classes -------- ///////////////////////////////
 
@@ -465,9 +465,6 @@ class PEGASUS_EXPORT ReadWriteSem
       }
       int read_count(void);
       int write_count(void);
-
-   private: 
-
       void wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
 	 throw(Deadlock, Permission, WaitFailed, TooManyReaders);
       void try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
@@ -476,12 +473,15 @@ class PEGASUS_EXPORT ReadWriteSem
 	 throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders);
       void unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
       	 throw(Permission);
+
+   private: 
       void _extricate(void);
       int _readers; 
       int _writers;
       PEGASUS_RWLOCK_HANDLE _rwlock;
+      // friend template class DQueue;
       friend void extricate_read_write(void *);
-} ;
+   } ;
 
 //-----------------------------------------------------------------
 /// Generic definition of conditional semaphore

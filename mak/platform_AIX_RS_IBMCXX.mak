@@ -28,7 +28,9 @@ SYS_LIBS = -ldl
 
 # SSL support
 ifdef PEGASUS_HAS_SSL
+ifndef OPENSSL_HOME
 OPENSSL_HOME = /usr/linux
+endif
 endif
 
 CXX = xlC_r

@@ -32,121 +32,49 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/AsyncOpNode.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
 class AsyncOpNode;
 
-class PEGASUS_EXPORT CimomMessage : public Message
+class PEGASUS_EXPORT CimomRequest : public Message
 {
    public:
-      CimomMessage(Uint32 type, Uint32 id )
-	 : Message(type), message_id(id) { }
-
-      virtual ~CimomMessage();
-      
-      Uint32 message_id;
-};
-
-
-// used to register a new module with the cimom
-// async_control points to the async ioctl routine (like a device driver)
-// result_callback is a direct callback to the module to record the result
-// of the operation. the result parameter contains the message queue id that
-// the new module can use to receive messages. 
-
-class PEGASUS_EXPORT CimomRegistration : public Message
-{
-   public: CimomRegistration(Uint32 type, 
-			     Uint32 id,
-			     const String& module_name,
-			     Uint32 capabilities
-			     Uint32 messages,
-			     void (*async_control)(AsyncOpNode *op),
-			     void (*result_callback)(Uint32 result)) 
-      : CimomMessage(type, id), module(module_name),
-	capabilities_mask(capabilities), 
-	message_mask(messages), control(async_control), 
-	result(result_callback) {  }
-      
-      virtual ~CimomRegistration(void);
-
-      String module;
-      Uint32 capabilities_mask;
-      Uint32 message_mask;
-      void (*control)(AsyncOpNode *op);
-      void (*result)(Uint32 result);
-} ;
-
-
-class PEGASUS_EXPORT CimomRequest : public CimomMessage
-{
-   public:
-      CimomRequest(Uint32 type, Uint32 id, QueueIdStack queues)
-	 : CimomMessage(type, id), queue_ids(queues) { }
+      CimomRequest(Uint32 type, 
+		   Uint32 key,
+		   QueueIdStack queue_ids = QueueIdStack(MessageQueue::_CIMOM_Q_ID),
+		   Uint32 mask = message_mask::type_cimom | message_mask::type_request)
+	 : Message(type, key, mask), queues(queue_ids), _sem(1) {   }
       
       virtual ~CimomRequest(void);
-      
-      QueueIdStack queue_ids;
-}
+      QueueIdStack queues;
+   protected:
+      Semaphore & get_sem(void);
+      Semaphore _sem;
+} ;
 
-
-class PEGASUS_EXPORT CimomReply : public CimomMessage
+class PEGASUS_EXPORT CimomReply : public Message
 {
-   public :
-      CimomReply(Uint32 type, 
-		 Uint32 id, 
-		 Uint32 status)
-	 : CimomMessage(type, id), error_status(status) { }
-      
+   public:
+      CimomReply(Uint32 type,
+		 Uint32 key, 
+		 Uint32 result_code,
+		 QueueIdStack queue_ids,
+		 Semaphore sem = Semaphore(1),
+		 Uint32 mask = message_mask::type_cimom | message_mask::type_reply)
+	 : Message(type, key, mask), result(result_code), queues(queue_ids)  {   }
+
       virtual ~CimomReply(void);
       
-      Uint32 error_status;
-};
-
-class PEGASUS_EXPORT CimomGetKnownModulesRequest : public CimomRequest
-{
-   public:
-      CimomGetKnownModulesRequest(Uint32 type, 
-				  Uint32 id, 
-				  QueueIdStack queues,
-				  const String& module_name,
-				  Uint32 module_capabilities,
-				  Uint32 module_messages)
-	 : CimomRequest(type, id, queues), module(module_name),
-	   capabilities(module_capabilities), 
-	   messages(module_messages) { }
-
-      virtual ~CimomGetKnownModulesRequest(void);
-      
-      String module;
-      Uint32 capabilties;
-      Uint32 messages
-	 
-}
-
-
-class PEGASUS_EXPORT CimomGetKnownModulesReply : public CimomReply
-{
-   public:
-      CimomGetKnownModulesReply(Uint32 type, 
-				Uint32 id, 
-				Uint32 status,
-				const Array<String>& module_names,
-				const Array<Uint32>& module_capabilities,
-				const Array<Uint32>& module_messages )
-	 : names(module_names), capabilities(module_capabilities),
-	   messages(module_messages) { }
-
-      virtual ~CimomGetKnownModulesReply(void);
-      
-      Array<String> names;
-      Array<Uint32> capabilities;
-      Array<Uint32> messages;
+      Uint32 result;
+      QueueIdStack queues;
 };
 
 
+// class PEGASUS_EXPORT ModuleRegister : public CimomRequest 
 
 PEGASUS_NAMESPACE_END
 

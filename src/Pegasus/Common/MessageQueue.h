@@ -151,9 +151,10 @@ public:
     /** Lookup a message queue from a queue id. */
     static MessageQueue* lookup(Uint32 queueId);
     static  MessageQueue* lookup(const char *name);
+    static Uint32 _CIMOM_Q_ID;
     
 private:
-
+    
     Uint32 _queueId;
     Uint32 _count;
     Message* _front;

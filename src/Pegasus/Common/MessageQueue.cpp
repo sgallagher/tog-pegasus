@@ -27,6 +27,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/IPC.h>
 #include "MessageQueue.h"
 
 PEGASUS_USING_STD;
@@ -40,15 +41,22 @@ static QueueTable _queueTable(128);
 
 static Uint32 _GetNextQueueId()
 {
-    static Uint32 _queueId = 1;
+   static Mutex _mut;
+   
+   static Uint32 _queueId = 2;
 
-    // Handle wrap-around!
-
-    if (_queueId == 0)
-	_queueId++;
-    
-    return _queueId++;
+   _mut.lock(pegasus_thread_self());
+   
+   // Handle wrap-around!
+   if (_queueId == 0)
+      _queueId = MessageQueue::_CIMOM_Q_ID;
+   Uint32 ret = _queueId++;
+   _mut.unlock();
+   
+   return ret;
 }
+
+Uint32 MessageQueue::_CIMOM_Q_ID = 1;
 
 MessageQueue::MessageQueue() : _count(0), _front(0), _back(0)
 {

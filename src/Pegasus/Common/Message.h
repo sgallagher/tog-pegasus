@@ -36,6 +36,7 @@
 #include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/IPC.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,7 +55,7 @@ class PEGASUS_EXPORT message_mask
       static Uint32 type_cimom;
 
       static Uint32 type_request;
-      static Uint32 type_resply;
+      static Uint32 type_reply;
       static Uint32 type_control;
 };
 
@@ -97,8 +98,15 @@ public:
 
     const Message* getPrevious() const { return _prev; }
 
-    static Uint32 getNextKey() { return ++_nextKey; }
-
+    static Uint32 getNextKey() 
+      { 
+	 
+	 _mut.lock( pegasus_thread_self() ) ; 
+	 Uint32 ret = _nextKey++;
+	 _mut.unlock();
+	 return ret;
+      }
+      
     virtual void print(PEGASUS_STD(ostream)& os) const;
 
 private:
@@ -109,6 +117,7 @@ private:
       Message* _prev;
       MessageQueue* _owner;
       static Uint32 _nextKey;
+      static Mutex _mut;
       friend class MessageQueue;
 };
 

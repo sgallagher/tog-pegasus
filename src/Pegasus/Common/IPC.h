@@ -214,6 +214,8 @@ class PEGASUS_EXPORT Semaphore
     
       // create the semaphore and set its initial value to the <initial>
       Semaphore(Uint32 initial = 1 ) ;
+      Semaphore(const Semaphore & sem);
+      
       ~Semaphore( );
 
       // block until this semaphore is in a signalled state 

@@ -73,6 +73,18 @@ Semaphore::Semaphore(Uint32 initial)
    _semaphore.sem = CreateSemaphore(NULL, initial, SEM_VALUE_MAX, NULL);
 }
 
+Semaphore::Semaphore(const Semaphore & sem)
+{
+   DuplicateHandle(GetCurrentProcess(), sem._semaphore.sem, 
+		   GetCurrentProcess(), &(_semaphore.sem), 
+		   0, TRUE,
+		   DUPLICATE_SAME_ACCESS | SEMAPHORE_ALL_ACCESS | SYNCHRONIZE);
+
+
+   _semaphore.owner = (PEGASUS_THREAD_TYPE)0;
+}
+
+
 Semaphore::~Semaphore()
 {
    CloseHandle(_semaphore.sem);

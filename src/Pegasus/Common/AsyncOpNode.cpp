@@ -30,10 +30,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
    
-
-
-
-
 AsyncOpNode::AsyncOpNode(void) 
    : _mut(), _request(0), _response(0), 
      _state(0), _flags(0), _total_ops(0), _completed_ops(0), 

@@ -337,6 +337,13 @@ Semaphore::Semaphore(Uint32 initial)
 
 }
 
+Semaphore::Semaphore(const Semaphore & sem)
+{
+   _semaphore.sem = sem._semaphore.sem;
+   _semaphore.owner = 0;
+}
+
+
 Semaphore::~Semaphore()
 {
    while( EBUSY == sem_destroy(&_semaphore.sem))

@@ -2046,7 +2046,7 @@ public:
     : CIMResponseMessage(
 	CIM_ENABLE_INDICATIONS_RESPONSE_MESSAGE,
         messageId_,
-	cimException,
+	cimException_,
         queueIds_)
     {
     }
@@ -2063,7 +2063,7 @@ public:
     : CIMResponseMessage(
 	CIM_DISABLE_INDICATIONS_RESPONSE_MESSAGE,
         messageId_,
-	cimException,
+	cimException_,
         queueIds_)
     {
     }

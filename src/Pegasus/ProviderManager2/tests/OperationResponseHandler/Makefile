@@ -12,6 +12,8 @@ PROGRAM = TestOperationResponseHandler
 
 LIBRARIES = \
     pegprovidermanager \
+    pegconfig \
+    pegprm \
     pegcommon
 
 SOURCES = \

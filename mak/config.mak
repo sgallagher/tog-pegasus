@@ -85,8 +85,35 @@ REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 # Update the following two environment variables to 
 # change the version.
 
-CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM27
-CIM_SCHEMA_VER=27
+# The environment variable PEGASUS_CIM_SCHEMA can be used
+# to change the values of CIM_SCHEMA_DIR, CIM_SCHEMA_VER 
+# and ALLOW_EXPERIMENTAL.
+#
+# To use the PEGASUS_CIM_SCHEMA variable the Schema mof
+# files must be placed in the directory
+# $(PEGAUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
+# 
+# The value of PEGASUS_CIM_SCHEMA must conform to the
+# following syntax:
+#
+#        CIM[Prelim]<CIM_SCHEMA_VER>
+#
+# The string "Prelim" should be included if the 
+# Schema contains "Experimental" class definitions.
+#
+# The value of <CIM_SCHEMA_VER> must be the value
+# of the version string included by the DMTF as 
+# part of the mof file names (e.g, CIM_Core27.mof). 
+# Therefore, for example, the value of <CIM_SCHEMA_VER>
+# for CIM27 Schema directories MUST be 27.
+#
+# Examples of valid values of PEGASUS_CIM_SCHEMA 
+# include CIMPrelim27, CIM27, CIMPrelim28, and CIM28.
+#
+# Note the CIMPrelim271 would NOT be a valid value
+# for PEGASUS_CIM_SCHEMA because the version string
+# portion of the mof files (e.g., CIM_Core27.mof) in
+# the CIMPrelimin271 directory is 27 not 271.
 
 # ***** CIM_SCHEMA_DIR INFO ****
 # If CIM_SCHEMA_DIR changes to use a preliminary schema which
@@ -95,10 +122,19 @@ CIM_SCHEMA_VER=27
 # experimental classes.  Since experimental classes exist the -aE
 # option of the mof compiler needs to be set.
 # *****
-ifeq ($(CIM_SCHEMA_DIR), $(PEGASUS_ROOT)/Schemas/CIMPrelim271)
-ALLOW_EXPERIMENTAL = -aE
+
+ifdef PEGASUS_CIM_SCHEMA
+  CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
+  CIM_SCHEMA_VER=$(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA)))
 else
-ALLOW_EXPERIMENTAL =
+  CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM27
+  CIM_SCHEMA_VER=27
+endif
+
+ifneq (, $(findstring Prelim, $(CIM_SCHEMA_DIR)))
+   ALLOW_EXPERIMENTAL = -aE
+else
+   ALLOW_EXPERIMENTAL =
 endif
 
 LEX = flex

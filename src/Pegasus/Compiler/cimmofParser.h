@@ -204,14 +204,6 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
 
 // Exceptions
 
-#if 0
-class PEGASUS_COMPILER_LINKAGE ParseError : public Exception {
- public:
-  static const char MSG[];
-  ParseError(const String &msg) : Exception(MSG + msg) {}
-};
-#endif
-
 class PEGASUS_COMPILER_LINKAGE LexerError : public Exception {
  public:
   static const char MSG[];

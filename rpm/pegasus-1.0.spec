@@ -94,7 +94,7 @@ echo "please add the path /usr/lib/pegasus to the ld.so.conf"
 rm -rf /var/lib/pegasus/repository
 sbin/insserv etc/init.d
 
-%files devel -f $RPM_BUILD_ROOT/rpm_pegasus_include_files
+%files devel -f rpm_pegasus_include_files
 
 %defattr(-,root,root,0755)
 %doc doc/*.txt doc/DOCREMARKS doc/HISTORY doc/NOTES

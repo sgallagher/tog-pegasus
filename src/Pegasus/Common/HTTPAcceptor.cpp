@@ -29,6 +29,7 @@
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Dave Rosckes (rosckes@us.ibm.com)
+//         Denise Eckstein (denise.eckstein@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -364,7 +365,7 @@ void HTTPAcceptor::_bind()
 
    // Set up listening on the given socket:
 
-   int const MAX_CONNECTION_QUEUE_LENGTH = 5;
+   int const MAX_CONNECTION_QUEUE_LENGTH = 15;
 
    if (listen(_rep->socket, MAX_CONNECTION_QUEUE_LENGTH) < 0)
    {

@@ -44,8 +44,9 @@ static sigset_t *block_signal_mask(sigset_t *sig)
     sigaddset(sig, SIGPIPE);
 
 
-// Note: linux pthreads library uses SIGUSR1 and SIGUSR2 internally
-// to stop and start threads that are blocking. 
+// Note: older versions of the linux pthreads library use SIGUSR1 and SIGUSR2
+// internally to stop and start threads that are blocking, the newer ones
+// implement this through the kernel's real time signals 
 
 // since SIGSTOP/CONT can handle suspend()/resume() on Linux
 // block them
@@ -197,6 +198,19 @@ void Thread::thread_switch()
 {
   sched_yield();
 }
+
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+void Thread::suspend()
+{
+    pthread_kill(_handle.thid,SIGSTOP);
+}
+
+void Thread::resume()
+{
+    pthread_kill(_handle.thid,SIGCONT);
+}
+#endif
+
 
 void Thread::sleep(Uint32 msec)
 {

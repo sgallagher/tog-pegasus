@@ -243,11 +243,13 @@ class PEGASUS_EXPORT Thread
 
       void thread_switch(void);
 
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
       // suspend this thread 
-      // void suspend(void) ;
+      void suspend(void) ;
 
       // resume this thread
-      // void resume(void) ;
+      void resume(void) ;
+#endif
 
       void sleep(Uint32 msec) ;
 

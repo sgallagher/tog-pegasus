@@ -142,7 +142,9 @@ int main()
 //    parm[0]->th->cancel();
 
     // Enforce that the first dequeuing task receives the cancel message
-    //    parm[2]->th->suspend();
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+    parm[2]->th->suspend();
+#endif
 
     cout << "+++++ passed test round 20" << endl; 
 #endif
@@ -164,7 +166,9 @@ int main()
 
     cout << "+++++ passed test round 22" << endl; 
 
-    //    parm[2]->th->resume();
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+    parm[2]->th->resume();
+#endif
 
     cout << "+++++ passed all tests" << endl; 
 

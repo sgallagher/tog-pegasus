@@ -23,7 +23,8 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//                  sushma_fernandes@hp.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +45,9 @@
     {"enableClientCertification", "false"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
+#ifdef PEGASUS_ALWAYS_USE_PAM
     {"usePAMAuthentication", "true"},
+#endif
 #endif
 #ifdef PEGASUS_USE_RELEASE_DIRS
     {"traceFilePath",       "/var/opt/wbem/cimserver.trc"},

@@ -1,4 +1,7 @@
-# Ensure that config.mak is included (so that the OS variable is set correctly)
+# commands.mak is a helper Makefile that is intended to be included in an upper level Makefile. 
+
+# Ensure that config.mak is included (so that the ROOT variable is set correctly)
+
 ifndef ROOT
     ifdef PEGASUS_ROOT
         ROOT =  $(subst \,/,$(PEGASUS_ROOT))
@@ -212,9 +215,6 @@ CMDSFORCE:
 cimstop: CMDSFORCE
 	$(CIMSERVER_STOP_SERVICE)
 
-cimstop_IgnoreError: CMDSFORCE
-	@make -f $(ROOT)/mak/commands.mak -i cimstop
-
 cimstart: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
 
@@ -224,14 +224,8 @@ sleep: CMDSFORCE
 mkdirhier: CMDSFORCE
 	$(MKDIRHIER) $(DIRNAME)
 
-mkdirhier_IgnoreError: CMDSFORCE
-	@make -f $(ROOT)/mak/commands.mak -i mkdirhier
-
 rmdirhier: CMDSFORCE
 	$(RMDIRHIER) $(DIRNAME)
-
-rmdirhier_IgnoreError: CMDSFORCE
-	@make -f $(ROOT)/mak/commands.mak -i rmdirhier
 
 setpermissions: CMDSFORCE
 	$(CHMOD) $(PERMISSIONS) $(OBJECT)
@@ -249,7 +243,33 @@ createlink: CMDSFORCE
 createrandomseed: CMDSFORCE
 	$(GENERATE_RANDSEED) $(FILENAME)
 
-# The runTestSuite option restarts the CIM Server
+# Because commands.mak is intended to be used as
+# helper Makefile, embedded use of calls to "make" are
+# problematic because the name of toplevel is not known.
+# To workaround this problem, the MAKEOPTIONS define 
+# has been added to the following commands to
+# allow the name of the toplevel Makefile to be included. 
+# E.g.,
+#
+# make MAKEOPTION="-f TestMakefile" cimstop_IgnoreError
+#
+# However, a better alternative would be to call the 
+# the command directly from the toplevel makefile.
+# E.g.,
+#
+# make -f TestMakefile -i cimstop
+
+cimstop_IgnoreError: CMDSFORCE
+	@$(MAKE) $(MAKEOPTIONS) -i cimstop
+
+rmdirhier_IgnoreError: CMDSFORCE
+	@$(MAKE) $(MAKEOPTIONS) -i rmdirhier
+
+mkdirhier_IgnoreError: CMDSFORCE
+	@$(MAKE) $(MAKEOPTIONS) -i mkdirhier
+
+
+# The runTestSuite option starts the CIM Server
 # with a designated set of configuration options (i.e.,
 # CIMSERVER_CONFIG_OPTIONS) and then runs a specified
 # set of tests (i.e., TESTSUITE_CMDS). After the tests
@@ -273,26 +293,9 @@ createrandomseed: CMDSFORCE
 #   $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Pegasus/Client/tests/InvokeMethod2@@poststarttests
 #
 #runTestSuiteTest: CMDSFORCE
-#	$(MAKE) -f $(ROOT)/mak/commands.mak runTestSuite CIMSERVER_CONFIG_OPTIONS="$(runTestSuiteTest_CONFIG_OPTIONS)" TESTSUITE_CMDS="$(runTestSuiteTest_TEST_CMDS)"
+#	$(MAKE) $(MAKEOPTIONS) runTestSuite CIMSERVER_CONFIG_OPTIONS="$(runTestSuiteTest_CONFIG_OPTIONS)" TESTSUITE_CMDS="$(runTestSuiteTest_TEST_CMDS)"
 
 runTestSuite: CMDSFORCE
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstop_IgnoreError
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstart CIMSERVER_CONFIG_OPTIONS=$(CIMSERVER_CONFIG_OPTIONS)
+	$(CIMSERVER_START_SERVICE)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i));)
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstop
-
-testCommands: CMDSFORCE
-	$(MAKE) -f $(ROOT)/mak/commands.mak sleep TIME=10
-	$(MAKE) -f $(ROOT)/mak/commands.mak rmdirhier_IgnoreError DIRNAME=$(TMP_DIR)/PegasusTestDirA/PegasusTestDirB
-	$(MAKE) -f $(ROOT)/mak/commands.mak mkdirhier DIRNAME=$(TMP_DIR)/PegasusTestDirA/PegasusTestDirB
-	$(MAKE) -f $(ROOT)/mak/commands.mak mkdirhier_IgnoreError DIRNAME=$(TMP_DIR)/PegasusTestDirA/PegasusTestDirB
-	$(MAKE) -f $(ROOT)/mak/commands.mak rmdirhier DIRNAME=$(TMP_DIR)/PegasusTestDirA
-	$(MAKE) -f $(ROOT)/mak/commands.mak rmdirhier_IgnoreError DIRNAME=$(TMP_DIR)/PegasusTestDirA/PegasusTestDirB
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstop_IgnoreError
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstart
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstop
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstop_IgnoreError
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstart CIMSERVER_CONFIG_OPTIONS="traceLevel=1 traceComponents=XmlIO"
-	cimconfig -g traceLevel -c
-	cimconfig -g traceComponents -c
-	$(MAKE) -f $(ROOT)/mak/commands.mak cimstop
+	$(CIMSERVER_STOP_SERVICE)

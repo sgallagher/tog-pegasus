@@ -14,10 +14,18 @@ include $(ROOT)/mak/recurse.mak
 
 FORCE:
 
-world: cimstop_IgnoreError depend all repository install
+world: FORCE
+	@$(MAKE) -f $(ROOT)/Makefile.Release -i cimstop
+	@$(MAKE) -f $(ROOT)/Makefile.Release _world
+
+_world: depend all repository install
 	@$(ECHO) "build completed successfully"
 
-rebuild: cimstop_IgnoreError clean depend all repository install
+rebuild: FORCE
+	@$(MAKE) -f $(ROOT)/Makefile.Release -i cimstop
+	@$(MAKE) -f $(ROOT)/Makefile.Release _rebuild
+
+_rebuild: clean depend all repository install
 	@$(ECHO) "rebuild completed successfully"
 
 repository: FORCE
@@ -290,75 +298,75 @@ preinstall_cleanup: FORCE
 	$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
 
 createPegasusProductDirectories: FORCE
-	$(foreach i, $(PRODUCT_DIRECTORY_STRUCTURE), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(i);)
+	$(foreach i, $(PRODUCT_DIRECTORY_STRUCTURE), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(i);)
 
 createPegasusProductDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_LICENSE), $(COPY) $(ROOT)/doc/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROD_DIR)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROD_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_LICENSE), $(COPY) $(ROOT)/doc/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROD_DIR)/$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROD_DIR)/$(i);)
 
 createPegasusSocketDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
 	
 createPegasusLocalAuthDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
 	
 createPegasusLibraryDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_LIBRARIES), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_rwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX);)
-	$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(MAKE) -f $(ROOT)/mak/commands.mak createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
+	$(foreach i, $(PEGASUS_LIBRARIES), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_rwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX);)
+	$(foreach i, $(PEGASUS_LIBRARY_LINKS), $(MAKE) -f $(ROOT)/Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
 
 createPegasusProviderLibraryDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_PROVIDERS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_rwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
-	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) -f $(ROOT)/mak/commands.mak createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
+	$(foreach i, $(PEGASUS_PROVIDERS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_rwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX);)
+	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.Release createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
 
 createPegasusAdminCmdsDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
-	$(foreach i, $(INSTALL_SCRIPT_FILES), $(COPY) $(PEGASUS_ROOT)/installs/scripts/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
+	$(foreach i, $(INSTALL_SCRIPT_FILES), $(COPY) $(PEGASUS_ROOT)/installs/scripts/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i);)
 
 createPegasusUserCmdsDirectoryFiles: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
-	$(foreach i, $(PEGASUS_USER_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE);)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
+	$(foreach i, $(PEGASUS_USER_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE);)
 
 copyRepositoryNamespaceDirectory: FORCE
 	$(CPDIRHIER) $(NAMESPACE_DIR_NAME) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
-	$(MAKE) -f $(ROOT)/mak/commands.mak sethierpermissions PERMISSIONS="$(P_rw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
-	$(MAKE) -f $(ROOT)/mak/commands.mak sethierpermissions PERMISSIONS="$(P_rw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
-	$(MAKE) -f $(ROOT)/mak/commands.mak sethierpermissions PERMISSIONS="$(P_rw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(P_rw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(P_rw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
+	$(MAKE) -f $(ROOT)/Makefile.Release sethierpermissions PERMISSIONS="$(P_rw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
 
 createPegasusRepositoryDirectory: FORCE
 	$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(MAKE) --directory=$(PEGASUS_HOME)/repository -f $(ROOT)/Makefile.Release copyRepositoryNamespaceDirectory NAMESPACE_DIR_NAME=$(i);)
 
 createPegasusUnixManPageDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man1.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i);)
-	$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man8.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man1.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man8.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i);)
 
 copyCIMSchemaFiles: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)
-	$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), $(COPY) $(ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i);)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)
+	$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), $(COPY) $(ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i);)
 	
 createPegasusMOFDirectoryFiles: FORCE
 	$(MAKE) --directory=$(ROOT)/Schemas -f $(ROOT)/Makefile.Release copyCIMSchemaFiles
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus
-	$(foreach i, $(INTERNAL_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/Internal/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
-	$(foreach i, $(INTEROP_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/InterOp/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
-	$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/ManagedSystem/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus
+	$(foreach i, $(INTERNAL_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/Internal/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
+	$(foreach i, $(INTEROP_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/InterOp/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
+	$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), $(COPY) $(ROOT)/Schemas/Pegasus/ManagedSystem/VER20/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i); $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/Pegasus/$(i);)
 
 create_init_repositoryCMD: FORCE
 
 createPegasusVarDataDirectoryFiles: FORCE
 	$(COPY) $(ROOT)/src/Server/cimserver_planned.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
 createSSLConfigurationFile: FORCE
 	$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
 	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
 	$(ECHO) "[ req ]" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
 	$(ECHO) "distinguished_name     = req_distinguished_name"  >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
 	$(ECHO) "prompt                 = no"  >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
@@ -371,10 +379,10 @@ createSSLConfigurationFile: FORCE
 	$(ECHO) "CN                     = $(GET_HOSTNAME)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
 
 createSSLRandomSeedFiles: FORCE
-	$(MAKE) -f $(ROOT)/mak/commands.mak createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
-	$(MAKE) -f $(ROOT)/mak/commands.mak createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_WBEMEXEC_RANDOMFILE)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_WBEMEXEC_RANDOMFILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_WBEMEXEC_RANDOMFILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_WBEMEXEC_RANDOMFILE)
 
 
 createServerCertificateFiles: FORCE
@@ -383,12 +391,12 @@ ifdef PEGASUS_SSL_RANDOMFILE
 else
 	$(OPENSSL_COMMAND) req -x509 -days 3650 -newkey rsa:2048 -nodes -config $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf -keyout $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE) -out $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE) 
 endif
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE)
 
 createClientCertificateFiles: FORCE
 	$(COPY) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)
-	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(P_r__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)
 
 createPegasusDirectories: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusProductDirectories

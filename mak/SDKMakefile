@@ -195,7 +195,7 @@ createConfigFile:
 	@$(CAT)  $(PEGASUS_ROOT)/src/SDK/samples/mak/config.mak >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 
 stageSAMPLES:
-	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f commands.mak cimstop_IgnoreError
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i cimstop
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/EnumInstances
@@ -222,10 +222,10 @@ stageHTML:
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR) buildDoc_ContinueOnError
 
 removeSampleProviderNamespace:
-	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f commands.mak cimstop_IgnoreError
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i cimstop
 	@$(ECHO) +++++ Removing existing repository named root#SampleProvider 
 	@$(RMREPOSITORY) $(REPOSITORY_ROOT)/root\#SampleProvider
-	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f commands.mak cimstart
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile cimstart
 
 buildSDK:
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i removeSampleProviderNamespace

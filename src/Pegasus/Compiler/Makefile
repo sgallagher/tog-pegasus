@@ -24,15 +24,20 @@ LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-SOURCES = cimmof_lex.cpp cimmofParser.cpp \
-	cimmofRepository.cpp cimmof_tab.cpp parser.cpp \
+SOURCES = cimmof_lex_wrapper.cpp cimmofParser.cpp \
+	cimmofRepository.cpp cimmof_tab_wrapper.cpp parser.cpp \
 	qualifierList.cpp valueFactory.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak
 
+## This pushes BISON_SIMPLE into the environment so that
+## bison will use this rather than looking for /usr/local/share/bison.simple.
+
 export BISON_SIMPLE = bison.simple
+
+$(OBJ_DIR)/cimmof_tab_wrapper$(OBJ) : cimmof_tab.cpp
 
 cimmof_tab.cpp cimmof_tab.h: cimmof.y
 	$(YACC) -vd -ocimmoftemp -p cimmof_ cimmof.y
@@ -40,8 +45,11 @@ cimmof_tab.cpp cimmof_tab.h: cimmof.y
 	$(COPY) cimmoftemp.h cimmof_tab.h
 	$(RM) cimmoftemp cimmoftemp.h
 
+$(OBJ_DIR)/cimmof_lex_wrapper$(OBJ) : cimmof_lex.cpp
+
 cimmof_lex.cpp: cimmof.l cimmof_tab.h
 	$(LEX) -ocimmof_lex.cpp -Pcimmof_ cimmof.l
 
 local_clean_target:
 	$(RM) cimmof_lex.cpp cimmof_tab.cpp cimmof_tab.h cimmoftemp.out
+

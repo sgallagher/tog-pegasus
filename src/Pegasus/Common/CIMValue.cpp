@@ -750,7 +750,7 @@ Uint32 CIMValue::getArraySize() const
 
     // Unreachable!
     PEGASUS_ASSERT(false);
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }
 
 CIMType CIMValue::getType() const
@@ -1620,7 +1620,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
     }
 
     // Unreachable!
-    return false;
+    PEGASUS_UNREACHABLE( return false; )
 }
 
 String CIMValue::toString() const

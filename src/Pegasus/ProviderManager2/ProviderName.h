@@ -62,7 +62,7 @@ public:
 
     ~ProviderName(void);
 
-    //String toString(void) const;
+    String toString(void) const;
 
     String getObjectName(void) const;
     void setObjectName(const String & objectName);

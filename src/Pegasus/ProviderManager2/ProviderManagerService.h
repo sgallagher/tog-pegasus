@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Adrian Schuur, IBM (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,12 +53,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class ProviderRegistrationManager;
+class ProviderManager;
 
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {
 public:
+    static ProviderManagerService* providerManagerService;
     ProviderManagerService(void);
-    // temp
+  // temp
     ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager);
 
     virtual ~ProviderManagerService(void);
@@ -82,6 +85,7 @@ private:
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(void * arg) throw();
 
+    ProviderManager *locateProviderManager(const Message *m);
     void handleCimRequest(AsyncOpNode *op, const Message * message);
 
 private:

@@ -112,7 +112,7 @@ ProviderName::~ProviderName(void)
 {
 }
 
-/*
+
 String ProviderName::toString(void) const
 {
     String s;
@@ -127,7 +127,7 @@ String ProviderName::toString(void) const
 
     return(s);
 }
-*/
+
 
 String ProviderName::getPhysicalName(void) const
 {

@@ -167,7 +167,7 @@ inline void _xmlWritter_appendChar(Array<Sint8>& out, const Char16& c)
 		&strtgt,
 		endtgt);
 
-    out.append((Sint8 *)str,trailingBytesForUTF8[Uint32(str[0])]+1);
+    out.append((Sint8 *)str, UTF_8_COUNT_TRAIL_BYTES(str[0]) + 1);
 }
 
 inline void _xmlWritter_appendSpecialChar(Array<Sint8>& out, const Char16& c)
@@ -224,7 +224,7 @@ inline void _xmlWritter_appendSpecialChar(Array<Sint8>& out, const Char16& c)
 				&strtgt,
 				endtgt);
 
-		    Uint32 number1 = trailingBytesForUTF8[Uint32(str[0])]+1;
+		    Uint32 number1 = UTF_8_COUNT_TRAIL_BYTES(str[0]) + 1;
 
 		    out.append((Sint8 *)str,number1);
 		}
@@ -327,7 +327,7 @@ void _xmlWritter_appendSurrogatePair(Array<Sint8>& out, Uint16 high, Uint16 low)
 		&strtgt,
 		endtgt);
 
-    Uint32 number1 = trailingBytesForUTF8[Uint32(str[0])]+1;
+    Uint32 number1 = UTF_8_COUNT_TRAIL_BYTES(str[0]) + 1;
     out.append((Sint8 *)str,number1);
 }
 

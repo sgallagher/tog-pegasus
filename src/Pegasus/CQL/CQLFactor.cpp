@@ -2,6 +2,9 @@
 #include <Pegasus/CQL/CQLExpression.h>
 #include <Pegasus/CQL/CQLFunction.h>
 #include <Pegasus/CQL/CQLFactory.h>
+#include <Pegasus/CQL/CQLFactorRep.h>
+#include <Pegasus/CQL/QueryContext.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T CQLFactor
@@ -10,97 +13,64 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLFactor::CQLFactor(const CQLFactor& inCQLFact)
 {
-   _CQLVal = inCQLFact._CQLVal;
-   _CQLFunct = inCQLFact._CQLFunct;
-   _CQLExp = inCQLFact._CQLExp;
-   _invert = inCQLFact._invert;
+	_rep = inCQLFact._rep;
 }
 
-CQLFactor::CQLFactor(CQLValue inCQLVal)
+CQLFactor::CQLFactor(CQLValue& inCQLVal)
 {
-   _CQLVal = inCQLVal;
+	_rep = new CQLFactorRep(inCQLVal);
 }
 
 CQLFactor::CQLFactor(CQLExpression& inCQLExp)
 {
-   _CQLExp = new CQLExpression(inCQLExp);
+	_rep = new CQLFactorRep(inCQLExp);
 }
 
-CQLFactor::CQLFactor(CQLFunction inCQLFunc)
+CQLFactor::CQLFactor(CQLFunction& inCQLFunc)
 {
-   _CQLFunct = new CQLFunction(inCQLFunc);
+	_rep = new CQLFactorRep(inCQLFunc);
 }
 
 CQLValue CQLFactor::getValue()
 {
-   return _CQLVal;
+   	return _rep->getValue();
 }
 
 CQLValue CQLFactor::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
-   if(_CQLExp != NULL)
-   {
-      return _CQLExp->resolveValue(CI,QueryCtx);
-   }
-   else if (_CQLFunct != NULL)
-   {
-      return _CQLFunct->resolveValue(CI,QueryCtx);
-   }
-   else
-   {
-      _CQLVal.resolve(CI,QueryCtx);
-      return _CQLVal;
-   }
+	return _rep->resolveValue(CI, QueryCtx);
 }
 
 Boolean CQLFactor::isSimpleValue()
 {
-   return (_CQLExp == NULL && _CQLFunct == NULL);
+	return _rep->isSimpleValue();
 }
 
 CQLFunction CQLFactor::getCQLFunction()
 {
-   return *_CQLFunct;
+   return _rep->getCQLFunction();
 }
 
 CQLExpression CQLFactor::getCQLExpression()
 {
-   return *_CQLExp;
+   return _rep->getCQLExpression();
 }
 
 String CQLFactor::toString()
 {
-   if(_CQLFunct != NULL)
-   {
-      return _CQLFunct->toString();
-   }
-   else if(_CQLExp != NULL)
-   {
-      return _CQLExp->toString();
-   }
-   else
-   {
-      return _CQLVal.toString();
-   }
+	return _rep->toString();
 }
 
 void CQLFactor::applyScopes(Array<CQLScope> inScopes)
 {
-   
-   if(_CQLFunct != NULL)
-   {
-      _CQLFunct->applyScopes(inScopes);
-   }
-   else if(_CQLExp != NULL)
-   {
-      _CQLExp->applyScopes(inScopes);
-   }
-   else 
-   {
-      _CQLVal.applyScopes(inScopes);
-   }
-   return;
+	_rep->applyScopes(inScopes);   
 }
 
+Boolean CQLFactor::operator==(const CQLFactor& factor){
+	return (_rep == factor._rep);
+}
+Boolean CQLFactor::operator!=(const CQLFactor& factor){
+	return (!operator==(factor));                                                                                
+}
 
 PEGASUS_NAMESPACE_END

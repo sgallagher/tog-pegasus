@@ -82,4 +82,10 @@ void CQLFunction::applyScopes(Array<CQLScope> inScopes)
    }
 }
 
+Boolean CQLFunction::operator==(const CQLFunction& func){
+	return true;
+}
+Boolean CQLFunction::operator!=(const CQLFunction& func){
+	return (!operator==(func));
+}
 PEGASUS_NAMESPACE_END

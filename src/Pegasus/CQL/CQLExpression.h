@@ -65,6 +65,8 @@ class PEGASUS_CQL_LINKAGE CQLExpression
    Array<CQLTerm> getTerms();
    Array<TermOpType> getOperators();
    void applyScopes(Array<CQLScope> inScopes);
+   Boolean operator==(const CQLExpression& expr);
+   Boolean operator!=(const CQLExpression& expr);
    friend class CQLFactory;
 
   private:

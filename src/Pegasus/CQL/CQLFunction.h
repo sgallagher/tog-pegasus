@@ -72,6 +72,8 @@ class PEGASUS_CQL_LINKAGE CQLFunction
    FunctionOpType getFunctionType();
    String toString();
    void applyScopes(Array<CQLScope> inScopes);
+   Boolean operator==(const CQLFunction& func);
+   Boolean operator!=(const CQLFunction& func);
    friend class CQLFactory;
 
   private:

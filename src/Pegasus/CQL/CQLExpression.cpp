@@ -128,5 +128,14 @@ void CQLExpression::applyScopes(Array<CQLScope> inScopes)
    }
 }
 
+Boolean CQLExpression::operator==(const CQLExpression& expr){
+	return true;
+}
+
+Boolean CQLExpression::operator!=(const CQLExpression& expr){
+	return (!operator==(expr));
+}
+
+
 PEGASUS_NAMESPACE_END
 

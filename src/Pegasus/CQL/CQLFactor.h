@@ -30,14 +30,18 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/CQL/CQLValue.h>
-#include <Pegasus/CQL/CQLScope.h>
+#include <Pegasus/Common/CIMInstance.h>
+//#include <Pegasus/CQL/CQLScope.h>
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLExpression;
 class PEGASUS_CQL_LINKAGE CQLFunction;
+class PEGASUS_CQL_LINKAGE CQLFactorRep;
+class PEGASUS_CQL_LINKAGE CQLValue;
+class PEGASUS_CQL_LINKAGE CQLScope;
+class PEGASUS_CQL_LINKAGE QueryContext;
 
 /**  The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.
        This class evaluates the object to get a CQLValue.
@@ -47,13 +51,13 @@ class PEGASUS_CQL_LINKAGE CQLFunction;
 class PEGASUS_CQL_LINKAGE CQLFactor
 {
   public:
-   CQLFactor(){}
+   CQLFactor():_rep(0){}
 
-    CQLFactor(CQLValue inCQLVal);
+    CQLFactor(CQLValue& inCQLVal);
 
     CQLFactor(CQLExpression& inCQLExp);
 
-    CQLFactor(CQLFunction inCQLFunc);
+    CQLFactor(CQLFunction& inCQLFunc);
     CQLFactor(const CQLFactor& inCQLFact);
 
     ~CQLFactor(){}
@@ -82,21 +86,13 @@ class PEGASUS_CQL_LINKAGE CQLFactor
    CQLExpression getCQLExpression();
    String toString();
    void applyScopes(Array<CQLScope> inScopes);
+   Boolean operator==(const CQLFactor& factor);
+   Boolean operator!=(const CQLFactor& factor);
 
    friend class CQLFactory;
   private:
 
-    CQLExpression* _CQLExp;
-
-    CQLValue _CQLVal;
-
-    CQLFunction* _CQLFunct;
-
-    /** if _invert is TRUE, multiply by -1 to invert the value.
-      */
-
-    Boolean _invert;
-
+    CQLFactorRep *_rep;
 };
 
 #ifndef PEGASUS_ARRAY_T

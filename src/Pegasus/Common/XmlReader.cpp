@@ -728,7 +728,7 @@ Boolean XmlReader::stringToSignedInteger(
 //
 // stringToUnsignedInteger
 //
-//	[ "+" ] ( positiveDecimalDigit *decimalDigit | "0" )
+//	( positiveDecimalDigit *decimalDigit | "0" )
 //
 // ATTN-B: handle conversion from hexadecimal.
 //------------------------------------------------------------------------------
@@ -743,15 +743,7 @@ Boolean XmlReader::stringToUnsignedInteger(
     if (!*p)
 	return false;
 
-    // Skip optional sign:
-
-    if (*p == '-')
-	return false;
-
-    if (*p == '+')
-	p++;
-
-    // If the next thing is a zero, then it must be the last:
+    // If the first digit is a zero, then it must be the last:
 
     if (*p == '0')
 	return p[1] == '\0';
@@ -811,6 +803,9 @@ CIMValue XmlReader::stringToValue(
 {
     // ATTN-B: accepting only UTF-8 for now! (affects string and char16):
 
+// The Specification for the Representation of CIM in XML does not indicate
+// that a default value should be used when a VALUE element is empty.
+#if 0
     // If strlen == 0, set to default value for type
 
     if (strlen(valueString)==0) 
@@ -832,6 +827,7 @@ CIMValue XmlReader::stringToValue(
 	    case CIMType::REAL64: return CIMValue(Real64(0));
         }
     }
+#endif
 
     // Create value per type
     switch (type)

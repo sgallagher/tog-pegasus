@@ -120,7 +120,8 @@ static void TestUTFRepository( CIMClient& client, Boolean verboseTest )
 
 	cout << endl << "REPOSITORY TEST 1: Create Qualifier with UTF-16 chars" << endl;	
 
-        CIMName qualDeclName("UTFTestQualifier");
+        CIMName qualDeclName("UTFTestQualifier");  
+//      CIMName qualDeclName(utf16String);    // This will create a file with UTF-8 chars in the name
 
         //  First, delete the qualifier if it was there from before  
         if (verboseTest)
@@ -172,6 +173,7 @@ static void TestUTFRepository( CIMClient& client, Boolean verboseTest )
 	cout << endl << "REPOSITORY TEST 2: Create Class with UTF-16 chars" << endl;	
 
         CIMName className("UTFTestClass");
+//      CIMName className(utf16String);    // This will create a file with UTF-8 chars in the name
 
         //  First, delete the class if it was there from before  
         if (verboseTest)
@@ -203,7 +205,7 @@ static void TestUTFRepository( CIMClient& client, Boolean verboseTest )
         cimClass.addProperty(prop2);
 
         CIMProperty prop3(name2, fred);             // UTF16 prop name
-        CIMQualifier qual2(qualDecl.getName(),
+        CIMQualifier qual2(qualDecl.getName(),      // UTF16 qualifier
                            qualDecl.getValue(),
                            qualDecl.getFlavor());
         CIMProperty prop4 = prop3.addQualifier(qual2);
@@ -259,6 +261,110 @@ static void TestUTFRepository( CIMClient& client, Boolean verboseTest )
     }
 }
  
+/*
+   Tests the globalization support of the LocalizedProvider
+   for the method operations
+*/
+static void TestLocalizedMethods( CIMClient& client, Boolean verboseTest )
+{
+  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMName CLASSNAME = CIMName ("Sample_LocalizedProviderClass");
+  const CIMName INPARAM1 = CIMName("inStr");
+  const CIMName INPARAM2 = CIMName("inChar16");
+  const CIMName METHOD = CIMName("UTFMethod");
+  const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
+
+  try
+  {
+     //
+     //  TEST 1 - Invoke Method with UTF-16 in input parameters, output parameters
+     //  and return value. 
+
+     cout << endl << "METHOD TEST 1: Invoke Method with UTF-16 parameters" << endl;	
+
+     // Strings sent to the provider
+     String inString(utf16Chars);
+     Char16 inChar16 = utf16Chars[1];
+
+     // Expected strings from the provider
+     String outString(utf16Chars);
+     Char16 outChar16 = utf16Chars[2];
+     String expectedRtnString(utf16Chars);
+
+     // Strings returned by the provider 
+     String rtnString;
+     String outParam1;
+     Char16 outParam2;
+
+     Array<CIMParamValue> inParams;
+     Array<CIMParamValue> outParams;
+
+     inParams.append( CIMParamValue(  INPARAM1, CIMValue( inString ) ) );
+     inParams.append( CIMParamValue(  INPARAM2, CIMValue( inChar16 ) ) );
+
+     if (verboseTest)
+        cout << "Invoking the method" << endl;
+
+     CIMValue retValue = client.invokeMethod(
+	    NAMESPACE, 
+	    REFERENCE, 
+	    METHOD,
+	    inParams, 
+	    outParams);
+
+     if (verboseTest)
+        cout << "Checking for UTF-16 chars returned" << endl;
+
+     retValue.get(rtnString); 
+     MYASSERT (expectedRtnString == rtnString);
+
+     CIMValue paramVal = outParams[0].getValue();
+     paramVal.get( outParam1 );
+     MYASSERT (outString == outParam1);
+
+     paramVal = outParams[1].getValue();
+     paramVal.get( outParam2 );
+     MYASSERT (outChar16 == outParam2);
+
+     //
+     //  TEST 2 - Invoke method with UTF-16 in the method name.
+     //
+     //  This will test the URI encoding and decoding of UTF-8 in the CIMMethod
+     //  HTTP header
+
+     cout << endl << "METHOD TEST 2: Invoke Method with UTF-16 method name" << endl;
+
+     String methodName(utf16Chars);	
+
+     if (verboseTest)
+        cout << "Invoking the method" << endl;
+
+     CIMValue retValue1 = client.invokeMethod(
+	    NAMESPACE, 
+	    REFERENCE, 
+	    methodName,
+	    inParams, 
+	    outParams);
+
+     // Check UTF-16 in the return value just to make sure that the method
+     // was called on the provider.
+     String expectedRtnString1(utf16Chars);
+     String rtnString1;
+
+     if (verboseTest)
+        cout << "Checking for UTF-16 chars returned" << endl;
+
+     retValue1.get(rtnString1); 
+     MYASSERT (expectedRtnString1 == rtnString1);	
+
+  }
+  catch(Exception& e)
+  {
+    PEGASUS_STD(cerr) << "Error in TestLocalizedMethod: " << e.getMessage() << PEGASUS_STD(endl);
+    throw e;      
+  }
+}
+
 /*
    Tests the globalization support of the LocalizedProvider
    for the instance operations
@@ -614,7 +720,7 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 	  	//  with a localized message in es locale.
 	  	//
 	  	//  Note: the provider will throw a not-supported exception
-	  	//  on all delete instance requests.
+	  	//  on delete instance requests.
 	  	//
 	  	
 		AcceptLanguages acceptLangs6;
@@ -633,7 +739,8 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 	  	try 
 	  	{
 			client.deleteInstance(
-					NAMESPACE,					instance2.buildPath(sampleClass)); 	  	
+					NAMESPACE,
+				    instance2.buildPath(sampleClass)); 	  	
 	  	} catch (CIMException & ce)
 	  	{
 	            if (verboseTest)
@@ -894,6 +1001,10 @@ int main(int argc, char** argv)
 			 TestLocalizedInstances(client, verboseTest);
 			 testEnd(elapsedTime.getElapsed());
 
+			 testStart("Test Method Operations");
+			 elapsedTime.reset();
+			 TestLocalizedMethods(client, verboseTest);
+			 testEnd(elapsedTime.getElapsed());
 
 			 testStart("Test Class and Qualifier Operations");
 			 elapsedTime.reset();

@@ -45,22 +45,22 @@ class PEGASUS_COMMON_LINKAGE CIMObject
 {
 public:
 
-    CIMObject() : _rep(0)
+    CIMObject() : _rep(0), _type(TYPE_NONE)
     {
 
     }
 
-    CIMObject(const CIMObject& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMObject(const CIMClass& x)
+    CIMObject(const CIMObject& x) : _type(x._type)
     {
 	Inc(_rep = x._rep);
     }
 
-    CIMObject(const CIMInstance& x)
+    CIMObject(const CIMClass& x) : _type(TYPE_CLASS)
+    {
+	Inc(_rep = x._rep);
+    }
+
+    CIMObject(const CIMInstance& x) : _type(TYPE_INSTANCE)
     {
 	Inc(_rep = x._rep);
     }
@@ -71,6 +71,7 @@ public:
 	{
 	    Dec(_rep);
 	    Inc(_rep = x._rep);
+	    _type = x._type;
 	}
 	return *this;
     }
@@ -81,6 +82,7 @@ public:
 	{
 	    Dec(_rep);
 	    Inc(_rep = x._rep);
+	    _type = TYPE_CLASS;
 	}
 	return *this;
     }
@@ -91,6 +93,7 @@ public:
 	{
 	    Dec(_rep);
 	    Inc(_rep = x._rep);
+	    _type = TYPE_INSTANCE;
 	}
 	return *this;
     }
@@ -102,14 +105,12 @@ public:
 
     Boolean isClass() const
     {
-	_checkRep();
-	return dynamic_cast<CIMClassRep*>(_rep) != 0;
+	return _type == TYPE_CLASS;
     }
 
     Boolean isInstance() const
     {
-	_checkRep();
-	return dynamic_cast<CIMInstanceRep*>(_rep) != 0;
+	return _type == TYPE_INSTANCE;
     }
 
     /** Returns the class contained by this object (if an class).
@@ -150,6 +151,9 @@ private:
     // Point to either a CIMClass or CIMInstance:
 
     Sharable* _rep;
+
+    enum Type { TYPE_CLASS, TYPE_INSTANCE, TYPE_NONE };
+    Type _type;
 };
 
 /** The CIMObjectWithPath encapsulates a CIMReference and CIMObject.
@@ -162,7 +166,7 @@ public:
 
     CIMObjectWithPath();
 
-    CIMObjectWithPath(CIMReference& reference, CIMObject& object);
+    CIMObjectWithPath(const CIMReference& reference, const CIMObject& object);
 
     CIMObjectWithPath(const CIMObjectWithPath& x);
 
@@ -170,7 +174,7 @@ public:
 
     CIMObjectWithPath& operator=(const CIMObjectWithPath& x);
 
-    void set(CIMReference& reference, CIMObject& object);
+    void set(const CIMReference& reference, const CIMObject& object);
 
     const CIMReference& getReference() const { return _reference; }
 

@@ -500,7 +500,9 @@ int ClientHandler::handleMethodResponse()
 //
 //------------------------------------------------------------------------------
 
-int ClientHandler::handleGetClassResponse(XmlParser& parser, const String& messageId)
+int ClientHandler::handleGetClassResponse(
+    XmlParser& parser, 
+    const String& messageId)
 {
     XmlEntry entry;
     CIMException::Code code;

@@ -41,42 +41,34 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMClass CIMObject::getClass()
 {
-    CIMClassRep* rep = dynamic_cast<CIMClassRep*>(_rep);
-
-    if (!rep)
+    if (!isClass())
 	throw TypeMismatch();
 
-    return CIMClass(rep);
+    return CIMClass((CIMClassRep*)_rep);
 }
 
 CIMConstClass CIMObject::getClass() const
 {
-    CIMClassRep* rep = dynamic_cast<CIMClassRep*>(_rep);
-
-    if (!rep)
+    if (!isInstance())
 	throw TypeMismatch();
 
-    return CIMConstClass(rep);
+    return CIMConstClass((CIMClassRep*)_rep);
 }
 
 CIMInstance CIMObject::getInstance()
 {
-    CIMInstanceRep* rep = dynamic_cast<CIMInstanceRep*>(_rep);
-
-    if (!rep)
+    if (!isInstance())
 	throw TypeMismatch();
 
-    return CIMInstance(rep);
+    return CIMInstance((CIMInstanceRep*)_rep);
 }
 
 CIMConstInstance CIMObject::getInstance() const
 {
-    CIMInstanceRep* rep = dynamic_cast<CIMInstanceRep*>(_rep);
-
-    if (!rep)
+    if (!isInstance())
 	throw TypeMismatch();
 
-    return CIMConstInstance(rep);
+    return CIMConstInstance((CIMInstanceRep*)_rep);
 }
 
 void CIMObject::toXml(Array<Sint8>& out) const
@@ -108,8 +100,8 @@ CIMObjectWithPath::CIMObjectWithPath()
 }
 
 CIMObjectWithPath::CIMObjectWithPath(
-    CIMReference& reference,
-    CIMObject& object) 
+    const CIMReference& reference,
+    const CIMObject& object) 
     : _reference(reference), _object(object)
 {
 
@@ -136,7 +128,9 @@ CIMObjectWithPath& CIMObjectWithPath::operator=(const CIMObjectWithPath& x)
     return *this;
 }
 
-void CIMObjectWithPath::set(CIMReference& reference, CIMObject& object)
+void CIMObjectWithPath::set(
+    const CIMReference& reference, 
+    const CIMObject& object)
 {
     _reference = reference;
     _object = object;

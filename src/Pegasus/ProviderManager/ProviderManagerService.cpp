@@ -465,6 +465,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     if(service->_incomingQueue.size() == 0)
     {
+        cout << "ProviderManagerService::handleCimOperation() called with no op node in queue" << endl;
+
         // thread started with no message in queue.
         return(PEGASUS_THREAD_RETURN(1));
     }
@@ -475,7 +477,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     if(op->_request.count() == 0)
     {
-        // ATTN: periodically the request is null. Should this ever get this far???
+        // ATTN: periodically the request is null.
+        cout << "ProviderManagerService::handleCimOperation() called with an op node and no message" << endl;
 
         // no request in op node
         return(PEGASUS_THREAD_RETURN(1));

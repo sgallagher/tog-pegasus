@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -57,7 +57,7 @@ public:
     Uint32 size(void) const;
 
 protected:
-    Mutex _mutex;
+    mutable Mutex _mutex;
     Queue<T> _queue;
 
 };
@@ -75,7 +75,7 @@ SafeQueue<T>::~SafeQueue(void)
 template<class T>
 void SafeQueue<T>::enqueue(const T & O)
 {
-    MutexLock mutex(_mutex);
+    MutexLock lock(_mutex);
 
     _queue.enqueue(O);
 }
@@ -83,7 +83,7 @@ void SafeQueue<T>::enqueue(const T & O)
 template<class T>
 T & SafeQueue<T>::dequeue(void)
 {
-    MutexLock mutex(_mutex);
+    MutexLock lock(_mutex);
 
     T & O = _queue.front();
 
@@ -95,7 +95,7 @@ T & SafeQueue<T>::dequeue(void)
 template<class T>
 T & SafeQueue<T>::front(void)
 {
-    MutexLock mutex(_mutex);
+    MutexLock lock(_mutex);
 
     return(_queue.front());
 }
@@ -103,7 +103,7 @@ T & SafeQueue<T>::front(void)
 template<class T>
 const T & SafeQueue<T>::front(void) const
 {
-    MutexLock mutex(_mutex);
+    MutexLock lock(_mutex);
 
     return(_queue.front());
 }
@@ -111,7 +111,7 @@ const T & SafeQueue<T>::front(void) const
 template<class T>
 T & SafeQueue<T>::back(void)
 {
-    MutexLock mutex(_mutex);
+    MutexLock lock(_mutex);
 
     return(_queue.back());
 }
@@ -119,7 +119,7 @@ T & SafeQueue<T>::back(void)
 template<class T>
 const T & SafeQueue<T>::back(void) const
 {
-    MutexLock mutex(_mutex);
+    MutexLock lock(_mutex);
 
     return(_queue.back());
 }
@@ -127,6 +127,8 @@ const T & SafeQueue<T>::back(void) const
 template<class T>
 Uint32 SafeQueue<T>::size(void) const
 {
+    //MutexLock lock(_mutex);
+
     return(_queue.size());
 }
 

@@ -162,6 +162,7 @@ SSLException::SSLException(const String& message)
 CIMException::CIMException(
     CIMStatusCode code,
     const String& message)
+    : Exception()
 {
     CIMExceptionRep * tmp = new CIMExceptionRep ();
     tmp->message = message;
@@ -172,6 +173,7 @@ CIMException::CIMException(
 }
 
 CIMException::CIMException(const CIMException & cimException)
+    : Exception()
 {
     CIMExceptionRep * tmp = new CIMExceptionRep ();
     CIMExceptionRep * rep;

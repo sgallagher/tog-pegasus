@@ -44,7 +44,7 @@ AssertionFailureException::AssertionFailureException(
     const String& message) : Exception(String::EMPTY)
 {
     char lineStr[32];
-    sprintf(lineStr, "%u", line);
+    sprintf(lineStr, "%u", Uint32(line));
 
     _rep->message = file;
     _rep->message.append("(");

@@ -1,0 +1,38 @@
+# Makefile builds the required Pegasus Namespaces 
+# ATTN: Today this makefile is implementation dependent.
+#       It assumes that the repository is a set of directories
+#       that can be removed by removing the directories.
+#       This must be updated to an implementation independent repository
+#       remove function.
+
+ROOT = $(PEGASUS_ROOT)
+include $(ROOT)/mak/config.mak
+
+all:
+
+# Delete and rebuild the repository using the MOF compiler.
+
+repository:
+	$(MAKE) --directory=InterOp repository
+	$(MAKE) --directory=Internal repository
+
+clean:
+	$(MAKE) --directory=InterOp clean
+	$(MAKE) --directory=Internal clean
+
+
+depend:
+
+sub:
+
+misc:
+
+tests:
+
+poststarttests:
+
+general:
+
+xml:
+	@ echo +++++ Loading CIM_Schema25.mof into root/cimv2 namespace...
+	@ cimmof --xml -I$(MOF_PATH) -nroot/cimv2 $(MOF_PATH)/CIM_Schema25.mof

@@ -1,0 +1,42 @@
+// ===================================================================
+// Title      : PG_User MOF
+// Filename   : PG_User.mof
+// Version    : 1.0
+// Date       : 11/05/2001
+// Author     : Sushma Fernandes
+// Description: This MOF file uses Pegasus convention. It provides 
+//              definitions for PG_User.
+//
+// ===================================================================
+
+
+// ===================================================================
+// PG_User
+// ===================================================================
+[Description (
+   "PG_User is a representation of CIMOM user")
+   , provider("UserManagerProvider")]
+
+class PG_User 
+{
+    [
+     Key, 
+     MaxLen (256), 
+     Description ("The name of the user.")
+    ]
+    string        Username;
+
+    [
+     Description ("User's current password.")
+    ]
+    string        Password;
+
+    [Description
+	("Method to change user's password. "
+	 "The oldPassword parameter specifies the user's current password. "
+	 "The newPassword parameter specifies the user's new password. " ) ]
+
+    Uint32 modifyPassword( [IN] string oldPassword, [IN] string newPassword);
+
+};
+

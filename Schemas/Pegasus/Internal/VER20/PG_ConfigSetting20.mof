@@ -1,0 +1,44 @@
+// ===================================================================
+// Title      : PG_ConfigSetting MOF
+// Filename   : PG_ConfigSetting.mof
+// Version    : 1.0
+// Date       : 06/28/2001
+// Author     : Nag Boranna
+// Description: This MOF file uses Pegasus convention. It provides definitions
+//              for PG_ConfigSetting  (subclassed from CIM_Setting).
+//
+// ===================================================================
+
+
+// ===================================================================
+// PG_ConfigSetting
+// ===================================================================
+[Description (
+   "PG_ConfigSetting is a representation of CIMOM specific"
+   " configuration properties."), provider("ConfigSettingProvider")]
+
+class PG_ConfigSetting 
+{
+    [Key, 
+     MaxLen (256), 
+     Description (
+         "The label by which the Configuration setting object is known.")
+    ]
+    string        PropertyName;
+
+    [Description ("Default Value")
+    ]
+    string        DefaultValue;
+
+    [Description ("Current Value")
+    ]
+    string        CurrentValue;
+
+    [Description ("Planned Value")
+    ]
+    string        PlannedValue;
+
+    [Description ("Dynamic Property")
+    ]
+    boolean    DynamicProperty;
+};

@@ -1,0 +1,38 @@
+// ===================================================================
+// Title      : PG_Authorization MOF
+// Filename   : PG_Authorization.mof
+// Version    : 1.0
+// Date       : 11/26/2001
+// Author     : Nag Boranna
+// Description: This MOF file uses Pegasus convention. It provides 
+//              definitions for PG_Authorization.
+//
+// ===================================================================
+
+
+// ===================================================================
+// PG_Authorization
+// ===================================================================
+[Description (
+   "PG_Authorization is a representation of CIM User Authorization"),
+   provider("UserManagerProvider")]
+
+class PG_Authorization
+{
+    [Key, 
+     MaxLen (256), 
+     Description ("Username")
+    ]
+    string        Username;
+
+    [Key, 
+     MaxLen (256), 
+     Description ("Namespace")
+    ]
+    string        Namespace;
+
+    [Description ("Authorization")
+    ]
+    string        Authorization;
+
+};

@@ -1,0 +1,127 @@
+// ==================================================================
+// PG_ProviderModule
+// ==================================================================
+[Version("2.0.0"), Description ( "A ProviderModule contains  "
+     "contains one or more Providers. ") ]
+class PG_ProviderModule : CIM_LogicalElement {
+      [Key, Override("Name"), Description ("A human-readable name that"
+       "uniquely identifies the Provider Module.")]
+   string Name;
+      [Description ("The name of the Provider Module vendor.") ]
+   string Vendor;
+      [Description ("The Provider Module version.")]
+   string Version;
+      [Description ("")]
+   string InterfaceType;
+      [Description ("")]
+   string InterfaceVersion;
+      [Description ("")]
+   string Location;
+
+      [Description ("")]
+   uint32 start();
+      [Description ("")]
+   uint32 stop();
+};
+
+// ==================================================================
+// PG_Provider
+// ==================================================================
+        [Version("2.2.0"), Description ( "A Provider is an indivisible "
+         "unit that functions as an intermediary between the CIM Object "
+         "Manager and one or more managed resources. A Provider operates "
+         "at the request of the CIM_ObjectManager. ") ]
+class PG_Provider : CIM_LogicalElement {
+      [Key, Propagated ("PG_ProviderModule.Name"),  
+       Description ("The scoping PG_ProviderModule name.") ]
+   string ProviderModuleName;
+      [Key, Override("Name"), Description ("A human-readable name that"
+       "uniquely identifies the provider within the Provider Module.")]
+   string Name;
+};
+
+// ==================================================================
+// PG_ProviderCapabilities
+// ==================================================================
+        [Version ("2.0.0"), Description ("An instance of "
+         "ProviderCapabilities describes a set of PG_Provider "
+         "capabilities. ") ]
+class PG_ProviderCapabilities : CIM_ManagedElement {
+      [Key, Propagated ("PG_Provider.ProviderModuleName"), 
+       Description ("The scoping PG_ProviderModule name.") ]
+   string ProviderModuleName;
+      [Key, Propagated ("PG_Provider.Name"), 
+       Description ("The scoping PG_ProviderModule name.") ]
+   string ProviderName;
+      [Key, Description ("A value that uniquely identifies "
+       "this Capabilities within the set of Capabilities for "
+       "the designated Provider.") ]
+   string CapabilityID;
+      [Description (
+       "The ClassName describes the class for which the associated "
+       "Provider supplies instances, associations or indications "
+       "information.")]
+   string ClassName;
+      [Description ("Namespaces describes the namespaces that are "
+       "supported by the Provider for ClassName.")] 
+   string Namespaces[];
+      [Description (
+       "ProviderType enumerates the kind of provider"
+       "capabilities defined for the associated Provider. "),
+       ArrayType ("Indexed"),
+       ValueMap { "2", "3", "4" , "5" },
+       Values {"Instance", "Association", "Indication" , "Method"}]
+    uint16 ProviderType[];
+      [Description (
+       "SupportedProperties lists the properties supported "
+       "by this provider.  If this array is empty, the provider "
+       "MUST support all of the properties defined in the class. "
+       "If the provider does not support all of the properties, "
+       "the properties supported MUST be included in the array. "
+       "The array entry format is <PropertyName>"),
+       ModelCorrespondence {"PG_ProviderCapabilities.ClassName"} ]
+    string SupportedProperties[];
+      [Description (
+       "SupportedMethods lists the methods supported by this "
+       "provider. If this array is empty, the provider MUST "
+       "support all the methods defined in the class. "
+       "If the provider does not support all the methods, "
+       "the methods supported MUST be included in the array."
+       "The array entry format is <MethodName>"),
+       ModelCorrespondence {"PG_ProviderCapabilities.ClassName "} ]
+    string SupportedMethods [];
+};
+
+
+// ==================================================================
+// PG_ProviderCapabilitiesElements
+// ==================================================================
+
+[Association, Version("2.0.0"), Description (
+      "ProviderCapabilitiesElements is an association describing "
+      "the capabilities that are supported by a Provider. ") ]
+class PG_ProviderCapabilitiesElements : CIM_Dependency {
+      [Key, Override ("Antecedent"), Min(1), Max(1), 
+       Description ("The CIM Provider supporting the Capability.") ]
+    PG_Provider REF Antecedent;
+      [Override ("Dependent"), Weak,
+       Description ("The Capability of the CIM_Provider.")]
+    PG_ProviderCapabilities REF Dependent;
+};
+
+
+// ==================================================================
+// PG_ProviderModuleElements
+// ==================================================================
+
+[Association, Version("2.0.0"), Description (
+      "ProviderModuleElements is an association describing "
+      "the Provider that are supported by a ProviderModule. ") ]
+class PG_ProviderModuleElements : CIM_Dependency {
+      [Override ("Antecedent"), Min(1), Max(1), Key, 
+       Description ("The Provider Module containing the Provider.") ]
+    PG_ProviderModule REF Antecedent;
+      [Override ("Dependent"), Weak,
+       Description ("The Provider contained by the Provider Module.")]
+    PG_Provider REF Dependent;
+};

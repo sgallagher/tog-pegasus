@@ -532,10 +532,12 @@ void XmlWriter::appendLocalNameSpacePathElement(
     out << "<LOCALNAMESPACEPATH>\n";
 
     char* nameSpaceCopy = strdup(nameSpace.getString().getCStringUTF8());
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
+    defined(PEGASUS_OS_HPUX) || \
+    defined(PEGASUS_OS_LINUX)
     char *last;
     for (const char* p = strtok_r(nameSpaceCopy, "/", &last); p;
-					 p = strtok_r(NULL, "/", &last))
+         p = strtok_r(NULL, "/", &last))
 #else
     for (const char* p = strtok(nameSpaceCopy, "/"); p; p = strtok(NULL, "/"))
 #endif

@@ -154,7 +154,9 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         char tmp [8];
         char* tmpp = & (tmp [0]);
         strncpy (tmpp, entry.text, 8);
-#ifdef PEGASUS_OS_SOLARIS
+#if defined(PEGASUS_OS_SOLARIS) || \
+    defined(PEGASUS_OS_HPUX) || \
+    defined(PEGASUS_OS_LINUX)
 	char *last;
         char* p = strtok_r (tmpp, HTTP_SP, &last);
 #else

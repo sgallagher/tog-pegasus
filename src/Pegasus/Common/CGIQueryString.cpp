@@ -89,10 +89,12 @@ void CGIQueryString::_ParseCGIQueryString(
 {
     // First split about the '&' characters:
 
-#ifdef PEGASUS_OS_SOLARIS
-char *last;
+#if defined(PEGASUS_OS_SOLARIS) || \
+    defined(PEGASUS_OS_HPUX) || \
+    defined(PEGASUS_OS_LINUX)
+    char *last;
     for (char* p = strtok_r(queryString, "&", &last); p;
-					p = strtok_r(NULL, "&", &last))
+         p = strtok_r(NULL, "&", &last))
 #else
     for (char* p = strtok(queryString, "&"); p; p = strtok(NULL, "&"))
 #endif

@@ -201,7 +201,10 @@ int main(int argc, char** argv)
     {
 	Selector selector;
 	CIMClient client(&selector);
+
 	client.connect("localhost:8888");
+	// client.connect("216.218.247.109:8888");
+	// TestGetClass(client);
 	TestQualifierOperations(client);
 	TestClassOperations(client);
 	TestInstanceOperations(client);

@@ -2627,7 +2627,7 @@ void XmlReader::getObject(XmlParser& parser, CIMQualifierDecl& x)
 
 Boolean XmlReader::getMessageStartTag(
     XmlParser& parser, 
-    Uint32& id,
+    String& id,
     const char*& protocolVersion)
 {
     XmlEntry entry;
@@ -2645,7 +2645,7 @@ Boolean XmlReader::getMessageStartTag(
 
     if (!entry.getAttributeValue("PROTOCOLVERSION", protocolVersion))
 	throw XmlValidationError(parser.getLine(),
-	    "Bad or missing MESSAGE.ID attribute");
+	    "Bad or missing MESSAGE.PROTOCOLVERSION attribute");
 
     return true;
 }

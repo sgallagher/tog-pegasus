@@ -14,7 +14,6 @@ DIRS = \
     CGIQueryString \
     ClassDecl \
     Compare \
-    ConnectorAcceptor \
     DateTime \
     Dir \
     FileSystem \

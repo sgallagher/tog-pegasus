@@ -302,7 +302,7 @@ public:
 
     static Boolean getMessageStartTag(
 	XmlParser& parser, 
-	Uint32& id,
+	String& id,
 	const char*& protocolVersion);
 
     static Boolean getIMethodCallStartTag(

@@ -97,7 +97,7 @@ public:
 	const Array<Sint8>& content);
 
     static Array<Sint8> formatMessageElement(
-	Uint32 messageId,
+	const String& messageId,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleReqElement(
@@ -187,10 +187,10 @@ public:
 
     static Array<Sint8> formatSimpleRspMessage(
 	const char* iMethodName,
-        const Uint32 messageId,
+        const String& messageId,
 	const Array<Sint8>& body);
 
-    static Uint32 getNextMessageId();
+    static String getNextMessageId();
 
 private:
 

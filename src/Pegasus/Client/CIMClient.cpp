@@ -240,39 +240,39 @@ public:
 
     int handleMethodResponse();
 
-    int handleGetClassResponse(XmlParser& parser, Uint32 messageId);
+    int handleGetClassResponse(XmlParser& parser, const String& messageId);
 
-    int handleGetInstanceResponse(XmlParser& parser, Uint32 messageId);
+    int handleGetInstanceResponse(XmlParser& parser, const String& messageId);
 
     //STUB{
-    int handleEnumerateClassNamesResponse(XmlParser& parser, Uint32 messageId);
+    int handleEnumerateClassNamesResponse(XmlParser& parser, const String& messageId);
     //STUB}
 
-    int handleCreateInstanceResponse(XmlParser& parser, Uint32 messageId);
+    int handleCreateInstanceResponse(XmlParser& parser, const String& messageId);
 
     int handleEnumerateInstanceNamesResponse(
 	XmlParser& parser, 
-	Uint32 messageId);
+	const String& messageId);
 
-    int handleDeleteQualifierResponse(XmlParser& parser, Uint32 messageId);
+    int handleDeleteQualifierResponse(XmlParser& parser, const String& messageId);
 
-    int handleGetQualifierResponse(XmlParser& parser, Uint32 messageId);
+    int handleGetQualifierResponse(XmlParser& parser, const String& messageId);
 
-    int handleSetQualifierResponse(XmlParser& parser, Uint32 messageId);
+    int handleSetQualifierResponse(XmlParser& parser, const String& messageId);
 
-    int handleEnumerateQualifiersResponse(XmlParser& parser, Uint32 messageId);
+    int handleEnumerateQualifiersResponse(XmlParser& parser, const String& messageId);
 
-    int handleEnumerateClassesResponse(XmlParser& parser, Uint32 messageId);
+    int handleEnumerateClassesResponse(XmlParser& parser, const String& messageId);
 
-    int handleCreateClassResponse(XmlParser& parser, Uint32 messageId);
+    int handleCreateClassResponse(XmlParser& parser, const String& messageId);
 
-    int handleModifyClassResponse(XmlParser& parser, Uint32 messageId);
+    int handleModifyClassResponse(XmlParser& parser, const String& messageId);
 
-    int handleDeleteClassResponse(XmlParser& parser, Uint32 messageId);
+    int handleDeleteClassResponse(XmlParser& parser, const String& messageId);
 
-    int handleGetPropertyResponse(XmlParser& parser, Uint32 messageId);
+    int handleGetPropertyResponse(XmlParser& parser, const String& messageId);
 
-    int handleSetPropertyResponse(XmlParser& parser, Uint32 messageId);
+    int handleSetPropertyResponse(XmlParser& parser, const String& messageId);
 
 
 
@@ -386,7 +386,7 @@ int ClientHandler::handleMethodResponse()
     // ATTN: Handle MULTIREQ, SIMPLERSP, and MULTIRSP.
     //--------------------------------------------------------------------------
 
-    Uint32 messageId = 0;
+    String messageId;
     const char* protocolVersion = 0;
 
     if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion))
@@ -475,7 +475,7 @@ int ClientHandler::handleMethodResponse()
 //
 //------------------------------------------------------------------------------
 
-int ClientHandler::handleGetClassResponse(XmlParser& parser, Uint32 messageId) 
+int ClientHandler::handleGetClassResponse(XmlParser& parser, const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -522,7 +522,7 @@ int ClientHandler::handleGetClassResponse(XmlParser& parser, Uint32 messageId)
 
 int ClientHandler::handleGetInstanceResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -573,7 +573,7 @@ int ClientHandler::handleGetInstanceResponse(
 
 int ClientHandler::handleEnumerateClassNamesResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -622,7 +622,7 @@ int ClientHandler::handleEnumerateClassNamesResponse(
 
 int ClientHandler::handleCreateInstanceResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -663,7 +663,7 @@ int ClientHandler::handleCreateInstanceResponse(
 
 int ClientHandler::handleEnumerateInstanceNamesResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -720,7 +720,7 @@ int ClientHandler::handleEnumerateInstanceNamesResponse(
 
 int ClientHandler::handleDeleteQualifierResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -761,7 +761,7 @@ int ClientHandler::handleDeleteQualifierResponse(
 
 int ClientHandler::handleGetQualifierResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -806,7 +806,7 @@ int ClientHandler::handleGetQualifierResponse(
 
 int ClientHandler::handleSetQualifierResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -847,7 +847,7 @@ int ClientHandler::handleSetQualifierResponse(
 
 int ClientHandler::handleEnumerateQualifiersResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -895,7 +895,7 @@ int ClientHandler::handleEnumerateQualifiersResponse(
 
 int ClientHandler::handleEnumerateClassesResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -943,7 +943,7 @@ int ClientHandler::handleEnumerateClassesResponse(
 
 int ClientHandler::handleCreateClassResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -984,7 +984,7 @@ int ClientHandler::handleCreateClassResponse(
 
 int ClientHandler::handleModifyClassResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -1025,7 +1025,7 @@ int ClientHandler::handleModifyClassResponse(
 
 int ClientHandler::handleDeleteClassResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -1087,7 +1087,7 @@ int ClientHandler::handleDeleteClassResponse(
 // ATTN: the following is not correct or complete.
 int ClientHandler::handleGetPropertyResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -1144,7 +1144,7 @@ int ClientHandler::handleGetPropertyResponse(
 // ATTN: The following is not complete or correct
 int ClientHandler::handleSetPropertyResponse(
     XmlParser& parser, 
-    Uint32 messageId) 
+    const String& messageId) 
 {
     XmlEntry entry;
     CIMException::Code code;
@@ -1326,7 +1326,7 @@ CIMClass CIMClient::getClass(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1378,7 +1378,7 @@ CIMInstance CIMClient::getInstance(
     // ATTN: the property list not passed here. Handle this later.
     // same story for getClass().
 
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1421,7 +1421,7 @@ void CIMClient::deleteClass(
     const String& nameSpace,
     const String& className)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1458,7 +1458,7 @@ void CIMClient::createClass(
     const String& nameSpace,
     CIMClass& newClass)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
     XmlWriter::appendClassParameter(parameters, "NewClass", newClass);
@@ -1485,7 +1485,7 @@ void CIMClient::createInstance(
     const String& nameSpace,
     CIMInstance& newInstance) 
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1514,7 +1514,7 @@ void CIMClient::modifyClass(
     const String& nameSpace,
     CIMClass& modifiedClass)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
     XmlWriter::appendClassParameter(parameters, "ModifiedClass", modifiedClass);
@@ -1553,7 +1553,7 @@ Array<CIMClass> CIMClient::enumerateClasses(
     Boolean includeQualifiers ,
     Boolean includeClassOrigin)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1607,7 +1607,7 @@ Array<String> CIMClient::enumerateClassNames(
     Boolean deepInheritance)
 {
 //STUB{:
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1657,7 +1657,7 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1778,7 +1778,7 @@ CIMValue CIMClient::getProperty(
     //throw CIMException(CIMException::NOT_SUPPORTED);
     //return CIMValue();
     // taken from get instance
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
     cout << "DEBUG getProperty " << __LINE__ << endl;
@@ -1826,7 +1826,7 @@ void CIMClient::setProperty(
     throw CIMException(CIMException::NOT_SUPPORTED);
 
 
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
     XmlWriter::appendInstanceNameParameter(
@@ -1859,7 +1859,7 @@ CIMQualifierDecl CIMClient::getQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1895,7 +1895,7 @@ void CIMClient::setQualifier(
     const String& nameSpace,
     const CIMQualifierDecl& qualifierDeclaration)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
     XmlWriter::appendQualifierDeclarationParameter(
@@ -1923,7 +1923,7 @@ void CIMClient::deleteQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 
@@ -1955,7 +1955,7 @@ void CIMClient::deleteQualifier(
 Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
     const String& nameSpace)
 {
-    Uint32 messageId = XmlWriter::getNextMessageId();
+    String messageId = XmlWriter::getNextMessageId();
 
     Array<Sint8> parameters;
 

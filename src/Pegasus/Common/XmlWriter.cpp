@@ -264,7 +264,7 @@ Array<Sint8> XmlWriter::formatMethodResponseHeader(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatMessageElement(
-    Uint32 messageId,
+    const String& messageId,
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -723,7 +723,7 @@ void XmlWriter::indentedPrint(
 //
 //------------------------------------------------------------------------------
 
-Uint32 XmlWriter::getNextMessageId()
+String XmlWriter::getNextMessageId()
 {
     // ATTN: make thread-safe:
     static Uint32 messageId = 1000;
@@ -733,7 +733,9 @@ Uint32 XmlWriter::getNextMessageId()
     if (messageId < 1000)
 	messageId = 1001;
 
-    return messageId;
+    char buffer[16];
+    sprintf(buffer, "%d", messageId);
+    return buffer;
 }
 
 //------------------------------------------------------------------------------
@@ -764,7 +766,7 @@ Array<Sint8> XmlWriter::formatSimpleReqMessage(
 
 Array<Sint8> XmlWriter::formatSimpleRspMessage(
     const char* iMethodName,
-    const Uint32 messageId,
+    const String& messageId,
     const Array<Sint8>& body)
 {
     return XmlWriter::formatMethodResponseHeader(

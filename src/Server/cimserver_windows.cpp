@@ -74,7 +74,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
 	GetOptions(om, dummy, NULL, pegasusHome);
 	// om.print();
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
       exit(1);
     }
@@ -124,7 +124,7 @@ static void __cdecl cimserver_windows_thread(void *parm)
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     }
 
-  _endthreadex(NULL);
+    _endthreadex(NULL);
 }
 
 
@@ -332,5 +332,3 @@ Uint32 cimserver_remove_nt_service(void)
     } 
   return(ccode);
 }
-
-

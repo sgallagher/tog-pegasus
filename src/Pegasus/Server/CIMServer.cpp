@@ -98,86 +98,86 @@ public:
     int handleMethodCall();
 
     void sendError(
-	Uint32 messageId,
+	const String& messageId,
 	const char* methodName,
 	CIMException::Code code,
 	const char* description);
 
     void handleGetClass(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleGetInstance(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     //STUB{
     void handleEnumerateClassNames(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
     //STUB}
 
     void handleCreateInstance(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleEnumerateInstanceNames(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleDeleteQualifier(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleGetQualifier(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleSetQualifier(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleEnumerateQualifiers(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleEnumerateClasses(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleCreateClass(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleModifyClass(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleDeleteClass(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleGetProperty(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     void handleSetProperty(
 	XmlParser& parser, 
-	Uint32 messageId,
+	const String& messageId,
 	const String& nameSpace);
 
     /** outputN sends the message and optionally
@@ -421,7 +421,7 @@ int ServerHandler::handleMethodCall()
     // ATTN: Handle MULTIREQ, SIMPLERSP, and MULTIRSP.
     //--------------------------------------------------------------------------
 
-    Uint32 messageId = 0;
+    String messageId;
     const char* protocolVersion = 0;
 
     if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion))
@@ -520,7 +520,7 @@ int ServerHandler::handleMethodCall()
 //------------------------------------------------------------------------------
 
 void ServerHandler::sendError(
-    Uint32 messageId,
+    const String& messageId,
     const char* methodName,
     CIMException::Code code,
     const char* description) 
@@ -544,7 +544,7 @@ void ServerHandler::sendError(
 
 void ServerHandler::handleGetClass(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -613,7 +613,7 @@ void ServerHandler::handleGetClass(
 
 void ServerHandler::handleGetInstance(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -666,7 +666,7 @@ void ServerHandler::handleGetInstance(
 	    messageId, "GetInstance", e.getCode(), e.codeToString(e.getCode()));
 	return;
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
 	sendError(messageId, "GetInstance", CIMException::FAILED, 
 	    CIMException::codeToString(CIMException::FAILED));
@@ -691,7 +691,7 @@ void ServerHandler::handleGetInstance(
 
 void ServerHandler::handleEnumerateClassNames(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -756,7 +756,7 @@ void ServerHandler::handleEnumerateClassNames(
 
 void ServerHandler::handleCreateInstance(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -813,7 +813,7 @@ void ServerHandler::handleCreateInstance(
 
 void ServerHandler::handleEnumerateInstanceNames(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -873,7 +873,7 @@ void ServerHandler::handleEnumerateInstanceNames(
 
 void ServerHandler::handleDeleteQualifier(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     String qualifierName;
@@ -919,7 +919,7 @@ void ServerHandler::handleDeleteQualifier(
 
 void ServerHandler::handleGetQualifier(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     String qualifierName;
@@ -969,7 +969,7 @@ void ServerHandler::handleGetQualifier(
 
 void ServerHandler::handleSetQualifier(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     CIMQualifierDecl qualifierDecl;
@@ -1017,7 +1017,7 @@ void ServerHandler::handleSetQualifier(
 
 void ServerHandler::handleEnumerateQualifiers(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
@@ -1061,7 +1061,7 @@ void ServerHandler::handleEnumerateQualifiers(
 
 void ServerHandler::handleEnumerateClasses(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -1137,7 +1137,7 @@ void ServerHandler::handleEnumerateClasses(
 
 void ServerHandler::handleCreateClass(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -1190,7 +1190,7 @@ void ServerHandler::handleCreateClass(
 
 void ServerHandler::handleModifyClass(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -1243,7 +1243,7 @@ void ServerHandler::handleModifyClass(
 
 void ServerHandler::handleDeleteClass(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------
@@ -1300,7 +1300,7 @@ void ServerHandler::handleDeleteClass(
 
 void ServerHandler::handleGetProperty(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
 
@@ -1399,7 +1399,7 @@ void ServerHandler::handleGetProperty(
 
 void ServerHandler::handleSetProperty(
     XmlParser& parser, 
-    Uint32 messageId,
+    const String& messageId,
     const String& nameSpace)
 {
     //--------------------------------------------------------------------------

@@ -105,7 +105,7 @@ static Boolean _MakeAddress(
    struct hostent *entry;
 	
    if (isalpha(hostname[0]))
-      entry = gethostbyname(hostname);
+      entry = gethostbyname((char *)hostname);
    else
    {
       unsigned long tmp = inet_addr((char *)hostname);

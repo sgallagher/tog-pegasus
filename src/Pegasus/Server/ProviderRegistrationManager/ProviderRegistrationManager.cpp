@@ -1221,6 +1221,9 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 	_repository->write_unlock();
 	return (false);
     }
+
+    // keep the compiler happy
+    return (false);
 }
 
 void ProviderRegistrationManager::_initialRegistrationTable()
@@ -1994,6 +1997,9 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
     // Should never get here
     PEGASUS_ASSERT(0);
+
+    // keep the compiler happy
+    return (cimRef);
 }
 
 // Unregister a provider

@@ -44,42 +44,56 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #elif defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 #include <sched.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC) 
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #elif defined (PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <malloc.h>
+
+#elif defined (PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+#include <sched.h>
+#include <semaphore.h>
+#include <pthread.h>
+#include <unistd.cleinc>
+#include <stdlib.h>
 
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
@@ -90,7 +104,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
-#include <malloc.h>
 #include <errno.h>
 #include <signal.h>
 #include <new.h>
@@ -190,6 +203,10 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 typedef Uint32 PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
+
+typedef pthread_mutex_t PEGASUS_MUTEX_T;
+
+#elif defined (PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 
 typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
@@ -611,6 +628,36 @@ inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
 }
 
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+
+inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   return(pthread_mutex_init(mut, NULL));
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
+{
+   *result = pthread_mutex_lock(mut);
+   return;
+}
+
+inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_lock(mut);
+}
+
+inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_unlock(mut);
+   return;
+}
+
+inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
+{
+   pthread_mutex_destroy(mut);
+   return;
+}
+
+#elif defined ((PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 
 inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
 {

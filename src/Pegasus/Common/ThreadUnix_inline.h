@@ -35,7 +35,7 @@ inline void Thread::run()
 {
     if (_is_detached)
         pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
-    pthread_create(&_handle.thid, &_handle.thatt, _start, this);
+    pthread_create((pthread_t *)&_handle.thid, &_handle.thatt, _start, this);
 }
 
 

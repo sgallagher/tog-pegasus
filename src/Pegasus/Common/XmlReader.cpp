@@ -47,7 +47,7 @@
 #include "CIMParamValue.h"
 #include "System.h"
 
-#define PEGASUS_SINT64_MIN (-PEGASUS_SINT64_LITERAL(0x8000000000000000))
+#define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 
 PEGASUS_USING_STD;
@@ -707,6 +707,41 @@ inline Uint8 _hexCharToNumeric(const char c)
         n = (c - 'a' + 10);
 
     return n;
+}
+
+// See http://www.ietf.org/rfc/rfc2396.txt section 2
+String XmlReader::decodeURICharacters(String uriString)
+{
+    String decodedString;
+    Uint32 i;
+
+    for (i=0; i<uriString.size(); i++)
+    {
+        if (uriString[i] == '%')
+        {
+            if (i+2 >= uriString.size())
+            {
+                throw ParseError("Invalid URI encoding");
+            }
+
+            Uint8 digit1 = _hexCharToNumeric(char(uriString[++i]));
+            Uint8 digit2 = _hexCharToNumeric(char(uriString[++i]));
+            if ( (digit1 > 15) || (digit2 > 15) )
+            {
+                throw ParseError("Invalid URI encoding");
+            }
+
+            // ATTN: Handle non-UTF-8 character sets
+            Uint16 decodedChar = Uint16(digit1<<4) + Uint16(digit2);
+            decodedString.append(Char16(decodedChar));
+        }
+        else
+        {
+            decodedString.append(uriString[i]);
+        }
+    }
+
+    return decodedString;
 }
 
 //------------------------------------------------------------------------------

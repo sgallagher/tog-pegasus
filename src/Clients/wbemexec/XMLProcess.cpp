@@ -397,9 +397,12 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         else
         {
             message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMMETHOD 
-                << HEADER_SEPARATOR << HTTP_SP << methodName << HTTP_CRLF;
+                << HEADER_SEPARATOR << HTTP_SP
+                << XmlWriter::encodeURICharacters(methodName.getString())
+                << HTTP_CRLF;
             message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOBJECT
-                << HEADER_SEPARATOR << HTTP_SP << objPath << HTTP_CRLF;
+                << HEADER_SEPARATOR << HTTP_SP
+                << XmlWriter::encodeURICharacters(objPath) << HTTP_CRLF;
         }
     }
     else
@@ -415,9 +418,10 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         else
         {
             message << HEADER_NAME_CIMMETHOD << HEADER_SEPARATOR << HTTP_SP 
-                    << methodName << HTTP_CRLF;
+                    << XmlWriter::encodeURICharacters(methodName.getString())
+                    << HTTP_CRLF;
             message << HEADER_NAME_CIMOBJECT << HEADER_SEPARATOR << HTTP_SP 
-                    << objPath << HTTP_CRLF;
+                    << XmlWriter::encodeURICharacters(objPath) << HTTP_CRLF;
         }
     }
 

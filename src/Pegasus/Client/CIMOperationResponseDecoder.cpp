@@ -201,6 +201,15 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
         HTTPMessage::lookupHeader(headers, "CIMError", cimError);
         HTTPMessage::lookupHeader(headers, PEGASUS_HTTPHEADERTAG_ERRORDETAIL, pegasusError);
+        try
+        {
+            pegasusError = XmlReader::decodeURICharacters(pegasusError);
+        }
+        catch (ParseError& e)
+        {
+            // Ignore this exception.  We're more interested in having the
+            // message in encoded form than knowing that the format is invalid.
+        }
 
         CIMClientHTTPErrorException* httpError =
             new CIMClientHTTPErrorException(statusCode, cimError, pegasusError);

@@ -310,7 +310,21 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          PEG_METHOD_EXIT();
          return;
       }
+
+      try
+      {
+         cimMethod = XmlReader::decodeURICharacters(cimMethod);
+      }
+      catch (ParseError& e)
+      {
+         // The CIMMethod header value could not be decoded
+         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       "CIMMethod value syntax error.");
+         PEG_METHOD_EXIT();
+         return;
+      }
    }
+
    if (HTTPMessage::lookupHeader(headers, "CIMObject", cimObject, true))
    {
       if (cimObject == String::EMPTY)
@@ -318,6 +332,19 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          // This is not a valid value, and we use EMPTY to mean "absent"
          sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
                        "Empty CIMObject value.");
+         PEG_METHOD_EXIT();
+         return;
+      }
+
+      try
+      {
+         cimObject = XmlReader::decodeURICharacters(cimObject);
+      }
+      catch (ParseError& e)
+      {
+         // The CIMObject header value could not be decoded
+         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
+                       "CIMObject value syntax error.");
          PEG_METHOD_EXIT();
          return;
       }

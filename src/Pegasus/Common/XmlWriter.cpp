@@ -297,6 +297,68 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
     }
 }
 
+// See http://www.ietf.org/rfc/rfc2396.txt section 2
+// Reserved characters = ';' '/' '?' ':' '@' '&' '=' '+' '$' ','
+// Excluded characters:
+//   Control characters = 0x00-0x1f, 0x7f
+//   Space character = 0x20
+//   Delimiters = '<' '>' '#' '%' '"'
+//   Unwise = '{' '}' '|' '\\' '^' '[' ']' '`'
+inline void _encodeURIChar(String& outString, Char16 char16)
+{
+    // ATTN: Handle non-UTF-8 character sets
+    char c = char16 & 0x007f;
+
+#if 0
+// Enable this functionality when approved by Pegasus community
+//#ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
+    if ( (c <= 0x20) ||                     // Control characters + space char
+         ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
+         (c == 0x2b) ||                     // '+'
+         (c == 0x2c) ||                     // ','
+         (c == 0x2f) ||                     // '/'
+         ( (c >= 0x3a) && (c <= 0x40) ) ||  // ':' ';' '<' '=' '>' '?' '@'
+         ( (c >= 0x5b) && (c <= 0x5e) ) ||  // '[' '\\' ']' '^'
+         (c == 0x60) ||                     // '`'
+         ( (c >= 0x7b) && (c <= 0x7d) ) ||  // '{' '|' '}'
+         (c == 0x7f) )                      // Control character
+    {
+        char hexencoding[4];
+
+        sprintf(hexencoding, "%%%X%X", c/16, c%16);
+        outString.append(hexencoding);
+    }
+    else
+#endif
+    {
+        outString.append(c);
+    }
+}
+
+String XmlWriter::encodeURICharacters(Array<Sint8> uriString)
+{
+    String encodedString;
+
+    for (Uint32 i=0; i<uriString.size(); i++)
+    {
+        _encodeURIChar(encodedString, Char16(uriString[i]));
+    }
+
+    return encodedString;
+}
+
+String XmlWriter::encodeURICharacters(String uriString)
+{
+    String encodedString;
+
+    for (Uint32 i=0; i<uriString.size(); i++)
+    {
+        _encodeURIChar(encodedString, uriString[i]);
+    }
+
+    return encodedString;
+}
+
 //------------------------------------------------------------------------------
 //
 // appendLocalNameSpacePathElement()
@@ -1437,14 +1499,16 @@ void XmlWriter::appendMethodCallHeader(
         out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
         out << nn <<"\r\n";
         out << nn << "-CIMOperation: MethodCall\r\n";
-        out << nn << "-CIMMethod: " << cimMethod << "\r\n";
-        out << nn << "-CIMObject: " << cimObject << "\r\n";
+        out << nn << "-CIMMethod: "
+            << encodeURICharacters(cimMethod.getString()) << "\r\n";
+        out << nn << "-CIMObject: " << encodeURICharacters(cimObject) << "\r\n";
     }
     else 
     {
         out << "CIMOperation: MethodCall\r\n";
-        out << "CIMMethod: " << cimMethod << "\r\n";
-        out << "CIMObject: " << cimObject << "\r\n";
+        out << "CIMMethod: " << encodeURICharacters(cimMethod.getString())
+            << "\r\n";
+        out << "CIMObject: " << encodeURICharacters(cimObject) << "\r\n";
     }
 
     if (authenticationHeader.size())
@@ -1517,7 +1581,8 @@ void XmlWriter::appendHttpErrorResponseHeader(
         // ATTN-RK-P3-20020404: It is critical that this text not contain '\n'
         // ATTN-RK-P3-20020404: Need to encode this value properly.  (See
         // CIM/HTTP Specification section 3.3.2
-        out << PEGASUS_HTTPHEADERTAG_ERRORDETAIL ": " << errorDetail << "\r\n";
+        out << PEGASUS_HTTPHEADERTAG_ERRORDETAIL ": "
+            << encodeURICharacters(errorDetail) << "\r\n";
     }
     out << "\r\n";
 }

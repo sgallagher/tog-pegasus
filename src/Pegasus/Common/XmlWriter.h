@@ -95,6 +95,9 @@ public:
 
     static void appendSpecial(Array<Sint8>& out, const String& str);
 
+    static String encodeURICharacters(Array<Sint8> uriString);
+    static String encodeURICharacters(String uriString);
+
     static void appendLocalNameSpacePathElement(
 	Array<Sint8>& out, 
 	const CIMNamespaceName& nameSpace);

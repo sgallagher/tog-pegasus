@@ -150,6 +150,8 @@ public:
 	Boolean defaultValue,
 	Boolean required);
 
+    static String decodeURICharacters(String uriString);
+
     static Boolean stringToReal(
 	const char* stringValue, 
 	Real64& x);

@@ -149,13 +149,10 @@ int main(int argc, char ** argv)
 			int i = 0;
 			while(text[i] == ' ' || text[i] == '\t') i++; // ignore whitespace
 			if(text[i] != _comment){
-				cout << "TEXT = " << _text;
 				if(!(strlen(_text) < 2)){
 					CQLParser::parse(text,_ss);
 					_statements.append(_ss);
 				}
-			}else{
-				cout << "COMMENT = " << _text;
 			}
 		}
 		queryInputSource.close();

@@ -29,6 +29,7 @@
 
 #include "SampleFamilyProvider.h"
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -43,9 +44,10 @@ SampleFamilyProvider::~SampleFamilyProvider(void)
 
 void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::initialize");
 
-    PEGASUS_STD(cout) << "KSTEST Initialize SampleFamilyProvider "  << PEGASUS_STD(endl);
-    
+    CDEBUG ("initialize");
     {   /*
         // Create the classes so we have something to build from. This should not have to 
         // be here but we cannot get to repository yet.
@@ -115,7 +117,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
             CIMName ("TennisPlayer"));
     
     */
-    PEGASUS_STD(cout) << "KSTEST 1 "  << PEGASUS_STD(endl);
+    CDEBUG ("Initialise - 1");
     // From the enumerateinstancenames  Why the R
     // TST_Lineage.child=R"Person.name=\"Sofi\"",parent=R"Person.name=\"Mike\""
     
@@ -130,7 +132,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
     instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
     
-    PEGASUS_STD(cout) << "KSTEST 2 "  << PEGASUS_STD(endl);
+    CDEBUG ("initialize - 2");
     
     //CIMObjectPath reference = "//localhost/root/SampleProvider:TST_LineageDynamic.parent=\"TST_PersonDynamic.name=\"Father\"\",Child=\"TST_PersonDynamic.name=\"Daughter1\"\"";
     
@@ -164,20 +166,23 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     //CIMObjectPath reference =  referenceString;
 
     
-    PEGASUS_STD(cout) << "KSTEST 3 "  << PEGASUS_STD(endl);
+    CDEBUG ("initialize - 3");
         
     _instancesLineage.append(instance);
     //_instanceNamesLineage.append(reference);
     }
-    PEGASUS_STD(cout) << "KSTEST 4 "  << PEGASUS_STD(endl);
-    
+    CDEBUG ("initialize - 4 ");
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::terminate(void)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::terminate");
+    
     // TODO Mike Day mentioned additional cleanup needed
     PEGASUS_STD(cout) << "KSTEST Terminate SampleFamilyProvider " << PEGASUS_STD(endl);
-    
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::getInstance(
@@ -188,7 +193,9 @@ void SampleFamilyProvider::getInstance(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+      "SampleFamilyProvider::getInstance");
+  // convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
@@ -213,6 +220,7 @@ void SampleFamilyProvider::getInstance(
 
 	// complete processing the request
 	handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::enumerateInstances(
@@ -223,19 +231,45 @@ void SampleFamilyProvider::enumerateInstances(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::enumerateInstances");
     PEGASUS_STD(cout) << "KSTEST enumerateInstances SampleFamilyProvider "  << PEGASUS_STD(endl);
 	
     // begin processing the request
 	handler.processing();
 
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		// deliver instance
-		handler.deliver(_instances[i]);
-	}
+    CIMName myClass = classReference.getClassName();
+
+    if (myClass == CIMName("tst_persondynamic"))
+    {
+    	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    	{
+    		// deliver reference
+    		handler.deliver(_instances[i]);
+    	}
+     }
+    if (myClass == CIMName("tst_lineagedynamic"))
+    {
+    	for(Uint32 i = 0, n = _instancesLineage.size(); i < n; i++)
+    	{
+    		// deliver reference
+    		handler.deliver(_instancesLineage[i]);
+    	}
+
+    }
+    if (myClass ==  CIMName("tst_labeledlineagedynamic"))
+    {
+    	for(Uint32 i = 0, n = _instancesLabeledLineage.size(); i < n; i++)
+    	{
+    		// deliver reference
+    		handler.deliver(_instancesLabeledLineage[i]);
+    	}
+
+    }
 
 	// complete processing the request
 	handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::enumerateInstanceNames(
@@ -243,11 +277,17 @@ void SampleFamilyProvider::enumerateInstanceNames(
 	const CIMObjectPath & classReference,
 	ObjectPathResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::enumerateInstanceNames");
 	PEGASUS_STD(cout) << "KSTEST Enumerate InstanceNames of " << classReference.toString() << PEGASUS_STD(endl);
     // begin processing the request
 	handler.processing();
 
-    if (classReference.getClassName().equal("TST_PersionDynamic"))
+    CIMName myClass = classReference.getClassName();
+
+    //ATTN: Modify this to dynamically deliver the Names from the instances and hopefully
+    // use the same code base as the enumerateinstances 
+    if (myClass == CIMName("tst_persondynamic"))
     {
     	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     	{
@@ -255,7 +295,7 @@ void SampleFamilyProvider::enumerateInstanceNames(
     		handler.deliver(_instanceNames[i]);
     	}
      }
-    if (classReference.getClassName().equal("TST_LineageDynamic"))
+    if (myClass == CIMName("tst_lineagedynamic"))
     {
     	for(Uint32 i = 0, n = _instancesLineage.size(); i < n; i++)
     	{
@@ -264,7 +304,7 @@ void SampleFamilyProvider::enumerateInstanceNames(
     	}
 
     }
-    if (classReference.getClassName().equal("TST_LabeledLineageDynamic"))
+    if (myClass ==  CIMName("tst_labeledlineagedynamic"))
     {
     	for(Uint32 i = 0, n = _instancesLabeledLineage.size(); i < n; i++)
     	{
@@ -276,7 +316,7 @@ void SampleFamilyProvider::enumerateInstanceNames(
 
     // complete processing the request
     handler.complete();
-
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::modifyInstance(
@@ -287,6 +327,8 @@ void SampleFamilyProvider::modifyInstance(
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::modifyInstance");
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
@@ -312,6 +354,7 @@ void SampleFamilyProvider::modifyInstance(
 	
 	// complete processing the request
 	handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::createInstance(
@@ -320,7 +363,10 @@ void SampleFamilyProvider::createInstance(
 	const CIMInstance & instanceObject,
 	ObjectPathResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::createInstance");
+	
+    // convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
@@ -350,6 +396,7 @@ void SampleFamilyProvider::createInstance(
 
 	// complete processing the request
 	handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::deleteInstance(
@@ -357,6 +404,8 @@ void SampleFamilyProvider::deleteInstance(
 	const CIMObjectPath & instanceReference,
 	ResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::deleteInstance");
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
@@ -387,6 +436,7 @@ void SampleFamilyProvider::deleteInstance(
 	
 	// complete processing the request
 	handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::associators(
@@ -401,7 +451,10 @@ void SampleFamilyProvider::associators(
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::associators");
 	throw CIMNotSupportedException("SampleFamilyProvider::associators");
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::associatorNames(
@@ -413,7 +466,10 @@ void SampleFamilyProvider::associatorNames(
 	const String & resultRole,
 	ObjectPathResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::associatorNames");
 	throw CIMNotSupportedException("SampleFamilyProvider::associatorNames");
+    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::references(
@@ -426,6 +482,8 @@ void SampleFamilyProvider::references(
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::references");
 	PEGASUS_STD(cout) << "KSTESTreferences SampleFamilyProvider" << PEGASUS_STD(endl);
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath
@@ -465,7 +523,7 @@ void SampleFamilyProvider::references(
     
 	// complete processing the request
 	handler.complete();
-
+    PEG_METHOD_EXIT();
 }
 
 
@@ -479,6 +537,8 @@ void SampleFamilyProvider::referenceNames(
 	const String & role,
 	ObjectPathResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDER,
+       "SampleFamilyProvider::referenceNames");
 	PEGASUS_STD(cout) << "KSTESTreferenceNames SampleFamilyProvider" << PEGASUS_STD(endl);
     
     
@@ -524,7 +584,7 @@ void SampleFamilyProvider::referenceNames(
     
 	// complete processing the request
 	handler.complete();
-	
+    PEG_METHOD_EXIT();
 }
 
 

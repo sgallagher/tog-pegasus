@@ -41,6 +41,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// This is the dynamic entry point into this dynamic module. The name of
+// this provider is "SampleFamilyProvider" which is appened to
+// "PegasusCreateProvider_" to form a symbol name. This function is called
+// by the ProviderModule to load this provider.
+//
+// NOTE: The name of the provider must be correct to be loadable.
+
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
 {
     PEGASUS_STD(cout) << "KSTEST Create SampleFamilyProvider " << name << PEGASUS_STD(endl);

@@ -11,7 +11,8 @@ include $(ROOT)/mak/program.mak
 MOF_PATH = $(ROOT)/Schemas/CIM25
 
 tests:
-	$(RMDIRHIER) ./repository
-	cimmof -R. -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core25.mof
-	cimmof -R. -nroot x.mof
-	$(PROGRAM)
+	@ $(RMDIRHIER) ./repository
+	@ cimmof -R. -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core25.mof
+	@ cimmof -R. -nroot x.mof
+	@ $(PROGRAM)
+	@ $(RMDIRHIER) ./repository

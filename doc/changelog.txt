@@ -1,21 +1,26 @@
 CHANGE LOG FOR PEGASUS
 
---------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 Version 0.97.4 - In Process.
 
 1. Deamonizaiton added to CIMServer.cpp by Mike Day.  This includes code bothe
 for NT and Linux platforms.
+
 2. KS Changed the namespace cimv20 to cimv2 and the default port from 888 to
 5988.
 NOTE: 5988 is now the officially recognized preferred port for a CIMServer by
 the DMTF.
+
 3. KS Corrected some errors found in interoperability testing during the DMTF
 Fusion event.  THis included a) extended the test for end of HTTP header from
 CR/LF/CR/LF to also allow LF/LF.  Not strictly legal but widely used. b).
 Extended the HTTP message ID to allow for non-numeric message IDs.
+
 4. Broke out RepositoryDeclContext class from Repository/CIMRepository.cpp
 and created RepositoryDeclContext.{cpp,h}.  This is the first step in
 revamping the compiler to work independently of the repository (grb).
+
 5. Created new makefile Compiler/Makefile.grammar and modified
 Compiler/Makefile; and added cimmof_tab.{cpp,h} and cimmof_lex.cpp.
 Now when you build normally, you will get the committed grammar and parser
@@ -23,22 +28,31 @@ files instead of generating your own for a particular platform.  This should
 prevent back-level lex and yacc implementations from generating troublesome
 code.  The committed files are generated from flex 2.5.4 and bison 1,28.
 (grb)
+
 6.  Added Compiler/compilerDeclContext.{cpp,h} and makefile changes.
 This change paves the way for upcoming changes that will allow the compiler
 to work indepently of the repository. (grb)
+
 7. Extend testclient (clients/testclient) tests and functions. ks 19 June 2001
+
 8. CV added const to CIMOperations modifyInstance, createInstance,
 modifyClass,
 createClass to protect caller's object.
+
 9. CV added CIMQueryProvider and CIMAssociationProvider to the Provider2
 directory. These
 interfaces allow very smart providers to perform advances operations.
 CIMProviderStub has
 been updated to support the new interfaces. Needs testing.
+
 10. Added rpm packaging support and shell script based build process. MM
+
 11. Changed Make so make tests no longer rebuilds repository.  To rebuild
 repository you make world, make rebuild or make repository. ks
----------------------------------------------------------------
+
+12. Added associators() and associatorNames() operations to CIM repository.
+
+--------------------------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
 
 1. (KS)OptionManager (CPP and H), Logger (CPP and H), Handler (CPP and H),
@@ -70,7 +84,7 @@ and components of the message causing the problem.
 9. (KS)Fixed problem where logs were not created unless logs directory already
 existed.
 
-----------------------------------------------------------------
+--------------------------------------------------------------------------------
 Version 0.97.2
 
 1. Extend HP UX port to correctly load Dynamic Load Libraries.
@@ -83,7 +97,9 @@ Version 0.97.2
 7. New working papers (provider interface).
 8. Add Providerreg.exe tool.
 9. Add trace output for messages sent from the Server.
------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+
 23 May 2001 Version 0.97.1 Tags as version_0_971
 
 1. Add PEG_NOT_FOUND symbol to replace Uint32(-1) in any of the object
@@ -93,7 +109,8 @@ find functions.  Note: This symbol is defined in config.h. (ks).
 of dynamic lib loaading.
 
 
-------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 21 May 2001  Version 0.97 - Tagged as version_0_97
 
 1. Added methods in CIMClass, CIMInstance, for existance of properties,
@@ -122,13 +139,4 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
-
-
-
-
-
-
-
-
-
 

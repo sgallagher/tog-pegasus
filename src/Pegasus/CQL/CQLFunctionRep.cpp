@@ -1118,11 +1118,11 @@ CQLValue CQLFunctionRep::instanceToReference(const CIMInstance& CI, const QueryC
                                String("CIM Object function parameter must be an instance."));
       throw CQLRuntimeException(mload);
     }
+    // Make a CIM Instance
+    CIMInstance tempInst(obj);
+    inst = &tempInst;
   }
-  // Make a CIM Instance
-  CIMInstance tempInst(obj);
-  inst = &tempInst;
-
+  
   // Get the class and build the path
   CIMConstClass cls = queryCtx.getClass(inst->getClassName());
   CIMObjectPath objPath = inst->buildPath(cls);

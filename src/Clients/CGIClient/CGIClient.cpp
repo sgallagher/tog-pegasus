@@ -628,6 +628,15 @@ void PrintClass(
 
 	//cimClass.printMof();
 	cout << "</pre>";
+
+        // Now show the XML for this entity
+        /* note that XML formatting is real mess.  Hard to reformat as HTML 
+        without cleaning up the XML tags, etc.
+        cout << "\n<h2>XML</h2>\n";
+
+        cout << "<pre>";
+        cimClass.print();
+        cout << "</pre>\n";  */
     }
     cout << "</body>\n" << "</html>\n";
 }
@@ -965,21 +974,9 @@ void PrintQualifierRow(const String& nameSpace,
 
     String href = 
         BuildOperationHref("GetQualifier", EncodeQueryStringValue(nameSpace));
-    /******************ATTNKS: Delete the following after test
-    String href = "/pegasus/cgi-bin/CGIClient?";
-    href.append("Operation=GetQualifier&");
-    href += "NameSpace=";
-    href += EncodeQueryStringValue(nameSpace);
-    href += '&';
-    ******/
     href += "QualifierName=";
     href += qd.getName();
     href.append("&");
-    /******ATTNKS: Delete the following after test
-    HostInfo hostinfo;
-    href.append("&hostaddress=");
-    href.append(EncodeQueryStringValue(hostinfo.getAddress()));
-    ***************/
 
     cout << "<td>";
     PrintAHref(href, qd.getName());

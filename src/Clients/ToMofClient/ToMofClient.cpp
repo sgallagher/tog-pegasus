@@ -158,6 +158,9 @@ void GetOptions(
 
 		 {"qualifiers", "false", false, Option::BOOLEAN, 0, 0, "q", 
 		              "If set, show the qualifier declarations "},
+
+		 {"all", "false", false, Option::BOOLEAN, 0, 0, "a", 
+		              "If set, show everything "},
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -187,7 +190,6 @@ void PrintHelp(const char* arg0)
     cout << "Usage: " << arg0 << endl;
     cout << endl;
 }
-
 
 
 ///////////////////////////////////////////////////////////////

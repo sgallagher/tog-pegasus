@@ -112,7 +112,7 @@ void CQLFactorRep::applyScopes(Array<CQLScope> inScopes)
 }
 
 Boolean CQLFactorRep::operator==(const CQLFactorRep& rep){
-	return true;
+	 return true;
 }
 Boolean CQLFactorRep::operator!=(const CQLFactorRep& rep){
 	return (!operator==(rep));                                                                                

@@ -44,7 +44,7 @@ class PEGASUS_CQL_LINKAGE CQLScope;
 class PEGASUS_CQL_LINKAGE QueryContext;
 
 /**  The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.
-       This class evaluates the object to get a CQLValue.
+        This class evaluates the object to get a CQLValue.
        If it contains a CQLValue, it will resolve the CQLValue. 
   */
 

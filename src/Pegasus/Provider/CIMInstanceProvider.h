@@ -129,6 +129,12 @@ public:
     returned by this operation. Because
     support for this parameter is optional, the instances may contain
     additional properties not specified in the list.
+	NOTE: The provider does NOT receive the client filtering parameter
+	localOnly.  This is resolved in the CIMOM into the propertyList so 
+	that the property list represents the complete set of properties to
+	be returned.
+	If the propertyList is NULL all properties are returned.  If it is
+	nonNULL but empty, no properites are to be returned.
 
     @param handler a {@link ResponseHandler ResponseHandler} object used
     to deliver results to the CIM Server.
@@ -186,7 +192,8 @@ public:
     @param propertyList If not null, this parameter
     specifies the minimum set of properties required in instances returned by this operation. Because
     support for this parameter is optional, the instances may contain additional properties not specified
-    in the list.
+    in the list. NOTE: The provider does NOT receive the client filtering parameters
+	localOnly or deepInheritance.  These are resolved in the CIMOM into the propertyList.
 
     @param handler {@link ResponseHandler ResponseHandler} object for
     delivery of results.
@@ -304,7 +311,9 @@ public:
     specifies the set of properties required to be updated in the instance. Support
     for this parameter is NOT optional.  Providers that do not support this
     feature must throw a {@link CIMNotSupportedException CIMNotSupportedException} exception.
-
+	NOTE: The provider does NOT receive the client filtering parameters
+	localOnly or deepInheritance.  These are resolved in the CIMOM into the propertyList.
+	
     @param handler {@link ResponseHandler ResponseHandler} object for
     delivery of results.
 

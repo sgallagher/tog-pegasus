@@ -65,7 +65,7 @@ static int yygrowstack();
 int yylex();
 char msg[100];
 void printf_(char * msg){
-	if(DEBUG_GRAMMAR == 1)
+/*	if(DEBUG_GRAMMAR == 1)*/
 		printf("%s\n",msg);
 }
 extern char * yytext;
@@ -454,7 +454,7 @@ short *yyss;
 short *yysslim;
 YYSTYPE *yyvs;
 int yystacksize;
-#line 1181 "CQL.y"
+#line 1193 "CQL.y"
 
 /*int yyerror(char * err){yyclearin; yyerrok;throw Exception(String(err));return 1;}*/
 #line 461 "y.tab.c"
@@ -1475,21 +1475,33 @@ case 62:
 
 	       CQLIdentifier _id("*");
 	       CQLPredicate* _pred = (CQLPredicate*)(_factory.makeObject(&_id,Predicate));
-	       _arglist.append(*_pred);
+	       _arglist.append(*_pred); /* 
+					   since arg_list can loop back on itself, 
+					   we need to store away previous solutions 
+					   production.  We keep track of previous productions
+					   in the _arglist array and later pass that to CQLFunction
+					   as part of chain: identifier LPAR arg_list RPAR
+					*/
            }
 break;
 case 63:
-#line 988 "CQL.y"
+#line 994 "CQL.y"
 {
 		   globalParserState->currentRule = "arg_list->arg_list_sub->expr";
                    sprintf(msg,"BISON::arg_list_sub->expr\n");
                    printf_(msg);
 
-                   _arglist.append(*yyvsp[0]._predicate);
+                   _arglist.append(*yyvsp[0]._predicate);/*
+                                           since arg_list can loop back on itself,
+                                           we need to store away previous solutions
+                                           production.  We keep track of previous productions
+                                           in the _arglist array and later pass that to CQLFunction
+                                           as part of chain: identifier LPAR arg_list RPAR
+                                        */
            }
 break;
 case 64:
-#line 1043 "CQL.y"
+#line 1055 "CQL.y"
 {
 		     globalParserState->currentRule = "from_specifier->class_path";
                      sprintf(msg,"BISON::from_specifier->class_path\n");
@@ -1500,7 +1512,7 @@ case 64:
                  }
 break;
 case 65:
-#line 1053 "CQL.y"
+#line 1065 "CQL.y"
 {
 			globalParserState->currentRule = "from_specifier->class_path AS identifier";
 			sprintf(msg,"BISON::from_specifier->class_path AS identifier\n");
@@ -1514,7 +1526,7 @@ case 65:
 		  }
 break;
 case 66:
-#line 1065 "CQL.y"
+#line 1077 "CQL.y"
 {
 			globalParserState->currentRule = "from_specifier->class_path identifier";
 			sprintf(msg,"BISON::from_specifier->class_path identifier\n");
@@ -1528,7 +1540,7 @@ case 66:
 		  }
 break;
 case 67:
-#line 1079 "CQL.y"
+#line 1091 "CQL.y"
 {
 		    globalParserState->currentRule = "from_criteria->from_specifier";
                     sprintf(msg,"BISON::from_criteria->from_specifier\n");
@@ -1536,7 +1548,7 @@ case 67:
                 }
 break;
 case 68:
-#line 1087 "CQL.y"
+#line 1099 "CQL.y"
 {
 		globalParserState->currentRule = "star_expr->STAR";
                 sprintf(msg,"BISON::star_expr->STAR\n");
@@ -1547,7 +1559,7 @@ case 68:
             }
 break;
 case 69:
-#line 1096 "CQL.y"
+#line 1108 "CQL.y"
 {
 		globalParserState->currentRule = "star_expr->chain.*";
 		sprintf(msg,"BISON::star_expr->chain.*\n");
@@ -1560,7 +1572,7 @@ case 69:
 	    }
 break;
 case 70:
-#line 1109 "CQL.y"
+#line 1121 "CQL.y"
 {
 		     globalParserState->currentRule = "selected_entry->expr";
                      sprintf(msg,"BISON::selected_entry->expr\n");
@@ -1581,7 +1593,7 @@ case 70:
                  }
 break;
 case 71:
-#line 1128 "CQL.y"
+#line 1140 "CQL.y"
 {
 		     globalParserState->currentRule = "selected_entry->star_expr";
                      sprintf(msg,"BISON::selected_entry->star_expr\n");
@@ -1590,7 +1602,7 @@ case 71:
                  }
 break;
 case 72:
-#line 1137 "CQL.y"
+#line 1149 "CQL.y"
 {
 		globalParserState->currentRule = "select_list->selected_entry select_list_tail";
                 sprintf(msg,"BISON::select_list->selected_entry select_list_tail\n");
@@ -1598,11 +1610,11 @@ case 72:
             }
 break;
 case 73:
-#line 1144 "CQL.y"
+#line 1156 "CQL.y"
 {;}
 break;
 case 74:
-#line 1146 "CQL.y"
+#line 1158 "CQL.y"
 {
 		       globalParserState->currentRule = "select_list_tail->COMMA selected_entry select_list_tail";
                        sprintf(msg,"BISON::select_list_tail->COMMA selected_entry select_list_tail\n");
@@ -1610,7 +1622,7 @@ case 74:
                    }
 break;
 case 75:
-#line 1154 "CQL.y"
+#line 1166 "CQL.y"
 {
 			globalParserState->currentRule = "search_condition->expr";
                         sprintf(msg,"BISON::search_condition->expr\n");
@@ -1619,11 +1631,11 @@ case 75:
                    }
 break;
 case 76:
-#line 1162 "CQL.y"
+#line 1174 "CQL.y"
 {;}
 break;
 case 77:
-#line 1164 "CQL.y"
+#line 1176 "CQL.y"
 {
 		     globalParserState->currentRule = "optional_where->WHERE search_condition";
                      sprintf(msg,"BISON::optional_where->WHERE search_condition\n");
@@ -1632,14 +1644,14 @@ case 77:
                  }
 break;
 case 78:
-#line 1173 "CQL.y"
+#line 1185 "CQL.y"
 {
 		       globalParserState->currentRule = "select_statement";
                        sprintf(msg,"select_statement\n\n");
 		       printf_(msg);
                    }
 break;
-#line 1643 "y.tab.c"
+#line 1655 "y.tab.c"
     }
     yyssp -= yym;
     yystate = *yyssp;

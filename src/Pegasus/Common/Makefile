@@ -22,7 +22,6 @@ SOURCES = \
     CIMIndication.cpp \
     CIMInstance.cpp \
     CIMInstanceRep.cpp \
-    CIMNamedInstance.cpp \
     CIMMessage.cpp \
     CIMMethod.cpp \
     CIMMethodRep.cpp \

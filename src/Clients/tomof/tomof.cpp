@@ -25,7 +25,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -701,7 +702,7 @@ int main(int argc, char** argv)
                     // Process classlist to enumerate and print instances
                     for(Uint32 j = 0; j < myClassNameList.size(); j++)
                     {
-                        Array<CIMNamedInstance> namedInstances;
+                        Array<CIMInstance> namedInstances;
                         namedInstances = clRepository.enumerateInstances(nameSpace,
                                                                          className,
                                                                          deepInheritance,
@@ -714,7 +715,7 @@ int main(int argc, char** argv)
                         for(Uint32 k = 0; k < namedInstances.size(); k++)
                         {
 
-                            CIMInstance instance = namedInstances[i].getInstance();
+                            CIMInstance instance = namedInstances[i];
                             if(isXMLOutput)
                                 XmlWriter::printInstanceElement(instance, cout);
                             else

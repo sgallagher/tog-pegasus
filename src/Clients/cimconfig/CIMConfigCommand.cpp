@@ -25,6 +25,8 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1167,7 +1169,8 @@ void CIMConfigCommand::_updatePropertyInCIMServer
             propertyList.append(PLANNED_VALUE);
         }
 
-        CIMNamedInstance namedInstance(reference, modifiedInst);
+        CIMInstance namedInstance (modifiedInst);
+        namedInstance.setPath (reference);
         _client->modifyInstance(
             INTERNAL_NAMESPACE,
             namedInstance,
@@ -1192,7 +1195,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
     Array <String>&   propValues
     )
 {
-    Array<CIMNamedInstance> configNamedInstances;
+    Array<CIMInstance> configNamedInstances;
 
     try
     {
@@ -1210,7 +1213,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
             for (Uint32 i = 0; i < configNamedInstances.size(); i++)
             {
                 CIMInstance& configInstance =
-                    configNamedInstances[i].getInstance();
+                    configNamedInstances[i];
 
                 Uint32 pos = configInstance.findProperty("PropertyName");
                 CIMProperty prop = (CIMProperty)configInstance.getProperty(pos);

@@ -25,6 +25,8 @@
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1019,7 +1021,7 @@ void CIMRepository::modifyClass(
 
 void CIMRepository::modifyInstance(
     const String& nameSpace,
-    const CIMNamedInstance& modifiedInstance,
+    const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
@@ -1029,7 +1031,7 @@ void CIMRepository::modifyInstance(
     // Get paths of index and data files:
     //
 
-    const CIMInstance& instance = modifiedInstance.getInstance();
+    const CIMInstance& instance = modifiedInstance;
 
     String indexFilePath = _getInstanceIndexFilePath(
         nameSpace, instance.getClassName());
@@ -1087,7 +1089,7 @@ void CIMRepository::modifyInstance(
             // Replace the entire instance with the given instance
             // (this is the default behavior)
             //
-            cimInstance = modifiedInstance.getInstance();
+            cimInstance = modifiedInstance;
         }
         else
         {
@@ -1100,7 +1102,7 @@ void CIMRepository::modifyInstance(
 
             cimInstance = getInstance(
 		nameSpace,
-                modifiedInstance.getInstanceName(), 
+                modifiedInstance.getPath (), 
 		false, 
 		true, 
 		true);
@@ -1108,9 +1110,9 @@ void CIMRepository::modifyInstance(
 	    _resolveInstance = true;
 
             CIMInstance newInstance(
-                modifiedInstance.getInstanceName().getClassName());
+                modifiedInstance.getPath ().getClassName());
 
-            CIMInstance givenInstance = modifiedInstance.getInstance();
+            CIMInstance givenInstance = modifiedInstance;
 
             //
             // Copy over the original instance qualifiers
@@ -1166,11 +1168,11 @@ void CIMRepository::modifyInstance(
 	_resolveInstance = false;
 
         cimInstance = getInstance(nameSpace,
-            modifiedInstance.getInstanceName(), false, true, true);
+            modifiedInstance.getPath (), false, true, true);
 
 	_resolveInstance = true;
 
-        CIMInstance givenInstance = modifiedInstance.getInstance();
+        CIMInstance givenInstance = modifiedInstance;
 
         // NOTE: Instance qualifiers are not changed when a property list
         // is specified.  Property qualifiers are replaced with the
@@ -1288,7 +1290,7 @@ void CIMRepository::modifyInstance(
     // Disallow operation if the instance name was changed:
     //
 
-    if (instanceName != modifiedInstance.getInstanceName())
+    if (instanceName != modifiedInstance.getPath ())
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
@@ -1420,7 +1422,7 @@ Array<String> CIMRepository::enumerateClassNames(
 Boolean CIMRepository::_loadAllInstances(
     const String& nameSpace,
     const String& className,
-    Array<CIMNamedInstance>& namedInstances)
+    Array<CIMInstance>& namedInstances)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_loadAllInstances");
 
@@ -1489,9 +1491,9 @@ Boolean CIMRepository::_loadAllInstances(
 		XmlReader::getObject(parser, tmpInstance);
 
 		tmpInstance.resolve(_context, nameSpace, true);
+                tmpInstance.setPath (instanceNames[i]);
 
-		namedInstances.append(
-		    CIMNamedInstance(instanceNames[i], tmpInstance));
+		namedInstances.append (tmpInstance);
 	    }
         }
     }
@@ -1500,7 +1502,7 @@ Boolean CIMRepository::_loadAllInstances(
     return true;
 }
 
-Array<CIMNamedInstance> CIMRepository::enumerateInstances(
+Array<CIMInstance> CIMRepository::enumerateInstances(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -1523,7 +1525,7 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     // Get all instances for this class and all its descendent classes
     //
 
-    Array<CIMNamedInstance> namedInstances;
+    Array<CIMInstance> namedInstances;
     
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
@@ -1540,7 +1542,7 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     return namedInstances;
 }
 
-Array<CIMNamedInstance> CIMRepository::enumerateInstancesForClass(
+Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -1576,7 +1578,7 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstancesForClass(
     // Get all instances for this class and all its descendent classes
     //
 
-    Array<CIMNamedInstance> namedInstances;
+    Array<CIMInstance> namedInstances;
     
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
@@ -2047,7 +2049,7 @@ void CIMRepository::setProperty(
 
     CIMInstance instance(instanceName.getClassName());
     instance.addProperty(CIMProperty(propertyName, newValue));
-    CIMNamedInstance namedInstance(instanceName, instance);
+    instance.setPath (instanceName);
 
     //
     // Create the propertyList to pass to modifyInstance()
@@ -2060,7 +2062,7 @@ void CIMRepository::setProperty(
     //
     // Modify the instance to set the value of the given property
     //
-    modifyInstance(nameSpace, namedInstance, false, propertyList);
+    modifyInstance(nameSpace, instance, false, propertyList);
 
     PEG_METHOD_EXIT();
 }

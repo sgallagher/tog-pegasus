@@ -24,6 +24,8 @@
 // Author: Sushma Fernandes (sushma_fernandes@hp.com)
 //
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -202,7 +204,7 @@ void AuthorizationHandler::_loadAllAuthorizations()
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::_loadAllAuthorizations()");
 
-    Array<CIMNamedInstance> namedInstances;
+    Array<CIMInstance> namedInstances;
 
     try
     {
@@ -217,8 +219,7 @@ void AuthorizationHandler::_loadAllAuthorizations()
         //
         for (Uint32 i = 0; i < namedInstances.size(); i++)
         {
-            CIMInstance& authInstance =
-                namedInstances[i].getInstance();
+            CIMInstance& authInstance = namedInstances[i];
 
             //
             // get user name

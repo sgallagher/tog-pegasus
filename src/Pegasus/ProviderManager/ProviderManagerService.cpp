@@ -22,7 +22,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -705,7 +706,7 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
         request->messageId,
         CIMException(),
         request->queueIds.copyAndPop(),
-        Array<CIMNamedInstance>());
+        Array<CIMInstance>());
 
     PEGASUS_ASSERT(response != 0);
 
@@ -820,8 +821,8 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
 	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
-	// convert arguments
-	OperationContext context;
+        // convert arguments
+        OperationContext context;
 
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
@@ -970,8 +971,8 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
         CIMObjectPath objectPath(
             System::getHostName(),
             request->nameSpace,
-            request->modifiedInstance.getInstanceName().getClassName(),    //request->modifiedInstance.getInstance().getPath().getClassName(),
-            request->modifiedInstance.getInstanceName().getKeyBindings()); //request->modifiedInstance.getInstance().getPath().getKeyBindings());
+            request->modifiedInstance.getPath ().getClassName(),
+            request->modifiedInstance.getPath ().getKeyBindings());
 
 	// get the provider file name and logical name
 	Triad<String, String, String> triad =
@@ -1001,7 +1002,7 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
         provider.modifyInstance(
             context,
             objectPath,
-            request->modifiedInstance.getInstance(),
+            request->modifiedInstance,
             flags,
             propertyList,
             handler);

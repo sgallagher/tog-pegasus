@@ -23,6 +23,8 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
+//               Carol Ann Krug Graves, Hewlett-Packard Company
+//                   (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -221,7 +223,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
     PEGASUS_ASSERT(request != 0);
 
     CIMException cimException;
-    Array<CIMNamedInstance> cimInstances;
+    Array<CIMInstance> cimInstances;
 
     try
     {
@@ -259,7 +261,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	// ATTN: can be removed once CIMNamedInstance is removed
 	for(Uint32 i = 0, n = handler.getObjects().size(); i < n; i++)
 	{
-	    cimInstances.append(CIMNamedInstance(handler.getObjects()[i].getPath(), handler.getObjects()[i]));
+	    cimInstances.append (handler.getObjects ()[i]);
 	}
     }
     catch(CIMException & e)
@@ -445,8 +447,8 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
-	    request->modifiedInstance.getInstanceName().getClassName(),
-	    request->modifiedInstance.getInstanceName().getKeyBindings());
+	    request->modifiedInstance.getPath ().getClassName(),
+	    request->modifiedInstance.getPath ().getKeyBindings());
 // ATTN:    request->modifiedInstance.getInstance().getPath().getClassName(),
 // ATTN:    request->modifiedInstance.getInstance().getPath().getKeyBindings());
 
@@ -470,7 +472,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	modifyInstance(
 	    context,
 	    objectPath,
-	    request->modifiedInstance.getInstance(),
+	    request->modifiedInstance,
 	    flags,
 	    propertyList,
 	    handler);

@@ -22,7 +22,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1310,7 +1311,7 @@ static void GetInstance(const CGIQueryString& qs)
 
 /** PrintInstancetable - Print a table of enumerated instance information
 */
-void PrintInstanceTableRow(String nameSpace, CIMNamedInstance CIMInstance)
+void PrintInstanceTableRow(String nameSpace, CIMInstance CIMInstance)
 {
    // KSREVIEWKS: Need to add code here
 }
@@ -1360,7 +1361,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
         /*
-        virtual Array<CIMNamedInstance> enumerateInstances(
+        virtual Array<CIMInstance> enumerateInstances(
             const String& nameSpace,
             const String& className,
             Boolean deepIn
@@ -1370,7 +1371,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
             Boolean includeClassOrigin = false,
             const CIMPropertyList& propertyList = CIMPropertyList());
         */
-        Array<CIMNamedInstance> instances = client.enumerateInstances(
+        Array<CIMInstance> instances = client.enumerateInstances(
                                             nameSpace,
                                             className,
                                             deepInheritance,

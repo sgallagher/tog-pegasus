@@ -23,6 +23,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -157,32 +159,36 @@ void TestCreateClass()
 	instanceNames[1].toString() == "MyClass.key=111" ||
 	instanceNames[1].toString() == "YourClass.key=222");
 
+    inst0.setPath (CIMObjectPath ("MyClass.key=111"));
+    inst1.setPath (CIMObjectPath ("YourClass.key=222"));
+
     // -- Enumerate instances:
 
-    Array<CIMNamedInstance> namedInstances = r.enumerateInstances(NS, "MyClass");
+    Array<CIMInstance> namedInstances = r.enumerateInstances(NS, "MyClass");
 
     assert(namedInstances.size() == 2);
 
     assert(
-	namedInstances[0].getInstance().identical(inst0) ||
-	namedInstances[0].getInstance().identical(inst1));
+	namedInstances[0].identical(inst0) ||
+	namedInstances[0].identical(inst1));
 
     assert(
-	namedInstances[1].getInstance().identical(inst0) ||
-	namedInstances[1].getInstance().identical(inst1));
+	namedInstances[1].identical(inst0) ||
+	namedInstances[1].identical(inst1));
 
     // -- Modify one of the instances:
 
     CIMInstance modifiedInst0("MyClass");
     modifiedInst0.addProperty(CIMProperty("key", Uint32(111)));
     modifiedInst0.addProperty(CIMProperty("message", "Goodbye World"));
-    CIMNamedInstance namedInst0(instanceNames[0], modifiedInst0);
-    r.modifyInstance(NS, namedInst0);
+    modifiedInst0.setPath (instanceNames[0]);
+    r.modifyInstance(NS, modifiedInst0);
     // modifiedInst0.print();
 
     // -- Get instance back and see that it is the same as modified one:
 
     CIMInstance tmpInstance = r.getInstance(NS, "MyClass.key=111");
+    tmpInstance.setPath (instanceNames[0]);
     // tmpInstance.print();
     assert(tmpInstance.identical(modifiedInst0));
 

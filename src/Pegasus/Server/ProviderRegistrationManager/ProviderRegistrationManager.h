@@ -23,7 +23,8 @@
 //
 // Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -86,7 +87,7 @@ public:
 
 	CIMInstance getInstance(const CIMObjectPath & ref);
 
-	Array<CIMNamedInstance> enumerateInstances(const CIMObjectPath & ref);
+	Array<CIMInstance> enumerateInstances(const CIMObjectPath & ref);
 
 	Array<CIMObjectPath> enumerateInstanceNames(const CIMObjectPath & ref);
 

@@ -50,7 +50,6 @@ class CIMProperty;
 class CIMParameter;
 class CIMMethod;
 class CIMObject;
-class CIMNamedInstance;
 class CIMObjectWithPath;
 class CIMParamValue;
 class CIMValue;
@@ -326,7 +325,7 @@ public:
 
     static Boolean getNamedInstanceElement(
 	XmlParser& parser, 
-	CIMNamedInstance& namedInstance);
+	CIMInstance& namedInstance);
 
     static void getObject(XmlParser& parser, CIMClass& x);
 

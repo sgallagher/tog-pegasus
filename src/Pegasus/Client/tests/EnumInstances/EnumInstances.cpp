@@ -23,7 +23,8 @@
 //
 // Author: Warren Otsuka (warren_otsuka@hp.com) 
 //
-// Modified By:
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //        
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
 	Boolean localOnly = true;
 	Boolean includeQualifiers = false;
 	Boolean includeClassOrigin = false;
-	Array<CIMNamedInstance> cimNInstances = 
+	Array<CIMInstance> cimNInstances = 
 	  client.enumerateInstances(NAMESPACE,  classname, deepInheritance,
 				    localOnly,  includeQualifiers,
 				    includeClassOrigin );
@@ -61,7 +62,7 @@ int main(int argc, char** argv)
 	assert( cimNInstances.size() == 3);
 	for (Uint32 i = 0; i < cimNInstances.size(); i++)
 	  {
-	    String instanceRef = cimNInstances[i].getInstanceName().toString();
+	    String instanceRef = cimNInstances[i].getPath().toString();
 
 	    //ATTN P2 WO 4 April 2002
 	    // Test for INSTANCE0..2 when getInstanceName returns

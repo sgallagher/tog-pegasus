@@ -45,7 +45,6 @@
 #include "CIMClass.h"
 #include "CIMInstance.h"
 #include "CIMObject.h"
-#include "CIMNamedInstance.h"
 #include "CIMParamValue.h"
 
 PEGASUS_USING_STD;
@@ -2960,7 +2959,7 @@ Boolean XmlReader::getInstanceElement(
 
 Boolean XmlReader::getNamedInstanceElement(
     XmlParser& parser, 
-    CIMNamedInstance& namedInstance)
+    CIMInstance& namedInstance)
 {
     XmlEntry entry;
 
@@ -2977,11 +2976,9 @@ Boolean XmlReader::getNamedInstanceElement(
 	    "expected INSTANCENAME element");
     }
 
-    CIMInstance instance;
-
     // Get INSTANCE elements:
 
-    if (!getInstanceElement(parser, instance))
+    if (!getInstanceElement(parser, namedInstance))
     {
 	throw XmlValidationError(parser.getLine(),
 	    "expected INSTANCE element");
@@ -2991,7 +2988,7 @@ Boolean XmlReader::getNamedInstanceElement(
 
     expectEndTag(parser, "VALUE.NAMEDINSTANCE");
 
-    namedInstance.set(instanceName, instance);
+    namedInstance.setPath (instanceName);
 
     return true;
 }

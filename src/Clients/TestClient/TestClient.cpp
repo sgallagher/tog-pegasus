@@ -28,6 +28,8 @@
 //         Bapu Patil ( bapu_patil@hp.com )
 //         Warren Otsuka (warren_otsuka@hp.com)
 //         Nag Boranna(nagaraja_boranna@hp.com)
+//         Carol Ann Krug Graves, Hewlett-Packard Company 
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -569,11 +571,9 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     CIMProperty nickProperty = CIMProperty( TESTPROPVALNAME, "Duke" );
     nickProperty.setClassOrigin( className );
     testInstance.addProperty( nickProperty );
-    CIMNamedInstance namedTestInstance = CIMNamedInstance( instanceName,
-                                                           testInstance
-                                                           );
+    testInstance.setPath (instanceName);
     client.modifyInstance( globalNamespace,
-                           namedTestInstance
+                           testInstance
                            );
     CIMInstance currentInstance =
       client.getInstance( globalNamespace, instanceName );
@@ -780,7 +780,7 @@ static void TestEnumerateInstances( CIMClient& client,
 
       for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
         {
-	  Array<CIMNamedInstance> cimNInstances = 
+	  Array<CIMInstance> cimNInstances = 
 	    client.enumerateInstances(NAMESPACE,  classname, deepInheritance,
 				      localOnly,  includeQualifiers,
 				      includeClassOrigin );
@@ -789,7 +789,7 @@ static void TestEnumerateInstances( CIMClient& client,
           numberInstances =  cimNInstances.size();
 	  for (Uint32 i = 0; i < cimNInstances.size(); i++)
 	    {
-	      String instanceRef = cimNInstances[i].getInstanceName().toString();
+	      String instanceRef = cimNInstances[i].getPath ().toString();
 	      
 	      //ATTN P2 WO 4 April 2002
 	      // Test for INSTANCE0..2 when getInstanceName returns

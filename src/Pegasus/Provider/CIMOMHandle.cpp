@@ -22,7 +22,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -492,7 +493,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 
     for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
     {
-	cimInstances.append(response->cimNamedInstances[i].getInstance());
+	cimInstances.append(response->cimNamedInstances[i]);
     }
 
     // release the op node
@@ -643,7 +644,7 @@ void CIMOMHandle::modifyInstance(
 	new CIMModifyInstanceRequestMessage(
 	    XmlWriter::getNextMessageId(),
 	    nameSpace,
-	    CIMNamedInstance(),
+	    CIMInstance(),
 	    includeQualifiers,
 	    propertyList,
 	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));

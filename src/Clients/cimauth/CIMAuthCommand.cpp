@@ -23,6 +23,8 @@
 //
 // Author: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
 //
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1017,7 +1019,8 @@ void CIMAuthCommand::_ModifyAuthorization
 	modifiedInst.addProperty( 
             CIMProperty( PROPERTY_NAME_AUTHORIZATION, _authorizations ) );
 
-        CIMNamedInstance namedInstance( reference, modifiedInst );
+        CIMInstance namedInstance (modifiedInst);
+        namedInstance.setPath (reference);
         _client->modifyInstance( INTERNAL_NAMESPACE, namedInstance );
         outPrintWriter << MODIFY_AUTH_SUCCESS << endl;
     }
@@ -1119,7 +1122,7 @@ void CIMAuthCommand::_ListAuthorization
     ostream&    errPrintWriter
     )
 {
-    Array<CIMNamedInstance> authNamedInstances;
+    Array<CIMInstance> authNamedInstances;
 
     try
     {
@@ -1135,7 +1138,7 @@ void CIMAuthCommand::_ListAuthorization
         for (Uint32 i = 0; i < authNamedInstances.size(); i++)
         {
             CIMInstance& authInstance =
-                authNamedInstances[i].getInstance();
+                authNamedInstances[i];
 
             //
             // get user name

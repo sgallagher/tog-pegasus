@@ -29,6 +29,8 @@
 //         Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
+//         Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -407,7 +409,7 @@ void OSInfo::getOSInfo(const int argc, const char** argv)
         Boolean includeClassOrigin = false;
         Uint32 numberInstances;
 
-        Array<CIMNamedInstance> cimNInstances = 
+        Array<CIMInstance> cimNInstances = 
 	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
                                          deepInheritance,
 				         localOnly,  includeQualifiers,
@@ -421,7 +423,7 @@ void OSInfo::getOSInfo(const int argc, const char** argv)
 
         for (Uint32 i = 0; i < cimNInstances.size(); i++)
         {
-           CIMObjectPath instanceRef = cimNInstances[i].getInstanceName();
+           CIMObjectPath instanceRef = cimNInstances[i].getPath ();
            if ( !(String::equalNoCase(instanceRef.getClassName(), 
                                       CLASSNAME ) ) )
            {
@@ -429,7 +431,7 @@ void OSInfo::getOSInfo(const int argc, const char** argv)
            }
 
            // first gather the interesting properties
-           gatherProperties(cimNInstances[i].getInstance(), cimFormat);
+           gatherProperties(cimNInstances[i], cimFormat);
          
            // then display them
            displayProperties();

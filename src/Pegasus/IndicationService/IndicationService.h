@@ -82,13 +82,13 @@ typedef struct providerClassList ProviderClassList;
 struct enableProviderList
 {
       ProviderClassList *pcl;
-      CIMNamedInstance *cni;
+      CIMInstance *cni;
       
       enableProviderList(const ProviderClassList & list, 
-			 const CIMNamedInstance & instance)
+			 const CIMInstance & instance)
       {
 	 pcl = new ProviderClassList(list);
-	 cni = new CIMNamedInstance(instance);
+	 cni = new CIMInstance (instance);
 	 
       }
 
@@ -106,7 +106,7 @@ struct enableProviderList
  */
 struct SubscriptionTableEntry
 {
-    CIMNamedInstance subscription;
+    CIMInstance subscription;
     CIMInstance provider;
     Array <String> classList;
 };
@@ -223,7 +223,7 @@ private:
                  False otherwise
      */
     Boolean _handleError (
-        const CIMNamedInstance subscription);
+        const CIMInstance subscription);
 
     /**
         Disables the subscription.
@@ -235,7 +235,7 @@ private:
         @param   subscription          the subscription named instance
      */
     void _disableSubscription (
-        CIMNamedInstance subscription);
+        CIMInstance subscription);
 
     /**
         Deletes the subscription instance.
@@ -247,7 +247,7 @@ private:
         @param   subscription          the subscription named instance
      */
     void _deleteSubscription (
-        const CIMNamedInstance subscription);
+        const CIMInstance subscription);
 
     /**
         Determines if it is legal to create an instance. 
@@ -403,9 +403,9 @@ private:
     /**
         Retrieves list of enabled subscription instances in all namespaces.
 
-        @return   list of CIMNamedInstance subscriptions
+        @return   list of CIMInstance subscriptions
      */
-    Array <CIMNamedInstance> _getActiveSubscriptions () const;
+    Array <CIMInstance> _getActiveSubscriptions () const;
 
     /**
         Retrieves list of enabled subscription instances in all namespaces,
@@ -417,9 +417,9 @@ private:
         @param   nameSpaces           the list of supported namespaces
         @param   supportedProperties  the list of supported properties
 
-        @return   list of CIMNamedInstance subscriptions
+        @return   list of CIMInstance subscriptions
      */
-    Array <CIMNamedInstance> _getMatchingSubscriptions (
+    Array <CIMInstance> _getMatchingSubscriptions (
         const String & supportedClass,
         const Array <String> nameSpaces,
         const CIMPropertyList & supportedProperties);
@@ -458,8 +458,8 @@ private:
         const Array <String> & oldNameSpaces,
         const CIMPropertyList & newProperties,
         const CIMPropertyList & oldProperties,
-        Array <CIMNamedInstance> & newSubscriptions,
-        Array <CIMNamedInstance> & formerSubscriptions);
+        Array <CIMInstance> & newSubscriptions,
+        Array <CIMInstance> & formerSubscriptions);
 
     /**
         Retrieves list of all namespaces from the repository.
@@ -475,7 +475,7 @@ private:
 
         @return   List of subscription named instances
      */
-    Array <CIMNamedInstance> _getSubscriptions (
+    Array <CIMInstance> _getSubscriptions (
         const String & nameSpaceName) const;
 
     /**
@@ -498,9 +498,9 @@ private:
 
         @param   provider          the provider instance
 
-        @return   list of CIMNamedInstance subscriptions
+        @return   list of CIMInstance subscriptions
      */
-    Array <CIMNamedInstance> _getProviderSubscriptions (
+    Array <CIMInstance> _getProviderSubscriptions (
         const CIMInstance & provider);
 
     /**
@@ -650,15 +650,15 @@ private:
         const String & filterQuery) const;
 
     /**
-        Retrieves the Handler CIMNamedInstance representing the handler of the
+        Retrieves the Handler CIMInstance representing the handler of the
         specified subscription.
 
         @param   subscription          the subscription
 
-        @return  a Handler CIMNamedInstance for the subscription's handler
+        @return  a Handler CIMInstance for the subscription's handler
      */
-    CIMNamedInstance _getHandler (
-        const CIMNamedInstance & subscription) const;
+    CIMInstance _getHandler (
+        const CIMInstance & subscription) const;
 
     /**
         Determines if specified handler is Transient.
@@ -846,7 +846,7 @@ private:
         const CIMPropertyList & propertyList,
         const String & condition,
         const String & queryLanguage,
-        const CIMNamedInstance & subscription,
+        const CIMInstance & subscription,
         const String & userName,
         const String & authType = String::EMPTY);
 
@@ -882,7 +882,7 @@ private:
         const CIMPropertyList & propertyList,
         const String & condition,
         const String & queryLanguage,
-        const CIMNamedInstance & subscription,
+        const CIMInstance & subscription,
         const String & userName,
         const String & authType = String::EMPTY);
 
@@ -909,7 +909,7 @@ private:
     void _sendDeleteRequests (
         const Array <ProviderClassList> & indicationProviders,
         const String & nameSpace,
-        const CIMNamedInstance & subscription,
+        const CIMInstance & subscription,
         const String & userName,
         const String & authType = String::EMPTY);
 
@@ -923,7 +923,7 @@ private:
         @return  the generated key
      */
     String _generateKey (
-        const CIMNamedInstance & subscription,
+        const CIMInstance & subscription,
         const CIMInstance provider);
 
     /**
@@ -934,7 +934,7 @@ private:
         @param   classList             the list of class names
      */
     void _insertEntry (
-        const CIMNamedInstance & subscription,
+        const CIMInstance & subscription,
         const CIMInstance & provider,
         const Array <String> classList);
 
@@ -949,7 +949,7 @@ private:
      */
     CIMInstance _createAlertInstance (
         const String & alertClassName,
-        const Array <CIMNamedInstance> & subscriptions);
+        const Array <CIMInstance> & subscriptions);
 
 
 
@@ -971,7 +971,7 @@ private:
         @param   alertInstance         the alert to be sent
      */
     void _sendAlerts (
-        const Array <CIMNamedInstance> & subscriptions,
+        const Array <CIMInstance> & subscriptions,
         /* const */ CIMInstance & alertInstance);
       
 

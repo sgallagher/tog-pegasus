@@ -29,6 +29,8 @@
 //         Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
+//         Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -553,7 +555,7 @@ void OSTestClient::testEnumerateInstances(CIMClient &client,
 
       testLog("OS Provider Test EnumerateInstances");
       
-      Array<CIMNamedInstance> cimNInstances = 
+      Array<CIMInstance> cimNInstances = 
 	       client.enumerateInstances(NAMESPACE, CLASSNAME, 
                                          deepInheritance,
 				         localOnly,  includeQualifiers,
@@ -564,7 +566,7 @@ void OSTestClient::testEnumerateInstances(CIMClient &client,
 	cout << numberInstances << " instances of PG_OperatingSystem" <<endl;
       for (Uint32 i = 0; i < cimNInstances.size(); i++)
       {
-         CIMObjectPath instanceRef = cimNInstances[i].getInstanceName();
+         CIMObjectPath instanceRef = cimNInstances[i].getPath ();
          //String instanceRef = cimNInstances[i].getInstanceName().toString();
          if (verboseTest)
              cout<<"Instance ClassName is "<<instanceRef.getClassName()<<endl; 
@@ -574,7 +576,7 @@ void OSTestClient::testEnumerateInstances(CIMClient &client,
 	 }
 
          // now validate the properties
-         _validateProperties(cimNInstances[i].getInstance(),
+         _validateProperties(cimNInstances[i],
                              verboseTest);
       }   // end for looping through instances
     

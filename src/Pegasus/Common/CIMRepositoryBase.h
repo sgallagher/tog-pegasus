@@ -22,6 +22,9 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Common_RepositoryBase_h
@@ -32,7 +35,6 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 
@@ -97,7 +99,7 @@ public:
 
     virtual void modifyInstance(
         const String& nameSpace,
-        const CIMNamedInstance& modifiedInstance,
+        const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
@@ -114,7 +116,7 @@ public:
         const String& className = String::EMPTY,
         Boolean deepInheritance = false) = 0;
 
-    virtual Array<CIMNamedInstance> enumerateInstances(
+    virtual Array<CIMInstance> enumerateInstances(
         const String& nameSpace,
         const String& className,
         Boolean deepInheritance = true,

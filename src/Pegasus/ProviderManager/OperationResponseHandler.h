@@ -22,7 +22,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -149,15 +150,14 @@ public:
 
     virtual void complete(const OperationContext & context)
     {
-        Array<CIMNamedInstance> cimInstances;
+        Array<CIMInstance> cimInstances;
 
         // ATTN: can be removed once CIMNamedInstance is removed
         for(Uint32 i = 0, n = getObjects().size(); i < n; i++)
         {
             CIMInstance cimInstance(getObjects()[i]);
 
-            cimInstances.append(CIMNamedInstance(cimInstance.getPath(),
-                cimInstance));
+            cimInstances.append (cimInstance);
         }
 
         static_cast<CIMEnumerateInstancesResponseMessage *>(

@@ -25,6 +25,8 @@
 // Modified By: Chip Vincent (cvincent@us.ibm.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -265,7 +267,7 @@ void ProviderRegistrationProvider::enumerateInstances(
     // begin processing the request
     handler.processing();
 
-    Array<CIMNamedInstance> enumInstances;
+    Array<CIMInstance> enumInstances;
 
     try
     {
@@ -279,7 +281,7 @@ void ProviderRegistrationProvider::enumerateInstances(
     // ATTN: remove when CIMNamedInstance removed.
     for(Uint32 i = 0, n = enumInstances.size(); i < n; i++)
     {
-	handler.deliver(enumInstances[i].getInstance());
+	handler.deliver(enumInstances[i]);
     }
 
     // complete processing the request
@@ -741,11 +743,11 @@ void ProviderRegistrationProvider::invokeMethod(
 				 objectReference.getNameSpace(),
 				 PEGASUS_CLASSNAME_PROVIDER,
 				 objectReference.getKeyBindings());
-	Array<CIMNamedInstance> namedInstances;
+	Array<CIMInstance> namedInstances;
 	namedInstances = _providerRegistrationManager->enumerateInstances(providerRef);
 	for(Uint32 i = 0, n=namedInstances.size(); i < n; i++)
 	{
-	    instance = namedInstances[i].getInstance();
+	    instance = namedInstances[i];
 	    instance.getProperty(instance.findProperty
 	    (_PROPERTY_PROVIDERMODULENAME)).getValue().get(_moduleName);	
 	    if (String::equalNoCase(_moduleName, moduleName))
@@ -980,13 +982,13 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
 	PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
  
     // get all registered providers
-    Array<CIMNamedInstance> enumInstances =
+    Array<CIMInstance> enumInstances =
 	_providerRegistrationManager->enumerateInstances(reference); 
 
     // find all the instances which have same module name as moduleName
     for (Uint32 i = 0, n=enumInstances.size(); i < n; i++)
     {
-	instance = enumInstances[i].getInstance();
+	instance = enumInstances[i];
 
 	//
         // get provider module name

@@ -22,7 +22,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -50,8 +51,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -108,7 +109,7 @@ class clientRepositoryInterface
 	  const String& nameSpace,
 	  const String& className);
 
-  virtual Array<CIMNamedInstance> enumerateInstances(
+  virtual Array<CIMInstance> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
 	Boolean deepInheritance = true,

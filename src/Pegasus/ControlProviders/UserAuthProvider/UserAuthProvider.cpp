@@ -24,6 +24,8 @@
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -580,13 +582,14 @@ void UserAuthProvider::modifyInstance(
         CIMObjectPath ref("", "",
             modifiedIns.getClassName(), instanceReference.getKeyBindings());
 
-        CIMNamedInstance namedInstance(ref, modifiedIns);
+        CIMInstance newModifiedIns = modifiedIns.clone ();
+        newModifiedIns.setPath (ref);
 
         //
         // call modifyInstances of the repository
         //
         _repository->modifyInstance(
-            instanceReference.getNameSpace(), namedInstance);
+            instanceReference.getNameSpace(), newModifiedIns);
 
         //
         // set authorization in the UserManager
@@ -621,7 +624,7 @@ void UserAuthProvider::enumerateInstances(
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::enumerateInstances");
 
     Array<CIMInstance> instanceArray;
-    Array<CIMNamedInstance> namedInstances;
+    Array<CIMInstance> namedInstances;
 
     //
     // get userName
@@ -674,7 +677,7 @@ void UserAuthProvider::enumerateInstances(
 
     for(Uint32 i = 0, n = namedInstances.size(); i < n; i++)
     {
-        handler.deliver(namedInstances[i].getInstance());
+        handler.deliver(namedInstances[i]);
     }
 
     // complete processing the request

@@ -22,7 +22,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -323,7 +324,7 @@ int main(int argc, char** argv)
 	Boolean includeQualifiers = false;
 	Boolean includeClassOrigin = false;
 
-	Array<CIMNamedInstance> namedInstances; 
+	Array<CIMInstance> namedInstances; 
 	namedInstances = client.enumerateInstances(nameSpace,
 						   className,
 						   deepInheritance,
@@ -334,7 +335,7 @@ int main(int argc, char** argv)
     // Output the returned instances
 	for (Uint32 i = 0; i < namedInstances.size(); i++)
 	{
-	    CIMInstance instance = namedInstances[i].getInstance();
+	    CIMInstance instance = namedInstances[i];
 	    if(isXMLOutput)
 		XmlWriter::printInstanceElement(instance, cout);
 	    else

@@ -23,6 +23,8 @@
 //
 // Author: Yi Zhou, Hewlett Packard Company (yi_zhou@hp.com)
 //
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -370,10 +372,10 @@ private:
         );
 
     // Get namedInstance for the provider module
-    CIMNamedInstance _getModuleInstance();
+    CIMInstance _getModuleInstance();
 
     // Get namedInstance for the provider
-    CIMNamedInstance _getProviderInstance();
+    CIMInstance _getProviderInstance();
 
     // Print out registered modules and status
     void _printList(Array<String> & moduleNames, Array<CIMInstance> & instances,
@@ -959,9 +961,9 @@ void CIMProviderCommand::_deleteProvider
 	  {
 	    // Delete provider which have specified module name and provider name
 
-	    CIMNamedInstance providerInstance = _getProviderInstance();
+	    CIMInstance providerInstance = _getProviderInstance();
 
-	    CIMObjectPath providerRef = providerInstance.getInstanceName();
+	    CIMObjectPath providerRef = providerInstance.getPath ();
 	    providerRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
 	    providerRef.setClassName(PEGASUS_CLASSNAME_PROVIDER);
 
@@ -984,9 +986,9 @@ void CIMProviderCommand::_deleteProvider
 	  {
 	    // Delete all the registered provider modules
 
-	    CIMNamedInstance moduleInstance = _getModuleInstance();
+	    CIMInstance moduleInstance = _getModuleInstance();
 
-	    CIMObjectPath moduleRef = moduleInstance.getInstanceName();
+	    CIMObjectPath moduleRef = moduleInstance.getPath ();
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
@@ -1034,9 +1036,9 @@ void CIMProviderCommand::_StartProvider
 	if ( _moduleSet )
 	{
  	    // get the module instance
-	    CIMNamedInstance moduleInstance = _getModuleInstance();
+	    CIMInstance moduleInstance = _getModuleInstance();
 
-	    CIMObjectPath moduleRef = moduleInstance.getInstanceName();
+	    CIMObjectPath moduleRef = moduleInstance.getPath ();
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
@@ -1106,9 +1108,9 @@ void CIMProviderCommand::_StopProvider
 	if ( _moduleSet )
 	{
  	    // get the module instance
-	    CIMNamedInstance moduleInstance = _getModuleInstance();
+	    CIMInstance moduleInstance = _getModuleInstance();
 
-	    CIMObjectPath moduleRef = moduleInstance.getInstanceName();
+	    CIMObjectPath moduleRef = moduleInstance.getPath ();
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
@@ -1168,8 +1170,8 @@ void CIMProviderCommand::_ListProviders
 
     try
     {
-    	Array<CIMNamedInstance> moduleInstances;
-    	Array<CIMNamedInstance> providerInstances;
+    	Array<CIMInstance> moduleInstances;
+    	Array<CIMInstance> providerInstances;
     	String moduleName;
     	String providerName;
 	Array<String> moduleNames;
@@ -1192,7 +1194,7 @@ void CIMProviderCommand::_ListProviders
 	        // List all the registered providers which have specified module
 	        for (Uint32 i = 0; i < providerInstances.size(); i++)
 	        {
-		    CIMInstance& instance = providerInstances[i].getInstance();
+		    CIMInstance& instance = providerInstances[i];
 		    instance.getProperty(
 			instance.findProperty(_PROPERTY_PROVIDERMODULENAME)).getValue().get(moduleName);
 		    instance.getProperty(
@@ -1237,7 +1239,7 @@ outPrintWriter << test << endl;
 	        // List all the registered provider modules 
 	        for (Uint32 i = 0; i < moduleInstances.size(); i++)
 	        {
-		    CIMInstance& instance = moduleInstances[i].getInstance();
+		    CIMInstance& instance = moduleInstances[i];
 		    instance.getProperty(
 			instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);
 		    moduleNames.append(moduleName);
@@ -1257,10 +1259,10 @@ outPrintWriter << test << endl;
 }
 
 // Get namedInstance for a provider module
-CIMNamedInstance CIMProviderCommand::_getModuleInstance()
+CIMInstance CIMProviderCommand::_getModuleInstance()
 {
 
-    Array<CIMNamedInstance> namedInstances;
+    Array<CIMInstance> namedInstances;
     String moduleName;
 
     // Get all registered provider modules
@@ -1274,7 +1276,7 @@ CIMNamedInstance CIMProviderCommand::_getModuleInstance()
 
     for (Uint32 i = 0; i < namedInstances.size(); i++)
     {
-	CIMInstance& instance = namedInstances[i].getInstance();
+	CIMInstance& instance = namedInstances[i];
 	instance.getProperty(
 	    instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);
 	
@@ -1292,10 +1294,10 @@ CIMNamedInstance CIMProviderCommand::_getModuleInstance()
 }
 
 // Get namedInstance for a provider
-CIMNamedInstance CIMProviderCommand::_getProviderInstance()
+CIMInstance CIMProviderCommand::_getProviderInstance()
 {
 
-    Array<CIMNamedInstance> namedInstances;
+    Array<CIMInstance> namedInstances;
     String moduleName;
     String providerName;
 
@@ -1311,7 +1313,7 @@ CIMNamedInstance CIMProviderCommand::_getProviderInstance()
 
     for (Uint32 i = 0; i < namedInstances.size(); i++)
     {
-	CIMInstance& instance = namedInstances[i].getInstance();
+	CIMInstance& instance = namedInstances[i];
 	instance.getProperty(
 	    instance.findProperty(_PROPERTY_PROVIDERMODULENAME)).getValue().get(moduleName);
 	instance.getProperty(

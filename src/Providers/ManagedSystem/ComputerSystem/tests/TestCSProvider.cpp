@@ -23,6 +23,9 @@
 //
 // Author: Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//
 //%////////////////////////////////////////////////////////////////////////////
 
 
@@ -276,7 +279,7 @@ int testClass(const String& className)
 
   cout << "+++++ enumerateInstances(" << className << ")" << endl;
   
-  Array<CIMNamedInstance> ia;
+  Array<CIMInstance> ia;
   try
   {
     ia = c.enumerateInstances(NAMESPACE,className);
@@ -299,10 +302,10 @@ int testClass(const String& className)
   // =======================================================================
 
   // We do modifyInstance after enumerateInstances, because
-  // modifyInstance requires a CIMNamedInstance argument, which
+  // modifyInstance requires a CIMInstance argument, which
   // is conveniently what was returned by enumerateInstances
 
-  CIMNamedInstance ni = ia[(ia.size()-1) >> 1]; // pick the middle one
+  CIMInstance ni = ia[(ia.size()-1) >> 1]; // pick the middle one
 
   cout << "+++++ modifyInstance" << endl;
   status = 0;

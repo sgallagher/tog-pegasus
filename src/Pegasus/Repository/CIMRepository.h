@@ -25,6 +25,8 @@
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company 
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +38,6 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMRepositoryBase.h>
@@ -113,7 +114,7 @@ public:
     /// modifyInstance
     virtual void modifyInstance(
         const String& nameSpace,
-        const CIMNamedInstance& modifiedInstance,
+        const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
@@ -133,7 +134,7 @@ public:
         Boolean deepInheritance = false);
 
     
-    virtual Array<CIMNamedInstance> enumerateInstances(
+    virtual Array<CIMInstance> enumerateInstances(
         const String& nameSpace,
         const String& className,
         Boolean deepInheritance = true,
@@ -148,7 +149,7 @@ public:
     // code and put them back together again.
     // This simply adds the includeInheritance property
     */
-    virtual Array<CIMNamedInstance> enumerateInstancesForClass(
+    virtual Array<CIMInstance> enumerateInstancesForClass(
         const String& nameSpace,
         const String& className,
         Boolean deepInheritance = true,
@@ -422,7 +423,7 @@ private:
 
         @param   nameSpace      the namespace of the instances to be loaded 
         @param   className      the class of the instances to be loaded
-        @param   namedInstances an array of CIMNamedInstance objects to which
+        @param   namedInstances an array of CIMInstance objects to which
                                 the loaded instances are appended
 
         @return  true      if successful
@@ -431,7 +432,7 @@ private:
     Boolean _loadAllInstances(
         const String& nameSpace,
         const String& className,
-        Array<CIMNamedInstance>& namedInstances);
+        Array<CIMInstance>& namedInstances);
 
     /** Modifies an instance object saved in the disk file.  The byte position
         and the size of the newly added instance record are returned.  Returns

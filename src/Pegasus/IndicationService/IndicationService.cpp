@@ -272,8 +272,8 @@ void IndicationService::handleEnqueue(void)
 
 void IndicationService::_initialize (void)
 {
-    Array <CIMNamedInstance> activeSubscriptions;
-    Array <CIMNamedInstance> noProviderSubscriptions;
+    Array <CIMInstance> activeSubscriptions;
+    Array <CIMInstance> noProviderSubscriptions;
     Array <ProviderClassList> enableProviders;
     Boolean duplicate;
 
@@ -340,18 +340,18 @@ void IndicationService::_initialize (void)
         //
         //  Check for expired subscription
         //
-        if (_isExpired (activeSubscriptions [i].getInstance ()))
+        if (_isExpired (activeSubscriptions [i]))
         {
-            _deleteExpiredSubscription 
-                (activeSubscriptions [i].getInstanceName ());
+            CIMObjectPath path = activeSubscriptions [i].getPath ();
+            _deleteExpiredSubscription (path);
                 
             continue;
         }
 
         String sourceNameSpace;
         _getCreateParams 
-            (activeSubscriptions [i].getInstanceName ().getNameSpace (),
-            activeSubscriptions [i].getInstance (), indicationProviders,
+            (activeSubscriptions [i].getPath ().getNameSpace (),
+            activeSubscriptions [i], indicationProviders,
             propertyList, sourceNameSpace, condition, queryLanguage);
 
         if (indicationProviders.size () == 0)
@@ -376,7 +376,7 @@ void IndicationService::_initialize (void)
         //  The Creator from the subscription instance is used for userName,
         //  and authType is not set
         //
-        CIMInstance instance = activeSubscriptions [i].getInstance ();
+        CIMInstance instance = activeSubscriptions [i];
         String creator = instance.getProperty (instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
         if (!_sendCreateRequests (indicationProviders, sourceNameSpace,
@@ -450,7 +450,7 @@ void IndicationService::_initialize (void)
 
 void IndicationService::_terminate (void)
 {
-    Array <CIMNamedInstance> activeSubscriptions;
+    Array <CIMInstance> activeSubscriptions;
     CIMInstance indicationInstance;
 
     const char METHOD_NAME [] = "IndicationService::_terminate";
@@ -666,9 +666,10 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     //  Send Create request message to each provider
                     //
                     instanceRef.setNameSpace (request->nameSpace);
+                    instance.setPath (instanceRef);
                     if (!_sendCreateRequests (indicationProviders, 
                         sourceNameSpace, requiredProperties, condition, 
-                        queryLanguage, CIMNamedInstance (instanceRef, instance),
+                        queryLanguage, instance,
                         request->userName, request->authType))
                     {
                         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -809,7 +810,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
     CIMEnumerateInstancesRequestMessage* request = 
         (CIMEnumerateInstancesRequestMessage*) message;
 
-    Array <CIMNamedInstance> enumInstances;
+    Array <CIMInstance> enumInstances;
 
     CIMException cimException;
     CIMInstance cimInstance;
@@ -829,8 +830,8 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         //
         for (Uint8 i = 0; i < enumInstances.size (); i++)
         {
-            enumInstances [i].getInstance ().removeProperty 
-                (enumInstances [i].getInstance ().findProperty 
+            enumInstances [i].removeProperty 
+                (enumInstances [i].findProperty 
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
 
             //
@@ -839,7 +840,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             //
             if (request->className == PEGASUS_CLASSNAME_INDSUBSCRIPTION)
             {
-                _setTimeRemaining (enumInstances [i].getInstance ());
+                _setTimeRemaining (enumInstances [i]);
             }
         }
     }
@@ -950,7 +951,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         //  Get the instance name
         //
         CIMObjectPath instanceReference = 
-            request->modifiedInstance.getInstanceName ();
+            request->modifiedInstance.getPath ();
     
         //
         //  Get instance from repository
@@ -996,7 +997,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
             //  null, and that numProperties is 0 or 1
             //
             CIMInstance modifiedInstance = 
-                request->modifiedInstance.getInstance ();
+                request->modifiedInstance;
             CIMPropertyList propertyList = request->propertyList;
             if (request->propertyList.getNumProperties () > 0)
             {
@@ -1014,8 +1015,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //
                 Uint16 newState;
                 subscriptionStateValue = 
-                    request->modifiedInstance.getInstance ().getProperty
-                    (request->modifiedInstance.getInstance ().findProperty
+                    request->modifiedInstance.getProperty
+                    (request->modifiedInstance.findProperty
                     (_PROPERTY_STATE)).getValue ();
     
                 subscriptionStateValue.get (newState);
@@ -1130,8 +1131,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         //  There are no providers that can support this 
                         //  subscription
                         //
-                        _handleError (CIMNamedInstance (instanceReference,
-                            instance));
+                        instance.setPath (instanceReference);
+                        _handleError (instance);
                         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
                         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                             _MSG_NO_PROVIDERS);
@@ -1145,8 +1146,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 
                 try
                 {
+                    modifiedInstance.setPath (instanceReference);
                     _repository->modifyInstance (request->nameSpace,
-                        CIMNamedInstance (instanceReference, modifiedInstance), 
+                        modifiedInstance, 
                         request->includeQualifiers, propertyList);
                 }
                 catch (CIMException & exception)
@@ -1195,10 +1197,11 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                         (currentState != _STATE_ENABLEDDEGRADED)))
                 {
                     instanceReference.setNameSpace (request->nameSpace);
+                    instance.setPath (instanceReference);
                     if (!_sendCreateRequests (indicationProviders, 
                         sourceNameSpace, requiredProperties, condition, 
                         queryLanguage,
-                        CIMNamedInstance (instanceReference, instance),
+                        instance,
                         request->userName, request->authType))
                     {
                         PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
@@ -1235,9 +1238,10 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     if (indicationProviders.size () > 0)
                     {
                         instanceReference.setNameSpace (request->nameSpace);
+                        instance.setPath (instanceReference);
                         _sendDeleteRequests (indicationProviders, 
                             request->nameSpace,
-                            CIMNamedInstance (instanceReference, instance),
+                            instance,
                             request->userName, request->authType);
                     }
                 }
@@ -1330,9 +1334,9 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                 //
                 CIMObjectPath instanceReference = request->instanceName;
                 instanceReference.setNameSpace (request->nameSpace);
+                subscriptionInstance.setPath (instanceReference);
                 _sendDeleteRequests (indicationProviders,
-                    request->nameSpace, CIMNamedInstance 
-                    (instanceReference, subscriptionInstance),
+                    request->nameSpace, subscriptionInstance,
                     request->userName, request->authType);
             }
 
@@ -1441,8 +1445,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     CIMPropertyList propertyList;
     Boolean match;
 
-    Array <CIMNamedInstance> matchedSubscriptions;
-    CIMNamedInstance handlerNamedInstance;
+    Array <CIMInstance> matchedSubscriptions;
+    CIMInstance handlerNamedInstance;
 
     WQLSelectStatement selectStatement;
 
@@ -1478,17 +1482,17 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             //
             //  Check for expired subscription
             //
-            if (_isExpired (matchedSubscriptions [i].getInstance ()))
+            if (_isExpired (matchedSubscriptions [i]))
             {
-                _deleteExpiredSubscription
-                    (matchedSubscriptions [i].getInstanceName ());
+                CIMObjectPath path = matchedSubscriptions [i].getPath ();
+                _deleteExpiredSubscription (path);
     
                 continue;
             }
 
             _getFilterProperties (
-                matchedSubscriptions[i].getInstance (),
-                matchedSubscriptions[i].getInstanceName ().getNameSpace (),
+                matchedSubscriptions[i],
+                matchedSubscriptions[i].getPath ().getNameSpace (),
                 filterQuery);
 
             selectStatement = _getSelectStatement (filterQuery);
@@ -1558,7 +1562,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                      new CIMHandleIndicationRequestMessage (
                          XmlWriter::getNextMessageId (),
                          request->nameSpace,
-                         handlerNamedInstance.getInstance (),
+                         handlerNamedInstance,
                          indication,
                          QueueIdStack(_handlerService, getQueueId()));
                 
@@ -1636,8 +1640,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     CIMPropertyList oldPropertyNames = request->oldPropertyNames;
 
 
-    Array <CIMNamedInstance> newSubscriptions;
-    Array <CIMNamedInstance> formerSubscriptions;
+    Array <CIMInstance> newSubscriptions;
+    Array <CIMInstance> formerSubscriptions;
     Array <ProviderClassList> indicationProviders;
     ProviderClassList indicationProvider;
 
@@ -1711,8 +1715,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         {
             String sourceNameSpace;
             _getCreateParams 
-                (newSubscriptions [i].getInstanceName ().getNameSpace (), 
-                newSubscriptions [i].getInstance (), 
+                (newSubscriptions [i].getPath ().getNameSpace (), 
+                newSubscriptions [i], 
                 requiredProperties, sourceNameSpace, condition, queryLanguage);
 
             //
@@ -1721,7 +1725,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //  The Creator from the subscription instance is used for 
             //  userName, and authType is not set
             //
-            CIMInstance instance = newSubscriptions [i].getInstance ();
+            CIMInstance instance = newSubscriptions [i];
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
@@ -1739,7 +1743,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 //  Send Modify requests
                 //
                 _sendModifyRequests (indicationProviders,
-                    newSubscriptions [i].getInstanceName ().getNameSpace (), 
+                    newSubscriptions [i].getPath ().getNameSpace (), 
                     requiredProperties, condition, queryLanguage, 
                     newSubscriptions [i], creator);
             }
@@ -1789,7 +1793,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             //  user request, so there is no associated authType or userName
             //  The Creator from the subscription instance is used for userName,
             //  and authType is not set
-            CIMInstance instance = formerSubscriptions [i].getInstance ();
+            CIMInstance instance = formerSubscriptions [i];
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
@@ -1813,8 +1817,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     (tableValue.classList [0] == className))
                 {
                     _sendDeleteRequests (indicationProviders,
-                        formerSubscriptions [i].getInstanceName 
-                        ().getNameSpace (), formerSubscriptions [i], creator);
+                        formerSubscriptions [i].getPath ().getNameSpace (), 
+                        formerSubscriptions [i], creator);
                 }
 
                 //
@@ -1824,9 +1828,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 {
                     String sourceNameSpace;
                     _getCreateParams 
-                        (formerSubscriptions [i].getInstanceName 
-                        ().getNameSpace (),
-                        formerSubscriptions [i].getInstance (), 
+                        (formerSubscriptions [i].getPath ().getNameSpace (),
+                        formerSubscriptions [i], 
                         requiredProperties, sourceNameSpace, condition, 
                         queryLanguage);
 
@@ -1834,8 +1837,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //  Send Modify requests
                     //
                     _sendModifyRequests (indicationProviders,
-                        formerSubscriptions [i].getInstanceName 
-                        ().getNameSpace (), 
+                        formerSubscriptions [i].getPath ().getNameSpace (), 
                         requiredProperties, condition, queryLanguage, 
                         formerSubscriptions [i], creator);
                 }
@@ -1875,7 +1877,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 void IndicationService::_handleNotifyProviderTerminationRequest
     (const Message * message)
 {
-    Array <CIMNamedInstance> providerSubscriptions;
+    Array <CIMInstance> providerSubscriptions;
     CIMInstance indicationInstance;
 
     const char METHOD_NAME [] = 
@@ -1927,7 +1929,7 @@ void IndicationService::_handleNotifyProviderTerminationRequest
 }
 
 Boolean IndicationService::_handleError (
-    const CIMNamedInstance subscription)
+    const CIMInstance subscription)
 {
     const char METHOD_NAME [] = "IndicationService::_handleError";
 
@@ -1940,8 +1942,8 @@ Boolean IndicationService::_handleError (
     //
     CIMValue errorPolicyValue;
     Uint16 onFatalErrorPolicy;
-    errorPolicyValue = subscription.getInstance ().getProperty 
-        (subscription.getInstance ().findProperty 
+    errorPolicyValue = subscription.getProperty 
+        (subscription.findProperty 
         (_PROPERTY_ONFATALERRORPOLICY)).getValue ();
     errorPolicyValue.get (onFatalErrorPolicy);
 
@@ -1973,7 +1975,7 @@ Boolean IndicationService::_handleError (
 }
 
 void IndicationService::_disableSubscription (
-    CIMNamedInstance subscription)
+    CIMInstance subscription)
 {
     const char METHOD_NAME [] = "IndicationService::_disableSubscription";
 
@@ -1990,7 +1992,7 @@ void IndicationService::_disableSubscription (
     //
     //  Set Time of Last State Change to current date time
     //
-    CIMInstance instance = subscription.getInstance ();
+    CIMInstance instance = subscription;
     CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
     if (!instance.existsProperty (_PROPERTY_LASTCHANGE))
     {
@@ -2019,7 +2021,7 @@ void IndicationService::_disableSubscription (
     try
     {
         _repository->modifyInstance 
-            (subscription.getInstanceName ().getNameSpace (),
+            (subscription.getPath ().getNameSpace (),
             subscription, false, propertyList);
     }
     catch (Exception & exception)
@@ -2035,7 +2037,7 @@ void IndicationService::_disableSubscription (
 }
 
 void IndicationService::_deleteSubscription (
-    const CIMNamedInstance subscription)
+    const CIMInstance subscription)
 {
     const char METHOD_NAME [] = "IndicationService::_deleteSubscription";
 
@@ -2049,8 +2051,8 @@ void IndicationService::_deleteSubscription (
     try
     {
         _repository->deleteInstance 
-            (subscription.getInstanceName ().getNameSpace (), 
-            subscription.getInstanceName ());
+            (subscription.getPath ().getNameSpace (), 
+            subscription.getPath ());
     }
     catch (Exception & exception)
     {
@@ -2618,7 +2620,7 @@ Boolean IndicationService::_canDelete (
         //
         //  Get all the subscriptions in the same namespace from the respository
         //
-        Array <CIMNamedInstance> subscriptions = _getSubscriptions (nameSpace);
+        Array <CIMInstance> subscriptions = _getSubscriptions (nameSpace);
 
         CIMValue propValue;
 
@@ -2631,8 +2633,8 @@ Boolean IndicationService::_canDelete (
             //
             //  Get the subscription Filter or Handler property value
             //
-            propValue = subscriptions[i].getInstance().getProperty
-                (subscriptions[i].getInstance().findProperty
+            propValue = subscriptions[i].getProperty
+                (subscriptions[i].findProperty
                 (propName)).getValue();
             
             CIMObjectPath ref;
@@ -2658,11 +2660,11 @@ Boolean IndicationService::_canDelete (
 }
 
 
-Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
+Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
 {
-    Array <CIMNamedInstance> activeSubscriptions;
+    Array <CIMInstance> activeSubscriptions;
     Array <String> nameSpaceNames;
-    Array <CIMNamedInstance> subscriptions;
+    Array <CIMInstance> subscriptions;
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
 
@@ -2696,8 +2698,8 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
             //  Get subscription state
             //
             subscriptionStateValue = 
-                subscriptions [j].getInstance ().getProperty
-                (subscriptions [j].getInstance ().findProperty 
+                subscriptions [j].getProperty
+                (subscriptions [j].findProperty 
                 (_PROPERTY_STATE)).getValue ();
             subscriptionStateValue.get (subscriptionState);
 
@@ -2709,16 +2711,15 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
                 (subscriptionState == _STATE_ENABLEDDEGRADED))
             {
                 //
-                //  CIMNamedInstances returned from repository do not include 
+                //  CIMInstances returned from repository do not include 
                 //  namespace
                 //  Set namespace here
                 //
                 CIMObjectPath instanceName = 
-                    subscriptions [j].getInstanceName ();
+                    subscriptions [j].getPath ();
                 instanceName.setNameSpace (nameSpaceNames [i]);
-                CIMNamedInstance currentInstance 
-                    (instanceName, subscriptions [j].getInstance ());
-                activeSubscriptions.append (currentInstance);
+                subscriptions [j].setPath (instanceName);
+                activeSubscriptions.append (subscriptions [j]);
             }  // if subscription is enabled
         }  // for each subscription
     }  // for each namespace
@@ -2728,14 +2729,14 @@ Array <CIMNamedInstance> IndicationService::_getActiveSubscriptions () const
 }
 
 
-Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
+Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
     const String & supportedClass,
     const Array <String> nameSpaces,
     const CIMPropertyList & supportedProperties) 
 {
-    Array <CIMNamedInstance> matchingSubscriptions;
+    Array <CIMInstance> matchingSubscriptions;
     Array <String> nameSpaceNames;
-    Array <CIMNamedInstance> subscriptions;
+    Array <CIMInstance> subscriptions;
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
 
@@ -2769,8 +2770,8 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
             //  Get subscription state
             //
             subscriptionStateValue = 
-                subscriptions [j].getInstance ().getProperty
-                (subscriptions [j].getInstance ().findProperty 
+                subscriptions [j].getProperty
+                (subscriptions [j].findProperty 
                 (_PROPERTY_STATE)).getValue ();
             subscriptionStateValue.get (subscriptionState);
     
@@ -2791,7 +2792,7 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
                 //
                 //  Get filter properties
                 //
-                _getFilterProperties (subscriptions [j].getInstance (),
+                _getFilterProperties (subscriptions [j],
                     nameSpaceNames [i], filterQuery, sourceNameSpace);
                 selectStatement = _getSelectStatement (filterQuery);
             
@@ -2869,16 +2870,15 @@ Array <CIMNamedInstance> IndicationService::_getMatchingSubscriptions (
                     if (match)
                     {
                         //
-                        //  CIMNamedInstances returned from repository do not 
+                        //  CIMInstances returned from repository do not 
                         //  include namespace  
                         //  Set namespace here
                         //
                         CIMObjectPath instanceName = 
-                            subscriptions [j].getInstanceName ();
+                            subscriptions [j].getPath ();
                         instanceName.setNameSpace (nameSpaceNames [i]);
-                        CIMNamedInstance currentInstance 
-                            (instanceName, subscriptions [j].getInstance ());
-                        matchingSubscriptions.append (currentInstance);
+                        subscriptions [j].setPath (instanceName);
+                        matchingSubscriptions.append (subscriptions [j]);
                     }
                 }  // if subscription includes supported class
             }  // if subscription is enabled
@@ -2895,11 +2895,11 @@ void IndicationService::_getModifiedSubscriptions (
     const Array <String> & oldNameSpaces,
     const CIMPropertyList & newProperties,
     const CIMPropertyList & oldProperties,
-    Array <CIMNamedInstance> & newSubscriptions,
-    Array <CIMNamedInstance> & formerSubscriptions)
+    Array <CIMInstance> & newSubscriptions,
+    Array <CIMInstance> & formerSubscriptions)
 {
     Array <String> nameSpaceNames;
-    Array <CIMNamedInstance> subscriptions;
+    Array <CIMInstance> subscriptions;
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
 
@@ -2936,8 +2936,8 @@ void IndicationService::_getModifiedSubscriptions (
             //  Get subscription state
             //
             subscriptionStateValue = 
-                subscriptions [j].getInstance ().getProperty
-                (subscriptions [j].getInstance ().findProperty 
+                subscriptions [j].getProperty
+                (subscriptions [j].findProperty 
                 (_PROPERTY_STATE)).getValue ();
             subscriptionStateValue.get (subscriptionState);
     
@@ -2959,7 +2959,7 @@ void IndicationService::_getModifiedSubscriptions (
                 //
                 //  Get filter properties
                 //
-                _getFilterProperties (subscriptions [j].getInstance (),
+                _getFilterProperties (subscriptions [j],
                     nameSpaceNames [i], filterQuery, sourceNameSpace);
                 selectStatement = _getSelectStatement (filterQuery);
             
@@ -3036,30 +3036,28 @@ void IndicationService::_getModifiedSubscriptions (
                     if (newMatch && !formerMatch)
                     {
                         //
-                        //  CIMNamedInstances returned from repository do not 
+                        //  CIMInstances returned from repository do not 
                         //  include namespace  
                         //  Set namespace here
                         //
                         CIMObjectPath instanceName = 
-                            subscriptions [j].getInstanceName ();
+                            subscriptions [j].getPath ();
                         instanceName.setNameSpace (nameSpaceNames [i]);
-                        CIMNamedInstance currentInstance 
-                            (instanceName, subscriptions [j].getInstance ());
-                        newSubscriptions.append (currentInstance);
+                        subscriptions [j].setPath (instanceName);
+                        newSubscriptions.append (subscriptions [j]);
                     }
                     else if (!newMatch && formerMatch)
                     {
                         //
-                        //  CIMNamedInstances returned from repository do not 
+                        //  CIMInstances returned from repository do not 
                         //  include namespace  
                         //  Set namespace here
                         //
                         CIMObjectPath instanceName = 
-                            subscriptions [j].getInstanceName ();
+                            subscriptions [j].getPath ();
                         instanceName.setNameSpace (nameSpaceNames [i]);
-                        CIMNamedInstance currentInstance 
-                            (instanceName, subscriptions [j].getInstance ());
-                        formerSubscriptions.append (currentInstance);
+                        subscriptions [j].setPath (instanceName);
+                        formerSubscriptions.append (subscriptions [j]);
                     }
                 }  // if subscription includes supported class
             }  // if subscription is enabled
@@ -3096,10 +3094,10 @@ Array <String> IndicationService::_getNameSpaceNames (void) const
     return nameSpaceNames;
 }
 
-Array <CIMNamedInstance> IndicationService::_getSubscriptions (
+Array <CIMInstance> IndicationService::_getSubscriptions (
     const String & nameSpaceName) const
 {
-    Array <CIMNamedInstance> subscriptions;
+    Array <CIMInstance> subscriptions;
 
     const char METHOD_NAME [] = "IndicationService::_getSubscriptions";
 
@@ -3184,10 +3182,10 @@ Boolean IndicationService::_inPropertyList (
     return true;
 }
 
-Array <CIMNamedInstance> IndicationService::_getProviderSubscriptions (
+Array <CIMInstance> IndicationService::_getProviderSubscriptions (
     const CIMInstance & provider)
 {
-    Array <CIMNamedInstance> providerSubscriptions;
+    Array <CIMInstance> providerSubscriptions;
 
     const char METHOD_NAME [] = 
         "IndicationService::_getProviderSubscriptions";
@@ -3700,8 +3698,8 @@ String IndicationService::_getCondition
 }
 
 
-CIMNamedInstance IndicationService::_getHandler (
-    const CIMNamedInstance & subscription) const
+CIMInstance IndicationService::_getHandler (
+    const CIMInstance & subscription) const
 {
     CIMValue handlerValue;
     CIMObjectPath handlerRef;
@@ -3713,8 +3711,8 @@ CIMNamedInstance IndicationService::_getHandler (
     //
     //  Get Handler reference from subscription instance
     //
-    handlerValue = subscription.getInstance ().getProperty 
-        (subscription.getInstance ().findProperty
+    handlerValue = subscription.getProperty 
+        (subscription.findProperty
         (_PROPERTY_HANDLER)).getValue ();
 
     handlerValue.get (handlerRef);
@@ -3727,7 +3725,7 @@ CIMNamedInstance IndicationService::_getHandler (
     try
     {
         handlerInstance = _repository->getInstance 
-            (subscription.getInstanceName ().getNameSpace (), handlerRef);
+            (subscription.getPath ().getNameSpace (), handlerRef);
     }
     catch (Exception e)
     {
@@ -3739,14 +3737,14 @@ CIMNamedInstance IndicationService::_getHandler (
     _repository->read_unlock ();
 
     //
-    //  Set namespace and create CIMNamedInstance
+    //  Set namespace in path in CIMInstance
     //
     handlerRef.setNameSpace 
-        (subscription.getInstanceName ().getNameSpace ());
-    CIMNamedInstance handlerNamedInstance (handlerRef, handlerInstance);
+        (subscription.getPath ().getNameSpace ());
+    handlerInstance.setPath (handlerRef);
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-    return handlerNamedInstance;
+    return handlerInstance;
 }
 
 Boolean IndicationService::_isTransient (
@@ -3806,7 +3804,7 @@ void IndicationService::_deleteReferencingSubscriptions (
     const String & referenceProperty,
     const CIMObjectPath & handler)
 {
-    Array <CIMNamedInstance> subscriptions;
+    Array <CIMInstance> subscriptions;
     const char METHOD_NAME [] = 
         "IndicationService::_deleteReferencingSubscriptions";
 
@@ -3825,8 +3823,8 @@ void IndicationService::_deleteReferencingSubscriptions (
         //
         //  Get the reference property value from the subscription instance
         //
-        CIMValue propValue = subscriptions [i].getInstance ().getProperty
-            (subscriptions [i].getInstance ().findProperty
+        CIMValue propValue = subscriptions [i].getProperty
+            (subscriptions [i].findProperty
             (referenceProperty)).getValue ();
         CIMObjectPath ref;
         propValue.get (ref);
@@ -3839,21 +3837,20 @@ void IndicationService::_deleteReferencingSubscriptions (
         {
             Array <ProviderClassList> indicationProviders;
             indicationProviders = _getDeleteParams (nameSpace, 
-                subscriptions [i].getInstance ());
+                subscriptions [i]);
 
             //
             //  Send Delete requests
             //
-            CIMInstance instance = subscriptions [i].getInstance ();
+            CIMInstance instance = subscriptions [i];
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
             CIMObjectPath instanceName = 
-                subscriptions [i].getInstanceName ();
+                subscriptions [i].getPath ();
             instanceName.setNameSpace (nameSpace);
-            CIMNamedInstance currentInstance 
-                (instanceName, subscriptions [i].getInstance ());
+            subscriptions [i].setPath (instanceName);
             _sendDeleteRequests (indicationProviders, nameSpace, 
-                currentInstance, creator);
+                subscriptions [i], creator);
 
             //
             //  Delete referencing subscription instance from repository
@@ -3863,7 +3860,7 @@ void IndicationService::_deleteReferencingSubscriptions (
             try
             {
                 _repository->deleteInstance (nameSpace, 
-                    subscriptions [i].getInstanceName ());
+                    subscriptions [i].getPath ());
             }
             catch (Exception & exception)
             {
@@ -4286,7 +4283,7 @@ Boolean IndicationService::_sendCreateRequests
      const CIMPropertyList & propertyList,
      const String & condition,
      const String & queryLanguage,
-     const CIMNamedInstance & subscription,
+     const CIMInstance & subscription,
      const String & userName,
      const String & authType)
 {
@@ -4299,8 +4296,8 @@ Boolean IndicationService::_sendCreateRequests
     //
     //  Get repeat notification policy value from subscription instance
     //
-    propValue = subscription.getInstance ().getProperty 
-        (subscription.getInstance ().findProperty 
+    propValue = subscription.getProperty 
+        (subscription.findProperty 
         (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
     propValue.get (repeatNotificationPolicy);
 
@@ -4319,7 +4316,7 @@ Boolean IndicationService::_sendCreateRequests
             new CIMCreateSubscriptionRequestMessage
                 (XmlWriter::getNextMessageId (),
                 nameSpace,
-                subscription.getInstance (),
+                subscription,
 		 epl->pcl->classList, 
 		 epl->pcl->provider, 
 		 epl->pcl->providerModule,
@@ -4438,7 +4435,7 @@ void IndicationService::_sendModifyRequests
      const CIMPropertyList & propertyList,
      const String & condition,
      const String & queryLanguage,
-     const CIMNamedInstance & subscription,
+     const CIMInstance & subscription,
      const String & userName,
      const String & authType)
 {
@@ -4451,8 +4448,8 @@ void IndicationService::_sendModifyRequests
     //
     //  Get repeat notification policy value from subscription instance
     //
-    propValue = subscription.getInstance ().getProperty 
-        (subscription.getInstance ().findProperty
+    propValue = subscription.getProperty 
+        (subscription.findProperty
         (_PROPERTY_REPEATNOTIFICATIONPOLICY)).getValue ();
     propValue.get (repeatNotificationPolicy);
 
@@ -4470,7 +4467,7 @@ void IndicationService::_sendModifyRequests
 	  new CIMModifySubscriptionRequestMessage(
 	     XmlWriter::getNextMessageId (),
 	     nameSpace,
-	     subscription.getInstance (),
+	     subscription,
 	     epl->pcl->classList, 
 	     epl->pcl->provider, 
 	     epl->pcl->providerModule,
@@ -4573,7 +4570,7 @@ void IndicationService::_sendDeleteRequestsCallBack (
 void IndicationService::_sendDeleteRequests
     (const Array <ProviderClassList> & indicationProviders,
      const String & nameSpace,
-     const CIMNamedInstance & subscription,
+     const CIMInstance & subscription,
      const String & userName,
      const String & authType)
 {
@@ -4595,7 +4592,7 @@ void IndicationService::_sendDeleteRequests
             new CIMDeleteSubscriptionRequestMessage
             (XmlWriter::getNextMessageId (),
             nameSpace,
-            subscription.getInstance (),
+            subscription,
 	     epl->pcl->classList,
 	     epl->pcl->provider, 
 	     epl->pcl->providerModule,
@@ -4628,7 +4625,7 @@ void IndicationService::_sendDeleteRequests
 }
 
 String IndicationService::_generateKey (
-    const CIMNamedInstance & subscription,
+    const CIMInstance & subscription,
     const CIMInstance provider)
 {
     String tableKey;
@@ -4639,13 +4636,13 @@ String IndicationService::_generateKey (
     //
     //  Append subscription namespace name to key
     //
-    tableKey.append (subscription.getInstanceName ().getNameSpace ());
+    tableKey.append (subscription.getPath ().getNameSpace ());
 
     //
     //  Append subscription filter key values to key
     //
-    CIMValue filterVal = subscription.getInstance ().getProperty
-        (subscription.getInstance ().findProperty
+    CIMValue filterVal = subscription.getProperty
+        (subscription.findProperty
         (_PROPERTY_FILTER)).getValue ();
             
     CIMObjectPath filterRef;
@@ -4660,8 +4657,8 @@ String IndicationService::_generateKey (
     //
     //  Append subscription handler key values to key
     //
-    CIMValue handlerVal = subscription.getInstance ().getProperty
-        (subscription.getInstance ().findProperty
+    CIMValue handlerVal = subscription.getProperty
+        (subscription.findProperty
         (_PROPERTY_HANDLER)).getValue ();
             
     CIMObjectPath handlerRef;
@@ -4688,7 +4685,7 @@ String IndicationService::_generateKey (
 }
 
 void IndicationService::_insertEntry (
-    const CIMNamedInstance & subscription,
+    const CIMInstance & subscription,
     const CIMInstance & provider,
     const Array <String> classList)
 {
@@ -4710,7 +4707,7 @@ void IndicationService::_insertEntry (
 
 CIMInstance IndicationService::_createAlertInstance (
     const String & alertClassName,
-    const Array <CIMNamedInstance> & subscriptions)
+    const Array <CIMInstance> & subscriptions)
 {
     const char METHOD_NAME [] = "IndicationService::_createAlertInstance";
 
@@ -4774,8 +4771,8 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
 
    IndicationService *service = 
       static_cast<IndicationService *>(q);
-   CIMNamedInstance *_handler = 
-      reinterpret_cast<CIMNamedInstance *>(parm);
+   CIMInstance *_handler = 
+      reinterpret_cast<CIMInstance *>(parm);
    
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
@@ -4816,12 +4813,12 @@ void IndicationService::_sendAlertsCallBack(AsyncOpNode *op,
 
 
 void IndicationService::_sendAlerts (
-    const Array <CIMNamedInstance> & subscriptions,
+    const Array <CIMInstance> & subscriptions,
     /* const */ CIMInstance & alertInstance)
 {
-    CIMNamedInstance current;
+    CIMInstance current;
     Boolean duplicate;
-    Array <CIMNamedInstance> handlers; 
+    Array <CIMInstance> handlers; 
     
     const char METHOD_NAME [] = "IndicationService::_sendAlerts";
 
@@ -4845,8 +4842,8 @@ void IndicationService::_sendAlerts (
         duplicate = false;
         for (Uint8 j = 0; j < handlers.size () && !duplicate; j++)
         {
-            if ((current.getInstance () == handlers [j].getInstance ()) &&
-                (current.getInstanceName () == handlers [j].getInstanceName ()))
+            if ((current == handlers [j]) &&
+                (current.getPath () == handlers [j].getPath ()))
             {
                 duplicate = true;
             }
@@ -4863,13 +4860,11 @@ void IndicationService::_sendAlerts (
     //
     for (Uint8 k = 0; k < handlers.size (); k++)
     {
-       CIMNamedInstance *_handler = new CIMNamedInstance(handlers[k]);
-       
         CIMHandleIndicationRequestMessage * handler_request =
             new CIMHandleIndicationRequestMessage (
                 XmlWriter::getNextMessageId (),
-                _handler->getInstanceName ().getNameSpace (),
-                _handler->getInstance (),
+                handlers[k].getPath ().getNameSpace (),
+                handlers[k],
                 alertInstance,
                 QueueIdStack (_handlerService, getQueueId ()));
 //cout << "Alert message ID: " << handler_request->messageId << endl;
@@ -4888,7 +4883,7 @@ void IndicationService::_sendAlerts (
 		  _handlerService, 
 		  IndicationService::_sendAlertsCallBack,
 		  this, 
-		  (void *)_handler);
+		  (void *)&handlers[k]);
 
 	// <<< Fri Apr  5 06:24:14 2002 mdd >>>
 	// AsyncReply *async_reply = SendWait(async_req);

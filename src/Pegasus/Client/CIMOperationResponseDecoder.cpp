@@ -27,6 +27,8 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -793,15 +795,15 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    Array<CIMNamedInstance>()));
+	    Array<CIMInstance>()));
     }
     else
     {
-	Array<CIMNamedInstance> namedInstances;
+	Array<CIMInstance> namedInstances;
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMNamedInstance namedInstance;
+	    CIMInstance namedInstance;
 
 	    while (XmlReader::getNamedInstanceElement(parser, namedInstance))
 	        namedInstances.append(namedInstance);
@@ -864,8 +866,6 @@ CIMGetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeGetPropertyRe
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
-	    CIMNamedInstance namedInstance;
-
 	    if (!XmlReader::getPropertyValue(parser, cimValue))
 	    {
                 // No value given; just return a null String value

@@ -23,6 +23,8 @@
 //
 // Author: Yi Zhou (yi_zhou@hp.com)
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -762,7 +764,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
 }
 
 // get all registered providers
-Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
+Array<CIMInstance> ProviderRegistrationManager::enumerateInstances(
     const CIMObjectPath & ref)
 {
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -772,7 +774,7 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
 	"ProviderRegistrationManager::enumerateInstances");
 
-    Array<CIMNamedInstance> enumInstances;
+    Array<CIMInstance> enumInstances;
 
     _repository->read_lock();
 
@@ -1134,7 +1136,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 {
     CIMInstance instance;
     CIMObjectPath reference;
-    Array<CIMNamedInstance> cimNamedInstances;
+    Array<CIMInstance> cimNamedInstances;
     String _providerModuleName;
 
     //
@@ -1155,7 +1157,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 
 	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
 	{
-	    instance = cimNamedInstances[i].getInstance();
+	    instance = cimNamedInstances[i];
 
 	    //
 	    // get provider module name
@@ -1167,7 +1169,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 		//
 		// get CIMObjectPath
 		//
-		reference = cimNamedInstances[i].getInstanceName();	
+		reference = cimNamedInstances[i].getPath ();	
 
 		CIMObjectPath newInstancereference("", "",
 		    reference.getClassName(),
@@ -1237,7 +1239,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     Array<Uint16> providerType;
     Array<Uint16> status;
     Array<String> supportedMethods;
-    Array<CIMNamedInstance> cimNamedInstances;
+    Array<CIMInstance> cimNamedInstances;
   
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
 		     "ProviderRegistrationManager::_initialRegistrationTable()");
@@ -1264,8 +1266,8 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
     	{
 	    Array<CIMInstance> instances;
-            instance = cimNamedInstances[i].getInstance();
-	    reference = cimNamedInstances[i].getInstanceName();
+            instance = cimNamedInstances[i];
+	    reference = cimNamedInstances[i].getPath ();
 
 	    // get provider module name
             instance.getProperty(instance.findProperty
@@ -1333,7 +1335,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     	{
 	    Array<CIMInstance> instances;
 
-            instance = cimNamedInstances[i].getInstance();
+            instance = cimNamedInstances[i];
 
 	    // get provider module name
             instance.getProperty(instance.findProperty
@@ -1364,7 +1366,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
     	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
     	{
-            instance = cimNamedInstances[i].getInstance();
+            instance = cimNamedInstances[i];
 
 	    // get class name
             instance.getProperty(instance.findProperty
@@ -2161,14 +2163,14 @@ void ProviderRegistrationManager::_deleteInstance(
 	    //
 	    // delete associated instances of PG_ProviderCapability
 	    //
-	    Array<CIMNamedInstance> enumCapInstances;
+	    Array<CIMInstance> enumCapInstances;
 	
 	    enumCapInstances = _repository->enumerateInstances(
 			PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES); 	
 
 	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
 	    {
-		capInstance = enumCapInstances[i].getInstance();
+		capInstance = enumCapInstances[i];
 
 		// 
 		// get provider module name in the instance of provider capability
@@ -2191,7 +2193,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		    // of provider capability is same as deleted module name, delete 
 		    // the instance of provider capability from repository
 		    //
-		    capReference = enumCapInstances[i].getInstanceName(); 
+		    capReference = enumCapInstances[i].getPath (); 
 
     		    CIMObjectPath newCapReference("", "",
 			capReference.getClassName(),
@@ -2308,7 +2310,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    //
 	    // delete associated instances of PG_Provider
 	    //
-	    Array<CIMNamedInstance> enumProviderInstances;
+	    Array<CIMInstance> enumProviderInstances;
 	
 	    enumProviderInstances = _repository->enumerateInstances(
 				PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER); 	
@@ -2319,7 +2321,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		CIMObjectPath providerReference;
 		String _providerModuleName;
 
-		providerInstance = enumProviderInstances[i].getInstance();
+		providerInstance = enumProviderInstances[i];
 
 		// 
 		// get provider module name in the instance of PG_Provider 
@@ -2334,7 +2336,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		    // same as deleted provider module name, delete the instance of
 		    // PG_Provider from repository
 		    //
-		    providerReference = enumProviderInstances[i].getInstanceName(); 
+		    providerReference = enumProviderInstances[i].getPath (); 
 
     		    CIMObjectPath newProviderReference("", "",
 			providerReference.getClassName(),
@@ -2349,7 +2351,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    //
 	    // delete associated instances of PG_ProviderCapability
 	    //
-	    Array<CIMNamedInstance> enumCapInstances;
+	    Array<CIMInstance> enumCapInstances;
 	
 	    enumCapInstances = _repository->enumerateInstances(
 				PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES); 	
@@ -2361,7 +2363,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		String _providerModuleName;
 		Array<Uint16> providerType;
 
-		capInstance = enumCapInstances[i].getInstance();
+		capInstance = enumCapInstances[i];
 
 		// 
 		// get provider module name in the instance of provider capability
@@ -2376,7 +2378,7 @@ void ProviderRegistrationManager::_deleteInstance(
 		    // same as deleted provider module name, delete the instance of
 		    // provider capability from repository
 		    //
-		    capReference = enumCapInstances[i].getInstanceName(); 
+		    capReference = enumCapInstances[i].getPath (); 
 
     		    CIMObjectPath newCapReference("", "",
 			capReference.getClassName(),

@@ -22,7 +22,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -165,7 +166,7 @@ Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
 	throw OutOfBounds();
 };
 
-Array<CIMNamedInstance> clientRepositoryInterface::enumerateInstances(
+Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
 	const String& nameSpace,
 	const String& className,
 	Boolean deepInheritance,

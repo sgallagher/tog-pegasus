@@ -27,6 +27,8 @@
 //         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +52,6 @@
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMPropertyList.h>
-#include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMParamValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -152,7 +153,7 @@ public:
 
     static void appendValueNamedInstanceElement(
         Array<Sint8>& out,
-        const CIMNamedInstance& namedInstance);
+        const CIMInstance& namedInstance);
 
     static void appendClassElement(
         Array<Sint8>& out,
@@ -299,7 +300,7 @@ public:
     static void appendNamedInstanceIParameter(
 	Array<Sint8>& out,
 	const char* name,
-	const CIMNamedInstance& namedInstance);
+	const CIMInstance& namedInstance);
 
     static void appendPropertyNameIParameter(
 	Array<Sint8>& out,

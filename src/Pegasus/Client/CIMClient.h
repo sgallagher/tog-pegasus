@@ -27,6 +27,8 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +45,6 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMParamValue.h>
-#include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/Exception.h>
@@ -294,7 +295,7 @@ public:
     ///
     virtual void modifyInstance(
 	const String& nameSpace,
-	const CIMNamedInstance& modifiedInstance,
+	const CIMInstance& modifiedInstance,
 	Boolean includeQualifiers = true,
 	const CIMPropertyList& propertyList = CIMPropertyList()
     ) throw(CIMClientException);
@@ -317,7 +318,7 @@ public:
     ) throw(CIMClientException);
 
     ///
-    virtual Array<CIMNamedInstance> enumerateInstances(
+    virtual Array<CIMInstance> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
 	Boolean deepInheritance = true,

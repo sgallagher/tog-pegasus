@@ -26,6 +26,8 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -971,12 +973,12 @@ void XmlWriter::printValueReferenceElement(
 
 void XmlWriter::appendValueNamedInstanceElement(
     Array<Sint8>& out,
-    const CIMNamedInstance& namedInstance)
+    const CIMInstance& namedInstance)
 {
     out << "<VALUE.NAMEDINSTANCE>\n";
 
-    appendInstanceNameElement(out, namedInstance.getInstanceName());
-    appendInstanceElement(out, namedInstance.getInstance());
+    appendInstanceNameElement(out, namedInstance.getPath ());
+    appendInstanceElement(out, namedInstance);
 
     out << "</VALUE.NAMEDINSTANCE>\n";
 }
@@ -1910,7 +1912,7 @@ void XmlWriter::appendInstanceIParameter(
 void XmlWriter::appendNamedInstanceIParameter(
     Array<Sint8>& out,
     const char* name,
-    const CIMNamedInstance& namedInstance)
+    const CIMInstance& namedInstance)
 {
     _appendIParamValueElementBegin(out, name);
     appendValueNamedInstanceElement(out, namedInstance);

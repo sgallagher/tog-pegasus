@@ -2019,7 +2019,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    // ATTN: Who makes sure the instance name and the instance match?
    // ATTN: KS May 28. Change following to reflect new instancelookup
    // get the class name
-   String className = request->modifiedInstance.getInstance().getClassName();
+   String className = request->modifiedInstance.getClassName();
    CIMResponseMessage * response;
 
    String serviceName = String::EMPTY;
@@ -2285,7 +2285,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
              request->messageId,
              cimException,
              request->queueIds.copyAndPop(),
-             Array<CIMNamedInstance>());
+             Array<CIMInstance>());
        _enqueueResponse(request, response);
        PEG_METHOD_EXIT();
        return;
@@ -2341,7 +2341,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate to Broad"),
             request->queueIds.copyAndPop(),
-            Array<CIMNamedInstance>());
+            Array<CIMInstance>());
 
       STAT_COPYDISPATCHER
 
@@ -2372,7 +2372,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
       STAT_PROVIDERSTART
 
-      Array<CIMNamedInstance> cimNamedInstances;
+      Array<CIMInstance> cimNamedInstances;
 
       _repository->read_lock();
 
@@ -2489,7 +2489,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
              request->messageId,
              PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
              request->queueIds.copyAndPop(),
-             Array<CIMNamedInstance>());
+             Array<CIMInstance>());
 
       STAT_COPYDISPATCHER
 

@@ -51,7 +51,6 @@
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -365,7 +364,7 @@ public:
     CIMModifyInstanceRequestMessage(
         const String& messageId_,
         const String& nameSpace_,
-        const CIMNamedInstance& modifiedInstance_,
+        const CIMInstance& modifiedInstance_,
         Boolean includeQualifiers_,
         const CIMPropertyList& propertyList_,
         QueueIdStack queueIds_,
@@ -383,7 +382,7 @@ public:
     }
 
     String nameSpace;
-    CIMNamedInstance modifiedInstance;
+    CIMInstance modifiedInstance;
     Boolean includeQualifiers;
     CIMPropertyList propertyList;
     String authType;
@@ -1064,11 +1063,6 @@ public:
     CIMCreateSubscriptionRequestMessage(
         const String& messageId_,
         const String & nameSpace_,
-    //
-    //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-    //  Both the instance and instance name (CIMObjectPath) are needed, so
-    //  it would be convenient to have the CIMNamedInstance
-    //
         const CIMInstance & subscriptionInstance_,
         const Array<String> & classNames_,
         const CIMInstance & provider_,
@@ -1117,11 +1111,6 @@ public:
     CIMModifySubscriptionRequestMessage(
         const String& messageId_,
         const String & nameSpace_,
-    //
-    //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-    //  Both the instance and instance name (CIMObjectPath) are needed, so
-    //  it would be convenient to have the CIMNamedInstance
-    //
         const CIMInstance & subscriptionInstance_,
         const Array<String> & classNames_,
         const CIMInstance & provider_,
@@ -1170,11 +1159,6 @@ public:
     CIMDeleteSubscriptionRequestMessage(
         const String& messageId_,
         const String & nameSpace_,
-    //
-    //  ATTN-CAKG-P2-20020326: May want to change to CIMNamedInstance -
-    //  Both the instance and instance name (CIMObjectPath) are needed, so
-    //  it would be convenient to have the CIMNamedInstance
-    //
         const CIMInstance & subscriptionInstance_,
         const Array<String> & classNames_,
         const CIMInstance & provider_,
@@ -1442,14 +1426,14 @@ public:
         const String& messageId_,
         const CIMException& cimException_,
         const QueueIdStack& queueIds_,
-        const Array<CIMNamedInstance>& cimNamedInstances_)
+        const Array<CIMInstance>& cimNamedInstances_)
     : CIMResponseMessage(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
         cimNamedInstances(cimNamedInstances_)
     {
     }
 
-    Array<CIMNamedInstance> cimNamedInstances;
+    Array<CIMInstance> cimNamedInstances;
 };
 
 class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage

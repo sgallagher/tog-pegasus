@@ -23,6 +23,9 @@
 //
 // Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+// Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
+//               (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -179,7 +182,8 @@ void TestModifyInstances(CIMClient& client)
     propertyList.append("Namespaces");
     propertyList.append("SupportedMethods");
    
-    CIMNamedInstance modifyedInstance(instanceName3, cimInstance4);
+    CIMInstance modifyedInstance(cimInstance4);
+    modifyedInstance.setPath (instanceName3);
 
     try
     {

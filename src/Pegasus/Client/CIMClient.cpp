@@ -27,6 +27,8 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -161,7 +163,7 @@ public:
 
     virtual void modifyInstance(
 	const String& nameSpace,
-	const CIMNamedInstance& modifiedInstance,
+	const CIMInstance& modifiedInstance,
 	Boolean includeQualifiers = true,
 	const CIMPropertyList& propertyList = CIMPropertyList()
     ) throw(CIMClientException);
@@ -181,7 +183,7 @@ public:
 	Boolean deepInheritance = false
     ) throw(CIMClientException);
 
-    virtual Array<CIMNamedInstance> enumerateInstances(
+    virtual Array<CIMInstance> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
 	Boolean deepInheritance = true,
@@ -735,7 +737,7 @@ void CIMClientRep::modifyClass(
 
 void CIMClientRep::modifyInstance(
     const String& nameSpace,
-    const CIMNamedInstance& modifiedInstance,
+    const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList
 ) throw(CIMClientException)
@@ -808,7 +810,7 @@ Array<String> CIMClientRep::enumerateClassNames(
     return(response->classNames);
 }
 
-Array<CIMNamedInstance> CIMClientRep::enumerateInstances(
+Array<CIMInstance> CIMClientRep::enumerateInstances(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -1421,7 +1423,7 @@ void CIMClient::modifyClass(
 
 void CIMClient::modifyInstance(
     const String& nameSpace,
-    const CIMNamedInstance& modifiedInstance,
+    const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList
 ) throw(CIMClientException)
@@ -1463,7 +1465,7 @@ Array<String> CIMClient::enumerateClassNames(
         deepInheritance);
 }
 
-Array<CIMNamedInstance> CIMClient::enumerateInstances(
+Array<CIMInstance> CIMClient::enumerateInstances(
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,

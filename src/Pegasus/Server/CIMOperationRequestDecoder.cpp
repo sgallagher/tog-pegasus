@@ -31,6 +31,8 @@
 //              Sushma Fernandes, Hewlett-Packard Company 
 //              (sushma_fernandes@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1485,7 +1487,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 {
    STAT_GETSTARTTIME
 
-   CIMNamedInstance modifiedInstance;
+   CIMInstance modifiedInstance;
    Boolean includeQualifiers = true;
    CIMPropertyList propertyList;
    Boolean duplicateParameter = false;

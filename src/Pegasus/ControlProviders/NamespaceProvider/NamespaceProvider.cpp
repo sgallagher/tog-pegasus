@@ -1,4 +1,4 @@
-//%////////////////////////////////////////////////////////////////////////////
+///%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -75,15 +75,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 static const char NAMESPACE_NAME[] = "Name";
 
-//static const char PROPERTY_NAME []      = "PropertyName";
-
-//static const char DEFAULT_VALUE []      = "DefaultValue";
-
-//static const char CURRENT_VALUE []      = "CurrentValue";
-
-//static const char PLANNED_VALUE []      = "PlannedValue";
-
-//static const char DYNAMIC_PROPERTY []   = "DynamicProperty";
 /**
     The constant representing the __namespace class name
 */
@@ -100,7 +91,6 @@ void NamespaceProvider::createInstance(
 	KeyBinding        kb;
         String            keyName;
         String            keyValue;
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
        //
        // check if the class name requested is correct
        //
@@ -117,7 +107,9 @@ void NamespaceProvider::createInstance(
        Array<KeyBinding> kbArray = instanceReference.getKeyBindings();
        if ( (kbArray.size() != 1) ||
 	    (!String::equalNoCase(kbArray[0].getName(), NAMESPACE_NAME)) )
+       instanceReference.print(cout);
        {
+	   instanceReference.print(cout);
 	   PEG_METHOD_EXIT();
 	   throw PEGASUS_CIM_EXCEPTION(
 	       CIM_ERR_INVALID_PARAMETER,

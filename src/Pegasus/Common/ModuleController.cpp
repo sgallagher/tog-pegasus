@@ -35,7 +35,7 @@ PEGASUS_USING_STD;
  
 pegasus_module::pegasus_module(ModuleController *controller, 
 			       const String &id, 
-			       void *module_address,
+ 			       void *module_address,
 			       Boolean (*receive_message)(Message *),
 			       void (*async_callback)(Uint32, Message *),
 			       void (*shutdown_notify)(Uint32 code))
@@ -54,10 +54,8 @@ pegasus_module::pegasus_module(const pegasus_module & mod)
    _rep = mod._rep;
 }
 
- 
-
 pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
-{
+{   
    (mod._rep->reference());
    if ( _rep->reference_count() == 0 )
       delete _rep;
@@ -84,7 +82,7 @@ Boolean pegasus_module::operator== (const pegasus_module & mod) const
 Boolean pegasus_module::operator == (const String &  mod) const 
 {
    if(_rep->get_name() == mod)
-      return true;
+      return true; 
    return false;
 }
 
@@ -102,8 +100,6 @@ const String & pegasus_module::get_name(void) const
 }
 
 
-
-
 Boolean pegasus_module::query_interface(const String & class_id,  
 					void **object_ptr) const 
 {
@@ -116,6 +112,49 @@ Boolean pegasus_module::query_interface(const String & class_id,
    *object_ptr = NULL;
    return false;
 }
+
+static struct timeval create = {0, 50000};
+static struct timeval destroy = {15, 0};
+static struct timeval deadlock = {5, 0};
+
+ModuleController::ModuleController(const char *name )
+   :Base(name, MessageQueue::getNextQueueId()),
+    _modules(true),
+   _thread_pool(2, "test pool ",  1, 10, create, destroy, deadlock)   
+{ 
+
+}
+
+ModuleController::ModuleController(const char *name ,
+				   Sint16 min_threads, 
+				   Sint16 max_threads,
+				   struct timeval & create_thread,
+				   struct timeval & destroy_thread,
+				   struct timeval & deadlock)
+   :Base(name, MessageQueue::getNextQueueId()),
+   _modules(true),
+    _thread_pool(min_threads + 1, 
+		 name, min_threads, 
+		 max_threads, 
+		 create_thread, 
+		 destroy_thread, 
+		 deadlock)   
+{ 
+
+}
+
+
+
+ModuleController & ModuleController::register_module(const String & module_name, 
+						     void *module_address, 
+						     Boolean (*receive_message)(Message *),
+						     void (*async_callback)(Uint32, Message *),
+						     void (*shutdown_notify)(Uint32)) throw(AlreadyExists)
+{
+   return *this;
+}
+
+
 
 
 PEGASUS_NAMESPACE_END

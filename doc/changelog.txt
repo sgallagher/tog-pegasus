@@ -9,6 +9,13 @@ TAG: VERSION_1_07
 
 2. (Markus Mueller) 05 Feb 2002 - AIX support.
 
+3. KS -  18 Feb 02 Add changes to test for and set the NULL value for CIMValues.
+   This forces new CIMValues to have a NULL attributes that is only
+   reset when a value is "set" or copied into them.  the XML and MOF
+   also deliver a NULL value back when the state of the CIMValue is NULL.
+   There is a remaining addition to put an exception on CIMValue gets when
+   the NULL attribute is set that we will install later.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

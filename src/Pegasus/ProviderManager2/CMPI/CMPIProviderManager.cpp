@@ -58,6 +58,10 @@
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
+#ifdef PEGASUS_OS_HPUX
+#include <alloca.h>
+#endif
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1930,7 +1934,11 @@ ProviderName CMPIProviderManager::_resolveProviderName(const ProviderName & prov
     physicalName = root + String("/lib") + physicalName + String(".so");
     #elif defined(PEGASUS_OS_HPUX)
     String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + moduleLocation + String(".sl");
+    # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    physicalName = root + String("/lib") + physicalName + String(".sl");
+    # else
+    physicalName = root + String("/lib") + physicalName + String(".so");
+    # endif
     #elif defined(PEGASUS_OS_OS400)
     // do nothing
     #else

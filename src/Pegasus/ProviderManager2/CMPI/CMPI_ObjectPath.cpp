@@ -109,7 +109,7 @@ static CMPIString* refGetClassName(CMPIObjectPath* eRef, CMPIStatus* rc) {
 
 
 static long locateKey(const Array<CIMKeyBinding> &kb, const CIMName &eName) {
-   for (ulong i=0,s=kb.size(); i<s; i++) {
+   for (unsigned long i=0,s=kb.size(); i<s; i++) {
       const String &n=kb[i].getName().getString();
       if (String::equalNoCase(n,eName.getString())) return i;
    }

@@ -41,7 +41,7 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-static CIMDateTime *makeCIMDateTime(time_t inTime, ulong usec, CMPIBoolean interval)
+static CIMDateTime *makeCIMDateTime(time_t inTime, unsigned long usec, CMPIBoolean interval)
 {
    CIMDateTime *dt=new CIMDateTime();
    char strTime[256];

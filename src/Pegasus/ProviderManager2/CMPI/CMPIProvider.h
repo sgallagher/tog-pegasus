@@ -174,7 +174,8 @@ private:
     friend class CMPIProviderManager;
     friend class CMPI_RProviderManager;
     friend class ProviderManagerService;
-//    friend class OpProviderHolder;
+    class OpProviderHolder;
+    friend class OpProviderHolder;
     CIMOMHandle *_cimom_handle;
     String _name;
     AtomicInt _no_unload;

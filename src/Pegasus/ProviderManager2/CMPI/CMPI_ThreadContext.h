@@ -34,6 +34,9 @@
 
 #include <iostream>
 #include <stdlib.h>
+#ifdef PEGASUS_OS_HPUX
+#include <pthread.h>
+#endif
 
 #include "cmpidt.h"
 #include "cmpift.h"

@@ -92,7 +92,7 @@ void CIMOperationResponseEncoder::sendResponse(
       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		  "CIMOperationResponseEncoder::SendResponse - QueueId: $0  XML content: $1",
 		  queue,
-		  httpMessage->message.getData());
+          String(httpMessage->message.getData(),httpMessage->message.size()));
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
       httpMessage->authInfo = (AuthenticationInfo *)99;

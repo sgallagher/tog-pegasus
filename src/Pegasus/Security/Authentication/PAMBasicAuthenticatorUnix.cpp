@@ -32,12 +32,12 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //            : Sushma Fernandes, Hewlett-Packard Company 
 //                (sushma_fernandes@hp.com)
+//                Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/FileSystem.h>
 

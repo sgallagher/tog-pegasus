@@ -29,14 +29,13 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
 
@@ -158,7 +157,7 @@ Boolean SecureBasicAuthenticator::authenticate(
             authenticated = true;
         }
     }
-    catch (InvalidUser& iu)
+    catch (InvalidUser& )
     {
         PEG_METHOD_EXIT();
         return (authenticated);

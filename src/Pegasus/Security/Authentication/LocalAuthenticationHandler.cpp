@@ -29,13 +29,12 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Destroyer.h>
 
 #include "SecureLocalAuthenticator.h"
 #include "LocalAuthenticationHandler.h"
@@ -51,7 +50,7 @@ LocalAuthenticationHandler::LocalAuthenticationHandler()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
        "LocalAuthenticationHandler::LocalAuthenticationHandler()");
 
-    _localAuthenticator = (LocalAuthenticator*) new SecureLocalAuthenticator();
+    _localAuthenticator.reset((LocalAuthenticator*) new SecureLocalAuthenticator());
 
     PEG_METHOD_EXIT();
 }
@@ -60,8 +59,6 @@ LocalAuthenticationHandler::~LocalAuthenticationHandler()
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "LocalAuthenticationHandler::~LocalAuthenticationHandler()");
-
-    delete _localAuthenticator;
 
     PEG_METHOD_EXIT();
 }

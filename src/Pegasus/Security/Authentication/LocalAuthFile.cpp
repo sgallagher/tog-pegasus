@@ -34,6 +34,7 @@
 //                Sushma Fernandes, Hewlett-Packard Company 
 //                        (sushma_fernandes.hp.com)
 //                Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//                Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +54,6 @@
 #include <sys/time.h>
 #endif
 
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>

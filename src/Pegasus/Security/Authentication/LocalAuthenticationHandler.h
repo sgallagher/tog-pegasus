@@ -29,7 +29,7 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +38,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include "LocalAuthenticator.h"
 #include "Authenticator.h"
@@ -84,7 +85,7 @@ public:
 
 private:
 
-    LocalAuthenticator* _localAuthenticator;
+    AutoPtr<LocalAuthenticator> _localAuthenticator;
 };
 
 PEGASUS_NAMESPACE_END

@@ -25,15 +25,21 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Alagaraja Ramasubramanian (alags_raj@in.ibm.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
+
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#endif
+#define _WIN32_WINNT  0x0500
+#include <windows.h>    
 
 #include "OperatingSystem.h"
 
 #include <sstream>
 #include <iomanip>
-#include <windows.h>
+   
 
 
 OperatingSystem::OperatingSystem(void)
@@ -46,21 +52,165 @@ OperatingSystem::~OperatingSystem(void)
 
 Boolean OperatingSystem::getCSName(String& csName)
 {
-//ATTN-SLC-P2-18-Apr-02: need to implement CSName key for Windows OS BZ#42
+    // ALAGS : Fix for bug #42 : CSName info has been implementated
+    char hostName[1024];
+    LPTSTR lpBuffer = hostName;
+    DWORD nSize = 1024;
+    String hostNameStr;
+    
 
-    // how get fully qualified machine name in Windows?
-    csName.assign("Unknown");
+    //First try to get FULLY qualified Name.
+    if(!GetComputerNameEx(
+           ComputerNamePhysicalDnsFullyQualified,
+           lpBuffer,
+           &nSize))
+    {
+        //Some problem in getting the FULLY qualified name.
+        //So get the Hostname atleast.
+        if(!GetComputerName(lpBuffer, &nSize))
+        {
+            //Even Hostname can not be retrieved
+            hostNameStr.assign("Error while getting CSName");
+        }
+        else
+        {
+            hostNameStr.assign(hostName);
+        }
+    }
+    else
+    {
+        hostNameStr.assign(hostName);
+    }
+
+    csName.assign(hostNameStr);
     return true;
 }
 
 Boolean OperatingSystem::getName(String& osName)
 {
-//ATTN-SLC-P2-18-Apr-02: need to implement Name key for Windows OS BZ#42
-
     // could set to some string based on OSType calculated below
     // see OS provider in generic directory.
     // would be nice to only do it once for both properties
-    osName.assign("Unknown");
+
+    // ALAGS : Fix for Bug #42 : Cannot use info inside getOSType() method as it 
+    // uses the OSVERSIONINFO structure. We need to use the OSVERSIONINFOEX 
+    // structure for more information.
+
+    OSVERSIONINFOEX osvi;
+    BOOL bOsVersionInfoEx;
+    String versionName;
+
+    // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
+    // If that fails, try using the OSVERSIONINFO structure.
+
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+
+    if( !(bOsVersionInfoEx = GetVersionEx ((OSVERSIONINFO *) &osvi)) )
+    {
+        // If OSVERSIONINFOEX doesn't work, try OSVERSIONINFO.
+        osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
+        if (! GetVersionEx ( (OSVERSIONINFO *) &osvi) ) 
+            return false; //Could not get Name Info.
+    }
+
+    // Get the Base Windows Platform
+    switch (osvi.dwPlatformId)
+    {
+        case VER_PLATFORM_WIN32_NT:
+
+            if ( osvi.dwMajorVersion <= 4 )
+                versionName.assign("Microsoft Windows NT");
+
+            if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
+                versionName.assign("Microsoft Windows 2000");
+
+            if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )
+                versionName.assign("Microsoft Windows XP");
+
+            if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )
+                versionName.assign("Microsoft Windows Server 2003");
+
+            break;
+
+        case VER_PLATFORM_WIN32_WINDOWS:
+
+            if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
+            {
+                versionName.assign("Microsoft Windows 95");
+                if ( osvi.szCSDVersion[1] == 'C' || 
+                     osvi.szCSDVersion[1] == 'B' )
+                     versionName.append("OSR2");
+            } 
+
+            if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
+            {
+                versionName.assign("Microsoft Windows 98");
+                if ( osvi.szCSDVersion[1] == 'A' )
+                    versionName.append("SE" );
+            } 
+
+            if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
+            {
+                versionName.assign("Microsoft Windows Me");
+            } 
+            break;
+
+        case VER_PLATFORM_WIN32s:
+
+            versionName.assign("Microsoft Win32s");
+            break;
+    }
+
+        
+    // Get more information, if you can !
+    if( bOsVersionInfoEx )
+    {
+        // Test for the workstation type.
+        if ( osvi.wProductType == VER_NT_WORKSTATION )
+        {
+            if( osvi.dwMajorVersion == 4 )
+                versionName.append( " Workstation 4.0" );
+            else if( osvi.wSuiteMask & VER_SUITE_PERSONAL )
+                versionName.append( " Home Edition" );
+            else
+                versionName.append( " Professional" );
+        }
+        // Test for the server type.
+        else if ( osvi.wProductType == VER_NT_SERVER )
+        {
+            if( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )
+            {
+                if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
+                    versionName.append( " Datacenter Edition" );
+                else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
+                    versionName.append( " Enterprise Edition" );
+                else if ( osvi.wSuiteMask == VER_SUITE_BLADE )
+                    versionName.append( " Web Edition" );
+                else
+                    versionName.append( " Standard Edition" );
+             }
+             else if( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
+             {
+                 if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
+                     versionName.append( " Datacenter Server" );
+                 else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
+                     versionName.append( " Advanced Server" );
+                 else
+                     versionName.append( " Server" );
+             }
+
+             else  // Windows NT 4.0 
+             {
+                 if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
+                     versionName.append ("Server 4.0, Enterprise Edition" );
+                 else
+                     versionName.append ( "Server 4.0" );
+             }   
+        } // EndIf for VER_NT_SERVER
+    }
+
+    osName.assign(versionName);
     return true;
 }
 
@@ -219,11 +369,11 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
 
    switch(::GetTimeZoneInformation(&timezone)) {
    case TIME_ZONE_ID_UNKNOWN:
-      currentTimeZone = timezone.Bias;
+      currentTimeZone = (Sint16)timezone.Bias;
    case TIME_ZONE_ID_STANDARD:
-      currentTimeZone = timezone.Bias + timezone.StandardBias;
+      currentTimeZone = (Sint16)timezone.Bias + (Sint16)timezone.StandardBias;
    case TIME_ZONE_ID_DAYLIGHT:
-      currentTimeZone = timezone.Bias + timezone.DaylightBias;
+      currentTimeZone = (Sint16)timezone.Bias + (Sint16)timezone.DaylightBias;
    default:
       break;
    }

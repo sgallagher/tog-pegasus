@@ -168,7 +168,15 @@ choice is either the provider qualifier or starting the&nbsp; provider
 registration class.&nbsp; I suggest that for the moment, the provider qualifier
 is by far the easiest and can be implemented now.</p>
 
+<p>The "interface specific text" is given to the   provider interface once it is found, so it can use it to find the appropriate   provider.&nbsp;</p>
 <h3>Functions Needed</h3>
+
+<p>The only component within the CIMOM that deals directly with provider   interfaces is the provider manager
+(ProviderTable today).&nbsp; NOTE: We will change the name at some point of the
+ProviderTable to ProviderManager. The provider   manager is the provider interface
+multiplexor.</p>
+
+<p>The functions we need:</p>
 
 <p>1. Find the interface modules.&nbsp; It may be logical to load these all at
 startup rather than loading each one when one of its corresponding providers is

@@ -86,8 +86,10 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
       void handleMethodRequest(
 	 Uint32 queueId,
 	 Sint8* content,
+	 const String& requestUri,
 	 const String& cimProtocolVersionInHeader,
-	 String userName);
+	 const String& cimExportMethodInHeader,
+	 const String& userName);
 
       CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
 	 Uint32 queueId,
@@ -103,9 +105,6 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
    private:
 
       MessageQueue* _outputQueue;
-
-      // Consumer to which the indication to be send.
-      String _url;
 
       // Queue where responses should be enqueued.
       Uint32 _returnQueueId;

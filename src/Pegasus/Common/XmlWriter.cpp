@@ -477,9 +477,9 @@ void XmlWriter::appendMethodResponseHeader(
 //
 //     Returns error response message in the following format:
 //
-//        HTTP/1.1 400 Bad Request  (using specified status code)
-//        CIMError: <error type>    (only if specified by caller)
-//        Content-Length: 123       (using the given content length, if not 0)
+//        HTTP/1.1 400 Bad Request       (using specified status code)
+//        CIMError: <error type>         (if specified by caller)
+//        PGErrorDetail: <error text>    (if specified by caller)
 //
 //------------------------------------------------------------------------------
 
@@ -487,16 +487,19 @@ void XmlWriter::appendHttpErrorResponseHeader(
     Array<Sint8>& out,
     const String& status,
     const String& cimError,
-    Uint32 contentLength)
+    const String& errorDetail)
 {
     out << "HTTP/1.1 " << status << "\r\n";
     if (cimError != String::EMPTY)
     {
         out << "CIMError: " << cimError << "\r\n";
     }
-    if (contentLength != 0)
+    if (errorDetail != String::EMPTY)
     {
-        out << "Content-Length: " << contentLength << "\r\n";
+        // ATTN-RK-P3-20020404: It is critical that this text not contain '\n'
+        // ATTN-RK-P3-20020404: Need to encode this value properly.  (See
+        // CIM/HTTP Specification section 3.3.2
+        out << "PGErrorDetail: " << errorDetail << "\r\n";
     }
     out << "\r\n";
 }
@@ -1033,19 +1036,13 @@ void XmlWriter::appendQualifierDeclarationIParameter(
 Array<Sint8> XmlWriter::formatHttpErrorRspMessage(
     const String& status,
     const String& cimError,
-    const String& messageBody)
+    const String& errorDetail)
 {
     Array<Sint8> out;
-    Array<Sint8> tmp;
 
-    if (messageBody != String::EMPTY)
-    {
-        out << messageBody << "\n";
-    }
-    appendHttpErrorResponseHeader(tmp, status, cimError, out.size());
-    tmp << out;
+    appendHttpErrorResponseHeader(out, status, cimError, errorDetail);
 
-    return tmp;
+    return out;
 }
 
 //------------------------------------------------------------------------------

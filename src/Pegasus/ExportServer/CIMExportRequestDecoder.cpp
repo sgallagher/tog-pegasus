@@ -187,124 +187,120 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String requestUri;
    String httpVersion;
 
+   // ATTN-RK-P3-20020404: The requestUri may need to be pruned of the host
+   // name.  All we care about at this point is the path.
    HTTPMessage::parseRequestLine(
       startLine, methodName, requestUri, httpVersion);
 
+   // Unsupported methods are caught in the HTTPAuthenticatorDelegator
+   PEGASUS_ASSERT(methodName == "M-POST" || methodName == "POST");
+
    // Process M-POST and POST messages:
 
-   if (methodName == "M-POST" || methodName == "POST")
+   String cimExport;
+   String cimExportBatch;
+   Boolean cimExportBatchFlag;
+   String cimProtocolVersion;
+   String cimExportMethod;
+
+   // Validate the "CIMExport" header:
+
+   Boolean exportHeaderFound = HTTPMessage::lookupHeader(
+      headers, "*CIMExport", cimExport, true);
+   // If the CIMExport header was missing, the HTTPAuthenticatorDelegator
+   // would not have passed the message to us.
+   PEGASUS_ASSERT(exportHeaderFound);
+
+   if (!String::equalNoCase(cimExport, "MethodRequest"))
    {
-      String url;
-
-      if (HTTPMessage::lookupHeader(
-	     headers, "*HOST", url, true))
-	 _url = url;
-      else
-	 return;
-
-      String cimExport;
-      String cimExportBatch;
-      Boolean cimExportBatchFlag;
-      String cimProtocolVersion;
-
-      // Validate the "CIMExport" header:
-
-      if (!HTTPMessage::lookupHeader(
-	     headers, "*CIMExport", cimExport, true))
-      {
-         // This should never happen.  If the CIMExport header was missing,
-         // the HTTPAuthenticatorDelegator would not have passed the message
-         // to us.
-         PEGASUS_ASSERT(0);
-      }
-
-      if (!String::equalNoCase(cimExport, "MethodRequest"))
-      {
-         // The Specification for CIM Operations over HTTP reads:
-         //     3.3.5. CIMExport
-         //     If a CIM Listener receives CIM Export request with this
-         //     header, but with a missing value or a value that is not
-         //     "MethodRequest", then it MUST fail the request with
-         //     status "400 Bad Request". The CIM Server MUST include a
-         //     CIMError header in the response with a value of
-         //     unsupported-operation.
-         sendHttpError(queueId,
-                       HTTP_STATUS_BADREQUEST,
-                       "unsupported-operation");
-         return;
-      }
-
-      // Validate the "CIMExportBatch" header:
-
-      cimExportBatchFlag = HTTPMessage::lookupHeader(
-             headers, "*CIMExportBatch", cimExportBatch, true);
-      if (cimExportBatchFlag)
-      {
-         // The Specification for CIM Operations over HTTP reads:
-         //     3.3.10. CIMExportBatch
-         //     If a CIM Listener receives CIM Export Request for which the
-         //     CIMExportBatch header is present, but the Listener does not
-         //     support Multiple Exports, then it MUST fail the request and
-         //     return a status of "501 Not Implemented".
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "multiple-requests-unsupported");
-         return;
-      }
-
-      // Save this header for later checking
-
-      if (!HTTPMessage::lookupHeader(
-             headers, "*CIMProtocolVersion", cimProtocolVersion, true))
-      {
-         // Mandated by the Specification for CIM Operations over HTTP
-         cimProtocolVersion.assign("1.0");
-      }
-
-      // Zero-terminate the message:
-
-      httpMessage->message.append('\0');
-
-      // Calculate the beginning of the content from the message size and
-      // the content length.  Subtract 1 to take into account the null
-      // character we just added to the end of the message.
-
-      content = (Sint8*) httpMessage->message.getData() +
-	 httpMessage->message.size() - contentLength - 1;
-
-      // If it is a method call, then dispatch it to be handled:
-
-      handleMethodRequest(queueId, content, cimProtocolVersion, userName);
+      // The Specification for CIM Operations over HTTP reads:
+      //     3.3.5. CIMExport
+      //     If a CIM Listener receives CIM Export request with this
+      //     header, but with a missing value or a value that is not
+      //     "MethodRequest", then it MUST fail the request with
+      //     status "400 Bad Request". The CIM Server MUST include a
+      //     CIMError header in the response with a value of
+      //     unsupported-operation.
+      sendHttpError(queueId,
+                    HTTP_STATUS_BADREQUEST,
+                    "unsupported-operation");
+      return;
    }
+
+   // Validate the "CIMExportBatch" header:
+
+   cimExportBatchFlag = HTTPMessage::lookupHeader(
+          headers, "*CIMExportBatch", cimExportBatch, true);
+   if (cimExportBatchFlag)
+   {
+      // The Specification for CIM Operations over HTTP reads:
+      //     3.3.10. CIMExportBatch
+      //     If a CIM Listener receives CIM Export Request for which the
+      //     CIMExportBatch header is present, but the Listener does not
+      //     support Multiple Exports, then it MUST fail the request and
+      //     return a status of "501 Not Implemented".
+      sendHttpError(queueId,
+                    HTTP_STATUS_NOTIMPLEMENTED,
+                    "multiple-requests-unsupported");
+      return;
+   }
+
+   // Save these headers for later checking
+
+   if (!HTTPMessage::lookupHeader(
+          headers, "*CIMProtocolVersion", cimProtocolVersion, true))
+   {
+      // Mandated by the Specification for CIM Operations over HTTP
+      cimProtocolVersion.assign("1.0");
+   }
+
+   if (HTTPMessage::lookupHeader(
+          headers, "*CIMExportMethod", cimExportMethod, true))
+   {
+      if (cimExportMethod == String::EMPTY)
+      {
+         // This is not a valid value, and we use EMPTY to mean "absent"
+         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch");
+         return;
+      }
+   }
+
+   // Zero-terminate the message:
+
+   httpMessage->message.append('\0');
+
+   // Calculate the beginning of the content from the message size and
+   // the content length.  Subtract 1 to take into account the null
+   // character we just added to the end of the message.
+
+   content = (Sint8*) httpMessage->message.getData() +
+      httpMessage->message.size() - contentLength - 1;
+
+   // If it is a method call, then dispatch it to be handled:
+
+   handleMethodRequest(queueId, content, requestUri, cimProtocolVersion,
+                       cimExportMethod, userName);
 }
 
 
 void CIMExportRequestDecoder::handleMethodRequest(
    Uint32 queueId,
    Sint8* content,
+   const String& requestUri,
    const String& cimProtocolVersionInHeader,
-   String userName)
+   const String& cimExportMethodInHeader,
+   const String& userName)
 {
-   Message* request;
-
    //
-   // get the configured authentication flag
+   // If CIM Listener is shutting down, return error response
    //
-   ConfigManager* configManager = ConfigManager::getInstance();
-
-   Boolean requireAuthentication = false;
-   Boolean requireAuthorization = false;
-
-   if (String::equal(
-	  configManager->getCurrentValue("requireAuthentication"), "true"))
+   if (_serverTerminating)
    {
-      requireAuthentication = true;
-   }
-
-   if (String::equal(
-	  configManager->getCurrentValue("requireAuthorization"), "true"))
-   {
-      requireAuthorization = true;
+      sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE,
+                    String::EMPTY,
+                    "CIM Listener is shutting down.  "
+                        "Request cannot be processed.");
+      return;
    }
 
    // Create a parser:
@@ -312,7 +308,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
    XmlParser parser(content);
    XmlEntry entry;
    String messageId;
-   const char* cimMethodName = "";
+   const char* cimExportMethodName = "";
+   Message* request;
 
    try
    {
@@ -320,6 +317,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // Process <?xml ... >
       //
 
+      // These values are currently unused
       const char* xmlVersion = 0;
       const char* xmlEncoding = 0;
 
@@ -379,81 +377,96 @@ void CIMExportRequestDecoder::handleMethodRequest(
                        "unsupported-protocol-version");
          return;
       }
-   }
-   catch (Exception&)
-   {
-      // ATTN: no error can be sent back to the client yet since
-      // errors require a message-id (which was in the process of
-      // being obtained above).
-      return;
-   }
 
-   try
-   {
+      if (XmlReader::testStartTag(parser, entry, "MULTIEXPREQ"))
+      {
+         // We wouldn't have gotten here if CIMExportBatch header was
+         // specified, so this must be indicative of a header mismatch
+         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch");
+         return;
+         // Future: When MULTIEXPREQ is supported, must ensure CIMExportMethod
+         // header is absent, and CIMExportBatch header is present.
+      }
+
       // Expect <SIMPLEEXPREQ ...>
 
       XmlReader::expectStartTag(parser, entry, "SIMPLEEXPREQ");
 	
       // Expect <EXPMETHODCALL ...>
 
-      if (!XmlReader::getEMethodCallStartTag(parser, cimMethodName))
+      if (!XmlReader::getEMethodCallStartTag(parser, cimExportMethodName))
       {
 	 throw XmlValidationError(parser.getLine(), 
 				  "expected EXPMETHODCALL element");
       }
-	
-      // Expect <LOCALNAMESPACEPATH ...>
 
-      String nameSpace;
-
-      //if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
-      //{
-      //    throw XmlValidationError(parser.getLine(), 
-      //	"expected LOCALNAMESPACEPATH element");
-      //}
-
-      // Delegate to appropriate method to handle:
-
-      if (CompareNoCase(cimMethodName, "ExportIndication") == 0)
+      // The Specification for CIM Operations over HTTP reads:
+      //     3.3.9. CIMExportMethod
+      //
+      //     This header MUST be present in any CIM Export Request
+      //     message that contains a Simple Export Request. 
+      //
+      //     It MUST NOT be present in any CIM Export Response message,
+      //     nor in any CIM Export Request message that is not a
+      //     Simple Export Request. It MUST NOT be present in any CIM 
+      //     Operation Request or Response message. 
+      //
+      //     The name of the CIM export method within a Simple Export
+      //     Request is defined to be the value of the NAME attribute
+      //     of the <EXPMETHODCALL> element. 
+      //
+      //     If a CIM Listener receives a CIM Export Request for which
+      //     either:
+      //
+      //     - The CIMExportMethod header is present but has an invalid
+      //       value, or; 
+      //     - The CIMExportMethod header is not present but the Export
+      //       Request Message is a Simple Export Request, or; 
+      //     - The CIMExportMethod header is present but the Export
+      //       Request Message is not a Simple Export Request, or; 
+      //     - The CIMExportMethod header is present, the Export Request
+      //       Message is a Simple Export Request, but the CIMIdentifier
+      //       value (when unencoded) does not match the unique method
+      //       name within the Simple Export Request, 
+      //
+      //     then it MUST fail the request and return a status of
+      //     "400 Bad Request" (and MUST include a CIMError header in the
+      //     response with a value of header-mismatch), subject to the 
+      //     considerations specified in Errors. 
+      if (!String::equalNoCase(cimExportMethodName, cimExportMethodInHeader))
       {
-	 //
-	 // If CIMOM is shutting down, return error response
-	 //
-	 // ATTN:  need to define a new CIM Error.
-	 //
-	 if (_serverTerminating)
-	 {
-	    String description = "CIMServer is shutting down.  ";
-	    description.append("Request cannot be processed: ");
-	    description += cimMethodName;
-
-	    sendEMethodError(
-	       queueId,
-	       messageId,
-	       cimMethodName,
-	       CIM_ERR_FAILED,
-	       description);
-
-	    return;
-	 }
-	 else
-	 {
-	    request = decodeExportIndicationRequest(queueId, parser, messageId, _url);
-	 }
+         // ATTN-RK-P3-20020404: How to decode cimExportMethodInHeader?
+         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch");
+         return;
       }
-      else
+	
+      // This try block only catches CIMExceptions, because they must be
+      // responded to with a proper EMETHODRESPONSE.  Other exceptions are
+      // caught in the outer try block.
+      try
       {
-	 String description = "Unknown intrinsic method: ";
-	 description += cimMethodName;
+         // Delegate to appropriate method to handle:
 
-	 sendEMethodError(
-	    queueId, 
-	    messageId,
-	    cimMethodName,
-	    CIM_ERR_FAILED,
-	    description);
+         if (CompareNoCase(cimExportMethodName, "ExportIndication") == 0)
+         {
+            request = decodeExportIndicationRequest(queueId, parser, messageId, requestUri);
+         }
+         else
+         {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+               String("Unrecognized export method: ") + cimExportMethodName);
+         }
+      }
+      catch (CIMException& e)
+      {
+         sendEMethodError(
+            queueId,
+            messageId,
+            cimExportMethodName,
+            e.getCode(),
+            e.getMessage());
 
-	 return;
+         return;
       }
 
       // Expect </EXPMETHODCALL>
@@ -472,14 +485,40 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       XmlReader::expectEndTag(parser, "CIM");
    }
+   catch (XmlValidationError& e)
+   {
+      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+                    e.getMessage());
+      return;
+   }
+   catch (XmlSemanticError& e)
+   {
+      // ATTN-RK-P2-20020404: Is this the correct response for these errors?
+      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+                    e.getMessage());
+      return;
+   }
+   catch (XmlException& e)
+   {
+      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-well-formed",
+                    e.getMessage());
+      return;
+   }
    catch (Exception& e)
    {
-      sendEMethodError(
-	 queueId, 
-	 messageId,
-	 cimMethodName,
-	 CIM_ERR_FAILED,
-	 e.getMessage());
+      // Don't know why I got this exception.  Seems like a bad thing.
+      // Any exceptions we're expecting should be caught separately and
+      // dealt with appropriately.  This is a last resort.
+      sendHttpError(queueId, HTTP_STATUS_INTERNALSERVERERROR, String::EMPTY,
+                    e.getMessage());
+      return;
+   }
+   catch (...)
+   {
+      // Don't know why I got whatever this is.  Seems like a bad thing.
+      // Any exceptions we're expecting should be caught separately and
+      // dealt with appropriately.  This is a last resort.
+      sendHttpError(queueId, HTTP_STATUS_INTERNALSERVERERROR);
       return;
    }
 
@@ -490,7 +529,7 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& url)
+   const String& requestUri)
 {
    CIMInstance instanceName;
 
@@ -504,7 +543,7 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
     
    CIMExportIndicationRequestMessage* request = new CIMExportIndicationRequestMessage(
       messageId,  
-      url,
+      requestUri,
       instanceName,
       QueueIdStack(queueId, _returnQueueId));
     

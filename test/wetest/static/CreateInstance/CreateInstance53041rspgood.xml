@@ -1,10 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<CIM CIMVERSION="2.0" DTDVERSION="2.0">
-<MESSAGE ID="53041" PROTOCOLVERSION="1.0">
-<SIMPLERSP>
-<IMETHODRESPONSE NAME="CreateInstance">
-<ERROR CODE="1" DESCRIPTION="Semantic error: on line 46: Sint8 value out of range"/>
-</IMETHODRESPONSE>
-</SIMPLERSP>
-</MESSAGE>
-</CIM>
+HTTP/1.1 400 Bad Request
+CIMError: request-not-valid
+PGErrorDetail: Semantic error: on line 46: Sint8 value out of range
+

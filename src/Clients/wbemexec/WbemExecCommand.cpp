@@ -438,7 +438,9 @@ Boolean WbemExecCommand::_handleResponse( Channel*               channel,
 	      {
 		oStream << headers[i].first << ": " << headers[i].second << endl;
 	      }
+	    oStream << endl;
 	    oStream.flush();
+	    handler->printContent();
 	    exit( 1 );
 	  }
 	

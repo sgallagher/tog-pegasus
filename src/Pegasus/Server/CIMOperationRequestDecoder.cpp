@@ -333,10 +333,21 @@ void CIMOperationRequestDecoder::handleMethodCall(
    String authType,
    String userName)
 {
-   Message* request;
-
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::handleMethodCall()");
+
+   //
+   // If CIMOM is shutting down, return "Service Unavailable" response
+   //
+   if (_serverTerminating)
+   {
+       sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE,
+                     String::EMPTY,
+                     "CIM Server is shutting down.  "
+                         "Request cannot be processed.");
+       PEG_METHOD_EXIT();
+       return;
+   }
 
    // Create a parser:
 
@@ -344,6 +355,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
    XmlEntry entry;
    String messageId;
    const char* cimMethodName = "";
+   Message* request;
 
    try
    {
@@ -351,6 +363,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
       // Process <?xml ... >
       //
 
+      // These values are currently unused
       const char* xmlVersion = 0;
       const char* xmlEncoding = 0;
 
@@ -412,38 +425,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          PEG_METHOD_EXIT();
          return;
       }
-   }
-   catch (XmlValidationError& e)
-   {
-      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
-                    e.getMessage());
-      PEG_METHOD_EXIT();
-      return;
-   }
-   catch (XmlSemanticError& e)
-   {
-      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
-                    e.getMessage());
-      PEG_METHOD_EXIT();
-      return;
-   }
-   catch (XmlException& e)
-   {
-      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-well-formed");
-                    //e.getMessage());
-      PEG_METHOD_EXIT();
-      return;
-   }
-   catch (Exception&)
-   {
-      // ATTN-RK-P3-20020403: What should be returned here?
-      // Maybe "500 Internal Server Error"?
-      PEG_METHOD_EXIT();
-      return;
-   }
 
-   try
-   {
       if (XmlReader::testStartTag(parser, entry, "MULTIREQ"))
       {
          // We wouldn't have gotten here if CIMBatch header was specified,
@@ -459,7 +441,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       XmlReader::expectStartTag(parser, entry, "SIMPLEREQ");
 
-      // Expect <IMETHODCALL ...>
+      // Check for <IMETHODCALL ...>
 
       if (XmlReader::getIMethodCallStartTag(parser, cimMethodName))
       {
@@ -552,117 +534,103 @@ void CIMOperationRequestDecoder::handleMethodCall(
             return;
          }
 
-	 // Delegate to appropriate method to handle:
+         // This try block only catches CIMExceptions, because they must be
+         // responded to with a proper IMETHODRESPONSE.  Other exceptions are
+         // caught in the outer try block.
+         try
+         {
+	    // Delegate to appropriate method to handle:
 
-	 //
-	 // if CIMOM is shutting down, return error response
-	 //
-	 // ATTN:  Need to define a new CIM Error.
-	 //
-	 if (_serverTerminating)
-	 {
-	    String description = "CIMServer is shutting down.  ";
-	    description.append("Request cannot be processed: ");
-	    description += cimMethodName;
-
-	    sendIMethodError(
-	       queueId,
-	       messageId,
-	       cimMethodName,
-	       CIM_ERR_FAILED,
-	       description);
-
-            PEG_METHOD_EXIT();
-	    return;
-	 }
-
-	 if (CompareNoCase(cimMethodName, "GetClass") == 0)
-	    request = decodeGetClassRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "GetInstance") == 0)
-	    request = decodeGetInstanceRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
-	    request = decodeEnumerateClassNamesRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "References") == 0)
-	    request = decodeReferencesRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "ReferenceNames") == 0)
-	    request = decodeReferenceNamesRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "AssociatorNames") == 0)
-	    request = decodeAssociatorNamesRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "Associators") == 0)
-	    request = decodeAssociatorsRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "CreateInstance") == 0)
-	    request = decodeCreateInstanceRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "EnumerateInstanceNames") == 0)
-	    request = decodeEnumerateInstanceNamesRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "DeleteQualifier") == 0)
-	    request = decodeDeleteQualifierRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "GetQualifier") == 0)
-	    request = decodeGetQualifierRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "SetQualifier") == 0)
-	    request = decodeSetQualifierRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "EnumerateQualifiers") == 0)
-	    request = decodeEnumerateQualifiersRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
-	    request = decodeEnumerateClassesRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
-	    request = decodeEnumerateClassNamesRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
-	    request = decodeEnumerateInstancesRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "CreateClass") == 0)
-	    request = decodeCreateClassRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "ModifyClass") == 0)
-	    request = decodeModifyClassRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "ModifyInstance") == 0)
-	    request = decodeModifyInstanceRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "DeleteClass") == 0)
-	    request = decodeDeleteClassRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "DeleteInstance") == 0)
-	    request = decodeDeleteInstanceRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "GetProperty") == 0)
-	    request = decodeGetPropertyRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
-	    request = decodeSetPropertyRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else if (CompareNoCase(cimMethodName, "ExecQuery") == 0)
-	    request = decodeExecQueryRequest(
-	       queueId, parser, messageId, nameSpace, authType, userName);
-	 else
-	 {
-	    String description = "Unknown intrinsic method: ";
-	    description += cimMethodName;
-
-	    sendIMethodError(
-	       queueId, 
-	       messageId,
-	       cimMethodName,
-	       CIM_ERR_FAILED,
-	       description);
+            if (CompareNoCase(cimMethodName, "GetClass") == 0)
+               request = decodeGetClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "GetInstance") == 0)
+               request = decodeGetInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
+               request = decodeEnumerateClassNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "References") == 0)
+               request = decodeReferencesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "ReferenceNames") == 0)
+               request = decodeReferenceNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "AssociatorNames") == 0)
+               request = decodeAssociatorNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "Associators") == 0)
+               request = decodeAssociatorsRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "CreateInstance") == 0)
+               request = decodeCreateInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "EnumerateInstanceNames")==0)
+               request = decodeEnumerateInstanceNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "DeleteQualifier") == 0)
+               request = decodeDeleteQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "GetQualifier") == 0)
+               request = decodeGetQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "SetQualifier") == 0)
+               request = decodeSetQualifierRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "EnumerateQualifiers") == 0)
+               request = decodeEnumerateQualifiersRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
+               request = decodeEnumerateClassesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
+               request = decodeEnumerateClassNamesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
+               request = decodeEnumerateInstancesRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "CreateClass") == 0)
+               request = decodeCreateClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "ModifyClass") == 0)
+               request = decodeModifyClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "ModifyInstance") == 0)
+               request = decodeModifyInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "DeleteClass") == 0)
+               request = decodeDeleteClassRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "DeleteInstance") == 0)
+               request = decodeDeleteInstanceRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "GetProperty") == 0)
+               request = decodeGetPropertyRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
+               request = decodeSetPropertyRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else if (CompareNoCase(cimMethodName, "ExecQuery") == 0)
+               request = decodeExecQueryRequest(
+                  queueId, parser, messageId, nameSpace, authType, userName);
+            else
+            {
+               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                  String("Unrecognized intrinsic method: ") + cimMethodName);
+            }
+         }
+         catch (CIMException& e)
+         {
+            sendIMethodError(
+               queueId, 
+               messageId,
+               cimMethodName,
+               e.getCode(),
+               e.getMessage());
 
             PEG_METHOD_EXIT();
-	    return;
-	 }
+            return;
+         }
 
 	 // Expect </IMETHODCALL>
 
@@ -797,42 +765,38 @@ void CIMOperationRequestDecoder::handleMethodCall(
             return;
          }
 
-	 //
-	 // if CIMOM is shutting down, return error response
-	 //
-	 // ATTN:  Need to define a new CIM Error.
-	 //
-	 if (_serverTerminating)
-	 {
-	    String description = "CIMServer is shutting down.  ";
-	    description.append("Request cannot be processed: ");
-	    description += cimMethodName;
+         // This try block only catches CIMExceptions, because they must be
+         // responded to with a proper METHODRESPONSE.  Other exceptions are
+         // caught in the outer try block.
+         try
+         {
+	    // Delegate to appropriate method to handle:
 
-	    sendMethodError(
-	       queueId,
-	       messageId,
-	       cimMethodName,
-	       CIM_ERR_FAILED,
-	       description);
+            request = decodeInvokeMethodRequest(
+               queueId, 
+               parser, 
+               messageId, 
+               reference, 
+               cimMethodName,
+               authType,
+               userName);
+         }
+         catch (CIMException& e)
+         {
+            sendMethodError(
+               queueId, 
+               messageId,
+               cimMethodName,
+               e.getCode(),
+               e.getMessage());
 
             PEG_METHOD_EXIT();
-	    return;
-	 }
+            return;
+         }
 
-	 // Delegate to appropriate method to handle:
+         // Expect </METHODCALL>
 
-	 request = decodeInvokeMethodRequest(
-	    queueId, 
-	    parser, 
-	    messageId, 
-	    reference, 
-	    cimMethodName,
-	    authType,
-	    userName);
-
-	 // Expect </METHODCALL>
-
-	 XmlReader::expectEndTag(parser, "METHODCALL");
+         XmlReader::expectEndTag(parser, "METHODCALL");
       }
       else
       {
@@ -852,29 +816,44 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       XmlReader::expectEndTag(parser, "CIM");
    }
-   catch (CIMException& e)
+   catch (XmlValidationError& e)
    {
-      // ATTN-RK-P3-20020305: Should these be Method or IMethod errors?
-      sendIMethodError(
-	 queueId, 
-	 messageId,
-	 cimMethodName,
-	 e.getCode(),
-	 e.getMessage());
-
+      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+                    e.getMessage());
+      PEG_METHOD_EXIT();
+      return;
+   }
+   catch (XmlSemanticError& e)
+   {
+      // ATTN-RK-P2-20020404: Is this the correct response for these errors?
+      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
+                    e.getMessage());
+      PEG_METHOD_EXIT();
+      return;
+   }
+   catch (XmlException& e)
+   {
+      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-well-formed",
+                    e.getMessage());
       PEG_METHOD_EXIT();
       return;
    }
    catch (Exception& e)
    {
-      // ATTN-RK-P3-20020305: Should these be Method or IMethod errors?
-      sendIMethodError(
-	 queueId, 
-	 messageId,
-	 cimMethodName,
-	 CIM_ERR_FAILED,
-	 e.getMessage());
-
+      // Don't know why I got this exception.  Seems like a bad thing.
+      // Any exceptions we're expecting should be caught separately and
+      // dealt with appropriately.  This is a last resort.
+      sendHttpError(queueId, HTTP_STATUS_INTERNALSERVERERROR, String::EMPTY,
+                    e.getMessage());
+      PEG_METHOD_EXIT();
+      return;
+   }
+   catch (...)
+   {
+      // Don't know why I got whatever this is.  Seems like a bad thing.
+      // Any exceptions we're expecting should be caught separately and
+      // dealt with appropriately.  This is a last resort.
+      sendHttpError(queueId, HTTP_STATUS_INTERNALSERVERERROR);
       PEG_METHOD_EXIT();
       return;
    }

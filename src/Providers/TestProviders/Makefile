@@ -7,17 +7,19 @@ include $(ROOT)/mak/config.mak
 
 #Directories to recurse
 DIRS = \
-	PG_TestPropertyTypes \
-	DefaultInstanceProvider \
-	ClientProvider \
 	AlertIndicationProvider \
-	ProcessIndicationProvider \
-	MCCA_TestAssocProvider \
+	ClientProvider \
+	DefaultInstanceProvider \
+	DynamicIndicationProvider \
+	IndicationStressTestProvider \
+	IndicationStressTestProvider/testclient \
 	InstanceProvider \
 	InstanceProvider/testclient \
+	MCCA_TestAssocProvider \
+	PG_TestPropertyTypes \
+	ProcessIndicationProvider \
 	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	DynamicIndicationProvider
+	UserContextTestProvider/testclient
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \

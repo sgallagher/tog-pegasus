@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Client.cpp,v $
-// Revision 1.1  2001/01/14 19:50:30  mike
-// Initial revision
+// Revision 1.2  2001/01/29 02:19:57  mike
+// added getInstance stub
+//
+// Revision 1.1.1.1  2001/01/14 19:50:30  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -51,6 +54,18 @@ struct GetClassResult
 {
     CimException::Code code;
     ClassDecl classDecl;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// GetInstanceResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct GetInstanceResult
+{
+    CimException::Code code;
+    InstanceDecl instanceDecl;
 };
 
 //STUB{
@@ -188,6 +203,8 @@ public:
 
     int handleGetClassResponse(XmlParser& parser, Uint32 messageId);
 
+    int handleGetInstanceResponse(XmlParser& parser, Uint32 messageId);
+
     //STUB{
     int handleEnumerateClassNamesResponse(XmlParser& parser, Uint32 messageId);
     //STUB}
@@ -216,6 +233,7 @@ public:
     union
     {
 	GetClassResult* _getClassResult;
+	GetInstanceResult* _getInstanceResult;
 	//STUB{
 	EnumerateClassNamesResult* _enumerateClassNamesResult;
 	//STUB}
@@ -362,6 +380,8 @@ int ClientHandler::handleMethodResponse()
 
     if (strcmp(iMethodResponseName, "GetClass") == 0)
 	handleGetClassResponse(parser, messageId);
+    else if (strcmp(iMethodResponseName, "GetInstance") == 0)
+	handleGetInstanceResponse(parser, messageId);
     //STUB{
     else if (strcmp(iMethodResponseName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNamesResponse(parser, messageId);
@@ -430,6 +450,56 @@ int ClientHandler::handleGetClassResponse(XmlParser& parser, Uint32 messageId)
 	_getClassResult = new GetClassResult;
 	_getClassResult->code = CimException::SUCCESS;
 	_getClassResult->classDecl = classDecl;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+//
+// ClientHandler::handleGetInstanceResponse()
+//
+//     Expect (ERROR|IRETURNVALUE).
+//
+//------------------------------------------------------------------------------
+
+int ClientHandler::handleGetInstanceResponse(
+    XmlParser& parser, 
+    Uint32 messageId) 
+{
+    XmlEntry entry;
+    CimException::Code code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_getInstanceResult = new GetInstanceResult;
+	_getInstanceResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	InstanceDecl instanceDecl;
+
+	if (!XmlReader::getInstanceElement(parser, instanceDecl))
+	{
+	    throw XmlValidationError(
+		parser.getLine(), "expected INSTANCE element");
+	}
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_getInstanceResult = new GetInstanceResult;
+	_getInstanceResult->code = CimException::SUCCESS;
+	_getInstanceResult->instanceDecl = instanceDecl;
 	_blocked = false;
 	return 0;
     }
@@ -1056,10 +1126,49 @@ InstanceDecl Client::getInstance(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CimException(CimException::NOT_SUPPORTED);
-    return InstanceDecl();
-}
+    // ATTN: the property list not passed here. Handle this later.
+    // same story for getClass().
 
+    Uint32 messageId = XmlWriter::getNextMessageId();
+
+    Array<Sint8> parameters;
+
+    XmlWriter::appendInstanceNameParameter(
+	parameters, "InstanceName", instanceName);
+	
+    if (localOnly != true)
+	XmlWriter::appendBooleanParameter(
+	    parameters, "LocalOnly", false);
+
+    if (includeQualifiers != false)
+	XmlWriter::appendBooleanParameter(
+	    parameters, "IncludeQualifiers", true);
+
+    if (includeClassOrigin != false)
+	XmlWriter::appendBooleanParameter(
+	    parameters, "IncludeClassOrigin", true);
+
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
+	((ClientHandler*)_handler)->getHostName(),
+	nameSpace, "GetInstance", parameters);
+
+    ClientHandler* handler = (ClientHandler*)_handler;
+    handler->sendMessage(message);
+
+    if (!handler->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    GetInstanceResult* result = handler->_getInstanceResult;
+    InstanceDecl instanceDecl = result->instanceDecl;
+    CimException::Code code = result->code;
+    delete result;
+    handler->_getInstanceResult = 0;
+
+    if (code != CimException::SUCCESS)
+	throw CimException(code);
+
+    return instanceDecl;
+}
 
 void Client::deleteClass(
     const String& nameSpace,

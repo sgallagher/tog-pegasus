@@ -75,12 +75,16 @@ public:
     <p>This exception will cause a <tt>CIM_ERR_FAILED</tt>
     status code to be returned to the client.</p>
     */
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     CIMOperationFailedException(const MessageLoaderParms & parms);    
+#endif
 
 protected:
     CIMOperationFailedException(const CIMStatusCode code, const String & message);
     
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     CIMOperationFailedException(const CIMStatusCode code, const MessageLoaderParms & parms);    
+#endif
 };
 
 /**
@@ -94,7 +98,9 @@ public:
     ///
     CIMAccessDeniedException(const String & message);
     
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     CIMAccessDeniedException(const MessageLoaderParms & parms);    
+#endif
 };
 
 /**
@@ -108,7 +114,9 @@ public:
     ///
     CIMInvalidParameterException(const String & message);
     
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     CIMInvalidParameterException(const MessageLoaderParms & parms);    
+#endif
 };
 
 #if 0
@@ -122,7 +130,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMInvalidClassException
 public:
     CIMInvalidClassException(const String & message);
     
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     CIMInvalidClassException(const MessageLoaderParms & parms);    
+#endif
 };
 #endif
 
@@ -137,7 +147,9 @@ public:
     ///
     CIMObjectNotFoundException(const String & message);
     
-    CIMObjectNotFoundException(const MessageLoaderParms & parms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    CIMObjectNotFoundException(const MessageLoaderParms & parms); 
+#endif   
 };
 
 /**
@@ -151,7 +163,9 @@ public:
     ///
     CIMNotSupportedException(const String & message);
     
-    CIMNotSupportedException(const MessageLoaderParms & parms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    CIMNotSupportedException(const MessageLoaderParms & parms);   
+#endif 
 };
 
 /**
@@ -165,7 +179,9 @@ public:
     ///
     CIMObjectAlreadyExistsException(const String & message);
     
-    CIMObjectAlreadyExistsException(const MessageLoaderParms & parms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    CIMObjectAlreadyExistsException(const MessageLoaderParms & parms);  
+#endif  
 };
 
 /**
@@ -179,7 +195,9 @@ public:
     ///
     CIMPropertyNotFoundException(const String & message);
     
-    CIMPropertyNotFoundException(const MessageLoaderParms & parms);    
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    CIMPropertyNotFoundException(const MessageLoaderParms & parms); 
+#endif   
 };
 
 #if 0
@@ -194,7 +212,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMInvalidQueryException
 public:
     CIMInvalidQueryException(const String & message);
     
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     CIMInvalidQueryException(const MessageLoaderParms & parms);    
+#endif
 };
 #endif
 
@@ -209,7 +229,9 @@ public:
     ///
     CIMMethodNotFoundException(const String & message);
     
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     CIMMethodNotFoundException(const MessageLoaderParms & parms);    
+#endif
 };
 
 PEGASUS_NAMESPACE_END

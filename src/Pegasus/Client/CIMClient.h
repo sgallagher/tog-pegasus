@@ -222,6 +222,7 @@ public:
     */
     void disconnect();
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 // l10n start
     /** Sets the accept languages that will be used on the next request.
      * Accept languages are the preferred languages that are to be
@@ -257,7 +258,8 @@ public:
 	 * 
 	 */
 	void setRequestDefaultLanguages();
-// l10n end	
+// l10n end
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES	
 
 
     /** The <TT>getClass</TT> method executes a CIM operation that returns

@@ -137,6 +137,12 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
            */
         const CIMObjectPath& inClassName = CIMObjectPath());
 
+    CIMPropertyList getSelectPropertyList(
+        const CIMObjectPath& inClassName = CIMObjectPath());
+
+    CIMPropertyList getWherePropertyList(
+        const CIMObjectPath& inClassName = CIMObjectPath());
+
     /** Modifier. This method should not be called by the user (only by the
             parser).
          Appends a CQLIdentifier to an array of CIMObjectPaths from the FROM

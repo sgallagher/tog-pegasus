@@ -721,6 +721,23 @@ Array<CIMObjectPath> CQLSelectStatementRep::getClassPathList()
 
 CIMPropertyList CQLSelectStatementRep::getPropertyList(const CIMObjectPath& inClassName)
 {
+  return getPropertyListInternal(inClassName, true, true);
+}
+
+CIMPropertyList CQLSelectStatementRep::getSelectPropertyList(const CIMObjectPath& inClassName)
+{
+  return getPropertyListInternal(inClassName, true, false);
+}
+
+CIMPropertyList CQLSelectStatementRep::getWherePropertyList(const CIMObjectPath& inClassName)
+{
+  return getPropertyListInternal(inClassName, false, true);
+}
+
+CIMPropertyList CQLSelectStatementRep::getPropertyListInternal(const CIMObjectPath& inClassName,
+                                                               Boolean includeSelect,
+                                                               Boolean includeWhere)
+{
   if (!_contextApplied)
     applyContext();
 
@@ -740,36 +757,42 @@ CIMPropertyList CQLSelectStatementRep::getPropertyList(const CIMObjectPath& inCl
   Array<CIMName> unmatchedScopes;
 
   // Add required properties from the select list.
-  for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
+  if (includeSelect)
   {
-    isWildcard = addRequiredProperty(reqProps, 
-                                     className,
-                                     _selectIdentifiers[i],
-                                     matchedScopes,
-                                     unmatchedScopes);
-    
-    if (isWildcard)
+    for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
     {
-      // If any wildcard is found then all properties are required.
-      // Return null property list to indicate all properties required.
-      return CIMPropertyList();
+      isWildcard = addRequiredProperty(reqProps, 
+                                       className,
+                                       _selectIdentifiers[i],
+                                       matchedScopes,
+                                       unmatchedScopes);
+    
+      if (isWildcard)
+      {
+        // If any wildcard is found then all properties are required.
+        // Return null property list to indicate all properties required.
+        return CIMPropertyList();
+      }
     }
   }
 
   // Add required properties from the WHERE clause.
-  Array<CQLChainedIdentifier> _whereIdentifiers = _ctx->getWhereList();
-  for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
+  if (includeWhere)
   {
-    isWildcard = addRequiredProperty(reqProps,
-                                     className,
-                                     _whereIdentifiers[i],
-                                     matchedScopes,
-                                     unmatchedScopes);                                     
+    Array<CQLChainedIdentifier> _whereIdentifiers = _ctx->getWhereList();
+    for (Uint32 i = 0; i < _whereIdentifiers.size(); i++)
+    {
+      isWildcard = addRequiredProperty(reqProps,
+                                       className,
+                                       _whereIdentifiers[i],
+                                       matchedScopes,
+                                       unmatchedScopes);                                     
 
-    // Wildcards are not allowed in the WHERE clause
-    PEGASUS_ASSERT(!isWildcard);
+      // Wildcards are not allowed in the WHERE clause
+      PEGASUS_ASSERT(!isWildcard);
+    }
   }
-
+    
   // Check if every property on the class is required.
   CIMClass theClass = _ctx->getClass(className);
   Uint32 propCnt = theClass.getPropertyCount();

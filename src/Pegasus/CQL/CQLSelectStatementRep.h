@@ -140,6 +140,18 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     // on QueryExpression::getPropertyList
     CIMPropertyList getPropertyList(const CIMObjectPath& inClassName);
 
+    // ATTN  -- doc note: mention that this function ASSUMES that
+    // the classname passed in is the FROM class, or a subclass
+    // of the FROM class.  Remember to put this documentation
+    // on QueryExpression::getPropertyList
+    CIMPropertyList getSelectPropertyList(const CIMObjectPath& inClassName);
+
+    // ATTN  -- doc note: mention that this function ASSUMES that
+    // the classname passed in is the FROM class, or a subclass
+    // of the FROM class.  Remember to put this documentation
+    // on QueryExpression::getPropertyList
+    CIMPropertyList getWherePropertyList(const CIMObjectPath& inClassName);
+
     /** Modifier. This method should not be called by the user (only by the
             parser).
          Appends a CQLIdentifier to an array of CIMObjectPaths from the FROM
@@ -241,6 +253,10 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     void validateProperty(CQLChainedIdentifier& chainId);
 
     CIMName lookupFromClass(const String&  lookup);
+
+    CIMPropertyList getPropertyListInternal(const CIMObjectPath& inClassName,
+                                            Boolean includeSelect,
+                                            Boolean includeWhere);
 
     Boolean addRequiredProperty(Array<CIMName>& reqProps,
 				CIMName& className,

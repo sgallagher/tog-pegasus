@@ -216,7 +216,6 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements,
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
         catch(...){ cout << "Unknown Exception" << endl;}
 
-        /* ATTN - uncomment when API is available
         try
         {     
           cout << "SELECT Property List for " << className.getString() << endl;
@@ -236,7 +235,6 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements,
         }
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
         catch(...){ cout << "Unknown Exception" << endl;}
-        */
 
         try
         {
@@ -248,7 +246,6 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements,
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
         catch(...){ cout << "Unknown Exception" << endl;}
 
-        /* ATTN - uncomment when API is available
         try
         {
           cout << "SELECT Property List for the FROM class " << endl;
@@ -268,7 +265,6 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements,
         }
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
         catch(...){ cout << "Unknown Exception" << endl;}
-        */
       }
     }                         
   }

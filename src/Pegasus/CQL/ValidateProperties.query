@@ -1,5 +1,4 @@
 # Validate Properties testcases
-# TODO - WHERE testcases will not work yet
 # TODO - add embedded object tests
 #
 # First chain element is a property not on the FROM class

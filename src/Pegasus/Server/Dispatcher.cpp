@@ -113,7 +113,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Dispatcher::enqueueResponse(
+void Dispatcher::_enqueueResponse(
     CIMRequestMessage* request,
     CIMResponseMessage* response)
 {
@@ -289,7 +289,7 @@ void Dispatcher::handleGetClassRequest(
 	errorDescription,
 	cimClass);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -344,7 +344,7 @@ void Dispatcher::handleGetInstanceRequest(
 	errorDescription,
 	cimInstance);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -390,7 +390,7 @@ void Dispatcher::handleDeleteClassRequest(
 	    errorCode,
 	    errorDescription);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -436,7 +436,7 @@ void Dispatcher::handleDeleteInstanceRequest(
 	    errorCode,
 	    errorDescription);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -470,7 +470,7 @@ void Dispatcher::handleCreateClassRequest(
 	    errorCode,
 	    errorDescription);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -516,7 +516,7 @@ void Dispatcher::handleCreateInstanceRequest(
 	    errorCode,
 	    errorDescription);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -550,7 +550,7 @@ void Dispatcher::handleModifyClassRequest(
 	    errorCode,
 	    errorDescription);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -584,7 +584,7 @@ void Dispatcher::handleModifyInstanceRequest(
 	    errorCode,
 	    errorDescription);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -624,7 +624,7 @@ void Dispatcher::handleEnumerateClassesRequest(
 	    errorDescription,
 	    cimClasses);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -661,7 +661,7 @@ void Dispatcher::handleEnumerateClassNamesRequest(
 	    errorDescription,
 	    classNames);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -719,7 +719,7 @@ void Dispatcher::handleEnumerateInstancesRequest(
 	    errorDescription,
 	    cimInstances);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -768,7 +768,7 @@ void Dispatcher::handleEnumerateInstanceNamesRequest(
 	    errorDescription,
 	    instanceNames);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -811,7 +811,7 @@ void Dispatcher::handleAssociatorsRequest(
 	    errorDescription,
 	    cimObjects);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -851,7 +851,7 @@ void Dispatcher::handleAssociatorNamesRequest(
 	    errorDescription,
 	    objectNames);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -892,7 +892,7 @@ void Dispatcher::handleReferencesRequest(
 	    errorDescription,
 	    cimObjects);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -930,7 +930,7 @@ void Dispatcher::handleReferenceNamesRequest(
 	    errorDescription,
 	    objectNames);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -966,7 +966,7 @@ void Dispatcher::handleGetQualifierRequest(
 	    errorDescription,
 	    cimQualifierDecl);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -1000,7 +1000,7 @@ void Dispatcher::handleSetQualifierRequest(
 	    errorCode,
 	    errorDescription);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -1034,7 +1034,7 @@ void Dispatcher::handleDeleteQualifierRequest(
 	    errorCode,
 	    errorDescription);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }
@@ -1069,7 +1069,7 @@ void Dispatcher::handleEnumerateQualifiersRequest(
 	    errorDescription,
 	    qualifierDeclarations);
 
-    enqueueResponse(request, response);
+    _enqueueResponse(request, response);
 
     delete request;
 }

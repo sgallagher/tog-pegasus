@@ -48,27 +48,31 @@ public:
 
     virtual ~Dispatcher();
 
-    void enqueueResponse(
-	CIMRequestMessage* request,
-	CIMResponseMessage* response);
-
     virtual void handleEnqueue();
 
-    void handleGetClassRequest(CIMGetClassRequestMessage* request);
+    void handleGetClassRequest(
+	CIMGetClassRequestMessage* request);
 
-    void handleGetInstanceRequest(CIMGetInstanceRequestMessage* request);
+    void handleGetInstanceRequest(
+	CIMGetInstanceRequestMessage* request);
 
-    void handleDeleteClassRequest(CIMDeleteClassRequestMessage* request);
+    void handleDeleteClassRequest(
+	CIMDeleteClassRequestMessage* request);
 
-    void handleDeleteInstanceRequest(CIMDeleteInstanceRequestMessage* request);
+    void handleDeleteInstanceRequest(
+	CIMDeleteInstanceRequestMessage* request);
 
-    void handleCreateClassRequest(CIMCreateClassRequestMessage* request);
+    void handleCreateClassRequest(
+	CIMCreateClassRequestMessage* request);
 
-    void handleCreateInstanceRequest(CIMCreateInstanceRequestMessage* request);
+    void handleCreateInstanceRequest(
+	CIMCreateInstanceRequestMessage* request);
 
-    void handleModifyClassRequest(CIMModifyClassRequestMessage* request);
+    void handleModifyClassRequest(
+	CIMModifyClassRequestMessage* request);
 
-    void handleModifyInstanceRequest(CIMModifyInstanceRequestMessage* request);
+    void handleModifyInstanceRequest(
+	CIMModifyInstanceRequestMessage* request);
 
     void handleEnumerateClassesRequest(
 	CIMEnumerateClassesRequestMessage* request);
@@ -107,6 +111,10 @@ public:
 	CIMEnumerateQualifiersRequestMessage* request);
 
 protected:
+
+    void _enqueueResponse(
+	CIMRequestMessage* request,
+	CIMResponseMessage* response);
 
     CIMProvider* _lookupProviderForClass(
 	const String& nameSpace,

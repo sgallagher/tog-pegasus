@@ -756,6 +756,7 @@ void ClientConnection::handleGetPropertyRequest(
     const String& nameSpace)
 {
     // ATTN: implement this!
+    PEGASUS_ASSERT(0);
 }
 
 void ClientConnection::handleSetPropertyRequest(
@@ -764,9 +765,8 @@ void ClientConnection::handleSetPropertyRequest(
     const String& nameSpace)
 {
     // ATTN: implement this!
+    PEGASUS_ASSERT(0);
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 void ClientConnection::handleGetClassRequest(
     XmlParser& parser, 

@@ -161,7 +161,7 @@ static CIMProperty _processProperty(
             {
                 // update qualifier
 
-                // TODO: normalize qualifier fisrt to check type, etc.?
+                // TODO: normalize qualifier first to check type, etc.?
 
                 normalizedProperty.getQualifier(pos).setValue(cimQualifier.getValue());
             }
@@ -332,7 +332,7 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
 
             CIMKeyBinding::Type type;
 
-            switch(_cimClass.getProperty(_cimClass.findProperty(name)).getType())
+            switch(cimProperty.getType())
             {
             case CIMTYPE_BOOLEAN:
                 type = CIMKeyBinding::BOOLEAN;

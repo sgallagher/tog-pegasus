@@ -159,6 +159,10 @@ public:
 	const char* valueString, 
 	CIMType type);
 
+    /* getValueElement - Gets the CIMType and CIMValue for a single
+        XML Value element.  It expects <VALUE> as the start tag.
+        @return Returns True if the value element exists 
+    */
     static Boolean getValueElement(
 	XmlParser& parser, 
 	CIMType type, 

@@ -108,7 +108,7 @@ getSigHandle()->activate(SIGTERM);
   return(0);
 }
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
 
 //===========================================================================
 //  NAME          : verify_process_name
@@ -193,11 +193,14 @@ int get_proc(int pid)
     return -1;
   }
 
-  // get the process name to make sure it is the cimserver process
+ // get the process name to make sure it is the cimserver process
+// ATTN: skip verify for Solaris
+#if !defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
   if ((verify_process_name(path)) == -1)
   {
     return -1;
   }
+#endif
 
   //
   // Check to see if this command process has the same pid as the cimserver
@@ -381,7 +384,7 @@ Boolean isCIMServerRunning(void)
       }
   }
 #endif
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
   if (get_proc(pid) != -1 )
   {
       // cimserver is running
@@ -436,7 +439,7 @@ int cimserver_kill(void)
       kill(pid, SIGKILL);
   }
 #endif
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
   if (get_proc(pid) != -1 )
   {
       kill(pid, SIGKILL);
@@ -478,3 +481,8 @@ int platform_run( int argc, char** argv, Boolean shutdownOption )
 void cimserver_set( CIMServer* s )
 {
 }
+
+
+
+
+

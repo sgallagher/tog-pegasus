@@ -510,7 +510,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	    cimserver_exitRC(1);
 #endif
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
 	    if (kill_rc != -1)
             {
                 //l10n - TODO
@@ -1022,7 +1022,7 @@ MessageLoader::_useProcessLocale = false;
 #endif
 
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
     umask(S_IWGRP|S_IWOTH);
 
     //
@@ -1136,7 +1136,7 @@ MessageLoader::_useProcessLocale = false;
 
 	time_t last = 0;
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
         //
         // create a file to indicate that the cimserver has started and
         // save the process id of the cimserver process in the file
@@ -1213,7 +1213,7 @@ MessageLoader::_useProcessLocale = false;
             "$0 stopped.", PEGASUS_NAME);
 #endif
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
         //
         // close the file created at startup time to indicate that the 
         // cimserver has terminated normally.
@@ -1251,3 +1251,7 @@ MessageLoader::_useProcessLocale = false;
 
     return 0;
 }
+
+
+
+

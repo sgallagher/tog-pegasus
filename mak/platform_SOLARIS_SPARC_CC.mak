@@ -14,6 +14,8 @@ DEFINES += -DPEGASUS_OS_SOLARIS
 
 DEFINES += -DPEGASUS_SNIA_INTEROP_TEST
 
+DEFINES += -DPEGASUS_HAS_SIGNALS
+
 # "READBUG" forces fstream.read to read 1 char at a time to
 # overcome a bug in Wshop 6.2
 # There are patches for this now.
@@ -56,4 +58,5 @@ MOVE = mv
 LIB_SUFFIX = .so
 
 PEGASUS_SUPPORTS_DYNLIB = yes
+
 

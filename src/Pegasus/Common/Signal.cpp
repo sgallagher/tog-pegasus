@@ -32,7 +32,7 @@
 #include <cstdio>
 #include <cstring>
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-#include <stdio.h>
+#include <iostream.h>
 #endif
 
 #include <Pegasus/Common/Config.h>
@@ -180,4 +180,5 @@ SignalHandler * getSigHandle() { return _globalSignalHandlerPtr; }
 
 
 PEGASUS_NAMESPACE_END
+
 

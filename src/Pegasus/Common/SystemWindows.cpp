@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: SystemWindows.cpp,v $
+// Revision 1.4  2001/04/12 21:59:39  mike
+// *** empty log message ***
+//
 // Revision 1.3  2001/04/12 07:25:20  mike
 // Replaced ACE with new Channel implementation.
 // Removed all ACE dependencies.
@@ -140,7 +143,8 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     DynamicLibraryHandle libraryHandle,
     const char* symbolName)
 {
-    return DynamicSymbolHandle(GetProcAddress(libraryHandle, symbolName));
+    return DynamicSymbolHandle(GetProcAddress(
+	(HINSTANCE)libraryHandle, symbolName));
 }
 
 PEGASUS_NAMESPACE_END

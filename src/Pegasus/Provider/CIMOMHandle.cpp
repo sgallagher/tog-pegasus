@@ -51,9 +51,14 @@ CIMOMHandle::CIMOMHandle(MessageQueueService * service)
         MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
 
     _cimom = dynamic_cast<MessageQueueService *>(queue);
-    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
 
-    if((_service == 0) || (_cimom == 0) || (_client_handle == 0))
+    if((_service == 0) || (_cimom == 0))
+    {
+        ThrowUninitializedHandle();
+    }
+
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+    if(_client_handle == 0)
     {
         ThrowUninitializedHandle();
     }
@@ -78,6 +83,7 @@ CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
     _cimom = handle._cimom;
     _controller = handle._controller;
     _client_handle = handle._client_handle;
+    _client_handle->reference_count++;  // ATTN-RK-P2-20020712: This is a hack
 
     return(*this);
 }

@@ -115,9 +115,7 @@ inline Boolean operator==(const Predicate& x, const Predicate& y)
 
 inline Boolean operator==(const Predicate& p, const KeyBinding& k)
 {
-   ;
-      LogicalOperator _logical_op;
-      DQueue<PredicateTree>    return
+   return
       CIMName::equal(p.getName(), k.getName());
 }
 
@@ -195,11 +193,54 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       void setPredicates(const Array<Predicate>& predicates);
 
 // inline these guys. 
-      void setCheckInterval(const struct timeval *tv);
-      void getCheckInterval(struct timeval *buffer) const ;
+      void setCheckInterval(const struct timeval *tv)
+      {
+	 if(tv == NULL)
+	 {
+	    _check_interval.tv_sec = _check_interval.tv_usec = 0;
+	 }
+	 else
+	 {
+	    
+	    _check_interval.tv_sec = tv->tv_sec;
+	    _check_interval.tv_usec = tv->tv_usec;
+	 }
+      }
       
-      void setPersistInterval(const struct timeval *tv);
-      void getPersistInterval(struct timeval *buffer) const ;
+      void getCheckInterval(struct timeval *buffer) const 
+      {
+	 if(buffer != NULL)
+	 {
+	    buffer->tv_sec = _check_interval.tv_sec;
+	    buffer->tv_usec = _check_interval.tv_usec;
+	 }
+      }
+      
+
+      
+      void setPersistInterval(const struct timeval *tv)
+      {
+	 if(tv == NULL)
+	 {
+	    _persist_interval.tv_sec = _persist_interval.tv_usec = 0;
+	 }
+	 else
+	 {
+	    
+	    _persist_interval.tv_sec = tv->tv_sec;
+	    _persist_interval.tv_usec = tv->tv_usec;
+	 }
+      }
+      
+      void getPersistInterval(struct timeval *buffer) const 
+      {
+	 
+	 if(buffer != NULL)
+	 {
+	    buffer->tv_sec = _persist_interval.tv_sec;
+	    buffer->tv_usec = _persist_interval.tv_usec;
+	 }
+      }
 
       Boolean identical(const CIMReference& x) const;
       Boolean identical(const PredicateReference& x) const;
@@ -215,6 +256,8 @@ class PEGASUS_COMMON_LINKAGE PredicateReference : public CIMReference
       struct timeval _check_interval;
       struct timeval _persist_interval;
       Boolean _truth_value;
+      // for histeresis in indication evaluations
+      Boolean _recent_truth_value;
       LogicalOperator _logical_op;
       Array<Predicate> _predicates;
 };
@@ -241,6 +284,7 @@ class PEGASUS_COMMON_LINKAGE PredicateTree
       PredicateTree();
       ~PredicateTree(); 
       PredicateTree(const PredicateReference &pred);
+      PredicateTree(PredicateReference *pred);
       Boolean evaluate(void) throw(IPCException);
       void lock(void) throw(IPCException) { _mut.lock(pegasus_thread_self()); }
       void unlock(void) throw(IPCException) { _mut.unlock(); }
@@ -261,7 +305,7 @@ class PEGASUS_COMMON_LINKAGE PredicateTree
       }
    private:
       PredicateTree(const PredicateTree& x);
-      PredicateTree& operator=(const Predicate& x);
+      PredicateTree& operator=(const PredicateTree& x);
       Mutex _mut;
       Boolean _truth_value;
       LogicalOperator _logical_op;

@@ -419,24 +419,30 @@ Boolean PredicateReference::evaluate(void)
 
 PredicateTree::PredicateTree(void)
    : _mut(), _truth_value(true), _logical_op(AND),
-     _peers(true), _children(true), _pred(NULL) { }
+      _children(true), _pred(NULL) { }
 
 PredicateTree::~PredicateTree(void)
 {
    _children.empty_list();
-   _peers.empty_list();
    
    delete _pred;
 }
 
 PredicateTree::PredicateTree(const PredicateReference& pred)
    : _mut(), _truth_value(true), _logical_op(AND),
-     _peers(true), _children(true)
+     _children(true)
 {
    _pred = new PredicateReference(pred);
 }
 
-Boolean PredicateTree::evaluate(void)
+PredicateTree::PredicateTree(PredicateReference* pred)
+   : _mut(), _truth_value(true), _logical_op(AND),
+     _children(true)
+{
+   _pred = pred;
+}
+
+Boolean PredicateTree::evaluate(void) throw(IPCException)
 {
    if(_pred != NULL)
    {
@@ -481,17 +487,9 @@ Boolean PredicateTree::evaluate(void)
    if(_children.count())
    {
       PredicateTree *children = NULL;
-
-// rw lock may be more appropriate
-// try ... catch 
-      try 
-      {
-	 _children.lock();
-      }
-      catch ( IPCException& e)
-      {
-	 throw;
-      }
+      // rw lock may be more appropriate
+      // this call will throw an IPC exception
+      _children.lock();
       
       while( NULL != ( children = _children.next(children)))
       {
@@ -519,7 +517,7 @@ Boolean PredicateTree::evaluate(void)
 	    case NOT:
 	       if(truth == true)
 	       {
-		  _truth_value = false
+		  _truth_value = false;
 		  _children.unlock();
 		  return _truth_value;
 	       }

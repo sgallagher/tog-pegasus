@@ -323,7 +323,7 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         // another temporary solution for converting a generic file name into
         // a file name useable by each platform.
 
-#if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
+#if defined(PEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER)
         if (interfaceType == "C++Default")
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(

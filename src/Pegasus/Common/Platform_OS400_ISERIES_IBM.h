@@ -29,6 +29,7 @@
 //                (carolann_graves@hp.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//				Seema Gupta (gseema@in.ibm.com) for Bug#1717
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +108,7 @@
 
 // This enables the default pluggable provider manager.
 // See ProviderManagerService.cpp
-#define ENABLE_DEFAULT_PROVIDER_MANAGER
+#define PEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
 
 //#define PEGASUS_MONITOR2
 

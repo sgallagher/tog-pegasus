@@ -777,23 +777,25 @@ class PG_IndicationHandlerCIMXML : PG_IndicationHandler
 };
 
 // ===================================================================
-// PG_IndicationHandlerSNMP
+// PG_IndicationHandlerSNMPMapper
 // ===================================================================
    [Description (
      "PG_IndicationHandlerSNMP describes the destination for "
      "Indications to be delivered via SNMP Trap") ]
 
-class PG_IndicationHandlerSNMP : PG_IndicationHandler
+class PG_IndicationHandlerSNMPMapper : PG_IndicationHandler
 {
     [Required, Description (
       "The destination to which Traps are to be delivered. ") ]
-    string Destination;
+    string TrapDestination;
 
     [Required, Description (
       "Defines SNMP version for which Traps are to be delivered. "
       "This should be one of the following: "
       "SNMPGeneric, SNMPv1, SNMPv2C, SNMPv2, SNMPv3 ") ]
-    string snmpType;
+    string SNMPVersion;
+
+    string SNMPCommunityName;
 };
 
 //====================================================================

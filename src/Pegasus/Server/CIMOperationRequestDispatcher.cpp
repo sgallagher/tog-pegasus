@@ -843,7 +843,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    }
 
    // TEMP: Test code for ProcessIndication
-   if (className == "Sample_HelloWorldIndication")
+   if (className == "TestSoftwarePkg")
    {
       CIMProcessIndicationRequestMessage* message =
 	 new CIMProcessIndicationRequestMessage(

@@ -103,7 +103,7 @@ CIMServer::CIMServer(
 
     // -- Create queue inter-connections:
     _providerManager = new ProviderManagerService;
-    _handlerService = new IndicationHandlerService;
+    _handlerService = new IndicationHandlerService(repository);
 
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(repository, this);

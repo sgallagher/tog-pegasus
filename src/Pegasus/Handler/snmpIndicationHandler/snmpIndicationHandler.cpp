@@ -55,89 +55,86 @@ void snmpIndicationHandler::initialize(CIMRepository* repository)
     DDD(cout << _SNMPINDICATIONHANDLER << "initialize()" << endl;)
 }
 
-void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
-    CIMInstance& indicationInstance,
-    String nameSpace)
+void snmpIndicationHandler::handleIndication(CIMInstance& handler, 
+    CIMInstance& indication, String nameSpace)
 {
-    String enterprise, trapOid, destination;
     Array<String> propOIDs;
     Array<String> propTYPEs;
     Array<String> propVALUEs;
 
     CIMProperty prop;
+    CIMQualifier trapQualifier;
+
+    Uint32 qualifierPos;
+    
+    String propValue;
+
+    String mapstr1;
+    String mapstr2;
 
     CIMClass indicationClass = _repository->getClass(
-	nameSpace, 
-	indicationInstance.getClassName(), 
-	false);
+	nameSpace, indication.getClassName(), false);
 
-    Uint32 propPos = indicationClass.findProperty("enterprise");
-    if (propPos != PEG_NOT_FOUND)
+    for (Uint32 i=0; i<indication.getPropertyCount();i++)
     {
-        CIMProperty trapProp = indicationClass.getProperty(propPos);
+	prop = indication.getProperty(i);
 
-        Uint32 qualifierPos = trapProp.findQualifier("MappingStrings");
-        if (qualifierPos != PEG_NOT_FOUND)
+	if (prop)
         {
-            CIMQualifier trapQualifier = trapProp.getQualifier(qualifierPos);
-            // ATTN: Catch TypeMismatch exception on the next line
-            trapQualifier.getValue().get(enterprise);
+            String propName = prop.getName();
+            Uint32 propPos = indicationClass.findProperty(propName);
+            CIMProperty trapProp = indicationClass.getProperty(propPos);
 
-            for (Uint32 i=0; i<indicationInstance.getPropertyCount();i++)
+            if (trapProp.existsQualifier("MappingStrings"))
             {
-	        char* property_oid = NULL;
-	        char* property_value = NULL;
-	        char* property_datatype = NULL;
-        
-	        prop = indicationInstance.getProperty(i);
+		qualifierPos = trapProp.findQualifier("MappingStrings");
+		trapQualifier = trapProp.getQualifier(qualifierPos);
+		
+		mapstr1.clear();
+		mapstr1 = trapQualifier.getValue().toString();
 
-	        if (prop)
-                {
-                    String propName = prop.getName();
-                    Uint32 propPos = indicationClass.findProperty(propName);
-                    CIMProperty trapProp = indicationClass.getProperty(propPos);
-
-                    if (trapProp.existsQualifier("MappingStrings"))
-                    {
-                        if (propName == "trapOid")
-		        {
-                            // ATTN: Catch TypeMismatch exception on the next line
-		            prop.getValue().get(trapOid);
-		        }
-		        else
-		        {
-		            Uint32 qualifierPos = trapProp.findQualifier("MappingStrings");
-			    CIMQualifier trapQualifier = trapProp.getQualifier(qualifierPos);
-			
-			    String mapstr1;
-                            // ATTN: Catch TypeMismatch exception on the next line
-			    trapQualifier.getValue().get(mapstr1);
-			    String mapstr2 = "";
-
-			    if ((mapstr1.find("OID") != PEG_NOT_FOUND) &&
-			        (mapstr1.find("SNMP") != PEG_NOT_FOUND))
-			    {
-			        if (mapstr1.subString(0, 4) == "OID.")
-			        {
-				    mapstr1 = mapstr1.subString(mapstr1.find("SNMP.")+5);
-                                    if (mapstr1.find("|") != PEG_NOT_FOUND)
-                                    {
-				        mapstr2 = mapstr1.subString(0, mapstr1.find("|"));
+		if ((mapstr1.find("OID.IETF") != PEG_NOT_FOUND) &&
+		    (mapstr1.find("DataType.IETF") != PEG_NOT_FOUND))
+		{
+		    if (mapstr1.subString(0, 8) == "OID.IETF")
+		    {
+			mapstr1 = mapstr1.subString(mapstr1.find("SNMP.")+5);
+                        if (mapstr1.find("|") != PEG_NOT_FOUND)
+                        {
+			    mapstr2.clear();
+			    mapstr2 = mapstr1.subString(0, 
+				mapstr1.find("DataType.IETF")-1);
+		
+			    propOIDs.append(mapstr2);
+                            
+			    propValue.clear();
+                            propValue = prop.getValue().toString();
+			    propVALUEs.append(propValue);
+                            
+			    mapstr2 = mapstr1.subString(mapstr1.find("|")+2);
 			    
-				        propOIDs.append(mapstr2);
-                                        String propValue;
-                                        // ATTN: Catch TypeMismatch exception on the next line
-                                        prop.getValue().get(propValue);
-				        propVALUEs.append(propValue);
-				        propTYPEs.append(mapstr1.subString(mapstr1.find("|")+1));
-                                    }
-			        }
-			    }
-		        }
+			    // ATTN: There is a problem with mof compiler in 
+			    // loading mof with MappingString
+			    
+			    // << 12-03-2002 : NU (HP) >>
+
+			    // MappingString{}. It loads if one additional 
+			    // array is specified as follows:
+
+			    // [MappingStrings {
+			    // "OID.IETF | SNMP.1.3.6.1.4.1.11.2.3.1.6.3.1.1.4.1.1.2",
+			    // "DataType.IETF | OctetString",
+			    // "Junk"}] 
+			    
+			    // where "Junk" is not required in actual definition.
+
+			    propTYPEs.append(mapstr2.subString(0, mapstr2.find("Junk")-1));
+                        }
 		    }
-                }
-            }
+		}
+	    }
         }
+    }
 
         // Collected complete data in arrays and ready to send the trap.
         // trap destination and SNMP type are defined in handlerInstance
@@ -149,34 +146,34 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
         snmpDeliverTrap_stub emanateTrap;
 #endif
 
-        if ((handlerInstance.findProperty("Destination") != PEG_NOT_FOUND) &&
-            (handlerInstance.findProperty("trapType") != PEG_NOT_FOUND))
-        {
-            String destination;
-            String trapType;
-            // ATTN: Add error checking
-            // ATTN: Catch TypeMismatch exception on the next line
-            handlerInstance.getProperty(
-                handlerInstance.findProperty("Destination"))
-                .getValue().get(destination);
-            // ATTN: Add error checking
-            // ATTN: Catch TypeMismatch exception on the next line
-            handlerInstance.getProperty(
-                handlerInstance.findProperty("trapType"))
-                .getValue().get(trapType);
+    if ((handler.findProperty("TrapDestination") != PEG_NOT_FOUND) &&
+        (handler.findProperty("SNMPVersion") != PEG_NOT_FOUND) && 
+        (indication.findQualifier("TrapOid") != PEG_NOT_FOUND))
+    {
+        String community, trapType, destination;   // from handler instance
+	String trapOid;	    // from indication instance
 
-            emanateTrap.deliverTrap(trapOid, 
-                enterprise,
-                destination,
-                trapType,
-                propOIDs,  
-                propTYPEs, 
-                propVALUEs);
-        }
+	trapOid = indication.getQualifier(
+	    indication.findQualifier("TrapOid")).getValue().toString();
+
+	community = handler.getProperty(
+	    handler.findProperty("SNMPCommunityName")).getValue().toString();
+
+	destination = handler.getProperty(
+	    handler.findProperty("TrapDestination")).getValue().toString();
+
+	trapType = handler.getProperty(
+	    handler.findProperty("SNMPVersion")).getValue().toString();
+
+	emanateTrap.deliverTrap(
+            trapOid,
+            community,
+            destination,
+            trapType,
+            propOIDs,  
+            propTYPEs, 
+            propVALUEs);
     }
-    else
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-            "Indication is without enterprise OID");
 }
 
 // This is the dynamic entry point into this dynamic module. The name of

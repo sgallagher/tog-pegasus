@@ -59,7 +59,7 @@ public:
 
     virtual void deliverTrap(
         const String& trapOid,
-        const String& enterprise, 
+        const String& community, 
         const String& destination, 
         const String& trapType,
         Array<String>& vbOids,

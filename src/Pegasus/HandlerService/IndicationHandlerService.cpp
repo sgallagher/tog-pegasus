@@ -112,7 +112,13 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
    CIMExportIndicationResponseMessage* response;
 
-   Uint32 pos = handler.findProperty("destination");
+   Uint32 pos = PEG_NOT_FOUND;
+
+   if (className == String("CIM_IndicationHandlerCIMXML"))
+       pos = handler.findProperty("destination");
+   else if (className == String("PG_IndicationHandlerSNMPMapper"))
+       pos = handler.findProperty("TrapDestination");
+
    if (pos == PEG_NOT_FOUND)
    {
       // malformed handler instance, no destination
@@ -125,24 +131,6 @@ void IndicationHandlerService::_handleIndication(const Message* message)
    if (destination.size() == 0)
       throw CIMException(CIM_ERR_FAILED);
  
-   char* hostname = destination.allocateCString();
-   char* p = strchr(hostname, ':');
-
-   if (!p)
-   {
-      delete [] hostname;
-   }
-
-   *p++ = '\0';
-
-   char* end = 0;
-   int port = strtol(p, &end, 10);
-
-   if (!end || *end != '\0')
-   {
-      delete [] hostname;
-   }
-
    if ((className == "CIM_IndicationHandlerCIMXML") &&
        (destination.subString(0, 9) == String("localhost")))
    {

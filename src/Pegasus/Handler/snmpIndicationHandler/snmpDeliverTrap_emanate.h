@@ -27,6 +27,38 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "sr_conf.h"
+#include <stdio.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include <sys/types.h>
+#include <sys/sem.h>
+#include <sys/stat.h>
+#include <sys/param.h>
+
+#include <signal.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <errno.h>
+
+#include "sr_snmp.h"
+#include "comunity.h"
+#include "v2clssc.h"
+#include "sr_trans.h"
+#include "context.h"
+#include "method.h"
+#include "diag.h"
+#include "subagent.h"
+#include "agentsoc.h"
+#include "evq.h"
+#include "sig.h"
+
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 
@@ -39,6 +71,13 @@ PEGASUS_NAMESPACE_BEGIN
 class snmpDeliverTrap_emanate : public snmpDeliverTrap
 {
 public:
+
+    snmpDeliverTrap_emanate();
+
+    ~snmpDeliverTrap_emanate();
+
+    void initialize();
+
     void deliverTrap(
         const String& trapOid, 
         const String& enterprise, 

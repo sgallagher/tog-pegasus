@@ -66,8 +66,8 @@ public:
     }
 
     void handleIndication(
-	CIMInstance& indicationHandlerInstance, 
-	CIMInstance& indicationInstance, 
+	CIMInstance& handler, 
+	CIMInstance& indication, 
 	String nameSpace);
 };
 

@@ -37,7 +37,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/test";
+const String NAMESPACE = "root/cimv2";
 const String CLASSNAME = "PG_ProviderModule";
 const String CLASSNAME2 = "PG_Provider";
 const String CLASSNAME3 = "PG_ProviderCapabilities";
@@ -106,15 +106,19 @@ void TestCreateInstances(ProviderRegistrationManager prmanager)
     Array <String> namespaces;
     Array <Uint16> providerType;
     Array <String> supportedMethods;
+    Array <String> supportedProperties;
 
-    namespaces.append("test_namespace1");
-    namespaces.append("test_namespace2");
+    namespaces.append("root/cimv2");
+    namespaces.append("root/cimv3");
     
-    providerType.append(2);
+    providerType.append(4);
     providerType.append(5);
 
     supportedMethods.append("test_method1");
     supportedMethods.append("test_method2");
+
+    supportedProperties.append("PkgStatus");
+    supportedProperties.append("PkgIndex");
 
     CIMReference returnRef3;
 
@@ -125,10 +129,11 @@ void TestCreateInstances(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
     cimInstance3.addProperty(CIMProperty("ProviderName", "PG_ProviderInstance1"));
     cimInstance3.addProperty(CIMProperty("CapabilityID", "capability1"));
-    cimInstance3.addProperty(CIMProperty("ClassName", "test_class1"));
+    cimInstance3.addProperty(CIMProperty("ClassName", "TestSoftwarePkg"));
     cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
     cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
+    cimInstance3.addProperty(CIMProperty("SupportedProperties", supportedProperties));
 
     CIMReference instanceName3 = cimInstance3.getInstanceName(cimClass3);
 
@@ -149,7 +154,7 @@ int main(int argc, char** argv)
 {
 
 
-    CIMRepository r("../repository") ;
+    CIMRepository r("/PegasusRun/repository") ;
 
     ProviderRegistrationManager prmanager(&r);
 

@@ -37,7 +37,7 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 void snmpDeliverTrap_stub::deliverTrap(const String& trapOid,
-    const String& enterprise,
+    const String& community,
     const String& destination,
     const String& trapType,
     Array<String>& vbOids,

@@ -683,11 +683,17 @@ String CQLSelectStatementRep::toString()
     printf("CQLSelectStatementRep::toString()\n");
 	String s("SELECT ");
 	for(Uint32 i = 0; i < _selectIdentifiers.size(); i++){
+		if((i > 0) && (i < _selectIdentifiers.size())){
+			s.append(",");
+		}
 		s.append(_selectIdentifiers[i].toString());
 	}	
 	s.append(" FROM ");
 	Array<CQLIdentifier> _ids = _ctx->getFromList();
 	for(Uint32 i = 0; i < _ids.size(); i++){
+		if((i > 0) && (i < _ids.size())){
+                        s.append(",");
+                }
 		s.append(_ids[i].toString());
 	}
 	if(_hasWhereClause){

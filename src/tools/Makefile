@@ -4,8 +4,7 @@ ROOT = ../..
 
 include $(ROOT)/mak/config.mak
 
-#DIRS = providerreg
-DIRS =
+DIRS = providerreg
 
 
 include $(ROOT)/mak/recurse.mak

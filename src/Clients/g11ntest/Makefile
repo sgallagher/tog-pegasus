@@ -33,8 +33,8 @@ install:
 tests:
 
 poststarttests:
-#ifdef PEGASUS_HAS_MESSAGES
-#	$(PROGRAM_ICU)
-#else
-#	$(PROGRAM_NOICU)
-#endif
+ifdef PEGASUS_HAS_MESSAGES
+	$(PROGRAM_ICU)
+else
+	$(PROGRAM_NOICU)
+endif

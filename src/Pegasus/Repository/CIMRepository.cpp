@@ -89,6 +89,108 @@ Boolean CIMRepository::_containsProperty(CIMProperty& prop, const CIMPropertyLis
 	return false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// removeAllQualifiers - Remove all of the qualifiers from a class
+//
+////////////////////////////////////////////////////////////////////////////////
+void CIMRepository::_removeAllQualifiers(CIMClass cimClass)
+{
+	// remove qualifiers of the class
+	Uint32 count = 0;
+	while((count = cimClass.getQualifierCount()) > 0)
+		cimClass.removeQualifier(count - 1);
+
+	// remove qualifiers from the properties
+	for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
+	{
+			CIMProperty p = cimClass.getProperty(i);
+			count=0;
+			while((count = p.getQualifierCount()) > 0)
+				p.removeQualifier(count - 1);
+	}
+	// remove qualifiers from the methods
+	for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
+	{
+			CIMMethod m = cimClass.getMethod(i);
+			for (Uint32 j = 0 ; j < m.getParameterCount(); j++)
+			{
+				CIMParameter p = m.getParameter(j);
+				count = 0;
+				while ((count = p.getQualifierCount()) > 0)
+					p.removeQualifier(count - 1);
+			}
+			count=0;
+			while((count = m.getQualifierCount()) > 0)
+				m.removeQualifier(count - 1);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
+// _removePropagatedQualifiers - Removes all qualifiers from the object
+//  	that are marked propagated
+//
+/////////////////////////////////////////////////////////////////////////
+void CIMRepository::_removePropagatedQualifiers(CIMClass cimClass)
+{
+	Uint32 count = cimClass.getQualifierCount();
+	// Remove nonlocal qualifiers from Class
+	for (Sint32 i = (count - 1); i >= 0; i--)
+	{
+		CIMQualifier q = cimClass.getQualifier(i);
+		if (q.getPropagated())
+		{
+			cimClass.removeQualifier(i);
+		}
+	}
+
+	// remove  non localOnly qualifiers from the properties
+	for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
+	{
+		CIMProperty p = cimClass.getProperty(i);
+		// loop to search qualifiers for nonlocal parameters
+		count = p.getQualifierCount();
+		for (Sint32 j = (count - 1); j > 0; j--)
+		{
+			CIMQualifier q = p.getQualifier(j);
+			if (q.getPropagated())
+			{
+				p.removeQualifier(j);
+			}
+		}
+	}
+	// remove non LocalOnly qualifiers from the methods	and parameters
+	for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
+	{
+		CIMMethod m = cimClass.getMethod(i);
+		// Remove  nonlocal qualifiers from all parameters
+		for (Uint32 j = 0 ; j < m.getParameterCount(); j++)
+		{
+			CIMParameter p = m.getParameter(j);
+			count = p.getQualifierCount();
+			for (Sint32 k = (count - 1); k > 0; k--)
+			{
+				CIMQualifier q = p.getQualifier(k);
+				if (q.getPropagated())
+				{
+					p.removeQualifier(k);
+				}
+			}
+		}
+
+		// remove nonlocal qualifiers from the method
+		count = m.getQualifierCount();
+		for (Sint32 j = (count - 1); j > 0; j--)
+		{
+			CIMQualifier q = m.getQualifier(j);
+			if (q.getPropagated())
+			{
+				m.removeQualifier(j);
+			}
+		}
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -171,7 +273,6 @@ void _SaveObject(const String& path, Array<Sint8>& objectXml)
 //     The following are not implemented:
 //
 //         CIMRepository::execQuery()
-//         CIMRepository::referencesNames()
 //         CIMRepository::invokeMethod()
 //
 //     Note that invokeMethod() will not never implemented since it is not
@@ -240,35 +341,6 @@ void CIMRepository::write_unlock(void)
     PEG_METHOD_EXIT();
 }
 
-Boolean _isLocalOnlyProperty(const CIMName& className, const CIMProperty& p)
-{
-	CIMName classOrigin = p.getClassOrigin();
-	if (classOrigin.isNull())
-	{
-		return true;
-	}
-	if (classOrigin.equal(className))
-	{
-		return true;
-	}
-	return false;
-}
-
-Boolean _isLocalOnlyMethod(const CIMName& className, const CIMMethod& m)
-{
-	CIMName classOrigin = m.getClassOrigin();
-	if (classOrigin.isNull())
-	{
-		return true;
-	}
-	if (classOrigin.equal(className))
-	{
-		return true;
-	}
-	return false;
-}
-
-
 String _toString(Boolean x)
 {
 	return(x ? "true" : "false");
@@ -291,8 +363,8 @@ CIMClass CIMRepository::getClass(
 	                 ", includeClassOrigin= " + _toString(includeClassOrigin));
     String classFilePath;
     classFilePath = _nameSpaceManager.getClassFilePath(nameSpace, className);
-
-    CIMClass cimClass;
+    
+	CIMClass cimClass;
 
     try
     {
@@ -317,9 +389,8 @@ CIMClass CIMRepository::getClass(
 		for (Sint32 i = (count - 1); i >= 0; i--)
 		{
 			CIMProperty p = cimClass.getProperty(i);
-			
 			// if localOnly==true, ignore properties defined in super class
-			if (localOnly && (!_isLocalOnlyProperty(className, p)))
+			if (localOnly && (p.getPropagated()))
 			{
 				cimClass.removeProperty(i);
 				continue;
@@ -344,7 +415,7 @@ CIMClass CIMRepository::getClass(
 			CIMMethod m = cimClass.getMethod(i);
 			
 			// if localOnly==true, ignore properties defined in super class
-			if (localOnly && (!_isLocalOnlyMethod(className, m)))
+			if (localOnly && (m.getPropagated()))
 				cimClass.removeMethod(i);
 		}
 		
@@ -353,34 +424,16 @@ CIMClass CIMRepository::getClass(
 	// properties, methods and parameters.
 	if(!includeQualifiers)
 	{
-		// remove qualifiers of the class
-		Uint32 count = 0;
-		while((count = cimClass.getQualifierCount()) > 0)
-			cimClass.removeQualifier(count - 1);
+		_removeAllQualifiers(cimClass);
+	}
+	else
+	{
+		// if includequalifiers and localOnly, remove nonLocal qualifiers
+		if (localOnly)
+		{
+			_removePropagatedQualifiers(cimClass);
+		}
 
-		// remove qualifiers of the properties
-		for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
-		{
-				CIMProperty p = cimClass.getProperty(i);
-				count=0;
-				while((count = p.getQualifierCount()) > 0)
-					p.removeQualifier(count - 1);
-		}
-		// remove qualifiers of the methods
-		for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
-		{
-				CIMMethod m = cimClass.getMethod(i);
-				for (Uint32 j = 0 ; j < m.getParameterCount(); j++)
-				{
-					CIMParameter p = m.getParameter(j);
-					count = 0;
-					while ((count = p.getQualifierCount()) > 0)
-						p.removeQualifier(count - 1);
-				}
-				count=0;
-				while((count = m.getQualifierCount())>0)
-					m.removeQualifier(count - 1);
-		}
 	}
 	// if ClassOrigin Flag false, remove classOrigin info from class object
 	// by setting the property to Null.
@@ -397,34 +450,6 @@ CIMClass CIMRepository::getClass(
 			cimClass.getMethod(i).setClassOrigin(CIMName());
 	}
 
-	// ATTN KS 20030910 : This should not be here. 
-	// This code was added by EMC because for some reason we do not appear
-	// to be moving the key qualifier through they system.  Karl has disabled
-	// it for the moment to finish the other testing of localOnly, etc.
-	// This problem is probably driven by bug 510
-	// 
-	/* KS 20030910 - ATTN: Code in place but disabled for the moment.
-	if(cimClass.isAssociation())
-	{ // add key qualifiers to all references in the association class 
-		// if they are not there
-		Uint32 propCount = cimClass.getPropertyCount();
-		for (Uint32 i=0; i < propCount; i++)
-		{
-			CIMProperty givenProperty = cimClass.getProperty(i);
-			CIMType type = givenProperty.getType();
-			if(type==CIMTYPE_REFERENCE)
-			{
-				Uint32 pos = givenProperty.findQualifier(CIMName("Key"));
-				if(pos==PEG_NOT_FOUND)
-					givenProperty.addQualifier(CIMQualifier(
-						CIMName("Key"), 
-						CIMValue(true), 
-						CIMFlavor(CIMFlavor::NONE),
-						true));
-			}
-		}
-	}
-	*/
     PEG_METHOD_EXIT();
     return cimClass;
 }
@@ -466,7 +491,7 @@ Boolean CIMRepository::_getInstanceIndex(
         tmpInstanceName.setClassName(classNames[i]);
 
 	//
-        // Lookup index of instance:
+    // Lookup index of instance:
 	//
 
         String path = _getInstanceIndexFilePath(nameSpace, classNames[i]);
@@ -530,6 +555,64 @@ CIMInstance CIMRepository::getInstance(
 	Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
             true);
     }
+	// Remove properties based on propertylist and localOnly flag (Bug 565)
+	Boolean propertyListNull = propertyList.isNull();
+    if ((!propertyListNull) || localOnly)
+    {
+		// Loop through properties to remove those that do not filter through
+		// local only attribute and are not in the property list.
+		Uint32 count = cimInstance.getPropertyCount();
+		// Work backwards because removal may be cheaper. Sint32 covers count=0
+		for (Sint32 i = (count - 1); i >= 0; i--)
+		{
+			CIMProperty p = cimInstance.getProperty(i);
+			
+			// if localOnly==true, ignore properties defined in super class
+			if (localOnly && (p.getPropagated()))
+			{
+				cimInstance.removeProperty(i);
+				continue;
+			}
+
+			// propertyList NULL means all properties.  PropertyList empty, none.
+			// Test for removal if propertyList not NULL. The empty list option
+			// is covered by fact that property is not in the list.
+			if (!propertyListNull)
+				if(!_containsProperty(p, propertyList))
+					cimInstance.removeProperty(i);
+		}
+
+    }
+	// If includequalifiers false, remove all qualifiers from
+	// properties, methods and parameters.
+	/* ATTN:  BUG 601This section removed pending existence of a removequalifer function
+	if(!includeQualifiers)
+	{
+		// remove qualifiers of the class
+		Uint32 count = 0;
+		while((count = cimInstance.getQualifierCount()) > 0)
+			cimInstance.removeQualifier(count - 1);
+
+		// remove qualifiers from the properties
+		for (Uint32 i = 0; i < cimInstance.getPropertyCount(); i++)
+		{
+				CIMProperty p = cimInstance.getProperty(i);
+				count=0;
+				while((count = p.getQualifierCount()) > 0)
+					p.removeQualifier(count - 1);
+		} 
+	}
+	*/
+	// if ClassOrigin Flag false, remove classOrigin info from class object
+	// by setting the property to Null.
+	if (!includeClassOrigin)
+	{
+		PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "Remove Class Origins");		
+		
+		Uint32 propertyCount = cimInstance.getPropertyCount();
+		for (Uint32 i = 0; i < propertyCount ; i++)
+			cimInstance.getProperty(i).setClassOrigin(CIMName());
+	}
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -1815,7 +1898,8 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
             //10n end
         }
     }
-    
+    // ATTN: BUG 90, not handling deep inhertance, local only, property lists.
+
     PEG_METHOD_EXIT();
     return namedInstances;
 }

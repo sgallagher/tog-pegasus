@@ -141,7 +141,7 @@ void test02()
     CIMObjectPath instanceName2 =
 	CIMObjectPath ("SuperClass.first=\"John\",last=\"Smith\",age=101");
 
-    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2);
+    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2,false,true,true);
 
     assert(subClassInstance.identical(tmp));
 

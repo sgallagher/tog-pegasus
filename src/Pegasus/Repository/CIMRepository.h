@@ -500,6 +500,15 @@ private:
     // This must be initialized in the constructor using values from the
     // ConfigManager.
     Boolean _isDefaultInstanceProvider;
+	
+	/* Remove all of the qualifers from a class
+	*/
+	void _removeAllQualifiers(CIMClass cimClass);
+	
+	/* remove all of the qualifiers that are propagated
+	*/
+	void _removePropagatedQualifiers(CIMClass cimClass);
+
 
 protected:
 

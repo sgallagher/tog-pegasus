@@ -96,10 +96,11 @@ void TestCreateClass()
 
     r.setQualifier(NS, CIMQualifierDecl(CIMName ("key"),true,CIMScope::PROPERTY));
     r.setQualifier(NS, CIMQualifierDecl(CIMName ("description"),String(),(CIMScope::PROPERTY + CIMScope::CLASS)));
+    r.setQualifier(NS, CIMQualifierDecl(CIMName ("junk"),String(),(CIMScope::PROPERTY + CIMScope::CLASS)));
 
     // -- Construct new class:
-	CIMQualifier d(CIMName("description"), String("Test info"));
-    CIMClass c1(CIMName ("MyClass"));
+	CIMQualifier d(CIMName("description"), String("Test info in SuperClass"));
+    CIMClass c1(CIMName ("SuperClass"));
 	c1.addQualifier(d);
     c1.addProperty(
 	CIMProperty(CIMName ("key"), Uint32(0))
@@ -111,76 +112,114 @@ void TestCreateClass()
     // -- Create the class (get it back and compare):
     r.createClass(NS, c1);
     CIMConstClass cc1;
-    cc1 = r.getClass(NS, CIMName ("MyClass"),true,true, true);
+    cc1 = r.getClass(NS, CIMName ("SuperClass"),true,true, true);
     assert(c1.identical(cc1));
     assert(cc1.identical(c1));
 
     // -- Now create a sub class (get it back and compare):
+	// c22 has one additional property than c1 (junk)
 
-    CIMClass c2(CIMName ("YourClass"), CIMName ("MyClass"));
+    CIMClass c2(CIMName ("SubClass"), CIMName ("SuperClass"));
+	// Add new qualifier that will be local
+	CIMQualifier j(CIMName("junk"), String("TestQualifier"));
+	c2.addQualifier(j);
+
     c2.addProperty(CIMProperty(CIMName ("junk"), Real32(66.66)));
     r.createClass(NS, c2);
     CIMConstClass cc2;
-    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, true);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
 	//XmlWriter::printClassElement(c2);
 	//XmlWriter::printClassElement(cc2);
     
 	assert(c2.identical(cc2));
     assert(cc2.identical(c2));
-    // cc2.print();
 
-    // -- Modify "YourClass" (add new property)
+    // -- Modify "SubClass" (add new property)
 
     c2.addProperty(CIMProperty(CIMName ("newProperty"), Uint32(888)));
     r.modifyClass(NS, c2);
-    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, true);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
     assert(c2.identical(cc2));
     assert(cc2.identical(c2));
-    // cc2.print();
+    // should test for this new property on subclass also.
 
-    // -- Enumerate the class names: expect "MyClass", "YourClass"
+    // -- Enumerate the class names: expect "SuperClass", "SubClass"
 
     Array<CIMName> classNames = r.enumerateClassNames(NS, CIMName (), true);
+	if (verbose)
+	{
+		for (Uint32 i = 0 ; i < classNames.size(); i++)
+		{
+			cout << classNames[i].getString();
+		}
+	}
     BubbleSort(classNames);
     assert(classNames.size() == 2);
-    assert(classNames[0] == CIMName ("MyClass"));
-    assert(classNames[1] == CIMName ("YourClass"));
+    assert(classNames[1] == CIMName ("SuperClass"));
+    assert(classNames[0] == CIMName ("SubClass"));
 
 	//
 	// Test the getClass operation options, localonly,
 	//		includeQualifiers, includeClassOrigin, propertyList
 	//
 
-	// test localonly == true
-    cc2 = r.getClass(NS, CIMName ("YourClass"), true, true, true);
+	// test localonly == true, includequalifiers true, classorigin true
+    cc2 = r.getClass(NS, CIMName ("SubClass"), true, true, true);
+	if (verbose)
+	{
+		XmlWriter::printClassElement(c1);
+		XmlWriter::printClassElement(cc2);
+	}
+
 	assert(cc2.findProperty("ratio") == PEG_NOT_FOUND);
 	assert(cc2.findProperty("message") == PEG_NOT_FOUND);
+	assert(cc2.findProperty("junk") != PEG_NOT_FOUND);
+
+	//
+	// Test to assure that propagated class qualifier removed and
+	// local one not removed
+	// The following test does not work because propagated, etc. not set.
+	//assert (cc2.findQualifier("Description") == PEG_NOT_FOUND);
+	assert (cc2.findQualifier("junk") != PEG_NOT_FOUND);
+
+	// test for qualifier on the junk property.
+	// ATTN: TODO
 
 	// test localonly == false
-    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, true);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
 	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
 	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
 
-	// test includeQualifiers set first true
-    cc2 = r.getClass(NS, CIMName ("MyClass"), true, true, true);
+	// test includeQualifiers set true
+    cc2 = r.getClass(NS, CIMName ("SuperClass"), true, true, true);
 	assert(cc2.getQualifierCount() != 0);
 
 	// test includeQualifiers set false
-	// This should also do method and parameter qualifiers.
-    cc2 = r.getClass(NS, CIMName ("MyClass"), true, false, true);
+    cc2 = r.getClass(NS, CIMName ("SuperClass"), true, false, true);
 	assert(cc2.getQualifierCount() == 0);
+
+	for (Uint32 i = 0; i < cc2.getPropertyCount(); i++)
+	{
+		CIMConstProperty p = cc2.getProperty(i);
+		assert(p.getQualifierCount() == 0);
+	}
+	for (Uint32 i = 0; i < cc2.getMethodCount(); i++)
+	{
+		CIMConstMethod m = cc2.getMethod(i);
+		assert(m.getQualifierCount() == 0);
+	}
 
 	
 	// Test for Class origin set true
-    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, true);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
 	CIMConstProperty p;
 	Uint32 pos  =  cc2.findProperty("ratio");
 	assert(pos != PEG_NOT_FOUND);
 	p = cc2.getProperty(pos);
-	assert(p.getClassOrigin() == CIMName("MyClass"));
+	assert(p.getClassOrigin() == CIMName("SuperClass"));
 	
 	// Test for Class origin set false. Should return null CIMName.
-    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, false);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, false);
 	CIMConstProperty p1;
 	Uint32 pos1  =  cc2.findProperty("ratio");
 	assert(pos1 != PEG_NOT_FOUND);
@@ -200,7 +239,7 @@ void TestCreateClass()
 	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
 	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
 
-    cc2 = r.getClass(NS, CIMName ("MyClass"), false, true, true, pl);
+    cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
 	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
 	assert(cc2.findProperty("message") == PEG_NOT_FOUND);
 
@@ -208,43 +247,43 @@ void TestCreateClass()
 	pls.append(CIMName("message"));
 	pl.clear();
 	pl.set(pls);
-    cc2 = r.getClass(NS, CIMName ("MyClass"), false, true, true, pl);
+    cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
 	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
 	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
 
 
     // -- Create an instance of each class:
 
-    CIMInstance inst0(CIMName ("MyClass"));
+    CIMInstance inst0(CIMName ("SuperClass"));
     inst0.addProperty(CIMProperty(CIMName ("key"), Uint32(111)));
     r.createInstance(NS, inst0);
 
-    CIMInstance inst1(CIMName ("YourClass"));
+    CIMInstance inst1(CIMName ("SubClass"));
     inst1.addProperty(CIMProperty(CIMName ("key"), Uint32(222)));
     r.createInstance(NS, inst1);
 
     // -- Enumerate instances names:
 
     Array<CIMObjectPath> instanceNames = 
-	r.enumerateInstanceNames(NS, CIMName ("MyClass"));
+	r.enumerateInstanceNames(NS, CIMName ("SuperClass"));
 
     assert(instanceNames.size() == 2);
 
     assert(
-	instanceNames[0].toString() == "MyClass.key=111" ||
-	instanceNames[0].toString() == "YourClass.key=222");
+	instanceNames[0].toString() == "SuperClass.key=111" ||
+	instanceNames[0].toString() == "SubClass.key=222");
 
     assert(
-	instanceNames[1].toString() == "MyClass.key=111" ||
-	instanceNames[1].toString() == "YourClass.key=222");
+	instanceNames[1].toString() == "SuperClass.key=111" ||
+	instanceNames[1].toString() == "SubClass.key=222");
 
-    inst0.setPath (CIMObjectPath ("MyClass.key=111"));
-    inst1.setPath (CIMObjectPath ("YourClass.key=222"));
+    inst0.setPath (CIMObjectPath ("SuperClass.key=111"));
+    inst1.setPath (CIMObjectPath ("SubClass.key=222"));
 
     // -- Enumerate instances:
 
     Array<CIMInstance> namedInstances = r.enumerateInstances(NS, 
-        CIMName ("MyClass"));
+        CIMName ("SuperClass"));
 
     assert(namedInstances.size() == 2);
 
@@ -258,33 +297,34 @@ void TestCreateClass()
 
     // -- Modify one of the instances:
 
-    CIMInstance modifiedInst0(CIMName ("MyClass"));
+    CIMInstance modifiedInst0(CIMName ("SuperClass"));
     modifiedInst0.addProperty(CIMProperty(CIMName ("key"), Uint32(111)));
     modifiedInst0.addProperty(CIMProperty(CIMName ("message"), String("Goodbye World")));
     modifiedInst0.setPath (instanceNames[0]);
     r.modifyInstance(NS, modifiedInst0);
-    // modifiedInst0.print();
 
     // -- Get instance back and see that it is the same as modified one:
 
     CIMInstance tmpInstance = r.getInstance(NS, CIMObjectPath 
-        ("MyClass.key=111"));
+        ("SuperClass.key=111"), false, true, true);
     tmpInstance.setPath (instanceNames[0]);
-    // tmpInstance.print();
+	//XmlWriter::printInstanceElement(tmpInstance, cout);
+	//XmlWriter::printInstanceElement(modifiedInst0, cout);
+    
     assert(tmpInstance.identical(modifiedInst0));
 
     // -- Now modify the "message" property:
 
     CIMValue messageValue = r.getProperty(NS, CIMObjectPath 
-        ("MyClass.key=111"), CIMName ("message"));
+        ("SuperClass.key=111"), CIMName ("message"));
     String message;
     messageValue.get(message);
     assert(message == "Goodbye World");
 
-    r.setProperty(NS, CIMObjectPath ("MyClass.key=111"), CIMName ("message"), 
+    r.setProperty(NS, CIMObjectPath ("SuperClass.key=111"), CIMName ("message"), 
         CIMValue(String("Hello World")));
 
-    messageValue = r.getProperty( NS, CIMObjectPath ("MyClass.key=111"), 
+    messageValue = r.getProperty( NS, CIMObjectPath ("SuperClass.key=111"), 
         CIMName ("message"));
     messageValue.get(message);
     assert(message == "Hello World");
@@ -295,7 +335,7 @@ void TestCreateClass()
 
     try
     {
-	r.setProperty(NS, CIMObjectPath ("MyClass.key=111"), CIMName ("key"), 
+	r.setProperty(NS, CIMObjectPath ("SuperClass.key=111"), CIMName ("key"), 
             Uint32(999));
     }
     catch (CIMException& e)
@@ -308,18 +348,19 @@ void TestCreateClass()
 
     // -- Delete the instances:
 
-    r.deleteInstance(NS, CIMObjectPath ("MyClass.key=111"));
-    r.deleteInstance(NS, CIMObjectPath ("YourClass.key=222"));
+    r.deleteInstance(NS, CIMObjectPath ("SuperClass.key=111"));
+    r.deleteInstance(NS, CIMObjectPath ("SubClass.key=222"));
 
     // -- Delete the qualifier:
 
     r.deleteQualifier(NS, CIMName ("key"));
     r.deleteQualifier(NS, CIMName ("description"));
+    r.deleteQualifier(NS, CIMName ("junk"));
 
     // -- Clean up classes:
 
-    r.deleteClass(NS, CIMName ("YourClass"));
-    r.deleteClass(NS, CIMName ("MyClass"));
+    r.deleteClass(NS, CIMName ("SubClass"));
+    r.deleteClass(NS, CIMName ("SuperClass"));
     r.deleteNameSpace(NS);
 }
 

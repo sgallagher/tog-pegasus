@@ -41,6 +41,7 @@ TBD: Pegasus API version information
 	NOTE: This needs to be reorganized to take into account a structure for these APIs 
 */    
         //@{
+        /// @name Classes for CIM Objects and Containers
            //@{ 
 		//@Include: ../../src/Pegasus/Common/Array.h
 		//@Include: ../../src/Pegasus/Common/ArrayInter.h
@@ -56,7 +57,6 @@ TBD: Pegasus API version information
 		//@Include: ../../src/Pegasus/Common/CIMObjectPath.h
 		//@Include: ../../src/Pegasus/Common/CIMParamValue.h
 		//@Include: ../../src/Pegasus/Common/CIMParameter.h
-		//@Include: ../../src/Pegasus/Common/CIMPredicate.h
 		//@Include: ../../src/Pegasus/Common/CIMProperty.h
 		//@Include: ../../src/Pegasus/Common/CIMPropertyList.h
 		//@Include: ../../src/Pegasus/Common/CIMQualifier.h
@@ -69,21 +69,19 @@ TBD: Pegasus API version information
 		//@Include: ../../src/Pegasus/Common/Char16.h
 		//@Include: ../../src/Pegasus/Common/Config.h
 		//@Include: ../../src/Pegasus/Common/String.h
-		
+		//@Include: ../../src/Pegasus/Common/CIMIndication.h
+	    //@}
+        /// @name Classes General Functionality
+           //@{ 
 		//@Include: ../../src/Pegasus/Common/OperationContext.h
 		//@Include: ../../src/Pegasus/Common/ResponseHandler.h
-		
 		//@Include: ../../src/Pegasus/Common/SSLContext.h
-		 /* effective 2.3 */
-		//@Include: ../../src/Pegasus/Common/CIMIndication.h
-
-        	//@{
-		/// @name Exceptions  
-        	//@Include: ../../src/Pegasus/Common/Exception.h
-        	//@}
             //@}
-        	
-	//@}
+       /// @name Exceptions
+            //@{
+        	//@Include: ../../src/Pegasus/Common/Exception.h
+            //@}
+       //@}
     /// @name ClientInterfaces
        //@{
 	    /** @name Pegasus Operations
@@ -92,22 +90,40 @@ TBD: Pegasus API version information
 	        //@{
 		    //@Include: ../../doc/CIMOperations.h
 		//@}
-	    /// @name Pegasus Client Interfaces   
+	    /// @name Pegasus Client CIM Operation and Connection Interfaces   
 		//@{    
 		    //@Include: ../../src/Pegasus/Client/CIMClient.h
+		//@}
+	    /// @name Pegasus Client SLP interfaces   
+		//@{    
+		    //@Include: ../../src/Pegasus/Client/CIMServerDiscovery.h
+		    //@Include: ../../src/Pegasus/Client/CIMServerDescription.h
+		    //@Include: ../../src/Pegasus/Client/Attribute.h
+		//@}
+	    /// @name Pegasus Listener Interfaces   
+		//@{    
+		    //@Include: ../../src/Pegasus/Listener/CIMListener.h
 		//@}
        //@}
    /// @name Pegasus Provider Interfaces
 	//@{
-
-		//@Include: ../../src/Pegasus/Provider/CIMProvider.h
-		//@Include: ../../src/Pegasus/Provider/CIMAssociationProvider.h
-		//@Include: ../../src/Pegasus/Provider/CIMIndicationConsumer.h
-		//@Include: ../../src/Pegasus/Provider/CIMIndicationProvider.h
-		//@Include: ../../src/Pegasus/Provider/CIMInstanceProvider.h
-		//@Include: ../../src/Pegasus/Provider/CIMMethodProvider.h
+	    /// Pegasus CIM Provider Types and Interfaces
+	        //@{
+			//@Include: ../../src/Pegasus/Provider/CIMProvider.h
+			//@Include: ../../src/Pegasus/Provider/CIMAssociationProvider.h
+			//@Include: ../../src/Pegasus/Provider/CIMIndicationConsumer.h
+			//@Include: ../../src/Pegasus/Provider/CIMIndicationProvider.h
+			//@Include: ../../src/Pegasus/Provider/CIMInstanceProvider.h
+			//@Include: ../../src/Pegasus/Provider/CIMMethodProvider.h
+	        //@}  	 
+	    /// Pegasus CIM Provider  CIMOM Handle Callback
+	      //@{ 
 		//@Include: ../../src/Pegasus/Provider/CIMOMHandle.h
+	        //@}  	 
+	    /// Pegasus CIM Provider Exceptions
+	      //@{ 
 		//@Include: ../../src/Pegasus/Provider/ProviderException.h
+	      //@}  	 
 	//@}  	 
 /** @name Document References
 

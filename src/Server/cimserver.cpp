@@ -938,9 +938,13 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
 !defined(PEGASUS_OS_OS400)
         //l10n
         //cout << "Logs Directory = " << logsDirectory << endl;
+
+#if !defined(PEGASUS_USE_SYSLOGS)
         MessageLoaderParms parms("src.Server.cimserver.LOGS_DIRECTORY",
             				     "Logs Directory = ");
         cout << MessageLoader::getMessage(parms) << logsDirectory << endl;
+#endif
+
 #endif
 
 

@@ -58,9 +58,8 @@ typedef Option* OptionPtr;
 # include "ArrayInter.h"
 #undef PEGASUS_ARRAY_T
 
-///////////////////////////////////////////////////////////////////
-//  OptionManager Class
-///////////////////////////////////////////////////////////////////
+// REVIEW: I seem to remember seeing another class that does something like
+// REVIEW: this.
 
 /** The OptionManager class manages a collection of program options.
 

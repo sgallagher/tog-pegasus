@@ -40,7 +40,6 @@
 #include <cctype>
 #include <ctime>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/TCPChannel.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>

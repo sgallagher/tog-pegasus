@@ -36,6 +36,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 class LoggerRep;
 
+// REVIEW: is this still used? Are there other mechanisms?
+
 /**
 
 */

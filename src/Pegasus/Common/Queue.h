@@ -36,6 +36,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: Yet another queue implementation (YAQI).
+
 /** The Queue class provides a simple FIFO Queue implementation.
     This class provides a Queue implementation which is based on the Array<>
     template class. It allows enqueing, dequeing and size determination.

@@ -81,7 +81,6 @@
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
@@ -582,7 +581,6 @@ int main(int argc, char** argv)
 
         if (String::equal(configManager->getCurrentValue("logtrace"), "true"))
         {
-            Handler::setMessageLogTrace(true);
             pegasusIOLog = true;
         }
 
@@ -637,7 +635,6 @@ int main(int argc, char** argv)
 
         if (String::equal(configManager->getCurrentValue("trace"), "true"))
         {
-            Handler::setMessageTrace(true);
             pegasusIOTrace = true;
             cout << "Trace Set" << endl;
         }

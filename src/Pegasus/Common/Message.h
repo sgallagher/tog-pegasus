@@ -41,9 +41,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: could class be renamed to MessageMask (coding standard)?
+
 class PEGASUS_COMMON_LINKAGE message_mask 
 {
    public:
+
+      // REVIEW: could these be renamed (e.g., type_legacy to just LEGACY)?
+      // REVIEW: see coding standard.
+
       static Uint32 type_legacy;
       static Uint32 type_CIMOperation;
       static Uint32 type_CIMAsyncOperation;

@@ -33,6 +33,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: there are two implementations of service handling for NT (the
+// REVIEW: other is part of cimserver).
+
 /** This class is used to represent a service (a program that runs detached
     from a terimal window). It is registered using the run() method which 
     arranges to call the methods of this class at various times.

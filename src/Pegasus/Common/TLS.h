@@ -40,6 +40,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
 
+// REVIEW: Figure out how this works (note to myself)?
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_EXPORT SSLContext

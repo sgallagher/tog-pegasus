@@ -69,6 +69,10 @@ void PEGASUS_COMMON_LINKAGE default_delete(void * data) ;
 void PEGASUS_COMMON_LINKAGE stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall);
 void PEGASUS_COMMON_LINKAGE binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, BufferTooSmall);
 
+// REVIEW: Could this class be renamed to ContextRep (see coding standards).
+
+// REVIEW: What is this class for?
+
 class PEGASUS_COMMON_LINKAGE context
 {
    public:

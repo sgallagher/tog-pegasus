@@ -29,6 +29,11 @@
 #ifndef Pegasus_SignalHandler_h
 #define Pegasus_SignalHandler_h
 
+// REVIEW: Where is this signal handling code used?
+
+// REVIEW: Is there an equivalent implementation for Windows?
+
+
 // // Ensure Unix 98
 // #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
 //    #ifndef _GNU_SOURCE

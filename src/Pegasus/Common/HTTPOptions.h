@@ -71,7 +71,8 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-// REVIEW: What is this class used for? What feeds its queue?
+// REVIEW: What is this class used for? What feeds its queue? What queue
+// REVIEW: does it feed?
 
 class PEGASUS_COMMON_LINKAGE HTTPOptions : public MessageQueue
 {

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 
+// REVIEW: Ask how this all works (note to myself)?
 
 PEGASUS_NAMESPACE_BEGIN
 

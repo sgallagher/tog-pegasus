@@ -49,6 +49,9 @@ class CIMConstQualifierDecl;
 class CIMConstClass;
 class CIMConstInstance;
 
+// REVIEW: Restructure parser so that multiple nested allocations are not
+// REVIEW: required to build a message.
+
 class PEGASUS_COMMON_LINKAGE XmlWriter
 {
 public:

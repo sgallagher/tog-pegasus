@@ -87,7 +87,6 @@ PEGASUS_TRACE;
 
     if (String::equal(configManager->getCurrentValue("trace"), "true"))
     {
-        Handler::setMessageTrace(true);
         pegasusIOTrace = true;
     }
 
@@ -98,7 +97,6 @@ PEGASUS_TRACE;
 
     if (String::equal(configManager->getCurrentValue("logtrace"), "true"))
     {
-        Handler::setMessageLogTrace(true);
         pegasusIOLog = true;
     }
     Boolean useSSL = false;

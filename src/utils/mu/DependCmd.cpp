@@ -332,7 +332,10 @@ void ProcessFile(
 	    if (!fp)
 	    {
 		if (warn)
-		    Warning("header file not found: " + path);
+		{
+		    Warning("header file not found: " + path + 
+			" included from " + objectFileName);
+		}
 	    }
 	    else
 	    {

@@ -49,6 +49,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: need general walkthrough to understand this source.
 
 
 //%///////////////// ----- IPC related functions ------- //////////////////////

@@ -29,7 +29,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
-#include <Pegasus/Common/Selector.h>
 #include <Pegasus/Handler/CIMHandler.h>
 #include <Pegasus/Repository/CIMRepository.h>
 

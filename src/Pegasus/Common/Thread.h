@@ -33,6 +33,8 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/DQueue.h>
 
+// REVIEW: Spend time getting to know this.
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE cleanup_handler

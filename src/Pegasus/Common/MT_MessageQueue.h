@@ -39,6 +39,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: where is this class used?
+
+// REVIEW: Can it derive from MessageQueue class?
+
 /** The MessageQueue class represents a queue abstraction and is used by
     modules to exchange messages. Methods are provided for enqueuing,
     dequeuing, removing, iterating messages. Some methods are virtual and

@@ -29,6 +29,10 @@
 #ifndef PEG_INTERNAL_DQ_include
 #define PEG_INTERNAL_DQ_include
 
+// REVIEW: What uses this class?
+
+// REVIEW: Ask how this works (note to myself)?
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEG_DQUEUE_FIRST 0

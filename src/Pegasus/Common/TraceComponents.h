@@ -27,6 +27,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// REVIEW: Pegasus namespace wrappers are missing.
+
+// REVIEW: Ask how tracing works (note to myself).
+
 #ifndef Pegasus_TraceComponents_h
 #define Pegasus_TraceComponents_h
 

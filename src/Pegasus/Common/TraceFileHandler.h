@@ -35,6 +35,8 @@
 #include <cstdio>
 #include <Pegasus/Common/String.h>
 
+// REVIEW: are tracing and logging facilities redundant?
+
 PEGASUS_NAMESPACE_BEGIN
 
 /** TraceFileHandler implements logging of messages to file 

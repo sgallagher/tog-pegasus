@@ -28,3 +28,35 @@
 	    "+++++ passed all tests"
 
 	Extraneous output should be removed.
+
+    7.	All defined constants must begin with "PEGASUS_".
+
+    8.	All method must use the form myMethodName(). Many places
+	have my_method_name() (with underscores).
+
+    9.	Avoid use of (void). Use () instead.
+
+    10.	Either get rid of throw() declarations or use them
+	everywhere (perhaps they are not supported by some compilers).
+
+    11.	Avoid indenting "private:", "public:" and "protected". Use this
+	style:
+
+	    class X
+	    {
+	    private:
+		...
+	    public:
+	    };
+
+    12.	Use "Type* x" rather than "Type *x".
+
+    13. Use "if (" rather than "if(".
+
+    14.	Avoid use of spaces around the condition:
+
+	    if( cond )
+
+    15.	Changed "Permisyion" to "Permission"
+
+    16.	Keep all lines within 80 columns.

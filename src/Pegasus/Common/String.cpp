@@ -247,7 +247,7 @@ String& String::assign(const char* str)
     _rep->c16a.reserveCapacity(n);
 
     while (n--)
-	_rep->c16a.append(*str++);
+	_rep->c16a.append(Uint8(*str++));
 
     return *this;
 }
@@ -260,7 +260,7 @@ String& String::assign(const char* str, Uint32 n)
     _rep->c16a.reserveCapacity(_n + 1);
 
     while (_n--)
-	_rep->c16a.append(*str++);
+	_rep->c16a.append(Uint8(*str++));
 
     _rep->c16a.append('\0');
 

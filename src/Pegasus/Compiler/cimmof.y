@@ -533,13 +533,18 @@ typedInitializer: nonNullConstantValue
            $$ = &g_typedInitializerValue;
            };
 
-constantValues: constantValue { $$ = $1; }
-              | constantValues TOK_COMMA constantValue 
-                              {
-                                (*$$).append(","); 
-                                (*$$).append(*$3);
-				delete $3;
-                              } ;
+// BUG 497 - Commmas embedded in strings in arrays change the
+// strings.  Aded function stringWComma to escape commas.
+constantValues: constantValue { 
+            *$$ = valueFactory::stringWComma(String(*$1)); }
+         | constantValues TOK_COMMA constantValue 
+              {
+                YACCTRACE("constantValues:1, Value= " << *$3);
+                (*$$).append(","); 
+                //(*$$).append(*$3);
+                (*$$).append(valueFactory::stringWComma(String(*$3)));
+                delete $3;
+              } ;
 
 // The nonNullConstantValue has been added to allow NULL 
 // to be distinguished from the EMPTY STRING.

@@ -49,6 +49,34 @@
 #define local_min(a,b) ( a < b ? a : b )
 #define local_max(a,b) ( a > b ? a : b )
 
+/* Fix up a string with embedded comma with extra
+   escape character and return the result. This is a hack
+   to get around the problem that arrays having strings
+   with an embedded comma are treat the embedded comma
+   as an array item separator.
+   NOTE: The correct solution is to add a new value factory
+   funciton for arrays specifically that uses a different
+   separator on an array of values.
+   BUG 497 fix, KS Sept 2003
+*/
+String valueFactory::stringWComma(String tmp)
+{
+	//String tmp = *$3;
+	String rtn = String::EMPTY;
+	Uint32 len;
+	while((len = tmp.find(',')) != PEG_NOT_FOUND)
+	{
+		rtn.append(tmp.subString(0,len));
+		rtn.append("\\,");
+		tmp = tmp.subString(len+1);
+	}
+	if (tmp.size() > 0)
+		rtn.append(tmp);
+	return(rtn);
+}
+
+
+
 long
 valueFactory::Stoi(const String &val) {
 #if 0
@@ -384,6 +412,7 @@ valueFactory::createValue(CIMType type, int arrayDimension,
 			  const String *repp)
 {
   const String &rep = *repp;
+  //cout << "valueFactory, value = " << rep << endl;
   CIMDateTime dt;
   if (arrayDimension == -1) { // this is not an array type
       

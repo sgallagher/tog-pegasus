@@ -1327,12 +1327,7 @@ Message* CIMClientRep::_doRequest(
 
 String CIMClientRep::_getLocalHostName()
 {
-    static String hostname;
-
-    if (!hostname.size())
-    {
-        hostname.assign(System::getHostName());
-    }
+    static String hostname = "localhost";
 
     return hostname;
 }

@@ -55,11 +55,6 @@ PEGASUS_NAMESPACE_BEGIN
 // CIMClientRep
 //
 ///////////////////////////////////////////////////////////////////////////////
-static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
-{
-    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
-    return true;
-}
 
 CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     :
@@ -415,18 +410,6 @@ void CIMClientRep::connectLocal()
         const char* pegasusHome = getenv("PEGASUS_HOME");
 #endif
 
-#if defined(PEGASUS_OS_AIX)
-        String certpath = String::EMPTY;
-        certpath = getenv("PEGASUS_SSLTRUSTFILEPATH");
-        if (certpath == NULL) {
-          certpath = FileSystem::getAbsolutePath(
-                   pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-        }
-#else
-        String certpath = FileSystem::getAbsolutePath(
-            pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-#endif
-
         String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
@@ -437,7 +420,7 @@ void CIMClientRep::connectLocal()
         try
         {
             _connectSSLContext =
-                new SSLContext(certpath, verifyServerCertificate, randFile);
+                new SSLContext(String::EMPTY, NULL, randFile);
         }
         catch (SSLException &se)
         {

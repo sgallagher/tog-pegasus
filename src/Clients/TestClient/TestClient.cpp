@@ -56,6 +56,8 @@ PEGASUS_USING_STD;
 CIMNamespaceName globalNamespace = CIMNamespaceName ("root/cimv2");
 static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 
+static char* programVersion =  "2.0";
+
 /** ErrorExit - Print out the error message as an
     and get out.
     @param - Text for error message
@@ -92,34 +94,81 @@ static void testEnd(const double elapsedTime)
 static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 		 		 Boolean verboseTest)
 {
-    // Enumerate NameSpaces using the old technique
-    CIMName className = CIMName ("__Namespace");
-
-    Array<CIMObjectPath> instanceNames;
-
-    // Call enumerate Instances for the namespace list
-    try
-    {
-		 instanceNames = client.enumerateInstanceNames(
-		     __NAMESPACE_NAMESPACE, className);
-
-		 cout << "Found " << instanceNames.size() << " Namespaces" << endl;
-
-		 if (verboseTest)
-		 {
-		     // Array<String> tmpInstanceNames;
-
-		     for (Uint32 i = 0; i < instanceNames.size(); i++)
-		 		 cout << instanceNames[i].toString() << endl;
-		 }
-	 }
-    catch(Exception& e)
-    {
-    	PEGASUS_STD(cerr) << "Exception Namespace Enumeration: " 
-            << e.getMessage() << PEGASUS_STD(endl);
-        return;
-    }
+    // Get all namespaces for display using the __Namespaces function.
+    CIMName className = "__NameSpace";
+    Array<CIMNamespaceName> namespaceNames;
     
+    // Build the namespaces incrementally starting at the root
+    // ATTN: 20030319 KS today we start with the "root" directory but this is wrong. We should be
+    // starting with null (no directoyr) but today we get an xml error return in Pegasus
+    // returned for this call. Note that the specification requires that the root namespace be used
+    // when __namespace is defined but does not require that it be the root for allnamespaces. That
+    // is a hole is the spec, not in our code.
+    namespaceNames.append("root");
+    Uint32 start = 0;
+    Uint32 end = namespaceNames.size();
+    do
+    {
+        // for all new elements in the output array
+        for (Uint32 range = start; range < end; range ++)
+        {
+            // Get the next increment in naming for all a name element in the array
+            Array<CIMInstance> instances = client.enumerateInstances(namespaceNames[range], className);
+            for (Uint32 i = 0 ; i < instances.size(); i++)
+            {
+                Uint32 pos;
+                // if we find the property and it is a string, use it.
+                if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
+                {
+                    CIMValue value;
+                    String namespaceComponent;
+                    value = instances[i].getProperty(pos).getValue();
+                    if (value.getType() == CIMTYPE_STRING)
+                    {
+                        value.get(namespaceComponent);
+                        String ns = namespaceNames[range].getString();
+                        ns.append("/");
+                        ns.append(namespaceComponent);
+                        namespaceNames.append(ns);
+                    }
+                }
+            }
+            start = end;
+            end = namespaceNames.size();
+        }
+    }
+    while (start != end);
+    // Validate that all of the returned entities are really namespaces. It is legal for us to
+    // have an name component that is really not a namespace (ex. root/fred/john is a namespace
+    // but root/fred is not.
+    // There is no clearly defined test for this so we will simply try to get something, in this
+    // case a wellknown assoication
+    Array<CIMNamespaceName> returnNamespaces;
+
+    for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+    {
+        try
+        {
+            CIMQualifierDecl cimQualifierDecl;
+            cimQualifierDecl = client.getQualifier(namespaceNames[i],
+                                           "Association");
+
+            returnNamespaces.append(namespaceNames[i]);
+        }
+        catch(CIMException& e)
+        {
+            if (e.getCode() != CIM_ERR_INVALID_NAMESPACE)
+                returnNamespaces.append(namespaceNames[i]);
+        }
+    }
+
+    cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
+    for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ ) 
+    {
+        cout << returnNamespaces[cnt] << endl;;
+    }
+
+    // ATTN: The following code is probably no good. KS April 2003
     // If conducting active test, try to create and delete a namespace.
     if(activeTest)
     {
@@ -251,7 +300,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     //Test for class already existing
     Array<CIMName> classNames = client.enumerateClassNames(
 		 globalNamespace, CIMName ("CIM_ManagedElement"), false);
-    cout << "KSTEST verboseTest = " << verboseTest << " ActiveTest ' " << ActiveTest << endl;
+    
     if (ActiveTest)
     {
         if (verboseTest)
@@ -643,10 +692,134 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     cout << "Delete the Class " << endl;
     client.deleteClass(globalNamespace,className);
 }
+/* testRefandAssoc - issues a set of reference and association calls
+    for the input parameters.
+    It does not capture exceptions
+*/
+static void testRefandAssoc(CIMClient& client, CIMNamespaceName& nameSpace,
+        CIMObjectPath& objectName,
+        CIMName assocClass, 
+        CIMName resultClass,
+        String role = String::EMPTY,
+        String resultRole = String::EMPTY)
+{
 
+    Array<CIMObjectPath> result = client.referenceNames(
+        	nameSpace, 
+        	objectName, 
+        	resultClass, 
+        	role);
+    
+    Array<CIMObject> resultObjects = client.references(
+        	nameSpace, 
+        	objectName, 
+        	resultClass, 
+        	role);
+
+    if (result.size() != resultObjects.size())
+    {
+        cout << "ERROR, Reference and reference Name count difference" << endl;
+    }
+    for (Uint32 i = 0; i < result.size(); i++)
+    {
+        if (resultObjects[i].getPath().toString() != result[i].toString())
+        {
+            cout << "ReferencesName response Error: "
+                 << resultObjects[i].getPath().toString()
+                 << " != " 
+                 << result[i].toString()
+                 << endl;
+        }
+    }
+
+    Array<CIMObjectPath> assocResult = client.associatorNames(
+        	nameSpace, 
+        	objectName,
+            assocClass,
+        	resultClass, 
+        	role,
+            resultRole);
+    Array<CIMObject> assocResultObjects = client.associators(
+        	nameSpace, 
+        	objectName,
+            assocClass,
+        	resultClass, 
+        	role,
+            resultRole);
+    if (assocResult.size() != assocResultObjects.size())
+    {
+        cout << "ERROR, Associator and AssociatorName count returned different counts " 
+            << assocResult.size() << " associator name responses and "
+            << assocResultObjects.size() << " associator objects " << endl;
+        
+        Uint32 maxCount = max(assocResult.size(),assocResultObjects.size());
+        cout << "Max " << maxCount << endl; 
+
+        for (Uint32 i = 0 ; i < maxCount ; i ++)
+        {
+            cout << i << " " << ((i < assocResult.size())? assocResult[i].toString() : "") << endl;
+            
+            cout << i << " " << ((i < assocResultObjects.size())? assocResultObjects[i].getPath().toString() : "") << endl;
+        }
+        return;
+    }
+    for (Uint32 i = 0; i < assocResult.size(); i++)
+    {
+        if (assocResultObjects[i].getPath().toString() != assocResult[i].toString())
+        {
+            cout << "Association Name response Error"
+                    << assocResultObjects[i].getPath().toString()
+                    << " != " 
+                    << assocResult[i].toString()
+                    << endl;
+        }
+    }
+}
 static void TestAssociationOperations(CIMClient& client, Boolean
 		 		 	 activeTest, Boolean verboseTest)
 {
+    CIMNamespaceName nameSpace = "root/sampleprovider";
+    // If the sample provider class is loaded, this function tests the 
+    // association functions against the FamilyProvider
+    Boolean runTest = true;
+    // First test against known name in cim namespace.
+    {                                                 
+        CIMObjectPath o1("CIM_ManagedElement");
+        CIMObjectPath o2("CIM_ManagedElement.name=\"karl\"");
+
+        testRefandAssoc(client, globalNamespace, o1, CIMName(), CIMName());
+        testRefandAssoc(client, globalNamespace, o2, CIMName(), CIMName());
+    }
+    
+    // Now Test to see if the namespace and class exist before
+    // continuting the test.
+    {
+        CIMName className = "TST_Person";
+        try
+        {
+        client.getClass(nameSpace, className);
+        }
+        catch(CIMException& e)
+        {
+              if (e.getCode() == CIM_ERR_INVALID_NAMESPACE && e.getCode() == CIM_ERR_INVALID_CLASS)
+              {
+                 runTest = false;
+              }
+              else
+              {
+                 cerr << "CIMException : " << className << endl;
+                 cerr << e.getMessage() << endl;
+              }
+        }
+    }
+    if (runTest)
+    {
+        testRefandAssoc(client, nameSpace, CIMObjectPath("TST_Person"), CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, CIMObjectPath("TST_Person.name=\"Mike\""), CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, CIMObjectPath("TST_PersonDynamic"), CIMName(), CIMName());
+        testRefandAssoc(client, nameSpace, CIMObjectPath("TST_PersonDynamic.name=\"Father\""), CIMName(), CIMName());
+    }
+
     return;
 }
 
@@ -994,6 +1167,12 @@ int main(int argc, char** argv)
 
 		 exit(0);
     }
+    if (om.valueEquals("version","true"))
+    {
+        cout << argv[0] << " version " <<programVersion <<  endl;
+        //cout << argv[0] << endl;
+        exit(0);
+    }
 
     String tmp;
     om.lookupValue("namespace", tmp);
@@ -1024,15 +1203,8 @@ int main(int argc, char** argv)
 	*/
 	if (!om.lookupIntegerValue("repeat", repeatTestCount))
 	    repeatTestCount = 1;
-	/*
-	if (om.lookupValue("repeat", repeats))
-        {
-		repeatTestCount = atol(repeats.getCString());
-        }
-	else
-		repeatTestCount = 1;
-	*/
-	if(verboseTest)
+	
+    if(verboseTest)
 		cout << "Test repeat count " << repeatTestCount << endl;
 
 	// Setup the active test flag.  Determines if we change repository.

@@ -66,8 +66,8 @@ static AtomicInt _connections = 0;
 
 
 static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {5, 0};
-static struct timeval deadlock_time = {1000, 0};
+static struct timeval destroy_time = {15, 0};
+static struct timeval deadlock_time = {0, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -260,7 +260,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       sleep_sem = (Semaphore *)myself->reference_tsd("sleep sem");
       myself->dereference_tsd();
       deadlock_timer = (struct timeval *)myself->reference_tsd("deadlock timer");
-      myself->dereference_tsd();
+      myself->dereference_tsd(); 
    }
    catch(IPCException &)
    {
@@ -451,7 +451,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
    int i = 0;
    AtomicInt needed(0);
 
-   for( ; i < 1; i++)
+   for( ; i < 2; i++)
    { 
       q = map[i];
       if(q->count() > 0 )
@@ -493,7 +493,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	    }
 	    else 
 	    {
-	       check_time(&dt, get_deadlock_detect(&deadlock_timeout));
+	       too_long = check_time(&dt, get_deadlock_detect(&deadlock_timeout));
 	    }
 	    
 	    if( true == too_long)
@@ -566,6 +566,10 @@ Uint32 ThreadPool::kill_dead_threads(void)
 
 Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
 {
+   // never time out if the interval is zero
+   if(interval && interval->tv_sec == 0 && interval->tv_usec == 0)
+      return false;
+   
    struct timeval now, finish, remaining;
    Uint32 usec;
    gettimeofday(&now, NULL);

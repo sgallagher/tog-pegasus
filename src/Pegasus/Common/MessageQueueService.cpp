@@ -39,8 +39,8 @@ AtomicInt MessageQueueService::_xid(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {5, 0};
-static struct timeval deadlock_time = {1000, 0};
+static struct timeval destroy_time = {15, 0};
+static struct timeval deadlock_time = {0, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 

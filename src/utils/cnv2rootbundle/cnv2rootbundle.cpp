@@ -76,7 +76,9 @@ int main(int argc, char *argv[]) {
 
 
     if (found_first_line == 0 && strstr(line, ":table")) {
-
+/*
+IBM-CC. Since we are going to back to just having the language as the name of the table,
+comment out this code.
       if ((tmp = strchr(line, '_')) == NULL) {
 	fprintf (stderr, "ERROR: first line of file not in proper format: [bundlename]_[lang]:table {\nLINE: %s", line);
 	exit (1);
@@ -86,6 +88,8 @@ int main(int argc, char *argv[]) {
       tmp[0] = '\0';
       
       fprintf (outfile, "%s_root:table {", line); //\n
+*/
+      fprintf (outfile, "root:table {"); //\n
 
       found_first_line = 1;
 
@@ -134,7 +138,12 @@ int main(int argc, char *argv[]) {
   } // ends the line reading loop
 
   if (found_first_line == 0) {
+/*
+IBM-CC. Since we are going to back to just having the language as the name of the table,
+comment out this code.
     fprintf (stderr, "ERROR: did not find bundle name in proper format: [bundlename]_[lang]:table {\nLINE: %s", line);
+*/
+    fprintf (stderr, "ERROR: did not find table name in proper format: [lang]:table {\nLINE: %s", line);
   }
 
   fclose (outfile);

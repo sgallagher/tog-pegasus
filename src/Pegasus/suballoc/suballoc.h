@@ -657,7 +657,7 @@ inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
    return;
 }
 
-#elif defined ((PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+#elif defined (PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 
 inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
 {

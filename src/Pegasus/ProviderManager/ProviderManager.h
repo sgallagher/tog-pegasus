@@ -51,15 +51,15 @@ public:
 
 public:
     Provider getProvider(const String & fileName, const String & providerName,
-                         const String & interfaceName = String::EMPTY) throw();
+                         const String & interfaceName = String::EMPTY) ;
 
-    void unloadProvider(const String & fileName, const String & providerName) throw();
+    void unloadProvider(const String & fileName, const String & providerName) ;
 
-    void shutdownAllProviders(void) throw();
+    void shutdownAllProviders(void) ;
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL provider_monitor(void *);
     
-    void unload_idle_providers(void) throw();
+    void unload_idle_providers(void) ;
 private:
     enum CTRL 
       {

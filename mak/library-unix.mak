@@ -62,6 +62,7 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
     ## libraries.mak file that includes this file
     ##
 
+
     ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 	rm -f $(FULL_LIB)
     endif

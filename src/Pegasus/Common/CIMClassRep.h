@@ -75,7 +75,7 @@ public:
 
     Boolean existsQualifier(const String& name) const
     {
-	return ((_qualifiers.find(name) != -1) ? true : false);
+	return ((_qualifiers.find(name) != Uint32(-1)) ? true : false);
     }
 
     CIMQualifier getQualifier(Uint32 pos)

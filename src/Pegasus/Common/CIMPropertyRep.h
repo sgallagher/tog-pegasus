@@ -111,7 +111,7 @@ public:
 
     Boolean existsQualifier(const String& name) const
     {
-	return (findQualifier(name) != -1) ? true : false;
+	return (findQualifier(name) != Uint32(-1)) ? true : false;
     }
 
     CIMQualifier getQualifier(Uint32 pos)

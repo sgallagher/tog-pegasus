@@ -95,6 +95,8 @@ typedef double Real64;
 typedef PEGASUS_UINT64 Uint64;
 typedef PEGASUS_SINT64 Sint64;
 
+#define PEGASUS_NOT_FOUND Uint32(-1)
+
 PEGASUS_NAMESPACE_END
 
 #define PEGASUS_TRACE \

@@ -89,20 +89,32 @@
 #include <errno.h>
 #include <signal.h>
 
+namespace 
+{
+   static const int GUARD_SIZE = 0x10;
+   static const int MAX_PATH_LEN = 0xff;
+   static const int MAX_LINE_LEN = 0x14;
+   static const int PRE_ALLOCATE = 0x00;
+   static const int STEP_ALLOCATE = 0x01;
+   static const int AVAILABLE = 0x00;
+   static const int NORMAL = 0x01;
+   static const int ARRAY = 0x02;
+}
+
 PEGASUS_NAMESPACE_BEGIN
 
 void * pegasus_alloc(size_t );
 void pegasus_free(void *);
 
 
-#define GUARD_SIZE 0x10
-#define MAX_PATH_LEN 0xff
-#define MAX_LINE_LEN 0x14
-#define PRE_ALLOCATE 0x00
-#define STEP_ALLOCATE 0x01
-#define AVAILABLE 0x00
-#define NORMAL 0x01
-#define ARRAY 0x02
+// #define GUARD_SIZE 0x10
+// #define MAX_PATH_LEN 0xff
+// #define MAX_LINE_LEN 0x14
+// #define PRE_ALLOCATE 0x00
+// #define STEP_ALLOCATE 0x01
+// #define AVAILABLE 0x00
+// #define NORMAL 0x01
+// #define ARRAY 0x02
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 

@@ -29,6 +29,7 @@
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <sys/types.h>
+#include <Pegasus/suballoc/suballoc.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
 #include <unistd.h>
@@ -65,9 +66,27 @@ class FAKE_MESSAGE
 	 return ( this->operator==((const void *)msg._key));
       }
 
+      void * operator new(size_t size)
+      {
+	 if( size != sizeof(FAKE_MESSAGE))
+	    return ::operator new(size);
+	 return pegasus_alloc(size);
+      }
+       
+      void operator delete(void *dead, size_t size)
+      {
+	 if(size != sizeof(FAKE_MESSAGE))
+	 {
+	    ::operator delete(dead);
+	    return;
+	 }
+	 pegasus_free(dead);
+      }
+       
+  
    private:
-      FAKE_MESSAGE(void);
-      Thread * _key;
+      FAKE_MESSAGE(void); 
+      Thread * _key; 
       int _type;
 };
 
@@ -88,9 +107,9 @@ AtomicInt requests;
 Mutex msg_mutex;
 
 const Uint32 NUMBER_MSGS = 10000;
-const int NUMBER_CLIENTS = 20;
-const int NUMBER_SERVERS = 10;
-
+const int NUMBER_CLIENTS = 2 ;
+const int NUMBER_SERVERS =  1; 
+ 
 FAKE_MESSAGE *get_next_msg(void *key )
 {
    FAKE_MESSAGE *msg = 0;

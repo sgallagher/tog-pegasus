@@ -166,6 +166,12 @@ protected:
 	 const Uint32 timeout = 0xffffffff);
 	*/
 
+      CIMValue _convertValueType(const CIMValue& value, CIMType type);
+
+      void _fixInvokeMethodParameterTypes(CIMInvokeMethodRequestMessage* request);
+
+      void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
+
       CIMRepository * _repository;
 
       ServiceCIMOMHandle _cimom;

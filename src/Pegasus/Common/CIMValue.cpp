@@ -1939,6 +1939,8 @@ String CIMValue::toString() const
 
     //ATTN: Not sure what we should do with getstring for Null CIMValues
     //Choice return empty string or exception out.
+    if (_isNull)
+        return String();
 
     if (_isArray)
     {

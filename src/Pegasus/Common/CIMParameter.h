@@ -122,7 +122,12 @@ public:
 	return _rep->getType();
     }
 
-    void setType(CIMType type);
+    void setType(const CIMType type)
+    {
+	_checkRep();
+	_rep->setType(type);
+    }
+
 
     // Throws AlreadyExists.
 

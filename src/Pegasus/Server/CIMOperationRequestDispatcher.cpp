@@ -36,6 +36,8 @@
 
 #include "CIMOperationRequestDispatcher.h"
 
+#include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1382,7 +1384,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 		queue->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
 		return;
-
 	}
 
 	// check the class name for an "external provider"
@@ -1774,6 +1775,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	CIMSetPropertyRequestMessage* request)
 {
+	_fixSetPropertyValueType(request);
+
 	String className = request->instanceName.getClassName();
 	
 	// check the class name for an "external provider"
@@ -2005,6 +2008,8 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	CIMInvokeMethodRequestMessage* request)
 {
+	_fixInvokeMethodParameterTypes(request);
+
 	String className = request->instanceName.getClassName();
 	
 	// check the class name for an "external provider"
@@ -2220,5 +2225,248 @@ void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
 	_providerManager.createProviderBlockTable(cimNamedInstances);
 }
 */
+
+/**
+    Convert the specified CIMValue to the specified type, and return it in
+    a new CIMValue.
+*/
+CIMValue CIMOperationRequestDispatcher::_convertValueType(
+    const CIMValue& value,
+    CIMType type)
+{
+    CIMValue newValue;
+
+    if (value.isArray())
+    {
+        Array<String> stringArray;
+        Array<const char*> charPtrArray;
+
+        //
+        // Convert the value to Array<const char*> to send to conversion method
+        //
+        // ATTN-RK-P3-20020221: Deal with TypeMismatch exception
+        // (Shouldn't really ever get that exception)
+        value.get(stringArray);
+
+        for (Uint32 k=0; k<stringArray.size(); k++)
+        {
+            charPtrArray.append(stringArray[k].allocateCString());
+        }
+
+        //
+        // Convert the value to the specified type
+        //
+        try
+        {
+            newValue = XmlReader::stringArrayToValue(0, charPtrArray, type);
+        }
+        catch (XmlSemanticError e)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER,
+                String("Malformed ") + TypeToString(type) +
+                "value");
+        }
+
+        for (Uint32 k=0; k<charPtrArray.size(); k++)
+        {
+            delete charPtrArray[k];
+        }
+    }
+    else
+    {
+        String stringValue;
+
+        // ATTN-RK-P3-20020221: Deal with TypeMismatch exception
+        // (Shouldn't really ever get that exception)
+        value.get(stringValue);
+
+        try
+        {
+            newValue = XmlReader::stringToValue(0, _CString(stringValue), type);
+        }
+        catch (XmlSemanticError e)
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER,
+                String("Malformed ") + TypeToString(type) +
+                "value");
+        }
+    }
+
+    return newValue;
+}
+
+/**
+    Find the CIMParamValues in the InvokeMethod request whose types were
+    not specified in the XML encoding, and convert them to the types
+    specified in the method schema.
+*/
+void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
+    CIMInvokeMethodRequestMessage* request)
+{
+    Boolean gotMethodDefinition = false;
+    CIMMethod method;
+
+    //
+    // Cycle through the input parameters, converting the untyped ones.
+    //
+    Array<CIMParamValue> inParameters = request->inParameters;
+    Uint32 numInParamValues = inParameters.size();
+    for (Uint32 i=0; i<numInParamValues; i++)
+    {
+        if (inParameters[i].getParameter().getType() == CIMType::NONE)
+        {
+            //
+            // Retrieve the method definition, if we haven't already done so
+            // (only look up the method if we have an untyped parameter value)
+            //
+            if (!gotMethodDefinition)
+            {
+                //
+                // Get the class definition for this method
+                //
+                // ATTN-RK-P2-20020221: This will need to use the repository queue?
+                CIMClass cimClass;
+                _repository->read_lock();
+                cimClass = _repository->getClass(
+                    request->nameSpace,
+                    request->instanceName.getClassName(),
+                    false, //localOnly,
+                    false, //includeQualifiers,
+                    false, //includeClassOrigin,
+                    CIMPropertyList());
+                _repository->read_unlock();
+
+                //
+                // Get the method definition from the class
+                //
+                Uint32 methodPos = cimClass.findMethod(request->methodName);
+                if (methodPos == PEG_NOT_FOUND)
+                {
+                    // ATTN-RK-P2-20020221: Handle this error condition
+                    throw CIMException(CIM_ERR_INVALID_PARAMETER);
+                }
+                method = cimClass.getMethod(methodPos);
+
+                gotMethodDefinition = true;
+            }
+
+            //
+            // Find the parameter definition for this input parameter
+            //
+            String paramName = inParameters[i].getParameter().getName();
+            Uint32 numParams = method.getParameterCount();
+            for (Uint32 j=0; j<numParams; j++)
+            {
+                CIMParameter param = method.getParameter(j);
+                if (paramName == param.getName())
+                {
+                    //
+                    // Retype the input parameter value according to the
+                    // type defined in the class/method schema
+                    //
+                    CIMType paramType = param.getType();
+                    CIMValue newValue;
+
+                    if (inParameters[i].getValue().isNull())
+                    {
+                        newValue.setNullValue(param.getType(), param.isArray());
+                    }
+                    else if (inParameters[i].getValue().isArray() !=
+                                 param.isArray())
+                    {
+                        // ATTN-RK-P1-20020222: Who catches this?  They aren't.
+                        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+                    }
+                    else
+                    {
+                        newValue = _convertValueType(inParameters[i].getValue(),
+                            paramType);
+                    }
+
+                    // Should already have correct IsArray, ArraySize values
+                    CIMParameter newParameter = inParameters[i].getParameter();
+                    newParameter.setType(paramType);
+                    inParameters[i] = CIMParamValue(newParameter, newValue);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+/**
+    Convert the CIMValue given in a SetProperty request to the correct
+    type according to the schema, because it is not possible to specify
+    the property type in the XML encoding.
+*/
+void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
+    CIMSetPropertyRequestMessage* request)
+{
+    CIMValue inValue = request->newValue;
+
+    //
+    // Only do the conversion if the type is not already set
+    //
+    if ((inValue.getType() != CIMType::STRING) &&
+        (inValue.getType() != CIMType::NONE))
+    {
+        return;
+    }
+
+    //
+    // Get the class definition for this property
+    //
+    // ATTN-RK-P2-20020221: This will need to use the repository queue?
+    CIMClass cimClass;
+    _repository->read_lock();
+    cimClass = _repository->getClass(
+        request->nameSpace,
+        request->instanceName.getClassName(),
+        false, //localOnly,
+        false, //includeQualifiers,
+        false, //includeClassOrigin,
+        CIMPropertyList());
+    _repository->read_unlock();
+
+    //
+    // Get the property definition from the class
+    //
+    Uint32 propertyPos = cimClass.findProperty(request->propertyName);
+    if (propertyPos == PEG_NOT_FOUND)
+    {
+        // ATTN-RK-P2-20020221: Handle this error condition
+        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    }
+    CIMProperty property = cimClass.getProperty(propertyPos);
+
+    //
+    // Retype the input property value according to the
+    // type defined in the schema
+    //
+    CIMValue newValue;
+
+    if (inValue.isNull())
+    {
+        newValue.setNullValue(property.getType(), Boolean(property.getArraySize()>0));
+    }
+// ATTN-RK-P1-20020222: How can one tell if a property is supposed to be an
+// array?  CIMProperty does not have an isArray() method.
+//    else if (inValue.isArray() != property.isArray())
+//    {
+//        // ATTN-RK-P1-20020222: Who catches this?  They aren't.
+//        throw CIMException(CIM_ERR_INVALID_PARAMETER);
+//    }
+    else
+    {
+        newValue = _convertValueType(inValue, property.getType());
+    }
+
+    //
+    // Put the retyped value back into the message
+    //
+    request->newValue = newValue;
+}
 
 PEGASUS_NAMESPACE_END

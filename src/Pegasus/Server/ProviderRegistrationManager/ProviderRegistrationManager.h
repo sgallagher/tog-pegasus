@@ -235,9 +235,7 @@ public:
 
 	Boolean lookupAssociationProvider(
 		const CIMNamespaceName & nameSpace, 
-		const CIMName & className,
-        const CIMName & assocClassName,
-        const CIMName & resultClassName,
+		const CIMName & assocClassName,
         Array<CIMInstance>& provider, 
         Array<CIMInstance>& providerModule);
 

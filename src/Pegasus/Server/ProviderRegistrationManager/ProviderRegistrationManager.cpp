@@ -467,34 +467,16 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 // class
 Boolean ProviderRegistrationManager::lookupAssociationProvider(
     const CIMNamespaceName & nameSpace, 
-    const CIMName & className,
     const CIMName & assocClassName,
-    const CIMName & resultClassName,
     Array<CIMInstance>& providers,
     Array<CIMInstance>& providerModules)
 {
-    // assume assocClassName is empty
-    // algorithm: enumerateClassnames, find all association providers
-    // registered for classes and give back this list
-
-    Array<CIMName> classNames;
-    _repository->read_lock();
-    try
-    {
-         classNames = _repository->enumerateClassNames(
-             nameSpace, CIMName(), true);
-    }
-    catch(CIMException& exception) {}
-    catch(Exception& exception) {}
-    catch(...) {}
-    _repository->read_unlock();
-
     CIMInstance pInstance;
     CIMInstance pmInstance;
     String providerName;
 
     if (lookupInstanceProvider(
-        nameSpace, className, pInstance, pmInstance, true))
+        nameSpace, assocClassName, pInstance, pmInstance, true))
     {
         // get the provider name
         Uint32 pos = pInstance.findProperty(CIMName ("Name"));

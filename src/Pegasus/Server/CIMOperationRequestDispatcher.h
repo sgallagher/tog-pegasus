@@ -366,22 +366,18 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass,
-        const CIMName& resultClass,
         const String& role,
         Uint32& providerCount);
     
     Boolean _lookupNewAssociationProvider(
         const CIMNamespaceName& nameSpace, 
-        const CIMName& className,
         const CIMName& assocClass,
-        const CIMName& resultClass,
         String& serviceName,
         String& controlProviderName);
     
     Array<String> _lookupAssociationProvider(
-        const CIMNamespaceName& nameSpace, const CIMName& className,
-        const CIMName& assocClass,
-        const CIMName& resultClass);
+        const CIMNamespaceName& nameSpace,
+        const CIMName& assocClass);
 
       String _lookupMethodProvider(const CIMNamespaceName& nameSpace,
     	const CIMName& className, const CIMName& methodName);

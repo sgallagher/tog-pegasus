@@ -24,6 +24,11 @@ OS=hpux
 IAFLAGS =
 endif
 
+ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
+OS=hpux
+IAFLAGS =
+endif
+
 # Set Parameters for OS type
 ifeq ($(OS),compaq_oss)
     CXX = c89

@@ -131,8 +131,8 @@ ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 SOURCES += Signal.cpp
 endif
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-SOURCES += Signal.cpp
+ifeq ($(OS),HPUX)
+  SOURCES += Signal.cpp
   ifdef PEGASUS_HAS_SSL
     EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib -lssl -lcrypto
   endif

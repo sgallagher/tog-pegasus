@@ -100,7 +100,7 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *dead)
 PEGASUS_NAMESPACE_END
 PEGASUS_USING_STD;
 
-#if !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
+#if !defined(PEGASUS_PLATFORM_HPUX_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && !defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 PEGASUS_USING_PEGASUS;
 void * operator new(size_t size) throw (PEGASUS_STD(bad_alloc))
 {
@@ -132,7 +132,7 @@ void * operator new(size_t size) throw (PEGASUS_STD(bad_alloc))
    }
 }
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#ifdef PEGASUS_PLATFORM_HPUX_ACC
 void operator delete(void *dead) throw()
 #else
 void operator delete(void *dead) 
@@ -186,7 +186,7 @@ void * operator new[] (size_t size) throw (PEGASUS_STD(bad_alloc))
    }
 }
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#ifdef PEGASUS_PLATFORM_HPUX_ACC
 void operator delete[] (void *dead) throw()
 #else
 void operator delete[] (void *dead) 
@@ -207,7 +207,7 @@ void operator delete[] (void *dead)
 #endif
    return;
 }
-#endif // PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#endif // PEGASUS_PLATFORM_HPUX_ACC
 
 PEGASUS_NAMESPACE_BEGIN
 

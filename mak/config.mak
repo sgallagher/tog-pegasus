@@ -35,6 +35,7 @@ VALID_PLATFORMS = \
     LINUX_IA64_GNU \
     AIX_RS_IBMCXX \
     HPUX_PARISC_ACC \
+    HPUX_IA64_ACC \
     TRU64_ALPHA_DECCXX \
     SOLARIS_SPARC_GNU \
     ZOS_ZSERIES_IBM \
@@ -50,21 +51,13 @@ endif
 
 ################################################################################
 
-ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
-   OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
-   BIN_DIR = $(HOME_DIR)/bin
-   LIB_DIR = $(HOME_DIR)/lib
-   REPOSITORY_DIR = $(HOME_DIR)
-   REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
-else
-   OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
-   BIN_DIR = $(HOME_DIR)/bin
-   LIB_DIR = $(HOME_DIR)/lib
+OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
+BIN_DIR = $(HOME_DIR)/bin
+LIB_DIR = $(HOME_DIR)/lib
 
-   # define the location for the repository
-   REPOSITORY_DIR = $(HOME_DIR)
-   REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
-endif
+# define the location for the repository
+REPOSITORY_DIR = $(HOME_DIR)
+REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 
 LEX = flex
 
@@ -95,6 +88,11 @@ ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+  FOUND = true
+endif
+
+ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
   include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
   FOUND = true
 endif

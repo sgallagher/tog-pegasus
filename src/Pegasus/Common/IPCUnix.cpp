@@ -396,7 +396,7 @@ Condition::Condition() : _disallow(0)
    _destroy_mut = true;
    pthread_cond_init((PEGASUS_COND_TYPE *)&_condition, 0);
 
-// #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+// #ifdef PEGASUS_PLATFORM_HPUX_ACC
 //    // HP-UX can not deal with the non-static structure assignment.
 //    // Also, the (PEGASUS_COND_TYPE) cast seems to break the HP-UX compile.
 //    PEGASUS_COND_TYPE tmpCond = PTHREAD_COND_INITIALIZER;
@@ -413,7 +413,7 @@ Condition::Condition(const Mutex& mutex)  : _disallow(0)
    _destroy_mut = false;
    pthread_cond_init((PEGASUS_COND_TYPE *)&_condition, 0);
 }
-// #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+// #elif defined(PEGASUS_PLATFORM_HPUX_ACC)
 // Condition::Condition(const Mutex& mutex)  : _disallow(0)
 // {
 //    _cond_mutex = Mutex(mutex);

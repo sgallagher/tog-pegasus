@@ -94,7 +94,7 @@ inline void Thread::thread_init(void)
 
 // *****----- native thread exit routine -----***** //
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #define PEGASUS_THREAD_EXIT_NATIVE 
 inline void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
 #endif

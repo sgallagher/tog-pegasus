@@ -37,7 +37,7 @@
 #ifndef PG_PROCESS_PLATFORM_H
 #define PG_PROCESS_PLATFORM_H
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#ifdef PEGASUS_PLATFORM_HPUX_ACC
 #include "Process_HPUX.h"
 #else
 #include "Process_Stub.h"

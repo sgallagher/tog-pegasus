@@ -7,7 +7,7 @@ LIBRARIES = \
     pegclient
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-ifneq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+  ifneq ($(OS),HPUX)
     LIBRARIES += slp
-endif
+  endif
 endif

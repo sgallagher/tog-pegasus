@@ -29,7 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 #include "OperatingSystem.h"
 
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "OperatingSystem_HPUX.cpp"
 #elif defined (PEGASUS_OS_TYPE_WINDOWS)
 # include "OperatingSystem_Windows.cpp"

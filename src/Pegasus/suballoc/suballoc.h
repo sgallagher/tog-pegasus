@@ -53,7 +53,7 @@
 #include <unistd.h>
 #include <malloc.h>
 
-#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC) 
+#elif defined (PEGASUS_PLATFORM_HPUX_ACC) 
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -182,7 +182,7 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
-#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC) 
+#elif defined (PEGASUS_PLATFORM_HPUX_ACC) 
 
 typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
@@ -537,7 +537,7 @@ inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
    return;
 }
 
-#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC) 
+#elif defined (PEGASUS_PLATFORM_HPUX_ACC) 
 
 inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
 {

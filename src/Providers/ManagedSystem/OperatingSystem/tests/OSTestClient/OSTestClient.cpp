@@ -45,7 +45,7 @@
 #include "OSTestClient.h"
 
 // include the appropriate OS-specific file for checking results
-#if defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined (PEGASUS_PLATFORM_HPUX_ACC)
 # include "OSTestClient_HPUX.cpp"
 #else
 # include "OSTestClient_Stub.cpp"

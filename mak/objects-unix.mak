@@ -7,7 +7,7 @@
 ##
 ################################################################################
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(OS),HPUX)
   _NO_TMP_O = yes
 endif
 

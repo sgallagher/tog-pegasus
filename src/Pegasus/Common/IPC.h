@@ -39,7 +39,7 @@
 # include "IPCWindows.h"
 #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include "IPCUnix.h"
-#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#elif defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "IPCHpux.h"
 #elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include "IPCUnix.h"
@@ -553,7 +553,7 @@ class PEGASUS_COMMON_LINKAGE Condition
 # include "IPCWindows_inline.h"
 #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include "IPCUnix_inline.h"
-#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#elif defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include "IPCUnix_inline.h"

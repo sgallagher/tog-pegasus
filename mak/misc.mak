@@ -7,7 +7,7 @@ strip-license:
 prepend-license:
 	mu prepend $(ROOT)/doc/license.txt *.h *.cpp
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(OS),HPUX)
 
 ifeq ($(OPTION),1)
 general:

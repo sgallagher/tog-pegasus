@@ -40,7 +40,7 @@ include $(ROOT)/mak/config.mak
 PROGRAM = ProcessProviderTestClient
 
 POSTSTARTTESTS =
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(OS),HPUX)
   POSTSTARTTESTS = $(PROGRAM)
 endif
 

@@ -20,30 +20,40 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: Jenny Yu (jenny_yu@hp.com)
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Version_h
-#define Pegasus_Version_h
+#ifndef Pegasus_Platform_HPUX_IA64_ACC_h
+#define Pegasus_Platform_HPUX_IA64_ACC_h
 
-#include <Pegasus/Common/Config.h>
+#include <cstddef>
 
-PEGASUS_NAMESPACE_BEGIN
+#define PEGASUS_OS_TYPE_UNIX
 
-const char PEGASUS_NAME[] = "CIM Server";
-const char PEGASUS_VERSION[] = "1.10";
-const char PEGAUS_STATUS[] = "Experimental" ;
+#define PEGASUS_OS_HPUX
 
-#if defined(PLATFORM_VERSION_SUPPORTED)
-# if defined(PEGASUS_PLATFORM_HPUX_ACC)
-#   include <Pegasus/Common/Version_HPUX_ACC.h>
-# endif
+#define PEGASUS_COMPILER_ACC
+
+#define PLATFORM_VERSION_SUPPORTED
+
+#define PEGASUS_UINT64 unsigned long long
+
+#define PEGASUS_SINT64 long long
+
+#ifdef HPUX_IA64_NATIVE_COMPILER
+   #define PEGASUS_HAVE_NAMESPACES
 #endif
 
-PEGASUS_NAMESPACE_END
+//#define PEGASUS_HAVE_EXPLICIT
 
-#endif /* Pegasus_Version_h */
+#define PEGASUS_HAVE_MUTABLE
+
+// #define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#endif /* Pegasus_Platform_HPUX_IA64_ACC_h */

@@ -27,7 +27,7 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ $(RM) $(TMP_DIR)/$*.rsp
 	@ echo +++ $* passed successfully +++
 
-ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
+ifeq ($(OS), HPUX)
 XMLSCRIPTS = \
    PG_OS_Fail1_CreateInstance \
    PG_OS_Fail2_DeleteInstance  \

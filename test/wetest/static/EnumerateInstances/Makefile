@@ -5,7 +5,7 @@ include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = EnumerateInstances51003
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(OS),HPUX)
 XMLSCRIPTS += \
               EnumerateInstances51000 \
 	      DeepLocalTF51005 \

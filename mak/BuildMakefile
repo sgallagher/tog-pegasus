@@ -38,7 +38,7 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   TESTS = prestarttests
 endif
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+ifeq ($(OS),HPUX)
   CIMSERVER_START_SERVICE = cimserver
   CIMSERVER_STOP_SERVICE = cimserver -s
   SLEEP = sleep 5

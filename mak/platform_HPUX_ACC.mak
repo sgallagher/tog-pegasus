@@ -112,7 +112,11 @@ DEPEND_INCLUDES =
 FLAGS = 
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-  FLAGS += -Wl,+s -Wl,+b/opt/wbem/lib:/usr/lib
+  ifdef PEGASUS_USE_RELEASE_DIRS
+    FLAGS += -Wl,+s -Wl,+b/opt/wbem/lib:/usr/lib
+  else
+    FLAGS += -Wl,+s -Wl,+b$(LIB_DIR):/usr/lib
+  endif
 endif
 
 ifdef PEGASUS_DEBUG

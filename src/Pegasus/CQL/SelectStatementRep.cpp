@@ -43,20 +43,22 @@ SelectStatementRep::SelectStatementRep()
 
 SelectStatementRep::SelectStatementRep(const SelectStatementRep& ssr)
   :_qlang(ssr._qlang),
-   _query(ssr._query),
-   _ctx(ssr._ctx)
-{
+   _query(ssr._query)
+{  
+  _ctx = ssr._ctx->clone();  
 }
 
-SelectStatementRep::SelectStatementRep(String& inQlang, String& inQuery, QueryContext* inCtx)
+SelectStatementRep::SelectStatementRep(String& inQlang, String& inQuery, QueryContext& inCtx)
   :_qlang(inQlang),
-   _query(inQuery),
-   _ctx(inCtx)
+   _query(inQuery)
 {
+  _ctx = inCtx.clone();
 }
 
 SelectStatementRep::~SelectStatementRep()
 {
+  if (_ctx != NULL)
+    delete _ctx;
 }
 
 SelectStatementRep& SelectStatementRep::operator=(const SelectStatementRep& rhs)
@@ -66,7 +68,7 @@ SelectStatementRep& SelectStatementRep::operator=(const SelectStatementRep& rhs)
 
   _qlang = rhs._qlang;
   _query = rhs._query;
-  _ctx = rhs._ctx;
+  _ctx = rhs._ctx->clone();
 
   return *this;
 }

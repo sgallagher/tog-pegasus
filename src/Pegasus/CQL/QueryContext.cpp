@@ -35,6 +35,8 @@
 #include "QueryContext.h"
 #include <Pegasus/Common/System.h>
 
+#include <iostream>
+
 PEGASUS_NAMESPACE_BEGIN
                 
 QueryContext::QueryContext(CIMNamespaceName& inNS)
@@ -47,6 +49,7 @@ QueryContext::QueryContext(const QueryContext& ctx)
    _AliasClassTable(ctx._AliasClassTable),
    _fromList(ctx._fromList)
 {
+
 }
 
 QueryContext::~QueryContext()
@@ -78,11 +81,58 @@ CIMNamespaceName QueryContext::getNamespace() const
 
 void QueryContext::insertClassPath(const CQLIdentifier& inIdentifier, String inAlias)
 {
-	if(inAlias != String::EMPTY)
+  CQLIdentifier _class;  
+
+  if (inIdentifier.getName().getString() == String::EMPTY)
+  {
+    throw Exception("TEMP MSG QueryContext: not allowed to add empty class name");
+  }
+
+  if ((inAlias != String::EMPTY) &&
+      (String::equalNoCase(inAlias,inIdentifier.getName().getString())))
+  {
+    inAlias = String::EMPTY;
+  }
+ 
+  if (_AliasClassTable.contains(inIdentifier.getName().getString()))
+  {
+    throw Exception("TEMP MSG QueryContext: classname is already an alias");
+  }
+
+  Boolean found = false;
+  for (Uint32 i = 0; i < _fromList.size(); i++)
+  {
+    if ((inAlias != String::EMPTY) && 
+	(String::equalNoCase(inAlias, _fromList[i].getName().getString())))
+    {
+      throw Exception("TEMP MSG QueryContext: alias is already a classname");
+    }
+
+    if (_fromList[i].getName() == inIdentifier.getName())
+    {
+      found = true;
+    }
+  }
+
+  if (!found)
+  {  
+    _fromList.append(inIdentifier);
+  }
+
+  if(inAlias != String::EMPTY)
+  {
+    if (!_AliasClassTable.insert(inAlias, inIdentifier))
+    {  
+      // Alias already exists
+      if (_AliasClassTable.lookup(inAlias, _class))
+      {	
+	if (!_class.getName().equal(inIdentifier.getName()))
 	{
-		_AliasClassTable.insert(inAlias, inIdentifier);
+	  throw Exception("TEMP MSG QueryContext: attempted to add conflicting aliases");
 	}
-	_fromList.append(inIdentifier);
+      }
+    }
+  }
 }
 
 CQLIdentifier QueryContext::findClass(const String& inAlias)
@@ -107,8 +157,52 @@ Array<CQLIdentifier> QueryContext::getFromList() const
 	return _fromList;
 }
 
+String QueryContext::getFromString() const
+{
+  Array<CQLIdentifier> aliasedClasses;
+  Array<String> aliases;
+  for (HT_Alias_Class::Iterator i = _AliasClassTable.start(); i; i++)
+  {  
+    aliases.append(i.key());
+    aliasedClasses.append(i.value());
+  }
+
+  String result("FROM ");
+  for (Uint32 i = 0; i < _fromList.size(); i++)
+  {
+    Boolean hasAlias = false;
+    for (Uint32 j = 0; j < aliasedClasses.size(); j++)
+    {
+      if (_fromList[i].getName() == aliasedClasses[j].getName())
+      {
+	result.append(_fromList[i].getName().getString());
+	result.append(" AS ");
+	result.append(aliases[j]);     
+	hasAlias = true;
+      }
+    }
+
+    if (!hasAlias)
+    {
+      result.append(_fromList[i].getName().getString());      
+    }
+
+    if (i < _fromList.size() - 1)
+    {
+      result.append(" , ");
+    }
+    else
+    {
+      result.append(" ");
+    }
+  }
+
+  return result;
+}
+
 void QueryContext::clear(){
-	_fromList.clear();
+  _fromList.clear();
+   _AliasClassTable.clear();
 }
 
 PEGASUS_NAMESPACE_END

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/CQL/QueryContext.h>
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/Linkage.h>
@@ -155,7 +156,7 @@ class PEGASUS_CQL_LINKAGE SelectStatementRep
 
     SelectStatementRep(const SelectStatementRep& ssr);
 
-    SelectStatementRep(String& inQlang, String& inQuery, QueryContext* ctx);
+    SelectStatementRep(String& inQlang, String& inQuery, QueryContext& ctx);
 
     SelectStatementRep& operator=(const SelectStatementRep& rhs);
 
@@ -168,7 +169,7 @@ class PEGASUS_CQL_LINKAGE SelectStatementRep
        */
     String _query;
 
-    QueryContext * _ctx;
+    QueryContext* _ctx;
 };
 
 PEGASUS_NAMESPACE_END

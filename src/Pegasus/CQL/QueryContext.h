@@ -43,12 +43,13 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 #include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef HashTable<String, CQLIdentifier, EqualFunc<String>, HashFunc<String> > HT_Alias_Class;
+typedef HashTable<String, CQLIdentifier, EqualNoCaseFunc, HashLowerCaseFunc> HT_Alias_Class;
 
 class PEGASUS_CQL_LINKAGE QueryContext
 {
@@ -60,6 +61,8 @@ class PEGASUS_CQL_LINKAGE QueryContext
 
 	virtual Array<CIMName> enumerateClassNames(const CIMName& inClassName) = 0;
 
+	virtual QueryContext* clone() = 0;
+
         String getHost(Boolean fullyQualified = true);
 
         CIMNamespaceName getNamespace() const;
@@ -69,6 +72,8 @@ class PEGASUS_CQL_LINKAGE QueryContext
         CQLIdentifier findClass(const String& inAlias);
 
         Array<CQLIdentifier> getFromList() const;
+	
+	String getFromString() const;
 
         void clear();
 

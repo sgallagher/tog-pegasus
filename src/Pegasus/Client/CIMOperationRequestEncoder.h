@@ -52,7 +52,8 @@ public:
 	@param outputQueue queue to receive encoded HTTP messages.
     */
     CIMOperationRequestEncoder(
-        MessageQueue* outputQueue, ClientAuthenticator* authenticator);
+        MessageQueue* outputQueue, ClientAuthenticator* authenticator,
+        Uint32 showOutput);
 
     /** Destructor. */
     ~CIMOperationRequestEncoder();
@@ -134,9 +135,13 @@ private:
     void _encodeInvokeMethodRequest(
 	CIMInvokeMethodRequestMessage* message);
 
+    void _sendRequest(Array<Sint8>& buffer); 
+
     MessageQueue* _outputQueue;
     CString _hostName;
     ClientAuthenticator* _authenticator;
+    // Controls client trace output. 1 = con, 2 == log
+    Uint32 _showOutput;
 };
 
 PEGASUS_NAMESPACE_END

@@ -57,7 +57,10 @@ extern void *get_cimmof__current_buffer_wrapper();
 extern int switch_to_buffer_wrapper(void *buffstate);
 extern void *create_cimmof_buffer_wrapper(const FILE *f, int size);
 
+#if 0
+// ATTN: This is already defined in Common/Exception.h
 const char ParseError::MSG[] = "";
+#endif
 const char LexerError::MSG[] = "";
 
 cimmofParser *cimmofParser::_instance = 0;

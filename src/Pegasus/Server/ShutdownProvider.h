@@ -40,6 +40,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Server/Linkage.h>

@@ -1,20 +1,19 @@
-#ifndef CQLEXPRESSION_H_HEADER_INCLUDED_BEE5929F
-#define CQLEXPRESSION_H_HEADER_INCLUDED_BEE5929F
+#ifndef Pegasus_CQLExpression_h
+#define Pegasus_CQLExpression_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/CQLValue.h>
-
-
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/CQL/CQLTerm.h>
-#define MAXFACTORS 50
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLFactory;
+class PEGASUS_CQL_LINKAGE CQLExpressionRep;
+class PEGASUS_CQL_LINKAGE QueryContext;
 
 /**  The enum is private, but the definition is public.
       */
-    //##ModelId=40FC040E0079
     enum TermOpType {plus,minus};
 
 #ifndef PEGASUS_ARRAY_T
@@ -33,23 +32,21 @@ easier to break into components and process the expression.
 
    There must be exactly one more term than there are operators.
   */
-//##ModelId=40FC03230150
+
 class PEGASUS_CQL_LINKAGE CQLExpression
 {
   public:
-   CQLExpression(){}
+   CQLExpression():_rep(0){}
     /** constructor takes one CQLTerm object.
       */
-    //##ModelId=40FD308002EE
     CQLExpression(CQLTerm& theTerm);
    CQLExpression(const CQLExpression& inExpress);
     /**  the getValue method evaluates the expression and returns the value.
           Any property that need to be resolved into a value is taken from the
     CIMInstance.
       */
-    ~CQLExpression(){}
+    ~CQLExpression();
 
-    //##ModelId=40FC0323015B
     CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
 
     /** The appendOperation is used by Bison.
@@ -57,7 +54,6 @@ class PEGASUS_CQL_LINKAGE CQLExpression
           when invoked will always pass in an integer that is the Term operation
           type and a CQLTerm object.
       */
-    //##ModelId=40FD30BB03C3
     void appendOperation(TermOpType theTermOpType, CQLTerm& theTerm);
 
    String toString();
@@ -70,27 +66,8 @@ class PEGASUS_CQL_LINKAGE CQLExpression
    friend class CQLFactory;
 
   private:
-   
 
-    /**  The _TermOperators member variable is an 
-           array of operators that are valid to operate on Terms in a CQL
-    expression. 
-           Valid operators include concatentation, plus and minus.
-    
-           The array is ordered according to the operation from left to right.
-      */
-    //##ModelId=40FC036B036A
-    
-    Array<TermOpType> _TermOperators;
-
-    /**  The _CQLTerms member variable is an 
-           array of operands that are valid in a CQL expression. 
-    
-           The array is ordered according to the operation from left to right.
-      */
-    //##ModelId=40FC2F2C0341
-    Array<CQLTerm> _CQLTerms;
-
+	CQLExpressionRep *_rep;   
 };
 
 #ifndef PEGASUS_ARRAY_T
@@ -102,4 +79,4 @@ class PEGASUS_CQL_LINKAGE CQLExpression
 PEGASUS_NAMESPACE_END
 
 
-#endif /* CQLEXPRESSION_H_HEADER_INCLUDED_BEE5929F */
+#endif 

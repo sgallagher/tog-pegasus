@@ -33,6 +33,7 @@ SOURCES = \
    CQLFunction.cpp \
    CQLFunctionRep.cpp \
    CQLExpression.cpp \
+   CQLExpressionRep.cpp \
    CQLFactor.cpp \
    CQLFactorRep.cpp \
    CQLScope.cpp \

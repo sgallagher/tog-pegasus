@@ -1,208 +1,132 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2004////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Dave Rosckes (rosckes@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/CQL/CQLExpression.h>
 #include <Pegasus/CQL/CQLExpressionRep.h>
 #include <Pegasus/CQL/CQLFactory.h>
-#include <Pegasus/Query/QueryCommon/QueryContext.h>
-#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/CQL/QueryContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)
+CQLExpressionRep::CQLExpressionRep(CQLTerm& theTerm)
 {
-  PEG_METHOD_ENTER(TRC_CQL,
-      "CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)");
-  _CQLTerms.append(theTerm);
-  PEG_METHOD_EXIT();
+   _CQLTerms.append(theTerm);
+
 }
 
-CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep)
+CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep& rep) 
 {
-  PEG_METHOD_ENTER(TRC_CQL,
-      "CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep)");
+   _TermOperators = rep._TermOperators;
 
-  _TermOperators = rep->_TermOperators;
-  _CQLTerms = rep->_CQLTerms;
-
-  PEG_METHOD_EXIT();
+   _CQLTerms = rep._CQLTerms;
 }
 
-CQLExpressionRep::~CQLExpressionRep()
+
+CQLValue CQLExpressionRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
+   CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
 
-}
-CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI,
-                                        const QueryContext& QueryCtx)
-{
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::resolveValue()");
-
-  CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
-
-  /*
-    for(Uint32 i = 0; i < _TermOperators.size(); ++i)
-    {
+   for(Uint32 i = 0; i < _TermOperators.size(); ++i)
+   {
       switch(_TermOperators[i])
-        {
-           case TERM_ADD:
-               returnVal = returnVal +
-               _CQLTerms[i+1].resolveValue(CI,QueryCtx);
-           break;
-               case TERM_SUBTRACT:
-               returnVal = returnVal -
-               _CQLTerms[i+1].resolveValue(CI,QueryCtx);
-               break;
-        default:
+      {
+         case plus:
+            returnVal = returnVal + 
+                        _CQLTerms[i+1].resolveValue(CI,QueryCtx);
+            break;
+         case minus:
+            returnVal = returnVal - 
+                        _CQLTerms[i+1].resolveValue(CI,QueryCtx);
+            break;
+         default:
             throw(1);
-        }
-    }
-*/
-
-  PEG_METHOD_EXIT();
-  return returnVal;
+      }
+   }
+   return returnVal;
 }
 
-void CQLExpressionRep::appendOperation(const TermOpType theTermOpType,
-                                       const CQLTerm& theTerm)
+void CQLExpressionRep::appendOperation(TermOpType theTermOpType, CQLTerm& theTerm)
 {
-    PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::appendOperation()");
-
-    _TermOperators.append(theTermOpType);
-    _CQLTerms.append(theTerm);
-
-    PEG_METHOD_EXIT();
+   _TermOperators.append(theTermOpType);
+   _CQLTerms.append(theTerm);
 }
 
-String CQLExpressionRep::toString()const
+String CQLExpressionRep::toString() 
 {
-    PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::toString()");
+   String returnStr;
 
-    String returnStr;
+   returnStr.append(_CQLTerms[0].toString());
 
-    if(_CQLTerms.size() > 0)
-    {
-        returnStr.append(_CQLTerms[0].toString());
-        /* for(Uint32 i = 0; i < _TermOperators.size(); ++i)
-          {
-            returnStr.append(_TermOperators[i] ==
-                TERM_ADD ? String(" + ") : String(" - "));
-        returnStr.append(_CQLTerms[i+1].toString());
-          }
-        */
-    }
+   for(Uint32 i = 0; i < _TermOperators.size(); ++i)
+   {
+      returnStr.append(_TermOperators[i] == plus ? String(" + ") : String(" - "));
+      returnStr.append(_CQLTerms[i+1].toString());
+   }
 
-    PEG_METHOD_EXIT();
-    return returnStr;
-    }
-
-
-Boolean CQLExpressionRep::isSimple()const
-{
-   return (_CQLTerms.size() == 1);
+   return returnStr;
 }
 
-Boolean CQLExpressionRep::isSimpleValue()const
+Boolean CQLExpressionRep::isSimpleValue()
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::isSimpleValue()");
-
-  if(_CQLTerms.size() == 1)
-    {
-      PEG_METHOD_EXIT();
-      return _CQLTerms[0].isSimpleValue();
-    }
-
-  PEG_METHOD_EXIT();
-
-  return false;
+   if(_CQLTerms.size() == 1 && 
+      _CQLTerms[0].isSimpleValue())
+   {
+      return true;
+   }
+   return false;
 }
 
-Array<CQLTerm> CQLExpressionRep::getTerms()const
+Array<CQLTerm> CQLExpressionRep::getTerms()
 {
    return _CQLTerms;
 }
 
-Array<TermOpType> CQLExpressionRep::getOperators()const
+Array<TermOpType> CQLExpressionRep::getOperators()
 {
    return _TermOperators;
 }
 
-void CQLExpressionRep::applyContext(const QueryContext& inContext,
-                                    const CQLChainedIdentifier& inCid)
+void CQLExpressionRep::applyScopes(Array<CQLScope> inScopes)
 {
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::applyContext()");
-
-  for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
-  {
-    _CQLTerms[i].applyContext(inContext, inCid);
-  }
-
-  PEG_METHOD_EXIT();
-}
-/*
-Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep)const
-{
-  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::operator==()");
-
-  if(_isSimple != rep._isSimple)
-    {
-      PEG_METHOD_EXIT();
-      return false;
-    }
-
-  for(Uint32 i = 0; i < _TermOperators.size(); ++i)
-    {
-      if(_TermOperators[i] != rep._TermOperators[i])
-    {
-      PEG_METHOD_EXIT();
-      return false;
-    }
-    }
-
-  for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
-    {
-      if(_CQLTerms[i] != rep._CQLTerms[i])
-    {
-      PEG_METHOD_EXIT();
-      return false;
-    }
-    }
-
-  PEG_METHOD_EXIT();
-  return true;
+   for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
+   {
+      _CQLTerms[i].applyScopes(inScopes);
+   }
 }
 
-Boolean CQLExpressionRep::operator!=(const CQLExpressionRep& rep)const
-{
-  return (!operator==(rep));
+Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep){
+	return true;
 }
-*/
+
+Boolean CQLExpressionRep::operator!=(const CQLExpressionRep& rep){
+	return (!operator==(rep));
+}
+
 PEGASUS_NAMESPACE_END
 

@@ -125,6 +125,8 @@ static String _Unescape(const String& str)
 		default:
 		    result += c;
 	    }
+
+	    i++;
 	}
 	else
 	    result += c;

@@ -5,7 +5,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-void TestAssociators(CIMRepository& r)
+void TestAssociations(CIMRepository& r)
 {
     String nameSpace = "root";
     {
@@ -44,6 +44,47 @@ void TestAssociators(CIMRepository& r)
 	assert(t);
 	// result[0].print();
     }
+
+    {
+	CIMReference instanceName = "X.key=\"John Smith\"";
+
+	Array<CIMReference> result = r.referenceNames(
+	    nameSpace,
+	    instanceName,
+	    "A",
+	    "left");
+
+	assert(result.size() == 1);
+
+	CIMReference tmp = "A."
+	    "left=\"x.key=\\\"John Smith\\\"\","
+	    "right=\"y.key=\\\"John Jones\\\"\"";
+	
+	Boolean cond = (result[0] == tmp);
+	assert(cond);
+    }
+
+    {
+	CIMReference instanceName = "X.key=\"John Smith\"";
+
+	Array<CIMInstance> result = r.references(
+	    nameSpace,
+	    instanceName,
+	    "A",
+	    "left");
+
+	assert(result.size() == 1);
+
+	CIMClass tmpClass = r.getClass(nameSpace, result[0].getClassName());
+	CIMReference tmpInstanceName = result[0].getInstanceName(tmpClass);
+
+	CIMReference tmp = "A."
+	    "left=\"x.key=\\\"John Smith\\\"\","
+	    "right=\"y.key=\\\"John Jones\\\"\"";
+	
+	Boolean cond = (tmpInstanceName == tmp);
+	assert(cond);
+    }
 }
 
 int main()
@@ -52,7 +93,7 @@ int main()
     {
 	CIMRepository r("./repository");
 
-	TestAssociators(r);
+	TestAssociations(r);
     }
     catch (Exception& e)
     {

@@ -770,8 +770,33 @@ Array<CIMInstance> CIMRepository::references(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "references()");
-    return Array<CIMInstance>();
+    Array<CIMReference> names = referenceNames(
+	nameSpace,
+	objectName,
+	resultClass,
+	role);
+
+    Array<CIMInstance> result;
+
+    for (Uint32 i = 0, n = names.size(); i < n; i++)
+    {
+	String tmpNameSpace = names[i].getNameSpace();
+
+	if (tmpNameSpace.size() == 0)
+	    tmpNameSpace = nameSpace;
+
+	CIMInstance instance = getInstance(
+	    tmpNameSpace,
+	    names[i],
+	    false,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList);
+
+	result.append(instance);
+    }
+
+    return result;
 }
 
 Array<CIMReference> CIMRepository::referenceNames(
@@ -780,8 +805,32 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 {
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "referenceNames()");
-    return Array<CIMReference>();
+    // Form the association file name:
+
+    String tmpNameSpace = nameSpace;
+    tmpNameSpace.translate('/', '#');
+    String assocFileName =
+	Cat(_repositoryRoot, "/", tmpNameSpace, "/associations");
+
+    Array<String> tmpReferenceNames;
+
+    if (!AssocTable::getReferenceNames(
+	assocFileName,
+	objectName,
+        resultClass,
+        role,
+	tmpReferenceNames))
+    {
+	throw PEGASUS_CIM_EXCEPTION(FAILED, "references not found for: "
+	    + objectName.toString());
+    }
+
+    Array<CIMReference> result;
+
+    for (Uint32 i = 0, n = tmpReferenceNames.size(); i < n; i++)
+	result.append(tmpReferenceNames[i]);
+
+    return result;
 }
 
 CIMValue CIMRepository::getProperty(

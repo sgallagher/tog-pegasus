@@ -1,4 +1,7 @@
 
+    -   Resolve redundancy in which the namespace is passed to certain methods
+	(getClass) and the CIMReference itself may contain a namespace arguent.
+
     -	Implement consistency and constraint checking on classes and instances.
 
     -   Implement filtering (using includeQualifiers, localOnly, etc.)

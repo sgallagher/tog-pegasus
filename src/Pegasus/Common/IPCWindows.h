@@ -22,7 +22,8 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Arthur Pichlkostner
+//             (checked in: Markus Mueller sedgewick_de@yahoo.de)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -128,6 +129,8 @@ struct timezone
 };
 
 
+// excluded
+/*
 inline int pegasus_gettimeofday(struct timeval *tv)
 {
 	struct _timeb timebuffer;   
@@ -137,6 +140,31 @@ inline int pegasus_gettimeofday(struct timeval *tv)
 	tv->tv_sec = timebuffer.time;
 	tv->tv_usec = ( timebuffer.millitm * 1000 );
 	return(0);
+} */
+
+// Markus: new implementation with higher resolution
+// that is needed for performance statistics
+
+inline int pegasus_gettimeofday(struct timeval *tv)
+{
+   if (tv == NULL){
+                   return(-1);
+   }
+   LARGE_INTEGER frequency;
+   if (!QueryPerformanceFrequency(&frequency)){
+      struct _timeb timebuffer;
+           _ftime( &timebuffer );
+           tv->tv_sec = timebuffer.time;
+           tv->tv_usec = ( timebuffer.millitm * 1000 );
+           return(0);
+   } else {
+      LARGE_INTEGER counter;
+      QueryPerformanceCounter(&counter);
+      tv->tv_sec = (long int)((counter.QuadPart)/(frequency.QuadPart));
+      tv->tv_usec = ((long int)
+          ((counter.QuadPart)*1000000/(frequency.QuadPart)))%1000000;
+      return(0);
+   }
 }
 	
 inline int PEGASUS_COMMON_LINKAGE gettimeofday(struct timeval *tv, struct timezone *tz)

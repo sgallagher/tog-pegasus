@@ -40,7 +40,6 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-#ifdef PEGASUS_OS_HPUX
     Boolean bad = false;
     try
     {
@@ -267,11 +266,12 @@ int main(int argc, char** argv)
         }
     
         //assert (differenceInMicroseconds == 
-            //PEGASUS_SINT64_LITERAL(86400000000));
+        //    PEGASUS_SINT64_LITERAL(86400000000));
     
         //
-        //  ATTN-CAKG-P2-20020819: the following test currently returns an 
-        //  incorrect result
+        // Test for Out of Range dates on HP-UX, since mktime on HP-UX only
+        // allows dates within a certain range. mktime (3C) man page on HP-UX
+        // does not document the allowed ranges. 
         //
         // Set the start and finish times
         //
@@ -291,18 +291,17 @@ int main(int argc, char** argv)
         {
             bad = true;
         }
-        assert(bad);
 
-    
+#ifdef PEGASUS_PLATFORM_HPUX_ACC 
+        assert(bad);
+#endif
+
         if (verbose)
         {
             cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
         }
-    
-        //assert (differenceInMicroseconds == 
-            //PEGASUS_SINT64_LITERAL(86400000000));
     
         //
         // Set the start and finish times
@@ -327,8 +326,9 @@ int main(int argc, char** argv)
             PEGASUS_SINT64_LITERAL(86400000000));
     
         //
-        //  ATTN-CAKG-P2-20020819: the following test currently returns an 
-        //  incorrect result
+        // Test for Out of Range dates on HP-UX, since mktime on HP-UX only
+        // allows dates within a certain range. mktime (3C) man page on HP-UX
+        // does not document the allowed ranges. 
         //
         // Set the start and finish times
         //
@@ -348,7 +348,9 @@ int main(int argc, char** argv)
         {
             bad = true;
         }
+#ifdef PEGASUS_PLATFORM_HPUX_ACC 
         assert(bad);
+#endif
     
         if (verbose)
         {
@@ -358,12 +360,14 @@ int main(int argc, char** argv)
         }
     
         //
-        //  ATTN-CAKG-P2-20020819: the following test currently returns an 
-        //  incorrect result
+        // Test for Out of Range dates on HP-UX, since mktime on HP-UX only
+        // allows dates within a certain range. mktime (3C) man page on HP-UX
+        // does not document the allowed ranges. 
         //
-        //  Test maximum date difference
+        // Test maximum date difference
         //
         // Set the start and finish times
+        //
         startTime.set("00010101000000.000000-000");
         finishTime.set("99991231235959.999999-000");
     
@@ -380,7 +384,9 @@ int main(int argc, char** argv)
         {
             bad = true;
         }
+#ifdef PEGASUS_PLATFORM_HPUX_ACC 
         assert(bad);
+#endif
     
         if (verbose)
         {
@@ -451,7 +457,6 @@ int main(int argc, char** argv)
         cout << "Exception: " << e.getMessage () << endl;
         exit (1);
     }
-#endif
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

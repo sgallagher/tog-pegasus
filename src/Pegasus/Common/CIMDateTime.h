@@ -180,6 +180,24 @@ public:
     
     @exception InvalidDateTimeFormatException If one argument is a datetime
     and one is an interval
+
+    @exception DateTimeOutOfRangeException If datetime is outside the allowed
+    range
+
+    NOTE: The behavior on HP-UX and Windows platform is to throw an exception
+    when the dates are out of range. Red Hat Linux platform normalizes the
+    dates when they are outside their legal interval and will not throw an
+    exception.
+    
+    Allowed Date Range:
+    The mktime (3C) man page on HP-UX does not document the allowed range. 
+    The approximate range of dates allowed on HP-UX is between 
+    1901 and 2038.
+ 
+    On Windows platform, the approximate range is between 1970 to 2038. 
+
+    On Red Hat Linux the approximate range of dates allowed are within the
+    range of 1901 and 2038.
     */
     static Sint64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
  

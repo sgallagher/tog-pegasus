@@ -153,43 +153,73 @@ public:
 
     // Methods associated with Namespace testing
     Array<CIMNamespaceName> _getNamespacesOld();
-    Boolean InteropTest::_deleteOneLevelOfNamespace(const CIMNamespaceName& parent,
-         const String & child);
+
+    Boolean InteropTest::_deleteOneLevelOfNamespace(
+                         const CIMNamespaceName& parent,
+                         const String & child);
+
     Boolean _deleteNamespaceOld(const String & name);
-    Boolean _validateNamespaces(Array<CIMNamespaceName>& namespaceNames);
+
+    Boolean _validateNamespaces(
+        Array<CIMNamespaceName>& namespaceNames);
+
     Array<CIMInstance> _getCIMNamespaceInstances();
+
     Array<CIMInstance> _getPGNamespaceInstances();
+
     Array<CIMObjectPath> _getCIMNamespaceInstanceNames();
 
     Array<CIMNamespaceName> _getNamespacesNew();
+
     void _showNamespaceInfo(const String& title);
+
     Boolean _existsNew(const CIMNamespaceName& name);
-    Boolean _namespaceCreate__Namespace(const CIMNamespaceName& parent,
-        const String& childName);
+
+    Boolean _namespaceCreate__Namespace(
+                            const CIMNamespaceName& parent,
+                            const String& childName);
+
     Boolean _namespaceCreateCIM_Namespace(const CIMNamespaceName& name);
+
     Boolean _testPGNamespace(const CIMNamespaceName& name,
-        Boolean shared, Boolean updatesAllowed, const String& parent);
+                            Boolean shared,
+                            Boolean updatesAllowed,
+                            const String& parent);
+
     Boolean _namespaceCreatePG_Namespace(const CIMNamespaceName& name,
-        const Boolean shareable, const Boolean updatesAllowed,
-        const String& parent);
+                            const Boolean shareable,
+                            const Boolean updatesAllowed,
+                            const String& parent);
+
     Boolean _namespaceDeleteCIM_Namespace(const CIMNamespaceName& name);
-    Boolean testClassExists(const CIMName & className);
+
+    Boolean testClassExists(
+                            const CIMName & className);
 
     // Methods associated with overall testing
     void testNameSpacesManagement();
+
     void testSharedNameSpacesManagement();
+
     CIMInstance getInstanceObjMgr();
+
     CIMObjectPath getObjMgrPath();
+
     void testObjectManagerClass();
     void setStatisticsState(const Boolean flag);
-    Boolean getStatisticsPropertyState(CIMInstance & objMgrInstance);
+
+    Boolean getStatisticsPropertyState(
+                            CIMInstance & objMgrInstance);
+
     Boolean getStatisticsState();
+
     void showStatisticsState();
 
     void testStatisticsEnable();
 
     void testCommunicationClass();
     void testNameSpaceInObjectManagerAssocClass();
+
     void testCommMechinManagerAssocClass();
     Boolean testEnumerateOptions(
         const CIMName& className,
@@ -199,8 +229,6 @@ public:
         const Uint32 expectedPropertyCount);
 
 private:
-
-
 
 CIMClient _client;
 CIMInstance objectManagerInstance;
@@ -216,13 +244,13 @@ Boolean InteropTest::testEnumerateOptions(
 
     CDEBUG("testEnumerations 0" );
     Array<CIMInstance> instancesObjMgr = _client.enumerateInstances(
-                                             PEGASUS_NAMESPACENAME_INTEROP,
-                                             className,
-                                             deepInheritance,
-                                             localOnly,  
-                                             false,  // include qualifiers = false
-                                             false, 
-                                             propertyList);
+                                 PEGASUS_NAMESPACENAME_INTEROP,
+                                 className,
+                                 deepInheritance,
+                                 localOnly,  
+                                 false,  // include qualifiers = false
+                                 false, 
+                                 propertyList);
 
     assert(instancesObjMgr.size() == 1);
     CIMInstance instance = instancesObjMgr[0];

@@ -397,9 +397,7 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
 	    //
             // Check if directory is writable
 	    // 
-            String dirSeparator("/");
-
-            Uint32 pos = fileName.reverseFind(*(dirSeparator.getData()));
+            Uint32 pos = fileName.reverseFind('/');
 
             if (pos != PEG_NOT_FOUND)
             {

@@ -139,11 +139,9 @@ inline void _appendValue(Array<Sint8>& out, Char16 x)
 inline void _appendValue(Array<Sint8>& out, const String& x)
 {
     out << "\"";
-    const Char16* tmp = x.getData();
-    char c;
-    while ((c = *tmp++))
+    for (Uint32 i = 0; i < x.size(); i++)
     {
-        switch (c)
+        switch (x[i])
         {
         case '\\':
                 out.append("\\\\",2);
@@ -178,7 +176,7 @@ inline void _appendValue(Array<Sint8>& out, const String& x)
                 break;
 
             default:
-                out.append(Sint8(c));
+                out.append(Sint8(x[i]));
         }
 
     }

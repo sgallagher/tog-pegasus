@@ -379,10 +379,10 @@ Boolean FileSystem::isDirectoryEmpty(const String& path)
 
 void FileSystem::translateSlashes(String& path)
 {
-    for (Char16* p = (Char16*)path.getData(); *p; p++)
+    for (Uint32 i = 0; i < path.size(); i++)
     {
-	if (*p == '\\')
-	    *p = '/';
+	if (path[i] == '\\')
+	    path[i] = '/';
     }
 }
 

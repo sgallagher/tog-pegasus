@@ -347,15 +347,14 @@ Boolean OSTestClient::goodCurrentTimeZone(const Sint16 &tz, Boolean verbose)
   
    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
    String ds = currentDT.getString();  // want timezone
-   const Char16 *dateString = ds.getData();
 
    // cheat here since we know the position of the timezone info
    // subtracting '0' gets us the number from the ASCII, while 
    // the multiplies do our shifts and we use the sign appropriately
-   Sint32 calctz = ((dateString[22]-'0') * 100 +
-                    (dateString[23]-'0') * 10 +
-                    (dateString[24]-'0')) *
-                    (dateString[21]=='-'?-1:1);
+   Sint32 calctz = ((ds[22]-'0') * 100 +
+                    (ds[23]-'0') * 10 +
+                    (ds[24]-'0')) *
+                    (ds[21]=='-'?-1:1);
 
    if (verbose) 
       cout << " Should be " << calctz << endl;

@@ -105,14 +105,12 @@ String Formatter::format(
     const Arg& arg9)
 {
     String result;
-    const Char16* first = formatString.getData();
-    const Char16* last = formatString.getData() + formatString.size();
 
-    for (; first != last; first++)
+    for (Uint32 i = 0; i < formatString.size(); i++)
     {
-	if (*first == '$')
+	if (formatString[i] == '$')
 	{
-	    Char16 c = *++first;
+	    Char16 c = formatString[++i];
 
 	    switch (c)
 	    {
@@ -129,13 +127,12 @@ String Formatter::format(
 		default: break;
 	    }
 	}
-	else if (*first == '\\')
+	else if (formatString[i] == '\\')
 	{
-	    first++;
-	    result += *first;
+	    result += formatString[++i];
 	}
 	else
-	    result += *first;
+	    result += formatString[i];
     }
 
     return result;

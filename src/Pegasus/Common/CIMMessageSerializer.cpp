@@ -54,6 +54,7 @@ void CIMMessageSerializer::serialize(Array<Sint8>& out, CIMMessage* cimMessage)
 
     _serializeContentLanguages(out, cimMessage->contentLanguages);
     _serializeAcceptLanguages(out, cimMessage->acceptLanguages);
+    _serializeOperationContext(out, cimMessage->operationContext);
 
     CIMRequestMessage* cimReqMessage;
     cimReqMessage = dynamic_cast<CIMRequestMessage*>(cimMessage);
@@ -90,7 +91,6 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
     XmlWriter::append(out, "<PGREQ>");
 
     _serializeQueueIdStack(out, cimMessage->queueIds);
-    _serializeOperationContext(out, cimMessage->operationContext);
 
     CIMOperationRequestMessage* cimOpReqMessage;
     cimOpReqMessage = dynamic_cast<CIMOperationRequestMessage*>(cimMessage);
@@ -685,6 +685,8 @@ void CIMMessageSerializer::_serializeOperationContext(
         XmlWriter::append(out, "<PGOCPI>\n");
         _serializeCIMInstance(out, container.getModule());
         _serializeCIMInstance(out, container.getProvider());
+        XmlWriter::appendValueElement(out, container.isRemoteNameSpace());
+        XmlWriter::appendValueElement(out, container.getRemoteInfo());
         XmlWriter::append(out, "</PGOCPI>\n");
     }
     catch (...)

@@ -54,6 +54,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
     Uint32 type;
     ContentLanguages contentLanguages;
     AcceptLanguages acceptLanguages;
+    OperationContext operationContext;
 
     XmlReader::expectStartTag(parser, entry, "PGMESSAGE");
 
@@ -68,6 +69,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
 
     _deserializeContentLanguages(parser, contentLanguages);
     _deserializeAcceptLanguages(parser, acceptLanguages);
+    _deserializeOperationContext(parser, operationContext);
 
     if (XmlReader::testStartTag(parser, entry, "PGREQ"))
     {
@@ -90,6 +92,7 @@ CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
     message->messageId = messageID;
     message->contentLanguages = contentLanguages;
     message->acceptLanguages = acceptLanguages;
+    message->operationContext = operationContext;
 
     return message;
 }
@@ -104,10 +107,8 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
     CIMRequestMessage* message = 0;
     XmlEntry entry;
     QueueIdStack queueIdStack;
-    OperationContext operationContext;
 
     _deserializeQueueIdStack(parser, queueIdStack);
-    _deserializeOperationContext(parser, operationContext);
 
     if (XmlReader::testStartTag(parser, entry, "PGOPREQ"))
     {
@@ -290,7 +291,6 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
     }
 
     message->queueIds = queueIdStack;
-    message->operationContext = operationContext;
 
     return message;
 }
@@ -633,12 +633,23 @@ void CIMMessageDeserializer::_deserializeOperationContext(
 
     if (XmlReader::testStartTag(parser, entry, "PGOCPI"))
     {
+        CIMValue genericValue;
         CIMInstance module;
         CIMInstance provider;
+        Boolean isRemoteNameSpace;
+        String remoteInfo;
 
         _deserializeCIMInstance(parser, module);
         _deserializeCIMInstance(parser, provider);
-        operationContext.insert(ProviderIdContainer(module, provider));
+
+        XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
+        genericValue.get(isRemoteNameSpace);
+
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(remoteInfo);
+
+        operationContext.insert(ProviderIdContainer(
+            module, provider, isRemoteNameSpace, remoteInfo));
         XmlReader::expectEndTag(parser, "PGOCPI");
     }
 

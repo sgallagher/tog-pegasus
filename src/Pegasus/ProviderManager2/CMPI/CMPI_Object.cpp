@@ -124,6 +124,10 @@ void CMPI_Object::unlinkAndDelete() {
    delete this;
 }
 
+void CMPI_Object::unlink() {
+   CMPI_ThreadContext::remObject(this);
+}
+
 PEGASUS_NAMESPACE_END
 
 

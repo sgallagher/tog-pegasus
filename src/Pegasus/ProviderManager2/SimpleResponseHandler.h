@@ -1,31 +1,32 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,135 +35,177 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/Common/CIMResponseData.h>
-#include <Pegasus/Common/SCMO.h>
+#include <Pegasus/Common/Logger.h>
 
 #include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-//
-// ValueResponseHandler (used internally to implement property operations)
-//
-class PEGASUS_PPM_LINKAGE ValueResponseHandler : virtual public ResponseHandler
-{
-public:
-    virtual void deliver(const CIMValue& value) = 0;
-
-    virtual void deliver(const Array<CIMValue>& values) = 0;
-};
-
-
-//
-// SimpleResponseHandler
-//
 class PEGASUS_PPM_LINKAGE SimpleResponseHandler : virtual public ResponseHandler
 {
 public:
-    SimpleResponseHandler();
-    virtual ~SimpleResponseHandler();
+    SimpleResponseHandler(void)
+    {
+    }
 
-    virtual void processing();
+    virtual ~SimpleResponseHandler(void)
+    {
+    }
 
-    virtual void complete();
+    virtual void processing(void)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: processing()");
+        // do nothing
+    }
 
-    // return the number of objects in this handler
-    virtual Uint32 size() const;
+    virtual void complete(void)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: complete()");
 
-    // clear any objects in this handler
-    virtual void clear();
+        // do nothing
+    }
 
-    ContentLanguageList getLanguages();
+// l10n
+    ContentLanguages getLanguages(void)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "SimpleResponseHandler: getLanguages()");
 
-protected:
-    virtual void send(Boolean isComplete);
+        ContentLanguages langs;
+        try
+        {
+            // Try to get the ContentLanguages out of the OperationContext
+            // in the base ResponseHandler.
+            OperationContext context = getContext();
+            ContentLanguageListContainer cntr = context.get
+                           (ContentLanguageListContainer::NAME);
+            langs = cntr.getLanguages();
+        }
+        catch (Exception & e)
+        {
+            // The content language container must not exist.
+            // Return the empty ContentLanguages.
+        }
 
+        return langs;
+    }
 };
 
-class PEGASUS_PPM_LINKAGE SimpleInstanceResponseHandler :
-    public SimpleResponseHandler, public InstanceResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleInstanceResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
 {
 public:
-    SimpleInstanceResponseHandler();
-    ~SimpleInstanceResponseHandler();
+    SimpleInstanceResponseHandler(void)
+    {
+    }
 
-    virtual void processing();
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
 
-    virtual void complete();
+    virtual void deliver(const CIMInstance & instance)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
 
-    virtual Uint32 size() const;
+        _objects.append(instance);
+    }
 
-    virtual void clear();
+    virtual void deliver(const Array<CIMInstance> & instances)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = instances.size(); i < n; i++)
+        {
+            deliver(instances[i]);
+        }
+    }
 
-    virtual void deliver(const CIMInstance& instance);
-
-    virtual void deliver(const SCMOInstance& instance);
-
-    virtual void deliver(const Array<CIMInstance>& instances);
-
-    const Array<CIMInstance> getObjects() const;
-    const Array<SCMOInstance> getSCMOObjects() const;
+    const Array<CIMInstance> getObjects(void) const
+    {
+        return _objects;
+    }
 
 private:
     Array<CIMInstance> _objects;
-    Array<SCMOInstance> _scmoObjects;
-    //CIMInstanceResponseData responseData;
+
 };
 
-class PEGASUS_PPM_LINKAGE SimpleObjectPathResponseHandler :
-    public SimpleResponseHandler, public ObjectPathResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleObjectPathResponseHandler : public SimpleResponseHandler, public ObjectPathResponseHandler
 {
 public:
-    SimpleObjectPathResponseHandler();
-    ~SimpleObjectPathResponseHandler();
+    SimpleObjectPathResponseHandler(void)
+    {
+    }
 
-    virtual void processing();
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
 
-    virtual void complete();
+    virtual void deliver(const CIMObjectPath & objectPath)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+        _objects.append(objectPath);
+    }
 
-    virtual Uint32 size() const;
+    virtual void deliver(const Array<CIMObjectPath> & objectPaths)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = objectPaths.size(); i < n; i++)
+        {
+            deliver(objectPaths[i]);
+        }
+    }
 
-    virtual void clear();
-
-    virtual void deliver(const CIMObjectPath& objectPath);
-
-    virtual void deliver(const SCMOInstance& objectPath);
-
-    virtual void deliver(const Array<CIMObjectPath>& objectPaths);
-
-    const Array<CIMObjectPath> getObjects() const;
-    const Array<SCMOInstance> getSCMOObjects() const;
+    const Array<CIMObjectPath> getObjects(void) const
+    {
+        return _objects;
+    }
 
 private:
     Array<CIMObjectPath> _objects;
-    Array<SCMOInstance> _scmoObjects;
-    //CIMInstanceNamesResponseData responseData;
+
 };
 
-class PEGASUS_PPM_LINKAGE SimpleMethodResultResponseHandler :
-    public SimpleResponseHandler, public MethodResultResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleMethodResultResponseHandler : public SimpleResponseHandler, public MethodResultResponseHandler
 {
 public:
-    SimpleMethodResultResponseHandler();
+    SimpleMethodResultResponseHandler(void)
+    {
+    }
 
-    virtual void processing();
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
 
-    virtual void complete();
+    virtual void deliverParamValue(const CIMParamValue & outParamValue)
+    {
+        _objects.append(outParamValue);
+    }
 
-    // NOTE: this is the total size (count) of ALL parameters!
-    virtual Uint32 size() const;
+    virtual void deliverParamValue(const Array<CIMParamValue> & outParamValues)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = outParamValues.size(); i < n; i++)
+        {
+            deliverParamValue(outParamValues[i]);
+        }
+    }
 
-    virtual void clear();
+    virtual void deliver(const CIMValue & returnValue)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+        _returnValue = returnValue;
+    }
 
-    virtual void deliverParamValue(const CIMParamValue& outParamValue);
+    const Array<CIMParamValue> getParamValues(void) const
+    {
+        return _objects;
+    }
 
-    virtual void deliverParamValue(const Array<CIMParamValue>& outParamValues);
-
-    virtual void deliver(const CIMValue& returnValue);
-
-    const Array<CIMParamValue> getParamValues() const;
-
-    const CIMValue getReturnValue() const;
+    const CIMValue getReturnValue(void) const
+    {
+        return _returnValue;
+    }
 
 private:
     Array<CIMParamValue> _objects;
@@ -171,35 +214,59 @@ private:
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleIndicationResponseHandler :
-    public SimpleResponseHandler, public IndicationResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleIndicationResponseHandler : public SimpleResponseHandler, public IndicationResponseHandler
 {
 public:
-    SimpleIndicationResponseHandler();
+    SimpleIndicationResponseHandler(void)
+    {
+    }
 
-    virtual void processing();
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
 
-    virtual void complete();
+    virtual void deliver(const CIMIndication & indication)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
 
-    virtual Uint32 size() const;
+        _objects.append(indication);
+    }
 
-    virtual void clear();
-
-    virtual void deliver(const CIMIndication& indication);
-
-    virtual void deliver(const Array<CIMIndication>& indications);
+    virtual void deliver(const Array<CIMIndication> & indications)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = indications.size(); i < n; i++)
+        {
+            deliver(indications[i]);
+        }
+    }
 
     virtual void deliver(
-        const OperationContext& context,
-        const CIMIndication& indication);
+        const OperationContext & context,
+        const CIMIndication & indication)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
+        _objects.append(indication);
+    }
 
     virtual void deliver(
-        const OperationContext& context,
-        const Array<CIMIndication>& indications);
+        const OperationContext & context,
+        const Array<CIMIndication> & indications)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = indications.size(); i < n; i++)
+        {
+            deliver(indications[i]);
+        }
+    }
 
-    const Array<CIMIndication> getObjects() const;
+    const Array<CIMIndication> getObjects(void) const
+    {
+        return _objects;
+    }
 
-    // ATTN: why is this variable public?
     CIMInstance _provider;
 
 private:
@@ -207,86 +274,151 @@ private:
 
 };
 
-class PEGASUS_PPM_LINKAGE SimpleObjectResponseHandler :
-    public SimpleResponseHandler, public ObjectResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleObjectResponseHandler : public SimpleResponseHandler, public ObjectResponseHandler
 {
 public:
-    SimpleObjectResponseHandler();
+    SimpleObjectResponseHandler(void)
+    {
+    }
 
-    virtual void processing();
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
 
-    virtual void complete();
+    virtual void deliver(const CIMObject & object)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
 
-    virtual Uint32 size() const;
+        _objects.append(object);
+    }
 
-    virtual void clear();
+    virtual void deliver(const Array<CIMObject> & objects)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
+    }
 
-    virtual void deliver(const CIMObject& object);
-
-    virtual void deliver(const SCMOInstance& object);
-
-    virtual void deliver(const CIMInstance& instance);
-
-    virtual void deliver(const Array<CIMObject>& objects);
-
-    const Array<CIMObject> getObjects() const;
-    const Array<SCMOInstance> getSCMOObjects() const;
+    const Array<CIMObject> getObjects(void) const
+    {
+        return _objects;
+    }
 
 private:
     Array<CIMObject> _objects;
-    Array<SCMOInstance> _scmoObjects;
+
 };
 
-class PEGASUS_PPM_LINKAGE SimpleInstance2ObjectResponseHandler :
-    public SimpleResponseHandler, public InstanceResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleInstance2ObjectResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
 {
 public:
-    SimpleInstance2ObjectResponseHandler();
+    SimpleInstance2ObjectResponseHandler(void)
+    {
+    }
 
-    virtual void processing();
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
 
-    virtual void complete();
+    virtual void deliver(const CIMInstance & object)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
 
-    virtual Uint32 size() const;
+        _objects.append(CIMObject(object));
+    }
 
-    virtual void clear();
+    virtual void deliver(const Array<CIMInstance> & objects)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = objects.size(); i < n; i++)
+        {
+            deliver(objects[i]);
+        }
+    }
 
-    virtual void deliver(const CIMInstance& object);
-
-    virtual void deliver(const SCMOInstance& object);
-
-    virtual void deliver(const Array<CIMInstance>& objects);
-
-    const Array<CIMObject> getObjects() const;
-    const Array<SCMOInstance> getSCMOObjects() const;
+    const Array<CIMObject> getObjects(void) const
+    {
+        return _objects;
+    }
 
 private:
     Array<CIMObject> _objects;
-    Array<SCMOInstance> _scmoObjects;
+
 };
 
-class PEGASUS_PPM_LINKAGE SimpleValueResponseHandler :
-    public SimpleResponseHandler, public ValueResponseHandler
+class PEGASUS_PPM_LINKAGE SimpleValueResponseHandler : public SimpleResponseHandler, public ValueResponseHandler
 {
 public:
-    SimpleValueResponseHandler();
+    SimpleValueResponseHandler(void)
+    {
+    }
 
-    virtual void processing();
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
 
-    virtual void complete();
+    virtual void deliver(const CIMValue & value)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
 
-    virtual Uint32 size() const;
+        _objects.append(value);
+    }
 
-    virtual void clear();
+    virtual void deliver(const Array<CIMValue> & values)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = values.size(); i < n; i++)
+        {
+            deliver(values[i]);
+        }
+    }
 
-    virtual void deliver(const CIMValue& value);
-
-    virtual void deliver(const Array<CIMValue>& values);
-
-    const Array<CIMValue> getObjects() const;
+    const Array<CIMValue> getObjects(void) const
+    {
+        return _objects;
+    }
 
 private:
     Array<CIMValue> _objects;
+
+};
+
+class PEGASUS_PPM_LINKAGE SimpleClassResponseHandler : public SimpleResponseHandler, public ClassResponseHandler
+{
+public:
+    SimpleClassResponseHandler(void)
+    {
+    }
+
+    void processing(void) { SimpleResponseHandler::processing(); }
+    void complete(void) { SimpleResponseHandler::complete(); }
+
+    virtual void deliver(const CIMClass & classObj)
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		    "SimpleResponseHandler: deliver()");
+
+        _objects.append(classObj);
+    }
+
+    virtual void deliver(const Array<CIMClass> & classObjs)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = classObjs.size(); i < n; i++)
+        {
+            deliver(classObjs[i]);
+        }
+    }
+
+    const Array<CIMClass> getObjects(void) const
+    {
+        return _objects;
+    }
+
+private:
+    Array<CIMClass> _objects;
 
 };
 

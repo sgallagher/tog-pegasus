@@ -56,7 +56,7 @@ CMPIProvider::CMPIProvider(const String & name,
      _no_unload(0), _rm(0), _status(UNINITIALIZED)
 {
    _current_operations = 1;
-   miVector=*mv;
+   if (mv) miVector=*mv;
    noUnload=false;
 }
 

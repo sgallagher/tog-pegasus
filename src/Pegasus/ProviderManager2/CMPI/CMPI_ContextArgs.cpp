@@ -58,7 +58,9 @@ static CMPIArgs* argsClone(CMPIArgs* eArg, CMPIStatus* rc) {
       const CIMParamValue &v=(*arg)[i];
       cArg->append(v.clone());
    }
-   CMPIArgs* neArg=(CMPIArgs*)new CMPI_Object(cArg,CMPI_ObjectPath_Ftab);
+   CMPI_Object* obj=new CMPI_Object(cArg,CMPI_ObjectPath_Ftab);
+   obj->unlink();
+   CMPIArgs* neArg=(CMPIArgs*)obj;
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return neArg;
 }

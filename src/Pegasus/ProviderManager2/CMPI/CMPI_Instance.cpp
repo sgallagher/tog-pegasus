@@ -55,7 +55,7 @@ static CMPIStatus instRelease(CMPIInstance* eInst) {
    CIMInstance* inst=(CIMInstance*)eInst->hdl;
    if (inst) {
       delete inst;
-      ((CMPI_Object*)eInst)->unlinkAndDelete();
+      (reinterpret_cast<CMPI_Object*>(eInst))->unlinkAndDelete();
    }
    CMReturn(CMPI_RC_OK);
 }
@@ -67,7 +67,9 @@ static CMPIStatus instReleaseNop(CMPIInstance* eInst) {
 static CMPIInstance* instClone(CMPIInstance* eInst, CMPIStatus* rc) {
    CIMInstance* inst=(CIMInstance*)eInst->hdl;
    CIMInstance* cInst=new CIMInstance(inst->clone());
-   CMPIInstance* neInst=(CMPIInstance*)new CMPI_Object(cInst);//,CMPI_Instance_Ftab);
+   CMPI_Object* obj=new CMPI_Object(cInst);
+   obj->unlink();
+   CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(obj);
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return neInst;
 }
@@ -124,7 +126,7 @@ static CMPICount instGetPropertyCount(CMPIInstance* eInst, CMPIStatus* rc) {
 static CMPIStatus instSetProperty(CMPIInstance* eInst, const char *name,
                           CMPIValue* data, CMPIType type) {
    CIMInstance *inst=(CIMInstance*)eInst->hdl;
-   char **list=(char**)((CMPI_Object*)eInst)->priv;
+   char **list=(char**)(reinterpret_cast<CMPI_Object*>(eInst))->priv;
    CMPIrc rc;
 
    if (list) {
@@ -161,7 +163,7 @@ static CMPIStatus instSetProperty(CMPIInstance* eInst, const char *name,
 	    abort();
 	 }
          CMReturnWithString(CMPI_RC_ERR_FAILED,
-	     (CMPIString*)new CMPI_Object(e.getMessage()));
+	     reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
       }
    }
    else {
@@ -181,17 +183,20 @@ static CMPIObjectPath* instGetObjectPath(CMPIInstance* eInst, CMPIStatus* rc) {
    CMPIObjectPath *cop=NULL;
    if (clsRef.getKeyBindings().size()==0) {
       CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
-      const CIMObjectPath &ref=inst->buildPath((const CIMConstClass&)*cc);
-      cop=(CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(ref));
+      const CIMObjectPath &ref=inst->buildPath( 
+          *(reinterpret_cast<const CIMConstClass*>(cc)));
+      cop=reinterpret_cast<CMPIObjectPath*>
+          (new CMPI_Object(new CIMObjectPath(ref)));
+
    }
-   else cop=(CMPIObjectPath*)new CMPI_Object(new CIMObjectPath(clsRef));
+   else cop=reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(new CIMObjectPath(clsRef)));
    if (rc) CMSetStatus(rc,CMPI_RC_OK);
    return cop;
 }
 
 static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
             char** propertyList, char **keys){
-   CMPI_Object *inst=(CMPI_Object*)eInst;
+   CMPI_Object *inst=reinterpret_cast<CMPI_Object*>(eInst);
    char **list=(char**)inst->priv;    // Thank you Warren !
    int i,s;
 

@@ -17,14 +17,15 @@ LIBRARIES = \
 	pegprm \
         pegconfig
 
+
 SOURCES = \
 	DefaultProviderManagerMain.cpp \
 	DefaultProviderManager.cpp \
 	LocalProviderManager.cpp \
 	Provider.cpp \
 	ProviderFacade.cpp \
-	ProviderModule.cpp \
-	OperationResponseHandler.cpp \
-	SimpleResponseHandler.cpp
+	ProviderModule.cpp 
+#	OperationResponseHandler.cpp
+#	SimpleResponseHandler.cpp
 
 include $(ROOT)/mak/library.mak

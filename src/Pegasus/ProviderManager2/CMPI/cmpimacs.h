@@ -1731,7 +1731,7 @@ inline static   void CMSetStatusWithChars(CMPIBroker *mb, CMPIStatus* st, CMPIrc
 #ifndef DOC_ONLY
    // MI factory stubs
 
-  #define CMNoHook if (brkr)
+  #define CMNoHook if (brkr) { void *x=brkr; }
 #endif
 
 /*

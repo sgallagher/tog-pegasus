@@ -56,7 +56,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
-#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
+//#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
@@ -121,7 +121,7 @@ Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
 }
 
 
-Message * CMPIProviderManager::processMessage(Message * request) throw()
+Message * CMPIProviderManager::processMessage(Message * request)
 {
       PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::processMessage()");
@@ -286,7 +286,7 @@ void CMPIProviderManager::unload_idle_providers(void)
 
 
 
-Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleGetInstanceRequest");
@@ -365,7 +365,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleEnumerateInstanceRequest");
@@ -448,7 +448,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleEnumerateInstanceNamesRequest");
 
@@ -521,7 +521,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
     return(response);
 }
 
-Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleCreateInstanceRequest");
@@ -598,7 +598,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleModifyInstanceRequest");
@@ -677,7 +677,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleDeleteInstanceRequest");
@@ -750,7 +750,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleExecQueryRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleExecQueryRequest");
@@ -832,7 +832,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message) t
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorsRequest");
@@ -923,7 +923,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
     return(response);
 }
 
-Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleAssociatorNamesRequest");
@@ -1010,7 +1010,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferencesRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
        "CMPIProviderManager::handleReferencesRequest");
@@ -1099,7 +1099,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
     return(response);
 }
 
-Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleReferenceNamesRequest");
@@ -1183,7 +1183,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "CMPIProviderManager::handleInvokeMethodRequest");
@@ -1309,7 +1309,7 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    return String::EMPTY;
 }
 
-Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleCreateSubscriptionRequest");
 
@@ -1405,7 +1405,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         rc=pr.miVector.indMI->ft->activateFilter(
            pr.miVector.indMI,&eCtx,NULL,eSelx,
-           CHARS(request->nameSpace.getString().getCString()),&eRef,false);
+           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
+	   &eRef,false);
 
        STAT_PMS_PROVIDEREND;
 
@@ -1419,7 +1420,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleDeleteSubscriptionRequest");
 
@@ -1487,10 +1488,10 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
-
         rc=pr.miVector.indMI->ft->deActivateFilter(
            pr.miVector.indMI,&eCtx,NULL,eSelx,
-           CHARS(request->nameSpace.getString().getCString()),&eRef,prec==NULL);
+           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
+	   &eRef,prec==NULL);
 
        delete eSelx;
 
@@ -1506,7 +1507,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleEnableIndicationsRequest");
 
@@ -1563,7 +1564,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
     return(response);
 }
 
-Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleDisableIndicationsRequest");
 
@@ -1626,7 +1627,7 @@ static const Uint16 _MODULE_OK       = 2;
 static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
 
-Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleDisableModuleRequest(const Message * message)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -1750,7 +1751,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     return(response);
 }
 
-Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message)
 {
     // HACK
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
@@ -1830,7 +1831,7 @@ Message * CMPIProviderManager::handleEnableModuleRequest(const Message * message
     return(response);
 }
 
-Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleStopAllProvidersRequest");
 
@@ -1861,7 +1862,7 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(const Message * mes
     return(response);
 }
 
-Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleUnsupportedRequest");
 

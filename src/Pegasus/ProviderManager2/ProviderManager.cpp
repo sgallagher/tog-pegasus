@@ -76,7 +76,7 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
     // fully qualify physical provider name (module), if not already done so.
     #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     temp = physicalName + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
+    #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
     temp = root + String("/lib") + physicalName + String(".so");
     #elif defined(PEGASUS_OS_HPUX)

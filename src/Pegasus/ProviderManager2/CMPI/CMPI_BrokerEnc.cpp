@@ -59,9 +59,10 @@ static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
    CIMObjectPath* cop=(CIMObjectPath*)eCop->hdl;
 //   cout<<"--- mbEncNewInstance() "<<cop->getClassName()<<"-"<<cop->getNameSpace()<<endl;
    CIMClass *cls=mbGetClass(mb,*cop);
-   CIMInstance *ci=new CIMInstance(cop->getClassName());
+   CIMInstance *ci=NULL;
 
    if (cls) {
+      ci=new CIMInstance(cop->getClassName());
        CMPIContext *ctx=CMPI_ThreadContext::getContext();
        CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,rc).value.uint32;
        if ((flgs & CMPI_FLAG_IncludeQualifiers)!=0) {
@@ -78,6 +79,10 @@ static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
 	        p.getArraySize(),p.getReferenceClassName()));
          }
       }
+   }
+   else {
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
+      return NULL;
    }
 
    ci->setPath(*cop);

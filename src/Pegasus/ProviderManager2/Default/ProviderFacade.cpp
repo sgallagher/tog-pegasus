@@ -41,7 +41,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/MessageLoader.h>
 
-#include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

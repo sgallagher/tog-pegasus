@@ -35,10 +35,10 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
 
-#include <Pegasus/ProviderManager2/Linkage.h>
 #include <Pegasus/Config/ConfigManager.h>
-
 #include <Pegasus/ProviderManager2/ProviderRegistrar.h>
+
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

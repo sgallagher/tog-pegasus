@@ -119,6 +119,8 @@ class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
       Boolean operator ==(const AsyncMessage& msg);
       
       AsyncOpNode *op;
+      Thread *_myself;
+      MessageQueue *_service;
 };
 
 
@@ -262,9 +264,20 @@ class PEGASUS_COMMON_LINKAGE AsyncIoctl : public AsyncRequest
 
       }
       
+      enum 
+      {
+	 IO_CLOSE,
+	 IO_OPEN,
+	 IO_SOURCE_QUENCH,
+	 IO_SERVICE_DEFINED
+      };
+      
+      
+
       Uint32 ctl;
       Uint32 intp;
       void *voidp;
+
 };
 
 class PEGASUS_COMMON_LINKAGE CimServiceStart : public AsyncRequest

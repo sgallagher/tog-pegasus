@@ -88,7 +88,9 @@ AsyncMessage::AsyncMessage(Uint32 type,
 			   Uint32 mask,
 			   AsyncOpNode *operation)
    : Message(type, key, routing, mask | message_mask::ha_async),
-     op(operation) 
+     op(operation),
+     _myself(0), 
+     _service(0)
 {  
    
 }
@@ -198,7 +200,7 @@ AsyncIoctl::AsyncIoctl(Uint32 routing,
 		   destination, response, blocking),
      ctl(code), 
      intp(int_param),
-     voidp(p_param) 
+     voidp(p_param)
 {  
 	 
 }

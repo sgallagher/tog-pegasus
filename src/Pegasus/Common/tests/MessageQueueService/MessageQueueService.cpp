@@ -443,5 +443,5 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    
    my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
-   
+
 }

@@ -90,7 +90,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       AtomicInt _die;
    protected:
 
-      virtual void _handle_incoming_operation(AsyncOpNode *operation);
+      virtual void _handle_incoming_operation(AsyncOpNode *operation, Thread *thread, MessageQueue *queue);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _make_response(AsyncRequest *req, Uint32 code);
       cimom *_meta_dispatcher;

@@ -246,11 +246,6 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 _slot->lock_object(pegasus_thread_self());
 	 while(true == is_full())
 	 {
-	    if(_disallow->value() > 0)
-	    {
-	       unlock();
-	       throw ListClosed();
-	    }	    
 	    _slot->unlocked_wait(pegasus_thread_self());
 	    if(_disallow->value() > 0)
 	    {
@@ -277,11 +272,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 _node->lock_object(pegasus_thread_self());
 	 while(true == is_empty())
 	 {
-	    if(_disallow->value() > 0)
-	    {
-	       unlock();
-	       throw ListClosed();
-	    }
+
 	    _node->unlocked_wait(pegasus_thread_self());
 	    if(_disallow->value() > 0)
 	    {

@@ -56,4 +56,7 @@ select * from CIM_Bogus where CIM_ComputerSystem.EnabledState#'Enabled' = 2
 #Query on 2 unqualified symbolic Constants. Result Exception
 select * from CIM_ComputerSystem where #'Enabled' = #'Disabled'
 
+#Query on standalone symbolic constant, with other side having a chain.  Result is TRUE.
+SELECT * FROM CIM_ComputerSystem WHERE CIM_ComputerSystem.EnabledState = #'Enabled'
+
 

@@ -127,35 +127,35 @@ FALSE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 FALSE
 =========     18     =========
------Query: SELECT * FROM CIM_ComputerSystem  WHERE '人気サイト' LIKE '人気サイト'
+-----Query: SELECT * FROM CIM_ComputerSystem  WHERE '\x4EBA\x6C17\x30B5\x30A4\x30C8' LIKE '\x4EBA\x6C17\x30B5\x30A4\x30C8'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     19     =========
------Query: SELECT * FROM CIM_ComputerSystem  WHERE '人気サイトトトト' LIKE '人気サイト*'
+-----Query: SELECT * FROM CIM_ComputerSystem  WHERE '\x4EBA\x6C17\x30B5\x30A4\x30C8\x30C8\x30C8\x30C8' LIKE '\x4EBA\x6C17\x30B5\x30A4\x30C8*'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     20     =========
------Query: SELECT * FROM CIM_ComputerSystem  WHERE '人気サイト' LIKE '.*'
+-----Query: SELECT * FROM CIM_ComputerSystem  WHERE '\x4EBA\x6C17\x30B5\x30A4\x30C8' LIKE '.*'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     21     =========
------Query: SELECT * FROM CIM_ComputerSystem  WHERE '人気サイ気ト' LIKE '人気サイ.ト'
+-----Query: SELECT * FROM CIM_ComputerSystem  WHERE '\x4EBA\x6C17\x30B5\x30A4\x6C17\x30C8' LIKE '\x4EBA\x6C17\x30B5\x30A4.\x30C8'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 TRUE
 =========     22     =========
------Query: SELECT * FROM CIM_ComputerSystem  WHERE '人気サイト' LIKE '.*イト'
+-----Query: SELECT * FROM CIM_ComputerSystem  WHERE '\x4EBA\x6C17\x30B5\x30A4\x30C8' LIKE '.*\x30A4\x30C8'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE

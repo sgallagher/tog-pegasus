@@ -272,7 +272,8 @@ inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
 inline int operator==(const PEGASUS_THREAD_TYPE & lval,
                       const PEGASUS_THREAD_TYPE & rval)
 {
-    return pthread_equal(lval.thid, rval.thid);
+    return (pthread_equal(lval.thid, rval.thid) &&
+            (lval.pegasusValue == rval.pegasusValue));
 }
 
 inline int operator==(const PEGASUS_THREAD_TYPE & lval,

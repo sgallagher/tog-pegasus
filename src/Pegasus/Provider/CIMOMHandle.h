@@ -50,6 +50,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 class ProviderManager;
 class Provider;
+#ifdef PEGASUS_OS_OS400
+class CIMProviderOS400UserState;
+#endif
 
 class cimom_handle_op_semaphore;
 
@@ -59,10 +62,8 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 
       /** */
       CIMOMHandle(void);
+
       CIMOMHandle(const CIMOMHandle &);
-#ifdef PEGASUS_OS_OS400
-      CIMOMHandle(Uint32 os400UserStateKey);
-#endif
 
       /** */
       ~CIMOMHandle(void);
@@ -245,6 +246,10 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
       friend class Provider;
       friend class CMPIProvider;
       friend class cimom_handle_op_semaphore;
+#ifdef PEGASUS_OS_OS400
+      friend CIMProviderOS400UserState;
+      CIMOMHandle(Uint32 os400UserStateKey);
+#endif
       void get_idle_timer(void *);
       void update_idle_timer(void);
       Boolean pending_operation(void);

@@ -1688,7 +1688,7 @@ String IndicationFormatter::_localizeDateTime(
     // In ICU, as UTC milliseconds from the epoch starting
     // (1 January 1970 0:00 UTC)
     CIMDateTime dt;
-    dt.set("19700101230000.000000+000");
+    dt.set("19700101000000.000000+000");
 
     // Convert dateTimeValue to be milliSeconds,
     // the number of milliSeconds from the epoch starting
@@ -1699,8 +1699,43 @@ String IndicationFormatter::_localizeDateTime(
     // Create a formatter for DATE and TIME with medium length
     // such as Jan 12, 1952 3:30:32pm
     DateFormat *fmt;
-    fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM,
-        DateFormat::MEDIUM, locale);
+
+    try
+    {
+        if (locale == 0)
+        {
+            fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM, 
+                                                     DateFormat::MEDIUM);
+        }
+        else
+        {
+            fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM, 
+                                                     DateFormat::MEDIUM,
+                                                     locale);
+        }
+    }
+    catch(Exception& e)
+    {
+        PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4, e.getMessage());
+        PEG_METHOD_EXIT();
+        return (dateTimeValue.toString());
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4, 
+        "Caught General Exception During DateFormat::createDateTimeInstance");
+
+        PEG_METHOD_EXIT();
+        return (dateTimeValue.toString());
+    }
+
+    if (fmt == 0)
+    {
+        PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
+            "Memory allocation error creating DateTime instance.");
+        PEG_METHOD_EXIT();
+        return (dateTimeValue.toString());
+    }
 
     // Format the Date and Time
     UErrorCode status = U_ZERO_ERROR;

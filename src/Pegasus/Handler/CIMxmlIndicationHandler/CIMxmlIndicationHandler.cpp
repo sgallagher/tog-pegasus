@@ -29,6 +29,7 @@
 //                (carolann_graves@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -160,10 +161,15 @@ public:
             SSLContext sslcontext(trustPath, certPath, keyPath, 
                 verifyListenerCertificate, randFile);
 
+            #ifdef PEGASUS_USE_23HTTPMONITOR
             Monitor monitor;
             HTTPConnector httpConnector( &monitor);
-            CIMExportClient exportclient( &monitor, &httpConnector);
+            #else
+            monitor_2 monitor;
+            HTTPConnector2 httpConnector( &monitor);
+            #endif
 
+            CIMExportClient exportclient( &monitor, &httpConnector);
             Uint32 colon = dest.find (":");
             Uint32 portNumber = 0;
             Boolean useHttps = false;

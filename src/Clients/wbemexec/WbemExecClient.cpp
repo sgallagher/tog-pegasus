@@ -28,6 +28,7 @@
 // Modified By: Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -96,8 +97,13 @@ WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     //
     // Create Monitor and HTTPConnector
     //
+    #ifdef PEGASUS_USE_23HTTPMONITOR
     _monitor = new Monitor();
     _httpConnector = new HTTPConnector(_monitor);
+    #else
+    _monitor = new monitor_2();
+    _httpConnector = new HTTPConnector2(_monitor);
+    #endif
 }
 
 WbemExecClient::~WbemExecClient()
@@ -389,8 +395,11 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
 	//
 	// Wait until the timeout expires or an event occurs:
 	//
-
+  #ifdef PEGASUS_USE_23HTTPMONITOR
 	_monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+  #else
+  _monitor->run();
+  #endif
 
 	//
 	// Check to see if incoming queue has a message

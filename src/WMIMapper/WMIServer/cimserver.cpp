@@ -44,6 +44,7 @@
 //
 // Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
+// Modified By: Dan Gorey (djgorey@us.ibm.com)
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -877,7 +878,11 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
+	#ifdef PEGASUS_USE_23HTTPMONITOR
 	Monitor monitor(true);
+	#else
+	monitor_2 monitor();
+	#endif
 	CIMServer server(&monitor);
 
         if (enableHttpConnection)

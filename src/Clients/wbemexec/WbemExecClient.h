@@ -28,6 +28,7 @@
 // Modified By: Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -199,9 +200,16 @@ private:
     String _getLocalHostName();
     String _promptForPassword();
 
+    #ifdef PEGASUS_USE_23HTTPMONITOR
     Monitor* _monitor;
     HTTPConnector* _httpConnector;
     HTTPConnection* _httpConnection;
+    #else
+    monitor_2* _monitor;
+    HTTPConnector2* _httpConnector;
+    HTTPConnection2* _httpConnection;
+    #endif
+    
     Uint32 _timeoutMilliseconds;
     Boolean _connected;
     ClientAuthenticator _authenticator;

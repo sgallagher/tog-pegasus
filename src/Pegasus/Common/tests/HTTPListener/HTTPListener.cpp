@@ -25,7 +25,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:  Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,9 +59,15 @@ int main()
 {
     try
     {
-	Monitor* monitor = new Monitor;
-	MyQueue* myQueue = new MyQueue;
+  #ifdef PEGASUS_USE_23MONITOR
+  Monitor* monitor = new Monitor;
 	HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor, myQueue);
+  #else
+  monitor_2* monitor = new Monitor;
+	pegasus_acceptor* httpAcceptor = new pegasus_acceptor(monitor, myQueue);
+  #endif
+
+  MyQueue* myQueue = new MyQueue;
 
 	const Uint32 PORT_NUMBER = 7777;
 	httpAcceptor->bind(PORT_NUMBER);
@@ -71,7 +77,11 @@ int main()
 	for (;;)
 	{
 	    cout << "Loop..." << endl;
+      #ifdef PEGASUS_USE_23HTTPMONITOR
 	    monitor->run(5000);
+      #else
+      monitor->run();
+      #endi
 	}
     }
     catch (Exception& e)

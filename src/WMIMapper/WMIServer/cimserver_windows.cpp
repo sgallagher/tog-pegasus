@@ -31,6 +31,7 @@
 //              Tony Fiorentino (fiorentino_tony@emc.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +171,11 @@ static void __cdecl cimserver_windows_thread(void *parm)
    // try loop to bind the address, and run the server
   try
   {
+    #ifdef PEGASUS_USE_23HTTPMONITOR
     Monitor monitor(true);
+    #else
+    monitor_2 monitor();
+    #endif
     
     CIMServer server(&monitor);
     server_windows = &server;

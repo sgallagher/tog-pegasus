@@ -36,6 +36,7 @@
 //         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //		   Barbara Packard, Hewlett-Packard Company (barbara_packard@hp.com)
 //		   Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//         Dan Gorey, IBM  (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -300,6 +301,96 @@ CIMServer::CIMServer(Monitor* monitor)
     PEG_METHOD_EXIT();
 }
 
+CIMServer::CIMServer(monitor_2* monitor)
+   : _dieNow(false)
+{
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::CIMServer()");
+
+    String repositoryRootPath = String::EMPTY;
+
+    // -- Save the monitor or create a new one:
+
+    _monitor2 = monitor;
+
+    repositoryRootPath =
+	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
+
+    // -- Create a repository:
+
+    _repository = new CIMRepository(repositoryRootPath);
+
+    // -- Create a UserManager object:
+
+    UserManager* userManager = UserManager::getInstance(_repository);
+
+    // -- Create a CIMServerState object:
+
+    _serverState = new CIMServerState();
+
+    _cimOperationRequestDispatcher =
+		new CIMOperationRequestDispatcher;
+
+	_cimOperationResponseEncoder
+		= new CIMOperationResponseEncoder;
+
+    //
+    // get the configured authentication and authorization flags
+    //
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    Boolean enableAuthentication = false;
+
+    if (String::equalNoCase(
+        configManager->getCurrentValue("enableAuthentication"), "true"))
+    {
+        enableAuthentication = true;
+    }
+
+    //
+    // Create Authorization queue only if authentication is enabled
+    //
+    if ( enableAuthentication )
+    {
+        _cimOperationRequestAuthorizer = new CIMOperationRequestAuthorizer(
+            _cimOperationRequestDispatcher);
+
+        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
+            _cimOperationRequestAuthorizer,
+            _cimOperationResponseEncoder->getQueueId());
+    }
+    else
+    {
+        _cimOperationRequestAuthorizer = 0;
+
+        _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
+            _cimOperationRequestDispatcher,
+            _cimOperationResponseEncoder->getQueueId());
+
+    }
+
+    _cimExportRequestDispatcher
+	= new CIMExportRequestDispatcher();
+
+    _cimExportResponseEncoder
+	= new CIMExportResponseEncoder;
+
+    _cimExportRequestDecoder = new CIMExportRequestDecoder(
+	_cimExportRequestDispatcher,
+	_cimExportResponseEncoder->getQueueId());
+
+    _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
+        _cimOperationRequestDecoder->getQueueId(),
+        _cimExportRequestDecoder->getQueueId());
+
+    _sslcontext = 0;
+
+    // IMPORTANT-NU-20020513: Indication service must start after ExportService
+    // otherwise HandlerService started by indicationService will never
+    // get ExportQueue to export indications for existing subscriptions
+
+    PEG_METHOD_EXIT();
+}
+
 CIMServer::~CIMServer()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::~CIMServer()");
@@ -325,6 +416,7 @@ void CIMServer::addAcceptor(
     Uint32 portNumber,
     Boolean useSSL)
 {
+    #ifdef PEGASUS_USE_23HTTPMONITOR
     HTTPAcceptor* acceptor;
     acceptor = new HTTPAcceptor(_monitor,
                                 _httpAuthenticatorDelegator,
@@ -333,6 +425,17 @@ void CIMServer::addAcceptor(
                                 useSSL ? _getSSLContext() : 0);
 
     _acceptors.append(acceptor);
+    #else
+    pegasus_acceptor* acceptor;
+    acceptor = new pegasus_acceptor(_monitor2,
+                                _httpAuthenticatorDelegator,
+                                localConnection,
+                                portNumber,
+                                useSSL ? _getSSLContext() : 0);
+
+    _acceptors.append(acceptor);
+    #endif
+    
 }
 
 void CIMServer::bind()
@@ -395,7 +498,9 @@ void CIMServer::runForever()
          handleShutdownSignal = false;
       }
 	  */
-	}
+	} else {
+    _monitor2->run();
+  }
 }
 
 void CIMServer::stopClientConnection()

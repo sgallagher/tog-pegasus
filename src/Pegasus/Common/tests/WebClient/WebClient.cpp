@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Dan Gorey, IBM (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -178,19 +179,31 @@ int main(int argc, char** argv)
 
     try
     {
-	Monitor* monitor = new Monitor;
-	WebClientQueue* webClientQueue = new WebClientQueue;
-	HTTPConnector* httpConnector = new HTTPConnector(monitor);
-
-	HTTPConnection* connection 
+ WebClientQueue* webClientQueue = new WebClientQueue;
+  #ifdef PEGASUS_USE_23HTTPMONITOR
+  Monitor* monitor = new Monitor;
+  HTTPConnector* httpConnector = new HTTPConnector(monitor);
+  HTTPConnection* connection 
 	    = httpConnector->connect(host, portNumber, webClientQueue);
+  #else
+  monitor_2* monitor = new Monitor;
+  HTTPConnector2* httpConnector = new HTTPConnector2(monitor);
+  HTTPConnection2* connection
+	    = httpConnector2->connect(host, portNumber, webClientQueue);
+  #endif
+
+      
 
 	GetDocument(connection, host, portNumber, document);
 
 	for (;;)
 	{
 	    cout << "Loop..." << endl;
+      #ifdef PEGASUS_USE_23HTTPMONITOR
 	    monitor->run(5000);
+      #else
+      monitor->run();
+      #endif
 	}
     }
     catch (Exception& e)

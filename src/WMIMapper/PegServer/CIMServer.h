@@ -30,6 +30,8 @@
 //	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
+//     Dan Gorey (djgorey@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Server_h
@@ -80,7 +82,10 @@ public:
         @param monitor	  monitor object for the server.
         @exception - ATTN
     */
+    
     CIMServer(Monitor* monitor);
+    
+    CIMServer(monitor_2* monitor);
 
     ~CIMServer();
 
@@ -140,6 +145,7 @@ private:
     Boolean _dieNow;
 
     Monitor* _monitor;
+    monitor_2* _monitor2;
     CIMRepository* _repository;
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;

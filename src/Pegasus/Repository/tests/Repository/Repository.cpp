@@ -35,6 +35,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;
 
 String repositoryRoot;
 
@@ -67,12 +68,11 @@ void test01()
     r.createClass(NAMESPACE, c);
 
     CIMConstClass cc;
-    cc = r.getClass(CIMNamespaceName ("aa/bb"), CIMName ("MyClass"));
+    cc = r.getClass(CIMNamespaceName ("aa/bb"), CIMName ("MyClass"), false,true, true);
 
     assert(c.identical(cc));
     assert(cc.identical(c));
 
-    // cc.print();
 }
 
 void test02()
@@ -156,13 +156,13 @@ void test02()
     catch (CIMException& e)
     {
         // execQuery operation is not supported yet
-	PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+		PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
     }
 
     try
     {
         // delete a non-empty namespace
-	r.deleteNameSpace(NAMESPACE);
+		r.deleteNameSpace(NAMESPACE);
     }
     catch (NonEmptyNameSpace& e)
     {
@@ -202,15 +202,20 @@ void test03()
 	CIMNamespaceName ("root/cimv2"),
 	CIMObjectPath ("X.key=\"John Smith\""));
 
-    for (Uint32 i = 0; i < names.size(); i++)
-    {
-	cout << "names[i]=[" << names[i].toString() << "]" << endl;
-    }
+	if (verbose)
+	{
+		for (Uint32 i = 0; i < names.size(); i++)
+		{
+		cout << "names[i]=[" << names[i].toString() << "]" << endl;
+		}
+	}
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    const char* tmpDir = getenv ("PEGASUS_TMP");
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    
+	const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
         repositoryRoot = ".";
@@ -233,7 +238,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << "+++++ passed all tests" << endl;
 
     return 0;
 }

@@ -26,15 +26,20 @@
 // Modified By: Roger Kumpf (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Karl Schopmeyer - Add tests for getclass options
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/Common/CIMPropertyList.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;
 
 String repositoryRoot;
 
@@ -76,7 +81,7 @@ void TestCreateClass()
     // -- Create repository and "xyz" namespace:
 
     CIMRepository r (repositoryRoot);
-    const CIMNamespaceName NS = CIMNamespaceName ("xyz");
+    const CIMNamespaceName NS = CIMNamespaceName ("TestCreateClass");
 
     try
     {
@@ -90,10 +95,12 @@ void TestCreateClass()
     // -- Declare the key qualifier:
 
     r.setQualifier(NS, CIMQualifierDecl(CIMName ("key"),true,CIMScope::PROPERTY));
+    r.setQualifier(NS, CIMQualifierDecl(CIMName ("description"),String(),(CIMScope::PROPERTY + CIMScope::CLASS)));
 
     // -- Construct new class:
-
+	CIMQualifier d(CIMName("description"), String("Test info"));
     CIMClass c1(CIMName ("MyClass"));
+	c1.addQualifier(d);
     c1.addProperty(
 	CIMProperty(CIMName ("key"), Uint32(0))
 	    .addQualifier(CIMQualifier(CIMName ("key"), true)));
@@ -102,10 +109,9 @@ void TestCreateClass()
     c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
     // -- Create the class (get it back and compare):
-
     r.createClass(NS, c1);
     CIMConstClass cc1;
-    cc1 = r.getClass(NS, CIMName ("MyClass"));
+    cc1 = r.getClass(NS, CIMName ("MyClass"),true,true, true);
     assert(c1.identical(cc1));
     assert(cc1.identical(c1));
 
@@ -115,8 +121,11 @@ void TestCreateClass()
     c2.addProperty(CIMProperty(CIMName ("junk"), Real32(66.66)));
     r.createClass(NS, c2);
     CIMConstClass cc2;
-    cc2 = r.getClass(NS, CIMName ("YourClass"));
-    assert(c2.identical(cc2));
+    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, true);
+	//XmlWriter::printClassElement(c2);
+	//XmlWriter::printClassElement(cc2);
+    
+	assert(c2.identical(cc2));
     assert(cc2.identical(c2));
     // cc2.print();
 
@@ -124,7 +133,7 @@ void TestCreateClass()
 
     c2.addProperty(CIMProperty(CIMName ("newProperty"), Uint32(888)));
     r.modifyClass(NS, c2);
-    cc2 = r.getClass(NS, CIMName ("YourClass"));
+    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, true);
     assert(c2.identical(cc2));
     assert(cc2.identical(c2));
     // cc2.print();
@@ -136,6 +145,73 @@ void TestCreateClass()
     assert(classNames.size() == 2);
     assert(classNames[0] == CIMName ("MyClass"));
     assert(classNames[1] == CIMName ("YourClass"));
+
+	//
+	// Test the getClass operation options, localonly,
+	//		includeQualifiers, includeClassOrigin, propertyList
+	//
+
+	// test localonly == true
+    cc2 = r.getClass(NS, CIMName ("YourClass"), true, true, true);
+	assert(cc2.findProperty("ratio") == PEG_NOT_FOUND);
+	assert(cc2.findProperty("message") == PEG_NOT_FOUND);
+
+	// test localonly == false
+    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, true);
+	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
+
+	// test includeQualifiers set first true
+    cc2 = r.getClass(NS, CIMName ("MyClass"), true, true, true);
+	assert(cc2.getQualifierCount() != 0);
+
+	// test includeQualifiers set false
+	// This should also do method and parameter qualifiers.
+    cc2 = r.getClass(NS, CIMName ("MyClass"), true, false, true);
+	assert(cc2.getQualifierCount() == 0);
+
+	
+	// Test for Class origin set true
+    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, true);
+	CIMConstProperty p;
+	Uint32 pos  =  cc2.findProperty("ratio");
+	assert(pos != PEG_NOT_FOUND);
+	p = cc2.getProperty(pos);
+	assert(p.getClassOrigin() == CIMName("MyClass"));
+	
+	// Test for Class origin set false. Should return null CIMName.
+    cc2 = r.getClass(NS, CIMName ("YourClass"), false, true, false);
+	CIMConstProperty p1;
+	Uint32 pos1  =  cc2.findProperty("ratio");
+	assert(pos1 != PEG_NOT_FOUND);
+	p1 = cc2.getProperty(pos);
+	assert(p1.getClassOrigin() == CIMName());
+	
+
+
+	// Test for propertylist set
+	// NOTE: Expand this test to cover empty propertylist, etc.
+	//
+
+	// Test with one property in list.
+	Array<CIMName> pls;
+	pls.append(CIMName("ratio"));
+	CIMPropertyList pl(pls); 
+	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
+
+    cc2 = r.getClass(NS, CIMName ("MyClass"), false, true, true, pl);
+	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+	assert(cc2.findProperty("message") == PEG_NOT_FOUND);
+
+	// restest with two entries in the list.
+	pls.append(CIMName("message"));
+	pl.clear();
+	pl.set(pls);
+    cc2 = r.getClass(NS, CIMName ("MyClass"), false, true, true, pl);
+	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
+
 
     // -- Create an instance of each class:
 
@@ -238,12 +314,12 @@ void TestCreateClass()
     // -- Delete the qualifier:
 
     r.deleteQualifier(NS, CIMName ("key"));
+    r.deleteQualifier(NS, CIMName ("description"));
 
     // -- Clean up classes:
 
     r.deleteClass(NS, CIMName ("YourClass"));
     r.deleteClass(NS, CIMName ("MyClass"));
-
     r.deleteNameSpace(NS);
 }
 
@@ -253,7 +329,7 @@ void TestQualifiers()
 
     CIMRepository r (repositoryRoot);
 
-    const CIMNamespaceName NS = CIMNamespaceName ("xyz");
+    const CIMNamespaceName NS = CIMNamespaceName ("TestQualifiers");
 
     try
     {
@@ -283,8 +359,15 @@ void TestQualifiers()
     r.deleteNameSpace(NS);
 }
 
-int main()
+void getClassOptions()
 {
+
+}
+
+int main(int argc, char** argv)
+{
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+    
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
@@ -309,7 +392,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << "+++++ passed all tests" << endl;
 
     return 0;
 }

@@ -115,7 +115,7 @@ void test()
     }
 }
 
-int main()
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     tmpDir = getenv ("PEGASUS_TMP");
@@ -131,7 +131,7 @@ int main()
 	return 1;
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << "+++++ passed all tests" << endl;
 
     return 0;
 }

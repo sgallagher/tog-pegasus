@@ -49,7 +49,7 @@ void TestGetSubClassNames(
     assert(expected == subClassNames);
 }
 
-int main()
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
@@ -169,7 +169,7 @@ int main()
     it.print(cout);
 #endif
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << "+++++ passed all tests" << endl;
 
     return 0;
 }

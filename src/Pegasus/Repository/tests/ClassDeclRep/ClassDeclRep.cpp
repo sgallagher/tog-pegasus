@@ -36,6 +36,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+static char * verbose;
 
 void Test01()
 {
@@ -77,18 +78,26 @@ void Test01()
     r.createClass(NAMESPACE, class2);
 
     // Enumerate the class names:
-
     Array<CIMName> classNames = 
 	r.enumerateClassNames(NAMESPACE, CIMName (), true);
 
     BubbleSort(classNames);
 
-    // Print(classNames);
-
     assert(classNames.size() == 2);
     // ATTN-RK-20020729: Remove CIMName cast when Repository uses CIMName
     assert(CIMName(classNames[0]).equal(CIMName ("Class1")));
     assert(CIMName(classNames[1]).equal(CIMName ("Class2")));
+
+	// Get the classes and determine if they are identical with input
+
+	CIMClass c1 =  r.getClass(NAMESPACE, CIMName ("Class1"), true, true, true);
+	CIMClass c2 =  r.getClass(NAMESPACE, CIMName ("Class2"), true, true, true);
+
+	assert(c1.identical(class1));
+	assert(c1.identical(class1));
+
+    Array<CIMClass> classes = 
+	r.enumerateClasses(NAMESPACE, CIMName (), true, true, true);
 
     // Attempt to delete Class1. It should fail since the class has
     // children.
@@ -116,8 +125,9 @@ void Test01()
     assert(tmp.size() == 0);
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try 
     {
 	Test01();
@@ -128,7 +138,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << "+++++ passed all tests" << endl;
 
     return 0;
 }

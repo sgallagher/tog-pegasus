@@ -179,7 +179,7 @@ static void CreateClass(
     r.createClass(NAMESPACE, c);
 }
 
-int main()
+int main(int argc, char** argv)
 {
     const char* tmpDir;
     tmpDir = getenv ("PEGASUS_TMP");
@@ -220,7 +220,7 @@ int main()
 	cout << e.getMessage() << endl;
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << "+++++ passed all tests" << endl;
 
     return 0;
 }

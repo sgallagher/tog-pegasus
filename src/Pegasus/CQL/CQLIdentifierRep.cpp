@@ -47,7 +47,7 @@ Char16 STAR = '*';
 Char16 HASH = '#';
 Char16 RBRKT = ']';
 Char16 LBRKT = '[';
-String SCOPE = "::";
+char* SCOPE = "::";
 
 CQLIdentifierRep::CQLIdentifierRep(): 
   QueryIdentifierRep()
@@ -124,7 +124,8 @@ PEG_METHOD_ENTER(TRC_CQL, "CQLIdentifier::parse");
 		}
 	}
 
-	if((index = identifier.find(SCOPE)) != PEG_NOT_FOUND){
+	String _SCOPE(SCOPE);
+	if((index = identifier.find(_SCOPE)) != PEG_NOT_FOUND){
 		_scope = identifier.subString(0,index);
 		identifier = identifier.subString(index+2);
 	}

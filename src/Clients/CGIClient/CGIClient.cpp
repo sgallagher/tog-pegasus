@@ -892,7 +892,7 @@ void PrintQualifierRow(const String& nameSpace,
     cout << "<td>" << TypeToString(value.getType()) << "</td>\n";
     cout << "<td>" << value.toString() << "</td>\n";
     cout << "<td>" << ScopeToString(qd.getScope()) << "</td>\n";
-    cout << "<td>" << FlavorToString(qd.getFlavor()) << "</td>\n";
+    cout << "<td>" << FlavorToMof(qd.getFlavor()) << "</td>\n";
     cout << "<td>" << qd.getArraySize() << "</td>\n";
 
     cout << "</tr>\n";

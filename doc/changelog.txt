@@ -6,7 +6,13 @@ Code Freeze in Preperation for V2 Release
 From here forward, We are fixing bugs.
 TAG: Version_1_10
 
-1. (Ramnath Ravindran - HP) 10 June 2002 - Commented out" #define          PEGASUS_HAVE_TEMPLATE_SPECIALIZATION" in Platform_TRU64_ALPHA_DECCXX.h.
+
+1. 10 June 2002 (KS) - Add new test function to use command line for
+   many commands.  The command is CLI. Right now it has no documentation.
+   
+2. (Ramnath Ravindran - HP) 10 June 2002 - Commented out" #define
+    PEGASUS_HAVE_TEMPLATE_SPECIALIZATION" in Platform_TRU64_ALPHA_DECCXX.h.
+
 
 -----------------------------------------------------------------
 Version 1.09 - Started 5 April 2002

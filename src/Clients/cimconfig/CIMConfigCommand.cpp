@@ -37,6 +37,7 @@
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#1794
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -482,7 +483,6 @@ CIMConfigCommand::CIMConfigCommand ()
      _defaultQuietSet     = false;
 #endif
     _hostName            = String::EMPTY;
-    _client              = NULL;
 
     /**
         Build the usage string for the config command.  
@@ -572,15 +572,6 @@ CIMConfigCommand::CIMConfigCommand ()
 
 #endif
     setUsage (usage);
-}
-
-/**
-    Destructs a CIMConfigCommand
-*/
-CIMConfigCommand::~CIMConfigCommand ()
-{
-    if (_client != NULL)
-        delete _client;
 }
 
 /**
@@ -1119,7 +1110,7 @@ Uint32 CIMConfigCommand::execute (
     {
         // Construct the CIMClient and set to request server messages
         // in the default language of this client process.
-        _client = new CIMClient;
+        _client.reset(new CIMClient);
         _client->setRequestDefaultLanguages(); //l10n
     }
     catch (const Exception & e)
@@ -1969,7 +1960,7 @@ PEGASUS_USING_STD;
 
 int main (int argc, char* argv []) 
 {
-    CIMConfigCommand*    command;
+    AutoPtr<CIMConfigCommand> command;
     Uint32               returnCode;
     
 	MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
@@ -2019,7 +2010,7 @@ int main (int argc, char* argv [])
     }
 #endif
 
-    command  = new CIMConfigCommand ();
+    command.reset(new CIMConfigCommand ());
 
     try 
     {
@@ -2042,8 +2033,7 @@ int main (int argc, char* argv [])
     }
 
     returnCode = command->execute (cout, cerr);
-
-    delete command;   // Needed to destruct the CIMClient used by the command
+    command.reset();
 
     exit (returnCode);
     return 0;

@@ -33,11 +33,13 @@
 //               (carolann_graves@hp.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2311,#2333,#2351
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include <iostream>
 
@@ -322,11 +324,6 @@ public:
     */
     CIMAuthCommand ();
 
-    /**    
-        Destructs a CIMAuthCommand.
-    */
-    ~CIMAuthCommand ();
-
     /**
     Parses the command line, validates the options, and sets instance 
     variables based on the option arguments. 
@@ -412,7 +409,7 @@ private:
     //
     // The CIM Client reference
     //
-    CIMClient*    _client;
+    AutoPtr<CIMClient>    _client;
 
     //
     // The host name. 
@@ -469,7 +466,6 @@ CIMAuthCommand::CIMAuthCommand ()
     _userNameSet         = false;
     _readFlagSet         = false;
     _writeFlagSet        = false;
-    _client              = NULL;
 
     /**
         Build the usage string for the config command.  
@@ -523,15 +519,6 @@ CIMAuthCommand::CIMAuthCommand ()
     setUsage (usage);
 }
 
-
-/**
-    Destructs a CIMAuthCommand.
-*/
-CIMAuthCommand::~CIMAuthCommand ()
-{
-    if (_client != NULL)
-        delete _client;
-}
 
 /**
     Parses the command line, validates the options, and sets instance 
@@ -961,7 +948,7 @@ Uint32 CIMAuthCommand::execute (
     {
         // Construct the CIMClient and set to request server messages
         // in the default language of this client process.
-        _client = new CIMClient;
+        _client.reset(new CIMClient);
         _client->setRequestDefaultLanguages(); //l10n
     }
     catch (Exception & e)
@@ -1572,7 +1559,7 @@ PEGASUS_USING_STD;
 
 int main (int argc, char* argv []) 
 {
-    CIMAuthCommand*      command;
+    AutoPtr<CIMAuthCommand> command;
     Uint32               retCode;
 
 	MessageLoader::_useProcessLocale = true;  //l10n set messageloading to process locale
@@ -1598,7 +1585,7 @@ int main (int argc, char* argv [])
     }
 #endif
 
-    command  = new CIMAuthCommand ();
+    command.reset(new CIMAuthCommand ());
 
     try 
     {
@@ -1621,8 +1608,6 @@ int main (int argc, char* argv [])
     }
 
     retCode = command->execute (cout, cerr);
-
-    delete command;   // Needed to destruct the CIMClient used by the command
 
     exit (retCode);
     return 0;

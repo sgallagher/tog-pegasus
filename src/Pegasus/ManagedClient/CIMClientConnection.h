@@ -28,6 +28,7 @@
 //==============================================================================
 //
 // Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
+//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #ifndef Pegasus_CIMClientConnection_h
@@ -36,6 +37,7 @@
 #include <Pegasus/Client/CIMClientRep.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Client/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -50,9 +52,6 @@ public:
 	CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd);
 	CIMClientConnection(const String& host, const String& port, const String& userid, const String& passwd, const SSLContext& sslcontext);
 
-	// virtual class destructor has to be implemented by specific implementation
-	~CIMClientConnection();
-
 	Boolean equals(Uint32 ipAddress, const String& port);
 
 	CIMClientRep *  getConnectionHandle(void);
@@ -62,12 +61,12 @@ public:
 	SSLContext* getSSLContext(void);
 
 private:
-	CIMClientRep *	_connectionHandle;
+    AutoPtr<CIMClientRep> _connectionHandle;
 	String	_hostname;
 	String	_port;
 	String  _userid;
 	String  _passwd;
-	SSLContext *_sslcontext;
+    AutoPtr<SSLContext> _sslcontext;
 	
 	Uint32  _resolvedIP;
 };

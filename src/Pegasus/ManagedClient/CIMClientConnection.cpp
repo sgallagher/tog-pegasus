@@ -30,6 +30,7 @@
 // Author: Marek Szermutzky (MSzermutzky@de.ibm.com) PEP#139 Stage2
 //
 // Modified by: Robert Kieninger, IBM (kieningr@de.ibm.com) Bug#667
+//         Josephine Eskaline Joyce,IBM (jojustin@in.ibm.com) PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,9 +45,7 @@ CIMClientConnection::CIMClientConnection()
 	_port = String::EMPTY;
 	_userid = String::EMPTY;
 	_passwd = String::EMPTY;
-	_sslcontext = 0;
-
-	_connectionHandle = new CIMClientRep();
+    _connectionHandle.reset(new CIMClientRep());
 	_resolvedIP = 0xFFFFFFFF;
 }
 
@@ -57,9 +56,7 @@ CIMClientConnection::CIMClientConnection(const String& host, const String& port,
 	_userid = String(userid);
 	_passwd = String(passwd);
 	
-	_sslcontext = 0;
-
-	_connectionHandle = new CIMClientRep();
+    _connectionHandle.reset(new CIMClientRep());
 	_resolvedIP = System::_acquireIP((const char*)host.getCString());
 	if (_resolvedIP == 0x7F000001)
 	{
@@ -76,9 +73,9 @@ CIMClientConnection::CIMClientConnection(const String& host, const String& port,
 	_userid = String(userid);
 	_passwd = String(passwd);
 
-	_sslcontext = new SSLContext(sslcontext);
+    _sslcontext.reset(new SSLContext(sslcontext));
 
-	_connectionHandle = new CIMClientRep();
+    _connectionHandle.reset(new CIMClientRep());
 	_resolvedIP = System::_acquireIP((const char*)host.getCString());
 	if (_resolvedIP == 0x7F000001)
 	{
@@ -88,15 +85,6 @@ CIMClientConnection::CIMClientConnection(const String& host, const String& port,
 	}
 }
 	
-// virtual class destructor has to be implemented by specific implementation
-CIMClientConnection::~CIMClientConnection()
-{
-	// cout << "Destroying ~CIMClientConnection" << endl;
-	if (_sslcontext != 0) delete _sslcontext;
-	if (_connectionHandle !=0) delete _connectionHandle;
-	// cout << "Destroyed ~CIMClientConnection" << endl;
-}
-
 Boolean CIMClientConnection::equals(Uint32 ipAddress, const String& port)
 {
 	// only if port and resolved ip address are equal we have the same connection/CIMOM
@@ -109,7 +97,7 @@ Boolean CIMClientConnection::equals(Uint32 ipAddress, const String& port)
 
 CIMClientRep* CIMClientConnection::getConnectionHandle()
 {
-	return _connectionHandle;
+    return _connectionHandle.get();
 }
 
 String CIMClientConnection::getUser()
@@ -124,7 +112,7 @@ String CIMClientConnection::getPass()
 
 SSLContext* CIMClientConnection::getSSLContext()
 {
-	return _sslcontext;
+    return _sslcontext.get();
 }
 
 

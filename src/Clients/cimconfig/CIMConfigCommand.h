@@ -33,6 +33,7 @@
 //                (carolann_graves@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,7 @@
 #define Pegasus_CIMConfigCommand_h
 
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Clients/cliutils/Command.h>
 #include <Clients/cliutils/CommandException.h>
 #include <iostream>
@@ -65,11 +67,6 @@ public:
         Constructs a CIMConfigCommand and initializes instance variables.
     */
     CIMConfigCommand ();
-
-    /**    
-        Destructs a CIMConfigCommand.
-    */
-    ~CIMConfigCommand ();
 
     /**
     Parses the command line, validates the options, and sets instance 
@@ -159,7 +156,7 @@ private:
     /**
     The CIM Client reference
     */
-    CIMClient*    _client;
+    AutoPtr<CIMClient> _client;
 
     /**
     The host name. 

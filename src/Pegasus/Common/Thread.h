@@ -60,7 +60,7 @@ class PEGASUS_EXPORT cleanup_handler
       }
       void *_arg; 
       PEGASUS_CLEANUP_HANDLE _cleanup_buffer;
-      friend DQueue<class cleanup_handler>;
+      friend class DQueue<class cleanup_handler>;
       friend class Thread;
 };
 
@@ -201,7 +201,7 @@ class  PEGASUS_EXPORT thread_data
       void *_data;
       Uint32 _size;
       Sint8 *_key;
-      friend DQueue<thread_data>;
+      friend class DQueue<thread_data>;
       friend class Thread;
 };
 

@@ -79,7 +79,7 @@ static const String LOCALPRIVILEGED_AUTH_HEADER =
 
 
 
-ClientAuthenticator::ClientAuthenticator(): _challengeReceived(false)
+ClientAuthenticator::ClientAuthenticator()
 {
     clearRequest(true);
 }
@@ -98,6 +98,8 @@ void ClientAuthenticator::clearRequest(Boolean closeConnection)
         _userName = String::EMPTY;
         _password = String::EMPTY;
         _realm = String::EMPTY;
+        _challengeReceived = false;
+        _authType = ClientAuthenticator::NONE;
     }
 }
 

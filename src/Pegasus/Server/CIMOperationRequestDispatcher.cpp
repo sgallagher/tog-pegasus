@@ -598,30 +598,30 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 
 #ifndef PEGASUS_DISABLE_CQL
          _routing_table.insert_record(PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES,
-                                   //PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES,
-                                      _wild,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *> (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                        //PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES,
+                        _wild,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *> (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 #endif
 
 #if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
 	 // Interop Class, InteropProvider ObjectManager Class
 	 _routing_table.insert_record(PEGASUS_CLASSNAME_OBJECTMANAGER,
-					  _wild,
-							DynamicRoutingTable::INTERNAL,
-							0,
-							static_cast<MessageQueueService *>
-							(MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-							PEGASUS_MODULENAME_INTEROPPROVIDER,
-							PEGASUS_QUEUENAME_CONTROLSERVICE);
+                        _wild,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_INTEROPPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 
      // PG_Namespace.  Note that this means that CIM_Namespace is not
-     // managed by the provider.  It is not implemented so that the
-     // information comes from PG_Namespace.
+     // managed by the provider. PG_Namespace is the subclass.  It is not implemented 
+     // so that the information comes from PG_Namespace.
 	 _routing_table.insert_record(PEGASUS_CLASSNAME_PGNAMESPACE,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
@@ -636,15 +636,6 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 #ifdef PEGASUS_ENABLE_SLP
 
      _routing_table.insert_record(PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
-				      _wild,
-				      DynamicRoutingTable::INTERNAL,
-				      0,
-				      static_cast<MessageQueueService *>
-				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-				      PEGASUS_MODULENAME_INTEROPPROVIDER,
-				      PEGASUS_QUEUENAME_CONTROLSERVICE);
-
-     _routing_table.insert_record(PEGASUS_CLASSNAME_PROTOCOLADAPTER,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
 				      0,

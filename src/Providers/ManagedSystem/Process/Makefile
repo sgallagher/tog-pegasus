@@ -19,19 +19,40 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
+#//=============================================================================
+#//
+#// Author: Christopher Neufeld <neufeld@linuxcare.com>
+#//         David Kennedy       <dkennedy@linuxcare.com>
+#//
+#// Modified By: David Kennedy       <dkennedy@linuxcare.com>
+#//              Christopher Neufeld <neufeld@linuxcare.com>
+#//		 Mike Glantz <michael_glantz@hp.com>
+#//
 #//%////////////////////////////////////////////////////////////////////////////
-#
-# Recurse the directories defined in DIRS
-#
 
-ROOT = ../../..
+ROOT = ../../../..
+
+DIR = Providers/ManagedSystem/Process
 
 include $(ROOT)/mak/config.mak
 
-DIRS =  \
-        OperatingSystem \
-        ComputerSystem \
-        Process
+LIBRARY = Process
 
-include $(ROOT)/mak/recurse.mak
+EXTRA_INCLUDES =
+
+SOURCES = \
+	Process.cpp \
+	ProcessProvider.cpp \
+	ProcessStatProvider.cpp \
+        ProcessMain.cpp
+
+LIBRARIES = \
+	pegcommon \
+	pegprovider
+
+include $(ROOT)/mak/library.mak
+
+tests:
+
+poststarttests:
 

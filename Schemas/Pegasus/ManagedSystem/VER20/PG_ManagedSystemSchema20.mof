@@ -1,2 +1,3 @@
 #pragma include ("PG_OperatingSystem20.mof")
 #pragma include ("PG_ComputerSystem20.mof")
+#pragma include ("PG_UnixProcess20.mof")

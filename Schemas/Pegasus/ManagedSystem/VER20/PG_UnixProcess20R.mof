@@ -1,0 +1,64 @@
+// We have one shared library module with two providers
+// in it: Process and ProcessStat
+
+instance of PG_ProviderModule 
+{
+   Name = "ProcessModule";
+   Location = "Process";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.0.0";
+};
+
+// Provider for PG_UnixProcess
+
+instance of PG_Provider 
+{
+  ProviderModuleName = "ProcessModule";
+  Name = "ProcessProvider";
+};
+
+instance of PG_ProviderCapabilities 
+{
+  ProviderModuleName = "ProcessModule";
+  ProviderName = "ProcessProvider";
+  CapabilityID = "1";
+  ClassName = "CIM_Process";
+  Namespaces[] = { "root/cimv2" };
+  ProviderType[] = { 2 }; // Instance
+  SupportedProperties[] = NULL; // All properties
+  SupportedMethods[] = NULL; // All methods
+};
+
+instance of PG_ProviderCapabilities 
+{
+  ProviderModuleName = "ProcessModule";
+  ProviderName = "ProcessProvider";
+  CapabilityID = "2";
+  ClassName = "PG_UnixProcess";
+  Namespaces[] = { "root/cimv2" };
+  ProviderType[] = { 2 }; // Instance
+  SupportedProperties[] = NULL; // All properties
+  SupportedMethods[] = NULL; // All methods
+};
+
+// Provider for class PG_UnixProcessStatisticalInformation (ProcessStat)
+
+instance of PG_Provider
+{
+  ProviderModuleName = "ProcessModule";
+  Name = "ProcessStatProvider";
+};
+
+instance of PG_ProviderCapabilities 
+{
+  ProviderModuleName = "ProcessModule";
+  ProviderName = "ProcessStatProvider";
+  CapabilityID = "1";
+  ClassName = "PG_UnixProcessStatisticalInformation";
+  Namespaces[] = { "root/cimv2" };
+  ProviderType[] = { 2 }; // Instance provider
+  SupportedProperties[] = NULL; // All properties
+  SupportedMethods[] = NULL; // All methods
+};

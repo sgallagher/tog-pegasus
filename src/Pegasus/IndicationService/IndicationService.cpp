@@ -1176,7 +1176,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
 
 	   PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
 	}
-
+	_repository->write_unlock ();
         //
         //  If the instance is of the CIM_IndicationSubscription class
         //  and subscription state is enabled, send enable request to 

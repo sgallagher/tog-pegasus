@@ -530,13 +530,8 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
    String errorDescription;
    CIMClass cimClass;
    
-   cout << "getting read lock on repository" << endl;
-   
    _repository->read_lock();
  
-   cout << " holding read lock on repository" << endl;
-   
-   
    try
    {
       cimClass = _repository->getClass(

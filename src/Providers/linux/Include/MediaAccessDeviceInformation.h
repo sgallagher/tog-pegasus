@@ -109,6 +109,18 @@ protected:
 
 };
 
+typedef MediaAccessDeviceInformation * MediaAccessDeviceInformationPtr;
+
+#if 0
+#define PEGASUS_ARRAY_T MediaAccessDeviceInformationPtr
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T MediaAccessDeviceInformation
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+#endif
+
 PEGASUS_NAMESPACE_END
 
 #endif

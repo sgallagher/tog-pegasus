@@ -133,11 +133,12 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
          If all the properties for the input classname are required, a null
          CIMPropertyList is returned.
        */
-    CIMPropertyList getPropertyList(
-        /**  The input parameter className is one of the
-              classes from the FROM list.
-           */
-        const CIMObjectPath& inClassName);
+
+    // ATTN  -- doc note: mention that this function ASSUMES that
+    // the classname passed in is the FROM class, or a subclass
+    // of the FROM class.  Remember to put this documentation
+    // on QueryExpression::getPropertyList
+    CIMPropertyList getPropertyList(const CIMObjectPath& inClassName);
 
     /** Modifier. This method should not be called by the user (only by the
             parser).
@@ -271,12 +272,13 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     CIMName lookupFromClass(const String&  lookup);
 
     Boolean addRequiredProperty(Array<CIMName>& reqProps,
-				CIMClass& theClass,
-				CQLChainedIdentifier& chainId);
+				CIMName& className,
+				CQLChainedIdentifier& chainId,
+                                Array<CIMName>& matchedScopes,
+                                Array<CIMName>& unmatchedScopes);
 
-    void addProjectedProperty(const CIMInstance& inst,
-                              PropertyNode* node,
-                              Array<CIMName>& requiredProps);
+    Boolean isFilterable(const CIMInstance& inst,
+                         PropertyNode* node);
 
     void removeUnneededProperties(CIMInstance& inst, 
                                   Boolean & allPropsRequired,
@@ -284,9 +286,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 
     Boolean containsProperty(const CIMName& name,
 			     const Array<CIMName>& props);
-
-    Boolean isSubClass(const CIMName& derived,
-		       const CIMName& base); 
 
     void checkWellFormedIdentifier(const CQLChainedIdentifier& chainId,
 				   Boolean isSelectListId);

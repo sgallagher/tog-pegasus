@@ -146,13 +146,13 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
 
     if (firstId.isWildcard())
     {
-      // Single element chain that is wildcarded.
+      // First chain element is wildcarded.
       // Prepend the FROM class.
       _subIdentifiers.prepend(fromList[0]);
     }  
     else
     {
-      // Not a single element wildcard.
+      // Not a wildcard.
       if (firstId.isScoped())
       {
         // The first identifier is a scoped property or a 
@@ -172,8 +172,8 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
 	if (matchedId.getName().getString().size() == 0)
 	{
 	  // Could not find the firstId in the FROM list.
-	  // Assume the firstId is a property on the FROM class,
-          // and prepend the FROM class, except in the case described below.
+	  // Assume the firstId is a property on the FROM class.
+          // Prepend the FROM class, except in the cases described below.
           //
           // NOTE:
           // We need special handling for symbolic constants, because there are cases
@@ -181,30 +181,61 @@ void CQLChainedIdentifierRep::applyContext(QueryContext& inContext)
           // Refer to section 5.4.3 of the CQL spec.
           //
           // Examples:
+          // SELECT * FROM F WHERE F.someprop = prop#'OK'
+          // Prepend the FROM class because symbolic constants can only
+          // apply to properties, and properties in the first position
+          // are assumed to be on the FROM class.
+          //
           // SELECT * FROM F WHERE F.someprop = ClassNotInFromList.prop#'OK'
           // We don't want to prepend the FROM class to ClassNotInFromList 
-          // in this case.
+          // in this case. But we need to get the FROM class from the schema
+          // to make sure ClassNotInFromList is not a property on the FROM class. 
           //
-          // SELECT * FROM F WHERE F.someprop = embeddedObject.X::p#'OK'
-          // Even though embeddedObject may an property on F, and not
-          // a classname, we still don't need to prepend F because the
-          // scoping class X will be used to get the value of 'OK' on property
-          // p.
+          // SELECT * FROM F WHERE F.someprop = embeddedObjectOnF.X::p#'OK'
+          // In this case embeddedObjectOnF is an embedded object property
+          // on the FROM class.  We want to prepend the FROM class.  But
+          // we need to get FROM class from the schema first to make sure.
           //
-          // SELECT * FROM F WHERE F.someprop = propOnClassF#'OK'
-          // We want to prepend in this case.  The identifier propOnClassF
-          // is assumed to be a property on the FROM class, not a classname
-          // itself.
+          // SELECT * FROM F WHERE F.someprop = embeddedObjectOnF.X::p
+          // In this case embeddedObjectOnF is an embedded object property
+          // on the FROM class.  We want to prepend the FROM class.  Since
+          // the last id is not a symbolic constant we can prepend without
+          // getting the FROM class from the schema.
           //
           // Note that standalone symbolic constants, like #'OK'
-          // are errors in this code.
+          // are errors when this code is run.
           // See above for details.
           //
-	  if (_subIdentifiers.size() == 1 ||
-	      !_subIdentifiers[_subIdentifiers.size()-1].isSymbolicConstant())
-	  {
-	    _subIdentifiers.prepend(fromList[0]);
-	  }
+
+          if (firstId.isSymbolicConstant() ||
+              !getLastIdentifier().isSymbolicConstant()) 
+          {
+            // Must be a property on the FROM class.
+	    _subIdentifiers.prepend(fromList[0]);            
+          }
+          else
+          {
+            // Get the FROM class. 
+            try
+            {
+              CIMClass fromClass = inContext.getClass(fromList[0].getName());
+              if (fromClass.findProperty(firstId.getName()) != PEG_NOT_FOUND)
+              {
+                // A property on the FROM class.
+                _subIdentifiers.prepend(fromList[0]);                              
+              }
+            }
+            catch (CIMException& ce)
+            {
+              if (ce.getCode() == CIM_ERR_INVALID_CLASS || 
+                  ce.getCode() == CIM_ERR_NOT_FOUND)
+              {
+                // ATTN may just want to throw the CIMException rather than
+                // CQL exception
+                throw Exception("TEMP MSG - CQLChainId::applyContext - FROM class does not exist");
+              }
+            }
+          }
 	}
 	else
 	{	

@@ -468,14 +468,11 @@ Uint32 String::reverseFind(Char16 c) const
 void String::toLower()
 {
 #ifdef PEGASUS_HAS_ICU
-    Char16* utf16str; 
     UnicodeString UniStr((const UChar *)_rep->c16a.getData());
     UniStr.toLower();
-    UniStr.append((UChar)'\0');  // ATTN - must be after toLower, but before getTerminatedBuffer
-                                 // We should not need to do this! 
-    utf16str = (Char16 *)UniStr.getTerminatedBuffer();
-    assign(utf16str);
-    // DEVELOPER NOTE: do not delete utf16str, this is handled by ICU
+    UniStr.append((UChar)'\0');   
+    
+    assign((Char16*)UniStr.getBuffer());
 #else
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {

@@ -61,13 +61,13 @@ ProviderModule::ProviderModule(const String & fileName, const String & interface
      _interfaceFileName=String::EMPTY;
      if (_interfaceName.size()>0) {
         #ifdef PEGASUS_OS_TYPE_WINDOWS
-	   _interfaceFileName=_InterfaceName+String("Adapter.dll");
-	#elif PEGASUS_OS_HPUX
+	   _interfaceFileName=_interfaceName+String("Adapter.dll");
+	#elif defined(PEGASUS_OS_HPUX)
 	   _interfaceFileName=ConfigManager::getHomedPath(
 	      ConfigManager::getInstance()->getCurrentValue("providerDir"))+
 	      String("/lib")+interfaceName+String("Adapter.sl");
-       #elif defined(PEGASUS_OS_OS400)
-           _interrfaceFileName=interfaceName+String("Adapter");
+        #elif defined(PEGASUS_OS_OS400)
+           _interfaceFileName=interfaceName+String("Adapter");
 	#else
 	   _interfaceFileName=ConfigManager::getHomedPath(
 	      ConfigManager::getInstance()->getCurrentValue("providerDir"))+
@@ -154,7 +154,7 @@ CIMProvider *ProviderModule::load(const String & providerName)
     if (_interfaceFileName.size()>0) {
       _adapter=ProviderAdapterManager::get_pamgr()->addAdapter(
 	      _interfaceName,_interfaceFileName,_fileName,providerName);
-      provider=dynamic_cast<CIMBaseProvider*>(_adapter);
+      provider=dynamic_cast<CIMProvider*>(_adapter);
       if (provider==NULL) {
 	throw Exception("ProviderLoadFailure ("+providerName+
 			"Provider is not a BaseProvider");

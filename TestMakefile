@@ -39,7 +39,7 @@ endif
 
 ifeq ($(OS),HPUX)
   CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = cimserver -s
+  CIMSERVER_STOP_SERVICE = cimserver -s; true
   SLEEP = sleep 5
   MUEXE = mu
   COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)

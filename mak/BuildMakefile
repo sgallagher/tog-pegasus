@@ -40,7 +40,7 @@ endif
 
 ifeq ($(OS),HPUX)
   CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = cimserver -s
+  CIMSERVER_STOP_SERVICE = cimserver -s; true
   SLEEP = sleep 5
   REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
   MUEXE = mu

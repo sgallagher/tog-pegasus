@@ -53,7 +53,7 @@ endif
 
 FLAGS = +Z $(IAFLAGS) -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-  FLAGS += -Wl,+b/usr/lib -Wl,+s 
+  FLAGS += -Wl,+s -Wl,+b/opt/wbem/lib
 endif
 ifdef PEGASUS_DEBUG
   FLAGS += -g

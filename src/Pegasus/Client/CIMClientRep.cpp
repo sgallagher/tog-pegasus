@@ -25,7 +25,7 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By: 
+// Modified By:  Dan Gorey (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,8 +72,13 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     //
     // Create Monitor and HTTPConnector
     //
+    #ifdef PEGASUS_USE_23HTTPMONITOR
     _monitor = new Monitor();
     _httpConnector = new HTTPConnector(_monitor);
+    #else
+    _monitor = new monitor_2();
+    _httpConnector = new HTTPConnector2(_monitor);
+    #endif
 
 // l10n
     requestAcceptLanguages = AcceptLanguages::EMPTY;
@@ -153,10 +158,17 @@ void CIMClientRep::_connect()
     //
     try
     {
+        #ifdef PEGASUS_USE_23HTTPMONITOR
         _httpConnection = _httpConnector->connect(_connectHost,
                                                   _connectPortNumber,
                                                   _connectSSLContext,
                                                   _responseDecoder);
+        #else
+        _httpConnection = _httpConnector->connect(_connectHost,
+                                                  _connectPortNumber,
+                                                  _responseDecoder);
+        #endif
+        
     }
     catch (CannotCreateSocketException& e)
     {
@@ -1109,8 +1121,11 @@ Message* CIMClientRep::_doRequest(
         //
         // Wait until the timeout expires or an event occurs:
         //
-
+       #ifdef PEGASUS_USE_23HTTPMONITOR
        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+       #else
+       _monitor->run();
+       #endif
 
         //
         // Check to see if incoming queue has a message

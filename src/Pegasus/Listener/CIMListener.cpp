@@ -25,7 +25,7 @@
 //
 // Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
 //
-// Modified By:
+// Modified By:   Dan Gorey (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -101,10 +101,15 @@ public:
 private:
 	Uint32			_portNumber;
 	SSLContext* _sslContext;
-
+  #ifdef PEGASUS_USE_23HTTPMONITOR
 	Monitor*				_monitor;
   HTTPAcceptor*   _acceptor;
-	Boolean					_dieNow;
+  #else
+ 	monitor_2*				_monitor;
+  pegasus_acceptor*   _acceptor;
+  #endif 
+
+  Boolean					_dieNow;
 
   CIMListenerIndicationDispatcher* _dispatcher;
 
@@ -162,7 +167,12 @@ void CIMListenerService::init()
 {
 	PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::init");
 
+  #ifdef PEGASUS_USE_23HTTPMONITOR
   _monitor = new Monitor(true);
+  #else
+  _monitor = new monitor_2();
+  #endif
+  
 	//_dispatcher = new CIMListenerIndicationDispatcher();
 
 	_responseEncoder = new CIMExportResponseEncoder();
@@ -170,12 +180,20 @@ void CIMListenerService::init()
 		_dispatcher,
 		_responseEncoder->getQueueId());
 
-	_acceptor = new HTTPAcceptor(
+  #ifdef PEGASUS_USE_23HTTPMONITOR
+  _acceptor = new HTTPAcceptor(
 		 _monitor, 
 		 _requestDecoder, 
 		 false, 
 		 _portNumber, 
 		 _sslContext);
+  #else
+  _acceptor = new pegasus_acceptor(_monitor,
+		   _requestDecoder,
+		   false,
+		   _portNumber,
+		   _sslContext);
+  #endif
 
 	bind();
 
@@ -201,8 +219,9 @@ void CIMListenerService::runForever()
 
 	if(!_dieNow)
 	{
-		if(false == _monitor->run(100))
-		{
+    #ifdef PEGASUS_USE_23HTTPMONITOR
+    if(false == _monitor->run(100))
+    {
 			modulator++;
 			if(!(modulator % 5000) )
 			{
@@ -227,7 +246,10 @@ void CIMListenerService::runForever()
 			handleShutdownSignal = false;
 		}
 */
-	} 
+   #else
+   _monitor->run();
+   #endif
+	}
 }
 
 void CIMListenerService::shutdown()
@@ -254,7 +276,11 @@ void CIMListenerService::stopClientConnection()
     PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::stopClientConnection()");
 
     // tell Monitor to stop listening for client connections
+    #ifdef PEGASUS_USE_23HTTPMONITOR
     _monitor->stopListeningForConnections();
+    #else
+    _monitor->stop();
+    #endif
 
     //
     // Wait 150 milliseconds to allow time for the Monitor to stop

@@ -31,6 +31,8 @@
 //                (carolann_graves@hp.com)
 //		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+//              Dan Gorey (djgorey@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ExportClient_h
@@ -72,6 +74,11 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 	 HTTPConnector* httpConnector,
 	 Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
+         CIMExportClient(
+	 monitor_2* monitor2,
+	 HTTPConnector2* httpConnector2,
+	 Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+   
       // Destructor for a CIM Export Client object.
       ~CIMExportClient();
 
@@ -171,6 +178,12 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       Monitor* _monitor;
       HTTPConnector* _httpConnector;
       HTTPConnection* _httpConnection;
+
+      monitor_2* _monitor2;
+      HTTPConnector2* _httpConnector2;
+      HTTPConnection2* _httpConnection2;
+
+      
       Uint32 _timeoutMilliseconds;
       Boolean _connected;
       CIMExportResponseDecoder* _responseDecoder;

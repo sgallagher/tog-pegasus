@@ -31,6 +31,8 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+//              Dan Gorey (djgorey@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -71,6 +73,22 @@ CIMExportClient::CIMExportClient(
 {
 }
 
+CIMExportClient::CIMExportClient(
+   monitor_2* monitor2,
+   HTTPConnector2* httpConnector2,
+   Uint32 timeoutMilliseconds)
+   :
+   MessageQueue(PEGASUS_QUEUENAME_EXPORTCLIENT),
+   _monitor2(monitor2),
+   _httpConnector2(httpConnector2),
+   _httpConnection2(0),
+   _timeoutMilliseconds(timeoutMilliseconds),
+   _connected(false),
+   _responseDecoder(0),
+   _requestEncoder(0)
+{
+}  
+
 CIMExportClient::~CIMExportClient()
 {
 
@@ -88,10 +106,17 @@ void CIMExportClient::_connect()
     
    try
    {
+   #ifdef PEGASUS_USE_23HTTPMONITOR
       _httpConnection = _httpConnector->connect(_connectHost, 
 					       _connectPortNumber, 
-                                               _connectSSLContext,
-        				       _responseDecoder);
+                 _connectSSLContext,
+                 _responseDecoder);
+   #else
+       _httpConnection2 = _httpConnector2->connect(_connectHost,
+					       _connectPortNumber,
+                 _connectSSLContext,
+                 _responseDecoder);
+   #endif
    }
    catch (CannotCreateSocketException& e)
    {
@@ -111,8 +136,13 @@ void CIMExportClient::_connect()
     
    // Create request encoder:
     
+   #ifdef PEGASUS_USE_23HTTPMONITOR
    _requestEncoder = new CIMExportRequestEncoder(
       _httpConnection, &_authenticator);
+   #else
+   _requestEncoder = new CIMExportRequestEncoder(
+      _httpConnection2, &_authenticator);
+   #endif
 
    _responseDecoder->setEncoderQueue(_requestEncoder);    
 
@@ -140,7 +170,12 @@ void CIMExportClient::_disconnect()
             _httpConnector->disconnect(_httpConnection);
             delete _httpConnection;
             _httpConnection = 0;
+        }else if (_httpConnector2) {
+            _httpConnector2->disconnect(_httpConnection2);
+            delete _httpConnection2;
+            _httpConnection2 = 0;
         }
+          
 
         //
         // destroy request encoder
@@ -304,8 +339,11 @@ Message* CIMExportClient::_doRequest(
 	//
 	// Wait until the timeout expires or an event occurs:
 	//
-
+       #ifdef PEGASUS_USE_23HTTPMONITOR
        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+       #else
+       _monitor2->run();
+       #endif
        
 	//
 	// Check to see if incoming queue has a message

@@ -25,7 +25,7 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By: 
+// Modified By:     Dan Gorey (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -297,10 +297,17 @@ private:
         const Uint32 expectedResponseMessageType);
 
     String _getLocalHostName();
-
+     #ifdef PEGASUS_USE_23HTTPMONITOR
     Monitor* _monitor;
     HTTPConnector* _httpConnector;
     HTTPConnection* _httpConnection;
+    #else
+    monitor_2* _monitor;
+    HTTPConnector2* _httpConnector;
+    HTTPConnection2* _httpConnection;
+    #endif
+    
+
     Uint32 _timeoutMilliseconds;
     Boolean _connected;
     CIMOperationResponseDecoder* _responseDecoder;

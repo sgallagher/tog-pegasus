@@ -223,8 +223,7 @@ mofProduction: compilerDirective { /* FIXME: Where do we put directives? */ }
              | classDeclaration 
 	         { cimmofParser::Instance()->addClass($1); }
              | instanceDeclaration 
-                 { cimmofParser::Instance()->addInstance($1);
-		   delete $1; } ;
+                 { cimmofParser::Instance()->addInstance($1); } ;
 
 classDeclaration: classHead  classBody
 {
@@ -491,7 +490,7 @@ aliasIdentifier: TOK_ALIAS_IDENTIFIER ;
 
 instanceDeclaration: instanceHead instanceBody
 { 
-  $$ = $1; 
+  $$ = g_currentInstance; 
   if (g_currentAlias != String::EMPTY)
     cimmofParser::Instance()->addInstanceAlias(g_currentAlias, $1, true);
 };
@@ -501,10 +500,10 @@ instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
   if (g_currentInstance)
     delete g_currentInstance;
   g_currentAlias = *$5;
-  g_currentInstance = new CIMInstance(*$4);
-  delete $4;
+  g_currentInstance = cimmofParser::Instance()->newInstance(*$4);
   $$ = g_currentInstance;
   g_qualifierList.apply($$);
+  delete $4;
   delete $5;
 } ;
 
@@ -528,8 +527,6 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER array TOK_EQUAL
   const CIMProperty *oldprop = cp->PropertyFromInstance(*g_currentInstance,
 							*$2);
   const CIMValue *oldv = cp->ValueFromProperty(*oldprop);
-  //const CIMValue *oldv = cp->PropertyValueFromInstance(*g_currentInstance, 
-  //					       *$2);
   //   3. create the new Value object of the same type
   CIMValue *v = valueFactory::createValue(oldv->getType(), $3, $5);
   //   4. create a clone property with the new value

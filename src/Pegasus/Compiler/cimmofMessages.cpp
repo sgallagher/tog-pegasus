@@ -59,6 +59,13 @@ static String _cimmofMessages[] = {
   "Error getting property %1 from an instance: %2", 
   "Error getting property %1 from class %2: %4", //GET_CLASS_PROPERTY_ERROR
   "Error getting value of property %1: %2", //GET_PROPERTY_VALUE_ERROR
+  "Error creating new instance of class %1: %2", // NEW_INSTANCE_ERROR
+                                          // INSTANCE_PROPERTY_EXISTS_WARNING
+  "Warning: property %2 already exists for this instance of class %1",
+	                                  // INSTANCE_EXISTS_WARNING
+  "Warning: the instance already exists in the repository.\nIn this"
+  " implementation, that means it cannot be changed.",
+  "Error adding an instance to the repository: %1", // ADD_INSTANCE_ERROR
   ""
 };
 

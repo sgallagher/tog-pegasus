@@ -128,9 +128,11 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Called when a new qualifier declaration heading is discovered
   CIMQualifier *newQualifier(const String &name, const CIMValue &val,
 			     Uint32 flav);
+  // Called when a new instance declaration heading is discovered
+  CIMInstance *newInstance(const String &name);
   // Called when a new property is discovered
   CIMProperty *newProperty(const String &name, const CIMValue &val,
-			   const String &referencedObj = String::EMPTY);
+			   const String &referencedObj = String::EMPTY) const;
   // Called when a property production inside a class is complete
   int applyProperty(CIMClass &c, CIMProperty &p);
   // Called when a property production inside an instance is complete
@@ -148,10 +150,10 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   // Called when a qualifier value production is complete
   CIMValue *QualifierValue(const String &qualifierName, const String &valstr);
   // Called to retrieve the value object for an existing parameter
-  CIMProperty *PropertyFromInstance(const CIMInstance &instance,
+  CIMProperty *PropertyFromInstance(CIMInstance &instance,
 				    const String &propertyName) const;
   CIMValue *ValueFromProperty(const CIMProperty &prop) const;
-  CIMValue *PropertyValueFromInstance(const CIMInstance &instance, 
+  CIMValue *PropertyValueFromInstance(CIMInstance &instance, 
 				      const String &propertyName) const; 
   // Called when a class alias is found
   void addClassAlias(const String &alias, const CIMClass *cd, 

@@ -1,4 +1,4 @@
-03/04/2001
+03/05/2001
 
 The mof compiler is a long ways from done, but it does
 build and populate a repository.
@@ -24,7 +24,8 @@ CIM_Schema25.mof in about 50 seconds on NT and about 15 on Linux.
 Partial list of to-do's:
   - Add command line arguments to control over-laying of existing objects,
     stopping the addition of new base classes and several other things.
-  - Test parsing and storage of instances.  They probably don't work now.
+  - Make the command line driver turn off logging in the embeddable
+    compiler code.  Right now, errors print out twice.
   - Handle a few  errors that are ignored now.
   - bunch of other cleanup
 

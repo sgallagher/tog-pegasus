@@ -23,6 +23,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: cimmofParser.cpp,v $
+// Revision 1.7  2001/03/05 21:54:29  bob
+// Implement instance compilation
+//
 // Revision 1.6  2001/03/05 17:00:47  bob
 // Catch up with the change from CimException to CIMException
 //
@@ -449,6 +452,7 @@ cimmofParser::addClass(CIMClass *classdecl)
   try {
     ret = _repository->addClass(classdecl);
   } catch(AlreadyExists) {
+    //FIXME:  We should be able to modify the class through the compiler
     cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 			       arglist);
     wlog(message);
@@ -509,9 +513,11 @@ cimmofParser::newClassDecl(const String &name, const String &superclassname)
 //---------------------------------------------------------------------
 int 
 cimmofParser::addInstance(CIMInstance *instance)
-  // FIXME: This hasn't been thought about much
 { 
+  cimmofMessages::arglist arglist;
+  String message;
   int ret = 0;
+  bool err_out = false;
   if (_cmdline && _cmdline->trace()) {
     String header;
     cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
@@ -522,8 +528,31 @@ cimmofParser::addInstance(CIMInstance *instance)
   if (_cmdline && _cmdline->syntax_only()) {
     return ret; 
   }
-  // FIXME:  Add try-catch
-  ret = _repository->addInstance(instance);
+  try {
+    _repository->addInstance(instance);
+  } catch (CIMException &e) {
+    arglist.push_back(e.getMessage());
+    if (e.getCode() == CIMException::ALREADY_EXISTS) {
+      // FIXME:  We should be able to modify the instance through the compiler
+      cimmofMessages::getMessage(message,
+			       cimmofMessages::INSTANCE_EXISTS_WARNING,
+			       arglist);
+      wlog(message);
+    } else {
+      err_out = true;
+    }
+  } catch (Exception &e) {
+    arglist.push_back(e.getMessage());
+    err_out = true;
+  }
+  if (err_out) {
+    cimmofMessages::getMessage(message,
+			       cimmofMessages::ADD_INSTANCE_ERROR,
+			       arglist);
+    elog(message);
+    maybeThrowParseError(message);
+  }
+
   if (_cmdline && _cmdline->trace()) {
     String ok;
     cimmofMessages::getMessage(ok, cimmofMessages::TAB_OK);
@@ -579,6 +608,8 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
   try {
     ret = _repository->addQualifier(qualifier);
   } catch(Exception e) {
+    // FIXME:  at the time of writing, the Common code does not throw
+    // an ALREADY_EXISTS CIMException.  It might at any time.
     cimmofMessages::arglist arglist;
     arglist.push_back(qualifier->getName());
     arglist.push_back(e.getMessage());
@@ -622,12 +653,36 @@ cimmofParser::newQualifier(const String &name, const CIMValue &value,
 }
 
 //----------------------------------------------------------------------
+// When a new instance declaration heading is detected, create the
+// backing instance object of that class.  We may add it later, or
+// use it to modify an existing instance
+//----------------------------------------------------------------------
+CIMInstance *
+cimmofParser::newInstance(const String &className)
+{
+  CIMInstance *instance = 0;
+  try {
+    instance = new CIMInstance(className);
+  } catch (Exception &e) {
+    cimmofMessages::arglist arglist;
+    arglist.push_back(className);
+    arglist.push_back(e.getMessage());
+    String message;
+    cimmofMessages::getMessage(message, cimmofMessages::NEW_INSTANCE_ERROR,
+			       arglist);
+    elog(message);
+    maybeThrowParseError(message);
+  }
+  return instance;
+}
+
+//----------------------------------------------------------------------
 // When a property of a class being declared is discovered, creat the
 // new CIMProperty object.
 //----------------------------------------------------------------------
 CIMProperty *
 cimmofParser::newProperty(const String &name, const CIMValue &val,
-			  const String &referencedObject)
+			  const String &referencedObject) const
 {
   CIMProperty *p = 0; 
   try {
@@ -693,6 +748,7 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
   arglist.push_back(i.getClassName());
   arglist.push_back(propertyName);
   String message;
+  bool err_out = false;
   try {
     Uint32 pos = i.findProperty(propertyName);
     if (pos == (Uint32)-1) {
@@ -701,8 +757,21 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
       // FIXME:  There doesn't seem to be a way to change a property value
       // yet.
     }
+  } catch (CIMException &e) {
+    if (e.getCode() == CIMException::ALREADY_EXISTS) {
+      cimmofMessages::getMessage(message,
+			      cimmofMessages::INSTANCE_PROPERTY_EXISTS_WARNING,
+				arglist);
+      wlog(message);
+    } else {
+      arglist.push_back(e.getMessage());
+      err_out = true;
+    }
   } catch (Exception &e) {
     arglist.push_back(e.getMessage());
+    err_out = true;
+  }
+  if (err_out) {
     cimmofMessages::getMessage(message, 
 			       cimmofMessages::APPLY_INSTANCE_PROPERTY_ERROR,
 			       arglist);
@@ -722,7 +791,7 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
 {
   cimmofMessages::arglist arglist;
   String message;
-  CIMProperty *newprop;
+  CIMProperty *newprop = 0;
   arglist.push_back(p.getName());  
   try {
     newprop = new CIMProperty(p);
@@ -858,7 +927,7 @@ cimmofParser::QualifierValue(const String &qualifierName, const String &valstr)
 }
 
 CIMProperty *
-cimmofParser::PropertyFromInstance(const CIMInstance &instance,
+cimmofParser::PropertyFromInstance(CIMInstance &instance,
 				  const String &propertyName) const
 {
   cimmofMessages::arglist arglist;
@@ -869,7 +938,7 @@ cimmofParser::PropertyFromInstance(const CIMInstance &instance,
     if (pos != (Uint32)-1) {
       //FIXME:  There doesn't seem to be a way to get a copy of an 
       // instance's properties (or to change them if you got one)
-      //ConstCIMProperty oldp = instance.getProperty(pos);
+      CIMProperty oldp = instance.getProperty(pos);
       //CIMProperty *p = new CIMProperty(oldp);
       //return p;
     }
@@ -897,13 +966,12 @@ cimmofParser::PropertyFromInstance(const CIMInstance &instance,
   try {
     Array<String> propertyList;
     propertyList.append(propertyName);
-    const CIMClass &c = _repository->getClass(getNamespacePath(), className,
+    CIMClass c = _repository->getClass(getNamespacePath(), className,
 					      true, false, false,
 					      propertyList); 
     Uint32 pos = c.findProperty(propertyName);
     if (pos != (Uint32)-1) {
-      // FIXME:  Can't get class's property either.
-      // return new CIMProperty(c.getProperty(pos));
+      return new CIMProperty(c.getProperty(pos));
     }
   } catch (Exception &e) {
     arglist.push_back(getNamespacePath());
@@ -915,8 +983,8 @@ cimmofParser::PropertyFromInstance(const CIMInstance &instance,
     elog(message);
     maybeThrowParseError(message);
   }
-  CIMProperty *p = new CIMProperty();
-  p->setName(propertyName);
+  const CIMValue defaultValue(false);
+  CIMProperty *p = newProperty(propertyName, defaultValue);
   return p;
 }
 
@@ -944,7 +1012,7 @@ cimmofParser::ValueFromProperty(const CIMProperty &prop) const
 
 
 CIMValue *
-cimmofParser::PropertyValueFromInstance(const CIMInstance &instance,
+cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
 					const String &propertyName)const
 {
   CIMProperty *prop = PropertyFromInstance(instance, propertyName);

@@ -771,7 +771,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetInstanceRequest");
 
-   // ATTN: Need code here to expand partial instance!
+   // ATTN: MB 2001 P3 - Need code here to expand partial instance!
 
    // get the class name
    String className = request->instanceName.getClassName();
@@ -779,43 +779,36 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
+   Boolean isInternalProvider =false;
+   String providerName = String::EMPTY;
 
    // Check for class provided by an internal provider
-   if (_lookupInternalProvider(request->nameSpace, className, serviceName,
-           controlProviderName))
+   if (isInternalProvider = _lookupInternalProvider(request->nameSpace, 
+					    className, serviceName,
+					    controlProviderName))
    {
-      CIMGetInstanceRequestMessage* requestCopy =
-         new CIMGetInstanceRequestMessage(*request);
-
-      if (controlProviderName == String::EMPTY)
-      {
-         _forwardRequestToService(serviceName, requestCopy, response);
-      }
-      else
-      {
-         _forwardRequestToControlProvider(
-            serviceName, controlProviderName, requestCopy, response);
-      }
-
-      PEG_METHOD_EXIT();
-      return;
+       isInternalProvider = true;
+   }
+   else
+   {
+	// or by an instnace provider
+       if ((providerName = _lookupInstanceProvider(request->nameSpace, className)) !=
+					    String::EMPTY)
+	    serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
    }
 
-   // get provider for class
-   String providerName = _lookupInstanceProvider(request->nameSpace, className);
-
-   if(providerName.size() != 0)
+   if((providerName != String::EMPTY) || isInternalProvider)
    {
-      CIMGetInstanceRequestMessage* requestCopy =
-          new CIMGetInstanceRequestMessage(*request);
+	CIMGetInstanceRequestMessage* requestCopy =
+	    new CIMGetInstanceRequestMessage(*request);
 
-      _forwardRequestToService(
-          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
+	_forwardRequest(className, serviceName, controlProviderName,
+	   requestCopy, response);
 
-      PEG_METHOD_EXIT();
-      return;
+	PEG_METHOD_EXIT();
+	return;
    }
-   // not internal or found provider, go to default
+   // not internal provider and no found provider, go to default
    if (_repository->isDefaultInstanceProvider())
    {
       CIMException cimException;

@@ -53,6 +53,7 @@
 #include <Pegasus/CQL/CQLSimplePredicate.h>
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLValue.h>
+#include <Pegasus/Query/QueryCommon/QueryChainedIdentifier.h>
 PEGASUS_NAMESPACE_BEGIN PEGASUS_USING_STD;
 
 CMPI_SelectExpAccessor_CQL::CMPI_SelectExpAccessor_CQL (CMPIAccessor * acc,
@@ -78,57 +79,28 @@ CMPI_SelectExpAccessor_CQL::_constructInstance ()
 
   // Iterate throught the CQLPredicates
 
-  CQLPredicate pred = _stmt->getPredicate ();
+  Array < CQLChainedIdentifier > where_Array =
+    _stmt->getWhereChainedIdentifiers ();
 
-  Array < CQLPredicate > pred_Array;
+  /* We will create an instance using the where_Array properties */
 
-  if (pred.isSimple ())
+  for (Uint32 i = 0; i < where_Array.size (); i++)
     {
-      pred_Array.append (pred);
-    }
-  else
-    {
-      pred_Array = pred.getPredicates ();
-    }
-  for (Uint32 i = 0; i < pred_Array.size (); i++)
-    {
-      CQLPredicate pred = pred_Array[i];
+      CQLIdentifier identifier = where_Array[i].getLastIdentifier ();
+      String name = identifier.getName ().getString ();
 
-      if (pred.isSimple ())
+      //cerr << "Calling accessor function with property: " << name << endl;
+
+      CMPIAccessor *get = (CMPIAccessor *) accessor;
+      CMPIData data = get (name.getCString (), accParm);
+
+      // Only process good values.
+      if ((data.state == CMPI_goodValue) || (data.state == CMPI_keyValue))
         {
-          CQLSimplePredicate simple = pred.getSimplePredicate ();
-
-          CQLExpression lhs = simple.getLeftExpression ();
-          CQLExpression rhs = simple.getRightExpression ();
-
-          // It is possible to have a NULL pointer.
-          CQLValue lhs_val;
-          CQLValue rhs_val;
-
-          if (lhs.getTerms ().size () != 0)
-            lhs_val = lhs.getTerms ()[0].getFactors ()[0].getValue ();
-          if (rhs.getTerms ().size () != 0)
-            rhs_val = rhs.getTerms ()[0].getFactors ()[0].getValue ();
-
-          String name;
-          if (lhs_val.getValueType () == CQLValue::CQLIdentifier_type)
-            {
-              // Ok, we have a winner!
-              name = lhs.toString ();
-            }
-          else if (rhs_val.getValueType () == CQLValue::CQLIdentifier_type)
-            {
-              name = rhs.toString ();
-            }
-          // Call the accessor function with the name.            
-
-
-          CMPIAccessor *get = (CMPIAccessor *) accessor;
-          CMPIData data = get (name.getCString (), accParm);
 
           if (data.type & CMPI_ARRAY)
             {
-			// Nothing yet
+              // Nothing yet
             }
 
           else if ((data.type & (CMPI_UINT | CMPI_SINT)) == CMPI_SINT)

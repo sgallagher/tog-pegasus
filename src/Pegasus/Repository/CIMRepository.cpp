@@ -71,8 +71,15 @@ deepInheritance, PropertyList. It is included for the moment
 13 November 2003 to keep the code installed but not change
 current client behavior pending architecture team decison.
 KS, 13 Sept 2003  Note that there is also a flag in 
-tests/cimrepository2.cpp */
-#define PEGASUS_NO_ENUMERATEINSTANCE_FILTER
+tests/cimrepository2.cpp. Note that this was extended to
+include get instance (at least the property filtering pending
+conclusion of the questions around bug. Set this flag
+PEGASUS_ENABLE_INSTANCE_FILTER to stop the filtering
+NOTE: We did not make these env variable params because
+the test suite must be changed also.*/
+
+// comment this to disable filters #define PEGASUS_ENABLE_INSTANCE_FILTER
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -224,7 +231,7 @@ void _removePropagatedQualifiers(CIMClass cimClass)
 	}
 }
 
-/* remove the properties from an instance based on attributes
+/* remove the properties from an instance based on attributes.
     @param Instance from which properties will be removed.
     @param propertyList PropertyList is used in the removal algorithm
     @param localOnly - Boolean used in the removal.
@@ -300,7 +307,7 @@ void _removeClassOrigins(CIMInstance& cimInstance)
             cimInstance.getProperty(i).setClassOrigin(CIMName());
 }
 
-/* Filters the properties and classorigin out of a single instance.
+/* Filters the properties, qualifiers, and classorigin out of a single instance.
     Based on the parameters provided for localOnly, includeQualifiers,
     and includeClassOrigin, this function simply filters the properties
     qualifiers, and classOrigins out of a single instance.  This function
@@ -315,15 +322,13 @@ void _removeClassOrigins(CIMInstance& cimInstance)
 void _filterInstance(CIMInstance& cimInstance,
                 const CIMPropertyList& propertyList,
                 Boolean localOnly,
-
                 Boolean includeQualifiers,
                 Boolean includeClassOrigin)
 {
-
-    // Remove properties based on propertylist and localOnly flag (Bug 565)
-    
+    // Remove properties based on propertylist and localOnly flag
+#ifdef PEGASUS_ENABLE_INSTANCE_FILTER
     _removeProperties(cimInstance, propertyList, localOnly);
-
+#endif
     // If includequalifiers false, remove all qualifiers from
     // properties.
 
@@ -331,8 +336,8 @@ void _filterInstance(CIMInstance& cimInstance,
     {
         _removeAllQualifiers(cimInstance);
     }
-    // if ClassOrigin Flag false, remove classOrigin info from class object
-    // by setting the property to Null.
+    // if ClassOrigin Flag false, remove classOrigin info from Instance object
+    // by setting the classOrigin to Null.
     if (!includeClassOrigin)
     {
         _removeClassOrigins(cimInstance);
@@ -2105,7 +2110,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
         // Do any required filtering of properties, qualifiers, classorigin
         // on the returned instances.
 // Turn off this function for the moment since it changes client behavior
-#ifndef PEGASUS_NO_ENUMERATEINSTANCE_FILTER
+#ifdef PEGASUS_ENABLE_INSTANCE_FILTER
         for (Uint32 i = 0 ; i < namedInstances.size(); i++)
         {
             _filterInstance(namedInstances[i],

@@ -63,10 +63,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPSTATE_PAUSED            0x00000200
 #define ASYNC_OPSTATE_SUSPENDED         0x00000400
 #define ASYNC_OPSTATE_RESUMED           0x00000800
-
-// we need a nak response message, with an error code and exception
-// so that the dispatcher can receive a nak from the provider manager
-
+#define ASYNC_OPSTATE_ORPHANED          0X00001000
 
 
 
@@ -83,11 +80,11 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 
       OperationContext & get_context(void) ;
 
-      void put_request(Message *request) ;
-      Message *get_request(void) ;
+      void put_request(const Message *request) ;
+      const Message *get_request(void) ;
       
-      void put_response(Message *response) ;
-      Message *get_response(void) ;
+      void put_response(const Message *response) ;
+      const Message *get_response(void) ;
       
       Uint32 read_state(void) ;
       void write_state(Uint32) ;
@@ -162,22 +159,22 @@ inline Boolean AsyncOpNode::timeout(void)
    return false;
 }
 
-// note: lock the op node before using the context 
+// context is now a locked list
 inline OperationContext & AsyncOpNode::get_context(void)
 {
    return _operation_list;
 }
 
 
-inline  void AsyncOpNode::put_request(Message *request) 
+inline  void AsyncOpNode::put_request(const Message *request) 
 {
    _mut.lock(pegasus_thread_self());
-   _request = request;
+   _request = const_cast<Message *>(request);
    _mut.unlock();
    
 }
 
-inline  Message * AsyncOpNode::get_request(void) 
+inline const Message * AsyncOpNode::get_request(void) 
 {
    Message *req = 0;
    _mut.lock(pegasus_thread_self());
@@ -186,15 +183,15 @@ inline  Message * AsyncOpNode::get_request(void)
    return req;
 }
 
-inline  void AsyncOpNode::put_response(Message *response) 
+inline void AsyncOpNode::put_response(const Message *response) 
 {
    _mut.lock(pegasus_thread_self());
-   _response = response;
+   _response = const_cast<Message *>(response);
    _mut.unlock();
    
 }
 
-inline  Message * AsyncOpNode::get_response(void) 
+inline const Message * AsyncOpNode::get_response(void) 
 {
    Message *resp;
    _mut.lock(pegasus_thread_self());
@@ -386,12 +383,7 @@ inline void AsyncOpNode::_disown_child(AsyncOpNode *child)
    _children.remove(child);
 } 
 
-// need to have a handle to the manager; i.e., provider manager, 
-// service manager, repository manager. 
-// handle must support the cancellation of aysnchronous operations.
-// manager->cancel_operation();
-// manager->suspend_operation();
-// manager->resume_operation();
+
 
 PEGASUS_NAMESPACE_END
 

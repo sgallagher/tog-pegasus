@@ -68,6 +68,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_proc(void *parm)
 
 
 // the cimom's mutex is unlocked upon entry into this routine 
+
 void cimom::handleEnqueue(void)
 {
     Message* request = dequeue();
@@ -168,6 +169,24 @@ void cimom::deregister_module(CimomDeregisterService *msg)
 			      msg->getRouting() );
    _enqueueResponse(msg, reply);
    return;
+}
+
+Uint32 cimom::get_module_q(const String & name)
+{
+   _modules.lock();
+   message_module *ret = _modules.next( 0 );
+   while( ret != 0 )
+   {
+      if (ret == name )
+	 break;
+      ret = _modules.next(ret);
+   }
+   
+   _modules.unlock();
+   if(ret != 0 )
+      return ret->_q_id;
+   else
+      return 0 ;
 }
 
 

@@ -57,12 +57,10 @@ class PEGASUS_COMMON_LINKAGE message_mask
       static Uint32 type_service;
       static Uint32 type_broadcast;
       
-      
-
       static Uint32 ha_no_delete;
       static Uint32 ha_request;
       static Uint32 ha_reply;
-
+      static Uint32 ha_synchronous;
 
       // more for documentation than for use 
 

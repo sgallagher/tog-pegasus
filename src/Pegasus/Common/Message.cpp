@@ -48,10 +48,10 @@ Uint32 message_mask::type_control =           0x00000100;
 Uint32 message_mask::type_service =           0x00000200;
 Uint32 message_mask::type_broadcast =         0x00000400;
 
-
 Uint32 message_mask::ha_no_delete =           0x00100000;
 Uint32 message_mask::ha_request =             0x00200000;
 Uint32 message_mask::ha_reply =               0x00400000;
+Uint32 message_mask::ha_synchronous =         0x00800000;
 
 Uint32 Message::_nextKey = 0;
 Mutex Message::_mut;

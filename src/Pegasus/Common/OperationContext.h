@@ -29,7 +29,7 @@
 #ifndef Pegasus_OperationContext_h
 #define Pegasus_OperationContext_h
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/internal_dq.h>
+#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Provider/ProviderException.h>
 #include <stdio.h>
@@ -256,7 +256,7 @@ class PEGASUS_COMMON_LINKAGE OperationContext
       context *remove_context_key(Uint32 key);
       
    private:
-      unlocked_dq<class context> _context;
+      DQueue<class context> _context;
 } ;
 
 inline void OperationContext::add_context(Uint32 data_size,

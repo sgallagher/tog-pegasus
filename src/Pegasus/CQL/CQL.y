@@ -31,10 +31,63 @@ extern char * yytext;
 int chain_state;
 CQLFactory _factory = CQLFactory();
 extern int CQL_error(const char *err);
+
 PEGASUS_NAMESPACE_BEGIN
                                                                                 
 extern CQLParserState* globalParserState;
-Array<CQLPredicate> _arglist;                                                                                
+Array<CQLPredicate> _arglist;
+
+enum CQLType { Id, CId, Val, Func, Fact, Trm, Expr, SPred, Pred, Str };
+
+typedef struct CQLObjPtr {
+        void* _ptr;
+		  CQLType type;		  
+} CQLOBJPTR;
+
+Array<CQLObjPtr> _ptrs;
+CQLOBJPTR _ObjPtr;
+
+void cleanup(){
+	for(Uint32 i = 0; i < _ptrs.size(); i++){
+	  if(_ptrs[i]._ptr){
+		switch(_ptrs[i].type){
+			case Id:
+					delete (CQLIdentifier*)_ptrs[i]._ptr;
+					break;
+			case CId:
+					delete (CQLChainedIdentifier*)_ptrs[i]._ptr;
+					break;
+			case Val:
+					delete (CQLValue*)_ptrs[i]._ptr;
+					break;
+			case Func:
+					delete (CQLFunction*)_ptrs[i]._ptr;
+					break;
+			case Fact:
+					delete (CQLFactor*)_ptrs[i]._ptr;
+					break;
+			case Trm:
+					delete (CQLTerm*)_ptrs[i]._ptr;
+					break;
+			case Expr:
+					delete (CQLExpression*)_ptrs[i]._ptr;
+					break;
+			case SPred:
+					delete (CQLSimplePredicate*)_ptrs[i]._ptr;
+					break;
+			case Pred:
+					delete (CQLPredicate*)_ptrs[i]._ptr;
+					break;
+			case Str:
+					delete (String*)_ptrs[i]._ptr;
+		}
+	  }
+	}
+	_ptrs.clear();
+   _factory.cleanup();
+   _factory = CQLFactory();
+}
+
 PEGASUS_NAMESPACE_END
 
 
@@ -175,6 +228,9 @@ identifier  : IDENTIFIER
 		 printf_(msg);
 	
                  $$ = new CQLIdentifier(String(CQL_lval.strValue));
+					  _ObjPtr._ptr = $$;
+					  _ObjPtr.type = Id;
+					  _ptrs.append(_ObjPtr);
              }
 ;
 
@@ -208,19 +264,22 @@ property_scope : class_path SCOPE
 /* CQLIdentifier */
 scoped_property : SCOPED_PROPERTY
                   {
-			/*
-			   SCOPED_PROPERTY can be:
-			   - "A::prop"
-			   - "A::class.prop"
-			   - "A::class.prop#'OK'
-			   - "A::class.prop[4]"
-			*/
-			globalParserState->currentRule = "scoped_property";
-			sprintf(msg,"BISON::scoped_property = %s\n",CQL_lval.strValue);
-			printf_(msg);
+							/*
+			   			SCOPED_PROPERTY can be:
+			   			- "A::prop"
+			   			- "A::class.prop"
+			   			- "A::class.prop#'OK'
+			   			- "A::class.prop[4]"
+							*/
+							globalParserState->currentRule = "scoped_property";
+							sprintf(msg,"BISON::scoped_property = %s\n",CQL_lval.strValue);
+							printf_(msg);
 
-		        String tmp(CQL_lval.strValue);
-		        $$ = new CQLIdentifier(tmp);
+		        			String tmp(CQL_lval.strValue);
+		        			$$ = new CQLIdentifier(tmp);
+				  			_ObjPtr._ptr = $$;
+              			_ObjPtr.type = Id;
+              			_ptrs.append(_ObjPtr);
                   }
 ;   
 
@@ -236,9 +295,13 @@ literal_string : STRING_LITERAL
 
 		if(isUTF8Str(CQL_lval.strValue)){
 		     $$ = new String(CQL_lval.strValue);
+			  _ObjPtr._ptr = $$;
+           _ObjPtr.type = Str;
+           _ptrs.append(_ObjPtr);
 		}else{
 		    sprintf(msg,"BISON::literal_string-> BAD UTF\n");
 		    printf_(msg);
+			 cleanup();
 		    throw CQLSyntaxErrorException(
 					MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
 							   String("Bad UTF8 encountered parsing rule $0 in position $1."),
@@ -257,6 +320,9 @@ binary_value : BINARY
 		   printf_(msg);
 
                    $$ = new CQLValue(CQL_lval.strValue, CQLValue::Binary); 
+						 _ObjPtr._ptr = $$;
+                   _ObjPtr.type = Val;
+                   _ptrs.append(_ObjPtr);
                }
              | NEGATIVE_BINARY 
                { 
@@ -265,6 +331,9 @@ binary_value : BINARY
 		   printf_(msg);
 
                    $$ = new CQLValue(CQL_lval.strValue, CQLValue::Binary, false); 
+						 _ObjPtr._ptr = $$;
+                   _ObjPtr.type = Val;
+                   _ptrs.append(_ObjPtr);
                }
 ;
 
@@ -276,6 +345,9 @@ hex_value : HEXADECIMAL
 		printf_(msg);
 
                 $$ = new CQLValue(CQL_lval.strValue, CQLValue::Hex);
+					 _ObjPtr._ptr = $$;
+                _ObjPtr.type = Val;
+                _ptrs.append(_ObjPtr);
             }
           | NEGATIVE_HEXADECIMAL 
             { 
@@ -284,6 +356,9 @@ hex_value : HEXADECIMAL
 		printf_(msg);
 
                 $$ = new CQLValue(CQL_lval.strValue, CQLValue::Hex, false);
+				    _ObjPtr._ptr = $$;
+                _ObjPtr.type = Val;
+                _ptrs.append(_ObjPtr);
             }
 ;
 
@@ -295,6 +370,9 @@ decimal_value : INTEGER
 		    printf_(msg);
 
                     $$ = new CQLValue(CQL_lval.strValue, CQLValue::Decimal); 
+						  _ObjPtr._ptr = $$;
+                    _ObjPtr.type = Val;
+                    _ptrs.append(_ObjPtr);
                 }
               | NEGATIVE_INTEGER 
                 { 
@@ -303,6 +381,9 @@ decimal_value : INTEGER
 		    printf_(msg);
 
                     $$ = new CQLValue(CQL_lval.strValue, CQLValue::Decimal, false);
+						  _ObjPtr._ptr = $$;
+                    _ObjPtr.type = Val;
+                    _ptrs.append(_ObjPtr);
                 }
 ;
 
@@ -313,6 +394,9 @@ real_value : REAL
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
                  $$ = new CQLValue(CQL_lval.strValue, CQLValue::Real);
+					  _ObjPtr._ptr = $$;
+                 _ObjPtr.type = Val;
+                 _ptrs.append(_ObjPtr);
              }
            | NEGATIVE_REAL 
              { 
@@ -320,6 +404,9 @@ real_value : REAL
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
                  $$ = new CQLValue(CQL_lval.strValue, CQLValue::Real, false);
+					  _ObjPtr._ptr = $$;
+                 _ObjPtr.type = Val;
+                 _ptrs.append(_ObjPtr);
              }
 ;
 
@@ -330,7 +417,9 @@ literal : literal_string
               sprintf(msg,"BISON::literal->literal_string\n");
 	      printf_(msg);
               $$ = new CQLValue(*$1);
-	      delete $1;
+				  _ObjPtr._ptr = $$;
+              _ObjPtr.type = Val;
+              _ptrs.append(_ObjPtr);
           }
         | decimal_value
           {
@@ -367,6 +456,9 @@ literal : literal_string
 	      printf_(msg);
 
               $$ = new CQLValue(Boolean(true));
+				  _ObjPtr._ptr = $$;
+              _ObjPtr.type = Val;
+              _ptrs.append(_ObjPtr);
           }
         | _FALSE
           {
@@ -375,6 +467,9 @@ literal : literal_string
 	      printf_(msg);
 
               $$ = new CQLValue(Boolean(false));
+				  _ObjPtr._ptr = $$;
+              _ObjPtr.type = Val;
+              _ptrs.append(_ObjPtr);
           }
 ;
 
@@ -385,10 +480,11 @@ array_index : expr
                   sprintf(msg,"BISON::array_index->expr\n");
 		  printf_(msg);
 
-		  //CQLValue tmp = _factory.getValue((CQLPredicate*)$1);
-		  //$$ = new String(tmp.toString());
 		  CQLValue* _val = (CQLValue*)_factory.getObject($1,Predicate,Value);
 		  $$ = new String(_val->toString());
+		  _ObjPtr._ptr = $$;
+        _ObjPtr.type = Str;
+        _ptrs.append(_ObjPtr);
               }
 ;
 
@@ -411,7 +507,6 @@ chain : literal
 
             chain_state = CQLVALUE;
 	    $$ = _factory.makeObject($1,Predicate);  
-	    delete $1;
         }
       | LPAR expr RPAR
         {
@@ -430,7 +525,6 @@ chain : literal
 
            chain_state = CQLIDENTIFIER;
 	   $$ = _factory.makeObject($1,Predicate);
-	   delete $1;
         }
       | identifier HASH literal_string
         {
@@ -443,7 +537,6 @@ chain : literal
             CQLIdentifier _id(tmp);
    	    $$ = _factory.makeObject(&_id,Predicate);
 	    chain_state = CQLIDENTIFIER;
-	    delete $1; delete $3;
         }
       | scoped_property
         {
@@ -453,7 +546,6 @@ chain : literal
 
             chain_state = CQLIDENTIFIER;
 	    $$ = _factory.makeObject($1,Predicate);
-	    delete $1;
         }
       | identifier LPAR arg_list RPAR
         {
@@ -464,7 +556,6 @@ chain : literal
 	    CQLFunction _func(*$1,_arglist);
 	    $$ = (CQLPredicate*)(_factory.makeObject(&_func,Predicate));
 	    _arglist.clear();
-	    delete $1; 
         }
       | chain DOT scoped_property
         {
@@ -478,17 +569,16 @@ chain : literal
                 CQLChainedIdentifier _cid(*_id);
                 _cid.append(*$3);
 		$$ = _factory.makeObject(&_cid,Predicate);
-		delete $3;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
 		CQLChainedIdentifier *_cid;
 		_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		_cid->append(*$3);
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
 		$$ = $1;
-		delete $3;
 	    }else{
 		/* error */
 		String _msg("chain-> chain DOT scoped_property : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
+		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
@@ -510,16 +600,15 @@ chain : literal
                 CQLChainedIdentifier _cid(*_id);
                 _cid.append(*$3);
                 $$ = _factory.makeObject(&_cid,Predicate);
-		delete $3;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
 		CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
                 _cid->append(*$3);
                 _factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
                 $$ = $1;
-		delete $3;
             }else{
                 /* error */
 		String _msg("chain-> chain DOT identifier : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
+		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
@@ -545,7 +634,6 @@ chain : literal
                 _cid.append(_id1);
                 _factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
                 $$ = $1;
-                delete $3; delete $5;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
               CQLChainedIdentifier *_cid =  ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
               String tmp($3->getName().getString());
@@ -554,10 +642,10 @@ chain : literal
                 _cid->append(_id1);
                 _factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
                 $$ = $1;
-                delete $3; delete $5;
             }else{
                 /* error */
 		String _msg("chain->chain.identifier#literal_string : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER");
+		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
@@ -583,7 +671,6 @@ chain : literal
 		CQLChainedIdentifier _cid(_id1);
 		_factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
                 $$ = $1;	
-		delete $3;	
 	    }else if(chain_state == CQLCHAINEDIDENTIFIER || chain_state == CQLVALUE){
 		CQLPredicate* _pred = (CQLPredicate*)$1;
 		CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
@@ -599,10 +686,10 @@ chain : literal
 		}
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
                 $$ = $1;
-		delete $3;
 	    }else{
 		/* error */
 		String _msg("chain->chain[ array_index_list ] : chain state not CQLIDENTIFIER or CQLCHAINEDIDENTIFIER or CQLVALUE");
+		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER_OR_VALUE"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier or a CQLValue while parsing rule $0 in position $1."),
@@ -633,9 +720,7 @@ concat : chain
 		CQLTerm _term1(*_fctr1);
 		_term1.appendOperation(concat,*_fctr2);
 		$$ = (CQLPredicate*)(_factory.makeObject(&_term1,Predicate));
-		delete $1; 
 		CQLPredicate* _pred = (CQLPredicate*)$3;
-		delete _pred;
 	     }
          }
 ;
@@ -731,7 +816,9 @@ value_symbol : HASH literal_string
 		   tmp.append(*$2);
 		   CQLIdentifier tmpid(tmp);
 		   $$ = new CQLValue(tmpid);
-		   delete $2;
+			_ObjPtr._ptr = $$;
+         _ObjPtr.type = Val;
+         _ptrs.append(_ObjPtr);
                }
 ;
 
@@ -752,7 +839,6 @@ arith_or_value_symbol : arith
 
 			    CQLFactor _fctr(*$1);
 			    $$ = (CQLPredicate*)(_factory.makeObject(&_fctr, Predicate));
-			    delete $1;
                         }
 ;
 
@@ -840,9 +926,13 @@ comp : arith
 		CQLExpression* _exp2 = (CQLExpression*)(_factory.getObject($3,Predicate,Expression));
 	   	CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
            	$$ = new CQLPredicate(_sp);
+				_ObjPtr._ptr = $$;
+            _ObjPtr.type = Pred;
+            _ptrs.append(_ObjPtr);
 	   }else{
 		/* error */
 		String _msg("comp->arith comp_op arith_or_value_symbol : $1 is not simple OR $3 is not simple");
+		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE"),
                                                            String("The CQLSimplePredicate is not simple while parsing rule $0 in position $1."),
@@ -862,9 +952,13 @@ comp : arith
 	        CQLExpression* _exp2 = (CQLExpression*)(_factory.getObject($3,Predicate,Expression));
 	   	CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
            	$$ = new CQLPredicate(_sp);
+				_ObjPtr._ptr = $$;
+            _ObjPtr.type = Pred;
+            _ptrs.append(_ObjPtr);
 	   }else{
 		/* error */
 		String _msg("comp->value_symbol comp_op arith : $3 is not simple");
+		cleanup();
 		throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE"),
                                                            String("The CQLSimplePredicate is not simple while parsing rule $0 in position $1."),
@@ -884,6 +978,9 @@ comp : arith
                 CQLExpression* _exp2 = (CQLExpression*)(_factory.makeObject($3,Expression));
                 CQLSimplePredicate _sp(*_exp1, *_exp2, $2);
                 $$ = new CQLPredicate(_sp);
+					 _ObjPtr._ptr = $$;
+                _ObjPtr.type = Pred;
+                _ptrs.append(_ObjPtr);
        }
      | arith _ISA identifier
        {
@@ -898,7 +995,6 @@ comp : arith
            CQLSimplePredicate _sp(*_expr1, *_expr2, ISA);
 	   _factory.setObject($1,&_sp,SimplePredicate);
            $$ = $1;
-	   delete $3;
        }
      | arith _LIKE literal_string
        {
@@ -912,7 +1008,6 @@ comp : arith
 	   CQLSimplePredicate _sp(*_expr1, *_expr2, LIKE);
            _factory.setObject($1,&_sp,SimplePredicate);
            $$ = $1;
-	   delete $3;
        }
 ;
 expr_factor : comp
@@ -951,6 +1046,9 @@ expr_term : expr_factor
 		$$ = new CQLPredicate();
            	$$->appendPredicate(*$1);
            	$$->appendPredicate(*$3, AND);	
+				_ObjPtr._ptr = $$;
+            _ObjPtr.type = Pred;
+            _ptrs.append(_ObjPtr);
             }
 ;
 
@@ -970,6 +1068,9 @@ expr : expr_term
 	   $$ = new CQLPredicate();
 	   $$->appendPredicate(*$1);
 	   $$->appendPredicate(*$3, OR);
+		_ObjPtr._ptr = $$;
+      _ObjPtr.type = Pred;
+      _ptrs.append(_ObjPtr);
        }
 ;
 
@@ -1058,7 +1159,6 @@ from_specifier : class_path
 		     printf_(msg);
 
 		     globalParserState->statement->appendClassPath(*$1);
-		     delete $1;
                  } 
 
 		| class_path AS identifier
@@ -1071,7 +1171,6 @@ from_specifier : class_path
 			String _alias($3->getName().getString());
 			globalParserState->statement->insertClassPathAlias(_class,_alias);
 			globalParserState->statement->appendClassPath(_class);
-			delete $1; delete $3;
 		  }
 		| class_path identifier
 		  {
@@ -1083,7 +1182,6 @@ from_specifier : class_path
                         String _alias($2->getName().getString());
                         globalParserState->statement->insertClassPathAlias(_class,_alias);
                         globalParserState->statement->appendClassPath(_class);
-			delete $1; delete $2;
 		  }
 ;
 
@@ -1114,6 +1212,9 @@ star_expr : STAR
                 CQLIdentifier _id("*");
 		_cid->append(_id);
                 $$ = _cid;
+					 _ObjPtr._ptr = $$;
+                _ObjPtr.type = CId;
+                _ptrs.append(_ObjPtr);
 	    }
 ;
 
@@ -1128,6 +1229,7 @@ selected_entry : expr
 		     }else{
 			/* error */
 			String _msg("selected_entry->expr : $1 is not a simple value");
+			cleanup();
 		 	throw CQLSyntaxErrorException(
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE_VALUE"),
                                                            String("The CQLPredicate is not a simple value while parsing rule $0 in position $1."),
@@ -1171,7 +1273,7 @@ search_condition : expr
                    }
 ;
 
-optional_where : {;}
+optional_where : {}
                | WHERE search_condition
                  {
 		     globalParserState->currentRule = "optional_where->WHERE search_condition";
@@ -1186,7 +1288,9 @@ select_statement : SELECT select_list FROM from_criteria optional_where
 		       globalParserState->currentRule = "select_statement";
                        sprintf(msg,"select_statement\n\n");
 		       printf_(msg);
+				 cleanup();
                    }
+						 
 ;
 
 %%

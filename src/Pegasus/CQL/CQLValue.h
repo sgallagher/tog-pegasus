@@ -37,6 +37,7 @@
 #include <Pegasus/CQL/QueryContext.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
+#include <Pegasus/CQL/CQLScope.h>
 
 #include <Pegasus/CQL/Linkage.h>
 
@@ -295,6 +296,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
    CIMInstance getInstance();
    CIMClass getClass();
    String toString();
+   void applyScopes(Array<CQLScope> inScopes);
    
   private:
     Boolean _areClassesInline(CIMClass c1,CIMClass c2, QueryContext& in);

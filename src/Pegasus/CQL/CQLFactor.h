@@ -75,7 +75,6 @@ class PEGASUS_CQL_LINKAGE CQLFactor
     
       */
 
-    CQLValue getValue(CIMInstance CI, QueryContext& QueryCtx);
    CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
    Boolean isSimpleValue();
    CQLValue getValue();

@@ -7,7 +7,6 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-//##ModelId=40FC34920351
 CQLFactor::CQLFactor(const CQLFactor& inCQLFact)
 {
    _CQLVal = inCQLFact._CQLVal;
@@ -21,19 +20,16 @@ CQLFactor::CQLFactor(CQLValue inCQLVal)
    _CQLVal = inCQLVal;
 }
 
-//##ModelId=40FC34BC0061
 CQLFactor::CQLFactor(CQLExpression& inCQLExp)
 {
    _CQLExp = new CQLExpression(inCQLExp);
 }
 
-//##ModelId=40FC34E30391
 CQLFactor::CQLFactor(CQLFunction inCQLFunc)
 {
    _CQLFunct = new CQLFunction(inCQLFunc);
 }
 
-//##ModelId=40FC33B70262
 CQLValue CQLFactor::getValue()
 {
    return _CQLVal;
@@ -41,8 +37,19 @@ CQLValue CQLFactor::getValue()
 
 CQLValue CQLFactor::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
-   _CQLVal.resolve(CI,QueryCtx);
-   return _CQLVal;
+   if(_CQLExp != NULL)
+   {
+      return _CQLExp->resolveValue(CI,QueryCtx);
+   }
+   else if (_CQLFunct != NULL)
+   {
+      return _CQLFunct->resolveValue(CI,QueryCtx);
+   }
+   else
+   {
+      _CQLVal.resolve(CI,QueryCtx);
+      return _CQLVal;
+   }
 }
 
 Boolean CQLFactor::isSimpleValue()
@@ -64,21 +71,33 @@ String CQLFactor::toString()
 {
    if(_CQLFunct != NULL)
    {
-      _CQLFunct->toString();
+      return _CQLFunct->toString();
    }
    else if(_CQLExp != NULL)
    {
-      _CQLExp->toString();
+      return _CQLExp->toString();
    }
-   else 
+   else
    {
-      _CQLVal.toString();
+      return _CQLVal.toString();
    }
 }
 
 void CQLFactor::applyScopes(Array<CQLScope> inScopes)
 {
-   // TODO:
+   
+   if(_CQLFunct != NULL)
+   {
+      _CQLFunct->applyScopes(inScopes);
+   }
+   else if(_CQLExp != NULL)
+   {
+      _CQLExp->applyScopes(inScopes);
+   }
+   else 
+   {
+      _CQLVal.applyScopes(inScopes);
+   }
    return;
 }
 

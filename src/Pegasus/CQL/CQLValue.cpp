@@ -1749,6 +1749,11 @@ String CQLValue::toString()
    return String();
 }
 
+void CQLValue::applyScopes(Array<CQLScope> inScopes)
+{
+   
+}
+
 Boolean CQLValue::_validate(const CQLValue& x)
 {
    switch(_valueType)

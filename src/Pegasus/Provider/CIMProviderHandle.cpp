@@ -525,8 +525,8 @@ CIMValue CIMProviderHandle::invokeMethod(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& methodName,
-    const Array<CIMValue>& inParameters,
-    Array<CIMValue>& outParameters)
+    const Array<CIMParamValue>& inParameters,
+    Array<CIMParamValue>& outParameters)
 {
 	// forward request
 	CIMValue cimValue = _provider->invokeMethod(
@@ -544,8 +544,8 @@ void CIMProviderHandle::invokeMethodAsync(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& methodName,
-    const Array<CIMValue>& inParameters,
-    Array<CIMValue>& outParameters,
+    const Array<CIMParamValue>& inParameters,
+    Array<CIMParamValue>& outParameters,
 	ResponseHandler<CIMValue> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);

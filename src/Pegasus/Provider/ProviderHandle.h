@@ -41,6 +41,7 @@ public:
 	ProviderHandle(void);
 	virtual ~ProviderHandle(void);
 
+	// provider operations
 	virtual void initialize(CIMOMHandle & cimom) = 0;
 	virtual void terminate(void) = 0;
 };

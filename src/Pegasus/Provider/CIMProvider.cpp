@@ -257,8 +257,8 @@ CIMValue CIMProvider::invokeMethod(
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& methodName,
-    const Array<CIMValue>& inParameters,
-    Array<CIMValue>& outParameters)
+    const Array<CIMParamValue>& inParameters,
+    Array<CIMParamValue>& outParameters)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
     return CIMValue();

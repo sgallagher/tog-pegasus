@@ -336,16 +336,16 @@ public:
 		const String& nameSpace,
 		const CIMReference& instanceName,
 		const String& methodName,
-		const Array<CIMValue>& inParameters,
-		Array<CIMValue>& outParameters);
+		const Array<CIMParamValue>& inParameters,
+		Array<CIMParamValue>& outParameters);
 	
 	virtual void invokeMethodAsync(
 		const OperationContext & context,
 		const String& nameSpace,
 		const CIMReference& instanceName,
 		const String& methodName,
-		const Array<CIMValue>& inParameters,
-		Array<CIMValue>& outParameters,
+		const Array<CIMParamValue>& inParameters,
+		Array<CIMParamValue>& outParameters,
 		ResponseHandler<CIMValue> & handler);
 
 protected:

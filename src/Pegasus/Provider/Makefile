@@ -20,6 +20,7 @@ LIBRARY = pegprovider
 
 SOURCES = \
     ProviderHandle.cpp \
+    CIMProviderHandle.cpp \
     CIMProvider.cpp
 
 include $(ROOT)/mak/library.mak

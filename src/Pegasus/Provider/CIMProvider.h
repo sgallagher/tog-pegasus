@@ -178,8 +178,8 @@ public:
        const String& nameSpace,
        const CIMReference& instanceName,
        const String& methodName,
-       const Array<CIMValue>& inParameters,
-       Array<CIMValue>& outParameters);
+       const Array<CIMParamValue>& inParameters,
+       Array<CIMParamValue>& outParameters);
 
     /**
        This method is invoked to initialize the provider. Eventually we

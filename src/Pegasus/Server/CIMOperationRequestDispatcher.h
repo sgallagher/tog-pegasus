@@ -74,23 +74,34 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderInfo
 {
 public:
-    ProviderInfo(CIMName& className)
-            : className(className),
-	      hasNoQuery(true)
+    ProviderInfo(const CIMName & className)
+        : className(className),
+        hasProvider(false),
+        hasProviderNormalization(false),
+        hasNoQuery(true)
     {
     }
-    ProviderInfo(CIMName className, String& serviceName, String& controlProviderName)
-        :   className(className), serviceName(serviceName),
-            controlProviderName(controlProviderName),
+
+    ProviderInfo(
+        const CIMName & className,
+        const String & serviceName,
+        const String & controlProviderName)
+        : className(className),
+        serviceName(serviceName),
+        controlProviderName(controlProviderName),
+        hasProvider(false),
+        hasProviderNormalization(false),
 	    hasNoQuery(true)
     {
     }
-   ProviderInfo(const ProviderInfo& providerInfo)
-    : className(providerInfo.className),
-      serviceName(providerInfo.serviceName),
-      controlProviderName(providerInfo.controlProviderName),
-      hasProvider(providerInfo.hasProvider),
-      hasNoQuery(providerInfo.hasNoQuery)
+
+    ProviderInfo(const ProviderInfo & providerInfo)
+        : className(providerInfo.className),
+        serviceName(providerInfo.serviceName),
+        controlProviderName(providerInfo.controlProviderName),
+        hasProvider(providerInfo.hasProvider),
+        hasProviderNormalization(false),
+        hasNoQuery(providerInfo.hasNoQuery)
     {
         if (providerInfo.providerIdContainer.get() != 0)
         {
@@ -99,7 +110,7 @@ public:
         }
     }
 
-    ProviderInfo& operator=(const ProviderInfo& providerInfo)
+    ProviderInfo & operator=(const ProviderInfo & providerInfo)
     {
         if (&providerInfo != this)
         {
@@ -107,26 +118,34 @@ public:
             serviceName = providerInfo.serviceName;
             controlProviderName = providerInfo.controlProviderName;
             hasProvider = providerInfo.hasProvider;
+            hasProviderNormalization = providerInfo.hasProviderNormalization;
             hasNoQuery = providerInfo.hasNoQuery;
+
             providerIdContainer.reset();
+
             if (providerInfo.providerIdContainer.get() != 0)
             {
                 providerIdContainer.reset(
-                    new ProviderIdContainer(*providerInfo.providerIdContainer));
+                    new ProviderIdContainer(*providerInfo.providerIdContainer.get()));
             }
         }
-        return *this;
+
+        return(*this);
     }
 
-		CIMName className;
-		String serviceName;
-		String controlProviderName;
-		Boolean hasProvider;
-		Boolean hasNoQuery;
+    CIMName className;
+    String serviceName;
+    String controlProviderName;
+    Boolean hasProvider;
+    Boolean hasProviderNormalization;
+    Boolean hasNoQuery;
     AutoPtr<ProviderIdContainer> providerIdContainer;
 
 private:
-  ProviderInfo() {}
+    ProviderInfo(void)
+    {
+    }
+
 };
 
 /* Class to manage the aggregation of data required by post processors. This
@@ -357,24 +376,18 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
         String& controlProviderName,
 	Boolean* notQueryProvider); */
 
-    Boolean _lookupNewInstanceProvider(
+    ProviderInfo _lookupNewInstanceProvider(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        String& serviceName,
-        String& controlProviderName,
-		ProviderIdContainer **container,
-        Boolean *has_no_query = NULL);
+        const CIMName& className);
 
 /*    String _lookupQueryProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
 	Boolean* notQueryProvider); */
 
-    String _lookupInstanceProvider(
+    ProviderInfo _lookupInstanceProvider(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-		ProviderIdContainer **container,
-        Boolean *has_no_query = NULL);
+        const CIMName& className);
 
 /*   Array<ProviderInfo> _lookupAllQueryProviders(
         const CIMNamespaceName& nameSpace,
@@ -384,8 +397,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
     Array<ProviderInfo> _lookupAllInstanceProviders(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Uint32& providerCount,
-        Boolean is_query = false)  throw(CIMException);
+        Uint32& providerCount)  throw(CIMException);
 
     Array<ProviderInfo> _lookupAllAssociationProviders(
         const CIMNamespaceName& nameSpace,

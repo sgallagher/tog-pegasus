@@ -1114,8 +1114,7 @@ Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
 Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
     const CIMNamespaceName & nameSpace,
     const CIMName & className,
-    Uint32 & providerCount,
-    Boolean is_query)  throw(CIMException)
+    Uint32 & providerCount)  throw(CIMException)
 {
     PEG_METHOD_ENTER(
         TRC_DISPATCHER,
@@ -1124,37 +1123,27 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
     providerCount = 0;
 
     // NOTE: This function can generate an exception.
-    Array<CIMName> classNames = _getSubClassNames(nameSpace,className);
+    Array<CIMName> classNames = _getSubClassNames(nameSpace, className);
 
     Array<ProviderInfo> providerInfoList;
 
     // Loop for all classNames found
     for(Uint32 i = 0, n = classNames.size(); i < n; i++)
     {
-        String serviceName;
-        String controlProviderName;
-        ProviderIdContainer * container = 0;
+        //String serviceName;
+        //String controlProviderName;
+        //ProviderIdContainer * container = 0;
 
-        ProviderInfo pi(classNames[i]);
+        //ProviderInfo providerInfo(classNames[i]);
 
         // Lookup any instance providers and add to send list
-        Boolean hasProvider =
+        ProviderInfo providerInfo =
             _lookupNewInstanceProvider(
                 nameSpace,
-                classNames[i],
-                serviceName,
-                controlProviderName,
-                &container,
-                is_query ? &pi.hasNoQuery : 0);
+                classNames[i]);
 
-        if(hasProvider)
+        if(providerInfo.hasProvider)
 		{
-            // Append the returned values to the list to send.
-            pi.serviceName = serviceName;
-            pi.controlProviderName = controlProviderName;
-            pi.providerIdContainer.reset(container);
-            pi.hasProvider = true;
-
             providerCount++;
 
             CDEBUG("Found provider for class = " << classNames[i].getString());
@@ -1162,22 +1151,16 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
             PEG_TRACE_STRING(
                 TRC_DISPATCHER,
                 Tracer::LEVEL4,
-                "Provider found for class = " + classNames[i].getString() +
-                    " servicename = " + serviceName +
-                    " controlProviderName = " +
-                    ((controlProviderName.size()) ? controlProviderName : String("None")));
+                "Provider found for class = " + providerInfo.className.getString() +
+                    " servicename = " + providerInfo.serviceName +
+                    " controlProviderName = " + providerInfo.controlProviderName);
         }
         else
         {
-            pi.serviceName = String::EMPTY;
-            pi.controlProviderName = String::EMPTY;
-            pi.providerIdContainer.reset();
-            pi.hasProvider = false;
-
             CDEBUG("No provider for class = " << classNames[i].getString());
         }
 
-        providerInfoList.append(pi);
+        providerInfoList.append(providerInfo);
    }
 
    PEG_METHOD_EXIT();
@@ -1194,18 +1177,16 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
     Instance.
 
 */
-String CIMOperationRequestDispatcher::_lookupInstanceProvider(
+ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
    const CIMNamespaceName & nameSpace,
-   const CIMName & className,
-   ProviderIdContainer ** container,
-   Boolean * has_no_query)
+   const CIMName & className)
 {
     PEG_METHOD_ENTER(
         TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupInstanceProvider");
 
-    CIMInstance pInstance;
-    CIMInstance pmInstance;
+    ProviderInfo providerInfo(className);
+
     String providerName;
     String serviceName;
 
@@ -1225,10 +1206,17 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
            Tracer::LEVEL4,
 		   "providerName = " + providerName + " found.");
 
+       providerInfo.serviceName = serviceName;
+       providerInfo.controlProviderName = providerName;
+
        PEG_METHOD_EXIT();
 
-       return(providerName);
+       return(providerInfo);
     }
+
+    CIMInstance pInstance;
+    CIMInstance pmInstance;
+    Boolean hasNoQuery = true;
 
     Boolean hasProvider =
         _providerRegistrationManager->lookupInstanceProvider(
@@ -1237,11 +1225,14 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
             pInstance,
             pmInstance,
             false,
-            has_no_query);
+            &hasNoQuery);
 
     if(hasProvider)
     {
-		ProviderIdContainer * providercontainer = 0;
+        providerInfo.serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
+
+        providerInfo.hasProvider = true;
+        providerInfo.hasNoQuery = hasNoQuery;
 
         #ifdef PEGASUS_ENABLE_REMOTE_CMPI
 		String remoteInformation;
@@ -1249,24 +1240,25 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
         if(isRemote)
         {
-            providercontainer = new ProviderIdContainer(pmInstance, pInstance, isRemote, remoteInformation);
+            providerInfo.providerIdContainer.reset(
+                new ProviderIdContainer(pmInstance, pInstance, isRemote, remoteInformation));
         }
 		else
         {
-            providercontainer = new ProviderIdContainer(pmInstance, pInstance);
+            providerInfo.providerIdContainer.reset(
+                new ProviderIdContainer(pmInstance, pInstance));
         }
         #else
-		providercontainer = new ProviderIdContainer(pmInstance, pInstance);
+        providerInfo.providerIdContainer.reset(
+            new ProviderIdContainer(pmInstance, pInstance));
         #endif
 
-        (*container) = providercontainer;
-
-    	Uint32 pos = PEG_NOT_FOUND;
+        Uint32 pos = PEG_NOT_FOUND;
 
         #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
         if(_enableNormalization)
         {
-            Boolean moduleNormalizationEnabled = true;
+            providerInfo.hasProviderNormalization = true;
 
             // get the provder module version
             if((pos = pmInstance.findProperty("InterfaceVersion")) != PEG_NOT_FOUND)
@@ -1277,7 +1269,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
                 if(String::compare(interfaceVersion, "2.5.0") < 0)
                 {
-                    moduleNormalizationEnabled = false;
+                    providerInfo.hasProviderNormalization = false;
                 }
             }
 
@@ -1295,7 +1287,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
                     {
                         if(String::equalNoCase(moduleName, _excludeModulesFromNormalization[i]))
                         {
-                            moduleNormalizationEnabled = false;
+                            providerInfo.hasProviderNormalization = false;
 
                             break;
                         }
@@ -1305,6 +1297,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
         }
         #endif
 
+        /*
         // get the provder name
         if((pos = pInstance.findProperty("Name")) != PEG_NOT_FOUND)
     	{
@@ -1315,10 +1308,14 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
                 Tracer::LEVEL4,
                 "Provider for class " + className.getString() + " provider " + providerName + " found.");
 
+
             PEG_METHOD_EXIT();
 
-            return(providerName);
+            return(providerInfo);
     	}
+        */
+
+        return(providerInfo);
     }
 
     PEG_TRACE_STRING(
@@ -1328,7 +1325,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
     PEG_METHOD_EXIT();
 
-    return(String::EMPTY);
+    return(providerInfo);
 }
 
 /* _lookupNewInstanceProvider - Looks up the internal and/or instance provider
@@ -1339,55 +1336,62 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     This should be combined with the lookupInstanceProvider code eventually but
     the goal now was to simplify the handlers.
 */
-Boolean CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
+ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
     const CIMNamespaceName & nameSpace,
-    const CIMName & className,
-    String & serviceName,
-    String & controlProviderName,
-    ProviderIdContainer ** container,
-    Boolean * has_no_query)
+    const CIMName & className)
 {
     PEG_METHOD_ENTER(
         TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupNewInstanceProvider");
 
-    String providerName;
+    ProviderInfo providerInfo(className);
+
+    String serviceName;
+    String controlProviderName;
 
     // Check for class provided by an internal provider
-    Boolean hasProvider =
+    Boolean hasControlProvider =
         _lookupInternalProvider(
             nameSpace,
             className,
             serviceName,
             controlProviderName);
 
-    if(hasProvider)
+    if(hasControlProvider)
     {
-        providerName = controlProviderName;
-
-        if(has_no_query)
-        {
-            *has_no_query = true;
-        }
+        providerInfo.serviceName = serviceName;
+        providerInfo.controlProviderName = controlProviderName;
+        providerInfo.hasProvider = true;
     }
     else
     {
         // get provider for class
-        providerName = _lookupInstanceProvider(nameSpace, className, container, has_no_query);
+        providerInfo =
+            _lookupInstanceProvider(
+                nameSpace,
+                className);
 
-        if(providerName != String::EMPTY)
+        /*
+        hasProvider = providerInfo.hasProvider;
+
+        if(hasProvider)
         {
             serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
+            providerName = providerInfo.controlProviderName;
 
-            hasProvider = true;
+            //(*container) = providerInfo.providerIdContainer.get();
+
+            //*has_no_query = providerInfo.hasNoQuery;
         }
+        */
     }
 
     PEG_TRACE_STRING(
         TRC_DISPATCHER,
         Tracer::LEVEL4,
-        "Lookup Provider = " + serviceName + " provider " + providerName + " found."
-            + " return = " + (hasProvider ? "true" : "false"));
+        "Lookup Provider = " + providerInfo.serviceName +
+            " provider " + providerInfo.controlProviderName + " found."
+            + " return = " + (providerInfo.hasProvider ? "true" : "false"));
 
     Logger::put(
         Logger::STANDARD_LOG,
@@ -1396,12 +1400,12 @@ Boolean CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
         "CIMOperationRequestDispatcher::_lookupNewInstanceProvider - Name Space: $0  Class Name: $1  Service Name: $2  Provider Name: $3",
         nameSpace.getString(),
         className.getString(),
-        serviceName,
-        providerName);
+        providerInfo.serviceName,
+        providerInfo.controlProviderName);
 
     PEG_METHOD_EXIT();
 
-    return(hasProvider);
+    return(providerInfo);
 }
 
 String CIMOperationRequestDispatcher::_lookupMethodProvider(
@@ -1999,11 +2003,14 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     CIMRequestMessage* request,
     OperationAggregate* poA, CIMResponseMessage *response)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
+    PEG_METHOD_ENTER(
+        TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
+
     Array<Uint32> serviceIds;
     find_services(serviceName, 0, 0, &serviceIds);
     PEGASUS_ASSERT(serviceIds.size() != 0);
+
     //CDEBUG("ForwardRequestForAggregation");
     AsyncOpNode * op = this->get_op();
 
@@ -2494,29 +2501,26 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       return;
    }
 
-   String serviceName;
-   String controlProviderName;
-   ProviderIdContainer * providerIdContainer = 0;
+   //String serviceName;
+   //String controlProviderName;
+   //ProviderIdContainer * providerIdContainer = 0;
 
-   Boolean hasProvider =
+   ProviderInfo providerInfo =
        _lookupNewInstanceProvider(
            request->nameSpace,
-           className,
-           serviceName,
-           controlProviderName,
-           &providerIdContainer);
+           className);
 
-   if(hasProvider)
+   if(providerInfo.hasProvider)
    {
        CIMGetInstanceRequestMessage * requestCopy =
            new CIMGetInstanceRequestMessage(*request);
 
-       if(providerIdContainer != 0)
+       if(providerInfo.providerIdContainer.get() != 0)
        {
-           requestCopy->operationContext.insert(*providerIdContainer);
+           requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
 
-           delete providerIdContainer;
-           providerIdContainer = 0;
+           //delete providerIdContainer;
+           //providerIdContainer = 0;
        }
 
        #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
@@ -2527,9 +2531,9 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
        #endif
 
        _forwardRequestToProviderManager(
-           className,
-           serviceName,
-           controlProviderName,
+           providerInfo.className,
+           providerInfo.serviceName,
+           providerInfo.controlProviderName,
            requestCopy);
 
     	PEG_METHOD_EXIT();
@@ -2701,35 +2705,32 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       return;
    }
 
-   String serviceName;
-   String controlProviderName;
-   ProviderIdContainer * providerIdContainer = 0;
+   //String serviceName;
+   //String controlProviderName;
+   //ProviderIdContainer * providerIdContainer = 0;
 
-   Boolean hasProvider =
+   ProviderInfo providerInfo =
        _lookupNewInstanceProvider(
            request->nameSpace,
-           className,
-           serviceName,
-           controlProviderName,
-           &providerIdContainer);
+           className);
 
-   if(hasProvider)
+   if(providerInfo.hasProvider)
    {
        CIMDeleteInstanceRequestMessage * requestCopy =
            new CIMDeleteInstanceRequestMessage(*request);
 
-       if(providerIdContainer != 0)
+       if(providerInfo.providerIdContainer.get() != 0)
        {
-           requestCopy->operationContext.insert(*providerIdContainer);
+           requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
 
-           delete providerIdContainer;
-           providerIdContainer = 0;
+           //delete providerIdContainer;
+           //providerIdContainer = 0;
        }
 
        _forwardRequestToProviderManager(
-           className,
-           serviceName,
-           controlProviderName,
+           providerInfo.className,
+           providerInfo.serviceName,
+           providerInfo.controlProviderName,
     	   requestCopy);
 
        PEG_METHOD_EXIT();
@@ -2899,35 +2900,32 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       return;
    }
 
-   String serviceName;
-   String controlProviderName;
-   ProviderIdContainer * providerIdContainer = 0;
+   //String serviceName;
+   //String controlProviderName;
+   //ProviderIdContainer * providerIdContainer = 0;
 
-   Boolean hasProvider =
+   ProviderInfo providerInfo =
        _lookupNewInstanceProvider(
            request->nameSpace,
-           className,
-           serviceName,
-           controlProviderName,
-           &providerIdContainer);
+           className);
 
-   if(hasProvider)
+   if(providerInfo.hasProvider)
    {
        CIMCreateInstanceRequestMessage * requestCopy =
            new CIMCreateInstanceRequestMessage(*request);
 
-       if(providerIdContainer != 0)
+       if(providerInfo.providerIdContainer.get() != 0)
        {
-           requestCopy->operationContext.insert(*providerIdContainer);
+           requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
 
-           delete providerIdContainer;
-           providerIdContainer = 0;
+           //delete providerIdContainer;
+           //providerIdContainer = 0;
        }
 
        _forwardRequestToProviderManager(
-           className,
-           serviceName,
-           controlProviderName,
+           providerInfo.className,
+           providerInfo.serviceName,
+           providerInfo.controlProviderName,
            requestCopy);
 
        PEG_METHOD_EXIT();
@@ -3102,35 +3100,32 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       return;
    }
 
-   String serviceName;
-   String controlProviderName;
-   ProviderIdContainer * providerIdContainer = 0;
+   //String serviceName;
+   //String controlProviderName;
+   //ProviderIdContainer * providerIdContainer = 0;
 
-   Boolean hasProvider =
+   ProviderInfo providerInfo =
        _lookupNewInstanceProvider(
            request->nameSpace,
-           className,
-           serviceName,
-           controlProviderName,
-           &providerIdContainer);
+           className);
 
-   if(hasProvider)
+   if(providerInfo.hasProvider)
    {
        CIMModifyInstanceRequestMessage * requestCopy =
            new CIMModifyInstanceRequestMessage(*request);
 
-       if(providerIdContainer != 0)
+       if(providerInfo.providerIdContainer.get() != 0)
        {
-           requestCopy->operationContext.insert(*providerIdContainer);
+           requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
 
-           delete providerIdContainer;
-           providerIdContainer = 0;
+           //delete providerIdContainer;
+           //providerIdContainer = 0;
        }
 
        _forwardRequestToProviderManager(
-           className,
-           serviceName,
-           controlProviderName,
+           providerInfo.className,
+           providerInfo.serviceName,
+           providerInfo.controlProviderName,
            requestCopy);
 
        PEG_METHOD_EXIT();
@@ -3467,6 +3462,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     Uint32 toIssueCount = providerInfos.size();
 
     STAT_PROVIDERSTART
+
     // Test for "enumerate too Broad" and if so, execute exception.
     // This limits the number of provider invocations, not the number
     // of instances returned.
@@ -5198,27 +5194,35 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    // check the class name for an "external provider"
    // Assumption here is that there are no "internal" property requests.
    // teATTN: KS 20030402 - This needs cleanup along with the setproperty.
-   ProviderIdContainer *providerIdContainer =NULL;
 
-   String providerName = _lookupInstanceProvider(request->nameSpace, className,&providerIdContainer);
+   ProviderInfo providerInfo =
+       _lookupInstanceProvider(
+           request->nameSpace,
+           className);
 
-   if(providerName.size() != 0)
+   if(providerInfo.hasProvider)
    {
-      CIMGetPropertyRequestMessage* requestCopy =
-          new CIMGetPropertyRequestMessage(*request);
+       CIMGetPropertyRequestMessage* requestCopy =
+           new CIMGetPropertyRequestMessage(*request);
 
-  	   	if(providerIdContainer!=NULL)
-		{
-			requestCopy->operationContext.insert(*providerIdContainer);
-			delete providerIdContainer;
-			providerIdContainer = NULL;
-		}
+       if(providerInfo.providerIdContainer.get() != 0)
+       {
+           requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
 
-			CIMResponseMessage * response = 0;
-      _forwardRequestToService(
-          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-      PEG_METHOD_EXIT();
-      return;
+           //delete providerIdContainer;
+           //providerIdContainer = NULL;
+       }
+
+       CIMResponseMessage * response = 0;
+
+       _forwardRequestToService(
+          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
+          requestCopy,
+          response);
+
+       PEG_METHOD_EXIT();
+
+       return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -5329,28 +5333,36 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    }
 
    CIMName className = request->instanceName.getClassName();
-   ProviderIdContainer *providerIdContainer=NULL;
 
    // check the class name for an "external provider"
-   String providerName = _lookupInstanceProvider(request->nameSpace, className,&providerIdContainer);
+   ProviderInfo providerInfo =
+       _lookupInstanceProvider(
+           request->nameSpace,
+           className);
 
-   if(providerName.size() != 0)
+   if(providerInfo.hasProvider)
    {
-      CIMSetPropertyRequestMessage* requestCopy =
-          new CIMSetPropertyRequestMessage(*request);
+       CIMSetPropertyRequestMessage* requestCopy =
+           new CIMSetPropertyRequestMessage(*request);
 
-  	   if(providerIdContainer!=NULL)
+       if(providerInfo.providerIdContainer.get() != 0)
 	   {
-			requestCopy->operationContext.insert(*providerIdContainer);
-			delete providerIdContainer;
-			providerIdContainer = NULL;
+			requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
+
+			//delete providerIdContainer;
+			//providerIdContainer = NULL;
 	   }
 
-			CIMResponseMessage * response = 0;
-      _forwardRequestToService(
-          PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-      PEG_METHOD_EXIT();
-      return;
+       CIMResponseMessage * response = 0;
+
+       _forwardRequestToService(
+           PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
+           requestCopy,
+           response);
+
+       PEG_METHOD_EXIT();
+
+       return;
    }
    else if (_repository->isDefaultInstanceProvider())
    {
@@ -6628,7 +6640,4 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
    return(cimClass);
 }
 
-
 PEGASUS_NAMESPACE_END
-
-

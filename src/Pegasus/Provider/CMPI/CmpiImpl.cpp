@@ -716,10 +716,10 @@ CmpiArrayIdx::CmpiArrayIdx(const CmpiArray &a, CMPICount i)
 
 CmpiArrayIdx& CmpiArrayIdx::operator=(const CmpiData& v) {
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   if (ar.getEnc()->ft->getSimpleType(ar.getEnc(),&rc)!=v.data.type)
+   if (ar.getEnc()->ft->getSimpleType(ar.getEnc(),&rc)!=v._data.type)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   rc=ar.getEnc()->ft->setElementAt(ar.getEnc(),idx,(CMPIValue*)&v.data.value,
-				    v.data.type);
+   rc=ar.getEnc()->ft->setElementAt(ar.getEnc(),idx,(CMPIValue*)&v._data.value,
+				    v._data.type);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return *this;
 }
@@ -801,248 +801,248 @@ CmpiArrayIdx::operator CMPIReal64() const{
 //---------------------------------------------------
 
 CmpiData::CmpiData(CMPIData& data) {
-   this->data=data;
+   this->_data=data;
 }
 
 CmpiData::CmpiData() {
-   data.state=CMPI_nullValue;
-   data.value.uint64=0;
-   data.type=CMPI_null;
+   _data.state=CMPI_nullValue;
+   _data.value.uint64=0;
+   _data.type=CMPI_null;
 }
 
 CmpiData::CmpiData(CMPISint8 d) {
-   data.state=CMPI_goodValue;
-   data.value.sint8=d;
-   data.type=CMPI_sint8;
+   _data.state=CMPI_goodValue;
+   _data.value.sint8=d;
+   _data.type=CMPI_sint8;
 }
 
 CmpiData::CmpiData(CMPISint16 d) {
-   data.state=CMPI_goodValue;
-   data.value.sint16=d;
-   data.type=CMPI_sint16;
+   _data.state=CMPI_goodValue;
+   _data.value.sint16=d;
+   _data.type=CMPI_sint16;
 }
 
 CmpiData::CmpiData(CMPISint32 d) {
-   data.state=CMPI_goodValue;
-   data.value.sint32=d;
-   data.type=CMPI_sint32;
+   _data.state=CMPI_goodValue;
+   _data.value.sint32=d;
+   _data.type=CMPI_sint32;
 }
 
 CmpiData::CmpiData(int d) {
-   data.state=CMPI_goodValue;
-   data.value.sint32=d;
-   data.type=CMPI_sint32;
+   _data.state=CMPI_goodValue;
+   _data.value.sint32=d;
+   _data.type=CMPI_sint32;
 }
 
 CmpiData::CmpiData(CMPISint64 d) {
-   data.state=CMPI_goodValue;
-   data.value.sint64=d;
-   data.type=CMPI_sint64;
+   _data.state=CMPI_goodValue;
+   _data.value.sint64=d;
+   _data.type=CMPI_sint64;
 }
 
 CmpiData::CmpiData(CMPIUint8 d) {
-   data.state=CMPI_goodValue;
-   data.value.sint8=d;
-   data.type=CMPI_uint8;
+   _data.state=CMPI_goodValue;
+   _data.value.sint8=d;
+   _data.type=CMPI_uint8;
 }
 
 CmpiData::CmpiData(CMPIUint16 d) {
-   data.state=CMPI_goodValue;
-   data.value.sint16=d;
-   data.type=CMPI_uint16;
+   _data.state=CMPI_goodValue;
+   _data.value.sint16=d;
+   _data.type=CMPI_uint16;
 }
 
 CmpiData::CmpiData(CMPIUint32 d) {
-   data.state=CMPI_goodValue;
-   data.value.sint32=d;
-   data.type=CMPI_uint32;
+   _data.state=CMPI_goodValue;
+   _data.value.sint32=d;
+   _data.type=CMPI_uint32;
 }
 
 CmpiData::CmpiData(unsigned int d) {
-   data.state=CMPI_goodValue;
-   data.value.sint32=d;
-   data.type=CMPI_uint32;
+   _data.state=CMPI_goodValue;
+   _data.value.sint32=d;
+   _data.type=CMPI_uint32;
 }
 
 CmpiData::CmpiData(CMPIUint64 d) {
-   data.state=CMPI_goodValue;
-   data.value.sint64=d;
-   data.type=CMPI_uint64;
+   _data.state=CMPI_goodValue;
+   _data.value.sint64=d;
+   _data.type=CMPI_uint64;
 }
 
 CmpiData::CmpiData(CMPIReal32 d) {
-   data.state=CMPI_goodValue;
-   data.value.real32=d;
-   data.type=CMPI_real32;
+   _data.state=CMPI_goodValue;
+   _data.value.real32=d;
+   _data.type=CMPI_real32;
 }
 
 CmpiData::CmpiData(CMPIReal64 d) {
-   data.state=CMPI_goodValue;
-   data.value.real64=d;
-   data.type=CMPI_real64;
+   _data.state=CMPI_goodValue;
+   _data.value.real64=d;
+   _data.type=CMPI_real64;
 }
 
 CmpiData::CmpiData(const CmpiString& d) {
-   data.state=CMPI_goodValue;
-   data.value.chars=(char*)d.charPtr();
-   data.type=CMPI_chars;
+   _data.state=CMPI_goodValue;
+   _data.value.chars=(char*)d.charPtr();
+   _data.type=CMPI_chars;
 }
 
 CmpiData::CmpiData(const char* d) {
-  data.state=CMPI_goodValue;
-  data.value.chars=(char*)d;
-  data.type=CMPI_chars;
+  _data.state=CMPI_goodValue;
+  _data.value.chars=(char*)d;
+  _data.type=CMPI_chars;
 }
 
 CmpiData::CmpiData(const CmpiDateTime& d) {
-   data.state=CMPI_goodValue;
-   data.value.dateTime=d.getEnc();
-   data.type=CMPI_dateTime;
+   _data.state=CMPI_goodValue;
+   _data.value.dateTime=d.getEnc();
+   _data.type=CMPI_dateTime;
 }
 
 CmpiData::CmpiData(const CmpiArray& d) {
-   data.state=CMPI_goodValue;
-   data.value.array=d.getEnc();
-   data.type=((CMPIArrayFT*)d.getEnc()->ft)->getSimpleType(d.getEnc(),0) | CMPI_ARRAY;
+   _data.state=CMPI_goodValue;
+   _data.value.array=d.getEnc();
+   _data.type=((CMPIArrayFT*)d.getEnc()->ft)->getSimpleType(d.getEnc(),0) | CMPI_ARRAY;
 }
 
 CmpiData::operator CmpiString() const {
-   if (data.type!=CMPI_string)
+   if (_data.type!=CMPI_string)
      throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return CmpiString(data.value.string);
+      return CmpiString(_data.value.string);
 }
 
 CmpiData::operator const char* () const {
-   if (data.type!=CMPI_string)
+   if (_data.type!=CMPI_string)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return CmpiString(data.value.string).charPtr();
+      return CmpiString(_data.value.string).charPtr();
 }
 
 CmpiData::operator CmpiDateTime() const {
-   if (data.type!=CMPI_dateTime)
+   if (_data.type!=CMPI_dateTime)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return CmpiDateTime(data.value.dateTime);
+      return CmpiDateTime(_data.value.dateTime);
 }
 
 CmpiData::operator CMPISint8() const {
-   if (data.type!=CMPI_sint8)
+   if (_data.type!=CMPI_sint8)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.sint8;
+      return _data.value.sint8;
 }
 CmpiData::operator CMPISint16() const {
-   if (data.type!=CMPI_sint16)
+   if (_data.type!=CMPI_sint16)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.sint16;
+      return _data.value.sint16;
 }
 
 CmpiData::operator CMPISint32() const {
-   if (data.type!=CMPI_sint32)
+   if (_data.type!=CMPI_sint32)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.sint32;
+      return _data.value.sint32;
 }
 CmpiData::operator int() const {
-   if (data.type!=CMPI_sint32)
+   if (_data.type!=CMPI_sint32)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.sint32;
+      return _data.value.sint32;
 }
 
 CmpiData::operator CMPISint64() const {
-   if (data.type!=CMPI_sint64)
+   if (_data.type!=CMPI_sint64)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.sint64;
+      return _data.value.sint64;
 }
 
 CmpiData::operator unsigned char() const {
-   if (data.type!=CMPI_uint8 && data.type!=CMPI_boolean)
+   if (_data.type!=CMPI_uint8 && _data.type!=CMPI_boolean)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   if (data.type==CMPI_uint8)
-      return data.value.uint8;
+   if (_data.type==CMPI_uint8)
+      return _data.value.uint8;
    else
-      return data.value.boolean;
+      return _data.value.boolean;
 }
 
 CmpiData::operator unsigned short() const {
-   if (data.type!=CMPI_uint16 && data.type!=CMPI_char16)
+   if (_data.type!=CMPI_uint16 && _data.type!=CMPI_char16)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   if (data.type==CMPI_uint16)
-      return data.value.uint16;
+   if (_data.type==CMPI_uint16)
+      return _data.value.uint16;
    else
-      return data.value.char16;
+      return _data.value.char16;
 }
 
 CmpiData::operator CMPIUint32() const {
-   if (data.type!=CMPI_uint32)
+   if (_data.type!=CMPI_uint32)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.uint32;
+      return _data.value.uint32;
 }
 
 CmpiData::operator unsigned int() const {
-   if (data.type!=CMPI_uint32)
+   if (_data.type!=CMPI_uint32)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.uint32;
+      return _data.value.uint32;
 }
 
 CmpiData::operator CMPIUint64() const {
-   if (data.type!=CMPI_uint64)
+   if (_data.type!=CMPI_uint64)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.uint64;
+      return _data.value.uint64;
 }
 
 CmpiData::operator CMPIReal32() const {
-   if (data.type!=CMPI_real32)
+   if (_data.type!=CMPI_real32)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.real32;
+      return _data.value.real32;
 }
 
 CmpiData::operator CMPIReal64() const {
-   if (data.type!=CMPI_real64)
+   if (_data.type!=CMPI_real64)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
    else
-      return data.value.real64;
+      return _data.value.real64;
 }
 
 CmpiData::CmpiData(const CmpiObjectPath& d) {
-  data.state=d.getEnc()==0?CMPI_nullValue:CMPI_goodValue;
-  data.value.ref=(CMPIObjectPath*)d.getEnc();
-  data.type=CMPI_ref;
+  _data.state=d.getEnc()==0?CMPI_nullValue:CMPI_goodValue;
+  _data.value.ref=(CMPIObjectPath*)d.getEnc();
+  _data.type=CMPI_ref;
 }
 
 CmpiData::operator CmpiInstance() const{
-   if (data.type!=CMPI_instance)
+   if (_data.type!=CMPI_instance)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   else return CmpiInstance(data.value.inst);
+   else return CmpiInstance(_data.value.inst);
 }
 
 CmpiData::operator CmpiObjectPath() const {
-   if (data.type!=CMPI_ref)
+   if (_data.type!=CMPI_ref)
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   else return CmpiObjectPath(data.value.ref);
+   else return CmpiObjectPath(_data.value.ref);
 }
 
 CmpiData::operator CmpiArray() const {
-   if (!(data.type&CMPI_ARRAY))
+   if (!(_data.type&CMPI_ARRAY))
       throw CmpiStatus(CMPI_RC_ERR_TYPE_MISMATCH);
-   else return CmpiArray(data.value.array);
+   else return CmpiArray(_data.value.array);
 }
 
 int CmpiData::isNullValue() const {
-  return (data.state & CMPI_nullValue);
+  return (_data.state & CMPI_nullValue);
 }
 
 int CmpiData::isNotFound() const {
-  return (data.state & CMPI_notFound);
+  return (_data.state & CMPI_notFound);
 }
 
 
@@ -1053,9 +1053,9 @@ int CmpiData::isNotFound() const {
 //---------------------------------------------------
 
 CmpiBooleanData::CmpiBooleanData(CMPIBoolean d) {
-   data.state=CMPI_goodValue;
-   data.value.boolean=d;
-   data.type=CMPI_boolean;
+   _data.state=CMPI_goodValue;
+   _data.value.boolean=d;
+   _data.type=CMPI_boolean;
 }
 
 
@@ -1066,9 +1066,9 @@ CmpiBooleanData::CmpiBooleanData(CMPIBoolean d) {
 //---------------------------------------------------
 
 CmpiCharData::CmpiCharData(CMPIChar16 d) {
-   data.state=CMPI_goodValue;
-   data.value.char16=d;
-   data.type=CMPI_char16;
+   _data.state=CMPI_goodValue;
+   _data.value.char16=d;
+   _data.type=CMPI_char16;
 }
 
 
@@ -1115,7 +1115,7 @@ CmpiBoolean CmpiInstance::doInstanceIsA(CMPIBroker *mb, const char *className) {
 CmpiData CmpiInstance::getProperty(const char* name) const{
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   d.data=getEnc()->ft->getProperty(getEnc(),name,&rc);
+   d._data=getEnc()->ft->getProperty(getEnc(),name,&rc);
    if (rc.rc!=CMPI_RC_OK && rc.rc!=CMPI_RC_ERR_NOT_FOUND) {
      if (rc.msg)
        throw CmpiStatus(rc);
@@ -1129,7 +1129,7 @@ CmpiData CmpiInstance::getProperty(const int pos, CmpiString *name) {
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIString *s;
-   d.data=getEnc()->ft->getPropertyAt(getEnc(),pos,&s,&rc);
+   d._data=getEnc()->ft->getPropertyAt(getEnc(),pos,&s,&rc);
    if (rc.rc!=CMPI_RC_OK && rc.rc!=CMPI_RC_ERR_NOT_FOUND) {
      if (rc.msg)
      throw CmpiStatus(rc);
@@ -1150,8 +1150,8 @@ unsigned int CmpiInstance::getPropertyCount() {
 void CmpiInstance::setProperty(const char* name, const CmpiData data) {
    CmpiData dt=CmpiData(data);
    CMPIStatus rc=getEnc()->ft->setProperty(getEnc(),name,
-      dt.data.type!=CMPI_chars ? &dt.data.value : (CMPIValue*)dt.data.value.chars,
-      dt.data.type);
+      dt._data.type!=CMPI_chars ? &dt._data.value : (CMPIValue*)dt._data.value.chars,
+      dt._data.type);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
@@ -1307,7 +1307,7 @@ void CmpiObjectPath::setClassName(const char* cn) {
 CmpiData CmpiObjectPath::getKey(const char* name) const {
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   d.data=getEnc()->ft->getKey(getEnc(),name,&rc);
+   d._data=getEnc()->ft->getKey(getEnc(),name,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return d;
 }
@@ -1323,7 +1323,7 @@ CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) const{
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIString *s;
-   d.data=getEnc()->ft->getKeyAt(getEnc(),(int)pos,&s,&rc);
+   d._data=getEnc()->ft->getKeyAt(getEnc(),(int)pos,&s,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    if (name) *name=*(new CmpiString(s));
    return d;
@@ -1333,8 +1333,8 @@ void CmpiObjectPath::setKey(const char* name, const CmpiData data) {
    CmpiData dt=CmpiData(data);
    CMPIStatus rc=getEnc()->ft->addKey(
       getEnc(),name,
-         dt.data.type!=CMPI_chars ? &dt.data.value : (CMPIValue*)dt.data.value.chars,
-         dt.data.type);
+         dt._data.type!=CMPI_chars ? &dt._data.value : (CMPIValue*)dt._data.value.chars,
+         dt._data.type);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
@@ -1357,7 +1357,7 @@ CMPIResult *CmpiResult::getEnc() const {
 }
 
 void CmpiResult::returnData(const CmpiData& d) {
-   CMPIStatus rc=getEnc()->ft->returnData(getEnc(),&d.data.value,d.data.type);
+   CMPIStatus rc=getEnc()->ft->returnData(getEnc(),&d._data.value,d._data.type);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
@@ -1596,9 +1596,9 @@ void *CmpiArgs::makeArgs(CMPIBroker *mb) {
 
 void CmpiArgs::setArg(const char* name, const CmpiData& data) {
    CMPIStatus rc=getEnc()->ft->addArg(getEnc(),name,
-         data.data.type!=CMPI_chars ? (CMPIValue*)&data.data.value
-	                            : (CMPIValue*)data.data.value.chars,
-         data.data.type);
+         data._data.type!=CMPI_chars ? (CMPIValue*)&data._data.value
+	                            : (CMPIValue*)data._data.value.chars,
+         data._data.type);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
@@ -1606,7 +1606,7 @@ CmpiData CmpiArgs::getArg(const int pos, CmpiString *name) const {
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIString *s;
-   d.data=getEnc()->ft->getArgAt(getEnc(),(int)pos,&s,&rc);
+   d._data=getEnc()->ft->getArgAt(getEnc(),(int)pos,&s,&rc);
    if (rc.rc!=CMPI_RC_OK && rc.rc!=CMPI_RC_ERR_NOT_FOUND) {
      if (rc.msg)
        throw CmpiStatus(rc);
@@ -1620,7 +1620,7 @@ CmpiData CmpiArgs::getArg(const int pos, CmpiString *name) const {
 CmpiData CmpiArgs::getArg(const char* name) const {
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   d.data=getEnc()->ft->getArg(getEnc(),name,&rc);
+   d._data=getEnc()->ft->getArg(getEnc(),name,&rc);
    if (rc.rc!=CMPI_RC_OK && rc.rc!=CMPI_RC_ERR_NOT_FOUND) {
      if (rc.msg)
        throw CmpiStatus(rc);
@@ -1743,7 +1743,7 @@ CMPIContext *CmpiContext::getEnc() const {
 CmpiData CmpiContext::getEntry(const char* name) const{
    CmpiData d;
    CMPIStatus rc={CMPI_RC_OK,NULL};
-   d.data=getEnc()->ft->getEntry(getEnc(),name,&rc);
+   d._data=getEnc()->ft->getEntry(getEnc(),name,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return d;
 }

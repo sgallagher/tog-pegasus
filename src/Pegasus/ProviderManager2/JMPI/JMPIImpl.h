@@ -186,7 +186,9 @@ class _dataType {
 #define CIMValueClassRef 	classRefs[19]
 #define CIMObjectClassRef 	classRefs[20]
 #define ThrowableClassRef 	classRefs[21]
+#define StringClassRef 	        classRefs[22]
 #define SelectExpClassRef 	classRefs[25]
+#define CIMArgumentClassRef 	classRefs[29]
 
 #define VectorNew 		instMethodIDs[0]
 #define VectorAddElement 	instMethodIDs[15]
@@ -208,6 +210,8 @@ class _dataType {
 #define CIMPropertyNewI		instMethodIDs[14]
 #define CIMValueCInst		instMethodIDs[32]
 #define SelectExpNewI		instMethodIDs[35]
+#define ArgumentCInst   	instMethodIDs[39]
+#define CIMArgumentNewI		instMethodIDs[40]
 
 //extern "C" JNIEnv* attachThread(JvmVector**);
 //extern "C" void detachThread();

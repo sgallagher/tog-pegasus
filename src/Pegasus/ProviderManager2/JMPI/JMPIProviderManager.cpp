@@ -264,6 +264,20 @@ void JMPIProviderManager::unloadIdleProviders()
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
 
+static jobjectArray getList(JvmVector *jv, JNIEnv *env, CIMPropertyList &list)
+{
+    Uint32 s=list.size();
+    jobjectArray pl=NULL;
+    if (s) {
+       jstring initial=env->NewString(NULL,0);
+       pl=env->NewObjectArray(s,jv->StringClassRef,initial);
+       for (Uint32 i=0; i<s; i++) {
+           env->SetObjectArrayElement
+              (pl,i,env->NewStringUTF(list[i].getString().getCString()));
+       }
+    }
+    return pl;
+}
 
 Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message) throw()
 {
@@ -273,6 +287,10 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
     HandlerIntro(GetInstance,message,request,response,handler,CIMInstance());
 
     JNIEnv *env=NULL;
+    Boolean mode24=false;
+    CIMPropertyList propertyList;
+    jobjectArray pl=NULL;
+
     try {
 	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleGetInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -315,32 +333,46 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 	                       request->instanceName.getClassName(),
                                false,true,true,CIMPropertyList());
         JMPIjvm::checkException(env);
-        jobject cc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,(jint)&cls);
+        jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,(jint)&cls);
         JMPIjvm::checkException(env);
 
 	JMPIProvider::pm_service_op_lock op_lock(&pr);
 
+	jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"getInstance",
+           "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;");
+
+	if (id==NULL) {
+           env->ExceptionClear();
+	   id=env->GetMethodID((jclass)pr.jProviderClass,"getInstance",
+              "(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)"
+	      "Lorg/pegasus/jmpi/CIMInstance;");
+           JMPIjvm::checkException(env);
+	   mode24=true;
+	   pl=getList(jv,env,request->propertyList);
+	}
+        JMPIjvm::checkException(env);
+
 	STAT_GETSTARTTIME;
 
-        jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"getInstance",
-           "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;");
-        JMPIjvm::checkException(env);
-        jobject inst=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,cc,true);
-        
+	jobject inst=NULL;
+	if (mode24) inst=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
+              request->localOnly,request->includeQualifiers,request->includeClassOrigin,pl,jCc);
+	else inst=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,jCc,true);
+
         STAT_PMS_PROVIDEREND;
-	
+
         JMPIjvm::checkException(env);
-        handler.processing();       
+        handler.processing();
 	if (inst) {
            CIMInstance *ci=((CIMInstance*)env->CallIntMethod(inst,JMPIjvm::jv.CIMInstanceCInst));
            handler.deliver(*ci);
         }
         handler.complete();
-    } 
+    }
     HandlerCatch(handler);
-    
+
     if (env) JMPIjvm::detachThread();
-    
+
     PEG_METHOD_EXIT();
 
     return(response);
@@ -354,7 +386,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     HandlerIntro(EnumerateInstances,message,request,response,
                  handler,Array<CIMInstance>());
     JNIEnv *env=NULL;
-    try {  
+    Boolean mode24=false;
+    CIMPropertyList propertyList;
+    jobjectArray pl=NULL;
+
+    try {
       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleEnumerateInstancesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
@@ -414,31 +450,60 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"enumInstances",
            "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;");
+
+	if (id==NULL) {
+           env->ExceptionClear();
+	   id=env->GetMethodID((jclass)pr.jProviderClass,"enumerateInstances",
+              "(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)"
+	      "[Lorg/pegasus/jmpi/CIMInstance;");
+           JMPIjvm::checkException(env);
+	   mode24=true;
+	   pl=getList(jv,env,request->propertyList);
+	}
         JMPIjvm::checkException(env);
 
-        jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,false,jCc,true);
-        JMPIjvm::checkException(env);
+        if (!mode24) {
+	   jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,false,jCc,true);
+           JMPIjvm::checkException(env);
 
-        STAT_PMS_PROVIDEREND;
+           STAT_PMS_PROVIDEREND;
 
-        handler.processing();
-        if (jVec) {
-           for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
-              JMPIjvm::checkException(env);
-	      jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
-              JMPIjvm::checkException(env);
-              CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
-              JMPIjvm::checkException(env);
+           handler.processing();
+           if (jVec) {
+              for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+                 JMPIjvm::checkException(env);
+	         jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                 JMPIjvm::checkException(env);
+                 CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
+                 JMPIjvm::checkException(env);
 
-   //           const CIMObjectPath& op=inst.getPath();
-   //           CIMObjectPath iop=inst.buildPath(cls);
-   //           iop.setNameSpace(op.getNameSpace());
-   //           inst.setPath(iop);
-
-              handler.deliver(inst);
- 	   }
+                 handler.deliver(inst);
+ 	      }
+           }
+           handler.complete();
         }
-        handler.complete();
+
+        else {
+	   jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
+              request->localOnly,request->includeQualifiers,request->includeClassOrigin,pl,jCc);
+           JMPIjvm::checkException(env);
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+           if (jAr) {
+              for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+                 JMPIjvm::checkException(env);
+	         jobject jInst=env->GetObjectArrayElement(jAr,i);
+                 JMPIjvm::checkException(env);
+                 CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
+                 JMPIjvm::checkException(env);
+
+                 handler.deliver(inst);
+ 	      }
+           }
+           handler.complete();
+        }
     }
     HandlerCatch(handler);
 
@@ -456,6 +521,10 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
     HandlerIntro(EnumerateInstanceNames,message,request,response,
                  handler,Array<CIMObjectPath>()); 
     JNIEnv *env=NULL;
+    Boolean mode24=false;
+    CIMPropertyList propertyList;
+    jobjectArray pl=NULL;
+
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleEnumerateInstanceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -512,26 +581,57 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"enumInstances",
            "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;");
+
+	if (id==NULL) {
+           env->ExceptionClear();
+	   id=env->GetMethodID((jclass)pr.jProviderClass,"enumerateInstanceNames",
+              "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)"
+	      "[Lorg/pegasus/jmpi/CIMObjectPath;");
+           JMPIjvm::checkException(env);
+	   mode24=true;
+	}
         JMPIjvm::checkException(env);
 
-        jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,true,jCc);
-        JMPIjvm::checkException(env);
-        
-        STAT_PMS_PROVIDEREND;
-	
-        handler.processing();       
-	if (jVec) {
-	   for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
-               JMPIjvm::checkException(env);
-	      jobject jCop=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
-              JMPIjvm::checkException(env);
-              CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
-	         (jCop,JMPIjvm::jv.CIMObjectPathCInst)); 
-              JMPIjvm::checkException(env);
-              handler.deliver(*cop);
+        if (!mode24) {
+	   jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,true,jCc);
+           JMPIjvm::checkException(env);
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+	   if (jVec) {
+	      for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+                 JMPIjvm::checkException(env);
+                 jobject jCop=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                 JMPIjvm::checkException(env);
+                 CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
+                    (jCop,JMPIjvm::jv.CIMObjectPathCInst));
+                 JMPIjvm::checkException(env);
+                 handler.deliver(*cop);
+              }
  	   }
+           handler.complete();
         }
-        handler.complete();
+        else {
+           jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,id,jRef,jCc);
+           JMPIjvm::checkException(env);
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+           if (jAr) {
+              for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+                 JMPIjvm::checkException(env);
+                 jobject jCop=env->GetObjectArrayElement(jAr,i);
+                 JMPIjvm::checkException(env);
+                 CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
+                    (jCop,JMPIjvm::jv.CIMObjectPathCInst));
+                 JMPIjvm::checkException(env);
+                 handler.deliver(*cop);
+              }
+           }
+           handler.complete();
+        }
     }
     HandlerCatch(handler);
     
@@ -635,6 +735,10 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
     HandlerIntroVoid(ModifyInstance,message,request,response,handler);
     JNIEnv *env=NULL;
+    Boolean mode24=false;
+    CIMPropertyList propertyList;
+    jobjectArray pl=NULL;
+
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "DefaultProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -690,10 +794,20 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"setInstance",
            "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V");
+
+	if (id==NULL) {
+           env->ExceptionClear();
+           id=env->GetMethodID((jclass)pr.jProviderClass,"setInstance",
+              "(Lorg/pegasus/jmpi/CIMObjectPath;Z[Ljava/lang/String)V");
+           JMPIjvm::checkException(env);
+           mode24=true;
+           pl=getList(jv,env,request->propertyList);
+        }
         JMPIjvm::checkException(env);
 
-        env->CallVoidMethod((jobject)pr.jProvider,id,jRef,jInst);
-        
+        if (!mode24) env->CallVoidMethod((jobject)pr.jProvider,id,jRef,jInst);
+        else env->CallVoidMethod((jobject)pr.jProvider,id,jRef,jInst,pl);
+
         STAT_PMS_PROVIDEREND;
 	
         JMPIjvm::checkException(env);
@@ -792,6 +906,10 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
     HandlerIntro(Associators,message,request,response,
                  handler,Array<CIMObject>());
     JNIEnv *env=NULL;
+    Boolean mode24=false;
+    CIMPropertyList propertyList;
+    jobjectArray pl=NULL;
+
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleAssociatorsRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -857,44 +975,84 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
            "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;"
 	   "Ljava/lang/String;ZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
+	if (id==NULL) {
+           env->ExceptionClear();
+	   id=env->GetMethodID((jclass)pr.jProviderClass,"associators",
+             "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;"
+	     "Ljava/lang/String;ZZ[Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMInstance;");
+           JMPIjvm::checkException(env);
+	   mode24=true;
+	}
         JMPIjvm::checkException(env);
 
-        jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
-	                 rClass,rRole,resRole,false,false,NULL);
-        JMPIjvm::checkException(env);
+	pl=getList(jv,env,request->propertyList);
 
-        STAT_PMS_PROVIDEREND;
+	if (!mode24) {
+           jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
+	                 rClass,rRole,resRole,false,false,pl);
+           JMPIjvm::checkException(env);
 
-        handler.processing();
-	if (jVec) {
-	   for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
-              JMPIjvm::checkException(env);
-	      jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
-              JMPIjvm::checkException(env);
-              CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst)); 
-              JMPIjvm::checkException(env);
-	      
-	      CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+	   if (jVec) {
+	      for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+                 JMPIjvm::checkException(env);
+	         jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                 JMPIjvm::checkException(env);
+                 CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
+                 JMPIjvm::checkException(env);
+
+	         CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
 	             inst.getClassName(),false,true,true,CIMPropertyList());
-              const CIMObjectPath& op=inst.getPath();
-              CIMObjectPath iop=inst.buildPath(cls);
-              iop.setNameSpace(op.getNameSpace());
-              inst.setPath(iop);
-   
-              handler.deliver(inst);
- 	   }
+                 const CIMObjectPath& op=inst.getPath();
+                 CIMObjectPath iop=inst.buildPath(cls);
+                 iop.setNameSpace(op.getNameSpace());
+                 inst.setPath(iop);
+
+                 handler.deliver(inst);
+ 	      }
+	   }
         }
+
+	else {
+           jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
+	                 rClass,rRole,resRole,false,false,pl);
+           JMPIjvm::checkException(env);
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+	   if (jAr) {
+	      for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+                 JMPIjvm::checkException(env);
+	         jobject jInst=env->GetObjectArrayElement(jAr,i);
+                 JMPIjvm::checkException(env);
+                 CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
+                 JMPIjvm::checkException(env);
+
+	         CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
+	             inst.getClassName(),false,true,true,CIMPropertyList());
+                 const CIMObjectPath& op=inst.getPath();
+                 CIMObjectPath iop=inst.buildPath(cls);
+                 iop.setNameSpace(op.getNameSpace());
+                 inst.setPath(iop);
+
+                 handler.deliver(inst);
+ 	      }
+	   }
+	}
         handler.complete();
     }
     HandlerCatch(handler);
-    
-    if (env) JMPIjvm::detachThread();	
-    
+
+    if (env) JMPIjvm::detachThread();
+
     PEG_METHOD_EXIT();
 
     return(response);
 }
-	
+
 
 
 Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * message) throw()
@@ -905,6 +1063,10 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
     HandlerIntro(AssociatorNames,message,request,response,
                  handler,Array<CIMObjectPath>());
     JNIEnv *env=NULL;
+    Boolean mode24=false;
+    CIMPropertyList propertyList;
+    jobjectArray pl=NULL;
+
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleAssociatorNamesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -969,28 +1131,60 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"associatorNames",
            "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;"
 	   "Ljava/lang/String;)Ljava/util/Vector;");
-	   
+
+	if (id==NULL) {
+           env->ExceptionClear();
+	   id=env->GetMethodID((jclass)pr.jProviderClass,"associatorNames",
+              "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;"
+	      "Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMObjectPath;");
+           JMPIjvm::checkException(env);
+	   mode24=true;
+	}
         JMPIjvm::checkException(env);
 
-        jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
+	if (!mode24) {
+           jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
 	                 rClass,rRole,resRole);
-        JMPIjvm::checkException(env);
+           JMPIjvm::checkException(env);
 
-        STAT_PMS_PROVIDEREND;
+           STAT_PMS_PROVIDEREND;
 
-        handler.processing();       
-	if (jVec) {
-	   for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
-               JMPIjvm::checkException(env);
-	      jobject jCop=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
-              JMPIjvm::checkException(env);
-              CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
-	         (jCop,JMPIjvm::jv.CIMObjectPathCInst)); 
-              JMPIjvm::checkException(env);
-              handler.deliver(*cop);
- 	   }
-        }
-        handler.complete();
+           handler.processing();
+	   if (jVec) {
+	      for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+                 JMPIjvm::checkException(env);
+	         jobject jCop=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                 JMPIjvm::checkException(env);
+                 CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
+	            (jCop,JMPIjvm::jv.CIMObjectPathCInst));
+                 JMPIjvm::checkException(env);
+                 handler.deliver(*cop);
+ 	      }
+           }
+           handler.complete();
+	}
+
+	else {
+           jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
+	                 rClass,rRole,resRole);
+           JMPIjvm::checkException(env);
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+	   if (jAr) {
+	      for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+                 JMPIjvm::checkException(env);
+	         jobject jCop=env->GetObjectArrayElement(jAr,i);
+                 JMPIjvm::checkException(env);
+                 CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
+	            (jCop,JMPIjvm::jv.CIMObjectPathCInst));
+                 JMPIjvm::checkException(env);
+                 handler.deliver(*cop);
+ 	      }
+           }
+           handler.complete();
+	}
     }
     HandlerCatch(handler);
 
@@ -1010,6 +1204,10 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
     HandlerIntro(References,message,request,response,
                  handler,Array<CIMObject>());
     JNIEnv *env=NULL;
+    Boolean mode24=false;
+    CIMPropertyList propertyList;
+    jobjectArray pl=NULL;
+
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "DefaultProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1072,34 +1270,76 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
            "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
            "ZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
+	if (id==NULL) {
+           env->ExceptionClear();
+	   id=env->GetMethodID((jclass)pr.jProviderClass,"references",
+              "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
+              "ZZ[Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMInstance;");
+           JMPIjvm::checkException(env);
+	   mode24=true;
+	}
         JMPIjvm::checkException(env);
 
-        jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
-                         rRole,false,false,NULL);
-        JMPIjvm::checkException(env);
+	pl=getList(jv,env,request->propertyList);
 
-        STAT_PMS_PROVIDEREND;
+	if (!mode24) {
+           jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
+                         rRole,false,false,pl);
+           JMPIjvm::checkException(env);
 
-        handler.processing();
-        if (jVec) {
-           for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
-              JMPIjvm::checkException(env);
-              jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
-              JMPIjvm::checkException(env);
-              CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
-              JMPIjvm::checkException(env);
+           STAT_PMS_PROVIDEREND;
 
-              CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
+           handler.processing();
+           if (jVec) {
+              for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+                 JMPIjvm::checkException(env);
+                 jobject jInst=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                 JMPIjvm::checkException(env);
+                 CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
+                 JMPIjvm::checkException(env);
+
+                 CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
                      inst.getClassName(),false,true,true,CIMPropertyList());
-              const CIMObjectPath& op=inst.getPath();
-              CIMObjectPath iop=inst.buildPath(cls);
-              iop.setNameSpace(op.getNameSpace());
-              inst.setPath(iop);
+                 const CIMObjectPath& op=inst.getPath();
+                 CIMObjectPath iop=inst.buildPath(cls);
+                 iop.setNameSpace(op.getNameSpace());
+                 inst.setPath(iop);
 
-              handler.deliver(inst);
+                 handler.deliver(inst);
+              }
            }
-        }
-        handler.complete();
+           handler.complete();
+	}
+
+	else {
+           jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,id,jRef,
+                         rRole,false,false,pl);
+           JMPIjvm::checkException(env);
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+           if (jAr) {
+              for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+                 JMPIjvm::checkException(env);
+                 jobject jInst=env->GetObjectArrayElement(jAr,i);
+                 JMPIjvm::checkException(env);
+                 CIMInstance inst=*((CIMInstance*)env->CallIntMethod(jInst,JMPIjvm::jv.CIMInstanceCInst));
+                 JMPIjvm::checkException(env);
+
+                 CIMClass cls=pr._cimom_handle->getClass(context,request->nameSpace,
+                     inst.getClassName(),false,true,true,CIMPropertyList());
+                 const CIMObjectPath& op=inst.getPath();
+                 CIMObjectPath iop=inst.buildPath(cls);
+                 iop.setNameSpace(op.getNameSpace());
+                 inst.setPath(iop);
+
+                 handler.deliver(inst);
+              }
+           }
+           handler.complete();
+	}
+
     }
     HandlerCatch(handler);
 
@@ -1119,6 +1359,10 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
     HandlerIntro(ReferenceNames,message,request,response,
                  handler,Array<CIMObjectPath>());
     JNIEnv *env=NULL;
+    Boolean mode24=false;
+    CIMPropertyList propertyList;
+    jobjectArray pl=NULL;
+
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleReferenceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1180,26 +1424,56 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"referenceNames",
            "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)Ljava/util/Vector;");
 
+	if (id==NULL) {
+           env->ExceptionClear();
+	   id=env->GetMethodID((jclass)pr.jProviderClass,"referenceNames",
+              "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)[Lorg/pegasus/jmpi/CIMObjectPath;");
+           JMPIjvm::checkException(env);
+	   mode24=true;
+	}
         JMPIjvm::checkException(env);
 
-        jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,rRole);
-        JMPIjvm::checkException(env);
+	if (!mode24) {
+           jobject jVec=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,rRole);
+           JMPIjvm::checkException(env);
 
-        STAT_PMS_PROVIDEREND;
+           STAT_PMS_PROVIDEREND;
 
-        handler.processing();
-	if (jVec) {
-	   for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
-               JMPIjvm::checkException(env);
-	      jobject jCop=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
-              JMPIjvm::checkException(env);
-              CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
-	         (jCop,JMPIjvm::jv.CIMObjectPathCInst));
-              JMPIjvm::checkException(env);
-              handler.deliver(*cop);
- 	   }
-        }
-        handler.complete();
+           handler.processing();
+	   if (jVec) {
+	      for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+                 JMPIjvm::checkException(env);
+	         jobject jCop=env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+                 JMPIjvm::checkException(env);
+                 CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
+	            (jCop,JMPIjvm::jv.CIMObjectPathCInst));
+                 JMPIjvm::checkException(env);
+                 handler.deliver(*cop);
+ 	      }
+           }
+           handler.complete();
+	}
+
+	else {
+           jobjectArray jAr=(jobjectArray)env->CallObjectMethod((jobject)pr.jProvider,id,jRef,rRole);
+           JMPIjvm::checkException(env);
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+	   if (jAr) {
+	      for (int i=0,m=env->GetArrayLength(jAr); i<m; i++) {
+                 JMPIjvm::checkException(env);
+	         jobject jCop=env->GetObjectArrayElement(jAr,i);
+                 JMPIjvm::checkException(env);
+                 CIMObjectPath *cop=((CIMObjectPath*)env->CallIntMethod
+	            (jCop,JMPIjvm::jv.CIMObjectPathCInst));
+                 JMPIjvm::checkException(env);
+                 handler.deliver(*cop);
+ 	      }
+           }
+           handler.complete();
+	}
     }
     HandlerCatch(handler);
 
@@ -1219,6 +1493,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
     HandlerIntroMethod(InvokeMethod,message,request,response,
                  handler);
     JNIEnv *env=NULL;
+    Boolean mode24=false;
+
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "JMPIProviderManager::handleInvokeMethodRequest - Host name: $0  Name space: $1  Class name: $2",
@@ -1263,48 +1539,88 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
         jstring jMethod=env->NewStringUTF(request->methodName.getString().getCString());
 	JMPIjvm::checkException(env);
 
-        jobject jVecIn=env->NewObject(jv->VectorClassRef,jv->VectorNew);
-        JMPIjvm::checkException(env);
-
-        for (int i=0,m=request->inParameters.size(); i<m; i++) {
-           const CIMParamValue & parm=request->inParameters[i];
-	   const CIMValue v=parm.getValue();
-           CIMProperty *p=new CIMProperty(parm.getParameterName(),v,v.getArraySize());
-           jobject prop=env->NewObject(jv->CIMPropertyClassRef,
-	      jv->CIMPropertyNewI,(jint)p);
-           env->CallVoidMethod(jVecIn,jv->VectorAddElement,prop);
-	}
-
-        jobject jVecOut=env->NewObject(jv->VectorClassRef,jv->VectorNew);
-        JMPIjvm::checkException(env);
-
         STAT_GETSTARTTIME;
 
         jmethodID id=env->GetMethodID((jclass)pr.jProviderClass,"invokeMethod",
            "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
 	    "Ljava/util/Vector;Ljava/util/Vector;)Lorg/pegasus/jmpi/CIMValue;");
+
+	if (id==NULL) {
+           env->ExceptionClear();
+	   id=env->GetMethodID((jclass)pr.jProviderClass,"invokeMethod",
+              "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;"
+	      "[Lorg/pegasus/jmpi/CIMArgument;[Lorg/pegasus/jmpi/CIMArgument;)Lorg/pegasus/jmpi/CIMValue;");
+           JMPIjvm::checkException(env);
+	   mode24=true;
+	}
         JMPIjvm::checkException(env);
 
-        jobject jValue=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,jMethod,
-	   jVecIn,jVecOut);
-        JMPIjvm::checkException(env);
-
-        STAT_PMS_PROVIDEREND;
-
-        handler.processing();
-
-        CIMValue *v=((CIMValue*)env->CallIntMethod(jValue,JMPIjvm::jv.CIMValueCInst));
-	handler.deliver(*v);
-
-        for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize); i<m; i++) {
+	if (!mode24) {
+           jobject jVecIn=env->NewObject(jv->VectorClassRef,jv->VectorNew);
            JMPIjvm::checkException(env);
-	   jobject jProp=env->CallObjectMethod(jVecOut,JMPIjvm::jv.VectorElementAt,i);
+           for (int i=0,m=request->inParameters.size(); i<m; i++) {
+              const CIMParamValue & parm=request->inParameters[i];
+	      const CIMValue v=parm.getValue();
+              CIMProperty *p=new CIMProperty(parm.getParameterName(),v,v.getArraySize());
+              jobject prop=env->NewObject(jv->CIMPropertyClassRef,
+	         jv->CIMPropertyNewI,(jint)p);
+              env->CallVoidMethod(jVecIn,jv->VectorAddElement,prop);
+	   }
+
+           jobject jVecOut=env->NewObject(jv->VectorClassRef,jv->VectorNew);
            JMPIjvm::checkException(env);
-           CIMProperty *p=((CIMProperty*)env->CallIntMethod(jProp,JMPIjvm::jv.PropertyCInst));
+
+           jobject jValue=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,jMethod,jVecIn,jVecOut);
            JMPIjvm::checkException(env);
-           handler.deliverParamValue(CIMParamValue(p->getName().getString(),p->getValue()));
-        }
-        handler.complete();
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+
+           CIMValue *v=((CIMValue*)env->CallIntMethod(jValue,JMPIjvm::jv.CIMValueCInst));
+	   handler.deliver(*v);
+
+           for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize); i<m; i++) {
+              JMPIjvm::checkException(env);
+	      jobject jProp=env->CallObjectMethod(jVecOut,JMPIjvm::jv.VectorElementAt,i);
+              JMPIjvm::checkException(env);
+              CIMProperty *p=((CIMProperty*)env->CallIntMethod(jProp,JMPIjvm::jv.PropertyCInst));
+              JMPIjvm::checkException(env);
+              handler.deliverParamValue(CIMParamValue(p->getName().getString(),p->getValue()));
+           }
+           handler.complete();
+	}
+        else {
+	   Uint32 m=request->inParameters.size();
+
+	   jobjectArray jArIn=env->NewObjectArray(m,jv->CIMArgumentClassRef,NULL);
+           for (Uint32 i=0; i<m; i++) {
+              CIMParamValue *parm=new CIMParamValue(request->inParameters[i]);
+              jobject jArg=env->NewObject(jv->CIMArgumentClassRef,jv->CIMArgumentNewI,(jint)parm);
+              env->SetObjectArrayElement(jArIn,i,jArg);
+	   }
+	   jobjectArray jArOut=env->NewObjectArray(24,jv->CIMArgumentClassRef,NULL);
+
+           jobject jValue=env->CallObjectMethod((jobject)pr.jProvider,id,jRef,jMethod,jArIn,jArOut);
+           JMPIjvm::checkException(env);
+
+           STAT_PMS_PROVIDEREND;
+
+           handler.processing();
+
+           CIMValue *v=((CIMValue*)env->CallIntMethod(jValue,JMPIjvm::jv.CIMValueCInst));
+	   handler.deliver(*v);
+
+           for (int i=0; i<24; i++) {
+	      jobject jArg=env->GetObjectArrayElement(jArOut,i);
+              JMPIjvm::checkException(env);
+	      if (jArg==NULL) break;
+              CIMParamValue *p=((CIMParamValue*)env->CallIntMethod(jArg,JMPIjvm::jv.ArgumentCInst));
+              JMPIjvm::checkException(env);
+              handler.deliverParamValue(*p);
+           }
+           handler.complete();
+	}
     }
     HandlerCatch(handler);
 

@@ -1,5 +1,8 @@
 /*
 	$Log: definitions.dxx,v $
+	Revision 1.6  2001/02/19 21:48:40  karl
+	CIMxx Class and file name chages
+	
 	Revision 1.5  2001/02/06 17:02:13  karl
 	rearrange documentation for interfaces
 	
@@ -20,9 +23,29 @@
 /** @name Definition of Terms
 This section provides definitions of terms and concepts used in the specification of the  DMTF CIM and WBEM specifications and of the Pegasus Managability Services Broker and its implementation.
 
-<B>Namespace</B>\Label{NAMESPACE} - An object that defines a scope within which object keys must be unique.
+<B>Namespace</B>\Label{NAMESPACE} - An object that defines a scope within which object keys must be unique. Multiple namespaces typically indicate the presence
+of multiple management spaces or multiple devices.
 
-<B>CIMOM</B> \Label{CIMOM} = TBD Definition of Namespace
+The namespace pragma
+    <PRE>
+    	#pragma namespace( )
+    </PRE>
+This pragma is used to specify a Namespace path. The syntax
+needs to conform to the following:
+    <PRE>
+    	<namespacetype>://<namespacehandle>
+    </PRE>
+
+
+<P>The contents of a MOF file are loaded into a namespace that provides a domain (in other words, a container), in which the instances of the classes are guaranteed to be unique per the KEY qualifier definitions. The term namespace is used to refer to an implementation that provides such a domain.
+Namespaces can be used to:
+<UL>
+    <LI>Define chunks of management information (objects and associations) to limit implementation resource requirements, such as database size.
+    <LI>Define views on the model for applications managing only specific objects, such as hubs.
+    <LI>Pre-structure groups of objects for optimized query speed.
+ </UL>
+
+<B>CIMOM</B> \Label{CIMOM} = TBD Definition of a CIMOM
 
 <B>Repository</B> \Label{} - The CIM Repository stores the CIM metaschema (class repository) and instance information (instance repository). TheRepository is provided as part of the reference implementation,  but is considered an independent service for the CIMOM. The interfaces to the respository are fixed but the supplied respository can be replaced with a different implementation.
 

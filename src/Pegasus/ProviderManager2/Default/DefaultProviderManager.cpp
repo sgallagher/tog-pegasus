@@ -2186,6 +2186,7 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
             ph.GetProvider().getName());
 
         pm_service_op_lock op_lock(&ph.GetProvider());
+        ph.GetProvider().protect();
 
         ph.GetProvider().enableIndications(*handler);
 
@@ -2531,7 +2532,7 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
     CIMException cimException;
 
     ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-   
+    
     try {
       // get provider module name
       String moduleName;
@@ -2912,6 +2913,11 @@ ProviderName DefaultProviderManager::_resolveProviderName(String & destinationPa
     temp.setPhysicalName(physicalName);
 
     return(temp);
+}
+
+void DefaultProviderManager::unload_idle_providers()
+{
+   providerManager.unload_idle_providers();
 }
 
 PEGASUS_NAMESPACE_END

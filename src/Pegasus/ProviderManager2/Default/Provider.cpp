@@ -119,6 +119,47 @@ void Provider::initialize(CIMOMHandle & cimom)
  }
 }
 
+Boolean Provider::tryTerminate(void)
+{
+   //
+   // Note:  It is the caller's responsibility to lock the status
+   // Mutex before calling this method
+   //
+   Boolean terminated = false;
+
+   if (_status == INITIALIZED)
+   {
+       if(false == unload_ok())
+       {
+           return false;
+       }
+
+       // yield before a potentially lengthy operation.
+       pegasus_yield();
+       try 
+       {
+#ifdef PEGASUS_PRESERVE_TRYTERMINATE
+          terminated =  ProviderFacade::tryTerminate();
+#else
+          terminated = true;
+          ProviderFacade::terminate();
+#endif
+       }
+       catch(...)
+       {
+          PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                           "Exception caught in ProviderFacade::tryTerminate() for " +
+                           _name);
+       }
+
+       if (terminated == true)
+       {
+           _status = UNINITIALIZED;
+       }
+    }
+    return terminated;
+}
+
 void Provider::terminate(void)
 {
   if(_status == INITIALIZED)

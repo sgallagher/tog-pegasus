@@ -41,12 +41,12 @@
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 PEGASUS_USING_STD;
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_NAMESPACE_BEGIN 
 
 static CMPILocalProviderManager *my_instance = 0;
 
 CMPILocalProviderManager::CMPILocalProviderManager(void)
-    : _idle_timeout(300), _unload_idle_flag(1)
+    : _idle_timeout(IDLE_LIMIT), _unload_idle_flag(1)
 {
     my_instance = this;
 }
@@ -433,7 +433,7 @@ void CMPILocalProviderManager::unload_idle_providers(void)
     if(first.tv_sec == 0)
         gettimeofday(&first, NULL);
     gettimeofday(&now, NULL);
-    if(((now.tv_sec - first.tv_sec) > 300 ) && ( (now.tv_sec - last.tv_sec) > 300))
+    if(((now.tv_sec - first.tv_sec) > IDLE_LIMIT ) && ( (now.tv_sec - last.tv_sec) > IDLE_LIMIT))
     {
         gettimeofday(&last, NULL);
         if(_unload_idle_flag.value() == 1)

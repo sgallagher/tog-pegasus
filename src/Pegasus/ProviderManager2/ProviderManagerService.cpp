@@ -504,6 +504,11 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 
 void ProviderManagerService::unload_idle_providers(void)
 {
+    for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
+    {
+      ProviderManagerContainer *pmc=_providerManagers[i];
+	   pmc->getProviderManager()->unload_idle_providers();
+    }
 }
 
 PEGASUS_NAMESPACE_END

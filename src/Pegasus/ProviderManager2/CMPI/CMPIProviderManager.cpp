@@ -1563,6 +1563,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         DDD(cerr<<"--- CMPIProviderManager::enableIndicationRequest"<<endl);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
+        ph.GetProvider().protect();
 
         STAT_GETSTARTTIME;
 
@@ -1625,6 +1626,8 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
 
         pr.miVector.indMI->ft->disableIndications(
            pr.miVector.indMI);
+        
+        ph.GetProvider().unprotect();
 
        STAT_PMS_PROVIDEREND;
     }

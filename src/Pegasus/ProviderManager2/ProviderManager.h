@@ -54,6 +54,7 @@ public:
     virtual ProviderName findProvider(const String & destinationPath);
     virtual Boolean insertProvider(const ProviderName & providerName);
     virtual Boolean removeProvider(const ProviderName & providerName);
+	 virtual void unload_idle_providers()=0;
     static String _resolvePhysicalName(String physicalName);
 
 protected:

@@ -1815,14 +1815,7 @@ void _error (CIMClient & client)
     }
     catch (CIMException & e)
     {
-        //
-        //  ATTN: this test case should result in a CIM_ERR_INVALID_PARAMETER
-        //  exception.  However, for properties that have a default value, 
-        //  currently the IndicationService does not check for an array type 
-        //  value before trying to get the value.
-        //
-        //_checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
-        _checkExceptionCode (e, CIM_ERR_FAILED);
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
     //
@@ -2738,7 +2731,7 @@ void _error (CIMClient & client)
     }
 
     //          
-    //  Handler: Attempt to delete a filter referenced by a subscription
+    //  Handler: Attempt to delete a handler referenced by a subscription
     //           A Handler referenced by a subscription may not be deleted
     //
     try

@@ -217,8 +217,8 @@ private:
         const String & message);
 
     /**
-        Validates the specified property and its corresponding Other___
-        property in the instance.
+        Validates the specified Uint16 (non-array) property and its 
+        corresponding String (non-array) Other___ property in the instance.
         If the property does not exist, it is added with the default value.
         If the property exists, but its value is NULL, its value is set to
         the default value.
@@ -264,11 +264,19 @@ private:
         the default value.
         This function is called by the _canCreate function, and is used to 
         validate the Source Namespace property in Filter instances.
+        This function is also called by the _initOrValidateStringProperty 
+        function to validate the CreationClassName, SystemName, and 
+        SystemCreationClassName key properties in Filter and Handler instances.
 
         Note: currently all properties validated by this function are of type
         String.  To use this function in the future with properties of other 
         types, a type parameter would need to be added, and the default value 
         would need to be passed as a CIMValue instead of a String.
+
+        Note: currently all properties validated by this function are non-array
+        properties.  To use this function in the future with both array and
+        non-array properties, a Boolean isArray parameter would need to be 
+        added.
 
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
@@ -298,6 +306,11 @@ private:
         types, a type parameter would need to be added, and the default value 
         would need to be passed as a CIMValue instead of a String.
 
+        Note: currently all properties validated by this function are non-array
+        properties.  To use this function in the future with both array and
+        non-array properties, a Boolean isArray parameter would need to be 
+        added.
+
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
         @param   defaultValue          default value for property
@@ -320,6 +333,11 @@ private:
         RepeatNotificationCount properties in Subscription instances, the Owner
         property in Handler instances, and the PortNumber, SNMPSecurityName, 
         and SNMPEngineID properties in SNMP Mapper Handler instances.
+
+        Note: currently all properties validated by this function are non-array
+        properties.  To use this function in the future with both array and
+        non-array properties, a Boolean isArray parameter would need to be 
+        added.
 
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated

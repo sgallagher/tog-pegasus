@@ -1990,7 +1990,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 #endif
             if (!queryExpr.evaluate(indication))
             {
-              match = false;
+                match = false;
             }
 #ifdef PEGASUS_INDICATION_PERFINST
             stopWatch.stop();
@@ -2073,7 +2073,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                         request->nameSpace,
                         handlerNamedInstance,
                         formattedIndication,
-            matchedSubscriptions[i],
+                        matchedSubscriptions[i],
                         QueueIdStack(_handlerService, getQueueId()),
                         String::EMPTY,
                         String::EMPTY);
@@ -3827,24 +3827,44 @@ String IndicationService::_checkPropertyWithDefault (
         {
             theProperty.setValue (CIMValue (defaultValue));
         }
-        else if (theValue.getType () != CIMTYPE_STRING)
+        else if ((theValue.getType () != CIMTYPE_STRING) || 
+                 (theValue.isArray ()))
         {
             //
             //  Property exists and is not null,
             //  but is not of correct type
             //
-            String exceptionStr = _MSG_INVALID_TYPE;
-            exceptionStr.append ("$0");
-            exceptionStr.append (_MSG_FOR_PROPERTY);
-            exceptionStr.append ("$1");
+            if (theValue.isArray ())
+            {
+                String exceptionStr = _MSG_INVALID_TYPE;
+                exceptionStr.append (_MSG_ARRAY_OF);
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
 
-            PEG_METHOD_EXIT ();
-            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
-                MessageLoaderParms
-                    (_MSG_INVALID_TYPE_FOR_PROPERTY_KEY,
-                    exceptionStr,
-                    cimTypeToString (theValue.getType ()),
-                    propertyName.getString ()));
+                PEG_METHOD_EXIT ();
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms
+                        (_MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY_KEY,
+                        exceptionStr,
+                        cimTypeToString (theValue.getType ()),
+                        propertyName.getString ()));
+            }
+            else
+            {
+                String exceptionStr = _MSG_INVALID_TYPE;
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
+
+                PEG_METHOD_EXIT ();
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms
+                        (_MSG_INVALID_TYPE_FOR_PROPERTY_KEY,
+                        exceptionStr,
+                        cimTypeToString (theValue.getType ()),
+                        propertyName.getString ()));
+            }
         }
         else
         {

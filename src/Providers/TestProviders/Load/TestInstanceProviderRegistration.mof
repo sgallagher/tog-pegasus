@@ -6,9 +6,9 @@ instance of PG_ProviderModule
     Caption = "Pegasus Test Instance Provider Module";
     Name = "TestInstanceProviderModule";
     Vendor = "Pegasus";
-    Version = "2.0.0";
+    Version = "2.5.0";
     InterfaceType = "C++Default";
-    InterfaceVersion = "2.3.0";
+    InterfaceVersion = "2.5.0";
     Location = "TestInstanceProvider";
 };
 
@@ -24,7 +24,7 @@ instance of PG_ProviderCapabilities
     ProviderName = "TestInstanceProvider";
     CapabilityID = "001";
     ClassName = "TST_Instance1";
-    Namespaces = { "root/test" };
+    Namespaces = { "test/TestProvider" };
     ProviderType = { 2 };
     SupportedProperties = NULL;
     SupportedMethods = NULL;

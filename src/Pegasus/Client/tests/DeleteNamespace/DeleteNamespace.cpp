@@ -79,6 +79,13 @@ static void testEnd(const double elapsedTime)
 {
     cout << "In " << elapsedTime << " Seconds\n\n";
 }
+
+static Boolean verifyServerCertificate(CertificateInfo &certInfo)
+{
+    //ATTN-NB-03-05132002: Add code to handle server certificate verification.
+    return true;
+}
+
 /*****************************************************************
 //   Test Namespaces Hierarchy - Relative Path Name
 ******************************************************************/
@@ -589,7 +596,7 @@ int main(int argc, char** argv)
                         }
                         randFile.append(RANDOMFILE);
 
-                        SSLContext * sslcontext = new SSLContext(certpath, randFile, true);
+                        SSLContext * sslcontext = new SSLContext(certpath,verifyServerCertificate, randFile, true);
 #else
                         SSLContext * sslcontext = new SSLContext(certpath);
 #endif

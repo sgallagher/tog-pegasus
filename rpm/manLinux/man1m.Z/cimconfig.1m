@@ -1,6 +1,6 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1m.Z/Attic/cimconfig.1m,v 1.2 2003/03/13 17:25:16 kumpf Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1m.Z/Attic/cimconfig.1m,v 1.3 2004/04/19 17:50:39 kumpf Exp $
 .TA c \" lowercase initial leter of .TH name
-.TH cimconfig 1M
+.TH cimconfig 8
 .SH NAME
 cimconfig - get, set, unset, or list CIM Server configuration properties
 .SH SYNOPSIS
@@ -31,57 +31,43 @@ host by submitting requests to the CIM Server.
 An operation on a current configuration property takes effect immediately,
 and an operation on a planned configuration property takes effect the next time
 the CIM Server is started with 
-.B "cimserver (1M)" .
+.B "cimserver (8)" .
 Modifications to a configuration property via 
 .B cimconfig 
 remain in effect
 until changed via another 
 .B cimconfig 
 command.  Configuration properties may also be modified temporarily via the
-.B "cimserver (1M)"
+.B "cimserver (8)"
 command, in which case, the modification of the configuration
 property remains in effect for that execution of the 
-.B "cimserver (1M)"
+.B "cimserver (8)"
 command only. A default value is associated with each configuration property.
 Each configuration property is initially
 assigned its default value, until modified by a 
 .B cimconfig 
 command or 
-.B "cimserver (1M)"
+.B "cimserver (8)"
 command.  Dynamic configuration
 properties are those whose current values may be set while the CIM server is
 running.
 .PP
 The following configuration properties are available:
 .PP
-.B enableNamespaceAuthorization
+.B enableAssociationTraversal
 .IP
-.BR Description: " If True, the CIM Server restricts access to
-namespaces based on configured user authorizations [user authorizations may
-be configured using
-.B "cimauth (1M)" ]"
+.BR Description: " If True, the CIM Server will support the four association traversal operators:
+Associators, AssociatorNames, References, and ReferenceNames.
 .PD 0
 .IP
-.BR "Default Value: " False
+.BR "Default Value: " True
 .IP
 .BR Dynamic: \0No
 .PD
 .PP
-.B enableRemotePrivilegedUserAccess
+.B enableIndicationService
 .IP
-.BR Description: " If True, the CIM Server allows access by a
-privileged user from a remote system
-.PD 0
-.IP
-.BR "Default Value: " False
-.IP
-.BR Dynamic: \0No
-.PD
-.PP
-.B enableHttpsConnection
-.IP
-.BR Description: " If True, allows connections to the CIM Server
-using the HTTPS protocol (HTTP using Secure Socket Layer encryption)
+.BR Description: " If True, the CIM Server will support CIM Indications."
 .PD 0
 .IP
 .BR "Default Value: " True
@@ -100,11 +86,70 @@ using the HTTP protocol
 .BR Dynamic: \0No
 .PD
 .PP
+.B enableHttpsConnection
+.IP
+.BR Description: " If True, allows connections to the CIM Server
+using the HTTPS protocol (HTTP using Secure Socket Layer encryption)
+.PD 0
+.IP
+.BR "Default Value: " True
+.IP
+.BR Dynamic: \0No
+.PD
+.PP
+.B enableNamespaceAuthorization
+.IP
+.BR Description: " If True, the CIM Server restricts access to
+namespaces based on configured user authorizations [user authorizations may
+be configured using
+.B "cimauth (8)"
+]
+.PD 0
+.IP
+.BR "Default Value: " False
+.IP
+.BR Dynamic: \0No
+.PD
+.PP
+.B enableRemotePrivilegedUserAccess
+.IP
+.BR Description: " If True, the CIM Server allows access by a
+privileged user from a remote system
+.PD 0
+.IP
+.BR "Default Value: " True
+.IP
+.BR Dynamic: \0No
+.PD
+.PP
+.B enableSubscriptionsForNonprivilegedUsers
+.IP
+.BR Description: " If True, nonprivileged user of the system will be 
+allowed to create Indication Subscription, otherwise privileged access
+is required.
+.PD 0
+.IP
+.BR "Default Value: " True
+.IP
+.BR Dynamic: \0No
+.PD
+.PP
+.B logLevel
+.IP
+.BR Description: " Defines the desired level of logging. Valid values include: 
+TRACE, INFORMATION, WARNING, SEVERE, FATAL
+.PD 0
+.IP
+.BR "Default Value: " INFORMATION
+.IP
+.BR Dynamic: \0Yes
+.PD
+.PP
 .B shutdownTimeout
 .IP
 .BR Description: " When a
 .B cimserver -s
-" shutdown command is
+shutdown command is
 issued, specifies the maximum time in seconds for the CIM Server to complete
 outstanding CIM operation requests before shutting down; if the specified
 timeout period expires, the CIM Server will shut down, even if there are
@@ -114,7 +159,7 @@ Minimum value is 2 seconds.
 .IP
 .BR "Default Value: " 10
 .IP
-.BR Dynamic: \0Yes
+.BR Dynamic: \0No
 .PD
 .PP
 If both the 
@@ -135,14 +180,14 @@ shut down and disabled from automatically being re-started.
 .PP
 The current and planned
 values of the configuration properties are stored in the files
-.B /etc/opt/wbem/cimserver_current.conf
+.B /etc/pegasus/cimserver_current.conf
 and
-.B /etc/opt/wbem/cimserver_planned.conf ,
+.B /etc/pegasus/cimserver_planned.conf ,
 respectively.  The configuration
 properties may only be modified via the
 .B cimconfig
 and
-.B "cimserver (1M)"
+.B "cimserver (8)"
 commands;
 the files must not be edited directly.
 .SS Options
@@ -263,12 +308,12 @@ List all the planned configuration property names and their values.
 .SH FILES
 .TP 30
 .PD 0
-.B /etc/opt/wbem/cimserver_current.conf
+.B /etc/pegasus/cimserver_current.conf
 Current configuration
 .TP
-.B /etc/opt/wbem/cimserver_planned.conf
+.B /etc/pegasus/cimserver_planned.conf
 Planned configuration
 .PD
 .SH SEE ALSO
 .PP
-cimserver (1M), cimauth (1M).
+cimserver (8), cimauth (8).

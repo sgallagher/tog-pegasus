@@ -59,15 +59,18 @@ SOURCES = \
     DeclContext.cpp \
     Destroyer.cpp \
     Dir.cpp \
+    DQueue.cpp \
     Exception.cpp \
     FileSystem.cpp \
     Formatter.cpp \
     HashTable.cpp \
     Indentor.cpp \
+    IPC.cpp \
     Logger.cpp \
     Memory.cpp \
     Pair.cpp \
     Queue.cpp \
+    Thread.cpp \
     TraceFileHandler.cpp \
     Tracer.cpp \
     Selector.cpp \
@@ -88,11 +91,9 @@ SOURCES = \
 ##
 ## Took these out again. They broke the NT build.
 ##
-ifdef PEGASUS_CONCURRENT
-SOURCES +=  IPC.cpp DQueue.cpp Thread.cpp
+
 ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 SOURCES += MT_MessageQueue.cpp
-endif
 endif
 
 SYS_LIBS = ws2_32.lib advapi32.lib

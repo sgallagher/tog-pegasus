@@ -1706,6 +1706,11 @@ CIMReference ProviderRegistrationManager::_createInstance(
 			    	//
 			    	_getPropertyNames(instance, _newPropertyNames);
 
+				//
+				// get indication server queueId
+				//
+				MessageQueueService * _service = _getIndicationService();
+
 			    	CIMNotifyProviderRegistrationRequestMessage * notify_req =
 			        new CIMNotifyProviderRegistrationRequestMessage(
 				    XmlWriter::getNextMessageId (),
@@ -1717,12 +1722,9 @@ CIMReference ProviderRegistrationManager::_createInstance(
 				    _oldNamespaces,
 				    _newPropertyNames,
 				    _oldPropertyNames,
-				    QueueIdStack());
+				    QueueIdStack(_service->getQueueId()));
 
-			    	// 
-			    	// ATTN-YZ-P1-20020315: waiting for implementation of
-			    	// control service to send message to subscription service 
-			    	// 
+				_sendMessageToSubscription(notify_req);
 			    }
 
 			    break;
@@ -1831,7 +1833,7 @@ CIMReference ProviderRegistrationManager::_createInstance(
 	    else
 	    {
                 // the provider class was not registered
-		PEG_METHOD_EXIT();
+//		PEG_METHOD_EXIT();
                 throw CIMException(CIM_ERR_FAILED, "PG_Provider class needs "
                    "to be registered before register the Provider capabilities class");
 	    }
@@ -1842,20 +1844,20 @@ CIMReference ProviderRegistrationManager::_createInstance(
     {
 	errorCode = exception.getCode ();
  	errorDescription = exception.getMessage ();
-	PEG_METHOD_EXIT();
 	_repository->write_unlock();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
     catch (Exception & exception)
     {
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage ();
-	PEG_METHOD_EXIT();
 	_repository->write_unlock();
+	PEG_METHOD_EXIT();
 	throw (exception);
     }
 
-    _repository->write_unlock();
+//    _repository->write_unlock();
 
     // Should never get here
     PEGASUS_ASSERT(0);
@@ -2570,6 +2572,11 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
     //
     _getPropertyNames(instance, _oldPropertyNames);
 
+    //
+    // get indication server queueId
+    // 
+    MessageQueueService * _service = _getIndicationService();
+    
     CIMNotifyProviderRegistrationRequestMessage * notify_req =
 	new CIMNotifyProviderRegistrationRequestMessage(
 	    XmlWriter::getNextMessageId (),
@@ -2581,13 +2588,9 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
 	    _namespaces,
 	    _newPropertyNames,
 	    _oldPropertyNames,
-	    QueueIdStack());
+	    QueueIdStack(_service->getQueueId()));
 
-    //
-    // ATTN-YZ-P1-20020315: waiting for implementation of
-    // control service to send message to subscription service
-    //
-
+    _sendMessageToSubscription(notify_req);
 }
 
 //
@@ -2658,6 +2661,11 @@ void ProviderRegistrationManager::_sendModifyNotifyMessage(
     //
     _getPropertyNames(instance, _newPropertyNames);
 
+    //
+    // get indication server
+    // 
+    MessageQueueService * _service = _getIndicationService();
+
     CIMNotifyProviderRegistrationRequestMessage * notify_req =
 	new CIMNotifyProviderRegistrationRequestMessage(
 	    XmlWriter::getNextMessageId (),
@@ -2669,13 +2677,62 @@ void ProviderRegistrationManager::_sendModifyNotifyMessage(
 	    _oldNamespaces,
 	    _newPropertyNames,
 	    _oldPropertyNames,
-	    QueueIdStack());
+	    QueueIdStack(_service->getQueueId()));
+
+    _sendMessageToSubscription(notify_req);
+}
+
+// get indication service
+MessageQueueService * ProviderRegistrationManager::_getIndicationService()
+{
+    MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE);
+
+    MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
+
+    return(_service);
+}
+
+//
+// send notify message to subscription service
+//
+void ProviderRegistrationManager::_sendMessageToSubscription(
+    CIMNotifyProviderRegistrationRequestMessage * notify_req)
+{
+    pegasus_internal_identity _id = peg_credential_types::MODULE;
+    ModuleController * _controller;
+    ModuleController::client_handle *_client_handle;
+
+    _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
+    if((_client_handle == NULL))
+    {
+	ThrowUnitializedHandle();
+    }
 
     //
-    // ATTN-YZ-P1-20020315: waiting for implementation of
-    // control service to send message to subscription service
+    // get indication server queueId
     //
+    MessageQueueService * _service = _getIndicationService();
+    Uint32 _queueId = _service->getQueueId();
 
+    // create request envelope
+    AsyncLegacyOperationStart * asyncRequest =
+    	new AsyncLegacyOperationStart (
+		_service->get_next_xid(),
+		NULL,
+ 		_queueId,	
+		notify_req,
+		_queueId);
+
+    if( false  == _controller->ClientSendForget(
+			   *_client_handle,
+			   _queueId,
+			   asyncRequest))
+    {
+    	delete asyncRequest;
+    	throw CIMException(CIM_ERR_NOT_FOUND);
+    }
+				
+    delete asyncRequest;
 }
 
 PEGASUS_NAMESPACE_END

@@ -108,6 +108,9 @@ TAG: Version_1_09.
    This will help ConsumerTable to load the DisplayConsumer to consume
    the indication passed through ExportServer (CIMExportRequestDispathcer).
 
+18. (Yi Zhou - HP) 15 Apr 2002 - Implemented sending message of provider
+   registration notification to subscription service.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

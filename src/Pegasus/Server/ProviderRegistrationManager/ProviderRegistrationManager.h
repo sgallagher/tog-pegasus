@@ -35,9 +35,10 @@
 #include <Pegasus/Server/ProviderRegistrationManager/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/MessageQueueService.h>
-//#include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Common/CIMMessage.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -105,8 +106,6 @@ public:
 
 protected:
 
-//	ServiceCIMOMHandle _cimom;
-
 	CIMRepository * _repository;
 
 	/**
@@ -126,6 +125,11 @@ protected:
 		const String & className,
 		const String & supportedMethod,
 		const String & providerType);
+
+	MessageQueueService * _getIndicationService();
+
+	void _sendMessageToSubscription(
+		CIMNotifyProviderRegistrationRequestMessage * notify);
 
 private:
 

@@ -396,6 +396,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 				// tracks the message coming from above
 				_transferEncodingChunkOffset = 0;
 				_mpostPrefix.clear();
+				cimException = CIMException();
+				_responsePending = true;
 			}
 			else
 			{
@@ -406,23 +408,30 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 				_transferEncodingChunkOffset++;
 			}
 
-			// this is possible when chunked responses are empty in between the //
-			// isFirst and isLast flags
-			if (messageLength == 0)
-				return false;
+			// save the first error
+			if (httpMessage.cimException.getCode() != CIM_ERR_SUCCESS)
+			{
+				httpStatus = httpMessage.cimException.getMessage();
+				if (cimException.getCode() == CIM_ERR_SUCCESS)
+					cimException = httpMessage.cimException;
+			}
 
 			// check to see if the client requested chunking OR trailers. trailers
 			// are tightly integrated with chunking, so it can also be used.
 
-			if (_transferEncodingTEValues.size() > 0 && 
-					(Contains(_transferEncodingTEValues, String(headerValueTEchunked)) ||
-					 Contains(_transferEncodingTEValues, String(headerValueTEtrailers))))
+			if (isChunkRequested() == true)
 			{
 				isChunkRequest = true;
 			}
 			else
 			{
 				// we are not sending chunks because the client did not request it
+
+				if (httpMessage.cimException.getCode() != CIM_ERR_SUCCESS)
+				{
+					cimException = CIMException(cimException.getCode(),
+																			String(messageStart, messageLength));
+				}
 
 				if (isFirst == false)
 				{
@@ -435,12 +444,37 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 					// null terminate
 					messageStart = (Sint8 *) _incomingBuffer.getData();
 					messageStart[messageLength] = 0;
+					// put back in buffer, so the httpMessage parser can work below
 					_incomingBuffer.swap(buffer);
 				}
 
 				if (isLast == false)
+				{
+					
+					// this tells the send loop below to do nothing until we are at the
+					// last response
 					bytesRemaining = 0;
-				else bytesRemaining = messageLength;
+				}
+				else
+				{
+					if (cimException.getCode() != CIM_ERR_SUCCESS)
+					{
+						buffer.clear();
+						// discard all data collected to this point
+						_incomingBuffer.clear();
+						String messageS = cimException.getMessage();
+						CString messageC = messageS.getCString();
+						messageStart = (char *)(const char *)messageC;
+						messageLength = messageS.size();
+						buffer.reserveCapacity(messageLength+1);
+						buffer.append(messageStart, messageLength);
+						// null terminate
+						messageStart = (Sint8 *) buffer.getData();
+						messageStart[messageLength] = 0;
+					}
+
+					bytesRemaining = messageLength;
+				}
 
 			} // if not sending chunks
 		
@@ -612,7 +646,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 		Sint8 *sendStart = messageStart;
 		Sint32 bytesWritten = 0;
 		
-		if (isFirst == true && isChunkResponse == true)
+		if (isFirst == true && isChunkResponse == true && bytesToWrite > 0)
 		{
 			// send the header first for chunked reponses.
 
@@ -703,7 +737,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						_throwEventFailure(httpStatusInternal, 
 															 "more bytes after indicated last chunk");
 					trailer << "0" << chunkLineTerminator;
-					Uint32 httpStatus = httpMessage.cimException.getCode();
+					Uint32 httpStatus = cimException.getCode();
 
 					if (httpStatus != 0)
 					{
@@ -712,7 +746,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 						trailer << _mpostPrefix << headerNameCode << headerNameTerminator 
 										<< httpStatusP << headerLineTerminator;
-						const String& httpDescription = httpMessage.cimException.getMessage();
+						const String& httpDescription = cimException.getMessage();
 						if (httpDescription.size() != 0)
 							trailer << _mpostPrefix << headerNameDescription << 
 								headerNameTerminator << httpDescription << headerLineTerminator;
@@ -740,23 +774,18 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 	catch (Exception &e)
 	{
 		httpStatus = e.getMessage();
-		_connectionClosePending = true;
 	}
 	catch (...)
 	{
 		httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
-		_connectionClosePending = true;
 		String message("Unknown internal error");
 		Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, message);
 	}
 
-	if (httpStatus.size() > 0)
-		isLast = true;
-
 	if (isLast == true)
 	{
-                _incomingBuffer.clear();
-                _transferEncodingTEValues.clear();
+		_incomingBuffer.clear();
+		_transferEncodingTEValues.clear();
 
      //
      // handle automatic truststore update, if enabled
@@ -785,7 +814,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 		//
 		
 		_requestCount--;
-		_responsePending = false;
 
 		if (httpStatus.size() == 0)
 		{
@@ -798,29 +826,20 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 										messageLength, _requestCount.value(), _connectionRequestCount);
 		}
 
-                //
-                // Since we are done writing, update the status of entry to IDLE
-                // and notify the Monitor. 
-                //
-                if (_isClient() == false && !_connectionClosePending)
-                {
-                    Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-                        "Now setting state to %d", _MonitorEntry::IDLE);
-                    _monitor->setState (_entry_index, _MonitorEntry::IDLE);
-                    _monitor->tickle();
-                }
+		//
+		// Since we are done writing, update the status of entry to IDLE
+		// and notify the Monitor. 
+		//
+		if (_isClient() == false)
+		{
+			Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+										 "Now setting state to %d", _MonitorEntry::IDLE);
+			_monitor->setState (_entry_index, _MonitorEntry::IDLE);
+			_monitor->tickle();
+			_responsePending = false;
+			cimException = CIMException();
+		}
 	}
-	
-        //
-        // Check if there was an error writing, if so close the connection.
-        //
-        if (_isClient() == false && _connectionClosePending)
-        {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                 "Error in writing, closing connection");
-            _responsePending = true;
-            _closeConnection();
-        }  
 
 	_socket->disableBlocking();
 	return httpStatus.size() == 0 ? false : true;
@@ -1085,32 +1104,55 @@ void HTTPConnection::_closeConnection()
    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
    _connectionClosePending = true; 
 
-   if (_responsePending)
-   {
-       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-         "HTTPConnection::_closeConnection - Connection being closed with response still pending.");
-   }
+	 // NOTE: if there is a response pending while a close connection request
+	 // occurs, then this indicates potential activity on this connection apart
+	 // from this thread of execution (although this code here is locked, other 
+	 // threads may be waiting on this one.)
+	 // The caller MUST check this value before attempting a delete of this
+	 // connnection, otherwise the delete may occur while other chunked responses
+	 // are waiting to be delivered through this connection. 
+	 // This condition may happen on a client error/timeout/interrupt/disconnect
 
+   if (_isClient() == false)
+   {
+		 if (_responsePending == true)
+		 {
+			 Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+				 "HTTPConnection::_closeConnection - Close connection requested while "
+				 "responses are still expected on this connection. "
+				 "connection=0x%x, socket=%d\n", (int)this, getSocket());
+
+		 }
+
+		 // still set to DYING
+		 Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+									 "Now setting state to %d", _MonitorEntry::DYING);
+		 _monitor->setState (_entry_index, _MonitorEntry::DYING);
+		 _monitor->tickle();
+	 }
+	 
    if (_connectionRequestCount == 0)
    {
        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
          "HTTPConnection::_closeConnection - Connection being closed without receiving any requests.");
    }
 
-   if (_isClient()==false && _connectionClosePending)
-   {
-       Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-            "Now setting state to %d", _MonitorEntry::DYING);
-       _monitor->setState (_entry_index, _MonitorEntry::DYING);
-       _monitor->tickle();
-   }
-       
    PEG_METHOD_EXIT();
 
 //     Message* message= new CloseConnectionMessage(_socket->getSocket));
 //     message->dest = _ownerMessageQueue->getQueueId();
 //    SendForget(message);
 //    _ownerMessageQueue->enqueue(message);
+}
+
+Boolean HTTPConnection::isChunkRequested()
+{
+	Boolean answer = false;
+	if (_transferEncodingTEValues.size() > 0 && 
+			(Contains(_transferEncodingTEValues, String(headerValueTEchunked)) ||
+			 Contains(_transferEncodingTEValues, String(headerValueTEtrailers))))
+		answer = true;
+	return answer;
 }
 
 // determine if the current code being executed is on the client side
@@ -1627,7 +1669,6 @@ void HTTPConnection::_handleReadEvent()
         {
            _requestCount++;
            _connectionRequestCount++;
-           _responsePending = true;
         }
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "_requestCount = %d", _requestCount.value());

@@ -40,6 +40,7 @@
 //              Seema Gupta (gseema@in.ibm.com) for PEP135
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //				Willis White (whiwill@us.ibm.com) PEP 127 and 128
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,6 +48,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <cctype>
 #include <cstdio>
+#include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -82,136 +84,172 @@ CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 
 }
 
-void CIMOperationResponseEncoder::sendResponse
-(Uint32 queueId, Array<Sint8>& message, Boolean isLast, Uint32 messageIndex, 
- const CIMException* cimException)
+void 
+CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
+																					const String &name,
+																					Boolean isImplicit,
+																					Array<Sint8> *bodygiven)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::sendResponse()");
-   MessageQueue* queue = MessageQueue::lookup(queueId);
+	static String funcname = "CIMOperationResponseEncoder::sendResponse: ";
+	PEG_METHOD_ENTER(TRC_DISPATCHER, String(funcname + "for class " + name).getCString());
 
-   if (queue)
-   {
-		  CIMException cimExceptionDescription;
-			if (cimException && cimException->getCode() != CIM_ERR_SUCCESS)
+	if (! response)
+	{
+		PEG_METHOD_EXIT();
+		return;
+	}
+
+	Uint32 queueId = response->queueIds.top();
+	response->queueIds.pop();
+
+	MessageQueue* queue = MessageQueue::lookup(queueId);
+
+	if (!queue)
+	{
+		Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2, 
+									"ERROR: non-existent queueId = %u, response not sent.", queueId);
+		PEG_METHOD_EXIT();
+		return;
+	}
+
+	HTTPConnection *httpQueue = dynamic_cast<HTTPConnection *>(queue);
+
+	if (! httpQueue)
+	{
+		Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2, 
+									"ERROR: Unknown queue type. queueId = %u, response not sent.",
+									queueId);
+		PEG_METHOD_EXIT();
+		return;
+	}
+
+	Boolean isChunkRequest = httpQueue->isChunkRequested();
+	HttpMethod httpMethod = response->getHttpMethod();
+	String &messageId = response->messageId;
+	CIMException &cimException = response->cimException;
+	Array<Sint8> message;
+	const OperationContext::Container &container = 
+		response->operationContext.get(ContentLanguageListContainer::NAME);
+	const ContentLanguageListContainer &listContainer =
+		*dynamic_cast<const ContentLanguageListContainer *>(&container);
+	ContentLanguages language = listContainer.getLanguages();
+	CIMName cimName(name);
+	Uint32 messageIndex = response->getIndex();
+	Boolean isFirst = messageIndex == 0 ? true : false;
+	Boolean isLast = response->isComplete();
+	Uint64 serverTime	= response->totServerTime;
+	Array<Sint8> bodylocal;
+	Array<Sint8> &body = bodygiven ? *bodygiven : bodylocal;
+
+	Array<Sint8> (*formatResponse)(const CIMName& iMethodName,
+																 const String& messageId,
+																 HttpMethod httpMethod,
+																 const ContentLanguages &httpContentLanguages, 
+																 const Array<Sint8>& body,
+																 Uint64 serverResponseTime,
+																 Boolean isFirst,
+																 Boolean isLast);
+
+	Array<Sint8> (*formatError)(const CIMName& methodName,
+															const String& messageId,
+															HttpMethod httpMethod,
+															const CIMException& cimException);
+
+	if (isImplicit == false)
+	{
+		formatResponse = XmlWriter::formatSimpleMethodRspMessage;
+		formatError = XmlWriter::formatSimpleMethodErrorRspMessage;
+	}
+	else
+	{
+		formatResponse = XmlWriter::formatSimpleIMethodRspMessage;
+ 		formatError = XmlWriter::formatSimpleIMethodErrorRspMessage;
+	}
+
+	if (cimException.getCode() != CIM_ERR_SUCCESS)
+	{
+		STAT_SERVEREND_ERROR
+
+		if (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS)
+		{
+
+			if (isChunkRequest == false)
+				message = formatError(name, messageId, httpMethod, cimException);
+
+			// uri encode the error (for the http header) only when it is 
+			// non-chunking or the first error with chunking
+			if (isChunkRequest == false || (isChunkRequest == true && isFirst == true))
 			{
-				String msg = XmlWriter::encodeURICharacters
-					(TraceableCIMException(*cimException).getDescription());
-				cimExceptionDescription = CIMException(cimException->getCode(), msg);
+				String msg = TraceableCIMException(cimException).getDescription();
+				String uriEncodedMsg = XmlWriter::encodeURICharacters(msg);
+				cimException = CIMException(cimException.getCode(), uriEncodedMsg);
 			}
-      AutoPtr<HTTPMessage> httpMessage(new HTTPMessage
-																			 (message, 0, &cimExceptionDescription));
-			httpMessage->setComplete(isLast);
-			httpMessage->setIndex(messageIndex);
-      Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
-			  httpMessage->message.getData(), httpMessage->message.size());
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		  "CIMOperationResponseEncoder::SendResponse - QueueId: $0  XML content: $1",
-									queueId,
-                  String(httpMessage->message.getData(),httpMessage->message.size()));
+		} // if first error in response stream
 
-      queue->enqueue(httpMessage.release());
+		// never put the error in chunked response (because it will end up in
+		// the trailer), so just use the non-error response formatter so send
+		// more data
 
-#ifdef PEGASUS_CCOVER
-      cov_write();
+		if (isChunkRequest == true)
+		{
+			message = formatResponse(cimName, messageId, httpMethod, 
+															 language, body, serverTime, isFirst, isLast);
+		}
+	}
+	else
+	{
+		// else non-error condition
+		STAT_SERVEREND
+		try
+		{
+			message = formatResponse(cimName, messageId, httpMethod, 
+															 language, body, serverTime, isFirst, isLast);
+		}
+
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+   catch (std::bad_alloc&)
+#else
+   catch (bad_alloc&)
 #endif
-   }
-   else
-   {
-      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2, 
-		    "Invalid queueId = %i, response not sent.", queueId);
-   }
+	 {
+		 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+								 funcname + OUT_OF_MEMORY_MESSAGE);
 
-   PEG_METHOD_EXIT();
-}
+		 cimException = PEGASUS_CIM_EXCEPTION_L
+			 (CIM_ERR_FAILED,
+				MessageLoaderParms("Server.CIMOperationResponseEncoder.OUT_OF_MEMORY", 
+													 OUT_OF_MEMORY_MESSAGE));
+		 response->cimException = cimException;
+		 // try again with new error and no body
+		 body.clear();
+		 sendResponse(response, name, isImplicit);
+		 return;
+	 }
+	 
+	 STAT_BYTESSENT
 
-// Code is duplicated in CIMOperationRequestDecoder
-void CIMOperationResponseEncoder::sendIMethodError(
-   Uint32 queueId, 
-   HttpMethod httpMethod,
-   const String& messageId,
-   const String& iMethodName,
-   const CIMException& cimException,
-	 Uint32 messageIndex)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-                     "CIMOperationResponseEncoder::sendIMethodError()");
+	}
 
-    Array<Sint8> message;
-    message = XmlWriter::formatSimpleIMethodErrorRspMessage(
-        iMethodName,
-        messageId,
-        httpMethod,
-        cimException);
+	AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message, 0, &cimException));
+	httpMessage->setComplete(isLast);
+	httpMessage->setIndex(messageIndex);
+	Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
+											httpMessage->message.getData(),
+											httpMessage->message.size());
+	
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+							"CIMOperationResponseEncoder::sendResponse - QueueId: $0  "
+							"XML content: $1",queueId,
+							String(message.getData(), message.size()));
+	
+	queue->enqueue(httpMessage.release());
+	
+#ifdef PEGASUS_CCOVER
+	cov_write();
+#endif
 
-    sendResponse(queueId, message, true, messageIndex, &cimException);
-
-    PEG_METHOD_EXIT();
-}
-
-void CIMOperationResponseEncoder::sendIMethodError(
-   CIMResponseMessage* response,
-   const String& cimMethodName)
-{
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::sendIMethodError()");
-
-   Uint32 queueId = response->queueIds.top();
-   response->queueIds.pop();
-
-   sendIMethodError(
-      queueId,
-      response->getHttpMethod(),
-      response->messageId, 
-      cimMethodName, 
-      response->cimException,
-			response->getIndex()); 
-
-   PEG_METHOD_EXIT();
-}
-
-void CIMOperationResponseEncoder::sendMethodError(
-   Uint32 queueId, 
-   HttpMethod httpMethod,
-   const String& messageId,
-   const CIMName& methodName,
-   const CIMException& cimException,
-	 Uint32 messageIndex)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-                     "CIMOperationResponseEncoder::sendMethodError()");
-
-    Array<Sint8> message;
-    message = XmlWriter::formatSimpleMethodErrorRspMessage(
-        methodName,
-        messageId,
-        httpMethod,
-        cimException);
-
-    sendResponse(queueId, message, true, messageIndex, &cimException);
-
-    PEG_METHOD_EXIT();
-}
-
-void CIMOperationResponseEncoder::sendMethodError(
-   CIMResponseMessage* response,
-   const CIMName& cimMethodName)
-{
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::sendMethodError()");
-
-   Uint32 queueId = response->queueIds.top();
-   response->queueIds.pop();
-
-   sendMethodError(
-      queueId,
-      response->getHttpMethod(),
-      response->messageId, 
-      cimMethodName, 
-      response->cimException,
-			response->getIndex());
-   PEG_METHOD_EXIT();
+	PEG_METHOD_EXIT();	
 }
 
 void CIMOperationResponseEncoder::handleEnqueue(Message *message)
@@ -370,895 +408,223 @@ void CIMOperationResponseEncoder::handleEnqueue()
 void CIMOperationResponseEncoder::encodeCreateClassResponse(
    CIMCreateClassResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeCreateClassResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "CreateClass");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-	STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("CreateClass"), response->messageId, 
-      response->getHttpMethod(), 
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-
-   PEG_METHOD_EXIT();
+	sendResponse(response, "CreateClass", true);
 }
 
 void CIMOperationResponseEncoder::encodeGetClassResponse(
    CIMGetClassResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeGetClassResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "GetClass");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-   XmlWriter::appendClassElement(body, response->cimClass);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("GetClass"), response->messageId, 
-      response->getHttpMethod(), 
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),      
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-
-   PEG_METHOD_EXIT();
+	Array<Sint8> body;
+	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		XmlWriter::appendClassElement(body, response->cimClass);
+	sendResponse(response, "GetClass", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeModifyClassResponse(
    CIMModifyClassResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeModifyClassResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "ModifyClass");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("ModifyClass"), response->messageId, 
-      response->getHttpMethod(), 
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-
-   PEG_METHOD_EXIT();
+	sendResponse(response, "ModifyClass", true);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
    CIMEnumerateClassNamesResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeEnumerateClassNamesResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "EnumerateClassNames");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-   for (Uint32 i = 0; i < response->classNames.size(); i++)
-      XmlWriter::appendClassNameElement(body, response->classNames[i]);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("EnumerateClassNames"), response->messageId, 
-      response->getHttpMethod(), 
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-
-   PEG_METHOD_EXIT();
+	Array<Sint8> body;
+	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		for (Uint32 i = 0, n = response->classNames.size(); i < n; i++)
+			XmlWriter::appendClassNameElement(body, response->classNames[i]);
+	sendResponse(response, "EnumerateClassNames", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
    CIMEnumerateClassesResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeEnumerateClassesResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "EnumerateClasses");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-   Array<Sint8> message;
-
-   try
-   {
-       for (Uint32 i = 0; i < response->cimClasses.size(); i++)
-          XmlWriter::appendClassElement(body, response->cimClasses[i]);
-
-	   STAT_SERVEREND
-
-       message = XmlWriter::formatSimpleIMethodRspMessage(
-          CIMName ("EnumerateClasses"), response->messageId, 
-          response->getHttpMethod(), 
-		  	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),           
-          body,
-		  response->totServerTime);
-
-       STAT_BYTESSENT
-   }
-   // This operation may result in a large response. Handle the bad_alloc
-   // exception and send an error response.
-
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-   catch (std::bad_alloc&)
-#else
-   catch (bad_alloc&)
-#endif
-   {
-       // ATTN-SF-P5-20021004 A message should be logged here
-       // indicating the out of memory message.
-
-     // l10n
-     CIMException cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-				  MessageLoaderParms(
-				    "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY", 
-				     OUT_OF_MEMORY_MESSAGE));
-
-     // CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-     //                            OUT_OF_MEMORY_MESSAGE);
-
-       response->cimException = cimException;
-       sendIMethodError(response, "EnumerateClasses");
-       PEG_METHOD_EXIT();
-       return;
-   }
-
-       sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-       PEG_METHOD_EXIT();
+	Array<Sint8> body;
+	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		for (Uint32 i = 0, n= response->cimClasses.size(); i < n; i++)
+			XmlWriter::appendClassElement(body, response->cimClasses[i]);
+	sendResponse(response, "EnumerateClasses", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeDeleteClassResponse(
    CIMDeleteClassResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeDeleteClassResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "DeleteClass");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("DeleteClass"), response->messageId, 
-      response->getHttpMethod(), 
-	  	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),       
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	sendResponse(response, "DeleteClass", true);
 }
 
 void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
    CIMCreateInstanceResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeCreateInstanceResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "CreateInstance");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-
-   XmlWriter::appendInstanceNameElement(body, response->instanceName);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("CreateInstance"), response->messageId, 
-      response->getHttpMethod(), 
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 XmlWriter::appendInstanceNameElement(body, response->instanceName);
+	 sendResponse(response, "CreateInstance", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeGetInstanceResponse(
    CIMGetInstanceResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeGetInstanceResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "GetInstance");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-   XmlWriter::appendInstanceElement(body, response->cimInstance);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("GetInstance"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 XmlWriter::appendInstanceElement(body, response->cimInstance);
+	 sendResponse(response, "GetInstance", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
    CIMModifyInstanceResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeModifyInstanceResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "ModifyInstance");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("ModifyInstance"), response->messageId, 
-      response->getHttpMethod(), 
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	sendResponse(response, "ModifyInstance", true);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
    CIMEnumerateInstancesResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeEnumerateInstancesResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "EnumerateInstances");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-   Array<Sint8> message;
-
-  
-   try
-   {
-       for (Uint32 i = 0; i < response->cimNamedInstances.size(); i++)
-          XmlWriter::appendValueNamedInstanceElement(
-              body, response->cimNamedInstances[i]);
-
-	   STAT_SERVEREND
-       message = XmlWriter::formatSimpleIMethodRspMessage(
-          CIMName ("EnumerateInstances"), response->messageId, 
-          response->getHttpMethod(),
-          	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-          body, response->totServerTime,
-		  response->isFirst(), response->isComplete());
-
-   
-   }
-   // This operation may result in a large response. Handle the bad_alloc
-   // exception and send an error response.
-
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-   catch (std::bad_alloc&)
-#else
-   catch (bad_alloc&)
-#endif
-   {
-       // ATTN-SF-P5-20021004 A message should be logged here
-       // indicating the out of memory message.
-
-
-     // l10n
-     CIMException cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-				     MessageLoaderParms(
-					"Server.CIMOperationResponseEncoder.OUT_OF_MEMORY", 
-					 OUT_OF_MEMORY_MESSAGE));
-
-       // CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-       //                            OUT_OF_MEMORY_MESSAGE);
-
-       response->cimException = cimException;
-       sendIMethodError(response, "EnumerateInstances");
-       PEG_METHOD_EXIT();
-       return;
-   }
-
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	Array<Sint8> body;
+	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		for (Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
+			XmlWriter::appendValueNamedInstanceElement(body, response->cimNamedInstances[i]);
+	sendResponse(response, "EnumerateInstances", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
    CIMEnumerateInstanceNamesResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeEnumerateInstanceNamesResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "EnumerateInstanceNames");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-
-   for (Uint32 i = 0; i < response->instanceNames.size(); i++)
-      XmlWriter::appendInstanceNameElement(body, response->instanceNames[i]);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("EnumerateInstanceNames"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->totServerTime,
-	  response->isFirst(), response->isComplete());
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 for (Uint32 i = 0, n = response->instanceNames.size(); i < n; i++)
+			 XmlWriter::appendInstanceNameElement(body, response->instanceNames[i]);
+	 sendResponse(response, "EnumerateInstanceNames", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
    CIMDeleteInstanceResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeDeleteInstanceResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "DeleteInstance");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("DeleteInstance"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	sendResponse(response, "DeleteInstance", true);
 }
 
 void CIMOperationResponseEncoder::encodeGetPropertyResponse(
    CIMGetPropertyResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeGetPropertyResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "GetProperty");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-   XmlWriter::appendValueElement(body, response->value);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("GetProperty"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	Array<Sint8> body;
+	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		XmlWriter::appendValueElement(body, response->value);
+	sendResponse(response, "GetProperty", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeSetPropertyResponse(
    CIMSetPropertyResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeSetPropertyResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "SetProperty");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("SetProperty"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	sendResponse(response, "SetProperty", true);
 }
 
 void CIMOperationResponseEncoder::encodeSetQualifierResponse(
    CIMSetQualifierResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeSetQualifierResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "SetQualifier");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("SetQualifier"), response->messageId, 
-      response->getHttpMethod(),
-	  	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),       
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	sendResponse(response, "SetQualifier", true);
 }
 
 void CIMOperationResponseEncoder::encodeGetQualifierResponse(
    CIMGetQualifierResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeGetQualifierResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "GetQualifier");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-   XmlWriter::appendQualifierDeclElement(body, response->cimQualifierDecl);
-
-	STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("GetQualifier"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	Array<Sint8> body;
+	if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		XmlWriter::appendQualifierDeclElement(body, response->cimQualifierDecl);
+	sendResponse(response, "GetQualifier", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
    CIMEnumerateQualifiersResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeEnumerateQualifierResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "EnumerateQualifiers");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-
-   for (Uint32 i = 0; i < response->qualifierDeclarations.size(); i++)
-      XmlWriter::appendQualifierDeclElement(body, response->qualifierDeclarations[i]);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("EnumerateQualifiers"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 for (Uint32 i = 0, n = response->qualifierDeclarations.size(); i < n;i++)
+			 XmlWriter::appendQualifierDeclElement(body, response->qualifierDeclarations[i]);
+	 sendResponse(response, "EnumerateQualifiers", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
    CIMDeleteQualifierResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeDeleteQualifierResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "DeleteQualifier");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   Array<Sint8> body;
-
-	STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("DeleteQualifier"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	sendResponse(response, "DeleteQualifier", true);
 }
 
 void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
    CIMReferenceNamesResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeReferenceNamesResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "ReferenceNames");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-
-   for (Uint32 i = 0; i < response->objectNames.size(); i++)
-   {
-      body << "<OBJECTPATH>\n";
-      XmlWriter::appendValueReferenceElement(body, response->objectNames[i], false);
-      body << "</OBJECTPATH>\n";
-   }
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("ReferenceNames"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->totServerTime,
-	  response->isFirst(), response->isComplete());
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
+		 {
+			 body << "<OBJECTPATH>\n";
+			 XmlWriter::appendValueReferenceElement(body, response->objectNames[i],
+																							false);
+			 body << "</OBJECTPATH>\n";
+		 }
+	 sendResponse(response, "ReferenceNames", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeReferencesResponse(
    CIMReferencesResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeReferencesResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "References");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-
-   for (Uint32 i = 0; i < response->cimObjects.size(); i++)
-      XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("References"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->totServerTime,
-	  response->isFirst(), response->isComplete());
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 for (Uint32 i = 0, n = response->cimObjects.size(); i < n;i++)
+			 XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
+	 sendResponse(response, "References", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
    CIMAssociatorNamesResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeAssociatorNamesResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "AssociatorNames");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-
-   for (Uint32 i = 0; i < response->objectNames.size(); i++)
-   {
-      body << "<OBJECTPATH>\n";
-      XmlWriter::appendValueReferenceElement(body, response->objectNames[i], false);
-      body << "</OBJECTPATH>\n";
-   }
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("AssociatorNames"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->totServerTime, 
-	  response->isFirst(), response->isComplete());
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
+		 {
+			 body << "<OBJECTPATH>\n";
+			 XmlWriter::appendValueReferenceElement(body, response->objectNames[i], false);
+			 body << "</OBJECTPATH>\n";
+		 }
+	 sendResponse(response, "AssociatorNames", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeAssociatorsResponse(
    CIMAssociatorsResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeAssociatorsResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "Associators");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-
-   for (Uint32 i = 0; i < response->cimObjects.size(); i++)
-      XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("Associators"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body, response->totServerTime,
-	  response->isFirst(), response->isComplete());
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 for (Uint32 i = 0, n = response->cimObjects.size(); i < n; i++)
+			 XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
+	 sendResponse(response, "Associators", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeExecQueryResponse(
    CIMExecQueryResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-                    "CIMOperationResponseEncoder::encodeExecQueryResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendIMethodError(response, "ExecQuery");
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
-
-   for (Uint32 i = 0; i < response->cimObjects.size(); i++)
-      XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
-
-   STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      CIMName ("ExecQuery"), response->messageId, 
-      response->getHttpMethod(),
-      	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
-      body,
-	  response->totServerTime);
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+		 for (Uint32 i = 0; i < response->cimObjects.size(); i++)
+			 XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
+	 sendResponse(response, "ExecQuery", true, &body);
 }
 
 void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
     CIMInvokeMethodResponseMessage* response)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
-		    "encodeInvokeMethodResponse()");
-
-   if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-   {
-      STAT_SERVEREND_ERROR
-
-      sendMethodError(response, response->methodName);
-      PEG_METHOD_EXIT();
-      return;
-   }
-
    Array<Sint8> body;
 
    // ATTN-RK-P3-20020219: Who's job is it to make sure the return value is
    // not an array?
    // Only add the return value if it is not null
-   if (!response->retValue.isNull())
-   {
-      XmlWriter::appendReturnValueElement(body, response->retValue);
-   }
 
-   for (Uint32 i=0; i < response->outParameters.size(); i++)
-   {
-      XmlWriter::appendParamValueElement(body, response->outParameters[i]);
-   }
-
-	STAT_SERVEREND
-
-   Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(
-       response->methodName, response->messageId, 
-       response->getHttpMethod(), 
-       	  ((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
-       body, response->totServerTime,
-	   response->isFirst(), response->isComplete());
-
-   STAT_BYTESSENT
-
-   sendResponse(response->queueIds.top(), message, response->isComplete(), response->getIndex());
-   PEG_METHOD_EXIT();
+	 if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+	 {
+		 if (!response->retValue.isNull())
+			 XmlWriter::appendReturnValueElement(body, response->retValue);
+		 
+		 for (Uint32 i=0, n = response->outParameters.size(); i < n; i++)
+			 XmlWriter::appendParamValueElement(body, response->outParameters[i]);
+	 }
+	 sendResponse(response, response->methodName.getString(), false, &body);
 }
 
 PEGASUS_NAMESPACE_END

@@ -33,6 +33,7 @@
 //              Sushma Fernandes, Hewlett-Packard Company
 //                (sushma_fernandes@hp.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,31 +62,10 @@ class CIMOperationResponseEncoder : public MessageQueueService
 
       ~CIMOperationResponseEncoder();
 
-      void sendResponse(Uint32 queueId, Array<Sint8>& message, Boolean isLast = true, Uint32 messageIndex = 0, const CIMException* cimException = 0);
-
-      void sendMethodError(
-	 Uint32 queueId, 
-         HttpMethod httpMethod,
-	 const String& messageId,
-	 const CIMName& methodName,
-	 const CIMException& cimException,
-	 Uint32 messageIndex);
-
-      void sendMethodError(
-	 CIMResponseMessage* response,
-	 const CIMName& cimMethodName);
-
-      void sendIMethodError(
-	 Uint32 queueId, 
-         HttpMethod httpMethod,
-	 const String& messageId,
-	 const String& methodName,
-	 const CIMException& cimException,
-	 Uint32 messageIndex);
-
-      void sendIMethodError(
-	 CIMResponseMessage* response,
-	 const String& cimMethodName);
+			void sendResponse(CIMResponseMessage* response,
+												const String &name,
+												Boolean isImplicit,
+												Array<Sint8> *bodygiven = 0);
 
       virtual void handleEnqueue(Message *);
       

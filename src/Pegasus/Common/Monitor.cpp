@@ -447,13 +447,35 @@ Boolean Monitor::run(Uint32 milliseconds)
 
     for( int indx = 0; indx < (int)_entries.size(); indx++)
     {
-       if ((_entries[indx]._status.value() == _MonitorEntry::DYING) &&
-                (_entries[indx]._type == Monitor::CONNECTION))
+			 const _MonitorEntry &entry = _entries[indx];
+       if ((entry._status.value() == _MonitorEntry::DYING) &&
+					 (entry._type == Monitor::CONNECTION))
        {
-          MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
+          MessageQueue *q = MessageQueue::lookup(entry.queueId);
           PEGASUS_ASSERT(q != 0);
-          MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
-          Message* message= new CloseConnectionMessage(_entries[indx].socket);
+          HTTPConnection &h = *static_cast<HTTPConnection *>(q);
+					
+					if (h._connectionClosePending == false)
+						continue;
+
+					// NOTE: do not attempt to delete while there are pending responses
+					// coming thru. The last response to come thru after a 
+					// _connectionClosePending will reset _responsePending to false
+					// and then cause the monitor to rerun this code and clean up.
+					// (see HTTPConnection.cpp)
+
+					if (h._responsePending == true)
+					{
+						Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Monitor::run - "
+													"Ignoring connection delete request because "
+													"responses are still pending. "
+													"connection=0x%x, socket=%d\n", 
+													(int)&h, h.getSocket());
+						continue;
+					}
+					h._connectionClosePending = false;
+          MessageQueue &o = h.get_owner();
+          Message* message= new CloseConnectionMessage(entry.socket);
           message->dest = o.getQueueId();
 
           // HTTPAcceptor is responsible for closing the connection. 

@@ -134,6 +134,9 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 	 return *_ownerMessageQueue;
       }
       
+			// was the request for chunking ?
+			Boolean isChunkRequested();
+
       // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
       // server and tests to run successfully.  The problem is that the
       // HTTPAcceptor is deleting an HTTPConnection before all the threads
@@ -146,6 +149,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       // deletes the HTTPConnection in that window, the soon-to-be-launched
       // HTTPConnection event thread will fail (hard).
       AtomicInt refcount;
+
+      CIMException cimException;
 
    private:
 
@@ -280,7 +285,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
       Mutex _reentry;
 
       static AtomicInt _requestCount;
-      
+
       friend class monitor_2;
       friend class HTTPAcceptor;
 };

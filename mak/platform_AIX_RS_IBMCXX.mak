@@ -6,14 +6,13 @@ ARCHITECTURE = rs
 
 COMPILER = xlc
 
-SYS_INCLUDES = 
-    #-I$(ROOT)/src/stdcxx/alloc \
-    #-I$(ROOT)/src/stdcxx/stream \
-    #-I$(ROOT)/src/stdcxx/cwrappers
+SYS_INCLUDES = -I/usr/vacpp/include
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
 DEPEND_INCLUDES =
+
+DEPEND_DEFINES = -D__IBMCPP__=500
 
 ifdef PEGASUS_DEBUG
 FLAGS = -g
@@ -21,9 +20,14 @@ else
 FLAGS = -O2
 endif
 
-FLAGS += -qrtti=dyna
+FLAGS += -qrtti=dyna 
 
 SYS_LIBS = -ldl 
+
+# SSL support
+FLAGS += -DPEGAUS_HAS_SSL
+SYS_INCLUDES += -I/usr/linux/include
+SYS_LIBS += -L/usr/linux/lib -lssl
 
 CXX = xlC_r
 
@@ -36,3 +40,7 @@ COPY = cp
 MOVE = mv
 
 LIB_SUFFIX = .so
+
+ifndef PEGASUS_USE_MU_DEPEND
+PEGASUS_HAS_MAKEDEPEND = yes
+endif

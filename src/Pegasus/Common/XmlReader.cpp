@@ -47,6 +47,9 @@
 #include "CIMParamValue.h"
 #include "System.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 
@@ -74,13 +77,33 @@ void XmlReader::getXmlDeclaration(
 	entry.type != XmlEntry::XML_DECLARATION ||
 	strcmp(entry.text, "xml") != 0)
     {
-	throw XmlValidationError(parser.getLine(),
-	    "Expected <?xml ... ?> style declaration");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Expected <?xml ... ?> style declaration");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_XML_STYLE",
+				 "Expected $0 style declaration",
+				 "<?xml ... ?>");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
-    if (!entry.getAttributeValue("version", xmlVersion))
-	throw XmlValidationError(
-	    parser.getLine(), "missing xml.version attribute");
+    if (!entry.getAttributeValue("version", xmlVersion)) {
+
+      // l10n
+
+      // throw XmlValidationError(
+      //   parser.getLine(), "missing xml.version attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "missing $0 attribute",
+				 "xml.version");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
 
     if (!entry.getAttributeValue("encoding", xmlEncoding))
     {
@@ -124,9 +147,17 @@ void XmlReader::expectStartTag(
 	entry.type != XmlEntry::START_TAG ||
 	strcmp(entry.text, tagName) != 0)
     {
-	char message[MESSAGE_SIZE];
-	sprintf(message, "Expected open of %s element", tagName);
-	throw XmlValidationError(parser.getLine(), message);
+      // l10n
+
+      // char message[MESSAGE_SIZE];
+      // sprintf(message, "Expected open of %s element", tagName);
+      // throw XmlValidationError(parser.getLine(), message);
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OPEN",
+				 "Expected open of $0 element",
+				 tagName);
+
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -144,10 +175,19 @@ void XmlReader::expectEndTag(XmlParser& parser, const char* tagName)
 	entry.type != XmlEntry::END_TAG ||
 	strcmp(entry.text, tagName) != 0)
     {
-	char message[MESSAGE_SIZE];
-	sprintf(message, "Expected close of %s element, got %s instead",
-              tagName,entry.text);
-	throw XmlValidationError(parser.getLine(), message);
+
+      // l10n
+
+      // char message[MESSAGE_SIZE];
+      // sprintf(message, "Expected close of %s element, got %s instead",
+      //     tagName,entry.text);
+      // throw XmlValidationError(parser.getLine(), message);
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CLOSE",
+				 "Expected close of $0 element, got $1 instead",
+				 tagName,entry.text);
+
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -167,10 +207,18 @@ void XmlReader::expectStartTagOrEmptyTag(
 	entry.type != XmlEntry::EMPTY_TAG) ||
 	strcmp(entry.text, tagName) != 0)
     {
-	char message[MESSAGE_SIZE];
-	sprintf(message, 
-	    "Expected either open or open/close %s element", tagName);
-	throw XmlValidationError(parser.getLine(), message);
+      // l10n
+      
+      // char message[MESSAGE_SIZE];
+      // sprintf(message, 
+      //   "Expected either open or open/close %s element", tagName);
+      // throw XmlValidationError(parser.getLine(), message);
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OPENCLOSE",
+				 "Expected either open or open/close $0 element",
+				 tagName);
+
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -188,8 +236,16 @@ Boolean XmlReader::expectContentOrCData(
 	(entry.type != XmlEntry::CONTENT &&
 	entry.type != XmlEntry::CDATA))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "Expected content of CDATA");
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //	       "Expected content of CDATA");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CDATA",
+				 "Expected content of $0", "CDATA");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     return true;
@@ -301,13 +357,33 @@ void XmlReader::getCimStartTag(
     XmlEntry entry;
     XmlReader::expectStartTag(parser, entry, "CIM");
 
-    if (!entry.getAttributeValue("CIMVERSION", cimVersion))
-	throw XmlValidationError(
-	    parser.getLine(), "missing CIM.CIMVERSION attribute");
+    if (!entry.getAttributeValue("CIMVERSION", cimVersion)) {
 
-    if (!entry.getAttributeValue("DTDVERSION", dtdVersion))
-	throw XmlValidationError(
-	    parser.getLine(), "missing CIM.DTDVERSION attribute");
+      // l10n
+
+      // throw XmlValidationError(
+      //   parser.getLine(), "missing CIM.CIMVERSION attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "missing $0 attribute",
+				 "CIM.CIMVERSION");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
+
+    if (!entry.getAttributeValue("DTDVERSION", dtdVersion)){
+
+      // l10n
+      
+      // throw XmlValidationError(
+      //   parser.getLine(), "missing CIM.DTDVERSION attribute");
+      
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "missing $0 attribute",
+				 "CIM.DTDVERSION");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -327,10 +403,21 @@ CIMName XmlReader::getCimNameAttribute(
     String name;
 
     if (!entry.getAttributeValue("NAME", name))
-    {
+      {
+
+	// l10n
+
+	// char buffer[MESSAGE_SIZE];
+	// sprintf(buffer, "missing %s.NAME attribute", elementName);
+	// throw XmlValidationError(lineNumber, buffer);
+
 	char buffer[MESSAGE_SIZE];
-	sprintf(buffer, "missing %s.NAME attribute", elementName);
-	throw XmlValidationError(lineNumber, buffer);
+	sprintf(buffer, "%s.NAME", elementName);
+	MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				   "missing $0 attribute",
+				   buffer);
+
+	throw XmlValidationError(lineNumber, mlParms);
     }
 
     if (acceptNull && name.size() == 0)
@@ -343,9 +430,22 @@ CIMName XmlReader::getCimNameAttribute(
     // exception and let xml parsing continue.  THIS IS TEMP.    
     name = "BADNAMESUBSTITUTEDBYPEGASUSCLIENT";
 #else
-	char buffer[MESSAGE_SIZE];
-	sprintf(buffer, "Illegal value for %s.NAME attribute", elementName);
-	throw XmlSemanticError(lineNumber, buffer);
+
+    // l10n
+
+    // char buffer[MESSAGE_SIZE];
+    // sprintf(buffer, "Illegal value for %s.NAME attribute", elementName);
+    // throw XmlSemanticError(lineNumber, buffer);
+
+    char buffer[MESSAGE_SIZE];
+    sprintf(buffer, "%s.NAME", elementName);
+    
+    MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+			       "Illegal value for $0 attribute",
+			       buffer);
+    
+    throw XmlSemanticError(lineNumber, mlParms);
+
 #endif
     }
     return CIMName (name);
@@ -368,17 +468,43 @@ String XmlReader::getClassNameAttribute(
 
     if (!entry.getAttributeValue("CLASSNAME", name))
     {
-	char buffer[MESSAGE_SIZE];
-	sprintf(buffer, "missing %s.CLASSNAME attribute", elementName);
-	throw XmlValidationError(lineNumber, buffer);
+
+
+      // l10n
+
+      // char buffer[MESSAGE_SIZE];
+      // sprintf(buffer, "missing %s.CLASSNAME attribute", elementName);
+      // throw XmlValidationError(lineNumber, buffer);
+
+      char buffer[MESSAGE_SIZE];
+      sprintf(buffer, "%s.CLASSNAME", elementName);
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "missing $0 attribute",
+				 buffer);
+
+      throw XmlValidationError(lineNumber, mlParms);
+
     }
 
     if (!CIMName::legal(name))
     {
-	char buffer[MESSAGE_SIZE];
-	sprintf(buffer, 
-	    "Illegal value for %s.CLASSNAME attribute", elementName);
-	throw XmlSemanticError(lineNumber, buffer);
+      // l10n
+
+      // char buffer[MESSAGE_SIZE];
+      // sprintf(buffer, 
+      //   "Illegal value for %s.CLASSNAME attribute", elementName);
+      // throw XmlSemanticError(lineNumber, buffer);
+
+      char buffer[MESSAGE_SIZE];
+      sprintf(buffer, "%s.CLASSNAME", elementName);
+      
+      MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+				 "Illegal value for $0 attribute",
+				 buffer);
+      
+      throw XmlSemanticError(lineNumber, mlParms);
+      
     }
 
     return name;
@@ -410,10 +536,21 @@ CIMName XmlReader::getClassOriginAttribute(
     
     if (!CIMName::legal(name))
     {
-	char buffer[MESSAGE_SIZE];
-	sprintf(buffer, 
-	    "Illegal value for %s.CLASSORIGIN attribute", tagName);
-	throw XmlSemanticError(lineNumber, buffer);
+      // l10n
+
+      // char buffer[MESSAGE_SIZE];
+      // sprintf(buffer, 
+      //    "Illegal value for %s.CLASSORIGIN attribute", tagName);
+      // throw XmlSemanticError(lineNumber, buffer);
+
+      char buffer[MESSAGE_SIZE];
+      sprintf(buffer, "%s.CLASSORIGIN", tagName);
+      
+      MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+				 "Illegal value for $0 attribute",
+				 buffer);
+      
+      throw XmlSemanticError(lineNumber, mlParms);
     }
 
     return name;
@@ -443,10 +580,22 @@ CIMName XmlReader::getReferenceClassAttribute(
     name = "PEGASUS_SUBSTITUED_THIS_FOR_BAD_NAME";
     return name;
 #endif 
-	char buffer[MESSAGE_SIZE];
-	sprintf(buffer, 
-	    "Illegal value for %s.REFERENCECLASS attribute", elementName);
-	throw XmlSemanticError(lineNumber, buffer);
+
+    // l10n
+
+    // char buffer[MESSAGE_SIZE];
+    // sprintf(buffer, 
+    //     "Illegal value for %s.REFERENCECLASS attribute", elementName);
+    // throw XmlSemanticError(lineNumber, buffer);
+
+    char buffer[MESSAGE_SIZE];
+    sprintf(buffer, "%s.REFERENCECLASS", elementName);
+    
+    MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+			       "Illegal value for $0 attribute",
+			       buffer);
+    
+    throw XmlSemanticError(lineNumber, mlParms);
     }
 
     return name;
@@ -472,10 +621,22 @@ CIMName XmlReader::getSuperClassAttribute(
 
     if (!CIMName::legal(superClass))
     {
-	char buffer[MESSAGE_SIZE];
-	sprintf(
-	    buffer, "Illegal value for %s.SUPERCLASS attribute", tagName);
-	throw XmlSemanticError(lineNumber, buffer);
+
+      // l10n
+
+      // char buffer[MESSAGE_SIZE];
+      // sprintf(
+      //   buffer, "Illegal value for %s.SUPERCLASS attribute", tagName);
+      // throw XmlSemanticError(lineNumber, buffer);
+      
+      char buffer[MESSAGE_SIZE];
+      sprintf(buffer, "%s.SUPERCLASS", tagName);
+      
+      MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+				 "Illegal value for $0 attribute",
+				 buffer);
+      
+      throw XmlSemanticError(lineNumber, mlParms);
     }
 
     return superClass;
@@ -513,14 +674,27 @@ Boolean XmlReader::getCimTypeAttribute(
     {
         if (required)
 	{
-	    char message[MESSAGE_SIZE];
-	    sprintf(message, "missing %s.%s attribute", tagName, attributeName);
-	    throw XmlValidationError(lineNumber, message);
+
+	  // l10n
+
+	  // char message[MESSAGE_SIZE];
+	  // sprintf(message, "missing %s.%s attribute", tagName, attributeName);
+	  // throw XmlValidationError(lineNumber, message);
+
+	  char message[MESSAGE_SIZE];
+	  sprintf(message, "%s.%s", tagName, attributeName);
+
+	  MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				     "missing $0 attribute",
+				     message);
+	  
+	  throw XmlValidationError(lineNumber, mlParms);
+	  
 	}
 	else
-	{
+	  {
 	    return false;
-	}
+	  }
     }
 
     CIMType type = CIMTYPE_BOOLEAN;
@@ -562,10 +736,21 @@ Boolean XmlReader::getCimTypeAttribute(
         ((type == CIMTYPE_REFERENCE) &&
          (strcmp(attributeName, "PARAMTYPE") != 0)))
     {
-	char message[MESSAGE_SIZE];
-	sprintf(message, "Illegal value for %s.%s attribute", tagName,
-	        attributeName);
-	throw XmlSemanticError(lineNumber, message);
+      // l10n
+
+      // char message[MESSAGE_SIZE];
+      // sprintf(message, "Illegal value for %s.%s attribute", tagName,
+      //       attributeName);
+      // throw XmlSemanticError(lineNumber, message);
+
+      char buffer[MESSAGE_SIZE];
+      sprintf(buffer, "%s.%s", tagName, attributeName);
+      
+      MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+				 "Illegal value for $0 attribute",
+				 buffer);
+      
+      throw XmlSemanticError(lineNumber, mlParms);
     }
 
     cimType = type;
@@ -593,11 +778,22 @@ Boolean XmlReader::getCimBooleanAttribute(
 	if (!required)
 	    return defaultValue;
 
-	char buffer[62];
-	sprintf(buffer, "missing required %s.%s attribute", 
-	    attributeName, tagName);
+	// l10n
 
-	throw XmlValidationError(lineNumber, buffer);
+	// char buffer[62];
+	// sprintf(buffer, "missing required %s.%s attribute", 
+	// attributeName, tagName);
+
+	// throw XmlValidationError(lineNumber, buffer);
+
+	char buffer[62];
+	sprintf(buffer, "%s.%s", attributeName, tagName);
+
+	MessageLoaderParms mlParms("Common.XmlReader.MISSING_REQUIRED_ATTRIBUTE",
+				   "missing required $0 attribute",
+				   buffer);
+	
+	throw XmlValidationError(lineNumber, mlParms);
     }
 
     if (strcmp(tmp, "true") == 0)
@@ -605,9 +801,21 @@ Boolean XmlReader::getCimBooleanAttribute(
     else if (strcmp(tmp, "false") == 0)
 	return false;
 
+    // l10n
+
+    // char buffer[62];
+    // sprintf(buffer, "Invalid %s.%s attribute value", attributeName, tagName);
+    // throw XmlSemanticError(lineNumber, buffer);
+
     char buffer[62];
-    sprintf(buffer, "Invalid %s.%s attribute value", attributeName, tagName);
-    throw XmlSemanticError(lineNumber, buffer);
+    sprintf(buffer, "%s.%s", attributeName, tagName);
+
+    MessageLoaderParms mlParms("Common.XmlReader.INVALID_ATTRIBUTE",
+			       "Invalid $0 attribute value",
+			       buffer);
+
+    throw XmlSemanticError(lineNumber, mlParms);
+
     return false;
 }
 
@@ -721,14 +929,29 @@ String XmlReader::decodeURICharacters(String uriString)
         {
             if (i+2 >= uriString.size())
             {
-                throw ParseError("Invalid URI encoding");
+	      // l10n
+
+	      // throw ParseError("Invalid URI encoding");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_ENCODING",
+					 "Invalid $0 encoding", "URI");
+
+	      throw ParseError(MessageLoader::getMessage(mlParms));
+
             }
 
             Uint8 digit1 = _hexCharToNumeric(char(uriString[++i]));
             Uint8 digit2 = _hexCharToNumeric(char(uriString[++i]));
             if ( (digit1 > 15) || (digit2 > 15) )
             {
-                throw ParseError("Invalid URI encoding");
+	      // l10n
+
+	      // throw ParseError("Invalid URI encoding");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_ENCODING",
+					 "Invalid $0 encoding", "URI");
+
+	      throw ParseError(MessageLoader::getMessage(mlParms));
             }
 
             // ATTN: Handle non-UTF-8 character sets
@@ -994,9 +1217,20 @@ CIMValue XmlReader::stringToValue(
 		return CIMValue(true);
 	    else if (System::strcasecmp(valueString, "FALSE") == 0)
 		return CIMValue(false);
-	    else
-		throw XmlSemanticError(
-		    lineNumber, "Invalid boolean value");
+	    else {
+
+	      // l10n
+
+	      //  throw XmlSemanticError(
+	      //	     lineNumber, "Invalid boolean value");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
+					 "Invalid $0 value",
+					 "boolean");
+	      
+	      throw XmlSemanticError(lineNumber, mlParms);
+	      
+	    }
 	}
 
 	case CIMTYPE_STRING:
@@ -1006,8 +1240,18 @@ CIMValue XmlReader::stringToValue(
 
 	case CIMTYPE_CHAR16:
 	{
-	    if (strlen(valueString) != 1)
-		throw XmlSemanticError(lineNumber, "Invalid char16 value");
+	  if (strlen(valueString) != 1) {
+
+	    // l10n
+
+	    // throw XmlSemanticError(lineNumber, "Invalid char16 value");
+	    
+	    MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
+				       "Invalid $0 value",
+				       "char16");
+	    
+	    throw XmlSemanticError(lineNumber, mlParms);
+	  }
 
 	    return CIMValue(Char16(valueString[0]));
 	}
@@ -1021,8 +1265,18 @@ CIMValue XmlReader::stringToValue(
 
 	    if (!stringToUnsignedInteger(valueString, x))
 	    {
-		throw XmlSemanticError(
-		    lineNumber, "Invalid unsigned integer value");
+
+	      // l10n
+
+	      // throw XmlSemanticError(
+	      //   lineNumber, "Invalid unsigned integer value");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
+					 "Invalid $0 value",
+					 "unsigned integer");
+	      
+	      throw XmlSemanticError(lineNumber, mlParms);
+
 	    }
 
 	    switch (type)
@@ -1031,8 +1285,17 @@ CIMValue XmlReader::stringToValue(
                 {
                     if (x >= (Uint64(1)<<8))
 		    {
-			throw XmlSemanticError(
-			    lineNumber, "Uint8 value out of range");
+
+		      // l10n
+		      
+		      // throw XmlSemanticError(
+		      //   lineNumber, "Uint8 value out of range");
+		      
+		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
+						 "$0 value out of range",
+						 "Uint8");
+		      
+		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
 		    return CIMValue(Uint8(x));
                 }
@@ -1040,8 +1303,18 @@ CIMValue XmlReader::stringToValue(
                 {
                     if (x >= (Uint64(1)<<16))
 		    {
-			throw XmlSemanticError(
-			    lineNumber, "Uint16 value out of range");
+
+		      // l10n
+
+		      // throw XmlSemanticError(
+		      //	     lineNumber, "Uint16 value out of range");
+
+		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
+						 "$0 value out of range",
+						 "Uint16");
+		      
+		      throw XmlSemanticError(lineNumber, mlParms);	
+
 		    }
 		    return CIMValue(Uint16(x));
                 }
@@ -1049,8 +1322,17 @@ CIMValue XmlReader::stringToValue(
                 {
                     if (x >= (Uint64(1)<<32))
 		    {
-			throw XmlSemanticError(
-			    lineNumber, "Uint32 value out of range");
+
+		      // l10n
+
+		      // throw XmlSemanticError(
+		      //   lineNumber, "Uint32 value out of range");
+
+		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
+						 "$0 value out of range",
+						 "Uint32");
+		      
+		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
 		    return CIMValue(Uint32(x));
                 }
@@ -1068,8 +1350,18 @@ CIMValue XmlReader::stringToValue(
 
 	    if (!stringToSignedInteger(valueString, x))
 	    {
-		throw XmlSemanticError(
-		    lineNumber, "Invalid signed integer value");
+
+	      // l10n
+
+	      // throw XmlSemanticError(
+	      //   lineNumber, "Invalid signed integer value");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
+					 "Invalid $0 value",
+					 "signed integer");
+	      
+	      throw XmlSemanticError(lineNumber, mlParms);
+
 	    }
 
 	    switch (type)
@@ -1078,8 +1370,17 @@ CIMValue XmlReader::stringToValue(
                 {
                     if(  (x >= (Sint64(1)<<7)) || (x < (-(Sint64(1)<<7))) )
 		    {
-			throw XmlSemanticError(
-			    lineNumber, "Sint8 value out of range");
+
+		      // l10n
+
+		      // throw XmlSemanticError(
+		      //   lineNumber, "Sint8 value out of range");
+		      
+		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
+						 "$0 value out of range",
+						 "Sint8");
+		      
+		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
 		    return CIMValue(Sint8(x));
                 }
@@ -1087,8 +1388,17 @@ CIMValue XmlReader::stringToValue(
                 {
                     if(  (x >= (Sint64(1)<<15)) || (x < (-(Sint64(1)<<15))) )
 		    {
-			throw XmlSemanticError(
-			    lineNumber, "Sint16 value out of range");
+
+		      // l10n
+
+		      // throw XmlSemanticError(
+		      //   lineNumber, "Sint16 value out of range");
+		      
+		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
+						 "$0 value out of range",
+						 "Sint16");
+		      
+		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
 		    return CIMValue(Sint16(x));
                 }
@@ -1096,8 +1406,17 @@ CIMValue XmlReader::stringToValue(
                 {
                     if(  (x >= (Sint64(1)<<31)) || (x < (-(Sint64(1)<<31))) )
 		    {
-			throw XmlSemanticError(
-			    lineNumber, "Sint32 value out of range");
+
+		      // l10n
+
+		      // throw XmlSemanticError(
+		      //   lineNumber, "Sint32 value out of range");
+
+		      MessageLoaderParms mlParms("Common.XmlReader.VALUE_OUT_OF_RANGE",
+						 "$0 value out of range",
+						 "Sint32");
+		      
+		      throw XmlSemanticError(lineNumber, mlParms);	
 		    }
 		    return CIMValue(Sint32(x));
                 }
@@ -1123,7 +1442,16 @@ CIMValue XmlReader::stringToValue(
 	    }
 	    catch (InvalidDateTimeFormatException&)
 	    {
-            throw XmlSemanticError(lineNumber, "Invalid datetime value");
+
+	      // l10n
+
+	      // throw XmlSemanticError(lineNumber, "Invalid datetime value");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
+					 "Invalid $0 value",
+					 "datetime");
+	      
+	      throw XmlSemanticError(lineNumber, mlParms);
 	    }
 
 	    return CIMValue(tmp);
@@ -1133,9 +1461,18 @@ CIMValue XmlReader::stringToValue(
 	{
 	    Real64 x;
 
-	    if (!stringToReal(valueString, x))
-		throw XmlSemanticError(lineNumber, "Invalid real number value");
+	    if (!stringToReal(valueString, x)) {
 
+	      // l10n
+
+	      // throw XmlSemanticError(lineNumber, "Invalid real number value");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
+					 "Invalid $0 value",
+					 "real number");
+	      
+	      throw XmlSemanticError(lineNumber, mlParms);
+	    }
 	    return CIMValue(Real32(x));
 	}
 
@@ -1143,9 +1480,18 @@ CIMValue XmlReader::stringToValue(
 	{
 	    Real64 x;
 
-	    if (!stringToReal(valueString, x))
-		throw XmlSemanticError(lineNumber, "Invalid real number value");
+	    if (!stringToReal(valueString, x)) {
 
+	      // l10n
+
+	      // throw XmlSemanticError(lineNumber, "Invalid real number value");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE",
+					 "Invalid $0 value",
+					 "real number");
+	      
+	      throw XmlSemanticError(lineNumber, mlParms);
+	    }
 	    return CIMValue(x);
 	}
 
@@ -1153,7 +1499,15 @@ CIMValue XmlReader::stringToValue(
 	    break;
     }
 
-    throw XmlSemanticError(lineNumber, "malformed XML");
+    // l10n
+
+    // throw XmlSemanticError(lineNumber, "malformed XML");
+
+    MessageLoaderParms mlParms("Common.XmlReader.MALFORMED_XML",
+			       "malformed XML");
+    
+    throw XmlSemanticError(lineNumber, mlParms);
+
     return false;
 }
 
@@ -1218,9 +1572,20 @@ Boolean XmlReader::getStringValueElement(
 
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE"))
     {
-	if (required)
-	    throw XmlValidationError(parser.getLine(),"Expected VALUE element");
-	return false;
+      if (required) {
+
+	// l10n
+
+	// throw XmlValidationError(parser.getLine(),"Expected VALUE element");
+
+	MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				   "Expected $0 element", "VALUE");
+	
+	throw XmlValidationError(parser.getLine(), mlParms);
+	
+
+      }
+      return false;
     }
 
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
@@ -1641,7 +2006,15 @@ void getQualifierElements(XmlParser& parser, CONTAINER& container)
 	}
 	catch (AlreadyExistsException&)
 	{
-	    throw XmlSemanticError(parser.getLine(), "duplicate qualifier");
+
+	  // l10n
+	  
+	  // throw XmlSemanticError(parser.getLine(), "duplicate qualifier");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE",
+				     "duplicate $0", "qualifier");
+	  
+	  throw XmlSemanticError(parser.getLine(), mlParms);
 	}
     }
 }
@@ -1735,9 +2108,20 @@ Boolean XmlReader::getArraySizeAttribute(
 
     if (!stringToUnsignedInteger(tmp, arraySize) || arraySize == 0)
     {
-	char message[128];
-	sprintf(message, "Illegal value for %s.%s", tagName, "ARRAYSIZE");
-	throw XmlSemanticError(lineNumber, message);
+      // l10n
+      
+      // char message[128];
+      // sprintf(message, "Illegal value for %s.%s", tagName, "ARRAYSIZE");
+      // throw XmlSemanticError(lineNumber, message);
+
+      char message[128];
+      sprintf(message, "%s.%s", tagName, "ARRAYSIZE");
+      
+      MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE",
+				 "Illegal value for $0",
+				 message);
+      
+      throw XmlSemanticError(lineNumber, mlParms);
     }
 
     value = Uint32(arraySize);
@@ -1814,8 +2198,17 @@ Boolean XmlReader::getPropertyArrayElement(
 	{
 	    if (arraySize && arraySize != value.getArraySize())
 	    {
-		throw XmlSemanticError(parser.getLine(),
-		    "ARRAYSIZE attribute and value-array size are different");
+
+	      // l10n
+
+	      // throw XmlSemanticError(parser.getLine(),
+	      //   "ARRAYSIZE attribute and value-array size are different");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.ARRAY_SIZE_DIFFERENT",
+					 "$0 attribute and $1 size are different",
+					 "ARRAYSIZE", "value-array");
+	      
+	      throw XmlSemanticError(parser.getLine(), mlParms);
 	    }
 
 	    property.setValue(value);
@@ -1862,8 +2255,17 @@ Boolean XmlReader::getHostElement(
 
     if (!parser.next(entry) || entry.type != XmlEntry::CONTENT)
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected content of HOST element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //	       "expected content of HOST element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_CONTENT_ELEMENT",
+				 "expected content of $0 element", "HOST");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+	
     }
 
     host = entry.text;
@@ -1930,9 +2332,20 @@ Boolean XmlReader::getLocalNameSpacePathElement(
 
     if (!nameSpace.size())
     {
-	throw XmlValidationError(parser.getLine(),
-	    "Expected one or more NAMESPACE elements within "
-	    "LOCALNAMESPACEPATH element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Expected one or more NAMESPACE elements within "
+      //   "LOCALNAMESPACEPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_NAMESPACE_ELEMENTS",
+				 "Expected one or more $0 elements within $1 element", 
+				 "NAMESPACE", "LOCALNAMESPACEPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+	
+
     }
 
     expectEndTag(parser, "LOCALNAMESPACEPATH");
@@ -1960,13 +2373,30 @@ Boolean XmlReader::getNameSpacePathElement(
     if (!testStartTag(parser, entry, "NAMESPACEPATH"))
 	return false;
 
-    if (!getHostElement(parser, host))
-	throw XmlValidationError(parser.getLine(), "expected HOST element");
+    if (!getHostElement(parser, host)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), "expected HOST element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "HOST");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
 
     if (!getLocalNameSpacePathElement(parser, nameSpace))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "expected LOCALNAMESPACEPATH element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), 
+      //   "expected LOCALNAMESPACEPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "LOCALNAMESPACEPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 
     expectEndTag(parser, "NAMESPACEPATH");
@@ -1994,8 +2424,16 @@ Boolean XmlReader::getClassNameElement(
     {
 	if (required)
 	{
-	    throw XmlValidationError(parser.getLine(),
-		"expected CLASSNAME element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  // "expected CLASSNAME element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				     "expected $0 element", "CLASSNAME");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
 	else
 	    return false;
@@ -2036,14 +2474,25 @@ CIMKeyBinding::Type XmlReader::getValueTypeAttribute(
     else if (String::equal(tmp, "numeric"))
 	return CIMKeyBinding::NUMERIC;
 
+    // char buffer[MESSAGE_SIZE];
+
+    // sprintf(buffer, 
+    // "Illegal value for %s.VALUETYPE attribute; "
+    // "CIMValue must be one of \"string\", \"boolean\", or \"numeric\"",
+    // elementName);
+
+    // throw XmlSemanticError(lineNumber, buffer);
+
+
     char buffer[MESSAGE_SIZE];
+    sprintf(buffer, "%s.VALUETYPE", elementName);
+    
+    MessageLoaderParms mlParms("Common.XmlReader.ILLEGAL_VALUE_FOR_CIMVALUE_ATTRIBUTE",
+			       "Illegal value for $0 attribute; $1 must be one of $2, $3, or $4",
+			       buffer, "CIMValue", "\"string\"", "\"boolean\"", "\"numeric\"");
+    
+    throw XmlSemanticError(lineNumber, mlParms);
 
-    sprintf(buffer, 
-	"Illegal value for %s.VALUETYPE attribute; "
-	"CIMValue must be one of \"string\", \"boolean\", or \"numeric\"",
-	elementName);
-
-    throw XmlSemanticError(lineNumber, buffer);
     return CIMKeyBinding::BOOLEAN;
 }
 
@@ -2118,8 +2567,16 @@ Boolean XmlReader::getKeyBindingElement(
 
         if (!getValueReferenceElement(parser, reference))
         {
-	    throw XmlValidationError(parser.getLine(),
-                      "Expected KEYVALUE or VALUE.REFERENCE element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  //          "Expected KEYVALUE or VALUE.REFERENCE element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
+				     "Expected $0 or $1 element", "KEYVALUE", "VALUE.REFERENCE");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
         }
 
         type = CIMKeyBinding::REFERENCE;
@@ -2229,8 +2686,17 @@ Boolean XmlReader::getInstancePathElement(
 
     if (!getNameSpacePathElement(parser, host, nameSpace))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected NAMESPACEPATH element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected NAMESPACEPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "NAMESPACEPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     String className;
@@ -2238,8 +2704,18 @@ Boolean XmlReader::getInstancePathElement(
 
     if (!getInstanceNameElement(parser, className, keyBindings))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "expected INSTANCENAME element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), 
+      //   "expected INSTANCENAME element");
+
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "INSTANCENAME");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     reference.set(host, nameSpace, className, keyBindings);
@@ -2269,8 +2745,17 @@ Boolean XmlReader::getLocalInstancePathElement(
 
     if (!getLocalNameSpacePathElement(parser, nameSpace))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected LOCALNAMESPACEPATH element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected LOCALNAMESPACEPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "LOCALNAMESPACEPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     String className;
@@ -2278,8 +2763,17 @@ Boolean XmlReader::getLocalInstancePathElement(
 
     if (!getInstanceNameElement(parser, className, keyBindings))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "expected INSTANCENAME element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), 
+      //   "expected INSTANCENAME element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "INSTANCENAME");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     reference.set(String(), nameSpace, className, keyBindings);
@@ -2310,16 +2804,34 @@ Boolean XmlReader::getClassPathElement(
 
     if (!getNameSpacePathElement(parser, host, nameSpace))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected NAMESPACEPATH element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //    "expected NAMESPACEPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "NAMESPACEPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     CIMName className;
 
     if (!getClassNameElement(parser, className))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "expected CLASSNAME element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), 
+      //   "expected CLASSNAME element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "CLASSNAME");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     reference.set(host, nameSpace, className);
@@ -2349,16 +2861,34 @@ Boolean XmlReader::getLocalClassPathElement(
 
     if (!getLocalNameSpacePathElement(parser, nameSpace))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected LOCALNAMESPACEPATH element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //    "expected LOCALNAMESPACEPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "LOCALNAMESPACEPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     CIMName className;
 
     if (!getClassNameElement(parser, className))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "expected CLASSNAME element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), 
+      //   "expected CLASSNAME element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "CLASSNAME");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     reference.set(String(), nameSpace, className);
@@ -2393,10 +2923,19 @@ Boolean XmlReader::getValueReferenceElement(
     if (entry.type != XmlEntry::START_TAG && 
 	entry.type != XmlEntry::EMPTY_TAG)
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "Expected one of the following start tags: "
-	    "CLASSPATH, LOCALCLASSPATH, CLASSNAME, INSTANCEPATH, "
-	    "LOCALINSTANCEPATH, INSTANCENAME");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), 
+      //   "Expected one of the following start tags: "
+      //    "CLASSPATH, LOCALCLASSPATH, CLASSNAME, INSTANCEPATH, "
+      //    "LOCALINSTANCEPATH, INSTANCENAME");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_START_TAGS",
+				 "Expected one of the following start tags: $0", "CLASSPATH, LOCALCLASSPATH, CLASSNAME, INSTANCEPATH, LOCALINSTANCEPATH, INSTANCENAME");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     if (strcmp(entry.text, "CLASSPATH") == 0)
@@ -2565,7 +3104,15 @@ void GetPropertyElements(XmlParser& parser, CONTAINER& container)
 	}
 	catch (AlreadyExistsException&)
 	{
-	    throw XmlSemanticError(parser.getLine(), "duplicate property");
+
+	  // l10n
+
+	  // throw XmlSemanticError(parser.getLine(), "duplicate property");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE",
+				     "duplicate $0", "property");
+	  
+	  throw XmlSemanticError(parser.getLine(), mlParms);
 	}
     }
 }
@@ -2787,7 +3334,15 @@ void GetParameterElements(XmlParser& parser, CONTAINER& container)
 	}
 	catch (AlreadyExistsException&)
 	{
-	    throw XmlSemanticError(parser.getLine(), "duplicate parameter");
+
+	  // l10n
+
+	  // throw XmlSemanticError(parser.getLine(), "duplicate parameter");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.DUPLICATE",
+				     "duplicate $0", "parameter");
+	  
+	  throw XmlSemanticError(parser.getLine(), mlParms);
 	}
     }
 }
@@ -2862,16 +3417,34 @@ Boolean XmlReader::getQualifierDeclElement(
 	{
 	    if (!isArray)
 	    {
-		throw XmlSemanticError(parser.getLine(),
-		    "VALUE.ARRAY element encountered without "
-		    "ISARRAY attribute");
+
+	      // l10n
+
+	      // throw XmlSemanticError(parser.getLine(),
+	      //    "VALUE.ARRAY element encountered without "
+	      //    "ISARRAY attribute");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.ARRAY_WITHOUT_ISARRAY",
+					 "$0 element encountered without $1 attribute",
+					 "VALUE.ARRAY", "ISARRAY");
+	      
+	      throw XmlSemanticError(parser.getLine(), mlParms);
 	    }
 
 	    if (arraySize && arraySize != value.getArraySize())
 	    {
-		throw XmlSemanticError(parser.getLine(),
-		    "VALUE.ARRAY size is not the same as "
-		    "ARRAYSIZE attribute");
+
+	      // l10n
+
+	      // throw XmlSemanticError(parser.getLine(),
+	      //   "VALUE.ARRAY size is not the same as "
+	      //    "ARRAYSIZE attribute");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.ARRAY_SIZE_NOT_SAME",
+					 "$0 size is not the same as $1 attribute",
+					 "VALUE.ARRAY", "ARRAYSIZE");
+	      
+	      throw XmlSemanticError(parser.getLine(), mlParms);
 	    }
 
             gotValue = true;
@@ -2880,8 +3453,17 @@ Boolean XmlReader::getQualifierDeclElement(
 	{
 	    if (isArray)
 	    {
-		throw XmlSemanticError(parser.getLine(),
-		    "ISARRAY attribute used but VALUE element encountered");
+
+	      // l10n
+
+	      // throw XmlSemanticError(parser.getLine(),
+	      //    "ISARRAY attribute used but VALUE element encountered");
+
+	      MessageLoaderParms mlParms("Common.XmlReader.ARRAY_ATTRIBUTE_DIFFERENT",
+					 "$0 attribute used but $1 element encountered",
+					 "ISARRAY", "VALUE");
+	      
+	      throw XmlSemanticError(parser.getLine(), mlParms);
 	    }
 
             gotValue = true;
@@ -3059,16 +3641,33 @@ Boolean XmlReader::getNamedInstanceElement(
 
     if (!getInstanceNameElement(parser, instanceName))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "expected INSTANCENAME element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), 
+      //    "expected INSTANCENAME element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "INSTANCENAME");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 
     // Get INSTANCE elements:
 
     if (!getInstanceElement(parser, namedInstance))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected INSTANCE element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected INSTANCE element");
+
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "INSTANCE");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 
     // Get VALUE.NAMEDINSTANCE end tag:
@@ -3090,8 +3689,16 @@ void XmlReader::getObject(XmlParser& parser, CIMClass& x)
 {
     if (!getClassElement(parser, x))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected CLASS element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected CLASS element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "CLASS");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -3105,8 +3712,16 @@ void XmlReader::getObject(XmlParser& parser, CIMInstance& x)
 {
     if (!getInstanceElement(parser, x))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected INSTANCE element");
+
+      // l10n
+      
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected INSTANCE element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "INSTANCE");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -3120,8 +3735,16 @@ void XmlReader::getObject(XmlParser& parser, CIMQualifierDecl& x)
 {
     if (!getQualifierDeclElement(parser, x))
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected QUALIFIER.DECLARATION element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected QUALIFIER.DECLARATION element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				 "expected $0 element", "QUALIFIER.DECLARATION");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -3143,16 +3766,35 @@ Boolean XmlReader::getMessageStartTag(
 
     // Get MESSAGE.ID:
 
-    if (!entry.getAttributeValue("ID", id))
-	throw XmlValidationError(parser.getLine(), 
-	    "Invalid or missing MESSAGE.ID attribute");
+    if (!entry.getAttributeValue("ID", id)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(), 
+      //   "Invalid or missing MESSAGE.ID attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.INVALID_MISSING_ATTRIBUTE",
+				 "Invalid or missing $0 attribute", "MESSAGE.ID");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }      
+
 
     // Get MESSAGE.PROTOCOLVERSION:
 
-    if (!entry.getAttributeValue("PROTOCOLVERSION", protocolVersion))
-	throw XmlValidationError(parser.getLine(),
-	    "Invalid or missing MESSAGE.PROTOCOLVERSION attribute");
+    if (!entry.getAttributeValue("PROTOCOLVERSION", protocolVersion)) {
 
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Invalid or missing MESSAGE.PROTOCOLVERSION attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.INVALID_MISSING_ATTRIBUTE",
+				 "Invalid or missing $0 attribute", "MESSAGE.PROTOCOLVERSION");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
+    
     return true;
 }
 
@@ -3173,9 +3815,21 @@ Boolean XmlReader::getIMethodCallStartTag(
 
     // Get IMETHODCALL.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing IMETHODCALL.NAME attribute");
+
+    if (!entry.getAttributeValue("NAME", name)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Missing IMETHODCALL.NAME attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "Missing $0 attribute",
+				 "IMETHODCALL.NAME");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
+
 
     return true;
 }
@@ -3197,9 +3851,20 @@ Boolean XmlReader::getIMethodResponseStartTag(
 
     // Get IMETHODRESPONSE.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing IMETHODRESPONSE.NAME attribute");
+    if (!entry.getAttributeValue("NAME", name)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Missing IMETHODRESPONSE.NAME attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "Missing $0 attribute",
+				 "IMETHODRESPONSE.NAME");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
+
 
     return true;
 }
@@ -3221,9 +3886,19 @@ Boolean XmlReader::getIParamValueTag(
 
     // Get IPARAMVALUE.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing IPARAMVALUE.NAME attribute");
+    if (!entry.getAttributeValue("NAME", name)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Missing IPARAMVALUE.NAME attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "Missing $0 attribute",
+				 "IPARAMVALUE.NAME");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
 
     return true;
 }
@@ -3247,8 +3922,16 @@ Boolean XmlReader::getBooleanValueElement(
     {
 	if (required)
 	{
-	    throw XmlValidationError(parser.getLine(),
-		"Expected VALUE element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  // "Expected VALUE element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				     "Expected $0 element", "VALUE");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
 	return false;
     }
@@ -3259,9 +3942,19 @@ Boolean XmlReader::getBooleanValueElement(
 	result = true;
     else if (System::strcasecmp(entry.text, "FALSE") == 0)
 	result = false;
-    else
-	throw XmlSemanticError(parser.getLine(), 
-	    "Invalid value for VALUE element: must be \"TRUE\" or \"FALSE\"");
+    else {
+
+      // l10n
+
+      // throw XmlSemanticError(parser.getLine(), 
+      //   "Invalid value for VALUE element: must be \"TRUE\" or \"FALSE\"");
+
+      MessageLoaderParms mlParms("Common.XmlReader.INVALID_VALUE_FOR_VALUE_ELEMENT",
+				 "Invalid value for $0 element: must be $1 or $2", 
+				 "VALUE", "\"TRUE\"", "\"FALSE\"");
+      
+      throw XmlSemanticError(parser.getLine(), mlParms);
+    }
 
     expectEndTag(parser, "VALUE");
 
@@ -3288,9 +3981,19 @@ Boolean XmlReader::getErrorElement(
 
     if (!testStartTagOrEmptyTag(parser, entry, "ERROR"))
     {
-	if (required)
-	    throw XmlValidationError(parser.getLine(),"Expected ERROR element");
-	return false;
+      if (required) {
+
+	// l10n
+
+	// throw XmlValidationError(parser.getLine(),"Expected ERROR element");
+	
+	MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				   "Expected $0 element", "ERROR");
+	
+	throw XmlValidationError(parser.getLine(), mlParms);
+	
+      }
+      return false;
     }
 
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
@@ -3299,9 +4002,21 @@ Boolean XmlReader::getErrorElement(
 
     Uint32 tmpCode;
 
-    if (!entry.getAttributeValue("CODE", tmpCode))
-	throw XmlValidationError(
-	    parser.getLine(), "missing ERROR.CODE attribute");
+    if (!entry.getAttributeValue("CODE", tmpCode)) {
+
+
+      // l10n
+
+      // throw XmlValidationError(
+      //       parser.getLine(), "missing ERROR.CODE attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "missing $0 attribute",
+				 "ERROR.CODE");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
+    }
 
     // Get ERROR.DESCRIPTION:
 
@@ -3346,8 +4061,17 @@ Boolean XmlReader::getValueObjectElement(
     }
     else
     {
-        throw XmlValidationError(parser.getLine(),
-            "Expected INSTANCE or CLASS element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Expected INSTANCE or CLASS element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
+				 "Expected $0 or $1 element", "INSTANCE", "CLASS");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     expectEndTag(parser, "VALUE.OBJECT");
@@ -3378,8 +4102,16 @@ Boolean XmlReader::getValueObjectWithPathElement(
 	isInstance = true;
     else if (!XmlReader::getClassPathElement(parser, reference))
     {
-        throw XmlValidationError(parser.getLine(),
-            "Expected INSTANCEPATH or CLASSPATH element");
+
+      // l10n
+      
+      // throw XmlValidationError(parser.getLine(),
+      //    "Expected INSTANCEPATH or CLASSPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
+				 "Expected $0 or $1 element", "INSTANCEPATH", "CLASSPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 
     if (isInstance)
@@ -3388,8 +4120,16 @@ Boolean XmlReader::getValueObjectWithPathElement(
 
 	if (!XmlReader::getInstanceElement(parser, cimInstance))
 	{
-	    throw XmlValidationError(parser.getLine(),
-	        "Expected INSTANCE element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  //		   "Expected INSTANCE element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				     "Expected $0 element", "INSTANCE");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
 	objectWithPath = CIMObject (cimInstance);
         objectWithPath.setPath (reference);
@@ -3400,8 +4140,16 @@ Boolean XmlReader::getValueObjectWithPathElement(
 
 	if (!XmlReader::getClassElement(parser, cimClass))
 	{
-	    throw XmlValidationError(parser.getLine(),
-		"Expected CLASS element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  // "Expected CLASS element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				     "Expected $0 element", "CLASS");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
 	objectWithPath = CIMObject (cimClass);
         objectWithPath.setPath (reference);
@@ -3436,8 +4184,17 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
 	isInstance = true;
     else if (!XmlReader::getLocalClassPathElement(parser, reference))
     {
-        throw XmlValidationError(parser.getLine(),
-	    "Expected LOCALINSTANCEPATH or LOCALCLASSPATH element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Expected LOCALINSTANCEPATH or LOCALCLASSPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
+				 "Expected $0 or $1 element", "LOCALINSTANCEPATH", "LOCALCLASSPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+
     }
 
     if (isInstance)
@@ -3446,8 +4203,17 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
 
 	if (!XmlReader::getInstanceElement(parser, cimInstance))
 	{
-	    throw XmlValidationError(parser.getLine(),
-	        "Expected INSTANCE element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  //		   "Expected INSTANCE element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				     "Expected $0 element", "INSTANCE");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
+
 	}
 	objectWithPath = CIMObject (cimInstance);
 	objectWithPath.setPath (reference);
@@ -3458,8 +4224,18 @@ Boolean XmlReader::getValueObjectWithLocalPathElement(
 
 	if (!XmlReader::getClassElement(parser, cimClass))
 	{
-	    throw XmlValidationError(parser.getLine(),
-		"Expected CLASS element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  // "Expected CLASS element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				     "Expected $0 element", "CLASS");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
+
+
 	}
 	objectWithPath = CIMObject (cimClass);
 	objectWithPath.setPath (reference);
@@ -3528,8 +4304,17 @@ Boolean XmlReader::getObjectNameElement(
 	return true;
     else
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected CLASSNAME or INSTANCENAME element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected CLASSNAME or INSTANCENAME element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
+				 "Expected $0 or $1 element", "CLASSNAME", "INSTANCENAME");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
+      
     }
 
     return false;
@@ -3562,8 +4347,16 @@ Boolean XmlReader::getObjectPathElement(
     }
     else
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected INSTANCEPATH or CLASSPATH element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected INSTANCEPATH or CLASSPATH element");
+
+      MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_OR_ELEMENT",
+				 "expected $0 or $1 element", "INSTANCEPATH", "CLASSPATH");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 
     PEGASUS_UNREACHABLE ( return false; )
@@ -3586,9 +4379,20 @@ Boolean XmlReader::getEMethodCallStartTag(
 
     // Get EXPMETHODCALL.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing EXPMETHODCALL.NAME attribute");
+
+      if (!entry.getAttributeValue("NAME", name)) {
+
+	// l10n
+
+	// throw XmlValidationError(parser.getLine(),
+	// "Missing EXPMETHODCALL.NAME attribute");
+
+	MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				   "Missing $0 attribute",
+				   "EXPMETHODCALL.NAME");
+	
+	throw XmlValidationError(parser.getLine(), mlParms);
+      }
 
     return true;
 }
@@ -3610,9 +4414,19 @@ Boolean XmlReader::getEMethodResponseStartTag(
 
     // Get EXPMETHODRESPONSE.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing EXPMETHODRESPONSE.NAME attribute");
+
+      if (!entry.getAttributeValue("NAME", name)) {
+	// l10n
+	
+	// throw XmlValidationError(
+	//   parser.getLine(), "Missing EXPMETHODRESPONSE.NAME attribute");
+	
+	MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				   "Missing $0 attribute",
+				   "EXPMETHODRESPONSE.NAME");
+	
+	throw XmlValidationError(parser.getLine(), mlParms);
+      }
 
     return true;
 }
@@ -3634,9 +4448,22 @@ Boolean XmlReader::getEParamValueTag(
 
     // Get EXPPARAMVALUE.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing EXPPARAMVALUE.NAME attribute");
+
+    if (!entry.getAttributeValue("NAME", name)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Missing EXPPARAMVALUE.NAME attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "Missing $0 attribute",
+				 "EXPPARAMVALUE.NAME");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
+
+
 
     return true;
 }
@@ -3658,9 +4485,21 @@ Boolean XmlReader::getMethodCallStartTag(
 
     // Get METHODCALL.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing METHODCALL.NAME attribute");
+
+    if (!entry.getAttributeValue("NAME", name)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //	       "Missing METHODCALL.NAME attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "Missing $0 attribute",
+				 "METHODCALL.NAME");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
+
 
     return true;
 }
@@ -3682,9 +4521,20 @@ Boolean XmlReader::getMethodResponseStartTag(
 
     // Get METHODRESPONSE.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing METHODRESPONSE.NAME attribute");
+
+    if (!entry.getAttributeValue("NAME", name)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Missing METHODRESPONSE.NAME attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "Missing $0 attribute",
+				 "METHODRESPONSE.NAME");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
 
     return true;
 }
@@ -3716,9 +4566,20 @@ Boolean XmlReader::getParamValueElement(
 
     // Get PARAMVALUE.NAME attribute:
 
-    if (!entry.getAttributeValue("NAME", name))
-	throw XmlValidationError(parser.getLine(),
-	    "Missing PARAMVALUE.NAME attribute");
+    if (!entry.getAttributeValue("NAME", name)) {
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "Missing PARAMVALUE.NAME attribute");
+
+      MessageLoaderParms mlParms("Common.XmlReader.MISSING_ATTRIBUTE",
+				 "Missing $0 attribute",
+				 "PARAMVALUE.NAME");
+
+      throw XmlValidationError(parser.getLine(), mlParms);
+    }
+
 
     // Get PARAMVALUE.PARAMTYPE attribute:
 
@@ -3813,8 +4674,16 @@ Boolean XmlReader::getReturnValueElement(
         }
         else if (type == CIMTYPE_REFERENCE)
         {
-            throw XmlValidationError(parser.getLine(),
-                "expected VALUE.REFERENCE element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  //   "expected VALUE.REFERENCE element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				     "expected $0 element", "VALUE.REFERENCE");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
         }
     }
 
@@ -3829,8 +4698,16 @@ Boolean XmlReader::getReturnValueElement(
 
         if ( !XmlReader::getValueElement(parser, type, returnValue) )
         {
-            throw XmlValidationError(parser.getLine(),
-                "expected VALUE element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  //   "expected VALUE element");
+
+	  MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_ELEMENT",
+				     "expected $0 element", "VALUE");
+	  
+	  throw XmlValidationError(parser.getLine(), mlParms);
         }
     }
 

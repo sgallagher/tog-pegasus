@@ -1,0 +1,82 @@
+#! /bin/sh
+#%/////////////////////////////////////////////////////////////////////////////
+#
+# Copyright (c) 2004 BMC Software, Hewlett-Packard Company, IBM,
+# The Open Group, Tivoli Systems
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+# ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+# "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+# LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+#==============================================================================
+#
+# Author: Konrad Rzeszutek <konradr@us.ibm.com>
+#
+#%/////////////////////////////////////////////////////////////////////////////
+
+### BEGIN INIT INFO
+# Provides: lsb-pegasus
+# Required-Start: $syslog $network
+# Should-Start: $time 
+# Required-Stop: $syslog  
+# Default-Start:  3 5
+# Default-Stop: 0 1 2 6
+# Description:    init script for Pegasus CIMServer
+### END INIT INFO
+
+CIMSERVER_BIN=/opt/lsb-pegasus/sbin/cimserver
+prog=cimserver
+
+test -x $CIMSERVER_BIN || exit 5
+
+. /lib/lsb/init-functions
+RETVAL=0
+
+case "$1" in
+     start)
+	echo -n $"Starting up Pegasus CIMOM daemon: "
+	start_daemon $CIMSERVER_BIN
+	RETVAL=$?
+	[ "$RETVAL" -eq 0 ] && log_success_msg $"$prog start" || log_failure_msg $"$prog start"
+	echo
+	;;
+
+     stop)
+	echo -n $"Shutting down Pegasus CIMOM daemon: "
+	kill_proc cimserver
+	RETVAL=$?
+	[ "$RETVAL" -eq 0 ] && log_success_msg $"$prog stop" || log_failure_msg $"$prog stop"
+	echo
+	;;
+     status) 
+	status $CIMSERVER_BIN 
+	RETVAL=$?
+	;;
+     try-restart)
+	$0 stop && $0 start
+	;;
+     restart|force-reload)
+	$0 stop
+	$0 start
+	;;
+     reload)
+	;;
+     *)
+	echo "Usage: $0 {start|stop|status|restart|reload|force-reload|try-restart}"
+	exit 1
+esac
+
+exit $RETVAL
+

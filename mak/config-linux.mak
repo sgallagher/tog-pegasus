@@ -1,4 +1,4 @@
-# Configuration options for Pegasus on all architectures running Linux 
+# Configuration options for Pegasus on all architectures running Linux
 
 include $(ROOT)/mak/config-unix.mak
 
@@ -106,22 +106,22 @@ ifdef PEGASUS_HAS_MESSAGES
 	CNV_ROOT_CMD = cnv2rootbundle
 
 ##################################
-##	
-## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root resource bundle, 
-##													   default is to uppercase the root resource bundle
+##
+## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root resource bundle,
+## default is to uppercase the root resource bundle
 ##
 ##################################
 
 ifdef ICU_NO_UPPERCASE_ROOT
   CNV_ROOT_FLAGS = 
 else
-  CNV_ROOT_FLAGS = -u 
+  CNV_ROOT_FLAGS = -u
 endif
 
 ####################################
 ##
 ##   ICU_ROOT_BUNDLE_LANG if set, specifies the language that the root resource bundle will be generated from
-##   defaults to _en if not set.  if set, for any directory containing resource bundles, 
+##   defaults to _en if not set.  if set, for any directory containing resource bundles,
 ##   there must exist a file name: package(the value of ICU_ROOT_BUNDLE_LANG).txt or the make messages target will fail
 ##
 ####################################

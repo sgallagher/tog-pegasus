@@ -25,7 +25,7 @@
 //
 // Author: Dave Rosckes (rosckes@us.ibm.com)
 //
-// Modified By:
+// Modified By: Dan Gorey (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@
 #include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
-
+#include <Pegasus/CQL/CQLRegularExpression.h>
 #include <Pegasus/CQL/CQLFactory.h>
 
 
@@ -1272,10 +1272,9 @@ Boolean CQLValueRep::like(const CQLValueRep& inVal)
    
    String leftside(*_theValue._S);
    String rightside(*inVal._theValue._S);
-
-   // Poughkepsie is doing this, Dan Gorey.
-   // return someLikefunction(leftside,rightside);
-   return false;
+   
+   CQLRegularExpression re;
+   return re.match(leftside,rightside);
 }
 
 /*

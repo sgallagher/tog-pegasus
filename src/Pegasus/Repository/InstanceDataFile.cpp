@@ -41,6 +41,9 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
+#if defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
 
 PEGASUS_USING_STD;
 
@@ -64,7 +67,14 @@ Boolean InstanceDataFile::_openFile(
 #if defined(__GNUC__) && GCC_VERSION >= 30200
     fs.open(path.getCString(), PEGASUS_STD(ios_base::openmode)(mode));
 #else
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = path.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    fs.open(tmp, mode, PEGASUS_STD(_CCSID_T(1208)));
+#else
     fs.open(path.getCString(), mode);
+#endif
 #endif
     PEG_METHOD_EXIT();
     return !!fs;

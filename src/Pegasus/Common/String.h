@@ -44,6 +44,9 @@
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Linkage.h>
 
+const char STRING_FLAG_ASCII[] = "ASCII";
+const char STRING_FLAG_UTF8[]  = "UTF8";   
+
 PEGASUS_NAMESPACE_BEGIN
 
 class String;
@@ -111,6 +114,7 @@ public:
     String(const Char16* str, Uint32 n);
 
     /// Initialize from a plain old C-String:
+    String(const char* str, const char*);
     String(const char* str);
 
     /// Initialize from the first n characters of a plain old C-String:
@@ -358,6 +362,12 @@ public:
         otherwise.
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
+
+    // UTF8 specific code:
+    String& assignUTF8(const char* str);
+    CString getCStringUTF8() const;
+    static Boolean isUTF8(const char*);
+
 
 private:
 

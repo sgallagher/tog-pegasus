@@ -141,7 +141,11 @@
 #endif
 
 #ifdef PEGASUS_HAVE_IOS_BINARY
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) 
+#define PEGASUS_IOS_BINARY ,std::ios::binary,PEGASUS_STD(_CCSID_T(1208))
+#else
 #define PEGASUS_IOS_BINARY ,std::ios::binary
+#endif
 #define PEGASUS_OR_IOS_BINARY | std::ios::binary
 #else
 #define PEGASUS_IOS_BINARY /* empty */

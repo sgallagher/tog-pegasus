@@ -46,6 +46,9 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include "InstanceIndexFile.h"
+#if defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
 
 PEGASUS_USING_STD;
 
@@ -541,8 +544,14 @@ Boolean InstanceIndexFile::_openFile(
 	    //
 	    // File does not exist so create it:
 	    //
-
+#if defined(PEGASUS_OS_OS400)
+	    CString tempPath = path.getCString();
+	    const char * tmp = tempPath;
+	    AtoE((char *)tmp);
+	    fs.open(tmp, ios::out PEGASUS_OR_IOS_BINARY, PEGASUS_STD(_CCSID_T(1208)));
+#else
             fs.open(path.getCString(), ios::out PEGASUS_OR_IOS_BINARY);
+#endif
 
             if (!fs)
             {

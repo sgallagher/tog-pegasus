@@ -58,6 +58,10 @@
 #include "HTTPConnector.h"
 #include "HTTPConnection.h"
 
+#ifdef PEGASUS_OS_OS400
+#  include "OS400ConvertChar.h"
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -75,18 +79,29 @@ static Boolean _MakeAddress(
 {
    if (!hostname)
       return false;
+
+#ifdef PEGASUS_OS_OS400
+    char ebcdicHost[256];
+    if (strlen(hostname) < 256)
+	strcpy(ebcdicHost, hostname);
+    else
+	return false;
+    AtoE(ebcdicHost);
+#endif
 	
    struct hostent *entry;
    if (isalpha(hostname[0]))
    {
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-#define HOSTENT_BUFF_SIZE	8192
-      char	buf[HOSTENT_BUFF_SIZE];
-      int	h_errorp;
-      struct	hostent hp;
+#ifdef PEGASUS_PLATFORM_SOLOARIS_SPARC_CC
+#define HOSTENT_BUFF_SIZE        8192
+      char      buf[HOSTENT_BUFF_SIZE];
+      int       h_errorp;
+      struct    hostent hp;
 
       entry = gethostbyname_r((char *)hostname, &hp, buf,
-					HOSTENT_BUFF_SIZE, &h_errorp);
+	  							HOSTENT_BUFF_SIZE, &h_errorp);
+#elif defined(PEGASUS_OS_OS400)
+      entry = gethostbyname(ebcdicHost);
 #else
       entry = gethostbyname((char *)hostname);
 #endif
@@ -102,7 +117,12 @@ static Boolean _MakeAddress(
    }     
    else
    {
+#ifdef PEGASUS_OS_OS400
+      unsigned long tmp_addr = inet_addr(ebcdicHost);
+#else    
       unsigned long tmp_addr = inet_addr((char *)hostname);
+#endif
+      
       if(tmp_addr == 0xFFFFFFFF)
       {
 	  return false;

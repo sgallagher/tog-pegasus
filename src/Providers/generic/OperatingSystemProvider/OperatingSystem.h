@@ -33,6 +33,12 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
 
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#include <sys/sysinfo.h>
+#include <sys/utsname.h>
+#include <unistd.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 //
@@ -79,6 +85,12 @@ public:
    Uint64 GetFreeSpaceInPagingFiles(void) const;
    Uint64 GetMaxProcessMemorySize(void) const;
    Boolean GetDistributed(void) const;
+
+#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+private:
+    struct utsname m_uts;
+    struct sysinfo m_si;
+#endif
 
 };
 

@@ -255,7 +255,7 @@ Uint32 OperatingSystem::GetMaxNumberOfProcesses(void) const
 {
    Uint32 MaxNumberOfProcesses = 0;
 
-   MaxNumberOfProcesses = 0xffffffff;
+   //MaxNumberOfProcesses = 0xffffffff;
 
    return(MaxNumberOfProcesses);
 }

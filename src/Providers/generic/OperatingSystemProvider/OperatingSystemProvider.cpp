@@ -87,36 +87,39 @@ void OperatingSystemProvider::enumerateInstances(
 {
 	handler.processing();
 
-	OperatingSystem os;
+	if(String::equalNoCase(classReference.getClassName(), "pegasus_operatingsystem"))
+	{
+		OperatingSystem os;
 
-	CIMInstance cimInstance("Pegasus_OperatingSystem");
+		CIMInstance cimInstance("Pegasus_OperatingSystem");
 
-	cimInstance.addProperty(CIMProperty("CSCreationClassName", os.GetCSCreationClassName()));
-	cimInstance.addProperty(CIMProperty("CSName", os.GetCSName()));
-	cimInstance.addProperty(CIMProperty("CreationClassName", os.GetCreationClassName()));
-	cimInstance.addProperty(CIMProperty("Name", os.GetName()));
-	cimInstance.addProperty(CIMProperty("OSType", os.GetOSType()));
-	cimInstance.addProperty(CIMProperty("OtherTypeDescription", os.GetOtherTypeDescription()));
-	cimInstance.addProperty(CIMProperty("CurrentTimeZone", os.GetCurrentTimeZone()));
-	cimInstance.addProperty(CIMProperty("LocalDateTime", os.GetLocalDateTime()));
-	//cimInstance.addProperty(CIMProperty("LastBootUpTime", os.GetLastBootUpTime()));
-	cimInstance.addProperty(CIMProperty("NumberOfLicensedUsers", os.GetNumberOfLicensedUsers()));
-	cimInstance.addProperty(CIMProperty("NumberOfUsers", os.GetNumberOfUsers()));
-	cimInstance.addProperty(CIMProperty("NumberOfProcesses", os.GetNumberOfProcesses()));
-	cimInstance.addProperty(CIMProperty("MaxNumberOfProcesses", os.GetMaxNumberOfProcesses()));
-	//cimInstance.addProperty(CIMProperty("InstallDate", os.GetInstallDate()));
-	cimInstance.addProperty(CIMProperty("Version", os.GetVersion()));
-	cimInstance.addProperty(CIMProperty("TotalSwapSpaceSize", os.GetTotalSwapSpaceSize()));
-	cimInstance.addProperty(CIMProperty("TotalVirtualMemorySize", os.GetTotalVirtualMemorySize()));
-	cimInstance.addProperty(CIMProperty("FreeVirtualMemory", os.GetFreeVirtualMemory()));
-	cimInstance.addProperty(CIMProperty("FreePhysicalMemory", os.GetFreePhysicalMemory()));
-	cimInstance.addProperty(CIMProperty("TotalVisibleMemorySize", os.GetTotalVisibleMemorySize()));
-	cimInstance.addProperty(CIMProperty("SizeStoredInPagingFiles", os.GetSizeStoredInPagingFiles()));
-	cimInstance.addProperty(CIMProperty("FreeSpaceInPagingFiles", os.GetFreeSpaceInPagingFiles()));
-	cimInstance.addProperty(CIMProperty("MaxProcessMemorySize", os.GetMaxProcessMemorySize()));
-	cimInstance.addProperty(CIMProperty("Distributed", os.GetDistributed()));
+		cimInstance.addProperty(CIMProperty("CSCreationClassName", os.GetCSCreationClassName()));
+		cimInstance.addProperty(CIMProperty("CSName", os.GetCSName()));
+		cimInstance.addProperty(CIMProperty("CreationClassName", os.GetCreationClassName()));
+		cimInstance.addProperty(CIMProperty("Name", os.GetName()));
+		cimInstance.addProperty(CIMProperty("OSType", os.GetOSType()));
+		cimInstance.addProperty(CIMProperty("OtherTypeDescription", os.GetOtherTypeDescription()));
+		cimInstance.addProperty(CIMProperty("CurrentTimeZone", os.GetCurrentTimeZone()));
+		cimInstance.addProperty(CIMProperty("LocalDateTime", os.GetLocalDateTime()));
+		cimInstance.addProperty(CIMProperty("LastBootUpTime", os.GetLastBootUpTime()));
+		cimInstance.addProperty(CIMProperty("NumberOfLicensedUsers", os.GetNumberOfLicensedUsers()));
+		cimInstance.addProperty(CIMProperty("NumberOfUsers", os.GetNumberOfUsers()));
+		cimInstance.addProperty(CIMProperty("NumberOfProcesses", os.GetNumberOfProcesses()));
+		cimInstance.addProperty(CIMProperty("MaxNumberOfProcesses", os.GetMaxNumberOfProcesses()));
+		cimInstance.addProperty(CIMProperty("InstallDate", os.GetInstallDate()));
+		cimInstance.addProperty(CIMProperty("Version", os.GetVersion()));
+		cimInstance.addProperty(CIMProperty("TotalSwapSpaceSize", os.GetTotalSwapSpaceSize()));
+		cimInstance.addProperty(CIMProperty("TotalVirtualMemorySize", os.GetTotalVirtualMemorySize()));
+		cimInstance.addProperty(CIMProperty("FreeVirtualMemory", os.GetFreeVirtualMemory()));
+		cimInstance.addProperty(CIMProperty("FreePhysicalMemory", os.GetFreePhysicalMemory()));
+		cimInstance.addProperty(CIMProperty("TotalVisibleMemorySize", os.GetTotalVisibleMemorySize()));
+		cimInstance.addProperty(CIMProperty("SizeStoredInPagingFiles", os.GetSizeStoredInPagingFiles()));
+		cimInstance.addProperty(CIMProperty("FreeSpaceInPagingFiles", os.GetFreeSpaceInPagingFiles()));
+		cimInstance.addProperty(CIMProperty("MaxProcessMemorySize", os.GetMaxProcessMemorySize()));
+		cimInstance.addProperty(CIMProperty("Distributed", os.GetDistributed()));
 
-	handler.deliver(cimInstance);
+		handler.deliver(cimInstance);
+	}
 
 	handler.complete();
 }

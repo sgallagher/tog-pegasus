@@ -73,7 +73,7 @@ compilerDeclContext::lookupClass(const CIMNamespaceName &nameSpace,
       return *pTheClass;
   }
   if (_repository && _ot != compilerCommonDefs::IGNORE_REPOSITORY) {
-      return _repository->getClass(nameSpace, className);
+      return _repository->getClass(nameSpace, className,true, true, true);
   }
   return CIMClass();
 }

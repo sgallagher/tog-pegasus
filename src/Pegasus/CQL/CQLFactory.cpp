@@ -131,7 +131,7 @@ CQLValue CQLFactory::getValue(CQLPredicate* obj){
 	}
 	return CQLValue();
 }
-/*
+
 void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryType targetType){
 	switch(inObjectType){
 		case Predicate:
@@ -156,7 +156,8 @@ void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryTyp
 void* CQLFactory::getObject(CQLFactor* obj, FactoryType target){
         switch(target){
           case Function:
-		return obj->_CQLFunct;
+		_function =  obj->getCQLFunction();
+		return &_function;
           default:
                 return NULL;
                 break;
@@ -167,9 +168,11 @@ void* CQLFactory::getObject(CQLFactor* obj, FactoryType target){
 void* CQLFactory::getObject(CQLTerm* obj, FactoryType target){
         switch(target){
 	  case Factor:
-		return &(obj->_Factors[0]);
+		_factor = obj->getFactors()[0];
+		return &_factor;
           case Function:
-		return getObject(&(obj->_Factors[0]),target);
+		_factor = obj->getFactors()[0];
+		return getObject(&_factor,target);
           default:
                 return NULL;
                 break;
@@ -179,10 +182,12 @@ void* CQLFactory::getObject(CQLTerm* obj, FactoryType target){
 void* CQLFactory::getObject(CQLExpression* obj, FactoryType target){
         switch(target){
 	  case Term:
-		return &(obj->_CQLTerms[0]);
+		_term = obj->getTerms()[0];
+		return &_term;
           case Factor:
           case Function:
-		return getObject(&(obj->_CQLTerms[0]), target);
+		_term = obj->getTerms()[0];
+		return getObject(&_term, target);
           default:
 		return NULL;
                 break;
@@ -192,11 +197,12 @@ void* CQLFactory::getObject(CQLExpression* obj, FactoryType target){
 void* CQLFactory::getObject(CQLSimplePredicate* obj, FactoryType target){
         switch(target){
 	  case Expression:
-		return obj->_leftSide;
+		_expression =  obj->getLeftExpression();
           case Term:
           case Factor:
           case Function:
-		return getObject(obj->_leftSide, target);
+		_expression =  obj->getLeftExpression();
+		return getObject(&_expression, target);
           default:
                 return NULL;
                 break;
@@ -206,18 +212,48 @@ void* CQLFactory::getObject(CQLSimplePredicate* obj, FactoryType target){
 void* CQLFactory::getObject(CQLPredicate* obj, FactoryType target){
         switch(target){
           case SimplePredicate:
-                return &(obj->_simplePredicate);
+		_simplePredicate = obj->getSimplePredicate();
+                return &_simplePredicate;
                 break;
 	  case Expression:
 	  case Term:
 	  case Factor:
 	  case Function:
-		return getObject(&(obj->_simplePredicate), target);
+		_simplePredicate = obj->getSimplePredicate();
+		return getObject(&_simplePredicate, target);
           default:
                 return NULL;
                 break;
         }
 }
 
-*/
+void CQLFactory::setObject(CQLPredicate* predicate, void* obj, FactoryType objType){
+	switch(objType){
+	  case SimplePredicate:
+		predicate->_rep->_simplePredicate = *((CQLSimplePredicate*)obj);
+		break;
+	  case Expression:
+		predicate->_rep->_simplePredicate._rep->_leftSide = *((CQLExpression*)obj);
+		break;
+          case Term:
+          	predicate->_rep->_simplePredicate._rep->_leftSide._rep->_CQLTerms[0] =  
+			*((CQLTerm*)obj);
+		break;
+          case Factor:
+		predicate->_rep->_simplePredicate._rep->_leftSide._rep->_CQLTerms[0]._rep->_Factors[0] = 
+			*((CQLFactor*)obj);
+		break;
+          case Function:
+		predicate->_rep->_simplePredicate._rep->_leftSide._rep->_CQLTerms[0]._rep->_Factors[0]._rep->_CQLFunct =
+                        *((CQLFunction*)obj);
+		break;
+	  case Value:
+		predicate->_rep->_simplePredicate._rep->_leftSide._rep->_CQLTerms[0]._rep->_Factors[0]._rep->_CQLVal =
+                        *((CQLValue*)obj);
+		break;
+	  default:
+		break;
+	}
+} 
+
 PEGASUS_NAMESPACE_END

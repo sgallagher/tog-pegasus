@@ -4,7 +4,7 @@
 
 Valid cases:
 All options specified except hostname
-/var/pegasus/bin/bin/wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml
+wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -30,7 +30,7 @@ All options specified except hostname
 
 
 All options specified except hostname
-/var/pegasus/bin/bin/wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml
+wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -56,7 +56,7 @@ All options specified except hostname
 
 
 No options specified
-/var/pegasus/bin/bin/wbemexec < ./cimrequest.xml
+wbemexec < ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -83,7 +83,7 @@ No options specified
 
 Test cases for HTTP version option:
 -v 1.0 option specified
-/var/pegasus/bin/bin/wbemexec -v 1.0 ./cimrequest.xml
+wbemexec -v 1.0 ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -109,7 +109,7 @@ Test cases for HTTP version option:
 
 
 -v 1.1 option specified
-/var/pegasus/bin/bin/wbemexec -v 1.1 ./cimrequest.xml
+wbemexec -v 1.1 ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -136,7 +136,7 @@ Test cases for HTTP version option:
 
 Test cases for HTTP method option:
 -m POST option specified
-/var/pegasus/bin/bin/wbemexec -m POST ./cimrequest.xml
+wbemexec -m POST ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -162,7 +162,7 @@ Test cases for HTTP method option:
 
 
 -m M-POST option specified
-/var/pegasus/bin/bin/wbemexec -m M-POST ./cimrequest.xml
+wbemexec -m M-POST ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -188,7 +188,7 @@ Test cases for HTTP method option:
 
 
 -m POST -v 1.0 specified
-/var/pegasus/bin/bin/wbemexec -v 1.0 -m POST ./cimrequest.xml
+wbemexec -v 1.0 -m POST ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -214,7 +214,7 @@ Test cases for HTTP method option:
 
 
 -m POST -v 1.1 specified
-/var/pegasus/bin/bin/wbemexec -v 1.1 -m POST ./cimrequest.xml
+wbemexec -v 1.1 -m POST ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -240,7 +240,7 @@ Test cases for HTTP method option:
 
 
 -m M-POST -v 1.1 specified
-/var/pegasus/bin/bin/wbemexec -v 1.1 -m M-POST ./cimrequest.xml
+wbemexec -v 1.1 -m M-POST ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -267,7 +267,7 @@ Test cases for HTTP method option:
 
 Test cases for timeout option:
 minimum valid timeout value (milliseconds)
-/var/pegasus/bin/bin/wbemexec -t 1 ./cimrequest.xml
+wbemexec -t 1 ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -294,7 +294,7 @@ minimum valid timeout value (milliseconds)
 
 Test cases for timeout option:
 maximum valid timeout value (milliseconds)
-/var/pegasus/bin/bin/wbemexec -t 4294967295 ./cimrequest.xml
+wbemexec -t 4294967295 ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -320,7 +320,7 @@ maximum valid timeout value (milliseconds)
 
 
 XML request already encapsulated in HTTP M-POST request
-/var/pegasus/bin/bin/wbemexec ./cimrequest.http
+wbemexec ./cimrequest.http
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -347,7 +347,7 @@ XML request already encapsulated in HTTP M-POST request
 
 Multiple CIM operation request
 Times out -- not yet supported by CIM Server
-/var/pegasus/bin/bin/wbemexec -t 1 ./cimrequest04.xml
+wbemexec -t 1 ./cimrequest04.xml
 
 
 Timed out waiting for response 
@@ -357,7 +357,7 @@ Timed out waiting for response
 
 Error cases:
 Missing argument for -h option
-/var/pegasus/bin/bin/wbemexec -h < ./cimrequest.xml
+wbemexec -h < ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag h
@@ -367,7 +367,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Missing argument for -p option
-/var/pegasus/bin/bin/wbemexec -p < ./cimrequest.xml
+wbemexec -p < ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag p
@@ -377,7 +377,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Missing argument for -v option
-/var/pegasus/bin/bin/wbemexec -v < ./cimrequest.xml
+wbemexec -v < ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag v
@@ -387,7 +387,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Missing argument for -m option
-/var/pegasus/bin/bin/wbemexec -m < ./cimrequest.xml
+wbemexec -m < ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag m
@@ -397,7 +397,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Missing argument for -t option
-/var/pegasus/bin/bin/wbemexec -t < ./cimrequest.xml
+wbemexec -t < ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag t
@@ -407,7 +407,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Missing argument for -u option
-/var/pegasus/bin/bin/wbemexec -u < ./cimrequest.xml
+wbemexec -u < ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag u
@@ -417,7 +417,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Missing argument for -w option
-/var/pegasus/bin/bin/wbemexec -w < ./cimrequest.xml
+wbemexec -w < ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag w
@@ -428,7 +428,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 Non-option argument -
 Works -- getoopt behavior differs from other implementations of getopt
-/var/pegasus/bin/bin/wbemexec - < ./cimrequest.xml
+wbemexec - < ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -455,7 +455,7 @@ Works -- getoopt behavior differs from other implementations of getopt
 
 Non-option argument -
 Works -- getoopt behavior differs from other implementations of getopt
-/var/pegasus/bin/bin/wbemexec - ./cimrequest.xml
+wbemexec - ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -481,7 +481,7 @@ Works -- getoopt behavior differs from other implementations of getopt
 
 
 Empty string non-option argument
-/var/pegasus/bin/bin/wbemexec "" < ./cimrequest.xml
+wbemexec "" < ./cimrequest.xml
 
 
 Unable to use requested input file: file does not exist 
@@ -490,7 +490,7 @@ Unable to use requested input file: file does not exist
 
 
 Empty string non-option argument
-/var/pegasus/bin/bin/wbemexec "" ./cimrequest.xml
+wbemexec "" ./cimrequest.xml
 
 
 wbemexec: argument "./cimrequest.xml" was unexpected
@@ -500,7 +500,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid option -x
-/var/pegasus/bin/bin/wbemexec -x < ./cimrequest.xml
+wbemexec -x < ./cimrequest.xml
 
 
 wbemexec: Unknown flag -x
@@ -510,7 +510,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid option -x
-/var/pegasus/bin/bin/wbemexec -u guest -w guest -x < ./cimrequest.xml
+wbemexec -u guest -w guest -x < ./cimrequest.xml
 
 
 wbemexec: Unknown flag -x
@@ -520,7 +520,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid option -x
-/var/pegasus/bin/bin/wbemexec -u guest -x -w guest < ./cimrequest.xml
+wbemexec -u guest -x -w guest < ./cimrequest.xml
 
 
 wbemexec: Unknown flag -x
@@ -530,7 +530,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid option -x
-/var/pegasus/bin/bin/wbemexec -x foo < ./cimrequest.xml
+wbemexec -x foo < ./cimrequest.xml
 
 
 wbemexec: Unknown flag -x
@@ -540,7 +540,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid option -x
-/var/pegasus/bin/bin/wbemexec -xfoo < ./cimrequest.xml
+wbemexec -xfoo < ./cimrequest.xml
 
 
 wbemexec: Unknown flag -x
@@ -550,7 +550,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Duplicate -h option
-/var/pegasus/bin/bin/wbemexec -h chacha -h cancan ./cimrequest.xml
+wbemexec -h chacha -h cancan ./cimrequest.xml
 
 
 wbemexec: duplicate "-h" option
@@ -560,7 +560,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Duplicate -p option
-/var/pegasus/bin/bin/wbemexec -p 5988 -p 81 ./cimrequest.xml
+wbemexec -p 5988 -p 81 ./cimrequest.xml
 
 
 wbemexec: duplicate "-p" option
@@ -570,7 +570,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Duplicate -v option
-/var/pegasus/bin/bin/wbemexec -v 1.0 -v 1.1 ./cimrequest.xml
+wbemexec -v 1.0 -v 1.1 ./cimrequest.xml
 
 
 wbemexec: duplicate "-v" option
@@ -580,7 +580,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Duplicate -m option
-/var/pegasus/bin/bin/wbemexec -m POST -m M-POST ./cimrequest.xml
+wbemexec -m POST -m M-POST ./cimrequest.xml
 
 
 wbemexec: duplicate "-m" option
@@ -590,7 +590,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Duplicate -t option
-/var/pegasus/bin/bin/wbemexec -t 25000 -t 30000 ./cimrequest.xml
+wbemexec -t 25000 -t 30000 ./cimrequest.xml
 
 
 wbemexec: duplicate "-t" option
@@ -600,7 +600,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Duplicate -u option
-/var/pegasus/bin/bin/wbemexec -u guest -u guest2 ./cimrequest.xml
+wbemexec -u guest -u guest2 ./cimrequest.xml
 
 
 wbemexec: duplicate "-u" option
@@ -610,7 +610,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Duplicate -w option
-/var/pegasus/bin/bin/wbemexec -w guest -w guest2 ./cimrequest.xml
+wbemexec -w guest -w guest2 ./cimrequest.xml
 
 
 wbemexec: duplicate "-w" option
@@ -620,7 +620,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Multiple inputfilepath arguments
-/var/pegasus/bin/bin/wbemexec ./cimrequest.xml ./cimrequest2.xml
+wbemexec ./cimrequest.xml ./cimrequest2.xml
 
 
 wbemexec: argument "./cimrequest2.xml" was unexpected
@@ -630,7 +630,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid hostName argument
-/var/pegasus/bin/bin/wbemexec -h nohost ./cimrequest.xml
+wbemexec -h nohost ./cimrequest.xml
 
 
 Failed to connect to cimom 
@@ -639,7 +639,7 @@ Failed to connect to cimom
 
 
 Invalid number format for portNumber argument
-/var/pegasus/bin/bin/wbemexec -p xxx ./cimrequest.xml
+wbemexec -p xxx ./cimrequest.xml
 
 
 wbemexec: argument "xxx" is not valid for option "-p"
@@ -649,7 +649,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid number format for portNumber argument
-/var/pegasus/bin/bin/wbemexec -p 1.1 ./cimrequest.xml
+wbemexec -p 1.1 ./cimrequest.xml
 
 
 wbemexec: argument "1.1" is not valid for option "-p"
@@ -659,7 +659,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid number format for portNumber argument
-/var/pegasus/bin/bin/wbemexec -p 1E+1 ./cimrequest.xml
+wbemexec -p 1E+1 ./cimrequest.xml
 
 
 wbemexec: argument "1E+1" is not valid for option "-p"
@@ -671,7 +671,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 Out of range portNumber argument
 getoopt behavior differs from other implementations of getopt:
 getoopt reports missing required value for flag p
-/var/pegasus/bin/bin/wbemexec -p -5988 ./cimrequest.xml
+wbemexec -p -5988 ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag p
@@ -683,7 +683,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 Out of range portNumber argument
 getoopt behavior differs from other implementations of getopt:
 getoopt reports missing required value for flag p
-/var/pegasus/bin/bin/wbemexec -p -1 ./cimrequest.xml
+wbemexec -p -1 ./cimrequest.xml
 
 
 wbemexec: Missing required value for flag p
@@ -693,7 +693,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Out of range portNumber argument
-/var/pegasus/bin/bin/wbemexec -p 65536 ./cimrequest.xml
+wbemexec -p 65536 ./cimrequest.xml
 
 
 wbemexec: argument "65536" is not valid for option "-p"
@@ -703,7 +703,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Maximum valid portnumber, but cimom not running on specified port
-/var/pegasus/bin/bin/wbemexec -p 65535 ./cimrequest.xml
+wbemexec -p 65535 ./cimrequest.xml
 
 
 Failed to connect to cimom 
@@ -712,7 +712,7 @@ Failed to connect to cimom
 
 
 Minimum valid portnumber, but cimom not running on specified port
-/var/pegasus/bin/bin/wbemexec -p 0 ./cimrequest.xml
+wbemexec -p 0 ./cimrequest.xml
 
 
 Failed to connect to cimom 
@@ -721,7 +721,7 @@ Failed to connect to cimom
 
 
 Invalid (unsupported) version argument
-/var/pegasus/bin/bin/wbemexec -v 0.9 ./cimrequest.xml
+wbemexec -v 0.9 ./cimrequest.xml
 
 
 wbemexec: argument "0.9" is not valid for option "-v"
@@ -731,7 +731,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid (unsupported) method argument
-/var/pegasus/bin/bin/wbemexec -m GET ./cimrequest.xml
+wbemexec -m GET ./cimrequest.xml
 
 
 wbemexec: argument "GET" is not valid for option "-m"
@@ -741,7 +741,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid combination of version and method argument (1.0 with M-POST)
-/var/pegasus/bin/bin/wbemexec -v 1.0 -m M-POST ./cimrequest.xml
+wbemexec -v 1.0 -m M-POST ./cimrequest.xml
 
 
 M-POST method invalid with HTTP version 1.0 
@@ -750,7 +750,7 @@ M-POST method invalid with HTTP version 1.0
 
 
 Invalid number format for timeout argument
-/var/pegasus/bin/bin/wbemexec -t xxx ./cimrequest.xml
+wbemexec -t xxx ./cimrequest.xml
 
 
 wbemexec: argument "xxx" is not valid for option "-t"
@@ -760,7 +760,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid number format for timeout argument
-/var/pegasus/bin/bin/wbemexec -t 1.1 ./cimrequest.xml
+wbemexec -t 1.1 ./cimrequest.xml
 
 
 wbemexec: argument "1.1" is not valid for option "-t"
@@ -770,7 +770,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Invalid number format for timeout argument
-/var/pegasus/bin/bin/wbemexec -t 1e-1 ./cimrequest.xml
+wbemexec -t 1e-1 ./cimrequest.xml
 
 
 wbemexec: argument "1e-1" is not valid for option "-t"
@@ -780,7 +780,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Out of range timeout argument value
-/var/pegasus/bin/bin/wbemexec -t 0 ./cimrequest.xml
+wbemexec -t 0 ./cimrequest.xml
 
 
 wbemexec: argument "0" is not valid for option "-t"
@@ -790,7 +790,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 
 Out of range timeout argument value
-/var/pegasus/bin/bin/wbemexec -t 4294967296 ./cimrequest.xml
+wbemexec -t 4294967296 ./cimrequest.xml
 
 
 wbemexec: argument "4294967296" is not valid for option "-t"
@@ -801,7 +801,7 @@ usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ] [ -m httpme
 
 Invalid user argument
 Works now because no authentication or authorization
-/var/pegasus/bin/bin/wbemexec -u nonuser ./cimrequest.xml
+wbemexec -u nonuser ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -828,7 +828,7 @@ Works now because no authentication or authorization
 
 Invalid password argument
 Works now because no authentication or authorization
-/var/pegasus/bin/bin/wbemexec -w nonpassword ./cimrequest.xml
+wbemexec -w nonpassword ./cimrequest.xml
 
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -854,7 +854,7 @@ Works now because no authentication or authorization
 
 
 Invalid inputFilePath argument: file does not exist
-/var/pegasus/bin/bin/wbemexec ./nonfile
+wbemexec ./nonfile
 
 
 Unable to use requested input file: file does not exist 
@@ -863,7 +863,7 @@ Unable to use requested input file: file does not exist
 
 
 Invalid inputFilePath argument: file is not readable
-/var/pegasus/bin/bin/wbemexec ./nopermfile
+wbemexec ./nopermfile
 
 
 Unable to use requested input file: file is not readable 
@@ -872,7 +872,7 @@ Unable to use requested input file: file is not readable
 
 
 No input provided
-/var/pegasus/bin/bin/wbemexec ./emptyfile
+wbemexec ./emptyfile
 
 
 No input 
@@ -881,7 +881,7 @@ No input
 
 
 No input provided
-/var/pegasus/bin/bin/wbemexec < ./emptyfile
+wbemexec < ./emptyfile
 
 
 No input 
@@ -890,7 +890,7 @@ No input
 
 
 Invalid XML input: missing <CIM> element (no element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr01.xml
+wbemexec ./cimreqerr01.xml
 
 
 Invalid XML request: Validation error: on line 2: Expected open of CIM element
@@ -899,7 +899,7 @@ Invalid XML request: Validation error: on line 2: Expected open of CIM element
 
 
 Invalid XML input: missing <CIM> element (different element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr01a.xml
+wbemexec ./cimreqerr01a.xml
 
 
 Invalid XML request: Validation error: on line 2: Expected open of CIM element
@@ -908,7 +908,7 @@ Invalid XML request: Validation error: on line 2: Expected open of CIM element
 
 
 Invalid XML input: invalid CIMVERSION attribute
-/var/pegasus/bin/bin/wbemexec ./cimreqerr01b.xml
+wbemexec ./cimreqerr01b.xml
 
 
 Invalid XML request: Validation error: on line 2: CIM.CIMVERSION attribute must be "2.0"
@@ -917,7 +917,7 @@ Invalid XML request: Validation error: on line 2: CIM.CIMVERSION attribute must 
 
 
 Invalid XML input: invalid DTDVERSION attribute
-/var/pegasus/bin/bin/wbemexec ./cimreqerr01c.xml
+wbemexec ./cimreqerr01c.xml
 
 
 Invalid XML request: Validation error: on line 2: CIM.DTDVERSION attribute must be "2.0"
@@ -926,7 +926,7 @@ Invalid XML request: Validation error: on line 2: CIM.DTDVERSION attribute must 
 
 
 Invalid XML input: missing CIMVERSION attribute
-/var/pegasus/bin/bin/wbemexec ./cimreqerr01d.xml
+wbemexec ./cimreqerr01d.xml
 
 
 Invalid XML request: Validation error: on line 2: missing CIM.CIMVERSION attribute
@@ -935,7 +935,7 @@ Invalid XML request: Validation error: on line 2: missing CIM.CIMVERSION attribu
 
 
 Invalid XML input: missing DTDVERSION attribute
-/var/pegasus/bin/bin/wbemexec ./cimreqerr01e.xml
+wbemexec ./cimreqerr01e.xml
 
 
 Invalid XML request: Validation error: on line 2: missing CIM.DTDVERSION attribute
@@ -944,7 +944,7 @@ Invalid XML request: Validation error: on line 2: missing CIM.DTDVERSION attribu
 
 
 Invalid XML input: missing <MESSAGE> element (no element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02.xml
+wbemexec -u guest -w guest < ./cimreqerr02.xml
 
 
 Invalid XML request: Validation error: on line 1: Failed to find <MESSAGE> element
@@ -953,7 +953,7 @@ Invalid XML request: Validation error: on line 1: Failed to find <MESSAGE> eleme
 
 
 Invalid XML input: missing <MESSAGE> element (different element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02a.xml
+wbemexec -u guest -w guest < ./cimreqerr02a.xml
 
 
 Invalid XML request: Validation error: on line 1: Failed to find <MESSAGE> element
@@ -962,7 +962,7 @@ Invalid XML request: Validation error: on line 1: Failed to find <MESSAGE> eleme
 
 
 Invalid XML input: missing PROTOCOLVERSION attribute
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02b.xml
+wbemexec -u guest -w guest < ./cimreqerr02b.xml
 
 
 Invalid XML request: Validation error: on line 1: Bad or missing MESSAGE.PROTOCOLVERSION attribute
@@ -971,7 +971,7 @@ Invalid XML request: Validation error: on line 1: Bad or missing MESSAGE.PROTOCO
 
 
 Invalid XML input: missing <SIMPLEREQ> element (no element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr03.xml
+wbemexec -u guest -w guest < ./cimreqerr03.xml
 
 
 Invalid XML request: Validation error: on line 1: Failed to find <SIMPLEREQ> or <MULTIREQ> element
@@ -980,7 +980,7 @@ Invalid XML request: Validation error: on line 1: Failed to find <SIMPLEREQ> or 
 
 
 Invalid XML input: missing <SIMPLEREQ> element (different element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr03a.xml
+wbemexec -u guest -w guest < ./cimreqerr03a.xml
 
 
 Invalid XML request: Validation error: on line 1: Failed to find <SIMPLEREQ> or <MULTIREQ> element
@@ -990,7 +990,7 @@ Invalid XML request: Validation error: on line 1: Failed to find <SIMPLEREQ> or 
 
 Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element 
     (no element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04.xml
+wbemexec -u guest -w guest < ./cimreqerr04.xml
 
 
 Invalid XML request: Validation error: on line 1: Failed to find <METHODCALL> or <IMETHODCALL> element
@@ -1000,7 +1000,7 @@ Invalid XML request: Validation error: on line 1: Failed to find <METHODCALL> or
 
 Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element 
     (different element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04a.xml
+wbemexec -u guest -w guest < ./cimreqerr04a.xml
 
 
 Invalid XML request: Validation error: on line 1: Failed to find <METHODCALL> or <IMETHODCALL> element
@@ -1009,7 +1009,7 @@ Invalid XML request: Validation error: on line 1: Failed to find <METHODCALL> or
 
 
 Invalid XML input: missing NAME attribute 
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04b.xml
+wbemexec -u guest -w guest < ./cimreqerr04b.xml
 
 
 Invalid XML request: Validation error: on line 1: missing IMETHODCALL.NAME attribute
@@ -1018,7 +1018,7 @@ Invalid XML request: Validation error: on line 1: missing IMETHODCALL.NAME attri
 
 
 Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr05.xml
+wbemexec -u guest -w guest < ./cimreqerr05.xml
 
 
 Invalid XML request: Validation error: on line 1: Failed to find <LOCALNAMESPACEPATH> element
@@ -1028,7 +1028,7 @@ Invalid XML request: Validation error: on line 1: Failed to find <LOCALNAMESPACE
 
 Invalid XML input: missing <LOCALNAMESPACEPATH> element (different 
     element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr05a.xml
+wbemexec -u guest -w guest < ./cimreqerr05a.xml
 
 
 Invalid XML request: Validation error: on line 1: Failed to find <LOCALNAMESPACEPATH> element
@@ -1037,7 +1037,7 @@ Invalid XML request: Validation error: on line 1: Failed to find <LOCALNAMESPACE
 
 
 Invalid XML input: missing <NAMESPACE> element (no element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr06.xml
+wbemexec -u guest -w guest < ./cimreqerr06.xml
 
 
 Invalid XML request: Validation error: on line 1: Expected either open or open/close NAMESPACE element
@@ -1046,7 +1046,7 @@ Invalid XML request: Validation error: on line 1: Expected either open or open/c
 
 
 Invalid XML input: missing <NAMESPACE> element (different element)
-/var/pegasus/bin/bin/wbemexec -u guest -w guest < ./cimreqerr06a.xml
+wbemexec -u guest -w guest < ./cimreqerr06a.xml
 
 
 Invalid XML request: Validation error: on line 1: Expected either open or open/close NAMESPACE element
@@ -1055,7 +1055,7 @@ Invalid XML request: Validation error: on line 1: Expected either open or open/c
 
 
 Invalid XML input: missing NAME attribute for NAMESPACE element
-/var/pegasus/bin/bin/wbemexec ./cimreqerr06b.xml
+wbemexec ./cimreqerr06b.xml
 
 
 Invalid XML request: Validation error: on line 7: missing NAMESPACE.NAME attribute
@@ -1064,7 +1064,7 @@ Invalid XML request: Validation error: on line 7: missing NAMESPACE.NAME attribu
 
 
 Invalid XML input: subelement other than NAMESPACE in list
-/var/pegasus/bin/bin/wbemexec ./cimreqerr06c.xml
+wbemexec ./cimreqerr06c.xml
 
 
 Invalid XML request: Validation error: on line 10: Expected close of LOCALNAMESPACEPATH element, got CLASSNAME instead
@@ -1073,7 +1073,7 @@ Invalid XML request: Validation error: on line 10: Expected close of LOCALNAMESP
 
 
 Invalid XML input: subelement other than NAMESPACE in list
-/var/pegasus/bin/bin/wbemexec ./cimreqerr06d.xml
+wbemexec ./cimreqerr06d.xml
 
 
 Invalid XML request: Validation error: on line 10: Expected close of LOCALNAMESPACEPATH element, got CLASSNAME instead
@@ -1083,7 +1083,7 @@ Invalid XML request: Validation error: on line 10: Expected close of LOCALNAMESP
 
 Invalid XML input: missing <LOCALCLASSPATH> or <LOCALINSTANCEPATH> 
     element (no element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr07.xml
+wbemexec ./cimreqerr07.xml
 
 
 Invalid XML request: Validation error: on line 6: Failed to find <LOCALCLASSPATH> or <LOCALINSTANCEPATH> element
@@ -1093,7 +1093,7 @@ Invalid XML request: Validation error: on line 6: Failed to find <LOCALCLASSPATH
 
 Invalid XML input: missing <LOCALCLASSPATH> or <LOCALINSTANCEPATH> 
     element (different element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr07a.xml
+wbemexec ./cimreqerr07a.xml
 
 
 Invalid XML request: Validation error: on line 6: Failed to find <LOCALCLASSPATH> or <LOCALINSTANCEPATH> element
@@ -1102,7 +1102,7 @@ Invalid XML request: Validation error: on line 6: Failed to find <LOCALCLASSPATH
 
 
 Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr08.xml
+wbemexec ./cimreqerr08.xml
 
 
 Invalid XML request: Validation error: on line 7: Failed to find <LOCALNAMESPACEPATH> element
@@ -1112,7 +1112,7 @@ Invalid XML request: Validation error: on line 7: Failed to find <LOCALNAMESPACE
 
 Invalid XML input: missing <LOCALNAMESPACEPATH> element 
     (different element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr08a.xml
+wbemexec ./cimreqerr08a.xml
 
 
 Invalid XML request: Validation error: on line 7: Failed to find <LOCALNAMESPACEPATH> element
@@ -1121,7 +1121,7 @@ Invalid XML request: Validation error: on line 7: Failed to find <LOCALNAMESPACE
 
 
 Invalid XML input: missing <NAMESPACE> element (no element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr09.xml
+wbemexec ./cimreqerr09.xml
 
 
 Invalid XML request: Validation error: on line 8: Expected either open or open/close NAMESPACE element
@@ -1130,7 +1130,7 @@ Invalid XML request: Validation error: on line 8: Expected either open or open/c
 
 
 Invalid XML input: missing <NAMESPACE> element (different element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr09a.xml
+wbemexec ./cimreqerr09a.xml
 
 
 Invalid XML request: Validation error: on line 8: Expected either open or open/close NAMESPACE element
@@ -1139,7 +1139,7 @@ Invalid XML request: Validation error: on line 8: Expected either open or open/c
 
 
 Invalid XML input: missing NAME attribute for NAMESPACE element
-/var/pegasus/bin/bin/wbemexec ./cimreqerr09b.xml
+wbemexec ./cimreqerr09b.xml
 
 
 Invalid XML request: Validation error: on line 10: missing NAMESPACE.NAME attribute
@@ -1148,7 +1148,7 @@ Invalid XML request: Validation error: on line 10: missing NAMESPACE.NAME attrib
 
 
 Invalid XML input: subelement other than NAMESPACE in list
-/var/pegasus/bin/bin/wbemexec ./cimreqerr09c.xml
+wbemexec ./cimreqerr09c.xml
 
 
 Invalid XML request: Validation error: on line 11: Expected close of LOCALNAMESPACEPATH element, got CLASSNAME instead
@@ -1157,7 +1157,7 @@ Invalid XML request: Validation error: on line 11: Expected close of LOCALNAMESP
 
 
 Invalid XML input: subelement other than NAMESPACE in list
-/var/pegasus/bin/bin/wbemexec ./cimreqerr09d.xml
+wbemexec ./cimreqerr09d.xml
 
 
 Invalid XML request: Validation error: on line 11: Expected close of LOCALNAMESPACEPATH element, got CLASSNAME instead
@@ -1166,7 +1166,7 @@ Invalid XML request: Validation error: on line 11: Expected close of LOCALNAMESP
 
 
 Invalid XML input: missing <CLASSNAME> element (no element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr10.xml
+wbemexec ./cimreqerr10.xml
 
 
 Invalid XML request: Validation error: on line 12: Failed to find <CLASSNAME> element
@@ -1175,7 +1175,7 @@ Invalid XML request: Validation error: on line 12: Failed to find <CLASSNAME> el
 
 
 Invalid XML input: missing <CLASSNAME> element (different element)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr10a.xml
+wbemexec ./cimreqerr10a.xml
 
 
 Invalid XML request: Validation error: on line 12: Failed to find <CLASSNAME> element
@@ -1184,7 +1184,7 @@ Invalid XML request: Validation error: on line 12: Failed to find <CLASSNAME> el
 
 
 Invalid XML input: missing NAME attribute for CLASSNAME element
-/var/pegasus/bin/bin/wbemexec ./cimreqerr10b.xml
+wbemexec ./cimreqerr10b.xml
 
 
 Invalid XML request: Validation error: on line 12: missing CLASSNAME.NAME attribute
@@ -1193,7 +1193,7 @@ Invalid XML request: Validation error: on line 12: missing CLASSNAME.NAME attrib
 
 
 Invalid input: input starts with neither xml declaration, nor HTTP M-POST or POST method request (GET method)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr01.http
+wbemexec ./cimreqerr01.http
 
 
 Invalid input: expected XML request, or HTTP M-POST or POST method request
@@ -1203,7 +1203,7 @@ Invalid input: expected XML request, or HTTP M-POST or POST method request
 
 Invalid input: input starts with neither xml declaration, nor HTTP M-POST
 or POST method request (missing HTTP method)
-/var/pegasus/bin/bin/wbemexec ./cimreqerr02.http
+wbemexec ./cimreqerr02.http
 
 
 Invalid input: expected XML request, or HTTP M-POST or POST method request
@@ -1213,7 +1213,7 @@ Invalid input: expected XML request, or HTTP M-POST or POST method request
 
 Invalid input: input starts with neither xml declaration, nor valid HTTP
 M-POST or POST method request (missing HTTP URI and version) -- times out
-/var/pegasus/bin/bin/wbemexec -t 1 ./cimreqerr03.http
+wbemexec -t 1 ./cimreqerr03.http
 
 
 Timed out waiting for response 

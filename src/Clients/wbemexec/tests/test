@@ -2,719 +2,719 @@ echo "\n"
 echo "\n"
 echo "Valid cases:"
 echo "All options specified except hostname"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml"
+echo "wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml
+wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "All options specified except hostname"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml"
+echo "wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml
+wbemexec -p5988 -v1.1 -mM-POST -t10000 -uguest -wguest ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "No options specified"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec < ./cimrequest.xml"
+echo "wbemexec < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec < ./cimrequest.xml
+wbemexec < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Test cases for HTTP version option:"
 echo "-v 1.0 option specified"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.0 ./cimrequest.xml"
+echo "wbemexec -v 1.0 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.0 ./cimrequest.xml
+wbemexec -v 1.0 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "-v 1.1 option specified"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.1 ./cimrequest.xml"
+echo "wbemexec -v 1.1 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.1 ./cimrequest.xml
+wbemexec -v 1.1 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Test cases for HTTP method option:"
 echo "-m POST option specified"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -m POST ./cimrequest.xml"
+echo "wbemexec -m POST ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -m POST ./cimrequest.xml
+wbemexec -m POST ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "-m M-POST option specified"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -m M-POST ./cimrequest.xml"
+echo "wbemexec -m M-POST ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -m M-POST ./cimrequest.xml
+wbemexec -m M-POST ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "-m POST -v 1.0 specified"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.0 -m POST ./cimrequest.xml"
+echo "wbemexec -v 1.0 -m POST ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.0 -m POST ./cimrequest.xml
+wbemexec -v 1.0 -m POST ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "-m POST -v 1.1 specified"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.1 -m POST ./cimrequest.xml"
+echo "wbemexec -v 1.1 -m POST ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.1 -m POST ./cimrequest.xml
+wbemexec -v 1.1 -m POST ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "-m M-POST -v 1.1 specified"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.1 -m M-POST ./cimrequest.xml"
+echo "wbemexec -v 1.1 -m M-POST ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.1 -m M-POST ./cimrequest.xml
+wbemexec -v 1.1 -m M-POST ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Test cases for timeout option:"
 echo "minimum valid timeout value (milliseconds)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 1 ./cimrequest.xml"
+echo "wbemexec -t 1 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 1 ./cimrequest.xml
+wbemexec -t 1 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Test cases for timeout option:"
 echo "maximum valid timeout value (milliseconds)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 4294967295 ./cimrequest.xml"
+echo "wbemexec -t 4294967295 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 4294967295 ./cimrequest.xml
+wbemexec -t 4294967295 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "XML request already encapsulated in HTTP M-POST request"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimrequest.http"
+echo "wbemexec ./cimrequest.http"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimrequest.http
+wbemexec ./cimrequest.http
 echo "\n"
 echo "\n"
 
 echo "Multiple CIM operation request"
 echo "Times out -- not yet supported by CIM Server"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 1 ./cimrequest04.xml"
+echo "wbemexec -t 1 ./cimrequest04.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 1 ./cimrequest04.xml
+wbemexec -t 1 ./cimrequest04.xml
 echo "\n"
 echo "\n"
 
 echo "Error cases:"
 echo "Missing argument for -h option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -h < ./cimrequest.xml"
+echo "wbemexec -h < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -h < ./cimrequest.xml
+wbemexec -h < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Missing argument for -p option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p < ./cimrequest.xml"
+echo "wbemexec -p < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p < ./cimrequest.xml
+wbemexec -p < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Missing argument for -v option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v < ./cimrequest.xml"
+echo "wbemexec -v < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v < ./cimrequest.xml
+wbemexec -v < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Missing argument for -m option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -m < ./cimrequest.xml"
+echo "wbemexec -m < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -m < ./cimrequest.xml
+wbemexec -m < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Missing argument for -t option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t < ./cimrequest.xml"
+echo "wbemexec -t < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t < ./cimrequest.xml
+wbemexec -t < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Missing argument for -u option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u < ./cimrequest.xml"
+echo "wbemexec -u < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u < ./cimrequest.xml
+wbemexec -u < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Missing argument for -w option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -w < ./cimrequest.xml"
+echo "wbemexec -w < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -w < ./cimrequest.xml
-echo "\n"
-echo "\n"
-
-echo "Non-option argument -"
-echo "Works -- getoopt behavior differs from other implementations of getopt"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec - < ./cimrequest.xml"
-echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec - < ./cimrequest.xml
+wbemexec -w < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Non-option argument -"
 echo "Works -- getoopt behavior differs from other implementations of getopt"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec - ./cimrequest.xml"
+echo "wbemexec - < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec - ./cimrequest.xml
+wbemexec - < ./cimrequest.xml
+echo "\n"
+echo "\n"
+
+echo "Non-option argument -"
+echo "Works -- getoopt behavior differs from other implementations of getopt"
+echo "wbemexec - ./cimrequest.xml"
+echo "\n"
+wbemexec - ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Empty string non-option argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec \"\" < ./cimrequest.xml"
+echo "wbemexec \"\" < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec "" < ./cimrequest.xml
+wbemexec "" < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Empty string non-option argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec \"\" ./cimrequest.xml"
+echo "wbemexec \"\" ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec "" ./cimrequest.xml
-echo "\n"
-echo "\n"
-
-echo "Invalid option -x"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -x < ./cimrequest.xml"
-echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -x < ./cimrequest.xml
+wbemexec "" ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid option -x"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest -x < ./cimrequest.xml"
+echo "wbemexec -x < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest -x < ./cimrequest.xml
-echo "\n"
-echo "\n"
-
-echo "Invalid option -x"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -x -w guest < ./cimrequest.xml"
-echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -x -w guest < ./cimrequest.xml
+wbemexec -x < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid option -x"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -x foo < ./cimrequest.xml"
+echo "wbemexec -u guest -w guest -x < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -x foo < ./cimrequest.xml
+wbemexec -u guest -w guest -x < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid option -x"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -xfoo < ./cimrequest.xml"
+echo "wbemexec -u guest -x -w guest < ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -xfoo < ./cimrequest.xml
+wbemexec -u guest -x -w guest < ./cimrequest.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid option -x"
+echo "wbemexec -x foo < ./cimrequest.xml"
+echo "\n"
+wbemexec -x foo < ./cimrequest.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid option -x"
+echo "wbemexec -xfoo < ./cimrequest.xml"
+echo "\n"
+wbemexec -xfoo < ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Duplicate -h option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -h chacha -h cancan ./cimrequest.xml"
+echo "wbemexec -h chacha -h cancan ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -h chacha -h cancan ./cimrequest.xml
+wbemexec -h chacha -h cancan ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Duplicate -p option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p 5988 -p 81 ./cimrequest.xml"
+echo "wbemexec -p 5988 -p 81 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p 5988 -p 81 ./cimrequest.xml
+wbemexec -p 5988 -p 81 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Duplicate -v option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.0 -v 1.1 ./cimrequest.xml"
+echo "wbemexec -v 1.0 -v 1.1 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.0 -v 1.1 ./cimrequest.xml
+wbemexec -v 1.0 -v 1.1 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Duplicate -m option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -m POST -m M-POST ./cimrequest.xml"
+echo "wbemexec -m POST -m M-POST ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -m POST -m M-POST ./cimrequest.xml
+wbemexec -m POST -m M-POST ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Duplicate -t option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 25000 -t 30000 ./cimrequest.xml"
+echo "wbemexec -t 25000 -t 30000 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 25000 -t 30000 ./cimrequest.xml
+wbemexec -t 25000 -t 30000 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Duplicate -u option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -u guest2 ./cimrequest.xml"
+echo "wbemexec -u guest -u guest2 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -u guest2 ./cimrequest.xml
+wbemexec -u guest -u guest2 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Duplicate -w option"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -w guest -w guest2 ./cimrequest.xml"
+echo "wbemexec -w guest -w guest2 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -w guest -w guest2 ./cimrequest.xml
+wbemexec -w guest -w guest2 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Multiple inputfilepath arguments"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimrequest.xml ./cimrequest2.xml"
+echo "wbemexec ./cimrequest.xml ./cimrequest2.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimrequest.xml ./cimrequest2.xml
+wbemexec ./cimrequest.xml ./cimrequest2.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid hostName argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -h nohost ./cimrequest.xml"
+echo "wbemexec -h nohost ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -h nohost ./cimrequest.xml
-echo "\n"
-echo "\n"
-
-echo "Invalid number format for portNumber argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p xxx ./cimrequest.xml"
-echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p xxx ./cimrequest.xml
+wbemexec -h nohost ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid number format for portNumber argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p 1.1 ./cimrequest.xml"
+echo "wbemexec -p xxx ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p 1.1 ./cimrequest.xml
+wbemexec -p xxx ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid number format for portNumber argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p 1E+1 ./cimrequest.xml"
+echo "wbemexec -p 1.1 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p 1E+1 ./cimrequest.xml
+wbemexec -p 1.1 ./cimrequest.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid number format for portNumber argument"
+echo "wbemexec -p 1E+1 ./cimrequest.xml"
+echo "\n"
+wbemexec -p 1E+1 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Out of range portNumber argument"
 echo "getoopt behavior differs from other implementations of getopt:"
 echo "getoopt reports missing required value for flag p"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p -5988 ./cimrequest.xml"
+echo "wbemexec -p -5988 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p -5988 ./cimrequest.xml
+wbemexec -p -5988 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Out of range portNumber argument"
 echo "getoopt behavior differs from other implementations of getopt:"
 echo "getoopt reports missing required value for flag p"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p -1 ./cimrequest.xml"
+echo "wbemexec -p -1 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p -1 ./cimrequest.xml
+wbemexec -p -1 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Out of range portNumber argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p 65536 ./cimrequest.xml"
+echo "wbemexec -p 65536 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p 65536 ./cimrequest.xml
+wbemexec -p 65536 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Maximum valid portnumber, but cimom not running on specified port"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p 65535 ./cimrequest.xml"
+echo "wbemexec -p 65535 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p 65535 ./cimrequest.xml
+wbemexec -p 65535 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Minimum valid portnumber, but cimom not running on specified port"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -p 0 ./cimrequest.xml"
+echo "wbemexec -p 0 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -p 0 ./cimrequest.xml
+wbemexec -p 0 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid (unsupported) version argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v 0.9 ./cimrequest.xml"
+echo "wbemexec -v 0.9 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v 0.9 ./cimrequest.xml
+wbemexec -v 0.9 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid (unsupported) method argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -m GET ./cimrequest.xml"
+echo "wbemexec -m GET ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -m GET ./cimrequest.xml
+wbemexec -m GET ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid combination of version and method argument (1.0 with M-POST)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.0 -m M-POST ./cimrequest.xml"
+echo "wbemexec -v 1.0 -m M-POST ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -v 1.0 -m M-POST ./cimrequest.xml
-echo "\n"
-echo "\n"
-
-echo "Invalid number format for timeout argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t xxx ./cimrequest.xml"
-echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t xxx ./cimrequest.xml
+wbemexec -v 1.0 -m M-POST ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid number format for timeout argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 1.1 ./cimrequest.xml"
+echo "wbemexec -t xxx ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 1.1 ./cimrequest.xml
+wbemexec -t xxx ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid number format for timeout argument"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 1e-1 ./cimrequest.xml"
+echo "wbemexec -t 1.1 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 1e-1 ./cimrequest.xml
+wbemexec -t 1.1 ./cimrequest.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid number format for timeout argument"
+echo "wbemexec -t 1e-1 ./cimrequest.xml"
+echo "\n"
+wbemexec -t 1e-1 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Out of range timeout argument value"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 0 ./cimrequest.xml"
+echo "wbemexec -t 0 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 0 ./cimrequest.xml
+wbemexec -t 0 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Out of range timeout argument value"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 4294967296 ./cimrequest.xml"
+echo "wbemexec -t 4294967296 ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 4294967296 ./cimrequest.xml
+wbemexec -t 4294967296 ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid user argument"
 echo "Works now because no authentication or authorization"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u nonuser ./cimrequest.xml"
+echo "wbemexec -u nonuser ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u nonuser ./cimrequest.xml
+wbemexec -u nonuser ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid password argument"
 echo "Works now because no authentication or authorization"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -w nonpassword ./cimrequest.xml"
+echo "wbemexec -w nonpassword ./cimrequest.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -w nonpassword ./cimrequest.xml
+wbemexec -w nonpassword ./cimrequest.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid inputFilePath argument: file does not exist"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./nonfile"
+echo "wbemexec ./nonfile"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./nonfile
+wbemexec ./nonfile
 echo "\n"
 echo "\n"
 
 echo "Invalid inputFilePath argument: file is not readable"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./nopermfile"
+echo "wbemexec ./nopermfile"
 echo "\n"
 touch ./nopermfile
 chmod 000 ./nopermfile
-${PEGASUS_ROOT}/bin/bin/wbemexec ./nopermfile
+wbemexec ./nopermfile
 /bin/rm -f ./nopermfile
 echo "\n"
 echo "\n"
 
 echo "No input provided"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./emptyfile"
+echo "wbemexec ./emptyfile"
 echo "\n"
 touch ./emptyfile
-${PEGASUS_ROOT}/bin/bin/wbemexec ./emptyfile
+wbemexec ./emptyfile
 /bin/rm -f ./emptyfile
 echo "\n"
 echo "\n"
 
 echo "No input provided"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec < ./emptyfile"
+echo "wbemexec < ./emptyfile"
 echo "\n"
 touch ./emptyfile
-${PEGASUS_ROOT}/bin/bin/wbemexec < ./emptyfile
+wbemexec < ./emptyfile
 /bin/rm -f ./emptyfile
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <CIM> element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01.xml"
+echo "wbemexec ./cimreqerr01.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01.xml
+wbemexec ./cimreqerr01.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <CIM> element (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01a.xml"
+echo "wbemexec ./cimreqerr01a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01a.xml
+wbemexec ./cimreqerr01a.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: invalid CIMVERSION attribute"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01b.xml"
+echo "wbemexec ./cimreqerr01b.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01b.xml
+wbemexec ./cimreqerr01b.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: invalid DTDVERSION attribute"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01c.xml"
+echo "wbemexec ./cimreqerr01c.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01c.xml
+wbemexec ./cimreqerr01c.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing CIMVERSION attribute"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01d.xml"
+echo "wbemexec ./cimreqerr01d.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01d.xml
+wbemexec ./cimreqerr01d.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing DTDVERSION attribute"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01e.xml"
+echo "wbemexec ./cimreqerr01e.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01e.xml
+wbemexec ./cimreqerr01e.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <MESSAGE> element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr02.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02.xml
+wbemexec -u guest -w guest < ./cimreqerr02.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <MESSAGE> element (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02a.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr02a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02a.xml
+wbemexec -u guest -w guest < ./cimreqerr02a.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing PROTOCOLVERSION attribute"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02b.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr02b.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr02b.xml
+wbemexec -u guest -w guest < ./cimreqerr02b.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <SIMPLEREQ> element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr03.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr03.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr03.xml
+wbemexec -u guest -w guest < ./cimreqerr03.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <SIMPLEREQ> element (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr03a.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr03a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr03a.xml
+wbemexec -u guest -w guest < ./cimreqerr03a.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element "
 echo "    (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr04.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04.xml
+wbemexec -u guest -w guest < ./cimreqerr04.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <IMETHODCALL> or <METHODCALL> element "
 echo "    (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04a.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr04a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04a.xml
+wbemexec -u guest -w guest < ./cimreqerr04a.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing NAME attribute "
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04b.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr04b.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr04b.xml
+wbemexec -u guest -w guest < ./cimreqerr04b.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr05.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr05.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr05.xml
+wbemexec -u guest -w guest < ./cimreqerr05.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <LOCALNAMESPACEPATH> element (different "
 echo "    element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr05a.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr05a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr05a.xml
+wbemexec -u guest -w guest < ./cimreqerr05a.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <NAMESPACE> element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr06.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr06.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr06.xml
+wbemexec -u guest -w guest < ./cimreqerr06.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <NAMESPACE> element (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr06a.xml"
+echo "wbemexec -u guest -w guest < ./cimreqerr06a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -u guest -w guest < ./cimreqerr06a.xml
+wbemexec -u guest -w guest < ./cimreqerr06a.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing NAME attribute for NAMESPACE element"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr06b.xml"
+echo "wbemexec ./cimreqerr06b.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr06b.xml
-echo "\n"
-echo "\n"
-
-echo "Invalid XML input: subelement other than NAMESPACE in list"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr06c.xml"
-echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr06c.xml
+wbemexec ./cimreqerr06b.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: subelement other than NAMESPACE in list"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr06d.xml"
+echo "wbemexec ./cimreqerr06c.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr06d.xml
+wbemexec ./cimreqerr06c.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid XML input: subelement other than NAMESPACE in list"
+echo "wbemexec ./cimreqerr06d.xml"
+echo "\n"
+wbemexec ./cimreqerr06d.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <LOCALCLASSPATH> or <LOCALINSTANCEPATH> "
 echo "    element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr07.xml"
+echo "wbemexec ./cimreqerr07.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr07.xml
+wbemexec ./cimreqerr07.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <LOCALCLASSPATH> or <LOCALINSTANCEPATH> "
 echo "    element (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr07a.xml"
+echo "wbemexec ./cimreqerr07a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr07a.xml
+wbemexec ./cimreqerr07a.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <LOCALNAMESPACEPATH> element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr08.xml"
+echo "wbemexec ./cimreqerr08.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr08.xml
+wbemexec ./cimreqerr08.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <LOCALNAMESPACEPATH> element "
 echo "    (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr08a.xml"
+echo "wbemexec ./cimreqerr08a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr08a.xml
+wbemexec ./cimreqerr08a.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <NAMESPACE> element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09.xml"
+echo "wbemexec ./cimreqerr09.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09.xml
+wbemexec ./cimreqerr09.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <NAMESPACE> element (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09a.xml"
+echo "wbemexec ./cimreqerr09a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09a.xml
+wbemexec ./cimreqerr09a.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing NAME attribute for NAMESPACE element"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09b.xml"
+echo "wbemexec ./cimreqerr09b.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09b.xml
-echo "\n"
-echo "\n"
-
-echo "Invalid XML input: subelement other than NAMESPACE in list"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09c.xml"
-echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09c.xml
+wbemexec ./cimreqerr09b.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: subelement other than NAMESPACE in list"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09d.xml"
+echo "wbemexec ./cimreqerr09c.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr09d.xml
+wbemexec ./cimreqerr09c.xml
+echo "\n"
+echo "\n"
+
+echo "Invalid XML input: subelement other than NAMESPACE in list"
+echo "wbemexec ./cimreqerr09d.xml"
+echo "\n"
+wbemexec ./cimreqerr09d.xml
 echo "\n"
 echo "\n"
 
 
 echo "Invalid XML input: missing <CLASSNAME> element (no element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr10.xml"
+echo "wbemexec ./cimreqerr10.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr10.xml
+wbemexec ./cimreqerr10.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing <CLASSNAME> element (different element)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr10a.xml"
+echo "wbemexec ./cimreqerr10a.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr10a.xml
+wbemexec ./cimreqerr10a.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid XML input: missing NAME attribute for CLASSNAME element"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr10b.xml"
+echo "wbemexec ./cimreqerr10b.xml"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr10b.xml
+wbemexec ./cimreqerr10b.xml
 echo "\n"
 echo "\n"
 
 echo "Invalid input: input starts with neither xml declaration, nor HTTP M-POST or POST method request (GET method)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01.http"
+echo "wbemexec ./cimreqerr01.http"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr01.http
+wbemexec ./cimreqerr01.http
 echo "\n"
 echo "\n"
 
 echo "Invalid input: input starts with neither xml declaration, nor HTTP M-POST"
 echo "or POST method request (missing HTTP method)"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr02.http"
+echo "wbemexec ./cimreqerr02.http"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec ./cimreqerr02.http
+wbemexec ./cimreqerr02.http
 echo "\n"
 echo "\n"
 
 echo "Invalid input: input starts with neither xml declaration, nor valid HTTP"
 echo "M-POST or POST method request (missing HTTP URI and version) -- times out"
-echo "${PEGASUS_ROOT}/bin/bin/wbemexec -t 1 ./cimreqerr03.http"
+echo "wbemexec -t 1 ./cimreqerr03.http"
 echo "\n"
-${PEGASUS_ROOT}/bin/bin/wbemexec -t 1 ./cimreqerr03.http
+wbemexec -t 1 ./cimreqerr03.http
 echo "\n"
 echo "\n"
 

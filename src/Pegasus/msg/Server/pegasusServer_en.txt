@@ -376,13 +376,15 @@ en:table {
 
 	Provider.CIMOMHandle.CAUGHT_EXCEPTION:string {"Exception caught in CIMOMHandle"}
 
-	ProviderManager.ProviderAdapter.CANNOT_LOAD_PROVIDER_ADAPTER:string {"{0} ({1}):Cannot load {2}, error: {3}"}
+	ProviderManager.ProviderAdapter.CANNOT_LOAD_PROVIDER_ADAPTER:string {"AdapterLoadFailure ({0}):Cannot load providerAdapter, error: {1}"}
 
-	ProviderManager.ProviderAdapter.ENTRY_POINT_RETURNED_NULL:string {"{0} ({1}):The entry point returned null."}
+	ProviderManager.ProviderAdapter.ENTRY_POINT_RETURNED_NULL:string {"AdapterLoadFailure ({0}):The entry point returned null."}
 
-	ProviderManager.ProviderAdapter.ADAPTER_NOT:string {"{0} ({1}):The adapter is not a {2}."}
+	ProviderManager.ProviderAdapter.ADAPTER_NOT_PA:string {"AdapterLoadFailure ({0}):The adapter is not a ProviderAdapter."}
 
-	ProviderManager.ProviderAdapter.MISSING:string {"{0} ({1}):{2} is missing."}
+	ProviderManager.ProviderAdapter.ADAPTER_NOT_CP:string {"AdapterLoadFailure ({0}):The adapter is not a CIMProvider."}
+
+	ProviderManager.ProviderAdapter.MISSING:string {"AdapterLoadFailure ({1}):CreateProviderAdapter is missing."}
 
 	ProviderManager.ProviderFacade.INVALID_PROVIDER_INTERFACE:string {"Invalid provider interface."}
 
@@ -398,13 +400,13 @@ en:table {
 
 	ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED:string {"Failed to set the module status."}
 
-	ProviderManager.ProviderModule.IS_NOT_A:string {"{0} ({1}{2} is not a {3})"}
+	ProviderManager.ProviderModule.IS_NOT_A:string {"ProviderLoadFailure ({0}Provider is not a BaseProvider)"}
 
-	ProviderManager.ProviderModule.CANNOT_LOAD_LIBRARY:string {"{0} ({1}:{2}):Cannot load library, error: {3}"}
+	ProviderManager.ProviderModule.CANNOT_LOAD_LIBRARY:string {"ProviderLoadFailure ({0}:{1}):Cannot load library, error: {3}"}
 
-	ProviderManager.ProviderModule.ENTRY_POINT_NOT_FOUND:string {"{0} ({1}:{2}):The entry point was not found."}
+	ProviderManager.ProviderModule.ENTRY_POINT_NOT_FOUND:string {"ProviderLoadFailure ({0}:{1}):The entry point was not found."}
 
-	ProviderManager.ProviderModule.PROVIDER_IS_NOT_A:string {"{0} ({1}:{2}):provider is not a {3}."}
+	ProviderManager.ProviderModule.PROVIDER_IS_NOT_A:string {"ProviderLoadFailure ({0}:{1}):provider is not a CIMProvider."}
 
 	Clients.cliutils.CommandException.DUPLICATE_OPTION:string {"-{0} is a duplicate option."}
 
@@ -499,9 +501,11 @@ en:table {
 
 	Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS:string {"Command line errors:\n"}
 
-	Compiler.cmdline.cimmof.cmdline.UNKNOWN_VALUE_OPTION:string {"Unknown value specified for option -{0}."}
+	Compiler.cmdline.cimmof.cmdline.UNKNOWN_VALUE_OPTION_U:string {"Unknown value specified for option -u."}
+	Compiler.cmdline.cimmof.cmdline.UNKNOWN_VALUE_OPTION_A:string {"Unknown value specified for option -a."}
 
-	Compiler.cmdline.cimmof.cmdline.TOO_MANY_VALUES_OPTION:string {"Too many values specified for option -{0}."}
+	Compiler.cmdline.cimmof.cmdline.TOO_MANY_VALUES_OPTION_U:string {"Too many values specified for option -u."}
+	Compiler.cmdline.cimmof.cmdline.TOO_MANY_VALUES_OPTION_A:string {"Too many values specified for option -a."}
 
 	Compiler.cmdline.cimmof.cmdline.MUST_SPECIFY_R_OR_HOME:string {"You must specify -R or set PEGASUS_HOME environment variable"}
 
@@ -513,9 +517,11 @@ en:table {
 
 	Compiler.cmdline.cimmof.main.COMPILE_TERMINATING:string {"Compilation terminating."}
 
-	Compiler.cmdline.cimmof.main.FAILED_TO_SET:string {"Failed to set {0}."}
+	Compiler.cmdline.cimmof.main.FAILED_TO_SET:string {"Failed to set DefaultNamespacePath."}
 
-	Compiler.cmdline.cimmof.main.ERROR:string {"{0} error: "}
+	Compiler.cmdline.cimmof.main.LEXER_ERROR:string {"Lexer error: "}
+
+	Compiler.cmdline.cimmof.main.PARSING_ERROR:string {"Parsing error: "}
 
 	Compiler.cmdline.cimmof.main.GENERAL_EXCEPTION:string {"Compiler general exception: "}
 
@@ -527,7 +533,11 @@ en:table {
 
 	Server.CIMOperationRequestAuthorizer.REMOTE_NOT_ENABLED:string {"Remote privileged user access is not enabled."}
 
-	Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
+	Server.CIMOperationRequestDecoder.EXPECTED_MESSAGE_ELEMENT:string {"A MESSAGE element was expected."}
+	Server.CIMOperationRequestDecoder.EXPECTED_LOCALNAMESPACEPATH_ELEMENT:string {"A LOCALNAMESPACEPATH element was expected."}
+	Server.CIMOperationRequestDecoder.EXPECTED_LOCALINSTANCEPATH_ELEMENT:string {"A LOCALINSTANCEPATH element was expected."}
+	Server.CIMOperationRequestDecoder.EXPECTED_LOCALCLASSPATH_ELEMENT:string {"A LOCALCLASSPATH element was expected."}
+	Server.CIMOperationRequestDecoder.EXPECTED_IMETHODCALL_ELEMENT:string {"A IMETHODCALL or a METHODCALL element was expected."}
 
 	Server.CIMOperationRequestDecoder.UNRECOGNIZED_INSTRINSIC_METHOD:string {"The intrinsic method {0} was not recognized."}
 	
@@ -647,7 +657,7 @@ en:table {
 
 	Common.DeclContext.CLASS:string {"class {0}"}
 
-	Common.HTTPAcceptor.ALREADY_BOUND:string {"{0} already bound"}
+	Common.HTTPAcceptor.ALREADY_BOUND:string {"HTTPAcceptor already bound"}
 
 	Common.HTTPAcceptor.FAILED_CREATE_SOCKET:string {"Failed to create socket"}
 
@@ -661,25 +671,45 @@ en:table {
 
 	Common.HTTPConnector.CONNECTION_FAILED_TO:string {"Cannot connect to {0}:{1}. Connection failed."}
 
-	Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS:string {"{0} contains too many characters or non-alpha characters"}
+	Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_AL:string {"AcceptLanguage contains too many characters or non-alpha characters"}
+
+	Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_CL:string {"ContentLanguage contains too many characters or non-alpha characters"}
 
 	Common.LanguageParser.INVALID_QUALITY_VALUE:string {"{0} contains an invalid quality value"}
 
-	Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING:string {"{0} does not contain terminating ) character"}
+	Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING:string {"ContentLanguage does not contain terminating ) character"}
 
 	Common.Logger.LOGGING_DISABLED:string {"Logging disabled."}
 
-	Common.MessageQueueService.FORCING_SHUTDOWN:string {"Forcing shutdown of {0}"}
+	Common.MessageQueueService.FORCING_SHUTDOWN:string {"Forcing shutdown of CIMOM Message Router"}
 
 	Common.MessageQueueService.STOPPING_SERVICE:string {"Stopping {0}"}
 
-	Common.MessageQueueService.UNABLE_TO_REGISTER:string {"{0} Unable to register with  {1}"}
+	Common.MessageQueueService.UNABLE_TO_REGISTER:string {"MessageQueueService Base Unable to register with Meta Dispatcher"}
 
 	Common.ModuleController.MODULE:string {"module {0}"}
 
 	Common.OperationContext.OBJECT_NOT_FOUND:string {"object not found"}
 
 	Common.OperationContext.OBJECT_ALREADY_EXISTS:string {"object already exists."}
+
+	Common.SSLContext.COULD_NOT_GET:string {"Could not get SSL CTX."}
+
+	Common.SSLContext.COULD_NOT_SET_CIPHER_LIST:string {"Could not set the cipher list."}
+
+	Common.SSLContext.RANDOM_SEED_FILE_REQUIRED:string {"Random seed file required."}
+
+	Common.SSLContext.NOT_ENOUGH_SEED_DATA_IN_FILE:string {"Not enough seed data in random seed file."}
+
+	Common.SSLContext.NOT_ENOUGH_SEED_DATA:string {"Not enough seed data."}
+
+	Common.SSLContext.SEED_FILE_DOES_NOT_EXIST:string {"Seed file {0} does not exist."}
+
+	Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES:string {"Could not load certificates in to trust store."}
+
+	Common.SSLContext.COULD_NOT_GET_SERVER_CERTIFICATE:string {"Could not get server certificate."}
+
+	Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY:string {"Could not get private key."}
 
 	Common.TraceFileHandler.FAILED_TO_OPEN_FILE:string {"Failed to open file {0}"}
 
@@ -693,9 +723,13 @@ en:table {
 
 	Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE:string {"Invalid file handle for file {0}"}
 
-	Common.XmlReader.EXPECTED_XML_STYLE:string {"A {0} style declaration was expected."}
+	Common.XmlReader.EXPECTED_XML_STYLE:string {"A <?xml ... ?> style declaration was expected."}
 
-	Common.XmlReader.MISSING_ATTRIBUTE:string {"The {0} attribute is missing."}
+	Common.XmlReader.MISSING_XML_ATTRIBUTE:string {"The xml.version attribute is missing."}
+
+	Common.XmlReader.MISSING_CIMVERSION_ATTRIBUTE:string {"The CIM.CIMVERSION attribute is missing."}
+
+	Common.XmlReader.MISSING_DTDVERSION_ATTRIBUTE:string {"The CIM.DTDVERSION attribute is missing."}
 
 	Common.XmlReader.MISSING_REQUIRED_ATTRIBUTE:string {"The required {0} attribute is missing."}
 
@@ -705,45 +739,127 @@ en:table {
 
 	Common.XmlReader.EXPECTED_OPENCLOSE:string {"An open or a close of {0} element was expected."}
 
-	Common.XmlReader.EXPECTED_CDATA:string {"The content of {0} was expected."}
+	Common.XmlReader.EXPECTED_CDATA:string {"The content of CDATA was expected."}
 
 	Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE:string {"The {0} attribute has an illegal value."}
 
 	Common.XmlReader.INVALID_ATTRIBUTE:string {"The {0} attribute has an invalid value."}
 
-	Common.XmlReader.INVALID_ENCODING:string {"The {0} encoding is invalid."}
+	Common.XmlReader.INVALID_URI_ENCODING:string {"The URI encoding is invalid."}
 
-	Common.XmlReader.INVALID_VALUE:string {"The {0} value is invalid."}
+	Common.XmlReader.INVALID_BOOLEAN_VALUE:string {"The boolean value is invalid."}
 
-	Common.XmlReader.VALUE_OUT_OF_RANGE:string {"The {0} value is out of range."}
+	Common.XmlReader.INVALID_CHAR16_VALUE:string {"The char16 value is invalid."}
+
+	Common.XmlReader.INVALID_UI_VALUE:string {"The unsigned integer value is invalid."}
+
+	Common.XmlReader.INVALID_SI_VALUE:string {"The signed integer value is invalid."}
+
+	Common.XmlReader.INVALID_DATETIME_VALUE:string {"The datetime value is invalid."}
+
+	Common.XmlReader.INVALID_RN_VALUE:string {"The real number value is invalid."}
+
+	Common.XmlReader.U8_VALUE_OUT_OF_RANGE:string {"The Uint8 value is out of range."}
+
+	Common.XmlReader.U16_VALUE_OUT_OF_RANGE:string {"The Uint16 value is out of range."}
+
+	Common.XmlReader.U32_VALUE_OUT_OF_RANGE:string {"The Uint32 value is out of range."}
+
+	Common.XmlReader.S8_VALUE_OUT_OF_RANGE:string {"The Sint8 value is out of range."}
+
+	Common.XmlReader.S16_VALUE_OUT_OF_RANGE:string {"The Sint16 value is out of range."}
+
+	Common.XmlReader.S32_VALUE_OUT_OF_RANGE:string {"The Sint32 value is out of range."}
 
 	Common.XmlReader.MALFORMED_XML:string {"The XML is malformed."}
 
+	Common.XmlReader.EXPECTED_HOST_ELEMENT:string {"A HOST element was expected."}
+
+	Common.XmlReader.EXPECTED_LOCALNAMESPACEPATH_ELEMENT:string {"A LOCALNAMESPACEPATH element was expected."}
+
+	Common.XmlReader.EXPECTED_CLASSNAME_ELEMENT:string {"A CLASSNAME element was expected."}
+
+	Common.XmlReader.EXPECTED_NAMESPACEPATH_ELEMENT:string {"A NAMESPACEPATH element was expected."}
+
+	Common.XmlReader.EXPECTED_INSTANCENAME_ELEMENT:string {"An INSTANCENAME element was expected."}
+
+	Common.XmlReader.EXPECTED_INSTANCE_ELEMENT:string {"An INSTANCE element was expected."}
+
+	Common.XmlReader.EXPECTED_CLASS_ELEMENT:string {"A CLASS element was expected."}
+
+	Common.XmlReader.EXPECTED_QUALIFIER_DECLARATION_ELEMENT:string {"A QUALIFIER.DECLARATION element was expected."}
+
+	Common.XmlReader.EXPECTED_ERROR_ELEMENT:string {"A ERROR element was expected."}
+
+	Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT:string {"An INSTANCE or CLASS element was expected."}
+
+	Common.XmlReader.EXPECTED_INSTANCEPATH_OR_CLASSPATH_ELEMENT:string {"An INSTANCEPATH or CLASSPATH element was expected."}
+
+	Common.XmlReader.EXPECTED_LOCALINSTANCEPATH_OR_LOCALCLASSPATH_ELEMENT:string {"A LOCALINSTANCEPATH or LOCALCLASSPATH element was expected."}
+
+	Common.XmlReader.EXPECTED_CLASSNAME_OR_INSTANCENAME_ELEMENT:string {"A CLASSNAME or an INSTANCENAME element was expected."}
+
 	Common.XmlReader.EXPECTED_ELEMENT:string {"A {0} element was expected."}
 
-	Common.XmlReader.DUPLICATE:string {"There is a duplicate {0}."}
+	Common.XmlReader.DUPLICATE_PROPERTY:string {"The property is a duplicate."}
+
+	Common.XmlReader.DUPLICATE_PARAMETER:string {"The parameter is a duplicate."}
+
+	Common.XmlReader.EXPECTED_VALUE_ELEMENT:string {"A VALUE element was expected."}
+
+	Common.XmlReader.EXPECTED_VALUE_REFERENCE_ELEMENT:string {"A VALUE.REFERENCE element was expected."}
+
+	Common.XmlReader.DUPLICATE_QUALIFIER:string {"There is a duplicate qualifier."}
 
 	Common.XmlReader.ILLEGAL_VALUE:string {"The {0} value is illegal."}
 
-	Common.XmlReader.ARRAY_SIZE_DIFFERENT:string {"The {0} attribute and the size of {1} are different."}
+	Common.XmlReader.ARRAY_SIZE_DIFFERENT:string {"The ARRAYSIZE attribute and value-array size are different."}
 
-	Common.XmlReader.EXPECTED_CONTENT_ELEMENT:string {"The content of {0} was expected."}
+	Common.XmlReader.ARRAY_SIZE_NOT_SAME:string {"The VALUE.ARRAY size is not the same as the ARRAYSIZE attribute."}
 
-	Common.XmlReader.EXPECTED_NAMESPACE_ELEMENTS:string {"One or more {0} elements within {1} was expected."}
+	Common.XmlReader.EXPECTED_CONTENT_ELEMENT:string {"The content of HOST was expected."}
 
-	Common.XmlReader.ILLEGAL_VALUE_FOR_CIMVALUE_ATTRIBUTE:string {"The {0} attribute value is illegal. {1} must be one of {2}, {3} or {4}."}
+	Common.XmlReader.EXPECTED_NAMESPACE_ELEMENTS:string {"One or more NAMESPACE elements was expected within the LOCALNAMESPACEPATH."}
+
+	Common.XmlReader.ILLEGAL_VALUE_FOR_CIMVALUE_ATTRIBUTE:string {"The {0} attribute value is illegal. CIMValue must be one of \"string\", \"boolean\" or \"numeric\"."}
+
+	Common.XmlReader.EXPECTED_KEYVALUE_OR_REFERENCE_ELEMENT:string {"A KEYVALUE or VALUE.REFERENCE element was expected."}
 
 	Common.XmlReader.EXPECTED_OR_ELEMENT:string {"The element {0} or {1} was expected."}
 
-	Common.XmlReader.EXPECTED_START_TAGS:string {"One of the following start tags was expected: {0}."}
+	Common.XmlReader.EXPECTED_START_TAGS:string {"One of the following start tags was expected: CLASSPATH, LOCALCLASSPATH, CLASSNAME, INSTANCEPATH, LOCALINSTANCEPATH, INSTANCENAME."}
 
-	Common.XmlReader.ARRAY_WITHOUT_ISARRAY:string {"A {0} element was encountered without a {1} attribute."}
+	Common.XmlReader.ARRAY_WITHOUT_ISARRAY:string {"A VALUE.ARRAY element was encountered without a ISARRAY attribute."}
 
-	Common.XmlReader.ARRAY_ATTRIBUTE_DIFFERENT:string {"A {0} attribute was used but a {1} element was encountered."}
+	Common.XmlReader.ARRAY_ATTRIBUTE_DIFFERENT:string {"An ISARRAY attribute was used but a VALUE element was encountered."}
 
-	Common.XmlReader.INVALID_MISSING_ATTRIBUTE:string {"The {0} attribute is missing or invalid."}
+	Common.XmlReader.INVALID_MISSING_MESSAGE_ID_ATTRIBUTE:string {"The MESSAGE.ID attribute is missing or invalid."}
 
-	Common.XmlReader.INVALID_VALUE_FOR_VALUE_ELEMENT:string {"The {0} element has an invalid value. It must be {1} or {2}."}
+	Common.XmlReader.INVALID_MISSING_PROTOCOLVERSION_ATTRIBUTE:string {"The MESSAGE.PROTOCOLVERSION attribute is missing or invalid."}
+
+	Common.XmlReader.MISSING_ATTRIBUTE:string {"The {0} attribute is missing."}
+
+	Common.XmlReader.MISSING_IMETHODCALL_ATTRIBUTE:string {"The IMETHODCALL attribute is missing."}
+
+	Common.XmlReader.MISSING_IMETHODRESPONSE_ATTRIBUTE:string {"The IMETHODRESPONSE attribute is missing."}
+
+	Common.XmlReader.MISSING_IPARAMVALUE_ATTRIBUTE:string {"The IPARAMVALUE.NAME attribute is missing."}
+
+	Common.XmlReader.MISSING_ERROR_CODE_ATTRIBUTE:string {"The ERROR.CODE attribute is missing."}
+
+	Common.XmlReader.MISSING_EXPMETHODCALL_ATTRIBUTE:string {"The EXPMETHODCALL.NAME attribute is missing."}
+
+	Common.XmlReader.MISSING_EXPMETHODRESPONSE_ATTRIBUTE:string {"The EXPMETHODRESPONSE.NAME attribute is missing."}
+
+	Common.XmlReader.MISSING_EXPPARAMVALUE_ATTRIBUTE:string {"The EXPPARAMVALUE.NAME attribute is missing."}
+
+	Common.XmlReader.MISSING_METHODCALL_ATTRIBUTE:string {"The METHODCALL.NAME attribute is missing."}
+
+	Common.XmlReader.MISSING_METHODRESPONSE_ATTRIBUTE:string {"The METHODRESPONSE.NAME attribute is missing."}
+
+	Common.XmlReader.MISSING_PARAMVALUE_ATTRIBUTE:string {"The PARAMVALUE.NAME attribute is missing."}
+
+	Common.XmlReader.INVALID_VALUE_FOR_VALUE_ELEMENT:string {"The VALUE element has an invalid value. It must be \"TRUE\" or \"FALSE\"."}
 
 	src.Server.cimserver_os400.FAILED_TO_START_SERVER:string {"{0} failed to start the {1} server program!!"}
 
@@ -775,17 +891,17 @@ en:table {
 
 	src.Server.cimserver.DUPLICATE_SHUTDOWN_OPTION:string {"Duplicate shutdown option specified."}
 
-	src.Server.cimserver.INSTALLED_NT_SERVICE:string {"\n{0} installed as NT Service"}
+	src.Server.cimserver.INSTALLED_NT_SERVICE:string {"\nPegasus installed as NT Service"}
 
-	src.Server.cimserver.REMOVED_NT_SERVICE:string {"\n{0} removed as NT Service"}
+	src.Server.cimserver.REMOVED_NT_SERVICE:string {"\nPegasus removed as NT Service"}
 
-	src.Server.cimserver.STARTED_NT_SERVICE:string {"\n{0} started as NT Service"}
+	src.Server.cimserver.STARTED_NT_SERVICE:string {"\nPegasus started as NT Service"}
 
-	src.Server.cimserver.STOPPED_NT_SERVICE:string {"\n{0} stopped as NT Service"}
+	src.Server.cimserver.STOPPED_NT_SERVICE:string {"\nPegasus stopped as NT Service"}
 
 	src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING:string {"Neither HTTP nor HTTPS connection is enabled.  CIMServer will not be started."}
 
-	src.Server.cimserver.SERVER_STOPPED:string {"{0} server stopped."}
+	src.Server.cimserver.SERVER_STOPPED:string {"CIM server stopped."}
 
 	src.Server.cimserver.LOGS_DIRECTORY:string {"Logs Directory = "}
 
@@ -795,9 +911,9 @@ en:table {
 
 	src.Server.cimserver.SERVER_FAILED_TO_INITIALIZE:string {"CIM Server failed to initialize"}
 
-	src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING:string {"Unable to start {0}.\n{1} is already running."}
+	src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING:string {"Unable to start CIMServer.\nCIMServer is already running."}
 
-	src.Server.cimserver.LISTENING_ON_PORT:string {"Listening on {0} port {1}."}
+	src.Server.cimserver.LISTENING_ON_PORT:string {"Listening on HTTP port {1}."}
 
 	src.Server.cimserver.LISTENING_ON_LOCAL:string {"Listening on local connection socket."}
 
@@ -868,37 +984,43 @@ en:table {
 
 	IndicationService.IndicationService._MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY:string {"Invalid type array of {0} for property {1}"}
 	
-	HandlerService.IndicationHandlerService.HANDLER_WITHOUT_DESTINATION:string {"The {0} does not have a destination."}
+	HandlerService.IndicationHandlerService.HANDLER_WITHOUT_DESTINATION:string {"The Handler does not have a destination."}
 
 	HandlerService.IndicationHandlerService.INVALID_DESTINATION:string {"The destination is invalid."}
 
-	HandlerService.IndicationHandlerService.FAILED_TO_LOAD:string {"The {0} failed to load."}
+	HandlerService.IndicationHandlerService.FAILED_TO_LOAD:string {"The Handler failed to load."}
 
-	Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_VALUE:string {"The {0} value is invalid."}
+	Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_MS_VALUE:string {"The MappingStrings value is invalid."}
 
-	Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_INSTANCE:string {"The {0} instance is invalid."}
+	Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_SNMP_INSTANCE:string {"The IndicationHandlerSNMPMapper instance is invalid."}
 	
 	Handler.snmpIndicationHandler.snmpIndicationHandler.QUALIFIER_MAPPINGS_NOT_FOUND:string {"Qualifier MappingStrings can not be found"}
 	 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INITSUBAGENT_FAILED:string {"The {0} failed to initialize."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INITSUBAGENT_FAILED:string {"The InitSubagent failed to initialize."}
 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID:string {"The {0} is invalid."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID:string {"The trapOid is invalid."}
 
 	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_DESTINATION_NOT_FOUND:string {"The trap destination can not be found."}
 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_TARGETHOSTFORMAT_NOT_SUPPORTED:string {"{0} and {1} are the only supported {2} values."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_TARGETHOSTFORMAT_NOT_SUPPORTED:string {"Host Name and IPV4 Address are the only supported TargetHostFormat values."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_SECURITY_NAME:string{"Invalid SNMP SecurityName."}
 
 	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_OCTET_VALUE:string{"The octet value in the trap destination is invalid."}
 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_CREATE_OCTET_FAILED:string{"The creation of an empty 4 length {0} failed."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_CREATE_OCTET_FAILED:string{"The creation of an empty 4 length OctetString failed."}
 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTYOID:string{"The {0} value of the {1} property is invalid."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_ENTERPRISEOID:string{"Invalid enterpriseOid."}
 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTY:string{"The value of the {0} property is invalid."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTYOID:string{"The OID value of the CIM property is invalid."}
 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_FAILED:string{"{0} failed for type {1}."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTY:string{"The value of the CIM property is invalid."}
 
-	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_VERSION_NOT_SUPPORTED:string{"{0} and {1} are the only supported {2} values."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE_KEY:string{"Failed to MakeVarBindWithValue for type OCTET_PRIM_TYPE."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE_KEY:string{"Failed to MakeVarBindWithValue for type OBJECT_ID_TYPE."}
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE_KEY:string{"Failed to MakeVarBindWithValue for type INTEGER_TYPE."}
+
+	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_VERSION_NOT_SUPPORTED:string{"SNMPv1 Trap and SNMPv2C Trap are the only supported SNMPVersion values."}
 
 	ExportServer.CIMExportRequestDispatcher.INVALID_REGISTRATION:string {"The {0} registration data is invalid."}
 
@@ -908,9 +1030,9 @@ en:table {
 
 	ExportClient.CIMExportRequestDispatcher.NO_REGISTRATION:string {"There is no {0} registered for this location."} // possibly obsolete
 
-	ExportClient.CIMExportResponseDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
+	ExportClient.CIMExportResponseDecoder.EXPECTED_MESSAGE_ELEMENT:string {"A MESSAGE element was expected."}
 
-	ExportClient.CIMExportResponseDecoder.EXPECTED_ELEMENT_OR:string {"A {0} or a {1} element was expected."}
+	ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT:string {"A METHODRESPONSE or an IMETHODRESPONSE element was expected."}
 
 	ExportClient.CIMExportResponseDecoder.EMPTY_RESPONSE:string {"The HTTP response message was empty."}
 
@@ -920,11 +1042,11 @@ en:table {
 
 	ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER:string {"The {0} HTTP header is missing."}
 
-	ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a {0} HTTP header value of \"{1}\" when it expected \"{2}\"."}
+	ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a CIMOperation HTTP header value of \"{1}\" when it expected \"MethodResponse\"."}
 
 	ExportClient.CIMExportResponseDecoder.UNSUPPORTED_PROTOCOL:string {"The unsupported protocol version {0} was received, 1.0 was expected."}
 
-	ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH:string {"The {0} name {1} was not recognized."}
+	ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH:string {"The IMethodResponse name {0} was not recognized."}
 
 	ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID:string {"The response message ID {0} does not match the expected response message ID {1}."}
 	ExportClient.CIMExportClient.MISMATCHED_RESPONSE:string {"The response message type is mismatched."}
@@ -933,11 +1055,19 @@ en:table {
 	Client.CIMClient.MISMATCHED_RESPONSE_TYPE:string {"A mismatched response message type was received."}
 
 
-	Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT:string {"A {0} element was expected."}
+	Client.CIMOperationResponseDecoder.EXPECTED_MESSAGE_ELEMENT:string {"A MESSAGE element was expected."}
 
-	Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT:string {"A {0} or {1} element was expected."}
+	Client.CIMOperationResponseDecoder.EXPECTED_CLASS_ELEMENT:string {"A CLASS element was expected."}
 
-	Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME:string {"The {0} name {1} was not recognized."}
+	Client.CIMOperationResponseDecoder.EXPECTED_INSTANCE_ELEMENT:string {"An INSTANCE element was expected."}
+
+	Client.CIMOperationResponseDecoder.EXPECTED_RETURNVALUE_ELEMENT:string {"A RETURNVALUE element was expected."}
+
+	Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT:string {"A ERROR or an IRETURNVALUE element was expected."}
+
+	Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT:string {"A METHODRESPONSE or IMETHODRESPONSE element was expected."}
+
+	Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME:string {"The IMethodResponse name {0} was not recognized."}
 
 	Client.CIMOperationResponseDecoder.EMPTY_RESPONSE:string {"The HTTP response message was empty."}
 
@@ -947,9 +1077,9 @@ en:table {
 
 	Client.CIMOperationResponseDecoder.MALFORMED_CONTENT:string {"The Content-Language header is malformed."}
 
-	Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER:string {"The {0} HTTP header is missing."}
+	Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER:string {"The CIMOperation HTTP header is missing."}
 
-	Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a {0} HTTP header value of \"{1}\" when it expected \"{2}\"."}
+	Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE:string {"The client received a CIMOperation HTTP header value of \"{1}\" when it expected \"MethodResponse\"."}
 
 	Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL:string {"The unsupported protocol version {0} was received, 1.0 was expected."}
 

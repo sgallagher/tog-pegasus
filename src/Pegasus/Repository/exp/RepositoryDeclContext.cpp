@@ -70,11 +70,11 @@ CIMClass RepositoryDeclContext::lookupClass(
 
     try
     {
-	return _repository->getClass(nameSpace, className, false, true, true);
+        return _repository->getClass(nameSpace, className, false, true, true);
     }
     catch (Exception&)
     {
-	return CIMClass();
+        return CIMClass();
     }
 }
 

@@ -126,14 +126,14 @@ public:
     /** Begin a transaction to modify this file. The effect of subsequent
 	modifications can be rolled back by calling rollbackTransaction().
     */
-    static Boolean beginTransacation(const String& path);
+    static Boolean beginTransaction(const String& path);
 
     /** Roll back any changes to the file since the last time 
-        beginTransacation() was called.
+        beginTransaction() was called.
     */
     static Boolean rollbackTransaction(const String& path);
 
-    /** Commit changes made after beginTransacation() was called.
+    /** Commit changes made after beginTransaction() was called.
     */
     static Boolean commitTransaction(const String& path);
 

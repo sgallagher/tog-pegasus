@@ -30,7 +30,9 @@
 #include <fstream>
 #include <Pegasus/Common/Config.h>
 #include "InstanceDataFile.h"
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Destroyer.h>
 
 PEGASUS_USING_STD;
 
@@ -148,7 +150,7 @@ Boolean InstanceDataFile::appendInstance(
 
     fstream fs;
 
-    if (!_openFile(fs, path, ios::binary | ios::app))
+    if (!_openFile(fs, path, ios::binary | ios::app | ios::out))
 	return false;
 
     //
@@ -169,10 +171,10 @@ Boolean InstanceDataFile::appendInstance(
     return true;
 }
 
-Boolean InstanceDataFile::beginTransacation(const String& path)
+Boolean InstanceDataFile::beginTransaction(const String& path)
 {
     //
-    // Get the size of the rollback file:
+    // Get the size of the data file:
     //
 
     Uint32 fileSize;
@@ -184,11 +186,9 @@ Boolean InstanceDataFile::beginTransacation(const String& path)
     // Open the rollback file:
     //
 
-    String rollbackFilePath = Cat(path, ".rollback");
-
     fstream fs;
 
-    if (!_openFile(fs, rollbackFilePath, ios::binary | ios::out))
+    if (!_openFile(fs, Cat(path, ".rollback"), ios::binary | ios::out))
 	return false;
 
     //
@@ -198,6 +198,9 @@ Boolean InstanceDataFile::beginTransacation(const String& path)
     char buffer[9];
     sprintf(buffer, "%08x", fileSize);
     fs.write(buffer, strlen(buffer));
+
+    if (!fs)
+	return false;
 
     //
     // Close the file.
@@ -214,11 +217,9 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     // Open the rollback file:
     //
 
-    String rollbackFilePath = Cat(path, ".rollback");
-
     fstream rollbackFs;
 
-    if (!_openFile(rollbackFs, rollbackFilePath, ios::binary | ios::out))
+    if (!_openFile(rollbackFs, Cat(path, ".rollback"), ios::binary | ios::in))
 	return false;
 
     //
@@ -236,7 +237,7 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     char* end = 0;
     long fileSize = strtol(buffer, &end, 16);
 
-    if (!end || !*end | tmp < 0)
+    if (!end || *end != '\0' || fileSize < 0)
 	return false;
 
     rollbackFs.close();
@@ -245,13 +246,16 @@ Boolean InstanceDataFile::rollbackTransaction(const String& path)
     // Now truncate the data file to that size:
     //
 
-    fstream fs;
+    ArrayDestroyer<char> tmp(path.allocateCString());
 
-    if (!_openFile(fs, path, ios::binary | ios::out))
+    if (!System::truncateFile(tmp.getPointer(), fileSize))
 	return false;
 
-    fs.seekg(fileSize);
-    fs.close();
+    //
+    // Now get rid of rollback file!
+    //
+
+    return FileSystem::removeFileNoCase(Cat(path, ".rollback"));
 }
 
 Boolean InstanceDataFile::commitTransaction(const String& path)
@@ -284,7 +288,7 @@ Boolean InstanceDataFile::compact(
 
     fstream tmpFs;
 
-    if (!_openFile(tmpFs, path, ios::binary | ios::out))
+    if (!_openFile(tmpFs, Cat(path, ".tmp"), ios::binary | ios::out))
 	return false;
 
     Array<Sint8> data;
@@ -330,6 +334,16 @@ Boolean InstanceDataFile::compact(
     
     fs.close();
     tmpFs.close();
+
+    //
+    // Copy the new file over the old one:
+    //
+
+    if (!FileSystem::removeFile(path))
+	return false;
+
+    if (!FileSystem::renameFile(Cat(path, ".tmp"), path))
+	return false;
 
     return true;
 }

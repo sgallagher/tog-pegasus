@@ -268,8 +268,22 @@ void CQLFunctionRep::applyContext(QueryContext& inContext)
    }
 }
 
-Boolean CQLFunctionRep::operator==(const CQLFunctionRep& func)const{
-	return true;
+Boolean CQLFunctionRep::operator==(const CQLFunctionRep& func)const
+{
+  if(_funcOpType != func._funcOpType || _parms.size() != func._parms.size())
+    {
+      return false;
+    }
+
+  for(Uint32 i = 0; i < _parms.size(); ++i)
+    {
+      if(_parms[i] != func._parms[i])
+	{
+	  return false;
+	}
+    }
+
+  return true;
 }
 Boolean CQLFunctionRep::operator!=(const CQLFunctionRep& func)const{
 	return (!operator==(func));

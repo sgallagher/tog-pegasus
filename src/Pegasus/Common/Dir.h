@@ -60,7 +60,7 @@ typedef struct
 // Otherwise, the old readdir code can be removed.
 #define PEGASUS_HAS_READDIR_R
 
-typedef struct DirRep
+struct DirRep
 {
     DIR* dir;
 #ifdef PEGASUS_OS_OS400

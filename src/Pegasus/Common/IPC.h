@@ -154,6 +154,14 @@ class PEGASUS_COMMON_LINKAGE WaitFailed: public IPCException
       WaitFailed(void);
 } ;
 
+class PEGASUS_COMMON_LINKAGE WaitInterrupted: public IPCException
+{
+   public: 
+      WaitInterrupted(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+   private:
+      WaitInterrupted(void);
+} ;
+
 class PEGASUS_COMMON_LINKAGE TooManyReaders: public IPCException
 {
    public:
@@ -298,7 +306,7 @@ class PEGASUS_COMMON_LINKAGE Semaphore
 
       // block until this semaphore is in a signalled state, or
       // throw an exception if the wait failed.
-      void wait(void) throw(WaitFailed);
+      void wait(void) throw(WaitFailed, WaitInterrupted);
 
       // wait succeeds immediately if semaphore has a non-zero count, 
       // return immediately and throw and exception if the 

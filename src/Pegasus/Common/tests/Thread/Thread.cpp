@@ -68,11 +68,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm );
 AtomicInt read_count ;
 AtomicInt write_count ;
 AtomicInt testval1 = 0;
+Boolean verbose = false;
 
 int main(int argc, char **argv)
 {
 	int i;
-
+	verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+	// cout << argv[0] << endl;
 	{
 	// Test return code
 	Thread t( test1_thread, 0, false );
@@ -137,10 +139,10 @@ int main(int argc, char **argv)
 	Thread t( test4_thread, 0, false );
 	t.run();
 	t.cancel();
-	cout << "If this hangs here then there is a thread deadlock handling bug..." << endl;
+	if (verbose) cout << argv[0] << " - If this hangs here, there is a thread deadlock handling bug..." << endl;
 	t.join();
 	// Shouldn't hang forever
-	cout << "Deadlock test finished." << endl;
+	if (verbose) cout << argv[0] << " - Deadlock test finished." << endl;
 	}
 #endif
 
@@ -175,9 +177,10 @@ int main(int argc, char **argv)
    }
 
    delete rw;
-   cout << endl << "read operations: " << read_count.value() << endl;
-   cout << "write operations: " << write_count.value() << endl;
-
+   if (verbose) cout << endl << "read operations: " << read_count.value() << endl;
+   if (verbose) cout << "write operations: " << write_count.value() << endl;
+   
+   cout << argv[0] << " +++++ passed all tests" << endl;
    return(0);
 }
 
@@ -203,14 +206,14 @@ void exit_one(void *parm)
 {
    
    Thread *my_handle = (Thread *)parm;
-   cout << "1";
+   if (verbose) cout << "1";
 }
 
 void exit_two(void *parm)
 {
    
    Thread *my_handle = (Thread *)parm;
-   cout << "2";
+   if (verbose) cout << "2";
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
@@ -220,7 +223,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
    
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
    
-   cout << "r";
+   if (verbose) cout << "r";
    
    const char *keys[] = 
       {
@@ -294,7 +297,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL reading_thread(void *parm)
       }
       
       read_count++;
-      cout << "+";
+      if (verbose) cout << "+";
       my_handle->sleep(1);
 
       try
@@ -373,7 +376,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
    
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
    
-   cout << "w";
+   if (verbose) cout << "w";
    
    while(die == false) 
    {
@@ -388,7 +391,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL writing_thread(void *parm)
 	 abort();
       }
       write_count++;
-      cout << "*";
+      if (verbose) cout << "*";
       my_handle->sleep(1);
       try 
       {

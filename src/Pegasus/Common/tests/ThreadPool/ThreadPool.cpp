@@ -54,7 +54,7 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-Boolean verbose = true;
+Boolean verbose = false;
 
 AtomicInt _canceled( 0 );
 AtomicInt _completed;
@@ -101,16 +101,19 @@ int _testnum = 0;
 void TestThreadPool2()
 {
    int done = 0;
-	while( done < 10000 )
+   int limit = 10000;
+	while( done < limit )
 	{
-                if (verbose)
-                   printf( "ThreadPool crash test, iteration:  %d\n", ++done );
-                TestThreadPool();
-		
+	  TestThreadPool(); done++;
+	  if (verbose)
+	    printf( "ThreadPool crash test, iteration:  %d of: %d \n", done, limit);
+	  else
+	    { 
+	      if (done % 1000 == 0)
+		printf( "ThreadPool crash test, iteration:  %d of: %d\n", done, limit);
+	    }
 	}
 }
-
-
 
 
 AtomicInt function_count;
@@ -157,7 +160,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 
 int main(int argc, char **argv) 
 { 
-// verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+   verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
    TestThreadPool2();
    if (verbose)

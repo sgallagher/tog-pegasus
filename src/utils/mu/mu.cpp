@@ -45,7 +45,7 @@
 
 const char HELP[] =
 "\n"
-"MU (MakeUtility) Version 1.4\n"
+"MU (MakeUtility) Version 1.4.1\n"
 "\n"
 "Usage: mu command arguments ...\n"
 "\n"

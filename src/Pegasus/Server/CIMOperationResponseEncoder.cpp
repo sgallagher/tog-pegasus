@@ -144,9 +144,12 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	Uint32 messageIndex = response->getIndex();
 	Boolean isFirst = messageIndex == 0 ? true : false;
 	Boolean isLast = response->isComplete();
-	Uint64 serverTime	= response->totServerTime;
 	Array<char> bodylocal;
 	Array<char> &body = bodygiven ? *bodygiven : bodylocal;
+
+    STAT_SERVEREND         // STAT_SERVEREND sets the toServerTime value in the message class
+    Uint64 serverTime	= response->totServerTime;
+
 
 	Array<char> (*formatResponse)(const CIMName& iMethodName,
 																 const String& messageId,
@@ -211,8 +214,7 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	else
 	{
 		// else non-error condition
-		STAT_SERVEREND
-		try
+	  	try
 		{
 			message = formatResponse(cimName, messageId, httpMethod, contentLanguage,
 															 body, serverTime, isFirst, isLast);

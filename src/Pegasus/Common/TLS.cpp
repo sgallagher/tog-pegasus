@@ -33,7 +33,7 @@
 #define PEGASUS_KEY "/home/markus/src/pegasus/server.pem"
 
 // debug flag
-#define TLS_DEBUG(X)  X
+#define TLS_DEBUG(X) // X
 
 // switch on 'server needs certified client'
 //#define CLIENT_CERTIFY
@@ -408,6 +408,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 SSLContext::SSLContext(const String& certPath) throw(SSL_Exception) {}
 SSLContext::~SSLContext() {}
+SSL_CTX * SSLContext::getContext() { return NULL; }
 
 MP_Socket::MP_Socket(Uint32 socket)
  : _isSecure(false), _socket(socket) {}

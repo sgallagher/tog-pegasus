@@ -763,7 +763,6 @@ Uint32 ThreadPool::kill_dead_threads(void)
       struct timeval now;
       gettimeofday(&now, NULL);
       Uint32 bodies = 0;
-      AtomicInt needed(0);
    
       if (_dying.value())
       {
@@ -850,13 +849,6 @@ Uint32 ThreadPool::kill_dead_threads(void)
          th = (Thread*)idq.remove_last();
       }
 
-     Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
-		"We need %u new threads", needed.value());
-      while (needed.value() > 0)   {
-         _link_pool(_init_thread());
-         needed--;
-         pegasus_sleep(0);
-      }
        return bodies; 
     }
     catch (...)

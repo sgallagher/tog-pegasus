@@ -104,6 +104,8 @@
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/ContentLanguages.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/IPC.h>
 
 PEGASUS_USING_STD;
 
@@ -262,11 +264,14 @@ void LocalizedProvider::getInstance(
 	// to be returned in the response.
 	AcceptLanguages clientAcceptLangs = getRequestAcceptLanguages(context);
 
+        CIMObjectPath instanceName(String(), CIMNamespaceName(),
+                                   instanceReference.getClassName(),
+                                   instanceReference.getKeyBindings());
+
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		if(instanceReference.getClassName() == _instanceNames[i].getClassName() &&
-                   instanceReference.getKeyBindings() == _instanceNames[i].getKeyBindings()) 
+		if(instanceName == _instanceNames[i])
 		{
 			// Load the localized properties and figure out what content
 			// language to return, based on the design mentioned above.
@@ -496,12 +501,15 @@ void LocalizedProvider::deleteInstance(
 {
 	// We're not going to support this for instances 0, 1, or 2
 
+        CIMObjectPath instanceName(String(), CIMNamespaceName(),
+                                   instanceReference.getClassName(),
+                                   instanceReference.getKeyBindings());
+
 	// instance index corresponds to reference index
 	Uint32 i = 0;
 	for(Uint32 n = _instanceNames.size(); i < n; i++)
 	{
-		if(instanceReference.getClassName() == _instanceNames[i].getClassName() &&
-                   instanceReference.getKeyBindings() == _instanceNames[i].getKeyBindings()) 
+		if(instanceName == _instanceNames[i])
 		{
 			if (i < 3)
 			{

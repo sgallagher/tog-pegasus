@@ -101,7 +101,10 @@ public:
 	XmlParser& parser, 
 	XmlEntry& entry);
 
-    static void testCimStartTag(XmlParser& parser);
+    static void getCimStartTag(
+	XmlParser& parser, 
+	const char*& cimVersion,
+	const char*& dtdVersion);
 
     static String getCimNameAttribute(
 	Uint32 lineNumber, 
@@ -331,7 +334,7 @@ public:
     static Boolean getMessageStartTag(
 	XmlParser& parser, 
 	String& id,
-	const char*& protocolVersion);
+	String& protocolVersion);
 
     static Boolean getIMethodCallStartTag(
 	XmlParser& parser, 

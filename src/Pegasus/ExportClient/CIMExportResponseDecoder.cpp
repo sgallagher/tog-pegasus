@@ -202,20 +202,23 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
       // Process <CIM ... >
       //
 
-      XmlReader::testCimStartTag(parser);
+      const char* cimVersion = 0;
+      const char* dtdVersion = 0;
+
+      XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
 
       //
       // Expect <MESSAGE ... >
       //
 
       String messageId;
-      const char* protocolVersion = 0;
+      String protocolVersion;
 
       if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion))
 	 throw XmlValidationError(
 	    parser.getLine(), "expected MESSAGE element");
 
-      if (strcmp(protocolVersion, "1.0") != 0)
+      if (!String::equalNoCase(protocolVersion, "1.0"))
       {
 	 // ATTN: protocol version being ignored at present!
 

@@ -79,7 +79,8 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 const String& cimError = String::EMPTY);
 
       void sendNotImplementedError(
-	 Uint32 queueId);
+	 Uint32 queueId,
+	 const String& cimError = String::EMPTY);
 
       virtual void handleEnqueue(Message *);
 
@@ -92,6 +93,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
       void handleMethodCall(
 	 Uint32 queueId,
 	 Sint8* content,
+	 const String& cimProtocolVersionInHeader,
 	 const String& cimMethodInHeader,
 	 const String& cimObjectInHeader,
 	 String authType,

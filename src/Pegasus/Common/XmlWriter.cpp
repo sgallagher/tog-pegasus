@@ -548,6 +548,7 @@ void XmlWriter::appendBadRequestResponseHeader(
 //        HTTP/1.1 501 Not Implemented
 //        <HTML><HEAD>
 //        <TITLE>501 Not Implemented</TITLE>
+//        CIMError: <error text>    (only if specified by caller)
 //        </HEAD><BODY BGCOLOR="#99cc99">
 //        <H2>TEST501 Not Implemented</H2>
 //        <HR>
@@ -556,9 +557,14 @@ void XmlWriter::appendBadRequestResponseHeader(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendNotImplementedResponseHeader(
-    Array<Sint8>& out)
+    Array<Sint8>& out,
+    const String& cimError)
 {
     out << "HTTP/1.1 501 Not Implemented\r\n";
+    if (cimError != String::EMPTY)
+    {
+        out << "CIMError: " << cimError << "\r\n";
+    }
     out << "\r\n";
 }
 

@@ -102,10 +102,11 @@ void CIMExportRequestDecoder::sendBadRequestError(
 }
 
 void CIMExportRequestDecoder::sendNotImplementedError(
-    Uint32 queueId)
+    Uint32 queueId,
+    const String& cimError)
 {
     Array<Sint8> message;
-    XmlWriter::appendNotImplementedResponseHeader(message);
+    XmlWriter::appendNotImplementedResponseHeader(message, cimError);
     sendResponse(queueId, message);
 }
 
@@ -207,6 +208,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       String cimExport;
       String cimExportBatch;
       Boolean cimExportBatchFlag;
+      String cimProtocolVersion;
 
       // Validate the "CIMExport" header:
 
@@ -245,8 +247,17 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          //     CIMExportBatch header is present, but the Listener does not
          //     support Multiple Exports, then it MUST fail the request and
          //     return a status of "501 Not Implemented".
-         sendNotImplementedError(queueId);
+         sendNotImplementedError(queueId, "multiple-requests-unsupported");
          return;
+      }
+
+      // Save this header for later checking
+
+      if (!HTTPMessage::lookupHeader(
+             headers, "*CIMProtocolVersion", cimProtocolVersion, true))
+      {
+         // Mandated by the Specification for CIM Operations over HTTP
+         cimProtocolVersion.assign("1.0");
       }
 
       // Zero-terminate the message:
@@ -262,7 +273,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
       // If it is a method call, then dispatch it to be handled:
 
-      handleMethodRequest(queueId, content, userName);
+      handleMethodRequest(queueId, content, cimProtocolVersion, userName);
    }
 }
 
@@ -270,6 +281,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 void CIMExportRequestDecoder::handleMethodRequest(
    Uint32 queueId,
    Sint8* content,
+   const String& cimProtocolVersionInHeader,
    String userName)
 {
    Message* request;
@@ -309,11 +321,26 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       // Expect <CIM ...>
 
-      XmlReader::testCimStartTag(parser);
+      const char* cimVersion = 0;
+      const char* dtdVersion = 0;
+
+      XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
+
+      if (strcmp(cimVersion, "2.0") != 0)
+      {
+         sendNotImplementedError(queueId, "unsupported-cim-version");
+         return;
+      }
+
+      if (strcmp(dtdVersion, "2.0") != 0)
+      {
+         sendNotImplementedError(queueId, "unsupported-dtd-version");
+         return;
+      }
 
       // Expect <MESSAGE ...>
 
-      const char* protocolVersion = 0;
+      String protocolVersion;
 
       if (!XmlReader::getMessageStartTag(
 	     parser, messageId, protocolVersion))
@@ -322,10 +349,21 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	    parser.getLine(), "expected MESSAGE element");
       }
 
-      if (strcmp(protocolVersion, "1.0") != 0)
+      // Validate that the protocol version in the header matches the XML
+
+      if (!String::equalNoCase(protocolVersion, cimProtocolVersionInHeader))
       {
-	 throw XmlSemanticError(parser.getLine(), 
-				"Expected MESSAGE.PROTOCOLVERSION to be \"1.0\"");
+         sendBadRequestError(queueId, "header-mismatch");
+         return;
+      }
+
+      // We only support protocol version 1.0
+
+      if (!String::equalNoCase(protocolVersion, "1.0"))
+      {
+         // See Specification for CIM Operations over HTTP section 4.3
+         sendNotImplementedError(queueId, "unsupported-protocol-version");
+         return;
       }
    }
    catch (Exception&)

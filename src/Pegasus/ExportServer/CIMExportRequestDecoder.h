@@ -74,7 +74,8 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
          const String& cimError = String::EMPTY);
 
       void sendNotImplementedError(
-         Uint32 queueId);
+         Uint32 queueId,
+         const String& cimError = String::EMPTY);
 
       virtual void handleEnqueue(Message *);
 
@@ -87,6 +88,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
       void handleMethodRequest(
 	 Uint32 queueId,
 	 Sint8* content,
+	 const String& cimProtocolVersionInHeader,
 	 String userName);
 
       CIMExportIndicationRequestMessage* decodeExportIndicationRequest(

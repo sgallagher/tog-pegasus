@@ -122,10 +122,11 @@ void CIMOperationRequestDecoder::sendBadRequestError(
 }
 
 void CIMOperationRequestDecoder::sendNotImplementedError(
-    Uint32 queueId)
+    Uint32 queueId,
+    const String& cimError)
 {
     Array<Sint8> message;
-    XmlWriter::appendNotImplementedResponseHeader(message);
+    XmlWriter::appendNotImplementedResponseHeader(message, cimError);
     sendResponse(queueId, message);
 }
 
@@ -227,10 +228,11 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    if (methodName == "M-POST" || methodName == "POST")
    {
       String cimOperation;
-      String cimMethod;
-      String cimObject;
       String cimBatch;
       Boolean cimBatchFlag;
+      String cimProtocolVersion;
+      String cimMethod;
+      String cimObject;
 
       // Validate the "CIMOperation" header:
 
@@ -270,12 +272,20 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
          //     CIMBatch header is present, but the Server does not support
          //     Multiple Operations, then it MUST fail the request and
          //     return a status of "501 Not Implemented".
-         sendNotImplementedError(queueId);
+         sendNotImplementedError(queueId, "multiple-requests-unsupported");
          PEG_METHOD_EXIT();
          return;
       }
 
       // Save these headers for later checking
+
+      if (!HTTPMessage::lookupHeader(
+	     headers, "*CIMProtocolVersion", cimProtocolVersion, true))
+      {
+         // Mandated by the Specification for CIM Operations over HTTP
+         cimProtocolVersion.assign("1.0");
+      }
+
       if (HTTPMessage::lookupHeader(headers, "*CIMMethod", cimMethod, true))
       {
          if (cimMethod == String::EMPTY)
@@ -310,8 +320,8 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
       // If it is a method call, then dispatch it to be handled:
 
-      handleMethodCall(queueId, content, cimMethod, cimObject,
-                       authType, userName);
+      handleMethodCall(queueId, content, cimProtocolVersion, cimMethod,
+                       cimObject, authType, userName);
    }
    else
    {
@@ -326,6 +336,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 void CIMOperationRequestDecoder::handleMethodCall(
    Uint32 queueId,
    Sint8* content,
+   const String& cimProtocolVersionInHeader,
    const String& cimMethodInHeader,
    const String& cimObjectInHeader,
    String authType,
@@ -351,11 +362,28 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
       // Expect <CIM ...>
 
-      XmlReader::testCimStartTag(parser);
+      const char* cimVersion = 0;
+      const char* dtdVersion = 0;
+
+      XmlReader::getCimStartTag(parser, cimVersion, dtdVersion);
+
+      if (strcmp(cimVersion, "2.0") != 0)
+      {
+         sendNotImplementedError(queueId, "unsupported-cim-version");
+         PEG_METHOD_EXIT();
+         return;
+      }
+
+      if (strcmp(dtdVersion, "2.0") != 0)
+      {
+         sendNotImplementedError(queueId, "unsupported-dtd-version");
+         PEG_METHOD_EXIT();
+         return;
+      }
 
       // Expect <MESSAGE ...>
 
-      const char* protocolVersion = 0;
+      String protocolVersion;
 
       if (!XmlReader::getMessageStartTag(
 	     parser, messageId, protocolVersion))
@@ -364,10 +392,23 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    parser.getLine(), "expected MESSAGE element");
       }
 
-      if (strcmp(protocolVersion, "1.0") != 0)
+      // Validate that the protocol version in the header matches the XML
+
+      if (!String::equalNoCase(protocolVersion, cimProtocolVersionInHeader))
       {
-	 throw XmlSemanticError(parser.getLine(), 
-				"Expected MESSAGE.PROTOCOLVERSION to be \"1.0\"");
+         sendBadRequestError(queueId, "header-mismatch");
+         PEG_METHOD_EXIT();
+         return;
+      }
+
+      // We only support protocol version 1.0
+
+      if (!String::equalNoCase(protocolVersion, "1.0"))
+      {
+         // See Specification for CIM Operations over HTTP section 4.3
+         sendNotImplementedError(queueId, "unsupported-protocol-version");
+         PEG_METHOD_EXIT();
+         return;
       }
    }
    catch (Exception&)
@@ -383,7 +424,11 @@ void CIMOperationRequestDecoder::handleMethodCall(
    {
       if (XmlReader::testStartTag(parser, entry, "MULTIREQ"))
       {
-         // ATTN-RK-P3-20020304: Return "unsupported".
+         // We wouldn't have gotten here if CIMBatch header was specified,
+         // so this must be indicative of a header mismatch
+         sendBadRequestError(queueId, "header-mismatch");
+         PEG_METHOD_EXIT();
+         return;
          // Future: When MULTIREQ is supported, must ensure CIMMethod and
          // CIMObject headers are absent, and CIMBatch header is present.
       }
@@ -427,7 +472,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     "400 Bad Request" (and MUST include a CIMError header in the
          //     response with a value of header-mismatch), subject to the
          //     considerations specified in Errors.
-         if (CompareNoCase(cimMethodName, _CString(cimMethodInHeader)) != 0)
+         if (!String::equalNoCase(cimMethodName, cimMethodInHeader))
          {
             // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
             sendBadRequestError(queueId, "header-mismatch");
@@ -635,7 +680,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     "400 Bad Request" (and MUST include a CIMError header in the
          //     response with a value of header-mismatch), subject to the
          //     considerations specified in Errors.
-         if (CompareNoCase(cimMethodName, _CString(cimMethodInHeader)) != 0)
+         if (!String::equalNoCase(cimMethodName, cimMethodInHeader))
          {
             // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?
             sendBadRequestError(queueId, "header-mismatch");

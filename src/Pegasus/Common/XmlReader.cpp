@@ -265,7 +265,7 @@ Boolean XmlReader::testContentOrCData(
 
 //------------------------------------------------------------------------------
 //
-// testCimStartTag()
+// getCimStartTag()
 //
 //     <!ELEMENT CIM (MESSAGE|DECLARATION)>
 //     <!ATTRLIST CIM 
@@ -274,30 +274,21 @@ Boolean XmlReader::testContentOrCData(
 //
 //------------------------------------------------------------------------------
 
-void XmlReader::testCimStartTag(XmlParser& parser)
+void XmlReader::getCimStartTag(
+    XmlParser& parser, 
+    const char*& cimVersion,
+    const char*& dtdVersion)
 {
     XmlEntry entry;
     XmlReader::expectStartTag(parser, entry, "CIM");
-
-    const char* cimVersion;
 
     if (!entry.getAttributeValue("CIMVERSION", cimVersion))
 	throw XmlValidationError(
 	    parser.getLine(), "missing CIM.CIMVERSION attribute");
 
-    if (strcmp(cimVersion, "2.0") != 0)
-	throw XmlValidationError(parser.getLine(), 
-	    "CIM.CIMVERSION attribute must be \"2.0\"");
-
-    const char* dtdVersion;
-
     if (!entry.getAttributeValue("DTDVERSION", dtdVersion))
 	throw XmlValidationError(
 	    parser.getLine(), "missing CIM.DTDVERSION attribute");
-
-    if (strcmp(dtdVersion, "2.0") != 0)
-	throw XmlValidationError(parser.getLine(), 
-	    "CIM.DTDVERSION attribute must be \"2.0\"");
 }
 
 //------------------------------------------------------------------------------
@@ -2871,7 +2862,7 @@ void XmlReader::getObject(XmlParser& parser, CIMQualifierDecl& x)
 Boolean XmlReader::getMessageStartTag(
     XmlParser& parser, 
     String& id,
-    const char*& protocolVersion)
+    String& protocolVersion)
 {
     XmlEntry entry;
 

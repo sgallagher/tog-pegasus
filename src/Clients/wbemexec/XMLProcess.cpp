@@ -180,7 +180,9 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
     XmlEntry                     entry;
     Array <Sint8>                message;
     String                       messageId;
-    const char*                  protocolVersion       = 0;
+    const char*                  cimVersion            = 0;
+    const char*                  dtdVersion            = 0;
+    String                       protocolVersion;
     String                       className;
     String                       methodName;
     String                       authString;
@@ -255,7 +257,8 @@ Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
     //
     //  CIM element
     //
-    XmlReader::testCimStartTag (parser);
+    XmlReader::getCimStartTag (parser, cimVersion, dtdVersion);
+
 
     //
     //  MESSAGE element

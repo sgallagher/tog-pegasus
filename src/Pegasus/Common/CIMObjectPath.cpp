@@ -749,7 +749,7 @@ void _parseKeyBindingPairs(
                     type = CIMKeyBinding::REFERENCE;
                 }
             }
-            catch (Exception & e)
+            catch (const Exception &)
             {
                 // Not a reference value; leave type as STRING
             }

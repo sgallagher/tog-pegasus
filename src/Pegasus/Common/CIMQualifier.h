@@ -51,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifier;
 class CIMClassRep;
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 class CIMQualifierRep;
 #endif
 

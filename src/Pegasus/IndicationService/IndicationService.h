@@ -1307,6 +1307,29 @@ private:
     void _checkNonprivilegedAuthorization (
         const String & userName);
 
+    /**
+        Gets a String containing the comma-separated Subscription Filter Name 
+        and Handler Name, for use in a log message to identify the subscription.
+
+        @param   subscription          subscription instance
+
+        @return  String containing the comma-separated Subscription Filter Name
+                 and Handler Name
+     */
+    String _getSubscriptionLogString
+        (CIMInstance & subscription);
+
+    /**
+        Gets a String containing the Provider Name, for use in a log message to
+        identify the provider.
+
+        @param   provider              provider instance
+
+        @return  String containing the Provider Name
+     */
+    String _getProviderLogString
+        (CIMInstance & provider);
+
     CIMRepository * _repository;
 
     /**

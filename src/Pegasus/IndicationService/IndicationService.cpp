@@ -537,9 +537,15 @@ void IndicationService::_initialize (void)
         //
         for (Uint32 i = 0; i < noProviderSubscriptions.size (); i++)
         {
+            //
+            //  Get Subscription Filter Name and Handler Name
+            //
+            String logString = _getSubscriptionLogString 
+                (noProviderSubscriptions [i]);
+
             Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER, 
                 Logger::WARNING, _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
-                noProviderSubscriptions [i].getPath ().toString ());
+                logString);
         }
     }
 
@@ -869,7 +875,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         //  If a subscription with a duration, calculate subscription time 
         //  remaining, and add property to the instance
         //
-        if (request->instanceName.getClassName ().equal 
+        if (request->instanceName.getClassName ().equal
             (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
         {
             _setTimeRemaining (instance);
@@ -2205,11 +2211,16 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         providerCopy.setPath (path);
         for (Uint32 j = 0; j < newSubscriptions.size (); j++)
         {
+            //
+            //  Get Provider Name, Subscription Filter Name and Handler Name
+            //
+            String logString1 = _getProviderLogString (providerCopy);
+            String logString2 = _getSubscriptionLogString 
+                (newSubscriptions [j]);
+
             Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING, _MSG_PROVIDER_NOW_SERVING_KEY,
-                _MSG_PROVIDER_NOW_SERVING,
-                providerCopy.getPath ().toString (),
-                newSubscriptions [j].getPath ().toString ());
+                _MSG_PROVIDER_NOW_SERVING, logString1, logString2);
         }
     }
 
@@ -2378,11 +2389,16 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         providerCopy.setPath (path);
         for (Uint32 j = 0; j < formerSubscriptions.size (); j++)
         {
+            //
+            //  Get Provider Name, Subscription Filter Name and Handler Name
+            //
+            String logString1 = _getProviderLogString (providerCopy);
+            String logString2 = _getSubscriptionLogString 
+                (formerSubscriptions [j]);
+
             Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER, 
                 Logger::WARNING, _MSG_PROVIDER_NO_LONGER_SERVING_KEY, 
-                _MSG_PROVIDER_NO_LONGER_SERVING,
-                providerCopy.getPath ().toString (),
-                formerSubscriptions [j].getPath ().toString ());
+                _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2);
         }
     }
 
@@ -2497,11 +2513,16 @@ void IndicationService::_handleNotifyProviderTerminationRequest
             providerCopy.setPath (path);
             for (Uint32 j = 0; j < providerSubscriptions.size (); j++)
             {
+                //
+                //  Get Provider Name, Subscription Filter Name and Handler Name
+                //
+                String logString1 = _getProviderLogString (providerCopy);
+                String logString2 = _getSubscriptionLogString 
+                    (providerSubscriptions [j]);
+
                 Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER, 
                     Logger::WARNING, _MSG_PROVIDER_NO_LONGER_SERVING_KEY, 
-                    _MSG_PROVIDER_NO_LONGER_SERVING,
-                    providerCopy.getPath ().toString (),
-                    providerSubscriptions [j].getPath ().toString ());
+                    _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2);
             }
         }
     }
@@ -5909,12 +5930,19 @@ void IndicationService::_handleCreateResponseAggregation (
                     subscriptions.size ());
                 _sendAlerts (subscriptions, indicationInstance);
 #endif
+
+                //
+                //  Get Subscription Filter Name and Handler Name
+                //
+                String logString = _getSubscriptionLogString 
+                    (request->subscriptionInstance);
+
                 //
                 //  Log a message for the subscription
                 //
                 Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER, 
                     Logger::WARNING, _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
-                    request->subscriptionInstance.getPath ().toString ());
+                    logString);
             }
         }
 
@@ -7265,6 +7293,67 @@ Boolean IndicationService::_getState (
     return true;
 }
 
+String IndicationService::_getSubscriptionLogString
+    (CIMInstance & subscription)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
+        "IndicationService::_getSubscriptionLogString");
+
+    //
+    //  Get Subscription Filter Name and Handler Name
+    //
+    String logString;
+    CIMValue filterValue;
+    CIMObjectPath filterPath;
+    Array <CIMKeyBinding> filterKeyBindings;
+    CIMValue handlerValue;
+    CIMObjectPath handlerPath;
+    Array <CIMKeyBinding> handlerKeyBindings;
+    filterValue = subscription.getProperty (subscription.findProperty
+        (_PROPERTY_FILTER)).getValue ();
+    filterValue.get (filterPath);
+    filterKeyBindings = filterPath.getKeyBindings ();
+    for (Uint32 i = 0; i < filterKeyBindings.size (); i++)
+    {
+        if (filterKeyBindings [i].getName ().equal (_PROPERTY_NAME))
+        {
+            logString.append (filterKeyBindings [i].getValue ());
+            logString.append (", ");
+            break;
+        }
+    }
+    handlerValue = subscription.getProperty 
+        (subscription.findProperty
+        (_PROPERTY_HANDLER)).getValue ();
+    handlerValue.get (handlerPath);
+    handlerKeyBindings = handlerPath.getKeyBindings ();
+    for (Uint32 j = 0; j < handlerKeyBindings.size (); j++)
+    {
+        if (handlerKeyBindings [j].getName ().equal (_PROPERTY_NAME))
+        {
+            logString.append (handlerKeyBindings [j].getValue ());
+            break;
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+    return logString;
+}
+
+String IndicationService::_getProviderLogString
+    (CIMInstance & provider)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
+        "IndicationService::_getProviderLogString");
+
+    String logString;
+    
+    logString = provider.getProperty (provider.findProperty 
+        (_PROPERTY_NAME)).getValue ().toString ();
+
+    PEG_METHOD_EXIT ();
+    return logString;
+}
 
 //
 //  Class names

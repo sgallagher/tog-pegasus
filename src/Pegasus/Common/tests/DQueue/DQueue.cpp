@@ -19,12 +19,13 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
+// Author: Mike Day (mdday@us.ibm.com) 
 //
 // Modified By:
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
+#define PEGASUS_DEBUG_MEMORY 1
 #include <Pegasus/suballoc/suballoc.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
@@ -42,15 +43,21 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
-
-class FAKE_MESSAGE
+ 
+class FAKE_MESSAGE : public PEGASUS_CHECKED_OBJECT
 {
    public:
-      FAKE_MESSAGE(void *key, int type) : _type(type)
-      {
+      
+      FAKE_MESSAGE(void *key, int type, PEGASUS_CHECK_PARAM) 
+	  : PEGASUS_CHECK_INIT,  _type(type)
+      { 
 	 _key = (Thread *)key;
       }
 
+      ~FAKE_MESSAGE(void)
+      {
+      }
+      
       char buffer[128];
 
       Boolean operator==(const void *key) const
@@ -63,26 +70,8 @@ class FAKE_MESSAGE
       Boolean operator==(const FAKE_MESSAGE & msg) const
       {
 	 return ( this->operator==((const void *)msg._key));
-      }
+      } 
 
-      void * operator new(size_t size)
-      {
-	 if( size != sizeof(FAKE_MESSAGE))
-	    return ::operator new(size);
-	 return pegasus_alloc(size);
-      }
-       
-      void operator delete(void *dead, size_t size)
-      {
-	 if(size != sizeof(FAKE_MESSAGE))
-	 {
-	    ::operator delete(dead);
-	    return;
-	 }
-	 pegasus_free(dead);
-      }
-       
-  
    private:
       FAKE_MESSAGE(void); 
       Thread * _key; 
@@ -100,12 +89,12 @@ typedef struct
       AsyncDQueue<FAKE_MESSAGE> *outgoing; // from server
 }read_write;
 
-
+ 
 AtomicInt replies;
 AtomicInt requests;
 Mutex msg_mutex;
 
-const Uint32 NUMBER_MSGS = 10000;
+const Uint32 NUMBER_MSGS = 100;
 const int NUMBER_CLIENTS = 2 ;
 const int NUMBER_SERVERS =  1; 
  
@@ -116,7 +105,7 @@ FAKE_MESSAGE *get_next_msg(void *key )
    msg_mutex.lock(pegasus_thread_self());
    if(requests.value() < NUMBER_MSGS)
    {
-      msg = new FAKE_MESSAGE(key, 0);
+      msg = new FAKE_MESSAGE(key, 0, PEGASUS_MEMCHECK(FAKE_MESSAGE));
       requests++;
    }
    msg_mutex.unlock();
@@ -235,7 +224,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
 
       if(msg != 0 )
       {
-	 delete msg;
+	 PEGASUS_MEMCHECK_DELETE(msg); 
+//	 delete msg;
 	 replies++;
       }
       pegasus_yield();
@@ -248,9 +238,10 @@ PEGASUS_NAMESPACE_END
 
 int main(int argc, char **argv)
 {
-
+   peg_suballocator::SUBALLOC_HANDLE *heap_handle = new peg_suballocator::SUBALLOC_HANDLE("DQueue_test");
+   
    read_write rw =
-      {
+      { 
 	 new AsyncDQueue<FAKE_MESSAGE>(true, 100),
 	 new AsyncDQueue<FAKE_MESSAGE>(true, 100)
       };

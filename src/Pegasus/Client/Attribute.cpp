@@ -79,8 +79,5 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Attribute& attr
 	}
 	return os;
 }
-#define PEGASUS_ARRAY_T Attribute
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END

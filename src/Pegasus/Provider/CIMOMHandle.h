@@ -60,10 +60,16 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
       CIMOMHandle(const CIMOMHandle &);
 
       /** */
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       ~CIMOMHandle(void);
 
       CIMOMHandle & operator =(const CIMOMHandle & handle);
       
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       CIMClass getClass(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -73,6 +79,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMClass> enumerateClasses(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -82,27 +91,42 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeQualifiers,
 	 Boolean includeClassOrigin);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMName> enumerateClassNames(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className,
 	 Boolean deepInheritance);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       void createClass(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMClass& newClass);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       void modifyClass(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMClass& modifiedClass);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       void deleteClass(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       CIMInstance getInstance(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -112,6 +136,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMInstance> enumerateInstances(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -122,16 +149,25 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMObjectPath> enumerateInstanceNames(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMName& className);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       CIMObjectPath createInstance(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMInstance& newInstance);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       void modifyInstance(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -139,17 +175,26 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeQualifiers,
 	 const CIMPropertyList& propertyList);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       void deleteInstance(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& instanceName);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMObject> execQuery(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const String& queryLanguage,
 	 const String& query);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMObject> associators(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -162,6 +207,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMObjectPath> associatorNames(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -171,6 +219,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 const String& role,
 	 const String& resultRole);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMObject> references(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -181,6 +232,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 Boolean includeClassOrigin,
 	 const CIMPropertyList& propertyList);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       Array<CIMObjectPath> referenceNames(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -189,12 +243,18 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 const String& role);
 
       // property operations
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       CIMValue getProperty(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
 	 const CIMObjectPath& instanceName,
 	 const CIMName& propertyName);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       void setProperty(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -202,6 +262,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 	 const CIMName& propertyName,
 	 const CIMValue& newValue);
 
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       CIMValue invokeMethod(
 	 const OperationContext & context,
 	 const CIMNamespaceName& nameSpace,
@@ -220,6 +283,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
           each call to disallowProviderUnload must be matched with a call to
           allowProviderUnload.
        */
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       void disallowProviderUnload();
 
       /**
@@ -231,6 +297,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
           disallowProviderUnload method.  Note that each allowProviderUnload
           call should be preceded by a disallowProviderUnload call.
        */
+#ifdef PEGASUS_OS_OS400
+virtual
+#endif
       void allowProviderUnload();
 
    private:      

@@ -126,7 +126,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "L10N",
     "ExportClient",
     "Listener",
-    "DiscardedData"
+    "DiscardedData",
+    "ProviderAgent"
 };
 /** Constants identifying the Trace components. These constants are used by 
     the component to identify its Trace messages. The component ID needs to
@@ -186,7 +187,8 @@ enum TRACE_COMPONENT_ID
     TRC_L10N,
     TRC_EXPORT_CLIENT,
     TRC_LISTENER,
-    TRC_DISCARDED_DATA
+    TRC_DISCARDED_DATA,
+    TRC_PROVIDERAGENT
 };
 
 PEGASUS_NAMESPACE_END

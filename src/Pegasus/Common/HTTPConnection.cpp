@@ -458,7 +458,11 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    FD_SET(getSocket(), &fdread);
    FD_SET(getSocket(), &fdwrite);
    int events = select(FD_SETSIZE, &fdread, &fdwrite, NULL, &tv);
+#ifdef PEGASUS_OS_TYPE_WINDOWS
    if(events && events != SOCKET_ERROR && _dying.value() == 0 )
+#else
+   if(events && events != -1 && _dying.value() == 0 )
+#endif
    {
       events = 0;
       if( FD_ISSET(getSocket(), &fdread))

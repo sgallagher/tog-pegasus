@@ -36,7 +36,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
 #if defined(PEGASUS_HAS_SSL)
-#include <SSLContext.h>
+#include <Pegasus/Common/SSLContext.h>
 #endif
 PEGASUS_NAMESPACE_BEGIN
 

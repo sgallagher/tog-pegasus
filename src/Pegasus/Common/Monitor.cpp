@@ -185,7 +185,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 	if (count == 0)
 	{
-	   Sleep(milliseconds);
+	   pegasus_sleep(milliseconds);
 	   
 	   return false;
 	}
@@ -197,7 +197,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 #endif
 	{
 	    count = 0;
-	    Sleep(milliseconds);
+	    pegasus_sleep(milliseconds);
 	    
 	    return false;
 	}
@@ -282,7 +282,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    return true;
 	}
     }
-    Sleep(milliseconds);
+    pegasus_sleep(milliseconds);
     
     return false;
 }

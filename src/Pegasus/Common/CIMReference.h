@@ -48,7 +48,7 @@ class PEGASUS_COMMON_LINKAGE KeyBinding
 {
 public:
 
-    enum Type { BOOLEAN, STRING, NUMERIC };
+    enum Type { BOOLEAN, STRING, NUMERIC, REFERENCE };
 
     /** Default constructor */
     KeyBinding();

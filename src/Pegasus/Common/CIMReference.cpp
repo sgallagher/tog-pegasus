@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -246,6 +246,63 @@ void CIMReference::set(
    setKeyBindings(keyBindings);
 }
 
+/**
+    ATTN: RK - Association classes have keys whose types are
+    references.  These reference values must be treated specially
+    in the XML encoding, using the VALUE.REFERENCE tag structure.
+
+    Pegasus had been passing reference values simply as String
+    values.  For example, EnumerateInstanceNames returned
+    KEYVALUEs of string type rather than VALUE.REFERENCEs.
+
+    I've modified the XmlReader::getKeyBindingElement() and
+    CIMReference::instanceNameToXml() methods to read and write
+    the XML in the proper format.  However, making that change
+    required that a CIMReference object be able to distinguish
+    between a key of String type and a key of reference type.
+
+    I've modified the String format of CIMReferences slightly to
+    allow efficient processing of references whose keys are also
+    of reference type.  The "official" form uses the same
+    encoding for key values of String type and of reference type,
+    and so it would be necessary to retrieve the class definition
+    and look up the types of the key properties to determine how
+    to treat the key values.  This is clearly too inefficient for
+    internal transformations between CIMReferences and String
+    values.
+
+    The workaround is to encode a 'R' at the beginning of the
+    value for a key of reference type (before the opening '"').
+    This allows the parser to know a priori whether the key is of
+    String or reference type.
+
+    In this example:
+
+        MyClass.Key1="StringValue",Key2=R"RefClass.KeyA="StringA",KeyB=10"
+
+    Property Key1 of class MyClass is of String type, and so it
+    gets the usual encoding.  Key2 is a reference property, so
+    the extra 'R' is inserted before its encoded value.  Note
+    that this algorithm is recursive, such that RefClass could
+    include KeyC of reference type, which would also get encoded
+    with the 'R' notation.
+
+    The toString() method inserts the 'R' to provide symmetry.  A
+    new KeyBinding type (REFERENCE) has been defined to denote
+    keys in a CIMReference that are of reference type.  This
+    KeyBinding type must be used appropriately for
+    CIMReference::toString() to behave correctly.
+
+    A result of this change is that instances names in the
+    instance repository will include this extra 'R' character.
+    Note that for user-facing uses of the String encoding of
+    instance names (such as might appear in MOF for static
+    association instances or in the CGI client), this solution
+    is non-standard and therefore unacceptable.  It is likely
+    that these points will need to process the more expensive
+    operation of retrieving the class definition to determine
+    the key property types.
+*/
 void CIMReference::set(const String& objectName)
 {
     _host.clear();
@@ -403,7 +460,31 @@ void CIMReference::set(const String& objectName)
         p = p + strlen(key) + 1;
 	KeyBinding::Type type;
 
-	if (*p == '"')
+	if (*p == 'R')
+	{
+	    p++;
+
+	    type = KeyBinding::REFERENCE;
+
+	    if (*p++ != '"')
+		throw IllformedObjectName(objectName);
+
+	    while (*p && *p != '"')
+	    {
+		// ATTN: need to handle special characters here:
+
+		if (*p == '\\')
+		    *p++;
+
+		valueString.append(*p++);
+	    }
+
+	    if (*p++ != '"')
+		throw IllformedObjectName(objectName);
+
+            p++;
+	}
+	else if (*p == '"')
 	{
 	    p++;
 
@@ -554,12 +635,15 @@ String CIMReference::toString() const
 
 	KeyBinding::Type type = keyBindings[i].getType();
 	
-	if (type == KeyBinding::STRING)
+	if (type == KeyBinding::REFERENCE)
+	    objectName.append('R');
+
+	if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
 	    objectName.append('"');
 
 	objectName.append(value);
 
-	if (type == KeyBinding::STRING)
+	if (type == KeyBinding::STRING || type == KeyBinding::REFERENCE)
 	    objectName.append('"');
 
 	if (i + 1 != n)
@@ -633,12 +717,19 @@ void CIMReference::instanceNameToXml(Array<Sint8>& out) const
     {
 	out << "<KEYBINDING NAME=\"" << _keyBindings[i].getName() << "\">\n";
 
-	out << "<KEYVALUE VALUETYPE=\"";
-	out << KeyBinding::typeToString(_keyBindings[i].getType());
-	out << "\">";
+        if (_keyBindings[i].getType() == KeyBinding::REFERENCE)
+        {
+            CIMReference ref = _keyBindings[i].getValue();
+            ref.toXml(out, true);
+        }
+        else {
+	    out << "<KEYVALUE VALUETYPE=\"";
+	    out << KeyBinding::typeToString(_keyBindings[i].getType());
+	    out << "\">";
 
-	out << _keyBindings[i].getValue();
-	out << "</KEYVALUE>\n";
+	    out << _keyBindings[i].getValue();
+	    out << "</KEYVALUE>\n";
+        }
 
 	out << "</KEYBINDING>\n";
     }
@@ -767,6 +858,10 @@ const char* KeyBinding::typeToString(Type type)
 
 	case KeyBinding::NUMERIC:
 	    return "numeric";
+
+        case KeyBinding::REFERENCE:
+        default:
+            PEGASUS_ASSERT(false);
     }
 
     return "unknown";

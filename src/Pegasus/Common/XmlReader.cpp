@@ -1794,8 +1794,6 @@ KeyBinding::Type XmlReader::getValueTypeAttribute(
 //     <!ATTLIST KEYVALUE
 //         VALUETYPE (string|boolean|numeric)  'string'>
 //
-// ATTN-B: VALUE.REFERENCE ignored above; can't understand why it is needed!
-//
 //------------------------------------------------------------------------------
 
 Boolean XmlReader::getKeyValueElement(
@@ -1838,8 +1836,6 @@ Boolean XmlReader::getKeyValueElement(
 //     <!ATTLIST KEYBINDING
 //         %CIMName;>
 //
-// ATTN-B: VALUE.REFERENCE ignored above; can't understand why it is needed!
-//
 //------------------------------------------------------------------------------
 
 Boolean XmlReader::getKeyBindingElement(
@@ -1856,7 +1852,18 @@ Boolean XmlReader::getKeyBindingElement(
     name = getCimNameAttribute(parser.getLine(), entry, "KEYBINDING");
 
     if (!getKeyValueElement(parser, type, value))
-	throw XmlValidationError(parser.getLine(), "Expected KEYVALUE element");
+    {
+        CIMReference reference;
+
+        if (!getValueReferenceElement(parser, reference))
+        {
+	    throw XmlValidationError(parser.getLine(),
+                      "Expected KEYVALUE or VALUE.REFERENCE element");
+        }
+
+        type = KeyBinding::REFERENCE;
+        value = reference.toString();
+    }
 
     expectEndTag(parser, "KEYBINDING");
     return true;

@@ -268,6 +268,11 @@ repository implementation.
 37. (Yi Zhou - HP) 05 Nov 2001 Fixed createInstance to return a CIMReference 
     (instanceName).
 
+38. (Roger Kumpf - HP) 08 Nov 2001 Implemented encoding/decoding of
+    GetProperty/SetProperty/EnumerateInstances request/response messages.
+    Added encoding and decoding of PropertyList parameters on all
+    relevant intrinsic methods.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

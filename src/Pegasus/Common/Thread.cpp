@@ -685,7 +685,6 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
          // ATTN: Error result has not yet been defined
          return true;
       }
-      struct timeval now;
       struct timeval start;
       gettimeofday(&start, NULL);
       Thread *th = 0;
@@ -940,7 +939,6 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	    else 
 	    {
 	       // deadlocked threads
-               struct timeval deadlock_timeout;
                Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
                              "A thread has run longer than %u seconds and "
                                  "will be cancelled.",

@@ -640,7 +640,7 @@ String& String::assignUTF8(const char* str)
 
     Uint32 count;
 
-    for(count = 0; ((msg16[count]) != Char16(0x00)) && (count <= n); ++count);
+    for(count = 0; ((msg16[count]) != Char16(0x00)) && (count < (n - 1)); ++count);
 
     _rep->c16a.append(msg16, count);
 

@@ -76,23 +76,6 @@ PEGASUS_USING_STD;
 static char* verbose;
 
 
-/* Macro to Create the equivalent of an assert but without the
-   termination.  This can be used as a temporary marker for asserts
-   that are not working.  Prints out the error but continues.
-   NOTE: This is useful in test programs to keep us aware that we
-   have problems without halting the test sequence
-*/
-#define ASSERTTEMP(COND) \
-    do \
-    { \
-	if (!(COND)) \
-	{ \
-	    cerr << "TEMP Assert Error TEMP **********"	\
-		<<__FILE__ << " " << __LINE__ \
-		<< " " << #COND << endl; \
-	} \
-    } while (0)
-
 /*  This is the original test written as a simple test of resolution.
 */
 void test01()

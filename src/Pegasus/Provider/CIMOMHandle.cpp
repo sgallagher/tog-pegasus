@@ -409,7 +409,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 	_checkError(response);
 
 //	return(response->cimNamedInstances);
-	return(Array<CIMInstance>());
+	return Array<CIMInstance>() ;
 }
 
 void CIMOMHandle::enumerateInstancesAsync(
@@ -666,7 +666,7 @@ Array<CIMObject> CIMOMHandle::associators(
 	_checkError(response);
 
 	//return(response->cimObjects);
-	return(Array<CIMObject>());
+	return Array<CIMObject>();
 }
 
 void CIMOMHandle::associatorsAsync(
@@ -774,7 +774,7 @@ Array<CIMObject> CIMOMHandle::references(
 	_checkError(response);
 
 	//return(response->cimObjects);
-	return(Array<CIMObject>());
+	return Array<CIMObject>();
 }
 
 void CIMOMHandle::referencesAsync(

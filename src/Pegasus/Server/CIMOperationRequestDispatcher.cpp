@@ -662,7 +662,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
     {
 	// get provider for class
 	String className = request->newInstance.getClassName();
-        CIMClass cimClass = className;
+        //CIMClass cimClass = className;
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
         if ( (providerName.size() == 0) &&

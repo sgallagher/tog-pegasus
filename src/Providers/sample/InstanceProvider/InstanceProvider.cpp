@@ -166,6 +166,9 @@ void InstanceProvider::modifyInstance(
 	{
 		if(localReference == _instances[i].first)
 		{
+			// overwrite existing instance
+			_instances[i].second = instanceObject;
+			
 			// deliver requested instance
 			handler.deliver(_instances[i].second);
 

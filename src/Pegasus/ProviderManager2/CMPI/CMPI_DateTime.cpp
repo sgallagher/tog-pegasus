@@ -127,7 +127,13 @@ extern "C" {
 
    CMPIDateTime *newDateTimeChar(char *strTime) {
       CIMDateTime *dt=new CIMDateTime();
-      *dt=String(strTime);
+	  try {
+      	*dt=String(strTime);
+	  } catch ( ... )
+		{
+			delete dt;
+			return NULL;
+		}
       return (CMPIDateTime*)new CMPI_Object(dt);
    }
 

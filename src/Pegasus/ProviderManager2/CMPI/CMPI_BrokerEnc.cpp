@@ -269,8 +269,12 @@ extern "C" {
 
    static CMPIDateTime* mbEncNewDateTimeFromString(CMPIBroker* mb, char *t ,CMPIStatus *rc) {
    //   cout<<"--- mbEncNewDateTimeFromString()"<<endl;
+	  CMPIDateTime *date = NULL;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return newDateTimeChar(t);
+      date=newDateTimeChar(t);
+	  if (!date)
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	  return date;
    }
 
    static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {

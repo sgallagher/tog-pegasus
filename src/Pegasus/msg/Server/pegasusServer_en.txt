@@ -3158,6 +3158,11 @@ CIM server listening on HTTPS port {0}."}
         // End of messages from platform-specific source files
         // ==========================================================     
         
+        // ==========================================================
+        // Messages for XmlConstants
+        //  Please use message prefix "PGS12600"
+        // ==========================================================
+
         /**
         * @note MISSING_ELEMENT_REQ:
         * Do not translate 'SIMPLEREQ'
@@ -3166,10 +3171,21 @@ CIM server listening on HTTPS port {0}."}
         Common.XmlConstants.MISSING_ELEMENT_REQ:string {"Expected SIMPLEREQ or MULTIREQ element."}
         
         /**
-        * MISSING_ELEMENT_LOCALPATH:
-        * Do not translate LOCALCLASSPATH
-        * Do not translate LOCALINSTANCEPATH
+        * @note MISSING_ELEMENT_LOCALPATH:
+        * Do not translate 'LOCALCLASSPATH'
+        * Do not translate 'LOCALINSTANCEPATH'
         */
         Common.XmlConstants.MISSING_ELEMENT_LOCALPATH:string{"Expected LOCALCLASSPATH or LOCALINSTANCEPATH element."}
+        
+        // ==========================================================
+        // Messages for Thread
+        //  Please use message prefix "PGS12800"
+        // ==========================================================
+
+        /**
+        * @note CANCEL_LONG_RUNNING_THREAD:
+        *    Substitution {0} is a number of seconds (an integer)
+        */
+        Common.Thread.CANCEL_LONG_RUNNING_THREAD:string{"A thread has run longer than {0} seconds and will be cancelled."}
         
 }

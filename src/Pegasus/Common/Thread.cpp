@@ -830,23 +830,16 @@ Uint32 ThreadPool::kill_dead_threads(void)
       Thread *th = 0;
       internal_dq idq;
       
-#ifdef PEGASUS_DISABLE_KILLING_HUNG_THREADS
-      // This change prevents the thread pool from killing "hung" threads.
-      // The definition of a "hung" thread is one that has been on the run queue
-      // for longer than the time interval set when the thread pool was created.
-      // Cancelling "hung" threads has proven to be problematic.
-
-      // With this change the thread pool will not cancel "hung" threads.  This
-      // may prevent a crash depending upon the state of the "hung" thread.  In
-      // the case that the thread is actually hung, this change causes the
-      // thread resources not to be reclaimed.
-
-      // Idle threads, those that have not executed a routine for a time
-      // interval, continue to be destroyed.  This is normal and should not
-      // cause any problems.
-      for( ; i < 1; i++)
-#else
+#ifdef PEGASUS_KILL_LONG_RUNNING_THREADS
+      // Defining PEGASUS_KILL_LONG_RUNNING_THREADS causes the thread pool
+      // to kill threads that are on the _running queue longer than the
+      // _deadlock_detect time interval specified for the thread pool.
+      // Cancelling long-running threads has proven to be problematic and
+      // may cause a crash depending on the state of the thread when it is
+      // killed.  Use this option with care.
       for( ; i < 2; i++)
+#else
+      for( ; i < 1; i++)
 #endif
       {
          q = map[i];
@@ -951,7 +944,17 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	    else 
 	    {
 	       // deadlocked threads
-	       Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Killing a deadlocked thread");
+               struct timeval deadlock_timeout;
+               Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
+                             "A thread has run longer than %u seconds and "
+                                 "will be cancelled.",
+                             Uint32(_deadlock_detect.tv_sec));
+               Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
+                             Logger::SEVERE,
+                             "Common.Thread.CANCEL_LONG_RUNNING_THREAD",
+                             "A thread has run longer than {0} seconds and "
+                                 "will be cancelled.",
+                             Uint32(_deadlock_detect.tv_sec));
 	       th->cancel();
 	       delete th;
 	    }

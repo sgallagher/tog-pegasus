@@ -36,22 +36,22 @@ const String NAMESPACE = "root/cimv2";
 
 int main(int argc, char** argv)
 {
-    CIMClient client;
-    client.connect("localhost:5988");
-
-    //Indication
-    CIMClass cimClass = client.getClass(NAMESPACE, "TestSoftwarePkg", false);
-    CIMInstance cimInstance("TestSoftwarePkg");
-    cimInstance.addProperty(CIMProperty("PkgName", "WBEM"));
-    cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
-    cimInstance.addProperty(CIMProperty("trapOid", "1.3.6.1.4.1.11.2.3.1.7.0.4"));
-    cimInstance.addProperty(CIMProperty("computerName", "NU744781"));
-    CIMReference instanceName = cimInstance.getInstanceName(cimClass);
-    instanceName.setNameSpace(NAMESPACE);
-    client.createInstance(NAMESPACE, cimInstance);
-
     try
     {
+      CIMClient client;
+      client.connect("localhost:5988");
+      
+      //Indication
+      CIMClass cimClass = client.getClass(NAMESPACE, "TestSoftwarePkg", false);
+      CIMInstance cimInstance("TestSoftwarePkg");
+      cimInstance.addProperty(CIMProperty("PkgName", "WBEM"));
+      cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
+      cimInstance.addProperty(CIMProperty("trapOid", "1.3.6.1.4.1.11.2.3.1.7.0.4"));
+      cimInstance.addProperty(CIMProperty("computerName", "NU744781"));
+      CIMReference instanceName = cimInstance.getInstanceName(cimClass);
+      instanceName.setNameSpace(NAMESPACE);
+      client.createInstance(NAMESPACE, cimInstance);
+      
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
 	inParams.append(CIMParamValue("param1", CIMValue("Hewlett-Packard")));
@@ -71,6 +71,7 @@ int main(int argc, char** argv)
 		<< outParams[i].getValue().toString()
 		<< endl;
         */
+	client.deleteInstance(NAMESPACE, instanceName);
     }
     catch(Exception& e)
     {
@@ -78,8 +79,6 @@ int main(int argc, char** argv)
 	exit(1);
     }
 
-    client.deleteInstance(NAMESPACE, instanceName);
-    
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
     
     return 0;

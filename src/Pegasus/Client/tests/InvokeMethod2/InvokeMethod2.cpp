@@ -39,16 +39,16 @@ const String GOODREPLY = "Hello";
 
 int main(int argc, char** argv)
 {
-    CIMClient client;
-    client.connectLocal();
 
-    CIMReference instanceName = "Sample_MethodProviderClass.Identifier=1";
+    const CIMReference instanceName = "Sample_MethodProviderClass.Identifier=1";
 
     try
     {
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
 
+	CIMClient client;
+	client.connectLocal();
 	CIMValue retValue = client.invokeMethod(
 	    NAMESPACE, 
 	    instanceName, 
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 	if( retValue.toString() != GOODREPLY )
 	  {
 	    PEGASUS_STD(cerr) << "Error: bad reply \"" <<
-	      retValue.toString() << "\"" << PEGASUS_STD(endl);
+	      retValue.toString() << PEGASUS_STD(endl);
 	    exit( 1 );
 	  }
 	else

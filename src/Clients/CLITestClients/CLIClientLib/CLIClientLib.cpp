@@ -79,7 +79,7 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
     paths selected or the enumerate returned no instances the returned CIMObjectPath
     is Null. Note that we do not have a clean way to test for null CIMObjectPath today.
 */
-CIMObjectPath _selectInstance(CIMClient& client, Options& opts, CIMName& className)
+CIMObjectPath _selectInstance(CIMClient& client, Options& opts, const CIMName& className)
 {
     Array<CIMObjectPath> instanceNames =
         client.enumerateInstanceNames(opts.nameSpace,
@@ -208,7 +208,12 @@ Array<String> _tokenize(const String& input, const Char16 separator)
     return tokens;
 }
 
-Uint32 validType(const String& typeString)
+/** Determine if valid CIMType input. 
+    @param typeString String containing type keyword.
+    @return Sint32 defining type or -1 if invalid keyword.
+    NOTE: This should use the system functions somewhere 
+*/
+Sint32 validType(const String& typeString)
 {
 	static const char* _typeStrings[] =
 	{

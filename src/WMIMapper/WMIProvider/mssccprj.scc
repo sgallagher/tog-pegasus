@@ -1,0 +1,5 @@
+SCC = This is a Source Code Control file
+
+[WMIProvider.dsp]
+SCC_Aux_Path = "\\Bumblebee\RidgeView\Vss"
+SCC_Project_Name = "$/Gryphon/WMI Mapper/WMIProvider", YCLPAAAA

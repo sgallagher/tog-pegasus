@@ -1,0 +1,34 @@
+###############################################################################
+##
+## Makefile for Pegasus CIMOM
+##
+## NOTE: Makefile needs to be executed from the parent directory of 
+## pegasus directory because the path settings are relative and this
+## Makefile may remove and recheckout the pegasus source tree.
+##
+## Options:
+##      cleanbuild - Removes the existing pegasus directory contents, performs
+##                   checkout, build and runs tests. 
+##      rebuild    - Rebuild and execute tests.
+## 
+###############################################################################
+
+###############################################################################
+##
+## Platform specific settings for several platforms.
+##
+## NOTE: Please add platform specific environment variables as appropriate. 
+##
+###############################################################################
+
+ROOT = .
+
+include $(ROOT)/mak/config.mak
+
+
+mapper:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/PegServer -f Makefile copy2
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper -f Makefile rebuild
+
+
+# DO NOT DELETE

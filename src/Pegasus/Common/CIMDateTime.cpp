@@ -1141,8 +1141,8 @@ Uint64 CIMDateTime::_toMicroSeconds()
                 mon = ((334+lp) * _ONE_DAY);
                 break;
             default:
-                cout << "error calculating months" << endl;
-                cout << "this is data " << (String)_rep->data << endl;
+               // cout << "error calculating months" << endl;
+               // cout << "this is data " << (String)_rep->data << endl;
                 throw InvalidDateTimeFormatException();        
                 Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                               "Code should never reach this point in \
@@ -1231,7 +1231,7 @@ void CIMDateTime::convertToUTC()
     if (_rep->minutes.find('*') == PEG_NOT_FOUND) {
         if ( sign == '-' ) {  
             if (_TEN_THOUSAND_YEARS < (un_normNum + (offSet_hor + offSet_min))){
-                cout << " this is value " << this->toString() << endl;
+               // cout << " this is value " << this->toString() << endl;
                 throw DateTimeOutOfRangeException(parmsOv);
             }
             normNum = un_normNum + (offSet_hor + offSet_min);

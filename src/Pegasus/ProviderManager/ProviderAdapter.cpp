@@ -42,7 +42,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
-#define PROVIDERADAPTER_DEBUG(X) X
+#define PROVIDERADAPTER_DEBUG(X) //X
 
 PEGASUS_USING_STD;
 
@@ -244,7 +244,7 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadAdapter(): "<<
 
         throw Exception(MessageLoaderParms("ProviderManager.ProviderAdapter.CANNOT_LOAD_PROVIDER_ADAPTER",
         								   "AdapterLoadFailure ($0):Cannot load providerAdapter, error: $1",
-        								   adapterName, 
+        								   adapterName,
         								   System::dynamicLoadError()));
     }
     return library;

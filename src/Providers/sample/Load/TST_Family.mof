@@ -39,6 +39,16 @@ class TST_Person
     [key]
     string name;
 };
+    [Version("1.0.0"), Description (" Sub Level Class that defines "
+        "a person. We will use this in static assoociation "
+        "relationship ")]
+class TST_PersonS : TST_Person
+{
+    [key]
+    string name;
+    string secondProperty = "empty";
+    uint32 counter;
+};
 
 // This is the first one we want to make dynamic
 
@@ -47,6 +57,8 @@ class TST_Person
         "See the SamplePerson Provider. ") ]
 class TST_PersonDynamic:TST_Person
 {
+    string secondProperty;
+    uint32 instanceCounter;
 };
 
 // Second level Subclass 
@@ -112,6 +124,14 @@ instance of TST_Person { name = "Sofi"; };
 
 instance of TST_Person { name = "Gabi"; };
 
+instance of TST_PersonS { name = "Mikes"; secondProperty = "one" ; counter = 1 };
+
+instance of TST_PersonS { name = "Saaras"; secondProperty = "two" ; counter = 2};
+
+instance of TST_PersonS { name = "Sofis"; secondProperty = "three" ; counter = 3  };
+
+instance of TST_PersonS { name = "Gabis"; secondProperty = "four" ; counter = 4};
+  
 instance of TST_Lineage
 {
     parent = "TST_Person.name=\"Mike\"";

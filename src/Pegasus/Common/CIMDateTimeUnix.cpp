@@ -46,8 +46,6 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 {
     char dateTimeBuffer[26];
     time_t systemTime;
-    struct timeval tv;
-    struct timezone tz;
     struct tm* tmval;
     struct tm tmvalBuffer;
     int tzMinutesEast;
@@ -59,13 +57,11 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     tmval = localtime_r(&systemTime, &tmvalBuffer);
     PEGASUS_ASSERT(tmval != 0);
 
-    // Get the microseconds value and the UTC offset
+    // Get the UTC offset
 #if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
-    gettimeofday(&tv, NULL);
     tzMinutesEast =
         - (int)((tmval->tm_isdst > 0 && daylight) ? altzone : timezone) / 60;
 #elif defined(PEGASUS_OS_HPUX)
-    gettimeofday(&tv, NULL);
     tzMinutesEast = - (int) timezone / 60;
     if ((tmval->tm_isdst > 0) && daylight)
     {
@@ -73,9 +69,10 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
         tzMinutesEast += 60;
     }
 #elif defined(PEGASUS_OS_LINUX)
-    gettimeofday(&tv, NULL);
     tzMinutesEast = (int) tmval->tm_gmtoff/60;
 #else
+    struct timeval tv;
+    struct timezone tz;
     gettimeofday(&tv, &tz);
     tzMinutesEast = -tz.tz_minuteswest;
 #endif
@@ -90,7 +87,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
         tmval->tm_hour,
         tmval->tm_min,
         tmval->tm_sec,
-        tv.tv_usec,
+        0L,    // localtime_r does not return sub-second data
         tzMinutesEast);
 
     return CIMDateTime(dateTimeBuffer);

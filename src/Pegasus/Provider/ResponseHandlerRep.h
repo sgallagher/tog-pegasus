@@ -44,14 +44,12 @@ public:
     ResponseHandlerRep(void);
     virtual ~ResponseHandlerRep(void);
 
-    virtual void deliver(const T & object) = 0;
-    virtual void deliver(const Array<T> & objects) = 0;
-
-    virtual void reserve(const Uint32 size) = 0;
-
     virtual void processing(void) = 0;
 
     virtual void complete() = 0;
+
+    virtual void deliver(const T & object) = 0;
+    virtual void deliver(const Array<T> & objects) = 0;
 
 };
 

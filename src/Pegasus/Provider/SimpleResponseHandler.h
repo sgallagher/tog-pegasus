@@ -55,20 +55,20 @@ public:
         {
         }
 
-        virtual void complete(const OperationContext & context)
+        virtual void complete(void)
         {
         }
 
-        virtual void deliver(const OperationContext & context, const T & object)
+        virtual void deliver(const T & object)
         {
             _objects.append(object);
         }
 
-        virtual void deliver(const OperationContext & context, const Array<T> & objects)
+        virtual void deliver(const Array<T> & objects)
         {
             for(Uint32 i = 0, n = objects.size(); i < n; i++)
             {
-                deliver(context, objects[i]);
+                deliver(objects[i]);
             }
         }
 
@@ -105,7 +105,7 @@ public:
 
     const Array<T> getObjects(void) const
     {
-        return(reinterpret_cast<SimpleResponseHandlerRep<T> *>(this->getRep())->getObjects()));
+        return(reinterpret_cast<SimpleResponseHandlerRep<T> *>(this->getRep())->getObjects());
     }
 
 };

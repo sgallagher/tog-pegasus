@@ -215,11 +215,11 @@ public:
 
     ResponseHandler & operator=(const ResponseHandler & handler);
 
-    void processing(void);
-    void complete(void);
+    virtual void processing(void);
+    virtual void complete(void);
 
-    void deliver(const CIMClass & object);
-    void deliver(const Array<CIMClass> & objects);
+    virtual void deliver(const CIMClass & object);
+    virtual void deliver(const Array<CIMClass> & objects);
 
 protected:
     ResponseHandler(ResponseHandlerRep<CIMClass> * rep);
@@ -318,11 +318,11 @@ public:
 
     ResponseHandler & operator=(const ResponseHandler & handler);
 
-    void processing(void);
-    void complete(void);
+    virtual void processing(void);
+    virtual void complete(void);
 
-    void deliver(const CIMInstance & object);
-    void deliver(const Array<CIMInstance> & objects);
+    virtual void deliver(const CIMInstance & object);
+    virtual void deliver(const Array<CIMInstance> & objects);
 
 protected:
     ResponseHandler(ResponseHandlerRep<CIMInstance> * rep);
@@ -410,11 +410,11 @@ public:
 
     ResponseHandler & operator=(const ResponseHandler & handler);
 
-    void processing(void);
-    void complete(void);
+    virtual void processing(void);
+    virtual void complete(void);
 
-    void deliver(const CIMIndication & object);
-    void deliver(const Array<CIMIndication> & objects);
+    virtual void deliver(const CIMIndication & object);
+    virtual void deliver(const Array<CIMIndication> & objects);
 
 protected:
     ResponseHandler(ResponseHandlerRep<CIMIndication> * rep);
@@ -502,11 +502,11 @@ public:
 
     ResponseHandler & operator=(const ResponseHandler & handler);
 
-    void processing(void);
-    void complete(void);
+    virtual void processing(void);
+    virtual void complete(void);
 
-    void deliver(const CIMValue & object);
-    void deliver(const Array<CIMValue> & objects);
+    virtual void deliver(const CIMValue & object);
+    virtual void deliver(const Array<CIMValue> & objects);
 
 protected:
     ResponseHandler(ResponseHandlerRep<CIMValue> * rep);
@@ -594,11 +594,11 @@ public:
 
     ResponseHandler & operator=(const ResponseHandler & handler);
 
-    void processing(void);
-    void complete(void);
+    virtual void processing(void);
+    virtual void complete(void);
 
-    void deliver(const CIMObjectPath & object);
-    void deliver(const Array<CIMObjectPath> & objects);
+    virtual void deliver(const CIMObjectPath & object);
+    virtual void deliver(const Array<CIMObjectPath> & objects);
 
 protected:
     ResponseHandler(ResponseHandlerRep<CIMObjectPath> * rep);

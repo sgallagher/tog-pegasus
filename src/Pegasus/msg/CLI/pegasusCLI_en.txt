@@ -1,3 +1,23 @@
+// ==============================================================================
+// Developer's notes:
+//
+// 1)  The message key naming convention is:
+//           <directory-name>.<sourcecode-file-name>.KEY
+//
+//     This will allow us to tell which source code file is using a message.
+//     Please try to follow this naming convention.
+//
+// 2)  All the messages for a source code file are grouped together.  When adding 
+//     new messages for a source code file, please add those messages to the same 
+//     group as the other messages for that file.
+//
+// 3)  Place any platform-specific messages in the section at the end of this file.
+//
+// 4)  To compile this message bundle, run make messages (but refer to 
+//     pegasus/doc/Globalization_HOWTO.htm for details of how to set up ICU).
+// ==============================================================================
+
+
 en:table {
 
 	Clients.CLI.USAGE_STRING:string {"Valid usage of this command: "}
@@ -217,5 +237,15 @@ en:table {
 	Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR:string {"Error, new and old passwords cannot be same."}
 
 	Clients.cimuser.CIMUserCommand.UNEXPECTED_OPTION:string {"Unexpected Option."}
+
+
+				// ==========================================================
+        		// Start of platform-specific messages
+        		// ==========================================================
+        		
+        		
+        		// ==========================================================
+        		// End of platform-specific messages
+        		// ==========================================================
 
 }

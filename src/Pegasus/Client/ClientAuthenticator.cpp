@@ -361,7 +361,14 @@ String ClientAuthenticator::_getFileContent(String filePath)
     //
     // Open the challenge file and read the challenge data
     //
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = filePath.getCString();
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    ifstream ifs(tmp, PEGASUS_STD(_CCSID_T(1208)) );
+#else
     ifstream ifs(filePath.getCString());
+#endif
     if (!ifs)
     {
        //ATTN: Log error message

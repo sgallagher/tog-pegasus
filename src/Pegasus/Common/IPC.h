@@ -346,14 +346,11 @@ class PEGASUS_COMMON_LINKAGE Semaphore
 };
 
 
-#if defined(PEGASUS_ATOMIC_INT_NATIVE)
-
-#else
+#if !defined(PEGASUS_ATOMIC_INT_NATIVE)
 //-----------------------------------------------------------------
 /// Generic definition of Atomic integer
 //-----------------------------------------------------------------
 
-#undef PEGASUS_ATOMIC_INT_NATIVE
 #undef PEGASUS_ATOMIC_TYPE
 typedef struct {
       Uint32 _value;
@@ -415,7 +412,7 @@ class PEGASUS_COMMON_LINKAGE AtomicInt
       // without native atomic types 
 
    private:
-      PEGASUS_ATOMIC_TYPE _rep; //    atomic_t on POSIX systems with glibc
+      PEGASUS_ATOMIC_TYPE _rep;
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
       mutable PEGASUS_CRIT_TYPE _crit;
 #endif /* PEGASUS_NEED_CRITICAL_TYPE */

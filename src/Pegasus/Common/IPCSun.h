@@ -88,13 +88,7 @@ typedef struct {
 /// Conditionals to support native or generic atomic variables
 //-----------------------------------------------------------------
 
-// linux offers a built-in integer type for atomic access
-// other unix platforms HPUX, AIX, may have different types
-// implementors should use the native type for faster operations
-
 // #define PEGASUS_ATOMIC_INT_NATIVE
-
-// typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 
 
 //-----------------------------------------------------------------

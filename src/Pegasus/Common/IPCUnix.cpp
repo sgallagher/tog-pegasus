@@ -976,53 +976,10 @@ int Semaphore::count()
 
 
 //-----------------------------------------------------------------
-/// Native Unix implementation of AtomicInt class
+/// Spin lock implementation of AtomicInt class
 //-----------------------------------------------------------------
 //
-// sig_atomic_t is identical to a simple integer on Linux with glibc,
-// the atomicity refers to access atomicity, i.e. an integer is accessed
-// loaded or stored atomically, but incrementing and decrementing is not
-// done atomically.
-//
-#if defined(PEGASUS_ATOMIC_INT_NATIVE) && defined(PEGASUS_OLD_ATOMIC_INT)
-AtomicInt::AtomicInt() {_rep.counter = 0;}
-AtomicInt::AtomicInt(Uint32 initial) {_rep.counter = initial;}
-AtomicInt::~AtomicInt() {}
-AtomicInt::AtomicInt(const AtomicInt& original)
-{ _rep.counter = atomic_read(&original._rep);}
-AtomicInt& AtomicInt::operator=(Uint32 i)
-{ atomic_set(&_rep,i); return *this;}
-AtomicInt& AtomicInt::operator=(const AtomicInt& original)
-{ if (this != &original) atomic_set(&_rep,atomic_read(&original._rep));  return *this;}
-
-Uint32 AtomicInt::value(void) const {return((Uint32) atomic_read(&_rep));}
-void AtomicInt::operator++(void) {atomic_inc(&_rep);}
-void AtomicInt::operator--(void) {atomic_dec(&_rep);}
-void AtomicInt::operator++(int) {atomic_inc(&_rep);}
-void AtomicInt::operator--(int) {atomic_dec(&_rep);}
-Uint32 AtomicInt::operator+(const AtomicInt& val)
-{return ((Uint32)(atomic_read(&_rep) + atomic_read(&val._rep)));}
-Uint32 AtomicInt::operator+(Uint32 val)
-{return ((Uint32)(atomic_read(&_rep) + val));}
-Uint32 AtomicInt::operator-(const AtomicInt& val)
-{return ((Uint32)(atomic_read(&_rep) - atomic_read(&val._rep)));}
-Uint32 AtomicInt::operator-(Uint32 val)
-{return ((Uint32)(atomic_read(&_rep) - val));}
-AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
-{atomic_add(atomic_read(&val._rep),&_rep); return *this; }
-AtomicInt& AtomicInt::operator+=(Uint32 val)
-{atomic_add(val,&_rep); return *this; }
-AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
-{atomic_sub(atomic_read(&val._rep),&_rep); return *this; }
-AtomicInt& AtomicInt::operator-=(Uint32 val)
-{atomic_sub(val,&_rep); return *this; }
-
-Boolean AtomicInt::DecAndTestIfZero()
-{
-   return (atomic_dec_and_test(&_rep));
-}
-
-#elif defined(PEGASUS_ATOMIC_INT_NATIVE) &&!defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_ATOMIC_INT_NATIVE) &&!defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 
 AtomicInt::AtomicInt() { pthread_spin_init(&_crit,0); _rep = 0;}
 

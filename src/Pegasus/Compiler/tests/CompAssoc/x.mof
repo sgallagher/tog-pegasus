@@ -33,3 +33,4 @@ instance of A
     left = "X.key=\"John Smith"\"";
     right = "Y.key=\"John Jones"\"";
 };
+

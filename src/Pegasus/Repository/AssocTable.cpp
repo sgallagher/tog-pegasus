@@ -46,9 +46,9 @@ PEGASUS_NAMESPACE_BEGIN
 #define TO_PROPERTY_NAME_INDEX 7
 #define NUM_FIELDS 8
 
-static inline Boolean _Match(const String& x, const String& pattern)
+static inline Boolean _MatchNoCase(const String& x, const String& pattern)
 {
-    return pattern.size() == 0 || x == pattern;
+    return pattern.size() == 0 || String::equalNoCase(x, pattern);
 }
 
 static String _Escape(const String& str)
@@ -222,7 +222,7 @@ void AssocTable::append(
 
 Boolean AssocTable::containsObject(
     const String& path,
-    const String& objectName)
+    const CIMReference& objectName)
 {
     // Open input file:
 
@@ -297,7 +297,7 @@ Boolean AssocTable::deleteAssociation(
 
 Boolean AssocTable::getAssociatorNames(
     const String& path,
-    const String& objectName,
+    const CIMReference& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
@@ -319,10 +319,10 @@ Boolean AssocTable::getAssociatorNames(
     while (_GetRecord(is, fields))
     {
 	if (objectName == fields[FROM_OBJECT_NAME_INDEX] &&
-	    _Match(fields[ASSOC_CLASS_NAME_INDEX], assocClass) &&
-	    _Match(fields[TO_CLASS_NAME_INDEX], resultRole) &&
-	    _Match(fields[FROM_PROPERTY_NAME_INDEX], role) &&
-	    _Match(fields[TO_PROPERTY_NAME_INDEX], resultRole))
+	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], assocClass) &&
+	    _MatchNoCase(fields[TO_CLASS_NAME_INDEX], resultClass) &&
+	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
+	    _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
 	{
 	    associatorNames.append(fields[TO_OBJECT_NAME_INDEX]);
 	    found = true;
@@ -334,7 +334,7 @@ Boolean AssocTable::getAssociatorNames(
 
 Boolean AssocTable::getReferenceNames(
     const String& path,
-    const String& objectName,
+    const CIMReference& objectName,
     const String& resultClass,
     const String& role,
     Array<String>& referenceNames)
@@ -354,8 +354,8 @@ Boolean AssocTable::getReferenceNames(
     while (_GetRecord(is, fields))
     {
 	if (objectName == fields[FROM_OBJECT_NAME_INDEX] &&
-	    _Match(fields[ASSOC_CLASS_NAME_INDEX], resultClass) &&
-	    _Match(fields[FROM_PROPERTY_NAME_INDEX], role))
+	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], resultClass) &&
+	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
 	{
 	    referenceNames.append(fields[ASSOC_INSTANCE_NAME_INDEX]);
 	    found = true;

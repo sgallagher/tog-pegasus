@@ -32,6 +32,7 @@
 #include <iostream>
 #include <fstream>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 
@@ -78,7 +79,7 @@ public:
     */
     static Boolean containsObject(
 	const String& path,
-	const String& objectName);
+	const CIMReference& objectName);
 
     /** Deletes the given association from the table by removing every entry
 	with an assocInstanceName equal to the assocInstanceName parameter.
@@ -93,7 +94,7 @@ public:
     */
     static Boolean getAssociatorNames(
 	const String& path,
-	const String& objectName,
+	const CIMReference& objectName,
         const String& assocClass,
         const String& resultClass,
         const String& role,
@@ -106,7 +107,7 @@ public:
     */
     static Boolean getReferenceNames(
 	const String& path,
-	const String& objectName,
+	const CIMReference& objectName,
  	const String& resultClass,
  	const String& role,
 	Array<String>& referenceNames);

@@ -693,8 +693,35 @@ Array<CIMInstance> CIMRepository::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "associators()");
-    return Array<CIMInstance>();
+    Array<CIMReference> names = associatorNames(
+	nameSpace,
+	objectName,
+	assocClass,
+	resultClass,
+	role,
+	resultRole);
+
+    Array<CIMInstance> result;
+
+    for (Uint32 i = 0, n = names.size(); i < n; i++)
+    {
+	String tmpNameSpace = names[i].getNameSpace();
+
+	if (tmpNameSpace.size() == 0)
+	    tmpNameSpace = nameSpace;
+
+	CIMInstance instance = getInstance(
+	    tmpNameSpace,
+	    names[i],
+	    false,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList);
+
+	result.append(instance);
+    }
+
+    return result;
 }
 
 Array<CIMReference> CIMRepository::associatorNames(

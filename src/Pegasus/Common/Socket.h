@@ -62,26 +62,29 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMMON_LINKAGE Socket
 {
-public:
+   public:
 
 
-    static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
+      static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
 
-    static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
+      static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
 
-    static void close(Sint32 socket);
+      static void close(Sint32 socket);
+      static int close2(Sint32 socket);
+      
+      static void enableBlocking(Sint32 socket);
+      static int  enableBlocking2(Sint32 socket);
 
-    static void enableBlocking(Sint32 socket);
+      static void disableBlocking(Sint32 socket);
+      static int disableBlocking2(Sint32 socket);
 
-    static void disableBlocking(Sint32 socket);
+      static void initializeInterface(void);
+      static void uninitializeInterface(void);
+      
 
-    static void initializeInterface();
+   private:
 
-    static void uninitializeInterface();
-
-private:
-
-    Socket() { }
+      Socket() { }
 };
 
 
@@ -129,15 +132,15 @@ class PEGASUS_COMMON_LINKAGE pegasus_socket
       Sint32 read(void* ptr, Uint32 size);
       Sint32 write(const void* ptr, Uint32 size);
       int close(void);
-      void enableBlocking(void);
-      void disableBlocking(void);
+      int enableBlocking(void);
+      int disableBlocking(void);
 
       int getsockname (struct sockaddr *addr, size_t *length_ptr);
       int bind (struct sockaddr *addr, size_t length);
      
       // change size_t to size_t for ZOS and windows
       pegasus_socket accept(struct sockaddr *addr, size_t *length_ptr);
-      int connect (int socket, struct sockaddr *addr, size_t length);
+      int connect (struct sockaddr *addr, size_t length);
       int shutdown(int how);
       int listen(int q);
       int getpeername (struct sockaddr *addr, size_t *length_ptr);

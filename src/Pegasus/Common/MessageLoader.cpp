@@ -175,7 +175,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			//parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
 			ures_close(resbundl);
 		}
-		else if(msg.size() == 0){ 			// else if no message, load message from root bundle explicitly
+		else if(msg.size() == 0){ 			// else if no message, load message from root bundle explicitly
 			//cout << "EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message" << endl;
 			status = U_ZERO_ERROR;	
 			resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);

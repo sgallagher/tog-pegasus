@@ -86,8 +86,6 @@ protected:
     ExceptionRep * _rep;
 };
 
-// l10n TODO - uncomment the new constructors
-
 ///
 class PEGASUS_COMMON_LINKAGE IndexOutOfBoundsException : public Exception
 {

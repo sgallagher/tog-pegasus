@@ -271,7 +271,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     else
     {
         PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                   "providerName = " + providerName + ". Provider not found.");
+                   "Provider for " + className + " not found.");
         PEG_METHOD_EXIT();
    	return(String::EMPTY);
     }
@@ -2019,7 +2019,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    // ATTN: Who makes sure the instance name and the instance match?
    // ATTN: KS May 28. Change following to reflect new instancelookup
    // get the class name
-   String className = request->modifiedInstance.getInstance().getClassName();
+   String className = request->modifiedInstance.getClassName();
    CIMResponseMessage * response;
 
    String serviceName = String::EMPTY;
@@ -2285,7 +2285,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
              request->messageId,
              cimException,
              request->queueIds.copyAndPop(),
-             Array<CIMNamedInstance>());
+             Array<CIMInstance>());
        _enqueueResponse(request, response);
        PEG_METHOD_EXIT();
        return;
@@ -2341,7 +2341,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             request->messageId,
             PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate to Broad"),
             request->queueIds.copyAndPop(),
-            Array<CIMNamedInstance>());
+            Array<CIMInstance>());
 
       STAT_COPYDISPATCHER
 
@@ -2364,13 +2364,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
        poA->propertyList = classProperties;
    }
    **********************************/
-   if (_repository->isDefaultInstanceProvider())
+   if ((ps == 0) && (_repository->isDefaultInstanceProvider()))
    {
+      Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+	 "Repository being used as THE default instance provider");
       CIMException cimException;
 
       STAT_PROVIDERSTART
 
-      Array<CIMNamedInstance> cimNamedInstances;
+      Array<CIMInstance> cimNamedInstances;
 
       _repository->read_lock();
 
@@ -2413,6 +2415,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
       STAT_COPYDISPATCHER_REP
 
+#if 0
           // if there will be other responses, put this on the response list.
           // else, simply issue it.
           if (ps > 0)
@@ -2426,6 +2429,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
               PEG_METHOD_EXIT();
               return;
           }
+#else
+          _enqueueResponse(request, response);
+          PEG_METHOD_EXIT();
+          return;
+#endif
    }
 
    if(ps > 0)
@@ -2470,7 +2478,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    // No provider is registered and the repository isn't the default. Error response
    // ATTN: KS 28 May 2002 - Rethink this error. What if there are simply no instances
    // Is this what we generate?
-   if ((ps == 0) && (!staticInstancesExist))  
+   if ((ps == 0) && (_repository->isDefaultInstanceProvider()))
    {         
        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
                         "No providers for  " + className +
@@ -2481,7 +2489,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
              request->messageId,
              PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
              request->queueIds.copyAndPop(),
-             Array<CIMNamedInstance>());
+             Array<CIMInstance>());
 
       STAT_COPYDISPATCHER
 
@@ -2590,8 +2598,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
    Boolean staticInstancesExist = false;
 
-   if (_repository->isDefaultInstanceProvider())
+   if ((ps == 0) && (_repository->isDefaultInstanceProvider()))
    {
+      Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
+	 "Repository being used as THE default instance provider");
       CIMException cimException;
       STAT_PROVIDERSTART
       Array<CIMObjectPath> instanceNames;
@@ -2629,6 +2639,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
       STAT_COPYDISPATCHER_REP
 
+#if 0
+//ATTN-DME-P1-20020529: If providers exist then the repository should not
+//     be called.
       // If there will be other responses, put this on the response list.
       // else, simply issue it.
       if (ps > 0)
@@ -2642,6 +2655,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
           PEG_METHOD_EXIT();
           return;
       }
+#else
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+#endif
    }
 
    if(ps > 0)
@@ -2704,7 +2722,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
        return;
    }
    // No provider is registered and the repository isn't the default
-   if ((ps == 0) && (!staticInstancesExist))  
+   if ((ps == 0) && !(_repository->isDefaultInstanceProvider()))
    {         
        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
                         "No providers for  " + className +

@@ -50,6 +50,7 @@
 #include <sys/types.h>
 #include <windows.h>
 #include <process.h>
+#include <lm.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -364,9 +365,136 @@ String System::getPrivilegedUserName()
 
 Boolean System::isGroupMember(const char* userName, const char* groupName)
 {
-    //ATTN: Implement this method to verify that the user name
-    //      is a member of the group
-    return true;
+   Boolean retVal = false;
+
+   LPLOCALGROUP_USERS_INFO_0 pBuf = NULL;
+   DWORD dwLevel = 0;
+   DWORD dwFlags = LG_INCLUDE_INDIRECT ;
+   DWORD dwPrefMaxLen = MAX_PREFERRED_LENGTH;
+   DWORD dwEntriesRead = 0;
+   DWORD dwTotalEntries = 0;
+   NET_API_STATUS nStatus;
+
+
+   //
+   // Call the NetUserGetLocalGroups function 
+   // specifying information level 0.
+   //
+   // The LG_INCLUDE_INDIRECT flag specifies that the 
+   // function should also return the names of the local 
+   // groups in which the user is indirectly a member.
+   //
+   nStatus = NetUserGetLocalGroups(NULL,
+                                   (LPCWSTR)userName,
+                                   dwLevel,
+                                   dwFlags,
+                                   (LPBYTE *) &pBuf,
+                                   dwPrefMaxLen,
+                                   &dwEntriesRead,
+                                   &dwTotalEntries);
+
+   //
+   // If the call succeeds,
+   //
+   if (nStatus == NERR_Success)
+   {
+      LPLOCALGROUP_USERS_INFO_0 pTmpBuf;
+      DWORD i;
+      DWORD dwTotalCount = 0;
+
+      if ((pTmpBuf = pBuf) != NULL)
+      {
+         //
+         // Loop through the local groups that the user belongs
+         // and find the matching group name.
+         //
+         for (i = 0; i < dwEntriesRead; i++)
+         {
+            //
+            // Compare the user's group name to groupName.
+            //
+            if ( strcmp ((char *)pTmpBuf->lgrui0_name, groupName) == 0 )
+            {
+                 // User is a member of the group.
+                 retVal = true;
+                 break;
+            }
+
+            pTmpBuf++;
+            dwTotalCount++;
+         }
+      }
+   }
+
+   //
+   // Free the allocated memory.
+   //
+   if (pBuf != NULL)
+      NetApiBufferFree(pBuf);
+
+   //
+   // If the given user and group are not found in the local group
+   // then try on the global groups.
+   //
+   if (!retVal)
+   {
+       LPGROUP_USERS_INFO_0 pBuf = NULL;
+       dwLevel = 0;
+       dwPrefMaxLen = MAX_PREFERRED_LENGTH;
+       dwEntriesRead = 0;
+       dwTotalEntries = 0;
+
+       //
+       // Call the NetUserGetGroups function, specifying level 0.
+       //
+       nStatus = NetUserGetGroups(NULL,
+                                  (LPCWSTR)userName,
+                                  dwLevel,
+                                  (LPBYTE*)&pBuf,
+                                  dwPrefMaxLen,
+                                  &dwEntriesRead,
+                                  &dwTotalEntries);
+       //
+       // If the call succeeds,
+       //
+       if (nStatus == NERR_Success)
+       {
+          LPGROUP_USERS_INFO_0 pTmpBuf;
+          DWORD i;
+          DWORD dwTotalCount = 0;
+    
+          if ((pTmpBuf = pBuf) != NULL)
+          {
+             //
+             // Loop through the global groups to which the user belongs
+             // and find the matching group name.
+             //
+             for (i = 0; i < dwEntriesRead; i++)
+             {
+                //
+                // Compare the user's group name to groupName.
+                //
+                if ( strcmp ((char *)pTmpBuf->grui0_name, groupName) == 0 )
+                {
+                     // User is a member of the group.
+                     retVal = true;
+                     break;
+                }
+
+                pTmpBuf++;
+                dwTotalCount++;
+             }
+          }
+       }
+
+       //
+       // Free the allocated buffer.
+       //
+       if (pBuf != NULL)
+          NetApiBufferFree(pBuf);
+   }
+
+   return retVal;
 }
     
 Uint32 System::getPID()

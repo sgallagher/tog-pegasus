@@ -35,6 +35,7 @@ SOURCES = \
     CIMOperationRequestDispatcher.cpp \
     CIMOperationRequestAuthorizer.cpp \
     HTTPAuthenticatorDelegator.cpp \
+    ShutdownProvider.cpp \
     ShutdownService.cpp \
     CIMServer.cpp \
     CIMServerState.cpp \

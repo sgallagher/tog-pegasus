@@ -37,7 +37,8 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Server/CIMServer.h>
-#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
+#include <Pegasus/ProviderManager/ProviderManagerService.h>
+#include <Pegasus/ProviderManager/ProviderManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -91,18 +92,20 @@ public:
     Construct the singleton instance of the ShutdownService and return a
     pointer to that instance.
     */
-    static ShutdownService* getInstance();
+    static ShutdownService* getInstance(CIMServer* cimserver);
 
     /**
     Shutdown CIMOM.
     */
-    void shutdown(CIMServer* cimserver, Boolean force, Uint32 timeout);
+    void shutdown(Boolean force, Uint32 timeout);
 
 private:
 
     static ShutdownService* _instance;
 
-    static CIMServer*        _cimserver;
+    static CIMServer*               _cimserver;
+    static ProviderManagerService*  _providerManagerService;
+    static ProviderManager*         _providerManager;
 
     static Uint32     _operationTimeout;
     static Uint32     _shutdownTimeout;
@@ -113,7 +116,7 @@ private:
     //
 
     /** Constructor. */
-    ShutdownService();
+    ShutdownService(CIMServer* cimserver);
 
     /** Destructor. */
     ~ShutdownService();

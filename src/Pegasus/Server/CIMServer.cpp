@@ -64,6 +64,7 @@
 #include "CIMOperationRequestDecoder.h"
 #include "CIMOperationRequestAuthorizer.h"
 #include "HTTPAuthenticatorDelegator.h"
+#include "ShutdownProvider.h"
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
@@ -159,6 +160,15 @@ CIMServer::CIMServer(
                                       provRegProvider,
                                       controlProviderReceiveMessageCallback,
                                       0, 0);
+
+     // Create the Shutdown control provider
+     ProviderMessageFacade * shutdownProvider =
+         new ProviderMessageFacade(new ShutdownProvider(this));
+     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
+                                       PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
+                                       shutdownProvider,
+                                       controlProviderReceiveMessageCallback,
+                                       0, 0);
 
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(_repository,

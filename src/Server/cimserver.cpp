@@ -131,7 +131,7 @@ static const char OPTION_FORCE       = 'f';
 
 static const char OPTION_TIMEOUT     = 'T';
 
-static const String NAMESPACE = "root/cimv2";
+static const String NAMESPACE = "root/PG_Internal";
 static const String CLASSNAME_SHUTDOWNSERVICE = "PG_ShutdownService";
 static const String PROPERTY_TIMEOUT = "operationTimeout";
 
@@ -241,9 +241,9 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
     //
     try
     {
-        client.connect(hostStr.allocateCString());
+        client.connectLocal();
     }
-    catch(Exception& e)
+    catch(CIMClientException& e)
     {
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
             "Failed to connect to $0 $1.", PEGASUS_NAME, e.getMessage());
@@ -285,6 +285,15 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
 	    "$0 terminated on port $1.", PEGASUS_NAME, portNumberStr);
 
+    }
+    catch(CIMClientCIMException& e)
+    {
+        PEGASUS_STD(cerr) << "Failed to shutdown server: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
+    }
+    catch(CIMClientException& e)
+    {
+        // this may mean the cimserver has been terminated
     }
     catch(Exception& e)
     {

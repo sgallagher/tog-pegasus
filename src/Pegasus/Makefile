@@ -22,7 +22,6 @@ DIRS = \
     ControlProviders/ConfigSettingProvider \
     ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
-    ControlProviders/ShutdownProvider \
     WQL \
     HandlerService \
     IndicationService \

@@ -32,6 +32,7 @@
 //               Carol Ann Krug Graves, Hewlett-Packard Company
 //                   (carolann_graves@hp.com)
 //               Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
+//               Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -111,6 +112,13 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_USERAUTHPROVIDER;
+        PEG_METHOD_EXIT();
+        return true;
+    }
+    if (String::equalNoCase(className, PEGASUS_CLASSNAME_SHUTDOWN))
+    {
+        service = PEGASUS_QUEUENAME_CONTROLSERVICE;
+        provider = PEGASUS_MODULENAME_SHUTDOWNPROVIDER;
         PEG_METHOD_EXIT();
         return true;
     }

@@ -37,6 +37,7 @@
 #include <Pegasus/Server/ShutdownExceptions.h>
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Server/ShutdownService.h>
+#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 
 PEGASUS_USING_STD;
 
@@ -56,14 +57,16 @@ ShutdownService* ShutdownService::_instance = 0;
 /**
 Initialize all other class variables
 */
-CIMServer*       ShutdownService::_cimserver = 0;
-//ProviderManager* ShutdownService::_providerManager = 0;
-Uint32           ShutdownService::_operationTimeout = 0;
-Uint32           ShutdownService::_shutdownTimeout = 0;
+CIMServer*              ShutdownService::_cimserver = 0;
+ProviderManagerService* ShutdownService::_providerManagerService = 0;
+ProviderManager*        ShutdownService::_providerManager = 0;
+Uint32                  ShutdownService::_operationTimeout = 0;
+Uint32                  ShutdownService::_shutdownTimeout = 0;
 
 /** Constructor. */
-ShutdownService::ShutdownService()
+ShutdownService::ShutdownService(CIMServer* cimserver)
 {
+    _cimserver = cimserver;
 }
 
 /** Destructor. */
@@ -74,11 +77,11 @@ ShutdownService::~ShutdownService()
 /**
     return a pointer to the ShutdownService instance.
 */
-ShutdownService* ShutdownService::getInstance()
+ShutdownService* ShutdownService::getInstance(CIMServer* cimserver)
 {
     if (!_instance)
     {
-        _instance = new ShutdownService();
+        _instance = new ShutdownService(cimserver);
     }
     return _instance;
 }
@@ -87,21 +90,27 @@ ShutdownService* ShutdownService::getInstance()
     The shutdown method to be called by the ShutdownProvider to
     process a shutdown request from the CLI client.
 */
-void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
-                               Uint32 timeout)
+void ShutdownService::shutdown(Boolean force, Uint32 timeout)
 {
     //
     // Initialize variables
     //
-    _cimserver = cimserver;
-
     Boolean timeoutExpired = false;
     Boolean noMoreRequests = false;
 
     //
+    // get ProviderManagerService
+    //
+    MessageQueue * providerManagerServiceQueue =  
+        MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+
+    _providerManagerService =
+       dynamic_cast<ProviderManagerService *> (providerManagerServiceQueue);
+
+    //
     // get an instance of the ProviderManager
     //
-    //_providerManager = _cimserver->getDispatcher()->getProviderManager();
+    _providerManager = _providerManagerService->getProviderManager();
 
     //
     // set CIMServer state to TERMINATING
@@ -199,10 +208,12 @@ void ShutdownService::_initTimeoutValues(Uint32 timeout)
 
 void ShutdownService::_shutdownCIMServer()
 {
+/*
     //
     // Shutdown the Indication Subscription Service
     //
     _shutdownSubscriptionService();
+*/
 
     // ATTN: Shutdown the Indication Handlers?
 
@@ -228,7 +239,7 @@ void ShutdownService::_resumeCIMServer()
     //
     try
     {
-        _cimserver->resume();
+        //_cimserver->resume();
     }
     catch (Exception& e)
     {
@@ -238,7 +249,7 @@ void ShutdownService::_resumeCIMServer()
     //
     // reset CIMServer state to RUNNING
     //
-    _cimserver->setState(CIMServerState::RUNNING);
+    //_cimserver->setState(CIMServerState::RUNNING);
 
     //
     // now inform the client that CIM server has resumed.
@@ -248,7 +259,7 @@ void ShutdownService::_resumeCIMServer()
 
 void ShutdownService::_shutdownSubscriptionService()
 {
-    String subscriptionProviderName = "IndicationSubscription";
+    String subscriptionProviderName = PEGASUS_CLASSNAME_INDSUBSCRIPTION;
 
     //
     // find the Subscription Service provider and shut it down
@@ -260,7 +271,6 @@ void ShutdownService::_shutdownSubscriptionService()
 
 void ShutdownService::_shutdownProviders()
 {
-    String shutdownProviderClassName = "PG_ShutdownService";
     String shutdownProviderName = "ShutdownProvider";
 
     //
@@ -269,8 +279,8 @@ void ShutdownService::_shutdownProviders()
     // ATTN:  Need to make use of the provider shutdown timeout
     //        when asyn provider API is supported.
     //
-    //_providerManager->shutdownAllProviders(shutdownProviderName,
-    //                                       shutdownProviderClassName);
+    _providerManager->shutdownAllProviders(shutdownProviderName,
+                                           PEGASUS_CLASSNAME_SHUTDOWN);
 
     return;
 }

@@ -100,6 +100,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_CLASSNAME_INDHANDLER_CIMXML    "PG_IndicationHandlerCIMXML"
 #define PEGASUS_CLASSNAME_INDHANDLER_SNMP      "PG_IndicationHandlerSNMPMapper"
 #define PEGASUS_CLASSNAME_INDFILTER            "PG_IndicationFilter"
+#define PEGASUS_CLASSNAME_SHUTDOWN             "PG_ShutdownService"
 
 
 //

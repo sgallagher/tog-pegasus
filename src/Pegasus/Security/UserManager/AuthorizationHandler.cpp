@@ -137,8 +137,8 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 	//ATTN-NB-03-20020402: Should this exception be thrown or ignored ?
         //throw e;
 
-	cerr << PEGASUS_CLASSNAME_AUTHORIZATION << " class not loaded, ";
-	cerr << "No authorizations configured." << endl;
+      //	cerr << PEGASUS_CLASSNAME_AUTHORIZATION << " class not loaded, ";
+      //	cerr << "No authorizations configured." << endl;
     }
 
     PEG_METHOD_EXIT();

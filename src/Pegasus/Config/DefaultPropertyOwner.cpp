@@ -24,6 +24,7 @@
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
+//              Warren Otsuka (warren.otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,20 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"httpPort", "5988", 0, 0, 0},
-    {"httpsPort", "5989", 0, 0, 0},
-    {"enableHttpConnection", "true", 0, 0, 0},
-    {"enableHttpsConnection", "false", 0, 0, 0},
-    {"home", "./", 0, 0, 0},
-    {"daemon", "true", 0, 0, 0},
-    {"install", "false", 0, 0, 0},
-    {"remove", "false", 0, 0, 0},
-    {"slp", "false", 0, 0, 0},
-    {"SSL", "false", 0, 0, 0},
-    {"enableAssociationTraversal", "true", 0, 0, 0},
-    {"enableIndicationService", "true", 0, 0, 0},
-    {"tempLocalAuthDir", "/tmp", 0, 0, 0},
-    {"enableClientCertification", "false", 0, 0, 0}
+#include "DefaultPropertyTable.h"
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

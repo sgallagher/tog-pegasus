@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Warren Otsuka (warren.otsuka@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,16 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct ConfigTable;
 
-/**
-    Default file name for the current configuration.
-*/
-static char CURRENT_CONFIG_FILE [] = "cimserver_current.conf";
-
-/**
-    Default file name for the planned configuration.
-*/
-static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
-
+#include "ConfigFileDir.h"
 
 /**
   This class provides methods to read/write config properties 

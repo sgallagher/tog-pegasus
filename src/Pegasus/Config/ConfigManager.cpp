@@ -30,6 +30,7 @@
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Warren Otsuka (warren.otsuka@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -172,7 +173,7 @@ struct FixedValueEntry
 
 static struct FixedValueEntry _fixedValues[] =
 {
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+#include "FixedPropertyTable.h"
 };
 
 const Uint32 NUM_FIXED_PROPERTIES = 

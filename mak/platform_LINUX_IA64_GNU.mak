@@ -42,6 +42,15 @@ NO_SLP = true
 #SYS_LIBS = -ldl -lpthread -lcrypt -lssl
 SYS_LIBS = -ldl -lpthread -lcrypt
 
+# Build using fixed release settings
+#
+ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+FLAGS += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
+endif
+ifdef PEGASUS_USE_RELEASE_DIRS
+FLAGS += -DPEGASUS_USE_RELEASE_DIRS
+endif
+
 # PAM support
 ifdef PEGASUS_PAM_AUTHENTICATION
    ifeq ($(HPUX_IA64_VERSION), yes)

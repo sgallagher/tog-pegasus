@@ -37,7 +37,7 @@ SOURCES = \
     CIMServer.cpp \
     CIMServerState.cpp \
     ServiceCIMOMHandle.cpp \
-    ProviderManager/ProviderManagerQueue.cpp \
+    ProviderManager/ProviderManagerService.cpp \
     ProviderManager/ProviderModule.cpp \
     ProviderManager/ProviderFacade.cpp \
     ProviderManager/ProviderBlockedEntry.cpp \

@@ -37,7 +37,7 @@ PEGASUS_NAMESPACE_BEGIN
 class MessageQueueService;
 class CIMServer;
 class CIMRepository;
-class ProviderManagerQueue;
+class ProviderManagerService;
 class ConfigurationManagerQueue;
 
 // ATTN: the ServiceCIMOMHandle does not derive from CIMOMHandle
@@ -63,14 +63,14 @@ public:
 
 	CIMRepository * getRepository(void) { return(_repository); }
 	
-	ProviderManagerQueue * getProviderManager(void)
+	ProviderManagerService * getProviderManager(void)
 	{
 		if(_providerManager == 0)
 		{
 			// ATTN: temporary solution to avoid passing component pointers in the
 			// constructor.
 			_providerManager =
-				(ProviderManagerQueue *)MessageQueue::lookup("Server_ProviderManagerQueue");
+				(ProviderManagerService *)MessageQueue::lookup("Server_ProviderManagerService");
 		}
 		
 		return(_providerManager);
@@ -94,7 +94,7 @@ public:
 protected:	
 	CIMServer * _server;
 	CIMRepository * _repository;
-	ProviderManagerQueue * _providerManager;
+	ProviderManagerService * _providerManager;
 	ConfigurationManagerQueue * _configurationManager;
 
 };

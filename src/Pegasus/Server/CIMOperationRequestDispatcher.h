@@ -49,7 +49,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/Server/ServiceCIMOMHandle.h>
-#include <Pegasus/Server/ProviderManager/ProviderManagerQueue.h>
+#include <Pegasus/Server/ProviderManager/ProviderManagerService.h>
 #include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
 #include <Pegasus/Server/IndicationService/IndicationService.h>
 
@@ -167,15 +167,15 @@ protected:
 	const Uint32 timeout = 0xffffffff);
 
     CIMRepository * _repository;
-    
+
     ServiceCIMOMHandle _cimom;
 
-    ProviderManagerQueue _providerManager;
-    
+    ProviderManagerService _providerManager;
+
     ConfigurationManagerQueue _configurationManager;
 
     IndicationService _indicationService;
-    
+
     AtomicInt _dying;
 };
 

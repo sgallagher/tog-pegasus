@@ -38,18 +38,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLExpressionRep::CQLExpressionRep(CQLTerm& theTerm)
 {
-	printf("CQLExpressionRep(CQLTerm& theTerm)\n");
    _CQLTerms.append(theTerm);
 
 }
 
 CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep) 
 {
-	//printf("CQLExpressionRep(const CQLExpressionRep* rep)start\n");
    _TermOperators = rep->_TermOperators;
-	//printf("CQLExpressionRep(const CQLExpressionRep* rep)mid\n");
    _CQLTerms = rep->_CQLTerms;
-	//printf("CQLExpressionRep(const CQLExpressionRep* rep)end\n");
 }
 
 CQLExpressionRep::~CQLExpressionRep(){
@@ -86,7 +82,6 @@ void CQLExpressionRep::appendOperation(TermOpType theTermOpType, CQLTerm& theTer
 
 String CQLExpressionRep::toString() 
 {
-   printf("CQLExpressionRep::toString()%d\n", _CQLTerms.size());
    String returnStr;
 
    if(_CQLTerms.size() > 0){

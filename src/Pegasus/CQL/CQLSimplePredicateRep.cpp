@@ -252,7 +252,6 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
 
 String CQLSimplePredicateRep::toString()
 {
-	printf("CQLSimplePredicate::toString()\n");
 	String s = _leftSide.toString();
 	if(!_isSimple){
 	   switch(_operator){

@@ -1774,7 +1774,6 @@ void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
 void CQLValueRep::applyContext(QueryContext& _ctx,
                               CQLChainedIdentifier& inCid)
 {
-   printf("CQLValueRep::applyContext 0\n");
    if(inCid.size() != 0 && _CQLChainId.size() == 1)
    {
    

@@ -71,7 +71,6 @@ void CQLParser::parse(
 
     	CQL_parse();
 	String s = globalParserState->statement->toString();
-        printf("CQLParser::parse--> %s\n",(const char*)(s.getCString()));
 
     if (globalParserState->error)
     {

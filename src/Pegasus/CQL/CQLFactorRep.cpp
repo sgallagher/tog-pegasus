@@ -122,7 +122,6 @@ CQLExpression CQLFactorRep::getCQLExpression()
 
 String CQLFactorRep::toString()
 {
-  printf("CQLFactorRep::toString()\n");
   if(_containedType == VALUE){
     return _CQLVal.toString();
   }

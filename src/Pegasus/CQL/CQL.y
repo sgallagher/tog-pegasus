@@ -137,7 +137,6 @@ PEGASUS_NAMESPACE_END
 %type <_predicate> expr_term
 %type <_predicate> expr
 %type <_node> arg_list
-%type <_node> arg_list_sub
 %type <_node> from_specifier
 %type <_node> from_criteria
 %type <_chainedIdentifier> star_expr

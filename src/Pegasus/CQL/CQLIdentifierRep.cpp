@@ -168,7 +168,6 @@ Boolean CQLIdentifierRep::operator!=(const CQLIdentifierRep &rhs)const{
 }
 
 String CQLIdentifierRep::toString()const{
-printf("CQLIdentifierRep::toString()\n");
 	if(_isWildcard)
 		return "*";
 	String s = getScope();
@@ -222,7 +221,6 @@ void CQLIdentifierRep::parse(String identifier){
 	}
 
 	if((index = identifier.find(SCOPE)) != PEG_NOT_FOUND){
-		printf("index = %d\n" ,index);
 		_scope = identifier.subString(0,index);
 		identifier = identifier.subString(index+2);
 	}

@@ -15,7 +15,7 @@ ifeq ($(OS),win32)
     REDIRECTERROR = 2>&1
     CIMSERVER_START_SERVICE = cimserver -start $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = cimserver -stop
-    SLEEP = mu sleep 5
+    SLEEP = mu sleep
     REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
     MUEXE = mu.exe
     MKDIRHIER = $(MUEXE) mkdirhier

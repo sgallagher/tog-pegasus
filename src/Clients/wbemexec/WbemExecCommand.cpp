@@ -33,7 +33,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 // define asprintf used to implement ultostr on Linux
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)||defined(PEGASUS_LINUX_PPC_GNU)
+#if defined(PEGASUS_LINUX_GENERIC_GNU)
 #define _GNU_SOURCE
 #include <features.h>
 #include <stdio.h>

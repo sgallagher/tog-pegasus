@@ -1,3 +1,5 @@
+DEFINES = 
+
 OS_TYPE = unix
 
 RM = rm -f

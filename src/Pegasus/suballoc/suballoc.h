@@ -41,9 +41,10 @@
 #include <malloc.h>
 #include <stdlib.h>
 
-#elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
-#include <pthread.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU) 
+#include <sched.h>
 #include <semaphore.h>
+#include <pthread.h>
 #include <unistd.h>
 #include <malloc.h>
 
@@ -76,13 +77,6 @@
 #include <malloc.h>
 
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-#include <sched.h>
-#include <semaphore.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <malloc.h>
-
-#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -175,7 +169,7 @@ PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
 #define snprintf _snprintf
 typedef HANDLE PEGASUS_MUTEX_T;
 
-#elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
+#elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU) 
 
 typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
@@ -202,10 +196,6 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 #elif defined (PEGASUS_PLATFORM_NSK_NONSTOP_NMCPLUS)
 
 typedef Uint32 PEGASUS_MUTEX_T;
-
-#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-
-typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #elif defined (PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 
@@ -477,7 +467,7 @@ inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
 }
 
 
-#elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) 
+#elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU) 
 
 inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
 {
@@ -712,36 +702,6 @@ inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
 inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
 {
 
-}
-
-#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined (PEGASUS_PLATFORM_GENERIC_GNU)
-
-inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
-{
-   return(pthread_mutex_init(mut, NULL));
-}
-
-inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
-{
-   *result = pthread_mutex_lock(mut);
-   return;
-}
-
-inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut)
-{
-   pthread_mutex_lock(mut);
-}
-
-inline void peg_suballocator::RELEASE_MUTEX(PEGASUS_MUTEX_T *mut)
-{
-   pthread_mutex_unlock(mut);
-   return;
-}
-
-inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
-{
-   pthread_mutex_destroy(mut);
-   return;
 }
 
 #endif

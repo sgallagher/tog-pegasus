@@ -47,17 +47,7 @@ ifeq ($(OS),HPUX)
   TESTS = prestarttests poststarttests
 endif
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-  CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = ps -ef | grep cimserver | grep -v grep | awk '{print "kill -9 "$$2 |"/bin/bash"}'
-  SLEEP = sleep 5
-  MUEXE = mu
-  COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
-  MKDIR = src/utils/mu/mu mkdirhier
-  TESTS = prestarttests poststarttests
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
+ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
   CIMSERVER_START_SERVICE = cimserver
   CIMSERVER_STOP_SERVICE = ps -ef | grep cimserver | grep -v grep | awk '{print "kill -9 "$$2 |"/bin/bash"}'
   SLEEP = sleep 5

@@ -61,7 +61,7 @@ cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
 
   _client = new CIMClient();
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
   _client->connectLocal();
 #else
   String hostname = "localhost";  //defaults

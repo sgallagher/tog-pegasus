@@ -30,7 +30,7 @@
 
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
  #include "OperatingSystem_Windows.cpp"
-#elif defined PEGASUS_PLATFORM_LINUX_IX86_GNU || PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+#elif defined PEGASUS_PLATFORM_LINUX_GENERIC_GNU
  #include "OperatingSystem_Linux.cpp"
 #elif defined PEGASUS_PLATFORM_AIX_RS_IBMCXX
  #include "OperatingSystem_AIX.cpp"

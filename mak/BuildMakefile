@@ -49,29 +49,7 @@ ifeq ($(OS),HPUX)
   TESTS = prestarttests poststarttests
 endif
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-  CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
-  SLEEP = sleep 5
-  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
-  MUEXE = mu
-  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
-  MKDIR = pegasus/src/utils/mu/mu mkdirhier
-  TESTS = prestarttests poststarttests
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
-  CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
-  SLEEP = sleep 5
-  REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
-  MUEXE = mu
-  COPYMU = cp -f pegasus/src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
-  MKDIR = pegasus/src/utils/mu/mu mkdirhier
-  TESTS = prestarttests poststarttests
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_PPC_GNU)
+ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
   CIMSERVER_START_SERVICE = cimserver
   CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
   SLEEP = sleep 5

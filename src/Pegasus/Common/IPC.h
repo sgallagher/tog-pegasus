@@ -38,7 +38,7 @@
 #include <Pegasus/Common/Linkage.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "IPCUnix.h"
 #elif defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "IPCHpux.h"
@@ -50,8 +50,6 @@
 # include "IPCzOS.h"
 #elif defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
 # include "IPCTru64.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-# include "IPCUnix.h"
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 # include "IPCOs400.h"
 #else
@@ -605,7 +603,7 @@ class PEGASUS_COMMON_LINKAGE Condition
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows_inline.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "IPCUnix_inline.h"
@@ -616,8 +614,6 @@ class PEGASUS_COMMON_LINKAGE Condition
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
-# include "IPCUnix_inline.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 # include "IPCUnix_inline.h"

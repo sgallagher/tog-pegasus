@@ -111,6 +111,22 @@ public:
 	return _rep->getClassName();
     }
 
+    /** isClassName compares Name of the class with a String. This test performs
+	a comparison of the classname component of the object
+	with a String.	Note that this function was included specifically
+	because the equality compare is not just a straight comparison
+	because classnames are case independent.
+	@param classname String containing the name for comparison
+	@return True if it is the same class name (equalNoCase compare passes)
+	or false if not.
+    */
+    const Boolean isClassName(const String& classname) const
+    {
+	_checkRep();
+	return _rep->isClassName(classname);
+
+    }
+
     const CIMReference& getPath() const
     {
 	_checkRep();
@@ -498,6 +514,13 @@ public:
     {
 	_checkRep();
 	return _rep->getClassName();
+    }
+
+    const Boolean isClassName(const String& classname) const
+    {
+	_checkRep();
+	return _rep->isClassName(classname);
+
     }
 
     const CIMReference& getPath() const

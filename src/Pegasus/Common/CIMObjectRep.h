@@ -57,7 +57,12 @@ public:
 	return _reference.getClassName();
     }
 
-	const CIMReference& getPath() const
+    const Boolean isClassName(const String& classname) const
+    {
+	return (String::equalNoCase(classname, _reference.getClassName()));
+    }
+
+    const CIMReference& getPath() const
     {
 	return _reference;
     }

@@ -847,7 +847,7 @@ int main(int argc, char** argv)
         if (enableHttpsConnection)
         {
             server.addAcceptor(false, portNumberHttps, true);
-            Logger::put(Logger::STANDARD_LOG, Sysmte::CIMSERVER, Logger::INFORMATION,
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                         "Listening on HTTPS port $0.", portNumberHttps);
         }
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET

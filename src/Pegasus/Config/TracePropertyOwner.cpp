@@ -287,7 +287,7 @@ void TracePropertyOwner::initCurrentValue(
 	        // Check whether the filepath was set
 	        if ( retCode == 1 )
 	        {
-	            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+	            Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,
 	                Logger::WARNING,
 	                "Unable to write to trace file $0",
 	                (const char*)fileName);
@@ -317,7 +317,7 @@ void TracePropertyOwner::initCurrentValue(
 	        // Check whether the filepath was set
 	        if ( retCode == 1 )
 	        {
-	            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+	            Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,
 	             Logger::WARNING,
 	             "Unable to write to trace file $0",
 	             (const char*)fileName);

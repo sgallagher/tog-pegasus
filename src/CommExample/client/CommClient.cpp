@@ -1,28 +1,40 @@
 #include <Pegasus/Common/Config.h>
 #include <iostream>
+#include <fstream>
 #include <cassert>
-#include "ACEComm.h"
+#include <CommExample/Comm/Comm.h>
 
 using namespace Pegasus;
 using namespace std;
+
+#define TRACE
+
+#ifdef TRACE
+#  define T(X) X
+#else
+#  define T(X)
+#endif
 
 class MyHandler : public Handler
 {
 public:
 
-    MyHandler()
-    {
-	cout << "MyHandler::MyHandler()" << endl;
+    MyHandler() : _firstTime(true) 
+    { 
+	T( cout << "MyHandler::MyHandler()" << endl;  )
     }
 
-    virtual ~MyHandler()
-    {
-	cout << "MyHandler::~MyHandler()" << endl;
+    virtual ~MyHandler() 
+    { 
+	T( cout << "MyHandler::~MyHandler()" << endl;  )
+	exit(1);
     }
 
     virtual Boolean handleOpen(Connection* connection)
     {
-	cout << "MyHandler::handleOpen()" << endl;
+	T( cout << "MyHandler::handleOpen()" << endl; )
+
+	connection->disableBlocking();
 
 	const char MESSAGE[] = "GET / HTTP/1.0\r\n\r\n";
 	const size_t MESSAGE_SIZE = sizeof(MESSAGE) - 1;
@@ -31,28 +43,42 @@ public:
 
     virtual Boolean handleInput(Connection* connection)
     {
-	cout << "MyHandler::handleInput()" << endl;
+	T( cout << "MyHandler::handleInput()" << endl; )
 
-	char buffer[16 * 1024];
+	// Open file if this is the first time:
 
+	static const char DOC_NAME[] = "message.http";
+
+	if (_firstTime)
+	{
+	    _firstTime = false;
+	    _os.open(DOC_NAME);
+	    assert(!!_os);
+	}
+
+	// Read from connection and write to file until there is no more:
+
+	char buffer[4096];
 	Sint32 size = connection->read(buffer, sizeof(buffer));
-
-	cout << "size: " << size << endl;
 
 	if (size > 0)
 	{
-	    buffer[size] = '\0';
-	    cout << "buffer=" << buffer << endl;
+	    _os.write(buffer, size);
+	    _os << flush;
 	}
 
 	return size != 0;
     }
 
-    virtual Boolean handleClose(Connection* connection)
+    virtual void handleClose(Connection* connection)
     {
-	cout << "MyHandler::handleClose()" << endl;
-	return true;
+	T( cout << "MyHandler::handleClose()" << endl; )
     }
+
+private:
+
+    ofstream _os;
+    Boolean _firstTime;
 };
 
 class MyHandlerFactory : public HandlerFactory
@@ -63,9 +89,9 @@ public:
 
 int main(int argc, char** argv)
 {
-    ACECommFactory factory;
+    CommFactory* factory = CreateCommFactory("ACE");
 
-    Connector* connector = factory.createConnector(new MyHandlerFactory);
+    Connector* connector = factory->createConnector(new MyHandlerFactory);
     Connection* connection = connector->connect("www.bmc.com:80");
     assert(connection != 0);
     connector->run();

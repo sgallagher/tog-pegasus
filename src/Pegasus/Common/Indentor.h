@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Indentor.h,v $
-// Revision 1.1  2001/01/14 19:52:37  mike
-// Initial revision
+// Revision 1.2  2001/02/18 02:49:00  mike
+// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
+//
+// Revision 1.1.1.1  2001/01/14 19:52:37  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -49,10 +52,6 @@
 #include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
-
-// ATTN: MSVC 5.0 Hack!
-class Indentor;
-PEGASUS_COMMON_LINKAGE std::ostream& operator<<(std::ostream& os, const Indentor& x);
 
 class PEGASUS_COMMON_LINKAGE Indentor
 {

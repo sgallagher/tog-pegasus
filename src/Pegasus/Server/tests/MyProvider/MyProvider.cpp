@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: MyProvider.cpp,v $
+// Revision 1.7  2001/02/18 02:49:01  mike
+// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
+//
 // Revision 1.6  2001/02/16 18:17:11  mike
 // new
 //
@@ -68,7 +71,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = _getStringArray())
+	const Array<String>& propertyList = StringArray())
     {
 	cout << "__NamespaceProvider::getInstance() called" << endl;
 

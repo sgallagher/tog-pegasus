@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.h,v $
+// Revision 1.9  2001/02/18 02:49:01  mike
+// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
+//
 // Revision 1.8  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -91,7 +94,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = _getStringArray());
+	const Array<String>& propertyList = StringArray());
 
     /// getInstance
     virtual CIMInstance getInstance(
@@ -100,7 +103,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = _getStringArray());
+	const Array<String>& propertyList = StringArray());
 
     /// deleteClass
     virtual void deleteClass(
@@ -154,7 +157,7 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = _getStringArray());
+	const Array<String>& propertyList = StringArray());
 
     /// enumerateInstanceNames
     virtual Array<CIMReference> enumerateInstanceNames(
@@ -176,7 +179,7 @@ public:
 	const String& resultRole = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = _getStringArray());
+	const Array<String>& propertyList = StringArray());
 
     /// associateNames
     virtual Array<CIMReference> associatorNames(
@@ -195,7 +198,7 @@ public:
 	const String& role = String::EMPTY,
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
-	const Array<String>& propertyList = _getStringArray());
+	const Array<String>& propertyList = StringArray());
 
     /// referenceNames
     virtual Array<CIMReference> referenceNames(

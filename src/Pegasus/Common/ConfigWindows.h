@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ConfigWindows.h,v $
+// Revision 1.5  2001/02/18 02:49:00  mike
+// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
+//
 // Revision 1.4  2001/02/17 00:44:13  bob
 // Added linkage macros for new libraries:  getoopt and Compiler
 //
@@ -117,6 +120,14 @@ PEGASUS_NAMESPACE_BEGIN
 # define PEGASUS_GETOOPT_LINKAGE PEGASUS_EXPORT
 #else
 # define PEGASUS_GETOOPT_LINKAGE PEGASUS_IMPORT
+#endif
+
+// ATTN: take this out when no longer needed!
+
+#ifdef PEGASUS_COMM_INTERNAL
+# define PEGASUS_COMM_LINKAGE PEGASUS_EXPORT
+#else
+# define PEGASUS_COMM_LINKAGE PEGASUS_IMPORT
 #endif
 
 #define for if (0) ; else for

@@ -2,12 +2,17 @@ ROOT=../../..
 
 DIR=CommExample/Client
 
+INCLUDES = -I..
+
 include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES) $(ACE_INCLUDES)
-LIBRARIES = $(ACE_LIB)
 
-SOURCES = Comm.cpp ACEComm.cpp CommClient.cpp
+LIBRARIES = \
+    $(LIB_DIR)/$(LIB_PREFIX)comm$(LIB_SUFFIX) \
+    $(ACE_LIB)
+
+SOURCES = CommClient.cpp
 
 PROGRAM = CommClient
 

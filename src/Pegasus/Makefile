@@ -15,6 +15,9 @@ DIRS = \
     Client \
     Provider \
     Server \
+    getoopt \
+    Compiler \
+    Compiler/cmdline \
     $(TEST_DIRS)
 
 include $(ROOT)/mak/recurse.mak

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.9  2001/02/18 02:49:00  mike
+// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
+//
 // Revision 1.8  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
 //
@@ -499,8 +502,6 @@ void Array<T>::append(const T* x, Uint32 size)
 {
     reserve(getSize() + size);
     _copyOnWrite();
-
-    // ATTN: MSVC++ 5.0 you know what!
     CopyToRaw(_data() + getSize(), x, size);
     _rep->size += size;
 }

@@ -1,6 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM,
+// Compaq Computer Corporation
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -23,6 +24,8 @@
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
+//              Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
+//                          added nsk platform support 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +35,8 @@
 # include "IPCWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "IPCUnix.cpp"
+#elif defined(PEGASUS_OS_TYPE_NSK)
+# include "IPCNsk.cpp"
 #else
 # error "Unsupported platform"
 #endif

@@ -1,7 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// The Open Group, Tivoli Systems, Compaq Computer Corporation
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -23,7 +23,8 @@
 //
 // Author: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
+//              added nsk platform support
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,8 @@
 # include <Pegasus/Common/TraceFileHandlerWindows.cpp>
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include <Pegasus/Common/TraceFileHandlerUnix.cpp>
+#elif defined(PEGASUS_OS_TYPE_NSK)
+# include <Pegasus/Common/TraceFileHandlerNsk.cpp>
 #else
 # error "Unsupported platform"
 #endif

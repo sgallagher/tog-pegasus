@@ -24,126 +24,42 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
-//              added nsk platform support           
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "TCPChannel.h"
+#include <cstring>
+#include "Selector.h"
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include "TCPChannelWindows.cpp"
+# include "SelectorWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "TCPChannelUnix.cpp"
+# include "SelectorUnix.cpp"
 #elif defined(PEGASUS_OS_TYPE_NSK)
-# include "TCPChannelNsk.cpp"
+# include "SelectorNsk.cpp"
 #else
 # error "Unsupported platform"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
 
-Sint32 TCPChannel::readN(void* ptr, Uint32 size)
+#define PEGASUS_ARRAY_T SelectorEntry
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+Uint32 Selector::_findEntry(Sint32 desc) const
 {
-    // ATTN-A: need a timeout here!
-
-    // Enable blocking temporarily:
-    Boolean blocking = getBlocking();
-
-    if (!blocking)
-	enableBlocking();
-
-    // Try to read size bytes:
-
-    char* p = (char*)ptr;
-    Uint32 r = size;
-    Uint32 m = 0;
-
-    while (r)
+    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
-	Sint32 n = read(p, r);
-
-	if (n == -1)
-	    return m;
-
-	m += n;
-	p += n;
-	r -= n;
+	if (_entries[i].desc == desc)
+	    return i;
     }
 
-    // Restore non-blocking if applicable:
-
-    if (!blocking)
-	disableBlocking();
-
-    // Return number of bytes actually read:
-
-    return m;
+    return PEG_NOT_FOUND;
 }
 
-Sint32 TCPChannel::writeN(const void* ptr, Uint32 size)
+SelectorHandler::~SelectorHandler()
 {
-    // ATTN-A: need a timeout here!
 
-    // Enable blocking temporarily:
-
-    Boolean blocking = getBlocking();
-
-    if (!blocking)
-	enableBlocking();
-
-    // Try to write size bytes:
-
-    const char* p = (const char*)ptr;
-    Uint32 r = size;
-    Uint32 m = 0;
-
-    while (r)
-    {
-	Sint32 n = write(p, r);
-
-	if (n == -1)
-	    return m;
-
-	m += n;
-	p += n;
-	r -= n;
-    }
-
-    // Restore non-blocking if applicable:
-
-    if (!blocking)
-	disableBlocking();
-
-    // Return number of bytes actually written:
-
-    return m;
-}
-
-Boolean TCPChannel::handle(Sint32 desc, Uint32 reasons)
-{
-    if (desc != _desc)
-	return false;
-
-    if (reasons & Selector::READ)
-    {
-	if (!_handler->handleInput(this))
-	{
-	    _handler->handleClose(this);
-	    return false;
-	}
-    }
-    else if (reasons & Selector::WRITE)
-    {
-	if (!_handler->handleOutput(this))
-	{
-	    _handler->handleClose(this);
-	    return false;
-	}
-    }
-
-    // ATTN-A: what about Selector::EXCEPTION and handleException()?
-
-    return true;
 }
 
 PEGASUS_NAMESPACE_END

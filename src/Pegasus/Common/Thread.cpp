@@ -1,6 +1,8 @@
+
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM,
+// Compaq Computer Corporation
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -22,7 +24,8 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
+//              added nsk platform support  
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +36,8 @@
 # include "ThreadWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "ThreadUnix.cpp"
+#elif defined(PEGASUS_OS_TYPE_NSK)
+# include "ThreadNsk.cpp"
 #else
 # error "Unsupported platform"
 #endif

@@ -1,7 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM,
-// Compaq Computer Corporation
+// Compaq Computer Corporation 
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
@@ -23,23 +23,28 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: Rudy chuet (rudy.schuet@compaq.com) 11/12/01
-//              added nsk platform support
+// Modified By: Rudy Schuet (rudy.schuet @compaq.com) 11/12/01
+//              added nsk platform support 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Dir.h"
+#include "Service.h"
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include "DirWindows.cpp"
+# include "ServiceWindows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "DirUnix.cpp"
+# include "ServiceUnix.cpp"
 #elif defined(PEGASUS_OS_TYPE_NSK)
-# include "DirNsk.cpp"
+# include "ServiceNsk.cpp"
 #else
 # error "Unsupported platform"
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
+
+ServiceHandler::~ServiceHandler() 
+{ 
+
+}
 
 PEGASUS_NAMESPACE_END

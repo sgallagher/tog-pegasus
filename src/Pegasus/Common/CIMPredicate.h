@@ -552,7 +552,7 @@ class PEGASUS_COMMON_LINKAGE PredicateTree
       }
       // special identity operator for DQueue access
 
-      Boolean operator ==(const PredicateTree & b) const 
+      Boolean operator ==(const PredicateTree & b) const bo
       {
 	 return(operator==((const void *)&b));
       }

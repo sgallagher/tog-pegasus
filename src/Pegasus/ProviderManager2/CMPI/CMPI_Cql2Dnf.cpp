@@ -75,32 +75,72 @@ CQL2String (const CQLExpression & o)
 CMPIPredOp
 CQL2PredOp (ExpressionOpType op, Boolean isInverted)
 {
-
-  static CMPIPredOp ops[] = {
-    CMPI_PredOp_LessThan,
-    CMPI_PredOp_GreaterThan,
-    CMPI_PredOp_Equals,
-    CMPI_PredOp_LessThanOrEquals,
-    CMPI_PredOp_GreaterThanOrEquals,
-    CMPI_PredOp_NotEquals,
-    (CMPIPredOp) 0,             /* Is NULL */
-    (CMPIPredOp) 0,             /* Is Not NULL */
-    CMPI_PredOp_Isa,
-    CMPI_PredOp_Like
-  };
   CMPIPredOp op_type = (CMPIPredOp) 0;
 
-  if ((int) op <= (int) sizeof (ops))
-    op_type = ops[(int) op];
-
-  /* This is neccesary b/c CQL does not map "NOT (x LIKE a )" to 
-     "x NOT_LIKE a". Hence we do it for it. This also applies to
-     LIKE operation. */
-  if ((isInverted) && (op == ISA))
-    op_type = CMPI_PredOp_NotIsa;
-
-  if ((isInverted) && (op == LIKE))
-    op_type = CMPI_PredOp_NotLike;
+  switch (op)
+    {
+    LT:if (isInverted)
+        op_type = CMPI_PredOp_GreaterThan;
+      else
+        op_type = CMPI_PredOp_LessThan;
+      break;
+    GT:if (isInverted)
+        op_type = CMPI_PredOp_LessThan;
+      else
+        op_type = CMPI_PredOp_GreaterThan;
+      break;
+    EQ:if (isInverted)
+        op_type = CMPI_PredOp_NotEquals;
+      else
+        op_type = CMPI_PredOp_Equals;
+      break;
+    LE:if (isInverted)
+        op_type = CMPI_PredOp_GreaterThanOrEquals;
+      else
+        op_type = CMPI_PredOp_LessThanOrEquals;
+      break;
+    GE:
+      if (isInverted)
+        op_type = CMPI_PredOp_LessThanOrEquals;
+      else
+        op_type = CMPI_PredOp_GreaterThanOrEquals;
+      break;
+    NE:
+      if (isInverted)
+        op_type = CMPI_PredOp_Equals;
+      else
+        op_type = CMPI_PredOp_NotEquals;
+      break;
+      /* CMPI does not sport this operation. We convert the
+         IS NULL to EQ operation. (or NE if "IS NULL" has 'NOT' in
+         front (isInverted == true). */
+    IS_NULL:
+      if (isInverted)
+        op_type = CMPI_PredOp_NotEquals;
+      else
+        op_type = CMPI_PredOp_Equals;
+      break;
+    IS_NOT_NULL:
+      if (isInverted)
+        op_type = CMPI_PredOp_Equals;
+      else
+        op_type = CMPI_PredOp_NotEquals;
+      break;
+    ISA:
+      if (isInverted)
+        op_type = CMPI_PredOp_NotIsa;
+      else
+        op_type = CMPI_PredOp_Isa;
+      break;
+    LIKE:
+      if (isInverted)
+        op_type = CMPI_PredOp_NotLike;
+      else
+        op_type = CMPI_PredOp_Like;
+      break;
+    default:
+      break;
+    }
 
   return op_type;
 }
@@ -130,10 +170,10 @@ CQL2Type (CQLValue::CQLValueType typ)
     case CQLValue::CQLIdentifier_type:
       return CMPI_QueryOperand::PROPERTY_TYPE;
     case CQLValue::CIMObject_type:
-      /* IBMKR: Not sure about this one */
-      return CMPI_QueryOperand::OBJECT_TYPE;
+      /* There is not such thing as object type. */
+	break;
     case CQLValue::Boolean_type:
-      return CMPI_QueryOperand::OBJECT_TYPE;
+      return CMPI_QueryOperand::BOOLEAN_TYPE;
     default:
       break;
     }

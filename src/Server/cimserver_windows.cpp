@@ -91,7 +91,7 @@ void notify_parent(int id) { return; }
 
 void cimserver_set( CIMServer* s )
 {
-	auto_mutex am( &_cimserverLock );
+	AutoMutex am( _cimserverLock );
 	_cimserver = s;
 	if( _cimserver && _shutdown )
 		_cimserver->shutdownSignal();
@@ -99,7 +99,7 @@ void cimserver_set( CIMServer* s )
 
 void signal_shutdown()
 {
-	auto_mutex am( &_cimserverLock );
+	AutoMutex am( _cimserverLock );
 	_shutdown = true;
 	if( _cimserver )
 		_cimserver->shutdownSignal();

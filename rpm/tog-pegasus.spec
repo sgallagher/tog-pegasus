@@ -655,6 +655,7 @@ ln -sf libpegclient.so.1 libpegclient.so
 ln -sf libpegprovider.so.1 libpegprovider.so
 ln -sf libDefaultProviderManager.so.1 libDefaultProviderManager.so
 ln -sf libCMPIProviderManager.so.1 libCMPIProviderManager.so
+ln -sf libCIMxmlIndicationHandler.so.1 libCIMxmlIndicationHandler.so
 
 # Create symbolic links for provider libs
 #

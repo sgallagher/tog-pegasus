@@ -64,6 +64,19 @@ TAG: Version_1_09.
     places where those queue names were being used for lookup were also
     changed to use the constants.
 
+11. (Roger Kumpf - HP) 12 Apr 2002 - Defined an HTTPError exception to
+    report non-200-OK HTTP responses back to client applications.  Added
+    an HTTPErrorMessage class to hold information about an HTTP error
+    response.  Added support in the CIMOperationResponseDecoder to
+    process HTTP error responses and turn them into HTTPErrorMessages.
+    Added support in CIMClient to process HTTPErrorMessages and throw an
+    HTTP error.  This functionality required fundamental changes in the
+    way CIMClient processes messages.  It can no longer search its queue
+    for a message of the expected type.  Instead, is assumes that no
+    messages should be on its queue unless it has sent a request to the
+    encoder.  In that case, it assumes that any message on its queue is
+    the response to that request.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

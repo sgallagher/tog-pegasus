@@ -422,12 +422,9 @@ private:
         const String& address,
         SSLContext* sslContext);
 
-    Message* _waitForResponse(
-	const Uint32 messageType,
-	const String& messageId,
-	const Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
-
-    void _checkError(const CIMResponseMessage* responseMessage);
+    Message* _doRequest(
+        CIMRequestMessage * request,
+	const Uint32 expectedResponseMessageType);
 
     String _getLocalHostName();
 

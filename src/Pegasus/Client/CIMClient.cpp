@@ -238,11 +238,8 @@ CIMClass CIMClient::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    // encode request
-    Message* request = new CIMGetClassRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMGetClassRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	className,
 	localOnly,
@@ -251,19 +248,12 @@ CIMClass CIMClient::getClass(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_GET_CLASS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_GET_CLASS_RESPONSE_MESSAGE);
 
     CIMGetClassResponseMessage* response = 
         (CIMGetClassResponseMessage*)message;
     
     Destroyer<CIMGetClassResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->cimClass);
 }
@@ -276,11 +266,8 @@ CIMInstance CIMClient::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    // encode request
-    Message* request = new CIMGetInstanceRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMGetInstanceRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	instanceName,
 	localOnly,
@@ -289,19 +276,12 @@ CIMInstance CIMClient::getInstance(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_GET_INSTANCE_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_GET_INSTANCE_RESPONSE_MESSAGE);
     
     CIMGetInstanceResponseMessage* response = 
         (CIMGetInstanceResponseMessage*)message;
     
     Destroyer<CIMGetInstanceResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->cimInstance);
 }
@@ -310,109 +290,72 @@ void CIMClient::deleteClass(
     const String& nameSpace,
     const String& className)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    // encode request
-    Message* request = new CIMDeleteClassRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMDeleteClassRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	className,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_DELETE_CLASS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_DELETE_CLASS_RESPONSE_MESSAGE);
     
     CIMDeleteClassResponseMessage* response = 
         (CIMDeleteClassResponseMessage*)message;
     
     Destroyer<CIMDeleteClassResponseMessage> destroyer(response);
-    
-    _checkError(response);
 }
 
 void CIMClient::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMDeleteInstanceRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMDeleteInstanceRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	instanceName,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_DELETE_INSTANCE_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_DELETE_INSTANCE_RESPONSE_MESSAGE);
     
     CIMDeleteInstanceResponseMessage* response = 
         (CIMDeleteInstanceResponseMessage*)message;
     
     Destroyer<CIMDeleteInstanceResponseMessage> destroyer(response);
-    
-    _checkError(response);
 }
 
 void CIMClient::createClass(
     const String& nameSpace,
     const CIMClass& newClass)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMCreateClassRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMCreateClassRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	newClass,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_CREATE_CLASS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_CREATE_CLASS_RESPONSE_MESSAGE);
     
     CIMCreateClassResponseMessage* response = 
         (CIMCreateClassResponseMessage*)message;
     
     Destroyer<CIMCreateClassResponseMessage> destroyer(response);
-    
-    _checkError(response);
 }
 
 CIMReference CIMClient::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMCreateInstanceRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMCreateInstanceRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	newInstance,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_CREATE_INSTANCE_RESPONSE_MESSAGE);
     
     CIMCreateInstanceResponseMessage* response = 
         (CIMCreateInstanceResponseMessage*)message;
     
     Destroyer<CIMCreateInstanceResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->instanceName);
 }
@@ -421,27 +364,18 @@ void CIMClient::modifyClass(
     const String& nameSpace,
     const CIMClass& modifiedClass)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMModifyClassRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMModifyClassRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	modifiedClass,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_MODIFY_CLASS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_MODIFY_CLASS_RESPONSE_MESSAGE);
     
     CIMModifyClassResponseMessage* response = 
         (CIMModifyClassResponseMessage*)message;
     
     Destroyer<CIMModifyClassResponseMessage> destroyer(response);
-    
-    _checkError(response);
 }
 
 void CIMClient::modifyInstance(
@@ -450,29 +384,20 @@ void CIMClient::modifyInstance(
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMModifyInstanceRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMModifyInstanceRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	modifiedInstance,
 	includeQualifiers,
 	propertyList,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE);
     
     CIMModifyInstanceResponseMessage* response = 
         (CIMModifyInstanceResponseMessage*)message;
     
     Destroyer<CIMModifyInstanceResponseMessage> destroyer(response);
-    
-    _checkError(response);
 }
 
 Array<CIMClass> CIMClient::enumerateClasses(
@@ -483,10 +408,8 @@ Array<CIMClass> CIMClient::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMEnumerateClassesRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMEnumerateClassesRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	className,
 	deepInheritance,
@@ -495,20 +418,12 @@ Array<CIMClass> CIMClient::enumerateClasses(
 	includeClassOrigin,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE, messageId,
-        _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE);
     
     CIMEnumerateClassesResponseMessage* response = 
         (CIMEnumerateClassesResponseMessage*)message;
     
     Destroyer<CIMEnumerateClassesResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->cimClasses);
 }
@@ -518,29 +433,19 @@ Array<String> CIMClient::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMEnumerateClassNamesRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMEnumerateClassNamesRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	className,
 	deepInheritance,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE, messageId,
-        _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE);
     
     CIMEnumerateClassNamesResponseMessage* response = 
         (CIMEnumerateClassNamesResponseMessage*)message;
     
     Destroyer<CIMEnumerateClassNamesResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->classNames);
 }
@@ -554,10 +459,8 @@ Array<CIMNamedInstance> CIMClient::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMEnumerateInstancesRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMEnumerateInstancesRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	className,
 	deepInheritance,
@@ -567,20 +470,12 @@ Array<CIMNamedInstance> CIMClient::enumerateInstances(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, messageId,
-        _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);
     
     CIMEnumerateInstancesResponseMessage* response = 
         (CIMEnumerateInstancesResponseMessage*)message;
     
     Destroyer<CIMEnumerateInstancesResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->cimNamedInstances);
 }
@@ -589,28 +484,18 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMEnumerateInstanceNamesRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMEnumerateInstanceNamesRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	className,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE, messageId,
-        _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE);
     
     CIMEnumerateInstanceNamesResponseMessage* response = 
         (CIMEnumerateInstanceNamesResponseMessage*)message;
     
     Destroyer<CIMEnumerateInstanceNamesResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->instanceNames);
 }
@@ -620,28 +505,19 @@ Array<CIMObjectWithPath> CIMClient::execQuery(
     const String& queryLanguage,
     const String& query)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMExecQueryRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMExecQueryRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	queryLanguage,
 	query,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_EXEC_QUERY_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_EXEC_QUERY_RESPONSE_MESSAGE);
     
     CIMExecQueryResponseMessage* response = 
         (CIMExecQueryResponseMessage*)message;
     
     Destroyer<CIMExecQueryResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->cimObjects);
 }
@@ -657,10 +533,8 @@ Array<CIMObjectWithPath> CIMClient::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMAssociatorsRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMAssociatorsRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	objectName,
 	assocClass,
@@ -672,19 +546,12 @@ Array<CIMObjectWithPath> CIMClient::associators(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_ASSOCIATORS_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_ASSOCIATORS_RESPONSE_MESSAGE);
     
     CIMAssociatorsResponseMessage* response = 
         (CIMAssociatorsResponseMessage*)message;
     
     Destroyer<CIMAssociatorsResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->cimObjects);
 }
@@ -697,10 +564,8 @@ Array<CIMReference> CIMClient::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMAssociatorNamesRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMAssociatorNamesRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	objectName,
 	assocClass,
@@ -709,19 +574,12 @@ Array<CIMReference> CIMClient::associatorNames(
 	resultRole,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE);
     
     CIMAssociatorNamesResponseMessage* response = 
         (CIMAssociatorNamesResponseMessage*)message;
     
     Destroyer<CIMAssociatorNamesResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->objectNames);
 }
@@ -735,10 +593,8 @@ Array<CIMObjectWithPath> CIMClient::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMReferencesRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMReferencesRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	objectName,
 	resultClass,
@@ -748,19 +604,12 @@ Array<CIMObjectWithPath> CIMClient::references(
 	propertyList,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_REFERENCES_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_REFERENCES_RESPONSE_MESSAGE);
     
     CIMReferencesResponseMessage* response = 
         (CIMReferencesResponseMessage*)message;
     
     Destroyer<CIMReferencesResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->cimObjects);
 }
@@ -771,30 +620,20 @@ Array<CIMReference> CIMClient::referenceNames(
     const String& resultClass,
     const String& role)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMReferenceNamesRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMReferenceNamesRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	objectName,
 	resultClass,
 	role,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_REFERENCE_NAMES_RESPONSE_MESSAGE, messageId,
-        _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_REFERENCE_NAMES_RESPONSE_MESSAGE);
     
     CIMReferenceNamesResponseMessage* response = 
         (CIMReferenceNamesResponseMessage*)message;
     
     Destroyer<CIMReferenceNamesResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->objectNames);
 }
@@ -804,28 +643,19 @@ CIMValue CIMClient::getProperty(
     const CIMReference& instanceName,
     const String& propertyName)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMGetPropertyRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMGetPropertyRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	instanceName,
 	propertyName,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_GET_PROPERTY_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_GET_PROPERTY_RESPONSE_MESSAGE);
     
     CIMGetPropertyResponseMessage* response = 
         (CIMGetPropertyResponseMessage*)message;
     
     Destroyer<CIMGetPropertyResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->value);
 }
@@ -836,56 +666,38 @@ void CIMClient::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMSetPropertyRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMSetPropertyRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	instanceName,
 	propertyName,
 	newValue,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_SET_PROPERTY_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_SET_PROPERTY_RESPONSE_MESSAGE);
     
     CIMSetPropertyResponseMessage* response = 
         (CIMSetPropertyResponseMessage*)message;
     
     Destroyer<CIMSetPropertyResponseMessage> destroyer(response);
-    
-    _checkError(response);
 }
 
 CIMQualifierDecl CIMClient::getQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMGetQualifierRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMGetQualifierRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	qualifierName,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_GET_QUALIFIER_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_GET_QUALIFIER_RESPONSE_MESSAGE);
     
     CIMGetQualifierResponseMessage* response = 
         (CIMGetQualifierResponseMessage*)message;
     
     Destroyer<CIMGetQualifierResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->cimQualifierDecl);
 }
@@ -894,80 +706,52 @@ void CIMClient::setQualifier(
     const String& nameSpace,
     const CIMQualifierDecl& qualifierDeclaration)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMSetQualifierRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMSetQualifierRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	qualifierDeclaration,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_SET_QUALIFIER_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_SET_QUALIFIER_RESPONSE_MESSAGE);
     
     CIMSetQualifierResponseMessage* response = 
         (CIMSetQualifierResponseMessage*)message;
     
     Destroyer<CIMSetQualifierResponseMessage> destroyer(response);
-    
-    _checkError(response);
 }
 
 void CIMClient::deleteQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMDeleteQualifierRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMDeleteQualifierRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	qualifierName,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE);
     
     CIMDeleteQualifierResponseMessage* response = 
         (CIMDeleteQualifierResponseMessage*)message;
     
     Destroyer<CIMDeleteQualifierResponseMessage> destroyer(response);
-    
-    _checkError(response);
 }
 
 Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
     const String& nameSpace)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
-    Message* request = new CIMEnumerateQualifiersRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMEnumerateQualifiersRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE, messageId,
-        _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE);
     
     CIMEnumerateQualifiersResponseMessage* response = 
         (CIMEnumerateQualifiersResponseMessage*)message;
     
     Destroyer<CIMEnumerateQualifiersResponseMessage> destroyer(response);
-    
-    _checkError(response);
     
     return(response->qualifierDeclarations);
 }
@@ -979,88 +763,104 @@ CIMValue CIMClient::invokeMethod(
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters)
 {
-    String messageId = XmlWriter::getNextMessageId();
-    
     // ATTN-RK-P2-20020301: Does it make sense to have a nameSpace parameter
     // when the namespace should already be included in the instanceName?
     // ATTN-RK-P3-20020301: Do we need to make sure the caller didn't specify
     // a host name in the instanceName?
 
-    Message* request = new CIMInvokeMethodRequestMessage(
-	messageId,
+    CIMRequestMessage* request = new CIMInvokeMethodRequestMessage(
+	String::EMPTY,
 	nameSpace,
 	instanceName,
 	methodName,
 	inParameters,
 	QueueIdStack());
     
-    _authenticator.clearRequest();
-
-    _requestEncoder->enqueue(request);
-    
-    Message* message = _waitForResponse(
-        CIM_INVOKE_METHOD_RESPONSE_MESSAGE, messageId, _timeOutMilliseconds);
+    Message* message = _doRequest(request, CIM_INVOKE_METHOD_RESPONSE_MESSAGE);
     
     CIMInvokeMethodResponseMessage* response = 
         (CIMInvokeMethodResponseMessage*)message;
     
     Destroyer<CIMInvokeMethodResponseMessage> destroyer(response);
     
-    _checkError(response);
-    
     outParameters = response->outParameters;
     
     return(response->retValue);
 }
 
-Message* CIMClient::_waitForResponse(
-    const Uint32 messageType,
-    const String& messageId,
-    const Uint32 timeOutMilliseconds)
+Message* CIMClient::_doRequest(
+    CIMRequestMessage * request,
+    const Uint32 expectedResponseMessageType)
 {
     if (!_connected)
+    {
+        delete request;
 	throw NotConnected();
+    }
     
-    long rem = long(timeOutMilliseconds);
+    String messageId = XmlWriter::getNextMessageId();
+    const_cast<String &>(request->messageId) = messageId;
 
-    for (;;)
+    _authenticator.clearRequest();
+
+    PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue
+
+    _requestEncoder->enqueue(request);
+
+    Uint32 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
+    Uint32 nowMilliseconds = startMilliseconds;
+    Uint32 stopMilliseconds = nowMilliseconds + _timeOutMilliseconds;
+
+    while (nowMilliseconds < stopMilliseconds)
     {
 	//
 	// Wait until the timeout expires or an event occurs:
 	//
 
-	TimeValue start = TimeValue::getCurrentTime();
-	_monitor->run(rem);
-	TimeValue stop = TimeValue::getCurrentTime();
+	_monitor->run(stopMilliseconds - nowMilliseconds);
 
 	//
-	// Check to see if incoming queue has a message of the appropriate
-	// type with the given message id:
+	// Check to see if incoming queue has a message
 	//
 
-	Message* message = findByType(messageType);
+	Message* response = dequeue();
 
-	if (message)
+	if (response)
 	{
-	    CIMResponseMessage* responseMessage = (CIMResponseMessage*)message;
+            // Shouldn't be any more messages in our queue
+            PEGASUS_ASSERT(getCount() == 0);
 
-	    if (responseMessage->messageId == messageId)
-	    {
-		remove(responseMessage);
-		return responseMessage;
-	    }
+            if (response->getType() == HTTP_ERROR_MESSAGE)
+            {
+                HTTPErrorMessage * httpErrorMessage = (HTTPErrorMessage*)response;
+                HTTPError httpError(httpErrorMessage->httpStatusCode,
+                                    httpErrorMessage->cimError,
+                                    httpErrorMessage->pegasusError);
+                delete response;
+                throw httpError;
+            }
+            else if (response->getType() == expectedResponseMessageType)
+            {
+                CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
+                if (cimResponse->messageId != messageId)
+                {
+                    // ATTN-RK-P2-20020412: Error response!
+                }
+                if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
+                {
+                    CIMException cimException = cimResponse->cimException;
+                    delete response;
+	            throw cimException;
+                }
+                return response;
+            }
+            else
+            {
+                // ATTN-RK-P2-20020412: Error response!
+            }
 	}
 
-	// 
-	// Terminate loop if timed out:
-	//
-
-	long diff = stop.toMilliseconds() - start.toMilliseconds();
-
-	if (diff >= rem)
-	    break;
-
-	rem -= diff;
+        nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     }
 
     //
@@ -1068,15 +868,6 @@ Message* CIMClient::_waitForResponse(
     //
 
     throw TimedOut();
-}
-
-void CIMClient::_checkError(const CIMResponseMessage* responseMessage)
-{
-    if (responseMessage &&
-        (responseMessage->cimException.getCode() != CIM_ERR_SUCCESS) )
-    {
-	throw responseMessage->cimException;
-    }
 }
 
 String CIMClient::_getLocalHostName()

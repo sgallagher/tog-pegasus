@@ -803,6 +803,27 @@ public:
 
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
 
+class PEGASUS_COMMON_LINKAGE HTTPError : public Exception
+{
+public:
+
+    HTTPError(
+	Uint32 httpStatusCode,
+	const String& cimError = String::EMPTY,
+	const String& pegasusError = String::EMPTY);
+    HTTPError(const HTTPError& httpError);
+
+    Uint32 getCode() const { return _httpStatusCode; }
+    String getCIMError() const { return _cimError; }
+    String getPegasusError() const { return _pegasusError; }
+
+private:
+
+    Uint32 _httpStatusCode;
+    String _cimError;
+    String _pegasusError;
+};
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Exception_h */

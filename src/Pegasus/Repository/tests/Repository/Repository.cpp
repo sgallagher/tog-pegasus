@@ -84,8 +84,8 @@ void test02()
     CIMRepository r (repositoryRoot);
 
     const String NAMESPACE = "aa/bb";
-    const String SUPERCLASS = "SuperClass";
-    const String SUBCLASS = "SubClass";
+    const CIMName SUPERCLASS = "SuperClass";
+    const CIMName SUBCLASS = "SubClass";
 
     try
     {

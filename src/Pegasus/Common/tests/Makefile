@@ -1,38 +1,48 @@
 include $(PEGASUS_ROOT)/mak/config.mak
 
 DIRS = \
-    AnonymousPipe \
-    AutoPtr \
-    Config \
-    HashTable \
-    Resolve \
-    Formatter \
     Abstract \
+    AnonymousPipe \
     Array \
+    AutoPtr \
     Base64 \
     CGIQueryString \
     ClassDecl \
     Compare \
+    Config \
     DateTime \
     Dir \
+    DynLib \
+    DynLoad \
+    DynamicLibrary \
     FileSystem \
     Flavor \
-    InstanceDecl \
+    Formatter \
+    HashTable \
     IPC \
+    InstanceDecl \
+    L10N \
+    L10N/msg \
+    Logger \
     MessageSerializer \
     Method \
     Object \
+    ObjectNormalizer \
+    OperationContext \
+    ParamValue \
     Parameter \
     Property \
     Qualifier \
     QualifierDecl \
     QualifierList \
     Queue \
+    Reference \
+    Resolve \
     Scope \
     Stack \
     Stopwatch \
-    String \
     StrToInstName \
+    String \
     Thread \
     ThreadPool \
     TimeValue \
@@ -40,31 +50,15 @@ DIRS = \
     Tracer \
     ValidateClass \
     Value \
+    WebClient \
     XmlDump \
     XmlParser \
-    XmlReader \
     XmlPrint \
-    Reference \
-    DynLib \
-    DynLoad \
-	DynamicLibrary \
-    Logger \
-    WebClient \
-    ParamValue \
-    L10N \
-    L10N/msg \
-    OperationContext \
-	ObjectNormalizer
+    XmlReader
 
 ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \
 	StatisticalData
 endif
-
-
-
-#    MessageQueueService \
-#    WebServer \
-#    async_callback \
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

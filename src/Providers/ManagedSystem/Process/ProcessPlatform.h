@@ -31,14 +31,17 @@
 //         Jim Metcalfe, Hewlett-Packard Company
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//         Chad Smith, Hewlett-Packard Company <chad_smith@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef PG_PROCESS_PLATFORM_H
 #define PG_PROCESS_PLATFORM_H
 
-#ifdef PEGASUS_PLATFORM_HPUX_ACC
+#if defined (PEGASUS_PLATFORM_HPUX_ACC)
 #include "Process_HPUX.h"
+#elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#include "Process_Linux.h"
 #else
 #include "Process_Stub.h"
 #endif

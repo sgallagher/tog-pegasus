@@ -32,6 +32,8 @@
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "ComputerSystem_HPUX.cpp"
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+# include "ComputerSystem_Linux.cpp"
 #else
 # include "ComputerSystem_Stub.cpp"
 #endif

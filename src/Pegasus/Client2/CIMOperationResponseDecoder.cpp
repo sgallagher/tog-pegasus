@@ -570,7 +570,7 @@ CIMEnumerateClassNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnume
     {
 	Array<CIMName> classNames;
 
-    // KS 20020931 - Addition to allow empty tag return.
+    // KS 20020931 - Addition to allow empty tag return. BUGZILLA135
     // WBEMServices returns this tag wneh no instances exist.
     if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	    if (entry.type != XmlEntry::EMPTY_TAG)
@@ -609,7 +609,7 @@ CIMEnumerateClassesResponseMessage* CIMOperationResponseDecoder::_decodeEnumerat
     {
 	Array<CIMClass> cimClasses;
 
-    // KS 20020931 - Addition to allow empty tag return.
+    // KS 20020931 - Addition to allow empty tag return. BUGZILLA135
     // WBEMServices returns this tag wneh no instances exist.
     if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	    if (entry.type != XmlEntry::EMPTY_TAG)
@@ -775,7 +775,7 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
     {
 	Array<CIMObjectPath> instanceNames;
 
-    // KS 20020931 - Addition to allow empty tag return.
+    // KS 20020931 - Addition to allow empty tag return. BUGZILLA135
     // WBEMServices returns this tag wneh no instances exist.
 	if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	    if (entry.type != XmlEntry::EMPTY_TAG)
@@ -823,7 +823,7 @@ CIMEnumerateInstancesResponseMessage* CIMOperationResponseDecoder::_decodeEnumer
     {
 	Array<CIMInstance> namedInstances;
     
-    // KS 20020931 - Addition to allow empty tag return.
+    // KS 20020931 - Addition to allow empty tag return. BUGZILLA135
     // WBEMServices returns this tag wneh no instances exist.
     if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	    if (entry.type != XmlEntry::EMPTY_TAG)
@@ -1017,7 +1017,7 @@ CIMEnumerateQualifiersResponseMessage* CIMOperationResponseDecoder::_decodeEnume
     {
 	Array<CIMQualifierDecl> qualifierDecls;
 
-    // KS 20020931 - Addition to allow empty tag return.
+    // KS 20020931 - Addition to allow empty tag return. BUGZILLA135
     // WBEMServices returns this tag wneh no instances exist.
     if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	    if (entry.type != XmlEntry::EMPTY_TAG)
@@ -1065,88 +1065,10 @@ CIMDeleteQualifierResponseMessage* CIMOperationResponseDecoder::_decodeDeleteQua
     }
 }
 
-//MEB:
 
-CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
-    XmlParser& parser, const String& messageId)
-{
-    XmlEntry entry;
-    CIMException cimException;
-
-    if (XmlReader::getErrorElement(parser, cimException))
-    {
-	return(new CIMReferenceNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMObjectPath>()));
-    }
-    else
-    {
-	Array<CIMObjectPath> objectPaths;
-
-    // KS 20020931 - Addition to allow empty tag return.
-    // WBEMServices returns this tag wneh no instances exist.
-    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-    	{
-    	    CIMObjectPath objectPath;
-    
-    	    while (XmlReader::getObjectPathElement(parser, objectPath))
-    	        objectPaths.append(objectPath);
-    
-    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-    	}
-
-	return(new CIMReferenceNamesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    objectPaths));
-    }
-}
-
-CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResponse(
-    XmlParser& parser, const String& messageId)
-{
-    XmlEntry entry;
-    CIMException cimException;
-
-    if (XmlReader::getErrorElement(parser, cimException))
-    {
-	return(new CIMReferencesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    Array<CIMObject>()));
-    }
-    else
-    {
-	Array<CIMObject> objectWithPathArray;
-
-    
-    // KS 20020931 - Addition to allow empty tag return.
-    // WBEMServices returns this tag wneh no instances exist.
-    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
-	    if (entry.type != XmlEntry::EMPTY_TAG)
-    	{
-    	    CIMObject objectWithPath;
-    
-    	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
-    	        objectWithPathArray.append(objectWithPath);
-    
-    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
-    	}
-
-	return(new CIMReferencesResponseMessage(
-	    messageId,
-	    cimException,
-	    QueueIdStack(),
-	    objectWithPathArray));
-    }
-}
-
+//********************Temporary code insertion**********************
 // KS 20021001 - Added this duplicate from xmlreader to test changes
+// BUGZILLA 136
 // for wbemservices problem where it does not return objectpath element
 // Tests for ObjectPath OR InstancePathelemen or classpath element
 Boolean _getObjectPathElement(
@@ -1228,7 +1150,98 @@ Boolean _getObjectPathElement(
 
     PEGASUS_UNREACHABLE ( return false; )
 }
+//*******************END of Temporary code insertion******
 
+
+CIMReferenceNamesResponseMessage* CIMOperationResponseDecoder::_decodeReferenceNamesResponse(
+    XmlParser& parser, const String& messageId)
+{
+    XmlEntry entry;
+    CIMException cimException;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+	return(new CIMReferenceNamesResponseMessage(
+	    messageId,
+	    cimException,
+	    QueueIdStack(),
+	    Array<CIMObjectPath>()));
+    }
+    else
+    {
+	Array<CIMObjectPath> objectPaths;
+
+    // KS 20020931 - Addition to allow empty tag return. BUGZILLA135
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMObjectPath objectPath;
+    
+            // KS 20021001 - Call local version of getobjectpath for
+            // client responses.  BUGZILLA 136. This added to correct
+            // for Wbemservices problem (treats objectpath and instancepath
+            // tags as optional) and should be removed when these problems
+            // are corrected permanently.
+            
+    	    //while (XmlReader::getObjectPathElement(parser, objectPath))
+    	    //    objectPaths.append(objectPath);
+    
+    	    while (_getObjectPathElement(parser, objectPath))
+    	        objectPaths.append(objectPath);
+            
+            // End of BUGZILLA 136 fix
+            
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
+
+	return(new CIMReferenceNamesResponseMessage(
+	    messageId,
+	    cimException,
+	    QueueIdStack(),
+	    objectPaths));
+    }
+}
+
+CIMReferencesResponseMessage* CIMOperationResponseDecoder::_decodeReferencesResponse(
+    XmlParser& parser, const String& messageId)
+{
+    XmlEntry entry;
+    CIMException cimException;
+
+    if (XmlReader::getErrorElement(parser, cimException))
+    {
+	return(new CIMReferencesResponseMessage(
+	    messageId,
+	    cimException,
+	    QueueIdStack(),
+	    Array<CIMObject>()));
+    }
+    else
+    {
+	Array<CIMObject> objectWithPathArray;
+
+    
+    // KS 20020931 - Addition to allow empty tag return. BUGZILLA135
+    // WBEMServices returns this tag wneh no instances exist.
+    if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
+	    if (entry.type != XmlEntry::EMPTY_TAG)
+    	{
+    	    CIMObject objectWithPath;
+    
+    	    while (XmlReader::getValueObjectWithPathElement(parser, objectWithPath))
+    	        objectWithPathArray.append(objectWithPath);
+    
+    	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
+    	}
+
+	return(new CIMReferencesResponseMessage(
+	    messageId,
+	    cimException,
+	    QueueIdStack(),
+	    objectWithPathArray));
+    }
+}
 
 CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociatorNamesResponse(
     XmlParser& parser, const String& messageId)
@@ -1248,22 +1261,25 @@ CIMAssociatorNamesResponseMessage* CIMOperationResponseDecoder::_decodeAssociato
     {
 	Array<CIMObjectPath> objectPaths;
     
-    // KS 20020931 - Addition to allow empty tag return.
-    // WBEMServices returns this tag wneh no instances exist.
-    // Put here to keep out of the general code since this is 
-    // client problem only.
-    // KS 20020931 - Addition to allow empty tag return.
+    // KS 20020931 - Addition to allow empty tag return. BUGZILLA 135
     // WBEMServices returns this tag wneh no instances exist.
     if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
 	    if (entry.type != XmlEntry::EMPTY_TAG)
     	{
     	    CIMObjectPath objectPath;
     
+            // KS 20021001 - Call local version of getobjectpath for
+            // client responses.  BUGZILLA 136. This added to correct
+            // for Wbemservices problem (treats objectpath and instancepath
+            // tags as optional) and should be removed when these problems
+            // are corrected permanently.
+            
     	    //while (XmlReader::getObjectPathElement(parser, objectPath))
     	    //    objectPaths.append(objectPath);
     
     	    while (_getObjectPathElement(parser, objectPath))
     	        objectPaths.append(objectPath);
+            // End of BUGZILLA 136 fix
             
     	    XmlReader::expectEndTag(parser, "IRETURNVALUE");
     	}

@@ -44,15 +44,15 @@ PEGASUS_NAMESPACE_BEGIN
 class ModuleController;
 
 
-class PEGASUS_COMMON_LINKAGE service_module
+class PEGASUS_COMMON_LINKAGE pegasus_module
 {
    public:
 
-      service_module() 
+      pegasus_module() 
       {
       }
       
-      virtual ~service_module()
+      virtual ~pegasus_module()
       {
       }
       
@@ -63,19 +63,23 @@ class PEGASUS_COMMON_LINKAGE service_module
 
       String & get_name(void);
       
+      // introspection interface
+      virtual Boolean query_interface(String & class_id, 
+				      void **object_ptr) = 0;
+      virtual Uint32 reference(void) { _reference_count++; }
+      virtual Uint32 dereference(void)  { _reference_count--; }
 
    private:
-
       virtual Boolean _rcv_msg(Message *) = 0;
       virtual void _send_async_callback(Uint32 msg_handle, Message *msg) = 0;
       
       virtual Boolean _shutdown(Uint32) = 0;
       ModuleController *_controller;
-      
       String _name;
+      AtomicInt _reference_count;
       
       friend class ModuleController;
-}
+};
 
 
 class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
@@ -90,52 +94,59 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       
       
       // module api 
-      ModuleController & register_module(service_module *);
-      deregister_module(service_module *);
+      ModuleController & register_module(pegasus_module *);
+      deregister_module(pegasus_module *);
       
-      Uint32 find_service(service_module & handle, String & name);
-      String & find_service(service_module & handle, Uint32 queue_id);
+      Uint32 find_service(pegasus_module & handle, String & name);
+      String & find_service(pegasus_module & handle, Uint32 queue_id);
 
-      Message *ModuleSendWait(service_module & handle,
-			      Uint32 destination, 
+      pegasus_module & get_module_reference(pegasus_module & handle, String & name);
+      
+
+      // send a message to another service
+      Message *ModuleSendWait(pegasus_module & handle,
+			      Uint32 destination_q, 
 			      Message *message);
 
-      Message *ModuleSendWait(service_module & handle,
-			      String & destination, 
+      // send a message to another module via another service
+      Message *ModuleSendWait(pegasus_module & handle,
+			      Uint32 destination_q,
+			      String & destination_module,
 			      Message *message);
-      
-      Boolean ModuleSendAsync(service_module & handle,
+
+      // send a message to another service
+      Boolean ModuleSendAsync(pegasus_module & handle,
 			      Uint32 msg_handle, 
-			      Uint32 destination, 
+			      Uint32 destination_q, 
 			      Message *message);
 
-      Boolean ModuleSendAsync(service_module & handle,
+      // send a message to another module via another service
+      Boolean ModuleSendAsync(pegasus_module & handle,
 			      Uint32 msg_handle, 
-			      String & destination, 
+			      Uint32 destination_q, 
+			      String & destination_module,
 			      Message *message);
 
-      Uint32 blocking_thread_exec(service_module & handle,
-				  PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *));
-      Uint32 async_thread_exec(service_module & handle, 
-				  PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *));
+      Uint32 blocking_thread_exec(pegasus_module & handle,
+				  PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+				  void *parm);
+      Uint32 async_thread_exec(pegasus_module & handle, 
+			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
+			       void *parm);
       
+      // << Thu Mar 14 09:52:56 2002 mdd >>
+      // need to add a blocking semaphore to ThreadPool for "joinable" threads
+      // need to define a special message type for sending messages to modules
+      //
 
    protected:
 
-
-      
-
    private:
 
-
-      
-      
-
-      DQueue<service_module> _modules;
+      DQueue<pegasus_module> _modules;
       ThreadPool _thread_pool;
-      
+};
 
-}
 
 PEGASUS_NAMESPACE_END
 

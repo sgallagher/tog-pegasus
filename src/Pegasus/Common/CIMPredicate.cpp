@@ -417,7 +417,7 @@ Boolean PredicateReference::evaluate(void)
 
 PredicateTree::PredicateTree(void)
    : _mut(), _truth_value(true), _logical_op(AND),
-     _peers(true), _children(true), _pred() { }
+     _peers(true), _children(true), _pred(NULL) { }
 
 PredicateTree::~PredicateTree(void)
 {
@@ -427,13 +427,15 @@ PredicateTree::~PredicateTree(void)
    delete _pred;
 }
 
-Boolean PredicateTree::evaluate(void);
+Boolean PredicateTree::evaluate(void)
 {
    if(_children.count())
    {
-      Boolean truth = false;
+      Boolean truth = true;
+      _truth_value = true;
       PredicateTree *children = NULL;
 
+// rw lock may be more appropriate
       _children.lock();
       while( NULL != ( children = _children.next(children)))
       {
@@ -442,47 +444,104 @@ Boolean PredicateTree::evaluate(void);
 	 {
 	    case AND:
 	       if(truth)
-		  _truth_value = true;
+		  continue;
 	       else 
 	       {
 		  _truth_value = false;
-		  children = NULL;
+		  break;
 	       }
 	       break;
 	    case OR:
 	       if(truth)
+		  break;
+	       else
 	       {
-		  _truth_value = true;
-		  children = NULL;
+		  _truth_value = false;
+		  continue;
 	       }
-	       break;
 	    case NOT:
 	       if(truth)
 	       {
 		  _truth_value = false;
-		  children = NULL;
+		  break;
 	       }
 	       else 
-		  _truth_value = true;
+		  continue;
+	    default:
 	       break;
 	 }
-	 if(children == NULL)
+	 if(_truth_value == false)
 	    break;
       }
       _children.unlock();
    }
 
-   if(_peers.count())
+   if( _truth_value == true && _peers.count() )
    {
+      Boolean truth = true;
       PredicateTree *peers = NULL;
       _peers.lock();
       while( NULL != (peers = _peers.next(peers)))
       {
 	 peers->evaluate();
+	 switch(_logical_op)
+	 {
+	    case AND:
+	       if(truth)
+		  continue;
+	       else 
+	       {
+		  _truth_value = false;
+		  break;
+	       }
+	       break;
+	    case OR:
+	       if(truth)
+		  break;
+	       else
+	       {
+		  _truth_value = false;
+		  continue;
+	       }
+	    case NOT:
+	       if(truth)
+	       {
+		  _truth_value = false;
+		  break;
+	       }
+	       else 
+		  continue;
+	    default:
+	       break;
+	 }
+	 if(_truth_value == false)
+	    break;
       }
       _peers.unlock();
    }
-   _pred.evaluate();
+   if(_truth_value == true && _pred != NULL)
+   {
+      Boolean truth =  _pred->evaluate();
+      switch(_logical_op)
+      {
+	 case AND:
+	    if(truth == false)
+	       _truth_value = false;
+	    break;
+	 case OR:
+	    if(truth != true)
+	       _truth_value = false;
+	    break;
+	 case NOT:
+	    if(truth == true)
+	       _truth_value = false;
+	    break;
+	 default:
+	    break;
+      }
+   }
+   return _truth_value;
+   
 }
 
 

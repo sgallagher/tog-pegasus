@@ -62,12 +62,12 @@ template<class L> class PEGASUS_EXPORT DQueue {
 	 head._mutex.unlock( );
       }
 
-      inline void insert_last(DQueue & head) throw(IPCException)
+      inline void insert_last(DQueue& head) throw(IPCException)
       {
 	 head._mutex.lock(pegasus_thread_self()) ;
 	 _next = &head;
 	 _prev = head._prev;
-	 head._prev->next = this;
+	 head._prev->_next = this;
 	 head._prev = this;
 	 head._count++;
 	 head._mutex.unlock( );
@@ -190,28 +190,28 @@ template<class L> class PEGASUS_EXPORT DQueue {
 
       inline L *next( L * ref) throw(IPCException)
       {
-	 if (_mutex.owner() != pegasus_thread_self())
+	 if (_mutex.get_owner() != pegasus_thread_self())
 	    throw(Permission(pegasus_thread_self()));
 	 if( ref == NULL)
 	    _cur = _next;
 	 else {
 	    PEGASUS_ASSERT(ref == _cur->_rep);
-	    _cur = _cur->next;
+	    _cur = _cur->_next;
 	 }
-	 return(_cur->rep);
+	 return(_cur->_rep);
       }
 
       inline L *prev( L * ref) throw(IPCException)
       {
-	 if (_mutex.owner() != pegasus_thread_self())
+	 if (_mutex.get_owner() != pegasus_thread_self())
 	    throw(Permission(pegasus_thread_self()));
 	 if( ref == NULL)
 	    _cur = _prev;
 	 else {
 	    PEGASUS_ASSERT(ref == _cur->_rep);
-	    _cur = _cur->prev;
+	    _cur = _cur->_prev;
 	 }
-	 return(_cur->rep);
+	 return(_cur->_rep);
       }
 
       inline void lock(void) throw(IPCException) { _mutex.lock(pegasus_thread_self()); }

@@ -31,14 +31,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-template<class L> DQueue<L> * DQueue<L>::_headOfFreeList;
-template<class L> const int DQueue<L>::BLOCK_SIZE = 20;
-template<class L> Mutex DQueue<L>::_alloc_mut;
-
-
-template<class L> AsyncDQueue<L> * AsyncDQueue<L>::_headOfFreeList;
-template<class L> const int AsyncDQueue<L>::BLOCK_SIZE = 20;
-template<class L> Mutex AsyncDQueue<L>::_alloc_mut;
 
 
 PEGASUS_NAMESPACE_END

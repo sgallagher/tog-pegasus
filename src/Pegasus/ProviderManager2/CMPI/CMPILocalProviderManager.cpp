@@ -26,6 +26,7 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day IBM Corporation (mdday@us.ibm.com)
 //              Adrian Schuur, schuur@de.ibm.com
+//              Dan Gorey, IBM djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,13 +56,13 @@ CMPILocalProviderManager::~CMPILocalProviderManager(void)
     Uint32 ccode;
 
 //    _provider_ctrl(UNLOAD_ALL_PROVIDERS, this, &ccode);
+
 }
 
 Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 {
 
     static Uint32 quantum;
-    AutoMutex monitor(_mut);
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_provider_ctrl");
 
     Sint32 ccode = 0;
@@ -76,98 +77,33 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "_provider_ctrl::GET_PROVIDER");
 
-            CMPIProvider *pr = NULL;
+            String providerName = *(parms->providerName);
+            String moduleFileName = *(parms->fileName);
+            String interfaceName = *(parms->interfaceName);
+            CMPIProvider *pr = 0;
             CMPIProvider::OpProviderHolder* ph = 
 	          reinterpret_cast< CMPIProvider::OpProviderHolder* >( ret );
 
-
-            if(true == _providers.lookup( *(parms->providerName), pr ))
+            pr = _lookupProvider(providerName);
+            
+            if(pr->getStatus() != CMPIProvider::INITIALIZED)
             {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Found CMPIProvider " + *(parms->providerName) + " in CMPIProvider Manager Cache");
+                _initProvider(pr,moduleFileName, interfaceName);
+            }
 
-                ph->SetProvider( pr );
-                ph->GetProvider().update_idle_timer();
-                break;
+            if(pr->_status != CMPIProvider::INITIALIZED)
+            {
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,"provider initialization failed");
             }
 
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Creating CMPIProvider " + *(parms->providerName) );
-            CMPIProviderModule *module;
+                "Returning Provider" + providerName);
 
-            if(false  == _modules.lookup(*(parms->fileName), module))
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Creating CMPIProvider Module " + *(parms->fileName) );
-
-                module = new CMPIProviderModule(*(parms->fileName),*(parms->interfaceName));
-
-                _modules.insert((*parms->fileName), module);
-            }
-            else
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Using Cached  CMPIProvider Module " + *(parms->fileName) );
-            }
-
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Loading/Linking CMPIProvider Module " + *(parms->fileName) );
-
-            ProviderVector base ;
-            try
-            {
-                base = module->load(*(parms->providerName));
-            }
-            catch(...)
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Exception caught Loading/Linking CMPIProvider Module " + *(parms->fileName) );
-                throw;
-
-//<< Wed Jul 30 17:43:05 2003 mdd >> bugzilla 286
-//   now just propogate the exception.
-//   if this causes problems, fix it in the ProviderManagerService, which should be able to catch this exception
-// 	    CIMNullProvider *dummy = new CIMNullProvider();
-// 	    if(dummy == 0)
-// 	    {
-// 	       throw NullPointer();
-// 	    }
-// 	    base = static_cast<CIMProvider *>(dummy);
-            }
-
-            // create provider module
-
-            MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
-            PEGASUS_ASSERT(queue != 0);
-            MessageQueueService * service = dynamic_cast<MessageQueueService *>(queue);
-            PEGASUS_ASSERT(service != 0);
-            pr = new CMPIProvider(*(parms->providerName), module, &base);
-            if(0 == (pr->_cimom_handle =  new CIMOMHandle()))
-                throw NullPointer();
-            pr->_quantum=0;
-
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "Loading CMPIProvider " +  pr->_name);
-            try
-            {
-                pr->initialize(*(pr->_cimom_handle));
-            }
-            catch(...)
-            {
-                delete pr->_cimom_handle;
-                delete pr;
-                throw UninitializedObjectException();
-            }
-
-            pr->update_idle_timer();
-
-            _providers.insert(*(parms->providerName), pr);
-
-
+            
             ph->SetProvider( pr );
+            ph->GetProvider().update_idle_timer();
             break;
         }
 
@@ -176,64 +112,18 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "_provider_ctrl::UNLOAD_PROVIDER");
-            CTRL_STRINGS *parms = reinterpret_cast<CTRL_STRINGS *>(parm);
-            CMPIProvider *pr;
-            if(true == _providers.lookup(*(parms->providerName), pr ))
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Unloading CMPIProvider " + pr->_name );
-                if(pr->_current_operations.value())
-                {
-                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "CMPIProvider cannot be unloaded due to pending operations: " +
-                        pr->_name );
-                    break;
-                }
-                _providers.remove(pr->_name);
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Terminating CMPIProvider " + pr->_name );
-                try
-                {
-                    pr->terminate();
-                }
-                catch(...)
-                {
+            CMPIProvider *pr = _lookupProvider(*(parms->providerName));
 
-                }
-
-                if((pr->_module != 0 ) && pr->_module->_ref_count.value() == 0)
+                if((pr->getStatus() == CMPIProvider::INITIALIZED))
                 {
-                    _modules.remove(pr->_module->_fileName);
-                    try
-                    {
-                        pr->_module->unloadModule();
-                    }
-                    catch(...)
-                    {
-
-                    }
-                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "Destroying CMPIProvider " + pr->_name );
-
-                    delete pr->_module;
-                }
+                   
 
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Destroying CMPIProvider's CIMOM Handle " + pr->_name );
+                    "Unloading CMPIProvider" + pr->_name );
 
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "ProviderManager::_provider_crtl -  Unload provider $0",
-                    pr->_name);
-
-                delete pr->_cimom_handle;
-                delete pr;
-            }
-            else
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                    "Unable to find CMPIProvider in cache: " +
-                    *(parms->providerName));
-            }
+                AutoMutex lock(_providerTableMutex);
+                _unloadProvider(pr);
+                }
             break;
         }
 
@@ -242,6 +132,8 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "_provider_ctrl::LOOKUP_PROVIDER");
+
+            AutoMutex lock(_providerTableMutex);
 
             if(true == _providers.lookup(*(parms->providerName),
                 *(reinterpret_cast<CMPIProvider * *>(ret))))
@@ -270,6 +162,8 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "_provider_ctrl::LOOKUP_MODULE");
 
+             AutoMutex lock(_providerTableMutex);
+
             if(false  == _modules.lookup(*(parms->fileName),
                 *(reinterpret_cast<CMPIProviderModule * *>(ret))))
             {
@@ -287,6 +181,9 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "_provider_ctrl::INSERT_PROVIDER");
+
+            AutoMutex lock(_providerTableMutex);
+             
             if(false  == _providers.insert(
                 *(parms->providerName),
                 *reinterpret_cast<CMPIProvider * *>(parm)))
@@ -297,93 +194,40 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
         {
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "_provider_ctrl::INSERT_MODULE");
+            AutoMutex lock(_providerTableMutex);
             if(false  == _modules.insert(
                 *(parms->fileName),
                 *reinterpret_cast<CMPIProviderModule * *>(parm)))
                 ccode = -1;
             break;
         }
-    case REMOVE_PROVIDER:
-        {
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::REMOVE_PROVIDER");
-            if(false == _providers.remove(*(parms->providerName)))
-                ccode = -1;
-            break;
-        }
-    case REMOVE_MODULE:
-        {
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::REMOVE_MODULE");
-            if(false == _modules.remove(*(parms->fileName)))
-                ccode = -1;
-            break;
-        }
-
+    
     case UNLOAD_ALL_PROVIDERS:
         {
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "_provider_ctrl::UNLOAD_ALL_PROVIDERS");
             CMPILocalProviderManager *myself = reinterpret_cast<CMPILocalProviderManager *>(parm);
             CMPIProvider * provider;
+            AutoMutex lock(_providerTableMutex);
+            Tracer::trace(TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+                          "providers in cache = %d", myself->_providers.size());
             ProviderTable::Iterator i = myself->_providers.start();
             try
             {
                 for(; i != 0; i++)
                 {
                     provider = i.value();
-                    if(provider == 0)
+                    PEGASUS_ASSERT(provider!=0);
+                    if(provider->getStatus()==CMPIProvider::UNINITIALIZED)
                     {
                         continue;
                     }
-
-                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "Terminating CMPIProvider " + provider->getName());
-                    try
+                    else
                     {
-                        provider->terminate();
+                        _unloadProvider(provider);
                     }
-                    catch(...)
-                    {
-                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                            "Exception terminating " +
-                            provider->getName());
-                        continue;
-                    }
-                    if((provider->_module != 0 ) &&
-                        provider->_module->_ref_count.value() == 0)
-                    {
-
-                        if(true == _modules.lookup(provider->_module->_fileName, provider->_module))
-                        {
-                            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                "Removing CMPIProvider's Module " + provider->getName());
-                            _modules.remove(provider->_module->_fileName);
-                            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                "Destroying CMPIProvider's Module " + provider->getName());
-                            delete provider->_module;
-                        }
-                    }
-                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "Destroying CMPIProvider's CIMOM Handle: " + provider->getName());
-                    delete provider->_cimom_handle;
-                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "Destroying CMPIProvider: " + provider->getName());
-
-                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                        "ProviderManager::_provider_crtl -  Unload provider $0",
-                        provider->getName());
-
-                    delete provider;
                 }
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Clearing CMPIProvider Cache" );
-                myself->_providers.clear();
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Clearing Module Cache");
-                myself->_modules.clear();
+                    
             }
             catch(...)
             {
@@ -397,11 +241,11 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
         {
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "_provider_ctrl::UNLOAD_IDLE_PROVIDERS");
+            AutoMutex lock(_providerTableMutex);
 
             quantum++;
             CMPILocalProviderManager *myself = reinterpret_cast<CMPILocalProviderManager *>(parm);
             CMPIProvider * provider;
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "providers loaded: " + myself->_providers.size());
 
             if(myself->_providers.size())
             {
@@ -413,10 +257,9 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                     for(; i != 0 ; i++)
                     {
                         provider = i.value();
-                        if(provider == 0)
+                        PEGASUS_ASSERT(provider != 0);
+                        if(provider->getStatus() == CMPIProvider::UNINITIALIZED)
                         {
-                            myself->_providers.remove(i.key());
-                            i = myself->_providers.start();
                             continue;
                         }
 
@@ -432,9 +275,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                 "CMPIProvider has pending operations: " +
                                 provider->getName());
-                            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                "CMPIProvider has pending operations" + provider->getName() );
-
+                            
                             continue;
                         }
 
@@ -450,7 +291,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                        if(provider->unload_ok() == true &&
                             (  now.tv_sec - timeout.tv_sec) > ((Sint32)myself->_idle_timeout))
                         {
-
+                            AutoMutex pr_lock(provider->_statusMutex);
                             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                                 "ProviderManager::_provider_crtl -  Unload idle provider $0",
                                 provider->getName());
@@ -477,49 +318,20 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                     "Exception terminating " +
                                     provider->getName());
-                                i = myself->_providers.start();
+                              
                                 continue;
                             }
-
+                            PEGASUS_ASSERT(provider->_module!=0);
                             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                "Removing CMPIProvider " + provider->getName());
-                            myself->_providers.remove(provider->_name);
+                                "unloading provider module " + provider->getName());
+                                provider->_module->unloadModule();
 
-                            // Important = reset iterator to beginning of list. quantum value assures we do
-                            // not inspect providers more than once even though we traverse them.
-                            i = myself->_providers.start();
-                            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                provider->_name + " Removed, looking at Module" );
-                            if(provider->_module != 0)
-                            {
-                                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                    "Module ref: " + provider->_module->_ref_count.value() );
-                                if(provider->_module->_ref_count.value() == 0)
-                                {
-                                    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                        "Removing Module " + provider->_module->_fileName);
-                                    _modules.remove(provider->_module->_fileName);
-                                    delete provider->_module;
-
-                                }
-                            }
-
-                            try
-                            {
+                            
                                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                     "Destroying CMPIProvider's CIMOM Handle: " +
                                     provider->getName());
                                 delete provider->_cimom_handle;
-                                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                                    "Destroying CMPIProvider: " +
-                                    provider->getName());
-                                delete provider;
-                            }
-                            catch(...)
-                            {
-                                // we may leak if any of the destructors
-                                // throws an exception
-                            }
+                                provider->reset();
                         }
                     }
                 }
@@ -529,29 +341,6 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                         "Unexpected Exception in UNLOAD_IDLE_PROVIDERS.");
                 }
             } // if there are any providers
-            break;
-        }
-
-    case UNLOAD_IDLE_MODULES:
-        {
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::UNLOAD_IDLE_MODULES");
-
-            CMPILocalProviderManager *myself = reinterpret_cast<CMPILocalProviderManager *>(parm);
-            CMPIProviderModule *module;
-            ModuleTable::Iterator i = myself->_modules.start();
-            for(; i ; i++)
-            {
-                module = i.value();
-                if(module->_ref_count.value() == 0)
-                {
-                    myself->_modules.remove(module->_fileName);
-                    module->unloadModule();
-                    delete module;
-                    i = myself->_modules.start();
-                }
-            }
             break;
         }
 
@@ -679,6 +468,215 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CMPILocalProviderManager::provider_mo
     }
     PEG_METHOD_EXIT();
     return(0);
+}
+
+CMPIProvider* CMPILocalProviderManager::_initProvider(
+    CMPIProvider * provider,
+    const String & moduleFileName,
+    const String & interfaceName)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_initProvider");
+
+    CMPIProviderModule *module = 0;
+    ProviderVector base;
+
+    {
+	// lock the providerTable mutex
+        AutoMutex lock(_providerTableMutex);
+
+        // lookup provider module
+	module = _lookupModule(moduleFileName, interfaceName);
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Loading/Linking Provider Module " + moduleFileName);
+
+        // load the provider
+        try
+        {
+            base = module->load(provider->_name);
+        }
+        catch(...)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                           "Exception caught Loading/Linking Provider Module " +
+                           moduleFileName);
+            PEG_METHOD_EXIT();
+            throw;
+        }
+    }   // unlock the providerTable mutex
+
+    // initialize the provider
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                     "Initializing Provider " +  provider->_name);
+
+    //
+    // Set the undoModuleLoad flag to true here, so that if the
+    // initialize() throws an exception, we can unload the provider
+    // module.
+    //
+    Boolean undoModuleLoad = true;
+
+    {   // lock the provider mutex
+        AutoMutex pr_lock(provider->_statusMutex);
+
+        // check provider status
+        if (provider->_status == CMPIProvider::UNINITIALIZED)
+        {
+            CIMOMHandle *cimomHandle =  new CIMOMHandle();
+            provider->set(module, base, cimomHandle);
+            provider->_quantum=0;
+
+            try
+            {
+                provider->initialize(*(provider->_cimom_handle));
+                undoModuleLoad = false;
+            }
+            catch(...)
+            {
+                // delete the cimom handle
+	        delete provider->_cimom_handle;
+
+	        // set provider status to UNINITIALIZED
+                provider->reset();
+            }
+        }
+    }  // unlock the provider mutex
+
+    // if we did not initialize the provider, unload the provider module
+    if (undoModuleLoad)
+    {
+	// lock the providerTable mutex
+        AutoMutex lock(_providerTableMutex);
+
+	// unload provider module
+        module->unloadModule();
+    }
+
+    PEG_METHOD_EXIT();
+    return(provider);
+}
+
+
+void CMPILocalProviderManager::_unloadProvider( CMPIProvider * provider)
+{
+    //
+    // NOTE:  It is the caller's responsibility to make sure that
+    // the ProviderTable mutex is locked before calling this method.
+    //
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_unloadProvider");
+
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                     "Unloading Provider " + provider->_name );
+
+    if ( provider->_current_operations.value())
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Provider cannot be unloaded due to pending operations: " +
+                         provider->_name );
+    }
+    else
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Terminating Provider " + provider->_name );
+
+        // lock the provider mutex
+        AutoMutex pr_lock(provider->_statusMutex);
+
+        try
+        {
+            provider->terminate();
+        }
+        catch(...)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+                             "Error occured terminating CMPI provider " + provider->_name );
+        }
+
+        // delete the cimom handle
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Destroying CMPIProvider's CIMOM Handle " + provider->_name );
+        delete provider->_cimom_handle;
+
+        PEGASUS_ASSERT(provider->_module != 0);
+
+        // unload provider module
+        provider->_module->unloadModule();
+
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "CMPILocalProviderManager::_provider_crtl -  Unload provider $0",
+            provider->getName());
+
+        // set provider status to UNINITIALIZED
+	provider->reset();
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+CMPIProvider * CMPILocalProviderManager::_lookupProvider(
+    const String & providerName)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_lookupProvider");
+
+    // lock the providerTable mutex
+    AutoMutex lock(_providerTableMutex);
+
+    // look up provider in cache
+    CMPIProvider * pr = 0;
+    if ( true == _providers.lookup(providerName, pr) )
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Found Provider " + providerName +
+			 " in CMPI Provider Manager Cache");
+    }
+    else
+    {
+        // create provider
+        pr = new CMPIProvider(providerName, 0, 0);
+
+        // insert provider in provider table
+        _providers.insert(providerName, pr);
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Created provider " + pr->getName());
+    }
+
+    PEG_METHOD_EXIT();
+    return (pr);
+}
+
+
+CMPIProviderModule * CMPILocalProviderManager::_lookupModule(
+    const String & moduleFileName,
+    const String & interfaceName)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_lookupModule");
+
+    // look up provider module in cache
+    CMPIProviderModule * module = 0;
+
+    if ( true == _modules.lookup(moduleFileName, module) )
+    {
+	// found provider module in cache
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Found Provider Module" + moduleFileName +
+                         " in Provider Manager Cache");
+
+   }
+   else
+   {
+	// provider module not found in cache, create provider module
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                         "Creating CMPI Provider Module " + moduleFileName);
+
+        module = new CMPIProviderModule(moduleFileName, interfaceName);
+
+	// insert provider module in module table
+        _modules.insert(moduleFileName, module);
+    }
+
+    PEG_METHOD_EXIT();
+    return (module);
 }
 
 PEGASUS_NAMESPACE_END

@@ -27,6 +27,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Dan Gorey, IBM djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,11 +55,8 @@ class PEGASUS_SERVER_LINKAGE Provider : public ProviderFacade
 public:
     enum Status
     {
-        UNKNOWN,
-        INITIALIZING,
-        INITIALIZED,
-        TERMINATING,
-        TERMINATED
+        UNINITIALIZED,
+        INITIALIZED
     };
 
 public:
@@ -73,7 +71,7 @@ public:
     virtual void initialize(CIMOMHandle & cimom);
     virtual void terminate(void);
 
-    Status getStatus(void) const;
+    Status getStatus(void);
     String getName(void) const;
 
     ProviderModule *getModule(void) const;
@@ -93,6 +91,12 @@ public:
     // allow provider manager to unload when idle
     virtual void unprotect(void);
 
+    void set(ProviderModule *module,
+            CIMProvider *base,
+            CIMOMHandle *cimomHandle);
+
+    void reset();
+
 protected:
     Status _status;
     ProviderModule *_module;
@@ -105,6 +109,7 @@ private:
     String _name;
     AtomicInt _no_unload;
     Uint32 _quantum;
+    Mutex _statusMutex;
 };
 
 

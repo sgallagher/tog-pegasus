@@ -27,6 +27,7 @@
 //              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur, schuur@de.ibm.com
+//              Dan Gorey, IBM djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,15 +76,12 @@ private:
     {
         INSERT_PROVIDER,
         INSERT_MODULE,
-        REMOVE_PROVIDER,
-        REMOVE_MODULE,
         LOOKUP_PROVIDER,
         LOOKUP_MODULE,
         GET_PROVIDER,
         UNLOAD_PROVIDER,
         UNLOAD_ALL_PROVIDERS,
         UNLOAD_IDLE_PROVIDERS,
-        UNLOAD_IDLE_MODULES
     };
 
     typedef HashTable<String, CMPIProvider *,
@@ -114,8 +112,19 @@ private:
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
     AtomicInt _unload_idle_flag;
 
-    Mutex _mut;
+    CMPIProvider* _initProvider(CMPIProvider * provider,
+                            const String & moduleFileName,
+                            const String & interfaceName);
 
+    void _unloadProvider(CMPIProvider * provider);
+
+    CMPIProvider * _lookupProvider(const String & providerName);
+
+    CMPIProviderModule * _lookupModule(const String & moduleFileName,
+                                    const String & interfaceName);
+    Mutex _providerTableMutex;
+                                    
+    
 protected:
 
 };

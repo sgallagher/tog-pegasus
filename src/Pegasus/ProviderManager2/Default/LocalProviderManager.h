@@ -28,6 +28,7 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Dan Gorey, IBM djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -80,15 +81,12 @@ private:
     {
         INSERT_PROVIDER,
         INSERT_MODULE,
-        REMOVE_PROVIDER,
-        REMOVE_MODULE,
         LOOKUP_PROVIDER,
         LOOKUP_MODULE,
         GET_PROVIDER,
         UNLOAD_PROVIDER,
         UNLOAD_ALL_PROVIDERS,
-        UNLOAD_IDLE_PROVIDERS,
-        UNLOAD_IDLE_MODULES
+        UNLOAD_IDLE_PROVIDERS
     };
 
     typedef HashTable<String, Provider *,
@@ -114,7 +112,18 @@ private:
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
     AtomicInt _unload_idle_flag;
 
-    Mutex _mut;
+    Provider* _initProvider(Provider * provider,
+                            const String & moduleFileName,
+                            const String & interfaceName);
+
+    void _unloadProvider(Provider * provider);
+
+    Provider * _lookupProvider(const String & providerName);
+
+    ProviderModule * _lookupModule(const String & moduleFileName,
+                                  const String & interfaceName);
+
+    Mutex _providerTableMutex;
 
 protected:
 

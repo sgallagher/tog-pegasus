@@ -27,6 +27,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Dan Gorey, IBM djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +44,7 @@ Provider::Provider(const String & name,
 		   ProviderModule *module,
 		   CIMProvider *pr)
    : Base(pr), _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0)
+     _no_unload(0), _status(UNINITIALIZED)
 {
    _current_operations = 1;
 }
@@ -59,14 +60,32 @@ CIMProvider *Provider::getCIMProvider()
    return _provider;
 }
 
-Provider::Status Provider::getStatus(void) const
+Provider::Status Provider::getStatus(void)
 {
+    AutoMutex lock(_statusMutex);
     return(_status);
 }
 
 ProviderModule *Provider::getModule(void) const
 {
     return(_module);
+}
+
+void Provider::set(ProviderModule *module,
+                    CIMProvider *cimProvider,
+                    CIMOMHandle *cimomHandle)
+{
+    _module = module;
+    _provider = cimProvider;
+    _cimom_handle = cimomHandle;
+}
+
+void Provider::reset()
+{
+    _module = 0;
+    _cimom_handle = 0;
+    _no_unload = 0;
+    _status = UNINITIALIZED;
 }
 
 String Provider::getName(void) const
@@ -77,7 +96,8 @@ String Provider::getName(void) const
 void Provider::initialize(CIMOMHandle & cimom)
 {
 
-    _status = INITIALIZING;
+    if(_status == UNINITIALIZED)
+    {
 
     try
     {
@@ -88,23 +108,22 @@ void Provider::initialize(CIMOMHandle & cimom)
     }
     catch(...)
     {
-	_status = UNKNOWN;
-	_module->unloadModule();
+  _current_operations = 0;
+  _current_ind_operations = 0;
 	throw;
     }
 
     _status = INITIALIZED;
     _current_operations = 0;
     _current_ind_operations = 0;
+ }
 }
 
 void Provider::terminate(void)
 {
-   _status = TERMINATING;
-
-    try
-    {
-	// yield before a potentially lengthy operation.
+  if(_status == INITIALIZED)
+  {
+// yield before a potentially lengthy operation.
 	pegasus_yield();
 	try
        {
@@ -116,19 +135,12 @@ void Provider::terminate(void)
 			       "Exception caught in ProviderFacade::Terminate for " +
 			       _name);
        }
-	// yield before a potentially lengthy operation.
-	pegasus_yield();
-
-	_module->unloadModule();
-    }
-    catch(...)
-    {
-	_status = UNKNOWN;
+	
 
 	throw;
     }
-
-    _status = TERMINATED;
+    
+    _status = UNINITIALIZED;
 
 }
 

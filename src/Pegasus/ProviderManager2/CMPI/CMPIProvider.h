@@ -26,6 +26,7 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur, schuur@de.ibm.com
+//              Dan Gorey, IBM djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -101,11 +102,8 @@ public:
 
     enum Status
     {
-        UNKNOWN,
-        INITIALIZING,
-        INITIALIZED,
-        TERMINATING,
-        TERMINATED
+        UNINITIALIZED,
+        INITIALIZED
     };
 
 public:
@@ -141,9 +139,15 @@ public:
     virtual void terminate(void);
     virtual void _terminate(void);
 
-    Status getStatus(void) const;
+    Status getStatus(void);
     String getName(void) const;
     void setResolver(CMPIResolverModule *rm) { _rm=rm; }
+
+    void set(CMPIProviderModule *&module,
+            ProviderVector base,
+            CIMOMHandle *&cimomHandle);
+
+    void reset();
 
     CMPIProviderModule *getModule(void) const;
 
@@ -182,6 +186,7 @@ private:
     CMPIResolverModule *_rm;
     Uint32 _quantum;
     AtomicInt _current_operations;
+    Mutex _statusMutex;
 //};
 
 

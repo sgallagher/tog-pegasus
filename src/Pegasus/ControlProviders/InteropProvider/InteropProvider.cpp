@@ -568,7 +568,7 @@ CIMInstance _buildInstanceCIMObjectManager()
 #endif
     instance.addProperty(
         (CIMProperty(OM_GATHERSTATISTICALDATA,
-                     BOOLEAN(gatherStatData) )));
+                     Boolean(gatherStatData) )));
     PEG_METHOD_EXIT();
     return(instance);
 }

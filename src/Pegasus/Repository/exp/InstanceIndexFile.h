@@ -92,15 +92,15 @@ public:
 
         @param path the file path of the instance index file
         @param instanceName the name of the instance
-        @param sizeOut the size of the instance record found
         @param indexOut the index of the instance record found
+        @param sizeOut the size of the instance record found
         @return true if the instance is found; false otherwise.
     */
     static Boolean lookupEntry(
 	const String& path, 
 	const CIMReference& instanceName,
-	Uint32& sizeOut,  
-	Uint32& indexOut);
+	Uint32& indexOut,
+	Uint32& sizeOut);
 
     /** Creates a new entry in the instance index file. Saves the index and
         size of the instance record passed in.  This method assumes that the
@@ -109,15 +109,15 @@ public:
 
         @param path the file path of the instance index file
         @param instanceName the name of the instance
-        @param sizeIn the size of the new instance record 
         @param indexIn the index of the new instance record
+        @param sizeIn the size of the new instance record 
         @return true if successful; false otherwise.
     */
     static Boolean createEntry(
 	const String& path, 
 	const CIMReference& instanceName,
-        Uint32 sizeIn,
-	Uint32 indexIn);
+	Uint32 indexIn,
+        Uint32 sizeIn);
 
     /** Deletes the entry with the given instance name.
         @param path path of the instance index file
@@ -133,15 +133,15 @@ public:
 
         @param path the file path of the instance index file.
         @param instanceName the name of the instance.
-        @param sizeIn the size of the modified instance record.
         @param indexIn the index of the modified instance record.
+        @param sizeIn the size of the modified instance record.
         @return true on success.
     */
     static Boolean modifyEntry(
 	const String& path, 
 	const CIMReference& instanceName,
-        Uint32 sizeIn,
-	Uint32 indexIn);
+	Uint32 indexIn,
+        Uint32 sizeIn);
 
     /** Gets the information stored in the index file for all the instances
         of the given class.  Appends the instance names, indices and sizes 
@@ -195,8 +195,8 @@ private:
     static Boolean _appendEntry(
         PEGASUS_STD(fstream)& fs,
         const CIMReference& instanceName,
-        Uint32 sizeIn,
-        Uint32 indexIn);
+        Uint32 indexIn,
+        Uint32 sizeIn);
     
     /** Increment the index file's free count; called by _markEntryFree().
 	The resulting value is left in the freeCount parameter.
@@ -218,8 +218,8 @@ private:
     static Boolean _lookupEntry(
 	PEGASUS_STD(fstream)& fs,
 	const CIMReference& instanceName,
-	Uint32& sizeOut,
 	Uint32& indexOut,
+	Uint32& sizeOut);
 	Uint32& entryOffset);
 
     /** Compact the file by removing entries which are marked as free.

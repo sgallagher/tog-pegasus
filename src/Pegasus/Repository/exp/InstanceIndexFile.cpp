@@ -88,6 +88,8 @@ Boolean _GetIntField(
     char* end = 0;
     value = strtoul(ptr, &end, base);
 
+    error = false;
+
     if (!end)
     {
         error = true;
@@ -96,7 +98,7 @@ Boolean _GetIntField(
 
     _SkipWhitespace(end);
 
-    if (!*end)
+    if (*end == '\0')
     {
         error = true;
         return false;
@@ -183,8 +185,8 @@ static Boolean _GetNextRecord(
 Boolean InstanceIndexFile::lookupEntry(
     const String& path, 
     const CIMReference& instanceName,
-    Uint32& sizeOut,
-    Uint32& indexOut)
+    Uint32& indexOut,
+    Uint32& sizeOut)
 {
     fstream fs;
 
@@ -194,7 +196,7 @@ Boolean InstanceIndexFile::lookupEntry(
     Uint32 entryOffset = 0;
 
     Boolean result = _lookupEntry(
-	fs, instanceName, sizeOut, indexOut, entryOffset);
+	fs, instanceName, indexOut, sizeOut, entryOffset);
 
     fs.close();
     return result;
@@ -203,8 +205,8 @@ Boolean InstanceIndexFile::lookupEntry(
 Boolean InstanceIndexFile::createEntry(
     const String& path, 
     const CIMReference& instanceName,
-    Uint32 sizeIn,
-    Uint32 indexIn)
+    Uint32 indexIn,
+    Uint32 sizeIn)
 {
     //
     // Open the file:
@@ -219,19 +221,19 @@ Boolean InstanceIndexFile::createEntry(
     // Return false if entry already exists:
     //
 
-    Uint32 tmpSize;
     Uint32 tmpIndex;
+    Uint32 tmpSize;
     Uint32 tmpEntryOffset;
 
     if (InstanceIndexFile::_lookupEntry(
-	fs, instanceName, tmpSize, tmpIndex, tmpEntryOffset))
+	fs, instanceName, tmpIndex, tmpSize, tmpEntryOffset))
 	return false;
 
     //
     // Append the new entry to the end of the file:
     //
 
-    if (!_appendEntry(fs, instanceName, sizeIn, indexIn))
+    if (!_appendEntry(fs, instanceName, indexIn, sizeIn))
 	return false;
 
     //
@@ -276,7 +278,6 @@ Boolean InstanceIndexFile::deleteEntry(
     //
 
     fs.close();
-    return true;
 
     //
     // Compact if max free count reached:
@@ -284,13 +285,15 @@ Boolean InstanceIndexFile::deleteEntry(
 
     if (freeCount == _MAX_FREE_COUNT)
 	_compact(path);
+
+    return true;
 }
 
 Boolean InstanceIndexFile::modifyEntry(
     const String& path, 
     const CIMReference& instanceName,
-    Uint32 sizeIn,
-    Uint32 indexIn)
+    Uint32 indexIn,
+    Uint32 sizeIn)
 {
     //
     // Open the file:
@@ -312,7 +315,7 @@ Boolean InstanceIndexFile::modifyEntry(
     // Append new entry:
     //
 
-    if (!_appendEntry(fs, instanceName, sizeIn, indexIn))
+    if (!_appendEntry(fs, instanceName, indexIn, sizeIn))
 	return false;
 
     //
@@ -471,8 +474,8 @@ Boolean InstanceIndexFile::_openFile(
 Boolean InstanceIndexFile::_appendEntry(
     PEGASUS_STD(fstream)& fs,
     const CIMReference& instanceName,
-    Uint32 sizeIn,
-    Uint32 indexIn)
+    Uint32 indexIn,
+    Uint32 sizeIn)
 {
     //
     // Position the file at the end:
@@ -506,12 +509,12 @@ Boolean InstanceIndexFile::_markEntryFree(
     // First look up the entry:
     //
 
-    Uint32 size = 0;
     Uint32 index = 0;
+    Uint32 size = 0;
     Uint32 entryOffset = 0;
 
     if (InstanceIndexFile::_lookupEntry(
-	fs, instanceName, size, index, entryOffset))
+	fs, instanceName, index, size, entryOffset))
 	return false;
 
     //
@@ -532,12 +535,12 @@ Boolean InstanceIndexFile::_markEntryFree(
 Boolean InstanceIndexFile::_lookupEntry(
     PEGASUS_STD(fstream)& fs,
     const CIMReference& instanceName,
-    Uint32& sizeOut,
     Uint32& indexOut,
+    Uint32& sizeOut)
     Uint32& entryOffset)
 {
-    sizeOut = 0;
     indexOut = 0;
+    sizeOut = 0;
     entryOffset = 0;
 
     Uint32 targetHashCode = instanceName.makeHashCode();
@@ -545,8 +548,8 @@ Boolean InstanceIndexFile::_lookupEntry(
     Uint32 freeFlag;
     Uint32 hashCode;
     const char* instanceNameTmp;
-    Uint32 size;
     Uint32 index;
+    Uint32 size;
     Boolean error;
 
     entryOffset = fs.tellp();
@@ -620,7 +623,7 @@ Boolean InstanceIndexFile::_compact(
 	}
 	else
 	{
-	    if (!_appendEntry(tmpFs, instanceName, size, index - adjust))
+	    if (!_appendEntry(tmpFs, instanceName, index - adjust, size))
 	    {
 		error = true;
 		break;

@@ -33,10 +33,10 @@
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "DynamicLibraryWindows.cpp"
+#elif defined(PEGASUS_OS_HPUX)
+# include "DynamicLibraryHPUX.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "DynamicLibraryUnix.cpp"
-#elif defined(PEGASUS_OS_TYPE_HPUX)
-# include "DynamicLibraryHPUX.cpp"
 #else
 # error "Unsupported platform"
 #endif

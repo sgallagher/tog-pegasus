@@ -30,6 +30,8 @@
 #include "DynamicLibrary.h"
 
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/Pair.h>
 
 #include <dl.h>
 
@@ -42,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 // behavior from users of the DynamicLibrary object. the goal release the library
 // only after an equal number of loads and unloads have occured.
 
-Array<Pair<LIBRARY_HANDLE, AtomicInt> > _references;
+Array<Pair<DynamicLibrary::LIBRARY_HANDLE, AtomicInt> > _references;
 
 Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 {
@@ -51,9 +53,9 @@ Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     // seek and increment
     for(Uint32 i = 0, n = _references.size(); i < n; i++)
     {
-        if(handle == _references.first)
+        if(handle == _references[i].first)
         {
-            Uint32 n = _references.second++;
+            Uint32 n = (_references[i].second+=1).value();
 
             return(n);
         }
@@ -72,9 +74,9 @@ Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     // seek and decrement
     for(Uint32 i = 0, n = _references.size(); i < n; i++)
     {
-        if(handle == _references.first)
+        if(handle == _references[i].first)
         {
-            Uint32 n = _references.second--;
+            Uint32 n = (_references[i].second-=1).value();
 
             if(n == 0)
             {
@@ -104,7 +106,7 @@ DynamicLibrary::DynamicLibrary(const DynamicLibrary & library) : _handle(0)
     }
 }
 
-DynamicLibrary::DynamicLibrary(const wstring & path) : _fileName(path), _handle(0)
+DynamicLibrary::DynamicLibrary(const String & path) : _fileName(path), _handle(0)
 {
 }
 
@@ -130,7 +132,7 @@ DynamicLibrary & DynamicLibrary::operator=(const DynamicLibrary & library)
     return(*this);
 }
 
-wstring DynamicLibrary::getFileName(void) const
+String DynamicLibrary::getFileName(void) const
 {
     return(_fileName);
 }
@@ -175,7 +177,7 @@ bool DynamicLibrary::unload(void)
         // release the library only if the handle reference count is 0
         if(_decrement_handle(_handle) == 0)
         {
-            shl_unload(reinterpret_cast<shl_t>(libraryHandle));
+            shl_unload(reinterpret_cast<shl_t>(_handle));
         }
 
         _handle = 0;
@@ -184,12 +186,12 @@ bool DynamicLibrary::unload(void)
     return(true);
 }
 
-DyanmicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle(void) const
+DynamicLibrary::LIBRARY_HANDLE DynamicLibrary::getHandle(void) const
 {
     return(_handle);
 }
 
-DyanmicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
+DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
 {
     LIBRARY_SYMBOL func = 0;
 

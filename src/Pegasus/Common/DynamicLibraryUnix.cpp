@@ -43,7 +43,7 @@
 #endif
 
 #include <iostream>
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 

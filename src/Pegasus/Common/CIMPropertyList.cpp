@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,35 +31,51 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMPropertyList::CIMPropertyList() : _isNull(true)
+class CIMPropertyListRep
 {
+public:
+    Array<String> propertyNames;
+    Boolean isNull;
+};
 
+
+CIMPropertyList::CIMPropertyList()
+{
+    _rep = new CIMPropertyListRep();
+    _rep->isNull = true;
 }
 
-CIMPropertyList::CIMPropertyList(const CIMPropertyList& x) :
-    _propertyNames(x._propertyNames), _isNull(x._isNull)
+CIMPropertyList::CIMPropertyList(const CIMPropertyList& x)
 {
-
+    _rep = new CIMPropertyListRep();
+    _rep->propertyNames = x._rep->propertyNames;
+    _rep->isNull = x._rep->isNull;
 }
 
-CIMPropertyList::CIMPropertyList(const Array<String>& propertyNames) :
-    _propertyNames(propertyNames), _isNull(false)
+CIMPropertyList::CIMPropertyList(const Array<String>& propertyNames)
 {
+    _rep = new CIMPropertyListRep();
+    _rep->propertyNames = propertyNames;
+    _rep->isNull = false;
+}
 
+CIMPropertyList::~CIMPropertyList()
+{
+    delete _rep;
 }
 
 void CIMPropertyList::set(const Array<String>& propertyNames)
 {
-    _propertyNames = propertyNames;
-    _isNull = false;
+    _rep->propertyNames = propertyNames;
+    _rep->isNull = false;
 }
 
 CIMPropertyList& CIMPropertyList::operator=(const CIMPropertyList& x)
 {
     if (&x != this)
     {
-	_propertyNames = x._propertyNames;
-	_isNull = x._isNull;
+	_rep->propertyNames = x._rep->propertyNames;
+	_rep->isNull = x._rep->isNull;
     }
 
     return *this;
@@ -67,8 +83,33 @@ CIMPropertyList& CIMPropertyList::operator=(const CIMPropertyList& x)
 
 void CIMPropertyList::clear()
 {
-    _propertyNames.clear();
-    _isNull = true;
+    _rep->propertyNames.clear();
+    _rep->isNull = true;
+}
+
+Boolean CIMPropertyList::isNull() const
+{
+    return _rep->isNull;
+}
+
+Uint32 CIMPropertyList::getNumProperties() const
+{
+    return _rep->propertyNames.size();
+}
+
+const String& CIMPropertyList::getPropertyName(Uint32 pos) const
+{
+    return _rep->propertyNames[pos];
+}
+
+const Array<String>& CIMPropertyList::getPropertyNameArray() const
+{
+    return _rep->propertyNames;
+}
+
+CIMPropertyList CIMPropertyList::clone() const
+{
+    return CIMPropertyList(*this);
 }
 
 PEGASUS_NAMESPACE_END

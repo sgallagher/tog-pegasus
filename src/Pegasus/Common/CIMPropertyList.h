@@ -36,6 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class CIMPropertyListRep;
 
 /** This class is for representing property lists in the CIM interface.
 
@@ -48,9 +49,6 @@ PEGASUS_NAMESPACE_BEGIN
 	<li>Empty (and non-null)</li>
 	<li>Null</li>
     </ul>
-
-    The isNull member is used to indicate whether the parameter list is
-    null (or not).
 
     To create a null property list use the default constructor. Otherwise 
     use the constructor which takes a property array (pass an empty property
@@ -76,6 +74,10 @@ public:
     */
     CIMPropertyList(const Array<String>& propertyNames);
 
+    /** Destructor
+    */
+    ~CIMPropertyList();
+
     /** Modifier for propertyNames (sets isNull to false).
     */
     void set(const Array<String>& propertyNames);
@@ -90,27 +92,26 @@ public:
 
     /** Returns true if the property list is null.
     */
-    Boolean isNull() const { return _isNull; }
+    Boolean isNull() const;
 
     /** Get the number of propertyNames in the list.
     */
-    Uint32 getNumProperties() const { return _propertyNames.size(); }
+    Uint32 getNumProperties() const;
 
     /** Get the property at the given position.
     */
-    const String& getPropertyName(Uint32 pos) const
-    {
-	return _propertyNames[pos];
-    }
+    const String& getPropertyName(Uint32 pos) const;
 
     /** Get an array of the property names
     */
-    const Array<String>& getPropertyNameArray() const { return _propertyNames; }
+    const Array<String>& getPropertyNameArray() const;
+
+    /** Makes a deep copy (clone) of the given object. */
+    CIMPropertyList clone() const;
 
 private:
 
-    Array<String> _propertyNames;
-    Boolean _isNull;
+    CIMPropertyListRep* _rep;
 };
 
 PEGASUS_NAMESPACE_END

@@ -54,9 +54,9 @@ CIMOperationRequestDecoder::CIMOperationRequestDecoder(
     Uint32 returnQueueId)
     : 
     _outputQueue(outputQueue),
-    _returnQueueId(returnQueueId)
+    _returnQueueId(returnQueueId),
+    _serverTerminating(false)
 {
-    _serverState = CIMServerState::getInstance();
 }
 
 CIMOperationRequestDecoder::~CIMOperationRequestDecoder()
@@ -348,9 +348,10 @@ void CIMOperationRequestDecoder::handleMethodCall(
             //
             // ATTN:  Need to define a new CIM Error.
             //
-            if (_serverState->getState() == CIMServerState::TERMINATING)
+            if (_serverTerminating)
             {
-                String description = "CIMServer is shutting down.  Request cannot be processed: ";
+                String description = "CIMServer is shutting down.  ";
+                description.append("Request cannot be processed: ");
                 description += cimMethodName;
 
                 sendError(
@@ -523,17 +524,39 @@ void CIMOperationRequestDecoder::handleMethodCall(
                 }
             }
 
-
-	    // Delegate to appropriate method to handle:
-
 	    if (cimMethodName != NULL)
 	    {
-		request = decodeInvokeMethodRequest(
-		    queueId, 
-		    parser, 
-		    messageId, 
-		    reference, 
-		    cimMethodName);
+                //
+                // if CIMOM is shutting down, return error response
+                //
+                // ATTN:  Need to define a new CIM Error.
+                //
+                if (_serverTerminating)
+                {
+                    String description = "CIMServer is shutting down.  ";
+                    description.append("Request cannot be processed: ");
+                    description += cimMethodName;
+
+                    sendMethodError(
+                        queueId,
+                        messageId,
+                        cimMethodName,
+                        CIM_ERR_FAILED,
+                        description);
+
+                    return;
+                }
+                else
+                {
+	            // Delegate to appropriate method to handle:
+
+	 	    request = decodeInvokeMethodRequest(
+		        queueId, 
+		        parser, 
+		        messageId, 
+		        reference, 
+		        cimMethodName);
+                }
 	    }
 	    else
 	    {
@@ -1543,6 +1566,11 @@ void CIMOperationRequestDecoder::sendMethodError(
 		    XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
     
     sendResponse(queueId, message);
+}
+
+void CIMOperationRequestDecoder::setServerTerminating(Boolean flag)
+{
+    _serverTerminating = flag;
 }
 
 PEGASUS_NAMESPACE_END

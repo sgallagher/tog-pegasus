@@ -275,6 +275,22 @@ void HTTPAcceptor::reopenConnectionSocket()
     }
 }
 
+/**
+ getOutstandingRequestCount - returns the number of outstanding requests.
+*/
+Uint32 HTTPAcceptor::getOutstandingRequestCount()
+{
+    if (_rep->connections.size() > 0)
+    {
+        HTTPConnection* connection = _rep->connections[0];	
+        return(connection->getRequestCount());
+    }
+    else
+    {
+        return(0);
+    }
+}
+
 void HTTPAcceptor::unbind()
 {
     if (_rep)

@@ -89,9 +89,7 @@ CIMServer::CIMServer(
 
     // -- Create a CIMServerState object:
 
-    //_serverState = new CIMServerState();
-    _serverState = CIMServerState::getInstance();
-    _serverState->setState(CIMServerState::RUNNING);
+    _serverState = new CIMServerState();
 
     // -- Create queue inter-connections:
 
@@ -104,7 +102,7 @@ CIMServer::CIMServer(
     _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
 // to test async cimom, substibute cimom for _cimOperationRequestDispatcher below
 	_cimOperationRequestDispatcher,
-// substitute the cimom as well for the _cimOperationResponseEncoder below 
+// substitute the cimom as well for the _cimOperationResponseEncoder below
 	_cimOperationResponseEncoder->getQueueId());
 
     _cimExportRequestDispatcher
@@ -139,7 +137,6 @@ CIMServer::CIMServer(
 
     /** load registered providers from repository, and creates
         provider block table
-
     */
     _cimOperationRequestDispatcher->loadRegisteredProviders();
 }
@@ -166,25 +163,45 @@ void CIMServer::runForever()
 
 void CIMServer::stopClientConnection()
 {
-    //cout << "CIMServer:  In stopServer().  " << endl;
     _acceptor->closeConnectionSocket();
 }
 
-void CIMServer::shutdownServer()
+void CIMServer::shutdown()
 {
     _dieNow = true;
 }
 
-void CIMServer::resumeServer()
+void CIMServer::resume()
 {
-    cout << "CIMServer:  In resumeServer().  " << endl;
     _acceptor->reopenConnectionSocket();
-    cout << "CIMServer:  Socket reopened.  " << endl;
 }
 
 CIMOperationRequestDispatcher* CIMServer::getDispatcher()
 {
    return _cimOperationRequestDispatcher;
+}
+
+void CIMServer::setState(Uint32 state)
+{
+    _serverState->setState(state);
+   
+    if (state == CIMServerState::TERMINATING)
+    {
+        // tell decoder that CIMServer is terminating
+        _cimOperationRequestDecoder->setServerTerminating(true);
+        _cimExportRequestDecoder->setServerTerminating(true);
+    }
+    else
+    {
+        // tell decoder that CIMServer is not terminating
+        _cimOperationRequestDecoder->setServerTerminating(false);
+        _cimExportRequestDecoder->setServerTerminating(false);
+    }
+}
+
+Uint32 CIMServer::getOutstandingRequestCount()
+{
+    return (_acceptor->getOutstandingRequestCount());
 }
 
 PEGASUS_NAMESPACE_END

@@ -92,6 +92,10 @@ public:
     /** Destroys all the connections created by this acceptor. */
     void destroyConnections();
 
+    /** Returns the number of outstanding requests
+    */
+    Uint32 getOutstandingRequestCount();
+
 private:
 
     void _acceptConnection();

@@ -65,7 +65,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // In order to determine if the CIMServer is servicing any CIM requests at
 // the time of a shutdown, CIMServer keeps track of the number of CIM requests
-// that are outstanding.  This request count is also kept in the CIMServerState
+// that are outstanding.  This request count is kept in the HTTPConnection
 // object.  The request count is incremented everytime a request comes through 
 // a client connection, and is decremented everytime a response is sent back
 // to the client.  
@@ -104,7 +104,6 @@ private:
     static ShutdownService* _instance;
 
     CIMServer*        _cimserver;
-    CIMServerState*   _serverState;
     ProviderManager*  _providerManager;
 
     Boolean    _forceShutdown;
@@ -130,7 +129,7 @@ private:
 
     void _shutdownProviders();
 
-    void _getTimeoutValues(String timeoutParmValue);
+    void _initTimeoutValues(String timeoutParmValue);
 
 };
 

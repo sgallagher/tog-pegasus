@@ -49,9 +49,9 @@ CIMExportRequestDecoder::CIMExportRequestDecoder(
     Uint32 returnQueueId)
     : 
     _outputQueue(outputQueue),
-    _returnQueueId(returnQueueId)
+    _returnQueueId(returnQueueId),
+    _serverTerminating(false)
 {
-    _serverState = CIMServerState::getInstance();
 }
 
 CIMExportRequestDecoder::~CIMExportRequestDecoder()
@@ -318,9 +318,10 @@ void CIMExportRequestDecoder::handleMethodRequest(
             //
             // ATTN:  need to define a new CIM Error.
             //
-            if (_serverState->getState() == CIMServerState::TERMINATING)
+            if (_serverTerminating)
             {
-                String description = "CIMServer is shutting down.  Request cannot be processed: ";
+                String description = "CIMServer is shutting down.  ";
+                description.append("Request cannot be processed: ");
                 description += cimMethodName;
 
                 sendError(
@@ -407,6 +408,11 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
 	QueueIdStack(queueId, _returnQueueId));
     
     return(request);
+}
+
+void CIMExportRequestDecoder::setServerTerminating(Boolean flag)
+{
+    _serverTerminating = flag;
 }
 
 PEGASUS_NAMESPACE_END

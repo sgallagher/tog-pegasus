@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Server/ShutdownExceptions.h>
+#include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Server/ShutdownService.h>
 
 PEGASUS_USING_STD;
@@ -97,14 +98,9 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     _providerManager = _cimserver->getDispatcher()->getProviderManager();
 
     //
-    // get CIMServerState object
-    //
-    _serverState = CIMServerState::getInstance();
-
-    //
     // set CIMServer state to TERMINATING
     //
-    _serverState->setState(CIMServerState::TERMINATING);
+    _cimserver->setState(CIMServerState::TERMINATING);
 
     // 
     // Tell the CIMServer to stop accepting new client connection requests.
@@ -114,7 +110,7 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     //
     // get shutdown timeout values
     //
-    _getTimeoutValues(timeout);
+    _initTimeoutValues(timeout);
 
     // 
     // Determine if there are any outstanding CIM operation requests
@@ -126,12 +122,12 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     Uint32 maxWaitTime = _operationTimeout; // maximum wait time in milliseconds
     Uint32 waitTime = 1000;                 // one second wait interval
 
-    Uint32 requestCount = _serverState->getRequestCount(); 
+    Uint32 requestCount = _cimserver->getOutstandingRequestCount(); 
 
     while ( requestCount > 1 && maxWaitTime > 0)
     {
          System::sleep(waitTime);
-         requestCount = _serverState->getRequestCount(); 
+         requestCount = _cimserver->getOutstandingRequestCount(); 
          maxWaitTime = maxWaitTime - waitTime;
     }
 
@@ -164,7 +160,7 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
 /*  private methods                                       */
 /**********************************************************/
 
-void ShutdownService::_getTimeoutValues(String timeoutParmValue)
+void ShutdownService::_initTimeoutValues(String timeoutParmValue)
 {
     //
     // get an instance of the ConfigManager
@@ -217,7 +213,7 @@ void ShutdownService::_shutdownCIMServer()
     // 
     // Tell CIMServer to shutdown completely.
     //
-    _cimserver->shutdownServer();
+    _cimserver->shutdown();
 
     return;
 }
@@ -229,7 +225,7 @@ void ShutdownService::_resumeCIMServer()
     //
     try
     {
-        _cimserver->resumeServer();
+        _cimserver->resume();
     }
     catch (Exception& e)
     {
@@ -239,7 +235,7 @@ void ShutdownService::_resumeCIMServer()
     //
     // reset CIMServer state to RUNNING
     //
-    _serverState->setState(CIMServerState::RUNNING);
+    _cimserver->setState(CIMServerState::RUNNING);
 
     //
     // now inform the client that CIM server has resumed.
@@ -249,14 +245,12 @@ void ShutdownService::_resumeCIMServer()
 
 void ShutdownService::_shutdownSubscriptionService()
 {
-    String subscriptionProviderClassName = "IndicationSubscription";
     String subscriptionProviderName = "IndicationSubscription";
 
     //
     // find the Subscription Service provider and shut it down
     //
-    _providerManager->shutdownProvider(subscriptionProviderName,
-                                       subscriptionProviderClassName);
+    _providerManager->stopProvider(subscriptionProviderName);
 
     return;
 }

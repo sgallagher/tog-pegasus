@@ -50,6 +50,10 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// initialize the request count
+
+AtomicInt HTTPConnection::_requestCount = 0;
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Local routines:
@@ -107,19 +111,6 @@ HTTPConnection::HTTPConnection(
     //Socket::disableBlocking(_socket);
     _socket->disableBlocking();
     _authInfo = new AuthenticationInfo();
-
-    //
-    // if ownerMessageQueue is HTTPAcceptor, get CIMServerState instance
-    //
-    HTTPAcceptor* acceptor = dynamic_cast<HTTPAcceptor*>(_ownerMessageQueue);
-    if (acceptor)
-    {
-        _serverState = CIMServerState::getInstance();
-    }
-    else
-    {
-        _serverState = NULL;
-    }
 }
 
 HTTPConnection::~HTTPConnection()
@@ -187,13 +178,7 @@ void HTTPConnection::handleEnqueue()
             //
             // decrement request count
             //
-            HTTPAcceptor* acceptor = 
-                 dynamic_cast<HTTPAcceptor*>(_ownerMessageQueue);
-
-            if (acceptor)
-            {
-                _serverState->decrementRequestCount();
-            }
+            _requestCount--;
 
             _socket->disableBlocking();
 	}
@@ -338,14 +323,9 @@ void HTTPConnection::_handleReadEvent()
         message->authInfo = _authInfo;
 
         //
-        // increment request count
+        // increment request count 
         //
-        HTTPAcceptor* acceptor = dynamic_cast<HTTPAcceptor*>(_ownerMessageQueue);
-
-        if (acceptor)
-        {
-            _serverState->incrementRequestCount();
-        }
+        _requestCount++;
 
 	_outputMessageQueue->enqueue(message);
 	_clearIncoming();
@@ -357,14 +337,16 @@ void HTTPConnection::_handleReadEvent()
             //
             // decrement request count
             //
-            if (acceptor)
-            {
-                _serverState->decrementRequestCount();
-            }
+            _requestCount--;
 
 	    return;
 	}
     }
+}
+
+Uint32 HTTPConnection::getRequestCount()
+{
+    return(_requestCount.value());
 }
 
 PEGASUS_NAMESPACE_END

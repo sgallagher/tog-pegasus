@@ -61,8 +61,6 @@ public:
 	Boolean isProviderBlocked(const String & providerName);
 	void createProviderBlockTable(Array<CIMNamedInstance> & instances);
 
-        void shutdownProvider(const String & providerName, const String & className);
-
         void shutdownAllProviders(const String & providerName, const String & className);
 
 protected:

@@ -36,7 +36,6 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/CIMServerState.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -222,6 +221,11 @@ public:
 	CIMStatusCode code,
 	const String& description);
 
+    /** Sets the flag to indicate whether or not the CIMServer is 
+        shutting down.
+    */
+    void setServerTerminating(Boolean flag);
+
 private:
 
     MessageQueue* _outputQueue;
@@ -229,7 +233,8 @@ private:
     // Queue where responses should be enqueued.
     Uint32 _returnQueueId;
 
-    CIMServerState* _serverState;
+    // Flag to indicate whether or not the CIMServer is shutting down.
+    Boolean _serverTerminating;
 };
 
 PEGASUS_NAMESPACE_END

@@ -43,7 +43,6 @@
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
-#include <Pegasus/Common/CIMServerState.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -90,6 +89,11 @@ public:
     /** Return socket this connection is using. */
     Sint32 getSocket() { return _socket->getSocket();}
 
+    /** Return the number of outstanding requests for all HTTPConnection 
+        instances.
+    */
+    Uint32 getRequestCount();
+
 private:
 
     void _clearIncoming();
@@ -101,7 +105,6 @@ private:
     void _handleReadEvent();
 
     Monitor* _monitor;
-    CIMServerState*  _serverState;
 
     //Sint32 _socket;
     MP_Socket* _socket;
@@ -112,6 +115,8 @@ private:
     Sint32 _contentLength;
     Array<Sint8> _incomingBuffer;
     AuthenticationInfo* _authInfo;
+
+    static AtomicInt _requestCount;
 };
 
 PEGASUS_NAMESPACE_END

@@ -34,7 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CIMServerState.h>
+#include <Pegasus/Server/CIMServerState.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -90,7 +90,7 @@ public:
         has been stopped and is ready to be shutdown.  Next time runForever() 
         is called, the server shuts down.
     */
-    void shutdownServer();
+    void shutdown();
 
     /** Return true if the server has shutdown, false otherwise.
     */
@@ -98,9 +98,14 @@ public:
 
     /** Call to resume the sever. 
     */
-    void resumeServer();
+    void resume();
 
-    Uint32 getRequestCount();
+    /** Call to set the CIMServer state.  Also inform the appropriate 
+        message queues about the current state of the CIMServer.
+    */
+    void setState(Uint32 state);
+
+    Uint32 getOutstandingRequestCount();
 
     CIMOperationRequestDispatcher* getDispatcher();
 

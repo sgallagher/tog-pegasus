@@ -206,22 +206,6 @@ Uint32 ProviderManager::stopProvider(const String & providerName)
 	return (0);
 }
     
-void ProviderManager::shutdownProvider(const String & providerName, const String
- & className)
-{
-    // check list for requested provider
-    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
-    {
-        if(String::equalNoCase(providerName, _providers[i].getProviderName()) &&
-           String::equalNoCase(className, _providers[i].getClassName()))
-        {
-            _providers[i].getProvider()->terminate();
-        }
-    }
-
-    return;
-}
-
 void ProviderManager::shutdownAllProviders(const String & providerName, const String & className)
 {
     //

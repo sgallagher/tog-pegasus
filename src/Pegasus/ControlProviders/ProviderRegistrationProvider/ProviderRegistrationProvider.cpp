@@ -481,10 +481,12 @@ void ProviderRegistrationProvider::createInstance(
         String ifcVersionString;
         instanceObject.getProperty(ifcVersionIndex).getValue().
             get(ifcVersionString);
-        if ((ifcVersionString != "2.1.0") &&
-            (ifcVersionString != "2.2.0") &&
-	    (ifcVersionString != "2.3.0") &&
-	    (ifcVersionString != "2.4.0"))
+        if ((ifcTypeString == "CMPI" &&
+             ifcVersionString != "2.0.0") ||
+            (ifcTypeString == "C++Default" &&
+             ifcVersionString != "2.1.0" &&
+             ifcVersionString != "2.2.0" &&
+	     ifcVersionString != "2.3.0"))
 	{
 		//l10n 485
 	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,

@@ -194,41 +194,90 @@ void HTTPConnection::handleEnqueue(Message *message)
 	 HTTPMessage* httpMessage = (HTTPMessage*)message;
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-         // Note: There is still work to do in this area.  This is probably not functional.
+         // TODO::KERBEROS complete and verify code
          CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
-         char* outmessage = NULL;
-         Uint32   outlength = 0;
-         if ((int)httpMessage->authInfo == 99)
+         // Determine if message came from CIMOperationResponseEncoder and Kerberos is being used.
+         if ((int)httpMessage->authInfo == 99 && sa)
          {
-             if ( sa )
-             {
-                 if (sa->getClientAuthenticated())
-                 { 
-	           if (sa->wrap_message((const char*)httpMessage->message.getData(),
-                                        httpMessage->message.size(),
-                                        outmessage,
-                                        outlength))
-                   {
-                        // build a bad request
-                        Array<Sint8> statusMsg;
-                        statusMsg = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
-                   }
-                 }
-                 else
+             char* outmessage = NULL;
+             Uint64   outlength = 0;
+             Array<Sint8> final_buffer;
+             final_buffer.clear();
+             Array<Sint8> header_buffer;
+             header_buffer.clear();
+             Array<Sint8> unwrapped_content_buffer;
+             unwrapped_content_buffer.clear();
+             if (sa->getClientAuthenticated())
+             { 
+                 // TODO::KERBEROS Question - will parse be able to distinguish headers from 
+                 //     contents when the contents is wrapped??? I am thinking we are okay
+                 //     because the code breaks out of the loop as soon as it finds the 
+                 //     double separator that terminates the headers.
+                 // Parse the HTTP message:
+                 String startLine;
+                 Array<HTTPHeader> headers;
+                 Uint32 contentLength;
+                 httpMessage->parse(startLine, headers, contentLength);
+
+                 for (Uint64 i = 0; i < (httpMessage->message.size()-contentLength); i++)
                  {
+                     header_buffer.append(httpMessage->message[i]);
+                 }
+
+                 for (Uint64 i = (httpMessage->message.size()-contentLength); i < httpMessage->message.size(); i++)
+                 {
+                      unwrapped_content_buffer.append(outmessage[i]);
+                 }
+
+                 if (sa->wrap_message((const char*)unwrapped_content_buffer.getData(),
+                                      (Uint64)unwrapped_content_buffer.size(),
+                                       outmessage,
+                                       outlength))
+                 {
+                         // build a bad request
+                         final_buffer = XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
+                 }
+             }
+             //  Note:  wrap_message can result in the client no longer being authenticated so the 
+             //  flag needs to be checked.  
+             if (!sa->getClientAuthenticated())
+             {
+                  if (final_buffer.size() == 0)
+                  {
                       // set authenticated flag in _authInfo to not authenticated because the
                       // wrap resulted in an expired token or credential.
                       _authInfo->setAuthStatus(AuthenticationInfoRep::CHALLENGE_SENT);
                       // build a 401 response 
-                      Array<Sint8> statusMsg;
                       // do we need to add a token here or just restart the negotiate again???
                       // authResponse.append(sa->getServerToken());
-                      XmlWriter::appendUnauthorizedResponseHeader(statusMsg, KERBEROS_CHALLENGE_HEADER);
-                 }
-             }           
+                      XmlWriter::appendUnauthorizedResponseHeader(final_buffer, KERBEROS_CHALLENGE_HEADER);
+                  }
+             }
+             else
+             {
+                  if (final_buffer.size() == 0 && outlength > 0)
+                  {
+                      Array<Sint8> wrapped_content_buffer;
+                      wrapped_content_buffer.clear();
+                      for (Uint64 i = 0; i < outlength; i++)
+                      {
+                          wrapped_content_buffer.append(outmessage[i]);
+                      }
+                      final_buffer.appendArray(header_buffer);
+                      final_buffer.appendArray(wrapped_content_buffer);
+                  }
+             }
+
+             if (outmessage)
+                 delete [] outmessage;  // outmessage is no longer needed
+
+             if (final_buffer.size())
+             {
+                 httpMessage->message.clear();
+                 httpMessage->message = final_buffer;
+             }
          }
 #endif
-
 
 	 // ATTN: convert over to asynchronous write scheme:
 
@@ -236,27 +285,8 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 	 _socket->enableBlocking();
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-         // Note: There is still work to do in this area.  This is probably not functional.
-         // need to convert outmessage to an Array<Sin8>&
-         // what to do about the const aspect of buffer???
-         Array<Sint8> buffer;
-         if (sa)
-         {
-             for (Uint32 i = 0; i <= outlength; i++)
-             { 
-                buffer[i] = outmessage[i];
-             }
-         }
-         else
-         {
-	     buffer = httpMessage->message;
-         }
-         if (outmessage)
-             delete [] outmessage;
-#else
 	 const Array<Sint8>& buffer = httpMessage->message;
-#endif
+ 
 	 const Uint32 CHUNK_SIZE = 16 * 1024;
 
 	 SignalHandler::ignore(PEGASUS_SIGPIPE);

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.h,v $
+// Revision 1.6  2001/04/14 07:35:04  mike
+// Added config file loading to OptionManager
+//
 // Revision 1.5  2001/04/14 06:41:17  mike
 // New
 //
@@ -265,6 +268,10 @@ public:
     */
     const Option* lookupOption(const String& name) const;
 
+    /** Lookup value of an option.
+    */
+    Boolean lookupValue(const String& name, String& value) const;
+
     /** Print all the options. */
     void print() const;
 
@@ -274,6 +281,11 @@ private:
 	@return 0 if no such option.
     */
     Option* _lookupOptionByCommandLineOptionName(const String& name);
+
+    /** Lookup the option by its configFileOptionName.
+	@return 0 if no such option.
+    */
+    Option* _lookupOptionByConfigFileOptionName(const String& name);
 
     Array<Option*> _options;
 };
@@ -324,7 +336,7 @@ public:
 	@param environmentVariableName - name of the corresponding environment
 	    variable (which may be different from the option name).
 
-	@param configFileVariableName - name of the corresponding variable
+	@param configFileOptionName - name of the corresponding variable
 	    in the config file (which may be different from the option name).
 
 	@param commandLineOptionName - name of the corresponding command line
@@ -337,7 +349,7 @@ public:
         Type type,
         const StringArray& domain = StringArray(),
         const String& environmentVariableName = String(),
-        const String& configFileVariableName = String(),
+        const String& configFileOptionName = String(),
         const String& commandLineOptionName = String());
 
     Option(const Option& x);
@@ -431,15 +443,15 @@ public:
     }
 
     /** Accessor */
-    const String& getConfigFileVariableName() const
+    const String& getConfigFileOptionName() const
     {
-        return _configFileVariableName;
+        return _configFileOptionName;
     }
 
     /** Modifier */
-    void setConfigFileVariableName(const String& configFileVariableName)
+    void setConfigFileOptionName(const String& configFileOptionName)
     {
-        _configFileVariableName = configFileVariableName;
+        _configFileOptionName = configFileOptionName;
     }
 
     /** Accessor */
@@ -476,7 +488,7 @@ private:
     Type _type;
     StringArray _domain;
     String _environmentVariableName;
-    String _configFileVariableName;
+    String _configFileOptionName;
     String _commandLineOptionName;
     Boolean _foundValue;
 };
@@ -529,7 +541,7 @@ struct OptionRow
     char** domain;
     Uint32 domainSize;
     const char* environmentVariableName;
-    const char* configFileVariableName;
+    const char* configFileOptionName;
     const char* commandLineOptionName;
 };
 
@@ -558,6 +570,26 @@ public:
 
     DuplicateOption(const String& name)
 	: Exception("Duplicate option: " + name) { }
+};
+
+/** Exception class */
+class ConfigFileSyntaxError : public Exception
+{
+public:
+
+    ConfigFileSyntaxError(const String& file, Uint32 line)
+	: Exception(_formatMessage(file, line)) { }
+
+    static String _formatMessage(const String& file, Uint32 line);
+};
+
+/** Exception class */
+class UnrecognizedConfigFileOption : public Exception
+{
+public:
+
+    UnrecognizedConfigFileOption(const String& name)
+	: Exception("Unrecognized config file option: " + name) { }
 };
 
 PEGASUS_NAMESPACE_END

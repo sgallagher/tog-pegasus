@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: OptionManager.cpp,v $
+// Revision 1.6  2001/04/14 07:35:04  mike
+// Added config file loading to OptionManager
+//
 // Revision 1.5  2001/04/14 06:41:17  mike
 // New
 //
@@ -42,7 +45,9 @@
 //END_HISTORY
 
 #include <cstdlib>
+#include <fstream>
 #include "OptionManager.h"
+#include "Destroyer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -123,12 +128,12 @@ void OptionManager::registerOptions(OptionRow* options, Uint32 numOptions)
 	if (options[i].environmentVariableName)
 	    environmentVariableName = options[i].environmentVariableName;
 
-	// Get configFileVariableName:
+	// Get configFileOptionName:
 
-	String configFileVariableName;
+	String configFileOptionName;
 
-	if (options[i].configFileVariableName)
-	    configFileVariableName = options[i].configFileVariableName;
+	if (options[i].configFileOptionName)
+	    configFileOptionName = options[i].configFileOptionName;
 
 	// Get commandLineOptionName:
 
@@ -146,7 +151,7 @@ void OptionManager::registerOptions(OptionRow* options, Uint32 numOptions)
 	    type,
 	    domain,
 	    environmentVariableName,
-	    configFileVariableName,
+	    configFileOptionName,
 	    commandLineOptionName);
 
 	registerOption(option);
@@ -219,7 +224,144 @@ void OptionManager::mergeEnvironment()
 
 void OptionManager::mergeFile(const String& fileName)
 {
-    // ATTN-A: Implement
+    // Open the input file:
+
+    ArrayDestroyer<char> p(fileName.allocateCString());
+    ifstream is(p.getPointer());
+
+    if (!is)
+	throw NoSuchFile(fileName);
+
+    // For each line of the file:
+
+    String line;
+
+    for (Uint32 lineNumber = 1; GetLine(is, line); lineNumber++)
+    {
+	// -- Get the identifier and value:
+
+	if (line[0] == '#')
+	    continue;
+
+	// Skip leading whitespace:
+
+	const Char16* p = line.getData();
+
+	while (*p && isspace(*p))
+	    p++;
+
+	if (!*p)
+	    continue;
+
+	if (*p == '#')
+	    continue;
+
+	// Get the identifier:
+
+	String ident;
+
+	if (!(isalpha(*p) || *p == '_'))
+	    throw ConfigFileSyntaxError(fileName, lineNumber);
+
+	ident += *p++;
+
+	while (isalnum(*p) || *p == '_')
+	    ident += *p++;
+
+	// Skip whitespace after identifier:
+
+	while (*p && isspace(*p))
+	    p++;
+
+	// Expect an equal sign:
+
+	if (*p != '=')
+	    throw ConfigFileSyntaxError(fileName, lineNumber);
+	p++;
+
+	// Skip whitespace after equal sign:
+
+	while (*p && isspace(*p))
+	    p++;
+
+	// Expect open quote:
+
+	if (*p != '"')
+	    throw ConfigFileSyntaxError(fileName, lineNumber);
+	p++;
+
+	// Get the value:
+
+	String value;
+
+	while (*p && *p != '"')
+	{
+	    if (*p == '\\')
+	    {
+		p++;
+
+		switch (*p)
+		{
+		    case 'n': 
+			value += '\n'; 
+			break;
+		    
+		    case 'r':
+			value += '\r';
+			break;
+
+		    case 't':
+			value += '\t';
+			break;
+
+		    case 'f':
+			value += '\f';
+			break;
+
+		    case '"':
+			value += '"';
+			break;
+
+		    case '\0':
+			throw ConfigFileSyntaxError(fileName, lineNumber);
+			break;
+
+		    default:
+			value += *p;
+		}
+		p++;
+	    }
+	    else
+		value += *p++;
+	}
+
+
+	// Expect close quote:
+
+	if (*p != '"')
+	    throw ConfigFileSyntaxError(fileName, lineNumber);
+	p++;
+
+	// Skip whitespace through end of line:
+
+	while (*p && isspace(*p))
+	    p++;
+
+	if (*p)
+	    throw ConfigFileSyntaxError(fileName, lineNumber);
+
+	// Now that we have the identifier and value, merge it:
+
+	Option* option = _lookupOptionByConfigFileOptionName(ident);
+
+	if (!option)
+	    throw UnrecognizedConfigFileOption(ident);
+
+	if (!option->isValid(value))
+	    throw InvalidOptionValue(ident, value);
+
+	option->setValue(value);
+    }
 }
 
 void OptionManager::checkRequiredOptions() const
@@ -238,11 +380,33 @@ const Option* OptionManager::lookupOption(const String& name) const
     return 0;
 }
 
+Boolean OptionManager::lookupValue(const String& name, String& value) const
+{
+    const Option* option = lookupOption(name);
+
+    if (!option)
+	return false;
+
+    value = option->getValue();
+    return true;
+}
+
 Option* OptionManager::_lookupOptionByCommandLineOptionName(const String& name)
 {
     for (Uint32 i = 0; i < _options.getSize(); i++)
     {
 	if (_options[i]->getCommandLineOptionName() == name)
+	    return _options[i];
+    }
+
+    return 0;
+}
+
+Option* OptionManager::_lookupOptionByConfigFileOptionName(const String& name)
+{
+    for (Uint32 i = 0; i < _options.getSize(); i++)
+    {
+	if (_options[i]->getConfigFileOptionName() == name)
 	    return _options[i];
     }
 
@@ -273,7 +437,7 @@ Option::Option(
     Type type,
     const StringArray& domain,
     const String& environmentVariableName,
-    const String& configFileVariableName,
+    const String& configFileOptionName,
     const String& commandLineOptionName)
     :
     _optionName(optionName),
@@ -283,7 +447,7 @@ Option::Option(
     _type(type),
     _domain(domain),
     _environmentVariableName(environmentVariableName),
-    _configFileVariableName(configFileVariableName),
+    _configFileOptionName(configFileOptionName),
     _commandLineOptionName(commandLineOptionName),
     _foundValue(false)
 {
@@ -300,7 +464,7 @@ Option::Option(const Option& x)
     _type(x._type),
     _domain(x._domain),
     _environmentVariableName(x._environmentVariableName),
-    _configFileVariableName(x._configFileVariableName),
+    _configFileOptionName(x._configFileOptionName),
     _commandLineOptionName(x._commandLineOptionName)
 {
 }
@@ -321,7 +485,7 @@ Option& Option::operator=(const Option& x)
 	_type = x._type;
 	_domain = x._domain;
 	_environmentVariableName = x._environmentVariableName;
-	_configFileVariableName = x._configFileVariableName;
+	_configFileOptionName = x._configFileOptionName;
 	_commandLineOptionName = x._commandLineOptionName;
     }
     return *this;
@@ -388,6 +552,26 @@ Boolean Option::isValid(const String& value) const
 
     // Unreachable!
     return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// ConfigFileSyntaxError
+//
+////////////////////////////////////////////////////////////////////////////////
+
+String ConfigFileSyntaxError::_formatMessage(
+    const String& file, Uint32 line)
+{
+    char buffer[32];
+    sprintf(buffer, "%d", line);
+
+    String result = "Syntax error in configuration file: ";
+    result += file;
+    result += "(";
+    result += buffer;
+    result += ")";
+    return result;
 }
 
 PEGASUS_NAMESPACE_END

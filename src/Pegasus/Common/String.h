@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.16  2001/04/14 07:35:05  mike
+// Added config file loading to OptionManager
+//
 // Revision 1.15  2001/04/11 19:53:22  mike
 // More porting
 //
@@ -529,6 +532,10 @@ PEGASUS_COMMON_LINKAGE String ToLower(const String& str);
 /** Compare two strings but ignore any case differences.
 */
 PEGASUS_COMMON_LINKAGE int CompareIgnoreCase(const char* s1, const char* s2);
+
+/** Get the next line from the input file.
+*/
+PEGASUS_COMMON_LINKAGE Boolean GetLine(std::istream& is, String& line);
 
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.11  2001/04/14 07:35:05  mike
+// Added config file loading to OptionManager
+//
 // Revision 1.10  2001/04/11 19:53:22  mike
 // More porting
 //
@@ -445,6 +448,26 @@ int CompareIgnoreCase(const char* s1, const char* s2)
 	return 1;
 
     return 0;
+}
+
+Boolean GetLine(istream& is, String& line)
+{
+    line.clear();
+
+    Boolean gotChar = false;
+    char c;
+
+    while (is.get(c))
+    {
+	gotChar = true;
+
+	if (c == '\n')
+	    break;
+
+	line.append(c);
+    }
+
+    return gotChar;
 }
 
 PEGASUS_NAMESPACE_END

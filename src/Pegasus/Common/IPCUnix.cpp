@@ -60,7 +60,9 @@ Mutex::Mutex()
 Mutex::Mutex(int mutex_type) 
 {
    pthread_mutexattr_init(&_mutex.mutatt);
+#if !defined(SUNOS_5_6)
    pthread_mutexattr_settype(&_mutex.mutatt, mutex_type);
+#endif
    pthread_mutex_init(&_mutex.mut,&_mutex.mutatt);
    _mutex.owner = 0;
 }

@@ -437,7 +437,7 @@ int bsd_socket_rep::getpeername (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *le
 
 int bsd_socket_rep::send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 {
-   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
+   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400) || defined(SUNOS_5_6)
    int ccode = ::send(_socket, (char *)buffer, size, flags);
    #else
    int ccode = ::send(_socket, buffer, size, flags);
@@ -451,7 +451,7 @@ int bsd_socket_rep::send (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 
 int bsd_socket_rep::recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 {
-   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
+   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400) || defined(SUNOS_5_6)
    int ccode = ::recv(_socket, (char *)buffer, size, flags);
    #else
    int ccode = ::recv(_socket, buffer, size, flags);
@@ -464,7 +464,7 @@ int bsd_socket_rep::recv (void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags)
 
 int bsd_socket_rep::sendto(void *buffer, PEGASUS_SOCKLEN_SIZE size, int flags, struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
-   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
+   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400) || defined(SUNOS_5_6)
    int ccode = ::sendto(_socket, (char *)buffer, size, flags, addr, length);
    #else
    int ccode = ::sendto(_socket, buffer, size, flags, addr, length);
@@ -482,7 +482,7 @@ int bsd_socket_rep::recvfrom(void *buffer,
 			     struct sockaddr *addr,
 			     PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
-   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
+   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400) || defined(SUNOS_5_6)
    int ccode = ::recvfrom(_socket, (char *)buffer, size, flags, addr, length_ptr);
    #else
    int ccode = ::recvfrom(_socket, buffer, size, flags, addr, length_ptr);
@@ -495,7 +495,7 @@ int bsd_socket_rep::recvfrom(void *buffer,
 
 int bsd_socket_rep::setsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE optlen)
 {
-   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
+   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400) || defined(SUNOS_5_6)
    int ccode = ::setsockopt(_socket, level, optname, (char *)optval, optlen);
    #else
    int ccode = ::setsockopt(_socket, level, optname, optval, optlen);
@@ -509,7 +509,7 @@ int bsd_socket_rep::setsockopt (int level, int optname, void *optval, PEGASUS_SO
 
 int bsd_socket_rep::getsockopt (int level, int optname, void *optval, PEGASUS_SOCKLEN_SIZE *optlen_ptr)
 {
-   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
+   #if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400) || defined(SUNOS_5_6)
    int ccode = ::getsockopt(_socket, level, optname, (char *)optval, optlen_ptr);
    #else
    int ccode = ::getsockopt(_socket, level, optname, optval, optlen_ptr);

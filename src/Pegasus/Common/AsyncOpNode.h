@@ -199,7 +199,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       // << Fri Jul 19 08:41:45 2002 mdd >>
       // debugging utility
       // careful - wipes out current value of *buf
-      void print_to_buffer(Sint8 **buf);
+      void print_to_buffer(char **buf);
       String print_to_string(void);
 };
 

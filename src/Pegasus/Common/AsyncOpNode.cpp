@@ -28,6 +28,8 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:  Amit K Arora, IBM (amita@in.ibm.com) for Bug#1188
+//               David Dillard, VERITAS Software Corp.
+//                   (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -148,7 +150,7 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
    return;
 }
 
-void AsyncOpNode::print_to_buffer(Sint8 **buf)
+void AsyncOpNode::print_to_buffer(char **buf)
 {
    if(buf == NULL)
       return;
@@ -184,7 +186,7 @@ String AsyncOpNode::print_to_string(void)
 	    _callback_ptr, _callback_parameter, _callback_handle, _callback_notify,
 	    _callback_request_q, _service_ptr, _thread_ptr);
 #else
-   work_buf[0] = (char)0;
+   work_buf[0] = '\0';
 #endif
     
    return String(work_buf);

@@ -89,10 +89,10 @@ public:
     @param
     @return  String with the endoced data
     */
-    static Array<Sint8> encode(const Array<Uint8>& vby);
+    static Array<char> encode(const Array<char>& vby);
     /**
     */
-    static Array<Uint8> decode(const Array<Sint8>& str);
+    static Array<char> decode(const Array<char>& str);
 
 private:
     static char _Encode(Uint8 uc);

@@ -50,7 +50,7 @@ class PEGASUS_COMMON_LINKAGE CIMMessageDeserializer
 {
 public:
 
-    static CIMMessage* deserialize(Sint8* buffer);
+    static CIMMessage* deserialize(char* buffer);
 
 private:
 

@@ -348,7 +348,7 @@ WbemExecCommand::WbemExecCommand ()
  */
 void WbemExecCommand::_printContent(
     ostream& oStream,
-    Array<Sint8>& responseMessage,
+    Array<char>& responseMessage,
     Uint32 contentOffset)
 {
     //
@@ -361,7 +361,7 @@ void WbemExecCommand::_printContent(
         //
         //  Print XML response to the ostream
         //
-        ((Array <Sint8>&) responseMessage).append ('\0');
+        ((Array<char>&) responseMessage).append ('\0');
         const char* content = responseMessage.getData () + contentOffset;
         XmlWriter::indentedPrint (oStream, content, 0);
       }
@@ -371,7 +371,7 @@ void WbemExecCommand::_printContent(
   
     Process HTTP response message from cimserver
   
-    @param   httpResponse        Array <Sint8> reply from cimserver
+    @param   httpResponse        Array<char> reply from cimserver
 
     @param   ostream             the ostream to which output should be written
 
@@ -381,7 +381,7 @@ void WbemExecCommand::_printContent(
     @return  false = client response has been received
   
  */
-void WbemExecCommand::_handleResponse( Array <Sint8>      responseMessage,
+void WbemExecCommand::_handleResponse( Array<char>&      responseMessage,
                                           ostream&           oStream,
                                           ostream&           eStream
                                        )
@@ -462,11 +462,11 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
                                     ostream& errPrintWriter) 
 {
     Uint32                       size;
-    Array <Sint8>                content;
-    Array <Sint8>                contentCopy;
-    Array <Sint8>                message;
-    Array <Sint8>                httpHeaders;
-    Array <Sint8>                httpResponse;
+    Array<char>                    content;
+    Array<char>                    contentCopy;
+    Array<char>                    message;
+    Array<char>                    httpHeaders;
+    Array<char>                    httpResponse;
     WbemExecClient client;
 
     client.setTimeout( _timeout );

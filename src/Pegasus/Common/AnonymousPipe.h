@@ -28,7 +28,8 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +109,7 @@ public:
                  STATUS_ERROR     on error;
     */
     Status writeBuffer (
-        const char * buffer,
+        const void * buffer,
         Uint32 bytesToWrite);
 
     /**
@@ -137,7 +138,7 @@ public:
                  STATUS_INTERRUPT on interrupt
     */
     Status readBuffer (
-        char * buffer,
+        void * buffer,
         Uint32 bytesToRead);
 
     /**

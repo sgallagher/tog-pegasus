@@ -39,7 +39,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMMessage* CIMMessageDeserializer::deserialize(Sint8* buffer)
+CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
 {
     if (buffer[0] == 0)
     {

@@ -90,10 +90,10 @@ public:
                                      authentication headers
         @param   useAuthentication   Boolean indicating that an authentication
                                      header should be added to the request
-        @param   content             Array <Sint8> containing XML request
-        @param   httpHeaders         Array <Sint8> returning the HTTP headers
+        @param   content             Array<char> containing XML request
+        @param   httpHeaders         Array<char> returning the HTTP headers
       
-        @return  Array <Sint8> containing the XML request encapsulated in an
+        @return  Array<char> containing the XML request encapsulated in an
                  HTTP request message
       
         @exception  XmlValidationError  if the XML input is invalid
@@ -106,12 +106,12 @@ public:
         @exception  Exception           internal error 
       
      */
-    static Array <Sint8> encapsulate (XmlParser parser, 
+    static Array<char> encapsulate (XmlParser parser, 
                                       String hostName,
                                       Boolean useMPost,
                                       Boolean useHTTP11,
-                                      Array <Sint8>& content,
-                                      Array <Sint8>& httpHeaders) 
+                                      Array<char>& content,
+                                      Array<char>& httpHeaders) 
         throw (XmlValidationError, XmlSemanticError, WbemExecException,
                XmlException, Exception);
 };

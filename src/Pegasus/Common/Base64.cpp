@@ -116,9 +116,9 @@ inline Uint8 Base64::_Decode(char c)
     implementation and could be improved if it is required for
     production.  Today it is only for test programs.
 */
-Array<Sint8> Base64::encode(const Array<Uint8>& vby)
+Array<char> Base64::encode(const Array<char>& vby)
 {
-    Array<Sint8> retArray;
+    Array<char> retArray;
     // If nothing in input string, return empty string
     if (vby.size() == 0)
         return retArray;
@@ -177,17 +177,17 @@ The algorithm goes thru each three bytes of data at a time. The first thing I do
 /*  The decode static method takes a base-64 stream and converts it 
     to an array of 8-bit values.
 */
-Array<Uint8> Base64::decode(const Array<Sint8>& strInput)
+Array<char> Base64::decode(const Array<char>& strInput)
 {
     //Strip any non-base64 characters from the input
-    Array<Sint8> str;
+    Array<char> str;
     for (Uint32 j=0;j<strInput.size();j++)
     {
         if (_IsBase64(strInput[j]))
             str.append(strInput[j]);
     }
 
-    Array<Uint8> retArray;
+    Array<char> retArray;
 
     // Return if the input is zero length
     if (str.size() == 0)
@@ -218,14 +218,14 @@ Array<Uint8> Base64::decode(const Array<Sint8>& strInput)
         //      " 4 " << c4 << " " << by4 << endl;
         
         // append first byte by shifting
-        retArray.append( (by1<<2)|(by2>>4) );
+        retArray.append( static_cast<char>((by1<<2)|(by2>>4)) );
 
         // append second byte if not padding
         if (c3 != '=')
-            retArray.append( ((by2&0xf)<<4)|(by3>>2) );
+            retArray.append( static_cast<char>(((by2&0xf)<<4)|(by3>>2)) );
 
         if (c4 != '=')
-            retArray.append( ((by3&0x3)<<6)|by4 );
+            retArray.append( static_cast<char>(((by3&0x3)<<6)|by4) );
     }
 
 

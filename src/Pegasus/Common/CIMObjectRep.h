@@ -31,6 +31,8 @@
 //                  (carolann_graves@hp.com)
 //              Adriann Schuur (schuur@de.ibm.com) PEP 164
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -132,9 +134,9 @@ public:
 
     virtual Boolean identical(const CIMObjectRep* x) const;
 
-    virtual void toXml(Array<Sint8>& out) const = 0;
+    virtual void toXml(Array<char>& out) const = 0;
 
-    virtual void toMof(Array<Sint8>& out) const = 0;
+    virtual void toMof(Array<char>& out) const = 0;
 
     virtual CIMObjectRep* clone() const = 0;
 

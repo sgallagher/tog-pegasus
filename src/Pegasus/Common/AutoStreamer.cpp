@@ -27,7 +27,8 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,28 +57,28 @@ void AutoStreamer::addReader(ObjectStreamer *reader, Uint8 marker) {
 }
 
 
-void AutoStreamer::encode(Array<Sint8>& out, const CIMClass& cls)
+void AutoStreamer::encode(Array<char>& out, const CIMClass& cls)
 {
    _primary->encode(out,cls);
 }
 
-void AutoStreamer::encode(Array<Sint8>& out, const CIMInstance& inst)
+void AutoStreamer::encode(Array<char>& out, const CIMInstance& inst)
 {
    _primary->encode(out,inst);
 }
 
-void AutoStreamer::encode(Array<Sint8>& out, const CIMQualifierDecl& qual)
+void AutoStreamer::encode(Array<char>& out, const CIMQualifierDecl& qual)
 {
    _primary->encode(out,qual);
 }
 
-void AutoStreamer::write(PEGASUS_STD(ostream)& os, Array<Sint8>& in)
+void AutoStreamer::write(PEGASUS_STD(ostream)& os, Array<char>& in)
 {
    _primary->write(os,in);
 }
 
 
-void AutoStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMClass& cls)
+void AutoStreamer::decode(const Array<char>& in, unsigned int pos, CIMClass& cls)
 {
    for (Uint16 i=0,m=_readerCount; i<m; i++) {
       if (_readers[i].marker==in[0]) {
@@ -88,7 +89,7 @@ void AutoStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMClass& cl
    _defaultReader->decode(in,pos,cls);
 }
 
-void AutoStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMInstance& inst)
+void AutoStreamer::decode(const Array<char>& in, unsigned int pos, CIMInstance& inst)
 {
    for (Uint16 i=0,m=_readerCount; i<m; i++) {
       if (_readers[i].marker==in[0]) {
@@ -99,7 +100,7 @@ void AutoStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMInstance&
    _defaultReader->decode(in,pos,inst);
 }
 
-void AutoStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierDecl& qual)
+void AutoStreamer::decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual)
 {
    for (Uint16 i=0,m=_readerCount; i<m; i++) {
       if (_readers[i].marker==in[0]) {

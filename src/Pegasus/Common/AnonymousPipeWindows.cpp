@@ -28,7 +28,8 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -134,7 +135,7 @@ AnonymousPipe::~AnonymousPipe ()
 }
 
 AnonymousPipe::Status AnonymousPipe::writeBuffer (
-    const char * buffer,
+    const void * buffer,
     Uint32 bytesToWrite)
 {
     //
@@ -152,7 +153,7 @@ AnonymousPipe::Status AnonymousPipe::writeBuffer (
     //
     SignalHandler::ignore (PEGASUS_SIGPIPE);
 
-    const char * writeBuffer = buffer;
+    const char * writeBuffer = reinterpret_cast<const char *>(buffer);
     DWORD expectedBytes = bytesToWrite;
     do
     {
@@ -194,7 +195,7 @@ AnonymousPipe::Status AnonymousPipe::writeBuffer (
 }
 
 AnonymousPipe::Status AnonymousPipe::readBuffer (
-    char * buffer,
+    void * buffer,
     Uint32 bytesToRead)
 {
     //
@@ -252,7 +253,7 @@ AnonymousPipe::Status AnonymousPipe::readBuffer (
             return STATUS_ERROR;
         }
 
-        buffer += bytesRead;
+        buffer = reinterpret_cast<char *>(buffer) + bytesRead;
         bytesToRead -= bytesRead;
     } while (bytesToRead > 0);
 

@@ -25,7 +25,8 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com) 
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +98,7 @@ void CQLParser::parse(
 }
 
 void CQLParser::parse(
-    const Array<Sint8>& text,
+    const Array<char>& text,
     CQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLParser::parse");

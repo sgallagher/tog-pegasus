@@ -27,7 +27,8 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,54 +52,54 @@ public:
 
    ~BinaryStreamer() {}
 
-   void encode(Array<Sint8>& out, const CIMClass& cls);
-   void encode(Array<Sint8>& out, const CIMInstance& inst);
-   void encode(Array<Sint8>& out, const CIMQualifierDecl& qual);
+   void encode(Array<char>& out, const CIMClass& cls);
+   void encode(Array<char>& out, const CIMInstance& inst);
+   void encode(Array<char>& out, const CIMQualifierDecl& qual);
 
-   void decode(const Array<Sint8>& in, unsigned int pos, CIMClass& cls);
-   void decode(const Array<Sint8>& in, unsigned int pos, CIMInstance& inst);
-   void decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierDecl& qual);
+   void decode(const Array<char>& in, unsigned int pos, CIMClass& cls);
+   void decode(const Array<char>& in, unsigned int pos, CIMInstance& inst);
+   void decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual);
 
 private:
 
-   void append(Array<Sint8>& out, const CIMObjectPath &op);
-   void append(Array<Sint8>& out, const CIMName &cn);
-   void append(Array<Sint8>& out, const CIMType &typ);
-   void append(Array<Sint8>& out, Uint16 ui);
-   void append(Array<Sint8>& out, Uint32 ui);
-   void append(Array<Sint8>& out, Boolean b);
+   void append(Array<char>& out, const CIMObjectPath &op);
+   void append(Array<char>& out, const CIMName &cn);
+   void append(Array<char>& out, const CIMType &typ);
+   void append(Array<char>& out, Uint16 ui);
+   void append(Array<char>& out, Uint32 ui);
+   void append(Array<char>& out, Boolean b);
 
-   void toBin(Array<Sint8>& out, const CIMClass &cls);
-   void toBin(Array<Sint8>& out, const CIMInstance &inst);
-   void toBin(Array<Sint8>& out, const CIMQualifierDecl &qual);
+   void toBin(Array<char>& out, const CIMClass &cls);
+   void toBin(Array<char>& out, const CIMInstance &inst);
+   void toBin(Array<char>& out, const CIMQualifierDecl &qual);
 
-   void toBin(Array<Sint8>& out, const CIMQualifier &qual);
-   void toBin(Array<Sint8>& out, const CIMMethod &prop);
-   void toBin(Array<Sint8>& out, const CIMProperty &prop);
-   void toBin(Array<Sint8>& out, const CIMParameter& prm);
-   void toBin(Array<Sint8>& out, const CIMValue& prm);
-   void toBin(Array<Sint8>& out, const CIMFlavor& flav);
-   void toBin(Array<Sint8>& out, const CIMScope& scp);
+   void toBin(Array<char>& out, const CIMQualifier &qual);
+   void toBin(Array<char>& out, const CIMMethod &prop);
+   void toBin(Array<char>& out, const CIMProperty &prop);
+   void toBin(Array<char>& out, const CIMParameter& prm);
+   void toBin(Array<char>& out, const CIMValue& prm);
+   void toBin(Array<char>& out, const CIMFlavor& flav);
+   void toBin(Array<char>& out, const CIMScope& scp);
 
 
-   CIMObjectPath extractObjectPath(const Sint8 *ar, Uint32 & pos);
-   CIMName extractName(const Sint8 *ar, Uint32 & pos);
-   Uint16 extractUint16(const Sint8 *ar, Uint32 & pos);
-   Uint32 extractUint32(const Sint8 *ar, Uint32 & pos);
-   CIMType extractType(const Sint8* ar, Uint32 & pos);
-   Boolean extractBoolean(const Sint8 *ar, Uint32 & pos);
+   CIMObjectPath extractObjectPath(const char *ar, Uint32 & pos);
+   CIMName extractName(const char *ar, Uint32 & pos);
+   Uint16 extractUint16(const char *ar, Uint32 & pos);
+   Uint32 extractUint32(const char *ar, Uint32 & pos);
+   CIMType extractType(const char* ar, Uint32 & pos);
+   Boolean extractBoolean(const char *ar, Uint32 & pos);
 
-   CIMClass extractClass(const Array<Sint8>& in, Uint32 & pos, const String &path);
-   CIMInstance extractInstance(const Array<Sint8>& in, Uint32 & pos, const String &path);
-   CIMQualifierDecl extractQualifierDecl(const Array<Sint8>& in, Uint32 & pos, const String &path);
+   CIMClass extractClass(const Array<char>& in, Uint32 & pos, const String &path);
+   CIMInstance extractInstance(const Array<char>& in, Uint32 & pos, const String &path);
+   CIMQualifierDecl extractQualifierDecl(const Array<char>& in, Uint32 & pos, const String &path);
 
-   CIMQualifier extractQualifier(const Array<Sint8>& in, Uint32 & pos);
-   CIMMethod extractMethod(const Array<Sint8>& in, Uint32 & pos);
-   CIMProperty extractProperty(const Array<Sint8>& in, Uint32 & pos);
-   CIMParameter extractParameter(const Array<Sint8>& in, Uint32 & pos);
-   CIMValue extractValue(const Array<Sint8>& in, Uint32 & pos);
-   CIMFlavor extractFlavor(const Array<Sint8>& in, Uint32 & pos);
-   CIMScope extractScope(const Array<Sint8>& in, Uint32 & pos);
+   CIMQualifier extractQualifier(const Array<char>& in, Uint32 & pos);
+   CIMMethod extractMethod(const Array<char>& in, Uint32 & pos);
+   CIMProperty extractProperty(const Array<char>& in, Uint32 & pos);
+   CIMParameter extractParameter(const Array<char>& in, Uint32 & pos);
+   CIMValue extractValue(const Array<char>& in, Uint32 & pos);
+   CIMFlavor extractFlavor(const Array<char>& in, Uint32 & pos);
+   CIMScope extractScope(const Array<char>& in, Uint32 & pos);
 
 };
 

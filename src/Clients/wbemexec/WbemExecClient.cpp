@@ -29,7 +29,7 @@
 //
 // Modified By: Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
 //              Amit Arora, IBM (amita@in.ibm.com) for Bug#1170, PEP-101
 //
@@ -333,8 +333,8 @@ String WbemExecClient::_promptForPassword()
 }
 
 
-Array<Sint8> WbemExecClient::issueRequest(
-    const Array<Sint8>& request
+Array<char> WbemExecClient::issueRequest(
+    const Array<char>& request
 ) throw(NotConnectedException, ConnectionTimeoutException, UnauthorizedAccess)
 {
     if (!_connected)
@@ -457,17 +457,17 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
 
         String startLine;
         Array<HTTPHeader> headers;
-        Sint8* content;
+        char* content;
         Uint32 contentLength;
         httpMessage->parse(startLine, headers, contentLength);
 
         // Calculate the beginning of the content from the message size and
         // the content length
 
-        content = (Sint8*) httpMessage->message.getData() +
+        content = (char*) httpMessage->message.getData() +
 	  httpMessage->message.size() - contentLength;
 
-        Array<Sint8> newMessageBuffer;
+        Array<char> newMessageBuffer;
         newMessageBuffer << startLine << HTTP_CRLF;
         newMessageBuffer << authHeader << HTTP_CRLF;
         for (Uint32 i=0; i<headers.size(); i++)

@@ -27,7 +27,8 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -212,7 +213,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
                 //
                 // copy userPass string content to Uint8 array for encoding
                 //
-                Array <Uint8>  userPassArray;
+                Array<char> userPassArray;
 
                 Uint32 userPassLength = userPass.size();
 
@@ -221,13 +222,13 @@ String ClientAuthenticator::buildRequestAuthHeader()
 
                 for( Uint32 i = 0; i < userPassLength; i++ )
                 {
-                    userPassArray.append( (Uint8)userPass[i] );
+                    userPassArray.append( (char)userPass[i] );
                 }
 
                 //
                 // base64 encode the user name and password
                 //
-                Array <Sint8>  encodedArray;
+                Array<char> encodedArray;
 
                 encodedArray = Base64::encode( userPassArray );
 

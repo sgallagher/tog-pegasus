@@ -29,9 +29,11 @@
 //
 // Modified By: Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
 //              Amit K Arora (amita@in.ibm.com) for PEP-101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -182,8 +184,8 @@ public:
 
     /** ATTN TBD
     */
-    Array<Sint8> issueRequest(
-	const Array<Sint8>& request
+    Array<char> issueRequest(
+	const Array<char>& request
     ) throw(NotConnectedException, ConnectionTimeoutException,
             UnauthorizedAccess);
 

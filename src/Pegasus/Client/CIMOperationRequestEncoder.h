@@ -28,8 +28,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard (Nitin_Upasani@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veriats.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -143,7 +144,7 @@ private:
     void _encodeInvokeMethodRequest(
 	CIMInvokeMethodRequestMessage* message);
 
-    void _sendRequest(Array<Sint8>& buffer); 
+    void _sendRequest(Array<char>& buffer); 
 
     MessageQueue* _outputQueue;
     CString _hostName;

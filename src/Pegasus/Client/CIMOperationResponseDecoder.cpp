@@ -116,7 +116,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     String startLine;
     Array<HTTPHeader> headers;
-    Sint8* content;
+    char* content;
     Uint32 contentLength;
 
     if (httpMessage->message.size() == 0)
@@ -390,7 +390,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // the content length.  Subtract 1 to take into account the null
     // character we just added to the end of the message.
 
-    content = (Sint8*) httpMessage->message.getData() +
+    content = (char *) httpMessage->message.getData() +
         httpMessage->message.size() - contentLength - 1;
 
     //

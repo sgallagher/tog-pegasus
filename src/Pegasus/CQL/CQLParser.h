@@ -25,7 +25,8 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 	// Note that this array must be null-terminated (sizeof(TEXT) includes
 	// the null-terminator in the count).
 
-	Array<Sint8> text(TEXT, sizeof(TEXT));
+	Array<char> text(TEXT, sizeof(TEXT));
 
 	CQLSelectStatement selectStatement;
 
@@ -93,7 +94,7 @@ public:
     /** Version of parse() taking an array of characters.
     */
     static void parse(
-	const Array<Sint8>& text,
+	const Array<char>& text,
 	CQLSelectStatement& statement);
 
     /** Version of parse() taking a string.

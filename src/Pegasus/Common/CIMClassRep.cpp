@@ -30,7 +30,9 @@
 // Modified By: Karl Schopmeyer(k.schopmeyer@attglobal.net)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -528,7 +530,7 @@ CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
     return(newInstance);
 }
 
-void CIMClassRep::toXml(Array<Sint8>& out) const
+void CIMClassRep::toXml(Array<char>& out) const
 {
     // Class opening element:
 
@@ -571,7 +573,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
 
 */
 
-void CIMClassRep::toMof(Array<Sint8>& out) const
+void CIMClassRep::toMof(Array<char>& out) const
 {
     // Get and format the class qualifiers
     out << "\n//    Class " << _reference.getClassName();

@@ -28,7 +28,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -179,7 +181,7 @@ static const char* _toString(Boolean x)
     return x ? "true" : "false";
 }
 
-void CIMMethodRep::toXml(Array<Sint8>& out) const
+void CIMMethodRep::toXml(Array<char>& out) const
 {
     out << "<METHOD";
 
@@ -212,7 +214,7 @@ void CIMMethodRep::toXml(Array<Sint8>& out) const
     Format with qualifiers on one line and declaration on another. Start
     with newline but none at the end.
 */
-void CIMMethodRep::toMof(Array<Sint8>& out) const   //ATTNKS:
+void CIMMethodRep::toMof(Array<char>& out) const   //ATTNKS:
 {
     // Output the qualifier list starting on new line
     if (_qualifiers.getCount())

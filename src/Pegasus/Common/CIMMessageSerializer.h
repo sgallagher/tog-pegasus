@@ -27,7 +27,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,16 +64,16 @@ class PEGASUS_COMMON_LINKAGE CIMMessageSerializer
 {
 public:
 
-    static void serialize(Array<Sint8>& out, CIMMessage* cimMessage);
+    static void serialize(Array<char>& out, CIMMessage* cimMessage);
 
 private:
 
     static void _serializeCIMRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMRequestMessage* cimMessage);
 
     static void _serializeCIMResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMResponseMessage* cimMessage);
 
     //
@@ -80,48 +81,48 @@ private:
     //
 
     static void _serializeUserInfo(
-        Array<Sint8>& out,
+        Array<char>& out,
         const String& authType,
         const String& userName);
 
     static void _serializeQueueIdStack(
-        Array<Sint8>& out,
+        Array<char>& out,
         const QueueIdStack& queueIdStack);
 
     static void _serializeOperationContext(
-        Array<Sint8>& out,
+        Array<char>& out,
         const OperationContext& operationContext);
 
     static void _serializeContentLanguages(
-        Array<Sint8>& out,
+        Array<char>& out,
         const ContentLanguages& contentLanguages);
 
     static void _serializeAcceptLanguages(
-        Array<Sint8>& out,
+        Array<char>& out,
         const AcceptLanguages& acceptLanguages);
 
     static void _serializeCIMException(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMException& cimException);
 
     static void _serializeCIMPropertyList(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMPropertyList& cimPropertyList);
 
     static void _serializeCIMObjectPath(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMObjectPath& cimObjectPath);
 
     static void _serializeCIMInstance(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMInstance& cimInstance);
 
     static void _serializeCIMNamespaceName(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMNamespaceName& cimNamespaceName);
 
     static void _serializeCIMName(
-        Array<Sint8>& out,
+        Array<char>& out,
         const CIMName& cimName);
 
     //
@@ -135,59 +136,59 @@ private:
     //
 
     static void _serializeCIMGetInstanceRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMGetInstanceRequestMessage* message);
 
     static void _serializeCIMDeleteInstanceRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMDeleteInstanceRequestMessage* message);
 
     static void _serializeCIMCreateInstanceRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMCreateInstanceRequestMessage* message);
 
     static void _serializeCIMModifyInstanceRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMModifyInstanceRequestMessage* message);
 
     static void _serializeCIMEnumerateInstancesRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMEnumerateInstancesRequestMessage* message);
 
     static void _serializeCIMEnumerateInstanceNamesRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMEnumerateInstanceNamesRequestMessage* message);
 
     static void _serializeCIMExecQueryRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMExecQueryRequestMessage* message);
 
     static void _serializeCIMAssociatorsRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMAssociatorsRequestMessage* message);
 
     static void _serializeCIMAssociatorNamesRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMAssociatorNamesRequestMessage* message);
 
     static void _serializeCIMReferencesRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMReferencesRequestMessage* message);
 
     static void _serializeCIMReferenceNamesRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMReferenceNamesRequestMessage* message);
 
     static void _serializeCIMGetPropertyRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMGetPropertyRequestMessage* message);
 
     static void _serializeCIMSetPropertyRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMSetPropertyRequestMessage* message);
 
     static void _serializeCIMInvokeMethodRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMInvokeMethodRequestMessage* message);
 
     //
@@ -195,23 +196,23 @@ private:
     //
 
     static void _serializeCIMEnableIndicationsRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMEnableIndicationsRequestMessage* message);
 
     static void _serializeCIMDisableIndicationsRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMDisableIndicationsRequestMessage* message);
 
     static void _serializeCIMCreateSubscriptionRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMCreateSubscriptionRequestMessage* message);
 
     static void _serializeCIMModifySubscriptionRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMModifySubscriptionRequestMessage* message);
 
     static void _serializeCIMDeleteSubscriptionRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMDeleteSubscriptionRequestMessage* message);
 
     //
@@ -219,35 +220,35 @@ private:
     //
 
     static void _serializeCIMExportIndicationRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMExportIndicationRequestMessage* message);
 
     static void _serializeCIMProcessIndicationRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMProcessIndicationRequestMessage* message);
 
     static void _serializeCIMDisableModuleRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMDisableModuleRequestMessage* message);
 
     static void _serializeCIMEnableModuleRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMEnableModuleRequestMessage* message);
 
     static void _serializeCIMStopAllProvidersRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMStopAllProvidersRequestMessage* message);
 
     static void _serializeCIMInitializeProviderRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMInitializeProviderRequestMessage* message);
 
     static void _serializeCIMInitializeProviderAgentRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMInitializeProviderAgentRequestMessage* message);
 
     static void _serializeCIMNotifyConfigChangeRequestMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMNotifyConfigChangeRequestMessage* message);
 
 
@@ -262,59 +263,59 @@ private:
     //
 
     static void _serializeCIMGetInstanceResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMGetInstanceResponseMessage* message);
 
     static void _serializeCIMDeleteInstanceResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMDeleteInstanceResponseMessage* message);
 
     static void _serializeCIMCreateInstanceResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMCreateInstanceResponseMessage* message);
 
     static void _serializeCIMModifyInstanceResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMModifyInstanceResponseMessage* message);
 
     static void _serializeCIMEnumerateInstancesResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMEnumerateInstancesResponseMessage* message);
 
     static void _serializeCIMEnumerateInstanceNamesResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMEnumerateInstanceNamesResponseMessage* message);
 
     static void _serializeCIMExecQueryResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMExecQueryResponseMessage* message);
 
     static void _serializeCIMAssociatorsResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMAssociatorsResponseMessage* message);
 
     static void _serializeCIMAssociatorNamesResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMAssociatorNamesResponseMessage* message);
 
     static void _serializeCIMReferencesResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMReferencesResponseMessage* message);
 
     static void _serializeCIMReferenceNamesResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMReferenceNamesResponseMessage* message);
 
     static void _serializeCIMGetPropertyResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMGetPropertyResponseMessage* message);
 
     static void _serializeCIMSetPropertyResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMSetPropertyResponseMessage* message);
 
     static void _serializeCIMInvokeMethodResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMInvokeMethodResponseMessage* message);
 
     //
@@ -322,23 +323,23 @@ private:
     //
 
     static void _serializeCIMEnableIndicationsResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMEnableIndicationsResponseMessage* message);
 
     static void _serializeCIMDisableIndicationsResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMDisableIndicationsResponseMessage* message);
 
     static void _serializeCIMCreateSubscriptionResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMCreateSubscriptionResponseMessage* message);
 
     static void _serializeCIMModifySubscriptionResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMModifySubscriptionResponseMessage* message);
 
     static void _serializeCIMDeleteSubscriptionResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMDeleteSubscriptionResponseMessage* message);
 
     //
@@ -346,35 +347,35 @@ private:
     //
 
     static void _serializeCIMExportIndicationResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMExportIndicationResponseMessage* message);
 
     static void _serializeCIMProcessIndicationResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMProcessIndicationResponseMessage* message);
 
     static void _serializeCIMDisableModuleResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMDisableModuleResponseMessage* message);
 
     static void _serializeCIMEnableModuleResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMEnableModuleResponseMessage* message);
 
     static void _serializeCIMStopAllProvidersResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMStopAllProvidersResponseMessage* message);
 
     static void _serializeCIMInitializeProviderResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMInitializeProviderResponseMessage* message);
 
     static void _serializeCIMInitializeProviderAgentResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMInitializeProviderAgentResponseMessage* message);
 
     static void _serializeCIMNotifyConfigChangeResponseMessage(
-        Array<Sint8>& out,
+        Array<char>& out,
         CIMNotifyConfigChangeResponseMessage* message);
 };
 

@@ -28,8 +28,10 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Adriann Schuur (schuur@de.ibm.com) PEP 164
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,9 +97,9 @@ public:
 
     virtual Boolean identical(const CIMObjectRep* x) const;
 
-    void toXml(Array<Sint8>& out) const;
+    void toXml(Array<char>& out) const;
 
-    void toMof(Array<Sint8>& out) const;
+    void toMof(Array<char>& out) const;
 
     virtual CIMObjectRep* clone() const
     {

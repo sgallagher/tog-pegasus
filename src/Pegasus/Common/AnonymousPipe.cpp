@@ -28,7 +28,8 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +59,7 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     //
     // Serialize the request
     //
-    Array <Sint8> messageBuffer;
+    Array<char> messageBuffer;
     messageBuffer.reserveCapacity (4096);
     try
     {

@@ -31,7 +31,9 @@
 //              Sushma Fernandes, Hewlett-Packard Company 
 //              (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -210,7 +212,7 @@ CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) : CIMObjectRep(x)
 
 }
 
-void CIMInstanceRep::toXml(Array<Sint8>& out) const
+void CIMInstanceRep::toXml(Array<char>& out) const
 {
     // Class opening element:
 
@@ -232,7 +234,7 @@ void CIMInstanceRep::toXml(Array<Sint8>& out) const
     out << "</INSTANCE>\n";
 }
 
-void CIMInstanceRep::toMof(Array<Sint8>& out) const
+void CIMInstanceRep::toMof(Array<char>& out) const
 {
     // Get and format the class qualifiers
     out << "\n//Instance of Class " << _reference.getClassName();

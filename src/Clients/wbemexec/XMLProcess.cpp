@@ -33,6 +33,8 @@
 //         Sushma Fernandes, Hewlett-Packard Company
 //             (sushma_fernandes@hp.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         David Dillard, VERITAS Software Corp.
+//             (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -73,10 +75,10 @@ PEGASUS_NAMESPACE_BEGIN
                                  generated for an M-POST request
     @param   useHTTP11           Boolean indicating that headers should be
                                  generated for an HTTP/1.1 request
-    @param   content             Array <Sint8> containing XML request
-    @param   httpHeaders         Array <Sint8> returning the HTTP headers
+    @param   content             Array<char> containing XML request
+    @param   httpHeaders         Array<char> returning the HTTP headers
   
-    @return  Array <Sint8> containing the XML request encapsulated in an
+    @return  Array<char> containing the XML request encapsulated in an
              HTTP request message
   
     @exception  XmlValidationError  if the XML input is invalid
@@ -85,18 +87,18 @@ PEGASUS_NAMESPACE_BEGIN
                                     M-POST or POST method request
   
  */
-Array <Sint8> XMLProcess::encapsulate( XmlParser parser,
+Array<char> XMLProcess::encapsulate( XmlParser parser,
                                        String hostName,
                                        Boolean useMPost,
                                        Boolean useHTTP11,
-                                       Array <Sint8>& content,
-                                       Array <Sint8>& httpHeaders
+                                       Array<char>& content,
+                                       Array<char>& httpHeaders
                                        )
 throw (XmlValidationError, XmlSemanticError, WbemExecException,
                XmlException, Exception)
 {
     XmlEntry                     entry;
-    Array <Sint8>                message;
+    Array<char>                    message;
     String                       messageId;
     const char*                  cimVersion            = 0;
     const char*                  dtdVersion            = 0;
@@ -104,8 +106,8 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     CIMName                      className;
     CIMName                      methodName;
     CIMObjectPath                objectName;
-    Array<Sint8>                 encoded;
-    Array <Sint8>                objPath;
+    Array<char>                    encoded;
+    Array<char>                    objPath;
     Array<CIMKeyBinding>         keyBindings;
     CIMKeyBinding::Type          type;
     Boolean                      multireq              = false;

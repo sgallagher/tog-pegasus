@@ -28,6 +28,8 @@
 // Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
 //
 // Modified By: Dave Sudlik (dsudlik@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,80 +57,80 @@ PEGASUS_NAMESPACE_BEGIN
 #define TYPE_CONV 
 #endif
 
-void BinaryStreamer::encode(Array<Sint8>& out, const CIMClass& cls)
+void BinaryStreamer::encode(Array<char>& out, const CIMClass& cls)
 {
    toBin(out, cls);
 }
 
-void BinaryStreamer::encode(Array<Sint8>& out, const CIMInstance& inst)
+void BinaryStreamer::encode(Array<char>& out, const CIMInstance& inst)
 {
    toBin(out, inst);
 }
 
-void BinaryStreamer::encode(Array<Sint8>& out, const CIMQualifierDecl& qual)
+void BinaryStreamer::encode(Array<char>& out, const CIMQualifierDecl& qual)
 {
    toBin(out, qual);
 }
 
-void BinaryStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMClass& cls)
+void BinaryStreamer::decode(const Array<char>& in, unsigned int pos, CIMClass& cls)
 {
    cls=extractClass(in,pos,"");
 }
 
-void BinaryStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMInstance& inst)
+void BinaryStreamer::decode(const Array<char>& in, unsigned int pos, CIMInstance& inst)
 {
    inst=extractInstance(in,pos,"");
 }
 
-void BinaryStreamer::decode(const Array<Sint8>& in, unsigned int pos, CIMQualifierDecl& qual)
+void BinaryStreamer::decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual)
 {
    qual=extractQualifierDecl(in,pos,"");
 }
 
 
 
-void BinaryStreamer::append(Array<Sint8>& out, const CIMObjectPath &op)
+void BinaryStreamer::append(Array<char>& out, const CIMObjectPath &op)
 {
    CString ustr=op.toString().getCString();
    Uint16 nl=strlen((const char*)ustr);
-   out.append((Sint8*)&nl,sizeof(Uint16));
-   out.append((Sint8*)((const char*)ustr),nl);
+   out.append((char*)&nl,sizeof(Uint16));
+   out.append((char*)((const char*)ustr),nl);
 }
 
-void BinaryStreamer::append(Array<Sint8>& out, const CIMName &cn)
+void BinaryStreamer::append(Array<char>& out, const CIMName &cn)
 {
    CString ustr=cn.getString().getCString();
    Uint16 nl=strlen((const char*)ustr);
-   out.append((Sint8*)&nl,sizeof(Sint16));
+   out.append((char*)&nl,sizeof(Sint16));
    if (nl)
-       out.append((Sint8*)((const char*)ustr),nl);
+       out.append((char*)((const char*)ustr),nl);
 }
 
-void BinaryStreamer::append(Array<Sint8>& out, const CIMType &typ)
+void BinaryStreamer::append(Array<char>& out, const CIMType &typ)
 {
    Uint16 type=(Uint16)typ;
-   out.append((Sint8*)&type,sizeof(Uint16));
+   out.append((char*)&type,sizeof(Uint16));
 }
 
-void BinaryStreamer::append(Array<Sint8>& out, Uint16 ui)
+void BinaryStreamer::append(Array<char>& out, Uint16 ui)
 {
-   out.append((Sint8*)&ui,sizeof(Uint16));
+   out.append((char*)&ui,sizeof(Uint16));
 }
 
-void BinaryStreamer::append(Array<Sint8>& out, Uint32 ui)
+void BinaryStreamer::append(Array<char>& out, Uint32 ui)
 {
-   out.append((Sint8*)&ui,sizeof(Uint32));
+   out.append((char*)&ui,sizeof(Uint32));
 }
 
-void BinaryStreamer::append(Array<Sint8>& out, Boolean b)
+void BinaryStreamer::append(Array<char>& out, Boolean b)
 {
-   Sint8 rs=(b==true);
+   char rs=(b==true);
    out.append(rs);
 }
 
 
 
-CIMObjectPath BinaryStreamer::extractObjectPath(const Sint8 *ar, Uint32 & pos)
+CIMObjectPath BinaryStreamer::extractObjectPath(const char *ar, Uint32 & pos)
 {
    Uint16 sl; //=*(Uint16*)(ar+pos);
    memcpy( &sl, ar + pos, sizeof (Uint16));
@@ -138,7 +140,7 @@ CIMObjectPath BinaryStreamer::extractObjectPath(const Sint8 *ar, Uint32 & pos)
    return CIMObjectPath(String(((char*)(ar+ppos)),sl));
 }
 
-CIMName BinaryStreamer::extractName(const Sint8 *ar, Uint32 & pos)
+CIMName BinaryStreamer::extractName(const char *ar, Uint32 & pos)
 {
    Uint16 sl; //=*(Uint16*)(ar+pos);
    memcpy(&sl, ar + pos, sizeof (Uint16)); 
@@ -150,7 +152,7 @@ CIMName BinaryStreamer::extractName(const Sint8 *ar, Uint32 & pos)
    return CIMName();
 }
 
-Uint16 BinaryStreamer::extractUint16(const Sint8 *ar, Uint32 & pos)
+Uint16 BinaryStreamer::extractUint16(const char *ar, Uint32 & pos)
 {
    Uint16 ui; //=*(Uint16*)(ar+pos);
    memcpy (&ui, ar + pos, sizeof (Uint16));
@@ -158,7 +160,7 @@ Uint16 BinaryStreamer::extractUint16(const Sint8 *ar, Uint32 & pos)
    return ui;
 }
 
-CIMType BinaryStreamer::extractType(const Sint8 *ar, Uint32 & pos)
+CIMType BinaryStreamer::extractType(const char *ar, Uint32 & pos)
 {
    Uint16 ui; //=*(Uint16*)(ar+pos);
    memcpy( &ui, ar + pos, sizeof (Uint16));
@@ -167,7 +169,7 @@ CIMType BinaryStreamer::extractType(const Sint8 *ar, Uint32 & pos)
    return t;
 }
 
-Uint32 BinaryStreamer::extractUint32(const Sint8 *ar, Uint32 & pos)
+Uint32 BinaryStreamer::extractUint32(const char *ar, Uint32 & pos)
 {
    Uint32 ui; //=*(Uint32*)(ar+pos);
    memcpy ( &ui, ar + pos, sizeof(Uint32));
@@ -175,7 +177,7 @@ Uint32 BinaryStreamer::extractUint32(const Sint8 *ar, Uint32 & pos)
    return ui;
 }
 
-Boolean BinaryStreamer::extractBoolean(const Sint8 *ar, Uint32 & pos)
+Boolean BinaryStreamer::extractBoolean(const char *ar, Uint32 & pos)
 {
    return ((*(ar+(pos++)))!=0);
 }
@@ -183,11 +185,11 @@ Boolean BinaryStreamer::extractBoolean(const Sint8 *ar, Uint32 & pos)
 
 
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMClass& cls)
+void BinaryStreamer::toBin(Array<char>& out, const CIMClass& cls)
 {
    CIMClassRep *rep=cls._rep;
    static BINREP_CLASS_PREAMBLE_V1(preamble);
-   out.append((Sint8*)&preamble,sizeof(preamble));
+   out.append((char*)&preamble,sizeof(preamble));
 
    append(out,rep->getClassName());
 
@@ -216,7 +218,7 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMClass& cls)
 }
 
 
-CIMClass BinaryStreamer::extractClass(const Array<Sint8>& in, Uint32 & pos, const String &path)
+CIMClass BinaryStreamer::extractClass(const Array<char>& in, Uint32 & pos, const String &path)
 {
 #ifdef TYPE_CONV
   AutoPtr<record_preamble> preamble(new record_preamble());
@@ -235,7 +237,7 @@ CIMClass BinaryStreamer::extractClass(const Array<Sint8>& in, Uint32 & pos, cons
 #else
    BINREP_RECORD_IN(preamble,in,pos);
 #endif
-   const Sint8 *ar=in.getData();
+   const char *ar=in.getData();
 
    try {
       if (!preamble->endogenous()) {
@@ -291,12 +293,12 @@ CIMClass BinaryStreamer::extractClass(const Array<Sint8>& in, Uint32 & pos, cons
 
 
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMInstance& inst)
+void BinaryStreamer::toBin(Array<char>& out, const CIMInstance& inst)
 {
    CIMInstanceRep *rep=inst._rep;
 
    static BINREP_INSTANCE_PREAMBLE_V1(preamble);
-   out.append((Sint8*)&preamble,sizeof(preamble));
+   out.append((char*)&preamble,sizeof(preamble));
 
    append(out,rep->getPath());
 
@@ -317,7 +319,7 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMInstance& inst)
 }
 
 
-CIMInstance BinaryStreamer::extractInstance(const Array<Sint8>& in, Uint32 & pos,
+CIMInstance BinaryStreamer::extractInstance(const Array<char>& in, Uint32 & pos,
         const String & path)
 {
 
@@ -338,7 +340,7 @@ CIMInstance BinaryStreamer::extractInstance(const Array<Sint8>& in, Uint32 & pos
 #else
    BINREP_RECORD_IN(preamble,in,pos);
 #endif
-   const Sint8 *ar=in.getData();
+   const char *ar=in.getData();
 
    try {
       if (!preamble->endogenous()) {
@@ -390,10 +392,10 @@ CIMInstance BinaryStreamer::extractInstance(const Array<Sint8>& in, Uint32 & pos
 
 
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMQualifierDecl& qdc)
+void BinaryStreamer::toBin(Array<char>& out, const CIMQualifierDecl& qdc)
 {
    static BINREP_QUALIFIERDECL_PREAMBLE_V1(preamble);
-   out.append((Sint8*)&preamble,sizeof(preamble));
+   out.append((char*)&preamble,sizeof(preamble));
 
    append(out,qdc.getName());
 
@@ -408,7 +410,7 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMQualifierDecl& qdc)
 }
 
 
-CIMQualifierDecl BinaryStreamer::extractQualifierDecl(const Array<Sint8>& in, Uint32 & pos,
+CIMQualifierDecl BinaryStreamer::extractQualifierDecl(const Array<char>& in, Uint32 & pos,
         const String &path)
 {
 #ifdef TYPE_CONV
@@ -428,7 +430,7 @@ CIMQualifierDecl BinaryStreamer::extractQualifierDecl(const Array<Sint8>& in, Ui
 #else
    BINREP_RECORD_IN(preamble,in,pos);
 #endif
-   const Sint8 *ar=in.getData();
+   const char *ar=in.getData();
 
    try {
       if (!preamble->endogenous()) {
@@ -471,12 +473,12 @@ CIMQualifierDecl BinaryStreamer::extractQualifierDecl(const Array<Sint8>& in, Ui
 
 
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMMethod &meth)
+void BinaryStreamer::toBin(Array<char>& out, const CIMMethod &meth)
 {
    CIMMethodRep *rep=meth._rep;
 
    static BINREP_METHOD_PREAMBLE_V1(preamble);
-   out.append((Sint8*)&preamble,sizeof(preamble));
+   out.append((char*)&preamble,sizeof(preamble));
 
    append(out,rep->getName());
 
@@ -494,14 +496,14 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMMethod &meth)
    }
 
     Uint16 pn=rep->getParameterCount();
-    out.append((Sint8*)&pn,sizeof(Uint16));
+    out.append((char*)&pn,sizeof(Uint16));
     for (Uint16 i = 0; i < pn; i++) {
        toBin(out,rep->getParameter(i));
     }
 }
 
 
-CIMMethod BinaryStreamer::extractMethod(const Array<Sint8>& in, Uint32 & pos)
+CIMMethod BinaryStreamer::extractMethod(const Array<char>& in, Uint32 & pos)
 {
 #ifdef TYPE_CONV
   AutoPtr<subtype_preamble> preamble(new subtype_preamble());
@@ -516,7 +518,7 @@ CIMMethod BinaryStreamer::extractMethod(const Array<Sint8>& in, Uint32 & pos)
 #else
    BINREP_SUBTYPE_IN(preamble,in,pos);
 #endif
-   const Sint8 *ar=in.getData();
+   const char *ar=in.getData();
 
    if (preamble->type()!=BINREP_METHOD) {
        throw BinException(BINREP_METHOD,String("Expected CIMMethod subtype not found"));
@@ -559,12 +561,12 @@ CIMMethod BinaryStreamer::extractMethod(const Array<Sint8>& in, Uint32 & pos)
 
 
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMParameter& prm)
+void BinaryStreamer::toBin(Array<char>& out, const CIMParameter& prm)
 {
    CIMParameterRep *rep=prm._rep;
 
    static BINREP_PARAMETER_PREAMBLE_V1(preamble);
-   out.append((Sint8*)&preamble,sizeof(preamble));
+   out.append((char*)&preamble,sizeof(preamble));
 
    append(out,rep->getName());
 
@@ -584,7 +586,7 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMParameter& prm)
    }
 }
 
-CIMParameter BinaryStreamer::extractParameter(const Array<Sint8>& in, Uint32 &pos)
+CIMParameter BinaryStreamer::extractParameter(const Array<char>& in, Uint32 &pos)
 {
 #ifdef TYPE_CONV
   AutoPtr<subtype_preamble> preamble(new subtype_preamble());
@@ -599,7 +601,7 @@ CIMParameter BinaryStreamer::extractParameter(const Array<Sint8>& in, Uint32 &po
 #else
    BINREP_SUBTYPE_IN(preamble,in,pos);
 #endif
-   const Sint8 *ar=in.getData();
+   const char *ar=in.getData();
 
    if (preamble->type()!=BINREP_PARAMETER) {
        throw BinException(BINREP_PARAMETER,String("Expected CIMParameter subtype not found"));
@@ -636,12 +638,12 @@ CIMParameter BinaryStreamer::extractParameter(const Array<Sint8>& in, Uint32 &po
 
 
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMProperty& prop)
+void BinaryStreamer::toBin(Array<char>& out, const CIMProperty& prop)
 {
    CIMPropertyRep *rep=prop._rep;
 
    static BINREP_PROPERTY_PREAMBLE_V1(preamble);
-   out.append((Sint8*)&preamble,sizeof(preamble));
+   out.append((char*)&preamble,sizeof(preamble));
 
    append(out,rep->getName());
 
@@ -664,7 +666,7 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMProperty& prop)
 }
 
 
-CIMProperty BinaryStreamer::extractProperty(const Array<Sint8>& in, Uint32 &pos)
+CIMProperty BinaryStreamer::extractProperty(const Array<char>& in, Uint32 &pos)
 {
 #ifdef TYPE_CONV
   AutoPtr<subtype_preamble> preamble(new subtype_preamble());
@@ -679,7 +681,7 @@ CIMProperty BinaryStreamer::extractProperty(const Array<Sint8>& in, Uint32 &pos)
 #else
    BINREP_SUBTYPE_IN(preamble,in,pos);
 #endif
-   const Sint8 *ar=in.getData();
+   const char *ar=in.getData();
 
    if (preamble->type()!=BINREP_PROPERTY) {
        throw BinException(BINREP_PROPERTY,String("Expected CIMProperty subtype not found"));
@@ -718,13 +720,13 @@ CIMProperty BinaryStreamer::extractProperty(const Array<Sint8>& in, Uint32 &pos)
 
 
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMFlavor& flav)
+void BinaryStreamer::toBin(Array<char>& out, const CIMFlavor& flav)
 {
-   out.append((Sint8*)&flav.cimFlavor,sizeof(flav.cimFlavor));
+   out.append((char*)&flav.cimFlavor,sizeof(flav.cimFlavor));
 }
 
 
-CIMFlavor BinaryStreamer::extractFlavor(const Array<Sint8>& in, Uint32 & pos)
+CIMFlavor BinaryStreamer::extractFlavor(const Array<char>& in, Uint32 & pos)
 {
    CIMFlavor flav;
    flav.cimFlavor=extractUint32(in.getData(),pos);
@@ -735,13 +737,13 @@ CIMFlavor BinaryStreamer::extractFlavor(const Array<Sint8>& in, Uint32 & pos)
 
 
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMScope& scp)
+void BinaryStreamer::toBin(Array<char>& out, const CIMScope& scp)
 {
-   out.append((Sint8*)&scp.cimScope,sizeof(scp.cimScope));
+   out.append((char*)&scp.cimScope,sizeof(scp.cimScope));
 }
 
 
-CIMScope BinaryStreamer::extractScope(const Array<Sint8>& in, Uint32 & pos)
+CIMScope BinaryStreamer::extractScope(const Array<char>& in, Uint32 & pos)
 {
    CIMScope scp;
    scp.cimScope=extractUint32(in.getData(),pos);
@@ -751,12 +753,12 @@ CIMScope BinaryStreamer::extractScope(const Array<Sint8>& in, Uint32 & pos)
 
  
 
-void BinaryStreamer::toBin(Array<Sint8>& out, const CIMQualifier& qual)
+void BinaryStreamer::toBin(Array<char>& out, const CIMQualifier& qual)
 {
    CIMQualifierRep *rep=qual._rep;
 
    static BINREP_QUALIFIER_PREAMBLE_V1(preamble);
-   out.append((Sint8*)&preamble,sizeof(preamble));
+   out.append((char*)&preamble,sizeof(preamble));
 
    CIMName name=rep->getName();
    append(out,name);
@@ -769,7 +771,7 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMQualifier& qual)
 }
 
 
-CIMQualifier BinaryStreamer::extractQualifier(const Array<Sint8>& in, Uint32 & pos)
+CIMQualifier BinaryStreamer::extractQualifier(const Array<char>& in, Uint32 & pos)
 {
 #ifdef TYPE_CONV
   AutoPtr<subtype_preamble> preamble(new subtype_preamble());
@@ -784,7 +786,7 @@ CIMQualifier BinaryStreamer::extractQualifier(const Array<Sint8>& in, Uint32 & p
 #else
    BINREP_SUBTYPE_IN(preamble,in,pos);
 #endif
-   const Sint8 *ar=in.getData();
+   const char *ar=in.getData();
 
    if (preamble->type()!=BINREP_QUALIFIER) {
        throw BinException(BINREP_QUALIFIER,String("Expected CIMQualifier subtype not found"));
@@ -814,12 +816,12 @@ CIMQualifier BinaryStreamer::extractQualifier(const Array<Sint8>& in, Uint32 & p
 
 
 
-void BinaryStreamer::toBin(Array<Sint8> & out, const CIMValue& val)
+void BinaryStreamer::toBin(Array<char> & out, const CIMValue& val)
 {
    CIMValueRep *_rep=val._rep;
 
    static BINREP_VALUE_PREAMBLE_V1(preamble);
-   out.append((Sint8*)&preamble,sizeof(preamble));
+   out.append((char*)&preamble,sizeof(preamble));
 
    append(out,val.getType());
 
@@ -840,59 +842,59 @@ void BinaryStreamer::toBin(Array<Sint8> & out, const CIMValue& val)
       if (isArray) {
          switch (val.getType()) {
          case CIMTYPE_BOOLEAN: {
-               out.append((Sint8*)_rep->_u._booleanArray->getData(),sizeof(Boolean)*as);
+               out.append((char*)_rep->_u._booleanArray->getData(),sizeof(Boolean)*as);
             }
             break;
          case CIMTYPE_UINT8: {
-               out.append((Sint8*)_rep->_u._uint8Array->getData(),sizeof(Uint8)*as);
+               out.append((char*)_rep->_u._uint8Array->getData(),sizeof(Uint8)*as);
             }
             break;
          case CIMTYPE_SINT8: {
-               out.append((Sint8*)_rep->_u._sint8Array->getData(),sizeof(Sint8)*as);
+               out.append((char*)_rep->_u._sint8Array->getData(),sizeof(Sint8)*as);
             }
             break;
          case CIMTYPE_UINT16: {
-               out.append((Sint8*)_rep->_u._uint16Array->getData(),sizeof(Uint16)*as);
+               out.append((char*)_rep->_u._uint16Array->getData(),sizeof(Uint16)*as);
             }
             break;
          case CIMTYPE_SINT16: {
-               out.append((Sint8*)_rep->_u._sint16Array->getData(),sizeof(Sint16)*as);
+               out.append((char*)_rep->_u._sint16Array->getData(),sizeof(Sint16)*as);
             }
             break;
          case CIMTYPE_UINT32: {
-               out.append((Sint8*)_rep->_u._uint32Array->getData(),sizeof(Uint32)*as);
+               out.append((char*)_rep->_u._uint32Array->getData(),sizeof(Uint32)*as);
             }
             break;
          case CIMTYPE_SINT32: {
-               out.append((Sint8*)_rep->_u._sint32Array->getData(),sizeof(Sint32)*as);
+               out.append((char*)_rep->_u._sint32Array->getData(),sizeof(Sint32)*as);
             }
             break;
          case CIMTYPE_UINT64: {
-               out.append((Sint8*)_rep->_u._uint64Array->getData(),sizeof(Uint64)*as);
+               out.append((char*)_rep->_u._uint64Array->getData(),sizeof(Uint64)*as);
             }
             break;
          case CIMTYPE_SINT64: {
-               out.append((Sint8*)_rep->_u._sint64Array->getData(),sizeof(Uint64)*as);
+               out.append((char*)_rep->_u._sint64Array->getData(),sizeof(Uint64)*as);
             }
             break;
          case CIMTYPE_REAL32: {
-               out.append((Sint8*)_rep->_u._real32Array->getData(),sizeof(Real32)*as);
+               out.append((char*)_rep->_u._real32Array->getData(),sizeof(Real32)*as);
             }
             break;
          case CIMTYPE_REAL64: {
-               out.append((Sint8*)_rep->_u._real64Array->getData(),sizeof(Real64)*as);
+               out.append((char*)_rep->_u._real64Array->getData(),sizeof(Real64)*as);
             }
             break;
          case CIMTYPE_CHAR16: {
-               out.append((Sint8*)_rep->_u._char16Array->getData(),sizeof(Char16)*as);
+               out.append((char*)_rep->_u._char16Array->getData(),sizeof(Char16)*as);
             }
             break;
          case CIMTYPE_STRING: {
                for (Uint32 i=0; i<as; i++) {
                   CString ustr=(*(_rep->_u._stringArray))[i].getCString();
                   Uint32 sz=strlen((const char*)ustr);
-                  out.append((Sint8*)&sz,sizeof(Uint32));
-                  out.append((Sint8*)((const char*)ustr),sz);
+                  out.append((char*)&sz,sizeof(Uint32));
+                  out.append((char*)((const char*)ustr),sz);
                }
             }
             break;
@@ -900,8 +902,8 @@ void BinaryStreamer::toBin(Array<Sint8> & out, const CIMValue& val)
                for (Uint32 i=0; i<as; i++) {
                   String dts=(*(_rep->_u._dateTimeArray))[i].toString();
                   Sint32 dtl=dts.size();
-                  out.append((Sint8*)&dtl,sizeof(Sint32));
-                  out.append((Sint8*)dts.getChar16Data(),dtl*sizeof(Char16));
+                  out.append((char*)&dtl,sizeof(Sint32));
+                  out.append((char*)dts.getChar16Data(),dtl*sizeof(Char16));
                }
             }
             break;
@@ -909,8 +911,8 @@ void BinaryStreamer::toBin(Array<Sint8> & out, const CIMValue& val)
                 for (Uint32 i=0; i<as; i++) {
                   String rfs=(*(_rep->_u._referenceArray))[i].toString();
                   Sint32 rfl=rfs.size();
-                  out.append((Sint8*)&rfl,sizeof(Sint32));
-                  out.append((Sint8*)rfs.getChar16Data(),rfl*sizeof(Char16));
+                  out.append((char*)&rfl,sizeof(Sint32));
+                  out.append((char*)rfs.getChar16Data(),rfl*sizeof(Char16));
                }
             }
             break;
@@ -919,48 +921,48 @@ void BinaryStreamer::toBin(Array<Sint8> & out, const CIMValue& val)
 
       else switch (val.getType()) {
       case CIMTYPE_BOOLEAN:
-         out.append((Sint8*)&_rep->_u,sizeof(Boolean));  break;
+         out.append((char*)&_rep->_u,sizeof(Boolean));  break;
       case CIMTYPE_UINT8:
-         out.append((Sint8*)&_rep->_u,sizeof(Uint8));    break;
+         out.append((char*)&_rep->_u,sizeof(Uint8));    break;
       case CIMTYPE_SINT8:
-         out.append((Sint8*)&_rep->_u,sizeof(Sint8));    break;
+         out.append((char*)&_rep->_u,sizeof(Sint8));    break;
       case CIMTYPE_UINT16:
-         out.append((Sint8*)&_rep->_u,sizeof(Uint16));   break;
+         out.append((char*)&_rep->_u,sizeof(Uint16));   break;
       case CIMTYPE_SINT16:
-         out.append((Sint8*)&_rep->_u,sizeof(Sint16));   break;
+         out.append((char*)&_rep->_u,sizeof(Sint16));   break;
       case CIMTYPE_UINT32:
-         out.append((Sint8*)&_rep->_u,sizeof(Uint32));   break;
+         out.append((char*)&_rep->_u,sizeof(Uint32));   break;
       case CIMTYPE_SINT32:
-         out.append((Sint8*)&_rep->_u,sizeof(Sint32));   break;
+         out.append((char*)&_rep->_u,sizeof(Sint32));   break;
       case CIMTYPE_UINT64:
-         out.append((Sint8*)&_rep->_u,sizeof(Uint64));   break;
+         out.append((char*)&_rep->_u,sizeof(Uint64));   break;
       case CIMTYPE_SINT64:
-         out.append((Sint8*)&_rep->_u,sizeof(Uint64));   break;
+         out.append((char*)&_rep->_u,sizeof(Uint64));   break;
       case CIMTYPE_REAL32:
-         out.append((Sint8*)&_rep->_u,sizeof(Real32));   break;
+         out.append((char*)&_rep->_u,sizeof(Real32));   break;
       case CIMTYPE_REAL64:
-         out.append((Sint8*)&_rep->_u,sizeof(Real64));   break;
+         out.append((char*)&_rep->_u,sizeof(Real64));   break;
       case CIMTYPE_CHAR16:
-         out.append((Sint8*)&_rep->_u,sizeof(Char16));   break;
+         out.append((char*)&_rep->_u,sizeof(Char16));   break;
       case CIMTYPE_STRING: {
             CString ustr=_rep->_u._stringValue->getCString();
             Uint32 sz=strlen((const char*)ustr);
-            out.append((Sint8*)&sz,sizeof(Uint32));
-            out.append((Sint8*)((const char*)ustr),sz);
+            out.append((char*)&sz,sizeof(Uint32));
+            out.append((char*)((const char*)ustr),sz);
          }
          break;
       case CIMTYPE_DATETIME: {
             String dts=_rep->_u._dateTimeValue->toString();
             Sint32 dtl=dts.size();
-            out.append((Sint8*)&dtl,sizeof(Sint32));
-            out.append((Sint8*)dts.getChar16Data(),dtl*sizeof(Char16));
+            out.append((char*)&dtl,sizeof(Sint32));
+            out.append((char*)dts.getChar16Data(),dtl*sizeof(Char16));
          }
          break;
       case CIMTYPE_REFERENCE: {
             String rfs=_rep->_u._referenceValue->toString();
             Sint32 rfl=rfs.size();
-            out.append((Sint8*)&rfl,sizeof(Sint32));
-            out.append((Sint8*)rfs.getChar16Data(),rfl*sizeof(Char16));
+            out.append((char*)&rfl,sizeof(Sint32));
+            out.append((char*)rfs.getChar16Data(),rfl*sizeof(Char16));
          }
          break;
       }
@@ -970,7 +972,7 @@ void BinaryStreamer::toBin(Array<Sint8> & out, const CIMValue& val)
 }
 
 
-CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
+CIMValue BinaryStreamer::extractValue(const Array<char>& in, Uint32 & pos)
 {
 #ifdef TYPE_CONV
   AutoPtr<subtype_preamble> preamble(new subtype_preamble());
@@ -985,7 +987,7 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
 #else
     BINREP_SUBTYPE_IN(preamble,in,pos);
 #endif
-    const Sint8 *ar=in.getData();
+    const char *ar=in.getData();
 
    if (preamble->type()!=BINREP_VALUE) {
        throw BinException(BINREP_VALUE,String("Expected CIMValue subtype not found"));
@@ -998,7 +1000,7 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
     switch (preamble->version()) {
     case BINREP_VALUE_V1: {
 
-      const Sint8 *ar=in.getData();
+      const char *ar=in.getData();
 
       CIMType type=extractType(ar,pos);
 
@@ -1050,14 +1052,14 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
 #ifdef TYPE_CONV
 		  Array<Sint8> a_val;
 		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Sint8); i+=sizeof(Sint8)) {
-			Sint8 val;
+		  for (Uint32 i =0; i < as*sizeof(char); i+=sizeof(Sint8)) {
+			char val;
 			memcpy( &val, ar + pos + i, sizeof(Sint8));
 		  	a_val.append(val);
 		  }
 		  val.set(a_val);
 #else
-                  val.set(Array<Sint8>((Sint8*)(ar+pos),as));
+                  val.set(Array<Sint8>((Sint8 *)(ar+pos),as));
 #endif
                   pos+=sizeof(Sint8)*as;
                }

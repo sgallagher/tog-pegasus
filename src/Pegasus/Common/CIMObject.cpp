@@ -31,6 +31,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -193,7 +195,7 @@ Boolean CIMObject::isUninitialized() const
 
 String CIMObject::toString () const
 {
-    Array<Sint8> out;
+    Array<char> out;
     
     _checkRep();
     _rep->toXml(out);
@@ -357,7 +359,7 @@ Boolean CIMConstObject::isUninitialized() const
 
 String CIMConstObject::toString () const
 {
-    Array<Sint8> out;
+    Array<char> out;
     
     _checkRep();
     _rep->toXml(out);

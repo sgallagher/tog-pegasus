@@ -32,7 +32,7 @@
 #include <sys/types.h>
 #include <sys/timeb.h> 
 #include <errno.h>
-
+#include <Pegasus/Common/Config.h>
 
 
 typedef CRITICAL_SECTION  PEGASUS_CRIT_TYPE;

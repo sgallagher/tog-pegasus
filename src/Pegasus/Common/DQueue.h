@@ -49,14 +49,14 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 
       virtual ~DQueue() {  }
 
-      virtual void insert_first(L *element) throw(IPCException) 
+      void insert_first(L *element) throw(IPCException) 
       {
 	 _mutex.lock(pegasus_thread_self());
 	 Base::insert_first(static_cast<void *>(element));
 	 _mutex.unlock();
       }
 
-      virtual void insert_last(L *element) throw(IPCException)
+      void insert_last(L *element) throw(IPCException)
       {
 	 _mutex.lock(pegasus_thread_self());
 	 Base::insert_last(static_cast<void *>(element));
@@ -73,23 +73,23 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 	 return;
       }
 
-      virtual void *remove_first ( void ) throw(IPCException) 
+      L *remove_first ( void ) throw(IPCException) 
       { 
 	 _mutex.lock(pegasus_thread_self());
 	 void *ret = Base::remove_first();
 	 _mutex.unlock();
-	 return ret;
+	 return static_cast<L *>(ret);
       }
 
-      virtual void *remove_last ( void ) throw(IPCException) 
+      L *remove_last ( void ) throw(IPCException) 
       { 
 	 _mutex.lock(pegasus_thread_self());
 	 void *ret = Base::remove_last();
 	 _mutex.unlock();
-	 return ret;
+	 return static_cast<L *>(ret);
       }
       
-      virtual void *remove_no_lock(void *key) throw(IPCException)
+      L *remove_no_lock(void *key) throw(IPCException)
       {
 	 if( pegasus_thread_self() != _mutex.get_owner())
 	    throw(Permission(pegasus_thread_self()));
@@ -97,15 +97,15 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 	 while(ret != 0)
 	 {
 	    if(ret->operator==(key))
-	       return(Base::remove(static_cast<void *>(ret)));
+	       return static_cast<L *>(Base::remove(static_cast<void *>(ret)));
 	    ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	 }
 	 return 0;
       }
 
-      void *remove(void *key) throw(IPCException)
+      L *remove(void *key) throw(IPCException)
       {
-	 void *ret = 0;
+	 L *ret = 0;
 	 if( Base::count() > 0 ) {
 	    _mutex.lock(pegasus_thread_self());
 	    ret = remove_no_lock(key);
@@ -114,7 +114,7 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 	 return(ret);
       }
 
-      void *reference(void *key) throw(IPCException)
+      L *reference(void *key) throw(IPCException)
       {
 	 if( pegasus_thread_self() != _mutex.get_owner())
 	    throw(Permission(pegasus_thread_self()));
@@ -123,25 +123,25 @@ template<class L> class PEGASUS_EXPORT DQueue : private internal_dq  {
 	    while(ret != 0)
 	    {
 	       if(ret->operator==(key))
-		  return static_cast<void *>(ret);
+		  return ret;
 	       ret = static_cast<L *>(Base::next(static_cast<void *>(ret)));
 	    }
 	 }
 	 return(0);
       }
 
-      void *next( void * ref) throw(IPCException)
+      L *next( void * ref) throw(IPCException)
       {
 	 if (_mutex.get_owner() != pegasus_thread_self())
 	    throw(Permission(pegasus_thread_self()));
-	 return  Base::next( ref);
+	 return static_cast<L *>(Base::next( ref));
       }
       
-      void *prev( void *ref) throw(IPCException)
+      L *prev( void *ref) throw(IPCException)
       {
 	 if (_mutex.get_owner() != pegasus_thread_self())
 	    throw(Permission(pegasus_thread_self()));
-	 return  Base::prev(ref) ;
+	 return  static_cast<L *>(Base::prev(ref));
 	 
       }
 

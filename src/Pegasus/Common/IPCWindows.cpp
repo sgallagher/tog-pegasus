@@ -30,8 +30,6 @@
 #include <sys/types.h>
 #include <sys/timeb.h>
 
-PEGASUS_NAMESPACE_BEGIN
-
 
 
 static int pegasus_gettimeofday(struct timeval *tv)
@@ -49,6 +47,8 @@ int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz)
 {
    return(pegasus_gettimeofday(tv));
 }
+
+PEGASUS_NAMESPACE_BEGIN
 
 inline void pegasus_yield(void)
 {

@@ -6,13 +6,16 @@
 
 Summary: PEGASUS CIMOM for Linux
 Name: pegasus
-Autoreqprov:  on
+#Autoreqprov:  on
+Autoprov:  on
+Autoreq: 0
 Version: 1.0
 Release: 5
 Group: Systems Management/Base
 Copyright: MIT Public Licence
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Packager: Markus Mueller <markus_mueller@de.ibm.com>
+Requires: glibc >= 2.2.2, openssl >= 0.9.6
 Provides: cimserver pegasus-1.0
 URL:    http://www.opengroup.org/pegasus
 Source: ftp://www.opengroup.org/pegasus/pegasus-%{version}.tar.gz
@@ -32,7 +35,7 @@ linuxthreads or GNU pth and openssl.
 Summary:      The Pegasus source tree
 Group:        Systems Management/Base
 Autoreq: 0
-Requires: pegasus-1.0
+Requires: pegasus-1.0 openssl-devel >= 0.9.6
 
 %description devel
 This package contains the Pegasus source tree, header files and

@@ -128,6 +128,21 @@ private:
     void _handleProcessIndicationRequest(const Message * message);
 
     /**
+        Asynchronous callback function for _handleProcessIndicationRequest.
+        The response from the Handler is checked, and if it is not success, the
+        subscription's On Fatal Error Policy is implemented.  
+
+        @param  operation            shared data structure that controls message
+                                         processing
+        @param  destination          target queue of completion callback
+        @param  userParameter        user parameter for callback processing
+     */
+    static void _handleIndicationCallBack (
+        AsyncOpNode * operation,
+        MessageQueue * destination,
+        void * userParameter);
+
+    /**
 	Notifies the Indication Service that a change in provider registration
 	has occurred.  The Indication Service retrieves the subscriptions
 	affected by the registration change, sends the appropriate Create,
@@ -795,7 +810,7 @@ private:
         _handleOperationResponseAggregation to process the responses, once all 
         expected responses have been received.
 
-        @param  operation            shared data structure that controls msg 
+        @param  operation            shared data structure that controls message
                                          processing
         @param  destination          target queue of completion callback
         @param  userParameter        user parameter for callback processing

@@ -2015,60 +2015,84 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                     _queueId);
 
                 PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
-                    "Sending (SendWait) Indication to " + 
+                    "Sending (SendAsync) Indication to " + 
                     ((MessageQueue::lookup(_handlerService)) ? 
                     String(((MessageQueue::lookup
                     (_handlerService))->getQueueName())) : 
                     String("BAD queue name")) + 
-                    "via CIMHandleIndicationRequestMessage");
+                    " via CIMHandleIndicationRequestMessage");
 		 		 
-                AsyncReply *async_reply = SendWait(async_req);
-
-                //
-                //  ATTN-CAKG-P1-20020326: Check for error - implement 
-                //  subscription's OnFatalErrorPolicy
-                //
-
-                CIMHandleIndicationResponseMessage* handler_response = 
-                    reinterpret_cast<CIMHandleIndicationResponseMessage *>
-                    ((static_cast<AsyncLegacyOperationResult *>
-                    (async_reply))->get_result());
-
-                if (handler_response->cimException.getCode () != CIM_ERR_SUCCESS)
-                {
-                    PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                        "Sending Indication and HandlerService returns "
-                        "CIMException: " + 
-                        handler_response->cimException.getMessage ());
-                }
-
-                delete handler_response;
-
-                //
-                //  Recipient deletes request
-                //
-
-                delete async_reply;
-                op->release();
-                this->return_op(op);
+                SendAsync (op,
+                           _handlerService,
+                           IndicationService::_handleIndicationCallBack,
+                           this,
+                           (void *) & (matchedSubscriptions [i]));
             }
         }
     }
     catch (CIMException& exception)
     {
         response->cimException = exception;
+
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            "CIMException caught in attempting to process indication: " +
+            exception.getMessage ());
     }
     catch (Exception& exception)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                                                       exception.getMessage());
+        response->cimException = PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED,
+            exception.getMessage ());
+
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            "Exception caught in attempting to process indication: " +
+            exception.getMessage ());
     }
 
-    _enqueueResponse(request, response);
+    Base::_enqueueResponse (request, response);
 
     PEG_METHOD_EXIT ();
-
     return;
+}
+
+void IndicationService::_handleIndicationCallBack (
+    AsyncOpNode * operation,
+    MessageQueue * destination,
+    void * userParameter)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_handleIndicationCallBack");
+
+    IndicationService * service = 
+        static_cast <IndicationService *> (destination);
+    CIMInstance * subscription = 
+	reinterpret_cast <CIMInstance *> (userParameter);
+    AsyncReply * asyncReply = 
+        static_cast <AsyncReply *> (operation->get_response ());
+    CIMHandleIndicationResponseMessage * handlerResponse = 
+        reinterpret_cast <CIMHandleIndicationResponseMessage *>
+        ((static_cast <AsyncLegacyOperationResult *>
+        (asyncReply))->get_result ());
+    PEGASUS_ASSERT (handlerResponse != 0);
+
+    if (handlerResponse->cimException.getCode () != CIM_ERR_SUCCESS)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Sending Indication and HandlerService returns "
+            "CIMException: " + 
+            handlerResponse->cimException.getMessage ());
+
+        //
+        //  ATTN-CAKG-P1-20020326: Implement subscription's OnFatalErrorPolicy
+        //
+        //service->_subscriptionRepository->reconcileFatalError (*subscription);
+    }
+
+    delete handlerResponse;
+    delete asyncReply;
+    operation->release ();
+    service->return_op (operation);
+
+    PEG_METHOD_EXIT ();
 }
 
 void IndicationService::_handleNotifyProviderRegistrationRequest

@@ -52,29 +52,30 @@ class CIMMethodRep;
     consists of the following entities:
     <ul>
         <li>Name of the method, a CIMName. Functions are provided to manipulate the name.
-        The name must be a legal name for a CIMProperty or Method {@link CIMName}.
-        <li>CIMType of the return value of the method, a CIMType.
-        <li>Optional CIMQualifiers for the method. A method can contain zero or
-        more CIMQualifiers and functions are provided to manipulate the
-        list of CIMQualifiers
-        <li>Optional CIMParameters for the method which are the parameters to be 
-        placed on a CIM Method operation.  A CIMMethod can contain zero or more 
-        CIMParameters and functions are provided in CIMMethod to manipulate the 
-        list of CIMParameters.  
+        The name must be a legal name for a CIMProperty or Method \Ref{CIMName}.
+        <li>CIM type of the return value of the method, a \Ref{CIMType}. This is any
+        of the predefined CIM types (for example: Boolean);
+        <li>Optional qualifiers (see \Ref{CIMQualifier}) for the method.  A method 
+        can contain zero or more CIMQualifiers and functions are provided to 
+        manipulate the list of CIMQualifiers.  
+        <li>Optional parameters (see \Ref{CIMParameter} for the method which are 
+        the parameters to be placed on a CIM Method operation.  A CIMMethod can 
+        contain zero or more CIMParameters and functions are provided in CIMMethod 
+        to manipulate the list of CIMParameters.  
     </ul>
     In addition, internally, there are the following additional attributes
-    that are part of a CIMMethod.
+    that are part of a CIMMethod including:
     <ul>
-        <li>propagated - attributed defining whether this CIMMethod is 
+        <li><b>propagated</b> - An attribute defining whether this CIMMethod is 
         propagated from a superclass.  Note that this is normally set as part of 
         completing the definition of objects (resolving) when they are placed in a 
         repository and is NOT automatically set when creating a local object.  It 
         is part of the context of the object within the repository.  It can only 
         logically be set in context of the superclass of which this CIMMethod is 
         defined.  
-        <li>ClassOrigin - attribute defining the superclass in which this 
+        <li><b>ClassOrigin</b> - An attribute defining the superclass in which this 
         CIMMethod was originally defined.  This is normally set as part of 
-        resolving Class and instances in the context of other objects (i.e.  a 
+        resolving Class and instances in the context of other objects (for example,  a 
         repository).  This attribute is available from objects retrieved from the 
         repository, for example and indicates the Class/Instance in the hiearchy 
         (this object or a superclass or instance of a superclass)was originally 
@@ -126,7 +127,8 @@ public:
 
     /** Creates a CIMMethod object with the specified name and other input parameters.
         @param name CIMName defining the name for the method.
-        @param type CIMType defining data type of method to create. See 
+        
+        @param type CIMType defining data type of the method to be created. 
             
         @param classOrigin (optional) CIMName representing the class origin. Note
             that this should normally not be used.  If not provided set to
@@ -135,6 +137,7 @@ public:
             CIM Method is local to the CIM Class (respectively, Instance) in which 
             it appears, or was propagated without modification from the a 
             Superclass. Default is false.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
         </pre>
@@ -146,14 +149,15 @@ public:
         Boolean propagated = false);
 
     /** Destructor for the CIMMethod. Since this is a shared class, the destructor
-        is only releases when there are no more objects pointing to the representation of this
-        object. 
+        only releases when there are no more objects pointing to the representation
+        of this object. 
     */
     ~CIMMethod();
 
-    /** Assignment operator. Assigns one CIM method to another.  This method performs
+    /** The assignment operator assigns one CIM method to another.  This method performs
         the assignment by incrementing the reference count for the representation of
         the CIMMethod, not by creating a deep copy of the object.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             CIMMethod m2 = m1;
@@ -163,6 +167,7 @@ public:
 
     /** Gets the name of the method.
         @return CIMName with the name of the method.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             assert(m1.getName() == CIMName ("getHostName"));
@@ -173,6 +178,7 @@ public:
     /** Sets the method name.
         @param name - CIMName for the method name. Replaces any
             previously defined name for this method object.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m2(CIMName ("test"), CIMTYPE_STRING);
             m2.setName(CIMName ("getVersion"));
@@ -183,6 +189,7 @@ public:
     /** Gets the method type.
         @return The CIMType containing the method type for this method.
         This is the type returned as the return value of a method operation.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             assert(m1.getType() == CIMTYPE_STRING);
@@ -194,6 +201,7 @@ public:
         as defined in CIMType. This is the type of the CIMValue
         that is returned on a CIMMethod operation
         @param type CIMType to be set into the method object.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1();
             m1.setName(CIMName ("getVersion"));
@@ -224,24 +232,25 @@ public:
         classes into the repository (resolving the class).  It is 
         available on methods in classes read from the repository and
         on instances that are read from the instance repository.
-        @return true if method is propagated, false otherwise.
+        @return True if method is propagated; otherwise,false.
     */
     Boolean getPropagated() const;
 
     /** Sets the Propagaged Qualifier. Normally this is used by the functions
         that resolve classes and instances as part of the installation into
         a repository.
-        @param propagated Flag indicating propagation. True means that
-        the method was propagated from a superclass.
+        @param propagated Flag indicating method is propagated from superclass propagation.
+        True means that the method was propagated from superclass.
     */
     void setPropagated(Boolean propagated);
 
     /** Adds the specified qualifier to the method and increments the
         qualifier count. 
-        @param x - CIMQualifier object representing the qualifier
+        @param x CIMQualifier object representing the qualifier
         to be added.
         @return the CIMMethod object after adding the specified qualifier.
         @exception AlreadyExistsException if the qualifier already exists.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
@@ -250,9 +259,10 @@ public:
     CIMMethod& addQualifier(const CIMQualifier& x);
 
     /** Searches for a qualifier with the specified input name.
-        @param name - CIMName of the qualifier to be found.
+        @param name CIMName of the qualifier to be found.
         @return Index of the qualifier found or PEG_NOT_FOUND
         if not found.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
@@ -262,10 +272,11 @@ public:
     Uint32 findQualifier(const CIMName& name) const;
 
     /** Gets the CIMQualifier defined by the input parameter.
-        @param index - Index of the qualifier requested.
+        @param index Index of the qualifier requested.
         @return CIMQualifier object representing the qualifier found.
         @exception IndexOutOfBoundsException exception if the index is
         outside the range of parameters available from the CIMMethod.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
@@ -277,10 +288,11 @@ public:
     CIMQualifier getQualifier(Uint32 index);
 
     /** Gets the CIMQualifier defined by the input parameter.
-        @param index - Index of the qualifier requested.
+        @param index Index of the qualifier requested.
         @return CIMConstQualifier object representing the qualifier found.
         @exception IndexOutOfBoundsException exception if the index is
         outside the range of parameters available from the CIMMethod.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
@@ -293,7 +305,7 @@ public:
     CIMConstQualifier getQualifier(Uint32 index) const;
 
     /** Removes the specified CIMQualifier from this method.
-        @param index - Index of the qualifier to remove.
+        @param index Index of the qualifier to remove.
         @exception IndexOutOfBoundsException exception if the index is
             outside the range of parameters available from the CIMMethod.
     */
@@ -301,6 +313,7 @@ public:
 
     /** Returns the number of Qualifiers attached to this CIMMethod object.
         @return the number of qualifiers in the CIM Method.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
@@ -311,8 +324,9 @@ public:
     Uint32 getQualifierCount() const;
 
     /** Adds the parameter defined by the input to the CIMMethod.
-        @param x - CIMParameter to be added to the CIM Method.
+        @param x CIMParameter to be added to the CIM Method.
         @return CIMMethod object after the specified parameter is added.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addParameter(CIMParameter(CIMName ("ipaddress"), CIMTYPE_STRING));
@@ -321,9 +335,10 @@ public:
     CIMMethod& addParameter(const CIMParameter& x);
 
     /** Finds the parameter with the specified name.
-        @param name - Name of parameter to be found.
+        @param name CIMName of parameter to be found.
         @return Index of the parameter object found or PEG_NOT_FOUND 
         if the property is not found.
+        <p><b>Example:</b>
         <pre>
             Uint32 posParameter;
             posParameter = m1.findParameter(CIMName ("ipaddress"));
@@ -334,10 +349,11 @@ public:
     Uint32 findParameter(const CIMName& name) const;
 
     /** Gets the parameter defined by the specified index.
-        @param index - Index for the parameter to be returned.
+        @param index Index for the parameter to be returned.
         @return CIMParameter object requested.
         @exception IndexOutOfBoundsException if the index is outside 
             the range of available parameters.
+        <p><b>Example:</b>
         <pre>
             CIMParameter cp = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
         </pre>
@@ -345,7 +361,7 @@ public:
     CIMParameter getParameter(Uint32 index);
 
     /** Gets the parameter defined for the specified index.
-        @param index - Index for the parameter to be returned.
+        @param index Index for the parameter to be returned.
         @return CIMConstParameter object requested.
         @exception IndexOutOfBoundsException if the index is outside 
             the range of available parameters
@@ -353,26 +369,27 @@ public:
     CIMConstParameter getParameter(Uint32 index) const;
 
     /** Removes the CIMParameter defined by the specified index.
-        @param index - Index of the parameter to be removed.
+        @param index Index of the parameter to be removed.
         @exception IndexOutOfBoundsException if the index is outside the
             range of parameters available from the CIMMethod.
     */
     void removeParameter (Uint32 index);
 
     /** Gets the count of Parameters defined in the CIMMethod.
-        @return - count of the number of parameters attached to the CIMMethod.
+        @return Count of the number of parameters attached to the CIMMethod.
     */
     Uint32 getParameterCount() const;
 
     /** Determines if the object has not been initialized.
-        @return  true if the object has not been initialized,
+        @return  True if the object has not been initialized,
                  false otherwise false.
      */
     Boolean isUninitialized() const;
 
     /** Compares with another CIMConstMethod.
-        @param x - CIMConstMethod object for the method to be compared.
+        @param x CIMConstMethod object for the method to be compared.
         @return true if this method is identical to the one specified.
+        <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             CIMMethod m2(CIMName ("test"), CIMTYPE_STRING);
@@ -381,7 +398,9 @@ public:
     */
     Boolean identical(const CIMConstMethod& x) const;
 
-    /** Makes a deep copy (clone) of this method.
+    /** Makes a clone (deep copy) of this method. This creates
+        a new copy of all of the components of the method including
+        parameters and qualifiers.
         @return copy of the CIMMethod object.
     */
     CIMMethod clone() const;
@@ -405,9 +424,9 @@ private:
     same manner as the CIMMethod class except that the const attribute
     is applied to the objects created. This class includes equivalents
     to the methods from CIMMethod that are usable in a const object including
-    constructors, (i.e. getter methods) and the destructor.
-    The const form of the object is used TBD
-    ATTN: Complete the explanation of why.
+    constructors, (for example: getter methods) and the destructor.
+    
+    REVIEWERS: ATTN: Complete the explanation of why.
 */
 class PEGASUS_COMMON_LINKAGE CIMConstMethod
 {
@@ -447,6 +466,7 @@ public:
     prevent unplanned modification of the object
     @param x CIMMethod object that is to be assigned to another
     CIMMethod object.
+    <p><b>Example:</b>
     <pre>
     CIMMethod cm1("putthing");
     </pre>

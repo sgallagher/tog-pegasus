@@ -283,7 +283,7 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 	 // Send response message to the client (use synchronous I/O for now:
 
-
+	 _socket->enableBlocking();
 
 	 const Array<Sint8>& buffer = httpMessage->message;
  
@@ -463,15 +463,12 @@ void HTTPConnection::_handleReadEvent()
     lock_connection();
 #endif
 
-
-    
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
     for (;;)
     {
 	char buffer[4096];
         Sint32 n = _socket->read(buffer, sizeof(buffer));
-
 	if (n <= 0)
 	{
 	    if (_socket->isSecure() && bytesRead == 0)
@@ -491,7 +488,6 @@ void HTTPConnection::_handleReadEvent()
 	       //
                incompleteSecureReadOccurred = !_socket->incompleteReadOccurred(n);
             }
-
 	    break;
 	}
 

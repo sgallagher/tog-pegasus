@@ -49,12 +49,16 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak
 
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+SYS_LIBS = ws2_32.lib advapi32.lib
+endif
+
 ifdef PEGASUS_ENABLE_SLP
 $(SOURCES): slp_client
 slp_client :
 	@ $(MAKE) -SC $(ROOT)/src/slp/slp_client
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SYS_LIBS = $(PEGASUS_HOME)/lib/pegslp_client.lib ws2_32.lib advapi32.lib
+SYS_LIBS += $(PEGASUS_HOME)/lib/pegslp_client.lib
 endif
 endif
 

@@ -205,6 +205,14 @@ TAG: Version_1_09.
     between two local times. Also updated the getDifference to compute the 
     difference between two intervals.
 
+37. (Mary Hinton) 10 May 2002 - Fixed the problem in the new version of 
+    pegasus_gettimeofday(struct timeval *tv)function for the Windows 
+    platform. The new implementation was implemented for higher resolution 
+    for performance statistics. However, it was causing an intermittent 
+    hang in the ThreadPool test on the Windows platform.When (long int) 
+    is changed to (__int64), the tv_usec variable of timeval struct has 
+    the correct value.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

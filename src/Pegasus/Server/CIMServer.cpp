@@ -481,10 +481,10 @@ void CIMServer::runForever()
       {
     	if(false == _monitor->run(100))
     	  {
+            startSLPProvider();
     	    modulator++;
     	    if( ! (modulator % 5000) )
     	      {
-    		    startSLPProvider();
         		try
         		  {
                     MessageQueueService::_check_idle_flag = 1;
@@ -519,10 +519,6 @@ void CIMServer::runForever()
   }
 
 }
-
-
-
-
 
 void CIMServer::stopClientConnection()
 {
@@ -689,20 +685,60 @@ SSLContext* CIMServer::_getSSLContext()
 }
 
 #ifdef PEGASUS_ENABLE_SLP
-// startSLPProvider is a temporary hack to get the slp provider kicked off
-// during startup.  It is placed in the provider manager simply because 
-// the provider manager is the only component of the system that seems to
-// be driven by a timer after startup.  It should never be here and must be
-// moved to somewhere more logical or really replaced. We simply needed
-// something that was run shortly after system startup.
-// KS 15 February 2004.
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void *parm);
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* param)
+
+// This is a control function that starts a new thread which issues a
+// cim operation to start the slp provider.
+void CIMServer::startSLPProvider(void)
 {
 
-    static const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE             = 
-        CIMName ("PG_WBEMSLPTEMPLATE");
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CIMServer::startSLPProvider");
+
+    
+    // This is a onetime function.  If already issued, or config is not to use simply
+    // return
+    if (!_runSLP)
+    {
+        return;
+    }
+
+    // Get Config parameter to determine if we should start SLP.
+    ConfigManager* configManager = ConfigManager::getInstance();
+    _runSLP = String::equal(
+         configManager->getCurrentValue("slp"), "true");
+
+    // If false, do not start slp provider
+    if (!_runSLP)
+    {
+        return;
+    }
+    //SLP startup is onetime function; reset the switch so this
+    // function does not get called a second time.
+    _runSLP = false;
+
+    // Create a separate thread, detach and call function to execute the startup.
+	Thread t( _callSLPProvider, 0, true );
+	t.run();
+
+    PEG_METHOD_EXIT();
+    return;
+}
+
+
+// startSLPProvider is a function to get the slp provider kicked off
+// during startup.  It is placed in the provider manager simply because 
+// the provider manager is the only component of the system is
+// driven by a timer after startup.  It should never be here and must be
+// moved to somewhere more logical or really replaced. We simply needed
+// something that was run shortly after system startup.
+// This function is assumed to operate in a separate thread and 
+// KS 15 February 2004.
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* parm )
+{
     //
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_callSLPProvider()");
     // Create CIMClient object
     //
     CIMClient client;
@@ -748,13 +784,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* param)
     catch(CIMException& e)
     {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "SLP Registration Failed. CIMException");
+            "SLP Registration Failed. CIMException. $0", e.getMessage());
     }
 
     catch(Exception& e)
     {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "SLP Registration Failed Startup: CIMServer exception");
+            "SLP Registration Failed Startup: CIMServer exception. $0", e.getMessage());
     }
 
     client.disconnect();
@@ -762,49 +798,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callSLPProvider(void* param)
     //ATTN: KS. The cout is temp and should be removed.
     PEGASUS_STD(cout) << "Started SLP Provider thread." << PEGASUS_STD(endl);
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-        "SLP Registered");
+        "SLP Registration Initiated");
+
+    PEG_METHOD_EXIT();
 	return( (PEGASUS_THREAD_RETURN)32 );
-}
-void CIMServer::startSLPProvider(void)
-{
-
-   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::startSLPProvider");
-
-    
-    //PEGASUS_STD(cout) << "SLP provider startup enter. runSLP =" 
-    //    << (_runSLP? "true" : "false") << PEGASUS_STD(endl);
-
-    // This is a onetime function.  If already issued, or config is not to use simply
-    // return
-    if (!_runSLP)
-    {
-        return;
-    }
-
-    // Get Config parameter to determine if we should start SLP.
-    ConfigManager* configManager = ConfigManager::getInstance();
-    _runSLP = String::equal(
-         configManager->getCurrentValue("slp"), "true");
-
-    // If false, do not start.
-    if (!_runSLP)
-    {
-        return;
-    }
-    //This is onetime; reset the switch so this
-    // function does not get called a second time.
-
-    //PEGASUS_STD(cout) << "starting SLP Provider thread. _runSLP=" 
-    //    << (_runSLP? "true" : "false") << PEGASUS_STD(endl);
-    _runSLP = false;
-
-    // Create a separate thread to execute the startup.
-	Thread t( _callSLPProvider, 0, true );
-	t.run();
-    //PEGASUS_STD(cout) << "started SLP Provider thread. _runSLP=" 
-    //    << (_runSLP? "true" : "false") << PEGASUS_STD(endl);
-
-    return;
 }
 #endif
 

@@ -151,11 +151,11 @@ public:
     */
     void shutdownSignal();
 
-    /** startSLPProvider is a temporary hack to get this
+    /** startSLPProvider is a temporary function to get this
         provider started as part of system startup.
         This MUST be replaced with something more permanent.
     */
-    void startSLPProvider();
+    void startSLPProvider(void);
 
 private:
 

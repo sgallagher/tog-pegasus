@@ -593,7 +593,7 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
 {
     if (!activeTest)
     {
-        cout << "InstanceModify bypassed because it modifys repository. Set active to execute"
+        cout << "InstanceModify bypassed because it modifies repository. Set active to execute."
              << endl;
         return;
     }

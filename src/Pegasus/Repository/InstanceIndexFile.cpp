@@ -147,7 +147,7 @@ Boolean InstanceIndexFile::lookup(
     String realPath;
 
     if (!FileSystem::existsIgnoreCase(path, realPath))
-	throw CannotOpenFile(path);
+	return false;
 
     ArrayDestroyer<char> p(realPath.allocateCString());
 
@@ -161,6 +161,7 @@ Boolean InstanceIndexFile::lookup(
 	const char* objectName;
 	Uint32 index;
 	Boolean error;
+
 
 	while (_GetNextRecord(is, line, hashCode, objectName, index, error))
 	{

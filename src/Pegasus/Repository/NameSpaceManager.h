@@ -33,34 +33,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** The NameSpace keeps track of memory resident status about a particular
-    namespace.
-*/
-class PEGASUS_REPOSITORY_LINKAGE NameSpace
-{
-public:
-
-    NameSpace(const String& nameSpacePath, const String& nameSpaceName);
-
-    const String& getNameSpacePath() const { return _nameSpacePath; }
-
-    const String& getNameSpaceName() const { return _nameSpaceName; }
-
-    ~NameSpace();
-
-    InheritanceTree& getInheritanceTree() { return _inheritanceTree; }
-
-    /** Print this namespace. */
-    void print(std::ostream& os) const;
-
-private:
-
-    InheritanceTree _inheritanceTree;
-    String _nameSpacePath;
-    String _nameSpaceName;
-};
-
 struct NameSpaceManagerRep;
+class NameSpace;
+
 
 /** The NameSpaceManager class manages a collection of NameSpace objects.
 */
@@ -104,18 +79,92 @@ public:
     */
     void getNameSpaceNames(Array<String>& nameSpaceNames) const;
 
-    /** Print out the namespaces. */
-    void print(std::ostream& os) const;
-
     /** Get path to the class file for the given class. 
 	@param nameSpaceName name of the namespace.
 	@param className name of class.
-	@exception CIMException(CIMException::INVALID_CLASS)
 	@exception CIMException(CIMException::INVALID_NAMESPACE)
+	@exception CIMException(CIMException::INVALID_CLASS)
     */
     String getClassFilePath(
 	const String& nameSpaceName,
 	const String& className) const;
+
+    /** Get path to the qualifier file for the given class. 
+	@param nameSpaceName name of the namespace.
+	@param qualifierName name of qualifier.
+	@exception CIMException(CIMException::INVALID_NAMESPACE)
+	@exception CIMException(CIMException::NOT_FOUND)
+    */
+    String getQualifierFilePath(
+	const String& nameSpaceName,
+	const String& qualifierName) const;
+
+    String getInstanceFileBase(
+	const String& nameSpaceName,
+	const String& className) const;
+
+    /** Get path to the directory containing qualifiers:
+	@param nameSpaceName name of the namespace.
+    */
+    String getQualifiersRoot(const String& nameSpaceName) const;
+
+    /** Deletes the class file for the given class.
+	@param nameSpaceName name of namespace.
+	@param className name of class.
+	@exception CIMException(CIMException::INVALID_NAMESPACE)
+	@exception CIMException(CIMException::INVALID_CLASS)
+	@exception CIMException(CIMException::CLASS_HAS_CHILDREN)
+    */
+    void deleteClass(
+	const String& nameSpaceName,
+	const String& className) const;
+
+    /** Print out the namespaces. */
+    void print(std::ostream& os) const;
+
+    /** Creates an entry for a new class.
+	@param nameSpaceName namespace to contain class.
+	@param className name of class
+	@param superClassName name of superClassName
+	@param classFilePath path of file to contain class itself.
+    */
+    void createClass(
+	const String& nameSpaceName,
+	const String& className,
+	const String& superClassName,
+	String& classFilePath);
+
+    /** Checks if it is okay to modify this class.
+	@param nameSpaceName namespace.
+	@param className name of class being modified.
+	@param superClassName superclass of class being modified.
+	@param classFilePath full path to file containing class.
+	@exception CIMException(CIMException::INVALID_CLASS)
+	@exception CIMException(CIMException::FAILED) if there is an attempt
+	    to change the superclass of this class.
+	@exception CIMException(CIMException::CLASS_HAS_CHILDREN) if class
+	    has any children.
+    */
+    void checkModify(
+	const String& nameSpaceName,
+	const String& className,
+	const String& superClassName,
+	String& classFilePath);
+
+    /** Get subclass names of the given class in the given namespace.
+	@param nameSpaceName
+	@param className - class whose subclass names will be gotten. If
+	    className is empty, all classnames are returned.
+	@param deepInheritance - if true all descendent classes of class
+	    are returned. If className is empty, only root classes are returned.
+	@param subClassNames - output argument to hold subclass names.
+	@exception CIMException(CIMException::INVALID_CLASS)
+    */
+    void getSubClassNames(
+	const String& nameSpaceName,
+	const String& className,
+	Boolean deepInheritance,
+	Array<String>& subClassNames) const;
 
 private:
 

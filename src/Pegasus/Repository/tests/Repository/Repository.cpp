@@ -82,18 +82,19 @@ void test02()
     {
 	r.createNameSpace(NAMESPACE);
     }
-    catch (AlreadyExists&)
+    catch (CIMException& e)
     {
+	PEGASUS_ASSERT(e.getCode() == CIMException::ALREADY_EXISTS);
 	// Ignore this!
     }
 
     //--------------------------------------------------------------------------
-    // Create Class (ThisClass):
+    // Create Class (SuperClass):
     //--------------------------------------------------------------------------
 
-    CIMClass cimClass("ThisClass");
+    CIMClass superClass("SuperClass");
 
-    cimClass
+    superClass
 	.addProperty(CIMProperty("Last", String())
 	    .addQualifier(CIMQualifier("key", true)))
 	.addProperty(CIMProperty("First", String())
@@ -101,26 +102,39 @@ void test02()
 	.addProperty(CIMProperty("Age", Uint8(0))
 	    .addQualifier(CIMQualifier("key", true)));
 
-    r.createClass(NAMESPACE, cimClass);
+    r.createClass(NAMESPACE, superClass);
 
     //--------------------------------------------------------------------------
-    // Create Instance (of ThisClass):
+    // Create Class (SubClass):
     //--------------------------------------------------------------------------
 
-    CIMInstance cimInstance("ThisClass");
-    cimInstance.addProperty(CIMProperty("Last", "Smith"));
-    cimInstance.addProperty(CIMProperty("First", "John"));
-    cimInstance.addProperty(CIMProperty("Age", Uint8(101)));
-    r.createInstance(NAMESPACE, cimInstance);
+    CIMClass subClass("SubClass", "SuperClass");
+    subClass.addProperty(CIMProperty("Role", String()));
+    r.createClass(NAMESPACE, subClass);
 
-    CIMReference instanceName1 = cimInstance.getInstanceName(cimClass);
+    //--------------------------------------------------------------------------
+    // Create Instance (of SubClass):
+    //--------------------------------------------------------------------------
+
+    CIMInstance subClassInstance("SubClass");
+    subClassInstance.addProperty(CIMProperty("Last", "Smith"));
+    subClassInstance.addProperty(CIMProperty("First", "John"));
+    subClassInstance.addProperty(CIMProperty("Age", Uint8(101)));
+    subClassInstance.addProperty(CIMProperty("Role", "Taylor"));
+    r.createInstance(NAMESPACE, subClassInstance);
+
+    //--------------------------------------------------------------------------
+    // Get instance back:
+    //--------------------------------------------------------------------------
+
+    CIMReference instanceName1 = subClassInstance.getInstanceName(subClass);
 
     CIMReference instanceName2 =
-	"ThisClass.first=\"John\",last=\"Smith\",age=101";
+	"SuperClass.first=\"John\",last=\"Smith\",age=101";
 
     CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2);
 
-    assert(cimInstance.identical(tmp));
+    assert(subClassInstance.identical(tmp));
 }
 
 int main()

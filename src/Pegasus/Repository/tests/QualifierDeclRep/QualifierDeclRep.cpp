@@ -78,13 +78,11 @@ void test()
     // Enumerate the qualifier names:
 
     Array<CIMQualifierDecl> qualifiers = r.enumerateQualifiers(NAMESPACE);
-
     assert(qualifiers.size() == 2);
 
     for (Uint32 i = 0, n = qualifiers.size(); i < n; i++)
     {
 	// qualifiers[i].print();
-
 	assert(qualifiers[i].identical(q3) || qualifiers[i].identical(q4));
     }
 }

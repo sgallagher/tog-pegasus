@@ -135,7 +135,7 @@ typedef __int64 Sint64;
 
 #pragma warning ( disable : 4251 )
 
-#define PEGASUS_IOS_BINARY , ios::binary
+#define PEGASUS_IOS_BINARY , std::ios::binary
 
 PEGASUS_NAMESPACE_END
 

@@ -58,7 +58,9 @@ struct InheritanceTreeNode
 {
     InheritanceTreeNode(const String& className);
 
-    void addSubClass(InheritanceTreeNode* child);
+    void addSubClass(InheritanceTreeNode* subClass);
+
+    Boolean removeSubClass(InheritanceTreeNode* subClass);
 
     void getSubClassNames(
 	Array<String>& subClassNames, 
@@ -80,11 +82,32 @@ InheritanceTreeNode::InheritanceTreeNode(const String& className)
 
 }
 
-void InheritanceTreeNode::addSubClass(InheritanceTreeNode* child)
+void InheritanceTreeNode::addSubClass(InheritanceTreeNode* subClass)
 {
-    child->superClass = this;
-    child->sibling = subClasses;
-    subClasses = child;
+    subClass->superClass = this;
+    subClass->sibling = subClasses;
+    subClasses = subClass;
+}
+
+Boolean InheritanceTreeNode::removeSubClass(InheritanceTreeNode* subClass)
+{
+    InheritanceTreeNode* prev = 0;
+
+    for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
+    {
+	if (p == subClass)
+	{
+	    if (prev)
+		prev->sibling = subClass->sibling;
+	    else
+		subClasses = subClass->sibling;
+		
+	    return true;
+	}
+	prev = p;
+    }
+
+    return false;
 }
 
 void InheritanceTreeNode::getSubClassNames(
@@ -98,7 +121,9 @@ void InheritanceTreeNode::getSubClassNames(
 	subClassNames.append(p->className);
 
 	if (deepInheritance)
+	{
 	    p->getSubClassNames(subClassNames, true);
+	}
     }
 }
 
@@ -232,16 +257,15 @@ Boolean InheritanceTree::getSubClassNames(
 		// Append all classes:
 
 		subClassNames.append(i.key());
-		return true;
 	    }
 	    else if (!i.value()->superClass)
 	    {
 		// Just append root classes:
 
 		subClassNames.append(i.key());
-		return true;
 	    }
 	}
+	return true;
     }
 
     // -- Case 2: className non-empty: get names of classes descendent from
@@ -257,6 +281,29 @@ Boolean InheritanceTree::getSubClassNames(
     }
 
     // Not found!
+    return false;
+}
+
+Boolean InheritanceTree::getSuperClass(
+    const String& className,
+    String& superClassName) const
+{
+    InheritanceTreeNode* classNode;
+
+    if (_rep->table.lookup(className, classNode))
+    {
+	if (classNode->superClass)
+	{
+	    superClassName = classNode->superClass->className;
+	}
+	else
+	{
+	    superClassName.clear();
+	}
+
+	return true;
+    }
+
     return false;
 }
 
@@ -276,6 +323,37 @@ Boolean InheritanceTree::hasSubClasses(
 Boolean InheritanceTree::containsClass(const String& className) const
 {
     return _rep->table.contains(className);
+}
+
+void InheritanceTree::remove(const String& className)
+{
+    // -- Lookup the node:
+
+    InheritanceTreeNode* node = 0;	
+
+    if (!_rep->table.lookup(className, node))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+
+    // -- Disallow if is has any subclasses:
+
+    if (node->subClasses)
+	throw PEGASUS_CIM_EXCEPTION(CLASS_HAS_CHILDREN, className);
+
+    // -- Remove as child of superclass:
+
+    InheritanceTreeNode* superClass = node->superClass;
+
+    if (superClass)
+    {
+	Boolean result = superClass->removeSubClass(node);
+	PEGASUS_ASSERT(result);
+    }
+
+    // -- Remove from the hash table and delete:
+
+    Boolean result = _rep->table.remove(className);
+    PEGASUS_ASSERT(result);
+    delete node;
 }
 
 void InheritanceTree::print(std::ostream& os) const

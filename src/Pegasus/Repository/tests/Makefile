@@ -8,10 +8,11 @@ XDIRS = \
 DIRS = \
     LoadClass \
     ClassDeclRep \
-    Repository \
     QualifierDeclRep \
     NameSpace \
     EnumerateClassNames \
-    Inst
+    Inst \
+    Repository \
+    Repository2
 
 include ../../../../mak/recurse.mak

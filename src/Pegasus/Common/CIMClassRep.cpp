@@ -211,7 +211,7 @@ void CIMClassRep::resolve(
 	    = context->lookupClass(nameSpace, _superClassName);
 
 	if (!superClass)
-	    throw NoSuchSuperClass(_superClassName);
+	    throw PEGASUS_CIM_EXCEPTION(INVALID_SUPERCLASS, _superClassName);
 
 #if 0
 	if (!superClass._rep->_resolved)

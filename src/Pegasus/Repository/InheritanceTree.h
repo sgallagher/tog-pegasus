@@ -192,6 +192,15 @@ public:
 	Boolean deepInheritance,
 	Array<String>& subClassNames) const;
 
+    /** Get the superclass of the given class.
+	@param className name of class.
+	@param superClassName name of superclass upon return.
+	@return true if class was found; false otherwise.
+    */
+    Boolean getSuperClass(
+	const String& className,
+	String& superClassName) const;
+
     /** Returns true if the given class has sub-classes. */
     Boolean hasSubClasses(
 	const String& className,
@@ -199,6 +208,12 @@ public:
 
     /** Returns true if this inhertance tree contains the given class. */
     Boolean containsClass(const String& className) const;
+
+    /** Removes the given class from the class graph. 
+	@exception CIMException(CIMException::CLASS_HAS_CHILDREN)
+	@exception CIMException(CIMException::INVALID_CLASS)
+    */
+    void remove(const String& className);
 
     /** Prints the class */
     void print(std::ostream& os) const;

@@ -39,241 +39,17 @@
 #include "CIMRepository.h"
 #include "InstanceIndexFile.h"
 
-#define INDENT_XML_FILES
+// #define INDENT_XML_FILES
+
+using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Local functions
+// _LoadObject()
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-//------------------------------------------------------------------------------
-//
-// This routine matches files in the classes directory (given by path)
-// that match the second and third arguments, which are eight class names
-// or asterisks (which are wild cards). All the files in the ./classes
-// directory are of the form <className.superClassName>. For classes
-// with no superClass, the superClassName is "#". We consider a couple of
-// examples. To find all direct subclasses of "MyClass", we invoke it
-// as follows:
-//
-//	_GlobClassesDir(path, "*", "MyClass");
-//
-// To find the file which contains the class called "MyClass", we invoke
-// it like this.
-//
-//	_GlobClassesDir(path, "MyClass", "*");
-//
-// Since base classes are of the form "<ClassName>.#", all baseclasses may
-// be found with:
-//
-//	_GlobClassesDir(path, "*", "#");
-//
-// Note that the results (the array of filenames which are returned) must
-// be processed further to get the actual class names. The name of the
-// class is the filename less the extension. Or this:
-//
-//	String className = fileName.subString(fileName.find(0, '.'));
-//
-//------------------------------------------------------------------------------
-
-Array<String> _GlobClassesDir(
-    const String& path, 
-    const String& className,
-    const String& superClassName)
-{
-    Array<String> fileNames;
-
-    if (!FileSystem::getDirectoryContents(path, fileNames))
-	throw NoSuchDirectory(path);
-
-    Array<String> result;
-
-    for (Uint32 i = 0; i < fileNames.size(); i++)
-    {
-	const String& tmp = fileNames[i];
-
-	Uint32 dot = tmp.find('.');
-
-	// Ignore files that do not contain a dot:
-
-	if (dot == Uint32(-1))
-	    continue;
-
-	String first = tmp.subString(0, dot);
-	String second = tmp.subString(dot + 1);
-
-	if ((String::equal(className, "*") || 
-	    CIMName::equal(first, className)) &&
-	    (String::equal(superClassName, "*") || 
-	    CIMName::equal(second, superClassName)))
-	{
-	    result.append(tmp);
-	}
-    }
-
-    return result;
-}
-
-static Boolean _SkipIdentifier(Char16*& p)
-{
-    if (!*p || !(isalpha(*p) || *p == '_'))
-	return false;
-
-    for (p++; *p; p++)
-    {
-	if (!(isalnum(*p) || *p == '_'))
-	    return true;
-    }
-
-    return true;
-}
-
-using namespace std;
-
-static void _MakeNameSpacePath(
-    const String& root,
-    const String& nameSpace,
-    String& path)
-{
-    path = root;
-    path.append('/');
-
-    path.append(nameSpace);
-
-    Char16* p = (Char16*)(path.getData() + root.size() + 1);
-
-    while (*p)
-    {
-	// Either we will encounter a slash or an identifier:
-
-	if (*p == '/')
-	{
-	    if (p[1] == '/')
-		throw CIMException(CIMException::INVALID_NAMESPACE);
-	    
-	    *p++ = '#';
-	}
-	else if (!_SkipIdentifier(p))
-	    throw CIMException(CIMException::INVALID_NAMESPACE);
-    }
-
-    // The last element may NOT be a slash (slashes are translated to
-    // #'s above).
-
-    if (p[-1] == '#')
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-}
-
-void _FindClass(
-    const String& root, 
-    const String& nameSpace, 
-    const String& className,
-    String& path)
-{
-    const char CLASSES[] = "/classes/";
-    _MakeNameSpacePath(root, nameSpace, path);
-
-    if (!FileSystem::isDirectory(path))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-
-    path.append(CLASSES);
-
-    Array<String> fileNames = _GlobClassesDir(path, className, "*");
-
-    Uint32 size = fileNames.size();
-
-    if (size == 0)
-	throw CIMException(CIMException::INVALID_CLASS);
-
-    PEGASUS_ASSERT(size == 1);
-    path.append(fileNames[0]);
-}
-
-inline Uint32 _min(Uint32 x, Uint32 y)
-{
-    return x < y ? x : y;
-}
-
-static void _MakeNewClassPath(
-    const String& root,
-    const String& nameSpace,
-    const String& className,
-    const String& superClassName,
-    String& path)
-{
-    const char CLASSES[] = "/classes/";
-    _MakeNameSpacePath(root, nameSpace, path);
-
-    if (!FileSystem::isDirectory(path))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-
-    path.append(CLASSES);
-    path.append(className);
-    path.append('.');
-
-    if (superClassName.size() == 0)
-	path.append("#");
-    else
-	path.append(superClassName);
-}
-
-static void _MakeQualfierPath(
-    const String& root,
-    const String& nameSpace,
-    const String& qualifierName,
-    String& path)
-{
-    const char QUALIFIERS[] = "/qualifiers/";
-    _MakeNameSpacePath(root, nameSpace, path);
-
-    if (!FileSystem::isDirectory(path))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-
-    path.append(QUALIFIERS);
-    path.append(qualifierName);
-}
-
-static void _MakeInstanceIndexPath(
-    const String& root,
-    const String& nameSpace,
-    const String& className,
-    String& path)
-{
-    const char INSTANCES[] = "/instances/";
-    _MakeNameSpacePath(root, nameSpace, path);
-
-    if (!FileSystem::isDirectory(path))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-
-    path.append(INSTANCES);
-    path.append(className);
-    path.append(".idx");
-}
-
-static void _MakeInstancePath(
-    const String& root,
-    const String& nameSpace,
-    const String& className,
-    Uint32 index,
-    String& path)
-{
-    const char INSTANCES[] = "/instances/";
-    _MakeNameSpacePath(root, nameSpace, path);
-
-    if (!FileSystem::isDirectory(path))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-
-    path.append(INSTANCES);
-    path.append(className);
-    path.append('.');
-
-    char buffer[32];
-    sprintf(buffer, "%d", index);
-    path.append(buffer);
-}
 
 template<class Object>
 void _LoadObject(
@@ -298,20 +74,20 @@ void _LoadObject(
     XmlReader::getObject(parser, object);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// _SaveObject()
+//
+////////////////////////////////////////////////////////////////////////////////
+
 template<class Object>
 void _SaveObject(const String& path, Object& object)
 {
     Array<Sint8> out;
     object.toXml(out);
-    out.append('\0');
 
     ArrayDestroyer<char> destroyer(path.allocateCString());
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    std::ofstream os(destroyer.getPointer(), std::ios::binary);
-#else
-    std::ofstream os(destroyer.getPointer());
-#endif
+    std::ofstream os(destroyer.getPointer() PEGASUS_IOS_BINARY);
 
     if (!os)
 	throw CannotOpenFile(path);
@@ -321,102 +97,6 @@ void _SaveObject(const String& path, Object& object)
 #else
     os.write((char*)out.getData(), out.size());
 #endif
-}
-
-static void _AppendClassNames(
-    const String& path,
-    const String& className,
-    const String& superClassName,
-    Array<String>& classNames)
-{
-    Array<String> allFiles;
-
-    if (!FileSystem::getDirectoryContents(path, allFiles))
-	throw NoSuchDirectory(path);
-
-    // Append all the direct sublclasses of the class to the output argument:
-
-    Array<String> fileNames = 
-	_GlobClassesDir(path, className, superClassName);
-
-    for (Uint32 i = 0, n = fileNames.size(); i < n; i++)
-    {
-	String& tmp = fileNames[i];
-	Uint32 pos = tmp.find('.');
-
-	PEGASUS_ASSERT(pos != Uint32(-1));
-
-	if (pos != Uint32(-1))
-	    tmp.remove(pos);
-
-	classNames.append(tmp);
-    }
-}
-
-typedef Pair<String,String> Node;
-
-static void _AppendSubclassesDeepAux(
-    const Array<Node>& table,
-    const String& className,
-    Array<String>& classNames)
-{
-    for (Uint32 i = 0, n = table.size(); i < n; i++)
-    {
-	if (CIMName::equal(className, table[i].second))
-	{
-	    classNames.append(table[i].first);
-	    _AppendSubclassesDeepAux(table, table[i].first, classNames);
-	}
-    }
-}
-
-static void _AppendSubclassesDeep(
-    const String& path,
-    const String& className,
-    Array<String>& classNames)
-{
-    Array<String> allFiles;
-
-    if (!FileSystem::getDirectoryContents(path, allFiles))
-	throw NoSuchDirectory(path);
-
-    Array<Node> table;
-    table.reserve(allFiles.size());
-
-    for (Uint32 i = 0, n = allFiles.size(); i < n; i++)
-    {
-	const String& fileName = allFiles[i];
-
-	Uint32 dot = fileName.find('.');
-
-	if (dot == Uint32(-1))
-	    continue;
-
-	String first = fileName.subString(0, dot);
-	String second = fileName.subString(dot + 1);
-
-	if (String::equal(second, "#"))
-	    table.append(Node(first, String()));
-	else
-	    table.append(Node(first, second));
-    }
-
-    _AppendSubclassesDeepAux(table, className, classNames);
-}
-
-static Boolean _HasSubclasses(
-    const String& root,
-    const String& nameSpace,
-    const String& className)	
-{
-    const char CLASSES[] = "/classes";
-
-    String path;
-    _MakeNameSpacePath(root, nameSpace, path);
-    path.append(CLASSES);
-    Array<String> fileNames = _GlobClassesDir(path, "*", className);
-
-    return fileNames.size() != 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -516,26 +196,19 @@ CIMClass CIMRepository::getClass(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    // Form the path to the class:
+    // ATTN: localOnly, includeQualifiers, and includeClassOrigin are ignored
+    // for now.
 
-    String path;
-    _FindClass(_repositoryRoot, nameSpace, className, path);
-
-    // Load the class:
+    String classFilePath;
+    classFilePath = _nameSpaceManager.getClassFilePath(nameSpace, className);
 
     CIMClass cimClass;
-    _LoadObject(path, cimClass);
+    _LoadObject(classFilePath, cimClass);
 
-    return CIMClass(cimClass);
+    return cimClass;
 }
 
-CIMInstance CIMRepository::getInstance(
-    const String& nameSpace,
-    const CIMReference& instanceName,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const Array<String>& propertyList)
+#if 0
 {
     // Get path of index file:
 
@@ -562,99 +235,130 @@ CIMInstance CIMRepository::getInstance(
     _LoadObject(path, cimInstance);
     return cimInstance;
 }
+#endif
+
+CIMInstance CIMRepository::getInstance(
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const Array<String>& propertyList)
+{
+    // -- Get all descendent classes of this class:
+
+    String className = instanceName.getClassName();
+    Array<String> classNames;
+    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+    classNames.prepend(className);
+
+    // -- Remove class name from instance name (we have to try different class
+    // -- names:
+
+    String remInstanceName = instanceName.toString();
+    Uint32 dot = remInstanceName.find('.');
+
+    if (dot == Uint32(-1))
+	PEGASUS_CIM_EXCEPTION(FAILED, "Bad instance name: " + remInstanceName);
+    remInstanceName.remove(0, dot);
+
+    // -- Search each qualifying instance file for the instance:
+
+    for (Uint32 i = 0; i < classNames.size(); i++)
+    {
+	CIMReference tmpInstanceName = instanceName;
+	tmpInstanceName.setClassName(classNames[i]);
+
+	// -- Get common base (of instance file and index file):
+
+	String instanceFileBase = _nameSpaceManager.getInstanceFileBase(
+	    nameSpace, tmpInstanceName.getClassName());
+
+	// -- Lookup index of instance:
+
+	Uint32 index;
+	String indexFilePath = instanceFileBase + ".idx";
+    
+	if (!InstanceIndexFile::lookup(indexFilePath, tmpInstanceName, index))
+	    continue;
+
+	// -- Load the instance:
+
+	char extension[32];
+	sprintf(extension, ".%d", index);
+	String instanceFilePath = instanceFileBase + extension;
+	CIMInstance cimInstance;
+	_LoadObject(instanceFilePath, cimInstance);
+
+	return cimInstance;
+    }
+
+    throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, "getInstance()");
+    return CIMInstance();
+}
 
 void CIMRepository::deleteClass(
     const String& nameSpace,
     const String& className)
 {
-    // Get path of class file:
-
-    String path;
-    _FindClass(_repositoryRoot, nameSpace, className, path);
-
-    // Disallow if the class has subclasses:
-
-    if (_HasSubclasses(_repositoryRoot, nameSpace, className))
-	throw CIMException(CIMException::CLASS_HAS_CHILDREN);
-
-    // ATTN-C: check to see if the class has instances:
-
-    // Remove the class:
-
-    if (!FileSystem::removeFile(path))
-	throw FailedToRemoveFile(path);
+    _nameSpaceManager.deleteClass(nameSpace, className);
 }
 
 void CIMRepository::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName) 
-{ 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+{
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "deleteInstance()");
 }
 
 void CIMRepository::createClass(
     const String& nameSpace,
     CIMClass& newClass) 
 {
-    // Form the path to the class:
-
-    String path;
-    const String& className = newClass.getClassName();
-    const String& superClassName = newClass.getSuperClassName();
-    _MakeNewClassPath(
-	_repositoryRoot, nameSpace, className, superClassName, path);
-
-    String realPath;
-
-    if (FileSystem::existsIgnoreCase(path, realPath))
-	throw CIMException(CIMException::ALREADY_EXISTS);
-    else
-	realPath = path;
-
-    // Validate the new class:
+    // -- Resolve the class:
 
     newClass.resolve(_context, nameSpace);
 
-    // Save the class:
+    // -- Create namespace manager entry:
 
-    _SaveObject(realPath, newClass);
+    String classFilePath;
+
+    _nameSpaceManager.createClass(nameSpace, newClass.getClassName(), 
+	newClass.getSuperClassName(), classFilePath);
+
+    // -- Create the class file:
+
+    _SaveObject(classFilePath, newClass);
 }
 
 void CIMRepository::createInstance(
     const String& nameSpace,
     CIMInstance& newInstance) 
 {
-    // Resolve the instance first:
+    // -- Resolve the instance (looks up class):
 
     CIMConstClass cimClass;
     newInstance.resolve(_context, nameSpace, cimClass);
 
-    // Get the path to the index file:
+    // -- Get common base (of instance file and index file):
 
-    String indexFilePath;
+    String instanceFileBase = _nameSpaceManager.getInstanceFileBase(nameSpace, 
+	newInstance.getClassName());
 
-    _MakeInstanceIndexPath(
-	_repositoryRoot, nameSpace, newInstance.getClassName(), indexFilePath);
+    // -- Make index file entry:
 
-    // Insert a new entry for this instance into the index file:
-
+    String indexFilePath = instanceFileBase + ".idx";
     CIMReference instanceName = newInstance.getInstanceName(cimClass);
     Uint32 index;
 
-    // ATTN: Should throw "object already exists" exception!
-
     if (!InstanceIndexFile::insert(indexFilePath, instanceName, index))
-	throw CIMException(CIMException::FAILED);
+	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, instanceName.toString());
 
-    // Determine the path of the file to hold the new instance:
+    // -- Save instance to file:
 
-    String instanceFilePath;
-
-    _MakeInstancePath(
-	_repositoryRoot, nameSpace, newInstance.getClassName(), index, instanceFilePath);
-
-    // Save the instance in the instance file:
-
+    char extension[32];
+    sprintf(extension, ".%d", index);
+    String instanceFilePath = instanceFileBase + extension;
     _SaveObject(instanceFilePath, newInstance);
 }
 
@@ -662,32 +366,35 @@ void CIMRepository::modifyClass(
     const String& nameSpace,
     CIMClass& modifiedClass) 
 {
-    // ATTN: need lots of semantic checking here:
+    // -- Resolve the class:
 
-    // Get the old class:
+    modifiedClass.resolve(_context, nameSpace);
 
-    CIMClass oldClass = getClass(
-	nameSpace, modifiedClass.getClassName(), false, true, true);
+    // -- Check to see if it is okay to modify this class:
 
-    // Disallow changing the name of the super-class:
+    String classFilePath;
 
-    if (modifiedClass.getSuperClassName() != oldClass.getSuperClassName())
-	throw CIMException(CIMException::INVALID_SUPERCLASS);
+    _nameSpaceManager.checkModify(nameSpace, modifiedClass.getClassName(),
+	modifiedClass.getSuperClassName(), classFilePath);
 
-    // Delete the old class:
+    // -- Delete the old file containing the class:
 
-    deleteClass(nameSpace, modifiedClass.getClassName());
+    if (!FileSystem::removeFile(classFilePath))
+    {
+	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	    "failed to remove file in CIMRepository::modifyClass()");
+    }
 
-    // Create the class again:
+    // -- Create new class file:
 
-    createClass(nameSpace, modifiedClass);
+    _SaveObject(classFilePath, modifiedClass);
 }
 
 void CIMRepository::modifyInstance(
     const String& nameSpace,
     const CIMInstance& modifiedInstance) 
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "modifiedInstance()");
 }
 
 Array<CIMClass> CIMRepository::enumerateClasses(
@@ -698,8 +405,10 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    Array<String> classNames = 
-	enumerateClassNames(nameSpace, className, deepInheritance);
+    Array<String> classNames;
+
+    _nameSpaceManager.getSubClassNames(
+	nameSpace, className, deepInheritance, classNames);
 
     Array<CIMClass> result;
 
@@ -717,48 +426,12 @@ Array<String> CIMRepository::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
-    // Build the path to the classes directory:
+    Array<String> classNames;
 
-    const char CLASSES[] = "/classes/";
-    String path;
-    _MakeNameSpacePath(_repositoryRoot, nameSpace, path);
-    path.append(CLASSES);
+    _nameSpaceManager.getSubClassNames(
+	nameSpace, className, deepInheritance, classNames);
 
-    if (!FileSystem::isDirectory(path))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-
-    if (deepInheritance)
-    {
-	if (className.size() == 0)
-	{
-	    Array<String> classNames;
-	    _AppendSubclassesDeep(path, String(), classNames);
-	    return classNames;
-	}
-	else
-	{
-	    Array<String> classNames;
-	    _AppendSubclassesDeep(path, className, classNames);
-	    return classNames;
-	}
-    }
-    else
-    {
-	if (className.size() == 0)
-	{
-	    Array<String> classNames;
-	    _AppendClassNames(path, "*", "#", classNames);
-	    return classNames;
-	}
-	else
-	{
-	    Array<String> classNames;
-	    _AppendClassNames(path, "*", className, classNames);
-	    return classNames;
-	}
-    }
-
-    // Unreachable:
+    return classNames;
     return Array<String>();
 }
 
@@ -771,7 +444,8 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "enumerateInstances()");
+
     return Array<CIMInstance>();
 }
 
@@ -779,7 +453,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className) 
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "enumerateInstanceNames()");
     return Array<CIMReference>();
 }
 
@@ -787,7 +461,8 @@ Array<CIMInstance> CIMRepository::execQuery(
     const String& queryLanguage,
     const String& query) 
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "execQuery()");
+
     return Array<CIMInstance>();
 }
 
@@ -802,7 +477,7 @@ Array<CIMInstance> CIMRepository::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "associators()");
     return Array<CIMInstance>();
 }
 
@@ -814,7 +489,7 @@ Array<CIMReference> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "associatorNames()");
     return Array<CIMReference>();
 }
 
@@ -827,7 +502,7 @@ Array<CIMInstance> CIMRepository::references(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "references()");
     return Array<CIMInstance>();
 }
 
@@ -837,7 +512,7 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "referenceNames()");
     return Array<CIMReference>();
 }
 
@@ -846,7 +521,7 @@ CIMValue CIMRepository::getProperty(
     const CIMReference& instanceName,
     const String& propertyName) 
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "getProperty()");
     return CIMValue();
 }
 
@@ -856,108 +531,90 @@ void CIMRepository::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "setProperty()");
 }
 
 CIMQualifierDecl CIMRepository::getQualifier(
     const String& nameSpace,
     const String& qualifierName) 
 {
-    // Form the path of the qualifier file:
+    // -- Get path of qualifier file:
 
-    String path;
-    _MakeQualfierPath(_repositoryRoot, nameSpace, qualifierName, path);
+    String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
+	nameSpace, qualifierName);
 
-    // If it does not exist:
-
-    String realPath;
-
-    if (!FileSystem::existsIgnoreCase(path, realPath))
-	throw CIMException(CIMException::NOT_FOUND);
-
-    // Load the qualifier:
+    // -- Load qualifier:
 
     CIMQualifierDecl qualifierDecl;
-    _LoadObject(realPath, qualifierDecl);
 
-    // Return the qualifier:
+    try
+    {
+	_LoadObject(qualifierFilePath, qualifierDecl);
+    }
+    catch (CannotOpenFile&)
+    {
+	return CIMQualifierDecl();
+    }
 
-    return CIMQualifierDecl(qualifierDecl);
+    return qualifierDecl;
 }
 
 void CIMRepository::setQualifier(
     const String& nameSpace,
     const CIMQualifierDecl& qualifierDecl) 
 {
-    // Form the path of the qualifier:
+    // -- Get path of qualifier file:
 
-    String path;
-    _MakeQualfierPath(_repositoryRoot, nameSpace, qualifierDecl.getName(), path);
+    String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
+	nameSpace, qualifierDecl.getName());
 
-    // If the qualifier already exists, delete it:
+    // -- If qualifier alread exists, throw exception:
 
-    String realPath;
+    if (FileSystem::exists(qualifierFilePath))
+	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, qualifierDecl.getName());
 
-    if (FileSystem::existsIgnoreCase(path, realPath))
-    {
-	if (!FileSystem::removeFile(realPath))
-	    throw FailedToRemoveDirectory(path);
-    }
-    else
-	realPath = path;
+    // -- Save qualifier:
 
-    // Write the qualifier to file:
-
-    _SaveObject(realPath, qualifierDecl);
+    _SaveObject(qualifierFilePath, qualifierDecl);
 }
 
 void CIMRepository::deleteQualifier(
     const String& nameSpace,
     const String& qualifierName) 
 {
-    String path;
-    _MakeQualfierPath(_repositoryRoot, nameSpace, qualifierName, path);
+    // -- Get path of qualifier file:
 
-    String realPath;
+    String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
+	nameSpace, qualifierName);
 
-    if (!FileSystem::existsIgnoreCase(path, realPath))
-	throw CIMException(CIMException::NOT_FOUND);
+    // -- Delete qualifier:
 
-    if (!FileSystem::removeFile(realPath))
-	throw FailedToRemoveFile(path);
+    if (!FileSystem::removeFile(qualifierFilePath))
+	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, qualifierName);
 }
 
 Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     const String& nameSpace)
 {
-    // Build the path to the qualifiers directory:
-
-    const char QUALIFIERS[] = "/qualifiers/";
-    String path;
-    _MakeNameSpacePath(_repositoryRoot, nameSpace, path);
-    path.append(QUALIFIERS);
-
-    if (!FileSystem::isDirectory(path))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-
-    // Get the names of the qualifiers:
+    String qualifiersRoot = _nameSpaceManager.getQualifiersRoot(nameSpace);
 
     Array<String> qualifierNames;
 
-    if (!FileSystem::getDirectoryContents(path, qualifierNames))
-	throw NoSuchDirectory(path);
-
-    // Load each qualifier into the result array:
-
-    Array<CIMQualifierDecl> result;
-
-    for (Uint32 i = 0, n = qualifierNames.size(); i < n; i++)
+    if (!FileSystem::getDirectoryContents(qualifiersRoot, qualifierNames))
     {
-	CIMQualifierDecl tmp = getQualifier(nameSpace, qualifierNames[i]);
-	result.append(tmp);
+	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	    "enumerateQualifiers(): internal error");
     }
 
-    return result;
+    Array<CIMQualifierDecl> qualifiers;
+
+    for (Uint32 i = 0; i < qualifierNames.size(); i++)
+    {
+	CIMQualifierDecl qualifier = getQualifier(nameSpace, qualifierNames[i]);
+	qualifiers.append(qualifier);
+    }
+
+    return qualifiers;
 }
 
 CIMValue CIMRepository::invokeMethod(
@@ -967,497 +624,25 @@ CIMValue CIMRepository::invokeMethod(
     const Array<CIMValue>& inParameters,
     Array<CIMValue>& outParameters) 
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "invokeMethod()");
     return CIMValue();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// New methods
-//
-////////////////////////////////////////////////////////////////////////////////
-
 void CIMRepository::createNameSpace(const String& nameSpace)
 {
-    String path;
-    _MakeNameSpacePath(_repositoryRoot, nameSpace, path);
-
-    if (FileSystem::exists(path))
-    {
-        return;
-	throw AlreadyExists(nameSpace);
-    }
-
-    if (!FileSystem::makeDirectory(path))
-	throw CannotCreateDirectory(path);
-
-    // Create "./qualifiers" directory:
-
-    String qualifiersDir = path;
-    qualifiersDir.append("/qualifiers");
-
-    if (!FileSystem::makeDirectory(qualifiersDir))
-	throw CannotCreateDirectory(qualifiersDir);
-
-    // Create "./classes" directory:
-
-    String classesDir = path;
-    classesDir.append("/classes");
-
-    if (!FileSystem::makeDirectory(classesDir))
-	throw CannotCreateDirectory(classesDir);
-
-    // Create "./instances" directory:
-
-    String instancesDir = path;
-    instancesDir.append("/instances");
-
-    if (!FileSystem::makeDirectory(instancesDir))
-	throw CannotCreateDirectory(instancesDir);
+    _nameSpaceManager.createNameSpace(nameSpace);
 }
 
 Array<String> CIMRepository::enumerateNameSpaces() const
 {
-    Array<String> result;
-
-    if (!FileSystem::getDirectoryContents(_repositoryRoot, result))
-	throw NoSuchDirectory(_repositoryRoot);
-
-    for (Uint32 i = 0, n = result.size(); i < n; i++)
-    {
-	const String& tmp = result[i];
-
-	for (Char16* p = (Char16*)tmp.getData(); *p; p++)
-	{
-	    if (*p == '#')
-		*p = '/';
-	}
-    }
-
-    return result;
+    Array<String> nameSpaceNames;
+    _nameSpaceManager.getNameSpaceNames(nameSpaceNames);
+    return nameSpaceNames;
 }
 
 void CIMRepository::deleteNameSpace(const String& nameSpace)
 {
-    String path;
-    _MakeNameSpacePath(_repositoryRoot, nameSpace, path);
-
-    if (!FileSystem::exists(path))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
-
-    // Only delete Namespaces if there are no Classes in the Namespace
-    // At least in this version we do not test the qualifiers, etc.
-    // ATTN: TODO. We need to create an abstraction here so that we
-    // can do things on the basis of namespaces/classes and get to 
-    // the directory implementation only at the last minute.
-    // Actually, if we simply to getClassNames and delete if none
-    // returned, that solves the problem of the test.
-
-    String classesDir = path;
-    classesDir.append("/classes");
-
-    if (FileSystem::exists(classesDir))
-    {
-	FileSystem::removeDirectoryHier(path);	
-    }
-
+    _nameSpaceManager.deleteNameSpace(nameSpace);
 }
-
-// Recall flavor defaults: TOSUBCLASS | OVERRIDABLE
-
-#if 0
-
-void CIMRepository::_createMetaQualifiers(const String& nameSpace)
-{
-    // CIMQualifier CimType : string = null, 
-    //     CIMScope(property, parameter)
-
-    setQualifier(nameSpace, CIMQualifierDecl("cimtype", String(),
-	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::PARAMETER));
-
-    // CIMQualifier id : sint32 = null, 
-    //     CIMScope(any), 
-    //     CIMFlavor(toinstance)
-
-    setQualifier(nameSpace, CIMQualifierDecl("id", Sint32(0),
-	CIMScope::ANY,
-	CIMFlavor::TOINSTANCE));
-
-    // CIMQualifier OctetString : boolean = false, CIMScope(property)
-
-    setQualifier(nameSpace, CIMQualifierDecl("octetstring", false,
-	CIMScope::PROPERTY));
-    
-    // CIMQualifier Abstract : boolean = false, 
-    //     CIMScope(class, association, indication),
-    //     CIMFlavor(disableoverride, restricted);
-
-    setQualifier(nameSpace, CIMQualifierDecl("abstract", false, 
-	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope::INDICATION,
-	CIMFlavor::NONE));
-
-    // CIMQualifier Aggregate : boolean = false, 
-    //    CIMScope(reference),
-    //    CIMFlavor(disableoverride, tosubclass);
-
-    setQualifier(nameSpace, CIMQualifierDecl("aggregate", false, 
-	CIMScope::REFERENCE, CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Aggregation : boolean = false, 
-    //     CIMScope(association),
-    //     CIMFlavor(disableoverride, tosubclass);
-
-    setQualifier(nameSpace, CIMQualifierDecl("aggregation", false, 
-	CIMScope::ASSOCIATION, CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Alias : string = null, 
-    //     CIMScope(property, reference, method), 
-    //     CIMFlavor(translatable);
-
-    setQualifier(nameSpace, CIMQualifierDecl("alias", String(),
-	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD,
-	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier ArrayType : string = "Bag", 
-    //     CIMScope(property, parameter);
-
-    setQualifier(nameSpace, CIMQualifierDecl("arraytype", "Bag",
-	CIMScope::PROPERTY | CIMScope::PARAMETER));
-
-    // CIMQualifier Association : boolean = false, 
-    //     CIMScope(class, association),
-    //     CIMFlavor(disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("association", false,
-	CIMScope::CLASS | CIMScope::ASSOCIATION,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier BitMap : string[], 
-    //     CIMScope(property, method, parameter);
-
-    setQualifier(nameSpace, CIMQualifierDecl("bitmap", Array<String>(),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
-
-    // CIMQualifier BitValues : string[], 
-    //     CIMScope(property, method, parameter),
-    //     CIMFlavor(Translatable);
-
-    setQualifier(nameSpace, CIMQualifierDecl("bitvalues", Array<String>(),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER,
-	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier Counter : boolean = false, 
-    //     CIMScope(property, method, parameter);
-
-    setQualifier(nameSpace, CIMQualifierDecl("counter", false,
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
-
-    // CIMQualifier Delete : boolean = false, 
-    //     CIMScope(association, reference);
-
-    setQualifier(nameSpace, CIMQualifierDecl("delete", false,
-	CIMScope::ASSOCIATION | CIMScope::REFERENCE));
-
-    // CIMQualifier Description : string = null, 
-    //     CIMScope(any), 
-    //     CIMFlavor(translatable);
-
-    setQualifier(nameSpace, CIMQualifierDecl("description", String(),
-	CIMScope::ANY, 
-	CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier DisplayName : string = null, 
-    //     CIMScope(any), 
-    //     CIMFlavor(translatable);
-
-    setQualifier(nameSpace, CIMQualifierDecl("displayname", String(),
-	CIMScope::ANY,
-	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier Expensive : boolean = false,
-    //     CIMScope(property, reference, method, class, association);
-
-    setQualifier(nameSpace, CIMQualifierDecl("expensive", false,
-	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD | CIMScope::CLASS |
-	CIMScope::ASSOCIATION));
-
-    // CIMQualifier Gauge : boolean = false, 
-    //     CIMScope(property, method, parameter);
-
-    setQualifier(nameSpace, CIMQualifierDecl("gauge", false,
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
-
-    // CIMQualifier Ifdeleted : boolean = false, 
-    //     CIMScope(association, reference);
-
-    setQualifier(nameSpace, CIMQualifierDecl("ifdeleted", false,
-	CIMScope::ASSOCIATION | CIMScope::REFERENCE));
-
-    // CIMQualifier In : boolean = true, 
-    //     CIMScope(parameter), 
-    //     CIMFlavor(disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("in", true,
-	CIMScope::PARAMETER,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Indication : boolean = false, 
-    //     CIMScope(class, indication),
-    //     CIMFlavor(disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("indication", false,
-	CIMScope::CLASS | CIMScope::INDICATION,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Invisible : boolean = false,
-    //     CIMScope(reference, association, class, property, method);
-
-    setQualifier(nameSpace, CIMQualifierDecl("invisible", false,
-	CIMScope::REFERENCE | CIMScope::ASSOCIATION | CIMScope::CLASS | CIMScope::PROPERTY |
-	CIMScope::METHOD));
-
-    // CIMQualifier Key : boolean = false, 
-    //     CIMScope(property, reference),
-    //     CIMFlavor(disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("key", false,
-	CIMScope::PROPERTY | CIMScope::REFERENCE,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Large : boolean = false, 
-    //     CIMScope(property, class);
-
-    setQualifier(nameSpace, CIMQualifierDecl("large", false,
-	CIMScope::PROPERTY | CIMScope::CLASS));
-
-    // CIMQualifier MappingStrings : string[],
-    //     CIMScope(class, property, association, indication, reference);
-
-    setQualifier(nameSpace, CIMQualifierDecl("mappingstrings", Array<String>(),
-	CIMScope::CLASS | CIMScope::PROPERTY | CIMScope::ASSOCIATION | 
-	CIMScope::INDICATION | CIMScope::REFERENCE));
-
-    // CIMQualifier Max : uint32 = null, CIMScope(reference);
-
-    setQualifier(nameSpace, CIMQualifierDecl("max", Sint32(0),
-	CIMScope::PROPERTY | CIMScope::REFERENCE));
-
-    // CIMQualifier MaxLen : uint32 = null, 
-    //     CIMScope(property, method, parameter);
-
-#if 0
-    setQualifier(nameSpace, CIMQualifierDecl("maxlen", Uint32(0),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
-#else
-    setQualifier(nameSpace, CIMQualifierDecl("maxlen", Sint32(0),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
-#endif
-
-    // CIMQualifier MaxValue : sint64 = null, 
-    //     CIMScope(property, method, parameter);
-    // ATTN: XML schema requires sint32!
-
-    setQualifier(nameSpace, CIMQualifierDecl("maxvalue", Sint32(0),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
-    
-    // CIMQualifier Min : sint32 = null, CIMScope(reference);
-
-    setQualifier(nameSpace, CIMQualifierDecl("min", Sint32(0),
-	CIMScope::REFERENCE));
-
-    // CIMQualifier MinValue : sint64 = null, 
-    //     CIMScope(property, method, parameter);
-    // ATTN: CIMType expected by XML spec is sint32!
-
-    setQualifier(nameSpace, CIMQualifierDecl("minvalue", Sint32(0),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
-
-    // CIMQualifier ModelCorrespondence : string[], 
-    //     CIMScope(property);
-
-    setQualifier(nameSpace, CIMQualifierDecl("modelcorrespondence", 
-	Array<String>(),
-	CIMScope::PROPERTY));
-
-    // CIMQualifier NonLocal : string = null, 
-    //     CIMScope(reference);
-
-    setQualifier(nameSpace, CIMQualifierDecl("nonlocal", String(),
-	CIMScope::REFERENCE));
-
-    // CIMQualifier NullValue : string = null, 
-    //     CIMScope(property),
-    //     CIMFlavor(tosubclass, disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("nullvalue", String(),
-	CIMScope::PROPERTY,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Out : boolean = false, 
-    //     CIMScope(parameter), 
-    //     CIMFlavor(disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("out", false,
-	CIMScope::PARAMETER,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Override : string = null, 
-    //     CIMScope(property, method, reference),
-    //     CIMFlavor(disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("override", String(),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::REFERENCE,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Propagated : string = null, 
-    //     CIMScope(property, reference),
-    //     CIMFlavor(disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("propagated", String(),
-	CIMScope::PROPERTY | CIMScope::REFERENCE,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Provider : string = null, 
-    //     CIMScope(any);
-
-    setQualifier(nameSpace, CIMQualifierDecl("provider", String(),
-	CIMScope::ANY));
-
-    // CIMQualifier Read : boolean = true, CIMScope(property);
-
-    setQualifier(nameSpace, CIMQualifierDecl("read", true,
-	CIMScope::PROPERTY));
-
-    // CIMQualifier Required : boolean = false, 
-    //     CIMScope(property);
-
-    setQualifier(nameSpace, CIMQualifierDecl("required", false,
-	CIMScope::PROPERTY));
-
-    // CIMQualifier Revision : string = null,
-    //     CIMScope(schema, class, association, indication),
-    //     CIMFlavor(translatable);
-    // ATTN: No such scope as CIMScope::SCHEMA
-
-    setQualifier(nameSpace, CIMQualifierDecl("revision", String(),
-	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope::INDICATION,
-	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier Schema : string = null, 
-    //     CIMScope(property, method),
-    //     CIMFlavor(disableoverride, translatable);
-
-    setQualifier(nameSpace, CIMQualifierDecl("schema", String(),
-	CIMScope::PROPERTY | CIMScope::METHOD,
-	CIMFlavor::TOSUBCLASS | CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier Source : string = null, 
-    //     CIMScope(class, association, indication);
-
-    setQualifier(nameSpace, CIMQualifierDecl("source", String(),
-	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope::INDICATION));
-
-    // CIMQualifier SourceType : string = null,
-    //     CIMScope(class, association, indication,reference);
-
-    setQualifier(nameSpace, CIMQualifierDecl("sourcetype", String(),
-	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope:: INDICATION |
-	CIMScope::REFERENCE));
-    
-    // CIMQualifier Static : boolean = false,
-    //     CIMScope(property, method), CIMFlavor(disableoverride);
-
-    setQualifier(nameSpace, CIMQualifierDecl("static", false,
-	CIMScope::PROPERTY | CIMScope::METHOD,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Syntax : string = null,
-    //     CIMScope(property, reference, method, parameter);
-
-    setQualifier(nameSpace, CIMQualifierDecl("syntax", String(),
-	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD | CIMScope::PARAMETER));
-
-    // CIMQualifier SyntaxType : string = null,
-    //     CIMScope(property, reference, method, parameter);
-
-    setQualifier(nameSpace, CIMQualifierDecl("syntaxtype", String(),
-	CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD | CIMScope::PARAMETER));
-
-    // CIMQualifier Terminal : boolean = false, 
-    //     CIMScope(class);
-
-    setQualifier(nameSpace, CIMQualifierDecl("terminal", false,
-	CIMScope::CLASS));
-
-    // CIMQualifier TriggerType : string = null,
-    //     CIMScope(class, property, reference, method, association, indication);
-
-    setQualifier(nameSpace, CIMQualifierDecl("triggertype", String(),
-	CIMScope::CLASS | CIMScope::PROPERTY | CIMScope::REFERENCE | CIMScope::METHOD |
-	CIMScope::ASSOCIATION | CIMScope::INDICATION));
-
-    // CIMQualifier Units : string = null, 
-    //     CIMScope(property, method, parameter),
-    //     CIMFlavor(translatable);
-
-    setQualifier(nameSpace, CIMQualifierDecl("units", String(),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER,
-	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier UnknownValues : string[], 
-    //     CIMScope(property), 
-    //     CIMFlavor(disableoverride, tosubclass);
-
-    setQualifier(nameSpace, CIMQualifierDecl("unknownvalues", Array<String>(),
-	CIMScope::PROPERTY,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier UnsupportedValues : string[], 
-    //     CIMScope(property),
-    //     CIMFlavor(disableoverride, tosubclass);
-
-    setQualifier(nameSpace, CIMQualifierDecl("unsupportedvalues", Array<String>(),
-	CIMScope::PROPERTY,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier ValueMap : string[], 
-    //     CIMScope(property, method, parameter);
-
-    setQualifier(nameSpace, CIMQualifierDecl("valuemap", Array<String>(),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER));
-
-    // CIMQualifier Values : string[], 
-    //     CIMScope(property, method, parameter),
-    //     CIMFlavor(translatable);
-
-    setQualifier(nameSpace, CIMQualifierDecl("values", Array<String>(),
-	CIMScope::PROPERTY | CIMScope::METHOD | CIMScope::PARAMETER,
-	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier Version : string = null,
-    //     CIMScope(schema, class, association, indication), 
-    //     CIMFlavor(translatable);
-    // ATTN: No such scope as CIMScope::SCHEMA
-
-    setQualifier(nameSpace, CIMQualifierDecl("version", String(),
-	CIMScope::CLASS | CIMScope::ASSOCIATION | CIMScope::INDICATION,
-	CIMFlavor::DEFAULTS | CIMFlavor::TRANSLATABLE));
-
-    // CIMQualifier Weak : boolean = false, 
-    //     CIMScope(reference),
-    //     CIMFlavor(disableoverride, tosubclass);
-
-    setQualifier(nameSpace, CIMQualifierDecl("weak", false,
-	CIMScope::REFERENCE,
-	CIMFlavor::TOSUBCLASS));
-
-    // CIMQualifier Write : boolean = false, 
-    //     CIMScope(property);
-
-    setQualifier(nameSpace, CIMQualifierDecl("write", false,
-	CIMScope::PROPERTY));
-}
-
-#endif
 
 PEGASUS_NAMESPACE_END

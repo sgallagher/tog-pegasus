@@ -1,3 +1,8 @@
+Urgent
+======
+
+    -	Fix case sensitivity problems in repository (just add an _Open method
+	that ignores the case of the file).
 
 Topical To-Do List
 ==================

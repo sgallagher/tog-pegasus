@@ -584,6 +584,52 @@ inline String Cat(const S1& s1, const S2& s2, const S3& s3, const S4& s4)
     return tmp;
 }
 
+template<class S1, class S2, class S3, class S4, class S5>
+inline String Cat(
+    const S1& s1, 
+    const S2& s2, 
+    const S3& s3, 
+    const S4& s4, 
+    const S5& s5)
+{
+    String tmp;
+
+    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4) + 
+	_Length(s5));
+
+    tmp.append(s1);
+    tmp.append(s2);
+    tmp.append(s3);
+    tmp.append(s4);
+    tmp.append(s5);
+
+    return tmp;
+}
+
+template<class S1, class S2, class S3, class S4, class S5, class S6>
+inline String Cat(
+    const S1& s1, 
+    const S2& s2, 
+    const S3& s3, 
+    const S4& s4, 
+    const S5& s5,
+    const S6& s6)
+{
+    String tmp;
+
+    tmp.reserve(_Length(s1) + _Length(s2) + _Length(s3) + _Length(s4) + 
+	_Length(s5) + _Length(s6));
+
+    tmp.append(s1);
+    tmp.append(s2);
+    tmp.append(s3);
+    tmp.append(s4);
+    tmp.append(s5);
+    tmp.append(s6);
+
+    return tmp;
+}
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */

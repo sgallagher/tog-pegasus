@@ -58,7 +58,7 @@ void test01()
 
     Array<String> nameSpaceNames;
     nsm.getNameSpaceNames(nameSpaceNames);
-    assert(nameSpaceNames.getSize() == NUM_NAMSPACE_NAMES);
+    assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES);
     BubbleSort(nameSpaceNames);
 
     for (Uint32 i = 0; i < NUM_NAMSPACE_NAMES; i++)
@@ -70,7 +70,10 @@ void test01()
     nsm.deleteNameSpace("lmnop/qrstuv");
 
     nsm.getNameSpaceNames(nameSpaceNames);
-    assert(nameSpaceNames.getSize() == NUM_NAMSPACE_NAMES - 1);
+    assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES - 1);
+
+    String classFilePath = nsm.getClassFilePath("aa/bb", "MyClass");
+    PEGASUS_OUT(classFilePath);
 }
 
 int main()

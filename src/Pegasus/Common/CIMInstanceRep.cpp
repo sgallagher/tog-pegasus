@@ -109,7 +109,7 @@ void CIMInstanceRep::resolve(
 	context->lookupClass(nameSpace, _className);
 
     if (!cimClass)
-	throw NoSuchClass(_className);
+	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, _className);
 
     cimClassOut = cimClass;
 

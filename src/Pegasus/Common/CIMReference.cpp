@@ -423,6 +423,8 @@ void CIMReference::setClassName(const String& className)
 {
     if (!CIMName::legal(className))
 	throw IllegalName();
+
+    _className = className;
 }
 
 void CIMReference::setKeyBindings(const Array<KeyBinding>& keyBindings) 

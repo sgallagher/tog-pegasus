@@ -245,19 +245,6 @@ public:
 
 private:
 
-    /*  CIMMethod createMetaQualifiers - ATTN:
-	This method must be invoked to create the appropriate meta-qualifiers
-	required by CIM (they are not part of the CIM schema; rather they are
-	part of the meta-schema).
-
-	ATTN-C: This method has been deprecated. It was necessary prior to the
-	advent of the MOF compiler/loader. The XML Schema had no qualifiers
-	included in it so the XML loader needed a way to create them.
-    */
-#if 0
-    void _createMetaQualifiers(const String& nameSpace);
-#endif
-
     String _repositoryRoot;
     RepositoryDeclContext* _context;
     NameSpaceManager _nameSpaceManager;

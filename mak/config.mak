@@ -29,7 +29,7 @@ endif
 OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
 BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
-REPOSITORY_ROOT = $(HOME_DIR)
+REPOSITORY_ROOT = $(HOME_DIR)/repository
 
 LEX = flex
 

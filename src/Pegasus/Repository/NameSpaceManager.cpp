@@ -35,11 +35,95 @@ using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static char _CLASSES_DIR[] = "classes";
+static char _INSTANCES_DIR[] = "instances";
+static char _QUALIFIERS_DIR[] = "qualifiers";
+
+static char _CLASSES_SUFFIX[] = "/classes";
+static char _INSTANCES_SUFFIX[] = "/instances";
+static char _QUALIFIERS_SUFFIX[] = "/qualifiers";
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _MakeClassFilePath()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static inline String _MakeClassFilePath(
+    const String& nameSpacePath,
+    const String& className,
+    const String& superClassName)
+{
+    if (superClassName.size())
+    {
+	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.', 
+	    superClassName);
+    }
+    else
+	return Cat(nameSpacePath, _CLASSES_SUFFIX, '/', className, '.', "#");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _MakeQualifierFilePath()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static inline String _MakeQualifierFilePath(
+    const String& nameSpacePath,
+    const String& qualifierName)
+{
+    return Cat(nameSpacePath, _QUALIFIERS_SUFFIX, '/', qualifierName);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// _MakeInstanceFileBase()
+//
+////////////////////////////////////////////////////////////////////////////////
+
+static inline String _MakeInstanceFileBase(
+    const String& nameSpacePath,
+    const String& className)
+{
+    return Cat(nameSpacePath, _INSTANCES_SUFFIX, '/', className);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // NameSpace
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+class NameSpace
+{
+public:
+
+    NameSpace(const String& nameSpacePath, const String& nameSpaceName);
+
+    ~NameSpace();
+
+    const String& getNameSpacePath() const { return _nameSpacePath; }
+
+    const String& getNameSpaceName() const { return _nameSpaceName; }
+
+    const String getClassFilePath(const String& className) const;
+
+    const String getQualifierFilePath(const String& qualifierName) const;
+
+    const String getInstanceFileBase(const String& className) const;
+
+    InheritanceTree& getInheritanceTree() { return _inheritanceTree; }
+
+    /** Print this namespace. */
+    void print(std::ostream& os) const;
+
+private:
+
+    InheritanceTree _inheritanceTree;
+    String _nameSpacePath;
+    String _nameSpaceName;
+};
 
 NameSpace::NameSpace(const String& nameSpacePath, const String& nameSpaceName)
     : _nameSpacePath(nameSpacePath), _nameSpaceName(nameSpaceName)
@@ -52,10 +136,28 @@ NameSpace::~NameSpace()
 
 }
 
+const String NameSpace::getClassFilePath(const String& className) const
+{
+    String superClassName;
+
+    if (!_inheritanceTree.getSuperClass(className, superClassName))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+
+    return _MakeClassFilePath(_nameSpacePath, className, superClassName);
+}
+
+const String NameSpace::getQualifierFilePath(const String& qualifierName) const
+{
+    return _MakeQualifierFilePath(_nameSpacePath, qualifierName);
+}
+
+const String NameSpace::getInstanceFileBase(const String& className) const
+{
+    return _MakeInstanceFileBase(_nameSpacePath, className);
+}
+
 void NameSpace::print(std::ostream& os) const
 {
-    os << "HERE WE ARE" << std::endl;
-
     os << "=== NameSpace: " << _nameSpaceName << std::endl;
     os << "_nameSpacePath: " << _nameSpacePath << std::endl;
     _inheritanceTree.print(os);
@@ -79,14 +181,6 @@ struct NameSpaceManagerRep
 // NameSpaceManager
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-static char _CLASSES_DIR[] = "classes";
-static char _INSTANCES_DIR[] = "instances";
-static char _QUALIFIERS_DIR[] = "qualifiers";
-
-static char _CLASSES_SUFFIX[] = "/classes";
-static char _INSTANCES_SUFFIX[] = "/instances";
-static char _QUALIFIERS_SUFFIX[] = "/qualifiers";
 
 static Boolean _IsNameSpaceDir(const String& nameSpacePath)
 {
@@ -215,7 +309,7 @@ void NameSpaceManager::createNameSpace(const String& nameSpaceName)
     // Throw exception if namespace already exists:
 
     if (nameSpaceExists(nameSpaceName))
-	throw CIMException(CIMException::ALREADY_EXISTS);
+	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, nameSpaceName);
 
     // Attempt to create all the namespace diretories:
 
@@ -249,7 +343,7 @@ void NameSpaceManager::deleteNameSpace(const String& nameSpaceName)
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
 
     // Form namespace path:
 
@@ -272,17 +366,6 @@ void NameSpaceManager::deleteNameSpace(const String& nameSpaceName)
     delete nameSpace;
 }
 
-void NameSpaceManager::print(std::ostream& os) const
-{
-    for (Table::Iterator i = _rep->table.start(); i; i++)
-    {
-	NameSpace* nameSpace = i.value();
-	nameSpace->print(os);
-    }
-
-    os << std::endl;
-}
-
 void NameSpaceManager::getNameSpaceNames(Array<String>& nameSpaceNames) const
 {
     nameSpaceNames.clear();
@@ -295,21 +378,177 @@ String NameSpaceManager::getClassFilePath(
     const String& nameSpaceName,
     const String& className) const
 {
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+
+    return nameSpace->getClassFilePath(className);
+}
+
+String NameSpaceManager::getInstanceFileBase(
+    const String& nameSpaceName,
+    const String& className) const
+{
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+
+    return nameSpace->getInstanceFileBase(className);
+}
+
+String NameSpaceManager::getQualifierFilePath(
+    const String& nameSpaceName,
+    const String& qualifierName) const
+{
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+
+    return nameSpace->getQualifierFilePath(qualifierName);
+}
+
+void NameSpaceManager::deleteClass(
+    const String& nameSpaceName,
+    const String& className) const
+{
     // -- Lookup NameSpace object:
 
     NameSpace* nameSpace = 0;
 
     if (!_rep->table.lookup(nameSpaceName, nameSpace))
-	throw CIMException(CIMException::INVALID_NAMESPACE);
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
 
-    // -- Find class:
+    // -- Get path to class file:
 
-    if (!nameSpace->getInheritanceTree().containsClass(className))
-	throw CIMException(CIMException::INVALID_CLASS);
+    String classFilePath = nameSpace->getClassFilePath(className);
 
-    // -- Form the full name of the class file:
+    // -- Remove the file from the inheritance tree:
 
-    return Cat(nameSpace->getNameSpacePath(), _CLASSES_SUFFIX, '/', className);
+    nameSpace->getInheritanceTree().remove(className);
+
+    // -- Remove the file from disk:
+
+    if (!FileSystem::removeFile(classFilePath))
+	throw FailedToRemoveFile(classFilePath);
+}
+
+void NameSpaceManager::print(std::ostream& os) const
+{
+    for (Table::Iterator i = _rep->table.start(); i; i++)
+    {
+	NameSpace* nameSpace = i.value();
+	nameSpace->print(os);
+    }
+
+    os << std::endl;
+}
+
+void NameSpaceManager::createClass(
+    const String& nameSpaceName,
+    const String& className,
+    const String& superClassName,
+    String& classFilePath)
+{
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+
+    InheritanceTree& it = nameSpace->getInheritanceTree();
+
+    // -- Be certain class doesn't already exist:
+
+    if (it.containsClass(className))
+	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, className);
+
+    // -- Be certain superclass exists:
+
+    if (superClassName.size() && !it.containsClass(superClassName))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_SUPERCLASS, superClassName);
+
+    // -- Insert the entry:
+
+    it.insert(className, superClassName);
+
+    // -- Build the path to the class:
+
+    classFilePath = _MakeClassFilePath(
+	nameSpace->getNameSpacePath(), className, superClassName);
+}
+
+void NameSpaceManager::checkModify(
+    const String& nameSpaceName,
+    const String& className,
+    const String& superClassName,
+    String& classFilePath)
+{
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+
+    InheritanceTree& it = nameSpace->getInheritanceTree();
+
+    // -- Disallow changing of superclass:
+
+    String oldSuperClassName;
+
+    if (!it.getSuperClass(className, oldSuperClassName))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+
+    if (superClassName != oldSuperClassName)
+	throw PEGASUS_CIM_EXCEPTION(FAILED, "attempt to change superclass");
+
+    // -- Disallow modification of class with subclasses:
+
+    Boolean hasSubClasses;
+    it.hasSubClasses(className, hasSubClasses);
+
+    if (hasSubClasses)
+	throw PEGASUS_CIM_EXCEPTION(CLASS_HAS_CHILDREN, className);
+
+    // -- Build the path to the class:
+
+    classFilePath = _MakeClassFilePath(
+	nameSpace->getNameSpacePath(), className, superClassName);
+}
+
+void NameSpaceManager::getSubClassNames(
+    const String& nameSpaceName,
+    const String& className,
+    Boolean deepInheritance,
+    Array<String>& subClassNames) const
+{
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+
+    InheritanceTree& it = nameSpace->getInheritanceTree();
+
+    if (!it.getSubClassNames(className, deepInheritance, subClassNames))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+}
+
+String NameSpaceManager::getQualifiersRoot(const String& nameSpaceName) const
+{
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+
+    return Cat(nameSpace->getNameSpacePath(), _QUALIFIERS_SUFFIX);
 }
 
 PEGASUS_NAMESPACE_END

@@ -150,26 +150,6 @@ public:
 };
 
 /// ATTN:
-class PEGASUS_COMMON_LINKAGE NoSuchSuperClass : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    NoSuchSuperClass(const String& className) : Exception(MSG + className) { }
-};
-
-/// ATTN:
-class PEGASUS_COMMON_LINKAGE NoSuchClass : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    NoSuchClass(const String& className) : Exception(MSG + className) { }
-};
-
-/// ATTN:
 class PEGASUS_COMMON_LINKAGE InvalidPropertyOverride : public Exception
 {
 public:
@@ -440,8 +420,11 @@ public:
     NotImplemented(const String& method) : Exception(MSG + method) { }
 };
 
-/*  Class CIMException - Defines the CIM exceptions that are formally
-    defined in the CIM Operations over HTTP specification.
+#define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \
+    CIMException(CIMException::CODE, __FILE__, __LINE__, EXTRA_MESSAGE)
+
+/** The CIMException defines the CIM exceptions that are formally defined in 
+    the CIM Operations over HTTP specification.
     @example
     <PRE>
 	throw CIMException(CIMException::NOT_SUPPORTED);
@@ -528,7 +511,11 @@ public:
 	METHOD_NOT_FOUND = 17
     };
 
-    CIMException(Code code, const String& extraMessage = String());
+    CIMException(
+	Code code, 
+	const char* file = "",
+	Uint32 line = 0,
+	const String& extraMessage = String());
 
     CIMException::Code getCode() const { return _code; }
 

@@ -70,10 +70,6 @@ const char UnitializedHandle::MSG[] = "unitialized reference";
 
 const char IllegalName::MSG[] = "illegal CIM name";
 
-const char NoSuchSuperClass::MSG[] = "no such super class: ";
-
-const char NoSuchClass::MSG[] = "no such class: ";
-
 const char InvalidPropertyOverride::MSG[] = "invalid property override: ";
 
 const char InvalidMethodOverride::MSG[] = "invalid method override: ";
@@ -164,59 +160,77 @@ const char CannotOpenDirectory::MSG[] = "cannot open directory: ";
 
 static char* _cimMessages[] =
 {
-    "successful",
+    "SUCCESS: successful",
 
-    "A general error occurred that is not covered by a more specific "
-    "error code.",
+    "FAILED: A general error occurred that is not covered by a more specific "
+    "error code",
 
-    "Access to a CIM resource was not available to the client.",
+    "ACCESS_DENIED: Access to a CIM resource was not available to the client",
 
-    "The target namespace does not exist.",
+    "INVALID_NAMESPACE: The target namespace does not exist",
 
-    "One or more parameter values passed to the method were invalid.",
+    "INVALID_PARAMETER: One or more parameter values passed to the method "
+    "were invalid",
 
-    "The specified class does not exist.",
+    "INVALID_CLASS: The specified class does not exist",
 
-    "The requested object could not be found.",
+    "NOT_FOUND: The requested object could not be found",
 
-    "The requested operation is not supported.",
+    "NOT_SUPPORTED: The requested operation is not supported",
 
-    "Operation cannot be carried out on this class since it has subclasses.",
+    "CLASS_HAS_CHILDREN: Operation cannot be carried out on this class since "
+    "it has subclasses",
 
-    "Operation cannot be carried out on this class since it has instances.",
+    "CLASS_HAS_INSTANCES: Operation cannot be carried out on this class since "
+    "it has instances",
 
-    "Operation cannot be carried out since the specified "
-    "superClass does not exist.",
+    "INVALID_SUPERCLASS: Operation cannot be carried out since the specified "
+    "superclass does not exist",
 
-    "Operation cannot be carried out because an object already exists.",
+    "ALREADY_EXISTS: Operation cannot be carried out because an object already "
+    "exists",
 
-    "The specified property does not exist.",
+    "NO_SUCH_PROPERTY: The specified property does not exist",
 
-    "The value supplied is incompatible with the type.",
+    "TYPE_MISMATCH: The value supplied is incompatible with the type",
 
-    "The query language is not recognized or supported.",
+    "QUERY_LANGUAGE_NOT_SUPPORTED: The query language is not recognized or "
+    "supported",
 
-    "The query is not valid for the specified query language.",
+    "INVALID_QUERY: The query is not valid for the specified query language",
 
-    "The extrinsic method could not be executed.",
+    "METHOD_NOT_AVAILABLE: The extrinsic method could not be executed",
 
-    "The specified extrinsic method does not exist."
+    "METHOD_NOT_FOUND: The specified extrinsic method does not exist"
 };
 
 static String _makeCIMExceptionMessage(
     CIMException::Code code, 
-    const String& extraMessage) 
+    const char* file,
+    Uint32 line,
+    const String& extraMessage)
 {
-    String tmp = _cimMessages[Uint32(code)];
-    tmp.append(": ");
+    String tmp = file;
+    tmp.append("(");
+    char buffer[32];
+    sprintf(buffer, "%d", line);
+    tmp.append(buffer);
+    tmp.append("): ");
+
+    tmp.append(_cimMessages[Uint32(code)]);
+    tmp.append(": \"");
     tmp.append(extraMessage);
+    tmp.append("\"");
     return tmp;
 }
 
 CIMException::CIMException(
     CIMException::Code code, 
-    const String& extraMessage) 
-    : Exception(_makeCIMExceptionMessage(code, extraMessage)), _code(code)
+    const char* file,
+    Uint32 line,
+    const String& extraMessage)
+    : Exception(_makeCIMExceptionMessage(code, file, line, extraMessage)),
+    _code(code)
 {
 
 }

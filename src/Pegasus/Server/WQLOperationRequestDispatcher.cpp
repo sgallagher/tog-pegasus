@@ -162,6 +162,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
          WQLParser::parse(request->query, *selectStatement.get());
 	 className=selectStatement->getClassName();
 	 qx.reset(new WQLQueryExpressionRep("WQL",selectStatement.get()));
+	 selectStatement.release();
       }
       catch (ParseError& e) {
          cimException =

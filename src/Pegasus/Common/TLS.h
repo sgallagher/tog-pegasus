@@ -37,12 +37,16 @@
 #include <openssl/rand.h>
 #else
 #define SSL_CTX void
+typedef void SSL_Context;
+
 #endif // end of PEGASUS_HAS_SSL
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Linkage.h>
 
 // REVIEW: Figure out how this works (note to myself)?
@@ -141,89 +145,6 @@ public:
 private:
     Boolean   _isSecure;
 };
-
-
-//  <<< Thu Jul  3 13:50:29 2003 mdd >>> pep_88
-/*****************************************************************
- *
- *  The socket support in pegasus is schizophrenic. Some code uses 
- *  an Sint32 (fd) as a socket, while other code uses a pointer to an 
- *  MP_Socket, which is kind of a container for either an Sint32 socket 
- *  or an SSL socket. 
- *
- *  Then there is also the local socket. (AF_UNIX). 
- *
- *  What we need to make all of this coherent is a general-purpose
- *  socket class that uses polymorphism to provide a good sockets
- *  interface.
- *  Because of what we are planning for the pep_88 connection management
- *  code this general-purpose socket class should be reference counted.
- *
- *****************************************************************/ 
-
-
-
-class PEGASUS_COMMON_LINKAGE abstract_socket 
-{
-
-   public:
-      abstract_socket(void);
-      abstract_socket(int type, int style, int protocol);
-      abstract_socket(int type, int style, int protocol, SSL_Context * ssl_context);
-      abstract_socket(const abstract_socket& s);
-      ~abstract_socket(void);
-      
-      abstract_socket& operator=(const abstract_socket& s);
-      operator Sint32() const;
-
-      socket(int type, int style, int protocol);
-      socket(int type, int style, int protocol, SSL_Context *ssl_context);
-      
-      
-      
-      Sint32 read(void* ptr, Uint32 size);
-      Sint32 write(const void* ptr, Uint32 size);
-      void close(void);
-      void enableBlocking(void);
-      void disableBlocking(void);
-      void initializeInterface(void);
-      void uninitializeInterface(void);
-      
-
-      int getsockname (struct sockaddr *addr, socklen_t *length-ptr);
-      int bind (socket, struct sockaddr *addr, socklen_t length);
-     
-      // change socklen_t to size_t for ZOS and windows
-      abstract_socket accept (struct sockaddr *addr, socklen_t *length-ptr);
-      int connect (int socket, struct sockaddr *addr, socklen_t length);
-      int shutdown(int how);
-      int listen(int q);
-      int getpeername (struct sockaddr *addr, size_t *length-ptr);
-      int send (void *buffer, size_t size, int flags);
-      int recv (void *buffer, size_t size, int flags);
-      int sendto(void *buffer. size_t size, int flags, struct sockaddr *addr, socklen_t length);
-      int recvfrom(void *buffer, size_t size, int flags, struct sockaddr *addr, socklen_t *length-ptr);
-      int setsockopt (int level, int optname, void *optval, socklen_t optlen);
-      int getsockopt (int level, int optname, void *optval, socklen_t *optlen-ptr);
-
-
-      Boolean incompleteReadOccurred(Sint32 retCode);
-      Boolean is_secure(void);
-      void set_close_on_exec(void);
-      
-
-   private:
-      class abstract_socket_rep;
-      abstract_socket_rep * _rep;
-
-      int _type;
-      int _style;
-      int _protocol;
-
-      AtomicInt _initialized;
-      
-};
-
 
 
 

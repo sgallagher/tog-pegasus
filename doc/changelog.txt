@@ -4,6 +4,7 @@ CHANGE LOG FOR PEGASUS
 --
 
 Version 0.98.0 - Work in progress
+Version -.99.0 - Tagged as version 0.99,17 July 8:00 am - KS
 
 1. (Mike Brasher) Added support for class association operations
     (references(), associators(), referenceNames(), associatorNames()).
@@ -26,8 +27,9 @@ Version 0.98.0 - Work in progress
 6. (Mike Brasher) - Started integration of message queues with ServerHandler
    and Dispatcher.
 
-7. (Chip Vincent) - Update Provider2 interfaces. Made changes to Dispatcher and
-   CIMProvider to support both interfaces. Added CIMOMHandle and sample 
+7. (Chip Vincent) - Update Provider2 interfaces. Made changes to Dispatcher
+and
+   CIMProvider to support both interfaces. Added CIMOMHandle and sample
    ResponseHandler for Provider2 interface.
 
 8. (Mike Brasher) - Replaced dispatcher with a queue-based dispatcher.
@@ -230,6 +232,7 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
 
 
 

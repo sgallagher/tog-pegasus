@@ -1,9 +1,13 @@
-//%2003////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
-// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -34,42 +38,42 @@
 #define Pegasus_DefaultPropertyTableVms_h
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"httpPort", "5988", 0, 0, 0, 1},
-    {"httpsPort", "5989", 0, 0, 0, 1},
-    {"enableHttpConnection", "false", 0, 0, 0, 1},
-    {"enableHttpsConnection", "true", 0, 0, 0, 1},
-    {"home", "./", 0, 0, 0, 1},
-    {"daemon", "false", 0, 0, 0, 1},
-    {"slp", "false", 0, 0, 0, 1},
-//    {"enableAuthentication", "true", 0, 0, 0, 1},
-    {"enableAuthentication", "false", 0, 0, 0, 1},
-    {"enableAssociationTraversal", "false", 0, 0, 0, 1},
-    {"enableIndicationService", "true", 0, 0, 0, 1},
-    // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", 0, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
+    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+//    {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
  #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
  #endif
-    {"enableProviderProcesses", "false", 0, 0, 0, 1}
+    {"enableProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
-    {"httpPort", "5988", 0, 0, 0, 1},
-    {"httpsPort", "5989", 0, 0, 0, 1},
-    {"enableHttpConnection", "true", 0, 0, 0, 1},
-    {"enableHttpsConnection", "false", 0, 0, 0, 1},
-    {"home", "./", 0, 0, 0, 1},
-    {"daemon", "false", 0, 0, 0, 1},
-    {"slp", "false", 0, 0, 0, 1},
-    {"enableAuthentication", "false", 0, 0, 0, 1},
-    {"enableAssociationTraversal", "true", 0, 0, 0, 1},
-    {"enableIndicationService", "true", 0, 0, 0, 1},
-    {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
+    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
  #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
+    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
  #endif
-    {"enableProviderProcesses", "false", 0, 0, 0, 1}
+    {"enableProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTableVms_h */

@@ -38,5 +38,5 @@ SOURCES = \
 #	OperationResponseHandler.cpp \
 #	SimpleResponseHandler.cpp
 
-include $(ROOT)/mak/dynamicLibrary.mak
+include $(ROOT)/mak/dynamic-library.mak
 

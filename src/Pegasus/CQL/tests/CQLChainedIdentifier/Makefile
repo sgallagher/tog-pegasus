@@ -10,11 +10,6 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 PROGRAM = TestCQLChainedIdentifier
 
 LIBRARIES = \
-    pegprm \
-    pegprovider \
-    pegrepository \
-    pegconfig \
-    pegclient \
     pegcql \
     pegquerycommon \
     pegcommon

@@ -17,7 +17,6 @@ LIBRARY = InternalProviderManager
 LIBRARIES = \
     pegprovider \
     pegprovidermanager \
-    pegprm \
     pegclient \
     pegconfig \
     pegwql \

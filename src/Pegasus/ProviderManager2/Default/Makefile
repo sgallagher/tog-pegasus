@@ -13,8 +13,6 @@ LIBRARY = DefaultProviderManager
 LIBRARIES = \
     pegprovider \
     pegprovidermanager \
-    pegprm \
-    pegclient \
     pegqueryexpression \
     pegcql \
     pegwql \

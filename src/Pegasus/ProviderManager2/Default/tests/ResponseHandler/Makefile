@@ -5,7 +5,6 @@ DIR = Pegasus/ProviderManager2/Default/tests/ResponseHandler
 LIBRARIES = \
     pegprovider \
     pegprovidermanager \
-    pegprm \
     pegconfig \
     pegcommon
 

@@ -6,11 +6,8 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    pegprm \
-    pegprovider \
     pegrepository \
     pegconfig \
-    pegclient \
     pegcql \
     pegquerycommon \
     pegcommon

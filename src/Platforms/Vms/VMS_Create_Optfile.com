@@ -6,15 +6,14 @@ $ !
 $ ! P1 = Makefile Directory
 $ ! P2 = Default directory
 $ ! P3 = Options filename
-$ ! P4 = Value of SHARE_COPY
-$ ! P5 = Value of VMS_VECTOR
-$ ! P6 = Value of OBJECTS_IN_OPTIONFILE
-$ ! P7 = Value of MAKEFILE_NAME
+$ ! P4 = Value of LIBRARIES
+$ ! P5 = Value of SHARE_COPY
+$ ! P6 = Value of VMS_VECTOR
+$ ! P7 = Objects directory
+$ ! P8 = Value of SOURCES when OBJECTS_IN_OPTIONFILE set
 $ ! 
-$  end_loop2 = "no"
-$  end_loop4 = "no"
-$  First_lib = "no"
-$  using_makefile2 = "no"
+$  First_lib = "yes"
+$  First_obj = "yes"
 $ ! 
 $  MyOut :== "!"
 $ ! MyOut :== "Write Sys$output"
@@ -26,14 +25,10 @@ $  'MyOut "%VMSCROPT - P4 = ''P4'"
 $  'MyOut "%VMSCROPT - P5 = ''P5'"
 $  'MyOut "%VMSCROPT - P6 = ''P6'"
 $  'MyOut "%VMSCROPT - P7 = ''P7'"
+$  'MyOut "%VMSCROPT - P8 = ''P8'"
 $ ! 
-$  if P7 .eqs. ""
-$  then
-$   mfile = "''P2'" + "Makefile.;"
-$  else
-$   mfile = "''P2'" + "''P7'"
-$  endif
-$ ! 
+$ ! Exit
+$ !
 $ ! Use the program name to open a new .opt file
 $ ! 
 $  if P3 .eqs. ""
@@ -49,7 +44,7 @@ $  Open/write/error=optfile_openerror optfile 'Optname
 $ ! 
 $ ! Look for "OBJECTS_IN_OPTIONFILE".
 $ ! 
-$  if P6 .eqs. ""
+$  if P8 .eqs. ""
 $  Then
 $    Goto Get_libraries
 $  Endif
@@ -58,89 +53,42 @@ $    Write sys$output "%VMSCROPT - OBJECTS_IN_OPTIONFILE is defined!"
 $ ! 
 $ ! Write the object filename list to the option file.
 $ ! 
-$ ! Open the makefile
+$  Objnum = 0
+$ !
+$Get_objects_loop:
 $ ! 
-$  Open/read/error=makefile_openerror1 make_file 'mfile
+$ ! Make the list of sources/objects
 $ ! 
-$makefile_loop1:
+$  PegObj = f$element(Objnum, " ", "''P8'")
 $ ! 
-$ ! read a record from tha makefile
-$ ! 
-$  Read/end=makefile_loop2_exit/error=makefile_readerror make_file mfrec
-$ ! 
-$ ! Looking for the start of the sources list.
-$ ! 
-$  objopt = f$locate("SOURCES =", mfrec)
-$ ! 
-$ ! Find it?  No, try the next record
-$ ! 
-$  if (objopt .eq. f$length(objopt)) then goto makefile_loop1
-$makefile_loop1_exit:
-$ ! 
-$ ! Found it! Read the next record
-$ ! 
-$makefile_loop2:
-$ ! 
-$  Read/end=makefile_loop4_exit/error=makefile_readerror make_file mfrec
-$ ! 
-$ ! Locate the line contination character
-$ ! 
-$  bslash = f$locate("\", mfrec)
-$ ! 
-$ ! Is it there?
-$ ! 
-$  if (bslash .eq. f$length(mfrec))
+$  if ((PegObj .eqs. " ") .or. (PegObj .eqs. ""))
 $  then
-$    tmp_objnam = mfrec
-$    end_loop2 = "yes"
-$  else
-$    tmp_objnam = f$extract(0, (bslash - 1), mfrec)
+$    Goto Get_objects_loop_exit
 $  endif
 $ ! 
-$ ! Remove ALL whitespace from the string
+$ ! Create the object file entry
 $ ! 
-$  ttmp_objnam = f$edit(tmp_objnam, "COLLAPSE, TRIM")
+$  if (first_obj .eqs. "yes")
+$   then
+$    objnam = "''P7'" + "''PegObj'" + ".obj"
+$    first_obj = "no"
+$  else
+$    objnam = "''PegObj'" + ".obj"
+$  endif
 $ ! 
-$ ! Find ".cpp" in the string
+$  Objnum = Objnum + 1
 $ ! 
-$  cpploc = f$locate(".cpp", ttmp_objnam)
-$ ! 
-$ ! Find it?  No, continue.
-$ ! 
-$  if (cpploc .eq. f$length(mfrec)) then goto makefile_loop2_exit
-$ ! 
-$ ! copy the filename excluding the ".cpp"
-$ ! 
-$  tttmp_objnam = f$extract(0, cpploc, ttmp_objnam)
-$ ! 
-$ ! Add ".obj" to the end
-$ ! 
-$  objnam = "''tttmp_objnam'" + ".obj"
-$ ! 
-$ ! Write the filename to the option file.
+$ ! Write it too the option file
 $ ! 
 $  write/error=optfile_writeerror optfile "''objnam'"
 $ ! 
-$ ! Keep looking for more source filenames
+$ ! Try again
 $ ! 
-$  if (end_loop2 .eqs. "no"
-$  then
-$   goto makefile_loop2
-$  endif
-$makefile_loop2_exit:
-$ ! 
-$ ! Close the makefile
-$ ! 
-$  close make_file
+$  Goto Get_objects_loop
+$ !
+$Get_objects_loop_exit:
 $ ! 
 $Get_libraries:
-$ ! 
-$ ! Reopen the makefile
-$ ! 
-$ ! 
-$  'MyOut "%VMSCROPT - mfile = ''mfile'"
-$ !
-$  Open/read/error=makefile_openerror2 make_file 'mfile
 $ ! 
 $ ! Every option file starts with the following
 $ ! 
@@ -150,164 +98,30 @@ $ ! Write it to the option file
 $ ! 
 $  write/error=optfile_writeerror optfile "''libnam'"
 $ ! 
+$  Libnum = 0
+$ !
 $makefile_loop3:
 $ ! 
-$ ! read the next record
+$ ! Make the list of libraries
 $ ! 
-$  Read/end=makefile_loop4_exit/error=makefile_readerror make_file mfrec
+$  PegLib = f$element(Libnum, " ", "''P4'")
 $ ! 
-$ ! Looking for "LIBRARIES =" in a record
-$ ! 
-$  'Myout "mfrec = ''mfrec'"
-$ ! 
-$  libs1 = f$locate("LIBRARIES =", mfrec)
-$  libs2 = f$locate("LIBRARIES=", mfrec)
-$  libs3 = f$locate("/libraries.mak", mfrec)
-$ ! 
-$ ! Find it!  No, try again
-$ ! 
-$  if ((libs1 .eq. f$length(mfrec)) .and. (libs2 .eq. f$length(mfrec)) .and. (libs3 .eq. f$length(mfrec)))
-$   then
-$    goto makefile_loop3
-$  endif
-$ ! 
-$makefile_loop3_exit:
-$ ! 
-$ ! Found a libraries entry or pointer to another file.
-$ ! 
-$  If (libs3 .ne. f$length(mfrec))
-$   then
-$ ! 
-$ ! Found a pointer to another file
-$ ! 
-$    Back1 = f$locate("../", mfrec)
-$    Back2 = f$locate("../../", mfrec)
-$    Back3 = f$locate("../../../", mfrec)
-$    Back4 = f$locate("../../../../", mfrec)
-$ !
-$    if ((back1 .eq. f$length(mfrec)) .and. (back2 .eq. f$length(mfrec)) .and. (back3 .eq. f$length(mfrec)) .and. (back4 .eq. f$length(mfrec)))
-$     then
-$ ! 
-$ ! Something is wrong!
-$ ! 
-$      Goto run_error2
-$    endif
-$ ! 
-$    FoundBack = "no"
-$    If (back4 .ne. f$length(mfrec))
-$     Then
-$      FoundBack = "yes"
-$      BackStr = "[----]"
-$      Goto makefile_loop4c
-$    endif
-$ ! 
-$    If (back3 .ne. f$length(mfrec))
-$     Then
-$      FoundBack = "yes"
-$      BackStr = "[---]"
-$      Goto makefile_loop4c
-$    endif
-$ ! 
-$    If (back2 .ne. f$length(mfrec))
-$     Then
-$      FoundBack = "yes"
-$      BackStr = "[--]"
-$      Goto makefile_loop4c
-$    endif
-$ ! 
-$    If (back1 .ne. f$length(mfrec))
-$     Then
-$      FoundBack = "yes"
-$      BackStr = "[-]"
-$      Goto makefile_loop4c
-$    endif
-$ ! 
-$    if (FoundBack .eqs. "no")
-$     then
-$ ! 
-$ ! Something is wrong!
-$ ! 
-$      goto run_error2
-$    endif
-$ !
-$makefile_loop4c:
-$ ! 
-$ ! 
-$ ! Close the makefile
-$ ! 
-$    close make_file
-$ ! 
-$ ! Reopen the new makefile
-$ ! 
-$    mfile1 = "''BackStr'" + "libraries.mak"
-$    Open/read/error=makefile2_openerror make_file 'mfile1
-$ !
-$makefile_loop4:
-$ ! 
-$ ! read the next record
-$ ! 
-$    Read/end=makefile_loop4_exit/error=makefile_readerror make_file mfrec
-$ ! 
-$ ! Looking for "LIBRARIES =" in a record
-$ ! 
-$    'Myout "mfrec = ''mfrec'"
-$ ! 
-$    libs1 = f$locate("LIBRARIES =", mfrec)
-$    libs2 = f$locate("LIBRARIES=", mfrec)
-$ ! 
-$ ! Find it!  No, try again
-$ ! 
-$    if ((libs1 .eq. f$length(mfrec)) .and. (libs2 .eq. f$length(mfrec)))
-$     then
-$      goto makefile_loop4
-$    endif
-$ ! 
-$  endif
-$ ! 
-$  First_lib = "yes"
-$makefile_loop5:
-$ ! 
-$makefile_loop4a:
-$ ! 
-$ ! Found a line with 'LIBRARIES ='
-$ ! 
-$makefile_loop4d:
-$ ! 
-$ ! Read the next record.
-$ ! 
-$  Read/end=makefile_loop4_exit/error=makefile_readerror make_file mfrec
-$ ! 
-$ ! End of the libraries list?  Yes, continue
-$ ! 
-$  if (mfrec .eqs. "") then goto makefile_loop4_exit
-$ ! 
-$ ! No. Search for the line continuation character
-$ ! 
-$  bslash = f$locate("\", mfrec)
-$ ! 
-$ ! Is it there?
-$ ! 
-$  if (bslash .eq. f$length(mfrec))
+$  if ((PegLib .eqs. " ") .or. (PegLib .eqs. ""))
 $  then
-$    tmp_libnam = mfrec
-$    end_loop4 = "yes"
-$  else
-$    tmp_libnam = f$extract(0, (bslash - 1), mfrec)
+$    Goto makefile_loop3_exit
 $  endif
-$ ! 
-$ ! Remove ALL whitespace from string
-$ ! 
-$  ttmp_libnam = f$edit(tmp_libnam, "COLLAPSE, TRIM")
 $ ! 
 $ ! Create the library file entry
 $ ! 
 $  if (first_lib .eqs. "yes")
-$  then
-$    libnam = f$trnlnm("PEGASUS_VMSHOMEA") + "lib]" + "lib" + "''ttmp_libnam'" + "/lib"
+$   then
+$    libnam = f$trnlnm("PEGASUS_VMSHOMEA") + "lib]" + "lib" + "''PegLib'" + "/lib"
 $    first_lib = "no"
 $  else
-$    libnam = "lib" + "''ttmp_libnam'" + "/lib"
+$    libnam = "lib" + "''PegLib'" + "/lib"
 $  endif
+$ ! 
+$  Libnum = Libnum + 1
 $ ! 
 $ ! Write it too the option file
 $ ! 
@@ -315,15 +129,11 @@ $  write/error=optfile_writeerror optfile "''libnam'"
 $ ! 
 $ ! Try again
 $ ! 
-$  if (end_loop4 .eqs. "no")
-$  then
-$   goto makefile_loop4d
-$  endif
-$makefile_loop4_exit:
+$  Goto makefile_loop3
+$ !
+$makefile_loop3_exit:
 $ ! 
-$ ! Close the makefile
-$ ! 
-$  close make_file
+$ ! Add the SSL libraries
 $ ! 
 $  ssllibdir = f$trnlnm("PEGASUS_OPENSSLLIB")
 $  if (ssllibdir .EQS. "") then goto No_ssl
@@ -334,9 +144,9 @@ $  write/error=optfile_writeerror optfile "''ssllib1'"
 $  write/error=optfile_writeerror optfile "''ssllib2'"
 $No_ssl:
 $ ! 
-$ ! Looking for "SHARE_COPY" in a record
+$ ! Looking for "SHARE_COPY"
 $ ! 
-$  if P4 .eqs. ""
+$  if P5 .eqs. ""
 $  Then
 $    Exit
 $  Endif
@@ -344,51 +154,27 @@ $ !
 $  'MyOut "%VMSCROPT - SHARE_COPY defined"
 $  tmp_vecsym = "PegasusCreateProvider"
 $ ! 
+$VmsVec:
 $ ! 
-$ ! Looking for "VMS_VECTOR =" in a record
+$ ! Looking for "VMS_VECTOR"
 $ ! 
-$ ! Reopen the makefile
+$  if P6 .eqs. ""
+$  Then
+$    vecsym = "SYMBOL_VECTOR=(" + "''tmp_vecsym'" + "=PROCEDURE)"
+$    Goto Write_vmsvec
+$  Endif
 $ ! 
-$  Open/read/error=makefile_openerror4 make_file 'mfile
+$  'MyOut "%VMSCROPT - VMS_VECTOR defined"
+$ !
+$  vecsym = "SYMBOL_VECTOR=(" + "''P6'" + "=PROCEDURE)"
 $ ! 
-$ ! read the next record
+$Write_vmsvec:
 $ ! 
-$makefile_loop9:
-$  Read/end=makefile_loop9_exit2/error=makefile_readerror make_file mfrec
-$ ! 
-$ ! Looking for "VMS_VECTOR =" in a record
-$ ! 
-$  vmsvec = f$locate("VMS_VECTOR =", mfrec)
-$ ! 
-$ ! Find it!  No, try again
-$ ! 
-$  if (vmsvec .eq. f$length(mfrec)) then goto makefile_loop9
-$makefile_loop9_exit1:
-$ ! 
-$ ! point to the start of the program name
-$ ! 
-$  vmsvec = vmsvec + 12
-$ ! 
-$ ! Extract the vector symbol from the record
-$ ! 
-$  tmp_vecsym = f$extract(vmsvec, (f$length(mfrec) - vmsvec), mfrec)
-$makefile_loop9_exit2:
-$  'MyOut "%VMSCROPT -  tmp_vecsym = ''tmp_vecsym'"
-$ ! 
-$ ! Remove ALL whitespace from string
-$ ! 
-$  ttmp_vecsym = f$edit(tmp_vecsym, "COLLAPSE, TRIM")
-$  'MyOut "%VMSCROPT -  ttmp_vecsym = ''ttmp_vecsym'"
-$  vecsym = "SYMBOL_VECTOR=(" + "''ttmp_vecsym'" + "=PROCEDURE)"
 $  'MyOut "%VMSCROPT -  vecsym = ''vecsym'"
 $ ! 
 $ ! Write it too the option file
 $ ! 
 $  write/error=optfile_writeerror optfile "''vecsym'"
-$ ! 
-$ ! Close the makefile.
-$ ! 
-$  Close make_file
 $ ! 
 $ ! Close the options file.
 $ ! 

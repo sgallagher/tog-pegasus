@@ -10,11 +10,8 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 PROGRAM = TestCQLValue
 
 LIBRARIES = \
-    pegprm \
-    pegprovider \
     pegrepository \
     pegconfig \
-    pegclient \
     pegcql \
     pegquerycommon \
     pegcommon

@@ -26,10 +26,11 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur, schuur@de.ibm.com
+//              Dan Gorey, IBM djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define CMPI_VER_86 1
+#include "CMPI_Version.h"
 
 #include "CMPIProvider.h"
 
@@ -52,7 +53,7 @@ CMPIProvider::CMPIProvider(const String & name,
 		   CMPIProviderModule *module,
 		   ProviderVector *mv)
    : _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0), _rm(0)
+     _no_unload(0), _rm(0), _status(UNINITIALIZED)
 {
    _current_operations = 1;
    miVector=*mv;
@@ -61,7 +62,7 @@ CMPIProvider::CMPIProvider(const String & name,
 
 CMPIProvider::CMPIProvider(CMPIProvider *pr)
   : _module(pr->_module), _cimom_handle(0), _name(pr->_name),
-    _no_unload(0), _rm(0)
+    _no_unload(0), _rm(0), _status(UNINITIALIZED)
 {
    _current_operations = 1;
    miVector=pr->miVector;
@@ -74,9 +75,27 @@ CMPIProvider::~CMPIProvider(void)
 
 }
 
-CMPIProvider::Status CMPIProvider::getStatus(void) const
+CMPIProvider::Status CMPIProvider::getStatus(void)
 {
+    AutoMutex lock(_statusMutex);
     return(_status);
+}
+
+void CMPIProvider::set(CMPIProviderModule *&module,
+                    ProviderVector cmpiProvider,
+                    CIMOMHandle *&cimomHandle)
+{
+    _module = module;
+    miVector = cmpiProvider;
+    _cimom_handle = cimomHandle;
+}
+
+void CMPIProvider::reset()
+{
+    _module = 0;
+    _cimom_handle = 0;
+    _no_unload = 0;
+    _status = UNINITIALIZED;
 }
 
 CMPIProviderModule *CMPIProvider::getModule(void) const
@@ -133,7 +152,8 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
 void CMPIProvider::initialize(CIMOMHandle & cimom)
 {
 
-    _status = INITIALIZING;
+    if(_status == UNINITIALIZED)
+  {
 
     try
     {
@@ -146,28 +166,27 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
     }
     catch(...) 
     {
-	_status = UNKNOWN;
-	_module->unloadModule();
+        _current_operations = 0;
 	throw;
     }
-
     _status = INITIALIZED;
     _current_operations = 0;
+  }
 }
 
 Boolean CMPIProvider::tryTerminate(void)
 {
+  Boolean terminated = false;
+
+  if(_status == INITIALIZED)
+  { 
    if(false == unload_ok())
    {
       return false;
    }
 
    Status savedStatus=_status;
-   _status = TERMINATING;
-   Boolean terminated = false;
 
-   try
-   {
       // yield before a potentially lengthy operation.
       pegasus_yield();
       try
@@ -189,18 +208,11 @@ Boolean CMPIProvider::tryTerminate(void)
 	 terminated = false;
 
       }
-      // yield before a potentially lengthy operation.
-      pegasus_yield();
       if(terminated == true)
-	 _module->unloadModule();
-   }
-   catch(...)
    {
-      _status = UNKNOWN;
-
+    _status = UNINITIALIZED;
    }
-
-   _status = TERMINATED;
+   }
    return terminated;
 }
 
@@ -210,7 +222,7 @@ void CMPIProvider::_terminate(void)
  //       cerr<<"--- CMPIProvider::_terminate() deleting ClassCache "<<endl;
 	ClassCache::Iterator i=broker.clsCache->start();
 	for (; i; i++) {
- //	   cerr<<"--- CMPIProvider::_terminate() deleting class "
+	   //cerr<<"--- CMPIProvider::_terminate() deleting class "
  //	      <<i.value()->getClassName().getString()<<endl;
 	   delete i.value(); }
 	delete broker.clsCache;
@@ -247,8 +259,7 @@ void CMPIProvider::_terminate(void)
 void CMPIProvider::terminate(void)
 {
     Status savedStatus=_status;     
-    _status = TERMINATING;
-    try
+  if(_status == INITIALIZED)
     {
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
@@ -265,21 +276,10 @@ void CMPIProvider::terminate(void)
 	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			       "Exception caught in CMPIProviderFacade::Terminate for " + 
 			       _name);
-       }
-	// yield before a potentially lengthy operation.
-	pegasus_yield();
-
-	_module->unloadModule();
-    }
-    catch(...)
-    {
-	_status = UNKNOWN;
-   
 	throw;
     }
-
-    _status = TERMINATED;
-
+  }
+  _status = UNINITIALIZED;
 }
 
 Boolean CMPIProvider::operator == (const void *key) const 

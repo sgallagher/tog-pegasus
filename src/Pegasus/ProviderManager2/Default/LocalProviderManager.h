@@ -1,7 +1,9 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000 - 2003 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -9,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -26,50 +28,47 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Jenny Yu, Hewlett-Packard Company(jenny_yu@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com
 //              Dan Gorey, IBM djgorey@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CMPILocalProviderManager_h
-#define Pegasus_CMPILocalProviderManager_h
+#ifndef Pegasus_LocalProviderManager_h
+#define Pegasus_LocalProviderManager_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/HashTable.h>
-
 #include <Pegasus/Provider/CIMNullProvider.h>
 
-#include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPIProviderManager.h>
-
 #include <Pegasus/ProviderManager2/Lockable.h>
+#include <Pegasus/ProviderManager2/Default/Provider.h>
+#include <Pegasus/ProviderManager2/Default/ProviderModule.h>
 
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE CMPILocalProviderManager
+class PEGASUS_SERVER_LINKAGE LocalProviderManager
 {
+public:
+    LocalProviderManager(void);
+    virtual ~LocalProviderManager(void);
 
 public:
-    CMPILocalProviderManager(void);
-    virtual ~CMPILocalProviderManager(void);
+    OpProviderHolder getProvider(const String & fileName, const String & providerName,
+        const String & interfaceName = String::EMPTY) ;
 
-public:
-    CMPIProvider::OpProviderHolder getProvider(const String & fileName, const String & providerName,
-         const String & interfaceName = String::EMPTY);
+    void unloadProvider(const String & fileName, const String & providerName) ;
 
-    void unloadProvider(const String & fileName, const String & providerName);
-
-    void shutdownAllProviders(void);
+    void shutdownAllProviders(void) ;
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL provider_monitor(void *);
 
-    void unload_idle_providers(void);
+    void unload_idle_providers(void) ;
+
+    Sint16 disableProvider(const String & fileName, const String & providerName);
 
 private:
     enum CTRL
@@ -84,14 +83,12 @@ private:
         UNLOAD_IDLE_PROVIDERS
     };
 
-    typedef HashTable<String, CMPIProvider *,
-        EqualFunc<String>,  HashFunc<String> > ResolverTable;
-
-    typedef HashTable<String, CMPIProvider *,
+    typedef HashTable<String, Provider *,
         EqualFunc<String>,  HashFunc<String> > ProviderTable;
 
-    typedef HashTable<String, CMPIProviderModule *,
+    typedef HashTable<String, ProviderModule *,
         EqualFunc<String>, HashFunc<String> > ModuleTable;
+
 
     typedef struct
     {
@@ -101,29 +98,26 @@ private:
     } CTRL_STRINGS;
 
     friend class ProviderManagerService;
-
-    ResolverTable _resolvers;
+    friend class ProviderModule;
     ProviderTable _providers;
     ModuleTable _modules;
     Uint32 _idle_timeout;
 
-    CMPIProvider *_getResolver(const String & fileName, const String & interfaceType);
-    CMPIResolverModule *_loadResolver(const String & fileName);
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
     AtomicInt _unload_idle_flag;
 
-    CMPIProvider* _initProvider(CMPIProvider * provider,
+    Provider* _initProvider(Provider * provider,
                             const String & moduleFileName,
                             const String & interfaceName);
 
-    void _unloadProvider(CMPIProvider * provider);
+    void _unloadProvider(Provider * provider);
 
-    CMPIProvider * _lookupProvider(const String & providerName);
+    Provider * _lookupProvider(const String & providerName);
 
-    CMPIProviderModule * _lookupModule(const String & moduleFileName,
-                                    const String & interfaceName);
+    ProviderModule * _lookupModule(const String & moduleFileName,
+                                  const String & interfaceName);
+
     Mutex _providerTableMutex;
-                                    
 
 protected:
 
@@ -132,4 +126,3 @@ protected:
 PEGASUS_NAMESPACE_END
 
 #endif
-

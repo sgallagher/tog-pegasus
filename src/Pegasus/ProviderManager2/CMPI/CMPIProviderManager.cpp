@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define CMPI_VER_86 1
+#include "CMPI_Version.h"
 
 #include "CMPIProviderManager.h"
 
@@ -49,7 +49,9 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Server/CIMServer.h>
 
+#include <Pegasus/ProviderManager2/ProviderType.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
@@ -57,10 +59,6 @@
 #include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-
-#ifdef PEGASUS_OS_HPUX
-#include <alloca.h>
-#endif
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -75,20 +73,44 @@ CMPIProviderManager::IndProvTab    CMPIProviderManager::provTab;
 CMPIProviderManager::IndSelectTab  CMPIProviderManager::selxTab;
 CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
 
+class CMPIPropertyList {
+   char **props;
+   int pCount;
+  public: 
+   CMPIPropertyList(CIMPropertyList &propertyList) {
+      if (!propertyList.isNull()) {
+        Array<CIMName> p=propertyList.getPropertyNameArray();
+        pCount=p.size();
+        props=(char**)malloc((1+pCount)*sizeof(char*));
+        for (int i=0; i<pCount; i++) {
+           props[i]=strdup(p[i].getString().getCString());
+        }
+        props[pCount]=NULL;
+      }
+      else props=NULL;
+   }
+   ~CMPIPropertyList() {
+      if (props) {
+         for (int i=0; i<pCount; i++)
+            free(props[i]);
+         free(props);   
+      }
+   }
+   char **getList() {
+      return props;
+   }
+};
+
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
    mode=m;
    if (getenv("CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
-   String repositoryRootPath =
-	ConfigManager::getHomedPath(
-	ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
-   _repository = new CIMRepository(repositoryRootPath);
+   _repository = ProviderManagerService::_repository;
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)
 {
-   delete _repository;
 }
 
 Boolean CMPIProviderManager::insertProvider(const ProviderName & name,
@@ -134,7 +156,7 @@ Message * CMPIProviderManager::processMessage(Message * request) throw()
 
         break;
     case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecuteQueryRequest(request);
+        response = handleExecQueryRequest(request);
 
         break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
@@ -209,12 +231,6 @@ void CMPIProviderManager::unload_idle_providers(void)
      providerManager.unload_idle_providers();  
 }
 
-#define STRDUPA(s,o) \
-   if (s) { \
-      o=(const char*)alloca(strlen(s)); \
-      strcpy((char*)(o),(s)); \
-   } \
-   else o=NULL;
 
 #define CHARS(cstring) (char*)(strlen(cstring)?(const char*)cstring:NULL)
 
@@ -292,10 +308,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -312,8 +325,6 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         context.insert(AcceptLanguageListContainer(request->acceptLanguages));
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
-        CIMPropertyList propertyList(request->propertyList);
-
         // forward request
 	CMPIProvider & pr=ph.GetProvider();
 
@@ -322,23 +333,13 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         DDD(cerr<<"--- CMPIProviderManager::getInstance"<<endl);
 
-        const char **props=NULL;
-
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
-          for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
+        CMPIPropertyList props(request->propertyList);
 
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
@@ -350,7 +351,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 	STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->getInstance
-	    (pr.miVector.instMI,&eCtx,&eRes,&eRef,(char**)props);
+        (pr.miVector.instMI,&eCtx,&eRes,&eRef,props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -385,10 +386,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             request->className);
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -416,23 +414,13 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         DDD(cerr<<"--- CMPIProviderManager::enumerateInstances"<<endl);
 
-        const char **props=NULL;
-
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,&pr.broker);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
-          for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
+        CMPIPropertyList props(propertyList);
 
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
@@ -444,7 +432,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->enumInstances
-	   (pr.miVector.instMI,&eCtx,&eRes,&eRef,(char**)props);
+        (pr.miVector.instMI,&eCtx,&eRes,&eRef,props.getList()); 
 
         STAT_PMS_PROVIDEREND;
 
@@ -481,10 +469,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
        // build an internal provider name from the request arguments
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -558,10 +543,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
             request->newInstance.getPath().getKeyBindings());
 
 	ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -625,7 +607,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
                  handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->modifiedInstance.getPath().getClassName().getString());
@@ -638,10 +620,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
             request->modifiedInstance.getPath ().getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -658,8 +637,6 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         context.insert(AcceptLanguageListContainer(request->acceptLanguages));
         context.insert(ContentLanguageListContainer(request->contentLanguages));
 
-        CIMPropertyList propertyList(request->propertyList);
-
         // forward request
  	CMPIProvider & pr=ph.GetProvider();
 
@@ -668,8 +645,6 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         DDD(cerr<<"--- CMPIProviderManager::modifyInstance"<<endl);
 
-        const char **props=NULL;
-
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -677,15 +652,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         CMPI_InstanceOnStack eInst(request->modifiedInstance);
         CMPI_ThreadContext thr(&pr.broker,&eCtx);
 
-        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
-          for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
+        CMPIPropertyList props(request->propertyList);
 
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
@@ -696,7 +663,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->setInstance
-	   (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,(char**)props);
+        (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -719,7 +686,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
                  handler);
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->instanceName.getClassName().getString());
@@ -732,10 +699,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -786,37 +750,82 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     return(response);
 }
 
-Message * CMPIProviderManager::handleExecuteQueryRequest(const Message * message) throw()
+Message * CMPIProviderManager::handleExecQueryRequest(const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-       "CMPIProviderManager::handleExecuteQueryRequest");
+       "CMPIProviderManager::handleExecQueryRequest");
 
-    CIMExecQueryRequestMessage * request =
-        dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
+    HandlerIntro(ExecQuery,message,request,response,
+                 handler,Array<CIMObject>());
 
-    PEGASUS_ASSERT(request != 0);
+    try {  
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "CMPIProviderManager::ExecQueryRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->className.getString());
 
-    //l10n
-    CIMExecQueryResponseMessage * response =
-        new CIMExecQueryResponseMessage(
-        request->messageId,
-        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-        "ProviderManager.DefaultProviderManager.NOT_IMPLEMENTED",
-        "not implemented")),
-        request->queueIds.copyAndPop(),
-        Array<CIMObject>());
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->className);
 
-    PEGASUS_ASSERT(response != 0);
+        ProviderName name(
+            objectPath,
+            ProviderType::QUERY);
 
-    // preserve message key
-    response->setKey(request->getKey());
+        // resolve provider name
+        name = _resolveProviderName(name);
 
-    //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
+        // get cached or load new provider module
+        CMPIProvider::OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(),
+               String::EMPTY);
 
-    // l10n
-    // ATTN: when this is implemented, need to add the language containers to the
-    // OperationContext.  See how the other requests do it.
+	// convert arguments
+        OperationContext context;
+
+        context.insert(IdentityContainer(request->userName));
+        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));
+
+        // forward request
+	CMPIProvider & pr=ph.GetProvider();
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Calling provider.execQuery: " + pr.getName());
+
+        DDD(cerr<<"--- CMPIProviderManager::execQuery"<<endl);
+
+        const char **props=NULL;
+
+	CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPI_ContextOnStack eCtx(context);
+        CMPI_ObjectPathOnStack eRef(objectPath);
+        CMPI_ResultOnStack eRes(handler,&pr.broker);
+        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+        const CString queryLan=request->queryLanguage.getCString();
+        const CString query=request->query.getCString();
+
+        CMPIFlags flgs=0;
+        eCtx.ft->addEntry(&eCtx,CMPIInvocationFlags,(CMPIValue*)&flgs,CMPI_uint32);
+
+        CMPIProvider::pm_service_op_lock op_lock(&pr);
+
+        STAT_GETSTARTTIME;
+
+        rc=pr.miVector.instMI->ft->execQuery
+	   (pr.miVector.instMI,&eCtx,&eRes,&eRef,CHARS(queryLan),CHARS(query));
+
+        STAT_PMS_PROVIDEREND;
+
+        if (rc.rc!=CMPI_RC_OK)
+	   throw CIMException((CIMStatusCode)rc.rc);
+
+        STAT_PMS_PROVIDEREND;
+    }
+    HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -851,10 +860,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             request->assocClass.getString());
 
          ProviderName name(
-            assocPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            assocPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -890,18 +896,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
 
-        const char **props=NULL;
+        CMPIPropertyList props(request->propertyList);
 
-/*        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
-           for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
-*/
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
@@ -913,7 +909,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         rc=pr.miVector.assocMI->ft->associators(
                          pr.miVector.assocMI,&eCtx,&eRes,&eRef,CHARS(aClass),
-                         CHARS(rClass),CHARS(rRole),CHARS(resRole),(char**)props);
+                         CHARS(rClass),CHARS(rRole),CHARS(resRole),props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -955,10 +951,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
             request->assocClass.getString());
       
       ProviderName name(
-            assocPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            assocPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1026,7 +1019,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
                  handler,Array<CIMObject>());
     try {
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
+            "CMPIProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
             request->objectName.getClassName().getString());
@@ -1045,10 +1038,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
             request->resultClass.getString());
 
         ProviderName name(
-            resultPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            resultPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1082,18 +1072,8 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
 
-        const char **props=NULL;
+        CMPIPropertyList props(request->propertyList);
 
-/*        if (!propertyList.isNull()) {
-           Array<CIMName> p=propertyList.getPropertyNameArray();
-           int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
-           for (int i=0; i<pCount; i++) {
-              STRDUPA(p[i].getString().getCString(),props[i]);
-	   }
-           props[pCount]=NULL;
-        }
-*/
         CMPIFlags flgs=0;
         if (request->includeQualifiers) flgs|=CMPI_FLAG_IncludeQualifiers;
         if (request->includeClassOrigin) flgs|=CMPI_FLAG_IncludeClassOrigin;
@@ -1105,7 +1085,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
 
         rc=pr.miVector.assocMI->ft->references(
                          pr.miVector.assocMI,&eCtx,&eRes,&eRef,
-                         CHARS(rClass),CHARS(rRole),(char**)props);
+                         CHARS(rClass),CHARS(rRole),props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -1147,10 +1127,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
             request->resultClass.getString());
 
         ProviderName name(
-            resultPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            resultPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1228,11 +1205,9 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
             request->instanceName.getKeyBindings());
 
        ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
-            ProviderType::METHOD);
+            objectPath,
+            ProviderType::METHOD,
+            request->methodName);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1294,26 +1269,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
     return(response); 
 }
-/*
-struct indProvRecord {
-   indProvRecord() : enabled(false), count(1), handler(NULL) {}
-   Boolean enabled;
-   int count;
-   EnableIndicationsResponseHandler* handler;
-};
 
-struct indSelectRecord {
-   indSelectRecord() : eSelx(NULL) {}
-   CMPI_SelectExp *eSelx;
-};
-
-
-typedef HashTable<String,indProvRecord*,EqualFunc<String>,HashFunc<String> > IndProvTab;
-typedef HashTable<String,indSelectRecord*,EqualFunc<String>,HashFunc<String> > IndSelectTab;
-
-IndProvTab provTab;
-IndSelectTab selxTab;
-*/
 int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstance& pmInstance,
                                   String& providerName, String& location)
 {
@@ -1334,9 +1290,7 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    filterValue.get(filterReference);
    CIMNamespaceName ns("root/PG_InterOp");
 
-   _repository->read_lock ();
    CIMInstance filter=_repository->getInstance(ns,filterReference);
-   _repository->read_unlock ();
 
    CIMValue queryValue = filter.getProperty (filter.findProperty
         ("Query")).getValue ();
@@ -1345,20 +1299,19 @@ String CMPIProviderManager::getFilter(CIMInstance &subscription)
    return query;
    }
    catch (CIMException &e) {
-      _repository->read_unlock ();
       cout<<"??? CMPIProviderManager::getFilter"<<e.getCode()<<" "<<e.getMessage()<<" ???"<<endl;
       abort();
   }
    catch (...) {
-      _repository->read_unlock ();
       cout<<"??? What Happend ???"<<endl;
       abort();
    }
+   return String::EMPTY;
 }
 
 Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateSubscriptionRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleCreateSubscriptionRequest");
 
     HandlerIntroInd(CreateSubscription,message,request,response,
                  handler);
@@ -1375,7 +1328,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
             request->nameSpace.getString(),
             providerName);
 
-        String fileName = resolveFileName(providerLocation);
+        String fileName = _resolvePhysicalName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1483,7 +1436,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
             request->nameSpace.getString(),
             providerName);
 
-        String fileName = resolveFileName(providerLocation);
+        String fileName = _resolvePhysicalName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1571,7 +1524,7 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
               request->provider, ProviderManagerService::providerManagerService);
         }
 
-        String fileName = resolveFileName(providerLocation);
+        String fileName = _resolvePhysicalName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1628,7 +1581,7 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
 	   provRec->handler=NULL;
         }
 
-        String fileName = resolveFileName(providerLocation);
+        String fileName = _resolvePhysicalName(providerLocation);
 
         // get cached or load new provider module
         CMPIProvider::OpProviderHolder ph =
@@ -1922,74 +1875,11 @@ ProviderName CMPIProviderManager::_resolveProviderName(const ProviderName & prov
 {
     ProviderName temp = findProvider(providerName);
 
-    String physicalName = temp.getPhysicalName();
-
-    // fully qualify physical provider name (module), if not already done so.
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    physicalName = physicalName + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + physicalName + String(".so");
-    #elif defined(PEGASUS_OS_HPUX)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    physicalName = root + String("/lib") + physicalName + String(".sl");
-    # else
-    physicalName = root + String("/lib") + physicalName + String(".so");
-    # endif
-    #elif defined(PEGASUS_OS_OS400)
-    // do nothing
-    #else
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + physicalName + String(".so");
-
-    #endif
+    String physicalName=_resolvePhysicalName(temp.getPhysicalName());
 
     temp.setPhysicalName(physicalName);
 
     return(temp);
-}
-
-String CMPIProviderManager::_resolvePhysicalName(const String  & name)
-{
-    String physicalName;
-   
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    physicalName = name + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + name + String(".so");
-    #elif defined(PEGASUS_OS_HPUX)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + name + String(".sl");
-    #elif defined(PEGASUS_OS_OS400)
-    physicalName = name;
-    #else
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + name + String(".so");
-    #endif
-    
-    return physicalName;
-}
-
-String CMPIProviderManager::resolveFileName(String fileName)
-{
-    String name;
-    #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    name = fileName + String(".dll");
-    #elif defined(PEGASUS_OS_HPUX) && defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/lib") + fileName + String(".sl"));
-    #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/lib") + fileName + String(".so"));
-    #elif defined(PEGASUS_OS_OS400)
-    name = filrName;
-    #else
-    name = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    name.append(String("/lib") + fileName + String(".so"));
-    #endif
-    return name;
 }
 
 PEGASUS_NAMESPACE_END

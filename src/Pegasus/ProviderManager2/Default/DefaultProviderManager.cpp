@@ -43,6 +43,9 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 
+//#include <Pegasus/Common/QueryExpression.h>
+//#include <Pegasus/ProviderManager2/QueryExpressionFactory.h>
+
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/ProviderManager2/Default/Provider.h>
@@ -125,10 +128,10 @@ Message * DefaultProviderManager::processMessage(Message * request) throw()
         response = handleDeleteInstanceRequest(request);
 
         break;
-    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-        response = handleExecuteQueryRequest(request);
+ //   case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+ //       response = handleExecQueryRequest(request);
 
-        break;
+ //       break;
     case CIM_ASSOCIATORS_REQUEST_MESSAGE:
         response = handleAssociatorsRequest(request);
 
@@ -179,6 +182,10 @@ Message * DefaultProviderManager::processMessage(Message * request) throw()
         break;
     case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
         response = handleConsumeIndicationRequest(request);
+        break;
+
+    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+        response = handleExportIndicationRequest(request);
         break;
 
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
@@ -257,10 +264,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -367,18 +371,15 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             request->className);
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
         name = _resolveProviderName(name);
 
         // get cached or load new provider module
-        OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+        OpProviderHolder ph = providerManager.getProvider(name.getPhysicalName(),
+	        name.getLogicalName(), String::EMPTY);
 
         // convert arguments
         OperationContext context;
@@ -479,10 +480,7 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
 
         // build an internal provider name from the request arguments
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -586,10 +584,7 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
             request->newInstance.getPath().getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -693,10 +688,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             request->modifiedInstance.getPath ().getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -804,10 +796,7 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             ProviderType::INSTANCE);
 
         // resolve provider name
@@ -866,23 +855,20 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
 
     return(response);
 }
-
-Message * DefaultProviderManager::handleExecuteQueryRequest(const Message * message) throw()
+/*
+Message * DefaultProviderManager::handleExecQueryRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleExecuteQueryRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleExecQueryRequest");
 
     CIMExecQueryRequestMessage * request =
         dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
-    //l10n
     CIMExecQueryResponseMessage * response =
         new CIMExecQueryResponseMessage(
         request->messageId,
-        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-        "ProviderManager.DefaultProviderManager.NOT_IMPLEMENTED",
-        "not implemented")),
+        CIMException(),
         request->queueIds.copyAndPop(),
         Array<CIMObject>());
 
@@ -892,17 +878,99 @@ Message * DefaultProviderManager::handleExecuteQueryRequest(const Message * mess
     response->setKey(request->getKey());
 
     //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
+    response->setHttpMethod (request->getHttpMethod ());
 
-    // l10n
-    // ATTN: when this is implemented, need to add the language containers to the
-    // OperationContext.  See how the other requests do it.
+    // create a handler for this request
+    ExecQueryResponseHandler handler(request, response);
+
+    try
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "DefaultProviderManager::handleExecQueryRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->className.getString());
+
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->className);
+
+        ProviderName name(
+            objectPath,
+            ProviderType::QUERY);
+
+        // resolve provider name
+        name = _resolveProviderName(name);
+
+        // get cached or load new provider module
+        OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(),
+	                                name.getLogicalName(), String::EMPTY);
+
+        if (dynamic_cast<CIMInstanceQueryProvider*>(ph.GetCIMProvider()) == 0) {
+           String errorString = " instance provider is registered supporting execQuery "
+	                        "but is not a CIMQueryInstanceProvider subclass.";
+           throw CIMException(CIM_ERR_FAILED,"ProviderLoadFailure (" + name.getPhysicalName() + ":" +
+	                    name.getLogicalName() + "):" + errorString);
+        }
+
+        // convert arguments
+        OperationContext context;
+
+        context.insert(IdentityContainer(request->userName));
+        context.insert(AcceptLanguageListContainer(request->acceptLanguages));
+        context.insert(ContentLanguageListContainer(request->contentLanguages));
+
+        QueryExpression qx(QueryExpressionFactory::routeBuildQueryExpressionRep
+           (request->queryLanguage,request->query));
+
+        // forward request
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Calling provider.executeQueryRequest: " +
+            ph.GetProvider().getName());
+
+        pm_service_op_lock op_lock(&ph.GetProvider());
+
+        STAT_GETSTARTTIME;
+
+        ph.GetProvider().execQuery(
+            context,
+            objectPath,
+            qx,
+            handler);
+
+        STAT_PMS_PROVIDEREND;
+    }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+	   cout<<"--- exception not a CIMInstanceQueryProvider"<<endl;
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+    }
 
     PEG_METHOD_EXIT();
 
     return(response);
 }
-
+*/
 Message * DefaultProviderManager::handleAssociatorsRequest(const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleAssociatorsRequest");
@@ -944,12 +1012,14 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
+        CIMObjectPath assocPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->assocClass.getString());
+
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
-            0);
+            assocPath,
+            ProviderType::ASSOCIATION);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1053,11 +1123,13 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
+        CIMObjectPath assocPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->assocClass.getString());
+
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            assocPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1158,11 +1230,13 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
+        CIMObjectPath resultPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->resultClass.getString());
+
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            resultPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1268,11 +1342,13 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 
         objectPath.setKeyBindings(request->objectName.getKeyBindings());
 
+        CIMObjectPath resultPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->resultClass.getString());
+
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            resultPath,
             ProviderType::ASSOCIATION);
 
         // resolve provider name
@@ -1376,10 +1452,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             0);
 
         // resolve provider name
@@ -1487,10 +1560,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+            objectPath,
             0);
 
         // resolve provider name
@@ -1601,11 +1671,9 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             request->instanceName.getKeyBindings());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
-            ProviderType::METHOD);
+            objectPath,
+            ProviderType::METHOD,
+            request->methodName);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -1716,27 +1784,17 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
             request->nameSpace.getString(),
             temp);
 
-        // NOTE: the provider and provider module name are embedded in the request, presumably to reduce
-        // the number of provider lookups (but this should be trivial if the data is cached and accessed
-        // from the same source). to keep the lookups consistent, use the first class name, combined
-        // with the other information in the request, and create an object path that can be used to
-        // resolve the provider using the ProviderRegistrar.
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->classNames[0].getString());
+        String physicalName=_resolvePhysicalName(
+           request->providerModule.getProperty(
+           request->providerModule.findProperty("Location")).getValue().toString());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+           request->provider.getProperty(request->provider.findProperty
+              ("Name")).getValue ().toString (),
+           physicalName,
+           request->providerModule.getProperty(request->providerModule.findProperty
+              ("InterfaceType")).getValue().toString(),
             0);
-
-        // resolve provider name
-        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -1853,32 +1911,22 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
         }
 
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleModifySubscriptionRequest - Host name: $0  Name space: $1  Class name(s): $2",
+            "DefaultProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Class name(s): $2",
             System::getHostName(),
             request->nameSpace.getString(),
             temp);
 
-        // NOTE: the provider and provider module name are embedded in the request, presumably to reduce
-        // the number of provider lookups (but this should be trivial if the data is cached and accessed
-        // from the same source). to keep the lookups consistent, use the first class name, combined
-        // with the other information in the request, and create an object path that can be used to
-        // resolve the provider using the ProviderRegistrar.
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->classNames[0].getString());
+        String physicalName=_resolvePhysicalName(
+           request->providerModule.getProperty(
+           request->providerModule.findProperty("Location")).getValue().toString());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+           request->provider.getProperty(request->provider.findProperty
+              ("Name")).getValue ().toString (),
+           physicalName,
+           request->providerModule.getProperty(request->providerModule.findProperty
+              ("InterfaceType")).getValue().toString(),
             0);
-
-        // resolve provider name
-        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2000,27 +2048,17 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
             request->nameSpace.getString(),
             temp);
 
-        // NOTE: the provider and provider module name are embedded in the request, presumably to reduce
-        // the number of provider lookups (but this should be trivial if the data is cached and accessed
-        // from the same source). to keep the lookups consistent, use the first class name, combined
-        // with the other information in the request, and create an object path that can be used to
-        // resolve the provider using the ProviderRegistrar.
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->classNames[0].getString());
+        String physicalName=_resolvePhysicalName(
+           request->providerModule.getProperty(
+           request->providerModule.findProperty("Location")).getValue().toString());
 
         ProviderName name(
-            objectPath.toString(),
-            String::EMPTY,
-            String::EMPTY,
-            String::EMPTY,
+           request->provider.getProperty(request->provider.findProperty
+              ("Name")).getValue ().toString (),
+           physicalName,
+           request->providerModule.getProperty(request->providerModule.findProperty
+              ("InterfaceType")).getValue().toString(),
             0);
-
-        // resolve provider name
-        name = _resolveProviderName(name);
 
         // get cached or load new provider module
         OpProviderHolder ph =
@@ -2120,6 +2158,7 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
 
     response->dest = request->queueIds.top();
 
+    // ATTN: need pointer to Provider Manager Server!
      EnableIndicationsResponseHandler *handler =
         new EnableIndicationsResponseHandler(request, response,
               request->provider, ProviderManagerService::providerManagerService);
@@ -2130,8 +2169,8 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
           request->providerModule.getProperty(
 	      request->providerModule.findProperty("Location")).getValue().toString());
 
-       ProviderName name(String::EMPTY,
-               request->provider.getProperty(request->providerModule.findProperty
+       ProviderName name(
+               request->provider.getProperty(request->provider.findProperty
                    ("Name")).getValue ().toString (),
 	       physicalName,
                request->providerModule.getProperty(request->providerModule.findProperty
@@ -2202,8 +2241,6 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
         CIMException(),
         request->queueIds.copyAndPop());
 
-    PEGASUS_ASSERT(response != 0);
-
     // preserve message key
     response->setKey(request->getKey());
 
@@ -2218,8 +2255,8 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
               request->providerModule.getProperty(
 	         request->providerModule.findProperty("Location")).getValue().toString());
 
-       ProviderName name(String::EMPTY,
-               request->provider.getProperty(request->providerModule.findProperty
+       ProviderName name(
+               request->provider.getProperty(request->provider.findProperty
                    ("Name")).getValue ().toString (),
 	       physicalName,
                request->providerModule.getProperty(request->providerModule.findProperty
@@ -2305,7 +2342,6 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            String::EMPTY,
             0);
 
         /*
@@ -2377,6 +2413,101 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
     return(response);
 }
 
+
+Message *DefaultProviderManager::handleExportIndicationRequest(const Message *message) throw()
+{
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManagerService::handlExportIndicationRequest");
+
+    CIMExportIndicationRequestMessage * request =
+        dynamic_cast<CIMExportIndicationRequestMessage *>(const_cast<Message *>(message));
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMExportIndicationResponseMessage * response =
+        new CIMExportIndicationResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    PEGASUS_ASSERT(response != 0);
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    //  Set HTTP method in response from request
+    response->setHttpMethod (request->getHttpMethod ());
+
+    OperationResponseHandler handler(request, response);
+
+    try
+    {
+       ProviderName name(
+            String::EMPTY,
+            String::EMPTY,
+            String::EMPTY,
+            0);
+
+       // resolve provider name
+       name = _resolveProviderName(request->destinationPath);
+
+       // get cached or load new provider module
+        OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		       "Calling provider.: " +
+		       ph.GetProvider().getName());
+
+        OperationContext context;
+
+//L10N_TODO
+//l10n
+// ATTN-CEC 06/04/03 NOTE: I can't find where the consume msg is sent.  This
+// does not appear to be hooked-up.  When it is added, need to
+// make sure that Content-Language is set in the consume msg.
+// NOTE: A-L is not needed to be set in the consume msg.
+      // add the langs to the context
+      context.insert(ContentLanguageListContainer(request->contentLanguages));
+
+      CIMInstance indication_copy = request->indicationInstance;
+      pm_service_op_lock op_lock(&ph.GetProvider());
+
+      ph.GetProvider().consumeIndication(context,
+				request->destinationPath,
+				indication_copy);
+
+    }
+
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: " + e.getMessage());
+
+        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Exception: Unknown");
+
+        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
+    }
+
+    PEG_METHOD_EXIT();
+
+    return(response);
+}
+
+
+
+
 //
 // This function disables a provider module if disableProviderOnly is not true,
 // otherwise, disables a provider. Disable provider module means that
@@ -2388,9 +2519,6 @@ Message * DefaultProviderManager::handleConsumeIndicationRequest(const Message *
 //
 Message * DefaultProviderManager::handleDisableModuleRequest(const Message * message) throw()
 {
-    // HACK
-    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
-
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableModuleRequest");
 
     CIMDisableModuleRequestMessage * request =
@@ -2398,6 +2526,14 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
 
     PEGASUS_ASSERT(request != 0);
 
+    Array<Uint16> operationalStatus;
+    Boolean disableProviderOnly = request->disableProviderOnly;
+    CIMException cimException;
+
+    ProviderRegistrationManager * _providerRegistrationManager = GetProviderRegistrationManager();
+     
+    try
+    {
     // get provider module name
     String moduleName;
     CIMInstance mInstance = request->providerModule;
@@ -2413,13 +2549,10 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
     //
     // get operational status
     //
-    Array<Uint16> operationalStatus;
-
-    if(!disableProviderOnly)
+        if (!disableProviderOnly)
     {
         Uint32 pos2 = mInstance.findProperty(CIMName ("OperationalStatus"));
-
-        if(pos2 != PEG_NOT_FOUND)
+            if (pos2 != PEG_NOT_FOUND)
         {
             //
             //  ATTN-CAKG-P2-20020821: Check for null status?
@@ -2430,13 +2563,14 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         //
         // update module status from OK to Stopping
         //
-        for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
+            for (Uint32 i=0, n = operationalStatus.size(); i < n; i++)
         {
-            if(operationalStatus[i] == _MODULE_OK)
+                if (operationalStatus[i] == _MODULE_OK)
             {
                 operationalStatus.remove(i);
             }
         }
+
         operationalStatus.append(_MODULE_STOPPING);
 
         if(_providerRegistrationManager->setProviderModuleStatus
@@ -2444,37 +2578,120 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         {
             //l10n
             //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ProviderManager.DefaultProviderManager.SET_MODULE_STATUS_FAILED",
+                throw PEGASUS_CIM_EXCEPTION_L(
+                    CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "ProviderManager.ProviderManagerService."
+                            "SET_MODULE_STATUS_FAILED",
                 "set module status failed."));
         }
     }
 
     // Unload providers
     Array<CIMInstance> _pInstances = request->providers;
-    String physicalName=_resolvePhysicalName(request->providerModule.getProperty(
-	      request->providerModule.findProperty("Location")).getValue().toString());
+        Array<Boolean> _indicationProviders = request->indicationProviders;
+        
+        String physicalName=_resolvePhysicalName(
+           mInstance.getProperty(
+              mInstance.findProperty("Location")).getValue().toString());
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
-        providerManager.unloadProvider(_pInstances[i].getProperty(
-	                                  request->providerModule.findProperty
-                                          ("Name")).getValue ().toString (),
-                                       physicalName);
-    }
+            String pName(_pInstances[i].getProperty(
+               _pInstances[i].findProperty("Name")).getValue().toString());
 
-    if(!disableProviderOnly)
-    {
-        // update module status from Stopping to Stopped
-        for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
-        {
-            if(operationalStatus[i] == _MODULE_STOPPING)
+            Sint16 ret_value = providerManager.disableProvider(physicalName,pName);
+
+            if (ret_value == 0)
             {
-                operationalStatus.remove(i);
+                // disable failed since there are pending requests, 
+                // update module status from Stopping to OK if 
+                // disableProviderOnly is not true
+                if (!disableProviderOnly)
+                {
+            	    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
+            	    {
+                        if (operationalStatus[j] == _MODULE_STOPPING)
+                        {
+                            operationalStatus.remove(j);
+    }
+		    }
+
+                    operationalStatus.append(_MODULE_OK);
+
+                    if(_providerRegistrationManager->setProviderModuleStatus
+                        (moduleName, operationalStatus) == false)
+    {
+                        throw PEGASUS_CIM_EXCEPTION_L(
+                            CIM_ERR_FAILED,
+                            MessageLoaderParms(
+                                "ProviderManager.ProviderManagerService."
+                                    "SET_MODULE_STATUS_FAILED",
+                                "set module status failed."));
+                    }
+                }
+	    }
+	    else if (ret_value == 1)
+        {
+                // if It is an indication provider
+                // remove the entry from the table since the 
+                // provider has been disabled
+                if (_indicationProviders[i])
+            {
+                    _removeEntry(_generateKey(pName,physicalName));
+		}
+	    }
+            else
+            {
+		// disable failed for other reason, throw exception
+                // update module status from Stopping to OK if 
+		// disableProviderOnly is not true
+                if (!disableProviderOnly)
+                {
+            	    for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
+            	    {
+                        if (operationalStatus[j] == _MODULE_STOPPING)
+                        {
+                            operationalStatus.remove(j);
+                        }
+		    }
+
+                    operationalStatus.append(_MODULE_OK);
+
+                    if(_providerRegistrationManager->setProviderModuleStatus
+                        (moduleName, operationalStatus) == false)
+                    {
+                        throw PEGASUS_CIM_EXCEPTION_L(
+                            CIM_ERR_FAILED,
+                            MessageLoaderParms(
+                                "ProviderManager.ProviderManagerService."
+                                    "SET_MODULE_STATUS_FAILED",
+                                "set module status failed."));
             }
         }
 
+                throw PEGASUS_CIM_EXCEPTION_L(
+                    CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "ProviderManager.ProviderManagerService."
+                            "DISABLE_PROVIDER_FAILED",
+                        "Failed to disable the provider."));
+            }
+        }
+        // disable succeed 
+        // update module status from Stopping to Stopped if 
+	// disableProviderOnly is not true
+        if (!disableProviderOnly)
+        {
+            // update module status from Stopping to Stopped
+            for(Uint32 j=0, m = operationalStatus.size(); j < m; j++)
+            {
+                if (operationalStatus[j] == _MODULE_STOPPING)
+                {
+                    operationalStatus.remove(j);
         operationalStatus.append(_MODULE_STOPPED);
+                }
+            }
 
         if(_providerRegistrationManager->setProviderModuleStatus
             (moduleName, operationalStatus) == false)
@@ -2482,10 +2699,38 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
             //l10n
             //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             //"set module status failed.");
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ProviderManager.DefaultProviderManager.SET_MODULE_STATUS_FAILED",
+                throw PEGASUS_CIM_EXCEPTION_L(
+                      CIM_ERR_FAILED,
+                      MessageLoaderParms(
+                      "ProviderManager.ProviderManagerService."
+                       "SET_MODULE_STATUS_FAILED",
                 "set module status failed."));
         }
+    }
+    }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                         "Exception: " + e.getMessage());
+        cimException = e;
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                         "Exception: " + e.getMessage());
+        cimException = CIMException(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+                         "Exception: Unknown");
+        //l10n
+        //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+        cimException = PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "ProviderManager.ProviderManagerService.UNKNOWN_ERROR",
+                "Unknown Error"));
     }
 
     CIMDisableModuleResponseMessage * response =
@@ -2495,14 +2740,10 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         request->queueIds.copyAndPop(),
         operationalStatus);
 
-    PEGASUS_ASSERT(response != 0);
-
     // preserve message key
     response->setKey(request->getKey());
 
-    //
     //  Set HTTP method in response from request
-    //
     response->setHttpMethod (request->getHttpMethod ());
 
     PEG_METHOD_EXIT();
@@ -2644,6 +2885,7 @@ EnableIndicationsResponseHandler * DefaultProviderManager::_removeEntry(
     EnableIndicationsResponseHandler *ret = 0;
 
     _responseTable.lookup(key, ret);
+    _responseTable.remove(key);		// why is this needed ? - we get killed when removed...
 
     PEG_METHOD_EXIT();
 
@@ -2671,31 +2913,37 @@ String DefaultProviderManager::_generateKey (
     return(tableKey);
 }
 
-String DefaultProviderManager::_resolvePhysicalName(const String  & name)
+String DefaultProviderManager::_generateKey (
+    const String & providerName,
+    const String & providerFileName)
 {
-    String physicalName;
+    String tableKey;
+
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "DefaultProviderManagerService::_generateKey");
    
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    physicalName = name + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + name + String(".so");
-    #elif defined(PEGASUS_OS_HPUX)
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + name + String(".sl");
-    #elif defined(PEGASUS_OS_OS400)
-    physicalName = name;
-    #else
-    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    physicalName = root + String("/lib") + name + String(".so");
-    #endif
+    //
+    //  Append providerName and providerFileName to key
+    //
+    tableKey.append (providerName);
+    tableKey.append (providerFileName);
     
-    return physicalName;
+    PEG_METHOD_EXIT ();
+    return tableKey;
 }
 
 ProviderName DefaultProviderManager::_resolveProviderName(const ProviderName & providerName)
 {
     ProviderName temp = findProvider(providerName);
+    String physicalName = _resolvePhysicalName(temp.getPhysicalName());
+    temp.setPhysicalName(physicalName);
+
+    return(temp);
+}
+
+ProviderName DefaultProviderManager::_resolveProviderName(String & destinationPath)
+{
+    ProviderName temp = findProvider(destinationPath);
 
     String physicalName = _resolvePhysicalName(temp.getPhysicalName());
 

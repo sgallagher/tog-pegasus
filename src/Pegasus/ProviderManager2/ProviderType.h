@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -23,60 +23,51 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_ProviderType_h
+#define Pegasus_ProviderType_h
 
-#include "CMPI_Version.h"
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 
-#include "CMPI_String.h"
-#include "CMPI_Ftabs.h"
+#include <Pegasus/ProviderManager2/Linkage.h>
 
-#include <string.h>
-
-PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-CMPI_String* string2CMPIString(const String &s) {
-  const CString st=s.getCString();
-  char *cp=strdup((const char*)st);
-  CMPI_Object *obj= new CMPI_Object((void*)cp,CMPI_String_Ftab);
-//  CMPIRefs::localRefs().addRef(obj,CMPIRefs::TypeString);
-  return (CMPI_String*)obj;
-}
+class PEGASUS_PPM_LINKAGE ProviderType
+{
+public:
+    // these constants have the same value as those defined in Registration Manager.
+    
+    #define ProviderType_CLASS 0x00000001
 
-static CMPIStatus stringRelease(CMPIString *eStr) {
-//   cout<<"--- stringRelease()"<<endl;
-   CMReturn(CMPI_RC_OK);
-}
+    #define ProviderType_INSTANCE 0x00000002
 
-static CMPIString* stringClone(CMPIString *eStr, CMPIStatus* rc) {
-   char* str=(char*)eStr->hdl;
-   char* newstr=::strdup(str);
-   CMPI_Object * obj=new CMPI_Object(newstr,CMPI_String_Ftab);
-//   CMPIRefs::localRefs().addRef(obj,CMPIRefs::TypeString);
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return (CMPIString*)obj;
-}
+    #define ProviderType_ASSOCIATION 0x00000003
 
-static char * stringGetCharPtr(CMPIString *eStr, CMPIStatus* rc) {
-   char* ptr=(char*)eStr->hdl;
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return ptr;
-}
+    #define ProviderType_INDICATION 0x00000004
 
-static CMPIStringFT string_FT={
-     CMPICurrentVersion,
-     stringRelease,
-     stringClone,
-     stringGetCharPtr,
+    #define ProviderType_METHOD 0x00000005
+
+    #define ProviderType_CONSUMER 0x00000006
+
+    #define ProviderType_QUERY 0x00000007
+
+    static const Uint32 INSTANCE;
+    static const Uint32 CLASS;
+    static const Uint32 METHOD;
+    static const Uint32 ASSOCIATION;
+    static const Uint32 QUERY;
+    static const Uint32 INDICATION;
+    static const Uint32 CONSUMER;
+
 };
-
-CMPIStringFT *CMPI_String_Ftab=&string_FT;
-
 
 PEGASUS_NAMESPACE_END
 
+#endif

@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
+//              Adrian Schuur (schuur@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,7 @@
 #include <Pegasus/Common/HashTable.h>
 
 #include <Pegasus/ProviderManager2/ProviderManager.h>
+#include <Pegasus/ProviderManager2/ProviderName.h>
 
 #include <Pegasus/ProviderManager2/Default/LocalProviderManager.h>
 #include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
@@ -80,7 +82,7 @@ protected:
     Message * handleModifyInstanceRequest(const Message * message) throw();
     Message * handleDeleteInstanceRequest(const Message * message) throw();
 
-    Message * handleExecuteQueryRequest(const Message * message) throw();
+//    Message * handleExecQueryRequest(const Message * message) throw();
 
     Message * handleAssociatorsRequest(const Message * message) throw();
     Message * handleAssociatorNamesRequest(const Message * message) throw();
@@ -99,39 +101,22 @@ protected:
     Message * handleDisableIndicationsRequest(const Message * message) throw();
 
     Message * handleConsumeIndicationRequest(const Message * message) throw();
+    Message * handleExportIndicationRequest(const Message * message) throw();
 
     Message * handleDisableModuleRequest(const Message * message) throw();
     Message * handleEnableModuleRequest(const Message * message) throw();
     Message * handleStopAllProvidersRequest(const Message * message) throw();
 
-    /**
-        Inserts an entry into the enabled indication providers table.
-
-        @param   provider              the provider instance
-        @param   handler               pointer to the indication response handler
-    */
     void _insertEntry(const Provider & provider, const EnableIndicationsResponseHandler *handler);
-
-    /**
-        Generates a String key from by combining the provider and provider
-	    module names.
-
-        @param   provider              the provider instance
-
-        @return  the generated key
-     */
     EnableIndicationsResponseHandler * _removeEntry(const String & key);
 
     String _generateKey(const Provider & provider);
+    String _generateKey(const String & providerName,const String & providerFileName);
 
     ProviderName _resolveProviderName(const ProviderName & providerName);
-    String _resolvePhysicalName(const String  & name);
+    ProviderName _resolveProviderName(String & destinationPath);
 
 protected:
-    /**
-        Table holding indication response handlers, one for each provider
-    	that has indications enabled.
-    */
     IndicationResponseTable _responseTable;
 
 };

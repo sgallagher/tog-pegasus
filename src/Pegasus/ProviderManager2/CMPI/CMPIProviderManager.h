@@ -44,7 +44,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CMPI_SelectExp;
+struct CMPI_SelectExp;
 
 class PEGASUS_SERVER_LINKAGE CMPIProviderManager : public ProviderManager
 {
@@ -63,8 +63,6 @@ public:
             const String &ns, const String &cn);
   
     virtual Message * processMessage(Message * request) throw();
-
-    static String resolveFileName(String name);
 
     virtual void unload_idle_providers(void) ;
     
@@ -102,7 +100,7 @@ protected:
     Message * handleModifyInstanceRequest(const Message * message) throw();
     Message * handleDeleteInstanceRequest(const Message * message) throw();
 
-    Message * handleExecuteQueryRequest(const Message * message) throw();
+    Message * handleExecQueryRequest(const Message * message) throw();
 
     Message * handleAssociatorsRequest(const Message * message) throw();
     Message * handleAssociatorNamesRequest(const Message * message) throw();
@@ -128,7 +126,6 @@ protected:
     Message * handleStopAllProvidersRequest(const Message * message) throw();
 
     ProviderName _resolveProviderName(const ProviderName & providerName);
-    String _resolvePhysicalName(const String  & name);
 };
 
 PEGASUS_NAMESPACE_END

@@ -60,7 +60,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		// if message loading is DISABLED return the default message
 #ifndef PEGASUS_HAS_MESSAGES
 			return formatDefaultMessage(parms);
-#endif	
+#else
 		
 #ifdef PEGASUS_HAS_ICU
 			//cout << "PEGASUS_HAS_ICU" << endl;
@@ -78,10 +78,10 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			//cout << "PEGASUS_HAS_ICU is NOT defined, using default message" << endl;
 			return formatDefaultMessage(parms);
 #endif	
+#endif	
 		}catch(Exception&){
 			return String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(parms.default_msg);	
-		}	
-		PEG_METHOD_EXIT();			
+		}
 	}
 	
 #ifdef PEGASUS_HAS_ICU
@@ -444,8 +444,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 								 	parms.arg8,
 								 	parms.arg9);
 								 
-		
-		PEG_METHOD_EXIT(); 
+
 	}
 	
 	String MessageLoader::getQualifiedMsgPath(String path){
@@ -464,8 +463,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		}
 		
 		return pegasus_MSG_HOME	+ path;  // relative path and package name
-		
-		PEG_METHOD_EXIT(); 
+
 	}
 	
 	void MessageLoader::setPegasusMsgHome(String home){

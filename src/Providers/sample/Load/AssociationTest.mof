@@ -1,0 +1,39 @@
+Class TST_CA
+{
+};
+
+Class TST_CB : TST_CA
+{
+};
+Class TST_CC : TST_CA
+{
+};
+
+Class TST_CD : TST_CB
+{
+};
+
+[association]
+Class TST_A1
+{
+	TST_A1 ref from;
+	TST_A1 ref to;
+};
+
+[association]
+Class TST_A2 : TST_A1
+{
+	TST_CB ref from;
+	TST_CC ref to;
+};
+
+[association]
+Class TST_A3 : TST_A1
+{
+	TST_CA ref from;
+	TST_CC ref to;
+};
+
+
+//////////////////////////////////////
+/ Instances definition

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: QualifierRep.h,v $
-// Revision 1.1  2001/01/14 19:53:10  mike
-// Initial revision
+// Revision 1.2  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:10  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -69,6 +72,11 @@ public:
     Type getType() const 
     { 
 	return _value.getType(); 
+    }
+
+    Boolean isArray() const 
+    {
+	return _value.isArray();
     }
 
     const Value& getValue() const 

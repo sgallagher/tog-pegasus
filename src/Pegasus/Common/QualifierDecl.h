@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: QualifierDecl.h,v $
+// Revision 1.3  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
 // Revision 1.2  2001/01/15 04:31:44  mike
 // worked on resolve scheme
 //
@@ -109,6 +112,12 @@ public:
     { 
 	_checkRep();
 	return _rep->getType(); 
+    }
+
+    Boolean isArray() const 
+    {
+	_checkRep();
+	return _rep->isArray();
     }
 
     const Value& getValue() const 
@@ -253,6 +262,12 @@ public:
     { 
 	_checkRep();
 	return _rep->getType(); 
+    }
+
+    Boolean isArray() const 
+    {
+	_checkRep();
+	return _rep->isArray();
     }
 
     const Value& getValue() const 

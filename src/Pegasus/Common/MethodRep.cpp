@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: MethodRep.cpp,v $
+// Revision 1.3  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
 // Revision 1.2  2001/01/22 00:45:47  mike
 // more work on resolve scheme
 //
@@ -120,48 +123,30 @@ void MethodRep::resolve(
     const String& nameSpace,
     const ConstMethod& inheritedMethod)
 {
-    if (inheritedMethod)
-    {
-	assert(Name::equal(getName(), inheritedMethod.getName()));
+    // ATTN: Check to see if this method has same signature as
+    // inherited one.
 
-	if (getType() != inheritedMethod.getType())
-	{
-	    String tmp = inheritedMethod.getName();
-	    tmp.append("; attempt to change type");
-	    throw InvalidMethodOverride(tmp);
-	}
+    // Check for type mismatch between return types.
 
-	_classOrigin = inheritedMethod.getClassOrigin();
-    }
+    assert (inheritedMethod);
 
     // Validate the qualifiers of the method (according to
     // superClass's method with the same name). This method
     // will throw an exception if the validation fails.
 
-    if (inheritedMethod)
-    {
-	_qualifiers.resolve(
-	    declContext,
-	    nameSpace,
-	    Scope::METHOD,
-	    false,
-	    inheritedMethod._rep->_qualifiers);
-    }
-    else
-    {
-	QualifierList dummyQualifiers;
-	_qualifiers.resolve(
-	    declContext,
-	    nameSpace,
-	    Scope::METHOD,
-	    false,
-	    dummyQualifiers);
-    }
+    _qualifiers.resolve(
+	declContext,
+	nameSpace,
+	Scope::METHOD,
+	false,
+	inheritedMethod._rep->_qualifiers);
 
     // Validate each of the parameters:
 
     for (size_t i = 0; i < _parameters.getSize(); i++)
 	_parameters[i].resolve(declContext, nameSpace);
+
+    _classOrigin = inheritedMethod.getClassOrigin();
 }
 
 void MethodRep::resolve(

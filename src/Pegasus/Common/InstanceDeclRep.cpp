@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: InstanceDeclRep.cpp,v $
+// Revision 1.4  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
 // Revision 1.3  2001/01/22 00:45:47  mike
 // more work on resolve scheme
 //
@@ -97,13 +100,13 @@ Uint32 InstanceDeclRep::getPropertyCount() const
 }
 
 void InstanceDeclRep::resolve(
-    DeclContext* declContext, 
+    DeclContext* context, 
     const String& nameSpace)
 {
     if (_resolved)
 	throw InstanceAlreadyResolved();
 
-    if (!declContext)
+    if (!context)
 	throw NullPointer();
 
     //----------------------------------------------------------------------
@@ -111,7 +114,7 @@ void InstanceDeclRep::resolve(
     //----------------------------------------------------------------------
 
     ConstClassDecl classDecl = 
-	declContext->lookupClassDecl(nameSpace, _className);
+	context->lookupClassDecl(nameSpace, _className);
 
     if (!classDecl)
 	throw NoSuchClass(_className);
@@ -131,7 +134,7 @@ void InstanceDeclRep::resolve(
     //----------------------------------------------------------------------
 
     _qualifiers.resolve(
-	declContext,
+	context,
 	nameSpace,
 	Scope::CLASS,
 	false,
@@ -139,22 +142,23 @@ void InstanceDeclRep::resolve(
 
     //----------------------------------------------------------------------
     // First iterate the properties of this instance and verify that
-    // each one is defined in the class and also check that the types
-    // are consistent. Set the class-origin as well.
+    // each one is defined in the class and then resolve each one.
+    // Also set the class origin.
     //----------------------------------------------------------------------
+
+    String classOrigin = classDecl.getClassName();
 
     for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
     {
-	Property property = _properties[i];
+	Property& property = _properties[i];
 
 	Uint32 pos = classDecl.findProperty(property.getName());
 
 	if (pos == Uint32(-1))
 	    throw NoSuchProperty(property.getName());
 
-	ConstProperty classProperty = classDecl.getProperty(pos);
-
-	property.resolve(declContext, nameSpace, true, classProperty);
+	property.resolve(context, nameSpace, true, classDecl.getProperty(pos));
+        property.setClassOrigin(classOrigin);
     }
 
     //----------------------------------------------------------------------
@@ -163,19 +167,16 @@ void InstanceDeclRep::resolve(
     // to true.
     //----------------------------------------------------------------------
 
-    Uint32 start = 0;
-
-    for (Uint32 i = 0, n = classDecl.getPropertyCount(); i < n; i++)
+    for (Uint32 i = 0, m = 0, n = classDecl.getPropertyCount(); i < n; i++)
     {
 	ConstProperty property = classDecl.getProperty(i);
-	const String& classOrigin = property.getClassOrigin();
 	const String& name = property.getName();
 
 	// See if this instance already contains a property with this name:
 
 	Boolean found = false;
 
-	for (Uint32 j = start, n = _properties.getSize(); j < n; j++)
+	for (Uint32 j = m, n = _properties.getSize(); j < n; j++)
 	{
 	    if (_properties[j].getName() == name)
 	    {
@@ -188,7 +189,7 @@ void InstanceDeclRep::resolve(
 	{
 	    Property p = property.clone();
 	    p.setPropagated(true);
-	    _properties.insert(start++, p);
+	    _properties.insert(m++, p);
 	}
     }
 

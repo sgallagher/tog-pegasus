@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.h,v $
+// Revision 1.3  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
 // Revision 1.2  2001/01/22 00:45:47  mike
 // more work on resolve scheme
 //
@@ -182,16 +185,6 @@ public:
     static const char MSG[];
 
     UndeclaredQualifier(const String& qualifierName)
-	: Exception(MSG + qualifierName) { }
-};
-
-class PEGASUS_COMMON_LINKAGE BadQualifierType : public Exception
-{
-public:
-
-    static const char MSG[];
-
-    BadQualifierType(const String& qualifierName)
 	: Exception(MSG + qualifierName) { }
 };
 

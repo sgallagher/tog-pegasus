@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: QualifierList.cpp,v $
+// Revision 1.3  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
 // Revision 1.2  2001/01/22 00:45:47  mike
 // more work on resolve scheme
 //
@@ -107,8 +110,8 @@ void QualifierList::resolve(
 	// 2. Check the type:
 	//----------------------------------------------------------------------
 
-	if (q.getType() != qd.getType())
-	    throw BadQualifierType(q.getName());
+	if (!(q.getType() == qd.getType() && q.isArray() == qd.isArray()))
+	    throw TypeMismatch();
 
 	//----------------------------------------------------------------------
 	// 3. Check the scope:

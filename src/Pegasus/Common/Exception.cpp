@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Exception.cpp,v $
+// Revision 1.3  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
 // Revision 1.2  2001/01/22 00:45:47  mike
 // more work on resolve scheme
 //
@@ -86,8 +89,6 @@ const char InvalidPropertyOverride::MSG[] = "invalid property override: ";
 const char InvalidMethodOverride::MSG[] = "invalid method override: ";
 
 const char UndeclaredQualifier::MSG[] = "undeclared qualifier: ";
-
-const char BadQualifierType::MSG[] = "qualifier initialized with wrong type: ";
 
 const char BadQualifierScope::MSG[] = "qualifier invalid in this scope: ";
 

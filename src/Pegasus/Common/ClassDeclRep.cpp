@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
+// Revision 1.3  2001/01/23 01:25:34  mike
+// Reworked resolve scheme.
+//
 // Revision 1.2  2001/01/15 04:31:43  mike
 // worked on resolve scheme
 //
@@ -115,6 +118,10 @@ void ClassDeclRep::addProperty(const Property& x)
 
     if (!isAssociation() && x.getValue().getType() == Type::REFERENCE)
 	throw AddedReferenceToClass(_className);
+
+    // Set the class origin:
+
+    Property(x).setClassOrigin(_className);
 
     // Add the property:
 
@@ -228,13 +235,11 @@ void ClassDeclRep::resolve(
 	    if (pos == Uint32(-1))
 	    {
 		property.resolve(context, nameSpace, false);
-		property.setClassOrigin(getClassName());
 	    }
 	    else
 	    {
 		ConstProperty superClassProperty = superClass.getProperty(pos);
 		property.resolve(context, nameSpace, false, superClassProperty);
-		property.setClassOrigin(superClassProperty.getClassOrigin());
 	    }
 	}
 
@@ -291,13 +296,11 @@ void ClassDeclRep::resolve(
 	    if (pos == Uint32(-1))
 	    {
 		method.resolve(context, nameSpace);
-		method.setClassOrigin(getClassName());
 	    }
 	    else
 	    {
 		ConstMethod superClassMethod = superClass.getMethod(pos);
 		method.resolve(context, nameSpace, superClassMethod);
-		method.setClassOrigin(superClassMethod.getClassOrigin());
 	    }
 	}
 

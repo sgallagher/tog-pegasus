@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Resolve.cpp,v $
-// Revision 1.1  2001/01/14 19:53:48  mike
-// Initial revision
+// Revision 1.2  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:48  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -33,6 +36,7 @@
 #include <Pegasus/Common/DeclContext.h>
 
 using namespace Pegasus;
+using namespace std;
 
 void test01()
 {
@@ -55,7 +59,7 @@ void test01()
 	    .addParameter(Parameter("hostname", Type::STRING))
 	    .addParameter(Parameter("port", Type::UINT32)));
 
-    // class1.print();
+    class1.print();
     class1.resolve(context, NAMESPACE);
 }
 

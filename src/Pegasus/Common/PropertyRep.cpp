@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: PropertyRep.cpp,v $
+// Revision 1.3  2001/01/23 01:25:35  mike
+// Reworked resolve scheme.
+//
 // Revision 1.2  2001/01/22 00:45:47  mike
 // more work on resolve scheme
 //
@@ -111,43 +114,25 @@ void PropertyRep::resolve(
     Boolean isInstancePart,
     const ConstProperty& inheritedProperty)
 {
-    if (inheritedProperty)
-    {
-	assert(Name::equal(getName(), inheritedProperty.getName()));
+    assert (inheritedProperty);
 
-	if (getValue().getType() != inheritedProperty.getValue().getType())
-	{
-	    String tmp = inheritedProperty.getName();
-	    tmp.append("; attempt to change type");
-	    throw InvalidPropertyOverride(tmp);
-	}
+    // Check the type:
 
-	_classOrigin = inheritedProperty.getClassOrigin();
-    }
+    if (!inheritedProperty.getValue().typeCompatible(_value))
+	throw TypeMismatch();
 
     // Validate the qualifiers of the property (according to
     // superClass's property with the same name). This method
     // will throw an exception if the validation fails.
 
-    if (inheritedProperty)
-    {
-	_qualifiers.resolve(
-	    declContext,
-	    nameSpace,
-	    Scope::PROPERTY,
-	    isInstancePart,
-	    inheritedProperty._rep->_qualifiers);
-    }
-    else
-    {
-	QualifierList dummyQualifiers;
-	_qualifiers.resolve(
-	    declContext,
-	    nameSpace,
-	    Scope::PROPERTY,
-	    isInstancePart,
-	    dummyQualifiers);
-    }
+    _qualifiers.resolve(
+	declContext,
+	nameSpace,
+	Scope::PROPERTY,
+	isInstancePart,
+	inheritedProperty._rep->_qualifiers);
+
+    _classOrigin = inheritedProperty.getClassOrigin();
 }
 
 void PropertyRep::resolve(

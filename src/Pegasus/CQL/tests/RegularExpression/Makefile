@@ -7,8 +7,6 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
    pegcommon \
-   pegprovider \
-   pegrepository \
    pegcql
 
 PROGRAM = RegularExpression

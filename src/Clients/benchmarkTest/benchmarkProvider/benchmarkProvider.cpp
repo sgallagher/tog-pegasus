@@ -85,7 +85,7 @@ CIMInstance benchmarkProvider::_buildInstance(
        for(Uint32 i = 0; i < numberOfProperties;  i++)
        {
           sprintf(propertyName, "Property%4.4d", i);
-          instance.addProperty(CIMProperty(propertyName, propertyValue));
+          instance.addProperty(CIMProperty(propertyName, String(propertyValue)));
        }
 
        CIMObjectPath reference = _buildObjectPath(className, Identifier);

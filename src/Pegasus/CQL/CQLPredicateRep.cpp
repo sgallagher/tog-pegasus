@@ -38,6 +38,7 @@
 #include "CQLPredicateRep.h"
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -78,6 +79,7 @@ _invert(false)
 
 Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
+   PEG_METHOD_ENTER(TRC_CQL, "CQLIPredicateRep::evaluate");
 	Boolean result = false;
                                                                                                                   
   if (isSimple())
@@ -112,6 +114,7 @@ Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
       }
     }
   }
+  PEG_METHOD_EXIT();
   return (getInverted()) ? !result : result;
 }
 
@@ -157,6 +160,7 @@ Array<BooleanOpType> CQLPredicateRep::getOperators()const{
 
 void CQLPredicateRep::applyContext(QueryContext& queryContext)
 {
+  PEG_METHOD_ENTER(TRC_CQL, "CQLPredicateRep::applyContext");
   if (isSimple())
   {
     _simplePredicate.applyContext(queryContext);
@@ -168,6 +172,7 @@ void CQLPredicateRep::applyContext(QueryContext& queryContext)
       _predicates[i].applyContext(queryContext);
     }
   }
+  PEG_METHOD_EXIT();
 }
 
 Boolean CQLPredicateRep::isSimple()const{

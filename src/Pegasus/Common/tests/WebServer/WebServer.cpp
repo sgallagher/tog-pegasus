@@ -161,7 +161,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
 	Uint32 dot = fullDocumentName.reverseFind('.');
 
-	if (dot != PEGASUS_NOT_FOUND)
+	if (dot != PEG_NOT_FOUND)
 	{
 	    String ext = fullDocumentName.subString(dot);
 

@@ -301,7 +301,7 @@ Boolean AuthenticationManager::_parseLocalAuthHeader(
     //
     Uint32 space = authHeader.find(' ');
 
-    if ( space == PEGASUS_NOT_FOUND )
+    if ( space == PEG_NOT_FOUND )
     {
         PEG_METHOD_EXIT();
         return false;
@@ -362,7 +362,7 @@ Boolean AuthenticationManager::_parseHttpAuthHeader(
     //
     Uint32 space = authHeader.find(' ');
 
-    if ( space == PEGASUS_NOT_FOUND )
+    if ( space == PEG_NOT_FOUND )
     {
         PEG_METHOD_EXIT();
         return false;

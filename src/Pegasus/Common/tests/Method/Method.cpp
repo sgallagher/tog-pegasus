@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
 	Uint32 posQualifier;
 	posQualifier = m1.findQualifier("stuff");
-	assert(posQualifier != PEGASUS_NOT_FOUND);
+	assert(posQualifier != PEG_NOT_FOUND);
 	assert(posQualifier < m1.getQualifierCount());
 
 	m1.removeQualifier(posQualifier);

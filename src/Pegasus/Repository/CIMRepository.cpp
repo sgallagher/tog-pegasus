@@ -2026,7 +2026,7 @@ CIMValue CIMRepository::getProperty(
     Uint32 pos = cimInstance.findProperty(propertyName);
 
     // ATTN: This breaks if the property is simply null
-    if (pos == PEGASUS_NOT_FOUND)
+    if (pos == PEG_NOT_FOUND)
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY, "getProperty()");

@@ -120,7 +120,7 @@ void test01()
 
 	Uint32 posQualifier;
 	posQualifier = p1.findQualifier("stuff");
-	assert(posQualifier != PEGASUS_NOT_FOUND);
+	assert(posQualifier != PEG_NOT_FOUND);
 	assert(posQualifier < p1.getQualifierCount());
 
 	p1.removeQualifier(posQualifier);

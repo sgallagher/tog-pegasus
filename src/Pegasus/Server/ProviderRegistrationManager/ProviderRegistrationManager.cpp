@@ -2431,7 +2431,7 @@ void ProviderRegistrationManager::_deleteInstance(
 	    	        String _providerModuleName;
 		    
 		      Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
-		      if ( pos != PEGASUS_NOT_FOUND )
+		      if ( pos != PEG_NOT_FOUND )
 		      {
 			instances[j].getProperty(pos).getValue().get(_providerModuleName);
 			if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))

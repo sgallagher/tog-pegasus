@@ -283,7 +283,7 @@ Boolean HTTPMessage::parseRequestLine(
 
     Uint32 space1 = startLine.find(' ');
 
-    if (space1 == PEGASUS_NOT_FOUND)
+    if (space1 == PEG_NOT_FOUND)
 	return false;
 
     methodName = startLine.subString(0, space1);
@@ -292,7 +292,7 @@ Boolean HTTPMessage::parseRequestLine(
 
     Uint32 space2 = startLine.find(space1 + 1, ' ');
 
-    if (space2 == PEGASUS_NOT_FOUND)
+    if (space2 == PEG_NOT_FOUND)
 	return false;
 
     Uint32 uriPos = space1 + 1;
@@ -319,7 +319,7 @@ Boolean HTTPMessage::parseStatusLine(
 
     Uint32 space1 = statusLine.find(' ');
 
-    if (space1 == PEGASUS_NOT_FOUND)
+    if (space1 == PEG_NOT_FOUND)
 	return false;
 
     httpVersion = statusLine.subString(0, space1);
@@ -328,7 +328,7 @@ Boolean HTTPMessage::parseStatusLine(
 
     Uint32 space2 = statusLine.find(space1 + 1, ' ');
 
-    if (space2 == PEGASUS_NOT_FOUND)
+    if (space2 == PEG_NOT_FOUND)
 	return false;
 
     Uint32 statusCodePos = space1 + 1;

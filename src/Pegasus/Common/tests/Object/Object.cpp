@@ -93,7 +93,7 @@ void test01()
 
     Uint32 posQualifier;
     posQualifier = oinstance1.findQualifier("q1");
-    assert(posQualifier != PEGASUS_NOT_FOUND);
+    assert(posQualifier != PEG_NOT_FOUND);
     assert(posQualifier < oinstance1.getQualifierCount());
 
     try
@@ -212,7 +212,7 @@ void test02()
 
     Uint32 posQualifier;
     posQualifier = ccloneObj.findQualifier("Key");
-    assert(posQualifier != PEGASUS_NOT_FOUND);
+    assert(posQualifier != PEG_NOT_FOUND);
     assert(posQualifier < ccloneObj.getQualifierCount());
 
     try

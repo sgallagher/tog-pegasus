@@ -8,7 +8,7 @@ INCLUDES = -I..
 
 LOCAL_DEFINES = -DPEGASUS_REPOSITORY_INTERNAL -DPEGASUS_INTERNALONLY
 
-LIBRARIES = pegcommon pegconfig
+LIBRARIES = pegcommon pegquerycommon pegconfig
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 LOCAL_DEFINES += -DPEGASUS_ENABLE_REMOTE_CMPI
@@ -28,7 +28,8 @@ SOURCES = \
     AssocInstTable.cpp \
     NameSpaceManager.cpp \
     InheritanceTree.cpp \
-    RepositoryDeclContext.cpp
+    RepositoryDeclContext.cpp \
+    RepositoryQueryContext.cpp
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak

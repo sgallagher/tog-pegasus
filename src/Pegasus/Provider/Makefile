@@ -8,6 +8,7 @@ LOCAL_DEFINES = -DPEGASUS_PROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
     pegcommon \
+    pegquerycommon \
     pegclient
 
 LIBRARY = pegprovider
@@ -16,6 +17,7 @@ SOURCES = \
     ProviderException.cpp \
     CIMOMHandle.cpp \
     CIMOMHandleRep.cpp \
+    CIMOMHandleQueryContext.cpp \
     InternalCIMOMHandleRep.cpp \
     ClientCIMOMHandleRep.cpp \
     CIMProvider.cpp \

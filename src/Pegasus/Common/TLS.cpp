@@ -33,11 +33,16 @@
 #define PEGASUS_KEY "/home/markus/src/pegasus/server.pem"
 
 // debug flag
-#define TLS_DEBUG(X) // X
+#define TLS_DEBUG(X)  X
 
 // switch on 'server needs certified client'
 //#define CLIENT_CERTIFY
 
+//
+// use the following definitions only if SSL is available
+// 
+
+#ifdef PEGASUS_HAS_SSL
 
 //
 // certificate handling routine
@@ -298,6 +303,7 @@ redo_connect:
 //
 
 
+
 MP_Socket::MP_Socket(Uint32 socket) 
  : _isSecure(false), _socket(socket) {}
 
@@ -387,4 +393,67 @@ Sint32 MP_Socket::connect()
 }
 
 
+
 PEGASUS_NAMESPACE_END
+
+
+#else
+
+
+PEGASUS_NAMESPACE_BEGIN
+
+//
+// these definitions are used if ssl is not availabel
+//
+
+SSLContext::SSLContext(const String& certPath) throw(SSL_Exception) {}
+SSLContext::~SSLContext() {}
+
+MP_Socket::MP_Socket(Uint32 socket)
+ : _isSecure(false), _socket(socket) {}
+
+MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext)
+   throw(SSL_Exception)
+ : _isSecure(false), _socket(socket) {}
+
+MP_Socket::~MP_Socket() {}
+
+Boolean MP_Socket::isSecure() {return _isSecure;}
+
+Sint32 MP_Socket::getSocket()
+{
+    return _socket;
+}
+
+Sint32 MP_Socket::read(void * ptr, Uint32 size)
+{
+    return Socket::read(_socket,ptr,size);
+}
+
+Sint32 MP_Socket::write(const void * ptr, Uint32 size)
+{
+    return Socket::write(_socket,ptr,size);
+}
+
+void MP_Socket::close()
+{
+    return Socket::close(_socket);
+}
+
+void MP_Socket::enableBlocking()
+{
+    return Socket::enableBlocking(_socket);
+}
+
+void MP_Socket::disableBlocking()
+{
+    return Socket::disableBlocking(_socket);
+}
+
+Sint32 MP_Socket::accept() { return 0; }
+
+Sint32 MP_Socket::connect() { return 0; }
+
+PEGASUS_NAMESPACE_END
+
+#endif

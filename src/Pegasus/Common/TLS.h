@@ -30,32 +30,19 @@
 #ifndef Pegasus_TLS_h
 #define Pegasus_TLS_h
 
+#ifdef PEGASUS_HAS_SSL
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#else
+#define SSL_CTX void
+#endif
+
 #include <unistd.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-//
-// generic SSL Exception
-//
-
-class PEGASUS_COMMON_LINKAGE SSL_Exception: public Exception
-{
-public:
-
-    static const char MSG[];
-
-    SSL_Exception(const String& message)
-       : Exception(MSG + message) { }
-};
-
-const char SSL_Exception::MSG[] = "SSL Exception ";
-
-
 
 class SSLContext
 {
@@ -73,6 +60,7 @@ private:
     char * _certPath;
 };
 
+#ifdef PEGASUS_HAS_SSL
 class SSLSocket
 {
 public:
@@ -110,6 +98,13 @@ private:
     Sint32 _socket;
     SSLContext * _SSLContext;
 };
+#else
+
+// offer a non ssl dummy class for use in MP_Socket
+
+typedef void * SSLSocket;
+
+#endif
 
 //
 // MP_Socket (Multi-purpose Socket class

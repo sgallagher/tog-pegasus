@@ -27,6 +27,7 @@
 //
 // Modified By:
 //     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//	   Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -308,7 +309,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 	                                       // handleOperationResponseAggregation
 	   request->queueIds.copyAndPop(),
 	    Array<CIMObject>(),
-	    request->contentLanguages);
+		((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages()); 
 
     if (_repository->isDefaultInstanceProvider())
         poA->setTotalIssued(numClasses+1);
@@ -339,8 +340,10 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 		     request->messageId, request->nameSpace,
 		     providerInfos[i]._className,
 		     false,false,false,false,CIMPropertyList(),
-		     request->queueIds,request->authType,request->userName,
-		     request->contentLanguages,request->acceptLanguages);
+		     request->queueIds,request->authType,
+		     ((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
+             ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(), 
+		     ((AcceptLanguageListContainer)request->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages()); 
 
                 _forwardRequestForAggregation(providerInfos[i]._serviceName,
                       providerInfos[i]._controlProviderName, enumReq, poA);

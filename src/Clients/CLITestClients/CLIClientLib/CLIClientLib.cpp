@@ -558,7 +558,7 @@ int referenceNames(CIMClient& client, Options& opts)
             << "Namespace = " << opts.nameSpace
             << ", ObjectPath = " << opts.objectName
             << ", resultClass = " << opts.resultClass
-            << ", role = " << opts.role
+            << ", resulRole = " << opts.role
             << endl;
     }
     Array<CIMObjectPath> referenceNames = 
@@ -965,6 +965,13 @@ void GetOptions(
 
         {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay", 
                             "Delay between connection and request "},
+
+        {"count", "0", false, Option::WHOLE_NUMBER, 0, 0, "count", 
+                            "Expected count of objects returned "},
+
+        {"repeat", "0", false, Option::WHOLE_NUMBER, 0, 0, "-r", 
+                            "Number of times to repeate the function. Zero means one time "},
+
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -1352,6 +1359,16 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     {
         opts.outputFormatType = cnt;
         opts.outputType = OutputTable[cnt].OutputType;
+    }
+
+    if(!om.lookupIntegerValue("repeat", opts.repeat))
+    {
+            opts.repeat = 0;
+            
+    }
+    if (opts.verboseTest)
+    {
+        cout << "Repeat Count " << opts.repeat << endl;
     }
 
     // Separate the Property List if any provided

@@ -190,6 +190,9 @@ struct  OPTION_STRUCT
     CIMName methodName;
     String inputParameters;
     String outputParameters;
+
+    Sint32 count;
+    Uint32 repeat;
 };
 
 typedef struct OPTION_STRUCT Options;

@@ -76,10 +76,17 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   const Char16* p = stringNum.getChar16Data();
   const Char16* pStart = p;
 
+  if (String::equal(stringNum, String::EMPTY))
+  {
+    MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
+                             String("String cannot be empty."));
+    throw CQLRuntimeException(mload);    
+  }
+  
   if (!p)
   {
     MessageLoaderParms mload(String("CQL.CQLUtilities.NULL_INPUT"),
-                             String("String cannot be NULL or empty."));
+                             String("String cannot be NULL."));
     throw CQLRuntimeException(mload);    
   }
 
@@ -87,7 +94,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   if (*p == '-')
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NEG"),
-                              String("String $0 cannot being with '-'."),
+                              String("String $0 cannot begin with '-'."),
                               stringNum);
     throw CQLRuntimeException(mload);    
   }
@@ -240,8 +247,8 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   if (*p)
   {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-                               String("String $0 has a non-decimal digit character"),
-                               stringNum);
+                               String("String $0 has a non-decimal digit character $1"),
+                               stringNum, String(p));
       throw CQLRuntimeException(mload);    
   }
 
@@ -259,10 +266,17 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   const Char16* p = stringNum.getChar16Data();
   const Char16* pStart = p;
 
+  if (String::equal(stringNum, String::EMPTY))
+  {
+    MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
+                             String("String cannot be empty."));
+    throw CQLRuntimeException(mload);    
+  }
+  
   if (!p)
   {
     MessageLoaderParms mload(String("CQL.CQLUtilities.NULL_INPUT"),
-                             String("String cannot be NULL or empty."));
+                             String("String cannot be NULL."));
     throw CQLRuntimeException(mload);    
   }
 
@@ -454,8 +468,8 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   if (*p)
   {
     MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-                             String("String $0 has a non-decimal digit character"),
-                             stringNum);
+                             String("String $0 has a non-decimal digit character $1"),
+                             stringNum, String(p));
     throw CQLRuntimeException(mload);    
   }
 
@@ -487,10 +501,17 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
   Boolean neg = false;
   const Char16* pStart = p;
 
-  if (!*p)
+  if (String::equal(stringNum, String::EMPTY))
+  {
+    MessageLoaderParms mload(String("CQL.CQLUtilities.EMPTY_STRING"),
+                             String("String cannot be empty."));
+    throw CQLRuntimeException(mload);    
+  }
+  
+  if (!p)
   {
     MessageLoaderParms mload(String("CQL.CQLUtilities.NULL_INPUT"),
-                             String("String cannot be NULL or empty."));
+                             String("String cannot be NULL."));
     throw CQLRuntimeException(mload);    
   }
 
@@ -587,11 +608,13 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
         p++;
     }
   } // end-if optional decimal point
-  if (*p)
+  if (*p && p - pStart <= stringNum.size())
   {
+  //  printf("This is char # %d\n", p - pStart);
     MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
-                             String("String $0 has a non-decimal digit character"),
-                             stringNum);
+                             String("String $0 has a non-decimal digit character $1"),
+                             stringNum,
+                             String(p));
     throw CQLRuntimeException(mload);    
   }
   //
@@ -609,6 +632,8 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
     throw CQLRuntimeException(mload);    
   }
   PEG_METHOD_EXIT();
+  printf("String %s = %.16e\n", (const char *)stringNum.getCString(), x);
+//  printf("Num %e = \n", x);
   return x;
 }
 

@@ -964,9 +964,20 @@ String CQLValueRep::toString()const
       return _CQLChainId.toString();
     }
   else
+  {
+    String returnStr;
+    if (_valueType == CQLValue::String_type)
     {
-      return _theValue.toString();
+      returnStr.append("'");
     }
+    returnStr.append(_theValue.toString());
+    
+    if (_valueType == CQLValue::String_type)
+    {
+      returnStr.append("'");
+    }
+    return returnStr;
+  }
 }
 
 

@@ -27,8 +27,6 @@ select * from CQL_TestPropertyTypes where PropertyString = UPPERCASE(-12.3434e-1
 ############
 
 # A few tests for a string property to number conversion
-select * from CIM_ComputerSystem where UPPERCASE(Description) = 'COMPUTER SYSTEM'
-select * from CIM_ComputerSystem where UPPERCASE(Description) = 'computer system'
 select * from CQL_TestPropertyTypes where STRINGTOUINT(PropertyStringUint) = 347
 select * from CQL_TestPropertyTypes where STRINGTOSINT(PropertyStringSint) = -743
 select * from CQL_TestPropertyTypes where STRINGTOREAL(PropertyStringReal) = 98.67
@@ -98,7 +96,7 @@ select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('1000000
 select * from CQL_TestPropertyTypes where PropertySint64Lower = STRINGTOSINT('-9223372036854775809')
 select * from CQL_TestPropertyTypes where PropertySint64Lower = STRINGTOSINT('-0x8000000000000001')
 select * from CQL_TestPropertyTypes where PropertySint64Lower = STRINGTOSINT('-1000000000000000000000000000000000000000000000000000000000000001b')
-select * from CQL_TestPropertyTypes where CQcd L_TestPropertyTypes.PropertySint64Upper = STRINGTOSINT('9223372036854775808')
+select * from CQL_TestPropertyTypes where CQL_TestPropertyTypes.PropertySint64Upper = STRINGTOSINT('9223372036854775808')
 select * from CQL_TestPropertyTypes where PropertySint64Upper = STRINGTOSINT('0x8000000000000000')
 select * from CQL_TestPropertyTypes where PropertySint64Upper = STRINGTOSINT('1000000000000000000000000000000000000000000000000000000000000000B')
 select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('-1.7976931348623158E+308')
@@ -109,9 +107,6 @@ select * from CQL_TestPropertyTypes where PropertyReal64 = STRINGTOREAL('1.79769
 # Errors in StringToUint
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('32', '33')
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT()
-select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('32' '33')
-select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('32',33)
-select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('32' 33)
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT(33)
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT(PropertyUint64)
 select * from CQL_TestPropertyTypes where PropertyUint64 = STRINGTOUINT('')
@@ -164,7 +159,6 @@ select * from CQL_TestPropertyTypes where '-8' = NUMERICTOSTRING(PropertySint8)
 select * from CQL_TestPropertyTypes where '3.4028234663852886E38' = NUMERICTOSTRING(PropertyReal32PosNormUpper)
 select * from CQL_TestPropertyTypes where '9.867E1' = NUMERICTOSTRING(98.67)
 select * from CQL_TestPropertyTypes where '9.867E1' = NUMERICTOSTRING(PropertyStringReal)
-)
 
 # Errors
 select * from CQL_TestPropertyTypes where PropertyStringSint = NUMERICTOSTRING(-743, -10)

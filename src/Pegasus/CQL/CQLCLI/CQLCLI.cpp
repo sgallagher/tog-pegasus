@@ -372,11 +372,11 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
         {
           cout << "-----Instance: " << _instances[j].getPath().toString() << endl;
           Boolean result = _statements[i].evaluate(_instances[j]);
-          cout << _statements[i].toString() << " = ";
-          if(result) printf("TRUE\n\n");
-          else printf("FALSE\n\n");
+          cout << "Inst # " << j << ": " <<  _statements[i].toString() << " = ";
+          if(result) printf("TRUE\n");
+          else printf("FALSE\n");
         }
-        catch(Exception e){ cout << e.getMessage() << endl;}
+        catch(Exception e){ cout << _statements[i].toString() << " = ERROR!" << endl << e.getMessage() << endl << endl;}
         catch(...){ cout << "Unknown Exception" << endl;}
       }
     }
@@ -701,8 +701,10 @@ int main(int argc, char ** argv)
       {
         const CIMName _testclass(className);
         _instances = _rep->enumerateInstances( _ns, _testclass, true );  // deep inh true
-		}catch(Exception& e){
-			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+                }
+                catch(Exception& e){
+                  cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+                  return 1;
 		}
 	}
    else
@@ -722,8 +724,9 @@ int main(int argc, char ** argv)
 		}
       catch(Exception& e)
       {
-			cout << "here" << endl;
-			cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+        cout << "here" << endl;
+        cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+        return 1;
       }
       
       if (className == embSubName || className == embBaseName)
@@ -757,30 +760,37 @@ cout << "here" << endl;
 		if(!queryInputSource){
 			cout << "Cannot open input file.\n" << endl;
 			return 1;
-		}
-		while(!queryInputSource.eof()){
-			queryInputSource.getline(text, 1024);
-			char* _ptr = text;
-			_text = strcat(_ptr,"\n");	
-			// check for comments and ignore
-			// a comment starts with a # as the first non whitespace character on the line
-			char _comment = '#';
-			int i = 0;
-			while(text[i] == ' ' || text[i] == '\t') i++; // ignore whitespace
-			if(text[i] != _comment){
-				if(!(strlen(_text) < 2)){
-					try{
-						CQLParser::parse(text,_ss);
-						_statements.append(_ss);
-					}catch(Exception& e){
-						cout << endl << endl << "Caught Exception: " << e.getMessage() << endl << endl;
-                                                cout << "Statement with error = " << text << endl;
-						_ss.clear();
-					}
-				}
-			}
-		}
-		queryInputSource.close();
+                }
+                int statementsInError = 0;
+                  while(!queryInputSource.eof()){
+                    queryInputSource.getline(text, 1024);
+                    char* _ptr = text;
+                    _text = strcat(_ptr,"\n");	
+                    // check for comments and ignore
+                    // a comment starts with a # as the first non whitespace character on the line
+                    char _comment = '#';
+                    int i = 0;
+                    while(text[i] == ' ' || text[i] == '\t') i++; // ignore whitespace
+                    if(text[i] != _comment)
+                      if(!(strlen(_text) < 2)){
+                        try {
+                        CQLParser::parse(text,_ss);
+                        _statements.append(_ss);
+                        } // end-try
+                        catch(Exception& e){
+                          cout << "Caught Exception: " << e.getMessage()  << endl;
+                          cout << "Statement with error = " << text << endl;
+                          _ss.clear();
+                          statementsInError++;
+                        } // end-catch
+                      } // end-if
+                  } // end-while
+                  queryInputSource.close();
+                  if (statementsInError)
+                  {
+                    cout << "There were " << statementsInError << " statements that did NOT parse.  Aborting." << endl;
+                   // return 1;
+                  }
 		try{
 			_applyProjection(_statements,_instances, testOption);
 			_validateProperties(_statements,_instances, testOption);

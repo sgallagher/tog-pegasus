@@ -254,7 +254,6 @@ class CQL_TestPropertyTypes:CQL_TestElement
        Values { "Other", "Unknown", "Disabled", "Enabled",
           "Not Implemented" }]
    uint16 PropertyValueMap;
-   
 };
 
 // ===================================================================

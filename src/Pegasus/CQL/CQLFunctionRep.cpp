@@ -337,24 +337,34 @@ String CQLFunctionRep::parmTypeToString(const CQLValue::CQLValueType parmType) c
   {
       case CQLValue::Null_type:
           returnStr.append("NULL");
+          break;
       case CQLValue::Sint64_type:
           returnStr.append("Sint64");
+          break;
       case CQLValue::Uint64_type:
           returnStr.append("Uint64");
+          break;
       case CQLValue::Real_type:
           returnStr.append("Real");
+          break;
       case CQLValue::String_type:
           returnStr.append("String");
+          break;
       case CQLValue::CIMDateTime_type:
           returnStr.append("DateTime");
+          break;
       case CQLValue::CIMReference_type:
           returnStr.append("CIM Ref");
+          break;
       case CQLValue::CQLIdentifier_type:
           returnStr.append("Identifier");
+          break;
       case CQLValue::CIMObject_type:
           returnStr.append("CIM Object");
+          break;
       case CQLValue::Boolean_type:
           returnStr.append("Boolean");
+          break;
       default:
           returnStr.append("Unknown");
   }
@@ -368,7 +378,7 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(const CIMInstance& CI, const Quer
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -403,7 +413,7 @@ CQLValue CQLFunctionRep::stringToUint(const CIMInstance& CI, const QueryContext&
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -434,7 +444,7 @@ CQLValue CQLFunctionRep::stringToSint(const CIMInstance& CI, const QueryContext&
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -465,7 +475,7 @@ CQLValue CQLFunctionRep::stringToReal(const CIMInstance& CI, const QueryContext&
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -501,7 +511,7 @@ CQLValue CQLFunctionRep::upperCase(const CIMInstance& CI, const QueryContext& qu
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -537,7 +547,7 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryConte
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -545,6 +555,8 @@ CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryConte
   }
 
   CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
+  
+//  printf("Parm - %s  Value - %s\n", (const char *)_parms[0].toString().getCString(), (const char *)cqlVal.toString().getCString());
   CQLValue::CQLValueType valType = cqlVal.getValueType();  
   if (valType == CQLValue::Sint64_type)
   {
@@ -581,7 +593,7 @@ CQLValue CQLFunctionRep::referenceToString(const CIMInstance& CI, const QueryCon
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -613,7 +625,7 @@ CQLValue CQLFunctionRep::className(const CIMInstance& CI, const QueryContext& qu
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("0"), String("1"));
@@ -676,7 +688,7 @@ CQLValue CQLFunctionRep::nameSpaceName(const CIMInstance& CI, const QueryContext
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("0"), String("1"));
@@ -750,7 +762,7 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI, const QueryContext
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("0"), String("1"));
@@ -772,7 +784,7 @@ CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& que
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -829,7 +841,7 @@ CQLValue CQLFunctionRep::modelPath(const CIMInstance& CI, const QueryContext& qu
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("0"), String("1"));
@@ -901,7 +913,7 @@ CQLValue CQLFunctionRep::classPath(const CIMInstance& CI, const QueryContext& qu
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("0"), String("1"));
@@ -985,7 +997,7 @@ CQLValue CQLFunctionRep::objectPath(const CIMInstance& CI, const QueryContext& q
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("0"), String("1"));
@@ -1070,41 +1082,43 @@ CQLValue CQLFunctionRep::instanceToReference(const CIMInstance& CI, const QueryC
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                             String(buf),
                              String("0"), String("1"));
     throw CQLRuntimeException(mload);
   }
   CIMInstance *inst = NULL;
+  CIMObject obj;
 
   // The default behavior is to use the instance being examined as the source instance (CI).
   if (parmSize == 0)
     inst = (CIMInstance *)&CI;
-
-  // We have a parameter, so resolve it first before we use it.
-  CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
-
-  // Parameter MUST be an instance object
-  if (cqlVal.getValueType() != CQLValue::CIMObject_type)
+  else
   {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
-                             String("Function parameter $0 has type $1.  It must be type $2."),
-                             String("1"),
-                             parmTypeToString(cqlVal.getValueType()),
-                             parmTypeToString(CQLValue::CIMObject_type));
-    throw CQLRuntimeException(mload);
-  }
+    // We have a parameter, so resolve it first before we use it.
+    CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
 
-  // REVIEW question.  Inefficient since the CIMobject is copied via the return by value, then it is copied again via the assignment.  Is there a better way to handle this?
-  CIMObject obj = cqlVal.getObject();
-  if (!obj.isInstance())
-  {
-    MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_OBJECT_TYPE"),
-                             String("CIM Object function parameter must be an instance."));
-    throw CQLRuntimeException(mload);
-  }
+    // Parameter MUST be an instance object
+    if (cqlVal.getValueType() != CQLValue::CIMObject_type)
+    {
+      MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_TYPE"),
+                               String("Function parameter $0 has type $1.  It must be type $2."),
+                               String("1"),
+                               parmTypeToString(cqlVal.getValueType()),
+                               parmTypeToString(CQLValue::CIMObject_type));
+      throw CQLRuntimeException(mload);
+    }
 
+    // REVIEW question.  Inefficient since the CIMobject is copied via the return by value, then it is copied again via the assignment.  Is there a better way to handle this?
+    obj = cqlVal.getObject();
+    if (!obj.isInstance())
+    {
+      MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_OBJECT_TYPE"),
+                               String("CIM Object function parameter must be an instance."));
+      throw CQLRuntimeException(mload);
+    }
+  }
   // Make a CIM Instance
   CIMInstance tempInst(obj);
   inst = &tempInst;
@@ -1128,7 +1142,7 @@ CQLValue CQLFunctionRep::currentDateTime() const
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("0"), String("0"));
@@ -1150,7 +1164,7 @@ CQLValue CQLFunctionRep::dateTime(const CIMInstance& CI, const QueryContext& que
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -1183,7 +1197,7 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI, const Que
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));
@@ -1237,7 +1251,7 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI, const Quer
     char buf[10];
     sprintf(buf, "%d", _parms.size());
     MessageLoaderParms mload(String("CQL.CQLFunctionRep.IVALID_PARM_COUNT"),
-                             String("Function %0 has $1 parameters.  It must have between $2 and $3."),
+                             String("Function $0 has $1 parameters.  It must have between $2 and $3."),
                              functionTypeToString(),
                              String(buf),
                              String("1"), String("1"));

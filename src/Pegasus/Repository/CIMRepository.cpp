@@ -151,7 +151,8 @@ static String _MakeAssocClassPath(
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMRepository::CIMRepository(const String& repositoryRoot)
-    : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot)
+   : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
+     _lock()
 {
     _context = new RepositoryDeclContext(this);
     _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
@@ -165,6 +166,27 @@ CIMRepository::~CIMRepository()
     delete _context;
 }
 
+
+void CIMRepository::read_lock(void) throw(IPCException)
+{
+   _lock.wait_read(pegasus_thread_self());
+}
+
+void CIMRepository::read_unlock(void)
+{
+   _lock.unlock_read(pegasus_thread_self());
+}
+
+void CIMRepository::write_lock(void) throw(IPCException)
+{
+   _lock.wait_write(pegasus_thread_self());
+}
+
+void CIMRepository::write_unlock(void)
+{
+   _lock.unlock_write(pegasus_thread_self());
+}
+
 CIMClass CIMRepository::getClass(
     const String& nameSpace,
     const String& className,
@@ -175,6 +197,8 @@ CIMClass CIMRepository::getClass(
 {
     // ATTN: localOnly, includeQualifiers, and includeClassOrigin are ignored
     // for now.
+
+   
 
     String classFilePath;
     classFilePath = _nameSpaceManager.getClassFilePath(nameSpace, className);
@@ -212,6 +236,7 @@ Boolean CIMRepository::_getInstanceIndex(
     Boolean searchSuperClasses) const
 {
     // -- Get all descendent classes of this class:
+
 
     className = instanceName.getClassName();
 
@@ -259,6 +284,7 @@ CIMInstance CIMRepository::getInstance(
     Uint32 index;
     Uint32 size;
 
+
     if (!_getInstanceIndex(nameSpace, instanceName, className, size, index))
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
@@ -281,6 +307,7 @@ void CIMRepository::deleteClass(
     const String& className)
 {
     // -- Get the class and check to see if it is an association class:
+
 
     CIMClass cimClass = getClass(nameSpace, className, false);
     Boolean isAssociation = cimClass.isAssociation();
@@ -312,6 +339,7 @@ void CIMRepository::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
+
     String errMessage;
 
     // -- Lookup instance from the index file:
@@ -371,6 +399,7 @@ void CIMRepository::_createAssocClassEntries(
 {
     // Open input file:
 
+
     String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
     ofstream os;
 
@@ -420,6 +449,8 @@ void CIMRepository::createClass(
     const String& nameSpace,
     const CIMClass& newClass)
 {
+
+
     // -- Resolve the class:
         CIMClass cimClass(newClass);
         
@@ -481,6 +512,7 @@ void CIMRepository::_createAssocInstEntries(
 {
     // Open input file:
 
+   
     String assocFileName = _MakeAssocInstPath(nameSpace, _repositoryRoot);
     ofstream os;
 
@@ -546,6 +578,7 @@ CIMReference CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
+
     String errMessage;
 
     // -- Resolve the instance (looks up class):
@@ -629,6 +662,8 @@ void CIMRepository::modifyClass(
     const String& nameSpace,
     const CIMClass& modifiedClass)
 {
+
+
     // -- Resolve the class:
         CIMClass cimClass(modifiedClass);
 
@@ -660,6 +695,8 @@ void CIMRepository::modifyInstance(
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
+
+
     String errMessage;
     CIMInstance cimInstance;    // The instance that replaces the original
 
@@ -916,6 +953,8 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
+
+
     Array<String> classNames;
 
     _nameSpaceManager.getSubClassNames(
@@ -937,6 +976,9 @@ Array<String> CIMRepository::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
+
+
+
     Array<String> classNames;
 
     _nameSpaceManager.getSubClassNames(
@@ -954,6 +996,9 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+
+
+
     // -- Get all descendent classes of this class:
 
     Array<String> classNames;
@@ -981,6 +1026,9 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
+
+
+
     // -- Get all descendent classes of this class:
 
     Array<String> classNames;
@@ -1021,6 +1069,7 @@ Array<CIMInstance> CIMRepository::execQuery(
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "execQuery()");
 
+
     return Array<CIMInstance>();
 }
 
@@ -1035,6 +1084,9 @@ Array<CIMObjectWithPath> CIMRepository::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+
+
+
     Array<CIMReference> names = associatorNames(
         nameSpace,
         objectName,
@@ -1099,6 +1151,9 @@ Array<CIMReference> CIMRepository::associatorNames(
     const String& role,
     const String& resultRole)
 {
+
+
+
     Array<String> associatorNames;
 
     if (objectName.isClassName())
@@ -1155,6 +1210,9 @@ Array<CIMObjectWithPath> CIMRepository::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+
+
+
     Array<CIMReference> names = referenceNames(
         nameSpace,
         objectName,
@@ -1212,6 +1270,9 @@ Array<CIMReference> CIMRepository::referenceNames(
     const String& resultClass,
     const String& role)
 {
+
+
+
     Array<String> tmpReferenceNames;
 
     if (objectName.isClassName())
@@ -1266,6 +1327,10 @@ CIMValue CIMRepository::getProperty(
     const CIMReference& instanceName,
     const String& propertyName)
 {
+
+
+
+
     // -- Get the index for this instance:
 
     String className;
@@ -1305,6 +1370,9 @@ void CIMRepository::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 {
+
+
+
     //
     // Create the instance to pass to modifyInstance()
     //
@@ -1330,6 +1398,9 @@ CIMQualifierDecl CIMRepository::getQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
+
+
+
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
@@ -1355,6 +1426,9 @@ void CIMRepository::setQualifier(
     const String& nameSpace,
     const CIMQualifierDecl& qualifierDecl)
 {
+
+
+
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
@@ -1374,6 +1448,9 @@ void CIMRepository::deleteQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
+
+
+
     // -- Get path of qualifier file:
 
     String qualifierFilePath = _nameSpaceManager.getQualifierFilePath(
@@ -1388,6 +1465,9 @@ void CIMRepository::deleteQualifier(
 Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     const String& nameSpace)
 {
+
+
+
     String qualifiersRoot = _nameSpaceManager.getQualifiersRoot(nameSpace);
 
     Array<String> qualifierNames;
@@ -1417,16 +1497,23 @@ CIMValue CIMRepository::invokeMethod(
     Array<CIMValue>& outParameters)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "invokeMethod()");
+
+
+
     return CIMValue();
 }
 
 void CIMRepository::createNameSpace(const String& nameSpace)
 {
+
+
     _nameSpaceManager.createNameSpace(nameSpace);
 }
 
 Array<String> CIMRepository::enumerateNameSpaces() const
 {
+
+
     Array<String> nameSpaceNames;
     _nameSpaceManager.getNameSpaceNames(nameSpaceNames);
     return nameSpaceNames;
@@ -1434,6 +1521,9 @@ Array<String> CIMRepository::enumerateNameSpaces() const
 
 void CIMRepository::deleteNameSpace(const String& nameSpace)
 {
+
+
+
     _nameSpaceManager.deleteNameSpace(nameSpace);
 }
 
@@ -1487,6 +1577,7 @@ Boolean CIMRepository::_loadInstance(
     Uint32 size)
 {
     // Load instance from instance file into memory:
+
 
     Array<Sint8> data;
     if (!InstanceFile::loadInstance(path, index, size, data))

@@ -102,7 +102,9 @@ CIMServer::CIMServer(
 	= new CIMOperationResponseEncoder;
 
     _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
+// to test async cimom, substibute cimom for _cimOperationRequestDispatcher below
 	_cimOperationRequestDispatcher,
+// substitute the cimom as well for the _cimOperationResponseEncoder below 
 	_cimOperationResponseEncoder->getQueueId());
 
     _cimExportRequestDispatcher
@@ -137,6 +139,7 @@ CIMServer::CIMServer(
 
     /** load registered providers from repository, and creates
         provider block table
+
     */
     _cimOperationRequestDispatcher->loadRegisteredProviders();
 }

@@ -330,16 +330,27 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
    throw(Permission)
 {
-   if(mode == PEG_SEM_WRITE)
+   if(mode == PEG_SEM_WRITE && _writers.value() != 0 )
    {
       _writers = 0;
       _rwlock._wlock.unlock();
    }
-   else
+   else if (_readers.value() != 0 )
    {
       _readers--;
       _rwlock._rlock.signal();
    }
+}
+
+int ReadWriteSem::read_count()
+
+{
+   return( _readers.value() );
+}
+
+int ReadWriteSem::write_count()
+{
+   return( _writers.value() );
 }
 
 #endif // ! PEGASUS_READWRITE_NATIVE

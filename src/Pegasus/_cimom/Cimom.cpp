@@ -81,6 +81,13 @@ void cimom::handleEnqueue(void)
     if( mask == message_mask::type_legacy)
     {
        // an existing (pre-asynchronous) message type
+       // create an op node, contain the message within the op 
+       // node. link the op node to the starting ops queue and put
+       // the caller to sleep by waiting on the op node's semaphore.
+
+       // when awakened, pull the response message out of the async op node
+       // and enqueue the response back to the caller
+
     }
     else if (mask & message_mask::type_cimom)
     {
@@ -91,22 +98,16 @@ void cimom::handleEnqueue(void)
 	  switch(request->getType())
 	  {
 	     case MODULE_REGISTER:
-		
+		register_module(static_cast<ModuleRegister *>(request));
 		break;
 
 		
 	     default:
 		break;
-		
-
 	  }
-
 	  delete request;
        }
-       
     }
-
-
 }
 
 

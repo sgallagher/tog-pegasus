@@ -32,6 +32,7 @@
 #define PegasusRepository_Repository_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -57,6 +58,14 @@ public:
     /// Descructor
     virtual ~CIMRepository();
 
+    // Repositories MUST Have a read/write lock 
+
+    virtual void read_lock(void) throw(IPCException);
+    virtual void read_unlock(void);
+    
+    virtual void write_lock(void) throw(IPCException);
+    virtual void write_unlock(void);
+    
     /// virtual class CIMClass. From the operations class
     virtual CIMClass getClass(
         const String& nameSpace,
@@ -425,8 +434,12 @@ private:
     String _providerName;
 
 protected:
+    ReadWriteSem _lock;
     RepositoryDeclContext* _context;
 };
+
+
+
 
 PEGASUS_NAMESPACE_END
 

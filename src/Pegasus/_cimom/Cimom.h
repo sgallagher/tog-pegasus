@@ -37,7 +37,9 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/_cimom/CimomMessage.h>
-
+#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
+#include <Pegasus/Server/CIMOperationResponseEncoder.h>
+#include <Pegasus/Server/CIMOperationRequestDecoder.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -107,7 +109,11 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       
       Thread _thread;
       AtomicInt _die;
-      
+      CIMOperationRequestDispatcher *_cim_dispatcher;
+      CIMOperationResponseEncoder *_cim_encoder;
+      CIMOperationRequestDecoder *_cim_decoder;
+      CIMRepository *_repository;
+                  
 };
 
 

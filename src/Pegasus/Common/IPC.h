@@ -404,8 +404,8 @@ class PEGASUS_COMMON_LINKAGE ReadWriteSem
 
    private: 
       void _extricate(void);
-      int _readers; 
-      int _writers;
+      AtomicInt _readers; 
+      AtomicInt _writers;
       PEGASUS_RWLOCK_HANDLE _rwlock;
       // friend template class DQueue;
       friend void extricate_read_write(void *);

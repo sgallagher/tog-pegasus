@@ -157,66 +157,70 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
    }
 
    // use provider registration to find provider
-    try
-    {
-      // get all the registered providers
-       enumInstances = _repository->enumerateInstances(nameSpace, "CIM_ProviderCapabilities");
-    }
 
-    catch (CIMException& e)
-    {
-        // ATTN: Fail silently for now
-        //if (e.getCode() == CIM_ERR_NOT_FOUND)
-        //{
-        //    throw CIMException(CIM_ERR_INVALID_CLASS);
-        //}
-        //else
-        //{
-        //    throw e;
-        //}
-    }
-
-    for (Uint32 i = 0, n = enumInstances.size(); i < n ; i++)
-    {
-	instance = enumInstances[i].getInstance();
-	// get className
-	classname = instance.getProperty(instance.findProperty("ClassName")).getValue().toString();
-	if (String::equal(classname, className))
-	{
-	  providername = instance.getProperty(instance.findProperty("ProviderName")).getValue().toString();
-
-          if (_providerManager.isProviderBlocked(providername)) // blocked
-          {
-	     // if the provider is blocked
-
-	     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked"); 
-	     return (String::EMPTY);
-          }
-          else
-          {
-	     return(providername);
-          }
-	} 
-    }		
-
+   // get all the registered providers
+   _repository->read_lock();
+   
+   try 
+   {
+      enumInstances = _repository->enumerateInstances(nameSpace, "CIM_ProviderCapabilities");
+   }
+   catch(CIMException& e)
+   {
+      // ATTN: Fail silently for now
+   }
+   
+   _repository->read_unlock();
+   
+   for (Uint32 i = 0, n = enumInstances.size(); i < n ; i++)
+   {
+      instance = enumInstances[i].getInstance();
+      // get className
+      classname = instance.getProperty(instance.findProperty("ClassName")).getValue().toString();
+      if (String::equal(classname, className))
+      {
+	 providername = instance.getProperty(instance.findProperty("ProviderName")).getValue().toString();
+	 
+	 if (_providerManager.isProviderBlocked(providername)) // blocked
+	 {
+	    // if the provider is blocked
+	    
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked"); 
+	    return (String::EMPTY);
+	 }
+	 else
+	 {
+	    return(providername);
+	 }
+      } 
+   }		
+   
 // ATTN: still use qualifier to find provider if a provider did not use 
 // PG_RegistrationProvider to register. Will remove in the future 
-    try
-    {
-        cimClass = _repository->getClass(nameSpace, className);
-        DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() == CIM_ERR_NOT_FOUND)
-        {
-	    throw CIMException(CIM_ERR_INVALID_CLASS);
-        }
-        else
-        {
-            throw e;
-        }
-    }
+   _repository->read_lock();
+   try 
+   {
+      cimClass = _repository->getClass(nameSpace, className);
+   }
+   catch (CIMException& e)
+   {
+      _repository->read_unlock();
+      
+      if (e.getCode() == CIM_ERR_NOT_FOUND)
+      {
+	 throw CIMException(CIM_ERR_INVALID_CLASS);
+      }
+      else
+      {
+	 throw e;
+      }
+   }
+   _repository->read_unlock();
+   
+   DDD(cout << _DISPATCHER << "Lookup Provider for " << className << endl;)
+    
+    
+
     //----------------------------------------------------------------------
     // Get the provider qualifier:
     //----------------------------------------------------------------------
@@ -428,26 +432,31 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
     String errorDescription;
     CIMClass cimClass;
 
-    try
+    _repository->read_lock();
+
+    try 
     {
-	cimClass = _repository->getClass(
-	    request->nameSpace,
-	    request->className,
-	    request->localOnly,
-	    request->includeQualifiers,
-	    request->includeClassOrigin,
-	    request->propertyList.getPropertyNameArray());
+       cimClass = _repository->getClass(
+	  request->nameSpace,
+	  request->className,
+	  request->localOnly,
+	  request->includeQualifiers,
+	  request->includeClassOrigin,
+	  request->propertyList.getPropertyNameArray());
     }
     catch (CIMException& exception)
     {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
+       errorCode = exception.getCode();
+       errorDescription = exception.getMessage();
     }
     catch (Exception& exception)
     {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
+       errorCode = CIM_ERR_FAILED;
+       errorDescription = exception.getMessage();
     }
+    
+    _repository->read_unlock();
+
 
     CIMGetClassResponseMessage* response = new CIMGetClassResponseMessage(
 	request->messageId,
@@ -480,17 +489,31 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
             // ATTN: Is this the right exception?
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
         }
+	// NOTE - getProviderName reads a const string and does not 
+	// need to use the rw lock 
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
         {
-	    cimInstance = _repository->getInstance(
-		request->nameSpace,
-		request->instanceName,
-		request->localOnly,
-		request->includeQualifiers,
-		request->includeClassOrigin,
-		request->propertyList.getPropertyNameArray()); 
+	   _repository->read_lock();
+
+	   try 
+	   {
+	      cimInstance = _repository->getInstance(
+		 request->nameSpace,
+		 request->instanceName,
+		 request->localOnly,
+		 request->includeQualifiers,
+		 request->includeClassOrigin,
+		 request->propertyList.getPropertyNameArray()); 
+	   }
+	   catch (...)
+	   {
+	      _repository->read_unlock();
+	      throw;
+	   }
+	   _repository->read_unlock();
 	}
+	
 	else
 	{
 	    // attempt to load provider
@@ -533,23 +556,28 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
+    _repository->write_lock();
+
     try
     {
-	_repository->deleteClass(
-	    request->nameSpace,
-	    request->className);
+       _repository->deleteClass(
+	  request->nameSpace,
+	  request->className);
     }
+    
     catch (CIMException& exception)
     {
-	errorCode = exception.getCode();
-	errorDescription = exception.getMessage();
+       errorCode = exception.getCode();
+       errorDescription = exception.getMessage();
     }
     catch (Exception& exception)
     {
-	errorCode = CIM_ERR_FAILED;
-	errorDescription = exception.getMessage();
+       errorCode = CIM_ERR_FAILED;
+       errorDescription = exception.getMessage();
     }
 
+    _repository->write_unlock();
+    
     CIMDeleteClassResponseMessage* response =
 	new CIMDeleteClassResponseMessage(
 	    request->messageId,
@@ -581,9 +609,21 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
 	{
-	    _repository->deleteInstance(
-		request->nameSpace,
-		request->instanceName);
+	   _repository->write_lock();
+	   try 
+	   {
+	      _repository->deleteInstance(
+		 request->nameSpace,
+		 request->instanceName);
+	   }
+	   catch( ... ) 
+	   {
+	      _repository->write_unlock();
+	      throw;
+	   }
+	   
+	   _repository->write_unlock();
+	   
 	}
 	else
 	{
@@ -623,12 +663,15 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
+    _repository->write_lock();
+
     try
     {
-	_repository->createClass(
-	    request->nameSpace,
-	    request->newClass);
+       _repository->createClass(
+	  request->nameSpace,
+	  request->newClass);
     }
+    
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -639,6 +682,8 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+
+    _repository->write_unlock();
 
     CIMCreateClassResponseMessage* response =
 	new CIMCreateClassResponseMessage(
@@ -675,9 +720,23 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
 	{
-	     instanceName = _repository->createInstance(
-		request->nameSpace,
-		request->newInstance);
+
+	   _repository->write_lock();
+
+	   try 
+	   {
+	      instanceName = _repository->createInstance(
+		 request->nameSpace,
+		 request->newInstance);
+	   }
+	   catch( ... ) 
+	   {
+	      _repository->write_unlock();
+	      throw;
+	   }
+	   
+	   _repository->write_unlock();
+
 	}
 	else
 	{
@@ -718,12 +777,15 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
+    _repository->write_lock();
+    
     try
     {
-	_repository->modifyClass(
-	    request->nameSpace,
-	    request->modifiedClass);
+       _repository->modifyClass(
+	  request->nameSpace,
+	  request->modifiedClass);
     }
+    
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -734,6 +796,8 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+
+    _repository->write_unlock();
 
     CIMModifyClassResponseMessage* response =
 	new CIMModifyClassResponseMessage(
@@ -768,11 +832,26 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
         {
-            _repository->modifyInstance(
-                request->nameSpace,
-                request->modifiedInstance,
-                request->includeQualifiers,
-                request->propertyList);
+	      
+	   _repository->write_lock();
+	   
+	   try 
+	   {
+	      _repository->modifyInstance(
+		 request->nameSpace,
+		 request->modifiedInstance,
+		 request->includeQualifiers,
+		 request->propertyList);
+	   }
+
+	   catch( ... ) 
+	   {
+	      _repository->write_unlock();
+	      throw;
+	   }
+
+	   _repository->write_unlock();
+
         }
         else
 	{
@@ -815,16 +894,19 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
     String errorDescription;
     Array<CIMClass> cimClasses;
 
+    _repository->read_lock();
+
     try
     {
-	cimClasses = _repository->enumerateClasses(
-	    request->nameSpace,
-	    request->className,
-	    request->deepInheritance,
-	    request->localOnly,
-	    request->includeQualifiers,
-	    request->includeClassOrigin);
+       cimClasses = _repository->enumerateClasses(
+	  request->nameSpace,
+	  request->className,
+	  request->deepInheritance,
+	  request->localOnly,
+	  request->includeQualifiers,
+	  request->includeClassOrigin);
     }
+    
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -835,6 +917,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+
+    _repository->read_unlock();
 
     CIMEnumerateClassesResponseMessage* response =
 	new CIMEnumerateClassesResponseMessage(
@@ -854,13 +938,17 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
     String errorDescription;
     Array<String> classNames;
 
+    _repository->read_lock();
+
     try
     {
-	classNames = _repository->enumerateClassNames(
-	    request->nameSpace,
-	    request->className,
-	    request->deepInheritance);
+
+       classNames = _repository->enumerateClassNames(
+	  request->nameSpace,
+	  request->className,
+	  request->deepInheritance);
     }
+    
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -871,6 +959,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+
+    _repository->read_unlock();
 
     CIMEnumerateClassNamesResponseMessage* response =
 	new CIMEnumerateClassNamesResponseMessage(
@@ -905,15 +995,28 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
 	{
-	    cimNamedInstances = _repository->enumerateInstances(
-		request->nameSpace,
-		request->className,
-		request->deepInheritance,
-		request->localOnly,
-		request->includeQualifiers,
-		request->includeClassOrigin,
-		request->propertyList.getPropertyNameArray());
+	   _repository->read_lock();
+
+	   try 
+	   {
+	      cimNamedInstances = _repository->enumerateInstances(
+		 request->nameSpace,
+		 request->className,
+		 request->deepInheritance,
+		 request->localOnly,
+		 request->includeQualifiers,
+		 request->includeClassOrigin,
+		 request->propertyList.getPropertyNameArray());
+	   }
+	   catch( ...)
+	   {
+	      _repository->read_unlock();
+	      throw;
+	   }
+	   
+	   _repository->read_unlock();
 	}
+	
 	else
 	{
 	    // attempt to load provider
@@ -974,10 +1077,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
 	{
-	    instanceNames = _repository->enumerateInstanceNames(
-		request->nameSpace,
-		request->className);
+	   _repository->read_lock();
+	   try 
+	   {
+	      instanceNames = _repository->enumerateInstanceNames(
+		 request->nameSpace,
+		 request->className);
+	   }
+	   catch( ... ) 
+	   {
+	      _repository->read_unlock();
+	      throw;
+	   }
+	   
+	   _repository->read_unlock();
 	}
+
 	else
 	{
 	    // attempt to load provider
@@ -1033,16 +1148,28 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
 	{
-	    cimObjects = _repository->associators(
- 	        request->nameSpace,
-	        request->objectName,
-	        request->assocClass,
-	        request->resultClass,
-	        request->role,
-	        request->resultRole,
-	        request->includeQualifiers,
-	        request->includeClassOrigin,
-	        request->propertyList.getPropertyNameArray());
+	   _repository->read_lock();
+	   
+	   try 
+	   {
+	      cimObjects = _repository->associators(
+		 request->nameSpace,
+		 request->objectName,
+		 request->assocClass,
+		 request->resultClass,
+		 request->role,
+		 request->resultRole,
+		 request->includeQualifiers,
+		 request->includeClassOrigin,
+		 request->propertyList.getPropertyNameArray());
+	   }
+	   catch( ... )
+	   {
+	      _repository->read_unlock();
+	      throw;
+	   }
+
+	   _repository->read_unlock();
  	}
 	else
 	{
@@ -1106,13 +1233,25 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
 	{
-	    objectNames = _repository->associatorNames(
-	        request->nameSpace,
-	        request->objectName,
-	        request->assocClass,
-	        request->resultClass,
-	        request->role,
-	        request->resultRole);
+	   _repository->read_lock();
+	   
+	   try 
+	   {	   
+	      objectNames = _repository->associatorNames(
+		 request->nameSpace,
+		 request->objectName,
+		 request->assocClass,
+		 request->resultClass,
+		 request->role,
+		 request->resultRole);
+	   }
+	   catch( ... )
+	   {
+	      _repository->read_unlock();
+	      throw;
+	   }
+
+	   _repository->read_unlock();
         }
 	else
 	{
@@ -1173,15 +1312,27 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
 	{
-	    cimObjects = _repository->references(
-	        request->nameSpace,
-	        request->objectName,
-	        request->resultClass,
-	        request->role,
-	        request->includeQualifiers,
-	        request->includeClassOrigin,
-	        request->propertyList.getPropertyNameArray());
-        }
+	   _repository->read_lock();
+
+	   try 
+	   {
+	      cimObjects = _repository->references(
+		 request->nameSpace,
+		 request->objectName,
+		 request->resultClass,
+		 request->role,
+		 request->includeQualifiers,
+		 request->includeClassOrigin,
+		 request->propertyList.getPropertyNameArray());
+	   }
+	   catch( ... )
+	   {
+	      _repository->read_unlock();
+	      throw;
+	   }
+
+	   _repository->read_unlock();
+	}
 	else
 	{
 	    // attempt to load provider
@@ -1242,19 +1393,31 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
 	{
-	    objectNames = _repository->referenceNames(
-	        request->nameSpace,
-	        request->objectName,
-	        request->resultClass,
-	        request->role);
+	   _repository->read_lock();
+
+	   try  
+	   {
+	      objectNames = _repository->referenceNames(
+		 request->nameSpace,
+		 request->objectName,
+		 request->resultClass,
+		 request->role);
+	   }
+	   catch( ... )
+	   {
+	      _repository->read_unlock();
+	      throw;
+	   }
+
+	   _repository->read_unlock();
         }
 	else
 	{
-		// attempt to load provider
-		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
-
-	    objectNames = provider->referenceNames(
-		OperationContext(),
+	   // attempt to load provider
+	   ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+	   
+	   objectNames = provider->referenceNames(
+	      OperationContext(),
 	        request->nameSpace,
 	        request->objectName,
 	        request->resultClass,
@@ -1305,10 +1468,19 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
         {
-            value = _repository->getProperty(
-                request->nameSpace,
-                request->instanceName,
-                request->propertyName);
+	   _repository->read_lock();
+	   try  
+	   { 
+	      value = _repository->getProperty(
+		 request->nameSpace,
+		 request->instanceName,
+		 request->propertyName);
+	   }
+	   catch( ... )
+	   {
+	      _repository->read_unlock();
+	      throw;
+	   }
         }
         else
 	{
@@ -1365,11 +1537,23 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         else if ( (providerName.size() == 0) ||
                   (providerName == _repository->getProviderName()) )
         {
-            _repository->setProperty(
-                request->nameSpace,
-                request->instanceName,
-                request->propertyName,
-                request->newValue);
+	   _repository->write_lock();
+
+	   try  
+	   { 
+	      _repository->setProperty(
+		 request->nameSpace,
+		 request->instanceName,
+		 request->propertyName,
+		 request->newValue);
+	   }
+	   catch( ... )
+	   {
+	      _repository->write_unlock();
+	      throw;
+	   }
+
+	   _repository->write_unlock();
         }
         else
 	{
@@ -1412,12 +1596,14 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
     String errorDescription;
     CIMQualifierDecl cimQualifierDecl;
 
-    try
-    {
-	cimQualifierDecl = _repository->getQualifier(
-	    request->nameSpace,
-	    request->qualifierName);
+    _repository->read_lock();
+    try  
+    { 
+       cimQualifierDecl = _repository->getQualifier(
+	  request->nameSpace,
+	  request->qualifierName);
     }
+
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -1428,6 +1614,8 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+
+    _repository->read_unlock();
 
     CIMGetQualifierResponseMessage* response =
 	new CIMGetQualifierResponseMessage(
@@ -1446,11 +1634,12 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
+    _repository->write_lock();
     try
     {
-	_repository->setQualifier(
-	    request->nameSpace,
-	    request->qualifierDeclaration);
+       _repository->setQualifier(
+	  request->nameSpace,
+	  request->qualifierDeclaration);
     }
     catch (CIMException& exception)
     {
@@ -1462,6 +1651,8 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+
+    _repository->write_unlock();
 
     CIMSetQualifierResponseMessage* response =
 	new CIMSetQualifierResponseMessage(
@@ -1479,12 +1670,15 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
+    _repository->write_lock();
+
     try
     {
 	_repository->deleteQualifier(
 	    request->nameSpace,
 	    request->qualifierName);
     }
+
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -1495,6 +1689,8 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+
+    _repository->write_unlock();
 
     CIMDeleteQualifierResponseMessage* response =
 	new CIMDeleteQualifierResponseMessage(
@@ -1513,11 +1709,14 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
     String errorDescription;
     Array<CIMQualifierDecl> qualifierDeclarations;
 
+    _repository->read_lock();
+
     try
     {
-	qualifierDeclarations = _repository->enumerateQualifiers(
-	    request->nameSpace);
+       qualifierDeclarations = _repository->enumerateQualifiers(
+	  request->nameSpace);
     }
+    
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -1528,6 +1727,8 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+
+    _repository->read_unlock();
 
     CIMEnumerateQualifiersResponseMessage* response =
 	new CIMEnumerateQualifiersResponseMessage(
@@ -1892,14 +2093,17 @@ void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
     const String& nameSpace = "root/cimv2";
     const String& className = "PG_Provider";
 
+    _repository->read_lock();
+
     try
     {
         // ATTN: Exceptions are silently ignored for now
 	cimNamedInstances = _repository->enumerateInstances(
 		nameSpace,
 		className);
-    }
 
+    }
+    
     catch (CIMException& exception)
     {
 	errorCode = exception.getCode();
@@ -1910,6 +2114,7 @@ void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage();
     }
+    _repository->read_unlock();
 
     _providerManager.createProviderBlockTable(cimNamedInstances);
 }

@@ -220,9 +220,9 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permiss
       _rwlock.owner = owner;
       throw(Permission(pthread_self()));
    }
-   if(mode == PEG_SEM_READ)
+   if(mode == PEG_SEM_READ && _readers.value() != 0 )
       _readers--;
-   else 
+   else if (_writers.value() != 0 )
       _writers--;
 }
 
@@ -230,9 +230,9 @@ int ReadWriteSem::read_count()
 
 {
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-   PEGASUS_ASSERT(_readers ==  _rwlock.rwlock.__rw_readers);
+   PEGASUS_ASSERT(_readers.value() ==  _rwlock.rwlock.__rw_readers);
 #endif
-   return( _readers );
+   return( _readers.value() );
 }
 
 int ReadWriteSem::write_count()
@@ -240,10 +240,10 @@ int ReadWriteSem::write_count()
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)    
    if(_rwlock.rwlock.__rw_writer != NULL) 
    {
-      PEGASUS_ASSERT(_writers  == 1); 
+      PEGASUS_ASSERT(_writers.value()  == 1); 
    }
 #endif
-   return( _writers );
+   return( _writers.value() );
 }
 
 #endif // PEGASUS_READWRITE_NATIVE 

@@ -24,6 +24,7 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//                  20 Feb 2002 - Add tests for new constructor and extend array tests
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -62,6 +63,9 @@ void test01(const T& x)
     CIMValue v(x);
     CIMValue v2(v);
     CIMValue v3;
+    // Create a null constructor
+    CIMType type = v.getType();            // get the type of v
+    CIMValue v4(type,false);
     v3 = v2;
 #ifdef IO
     cout << "\n----------------------\n";
@@ -72,9 +76,14 @@ void test01(const T& x)
 	T t;
 	v3.get(t);
         assert (!v.isNull());
+        assert (!v.isArray());
         assert (!v2.isNull());
 	assert(t == x);
         assert (v3.typeCompatible(v2));
+        // Confirm that the constructor created Null, not array and correct type
+        assert (v4.isNull());
+        assert (!v4.isArray());
+        assert (v4.typeCompatible(v));
 
         // Test toMof
         Array<Sint8> mofout;
@@ -145,6 +154,9 @@ void test02(const Array<T>& x)
     CIMValue va2(va);
     CIMValue va3;
     va3 = va2;
+    // Create a null constructor
+    CIMType type = va.getType();            // get the type of v
+    CIMValue va4(type,true);
 #ifdef IO
     cout << "\n----------------------\n";
     va3.print();
@@ -154,6 +166,23 @@ void test02(const Array<T>& x)
 	Array<T> t;
 	va3.get(t);
 	assert(t == x);
+        assert (va3.typeCompatible(va2));
+        assert (!va.isNull());
+        assert (va.isArray());
+        assert (!va2.isNull());
+        assert (va2.isArray());
+        assert (!va3.isNull());
+        assert (va3.isArray());
+
+        // Note that this test depends on what is built.  Everything has 2 entries.
+        assert (va.getArraySize() == 3);
+
+        // Confirm that va4 is Null, and array and zero length
+        assert (va4.isNull());
+        assert (va4.isArray());
+        assert (va4.getArraySize() == 0);
+        assert (va4.typeCompatible(va));
+
 
         // Test toMof
         Array<Sint8> mofOutput;
@@ -183,9 +212,15 @@ void test02(const Array<T>& x)
     // Test the Null Characteristics
     try
     {
+        // Set the initial one to Null
         CIMType type = va.getType();
+        va.setNullValue(type, true, 0);
+        assert(va.isNull());
+        assert(va.isArray());
+        assert(va.getArraySize() == 0);
         va.setNullValue(type, false);
         assert(va.isNull());
+        assert(!va.isArray());
 
         // get the String and XML outputs for v
         String valueString2 = va.toString();
@@ -240,66 +275,79 @@ int main()
     Array<Uint8> arr1;
     arr1.append(11);
     arr1.append(22);
+    arr1.append(23);
     test02(arr1);
 
     Array<Uint16> arr2;
     arr2.append(333);
     arr2.append(444);
+    arr2.append(445);
     test02(arr2);
 
     Array<Uint32> arr3;
     arr3.append(5555);
     arr3.append(6666);
+    arr3.append(6667);
     test02(arr3);
 
     Array<Uint64> arr4;
     arr4.append(123456789);
     arr4.append(987654321);
+    arr4.append(987654322);
     test02(arr4);
 
     Array<Sint8> arr5;
     arr5.append(-11);
     arr5.append(-22);
+    arr5.append(-23);
     test02(arr5);
 
     Array<Sint16> arr6;
     arr6.append(333);
     arr6.append(444);
+    arr6.append(555);
     test02(arr6);
 
     Array<Sint32> arr7;
     arr7.append(555);
     arr7.append(666);
+    arr7.append(777);
     test02(arr7);
 
     Array<Sint64> arr8;
     arr8.append(-123456789);
+    arr8.append(-987654321);
     arr8.append(-987654321);
     test02(arr8);
 
     Array<Boolean> arr9;
     arr9.append(true);
     arr9.append(false);
+    arr9.append(false);
     test02(arr9);
 
     Array<Real32> arr10;
     arr10.append(1.55);
     arr10.append(2.66);
+    arr10.append(3.77);
     test02(arr10);
 
     Array<Real64> arr11;
     arr11.append(55.55);
     arr11.append(66.66);
+    arr11.append(77.77);
     test02(arr11);
 
     Array<Char16> arr12;
     arr12.append('X');
     arr12.append('Y');
+    arr12.append('Z');
     test02(arr12);
 
     Array<String> arr13;
     arr13.append("One");
     arr13.append("Two");
+    arr13.append("Three");
     test02(arr13);
 
     Array<CIMDateTime> arr14;

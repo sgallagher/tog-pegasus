@@ -54,6 +54,22 @@ extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String & 
     return (0);
 }
 
+
+// Search for path in array and return array index (or PEG_NOT_FOUND)
+static Uint32 findObjectPath(
+    const Array<CIMObjectPath>& array,
+    const CIMObjectPath& path)
+{
+    for (Uint32 i = 0; i < array.size(); i++)
+    {
+        if (array[i] == path)
+            return i;
+    }
+
+    return PEG_NOT_FOUND;
+}
+
+
 PG_TestPropertyTypes::PG_TestPropertyTypes(void)
 {
 }
@@ -154,7 +170,8 @@ void PG_TestPropertyTypes::getInstance(
 	}
 
 	// ensure the request object exists
-	if(Contains<CIMObjectPath>(references, instanceReference) == false)
+	Uint32 index = findObjectPath(references, instanceReference);
+	if (index == PEG_NOT_FOUND)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
@@ -163,13 +180,7 @@ void PG_TestPropertyTypes::getInstance(
 	handler.processing();
 
 	// instance index corresponds to reference index
-	for(Uint32 i = 0; i < references.size(); i++)
-	{
-		if(instanceReference == references[i])
-		{
-			handler.deliver(_instances[i]);
-		}
-	}
+	handler.deliver(_instances[index]);
 
 	// complete processing the request
 	handler.complete();
@@ -285,7 +296,8 @@ void PG_TestPropertyTypes::modifyInstance(
         _testPropertyTypesValue(instanceObject);
 
 	// ensure the request object exists
-	if(Contains<CIMObjectPath>(references, instanceReference) == false)
+	Uint32 index = findObjectPath(references, instanceReference);
+	if (index == PEG_NOT_FOUND)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
@@ -293,15 +305,9 @@ void PG_TestPropertyTypes::modifyInstance(
 	// begin processing the request
 	handler.processing();
 
-	Uint32 index = 0;
-
-	// find instance index (corresponds to reference index)
-	for(; (index < references.size()) && (instanceReference != references[index]); index++);
-
 	// We do nothing here since we like to have static result	
 	// complete processing the request
 	handler.complete();
-
 }
 
 void PG_TestPropertyTypes::createInstance(
@@ -363,7 +369,7 @@ void PG_TestPropertyTypes::createInstance(
 	}
 
 	// ensure the requested object do not exist
-	if(Contains<CIMObjectPath>(references, instanceReference) == true)
+	if (findObjectPath(references, instanceReference) != PEG_NOT_FOUND)
 	{
 		throw CIMException(CIM_ERR_ALREADY_EXISTS);
 	}
@@ -399,17 +405,14 @@ void PG_TestPropertyTypes::deleteInstance(
 	}
 
 	// ensure the requested object exists
-	if(Contains<CIMObjectPath>(references, instanceReference) == false)
+	Uint32 index = findObjectPath(references, instanceReference);
+	if (index == PEG_NOT_FOUND)
 	{
 		throw CIMException(CIM_ERR_NOT_FOUND);
 	}
 
 	// begin processing the request
 	handler.processing();
-
-	Uint32 index = 0;
-	
-	for(; (index < references.size()) && (instanceReference != references[index]); index++);
 
 	// we do not remove instance
 	// complete processing the request

@@ -11,6 +11,13 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegclient$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegcliutils$(LIB_SUFFIX)
 
+DYNAMIC_LIBRARIES += -lpegcommon \
+-lpegprotocol \
+-lpeggetoopt \
+-lpegrepository \
+-lpegclient \
+-lpegcliutils
+
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = wbemexec

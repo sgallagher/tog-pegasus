@@ -52,7 +52,6 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/Provider/OperationFlag.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -120,14 +119,18 @@ public:
     @param context specifies security and locale information relevant for
 		   the lifetime of this operation.
     @param instanceName name of the class for which instance is requested.
-    @param flags specifies additional details regarding the operation.
+    @param includeQualifiers specifies whether qualifiers must be included in
+    the returned instance
+    @param includeClassOrigin specifies whether class origin should be
+    included in each of the returned instance elements
     @param propertyList list containing the properties.
     @param handler enables providers to asynchronously return the results.
     */
     virtual void getInstance(
 	const OperationContext & context,
         const CIMObjectPath& instanceName,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
 	InstanceResponseHandler & handler);
 
@@ -138,7 +141,8 @@ public:
 		   the lifetime of this operation.
     @param instanceReference the fully qualified object path of the instance.
     @param modifiedInstance  the modified instance.
-    @param flags specifies additional details regarding the operation.
+    @param includeQualifiers specifies whether qualifiers must be updated as
+    specified in the modified instance
     @param propertyList list containing the properties to which the modify
                         operation must be limited.
     @param handler enables providers to asynchronously return the results.
@@ -147,7 +151,7 @@ public:
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
 	ResponseHandler & handler);
 
@@ -157,14 +161,18 @@ public:
     @param context specifies security and locale information relevant for
 		   the lifetime of this operation.
     @param ref the fully qualified object path of the instance.
-    @param flag specifies additional details regarding the operation.
+    @param includeQualifiers specifies whether qualifiers must be included in
+    the returned instances
+    @param includeClassOrigin specifies whether class origin should be
+    included in each of the returned instance elements
     @param propertyList list containing the properties.
     @param handler enables providers to asynchronously return the results.
     */
     virtual void enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & ref,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
 	InstanceResponseHandler & handler);
 

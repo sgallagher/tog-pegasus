@@ -65,7 +65,6 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/Provider/OperationFlag.h>
 
 PEGASUS_USING_STD;
 
@@ -413,7 +412,8 @@ void NamespaceProvider::deleteInstance(
 void NamespaceProvider::getInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceName,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & properatyList,
 	InstanceResponseHandler & handler)
     {
@@ -512,7 +512,8 @@ void NamespaceProvider::getInstance(
 void NamespaceProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & ref,
-	const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
 	InstanceResponseHandler & handler)
     {

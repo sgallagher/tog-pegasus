@@ -124,7 +124,8 @@ void CMPIAdapter::terminate(void)
 void CMPIAdapter::getInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler)
 {
@@ -158,7 +159,7 @@ void CMPIAdapter::modifyInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler)
 {
@@ -170,7 +171,8 @@ void CMPIAdapter::modifyInstance(
 void CMPIAdapter::enumerateInstances(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler)
 {
@@ -200,7 +202,8 @@ void CMPIAdapter::associators(
         const String & resultClass,
         const String & role,
         const String & resultRole,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         ObjectResponseHandler & handler)
 {
@@ -228,7 +231,8 @@ void CMPIAdapter::references(
         const CIMObjectPath & objectName,
         const String & resultClass,
         const String & role,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         ObjectResponseHandler & handler)
 {

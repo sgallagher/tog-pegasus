@@ -59,7 +59,8 @@ void IBM_CIMOMStatDataProvider::terminate(void)
 void IBM_CIMOMStatDataProvider::getInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -90,7 +91,8 @@ void IBM_CIMOMStatDataProvider::getInstance(
 void IBM_CIMOMStatDataProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -130,7 +132,7 @@ void IBM_CIMOMStatDataProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	const Uint32 flags,
+        const Boolean includeQualifiers,
         const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {

@@ -29,8 +29,6 @@
 
 #include "HelloWorldProvider.h"
 
-#include <Pegasus/Provider/OperationFlag.h>
-
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
@@ -143,7 +141,8 @@ void HelloWorldProvider::terminate(void)
 void HelloWorldProvider::getInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -175,7 +174,8 @@ void HelloWorldProvider::getInstance(
 void HelloWorldProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & ref,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -230,13 +230,12 @@ void HelloWorldProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {
         // ATTN: Partial modification is not yet supported by this provider
-        if (!propertyList.isNull() ||
-            !(flags & OperationFlag::INCLUDE_QUALIFIERS))
+        if (!propertyList.isNull() || !includeQualifiers)
         {
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
         }

@@ -176,8 +176,6 @@ void TestModifyInstances(CIMClient& client)
     cimInstance4.addProperty(CIMProperty("Namespaces", namespaces2));
     cimInstance4.addProperty(CIMProperty("SupportedMethods", supportedMethods2));
 
-    Uint32 flags = 0x00000010;
-
     propertyList.append("Namespaces");
     propertyList.append("SupportedMethods");
    

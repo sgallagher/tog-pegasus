@@ -43,7 +43,6 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Provider/OperationFlag.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>

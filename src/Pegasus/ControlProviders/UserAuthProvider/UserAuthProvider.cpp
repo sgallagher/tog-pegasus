@@ -492,7 +492,7 @@ void UserAuthProvider::modifyInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
     const CIMInstance& modifiedIns,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
@@ -607,7 +607,8 @@ void UserAuthProvider::modifyInstance(
 void UserAuthProvider::enumerateInstances(
     const OperationContext & context,
     const CIMObjectPath & ref,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
     InstanceResponseHandler & handler)
 {

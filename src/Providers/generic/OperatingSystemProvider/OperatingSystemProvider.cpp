@@ -56,7 +56,8 @@ void OperatingSystemProvider::terminate(void)
 void OperatingSystemProvider::getInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -82,7 +83,8 @@ void OperatingSystemProvider::getInstance(
 void OperatingSystemProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -141,7 +143,7 @@ void OperatingSystemProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {

@@ -12,7 +12,6 @@ LIBRARIES = \
 LIBRARY = pegprovider
 
 SOURCES = \
-    OperationFlag.cpp \
     ProviderException.cpp \
     CIMOMHandle.cpp \
     CIMBaseProvider.cpp \

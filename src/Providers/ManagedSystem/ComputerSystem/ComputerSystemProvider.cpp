@@ -44,8 +44,7 @@
 //  <platform>_ComputerSustem
 //
 // Enumeration operations always return instances from the
-// deepest class available (and one day, the localOnly and
-// deepEnumeration flags will be respected). All other
+// deepest class available.  All other
 // operations take note of the specified class.
 //
 // Operations currently supported:
@@ -82,7 +81,8 @@ ComputerSystemProvider::~ComputerSystemProvider(void)
 void ComputerSystemProvider::getInstance(
     const OperationContext& context,
     const CIMObjectPath& ref,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
     InstanceResponseHandler &handler)
 {
@@ -137,7 +137,8 @@ void ComputerSystemProvider::getInstance(
 void ComputerSystemProvider::enumerateInstances(
       				const OperationContext& context,
 			        const CIMObjectPath& ref,
-			        const Uint32 flags,
+				const Boolean includeQualifiers,
+				const Boolean includeClassOrigin,
 			        const CIMPropertyList& propertyList,
 			        InstanceResponseHandler& handler)
 {
@@ -194,7 +195,7 @@ ComputerSystemProvider::modifyInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	const Uint32 flags,
+				const Boolean includeQualifiers,
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler& handler )
 {

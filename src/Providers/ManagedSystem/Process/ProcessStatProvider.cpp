@@ -173,7 +173,8 @@ PARAMETERS        :
 void ProcessStatProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -268,7 +269,8 @@ PARAMETERS        :
 */
 void ProcessStatProvider::getInstance(const OperationContext &ctx,
                  const CIMObjectPath           &instanceName,
-                 const Uint32                  flags,
+                 const Boolean                 includeQualifiers,
+                 const Boolean                 includeClassOrigin,
                  const CIMPropertyList        &propertyList,
                  InstanceResponseHandler &handler)
 {	
@@ -417,7 +419,7 @@ PARAMETERS        :
 void ProcessStatProvider::modifyInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-		    const Uint32                 flags,
+                    const Boolean                includeQualifiers,
 		    const CIMPropertyList        &propertyList,
                     ResponseHandler &handler)
 {

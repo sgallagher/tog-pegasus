@@ -41,7 +41,6 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Provider/OperationFlag.h>
 
 #include "ProviderRegistrationTable.h"
 
@@ -918,7 +917,7 @@ void ProviderRegistrationManager::deleteInstance(
 void ProviderRegistrationManager::modifyInstance(
     const CIMObjectPath & ref,
     const CIMInstance & cimInstance,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
     const Array<CIMName> & propertyList)
 {
 
@@ -979,7 +978,7 @@ void ProviderRegistrationManager::modifyInstance(
 		    //
 		    // copy over the property from the given to the original
 		    //
-		    if (flags & OperationFlag::INCLUDE_QUALIFIERS)
+		    if (includeQualifiers)
 		    {
 			//
 			// Total property replacement
@@ -1028,7 +1027,7 @@ void ProviderRegistrationManager::modifyInstance(
 		    //
 		    // copy over the property from the given to the original
 		    //
-		    if (flags & OperationFlag::INCLUDE_QUALIFIERS)
+		    if (includeQualifiers)
 		    {
 			// Total property copy
 			instance.addProperty(givenProperty);

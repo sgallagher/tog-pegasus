@@ -58,7 +58,8 @@ LinuxIPRouteProvider::~LinuxIPRouteProvider(void)
 void
 LinuxIPRouteProvider::getInstance(const OperationContext& context,
 				  const CIMObjectPath& ref,
-				  const Uint32 flags,
+				  const Boolean includeQualifiers,
+				  const Boolean includeClassOrigin,
 				  const CIMPropertyList& propertyList,
 				  InstanceResponseHandler& handler)
 {
@@ -126,7 +127,8 @@ void
 LinuxIPRouteProvider::enumerateInstances(
       				const OperationContext& context, 
 				const CIMObjectPath& ref, 
-				const Uint32 flags, 
+				const Boolean includeQualifiers,
+				const Boolean includeClassOrigin,
 				const CIMPropertyList& propertyList,
 				InstanceResponseHandler& handler)
 {
@@ -174,7 +176,7 @@ LinuxIPRouteProvider::modifyInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	const Uint32 flags, 
+				const Boolean includeQualifiers,
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler& handler )
 {

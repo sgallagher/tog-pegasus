@@ -33,7 +33,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/Provider/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMProperty.h>
@@ -139,7 +138,8 @@ void PG_TestPropertyTypes::terminate(void)
 void PG_TestPropertyTypes::getInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -188,7 +188,8 @@ void PG_TestPropertyTypes::getInstance(
 void PG_TestPropertyTypes::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & ref,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -256,7 +257,7 @@ void PG_TestPropertyTypes::modifyInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {

@@ -51,7 +51,8 @@ class OperatingSystemProvider: public CIMInstanceProvider,
        *  elements of the class with the details gleaned from the system. */
       void getInstance(const OperationContext& context,
 		       const CIMObjectPath& ref,
-		       const Uint32 flags,
+		       const Boolean includeQualifiers,
+		       const Boolean includeClassOrigin,
 		       const CIMPropertyList& propertyList,
 		       InstanceResponseHandler& handler);
 
@@ -59,7 +60,8 @@ class OperatingSystemProvider: public CIMInstanceProvider,
        *  on the system. */
       void enumerateInstances(const OperationContext& context,
 			      const CIMObjectPath& ref,
-			      const Uint32 flags,
+			      const Boolean includeQualifiers,
+			      const Boolean includeClassOrigin,
 			      const CIMPropertyList& propertyList,
 			      InstanceResponseHandler& handler);
 
@@ -75,7 +77,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       void modifyInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
-		          const Uint32 flags,
+			  const Boolean includeQualifiers,
 		          const CIMPropertyList& propertyList,
 		          ResponseHandler& handler );
 

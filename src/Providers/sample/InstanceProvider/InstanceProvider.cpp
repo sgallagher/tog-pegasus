@@ -77,7 +77,8 @@ void InstanceProvider::terminate(void)
 void InstanceProvider::getInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -111,7 +112,8 @@ void InstanceProvider::getInstance(
 void InstanceProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
@@ -150,7 +152,7 @@ void InstanceProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {

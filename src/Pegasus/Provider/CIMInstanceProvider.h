@@ -118,14 +118,12 @@ public:
     @param instanceReference specifies the fully qualified object path
     of the instance of interest.
 
-    @param flags specifies additional details regarding the operation.
-    A provider is not required to support these flags. Valid values
-    for <tt>getInstance</tt> are:
-    <UL>
-    <LI>LOCAL_ONLY</li>
-    <LI>INCLUDE_QUALIFIERS</li>
-    <LI>INCLUDE_CLASS_ORIGIN</LI>
-    </UL>
+    @param includeQualifiers indicates whether the returned instance must
+    include the qualifiers for the instance and properties.  Qualifiers may
+    be included even if this flag is false.
+
+    @param includeClassOrigin indicates whether the returned instance must
+    include the class origin for each of the instance elements.
 
     @param propertyList if not null, this parameter
     specifies the minimum set of properties required in instances
@@ -145,7 +143,8 @@ public:
     virtual void getInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler) = 0;
 
@@ -178,14 +177,12 @@ public:
     @param classReference specifies the fully qualified object path
     to the class of interest.
 
-    @param flags specifies additional details regarding the operation.
+    @param includeQualifiers indicates whether the returned instances must
+    include the qualifiers for the instance and properties.  Qualifiers may
+    be included even if this flag is false.
 
-    <UL>
-    <LI>LOCAL_ONLY</li>
-    <LI>DEEP_INHERITANCE</li>
-    <LI>INCLUDE_QUALIFIERS</li>
-    <LI>INCLUDE_CLASS_ORIGIN</li>
-    </UL>
+    @param includeClassOrigin indicates whether the returned instances must
+    include the class origin for each of the instance elements.
 
     @param propertyList If not null, this parameter
     specifies the minimum set of properties required in instances returned by this operation. Because
@@ -211,7 +208,8 @@ public:
     virtual void enumerateInstances(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler) = 0;
 
@@ -246,15 +244,6 @@ public:
 
     @param classReference specifies the fully qualified object path to
     the class of interest.
-
-    @param flags specifies additional details regarding the operation.
-
-    <UL>
-    <LI>LOCAL_ONLY</li>
-    <LI>INCLUDE_QUALIFIERS</li>
-    <LI>INCLUDE_CLASS_ORIGIN</li>
-    <LI>DEEP_INHERITANCE</li>
-    </UL>
 
     @param handler {@link ResponseHandler ResponseHandler} object for
     delivery of results.
@@ -307,11 +296,9 @@ public:
     @param instanceObject contains the partial or complete set of
     properties whose values should be changed.
 
-    @param flags specifies additional details regarding the operation.
-
-    <UL>
-    <LI>INCLUDE_QUALIFIERS</LI>
-    </UL>
+    @param includeQualifiers indicates whether the instance qualifiers must
+    be updated as specified in the modified instance.  If false, no
+    qualifiers are explicitly modified by this operation.
 
     @param propertyList If not null, this parameter
     specifies the set of properties required to be updated in the instance. Support
@@ -331,7 +318,7 @@ public:
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
         const CIMPropertyList & propertyList,
         ResponseHandler & handler) = 0;
 

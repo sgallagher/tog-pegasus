@@ -200,7 +200,8 @@ void ProviderRegistrationProvider::terminate(void)
 void ProviderRegistrationProvider::getInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
@@ -246,7 +247,8 @@ void ProviderRegistrationProvider::getInstance(
 void ProviderRegistrationProvider::enumerateInstances(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
@@ -337,7 +339,7 @@ void ProviderRegistrationProvider::modifyInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
         const CIMPropertyList & propertyList,
         ResponseHandler & handler)
 {
@@ -401,7 +403,7 @@ void ProviderRegistrationProvider::modifyInstance(
     try
     {
         _providerRegistrationManager->modifyInstance(instanceReference,
-	    instanceObject, flags, propertyArray);
+	    instanceObject, includeQualifiers, propertyArray);
     }
     catch(CIMException& e)
     {

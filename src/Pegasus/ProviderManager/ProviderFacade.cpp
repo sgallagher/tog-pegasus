@@ -31,7 +31,6 @@
 
 #include "ProviderFacade.h"
 
-#include <Pegasus/Provider/OperationFlag.h>
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 
 #include <Pegasus/Common/Destroyer.h>
@@ -72,7 +71,8 @@ void ProviderFacade::terminate(void)
 void ProviderFacade::getInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
@@ -82,7 +82,8 @@ void ProviderFacade::getInstance(
     provider->getInstance(
         context,
         instanceReference,
-        flags,
+        includeQualifiers,
+        includeClassOrigin,
         propertyList,
         handler);
 
@@ -104,7 +105,8 @@ void ProviderFacade::getInstance(
     if(provider != 0)
     {
     // forward request
-    provider->getInstance(context, instanceReference, flags, propertyList, handler);
+    provider->getInstance(context, instanceReference, includeQualifiers,
+                          includeClassOrigin, propertyList, handler);
 
     return;
     }
@@ -122,7 +124,8 @@ void ProviderFacade::getInstance(
     if(provider != 0)
     {
     // forward request
-    provider->enumerateInstances(context, instanceReference, flags, propertyList, handler);
+    provider->enumerateInstances(context, instanceReference, includeQualifiers,
+                                 includeClassOrigin, propertyList, handler);
 
     return;
     }
@@ -144,7 +147,8 @@ void ProviderFacade::getInstance(
 void ProviderFacade::enumerateInstances(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
@@ -154,7 +158,8 @@ void ProviderFacade::enumerateInstances(
     provider->enumerateInstances(
         context,
         classReference,
-        flags,
+        includeQualifiers,
+        includeClassOrigin,
         propertyList,
         handler);
 
@@ -181,7 +186,7 @@ void ProviderFacade::modifyInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
     const CIMInstance & instanceObject,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
@@ -192,7 +197,7 @@ void ProviderFacade::modifyInstance(
         context,
         instanceReference,
         instanceObject,
-        flags,
+        includeQualifiers,
         propertyList,
         handler);
 }
@@ -230,7 +235,9 @@ void ProviderFacade::deleteInstance(
 void ProviderFacade::getClass(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    const Uint32 flags,
+    const Boolean localOnly,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList,
     ClassResponseHandler & handler)
 {
@@ -240,7 +247,10 @@ void ProviderFacade::getClass(
 void ProviderFacade::enumerateClasses(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    const Uint32 flags,
+    const Boolean deepInheritance,
+    const Boolean localOnly,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     ClassResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClasses");
@@ -249,7 +259,7 @@ void ProviderFacade::enumerateClasses(
 void ProviderFacade::enumerateClassNames(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    const Uint32 flags,
+    const Boolean deepInheritance,
     ObjectPathResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClassNames");
@@ -288,7 +298,8 @@ void ProviderFacade::associators(
     const CIMName & resultClass,
     const String & role,
     const String & resultRole,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList,
     ObjectResponseHandler & handler)
 {
@@ -302,7 +313,8 @@ void ProviderFacade::associators(
         resultClass,
         role,
         resultRole,
-        flags,
+        includeQualifiers,
+        includeClassOrigin,
         propertyList,
         handler);
 }
@@ -334,7 +346,8 @@ void ProviderFacade::references(
     const CIMObjectPath & objectName,
     const CIMName & resultClass,
     const String & role,
-    const Uint32 flags,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList,
     ObjectResponseHandler & handler)
 {
@@ -346,7 +359,8 @@ void ProviderFacade::references(
         objectName,
         resultClass,
         role,
-        flags,
+        includeQualifiers,
+        includeClassOrigin,
         propertyList,
         handler);
 }
@@ -390,8 +404,6 @@ void ProviderFacade::getProperty(
     // NOTE: Use the CIMInstanceProvider interface until CIMPropertyProvider is supported
     handler.processing();
 
-    Uint32 flags = OperationFlag::NONE;
-
     Array<CIMName> propertyList;
 
     propertyList.append(propertyName);
@@ -401,7 +413,8 @@ void ProviderFacade::getProperty(
     getInstance(
         context,
         instanceReference,
-        flags,
+        false,  // includeQualifiers
+        false,  // includeClassOrigin
         propertyList,
         instanceHandler);
 
@@ -447,8 +460,6 @@ void ProviderFacade::setProperty(
 
     instance.addProperty(CIMProperty(propertyName, newValue));
 
-    Uint32 flags = OperationFlag::NONE;
-
     Array<CIMName> propertyList;
 
     propertyList.append(propertyName);
@@ -459,7 +470,7 @@ void ProviderFacade::setProperty(
         context,
         instanceReference,
         instance,
-        flags,
+        false,  // includeQualifiers
         propertyList,
         instanceHandler);
 

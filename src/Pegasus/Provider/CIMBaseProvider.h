@@ -108,23 +108,6 @@ the properties on which this operation should be performed.
 The exact use of this parameter depends on the specific
 operation, and is described in the respective section.</li>
 
-<li><b>{@link OperationFlag OperationFlag}</b> - flags that
-modify the behavior of the operation. A provider
-is not required to support these flags. Values can include:
-
-    <UL>
-	<LI>LOCAL_ONLY - include only elements (properties and
-	qualifiers) of the specified class.</li>
-<li>DEEP_INHERITANCE - include elements from the deepest class
-that returns the instance (usually the Creation Class), regardless of
-which class was specified in the {@link CIMObjectPath CIMObjectPath}
-parameter.</li>
-	<LI>INCLUDE_QUALIFIERS - include instance and property qualifiers.</li>
-	<LI>INCLUDE_CLASS_ORIGIN - include the name of the class in which
-	a property or method is defined.</li>
-    </UL>
-</li>
-
 <li><b>{@link ResponseHandler ResponseHandler}</b> - a
 <i>callback</i> handle used to return results to the CIMOM
 for subsequent return to the client.</li>

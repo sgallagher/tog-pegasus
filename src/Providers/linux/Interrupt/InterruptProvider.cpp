@@ -54,7 +54,8 @@ LinuxInterruptProvider::~LinuxInterruptProvider(void)
 
 void LinuxInterruptProvider::getInstance(const OperationContext& context,
 					 const CIMObjectPath& ref,
-					 const Uint32 flags,
+					 const Boolean includeQualifiers,
+					 const Boolean includeClassOrigin,
 					 const CIMPropertyList& propertyList,
 					 InstanceResponseHandler& handler)
 {
@@ -93,7 +94,8 @@ void
 LinuxInterruptProvider::enumerateInstances(
       				const OperationContext& context, 
 			        const CIMObjectPath& ref, 
-			        const Uint32 flags, 
+				const Boolean includeQualifiers,
+				const Boolean includeClassOrigin,
 			        const CIMPropertyList& propertyList,
 			        InstanceResponseHandler& handler )
 {
@@ -143,7 +145,7 @@ void LinuxInterruptProvider::modifyInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	const Uint32 flags, 
+				const Boolean includeQualifiers,
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler& handler )
 {

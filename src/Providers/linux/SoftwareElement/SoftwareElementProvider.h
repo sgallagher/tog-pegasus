@@ -57,14 +57,16 @@ class SoftwareElementProvider : public CIMInstanceProvider
 
       virtual void getInstance(const OperationContext& context,
 			       const CIMObjectPath& ref,
-			       const Uint32 flags,
+			       const Boolean includeQualifiers,
+			       const Boolean includeClassOrigin,
 			       const CIMPropertyList& propertyList,
 			       InstanceResponseHandler& handler) = 0;
 
       virtual void enumerateInstances(
 	    		       const OperationContext& context,
 			       const CIMObjectPath& ref,
-			       const Uint32 flags,
+			       const Boolean includeQualifiers,
+			       const Boolean includeClassOrigin,
 			       const CIMPropertyList& propertyList,
 			       InstanceResponseHandler& handler) = 0;
 
@@ -76,7 +78,7 @@ class SoftwareElementProvider : public CIMInstanceProvider
       virtual void modifyInstance(const OperationContext& context,
 				  const CIMObjectPath& ref,
 				  const CIMInstance& instanceObject,
-				  const Uint32 flags,
+				  const Boolean includeQualifiers,
 				  const CIMPropertyList& propertyList,
 				  ResponseHandler& handler) = 0;
 

@@ -87,14 +87,16 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
     virtual void getInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler);
 
     virtual void enumerateInstances(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler);
 
@@ -107,7 +109,7 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
         const CIMPropertyList & propertyList,
         ResponseHandler & handler);
 

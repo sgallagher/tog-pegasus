@@ -50,7 +50,8 @@ PEGASUS_NAMESPACE_BEGIN
 void
 LinuxPCIControllerProvider::getInstance(const OperationContext& context,
 					const CIMObjectPath& ref,
-					const Uint32 flags,
+					const Boolean includeQualifiers,
+					const Boolean includeClassOrigin,
 					const CIMPropertyList& propertyList,
 					InstanceResponseHandler& handler)
 {
@@ -100,7 +101,8 @@ void
 LinuxPCIControllerProvider::enumerateInstances(
       				const OperationContext& context, 
 				const CIMObjectPath& ref, 
-				const Uint32 flags, 
+				const Boolean includeQualifiers,
+				const Boolean includeClassOrigin,
 				const CIMPropertyList& propertyList,
 				InstanceResponseHandler& handler )
 {
@@ -152,7 +154,7 @@ LinuxPCIControllerProvider::modifyInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	const Uint32 flags, 
+				const Boolean includeQualifiers,
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler& handler )
 {

@@ -72,14 +72,16 @@ public:
     virtual void getInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler);
 
     virtual void enumerateInstances(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         InstanceResponseHandler & handler);
 
@@ -92,7 +94,7 @@ public:
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
         const CIMPropertyList & propertyList,
         ResponseHandler & handler);
 
@@ -111,20 +113,25 @@ public:
     virtual void getClass(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean localOnly,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         ClassResponseHandler & handler);
 
     virtual void enumerateClasses(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean deepInheritance,
+        const Boolean localOnly,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         ClassResponseHandler & handler);
 
     virtual void enumerateClassNames(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean deepInheritance,
         ObjectPathResponseHandler & handler);
 
     virtual void modifyClass(
@@ -152,7 +159,8 @@ public:
         const CIMName & resultClass,
         const String & role,
         const String & resultRole,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         ObjectResponseHandler & handler);
 
@@ -170,7 +178,8 @@ public:
         const CIMObjectPath & objectName,
         const CIMName & resultClass,
         const String & role,
-        const Uint32 flags,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         ObjectResponseHandler & handler);
 

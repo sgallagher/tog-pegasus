@@ -43,8 +43,6 @@
 #include <Pegasus/ProviderManager/Provider.h>
 #include <Pegasus/ProviderManager/OperationResponseHandler.h>
 
-#include <Pegasus/Provider/OperationFlag.h>
-
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
@@ -663,12 +661,6 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
-        // convert flags to bitmask
-        Uint32 flags = OperationFlag::convert(false);
-
-        // strip flags inappropriate for providers
-        flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
-
         CIMPropertyList propertyList(request->propertyList);
 
         STAT_GETSTARTTIME;
@@ -677,7 +669,8 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
         provider.getInstance(
             context,
             objectPath,
-            flags,
+            request->includeQualifiers,
+            request->includeClassOrigin,
             propertyList,
             handler);
 
@@ -752,12 +745,6 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
-        // convert flags to bitmask
-        Uint32 flags = OperationFlag::convert(false);
-
-        // strip flags inappropriate for providers
-        flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
-
         CIMPropertyList propertyList(request->propertyList);
 
         STAT_GETSTARTTIME;
@@ -765,7 +752,8 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
         provider.enumerateInstances(
             context,
             objectPath,
-            flags,
+            request->includeQualifiers,
+            request->includeClassOrigin,
             propertyList,
             handler);
 
@@ -1002,12 +990,6 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
         // add the user name to the context
         context.insert(IdentityContainer(request->userName));
 
-        // convert flags to bitmask
-        Uint32 flags = OperationFlag::convert(false);
-
-        // strip flags inappropriate for providers
-        flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
-
         CIMPropertyList propertyList(request->propertyList);
 
         // forward request
@@ -1017,7 +999,7 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
             context,
             objectPath,
             request->modifiedInstance,
-            flags,
+            request->includeQualifiers,
             propertyList,
             handler);
 
@@ -1252,13 +1234,6 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
-            // convert flags to bitmask
-            Uint32 flags = OperationFlag::convert(false);
-
-            // strip flags inappropriate for providers
-            flags = flags | ~OperationFlag::LOCAL_ONLY |
-                ~OperationFlag::DEEP_INHERITANCE;
-
             STAT_GETSTARTTIME;
 
             provider.associatorNames(
@@ -1357,13 +1332,6 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
-            // convert flags to bitmask
-            Uint32 flags = OperationFlag::convert(false);
-
-            // strip flags inappropriate for providers
-            flags = flags | ~OperationFlag::LOCAL_ONLY |
-                ~OperationFlag::DEEP_INHERITANCE;
-
             STAT_GETSTARTTIME;
 
             provider.references(
@@ -1371,7 +1339,8 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
                 objectPath,
                 request->resultClass,
                 request->role,
-                flags,
+                request->includeQualifiers,
+                request->includeClassOrigin,
                 request->propertyList.getPropertyNameArray(),
                 handler);
 
@@ -1461,15 +1430,6 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
-            // convert flags to bitmask
-            Uint32 flags = OperationFlag::convert(false);
-
-            // strip flags inappropriate for providers
-            flags = flags | ~OperationFlag::LOCAL_ONLY |
-                ~OperationFlag::DEEP_INHERITANCE;
-
-            //CIMPropertyList propertyList(request->propertyList);
-
             STAT_GETSTARTTIME;
 
             provider.referenceNames(
@@ -1555,12 +1515,6 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
     	// add the user name to the context
     	context.insert(IdentityContainer(request->userName));
 
-        // convert flags to bitmask
-        Uint32 flags = 0;
-
-        // strip flags inappropriate for providers
-        //flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
-
         String propertyName = request->propertyName;
 
         STAT_GETSTARTTIME;
@@ -1643,14 +1597,8 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     	// add the user name to the context
     	context.insert(IdentityContainer(request->userName));
 
-        // convert flags to bitmask
-        Uint32 flags = 0;
-
     	String propertyName; // = request->propertyName;
     	CIMValue propertyValue; // = request->propertyValue;
-
-        // strip flags inappropriate for providers
-        //flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
 
         STAT_GETSTARTTIME;
 

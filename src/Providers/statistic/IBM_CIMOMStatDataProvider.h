@@ -50,14 +50,16 @@ public:
 	virtual void getInstance(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
-		const Uint32 flags,
+                const Boolean includeQualifiers,
+                const Boolean includeClassOrigin,
                 const CIMPropertyList & propertyList,
 		InstanceResponseHandler & handler);
 
 	virtual void enumerateInstances(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
-		const Uint32 flags,
+                const Boolean includeQualifiers,
+                const Boolean includeClassOrigin,
                 const CIMPropertyList & propertyList,
 		InstanceResponseHandler & handler);
 
@@ -70,7 +72,7 @@ public:
 		const OperationContext & context,
 		const CIMObjectPath & ref,
 		const CIMInstance & obj,
-		const Uint32 flags,
+                const Boolean includeQualifiers,
                 const CIMPropertyList & propertyList,
 		ResponseHandler & handler);
 

@@ -54,7 +54,8 @@ void AssociationProvider::associators(
 	const String & resultClass,
 	const String & role,
 	const String & resultRole,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
@@ -78,7 +79,8 @@ void AssociationProvider::references(
 	const CIMObjectPath & objectName,
 	const String & resultClass,
 	const String & role,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {

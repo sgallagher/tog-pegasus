@@ -30,7 +30,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderMessageFacade.h"
-#include <Pegasus/Provider/OperationFlag.h>
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
@@ -160,12 +159,6 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
-	// convert flags to bitmask
-	Uint32 flags = OperationFlag::convert(false);
-
-	// ATTN: strip flags inappropriate for providers
-	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
-
 	CIMPropertyList propertyList(request->propertyList);
 
 	SimpleInstanceResponseHandler handler;
@@ -174,7 +167,8 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	getInstance(
 	    context,
 	    objectPath,
-	    flags,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
 	    propertyList,
 	    handler);
 
@@ -240,12 +234,6 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
-	// convert flags to bitmask
-	Uint32 flags = OperationFlag::convert(false);
-
-	// ATTN: strip flags inappropriate for providers
-	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
-
 	CIMPropertyList propertyList(request->propertyList);
 
 	SimpleInstanceResponseHandler handler;
@@ -253,7 +241,8 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	enumerateInstances(
 	    context,
 	    objectPath,
-	    flags,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
 	    propertyList,
 	    handler);
 
@@ -450,12 +439,6 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
-	// convert flags to bitmask
-	Uint32 flags = OperationFlag::convert(false);
-
-	// ATTN: strip flags inappropriate for providers
-	flags = flags & ~OperationFlag::LOCAL_ONLY & ~OperationFlag::DEEP_INHERITANCE;
-
 	CIMPropertyList propertyList(request->propertyList);
 
 	SimpleResponseHandler handler;
@@ -465,7 +448,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	    context,
 	    objectPath,
 	    request->modifiedInstance,
-	    flags,
+	    request->includeQualifiers,
 	    propertyList,
 	    handler);
     }

@@ -56,7 +56,6 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ResponseHandler.h>
-#include <Pegasus/Provider/OperationFlag.h>
 
 PEGASUS_USING_STD;
 
@@ -84,7 +83,8 @@ static const char PG_CONFIG_SETTING [] = "PG_ConfigSetting";
 void ConfigSettingProvider::getInstance(
 	const OperationContext & context,
         const CIMObjectPath& instanceName,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
 	InstanceResponseHandler & handler)
     {
@@ -166,7 +166,7 @@ void ConfigSettingProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
 	ResponseHandler & handler)
     {
@@ -368,7 +368,8 @@ void ConfigSettingProvider::modifyInstance(
 void ConfigSettingProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & ref,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
 	InstanceResponseHandler & handler)
     {

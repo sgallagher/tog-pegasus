@@ -58,7 +58,9 @@ public:
     of this operation.
 
     @param classReference
-    @param flags
+    @param localOnly
+    @param includeQualifiers
+    @param includeClassOrigin
     @param propertyList
 
     @param handler asynchronusly processes the results of this operation.
@@ -69,7 +71,9 @@ public:
     virtual void getClass(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean localOnly,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList,
         ClassResponseHandler & handler) = 0;
 
@@ -78,7 +82,10 @@ public:
     of this operation.
 
     @param classReference
-    @param flags
+    @param deepInheritance
+    @param localOnly
+    @param includeQualifiers
+    @param includeClassOrigin
 
     @param handler asynchronusly processes the results of this operation.
 
@@ -88,7 +95,10 @@ public:
     virtual void enumerateClasses(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean deepInheritance,
+        const Boolean localOnly,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
         ClassResponseHandler & handler) = 0;
 
     /**
@@ -96,7 +106,7 @@ public:
     of this operation.
 
     @param classReference
-    @param flags
+    @param deepInheritance
 
     @param handler asynchronusly processes the results of this operation.
 
@@ -106,7 +116,7 @@ public:
     virtual void enumerateClassNames(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        const Uint32 flags,
+        const Boolean deepInheritance,
         ObjectPathResponseHandler & handler) = 0;
 
     /**

@@ -56,7 +56,7 @@ public:
 
     /**
 
-    @param contex contains security and locale information relevant for the lifetime
+    @param context contains security and locale information relevant for the lifetime
     of this operation.
 
     @param objectName
@@ -64,10 +64,11 @@ public:
     @param resultClass
     @param role
     @param resultRole
-    @param flags
+    @param includeQualifiers
+    @param includeClassOrigin
     @param propertyList
 
-    @param handler asynchronusly processes the results of this operation.
+    @param handler asynchronously processes the results of this operation.
 
     @exception NotSupported
     @exception InvalidParameter
@@ -79,12 +80,13 @@ public:
 	const CIMName & resultClass,
 	const String & role,
 	const String & resultRole,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler) = 0;
 
     /**
-    @param contex contains security and locale information relevant for the lifetime
+    @param context contains security and locale information relevant for the lifetime
     of this operation.
 
     @param objectName
@@ -93,7 +95,7 @@ public:
     @param role
     @param resultRole
 
-    @param handler asynchronusly processes the results of this operation.
+    @param handler asynchronously processes the results of this operation.
 
     @exception NotSupported
     @exception InvalidParameter
@@ -108,17 +110,18 @@ public:
 	ObjectPathResponseHandler & handler) = 0;
 
     /**
-    @param contex contains security and locale information relevant for the lifetime
+    @param context contains security and locale information relevant for the lifetime
     of this operation.
 
     @param objectName
     @param resultClass
     @param role
     @param resultRole
-    @param flags
+    @param includeQualifiers
+    @param includeClassOrigin
     @param propertyList
 
-    @param handler asynchronusly processes the results of this operation.
+    @param handler asynchronously processes the results of this operation.
 
     @exception NotSupported
     @exception InvalidParameter
@@ -128,19 +131,20 @@ public:
 	const CIMObjectPath & objectName,
 	const CIMName & resultClass,
 	const String & role,
-	const Uint32 flags,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler) = 0;
 
     /**
-    @param contex contains security and locale information relevant for the lifetime
+    @param context contains security and locale information relevant for the lifetime
     of this operation.
 
     @param objectName
     @param resultClass
     @param role
 
-    @param handler asynchronusly processes the results of this operation.
+    @param handler asynchronously processes the results of this operation.
 
     @exception NotSupported
     @exception InvalidParameter

@@ -56,7 +56,8 @@ LinuxProcessorProvider::~LinuxProcessorProvider(void)
 void
 LinuxProcessorProvider::getInstance(const OperationContext& context,
 				    const CIMObjectPath& ref,
-				    const Uint32 flags,
+				    const Boolean includeQualifiers,
+				    const Boolean includeClassOrigin,
 				    const CIMPropertyList& propertyList,
 				    InstanceResponseHandler& handler)
 {
@@ -97,7 +98,8 @@ void
 LinuxProcessorProvider::enumerateInstances(
       				const OperationContext& context, 
 				const CIMObjectPath& ref, 
-				const Uint32 flags, 
+				const Boolean includeQualifiers,
+				const Boolean includeClassOrigin,
 				const CIMPropertyList& propertyList,
 				InstanceResponseHandler& handler )
 {
@@ -149,7 +151,7 @@ void LinuxProcessorProvider::modifyInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	const Uint32 flags, 
+				const Boolean includeQualifiers,
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler& handler )
 {

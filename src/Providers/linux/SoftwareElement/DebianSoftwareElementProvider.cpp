@@ -57,7 +57,8 @@ void
 DebianSoftwareElementProvider::getInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	const Uint32 flags,
+				const Boolean includeQualifiers,
+				const Boolean includeClassOrigin,
 			  	const CIMPropertyList& propertyList,
 			  	InstanceResponseHandler& handler )
 {
@@ -136,7 +137,8 @@ void
 DebianSoftwareElementProvider::enumerateInstances(
                           const OperationContext& context,
 			  const CIMObjectPath& ref,
-			  const Uint32 flags,
+			  const Boolean includeQualifiers,
+			  const Boolean includeClassOrigin,
 			  const CIMPropertyList& propertyList,
 			  InstanceResponseHandler& handler )
 {
@@ -200,7 +202,7 @@ DebianSoftwareElementProvider::modifyInstance(
       			  	const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	const Uint32 flags,
+				const Boolean includeQualifiers,
 			  	const CIMPropertyList& propertyList,
 			  	ResponseHandler& handler )
 {

@@ -9,6 +9,11 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/linux
    EXTRA_LIBRARIES += -L$(JAVALIBS)/native_threads -L$(JAVALIBS)/client -ljvm -lhpi -lcrypt -lpegclient
 endif
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
+   EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
+endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
    SYS_INCLUDES += -I${JAVA_SDK}/include
@@ -35,6 +40,7 @@ LIBRARIES += \
 	pegclient \
 	pegconfig
 endif
+
 
 SOURCES = \
         JMPIProviderManagerMain.cpp \

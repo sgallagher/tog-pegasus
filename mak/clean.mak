@@ -1,0 +1,2 @@
+clean: $(LOCAL_CLEAN_TARGET) $(ERROR)
+	$(RM) $(FILES_TO_CLEAN)

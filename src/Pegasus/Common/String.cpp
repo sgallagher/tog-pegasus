@@ -1,0 +1,327 @@
+//BEGIN_LICENSE
+//
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+//
+//END_LICENSE
+//BEGIN_HISTORY
+//
+// Author:
+//
+// $Log: String.cpp,v $
+// Revision 1.1  2001/01/14 19:53:14  mike
+// Initial revision
+//
+//
+//END_HISTORY
+
+#include "String.h"
+#include "Exception.h"
+#include "String.h"
+
+PEGASUS_NAMESPACE_BEGIN
+
+const String String::EMPTY;
+
+void ThrowNullPointer()
+{
+    throw NullPointer();
+}
+
+Uint32 StrLen(const Char16* str)
+{
+    if (!str)
+	ThrowNullPointer();
+
+    Uint32 n = 0;
+
+    while (*str++)
+	n++;
+
+    return n;
+}
+
+String::String() 
+{ 
+    _rep.append('\0'); 
+}
+
+String::String(const String& x) : _rep(x._rep) 
+{
+
+}
+
+String::String(const String& x, Uint32 n)
+{
+    _rep.append('\0');
+    append(x.getData(), n);
+}
+
+String::String(const Char16* x) : _rep(x, StrLen(x) + 1) 
+{ 
+
+}
+
+String::String(const Char16* x, Uint32 n) 
+{ 
+    assign(x, n); 
+}
+
+String::String(const char* str)
+{
+    Uint32 n = ::strlen(str) + 1;
+    reserve(n);
+
+    while (n--)
+	_rep.append(*str++);
+}
+
+String::String(const char* str, Uint32 n_) 
+{
+    Uint32 n = _min(strlen(str), n_);
+    reserve(n + 1);
+
+    while (n--)
+	_rep.append(*str++);
+
+    _rep.append('\0');
+}
+
+String& String::assign(const Char16* x) 
+{
+    _rep.clear();
+    _rep.append(x, StrLen(x) + 1);
+    return *this; 
+}
+
+String& String::assign(const Char16* str, Uint32 n)
+{
+    _rep.clear();
+    Uint32 m = _min(StrLen(str), n);
+    _rep.append(str, m);
+    _rep.append('\0');
+    return *this;
+}
+
+String& String::assign(const char* x) 
+{
+    _rep.clear();
+    Uint32 n = strlen(x);
+    _rep.reserve(n + 1);
+
+    while (n--)
+	_rep.append(*x++);
+
+    _rep.append('\0');
+
+    return *this; 
+}
+
+String& String::assign(const char* x, Uint32 n_)
+{
+    _rep.clear();
+
+    Uint32 n = _min(strlen(x), n_);
+    _rep.reserve(n + 1);
+
+    while (n--)
+	_rep.append(*x++);
+
+    _rep.append('\0');
+
+    return *this; 
+}
+
+char* String::allocateCString(Uint32 extraBytes, Boolean noThrow) const
+{
+    Uint32 n = getLength() + 1;
+    char* str = new char[n + extraBytes];
+    char* p = str;
+    const Char16* q = getData();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+	Uint16 c = *q++;
+	*p++ = char(c);
+
+	if ((c & 0xff00) && !noThrow)
+	    throw TruncatedCharacter();
+    }
+
+    return str;
+}
+
+void String::appendToCString(
+    char* str, 
+    Uint32 length, 
+    Boolean noThrow) const
+{
+    if (!str)
+	throw NullPointer();
+
+    Uint32 n = _min(getLength(), length);
+
+    char* p = str + strlen(str);
+    const Char16* q = getData();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+	Uint16 c = *q++;
+	*p++ = char(c);
+
+	if ((c & 0xff00) && !noThrow)
+	    throw TruncatedCharacter();
+    }
+
+    *p = '\0';
+}
+
+Char16& String::operator[](Uint32 i) 
+{
+    if (i > getLength())
+	ThrowOutOfBounds();
+
+    return _rep[i]; 
+}
+
+const Char16 String::operator[](Uint32 i) const
+{
+    if (i > getLength())
+	ThrowOutOfBounds();
+
+    return _rep[i]; 
+}
+
+String& String::append(const Char16* str, Uint32 n)
+{
+    Uint32 m = _min(StrLen(str), n);
+    _rep.reserve(_rep.getSize() + m);
+    _rep.remove(_rep.getSize() - 1);
+    _rep.append(str, m);
+    _rep.append('\0');
+    return *this;
+}
+
+void String::remove(Uint32 pos, Uint32 size)
+{
+    if (size == Uint32(-1))
+	size = getLength() - pos;
+
+    if (pos + size > getLength())
+	ThrowOutOfBounds();
+
+    if (size)
+	_rep.remove(pos, size);
+}
+
+Boolean operator==(const String& x, const String& y)
+{
+    if (x.getLength() != y.getLength())
+	return false;
+
+    return String::compare(x.getData(), y.getData(), x.getLength()) == 0;
+}
+
+Boolean operator==(const String& x, const Char16* y)
+{
+    if (x.getLength() != StrLen(y))
+	return false;
+
+    return String::compare(x.getData(), y, x.getLength()) == 0;
+}
+
+inline Boolean operator==(const Char16* x, const String& y)
+{
+    return operator==(y, x);
+}
+
+int String::compare(const Char16* s1, const Char16* s2, Uint32 n)
+{
+    while (n--)
+    {
+	int r = *s1++ - *s2++;
+
+	if (r)
+	    return r;
+    }
+
+    return 0;
+}
+
+String String::subString(Uint32 pos, Uint32 length) const
+{
+    if (pos < getLength())
+    {
+	if (length == Uint32(-1))
+	    length = getLength() - pos;
+
+	return String(getData() + pos, length);
+    }
+    else
+	return String();
+}
+
+Uint32 String::find(Char16 c) const
+{
+    const Char16* first = getData();
+
+    for (const Char16* p = first; *p; p++)
+    {
+	if (*p == c)
+	    return  p - first;
+    }
+
+    return Uint32(-1);
+}
+
+int String::compare(const Char16* s1, const Char16* s2)
+{
+    while (*s1 && *s2)
+    {
+	int r = *s1++ - *s2++;
+
+	if (r)
+	    return r;
+    }
+
+    if (*s2)
+	return -1;
+    else if (*s1)
+	return 1;
+
+    return 0;
+}
+
+std::ostream& operator<<(std::ostream& os, const String& x)
+{
+    for (Uint32 i = 0, n = x.getLength(); i < n; i++)
+	os << x[i];
+
+    return os;
+}
+
+Boolean operator==(const String& x, const char* y)
+{
+    return operator==(x, String(y));
+}
+
+Boolean operator==(const char* x, const String& y)
+{
+    return operator==(String(x), y);
+}
+
+PEGASUS_NAMESPACE_END

@@ -1,0 +1,95 @@
+				TO-DO List
+				==========
+
+    ------------------------------------------------------------------------
+
+    (B) Rework resolve() scheme (add clone() methods).
+
+    (A) Implement instances.
+
+    (A) Providers.
+
+    (A) Port to Windows.
+
+    ------------------------------------------------------------------------
+
+    (B) Finish other CIM/HTTP protocol operations.
+
+    (B) Use the description that comes back with an error code in the XML
+    	protocol. Perhaps it should become an extra message field of
+	XmlException.
+
+    (B) Source documentation.
+
+    (B) Put README in each directory.
+
+    (B) Handle UCS2 characters in XML (parsing and writing).
+
+    (B) Check for overflow on the number of attributes in XML.
+
+    (B) Handle PARAMETER.REFARRAY in XML.
+
+    (B) Add validNamespace() method and use it.
+
+    (B) Finish Pegasus-CGI interface:
+
+	Add GetMethod.cgi.
+	Add propagated and class-origin columns.
+	Add flavor column to qualifiers.
+
+    ------------------------------------------------------------------------
+
+    (C) Implement Strings that point to preallocated char* that will
+        remain in scope?
+
+    (C) Suppress error message printed by ACE caused by constructing an 
+        address from a non existent host.
+
+    (C) Ignore extraneous XML elements (loosely valid).
+
+    (C) Get rid of fullyQualified flag.
+
+    (C) Handling of hexadecimal integer values.
+
+    (C) VALUE.REFERENCE within INSTANCENAME and KEYBINDING.
+
+    (C) Resolve whether MOF is a requirement.
+
+    (C) Handle case sensitivity of CIM identifiers.
+
+    (C) Figure out how to handle CIM null values.
+
+    (C) Make iteration scheme more general.
+
+    (C) Develop XML repository importation mechanism.
+
+    (C) Move internal headers to ./internal directory
+
+    (C) Split up XxxRep objects from Xxx objects.
+
+    (C) Handle case insentive requirement on repository file names.
+
+    (C) Devise a way to detect whether a class has instances.
+
+    (C) Cleanup of execeptions.
+
+    (C) Verify that fixed length arrays are properly handled.
+
+    (C) Check for null string pointers in String class.
+
+    (C) Verify that instances are property keyed (during validation).
+
+    (C) Thread safety.
+
+    (C) Use UTF8 for strings.
+
+    (C) Shrink object sizes.
+
+    (C) Use lighter I/O system (get rid of C++ streams).
+
+    (C) Provide conversion between DateTime and time_t.
+
+    (C) Purify source.
+
+    (C) Improve the representation of fixed arrays (is that pesky fixed-array
+      	flag really necessary?)

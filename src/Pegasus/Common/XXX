@@ -1,0 +1,9 @@
+
+    XXX clone() const
+    {
+	return XXX(_rep->clone());
+    }
+
+    XXX(XXXRep* rep) : _rep(rep)
+    {
+    }

@@ -1,0 +1,11 @@
+This directory contains *.mak files which comprise the Pegasus
+build system.
+
+The build system depends on three environment variables:
+
+    PEGASUS_ACE_ROOT - required (points to ACE_wrappers directory);
+
+    PEGASUS_BUILD - optional (points to build directory; defaults to build
+    directory under root of pegasus distribution).
+
+    PEGASUS_OS_TYPE - optional (defaults to windows; set to unix or windows).

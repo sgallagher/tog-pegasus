@@ -1,0 +1,14 @@
+
+
+    1.	Can properties inherit qualifiers from the superclass?
+
+    2.	Consider the qualifier-list of a property. Are the propagated
+	flags wrong on these qualifiers when a property is propagated
+	from a superclass to a subclass.
+
+    3.	Should the setXXX() method be removed from all the objects:
+
+	    Parameter::setName()
+
+    4.	Should the setValue() method throw an exception if there is
+    	an attempt to change the type?

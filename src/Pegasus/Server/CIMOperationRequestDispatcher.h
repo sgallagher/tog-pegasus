@@ -50,15 +50,14 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/ObjectNormalizer.h>
-
-#include <Pegasus/Server/CIMServer.h>
+#include <Pegasus/Common/QueryExpressionRep.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 
+#include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
-
-#include <Pegasus/Common/QueryExpressionRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -68,50 +67,65 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderInfo
 {
 public:
-    ProviderInfo()
-    {
-    }
     ProviderInfo(CIMName& className)
-            : _className(className),
-	      _hasNoQuery(true),
-              _magicNumber(54321)
+    : className(className),
+      hasNoQuery(true)
     {
     }
-    ProviderInfo(CIMName className, String& serviceName, String& controlProviderName)
-        :   _className(className), _serviceName(serviceName),
-            _controlProviderName(controlProviderName),
-	    _hasNoQuery(true),
-            _magicNumber(54321)
+
+    ProviderInfo(
+        const CIMName& className, 
+        const String& serviceName, 
+        const String& controlProviderName)
+    : className(className),
+      serviceName(serviceName),
+      controlProviderName(controlProviderName),
+      hasNoQuery(true)
     {
     }
-    ~ProviderInfo()
+
+    ProviderInfo(const ProviderInfo& providerInfo)
+    : className(providerInfo.className),
+      serviceName(providerInfo.serviceName),
+      controlProviderName(providerInfo.controlProviderName),
+      hasProvider(providerInfo.hasProvider),
+      hasNoQuery(providerInfo.hasNoQuery)
     {
+        if (providerInfo.providerIdContainer.get() != 0)
+        {
+            providerIdContainer.reset(
+                new ProviderIdContainer(*providerInfo.providerIdContainer));
+        }
     }
-    void setClassName(CIMName className)
+
+    ProviderInfo& operator=(const ProviderInfo& providerInfo)
     {
-    _className = className;
+        if (&providerInfo != this)
+        {
+            className = providerInfo.className;
+            serviceName = providerInfo.serviceName;
+            controlProviderName = providerInfo.controlProviderName;
+            hasProvider = providerInfo.hasProvider;
+            hasNoQuery = providerInfo.hasNoQuery;
+            providerIdContainer.reset();
+            if (providerInfo.providerIdContainer.get() != 0)
+            {
+                providerIdContainer.reset(
+                    new ProviderIdContainer(*providerInfo.providerIdContainer));
+            }
+        }
+        return *this;
     }
-    CIMName getClassName()
-    {
-        return _className;
-    }
-    void setServiceName(String& serviceName)
-    {
-        _serviceName = serviceName;
-    }
-    String getServiceName()
-    {
-        return _serviceName;
-    }
-String _controlProviderName;
-String _serviceName;
-CIMName _className;
-Boolean _hasProvider,_hasNoQuery;
-CIMNamespaceName _nameSpace;
-ProviderIdContainer *_providerIdContainer;
+
+    CIMName className;
+    String serviceName;
+    String controlProviderName;
+    Boolean hasProvider;
+    Boolean hasNoQuery;
+    AutoPtr<ProviderIdContainer> providerIdContainer;
 
 private:
-Uint32 _magicNumber;
+    ProviderInfo() {}
 };
 
 /* Class to manage the aggregation of data required by post processors. This

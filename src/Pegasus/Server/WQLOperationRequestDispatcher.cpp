@@ -321,7 +321,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     for (Uint32 i = 0; i < numClasses; i++)
     {
         // If this class has a provider
-        if (providerInfos[i]._hasProvider)
+        if (providerInfos[i].hasProvider)
         {
             STAT_PROVIDERSTART
 
@@ -329,23 +329,23 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                 Formatter::format(
                     "Query Req. class $0 to svc \"$1\" for "
                         "control provider \"$2\", No $3 of $4, SN $5",
-                    providerInfos[i]._className.getString(),
-                    providerInfos[i]._serviceName,
-                    providerInfos[i]._controlProviderName,
+                    providerInfos[i].className.getString(),
+                    providerInfos[i].serviceName,
+                    providerInfos[i].controlProviderName,
                     i, numClasses, poA->_aggregationSN));
 
-            if (providerInfos[i]._hasNoQuery) {
+            if (providerInfos[i].hasNoQuery) {
 	       // if (getenv("CMPI_DEBUG")) asm("int $3");
 	       CIMEnumerateInstancesRequestMessage *enumReq=
 	          new CIMEnumerateInstancesRequestMessage(
 		     request->messageId, request->nameSpace,
-		     providerInfos[i]._className,
+		     providerInfos[i].className,
 		     false,false,false,false,CIMPropertyList(),
 		     request->queueIds,request->authType,
 		     ((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName()); 
 
-                _forwardRequestForAggregation(providerInfos[i]._serviceName,
-                      providerInfos[i]._controlProviderName, enumReq, poA);
+                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                      providerInfos[i].controlProviderName, enumReq, poA);
 	    }
 
 	    else {
@@ -353,10 +353,10 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                AutoPtr<CIMExecQueryRequestMessage> requestCopy(
                    new CIMExecQueryRequestMessage(*request));
 
-               requestCopy->className = providerInfos[i]._className;
+               requestCopy->className = providerInfos[i].className;
 
-               _forwardRequestForAggregation(providerInfos[i]._serviceName,
-                   providerInfos[i]._controlProviderName, requestCopy.release(), poA);
+               _forwardRequestForAggregation(providerInfos[i].serviceName,
+                   providerInfos[i].controlProviderName, requestCopy.release(), poA);
 	    }
 
             STAT_PROVIDEREND
@@ -369,13 +369,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         for (Uint32 i = 0; i < numClasses; i++)
         {
             // If this class does not have a provider
-            if (!providerInfos[i]._hasProvider)
+            if (!providerInfos[i].hasProvider)
             {
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     Formatter::format(
                         "ExcecQuery Req. class $0 to repository, "
                             "No $1 of $2, SN $3",
-                        providerInfos[i]._className.getString(),
+                        providerInfos[i].className.getString(),
                         i, numClasses, poA->_aggregationSN));
 
                 CIMException cimException;
@@ -389,7 +389,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                     cimInstances =
                         _repository->enumerateInstancesForClass(
                             request->nameSpace,
-                            providerInfos[i]._className,
+                            providerInfos[i].className,
                             false);
                 }
                 catch(CIMException& exception)

@@ -691,7 +691,7 @@ Boolean _mergePropertyLists(const CIMClass cl, const Boolean localOnly,
    This is because the array returned is all subclasses, not simply those
    with providers.
    @return Returns an array of ProviderInfo, one entry for each subclass.
-   Each ProviderInfo instance defines whether a provider esists and the
+   Each ProviderInfo instance defines whether a provider exists and the
    information on the provider so that the operation can be forwarded to the
    provider.
    @exception - returns one exception if the className is in error.  Note that
@@ -705,7 +705,7 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
 		    Boolean is_query)  throw(CIMException)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-           "CIMOperationRequestDispatcher::_lookupAllInstanceProviders");
+        "CIMOperationRequestDispatcher::_lookupAllInstanceProviders");
 
     // NOTE: This function can generate an exception.
     Array<CIMName> classNames = _getSubClassNames(nameSpace,className);
@@ -715,47 +715,44 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
 
     // Loop for all classNames found
     for(Uint32 i = 0; i < classNames.size(); i++)
-   {
-       String serviceName = String::EMPTY;
-       String controlProviderName = String::EMPTY;
-	   ProviderIdContainer *container=NULL;
+    {
+        String serviceName = String::EMPTY;
+        String controlProviderName = String::EMPTY;
+        ProviderIdContainer *container=NULL;
 
-       ProviderInfo pi(classNames[i]);
+        ProviderInfo pi(classNames[i]);
 
-       // Lookup any instance providers and add to send list
-       if(_lookupNewInstanceProvider(nameSpace, classNames[i],
-                        serviceName, controlProviderName,&container,
-			is_query ? &pi._hasNoQuery : NULL))
-		{
-           // Append the returned values to the list to send.
-           pi._serviceName = serviceName;
-           pi._controlProviderName = controlProviderName;
-           pi._hasProvider = true;
-		   if(container!=NULL)
-				pi._providerIdContainer = container;
-		   else
-		        pi._providerIdContainer = NULL;
-           providerCount++;
-           CDEBUG("FoundProvider for class = " << classNames[i].getString());
-           PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-               "Provider found for Class = " + classNames[i].getString() +
-                   " servicename = " + serviceName +
-                   " controlProviderName = " +
-                   ((controlProviderName.size()) ? controlProviderName
-                                                 : String("None")));
-		}
-       else
-       {
-           pi._serviceName = String::EMPTY;
-           pi._controlProviderName = String::EMPTY;
-		   pi._providerIdContainer = NULL;
-           pi._hasProvider = false;
-           CDEBUG("No provider for class = " << classNames[i].getString());
-       }
-       providerInfoList.append(pi);
-   }
-   PEG_METHOD_EXIT();
-   return (providerInfoList);
+        // Lookup any instance providers and add to send list
+        if (_lookupNewInstanceProvider(nameSpace, classNames[i],
+                serviceName, controlProviderName,&container,
+                is_query ? &pi.hasNoQuery : NULL))
+        {
+            // Append the returned values to the list to send.
+            pi.serviceName = serviceName;
+            pi.controlProviderName = controlProviderName;
+            pi.hasProvider = true;
+            pi.providerIdContainer.reset(container);
+            providerCount++;
+            CDEBUG("FoundProvider for class = " << classNames[i].getString());
+            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                "Provider found for Class = " + classNames[i].getString() +
+                    " servicename = " + serviceName +
+                    " controlProviderName = " +
+                    ((controlProviderName.size()) ? controlProviderName
+                                                  : String("None")));
+        }
+        else
+        {
+            pi.serviceName = String::EMPTY;
+            pi.controlProviderName = String::EMPTY;
+            pi.providerIdContainer.reset();
+            pi.hasProvider = false;
+            CDEBUG("No provider for class = " << classNames[i].getString());
+        }
+        providerInfoList.append(pi);
+    }
+    PEG_METHOD_EXIT();
+    return (providerInfoList);
 }
 
 /* _lookupInstanceProvider - Looks up the instance provider for the
@@ -961,7 +958,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     @returns List of ProviderInfo
     @exception - Exceptions From the Repository
     */
- Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllAssociationProviders(
+Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllAssociationProviders(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -1057,7 +1054,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
         String serviceName = String::EMPTY;
         String controlProviderName = String::EMPTY;
         ProviderInfo pi(classNames[i]);
-		ProviderIdContainer *container=NULL;
+        ProviderIdContainer *container=NULL;
 
         // We use the returned classname for the association classname
         // under the assumption that the registration is for the
@@ -1066,13 +1063,10 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
             serviceName, controlProviderName,&container))
         {
             //CDEBUG("LookupNew return. Class = " <<   classNames[i]);
-            pi._serviceName = serviceName;
-            pi._controlProviderName = controlProviderName;
-            pi._hasProvider = true;
-		    if(container!=NULL)
-				pi._providerIdContainer = container;
-		    else
-		        pi._providerIdContainer = NULL;
+            pi.serviceName = serviceName;
+            pi.controlProviderName = controlProviderName;
+            pi.hasProvider = true;
+            pi.providerIdContainer.reset(container);
             providerCount++;
             CDEBUG("Found Association Provider for class = " << classNames[i].getString());
 
@@ -1088,8 +1082,8 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
         }
         else
         {
-            pi._hasProvider = false;
-            pi._providerIdContainer = NULL;
+            pi.hasProvider = false;
+            pi.providerIdContainer.reset();
         }
         providerInfoList.append(pi);
     }
@@ -3452,11 +3446,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         return;
     }
 
-   //
-   // Get names of descendent classes:
-   //
-   //CIMException cimException;
-   //Array<ProviderInfo> providerInfos;
+    //
+    // Get names of descendent classes:
+    //
 
     // We have instances for Providers and possibly repository.
     // Set up an aggregate object and save a copy of the original request.
@@ -3485,7 +3477,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     {
         // If this class has a provider
         CIMClass cimClassLocal;
-        if (providerInfos[i]._hasProvider)
+        if (providerInfos[i].hasProvider)
         {
             STAT_PROVIDERSTART
 
@@ -3493,23 +3485,26 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 Formatter::format(
                     "EnumerateInstances Req. class $0 to svc \"$1\" for "
                         "control provider \"$2\", No $3 of $4, SN $5",
-                    providerInfos[i]._className.getString(),
-                    providerInfos[i]._serviceName,
-                    providerInfos[i]._controlProviderName,
+                    providerInfos[i].className.getString(),
+                    providerInfos[i].serviceName,
+                    providerInfos[i].controlProviderName,
                     i, numClasses, poA->_aggregationSN));
 
             CIMEnumerateInstancesRequestMessage* requestCopy =
                 new CIMEnumerateInstancesRequestMessage(*request);
 
-            requestCopy->className = providerInfos[i]._className;
+            requestCopy->className = providerInfos[i].className;
 
-            if (providerInfos[i]._providerIdContainer != NULL)
-                requestCopy->operationContext.insert(*(providerInfos[i]._providerIdContainer));
+            if (providerInfos[i].providerIdContainer.get() != 0)
+            {
+                requestCopy->operationContext.insert(
+                    *(providerInfos[i].providerIdContainer.get()));
+            }
 
             CIMException checkClassException;
             if (request->deepInheritance && !request->propertyList.isNull())
             {
-                cimClassLocal = _getClass(request->nameSpace, providerInfos[i]._className,
+                cimClassLocal = _getClass(request->nameSpace, providerInfos[i].className,
                                                 checkClassException);
                 // The following is not correct. Need better way to terminate.
                 if (checkClassException.getCode() != CIM_ERR_SUCCESS)
@@ -3534,8 +3529,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 }
             }
             // Save for test cout << _toStringPropertyList(requestCopy->propertyList) << endl;
-            _forwardRequestForAggregation(providerInfos[i]._serviceName,
-                providerInfos[i]._controlProviderName, requestCopy, poA);
+            _forwardRequestForAggregation(providerInfos[i].serviceName,
+                providerInfos[i].controlProviderName, requestCopy, poA);
             STAT_PROVIDEREND
         }
     }
@@ -3549,13 +3544,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         for (Uint32 i = 0; i < numClasses; i++)
         {
             // If this class does not have a provider
-            if (!providerInfos[i]._hasProvider)
+            if (!providerInfos[i].hasProvider)
             {
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     Formatter::format(
                         "EnumerateInstances Req. class $0 to repository, "
                             "No $1 of $2, SN $3",
-                        providerInfos[i]._className.getString(),
+                        providerInfos[i].className.getString(),
                         i, numClasses, poA->_aggregationSN));
 
                 CIMException cimException;
@@ -3569,7 +3564,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     cimNamedInstances =
                         _repository->enumerateInstancesForClass(
                             request->nameSpace,
-                            providerInfos[i]._className,
+                            providerInfos[i].className,
                             request->deepInheritance,
                             request->localOnly,
                             request->includeQualifiers,
@@ -3785,7 +3780,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     for (Uint32 i = 0; i < numClasses; i++)
     {
         // If this class has a provider
-        if (providerInfos[i]._hasProvider)
+        if (providerInfos[i].hasProvider)
         {
             STAT_PROVIDERSTART
 
@@ -3793,21 +3788,24 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                 Formatter::format(
                     "EnumerateInstanceNames Req. class $0 to svc \"$1\" for "
                         "control provider \"$2\", No $3 of $4, SN $5",
-                    providerInfos[i]._className.getString(),
-                    providerInfos[i]._serviceName,
-                    providerInfos[i]._controlProviderName,
+                    providerInfos[i].className.getString(),
+                    providerInfos[i].serviceName,
+                    providerInfos[i].controlProviderName,
                     i, numClasses, poA->_aggregationSN));
 
             CIMEnumerateInstanceNamesRequestMessage* requestCopy =
                 new CIMEnumerateInstanceNamesRequestMessage(*request);
 
-            requestCopy->className = providerInfos[i]._className;
+            requestCopy->className = providerInfos[i].className;
 
-			if((providerInfos[i]._providerIdContainer)!=NULL)
-				requestCopy->operationContext.insert(*(providerInfos[i]._providerIdContainer));
+            if (providerInfos[i].providerIdContainer.get() != 0)
+            {
+                requestCopy->operationContext.insert(
+                    *(providerInfos[i].providerIdContainer.get()));
+            }
 
-            _forwardRequestForAggregation(providerInfos[i]._serviceName,
-                providerInfos[i]._controlProviderName, requestCopy, poA);
+            _forwardRequestForAggregation(providerInfos[i].serviceName,
+                providerInfos[i].controlProviderName, requestCopy, poA);
 
             STAT_PROVIDEREND
         }
@@ -3819,13 +3817,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         for (Uint32 i = 0; i < numClasses; i++)
         {
             // If this class does not have a provider
-            if (!providerInfos[i]._hasProvider)
+            if (!providerInfos[i].hasProvider)
             {
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     Formatter::format(
                         "EnumerateInstanceNames Req. class $0 to repository, "
                             "No $1 of $2, SN $3",
-                        providerInfos[i]._className.getString(),
+                        providerInfos[i].className.getString(),
                         i, numClasses, poA->_aggregationSN));
 
                 CIMException cimException;
@@ -3839,7 +3837,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                     cimInstanceNames =
                         _repository->enumerateInstanceNamesForClass(
                             request->nameSpace,
-                            providerInfos[i]._className,
+                            providerInfos[i].className,
                             false);
                 }
                 catch(CIMException& exception)
@@ -4011,11 +4009,11 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         // Determine list of providers for this request
         //
 
-        Array<ProviderInfo> providerInfo;
+        Array<ProviderInfo> providerInfos;
         Uint32 providerCount;
         try
         {
-            providerInfo = _lookupAllAssociationProviders(
+            providerInfos = _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
                 request->assocClass,
@@ -4126,24 +4124,27 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         poA->setTotalIssued(providerCount+1);
         poA->appendResponse(response);  // Save the repository's results
 
-        for (Uint32 i = 0; i < providerInfo.size(); i++)
+        for (Uint32 i = 0; i < providerInfos.size(); i++)
         {
-            if (providerInfo[i]._hasProvider)
+            if (providerInfos[i].hasProvider)
             {
                 CIMAssociatorsRequestMessage* requestCopy =
                     new CIMAssociatorsRequestMessage(*request);
                 // Insert the association class name to limit the provider
                 // to this class.
-                requestCopy->assocClass = providerInfo[i]._className;
+                requestCopy->assocClass = providerInfos[i].className;
 
-			    if((providerInfo[i]._providerIdContainer)!=NULL)
-				    requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer));
+                if (providerInfos[i].providerIdContainer.get() != 0)
+                {
+                    requestCopy->operationContext.insert(
+                        *(providerInfos[i].providerIdContainer.get()));
+                }
 
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
-                    providerInfo[i]._className.getString());
-                _forwardRequestForAggregation(providerInfo[i]._serviceName,
-                    providerInfo[i]._controlProviderName, requestCopy, poA);
+                    providerInfos[i].className.getString());
+                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                    providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
             }
         }
@@ -4281,11 +4282,11 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         // Determine list of providers for this request
         //
 
-        Array<ProviderInfo> providerInfo;
+        Array<ProviderInfo> providerInfos;
         Uint32 providerCount;
         try
         {
-            providerInfo = _lookupAllAssociationProviders(
+            providerInfos = _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
                 request->assocClass,
@@ -4393,24 +4394,27 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         poA->setTotalIssued(providerCount+1);
         poA->appendResponse(response);  // Save the repository's results
 
-        for (Uint32 i = 0; i < providerInfo.size(); i++)
+        for (Uint32 i = 0; i < providerInfos.size(); i++)
         {
-            if (providerInfo[i]._hasProvider)
+            if (providerInfos[i].hasProvider)
             {
                 CIMAssociatorNamesRequestMessage* requestCopy =
                     new CIMAssociatorNamesRequestMessage(*request);
                 // Insert the association class name to limit the provider
                 // to this class.
-                requestCopy->assocClass = providerInfo[i]._className;
+                requestCopy->assocClass = providerInfos[i].className;
 
-			    if((providerInfo[i]._providerIdContainer)!=NULL)
-				    requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer));
+                if (providerInfos[i].providerIdContainer.get() != 0)
+                {
+                    requestCopy->operationContext.insert(
+                        *(providerInfos[i].providerIdContainer.get()));
+                }
 
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
-                    providerInfo[i]._className.getString());
-                _forwardRequestForAggregation(providerInfo[i]._serviceName,
-                    providerInfo[i]._controlProviderName, requestCopy, poA);
+                    providerInfos[i].className.getString());
+                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                    providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
             }
         }
@@ -4549,11 +4553,11 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         // Determine list of providers for this request
         //
 
-        Array<ProviderInfo> providerInfo;
+        Array<ProviderInfo> providerInfos;
         Uint32 providerCount;
         try
         {
-            providerInfo = _lookupAllAssociationProviders(
+            providerInfos = _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
                 request->resultClass,
@@ -4662,24 +4666,27 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         poA->setTotalIssued(providerCount+1);
         poA->appendResponse(response);  // Save the repository's results
 
-        for (Uint32 i = 0; i < providerInfo.size(); i++)
+        for (Uint32 i = 0; i < providerInfos.size(); i++)
         {
-            if (providerInfo[i]._hasProvider)
+            if (providerInfos[i].hasProvider)
             {
                 CIMReferencesRequestMessage* requestCopy =
                     new CIMReferencesRequestMessage(*request);
                 // Insert the association class name to limit the provider
                 // to this class.
-                requestCopy->resultClass = providerInfo[i]._className;
+                requestCopy->resultClass = providerInfos[i].className;
 
-			   if((providerInfo[i]._providerIdContainer)!=NULL)
-				   requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer));
+                if (providerInfos[i].providerIdContainer.get() != 0)
+                {
+                    requestCopy->operationContext.insert(
+                        *(providerInfos[i].providerIdContainer.get()));
+                }
 
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
-                    providerInfo[i]._className.getString());
-                _forwardRequestForAggregation(providerInfo[i]._serviceName,
-                    providerInfo[i]._controlProviderName, requestCopy, poA);
+                    providerInfos[i].className.getString());
+                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                    providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
             }
         }
@@ -4815,11 +4822,11 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         // Determine list of providers for this request
         //
 
-        Array<ProviderInfo> providerInfo;
+        Array<ProviderInfo> providerInfos;
         Uint32 providerCount;
         try
         {
-            providerInfo = _lookupAllAssociationProviders(
+            providerInfos = _lookupAllAssociationProviders(
                 request->nameSpace,
                 request->objectName,
                 request->resultClass,
@@ -4925,24 +4932,27 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         poA->setTotalIssued(providerCount+1);
         poA->appendResponse(response);  // Save the repository's results
 
-        for (Uint32 i = 0; i < providerInfo.size(); i++)
+        for (Uint32 i = 0; i < providerInfos.size(); i++)
         {
-            if (providerInfo[i]._hasProvider)
+            if (providerInfos[i].hasProvider)
             {
                 CIMReferenceNamesRequestMessage* requestCopy =
                     new CIMReferenceNamesRequestMessage(*request);
                 // Insert the association class name to limit the provider
                 // to this class.
-                requestCopy->resultClass = providerInfo[i]._className;
+                requestCopy->resultClass = providerInfos[i].className;
 
-			if((providerInfo[i]._providerIdContainer)!=NULL)
-				requestCopy->operationContext.insert(*(providerInfo[i]._providerIdContainer));
+                if (providerInfos[i].providerIdContainer.get() != 0)
+                {
+                    requestCopy->operationContext.insert(
+                        *(providerInfos[i].providerIdContainer.get()));
+                }
 
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     "Forwarding to provider for class " +
-                    providerInfo[i]._className.getString());
-                _forwardRequestForAggregation(providerInfo[i]._serviceName,
-                    providerInfo[i]._controlProviderName, requestCopy, poA);
+                    providerInfos[i].className.getString());
+                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                    providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
             }
         }
@@ -5640,7 +5650,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     for (Uint32 i = 0; i < numClasses; i++)
     {
         // If this class has a provider
-        if (providerInfos[i]._hasProvider)
+        if (providerInfos[i].hasProvider)
         {
             STAT_PROVIDERSTART
 
@@ -5648,17 +5658,17 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                 Formatter::format(
                     "Query Req. class $0 to svc \"$1\" for "
                         "control provider \"$2\", No $3 of $4, SN $5",
-                    providerInfos[i]._className.getString(),
-                    providerInfos[i]._serviceName,
-                    providerInfos[i]._controlProviderName,
+                    providerInfos[i].className.getString(),
+                    providerInfos[i].serviceName,
+                    providerInfos[i].controlProviderName,
                     i, numClasses, poA->_aggregationSN));
 
-            if (providerInfos[i]._hasNoQuery) {
+            if (providerInfos[i].hasNoQuery) {
 	       // if (getenv("CMPI_DEBUG")) asm("int $3");
 	       CIMEnumerateInstancesRequestMessage *enumReq=
 	          new CIMEnumerateInstancesRequestMessage(
 		     request->messageId, request->nameSpace,
-		     providerInfos[i]._className,
+		     providerInfos[i].className,
 		     false,false,false,false,CIMPropertyList(),
 		     request->queueIds,request->authType,
 	        ((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).
@@ -5668,8 +5678,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 			((AcceptLanguageListContainer)request->operationContext.get(AcceptLanguageListContainer::NAME)).
 					getLanguages());
 		
-                _forwardRequestForAggregation(providerInfos[i]._serviceName,
-                      providerInfos[i]._controlProviderName, enumReq, poA);
+                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                      providerInfos[i].controlProviderName, enumReq, poA);
 	    }
 
 	    else {
@@ -5677,10 +5687,10 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                CIMExecQueryRequestMessage* requestCopy =
                    new CIMExecQueryRequestMessage(*request);
 
-               requestCopy->className = providerInfos[i]._className;
+               requestCopy->className = providerInfos[i].className;
 
-               _forwardRequestForAggregation(providerInfos[i]._serviceName,
-                   providerInfos[i]._controlProviderName, requestCopy, poA);
+               _forwardRequestForAggregation(providerInfos[i].serviceName,
+                   providerInfos[i].controlProviderName, requestCopy, poA);
 	    }
 
             STAT_PROVIDEREND
@@ -5693,13 +5703,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
         for (Uint32 i = 0; i < numClasses; i++)
         {
             // If this class does not have a provider
-            if (!providerInfos[i]._hasProvider)
+            if (!providerInfos[i].hasProvider)
             {
                 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                     Formatter::format(
                         "ExcecQuery Req. class $0 to repository, "
                             "No $1 of $2, SN $3",
-                        providerInfos[i]._className.getString(),
+                        providerInfos[i].className.getString(),
                         i, numClasses, poA->_aggregationSN));
 
                 CIMException cimException;
@@ -5713,7 +5723,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                     cimInstances =
                         _repository->enumerateInstancesForClass(
                             request->nameSpace,
-                            providerInfos[i]._className,
+                            providerInfos[i].className,
                             false);
                 }
                 catch(CIMException& exception)

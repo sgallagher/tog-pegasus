@@ -115,8 +115,8 @@ public:
     */
     void setClassOrigin(const CIMName& classOrigin);
 
-    /** getPropagated - Tests the propogated qualifier
-        @return - returns True if method is propogated
+    /** getPropagated - Tests the propagated qualifier
+        @return - returns True if method is propagated
     */
     Boolean getPropagated() const;
 
@@ -187,6 +187,16 @@ public:
 
     /** getParameter - const form */
     CIMConstParameter getParameter(Uint32 pos) const;
+
+    /** removeParameter - Removes the CIMParameter defined by the
+	specified index
+
+	@param pos index of the parameter to be removed
+
+	@exception OutOfBounds if the index is outside the range of
+	                       parameters available from the CIMMethod
+    */
+    void removeParameter (Uint32 pos);
 
     /** getParameterCount - Gets the count of the numbeer of
 	Parameters attached to the CIMMethod.

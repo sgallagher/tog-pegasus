@@ -133,6 +133,8 @@ public:
 	return ((CIMMethodRep*)this)->getParameter(pos);
     }
 
+    void removeParameter (Uint32 pos);
+
     Uint32 getParameterCount() const;
 
     void resolve(

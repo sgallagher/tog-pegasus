@@ -3177,7 +3177,7 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
         //
         //  If provider matches, append subscription to the list
         //
-        if (i.value ().provider == provider)
+        if (i.value ().provider.identical (provider))
         {
             providerSubscriptions.append (i.value ().subscription);
         }
@@ -4797,7 +4797,7 @@ void IndicationService::_sendAlerts (
         duplicate = false;
         for (Uint8 j = 0; j < handlers.size () && !duplicate; j++)
         {
-            if ((current == handlers [j]) &&
+            if ((current.identical (handlers [j])) &&
                 (current.getPath () == handlers [j].getPath ()))
             {
                 duplicate = true;

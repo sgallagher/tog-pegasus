@@ -230,7 +230,7 @@ void test01()
     // Test the findMethod and isMethod functions
     assert(c7.findMethod("DoesNotExist") == PEG_NOT_FOUND);
 
-    assert(c7.isTrueQualifier("dummy") == false);
+    assert(c7.findQualifier("dummy") == PEG_NOT_FOUND);
 
     try
     {

@@ -152,11 +152,9 @@ public:
 
     Boolean identical(const CIMPropertyRep* x) const;
 
-    Boolean isKey() const;
-
-    CIMPropertyRep* clone(Boolean propagateQualifiers) const
+    CIMPropertyRep* clone() const
     {
-	return new CIMPropertyRep(*this, propagateQualifiers);
+	return new CIMPropertyRep(*this, true);
     }
 
 private:

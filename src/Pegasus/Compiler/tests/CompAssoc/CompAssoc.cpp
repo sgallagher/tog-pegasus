@@ -73,7 +73,7 @@ void TestAssociations(CIMRepository& r)
 	CIMInstance cimInstance = CIMInstance(result[0]);
 
 	CIMClass tmpClass = r.getClass(nameSpace, cimInstance.getClassName());
-	CIMObjectPath tmpInstanceName = cimInstance.getInstanceName(tmpClass);
+	CIMObjectPath tmpInstanceName = cimInstance.buildPath(tmpClass);
 
 	Boolean t = tmpInstanceName == CIMObjectPath("Y.key=\"John Jones\"");
 	assert(t);
@@ -114,7 +114,7 @@ void TestAssociations(CIMRepository& r)
 	    nameSpace, CIMInstance(result[0]).getClassName());
 
 	CIMObjectPath tmpInstanceName = 
-	    CIMInstance(result[0]).getInstanceName(tmpClass);
+	    CIMInstance(result[0]).buildPath(tmpClass);
 
 	CIMObjectPath tmp = CIMObjectPath ("A."
 	    "left=\"x.key=\\\"John Smith\\\"\","

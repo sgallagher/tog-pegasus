@@ -107,6 +107,8 @@ public:
 	return _qualifiers.getQualifier(pos);
     }
 
+    void removeQualifier (Uint32 pos);
+
     Uint32 getQualifierCount() const
     {
 	return _qualifiers.getCount();

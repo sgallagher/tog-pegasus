@@ -196,7 +196,7 @@ void test01()
 	if(verbose)
 		XmlWriter::printInstanceElement(cinstance1);
   
-    cinstance1.getInstanceName(class1);
+    cinstance1.buildPath(class1);
  
     assert( !cinstance1.isUninitialized() );
 
@@ -238,7 +238,7 @@ void test02()
 
 
     CIMObjectPath instanceName
-	= cimInstance.getInstanceName(CIMConstClass(cimClass));
+	= cimInstance.buildPath(CIMConstClass(cimClass));
 
     CIMObjectPath tmp("myclass.age=101,first=\"John\",last=\"Smith\"");
 

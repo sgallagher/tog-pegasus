@@ -143,12 +143,6 @@ Uint32 CIMClass::findQualifier(const CIMName& name) const
     return _rep->findQualifier(name);
 }
 
-Boolean CIMClass::isTrueQualifier(const CIMName& name) const
-{
-    _checkRep();
-    return _rep->isTrueQualifier(name);
-}
-
 CIMQualifier CIMClass::getQualifier(Uint32 pos)
 {
     _checkRep();
@@ -389,12 +383,6 @@ CIMConstQualifier CIMConstClass::getQualifier(Uint32 pos) const
 {
     _checkRep();
     return _rep->getQualifier(pos);
-}
-
-Boolean CIMConstClass::isTrueQualifier(const CIMName& name) const
-{
-    _checkRep();
-    return _rep->isTrueQualifier(name);
 }
 
 Uint32 CIMConstClass::getQualifierCount() const

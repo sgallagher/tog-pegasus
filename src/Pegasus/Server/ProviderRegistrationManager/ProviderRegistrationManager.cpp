@@ -174,6 +174,21 @@ struct RegistrationTable
     Table table;
 };
 
+Boolean containsCIMInstance (
+    const Array <CIMInstance> & instanceArray, 
+    const CIMInstance & instance)
+{
+    Uint32 size = instanceArray.size ();
+
+    for (Uint32 i = 0; i < size; i++)
+    {
+        if (instanceArray [i].identical (instance))
+            return true;
+    }
+
+    return false;
+}
+
 ProviderRegistrationManager::ProviderRegistrationManager(CIMRepository* repository)	
     : _repository(repository)
 {
@@ -642,7 +657,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    // if the instance of the PG_Provider was not in the list, add the
 	    // instance to the list, also, add the instance of the provider module
 	    // to the list
-	    if (!Contains (provider, _providerInstances[0]))
+	    if (!containsCIMInstance (provider, _providerInstances[0]))
 	    {
 		provider.append(_providerInstances[0]);
 		providerModule.append(_providerModuleInstances[0]);
@@ -703,7 +718,7 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 		     // the instance to the list; also, add the instance of the 
 		     // provider module to the list 
 		     //
-		     if (!Contains (provider, _providerInstances[0]))
+		     if (!containsCIMInstance (provider, _providerInstances[0]))
             	     {
                 	provider.append(_providerInstances[0]);
                      	providerModule.append(_providerModuleInstances[0]);

@@ -215,15 +215,9 @@ Boolean CIMProperty::identical(const CIMConstProperty& x) const
     return _rep->identical(x._rep);
 }
 
-Boolean CIMProperty::isKey() const
+CIMProperty CIMProperty::clone() const
 {
-    _checkRep();
-    return _rep->isKey();
-}
-
-CIMProperty CIMProperty::clone(Boolean propagateQualifiers) const
-{
-    return CIMProperty(_rep->clone(propagateQualifiers));
+    return CIMProperty(_rep->clone());
 }
 
 void CIMProperty::_checkRep() const
@@ -368,15 +362,9 @@ Boolean CIMConstProperty::identical(const CIMConstProperty& x) const
     return _rep->identical(x._rep);
 }
 
-Boolean CIMConstProperty::isKey() const
+CIMProperty CIMConstProperty::clone() const
 {
-    _checkRep();
-    return _rep->isKey();
-}
-
-CIMProperty CIMConstProperty::clone(Boolean propagateQualifiers) const
-{
-    return CIMProperty(_rep->clone(propagateQualifiers));
+    return CIMProperty(_rep->clone());
 }
 
 void CIMConstProperty::_checkRep() const

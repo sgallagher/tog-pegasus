@@ -82,6 +82,14 @@ void CIMParameterRep::setName(const CIMName& name)
     _name = name; 
 }
 
+void CIMParameterRep::removeQualifier (Uint32 pos)
+{
+    if (pos >= _qualifiers.getCount ())
+        throw OutOfBounds ();
+
+    _qualifiers.removeQualifier (pos);
+}
+
 void CIMParameterRep::resolve(
     DeclContext* declContext,
     const CIMNamespaceName& nameSpace)

@@ -159,17 +159,7 @@ public:
     */
     Uint32 findQualifier(const CIMName& name) const;
 
-    /** isTrueQualifier - Determines if the qualifier defined by
-	the input parameter exists for the class, is Boolean, and
-	has a value of true.
-	This function is useful to quickly determine the state of a
-	qualifier.
-	@param CIMName containing the qualifier  name.
-	@return Boolean True if the qualifier exists, 
-    */
-    Boolean isTrueQualifier(const CIMName& name) const;
-
-/**	getQualifier - Gets the CIMQualifier object defined
+    /**	getQualifier - Gets the CIMQualifier object defined
 	by the input parameter
 	@param pos defines the position of the qualifier in the class from the
 	findQualifier method
@@ -179,8 +169,8 @@ public:
     CIMQualifier getQualifier(Uint32 pos);
 
     /** getQualifier - Gets the qualifier defined by the input parameter
-		from the qualifier list for this CIMClass.
-	*/
+	from the qualifier list for this CIMClass.
+    */
     CIMConstQualifier getQualifier(Uint32 pos) const;
 
     /** removeQualifier - Removes the qualifier defined by the
@@ -375,8 +365,6 @@ public:
     Uint32 findQualifier(const CIMName& name) const;
 
     CIMConstQualifier getQualifier(Uint32 pos) const;
-
-    Boolean isTrueQualifier(const CIMName& name) const;
 
     Uint32 getQualifierCount() const;
 

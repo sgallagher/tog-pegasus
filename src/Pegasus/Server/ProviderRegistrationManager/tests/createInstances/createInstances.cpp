@@ -60,7 +60,7 @@ void TestCreateInstances(ProviderRegistrationManager prmanager)
     cimInstance.addProperty(CIMProperty("InterfaceVersion", String("2.0")));
     cimInstance.addProperty(CIMProperty("Location", String("/tmp/module1")));
 
-    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
 
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
@@ -85,7 +85,7 @@ void TestCreateInstances(ProviderRegistrationManager prmanager)
     cimInstance2.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
     cimInstance2.addProperty(CIMProperty("Name", String("PG_ProviderInstance1")));
 
-    CIMObjectPath instanceName2 = cimInstance2.getInstanceName(cimClass2);
+    CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
 
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
@@ -135,7 +135,7 @@ void TestCreateInstances(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
     cimInstance3.addProperty(CIMProperty("SupportedProperties", supportedProperties));
 
-    CIMObjectPath instanceName3 = cimInstance3.getInstanceName(cimClass3);
+    CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
 
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);

@@ -110,8 +110,6 @@ public:
     */
     const CIMName& getName() const;
 
-    // ATTN: P3 please hide this. The only way a name should be
-    // set is through a constructor.
     /** setName - Set the property name.
 		@param name Name to set as parameter name
     */
@@ -156,8 +154,8 @@ public:
     */
     void setClassOrigin(const CIMName& classOrigin);
 
-    /** getPropagated - Tests if this property is propogated.
-	@return - Returns true if the class is propogated.
+    /** getPropagated - Tests if this property is propagated.
+	@return - Returns true if the class is propagated.
     */
     Boolean getPropagated() const;
 
@@ -227,15 +225,8 @@ public:
     */
     Boolean identical(const CIMConstProperty& x) const;
 
-    /** isKey - Tests the CIMProperty to determine if any
-        qualifiers is a key indicating that this is a key
-	property
-	@return Returns true if this is a key property.
-    */
-    Boolean isKey() const;
-
     // clone - ATTN: P3 Documentation
-    CIMProperty clone(Boolean propagateQualifiers) const;
+    CIMProperty clone() const;
 
     /**
         Determines if the object has not been initialized.
@@ -320,9 +311,7 @@ public:
 
     Boolean identical(const CIMConstProperty& x) const;
 
-    Boolean isKey() const;
-
-    CIMProperty clone(Boolean propagateQualifiers) const;
+    CIMProperty clone() const;
 
     Boolean isUninitialized() const;
 

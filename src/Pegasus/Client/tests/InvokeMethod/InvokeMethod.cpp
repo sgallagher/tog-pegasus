@@ -23,6 +23,9 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -48,7 +51,7 @@ int main(int argc, char** argv)
       cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
       cimInstance.addProperty(CIMProperty("trapOid", String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
       cimInstance.addProperty(CIMProperty("computerName", String("NU744781")));
-      CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+      CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
       instanceName.setNameSpace(NAMESPACE);
       client.createInstance(NAMESPACE, cimInstance);
       

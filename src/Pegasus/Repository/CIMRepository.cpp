@@ -855,7 +855,7 @@ CIMObjectPath CIMRepository::createInstance(
     CIMConstClass cimClass;
     Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
         false);
-    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
 
     //
     // Make sure the class has keys (otherwise it will be impossible to
@@ -1283,7 +1283,7 @@ void CIMRepository::modifyInstance(
     Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
         false);
 
-    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
 
     //
     // Disallow operation if the instance name was changed:

@@ -61,7 +61,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance.addProperty(CIMProperty("InterfaceVersion", String("2.0")));
     cimInstance.addProperty(CIMProperty("Location", String("/tmp/module1")));
 
-    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
 
     instanceName.setNameSpace(NAMESPACE);
     instanceName.setClassName(CLASSNAME);
@@ -86,7 +86,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance2.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
     cimInstance2.addProperty(CIMProperty("Name", String("PG_ProviderInstance1")));
 
-    CIMObjectPath instanceName2 = cimInstance2.getInstanceName(cimClass2);
+    CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
 
     instanceName2.setNameSpace(NAMESPACE);
     instanceName2.setClassName(CLASSNAME2);
@@ -109,7 +109,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance4.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
     cimInstance4.addProperty(CIMProperty("Name", String("PG_ProviderInstance2")));
 
-    CIMObjectPath instanceName4 = cimInstance4.getInstanceName(cimClass4);
+    CIMObjectPath instanceName4 = cimInstance4.buildPath(cimClass4);
 
     instanceName4.setNameSpace(NAMESPACE);
     instanceName4.setClassName(CLASSNAME2);
@@ -161,7 +161,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
     cimInstance3.addProperty(CIMProperty("SupportedProperties", supportedProperties));
 
-    CIMObjectPath instanceName3 = cimInstance3.getInstanceName(cimClass3);
+    CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
 
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
@@ -197,7 +197,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance5.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance5.addProperty(CIMProperty("SupportedProperties", supportedProperties2));
 
-    CIMObjectPath instanceName5 = cimInstance5.getInstanceName(cimClass5);
+    CIMObjectPath instanceName5 = cimInstance5.buildPath(cimClass5);
 
     instanceName5.setNameSpace(NAMESPACE);
     instanceName5.setClassName(CLASSNAME3);

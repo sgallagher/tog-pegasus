@@ -97,6 +97,14 @@ CIMParameter CIMMethodRep::getParameter(Uint32 pos)
     return _parameters[pos];
 }
 
+void CIMMethodRep::removeParameter (Uint32 pos)
+{
+    if (pos >= _parameters.size ())
+	throw OutOfBounds ();
+
+    _parameters.remove (pos);
+}
+
 Uint32 CIMMethodRep::getParameterCount() const
 {
     return _parameters.size();

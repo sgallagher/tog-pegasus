@@ -171,7 +171,7 @@ void CIMInstanceRep::resolve(
 
 		if (!found)
 		{
-			CIMProperty p = property.clone(propagateQualifiers);
+			CIMProperty p = property.clone();
 			p.setPropagated(true);
 			_properties.insert(m++, p);
 		}
@@ -233,7 +233,7 @@ void CIMInstanceRep::toMof(Array<Sint8>& out) const
     // format the Properties:
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
-	// Generate MOF if this property not propogated
+	// Generate MOF if this property not propagated
 	// Note that the test is required only because
 	// there is an error in getclass that does not
 	// test the localOnly flag.
@@ -245,7 +245,7 @@ void CIMInstanceRep::toMof(Array<Sint8>& out) const
     out << "\n};\n";
 
 }
-CIMObjectPath CIMInstanceRep::getInstanceName(
+CIMObjectPath CIMInstanceRep::buildPath(
     const CIMConstClass& cimClass) const
 {
     //--------------------------------------------------------------------------

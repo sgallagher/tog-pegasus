@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -115,7 +116,7 @@ enum CIMStatusCode
     CIM_ERR_METHOD_NOT_FOUND = 17
 };
 
-PEGASUS_COMMON_LINKAGE const char* CIMStatusCodeToString(CIMStatusCode code);
+PEGASUS_COMMON_LINKAGE const char* cimStatusCodeToString(CIMStatusCode code);
 
 PEGASUS_NAMESPACE_END
 

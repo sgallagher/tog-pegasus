@@ -204,7 +204,7 @@ static void TestInstanceOperations(CIMClient& client)
     cimInstance.addProperty(CIMProperty("last", String("Smith")));
     cimInstance.addProperty(CIMProperty("first", String("John")));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
-    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
     CIMObjectPath createdinstanceName = client.createInstance(NAMESPACE, cimInstance);
 
     // Get the instance and compare with created one:

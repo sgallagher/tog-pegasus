@@ -114,7 +114,7 @@ void TestCreateFilterInstances(CIMClient& client)
 	}
 
 	filterInstance.addProperty(CIMProperty("QueryLanguage", String("WQL1")));
-	CIMObjectPath filterRef = filterInstance.getInstanceName(filterClass);
+	CIMObjectPath filterRef = filterInstance.buildPath(filterClass);
 	client.createInstance(NAMESPACE, filterInstance);
     }
 }

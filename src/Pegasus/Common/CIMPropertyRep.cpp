@@ -305,19 +305,6 @@ Boolean CIMPropertyRep::identical(const CIMPropertyRep* x) const
     return true;
 }
 
-Boolean CIMPropertyRep::isKey() const
-{
-    Uint32 pos = _qualifiers.findReverse("key");
-
-    if (pos == PEG_NOT_FOUND)
-	return false;
-
-    Boolean flag;
-    _qualifiers.getQualifier(pos).getValue().get(flag);
-
-    return flag;
-}
-
 CIMPropertyRep::CIMPropertyRep()
 {
 

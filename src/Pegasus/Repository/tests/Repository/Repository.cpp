@@ -136,7 +136,7 @@ void test02()
     // Get instance back:
     //--------------------------------------------------------------------------
 
-    CIMObjectPath instanceName1 = subClassInstance.getInstanceName(subClass);
+    CIMObjectPath instanceName1 = subClassInstance.buildPath(subClass);
 
     CIMObjectPath instanceName2 =
 	CIMObjectPath ("SuperClass.first=\"John\",last=\"Smith\",age=101");

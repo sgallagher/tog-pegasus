@@ -92,23 +92,6 @@ Boolean CIMClassRep::isAbstract() const
     return flag;
 }
 
-Boolean CIMClassRep::isTrueQualifier(const CIMName& name) const
-{
-    Uint32 pos = findQualifier(name);
-
-    if (pos == PEG_NOT_FOUND)
-	return false;
-
-    Boolean flag;
-    const CIMValue& value = getQualifier(pos).getValue();
-
-    if (value.getType() != CIMTYPE_BOOLEAN)
-	return false;
-
-    value.get(flag);
-    return flag;
-}
-
 void CIMClassRep::setSuperClassName(const CIMName& superClassName)
 {
     _superClassName = superClassName;
@@ -287,7 +270,7 @@ void CIMClassRep::resolve(
 			// clone and insert it. Otherwise, the properties class
 			// origin was set above.
 	
-			CIMProperty superproperty = superClassProperty.clone(true);
+			CIMProperty superproperty = superClassProperty.clone();
 	
 			if (pos == PEG_NOT_FOUND)
 			{
@@ -523,7 +506,7 @@ void CIMClassRep::toMof(Array<Sint8>& out) const
     // format the Properties:
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
-	// Generate MOF if this property not propogated
+	// Generate MOF if this property not propagated
 	// Note that the test is required only because
 	// there is an error in getclass that does not
 	// test the localOnly flag.
@@ -607,8 +590,19 @@ void CIMClassRep::getKeyNames(Array<CIMName>& keyNames) const
     {
 	CIMConstProperty property = getProperty(i);
 
-	if (property.isKey())
-	    keyNames.append(property.getName());
+        Uint32 pos;
+        if ((pos = property.findQualifier ("key")) != PEG_NOT_FOUND)
+        {
+            CIMValue value;
+            value = property.getQualifier (pos).getValue ();
+            if (!value.isNull ())
+            {
+                Boolean isKey;
+                value.get (isKey);
+                if (isKey)
+                    keyNames.append(property.getName());
+            }
+        }
     }
 }
 
@@ -618,8 +612,19 @@ Boolean CIMClassRep::hasKeys() const
     {
 	CIMConstProperty property = getProperty(i);
 
-	if (getProperty(i).isKey())
-	    return true;
+        Uint32 pos;
+        if ((pos = property.findQualifier ("key")) != PEG_NOT_FOUND)
+        {
+            CIMValue value;
+            value = property.getQualifier (pos).getValue ();
+            if (!value.isNull ())
+            {
+                Boolean isKey;
+                value.get (isKey);
+                if (isKey)
+                    return true;
+            }
+        }
     }
 
     return false;

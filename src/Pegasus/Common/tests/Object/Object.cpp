@@ -355,7 +355,7 @@ void test04()
     CIMInstance instance1 ("MyClass");
     instance1.addProperty (CIMProperty ("message", String("Hello There")));
     instance1.addProperty (CIMProperty ("count", Uint32 (77)));
-    CIMObjectPath path = instance1.getInstanceName (class1);
+    CIMObjectPath path = instance1.buildPath (class1);
     CIMObjectPath path2 = instance1.getPath ();
     instance1.setPath (path);
     CIMObjectPath path3 = instance1.getPath ();
@@ -363,7 +363,7 @@ void test04()
 
     if (verbose)
     {
-        cout << "Instance object path from getInstanceName: " << path << endl;
+        cout << "Instance object path from buildPath: " << path << endl;
         cout << "Instance object path from getPath: " << path2 << endl;
         cout << "Instance object path from getPath after setPath: " << path3 
              << endl;
@@ -377,7 +377,7 @@ void test04()
     instance2.addProperty (CIMProperty ("message", String("Good-bye...")));
     instance2.addProperty (CIMProperty ("count", Uint32 (88)));
     CIMObject oinstance1 = instance2;
-    CIMObjectPath opath = instance2.getInstanceName (class1);
+    CIMObjectPath opath = instance2.buildPath (class1);
     CIMObjectPath opath1 = oinstance1.getPath ();
     oinstance1.setPath (opath);
     CIMObjectPath opath2 = oinstance1.getPath ();
@@ -385,7 +385,7 @@ void test04()
 
     if (verbose)
     {
-        cout << "Instance object path from getInstanceName: " << opath << endl;
+        cout << "Instance object path from buildPath: " << opath << endl;
         cout << "Instance object path from getPath: " << opath1 << endl;
         cout << "Instance object path from getPath after setPath: " << opath2 
              << endl;

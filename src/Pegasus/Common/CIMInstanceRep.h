@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +67,7 @@ public:
 	return new CIMInstanceRep(*this);
     }
 
-    CIMObjectPath getInstanceName(const CIMConstClass& cimClass) const;
+    CIMObjectPath buildPath(const CIMConstClass& cimClass) const;
 
     String toString() const;
 

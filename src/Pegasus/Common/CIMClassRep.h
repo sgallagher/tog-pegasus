@@ -60,8 +60,6 @@ public:
 
     Boolean isAbstract() const;
 
-    Boolean isTrueQualifier(const CIMName& name) const;
-
     const CIMName& getSuperClassName() const { return _superClassName; }
 
     void setSuperClassName(const CIMName& superClassName);

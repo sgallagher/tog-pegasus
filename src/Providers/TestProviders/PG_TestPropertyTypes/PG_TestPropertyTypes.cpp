@@ -250,7 +250,7 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)
 	{
-		CIMObjectPath tempRef = _instances[i].getInstanceName(cimclass);
+		CIMObjectPath tempRef = _instances[i].buildPath(cimclass);
 
 		// ensure references are fully qualified
 		tempRef.setHost(classReference.getHost());

@@ -198,6 +198,12 @@ CIMConstParameter CIMMethod::getParameter(Uint32 pos) const
     return _rep->getParameter(pos);
 }
 
+void CIMMethod::removeParameter (Uint32 pos)
+{
+    _checkRep ();
+    _rep->removeParameter (pos);
+}
+
 Uint32 CIMMethod::getParameterCount() const
 {
     _checkRep();

@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +78,7 @@ static const char* _cimMessages[] =
     "CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist"
 };
 
-const char* CIMStatusCodeToString(CIMStatusCode code)
+const char* cimStatusCodeToString(CIMStatusCode code)
 {
     if (Uint32(code) < CIM_ERR_METHOD_NOT_FOUND)
 	return _cimMessages[Uint32(code)];

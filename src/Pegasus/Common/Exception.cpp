@@ -229,7 +229,7 @@ static String _makeCIMExceptionDescription(
     const String& message)
 {
     String tmp;
-    tmp.append(CIMStatusCodeToString(code));
+    tmp.append(cimStatusCodeToString(code));
     if (message != String::EMPTY)
     {
         tmp.append(": \"");

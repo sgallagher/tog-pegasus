@@ -152,6 +152,12 @@ CIMConstQualifier CIMParameter::getQualifier(Uint32 pos) const
     return _rep->getQualifier(pos);
 }
 
+void CIMParameter::removeQualifier (Uint32 pos)
+{
+    _checkRep ();
+    return _rep->removeQualifier (pos);
+}
+
 Uint32 CIMParameter::getQualifierCount() const
 {
     _checkRep();

@@ -81,7 +81,26 @@ int main(int argc, char** argv)
         assert(m1.getParameterCount()  == 1);
         CIMParameter cp = m1.getParameter(m1.findParameter("ipaddress"));
         assert(cp.getName() == "ipaddress");
+
+        m1.removeParameter (m1.findParameter ("ipaddress"));
+        assert (m1.getParameterCount ()  == 0);
+        m1.addParameter (CIMParameter ("ipaddress", CIMTYPE_STRING));
+        assert (m1.getParameterCount ()  == 1);
  
+        // throws OutOfBounds
+        try
+        {
+            m1.removeParameter (1);
+        }
+        catch (OutOfBounds & oob)
+        {
+            if (verbose)
+            {
+                PEGASUS_STD (cout) << "Caught expected exception: " 
+                                   << oob.getMessage () << PEGASUS_STD (endl);
+            }
+        }
+
         CIMMethod m2("test", CIMTYPE_STRING);
         m2.setName("getVersion");
         assert(m2.getName() == "getVersion");

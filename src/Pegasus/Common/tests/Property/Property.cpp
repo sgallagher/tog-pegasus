@@ -53,8 +53,8 @@ void test01()
     CIMConstProperty p2 = p1;
 
     // Test clone
-    CIMProperty p1clone = p1.clone(true);
-    CIMProperty p2clone = p2.clone(true);
+    CIMProperty p1clone = p1.clone();
+    CIMProperty p2clone = p2.clone();
    
     // Test print
 
@@ -87,9 +87,30 @@ void test01()
         assert(p1.getType() == CIMTYPE_STRING);
         assert(p2.getType() == CIMTYPE_STRING);
 
-    // Test isKey
-        assert(p1.isKey() == true);
-        assert(p2.isKey() == true);
+    // Test for key qualifier
+        Uint32 pos;
+        Boolean isKey = false;
+        if ((pos = p1.findQualifier ("key")) != PEG_NOT_FOUND)
+        {
+            CIMValue value;
+            value = p1.getQualifier (pos).getValue ();
+            if (!value.isNull ())
+            {
+                value.get (isKey);
+            }
+        }
+        assert (isKey);
+        isKey = false;
+        if ((pos = p2.findQualifier ("key")) != PEG_NOT_FOUND)
+        {
+            CIMValue value;
+            value = p2.getQualifier (pos).getValue ();
+            if (!value.isNull ())
+            {
+                value.get (isKey);
+            }
+        }
+        assert (isKey);
 
     // Test getArraySize
         assert(p1.getArraySize() == 0);
@@ -161,7 +182,7 @@ void test02()
         CIMConstProperty cp1 = p1;
         CIMConstProperty cp2 = p2;
         CIMConstProperty cp3("message3", String("hello"));
-        CIMConstProperty cp1clone = cp1.clone(true);
+        CIMConstProperty cp1clone = cp1.clone();
 
         if(verbose)
 	    XmlWriter::printPropertyElement(cp1, cout);
@@ -173,7 +194,18 @@ void test02()
 
         assert(cp1.getName() == "message");
         assert(cp1.getType() == CIMTYPE_STRING);
-        assert(cp1.isKey() == true);
+        Uint32 pos;
+        Boolean isKey = false;
+        if ((pos = cp1.findQualifier ("key")) != PEG_NOT_FOUND)
+        {
+            CIMValue value;
+            value = cp1.getQualifier (pos).getValue ();
+            if (!value.isNull ())
+            {
+                value.get (isKey);
+            }
+        }
+        assert (isKey);
         assert(cp1.getArraySize() == 0);
         assert(cp1.getPropagated() == false);
 

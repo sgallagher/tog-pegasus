@@ -118,6 +118,31 @@ void test01()
     assert(!q1const.isUninitialized());
 
     //
+    // remove qualifiers
+    //
+    p1.removeQualifier (p1.findQualifier ("in"));
+    assert (p1.findQualifier ("in") == PEG_NOT_FOUND);
+    assert (p1.getQualifierCount () == 0);
+    p1.addQualifier (CIMQualifier ("in", true));
+
+    try
+    {
+        //
+        // should throw OutOfBounds
+        //
+        p1.removeQualifier (1);
+    }
+    catch (OutOfBounds & oob)
+    {
+        if (verbose)
+        {
+            PEGASUS_STD (cout) << "Caught expected exception: "
+                               << oob.getMessage () << PEGASUS_STD (endl);
+            PEGASUS_STD (cout) << PEGASUS_STD (endl);
+        }
+    }
+
+    //
     // isArray
     //
     assert(p1.isArray() == false);

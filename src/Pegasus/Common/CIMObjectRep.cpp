@@ -109,7 +109,7 @@ CIMObjectRep::CIMObjectRep(const CIMObjectRep& x) :
     _properties.reserveCapacity(x._properties.size());
 
     for (Uint32 i = 0, n = x._properties.size(); i < n; i++)
-	_properties.append(x._properties[i].clone(true));
+	_properties.append(x._properties[i].clone());
 }
 
 Boolean CIMObjectRep::identical(const CIMObjectRep* x) const

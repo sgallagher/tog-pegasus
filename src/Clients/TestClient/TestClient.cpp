@@ -575,7 +575,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     cimInstance.addProperty(CIMProperty("first", String("John")));
     cimInstance.addProperty(CIMProperty("age", Uint32(1010)));
     cimInstance.addProperty(CIMProperty("nick", String("Duke")));
-    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
     client.createInstance(globalNamespace, cimInstance);
 
     // Get the instance and compare with created one:
@@ -642,7 +642,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
         cimInstance.addProperty(CIMProperty("last", String("Smith")));
         cimInstance.addProperty(CIMProperty("first", String("John")));
         cimInstance.addProperty(CIMProperty("age", Uint32(i)));
-        instanceNames.append( cimInstance.getInstanceName(cimClass) );
+        instanceNames.append( cimInstance.buildPath(cimClass) );
         client.createInstance(globalNamespace, cimInstance);
     }
     cout << "Delete the Instances " << endl;
@@ -683,7 +683,7 @@ static void TestMethodOperations( CIMClient& client, Boolean
     cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
     cimInstance.addProperty(CIMProperty("trapOid", String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
     cimInstance.addProperty(CIMProperty("computerName", String("NU744781")));
-    CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
+    CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
     instanceName.setNameSpace(globalNamespace);
     client.createInstance(globalNamespace, cimInstance);
     

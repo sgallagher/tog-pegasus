@@ -206,19 +206,22 @@ public:
     */
     Uint32 getPropertyCount() const;
 
-    /** getInstanceName - Get the instance name of this instance. The class
+    /** buildPath - Build the CIM object path for this instance. The class
 	argument is used to determine which fields are keys. The instance
-	name has this from:
+	name has this form:
 
 	<PRE>
 	    ClassName.key1=value1,...,keyN=valueN
 	</PRE>
 
-	The instance name is in standard form (the class name and key name
+	The object path is in standard form (the class name and key name
 	is all lowercase; the keys-value pairs appear in sorted order by
 	key name).
+
+        Note that the path attribute of the CIMInstanceRep object is not 
+        modified.
     */
-    CIMObjectPath getInstanceName(const CIMConstClass& cimClass) const;
+    CIMObjectPath buildPath(const CIMConstClass& cimClass) const;
 
     /**	CIMMethod
 
@@ -306,7 +309,7 @@ public:
 
     Uint32 getPropertyCount() const;
 
-    CIMObjectPath getInstanceName(const CIMConstClass& cimClass) const;
+    CIMObjectPath buildPath(const CIMConstClass& cimClass) const;
 
     CIMInstance clone() const;
 
@@ -330,10 +333,6 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
 };
-
-PEGASUS_COMMON_LINKAGE Boolean operator==(
-    const CIMInstance& x,
-    const CIMInstance& y);
 
 #define PEGASUS_ARRAY_T CIMInstance
 # include <Pegasus/Common/ArrayInter.h>

@@ -24,6 +24,8 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -134,7 +136,7 @@ void OperatingSystemProvider::enumerateInstances(
 			false,
 			CIMPropertyList());
 
-		CIMObjectPath instanceName = cimInstance.getInstanceName(cimclass);
+		CIMObjectPath instanceName = cimInstance.buildPath(cimclass);
 
 		// ensure references are fully qualified
 		instanceName.setHost(classReference.getHost());
@@ -170,7 +172,7 @@ void OperatingSystemProvider::enumerateInstanceNames(
 	// convert instances to references;
 	for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
 	{
-		CIMObjectPath instanceReference = cimInstances[i].getInstanceName(cimclass);
+		CIMObjectPath instanceReference = cimInstances[i].buildPath(cimclass);
 
 		// ensure references are fully qualified
 		instanceReference.setHost(classReference.getHost());

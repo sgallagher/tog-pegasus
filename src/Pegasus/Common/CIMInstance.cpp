@@ -196,10 +196,10 @@ CIMInstance CIMInstance::clone() const
     return CIMInstance((CIMInstanceRep*)(_rep->clone()));
 }
 
-CIMObjectPath CIMInstance::getInstanceName(const CIMConstClass& cimClass) const
+CIMObjectPath CIMInstance::buildPath(const CIMConstClass& cimClass) const
 {
     _checkRep();
-    return _rep->getInstanceName(cimClass);
+    return _rep->buildPath(cimClass);
 }
 
 String CIMInstance::toString() const
@@ -345,10 +345,10 @@ CIMInstance CIMConstInstance::clone() const
     return CIMInstance((CIMInstanceRep*)(_rep->clone()));
 }
 
-CIMObjectPath CIMConstInstance::getInstanceName(const CIMConstClass& cimClass) const
+CIMObjectPath CIMConstInstance::buildPath(const CIMConstClass& cimClass) const
 {
     _checkRep();
-    return _rep->getInstanceName(cimClass);
+    return _rep->buildPath(cimClass);
 }
 
 String CIMConstInstance::toString() const
@@ -361,12 +361,6 @@ void CIMConstInstance::_checkRep() const
 {
     if (!_rep)
         ThrowUninitializedObject();
-}
-
-
-Boolean operator==(const CIMInstance& x, const CIMInstance& y)
-{
-    return x.identical(y);
 }
 
 PEGASUS_NAMESPACE_END

@@ -90,6 +90,16 @@ public:
 
     CIMQualifier getQualifier(Uint32 pos);
 
+    /** removeQualifier - Removes the CIMQualifier defined by the
+        specified index
+
+        @param pos index of the qualifier to be removed
+
+        @exception OutOfBounds if the index is outside the range of
+        qualifiers available for the CIMParameter
+    */
+    void removeQualifier (Uint32 pos);
+
     CIMConstQualifier getQualifier(Uint32 pos) const;
 
     Uint32 getQualifierCount() const;

@@ -28,7 +28,7 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
- 
+
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/Tracer.h>
 #ifdef PEGASUS_HAS_ICU
@@ -38,7 +38,6 @@
 #include "OS400ConvertChar.h"
 #endif
 
-//PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 	 
@@ -161,7 +160,6 @@ AcceptLanguages AcceptLanguages::getDefaultAcceptLanguages(){
 	#ifdef PEGASUS_HAS_MESSAGES
 		#ifdef PEGASUS_HAS_ICU
                        Locale default_loc = Locale::getDefault();
-			
                       #ifdef PEGASUS_OS_OS400
 			char * tmp = (char*)default_loc.getName();
 			char tmp_[100];
@@ -173,6 +171,7 @@ AcceptLanguages AcceptLanguages::getDefaultAcceptLanguages(){
 		      "src.Server.cimserver.FAILED_TO_GET_PROCESS_LOCALE",
 		      "Could not convert the system locale to a valid accept-language format");
 			   Logger::put(Logger::ERROR_LOG,System::CIMSERVER,Logger::SEVERE, e.getMessage());
+				return AcceptLanguages("*");
 			}   
                       #else
 			try{
@@ -182,6 +181,7 @@ AcceptLanguages AcceptLanguages::getDefaultAcceptLanguages(){
 		      "src.Server.cimserver.FAILED_TO_GET_PROCESS_LOCALE",
 		      "Could not convert the system locale to a valid accept-language format");
 			   Logger::put(Logger::ERROR_LOG,System::CIMSERVER,Logger::SEVERE, e.getMessage());
+				return AcceptLanguages("*");
 			}
                       #endif
 			

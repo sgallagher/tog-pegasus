@@ -43,7 +43,6 @@ SOURCES = \
     ProviderMessageFacade.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
     ConfigurationManager/PG_RegistrationProvider.cpp
-#    ../../Providers/generic/ConfigSettingProvider/ConfigSettingProvider.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

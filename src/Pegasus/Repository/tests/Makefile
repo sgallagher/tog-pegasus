@@ -18,7 +18,6 @@ DIRS = \
     SharedInheritanceTree \
     CompareRepositories \
     CompareXmlBin \
-    LoadClass \
-    LoadRepository
+    LoadClass
 
 include ../../../../mak/recurse.mak

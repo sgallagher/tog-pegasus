@@ -171,15 +171,11 @@ CQLValue CQLFunctionRep::resolveValue(CIMInstance CI, QueryContext& queryCtx)
    return CQLValue(Uint64(0));
 }
 
-String CQLFunctionRep::toString()
+String CQLFunctionRep::toString()const
 {
 	printf("CQLFunctionRep::toString()\n");
    String returnStr;
 
-   //char buffer[32];  // Should need 21 chars max
-   //sprintf(buffer, "%u", _funcOpType);
-         
-   //returnStr.append(String(buffer));
    switch(_funcOpType)
    {
       case DATETIMETOMICROSECOND:
@@ -253,12 +249,12 @@ String CQLFunctionRep::toString()
 }
 
 
-Array<CQLPredicate> CQLFunctionRep::getParms()
+Array<CQLPredicate> CQLFunctionRep::getParms()const
 {
    return _parms;
 }
 
-FunctionOpType CQLFunctionRep::getFunctionType()
+FunctionOpType CQLFunctionRep::getFunctionType()const
 {
    return _funcOpType;
 }
@@ -271,10 +267,10 @@ void CQLFunctionRep::applyContext(QueryContext& inContext)
    }
 }
 
-Boolean CQLFunctionRep::operator==(const CQLFunctionRep& func){
+Boolean CQLFunctionRep::operator==(const CQLFunctionRep& func)const{
 	return true;
 }
-Boolean CQLFunctionRep::operator!=(const CQLFunctionRep& func){
+Boolean CQLFunctionRep::operator!=(const CQLFunctionRep& func)const{
 	return (!operator==(func));
 }
 

@@ -128,19 +128,19 @@ class PEGASUS_CQL_LINKAGE CQLFunction
       */
     CQLValue resolveValue(CIMInstance CI, QueryContext& queryCtx);
     
-   Array<CQLPredicate> getParms();
+   Array<CQLPredicate> getParms()const;
    
-   FunctionOpType getFunctionType();
+   FunctionOpType getFunctionType()const;
 
-   String toString();
+   String toString()const;
 
    void applyContext(QueryContext& inContext);
 
    CQLFunction& operator=(const CQLFunction& rhs);
    
-   Boolean operator==(const CQLFunction& func);
+   Boolean operator==(const CQLFunction& func)const;
    
-   Boolean operator!=(const CQLFunction& func);
+   Boolean operator!=(const CQLFunction& func)const;
    
    friend class CQLFactory;
 

@@ -64,18 +64,18 @@ CQLValue CQLFunction::resolveValue(CIMInstance CI, QueryContext& queryCtx)
 	return _rep->resolveValue(CI,queryCtx);
 }
 
-String CQLFunction::toString()
+String CQLFunction::toString()const
 {
    return _rep->toString();
 }
 
 
-Array<CQLPredicate> CQLFunction::getParms()
+Array<CQLPredicate> CQLFunction::getParms()const
 {
    return _rep->getParms();
 }
 
-FunctionOpType CQLFunction::getFunctionType()
+FunctionOpType CQLFunction::getFunctionType()const
 {
    return _rep->getFunctionType();
 }
@@ -93,10 +93,10 @@ CQLFunction& CQLFunction::operator=(const CQLFunction& rhs){
 	return *this;
 }
 
-Boolean CQLFunction::operator==(const CQLFunction& func){
+Boolean CQLFunction::operator==(const CQLFunction& func)const{
 	return (_rep == func._rep);
 }
-Boolean CQLFunction::operator!=(const CQLFunction& func){
+Boolean CQLFunction::operator!=(const CQLFunction& func)const{
 	return (_rep != func._rep);
 }
 PEGASUS_NAMESPACE_END

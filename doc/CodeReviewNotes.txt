@@ -57,12 +57,23 @@
 
 	    if( cond )
 
-    15.	Changed "Permisyion" to "Permission"
+    15.	Keep all lines within 80 columns.
 
-    16.	Keep all lines within 80 columns.
+    16.	Build fails on many Linux system (threading support problems).
 
-    17.	Build fails on many Linux system (threading support problems).
-
-    18. SSL is the default on Linux (is this okay?).
+    17. SSL is the default on Linux (is this okay?).
 
     19. Fix main logic (Unix v.s. Windows).
+
+    21.	Get rid of CIMIndication class.
+
+    22.	Revise licensing headers on all files.
+
+    23. Add $Log: CodeReviewNotes.txt,v $
+    23. Add Revision 1.8  2001/12/27 16:56:49  mike
+    23. Add Added more review comments.
+    23. Add CVS directives to each file.
+
+    24. Avoid inlining of large functions.
+
+    25.	FInd decent code formatter.

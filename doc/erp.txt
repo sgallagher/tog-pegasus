@@ -1,9 +1,0 @@
-
-This is erp.txt!
-
-/**
-    $Log: erp.txt,v $
-    Revision 1.1  2001/12/27 15:11:20  mike
-    I am committing erp.txt
-
-*/

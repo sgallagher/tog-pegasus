@@ -28,6 +28,7 @@
 
 #ifndef Pegasus_OperationContext_h
 #define Pegasus_OperationContext_h
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Exception.h>
@@ -64,295 +65,350 @@ PEGASUS_NAMESPACE_BEGIN
 #define OPERATION_COMPLETE                  0x00000200
 
 
-//void PEGASUS_COMMON_LINKAGE default_serialize(Sint8 *, Uint32 ) throw(BufferTooSmall, NotSupported);
-void PEGASUS_COMMON_LINKAGE default_delete(void * data) ;
-void PEGASUS_COMMON_LINKAGE stringize_uid(void *uid, Sint8 **dest, size_t *size) throw (NullPointer, BufferTooSmall);
-void PEGASUS_COMMON_LINKAGE binaryize_uid(Sint8 *uid, void *dest, size_t size) throw(NullPointer, BufferTooSmall);
+void PEGASUS_COMMON_LINKAGE default_delete(void * data);
 
-// REVIEW: Could this class be renamed to ContextRep (see coding standards).
+void PEGASUS_COMMON_LINKAGE stringize_uid(
+    void *uid, Sint8 **dest, size_t *size) throw(NullPointer, BufferTooSmall);
+
+void PEGASUS_COMMON_LINKAGE binaryize_uid(
+    Sint8 *uid, void *dest, size_t size) throw(NullPointer, BufferTooSmall);
+
+// REVIEW: No source documentation.
+
+// REVIEW: No usage documentation (DOC++).
 
 // REVIEW: What is this class for?
 
+// REVIEW: Eliminate use of inlining for large functions.
+
+// REVIEW: context should be renamed to Context (see coding standard).
+
+// REVIEW: function names should not contain underscores (coding standard).
+
+// REVIEW: Shouldn't this be called ContextRep?
+
+// REVIEW: Can't this whole class be replaced with an abstract base class
+// with the same name?
+
+//
+// REVIEW: The following might be considered.
+//
+// 1.  User id should be a string rather than a number (since
+//     the client machine may have an user id which is unknown
+//     to this server).
+//
+// 2.  Perhaps user, locale, security priviledges, client hostname.
+//
+// 3.  Possibly need an effective-user (which is different than the requesting
+//     user). It may be necessary to map actual-user to effective-user.
+//
+
+/** This class manages a piece of raw memory and associates it with a key 
+    and user - id.
+
+    The OperationContext class below maintains a DQueue of these context
+    objects. Therefore, the key is used by the OperationContext class to pick 
+    a context out of the queue.
+*/
 class PEGASUS_COMMON_LINKAGE context
 {
-   public:
-      context(Uint32 data_size,
-		 void *data, 
-		 void (*del)(void *), 
-		 Uint32 uint_val ,
-		 Uint32 key , 
-		 Uint32 flag ,
-		 Uint8 *uid);
-            
-      ~context(void);
-      
-      inline void reset( Uint32 data_size,
-			 void *data, 
-			 void (*del)(void *), 
-			 Uint32 uint_val ,
-			 Uint32 key , 
-			 Uint32 flag ,
-			 Uint8 *uid )
-      {
-	 
-	 if(_flag & CONTEXT_DELETE_MEMORY)
-	 {
-	    if(_delete_func != 0)
-	       _delete_func(_data);
+public:
+    context(Uint32 data_size,
+	void *data, 
+	void(*del)(void *), 
+	Uint32 uint_val ,
+	Uint32 key , 
+	Uint32 flag ,
+	Uint8 *uid);
+    
+    ~context(void);
+    
+    // REVIEW: Make this function non-inline.
+    
+    inline void reset(Uint32 data_size,
+	void *data, 
+	void(*del)(void *), 
+	Uint32 uint_val ,
+	Uint32 key , 
+	Uint32 flag ,
+	Uint8 *uid)
+    {
+	if (_flag & CONTEXT_DELETE_MEMORY)
+	{
+	    if (_delete_func != 0)
+		_delete_func(_data);
 	    else
-	       default_delete(_data);
-	 }
-	 
-	 _size = data_size;
-	 _uint_val = uint_val;
-	 _key = key;
-	 _flag = flag;
-	 
-	 
-	 if(uid != 0)
+		default_delete(_data);
+	}
+	
+	_size = data_size;
+	_uint_val = uint_val;
+	_key = key;
+	_flag = flag;
+	
+	
+	if (uid != 0)
 	    memcpy(_uid, uid, 16);
-	 else
+	else
 	    memset(_uid, 0x00, 16);
-	 
-	 if(flag & CONTEXT_POINTER)
+	
+	if (flag & CONTEXT_POINTER)
 	    _data = data;
-	 else if (flag & CONTEXT_COPY_MEMORY)
-	 {
-	    if(data != 0)
+	else if (flag & CONTEXT_COPY_MEMORY)
+	{
+	    if (data != 0)
 	    {
-	       _data = ::operator new(_size);
-	       memcpy(_data, data, _size);
+		_data = ::operator new(_size);
+		memcpy(_data, data, _size);
 	    }
-	    
-	 }
-	 
-	 if(flag & CONTEXT_DELETE_MEMORY)
-	 {
-	    if(del != 0)
-	       _delete_func = del;
+	}
+	
+	if (flag & CONTEXT_DELETE_MEMORY)
+	{
+	    if (del != 0)
+		_delete_func = del;
 	    else 
-	       _delete_func =  default_delete;
-	 }
-      }
-      
-      inline Boolean operator == (const Uint32 uint_val) const
-      {
-	 if(_uint_val == uint_val)
+		_delete_func =  default_delete;
+	}
+    }
+    
+    inline Boolean operator ==(const Uint32 uint_val) const
+    {
+	if (_uint_val == uint_val)
 	    return true;
-	 return false;
-      }
-      
-      inline Boolean operator == (const Uint8 *uid) const
-      {
-	 if(uid == 0)
-	    return(false);
-	 if( ! memcmp(_uid, const_cast<Uint8 *>(uid), 16) )
+	return false;
+    }
+    
+    inline Boolean operator ==(const Uint8 *uid) const
+    {
+	if (uid == 0)
+	    return (false);
+	if (! memcmp(_uid, const_cast < Uint8 *>(uid), 16))
 	    return true;
-	 return false;
-      }
-      
-      inline Boolean operator == (const void *data) const
-      {
-	 if(data == 0 || _data == 0)
+	return false;
+    }
+    
+    inline Boolean operator ==(const void *data) const
+    {
+	if (data == 0 || _data == 0)
 	    return false;
-	 if(! memcmp(_data, const_cast<void *>(data), _size))
+	if (! memcmp(_data, const_cast < void *>(data), _size))
 	    return true;
-	 return false;
-      }
-      
-      inline Boolean operator == (const context & c) const
-      {
-	 if( true == (operator == ((const Uint32)c._uint_val)))
-	    if( true == (operator ==((const Uint8 *)c._uid )))
-	       if( true == (operator ==((const void *)c._data)))
-		  return true;
-	 return false;
-      }
-      
-      inline Uint32 get_key(void) 
-      {
-	 return _key;
-      }
-      
-      inline Uint32 get_flag(void)
-      {
-	 return _flag;
-      }
-      
-      inline Uint32 get_uint_val(void)
-      {
-	 return _uint_val;
-      }
-      
-      inline void *get_data(void **buf, Uint32 *size)
-      {
-	 if(buf != 0)
+	return false;
+    }
+    
+    inline Boolean operator ==(const context & c) const
+    {
+	if (true ==(operator ==((const Uint32)c._uint_val)))
+	    if (true ==(operator ==((const Uint8 *)c._uid)))
+		if (true ==(operator ==((const void *)c._data)))
+		    return true;
+		return false;
+    }
+    
+    inline Uint32 get_key(void) 
+    {
+	return _key;
+    }
+    
+    inline Uint32 get_flag(void)
+    {
+	return _flag;
+    }
+    
+    inline Uint32 get_uint_val(void)
+    {
+	return _uint_val;
+    }
+    
+    // REVIEW-I: use references here. Example:
+    //
+    //     inline void *get_data(void *&buf, Uint32 &size)
+    
+    inline void *get_data(void **buf, Uint32 *size)
+    {
+	if (buf != 0)
 	    *buf = _data;
-	 if(size != 0)
+	if (size != 0)
 	    *size = _size;
-	 return(_data);
-      }
-      
-      inline void get_uid(Uint8 *buf)
-      {
-	 if(buf != 0)
+	return (_data);
+    }
+    
+    inline void get_uid(Uint8 *buf)
+    {
+	if (buf != 0)
 	    memcpy(buf, _uid, 16);
-      }
-      
-   private:
-      size_t _size;
-      Uint32 _uint_val;
-      Uint32 _key;
-      Uint32 _flag;
-      Uint8 _uid[16];
-      void *_data;
-      void (*_delete_func)(void *data);
-      friend class OperationContext;
-} ;
+    }
+    
+private:
+    size_t _size;
+    Uint32 _uint_val;
+    Uint32 _key;
+    Uint32 _flag;
+    Uint8 _uid[16];
+    void *_data;
+    void(*_delete_func)(void *data);
+    friend class OperationContext;
+};
 
 
+/** This class is used to represent an execution context for a particular
+    request.
+
+    In particular, this context contains user and locale information for this
+    request.
+
+    An instance of this class is passed as the first parameter to every
+    provider method.
+*/
 class PEGASUS_COMMON_LINKAGE OperationContext
 {
-   public:
-      OperationContext(void)
-	 : _context(true) 
-      {
-      }
-      
-      ~OperationContext(void)
-      {
-
-      }
-      
-      inline void reset(void) 
-      {
-	 _context.empty_list();
-      }
-      
-      void add_context(Uint32 data_size,
-		       void *data, 
-		       void (*del)(void *), 
-		       Uint32 uint_val,
-		       Uint32 key , 
-		       Uint32 flag ,
-		       Uint8 *uid );
-
-      void add_context(context *);
-
-      inline Boolean operator==(const void *key) const
-      {
-	 if(reinterpret_cast<void *>(const_cast<OperationContext *>(this)) == key)
+public:
+    OperationContext(void)
+	: _context(true) 
+    {
+    }
+    
+    ~OperationContext(void)
+    {
+    }
+    
+    inline void reset(void) 
+    {
+	_context.empty_list();
+    }
+    
+    void add_context(Uint32 data_size,
+	void *data, 
+	void(*del)(void *), 
+	Uint32 uint_val,
+	Uint32 key , 
+	Uint32 flag ,
+	Uint8 *uid);
+    
+    void add_context(context *);
+    
+    inline Boolean operator==(const void *key) const
+    {
+	if (reinterpret_cast<void *>(
+	    const_cast < OperationContext *>(this)) == key)
+	{
 	    return true;
-	 return false;
-      }
-      
-      inline Boolean operator==(const OperationContext& ct) const
-      {
-	 if(this == &ct)
+	}
+	return false;
+    }
+    
+    inline Boolean operator==(const OperationContext& ct) const
+    {
+	if (this == &ct)
 	    return true;
-	 return false;
-      }
-      
-      context *remove_context(void);
-      context *remove_context(Uint32 uint_val);
-      context *remove_context(Uint8 *uid); 
-      context *remove_context(void *data);
-      context *remove_context_key(Uint32 key);
-      
-   private:
-      DQueue<class context> _context;
-} ;
-
+	return false;
+    }
+    
+    context *remove_context(void);
+    context *remove_context(Uint32 uint_val);
+    context *remove_context(Uint8 *uid); 
+    context *remove_context(void *data);
+    context *remove_context_key(Uint32 key);
+    
+private:
+    
+    // REVIEW: Should this be called "_contexts". On first examination,
+    // the reviewer thought it refered to a single context object as defined
+    // above.
+    
+    DQueue<class context> _context;
+};
+    
 inline void OperationContext::add_context(Uint32 data_size,
-		       void *data, 
-		       void (*del)(void *), 
-		       Uint32 uint_val ,
-		       Uint32 key , 
-		       Uint32 flag ,
-		       Uint8 *uid )
-
+    void *data, 
+    void(*del)(void *), 
+    Uint32 uint_val ,
+    Uint32 key , 
+    Uint32 flag ,
+    Uint8 *uid)
 {
-   context *c = new context(data_size, data, del, uint_val, key, flag, uid );
-   _context.insert_first(c);
-   return;
+    context *c = new context(data_size, data, del, uint_val, key, flag, uid);
+    _context.insert_first(c);
+    return;
 }
-
+    
 inline void OperationContext::add_context(context *c)
 {
-   if(c != 0)
-      _context.insert_first(c);
-   return;
+    if (c != 0)
+	_context.insert_first(c);
+    return;
 }
-
+    
 inline context *OperationContext::remove_context(void)
 {
-   return(_context.remove_first());
+    return (_context.remove_first());
 }
-
+    
 inline context *OperationContext::remove_context(Uint32 uint_val)
 {
-   context *c = 0;
-   c = _context.next(c);
-   while(c != 0)
-   {
-      if (c->operator==(uint_val) == true)
-      {
-	 _context.remove(c);
-	 break;
-      }
-      c = _context.next(0);
-   }
-   return c;
+    context *c = 0;
+    c = _context.next(c);
+    while (c != 0)
+    {
+	if (c->operator==(uint_val) == true)
+	{
+	    _context.remove(c);
+	    break;
+	}
+	c = _context.next(0);
+    }
+    return c;
 }
-
+    
 inline context *OperationContext::remove_context(Uint8 *uid) 
 {
-   context *c = 0;
-   c = _context.next(c);
-   while(c != 0)
-   {
-      if (c->operator==(uid) == true)
-      {
-	 _context.remove(c);
-	 break;
-      }
-      c = _context.next(0);
-   }
-   return c;
+    context *c = 0;
+    c = _context.next(c);
+    while (c != 0)
+    {
+	if (c->operator==(uid) == true)
+	{
+	    _context.remove(c);
+	    break;
+	}
+	c = _context.next(0);
+    }
+    return c;
 }
-
+    
 inline context *OperationContext::remove_context(void *data)
 {
-   context *c = 0;
-   c = _context.next(c);
-   while(c != 0)
-   {
-      if (c->operator==(data) == true)
-      {
-	 _context.remove(c);
-	 break;
-      }
-      c = _context.next(0);
-   }
-   return c;
+    context *c = 0;
+    c = _context.next(c);
+    while (c != 0)
+    {
+	if (c->operator==(data) == true)
+	{
+	    _context.remove(c);
+	    break;
+	}
+	c = _context.next(0);
+    }
+    return c;
 }
-
+    
 inline context *OperationContext::remove_context_key(Uint32 key)
 {
-   context *c = 0;
-   c = _context.next(c);
-   while(c != 0)
-   {
-      if (c->get_key() == key)
-      {
-	 _context.remove(c);
-	 break;
-      }
-      c = _context.next(0);
-   }
-   return c;
+    context *c = 0;
+    c = _context.next(c);
+    while (c != 0)
+    {
+	if (c->get_key() == key)
+	{
+	    _context.remove(c);
+	    break;
+	}
+	c = _context.next(0);
+    }
+    return c;
 }
-
+    
 PEGASUS_NAMESPACE_END
 
-#endif
+#endif /* Pegasus_OperationContext_h */

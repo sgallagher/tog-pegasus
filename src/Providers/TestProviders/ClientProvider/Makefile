@@ -9,7 +9,6 @@ LIBRARY = TestClientProvider
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

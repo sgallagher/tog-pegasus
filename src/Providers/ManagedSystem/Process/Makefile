@@ -51,7 +51,6 @@ SOURCES = \
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 
 include $(ROOT)/mak/dynamic-library.mak

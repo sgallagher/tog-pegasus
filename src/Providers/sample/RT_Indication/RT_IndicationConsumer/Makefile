@@ -11,7 +11,6 @@ LIBRARY = RT_IndicationConsumer
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

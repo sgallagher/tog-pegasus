@@ -56,13 +56,11 @@ LIBRARIES = \
     NTPProviderSecurity \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 else
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
  ifeq ($(OS),HPUX)
 LIBRARIES += NTPProviderSecurity

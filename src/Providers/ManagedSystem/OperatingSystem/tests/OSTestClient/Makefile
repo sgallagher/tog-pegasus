@@ -8,8 +8,6 @@ include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
     pegclient \
-    pegrepository \
-    pegconfig \
     pegcommon
 
 PROGRAM = OSTestClient

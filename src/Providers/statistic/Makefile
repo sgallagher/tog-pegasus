@@ -9,7 +9,6 @@ LIBRARY = IBM_CIMOMStatDataProvider
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 
 SOURCES = \

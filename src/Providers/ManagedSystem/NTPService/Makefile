@@ -47,13 +47,11 @@ ifeq ($(OS),VMS)
  LIBRARIES = \
     ntpprovidersecurity \
     pegprovider \
-    pegconfig \
     pegcommon
 
 else
  LIBRARIES = \
     pegprovider \
-    pegconfig \
     pegcommon
 
  ifeq ($(OS),HPUX)

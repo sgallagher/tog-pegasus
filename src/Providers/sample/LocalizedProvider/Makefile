@@ -9,7 +9,6 @@ LIBRARY = SampleLocalizedProvider
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

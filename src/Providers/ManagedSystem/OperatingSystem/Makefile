@@ -46,7 +46,6 @@ SOURCES = \
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 
 DYNAMIC_LIBRARIES = \

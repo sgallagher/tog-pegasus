@@ -9,7 +9,6 @@ LIBRARY = SampleFamilyProvider
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

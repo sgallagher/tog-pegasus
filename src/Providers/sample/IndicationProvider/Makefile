@@ -7,7 +7,6 @@ LIBRARY = SampleIndicationProvider
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

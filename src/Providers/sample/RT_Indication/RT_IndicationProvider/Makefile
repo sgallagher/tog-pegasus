@@ -11,7 +11,6 @@ LIBRARIES = \
     pegwql \
     pegquerycommon \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

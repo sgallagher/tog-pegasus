@@ -7,7 +7,6 @@ LIBRARY = nsatrap
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

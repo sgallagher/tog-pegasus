@@ -11,7 +11,6 @@ LIBRARY = SimpleDisplayConsumer
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

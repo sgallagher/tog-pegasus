@@ -13,7 +13,6 @@ LIBRARIES = \
     pegquerycommon \
     pegwql \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

@@ -9,7 +9,6 @@ LIBRARY = PG_TestPropertyTypes
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 
 SOURCES = \

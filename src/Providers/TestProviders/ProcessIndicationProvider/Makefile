@@ -7,7 +7,6 @@ LIBRARY = ProcessIndicationProvider
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

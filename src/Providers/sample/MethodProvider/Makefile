@@ -9,7 +9,6 @@ LIBRARY = SampleMethodProvider
 LIBRARIES = \
     pegprovider \
     pegclient \
-    pegconfig \
     pegcommon
 	
 SOURCES = \

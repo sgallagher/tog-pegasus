@@ -1,4 +1,3 @@
 LIBRARIES = \
-    pegcommon \
-    pegrepository \
-    pegclient
+    pegclient \
+    pegcommon

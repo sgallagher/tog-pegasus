@@ -263,8 +263,6 @@ private:
 static Array<String> *nameSpaceNames=NULL;
 static Array<specialNameSpace*> *specialNames=NULL;
 
-#define PEGASUS_ENABLE_REMOTE_CMPI
-
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
 struct specialNameSpace {
    specialNameSpace()

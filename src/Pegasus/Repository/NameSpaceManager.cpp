@@ -44,8 +44,6 @@
 #include "InstanceIndexFile.h"
 #include "NameSpaceManager.h"
 
-PEGASUS_USING_STD;
-
 PEGASUS_NAMESPACE_BEGIN
 
 static char _CLASSES_DIR[] = "classes";
@@ -57,12 +55,6 @@ static char _INSTANCES_SUFFIX[] = "/instances";
 static char _QUALIFIERS_SUFFIX[] = "/qualifiers";
 static char _ASSOCIATIONS_SUFFIX[] = "/associations";
 
-#if 0
-#undef PEG_METHOD_ENTER
-#undef PEG_METHOD_EXIT
-#define PEG_METHOD_ENTER(x,y)  cout<<"--- Enter: "<<y<<endl;
-#define PEG_METHOD_EXIT()
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -362,7 +354,8 @@ NameSpace::NameSpace(const String& nameSpacePath,
        else _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
 
        if (pns->remote) {
-          cout<<"--- remote namespace: "<<nameSpacePath<<" >"<<pns->remDirName<<"<"<<endl;
+          PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+          	"Remote namespace: " + nameSpacePath +" >"+pns->remDirName);
           remoteDirName=pns->remDirName;
        }
     }
@@ -426,9 +419,11 @@ NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &rep
        int j=0,m=0;
        for (m=nameSpaceNames->size(); j<m; j++)
            if ((*nameSpaceNames)[j]==pns->parent) break;
-       if (j>=m) {
-          cout<<"--- Ooops"<<endl;
-       }
+       if (j>=m) 
+         {
+          PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+          	"Namespace not found in parent namespace.");
+         }
        pns->parentSpace=newNameSpace(j,nsm,repositoryRoot);
     }
     else if (pns) pns->parentSpace=NULL;
@@ -458,7 +453,11 @@ NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &rep
            int j=0,m=0;
            for (m=nameSpaceNames->size(); j<m; j++)
               if ((*nameSpaceNames)[j]==pns->parent) break;
-           if (j>=m) { cout<<"--- Ooops"<<endl; }
+           if (j>=m)
+            {  
+          PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+		"Namespace not found in parent namespace.");
+             }
            pns->parentSpace=newNameSpace(j,nsm,repositoryRoot);
         }
         else if (pns) pns->parentSpace=NULL;
@@ -682,8 +681,12 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
                        specialName.subString(3),
                        specialName);
                  }
-                 else cout<<"--- Namespace "<<dirName<<
-                    " ignored - using incorrect parent namespace specification: "<<specialName<<endl;
+                 else 
+		   {
+          	      PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+				"Namespace " + dirName + 
+				" ignored - using incorrect parent namespace specification: " + specialName);
+		   }
 		 break;
               }
               case 'r': {
@@ -697,7 +700,8 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 		 else host=specialName.subString(3);
 		 if (sns==NULL) sns=new specialNameSpace();
                  sns->setRemote(id,host,port,specialName);
-                 cout<<"--- Remote Namespace "<<dirName<<" >"<<specialName<<"<"<<endl;
+          	 PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+          	    "Remote namespace: " + dirName +" >"+specialName);
 		 break;
 	      }
 	   }
@@ -739,9 +743,9 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 
 	    continue;
            }
-           cout<<"--- Namespace "<<dirName<<
-                 " ignored - using incorrect parent namespace specification: "<<
-                 specialName<<endl;
+           PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+          	"Namespace: " + dirName +
+                " ignored - using incorrect parent namespace specification: " + specialName);
         }
         else {
            nameSpaceNames->prepend(dirName);
@@ -757,8 +761,9 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
        if (!_IsNameSpaceDir(repositoryRoot+"/"+dirName)) {
           (*nameSpaceNames)[i]=String::EMPTY;
           i=-1;   //restart
-          cout<<"--- Namespace "<<dirName<<
-                " ignored - no sub directories found"<<endl;
+          PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+          	"Namespace: " + dirName +
+                " ignored - no sub directories found");
           continue;
        }
 
@@ -768,9 +773,11 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
              if ((*nameSpaceNames)[i].size()) {
                 for (j=0; j<m; j++)
                    if ((*nameSpaceNames)[j]==pns->parent) break;
-                if (j>=m) {
-                   cout<<"--- Namespace "<<(*nameSpaceNames)[i]<<
-                         " ignored - parent namespace not found: "<<pns->parent<<endl;
+                if (j>=m) 
+                  {
+                   PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
+          	        "Namespace: " + (*nameSpaceNames)[i] +
+                         " ignored - parent namespace not found: " + pns->parent);
                    (*nameSpaceNames)[i]=String::EMPTY;
                    i=-1;   //restart
                 }

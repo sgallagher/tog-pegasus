@@ -16,7 +16,8 @@ DIRS = \
     wbemexec \
     wbemexec/tests \
     tomof \
-    ipinfo
+    ipinfo \
+    g11ntest	
 
 ifeq ($(OS),HPUX)
   DIRS += \

@@ -13,6 +13,20 @@ class Sample_InstanceProviderClass : Sample_ProviderClass
 	string Message;
 };
 
+// globalization test class
+[Version ("2.2.0")]
+class Sample_LocalizedProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string RoundTripString;
+
+	[read]
+	string ResourceBundleString;
+
+	[read, write]
+	string ContentLanguageString;
+};
+
 [Version ("2.2.0")]
 class Sample_MethodProviderClass : Sample_ProviderClass
 {

@@ -64,6 +64,7 @@ unregisterproviders:
 	cimprovider -r -m SampleInstanceProviderModule
 	cimprovider -r -m SampleMethodProviderModule
 	cimprovider -r -m RT_IndicationProviderModule
+	cimprovider -r -m SampleLocalizedProviderModule
 
 depend:
 

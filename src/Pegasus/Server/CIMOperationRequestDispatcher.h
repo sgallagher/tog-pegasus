@@ -48,12 +48,11 @@
 
 #include <Pegasus/Repository/CIMRepository.h>
 
+#include <Pegasus/Server/ServiceCIMOMHandle.h>
 #include <Pegasus/Server/ProviderManager/ProviderManagerQueue.h>
 #include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-class ServiceCIMOMHandle;
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 {
@@ -167,10 +166,10 @@ protected:
 	const Uint32 timeout = 0xffffffff);
 
 protected:
-    ServiceCIMOMHandle * _cimom;
 	CIMRepository * _repository;
-	ProviderManagerQueue * _providerManager;
-	ConfigurationManagerQueue * _configurationManager;
+    ServiceCIMOMHandle _cimom;
+	ProviderManagerQueue _providerManager;
+	ConfigurationManagerQueue _configurationManager;
 	AtomicInt _dying;
 
 };

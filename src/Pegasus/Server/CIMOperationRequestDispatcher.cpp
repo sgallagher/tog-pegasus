@@ -50,34 +50,18 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 	CIMRepository* repository,
 	CIMServer* server)
 	:
-Base("CIMOpRequestDispatcher", true),
+	Base("CIMOpRequestDispatcher", true),
 	_repository(repository),
-	_cimom(0)
+	_cimom(this, server, repository),
+	_providerManager(_cimom),
+	_configurationManager(_cimom)
 {
-	// ATTN: this is only temporary. the sub components require direct
-	// access to one another to communicate. this will be unnecessary
-	// once they use messages routed through the meta dispatcher.
-	_cimom = new ServiceCIMOMHandle(this, server, repository, 0, 0);
-
-	_providerManager = new ProviderManagerQueue(_cimom);
-
-	_cimom->_providerManager = _providerManager;
-
-	_configurationManager = new ConfigurationManagerQueue(_cimom);
-	
-	_cimom->_providerManager = _providerManager;
-	
 	DDD(cout << _DISPATCHER << endl;)
 }
 
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()	
 {
 	_dying = 1;
-
-	delete _providerManager;
-	delete _configurationManager;
-	
-	delete _cimom;
 }
 
 // ATTN
@@ -104,13 +88,13 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 		false,
 		false,
 		Array<String>(),
-		QueueIdStack(_configurationManager->getQueueId(), getQueueId()));
+		QueueIdStack(_configurationManager.getQueueId(), getQueueId()));
 
 	// save the message key because the lifetime of the message is not known.
 	Uint32 messageKey = request->getKey();
 
 	// send request
-	_configurationManager->enqueue(request);
+	_configurationManager.enqueue(request);
 
 	// wait for response
 	CIMEnumerateInstancesResponseMessage * response =
@@ -148,7 +132,7 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 
 			String providerName = cimInstance.getProperty(pos).getValue().toString();
 
-			if(_providerManager->isProviderBlocked(providerName))
+			if(_providerManager.isProviderBlocked(providerName))
 			{
 				// if the provider is blocked
 				throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
@@ -207,7 +191,7 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
 	q.getValue().get(providerId);
 	DDD(cout << _DISPATCHER << "Provider " << providerId << endl;)
 
-	if(_providerManager->isProviderBlocked(providerId)) // blocked
+	if(_providerManager.isProviderBlocked(providerId)) // blocked
 	{
 		// if the provider is blocked
 		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider is blocked");
@@ -473,7 +457,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
-		_configurationManager->enqueue(new CIMGetInstanceRequestMessage(*request));
+		_configurationManager.enqueue(new CIMGetInstanceRequestMessage(*request));
 
 		return;
 	}
@@ -484,7 +468,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 	if(providerName.size() != 0)
 	{
 		// forward to provider manager
-		_providerManager->enqueue(new CIMGetInstanceRequestMessage(*request));
+		_providerManager.enqueue(new CIMGetInstanceRequestMessage(*request));
 
 		return;
 	}
@@ -587,7 +571,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
-		_configurationManager->enqueue(new CIMDeleteInstanceRequestMessage(*request));
+		_configurationManager.enqueue(new CIMDeleteInstanceRequestMessage(*request));
 
 		return;
 	}
@@ -597,7 +581,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMDeleteInstanceRequestMessage(*request));
+		_providerManager.enqueue(new CIMDeleteInstanceRequestMessage(*request));
 	
 		return;
 	}
@@ -695,7 +679,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
-		_configurationManager->enqueue(new CIMCreateInstanceRequestMessage(*request));
+		_configurationManager.enqueue(new CIMCreateInstanceRequestMessage(*request));
 
 		return;
 	}
@@ -705,7 +689,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMCreateInstanceRequestMessage(*request));
+		_providerManager.enqueue(new CIMCreateInstanceRequestMessage(*request));
 	
 		return;
 	}
@@ -807,7 +791,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
-		_configurationManager->enqueue(new CIMModifyInstanceRequestMessage(*request));
+		_configurationManager.enqueue(new CIMModifyInstanceRequestMessage(*request));
 
 		return;
 	}
@@ -818,7 +802,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMModifyInstanceRequestMessage(*request));
+		_providerManager.enqueue(new CIMModifyInstanceRequestMessage(*request));
 
 		return;
 	}
@@ -969,7 +953,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
-		_configurationManager->enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+		_configurationManager.enqueue(new CIMEnumerateInstancesRequestMessage(*request));
 
 		return;
 	}
@@ -980,7 +964,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMEnumerateInstancesRequestMessage(*request));
+		_providerManager.enqueue(new CIMEnumerateInstancesRequestMessage(*request));
 
 		return;
 	}
@@ -1043,7 +1027,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 	{
 		// send to the configuration manager. it will generate the
 		// appropriate response message.
-		_configurationManager->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+		_configurationManager.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
 		return;
 	}
@@ -1054,7 +1038,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
+		_providerManager.enqueue(new CIMEnumerateInstanceNamesRequestMessage(*request));
 
 		return;
 	}
@@ -1110,7 +1094,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMAssociatorsRequestMessage(*request));
+		_providerManager.enqueue(new CIMAssociatorsRequestMessage(*request));
 
 		return;
 	}
@@ -1173,7 +1157,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMAssociatorNamesRequestMessage(*request));
+		_providerManager.enqueue(new CIMAssociatorNamesRequestMessage(*request));
 
 		return;
 	}
@@ -1233,7 +1217,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMReferencesRequestMessage(*request));
+		_providerManager.enqueue(new CIMReferencesRequestMessage(*request));
 
 		return;
 	}
@@ -1294,7 +1278,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMReferenceNamesRequestMessage(*request));
+		_providerManager.enqueue(new CIMReferenceNamesRequestMessage(*request));
 
 		return;
 	}
@@ -1352,7 +1336,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMGetPropertyRequestMessage(*request));
+		_providerManager.enqueue(new CIMGetPropertyRequestMessage(*request));
 
 		return;
 	}
@@ -1409,7 +1393,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMSetPropertyRequestMessage(*request));
+		_providerManager.enqueue(new CIMSetPropertyRequestMessage(*request));
 
 		return;
 	}
@@ -1634,7 +1618,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	if(providerName.size() != 0)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(new CIMInvokeMethodRequestMessage(*request));
+		_providerManager.enqueue(new CIMInvokeMethodRequestMessage(*request));
 
 		return;
 	}
@@ -1669,7 +1653,7 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 	if(providerName)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(request);
+		_providerManager.enqueue(request);
 
 		return;
 	}
@@ -1690,7 +1674,7 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 			//  Currently, the first class name in the list is passed to
 			//  getProvider.  It shouldn't matter which class name is passed in.
 			//
-			CIMBaseProvider * provider = _providerManager->getProvider
+			CIMBaseProvider * provider = _providerManager.getProvider
 				(request->providerName, request->classNames [0]);
 
 			CIMBaseProviderFacade facade(provider);
@@ -1755,7 +1739,7 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 	if(providerName)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(request);
+		_providerManager.enqueue(request);
 
 		return;
 	}
@@ -1776,7 +1760,7 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 			//  Currently, the first class name in the list is passed to
 			//  getProvider.  It shouldn't matter which class name is passed in.
 			//
-			CIMBaseProvider * provider = _providerManager->getProvider
+			CIMBaseProvider * provider = _providerManager.getProvider
 				(request->providerName, request->classNames [0]);
 
 			CIMBaseProviderFacade facade(provider);
@@ -1841,7 +1825,7 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 	if(providerName)
 	{
 		// forward request to the provider manager
-		_providerManager->enqueue(request);
+		_providerManager.enqueue(request);
 
 		return;
 	}
@@ -1862,7 +1846,7 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 			//  Currently, the first class name in the list is passed to
 			//  getProvider.  It shouldn't matter which class name is passed in.
 			//
-			CIMBaseProvider * provider = _providerManager->getProvider
+			CIMBaseProvider * provider = _providerManager.getProvider
 				(request->providerName, request->classNames [0]);
 
 			CIMBaseProviderFacade facade(provider);
@@ -1941,7 +1925,7 @@ void CIMOperationRequestDispatcher::loadRegisteredProviders(void)
 	}
 	_repository->read_unlock();
 
-	_providerManager->createProviderBlockTable(cimNamedInstances);
+	_providerManager.createProviderBlockTable(cimNamedInstances);
 }
 */
 

@@ -30,20 +30,15 @@
 #define Pegasus_ServiceCIMOMHandle_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueue.h>
-
-#include <Pegasus/Server/CIMServer.h>
-
-#include <Pegasus/Repository/CIMRepository.h>
-
-#include <Pegasus/Server/ProviderManager/ProviderManagerQueue.h>
-#include <Pegasus/Server/ConfigurationManager/ConfigurationManagerQueue.h>
-
 #include <Pegasus/Provider/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMOperationRequestDispatcher;
+class MessageQueue;
+class CIMServer;
+class CIMRepository;
+class ProviderManagerQueue;
+class ConfigurationManagerQueue;
 
 class PEGASUS_SERVER_LINKAGE ServiceCIMOMHandle : public CIMOMHandle
 {
@@ -55,9 +50,7 @@ public:
 	ServiceCIMOMHandle(
 		MessageQueue * outputQueue,
 		CIMServer * cimserver,
-		CIMRepository * repository,
-		ProviderManagerQueue * providerManager,
-		ConfigurationManagerQueue * configurationManager);
+		CIMRepository * repository);
 
 	/** */
 	virtual ~ServiceCIMOMHandle(void);
@@ -68,9 +61,33 @@ public:
 
 	CIMRepository * getRepository(void) { return(_repository); }
 	
-	ProviderManagerQueue * getProviderManager(void) { return(_providerManager); }
+	ProviderManagerQueue * getProviderManager(void)
+	{
+		if(_providerManager == 0)
+		{
+			// ATTN: temporary solution to avoid passing component pointers in the
+			// constructor.
+			_providerManager =
+				(ProviderManagerQueue *)MessageQueue::lookup("Server_ProviderManagerQueue");
+		}
+		
+		return(_providerManager);
+	}
 
-	ConfigurationManagerQueue * getConfigurationManager(void) { return(_configurationManager); }
+	ConfigurationManagerQueue * getConfigurationManager(void)
+	{
+		if(_configurationManager == 0)
+		{
+
+			// ATTN: temporary solution to avoid passing component pointers in the
+			// constructor.
+			_configurationManager =
+				(ConfigurationManagerQueue *)MessageQueue::lookup("Server_ConfiguratioknManagerQueue");
+		}
+
+		return(_configurationManager);
+	}
+
 
 protected:	
 	CIMServer * _server;
@@ -78,7 +95,6 @@ protected:
 	ProviderManagerQueue * _providerManager;
 	ConfigurationManagerQueue * _configurationManager;
 
-	friend CIMOperationRequestDispatcher;
 };
 
 PEGASUS_NAMESPACE_END

@@ -36,22 +36,20 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-ServiceCIMOMHandle::ServiceCIMOMHandle(void) : _server(0)
+ServiceCIMOMHandle::ServiceCIMOMHandle(void)
+	: _server(0), _repository(0), _providerManager(0), _configurationManager(0)
 {
 }
 
 ServiceCIMOMHandle::ServiceCIMOMHandle(
     MessageQueue* outputQueue,
 	CIMServer * server,
-    CIMRepository * repository,
-	ProviderManagerQueue * providerManager,
-	ConfigurationManagerQueue * configurationManager)
+    CIMRepository * repository)
 :
-    //CIMOMHandle(outputQueue),
     _server(server),
     _repository(repository),
-	_providerManager(providerManager),
-	_configurationManager(configurationManager)
+	_providerManager(0),
+	_configurationManager(0)
 {
 }
 

@@ -240,7 +240,7 @@ static void TestInstanceOperations(CIMClient& client)
     // cimInstance.print();
     // tmp.print();
 
-    if(cimInstance.getPath() != tmp.getPath())
+    if(!cimInstance.identical(tmp))
     {
        Exception e("Instances do not match.");
        throw e;

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: ClassDecl.h,v $
+// Revision 1.4  2001/01/28 18:48:07  mike
+// fixed typo in comment
+//
 // Revision 1.3  2001/01/28 18:46:50  mike
-// more docs'
+// more docs
 //
 // Revision 1.2  2001/01/15 04:31:43  mike
 // worked on resolve scheme

@@ -780,7 +780,8 @@ CIMProperty *
 cimmofParser::newProperty(const String &name, const CIMValue &val,
 			  const String &referencedObject) const
 {
-  CIMProperty *p = 0; 
+  CIMProperty *p = 0;
+  
   try {
     p = new CIMProperty(name, val, 0, referencedObject);
   } catch(Exception &e) {

@@ -66,6 +66,7 @@ compilerDeclContext::lookupClass(const String &nameSpace,
 				 const String &className) const
 {
   const CIMClass *pTheClass;
+
   if (_ot != compilerCommonDefs::USE_REPOSITORY) {
     if ( (pTheClass =_findClassInMemory(className)) )
       return *pTheClass;

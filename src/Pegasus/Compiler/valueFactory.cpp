@@ -305,14 +305,28 @@ build_array_value(CIMType::Tag type, unsigned int arrayDimension,
   return 0;
 }
 
-
+/* ATTN: KS 20 Feb 02 - Think we need to account for NULL value here differently
+   They come in as an empty string from devaultValue and if they are an empty 
+   string we need to create the correct type but without a value in it.
+   Easiest may be to test in each converter since otherwise would have to 
+   create a second switch. Either that or if strlength = zero
+   create an empty CIMValue and then put in the type
+                CIMValue x;
+            x.set(Uint16(9)
+*/
 CIMValue *
 valueFactory::createValue(CIMType::Tag type, int arrayDimension,
 			  const String *repp)
 {
   const String &rep = *repp;
   CIMDateTime dt;
+
   if (arrayDimension == -1) { // this is not an array type
+      
+      // KS add test for size.  If empty string set type but NULL attribute
+      if (rep.size() == 0)
+        return new CIMValue(type, false);
+    
     switch(type) {
     case CIMType::UINT8:    return new CIMValue((Uint8)  valueFactory::Stoi(rep));
     case CIMType::SINT8:    return new CIMValue((Sint8)  valueFactory::Stoi(rep));
@@ -329,10 +343,15 @@ valueFactory::createValue(CIMType::Tag type, int arrayDimension,
     case CIMType::STRING:   return new CIMValue(rep);
     case CIMType::DATETIME: return new CIMValue(StoDT(rep, dt));
     case CIMType::REFERENCE: return build_reference_value(rep);
-    case CIMType::NONE: return(new CIMValue((Uint32) 0));
+    case CIMType::NONE:     return(new CIMValue((Uint32) 0));
     }
     return(new CIMValue((Uint32) 0));    // default
   } else { // an array type, either fixed or variable
+
+      // KS If empty string set CIMValue type but Null attribute.
+      if (rep.size() == 0)
+          return new CIMValue(type, true, arrayDimension);
+
     return build_array_value(type, (unsigned int)arrayDimension, rep);
   }
 }

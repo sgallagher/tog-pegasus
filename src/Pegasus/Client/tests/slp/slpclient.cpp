@@ -41,6 +41,7 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
+#ifdef PEGASUS_ENABLE_SLP
   try
     {
       CIMServerDiscovery disco;
@@ -92,6 +93,9 @@ int main(int argc, char** argv)
     }
 
   PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
+#else
+  PEGASUS_STD(cout) << "+++++ PEGASUS_ENABLE_SLP *not* set during the pegasus build" << PEGASUS_STD(endl);
+#endif // PEGASUS_ENABLE_SLP
 
   return 0;
 }

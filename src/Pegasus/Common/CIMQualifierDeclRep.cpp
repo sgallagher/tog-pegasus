@@ -35,7 +35,7 @@
 #include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
+PEGASUS_USING_STD;
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMQualifierDeclRep
@@ -55,6 +55,7 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     _flavor(flavor),
     _arraySize(arraySize)
 {
+    //cout << "KSTEST Qualifier Declflavor " << flavor << endl;
     if (!CIMName::legal(name))
 	throw IllegalName();
 

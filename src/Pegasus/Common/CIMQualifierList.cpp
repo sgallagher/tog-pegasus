@@ -34,6 +34,7 @@
 #include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 CIMQualifierList::CIMQualifierList()
 {
@@ -118,7 +119,7 @@ void CIMQualifierList::resolve(
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
     {
 	CIMQualifier q = _qualifiers[i];
-
+        //cout << "KSTEST  Qual resolve for loop Name = " << q.getName() << endl;
 	//----------------------------------------------------------------------
 	// 1. Check to see if it's declared.
 	//----------------------------------------------------------------------
@@ -155,45 +156,55 @@ void CIMQualifierList::resolve(
 	// abstract qualifier as non-overridable but then they override it.
 	// For now it is just disabled. This problem exists in both XML and
 	// CIM schema.
-
-#if 0
+         //cout << "KSTEST QUal resolve Propagate 1 " << q.getName() << endl;
+//#if 0
 	Uint32 pos = inheritedQualifiers.find(q.getName());
 
 	if (pos != PEG_NOT_FOUND)
 	{
-	    CIMConstQualifier iq = inheritedQualifiers.getQualifier(pos);
+	    CIMConstQualifier iq = inheritedQualifiers.getQualifier(pos);{
 
 	    if (!(iq.getFlavor() & CIMFlavor::OVERRIDABLE))
 		throw BadQualifierOverride(q.getName());
+            }
 	}
-#endif
+//#endif
     }
 
     //--------------------------------------------------------------------------
     // Propagate qualifiers to subclass or to instance that do not have
     // already have those qualifiers:
     //--------------------------------------------------------------------------
-
+    //cout << "KSTEST Qual resolve Propagate loop begin" << " fal " << false << endl;
     for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
     {
 	CIMQualifier iq = inheritedQualifiers.getQualifier(i);
-
+        //cout << "KSTEST inherited  propagate loop 2 " <<  iq.getName() 
+        //<< " flavor " << iq.getFlavor << " count " << i << endl;
 	if (isInstancePart)
 	{
-	    if (!(iq.getFlavor() & CIMFlavor::TOINSTANCE))
+	    if ((iq.getFlavor() && CIMFlavor::TOINSTANCE))
 		continue;
 	}
 	else
 	{
-	    if (!(iq.getFlavor() & CIMFlavor::TOSUBCLASS))
+	    //cout << "TKSTEST before tosubclass Flavor " 
+            //     << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
+            if ((iq.getFlavor() && CIMFlavor::TOSUBCLASS)){
+                //cout << "KSTEST after test " << endl;
 		continue;
+            }
 	}
+        //cout << "KSTEST resolve Propagate 3 " << iq.getName()
+        //<< " TOSUBCLASS " << !(iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
 
 	// If the qualifiers list does not already contain this qualifier,
 	// then propagate it (and set the propagated flag to true).
 
 	if (find(iq.getName()) != PEG_NOT_FOUND)
 	    continue;
+
+        //cout << "KSTEST resolve Propagate 4 " << iq.getName() << endl;
 
 	CIMQualifier q = iq.clone();
 	q.setPropagated(true);

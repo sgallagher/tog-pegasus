@@ -35,6 +35,7 @@ PEGASUS_NAMESPACE_BEGIN
 String StatisticalData::requestName[] = {
     "GET_CLASS",
     "GET_INSTANCE",
+	"EXPORT_INDICATION",
     "DELETE_CLASS",
     "DELETE_INSTANCE",
     "CREATE_CLASS",
@@ -70,18 +71,21 @@ StatisticalData* StatisticalData::current(){
 }
 
 StatisticalData::StatisticalData(){
+
    for (unsigned int i=0; i<StatisticalData::length; i++){
       numCalls[i] = 0;
-      cimomTime[i] = 0;      providerTime[i] = 0;
+      cimomTime[i] = 0;      
+	  providerTime[i] = 0;
       responseSize[i] = 0;
       requestSize[i] = 0;
+	  
    }
 }
 
 void StatisticalData::addToValue(Uint64 value, Uint16 type, Uint32 t){
    _mutex.lock( pegasus_thread_self() );
    switch(t){
-      case SERVER:      numCalls[type] += 1;
+	  case SERVER:   	numCalls[type] += 1;
                         cimomTime[type] += value;
                         break;
       case PROVIDER:    providerTime[type] += value;
@@ -93,5 +97,6 @@ void StatisticalData::addToValue(Uint64 value, Uint16 type, Uint32 t){
    }
    _mutex.unlock();
 }
+
 
 PEGASUS_NAMESPACE_END

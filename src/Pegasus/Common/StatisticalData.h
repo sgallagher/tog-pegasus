@@ -41,6 +41,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -48,37 +49,49 @@ PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_HAS_PERFINST
 
 #define STAT_GETSTARTTIME \
-timeval startTime; \
-pegasus_gettimeofday(&startTime);
+CIMDateTime startTime = CIMDateTime::getCurrentDateTime();
+
 
 #define STAT_PMS_PROVIDEREND \
 response->endProvider();            \
 response->setStartServerTime(request->getStartServerTime()); \
 response->setStartProviderTime(startTime);
 
-#define STAT_SERVERSTART request->setStartServerTime(startTime);
+
+#define STAT_SERVERSTART \
+request->setStartServerTime(startTime);
+
 
 #define STAT_SERVEREND \
-response->endServer(); \
-Array<Sint8> timeOut;  \
-timeOut.reserveCapacity(10); \
-timeOut << response->getTotalTime();      \
-message.insert(30, timeOut.getData(), timeOut.size()); \
-Uint32 statType = (response->getType() > CIM_GET_CLASS_RESPONSE_MESSAGE)? \
-    response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE: \
-    response->getType()-1; \
-StatisticalData::current()->addToValue(message.size(), \
-    statType, StatisticalData::BYTES_SENT);
-
-#define STAT_SERVEREND_ERROR   response->endServer();
+response->endServer();\
+Uint32 statType = (response->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
+    response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE:response->getType() - 1;\
+StatisticalData::current()->addToValue(message.size(), statType, StatisticalData::BYTES_SENT);\
+printf("SERVEREND\n");\
+StatisticalData::current()->addToValue(StatisticalData::current()->requSize, statType,\
+	StatisticalData::BYTES_READ);\
+	cout <<"cim_get_class_resopons_message= "<< CIM_GET_CLASS_RESPONSE_MESSAGE\
+	<<"and gettype = "<< response->getType() << endl;
 
 
-#define STAT_PROVIDERSTART request->startProvider();
+
+#define STAT_SERVEREND_ERROR \
+response->endServer();
 
 
-#define STAT_PROVIDEREND   request->endProvider();
+#define STAT_PROVIDERSTART \
+request->startProvider();
 
-#define STAT_COPYDISPATCHER response->setStartServerTime(request->getStartServerTime());
+
+#define STAT_PROVIDEREND   \
+request->endProvider();
+
+
+#define STAT_COPYDISPATCHER \
+response->setStartServerTime(request->getStartServerTime());
+
+
+
 
 
 // copy request timing info into response
@@ -87,12 +100,18 @@ response->setStartServerTime(request->getStartServerTime());   \
 response->setStartProviderTime(request->getStartProviderTime());   \
 response->setEndProviderTime(request->getEndProviderTime());
 
+
+
+/*the request size value must be stored (requSize) and passed to the StatisticalData object at the
+ end of processing other wise it will be the ONLY vlaue that is passed to the client which reports 
+ the current state of the object, not the pevious (one command ago) state */
+
 #define STAT_BYTESREAD \
-Uint32 statType = (request->getType() > CIM_GET_CLASS_RESPONSE_MESSAGE)? \
-    request->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE: \
-    request->getType()-1; \
-StatisticalData::current()->addToValue(contentLength, \
-    statType, StatisticalData::BYTES_READ);
+Uint32 statType = (request->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
+    request->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE: request->getType()-1;\
+StatisticalData::current()->requSize = contentLength;
+
+
 
 
 #define STAT_SERVERTIME out << "Servertime:  \r\n";
@@ -117,6 +136,7 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
       enum StatRequestType{
          GET_CLASS,
          GET_INSTANCE,
+		 EXPORT_INDICATION,
          DELETE_CLASS,
          DELETE_INSTANCE,
          CREATE_CLASS,
@@ -156,10 +176,11 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
       timeval timestamp;
 
       Uint64 numCalls[NUMBER_OF_TYPES];
-      Uint64 cimomTime[NUMBER_OF_TYPES];
-      Uint64 providerTime[NUMBER_OF_TYPES];
+      __int64 cimomTime[NUMBER_OF_TYPES];
+      __int64 providerTime[NUMBER_OF_TYPES];
       Uint64 responseSize[NUMBER_OF_TYPES];
       Uint64 requestSize[NUMBER_OF_TYPES];
+	  Uint64 requSize;						//tempory storage for requestSize vlaue
       static StatisticalData* cur;
       void addToValue(Uint64 value, Uint16 type, Uint32 t);
       static String requestName[];

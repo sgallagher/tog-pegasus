@@ -27,7 +27,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -176,7 +177,7 @@ The algorithm goes thru each three bytes of data at a time. The first thing I do
 /*  The decode static method takes a base-64 stream and converts it 
     to an array of 8-bit values.
 */
-Array<Uint8> Base64::decode(const Array<Sint8> strInput)
+Array<Uint8> Base64::decode(const Array<Sint8>& strInput)
 {
     //Strip any non-base64 characters from the input
     Array<Sint8> str;

@@ -27,7 +27,8 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +92,7 @@ public:
     static Array<Sint8> encode(const Array<Uint8>& vby);
     /**
     */
-    static Array<Uint8> decode(const Array<Sint8> str);
+    static Array<Uint8> decode(const Array<Sint8>& str);
 
 private:
     static char _Encode(Uint8 uc);

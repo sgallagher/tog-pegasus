@@ -2055,12 +2055,12 @@ Boolean CIMOMHandle::pending_operation(void)
 
 void CIMOMHandle::disallowProviderUnload()
 {
-   return _rep->disallowProviderUnload();
+   _rep->disallowProviderUnload();
 }
 
 void CIMOMHandle::allowProviderUnload()
 {
-   return _rep->allowProviderUnload();
+   _rep->allowProviderUnload();
 }
 
 Boolean CIMOMHandle::unload_ok(void)

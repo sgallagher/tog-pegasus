@@ -15,7 +15,8 @@ endif
 LIBRARY = pegwql
 
 LIBRARIES = \
-	pegcommon
+	pegcommon \
+   pegquerycommon
 
 SOURCES = \
 	WQLSelectStatement.cpp \

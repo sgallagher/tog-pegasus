@@ -1,4 +1,8 @@
 
+    -	Fix bug in src/Pegasus/Client/tests/Client in which associators()
+	fails and says class does not exist (seems to happen in debug mode
+	only). Disappears when I/O is enabled.
+
     -	Replace old headers with new ones (co-ordinate with team).
 
     -	Get rid of usage of System (use since it

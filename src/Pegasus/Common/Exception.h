@@ -97,13 +97,6 @@ public:
     InvalidNamespaceNameException(const String& name);
 };
 
-// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE UninitializedHandleException : public Exception
-{
-public:
-    UninitializedHandleException();
-};
-
 class PEGASUS_COMMON_LINKAGE UninitializedObjectException : public Exception
 {
 public:

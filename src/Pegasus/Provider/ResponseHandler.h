@@ -169,7 +169,7 @@ protected:
     {
         if(_rep == 0)
         {
-            throw UninitializedHandleException();
+            throw UninitializedObjectException();
         }
 
         return(_rep);

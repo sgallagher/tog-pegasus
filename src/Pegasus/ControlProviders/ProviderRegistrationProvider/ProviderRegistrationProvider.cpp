@@ -169,7 +169,7 @@ ProviderRegistrationProvider::ProviderRegistrationProvider(
 
     _controller = &(ModuleController::get_client_handle(_id, &_client_handle));
     if(_client_handle == NULL)
-        throw UninitializedHandleException();
+        throw UninitializedObjectException();
 }
 
 ProviderRegistrationProvider::~ProviderRegistrationProvider(void)	

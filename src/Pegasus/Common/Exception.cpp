@@ -72,11 +72,6 @@ InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
 {
 }
 
-UninitializedHandleException::UninitializedHandleException()
-    : Exception("uninitialized handle")
-{
-}
-
 UninitializedObjectException::UninitializedObjectException()
     : Exception("uninitialized object")
 {

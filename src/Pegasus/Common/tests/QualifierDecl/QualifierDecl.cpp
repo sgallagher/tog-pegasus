@@ -28,7 +28,8 @@
 
 #include <cassert>
 #include <Pegasus/Common/CIMQualifierDecl.h>
-
+#include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/CIMScope.h>
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 

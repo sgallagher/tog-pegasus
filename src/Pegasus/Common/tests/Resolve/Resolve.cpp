@@ -26,27 +26,54 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
 #include <cstdlib>
 #include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/CIMValue.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+#define TESTIO
 
 void test01()
 {
     const String NAMESPACE = "/ttt";
 
     SimpleDeclContext* context = new SimpleDeclContext;
-    CIMClass class2("YourClass", "");
+
+    // Not sure about this one. How do I get NULL as CIMValue
+    // This generates an empty string, not NULL
+    CIMQualifierDecl q1("q1",String(),CIMScope::CLASS);
+
+    CIMQualifierDecl q2("Abstract", Boolean(true), CIMScope::CLASS , CIMFlavor::NONE);
+    
+    CIMValue v1(CIMType::UINT32,false);
+    CIMQualifierDecl q3("q1",v1,CIMScope::CLASS);
+
+#ifdef TESTIO
+    q1.print();
+    q2.print();
+    q3.print();
+#endif
+
+    context->addQualifierDecl(NAMESPACE, q1);
+    context->addQualifierDecl(NAMESPACE, q2);
+
+    CIMClass class2("SuperClass", "");
+    
     context->addClass(NAMESPACE, class2);
     class2.resolve(context, NAMESPACE);
     
-    CIMClass class1("MyClass", "YourClass");
+    CIMClass class1("SubClass", "SuperClass");
 
     class1
-	// .addQualifier(CIMQualifier("q1", Uint32(55)))
-	// .addQualifier(CIMQualifier("q2", "Hello"))
+        .addQualifier(CIMQualifier("Abstract", Boolean(true)))
+        .addQualifier(CIMQualifier("q1", "Hello"))
+	.addQualifier(CIMQualifier("q3", Uint32(55)))
 	.addProperty(CIMProperty("message", String("Hello")))
 	.addProperty(CIMProperty("count", Uint32(77)))
 	// .addProperty(CIMProperty("ref1", Reference("MyClass.key1=\"fred\"")))
@@ -54,15 +81,103 @@ void test01()
 	    .addParameter(CIMParameter("hostname", CIMType::STRING))
 	    .addParameter(CIMParameter("port", CIMType::UINT32)));
 
-    // class1.print();
-    class1.resolve(context, NAMESPACE);
+ #ifdef TESTIO
+    class1.print();
+    class2.print();
+ #endif
+    try{
+        class1.resolve(context, NAMESPACE);
+        cout << "Passed basic resolution test" << endl;
+
+        // Add assertions on the resolution.
+        // Abstract did not move to subclass
+        // 2. et.
+ #ifdef TESTIO
+    cout << "after resolve " << endl;
+    class1.print();
+    class2.print();
+ #endif
+
+    }
+    catch (Exception& e)
+    {
+        cout << "Resolution Error " << e.getMessage() << endl;
+    }
 }
+// Test for qualifier not declared
+void test02()
+{
+    const String NAMESPACE = "/ttt";
+    Boolean resolved = false;
+    SimpleDeclContext* context = new SimpleDeclContext;
+
+      CIMQualifierDecl q1("q1",String(),CIMScope::CLASS,
+        CIMFlavor::DEFAULTS);
+
+      CIMQualifierDecl q2("Abstract", Boolean(true), CIMScope::CLASS , 0);
+
+      //CIMvalue v1(CIMType::UINT32,false);
+      //CIMQualifierDecl q3("q1",v1,CIMScope::CLASS);
+
+  #ifdef TESTIO
+      q1.print();
+      q2.print();
+      //q3.print();
+  #endif
+
+    context->addQualifierDecl(NAMESPACE, q1);
+    context->addQualifierDecl(NAMESPACE, q2);
+
+    CIMClass class2("SuperClass", "");
+    
+    context->addClass(NAMESPACE, class2);
+    class2.resolve(context, NAMESPACE);
+    
+    CIMClass class1("SubClass", "SuperClass");
+
+    class1
+        .addQualifier(CIMQualifier("Abstract", Boolean(true)))
+        .addQualifier(CIMQualifier("q1", "Hello"))
+	.addQualifier(CIMQualifier("q3", Uint32(55)))
+	.addProperty(CIMProperty("message", String("Hello")))
+	.addProperty(CIMProperty("count", Uint32(77)))
+	// .addProperty(CIMProperty("ref1", Reference("MyClass.key1=\"fred\"")))
+	.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
+	    .addParameter(CIMParameter("hostname", CIMType::STRING))
+	    .addParameter(CIMParameter("port", CIMType::UINT32)));
+ #ifdef TESTIO
+    class1.print();
+    class2.print();
+ #endif
+    try{
+        class1.resolve(context, NAMESPACE);
+        resolved = true;
+    }
+    catch (Exception& e)
+    {
+        resolved = false;
+        cout << " Found Resolution Error " << e.getMessage() << endl;
+    }
+    // Should have gotten the error
+    if (resolved){
+        cout << "Failed find undeclared qualifier test" << endl;
+        assert(false);
+    }
+    else{
+        cout << "Passed find undeclared qualifier test" << endl;
+    }
+
+}
+
+
 
 int main()
 {
     try
     {
 	test01();
+        test02();
+        //test03();
     }
     catch (Exception& e)
     {

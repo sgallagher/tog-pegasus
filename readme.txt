@@ -2,10 +2,16 @@ Pegasus - A Manageability Services Broker for the DMTF CIM/WBEM Standards
 
 Author: Mike Brasher, Karl Schopmeyer
 
+Version 0.97
+May 20 2001
+
 ------------------------------------------------------------------------------
 --
 
 $Log: readme.txt,v $
+Revision 1.6  2001/05/22 12:48:06  karl
+change install and ACE comments
+
 Revision 1.5  2001/02/26 10:36:34  karl
 Clean Up Text
 
@@ -21,8 +27,7 @@ inserted comments and suggestions following "MEB:" annotations.
 Revision 1.1  2001/01/15 04:26:04  karl
 added Readme
 
-------------------------------------------------------------------------------
---
+-----------------------------------------------------------------------
 
 Tagline: Pegasus is an object manager for DMTF CIM objects written in C++
          and supported by The Open Group
@@ -72,11 +77,11 @@ occur before March 2001.
 
 To get on the distribution list for Pegasus today, send an email to
 
-m.kirk@opengroup.org
+	m.kirk@opengroup.org
 
-or
+	or
 
-k.schopmeyer@opengroup.org
+	k.schopmeyer@opengroup.org
 
 Pegasus Major Components
 ========================
@@ -122,25 +127,7 @@ Pegasus Dependencies
 We have worked to minimize the dependence of Pegasus on other software
 packages and tools. Currently Pegasus has the following dependencies
 
-1. ACE_Wrappers communication package - The ACE Wrappers package is used for
-communication and some low level functions within the MSB, the Pegasus client
-SDK, and the Pegasus Provider SDK.  ACE is available from the following site.
-
-    http://ace.cs.wustl.edu/cvsweb/ace-cvs.cgi/ACE_wrappers/
-
-Currently we are using version 5.1 of ACE_Wrappers both in Linux and Windows.
-
-    http://www.cs.wustl.edu/~schmidt/ACE_wrappers/ACE-5.1.tar.gz
-
-COMMENTS: Pegasus only uses limited facilities from ACE. We actively
-discourage the Pegasus team from using other functions of ACE.  We expect to
-eliminate our dependence on ACE as the only TCP tool in the near future.
-However, today we
-demand the installation of the complete ACE library. One of the action items
-for the future is to provide a more limited ACE library and possibly even to
-provide an environment independent of ACE.
-
-2. To simplify the building of Pegasus across multiple platforms we have
+1. To simplify the building of Pegasus across multiple platforms we have
 standardized on a set of build tools including: GNUMAKE. We are using GNUAKE
 4.79.1 successfully both in Windows and Linux environments.
 
@@ -156,7 +143,7 @@ are open to other developers who want to contribute other build structures for
 particular environments.
 
 
-3. MU.EXE - To minimize the difference between Linux and Windows for GUNMAKE,
+2. MU.EXE - To minimize the difference between Linux and Windows for GUNMAKE,
 we have created a utility called MU.exe.  This utility is required for Pegasus
 make with Windows environment. It is provided as an alternative to requiring a
 number of UNIX utilities (SH, RM, etc.) on the windows platform and
@@ -171,16 +158,34 @@ before you initiate the Pegausu make.
 NOTE: We will make a copy of the binary available on the MSB WEB site to
 eliminate the requirement to build this utility.
 
-4. FLEX and BISON - These tools were used to develop the compiler, anybody
+3. FLEX and BISON - These tools were used to develop the compiler, anybody
 intending to recompile the compiler from scratch will be required to have
 these tools.
 
-5. DOC++ - The Pegasus documentation is taken from a combination of text files
+4. DOC++ - The Pegasus documentation is taken from a combination of text files
 and the Pegasus header files themselves.  This documentation is formatted with
 DOC++ and GAWK.  These tools are required if the documentation is to be
 recreated but we expect that only the core team will be recreating
 documentaiton.
 
+5. ACE_Wrappers communication package (NOTE: The ACE Wrappers dependency has
+been removed. Effective version 0.9 Pegasus is not dependent on ACE Wrappers)
+- The ACE Wrappers package is used for
+communication and some low level functions within the MSB, the Pegasus client
+SDK, and the Pegasus Provider SDK.  ACE is available from the following site.
+
+    http://ace.cs.wustl.edu/cvsweb/ace-cvs.cgi/ACE_wrappers/
+
+Currently we are using version 5.1 of ACE_Wrappers both in Linux and Windows.
+
+    http://www.cs.wustl.edu/~schmidt/ACE_wrappers/ACE-5.1.tar.gz
+
+COMMENTS: Pegasus only uses limited facilities from ACE. We actively
+discourage the Pegasus team from using other functions of ACE.  We expect to
+eliminate our dependence on ACE as the only TCP tool in the near future.
+However, today Pegasus demands the installation of the complete ACE library.
+One of the action items for the future is to provide a more limited ACE
+library and possibly even to provide an environment independent of ACE.
 
 The Pegasus Directory Structure
 ===============================
@@ -255,13 +260,6 @@ The installation of Pegasus involves expanding the snapshot distribution
 files, building the runtime, the test files and test clients, and building the
 repository.
 
-NOTE: Since the compiler integration is not complete today, the class
-repository is populated from the XML defintions for the complete CIM schema.
-This process is included in the build process so that at the end of a complete
-build, the class repository is completely populated from the CIM 2.4 release
-schema.
-
-
 Building from a Distribution --- General
 ========================================
 
@@ -288,45 +286,31 @@ Pegasus client. These tests can be executed as follows:
 
 
 For information on particular installation characteristics, tools, etc. for
-each platform see
-the appropriate sections below:
+each platform see the appropriate sections below:
 
 Generally the build commands are as follows:
 
-    1. There is a Makefile in the Pegasus root.   Simply executing make in the
-    Pegasus root directory will make everything. Make rebuild will clean and
-    rebuild everything.
+    1. There is a Makefile in the Pegasus root directory.   Simply executing
+    make in the Pegasus root directory will make everything. "Make rebuild"
+    will clean and rebuild everything. The "make rebuild" will also populate
+    the repository with the current CIM Schemas.
 
-    2. In order to provide a working class repository for Pegasus until the
-    MOF compiler is integrated, There is a utility to load the CIM Schema from
-    XML into the repository. This executes the LoadRepository executable which
-    is defined in
-
-    	pegasus/src/Pegasus/Repository/tests/LoadRepository
-
-    with the binary in pegasus/bin. This program will load the CIM XML
-    repository definitions into the class repository.
-
-    3. To test a fresh release, go to the pegasus root and type
+    2. To test a fresh release, go to the pegasus root and type
 
 		"make world".
 
 
-    This will clean, build dependencies, build binaries, and then run all
+    This will build dependencies, build binaries, and then run all
     tests except the Client/Server tests.
 
-    4. To execute the basic test suite that is shipped with pegasus type
+    3. To execute the basic test suite that is shipped with pegasus type
 
-	   "make tests"
-
-    5. To run the integral unit code tests provided, simply type
-
-	   "make tests"
+	   "make tests". This also reintalls the repository.
 
     Running "make -s tests" suppresses extraneous output such as the
     enter/leave directory messages.
 
-    6. "Make Clean" removes all object and library files from the structure.
+    4. "Make Clean" removes all object and library files from the structure.
 
 Build Variables
 ===============
@@ -335,14 +319,12 @@ The build system depends on the following environment variables build set.
 These variables must be set as part of the installation of the Pegasus source
 tree before you can compile or run Pegasus.
 
-    PEGASUS_ACE_ROOT - required (points to ACE_wrappers directory). This must
-    be set before you initiate make
-
     PEGASUS_OS_TYPE - optional. The is currently set to windows.  If you build
     on any platform except windows you must change this before initiating
     make.
 
-    PEGASUS_ROOT - Root directory of the Pegasus tree.
+    PEGASUS_ROOT - Root directory of the Pegasus source tree.
+
     PEGASUS_HOME - Home directory for all of the Pegasus runtime elements.
     If this does not exist, $PEGASUS_ROOT$/build is assumed.
 
@@ -528,6 +510,7 @@ We are looking for people who want to join the Pegasus work group and
 contribute to effort of getting this Pegasus off the ground.  Please send
 email for details to k.schopmeyer@opengroup.org or m.kirk@opengroup.org or
 m.brasher@opengroup.org
+
 
 
 

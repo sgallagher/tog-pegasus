@@ -95,16 +95,17 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
             pr = _lookupProvider(providerName);
 
-            if(pr->getStatus() != CMPIProvider::INITIALIZED)
+            if (pr->getStatus() != CMPIProvider::INITIALIZED)
             {
                 pr->setLocation(location);
                 _initProvider(pr,moduleFileName);
-            }
 
-            if(pr->_status != CMPIProvider::INITIALIZED)
-            {
-                PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,"provider initialization failed");
+                if (pr->getStatus() != CMPIProvider::INITIALIZED)
+                {
+                    PEG_METHOD_EXIT();
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_FAILED, "provider initialization failed");
+                }
             }
 
 
@@ -560,11 +561,24 @@ CMPIProvider* CMPILocalProviderManager::_initProvider(
     ProviderVector base;
 
     {
-	// lock the providerTable mutex
+        // lock the providerTable mutex
         AutoMutex lock(_providerTableMutex);
 
         // lookup provider module
-	module = _lookupModule(moduleFileName);
+        module = _lookupModule(moduleFileName);
+    }   // unlock the providerTable mutex
+
+    Boolean deleteProvider = false;
+
+    {
+        // lock the provider status mutex
+        AutoMutex lock(provider->_statusMutex);
+
+        if (provider->_status == CMPIProvider::INITIALIZED)
+        {
+            // Initialization is already complete
+            return provider;
+        }
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Loading/Linking Provider Module " + moduleFileName);
@@ -582,54 +596,39 @@ CMPIProvider* CMPILocalProviderManager::_initProvider(
             PEG_METHOD_EXIT();
             throw;
         }
-    }   // unlock the providerTable mutex
 
-    // initialize the provider
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                     "Initializing Provider " +  provider->_name);
+        // initialize the provider
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Initializing Provider " +  provider->_name);
 
-    //
-    // Set the undoModuleLoad flag to true here, so that if the
-    // initialize() throws an exception, we can unload the provider
-    // module.
-    //
-    Boolean undoModuleLoad = true;
+        CIMOMHandle *cimomHandle =  new CIMOMHandle();
+        provider->set(module, base, cimomHandle);
+        provider->_quantum=0;
 
-    {   // lock the provider mutex
-        AutoMutex pr_lock(provider->_statusMutex);
-
-        // check provider status
-        if (provider->_status == CMPIProvider::UNINITIALIZED)
+        try
         {
-            CIMOMHandle *cimomHandle =  new CIMOMHandle();
-            provider->set(module, base, cimomHandle);
-            provider->_quantum=0;
-
-            try
-            {
-                provider->initialize(*(provider->_cimom_handle));
-                undoModuleLoad = false;
-            }
-            catch(...)
-            {
-                _providers.remove(provider->getName());
-                // delete the cimom handle
-	        delete provider->_cimom_handle;
-	        // set provider status to UNINITIALIZED
-               provider->reset();
-               delete provider;
-            }
+            provider->initialize(*(provider->_cimom_handle));
         }
-    }  // unlock the provider mutex
+        catch(...)
+        {
+            // delete the cimom handle
+            delete provider->_cimom_handle;
 
-    // if we did not initialize the provider, unload the provider module
-    if (undoModuleLoad)
+            // set provider status to UNINITIALIZED
+            provider->reset();
+            deleteProvider = true;
+
+            // unload provider module
+            module->unloadModule();
+        }
+    }   // unlock the provider status mutex
+
+    if (deleteProvider)
     {
-	// lock the providerTable mutex
         AutoMutex lock(_providerTableMutex);
 
-	// unload provider module
-        module->unloadModule();
+        _providers.remove(provider->getName());
+        delete provider;
     }
 
     PEG_METHOD_EXIT();

@@ -46,21 +46,29 @@ PEGASUS_NAMESPACE_BEGIN
 ///////////////////////////////////////////////////////////////////////////////
 //  ShutdownPropertyOwner
 //
+//  The operationTimeout property is the timeout value in seconds that the
+//  cimom uses to wait for CIM operations to complete before shutting down
+//  the cimom.  The default is 2 seconds.
+//
+//  The shutdownTimeout property is the timeout value in seconds that the
+//  cimom uses to wait for the shutdown process to complete (this includes
+//  terminating active providers).  The default value is 5 seconds.
+//
 //  When a new timeout property is added, make sure to add the property name
 //  and the default attributes of that property in the table below.
+//
 ///////////////////////////////////////////////////////////////////////////////
-
-static long MIN_OPERATION_TIMEOUT = 2;
-static long MIN_SHUTDOWN_TIMEOUT = 5;
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"timeout", "2", 0, 0, 0},
+    {"operationTimeout", "2", 0, 0, 0},
     {"shutdownTimeout", "5", 0, 0, 0},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
+static long MIN_OPERATION_TIMEOUT = 2;
+static long MIN_SHUTDOWN_TIMEOUT = 5;
 
 /** Constructor  */
 ShutdownPropertyOwner::ShutdownPropertyOwner()
@@ -86,7 +94,7 @@ void ShutdownPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equalNoCase(properties[i].propertyName, "timeout"))
+        if (String::equalNoCase(properties[i].propertyName, "operationTimeout"))
         {
             _operationTimeout->propertyName = properties[i].propertyName;
             _operationTimeout->defaultValue = properties[i].defaultValue;
@@ -332,7 +340,7 @@ Boolean ShutdownPropertyOwner::isValid(const String& name, const String& value)
     //
     char* tmp = value.allocateCString();
     long timeoutValue = strtol(tmp, (char **)0, 10);
-    delete tmp;
+    delete [] tmp;
 
     if (String::equalNoCase(_operationTimeout->propertyName, name))
     {

@@ -132,7 +132,7 @@ static const char OPTION_TIMEOUT     = 'T';
 
 static const String NAMESPACE = "root/cimv2";
 static const String CLASSNAME_SHUTDOWNSERVICE = "PG_ShutdownService";
-static const String PROPERTY_TIMEOUT = "timeout";
+static const String PROPERTY_TIMEOUT = "operationTimeout";
 
 ConfigManager*    configManager;
 
@@ -250,7 +250,7 @@ void PrintHelp(const char* arg0)
     cout << usage << endl;
 }
 
-void shutdownCIMOM(Boolean forceOption, String timeoutStr)
+void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
 {
     //
     // Create CIMClient object
@@ -268,6 +268,10 @@ void shutdownCIMOM(Boolean forceOption, String timeoutStr)
     hostStr.append(":");
     hostStr.append(portNumberStr);
 
+    // Put server shutdown message to the logger
+    Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	"Shutdown $0 on port $1.", PEGASUS_NAME, portNumberStr);
+
     //
     // open connection to CIMOM 
     //
@@ -277,6 +281,9 @@ void shutdownCIMOM(Boolean forceOption, String timeoutStr)
     }
     catch(Exception& e)
     {
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+            "Failed to connect to $0 $1.", PEGASUS_NAME, e.getMessage());
+
         PEGASUS_STD(cerr) << "Failed to connect to server: " << e.getMessage() << PEGASUS_STD(endl);
         exit(1);
     }
@@ -311,8 +318,8 @@ void shutdownCIMOM(Boolean forceOption, String timeoutStr)
         }
 
         inParams.append(CIMParamValue(
-            CIMParameter("timeout", CIMType::STRING),
-            CIMValue(timeoutStr)));
+            CIMParameter("timeout", CIMType::UINT32),
+            CIMValue(timeoutValue)));
 
         CIMValue retValue = client.invokeMethod(
             NAMESPACE,
@@ -320,6 +327,11 @@ void shutdownCIMOM(Boolean forceOption, String timeoutStr)
             "shutdown",
             inParams,
             outParams);
+
+        // Put server shutdown message to the logger
+        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	    "$0 terminated on port $1.", PEGASUS_NAME, portNumberStr);
+
     }
     catch(Exception& e)
     {
@@ -565,48 +577,6 @@ int main(int argc, char** argv)
         }
 
         //
-        // Check to see if we need to shutdown CIMOM 
-        //
-        if (shutdownOption)
-        {
-            //
-            // if timeout was specified, validate the timeout value 
-            //
-            if (timeoutOption)
-            {
-                Boolean valid = configManager->validatePropertyValue(
-                                             PROPERTY_TIMEOUT,
-                                             timeoutStr);
-                if (!valid)
-                {
-                    cout << "Invalid timeout value specified: " << timeoutValue;
-                    cout << endl;
-                    exit(1);
-                }
-            }
-
-            shutdownCIMOM(forceOption, timeoutStr);
-            cout << "Pegasus CIM Server terminated." << endl;
-            exit(0);
-        }
-
-        //
-        // Grab the port option:
-        //
-
-        portOption = configManager->getCurrentValue("port");
-
-        //
-        // Check the trace options and set global variable
-        //
-
-        if (String::equal(configManager->getCurrentValue("trace"), "true"))
-        {
-            Handler::setMessageTrace(true);
-            pegasusIOTrace = true;
-            cout << "Trace Set" << endl;
-        }
-        //
         // Check the log trace options and set global variable
         //
 
@@ -629,13 +599,56 @@ int main(int argc, char** argv)
 
         Logger::setHomeDirectory(logsDirectory);
 
-        if (String::equal(configManager->getCurrentValue("cleanlogs"), "true"))
+        //
+        // Check to see if we need to shutdown CIMOM 
+        //
+        if (shutdownOption)
         {
-            Logger::clean(logsDirectory);;
+            //
+            // if timeout was specified, validate the timeout value 
+            //
+            if (timeoutOption)
+            {
+                Boolean valid = configManager->validatePropertyValue(
+                                             PROPERTY_TIMEOUT,
+                                             timeoutStr);
+                if (!valid)
+                {
+                    cout << "Invalid timeout value specified: " << timeoutValue;
+                    cout << endl;
+                    exit(1);
+                }
+            }
+
+            shutdownCIMOM(forceOption, timeoutValue);
+            cout << "Pegasus CIM Server terminated." << endl;
+            exit(0);
+        }
+
+        //
+        // Grab the port option:
+        //
+
+        portOption = configManager->getCurrentValue("port");
+
+        //
+        // Check the trace options and set global variable
+        //
+
+        if (String::equal(configManager->getCurrentValue("trace"), "true"))
+        {
+            Handler::setMessageTrace(true);
+            pegasusIOTrace = true;
+            cout << "Trace Set" << endl;
         }
 
         // Leave this in until people get familiar with the logs.
         cout << "Logs Directory = " << logsDirectory << endl;
+
+        if (String::equal(configManager->getCurrentValue("cleanlogs"), "true"))
+        {
+            Logger::clean(logsDirectory);;
+        }
 
         if (String::equal(configManager->getCurrentValue("slp"), "true"))
         {

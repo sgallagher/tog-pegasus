@@ -33,6 +33,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Server/ShutdownExceptions.h>
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Server/ShutdownService.h>
@@ -44,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     The constants representing the shutdown timeout property names
 */
-static String TIMEOUT_PROPERTY = "timeout";
+static String TIMEOUT_PROPERTY = "operationTimeout";
 static String SHUTDOWN_TIMEOUT_PROPERTY = "shutdownTimeout";
 
 /** 
@@ -52,10 +53,16 @@ Initialize ShutdownService instance
 */
 ShutdownService* ShutdownService::_instance = 0;
 
+/** 
+Initialize all other class variables 
+*/
+CIMServer*       ShutdownService::_cimserver = 0;
+ProviderManager* ShutdownService::_providerManager = 0;
+Uint32           ShutdownService::_operationTimeout = 0;
+Uint32           ShutdownService::_shutdownTimeout = 0;
+
 /** Constructor. */
 ShutdownService::ShutdownService()
-    : 
-    _forceShutdown(false)
 {
 }
 
@@ -81,12 +88,11 @@ ShutdownService* ShutdownService::getInstance()
     process a shutdown request from the CLI client.
 */
 void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
-                               String timeout)
+                               Uint32 timeout)
 {
     //
     // Initialize variables
     //
-    _forceShutdown = force;
     _cimserver = cimserver;
 
     Boolean timeoutExpired = false;
@@ -140,7 +146,7 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     // If no more requests or force shutdown option is specified, proceed 
     // to shutdown the CIMServer
     //
-    if ( noMoreRequests || _forceShutdown )
+    if ( noMoreRequests || force )
     {
         _shutdownCIMServer();
     }
@@ -152,7 +158,6 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
     //
     // All done
     //
-
     return;
 }
 
@@ -160,7 +165,7 @@ void ShutdownService::shutdown(CIMServer* cimserver, Boolean force,
 /*  private methods                                       */
 /**********************************************************/
 
-void ShutdownService::_initTimeoutValues(String timeoutParmValue)
+void ShutdownService::_initTimeoutValues(Uint32 timeout)
 {
     //
     // get an instance of the ConfigManager
@@ -171,25 +176,23 @@ void ShutdownService::_initTimeoutValues(String timeoutParmValue)
     //
     // if timeout was not specified, get timeout value from ConfigManager
     //
-    char* timeoutCString;
-    if (timeoutParmValue != String::EMPTY)
+    if (timeout > 0)
     {
-        timeoutCString = timeoutParmValue.allocateCString();
+        _operationTimeout = timeout;
     }
     else
     {
         String configTimeout= configManager->getCurrentValue(TIMEOUT_PROPERTY);
-        timeoutCString = configTimeout.allocateCString();
+        ArrayDestroyer<char> timeoutCString(configTimeout.allocateCString());
+        _operationTimeout = strtol(timeoutCString.getPointer(), (char **)0,10);
     }
-    _operationTimeout = strtol(timeoutCString, (char **)0, 10); 
 
     //
     // get shutdown timeout value from ConfigManager
     //
-    char* shutdownTimeoutCString;
     String shutdownTimeout= configManager->getCurrentValue(SHUTDOWN_TIMEOUT_PROPERTY);
-    shutdownTimeoutCString = shutdownTimeout.allocateCString();
-    _shutdownTimeout = strtol(timeoutCString, (char **)0, 10); 
+    ArrayDestroyer<char> shutdownTimeoutCString(shutdownTimeout.allocateCString());
+    _shutdownTimeout = strtol(shutdownTimeoutCString.getPointer(), (char **)0, 10);
 
     return;
 }

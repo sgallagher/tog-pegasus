@@ -113,7 +113,7 @@ struct PropertyList ConfigManager::properties[] =
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"repositoryProviderName", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
-    {"timeout",             (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
+    {"operationTimeout",    (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner}
 };
 

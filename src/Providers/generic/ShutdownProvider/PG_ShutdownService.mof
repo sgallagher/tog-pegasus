@@ -30,5 +30,5 @@ class PG_ShutdownService : CIM_Service
           "before shutting down the CIM server.  If the specified timeout "
           "expires and force is FALSE, CIM server will not be shutdown.") ]
            
-     Uint32 shutdown( [IN] string force, [IN] string timeout);
+     Uint32 shutdown( [IN] boolean force, [IN] uint32 timeout);
 };

@@ -91,35 +91,72 @@ public:
         // Begin processing the request
         handler.processing();
 
-        // Chech if the input parameters are passed.
+        // Check if the input parameters are passed.
         if ( inParameters.size() < 2 )
         {
-            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED,
+            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
                                         "Input parameters are not valid.");
         }
 
-        //
-        // get the force parameter 
-        //
-        String forceStr = inParameters[0].getValue().toString();
-
         Boolean force = false;
-        if (String::equalNoCase(forceStr, "TRUE"))
-        {
-            force = true;
-        }
+        Uint32 timeoutValue = 0;
+        String forceStr = String::EMPTY;
+        String timeoutStr = String::EMPTY;
 
+        // Get the input parameter values
         //
-        // get the timeout value 
+        // ATTN: Currently the server only returns String values even
+        //       though the types of the parameters are not defined 
+        //       as String type.
         //
-        String timeoutStr = inParameters[1].getValue().toString();
+        for (Uint32 i = 0; i < inParameters.size(); i++)
+        {
+            String parmName = inParameters[i].getParameter().getName();
+            if (String::equalNoCase(parmName, "force"))
+            {
+                //
+                // get the force parameter 
+                //
+                inParameters[i].getValue().get(forceStr);
+                if (String::equalNoCase(forceStr, "TRUE"))
+                {
+                    force = true;
+                }
+            } 
+            else 
+            {
+                if (String::equalNoCase(parmName, "timeout"))
+                {
+                    //
+                    // get the timeout value 
+                    //
+                    inParameters[i].getValue().get(timeoutStr);
+
+                    //
+                    // convert the timeout string to integer
+                    //
+                    if (timeoutStr != String::EMPTY)
+                    {
+                        char* tmp = timeoutStr.allocateCString();
+                        timeoutValue = strtol(tmp, (char **)0, 10);
+                        delete [] tmp;
+                    }
+                }
+                else
+                {
+                    throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
+                                        "Input parameters are not valid.");
+                }
+            }
+        }
 
         try
         {
-            _shutdownService->shutdown(_cimserver, force, timeoutStr);
+            _shutdownService->shutdown(_cimserver, force, timeoutValue);
         }
         catch (Exception& e)
         {
+ cout << "ShutdownProvider:  shutdown method failed." << endl;
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
         }
     

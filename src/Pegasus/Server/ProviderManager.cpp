@@ -40,7 +40,6 @@ ProviderManager::ProviderManager(
 :
     _cimom(outputQueue, repository),
     _serviceCimom(outputQueue, repository, server)
-
 {
     Thread * thread = new Thread(monitorThread, this, false);
 
@@ -220,13 +219,21 @@ void ProviderManager::shutdownAllProviders(const String & providerName, const St
     // For each provider in the list, call its terminate() method, skipping
     // the specified provider.
     //
-    for(Uint32 i = 0, n = _providers.size(); i < n; i++)
+    Uint32 numProviders = _providers.size();
+
+    Uint32 index = 0;
+    while (numProviders > 0)
     {
-        if ( !(String::equalNoCase(providerName, _providers[i].getProviderName()) &&
-               String::equalNoCase(className, _providers[i].getClassName())))
+        if ( !(String::equalNoCase(providerName, _providers[index].getProviderName()) &&
+               String::equalNoCase(className, _providers[index].getClassName())))
         {
-	    _stopProvider(i);
+	    _stopProvider(index);
         }
+        else
+        {
+            index++;
+        }
+        numProviders--;
     }
 }
     

@@ -97,18 +97,17 @@ public:
     /** 
     Shutdown CIMOM.
     */
-    void shutdown(CIMServer* cimserver, Boolean force, String timeout);
+    void shutdown(CIMServer* cimserver, Boolean force, Uint32 timeout);
 
 private:
 
     static ShutdownService* _instance;
 
-    CIMServer*        _cimserver;
-    ProviderManager*  _providerManager;
+    static CIMServer*        _cimserver;
+    static ProviderManager*  _providerManager;
 
-    Boolean    _forceShutdown;
-    Uint32     _operationTimeout;
-    Uint32     _shutdownTimeout;
+    static Uint32     _operationTimeout;
+    static Uint32     _shutdownTimeout;
 
     //
     // This is meant to be a singleton, so the constructor and the
@@ -129,7 +128,7 @@ private:
 
     void _shutdownProviders();
 
-    void _initTimeoutValues(String timeoutParmValue);
+    void _initTimeoutValues(Uint32 timeoutParmValue);
 
 };
 

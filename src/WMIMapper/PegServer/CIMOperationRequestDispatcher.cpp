@@ -38,6 +38,7 @@
 //               Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //               Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//				 Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -281,7 +282,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
 		cimClass = provider.getClass(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->className.getString(),
 			request->localOnly,
@@ -339,7 +340,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
 		cimInstance = provider.getInstance(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->instanceName,
 			request->localOnly,
@@ -393,7 +394,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
 		provider.deleteClass(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->className.getString());
 	}
@@ -443,7 +444,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
 		provider.deleteInstance(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->instanceName);
 	}
@@ -493,7 +494,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
 		provider.createClass(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->newClass);
 	}
@@ -543,7 +544,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
 		instanceName = provider.createInstance(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->newInstance);
 	}
@@ -594,7 +595,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
 		provider.modifyClass(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->modifiedClass);
 	}
@@ -643,7 +644,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
 		provider.modifyInstance(
 		   request->nameSpace.getString(),
-		   request->userName,
+		  ((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 		   container.getPassword(),
 		   request->modifiedInstance,
 		   request->includeQualifiers,
@@ -696,7 +697,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 
 		cimClasses = provider.enumerateClasses(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->className.getString(),
 			request->deepInheritance,
@@ -751,7 +752,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
 		classNames = provider.enumerateClassNames(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->className.getString(),
 			request->deepInheritance);
@@ -801,10 +802,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 		CIMPropertyList propertyList(request->propertyList);
 		
 		provider.initialize( );
-		
+
 		cimInstances = provider.enumerateInstances(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->className.getString(),
 			true, true, false, false,
@@ -858,7 +859,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
 		instanceNames = provider.enumerateInstanceNames(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->className.getString());
 	}
@@ -912,7 +913,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
 		cimObjects = provider.associators(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->objectName,
 			request->assocClass.getString(),
@@ -971,7 +972,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
 		objectNames = provider.associatorNames(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->objectName,
 			request->assocClass.getString(),
@@ -1030,7 +1031,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
 		cimObjects = provider.references(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->objectName,
 			request->resultClass.getString(),
@@ -1087,7 +1088,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
 		objectNames = provider.referenceNames(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->objectName,
 			request->resultClass.getString(),
@@ -1141,7 +1142,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
 		value = provider.getProperty(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->instanceName,
 			request->propertyName.getString());
@@ -1231,7 +1232,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
 		provider.setProperty(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->instanceName,
 			request->propertyName.getString(),
@@ -1283,7 +1284,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 
 		cimQualifierDecl = provider.getQualifier(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->qualifierName.getString());
 	}
@@ -1333,7 +1334,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
 		provider.setQualifier(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->qualifierDeclaration);
 	}
@@ -1382,7 +1383,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
 		provider.deleteQualifier(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->qualifierName.getString());
 	}
@@ -1432,7 +1433,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
 		qualifierDeclarations = provider.enumerateQualifiers(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword());
 	}
 	catch(CIMException& exception)
@@ -1482,7 +1483,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
 		cimObjects = provider.execQuery(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->queryLanguage,
 			request->query);
@@ -1575,7 +1576,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
 		retValue = provider.invokeMethod(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->instanceName,
 			request->methodName.getString(),
@@ -1740,7 +1741,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
 
 					cimClass = provider.getClass(
                         request->nameSpace.getString(),
-						request->userName,
+						((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 						container.getPassword(),
                         request->instanceName.getClassName().getString(),
                         false, //localOnly,
@@ -1877,7 +1878,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
 
 		cimClass = provider.getClass(
 			request->nameSpace.getString(),
-			request->userName,
+			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			sClassName,
 			false,

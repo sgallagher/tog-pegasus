@@ -38,6 +38,7 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //              Jair F. T. Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1098,8 +1099,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
 	if (cimmsg != NULL)
 	{
-		cimmsg->acceptLanguages = httpAcceptLanguages;
-		cimmsg->contentLanguages = httpContentLanguages;			
+		cimmsg->operationContext.set(AcceptLanguageListContainer(httpAcceptLanguages));
+		cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
+		cimmsg->operationContext.insert(IdentityContainer(userName));		
 	}
 	else
 	{

@@ -397,8 +397,8 @@ Condition::Condition() : _disallow(0)
    pthread_cond_init((PEGASUS_COND_TYPE *)&_condition, 0);
 
 // #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-//    // ATTN - HP-UX can not deal with the non-static structure assignment
-//    // Also, the (PEGASUS_COND_TYPE) cast seems to break the HP-UX compile
+//    // HP-UX can not deal with the non-static structure assignment.
+//    // Also, the (PEGASUS_COND_TYPE) cast seems to break the HP-UX compile.
 //    PEGASUS_COND_TYPE tmpCond = PTHREAD_COND_INITIALIZER;
 //    memcpy(&_condition, &tmpCond, sizeof(PEGASUS_COND_TYPE));
 // #else

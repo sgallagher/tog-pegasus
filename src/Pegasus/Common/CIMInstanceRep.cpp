@@ -162,25 +162,27 @@ void CIMInstanceRep::resolve(
     //----------------------------------------------------------------------
     // Inject all properties from the class that are not included in the
     // instance. Copy over the class-origin and set the propagated flag
-    // to true.
+    // to true. NOTE: The propagated flag indicates that the property
+    // was not part of the property set input with the create and
+    // was inherited from the default in the class (see cimxml spec sect 3.1.5) 
     //----------------------------------------------------------------------
 
     for (Uint32 i = 0, m = 0, n = cimClass.getPropertyCount(); i < n; i++)
     {
-	CIMConstProperty property = cimClass.getProperty(i);
-	const CIMName& name = property.getName();
-
-	// See if this instance already contains a property with this name:
-
-	Boolean found = false;
-
-	for (Uint32 j = m, n = _properties.size(); j < n; j++)
-	{
-	    if (name.equal(_properties[j].getName()))
-	    {
-		found = true;
-		break;
-	    }
+    	CIMConstProperty property = cimClass.getProperty(i);
+    	const CIMName& name = property.getName();
+    
+    	// See if this instance already contains a property with this name:
+    
+    	Boolean found = false;
+    
+    	for (Uint32 j = m, n = _properties.size(); j < n; j++)
+    	{
+    	    if (name.equal(_properties[j].getName()))
+    	    {
+        		found = true;
+        		break;
+    	    }
 	}
 
 		if (!found)
@@ -247,12 +249,12 @@ void CIMInstanceRep::toMof(Array<Sint8>& out) const
     // format the Properties:
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
-	// Generate MOF if this property not propagated
-	// Note that the test is required only because
-	// there is an error in getclass that does not
-	// test the localOnly flag.
-	if (!_properties[i].getPropagated())
-	    MofWriter::appendPropertyElement(out, _properties[i]);
+    	// Generate MOF if this property not propagated
+    	// Note that the test is required only because
+    	// there is an error in getclass that does not
+    	// test the localOnly flag.
+    	if (!_properties[i].getPropagated())
+    	    MofWriter::appendPropertyElement(out, _properties[i]);
     }
 
     // Class closing element:

@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.19  2001/05/27 10:11:50  karl
+	Clean up object tables
+	
 	Revision 1.18  2001/05/21 17:33:33  karl
 	Update version number
 	
@@ -36,6 +39,7 @@ If you change it, the HTML Frame must also be changed.
 <CENTER><FONT Size=+4>Welcome to PEGASUS</FONT></CENTER>
 
 <P><B><CENTER>DRAFT FOR REVIEW</CENTER></B>
+<SMALL><CENTER>version 0.97.2</CENTER></SMALL>
 
 Pegasus is an open source implementation of the manageability environment defined by the DMTF WBEM standards.
 
@@ -62,68 +66,10 @@ NOTE: This a working document today.  It is revised frequently as we learn more 
 
 This version of the Pegasus User Manual was created at \today
 */
-/** @name Revision History
-<p><B>Revision History</B></p>
-<p><table border="1" width="100%">
-  <CAPTION>Revision History</CAPTION>
-  <tr>
-    <td width="10%"><b>Versions</b></td>
-    <td width="13%"><b>Date</b></td>
-    <td width="37%"><b>Author</b></td>
-    <td width="117%"><b>Comments</b></td>
-  </tr>
-  <tr>
-    <td width="10%">0.5</td>
-    <td width="13%">01/02/01</td>
-    <td width="37%">Karl</td>
-    <td width="117%">&nbsp;</td>
-  </tr>
-  <tr>
-      <td width="10%">0.6</td>
-      <td width="13%">01/04/01</td>
-      <td width="37%">Karl</td>
-      <td width="117%">Clean up the API defintions. and Add repository section.</td>
-  </tr>
-  <tr>
-      <td width="10%">0.7</td>
-      <td width="13%">02/20/01</td>
-      <td width="37%">Karl</td>
-      <td width="117%">Change Class names, Add definitions, Add Architecture documentation.</td>
-  </tr>  
-  <tr>
-      <td width="10%">0.75</td>
-      <td width="13%">02/25/01</td>
-      <td width="37%">Karl</td>
-      <td width="117%">Create Frames Version and redo structure..</td>
-  </tr> 
-  <tr>
-      <td width="10%">0.8</td>
-      <td width="13%">03/12/2001</td>
-      <td width="37%">Karl</td>
-      <td width="117%">Generate for 0.8 Release.</td>
-  </tr> 
-    <tr>
-        <td width="10%">0.85</td>
-        <td width="13%">03/12/2001</td>
-        <td width="37%">Karl</td>
-        <td width="117%">Generate for 0.8.5 Release.</td>
-  </tr> 
-  <tr>
-          <td width="10%">0.91</td>
-          <td width="13%">05/03/2001</td>
-          <td width="37%">Karl</td>
-          <td width="117%">Generate for 0.9 Pegasus Code</td>
-  </tr> 
-  <tr>
-          <td width="10%">0.97</td>
-          <td width="13%">05/21/2001</td>
-          <td width="37%">Karl</td>
-          <td width="117%">Generate for 0.97 Pegasus Code</td>
-  </tr>
-</table></p>
-*/
 
-/* The following is the complete file hieaarchy for this document.
+*/
+//@Include:DocumentHistory.dxx
+/* The following is the complete file hiearchy for this document.
    We have tried to keep all file references in only this one place
    to make modification easier.  In the future, please keep the
    references here and text in the individual files.

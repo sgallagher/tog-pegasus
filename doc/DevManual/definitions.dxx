@@ -107,7 +107,7 @@ http://www.dmtf.org/download/spec/xmls/CIM_HTTP_Mapping10.htm.
     indications, methods, method parameters, triggers, instances, properties or
     references. All qualifiers have a name, type, value, scope, flavor and default value. Qualifiers cannot be duplicated; there cannot be more than one qualifier of the same name for any given class, instance, or property.
     
-    Qualifiers are defined in detail in the DMTF CIM Specificaiton.
+    Qualifiers are defined in detail in the DMTF CIM Specification.
     
     There are several types of Qualifiers as listed below:
     <UL>

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Inst.cpp,v $
+// Revision 1.3  2001/02/13 02:12:47  mike
+// new
+//
 // Revision 1.2  2001/02/13 01:28:15  mike
 // new
 //
@@ -33,6 +36,7 @@
 //END_HISTORY
 
 #include <fstream>
+#include <cassert>
 #include <Pegasus/Repository/Repository.h>
 #include <Pegasus/Common/Destroyer.h>
 #include "InstanceIndexFile.h"
@@ -44,12 +48,23 @@ int main(int argc, char** argv)
 {
     try
     {
-	InstanceIndexFile::insertEntry("X.idx", "X.key=1666");
+	const char PATH[] = "X.idx";
+	const char INSTANCE_NAME[] = "X.key=1666";
+
+	Uint32 i = InstanceIndexFile::insert(PATH, INSTANCE_NAME);
+	Uint32 j = InstanceIndexFile::lookup(PATH, INSTANCE_NAME);
+	assert(i == j);
+
+	assert(InstanceIndexFile::remove(PATH, INSTANCE_NAME));
     }
+
     catch (Exception& e)
     {
 	cerr << "Error: " << e.getMessage() << endl;
 	exit(1);
     }
+
+    cout << "+++++ passed all tests" << endl;
+
     return 0;
 }

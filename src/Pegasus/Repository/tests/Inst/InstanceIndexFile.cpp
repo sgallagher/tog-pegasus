@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: InstanceIndexFile.cpp,v $
+// Revision 1.2  2001/02/13 02:12:47  mike
+// new
+//
 // Revision 1.1  2001/02/13 01:28:35  mike
 // new
 //
@@ -31,18 +34,12 @@
 
 #include <fstream>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/FileSystem.h>
 #include "InstanceIndexFile.h"
 
 using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
-
-Uint32 InstanceIndexFile::lookupIndex(
-    const String& path, 
-    const String& instanceName)
-{
-    return 0;
-}
 
 static Boolean _GetLine(istream& is, Array<char>& x)
 {
@@ -91,15 +88,45 @@ static Boolean _GetNextLine(
 
 //------------------------------------------------------------------------------
 //
-// InstanceIndexFile::insertEntry()
+// InstanceIndexFile::insert()
 //
 //------------------------------------------------------------------------------
 
-Uint32 InstanceIndexFile::insertEntry(
+Uint32 InstanceIndexFile::lookup(
     const String& path, 
     const String& instanceName)
 {
-    // ATTN: keys are assumed to be in the same order in the instance name.
+    Destroyer<char> p(path.allocateCString());
+    ifstream is(p.getPointer());
+
+    if (is)
+    {
+	String tmpInstanceName;
+	Uint32 index;
+
+	while (_GetNextLine(is, tmpInstanceName, index))
+	{
+	    if (instanceName == tmpInstanceName)
+		return index;
+	}
+    }
+
+    // Not found:
+
+    return Uint32(-1);
+}
+
+//------------------------------------------------------------------------------
+//
+// InstanceIndexFile::insert()
+//
+//------------------------------------------------------------------------------
+
+Uint32 InstanceIndexFile::insert(
+    const String& path, 
+    const String& instanceName)
+{
+    // ATTN: keys are assumed to be in the same order in the instance names.
     // Otherwise, the search will fail. The caller must sort the key order
     // prior to calling this routine.
 
@@ -159,6 +186,65 @@ Uint32 InstanceIndexFile::insertEntry(
     os << instanceName << ' ' << newIndex << endl;
 
     return newIndex;
+}
+
+//------------------------------------------------------------------------------
+//
+// InstanceIndexFile::remove()
+//
+//------------------------------------------------------------------------------
+
+Boolean InstanceIndexFile::remove(
+    const String& path, 
+    const String& instanceName)
+{
+    // Open output file:
+
+    Destroyer<char> p(path.allocateCString(4));
+    strcat(p.getPointer(), ".tmp");
+    ofstream os(p.getPointer());
+
+    if (!os)
+	return false;
+
+    // Open intput file:
+
+    Destroyer<char> q(path.allocateCString());
+    ifstream is(q.getPointer());
+
+    if (!is)
+	return false;
+
+    // Copy all entries except the one specified:
+	
+    Boolean found = false;
+    String tmpInstanceName;
+    Uint32 index;
+
+    while (_GetNextLine(is, tmpInstanceName, index))
+    {
+	if (instanceName == tmpInstanceName)
+	    found = true;
+	else
+	    os << tmpInstanceName << ' ' << index << '\n';
+    }
+
+    os.flush();
+    os.close();
+    is.close();
+
+    // Rename the file back:
+
+    if (found)
+    {
+	if (!FileSystem::removeFile(q.getPointer()))
+	    return false;
+
+	if (!FileSystem::renameFile(p.getPointer(), q.getPointer()))
+	    return false;
+    }
+
+    return found;
 }
 
 PEGASUS_NAMESPACE_END

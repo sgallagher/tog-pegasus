@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: InstanceIndexFile.h,v $
+// Revision 1.2  2001/02/13 02:12:47  mike
+// new
+//
 // Revision 1.1  2001/02/13 01:28:35  mike
 // new
 //
@@ -38,16 +41,22 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CorruptInstanceIndexFile : public Exception 
-{ 
+class CorruptInstanceIndexFile : public Exception
+{
 public:
     CorruptInstanceIndexFile() : Exception("CorruptInstanceIndexFile") { }
 };
 
-class InstanceAlreadyExists : public Exception 
-{ 
+class InstanceAlreadyExists : public Exception
+{
 public:
     InstanceAlreadyExists() : Exception("InstanceAlreadyExists") { }
+};
+
+class NoSuchInstance : public Exception
+{
+public:
+    NoSuchInstance() : Exception("NoSuchInstance") { }
 };
 
 /** This class manages access to an "instance index file" which maps
@@ -90,21 +99,27 @@ class InstanceIndexFile
 {
 public:
     
-    static Uint32 lookupIndex(
+    /** Search the index file for the given instance name. Return the index
+	for that instance name.
+    */
+    static Uint32 lookup(
 	const String& path, 
 	const String& instanceName);
 
     /** Inserts a new entry into the instance file. The index is returned.
 	are in sorted order so that they can be compared trivially. This 
 	method assumes that the keys in the instance name are in sorted order.
-	This must be done prior to calling the rouine.
-
-	throws InstanceAlreadyExists if the instance name already appears
-	in the file. 
-
-	throws CorruptInstanceIndexFile if instance file is corrupt.
+	This must be done prior to calling the method. Throws one of
+	CorruptInstanceIndexFile or InstanceAlreadyExists.
     */
-    static Uint32 insertEntry(
+    static Uint32 insert(
+	const String& path, 
+	const String& instanceName);
+
+    /** Remove the entry with the given instance name. Returns true on success
+	and false otherwise.
+    */
+    static Boolean remove(
 	const String& path, 
 	const String& instanceName);
 };

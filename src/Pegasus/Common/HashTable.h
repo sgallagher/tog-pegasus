@@ -1,31 +1,28 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to 
+// deal in the Software without restriction, including without limitation the 
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,8 +31,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -57,25 +52,8 @@ PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<Uint32>
     static Uint32 hash(Uint32 x) { return x + 13; }
 };
 
-PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc <CIMObjectPath>
-{
-    static Uint32 hash (const CIMObjectPath & path)
-    {
-        return path.makeHashCode ();
-    }
-};
-
-//
-// Computes a hash code for a string without regard to case. For example, it
-// yields the same hash code for "AB", "ab", "Ab", and "aB".
-//
-struct PEGASUS_COMMON_LINKAGE HashLowerCaseFunc
-{
-    static Uint32 hash(const String& str);
-};
-
 /*  This is a function object used by the HashTable to compare keys. This is
-    the default implementation. Others may be defined and passed in the
+    the default implementation. Others may be defined and passed in the 
     template argument list to perform other kinds of comparisons.
 */
 template<class K>
@@ -83,33 +61,7 @@ struct EqualFunc
 {
     static Boolean equal(const K& x, const K& y)
     {
-        return x == y;
-    }
-};
-
-PEGASUS_TEMPLATE_SPECIALIZATION struct EqualFunc <CIMObjectPath>
-{
-    static Boolean equal (const CIMObjectPath & x, const CIMObjectPath & y)
-    {
-        return x.identical (y);
-    }
-};
-
-/*
-    Equal function object that can be used by HashTable to compare keys that
-    should be treated as case insensitive.
-
-    This function can be used for hash table keys constructed from strings that
-    should be treated as case insensitive (e.g. class names, namespace names,
-    system names).
-
-    Note: this function compares Strings based on the process locale.
-*/
-struct EqualNoCaseFunc
-{
-    static Boolean equal (const String & x, const String & y)
-    {
-        return (0 == String::compareNoCase (x, y));
+	return x == y;
     }
 };
 
@@ -124,14 +76,14 @@ public:
     /* Default constructor. */
     _BucketBase() : next(0) { }
 
-    /* Virtual destructor to ensure destruction of derived class
-        elements.
+    /* Virtual destructor to ensure destruction of derived class 
+	elements.
     */
     virtual ~_BucketBase();
 
     /* returns true if the key pointed to by the key argument is equal
-        to the internal key of this bucket. This method must be overridden
-        by the derived class.
+	to the internal key of this bucket. This method must be overridden
+	by the derived class.
     */
     virtual Boolean equal(const void* key) const = 0;
 
@@ -141,32 +93,29 @@ public:
     _BucketBase* next;
 };
 
+class _HashTableRep;
+
 /* This class implements a simple hash table forward iterator. */
 class PEGASUS_COMMON_LINKAGE _HashTableIteratorBase
 {
 public:
-
-    _HashTableIteratorBase(_BucketBase** first, _BucketBase** last);
+    
+    _HashTableIteratorBase() : _first(0), _last(0), _bucket(0) { }
 
     operator int() const { return _bucket != 0; }
 
-    void operator++();
+    _HashTableIteratorBase operator++(int);
 
-    void operator++(int)
-    {
-        operator++();
-    }
+    _HashTableIteratorBase& operator++();
+
+    _HashTableIteratorBase(_BucketBase** first, _BucketBase** last);
 
 protected:
-
-    // Note:  The default copy constructor/assignment operator is used by the
-    // postfix increment operator.  The member pointers may be safely copied
-    // because they refer to structures that must not change while the iterator
-    // is in scope.
 
     _BucketBase** _first;
     _BucketBase** _last;
     _BucketBase* _bucket;
+    friend class _HashTableRep;
 };
 
 // ATTN: reorganization not supported yet.
@@ -176,8 +125,8 @@ protected:
     This code is primarily an internal class used to implement the HashTable.
     But there may be occasions to use it directly.
 
-    _HashTableRep parcels out much of the large code so that that code is not
-    instantiated by the HashTable template class many times. This scheme helps
+    _HashTableRep parcels out much of the large code so that that code is not 
+    instantiated by the HashTable template class many times. This scheme helps 
     reduce code bloat caused by templates. The HashTable template class below
     acts as kind of a wrapper around this class.
 
@@ -191,10 +140,10 @@ class PEGASUS_COMMON_LINKAGE _HashTableRep
 public:
 
     /*- This constructor allocates an array of pointers to chains of buckets,
-        which of course are all empty at this time. The numChains argument
-        If the numChains argument is less than eight, then eight chains will
-        be created.
-        @param numChains specifies the initial number of chains.
+	which of course are all empty at this time. The numChains argument
+	If the numChains argument is less than eight, then eight chains will
+	be created.
+	@param numChains specifies the initial number of chains.
     */
     _HashTableRep(Uint32 numChains);
 
@@ -211,32 +160,32 @@ public:
     Uint32 size() const { return _size; }
 
     /*- Clears the contents of this hash table. After this is called, the
-        size() method returns zero.
+	size() method returns zero.
     */
     void clear();
 
     /*- Inserts new key-value pair into hash table. Deletes the bucket on
-        failure so caller need not.
-        @param hashCode hash code generated by caller's hash function.
-        @param bucket bucket to be inserted.
-        @param key pointer to key.
-        @return true if insertion successful; false if duplicate key.
+	failure so caller need not.
+	@param hashCode hash code generated by caller's hash function.
+	@param bucket bucket to be inserted.
+	@param key pointer to key.
+	@return true if insertion successful; false if duplicate key.
     */
     Boolean insert(Uint32 hashCode, _BucketBase* bucket, const void* key);
 
     /*- Finds the bucket with the given key. This method uses the
-        _BucketBase::equal() method to compare keys.
-        @param hashCode hash code generated by caller's hash function.
-        @param key void pointer to key.
-        @return pointer to bucket with that key or zero otherwise.
+	_BucketBase::equal() method to compare keys.
+	@param hashCode hash code generated by caller's hash function.
+	@param key void pointer to key.
+	@return pointer to bucket with that key or zero otherwise.
     */
     const _BucketBase* lookup(Uint32 hashCode, const void* key) const;
 
     /*- Removes the bucket with the given key. This method uses the
-        _BucketBase::equal() method to compare keys.
-        @param hashCode hash code generated by caller's hash function.
-        @param key void pointer to key.
-        @return true if entry found and removed and false otherwise.
+	_BucketBase::equal() method to compare keys.
+	@param hashCode hash code generated by caller's hash function.
+	@param key void pointer to key.
+	@return true if entry found and removed and false otherwise.
     */
     Boolean remove(Uint32 hashCode, const void* key);
 
@@ -300,15 +249,18 @@ class _HashTableIterator : public _HashTableIteratorBase
 {
 public:
 
+    _HashTableIterator() 
+	: _HashTableIteratorBase() { }
+
     _HashTableIterator(_BucketBase** first, _BucketBase** last)
-        : _HashTableIteratorBase(first, last) { }
+	: _HashTableIteratorBase(first, last) { }
 
     const K& key() const { return ((_Bucket<K, V, E>*)_bucket)->getKey(); }
 
     const V& value() const { return ((_Bucket<K, V, E>*)_bucket)->getValue(); }
 };
 
-/** The HashTable class provides a simple hash table implementation which
+/** The HashTable class provides a simple hash table implementation which 
     associates key-value pairs.
 
     This implementation minimizes template bloat considerably by factoring out
@@ -318,11 +270,11 @@ public:
 
     Hashing as always is O(1).
 
-    HashTable uses the most popular hash table implementation which utilizes
+    HashTable uses the most popular hash table implementation which utilizes 
     an array of pointers to bucket chains. This is organized as follows:
 
         <pre>
-           +---+
+           +---+ 
            |   |   +-----+-------+
          0 | ----->| key | value |
            |   |   +-----+-------+
@@ -341,8 +293,8 @@ public:
            +---+
         </pre>
 
-    To locate an item a hash function is applied to the key to produce an
-    integer value. Then the modulo of that integer is taken with N to select
+    To locate an item a hash function is applied to the key to produce an 
+    integer value. Then the modulo of that integer is taken with N to select 
     a chain (as shown above). Then the chain is searched for a bucket whose
     key value is the same as the target key.
 
@@ -353,7 +305,7 @@ public:
     one might set the number of chains to be the same as the expected number
     of entries.
 
-    This implementation does have NOT an adaptive growth algorithm yet which
+    This implementation does have NOT an adaptive growth algorithm yet which 
     would allow it to increase the number of chains periodically based on some
     statistic (e.g., when the number of entries is more than three times the
     number of chains; this would keep the average chain length below three).
@@ -361,98 +313,96 @@ public:
     The following example shows how to instantiate a HashTable which associates
     String keys with Uint32 values.
 
-        <pre>
-        typedef HashTable&lt;String, Uint32&gt; HT;
-        HT ht;
-        </pre>
+	<pre>
+	typedef HashTable&lt;String, Uint32&gt; HT;
+	HT ht;
+	</pre>
 
-    Some of the template arguments are defaulted in the above example (the
+    Some of the template arguments are defaulted in the above example (the 
     third and forth). The instantiation is explicitly qualified like this
     (which by the way has exactly the same effect).
 
-        <pre>
-        typedef HashTable&lt;String, Uint32,
-            EqualFunc&lt;String&gt;, HashFunc&lt;String&gt;&gt; HT;
-        </pre>
+	<pre>
+	typedef HashTable&lt;String, Uint32, EqualFunc&lt;String&gt;, HashFunc&lt;String&gt;&gt; HT;
+	</pre>
 
-    The third and fourth arguments are described more in detail later.
+    The third and forth arguments are described more in detail later.
 
     Then, entries may be inserted like this:
 
-        <pre>
-        ht.insert("Red", 111);
-        ht.insert("Green", 222);
-        ht.insert("Blue", 222);
-        </pre>
+	<pre>
+	ht.insert("Red", 111);
+	ht.insert("Green", 222);
+	ht.insert("Blue", 222);
+	</pre>
 
     And entries may be looked up as follows:
 
-        <pre>
-        Uint32 value;
-        ht.lookup("Red", value);
-        </pre>
+	<pre>
+	Uint32 value;
+	ht.lookup("Red", value);
+	</pre>
 
     And entries may be removed like this:
 
-        <pre>
-        h.remove("Red");
-        </pre>
+	<pre>
+	h.remove("Red");
+	</pre>
 
     Iteration is done like this:
 
-        <pre>
-        for (HT::Iterator i = ht.start(); i; i++)
-        {
-            // To access the key call i.key()!
-            // To access the value call i.value()!
-        }
-        </pre>
+	<pre>
+	for (HT::Iterator i = ht.start(); i; i++)
+	{
+	    // To access the key call i.key()!
+	    // To access the value call i.value()!
+	}
+	</pre>
 
-    Note that only forward iteration is supported (no backwards iteration),
-    AND that the hashtable MUST NOT be modified during the iteration!!!
+    Note that only forward iteration is supported (no backwards iteration).
 
     Equality of keys is determined using the EqualFunc class which is
-    the default third argument of the template argument list. A new function
-    object may be defined and passed to modify the behavior (for example, one
-    might define equality of strings to ignore whitespace). Here is how to
+    the default third argument of the template argument list. A new function 
+    object may be defined and passed to modify the behavior (for example, one 
+    might define equality of strings to ignore whitespace). Here is how to 
     define and use a new equality function object:
 
-        <pre>
-        struct MyEqualFunc
-        {
-            static Boolean equal(const String& x, const String& y)
-            {
-                // do something here to test for equality!
-            }
-        };
+	<pre>
+	struct MyEqualFunc
+	{
+	    static Boolean equal(const String& x, const String& y)
+	    {
+		// do something here to test for equality!
+	    }
+	};
 
-        ...
+	...
 
-        EqualFunc&lt;String, Uint32, MyEqualFunc&gt; ht;
-        </pre>
+	EqualFunc&lt;String, Uint32, MyEqualFunc&gt; ht;
+	</pre>
 
-    When the lookup(), insert(), and remove() methods are called, the
+    When the lookup(), insert(), and remove() methods are called, the 
     MyEqualFunc::equal() method will be used to determine equality.
 
     Hash functions are provided for common types (as part of the default
     HashFunc class). For other types it is possible to define a custom function
     object as follows:
 
-        <pre>
-        struct MyHashFunc
-        {
-            static Uint32 hash(const String& x)
-            {
-                // Do some hashing here!
-            }
-        };
+	<pre>
+	struct MyHashFunc
+	{
+	    static Uint32 hash(const String& x)
+	    {
+		// Do some hashing here!
+	    }
+	};
 
-        ...
+	...
 
-        EqualFunc&lt;String, Uint32, MyEqualFunc, MyHashFunc&gt; ht;
-        </pre>
+	EqualFunc&lt;String, Uint32, MyEqualFunc, MyHashFunc&gt; ht;
+	</pre>
 
-    As always, the hash function should provide a reasonably uniform
+    As always, the hash function should provide a reasonably uniform 
     distrubtion so that all of the entries don't get crowded into a few
     chains. Note that a hash function which returns zero, would force
     the pathalogical case in which all entries are placed in the first
@@ -469,7 +419,7 @@ public:
     enum { DEFAULT_NUM_CHAINS = 32 };
 
     /** Constructor.
-        @param numChains number of chains to create.
+	@param numChains number of chains to create.
     */
     HashTable(Uint32 numChains = DEFAULT_NUM_CHAINS) : _rep(numChains)
     {
@@ -485,70 +435,61 @@ public:
     /** Assignment operator. */
     HashTable<K,V,E,H>& operator=(const HashTable<K,V,E,H>& x)
     {
-        if (this != &x)
-            _rep = x._rep;
-        return *this;
+	if (this != &x)
+	    _rep = x._rep;
+	return *this;
     }
 
     /** Returns the size of this hash table (the number of entries). */
     Uint32 size() const { return _rep.size(); }
 
     /** Clears the contents of this hash table. After this is called, the
-        size() method returns zero.
+	size() method returns zero.
     */
     void clear() { _rep.clear(); }
 
     /** Inserts new key-value pair into hash table.
-        @param key key component.
-        @param value value component.
-        @return true on success; false if duplicate key.
+	@param key key component.
+	@param value value component.
+	@return true on success; false if duplicate key.
     */
     Boolean insert(const K& key, const V& value)
     {
-        return _rep.insert(
-            H::hash(key), new _Bucket<K, V, E>(key, value), &key);
+	return _rep.insert(
+	    H::hash(key), new _Bucket<K, V, E>(key, value), &key);
     }
 
     /** Checks to see if hash table contains an entry with the given key.
-        @param key key to be searched for
-        @return true if hash table contains an entry with the given key.
+	@param key key to be searched for
+	@return true if hash table contains an entry with the given key.
     */
     Boolean contains(const K& key) const
     {
-        V value;
-        return lookup(key, value);
+	V value;
+	return lookup(key, value);
     }
 
     /** Looks up the entry with the given key.
-        @param key key of entry to be located.
-        @param value output value.
-        @return true if found; false otherwise.
+	@param key key of entry to be located.
+	@param value output value.
+	@return true if found; false otherwise.
     */
     Boolean lookup(const K& key, V& value) const;
 
-    /** Looks up the entry with the given key and returns a pointer to the
-        value.  Note that this pointer may become invalid when the HashTable
-        is updated.
-        @param key key of entry to be located.
-        @param value Output pointer to the value.
-        @return true if found; false otherwise.
-    */
-    Boolean lookupReference(const K& key, V*& value);
-
     /** Removes the entry with the given key.
-        @param key key of entry to be removed.
-        @return true on success; false otherwise.
+	@param key key of entry to be removed.
+	@return true on success; false otherwise.
     */
     Boolean remove(const K& key)
     {
-        return _rep.remove(H::hash(key), &key);
+	return _rep.remove(H::hash(key), &key);
     }
 
     /** Obtains an iterator for this object. */
-    Iterator start() const
+    Iterator start() const 
     {
-        return Iterator(
-            _rep.getChains(), _rep.getChains() + _rep.getNumChains());
+	return Iterator(
+	    _rep.getChains(), _rep.getChains() + _rep.getNumChains());
     }
 
 private:
@@ -559,28 +500,13 @@ private:
 template<class K, class V, class E, class H>
 inline Boolean HashTable<K, V, E, H>::lookup(const K& key, V& value) const
 {
-    _Bucket<K, V, E>* bucket
-        = (_Bucket<K, V, E>*)_rep.lookup(H::hash(key), &key);
+    _Bucket<K, V, E>* bucket 
+	= (_Bucket<K, V, E>*)_rep.lookup(H::hash(key), &key);
 
     if (bucket)
     {
-        value = bucket->getValue();
-        return true;
-    }
-
-    return false;
-}
-
-template<class K, class V, class E, class H>
-inline Boolean HashTable<K, V, E, H>::lookupReference(const K& key, V*& value)
-{
-    _Bucket<K, V, E>* bucket =
-        (_Bucket<K, V, E>*)_rep.lookup(H::hash(key), &key);
-
-    if (bucket)
-    {
-        value = &bucket->getValue();
-        return true;
+	value = bucket->getValue();
+	return true;
     }
 
     return false;

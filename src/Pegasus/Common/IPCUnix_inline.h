@@ -279,11 +279,8 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
    gettimeofday(&now, NULL);
    waittime.tv_sec = now.tv_sec;
    waittime.tv_nsec = now.tv_usec + (milliseconds * 1000);  // microseconds
-   while (waittime.tv_nsec >= 1000000)
-   {
-       waittime.tv_sec++;
-       waittime.tv_nsec -= 1000000;
-   }
+   waittime.tv_sec += (waittime.tv_nsec / 1000000);  // roll overflow into
+   waittime.tv_nsec = (waittime.tv_nsec % 1000000);  // the "seconds" part
    waittime.tv_nsec = waittime.tv_nsec * 1000;  // convert to nanoseconds
    do
    {

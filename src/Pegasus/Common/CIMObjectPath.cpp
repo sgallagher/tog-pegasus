@@ -897,6 +897,11 @@ const String& CIMObjectPath::getHost() const
 
 void CIMObjectPath::setHost(const String& host)
 {
+    if ((host != String::EMPTY) && !CIMObjectPathRep::isValidHostname(host))
+    {
+        throw MalformedObjectNameException(host);
+    }
+
     _rep->_host = host;
 }
 

@@ -33,9 +33,9 @@
 
 PEGASUS_USING_STD;
 
-#define MAX_NUMBER_OF_PROPERTIES   1000 
-#define MAX_SIZE_OF_PROPERTY_VALUE 2000
-#define MAX_NUMBER_OF_INSTANCES    9999 
+#define MAX_NUMBER_OF_PROPERTIES   99999 
+#define MAX_SIZE_OF_PROPERTY_VALUE 99999 
+#define MAX_NUMBER_OF_INSTANCES    99999 
 
 benchmarkDefinition::benchmarkDefinition ()
 {
@@ -55,21 +55,21 @@ Uint32 benchmarkDefinition::getConfiguration(
        return(CIM_ERR_NOT_SUPPORTED);
     }
 
-    String numberPropertiesString = classNameString.subString(15, 4);
+    String numberPropertiesString = classNameString.subString(15, 5);
     numberOfProperties = atoi(numberPropertiesString.getCString());
     if (numberOfProperties > MAX_NUMBER_OF_PROPERTIES)
     {
        return(CIM_ERR_NOT_SUPPORTED);
     }
 
-    String sizePropertiesString = classNameString.subString(20, 4);
+    String sizePropertiesString = classNameString.subString(21, 5);
     sizeOfPropertyValue = atoi(sizePropertiesString.getCString());
     if (sizeOfPropertyValue > MAX_SIZE_OF_PROPERTY_VALUE)
     {
        return(CIM_ERR_NOT_SUPPORTED);
     }
 
-    String numberInstancesString = classNameString.subString(25, 4);
+    String numberInstancesString = classNameString.subString(27, 5);
     numberOfInstances = atoi(numberInstancesString.getCString());
     if (numberOfInstances > MAX_NUMBER_OF_INSTANCES)
     {

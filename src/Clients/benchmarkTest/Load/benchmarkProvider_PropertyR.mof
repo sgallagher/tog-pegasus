@@ -1,0 +1,149 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+   Name = "benchmarkProviderModule";
+   Location = "benchmarkProviderModule";
+   Vendor = "Pegasus Community";
+   Version = "2.2.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.3.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   Name = "benchmarkProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "1";
+   ClassName = "benchmarkClassP00001S04000I00001";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "2";
+   ClassName = "benchmarkClassP00010S00400I00001";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "3";
+   ClassName = "benchmarkClassP00100S00040I00001";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "4";
+   ClassName = "benchmarkClassP00200S00020I00001";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "5";
+   ClassName = "benchmarkClassP00400S00010I00001";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "6";
+   ClassName = "benchmarkClassP00001S04000I00100";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "7";
+   ClassName = "benchmarkClassP00010S00400I00100";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "8";
+   ClassName = "benchmarkClassP00100S00040I00100";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "9";
+   ClassName = "benchmarkClassP00200S00020I00100";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "10";
+   ClassName = "benchmarkClassP00400S00010I00100";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "11";
+   ClassName = "benchmarkClassP00001S34000I00001";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "benchmarkProviderModule";
+   ProviderName = "benchmarkProvider";
+   CapabilityID = "12";
+   ClassName = "benchmarkClassP00001S34000I00100";
+   Namespaces = {"root/benchmark"};
+   ProviderType = {2}; 
+   SupportedProperties = NULL;
+};

@@ -21,7 +21,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "1";
-   ClassName = "benchmarkClassP0001S0010I0001";
+   ClassName = "benchmarkClassP00001S00010I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -32,7 +32,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "2";
-   ClassName = "benchmarkClassP0001S0100I0001";
+   ClassName = "benchmarkClassP00001S00100I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -43,7 +43,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "3";
-   ClassName = "benchmarkClassP0001S1000I0001";
+   ClassName = "benchmarkClassP00001S01000I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -54,7 +54,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "4";
-   ClassName = "benchmarkClassP0010S0010I0001";
+   ClassName = "benchmarkClassP00010S00010I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -65,7 +65,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "5";
-   ClassName = "benchmarkClassP0010S0100I0001";
+   ClassName = "benchmarkClassP00010S00100I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -76,7 +76,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "6";
-   ClassName = "benchmarkClassP0010S1000I0001";
+   ClassName = "benchmarkClassP00010S01000I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -87,7 +87,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "7";
-   ClassName = "benchmarkClassP0050S0010I0001";
+   ClassName = "benchmarkClassP00050S00010I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -98,7 +98,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "8";
-   ClassName = "benchmarkClassP0050S0100I0001";
+   ClassName = "benchmarkClassP00050S00100I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -109,7 +109,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "9";
-   ClassName = "benchmarkClassP0050S1000I0001";
+   ClassName = "benchmarkClassP00050S01000I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -120,7 +120,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "10";
-   ClassName = "benchmarkClassP0001S0010I0010";
+   ClassName = "benchmarkClassP00001S00010I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -131,7 +131,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "11";
-   ClassName = "benchmarkClassP0001S0100I0010";
+   ClassName = "benchmarkClassP00001S00100I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -142,7 +142,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "12";
-   ClassName = "benchmarkClassP0001S1000I0010";
+   ClassName = "benchmarkClassP00001S01000I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -153,7 +153,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "13";
-   ClassName = "benchmarkClassP0010S0010I0010";
+   ClassName = "benchmarkClassP00010S00010I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -164,7 +164,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "14";
-   ClassName = "benchmarkClassP0010S0100I0010";
+   ClassName = "benchmarkClassP00010S00100I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -175,7 +175,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "15";
-   ClassName = "benchmarkClassP0010S1000I0010";
+   ClassName = "benchmarkClassP00010S01000I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -186,7 +186,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "16";
-   ClassName = "benchmarkClassP0050S0010I0010";
+   ClassName = "benchmarkClassP00050S00010I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -197,7 +197,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "17";
-   ClassName = "benchmarkClassP0050S0100I0010";
+   ClassName = "benchmarkClassP00050S00100I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -208,7 +208,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "18";
-   ClassName = "benchmarkClassP0050S1000I0010";
+   ClassName = "benchmarkClassP00050S01000I00010";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -219,7 +219,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "19";
-   ClassName = "benchmarkClassP0001S0010I0100";
+   ClassName = "benchmarkClassP00001S00010I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -230,7 +230,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "20";
-   ClassName = "benchmarkClassP0001S0100I0100";
+   ClassName = "benchmarkClassP00001S00100I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -241,7 +241,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "21";
-   ClassName = "benchmarkClassP0001S1000I0100";
+   ClassName = "benchmarkClassP00001S01000I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -252,7 +252,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "22";
-   ClassName = "benchmarkClassP0010S0010I0100";
+   ClassName = "benchmarkClassP00010S00010I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -263,7 +263,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "23";
-   ClassName = "benchmarkClassP0010S0100I0100";
+   ClassName = "benchmarkClassP00010S00100I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -274,7 +274,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "24";
-   ClassName = "benchmarkClassP0010S1000I0100";
+   ClassName = "benchmarkClassP00010S01000I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -285,7 +285,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "25";
-   ClassName = "benchmarkClassP0050S0010I0100";
+   ClassName = "benchmarkClassP00050S00010I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -296,7 +296,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "26";
-   ClassName = "benchmarkClassP0050S0100I0100";
+   ClassName = "benchmarkClassP00050S00100I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -307,7 +307,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "27";
-   ClassName = "benchmarkClassP0050S1000I0100";
+   ClassName = "benchmarkClassP00050S01000I00100";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -318,7 +318,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "28";
-   ClassName = "benchmarkClassP0010S0020I0050";
+   ClassName = "benchmarkClassP00010S00020I00050";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;
@@ -329,7 +329,7 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "benchmarkProviderModule";
    ProviderName = "benchmarkProvider";
    CapabilityID = "29";
-   ClassName = "benchmarkClassP0030S0010I0001";
+   ClassName = "benchmarkClassP00030S00010I00001";
    Namespaces = {"root/benchmark"};
    ProviderType = {2}; 
    SupportedProperties = NULL;

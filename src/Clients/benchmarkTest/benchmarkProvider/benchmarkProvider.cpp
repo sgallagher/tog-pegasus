@@ -66,7 +66,12 @@ CIMInstance benchmarkProvider::_buildInstance(
 
 {
     char propertyName[20];
-    char propertyValue[10000];
+    char propertyValue[100000];
+
+   if (propertySize > 99999)
+   {
+      throw CIMException (CIM_ERR_INVALID_PARAMETER);
+   } 
 
     for (Uint32 i = 0; i < propertySize; i++)
     {
@@ -75,12 +80,13 @@ CIMInstance benchmarkProvider::_buildInstance(
     propertyValue[propertySize] = 0;
 
     CIMInstance instance(className);
-    instance.addProperty(CIMProperty("Identifier", Identifier));
+    instance.addProperty(CIMProperty(CIMName("Identifier"), Identifier));
 
     for(Uint32 i = 0; i < numberOfProperties;  i++)
     {
        sprintf(propertyName, "Property%4.4d", i);
-       instance.addProperty(CIMProperty(propertyName, String(propertyValue)));
+       instance.addProperty(CIMProperty(CIMName(propertyName), 
+                                               String(propertyValue)));
     }
 
     CIMObjectPath reference = _buildObjectPath(className, 

@@ -1,9 +1,9 @@
 // ===================================================================
 // Title:       System Resources 2.7
 // Filename:    System27_SystemResources.mof
-// Version:     2.7.0
+// Version:     2.7.2
 // Release:     Final
-// Date:        03/31/03
+// Date:        04/29/03
 // ===================================================================
 // Copyright 1998-2003 Distributed Management Task Force, Inc. (DMTF).
 // All rights reserved.  
@@ -376,8 +376,8 @@ class CIM_DMA : CIM_SystemResource {
 // ===================================================================
 // ResourceOfSystem
 // ===================================================================
-[Association, Aggregation, Composition, Experimental, 
-    Version ("2.7.0"), Description (
+[Association, Aggregation, Composition,  
+    Version ("2.7.2"), Description (
     "An association between a System and a SystemResource that "
     "exists and is allocated in the context of the System.") ]
 class CIM_ResourceOfSystem : CIM_SystemComponent {

@@ -3,7 +3,7 @@
 // Filename:    CIM_Core27.mof
 // Version:     2.7.0
 // Release:     Final
-// Date:        03/31/03
+// Date:        04/30/03
 // ===================================================================
 // Copyright 1998-2003 Distributed Management Task Force, Inc. (DMTF).
 // All rights reserved.  
@@ -90,7 +90,7 @@
 #pragma include ("Core27_Collection.mof")
 
 // ==================================================================
-// Redundancy Information (subclass of Collection)
+// Redundancy Information 
 // ==================================================================
 #pragma include ("Core27_Redundancy.mof")
 

@@ -1,9 +1,9 @@
 // ===================================================================
 // Title:       Core Qualifiers 2.7
 // Filename:    Core27_Qualifiers.mof
-// Version:     2.7.0
+// Version:     2.7.2
 // Release:     Final
-// Date:        03/31/03
+// Date:        05/01/03
 // ===================================================================
 // Copyright 1998-2003 Distributed Management Task Force, Inc. (DMTF).
 // All rights reserved.  
@@ -65,6 +65,10 @@
 //         OctetString, EmbeddedObject, Expensive, Indication, 
 //         MappingString, Modelcorrespondence, Required, and Terminal
 //         qualifiers.
+//
+// Change Log for v2.7.2 - ERRATA
+// CR1038 - Define the Experimental and Version qualifiers as 
+//          Restricted
 // ==================================================================
 
 #pragma locale ("en_US")
@@ -138,7 +142,8 @@ Qualifier Expensive : boolean = false,
     Scope(any);
 
 Qualifier Experimental : boolean = false, 
-    Scope(any);
+    Scope(any), 
+    Flavor(Restricted); 
 
 Qualifier Gauge : boolean = false, 
     Scope(property, method, parameter);
@@ -281,7 +286,7 @@ Qualifier Values : string[],
 
 Qualifier Version : string = null, 
     Scope(class, association, indication), 
-    Flavor(Translatable);
+    Flavor(Restricted, Translatable);
 
 Qualifier Weak : boolean = false, 
     Scope(reference), 

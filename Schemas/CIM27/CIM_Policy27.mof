@@ -3,7 +3,7 @@
 // Filename:  CIM_Policy27.MOF
 // Version:   2.7.0 
 // Status:    Final 
-// Date:      03/31/2003
+// Date:      05/03/2003
 // ===================================================================
 // Copyright 2000-2003 Distributed Management Task Force, Inc. (DMTF).
 // All rights reserved.  
@@ -696,7 +696,7 @@ class CIM_PolicyTimePeriodCondition : CIM_PolicyCondition {
         [Octetstring, Description (
         "The purpose of this property is to refine the valid time "
         "period that is defined by the TimePeriod property, by "
-        "explicitly specifying in which days of the month the "
+        "explicitly specifying in which days of the week the "
         "PolicySet is valid. These properties work together, "
         "with the TimePeriod used to specify the overall time period "
         "in which the PolicySet is valid, and the DayOfWeekMask used "
@@ -798,7 +798,6 @@ class CIM_PolicyTimePeriodCondition : CIM_PolicyCondition {
         "CIM_PolicyTimePeriodCondition.TimeOfDayMask"} ]
     uint16 LocalOrUtcTime;
 };
-
 
 
 // ==================================================================
@@ -1725,3 +1724,4 @@ class CIM_PolicyActionInPolicyRepository : CIM_PolicyInSystem {
 // ===================================================================
 // end of file
 // ===================================================================
+

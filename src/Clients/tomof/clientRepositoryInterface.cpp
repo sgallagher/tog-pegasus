@@ -31,6 +31,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -65,21 +66,20 @@ clientRepositoryInterface::init(_repositoryType type,
     // create a CIMClient object and put it in _client
     try
     {
-
-    _client = new CIMClient();
-      _client->connect(location);
+		_client = new CIMClient();
+		_client->connect(location);
     } 
     
     catch(Exception &e) 
     {
-  //Message with error goeshere
+	  cerr << "Internal Error:" << e.getMessage() << endl;
       delete _client;
       _client = 0;
     }
   }
   else 
   {
-    // throw an exception indicating no valid repository type
+	  throw OutOfBounds();
   }
 }
 
@@ -91,10 +91,7 @@ Array<CIMQualifierDecl> clientRepositoryInterface::enumerateQualifiers(
     return _repository->enumerateQualifiers(nameSpace);
   if (_client)
       return _client->enumerateQualifiers(nameSpace);
-  else
-  {
-
-  }
+	throw OutOfBounds();
 }
 
 CIMClass clientRepositoryInterface::getClass(
@@ -110,7 +107,7 @@ CIMClass clientRepositoryInterface::getClass(
     if (_client)
         return _client->getClass(nameSpace, className,
                         localOnly, includeQualifiers, includeClassOrigin);
-
+	throw OutOfBounds();
 };
 
 
@@ -140,6 +137,7 @@ Array<CIMClass> clientRepositoryInterface::enumerateClasses(
                                     localOnly,
                                     includeQualifiers,
                                     includeClassOrigin);
+	 throw OutOfBounds();
 };
 Array<String> clientRepositoryInterface::enumerateClassNames(
     const String& nameSpace,
@@ -152,6 +150,7 @@ Array<String> clientRepositoryInterface::enumerateClassNames(
 
     if (_client)
        return _client->enumerateClassNames(nameSpace, className, deepInheritance);
+	throw OutOfBounds();
 };
 
 PEGASUS_NAMESPACE_END

@@ -49,9 +49,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-//#include "clientCommonDefs.h"
+#include <Pegasus/Common/Exception.h>
 
-#include <Clients/cliutils/Linkage.h>
+// #include <Clients/tomof/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,12 +63,11 @@ class CIMQualifierDecl;
 class CIMInstance;
 
 
-class PEGASUS_CLIUTILS_LINKAGE clientRepositoryInterface
+class clientRepositoryInterface
 {
  private:
   CIMRepository *_repository;
   CIMClient     *_client;
-  //clientCommonDefs::operationType _ot;
 
  public:
   enum _repositoryType { REPOSITORY_INTERFACE_LOCAL = 0,
@@ -91,8 +90,6 @@ class PEGASUS_CLIUTILS_LINKAGE clientRepositoryInterface
       const Boolean includeQualifiers,
       const Boolean includeClassOrigin) const;
 
-
-
   virtual Array<CIMClass> enumerateClasses(
       const String& nameSpace,
       const String& className,
@@ -100,7 +97,6 @@ class PEGASUS_CLIUTILS_LINKAGE clientRepositoryInterface
       const Boolean localOnly,
       const Boolean includeQualifiers,
       const Boolean includeClassOrigin) const;
-
 
   virtual Array<String> enumerateClassNames(
       const String& nameSpace,

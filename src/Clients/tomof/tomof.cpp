@@ -37,6 +37,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/XMLWriter.h>
 #include "clientRepositoryInterface.h"
 
 PEGASUS_USING_PEGASUS;
@@ -303,6 +304,8 @@ void GetOptions(
          {"onlynames", "false", false, Option::BOOLEAN, 0, 0, "o", 
                       "Show Names only, not the MOF"},
 
+         {"xml", "false", false, Option::BOOLEAN, 0, 0, "x", 
+                      "Output result in XML rather than MOF"},
 
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -446,10 +449,10 @@ int main(int argc, char** argv)
 
     if (verbose)
     {
-	cout << "Class list is ";
+	if (verbose) cout << "Class list is ";
 	for (Uint32 i = 0 ; i < classList.size(); i++)
 	{
-	    cout << classList[i] << " ";    
+	    if (verbose) cout << classList[i] << " ";    
 	}
 	cout << endl;
     }
@@ -461,15 +464,17 @@ int main(int argc, char** argv)
     // if "Client" set, open a connected and set 
     Boolean isClient = om.isTrue("client");
 
+    // if "Client" set, open a connected and set 
+    Boolean isXMLOutput = om.isTrue("xml");
 
     // Check for repository path flag and set repository directory
     // ATTN: Clean this up so the priority is better defined.
-    // Should proably alos put under directory functions also
+    // Should probably also put under directory functions also
     String location = "";
 
     if(om.lookupValue("location", location))
       {
-       cout << "location Path = " << location << endl;
+       if (verbose) cout << "location Path = " << location << endl;
 
       }
 
@@ -535,18 +540,18 @@ int main(int argc, char** argv)
 	    }
 	    else
 	    {
-		for (Uint32 i = 0; i < qualifierDecls.size(); i++)
-		{
-		    CIMQualifierDecl tmp = qualifierDecls[i];
-		    Array<Sint8> x;
-	    
-		    tmp.toMof(x);
-	    
-		    x.append('\0');
-	    
-		    mofFormat(cout, x.getData(), 4);
-		    cout << endl;
-		 }
+			for (Uint32 i = 0; i < qualifierDecls.size(); i++)
+			{
+				CIMQualifierDecl tmp = qualifierDecls[i];
+				Array<Sint8> x;
+			
+				tmp.toMof(x);
+			
+				x.append('\0');
+			
+				mofFormat(cout, x.getData(), 4);
+				cout << endl;
+			}
 	    }
 
             qualifierCount = qualifierDecls.size();
@@ -577,8 +582,8 @@ int main(int argc, char** argv)
 
 	    if (showOnlyNames)
 	    {
-		for (Uint32 j = 0; j < list.size(); j++ )
-		    cout << "Class " << list.next() << endl;
+			for (Uint32 j = 0; j < list.size(); j++ )
+				cout << "Class " << list.next();
 	    }
 	    else
 	    {
@@ -591,15 +596,23 @@ int main(int argc, char** argv)
 	    
 		    // Note we get and print ourselves rather than use the generic printMof
 		    // Lets us format.
-		    Array<Sint8> x;
-		    cimClass.toMof(x);
-		    x.append('\0');
-	    
-		    mofFormat(cout, x.getData(), 4);
-	    
-		    //cimClass.printMof(); 
-		    cout << endl;
-		    cout << "end of this class " << endl;
+
+			if(isXMLOutput)
+			{
+				cimClass.print(cout);			
+			}
+			else
+			{
+				Array<Sint8> x;
+				cimClass.toMof(x);
+			
+				x.append('\0');
+			
+				mofFormat(cout, x.getData(), 4);
+
+				//cimClass.printMof(cout); 
+			}
+		    //cout << endl;
 		}
 	    }
 
@@ -615,33 +628,33 @@ int main(int argc, char** argv)
 
     if (showInstances | showAll)
     {
-        cout << "Enter instances code " << endl;
-	// Get Class Names
-        Array<String> classNames;
-
-	try
-	{
-            Boolean deepInheritance = true;
-	    String className = "";
-
-            classNames = clRepository.enumerateClassNames(
-                nameSpace, className, deepInheritance);
-
-	}
-	catch(Exception& e)
-	{
-	     cout << "Error Class Name Enumeration:" << endl;
-	     cout << e.getMessage() << endl;
-	}
-
-        // Get instances for each class
-	try
-	{
-            for (Uint32 i = 0; i < classNames.size(); i++)
-            {
-                // Enumerate the Instances of this class
-                // ENUM and DISPLAY CODE HERE
-            }
+		cout << "Enter instances code " << endl;
+		// Get Class Names
+		Array<String> classNames;
+		
+		try
+		{
+				Boolean deepInheritance = true;
+			String className = "";
+		
+				classNames = clRepository.enumerateClassNames(
+					nameSpace, className, deepInheritance);
+		
+		}
+		catch(Exception& e)
+		{
+			 cout << "Error Class Name Enumeration:" << endl;
+			 cout << e.getMessage() << endl;
+		}
+		cout << "More" << endl;
+			// Get instances for each class
+		try
+		{
+			for (Uint32 i = 0; i < classNames.size(); i++)
+			{
+				// Enumerate the Instances of this class
+				// ENUM and DISPLAY CODE HERE
+			}
 	}
 	catch(Exception& e)
 	{

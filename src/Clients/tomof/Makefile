@@ -6,7 +6,7 @@ include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 
-LOCAL_DEFINES = -DPEGASUS_CLIUTILS_INTERNAL
+//LOCAL_DEFINES = -DPEGASUS_TOMOF_INTERNAL
 
 PROGRAM = $(PROGRAM_NAME)
 

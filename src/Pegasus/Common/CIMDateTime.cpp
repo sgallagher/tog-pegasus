@@ -33,26 +33,21 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)   
-#include <Pegasus/Common/Config.h>              
-#endif                                          
-
 #include <cctype>
 #include <time.h>
-#include <Pegasus/Common/Destroyer.h>
 #include "CIMDateTime.h" 
 #include "InternalException.h" 
 
 #include <errno.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    # include <Pegasus/Common/CIMDateTimeWindows.cpp>
+# include <Pegasus/Common/CIMDateTimeWindows.cpp>
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-    # include <Pegasus/Common/CIMDateTimeUnix.cpp>
+# include <Pegasus/Common/CIMDateTimeUnix.cpp>
 #elif defined(PEGASUS_OS_TYPE_NSK)
-    # include <Pegasus/Common/CIMDateTimeNsk.cpp>
+# include <Pegasus/Common/CIMDateTimeNsk.cpp>
 #else
-    # error "Unsupported platform"
+# error "Unsupported platform"
 #endif
 
 PEGASUS_USING_STD;

@@ -120,11 +120,11 @@ String System::getCurrentASCIITime()
 {
     char    str[50];
     time_t  rawTime;
+    struct tm tmBuffer;
 
     time(&rawTime);
-    strftime(str, 40,"%m/%d/%Y-%T", localtime(&rawTime));
-    String time = str;
-    return time;
+    strftime(str, 40,"%m/%d/%Y-%T", localtime_r(&rawTime, &tmBuffer));
+    return String(str);
 }
 
 void System::sleep(Uint32 seconds)

@@ -43,7 +43,7 @@
 #include <sys/socket.h>  // gethostbyname()
 #include <netinet/in.h>  // gethostbyname()
 #include <netdb.h>       // gethostbyname()
-#include <time.h>        // localtime()
+#include <time.h>        // localtime_r()
 #include <sys/utsname.h> // uname()
 #include <sys/param.h>   // MAXHOSTNAMELEN
 #include <fstream>
@@ -362,7 +362,8 @@ void ComputerSystem::initialize(void)
   if (0 != stat("/stand/vmunix", &st))
     throw CIMOperationFailedException("/stand/vmunix: can't access");
   // convert to a usable format
-  struct tm *t = localtime(&st.st_mtime);
+  struct tm tmBuffer;
+  struct tm *t = localtime_r(&st.st_mtime, &tmBuffer);
   // convert to CIMDateTime format
   char timstr[26];
   sprintf(timstr,"%04d%02d%02d%02d%02d%02d.000000%c%03d",t->tm_year+1900,

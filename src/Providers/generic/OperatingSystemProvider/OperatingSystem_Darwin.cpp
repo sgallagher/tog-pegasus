@@ -128,8 +128,8 @@ String OperatingSystem::GetVersion(void) const
 CIMDateTime OperatingSystem::GetLastBootUpTime(void) const //TBD
 {
 /*   time_t boottime = time((time_t)0);// - m_si.uptime;
-
-   struct tm *lastboottime = localtime(&boottime);
+   struct tm tmBuffer;
+   struct tm *lastboottime = localtime_r(&boottime, &tmBuffer);
 
    std::strstream ss;
 
@@ -158,8 +158,8 @@ CIMDateTime OperatingSystem::GetLastBootUpTime(void) const //TBD
 CIMDateTime OperatingSystem::GetLocalDateTime(void) const
 {
 /*   time_t currtime = time((time_t)0);
-
-   struct tm *loctime = localtime(&currtime);
+   struct tm tmBuffer;
+   struct tm *loctime = localtime_r(&currtime, &tmBuffer);
 
    std::strstream ss;
 
@@ -196,8 +196,8 @@ Sint16 OperatingSystem::GetCurrentTimeZone(void) const
    Sint16 CurrentTimeZone = 0;
 
    //time_t currtime = time((time_t)0);
-
-   //struct tm *loctime = localtime(&currtime);
+   //struct tm tmBuffer;
+   //struct tm *loctime = localtime_r(&currtime, &tmBuffer);
 
    //CurrentTimeZone = loctime->tm_gmtoff / 60;   // gmtoff give offset from gmt
 

@@ -878,7 +878,8 @@ NOTES             :
 String Process::getCurrentTime(void) const
 {
   time_t t = time(0);
-  return String(ctime(&t));
+  char buffer[40];
+  return String(ctime_r(&t, buffer));
 }
 
 

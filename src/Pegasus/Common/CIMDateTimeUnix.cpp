@@ -71,8 +71,8 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     struct 		timeval   tv;
     struct 		timezone  tz;
     struct tm* 		tmval;
-#if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
     struct tm		local_tm;
+#if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
     time_t		utc_offset;
 #endif
     // Get the system date and time
@@ -81,11 +81,13 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     // Get the localtime
 #if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
     tmval = localtime_r(&mSysTime, &local_tm);
+    PEGASUS_ASSERT(tmval != 0);
     gettimeofday(&tv,NULL);
     utc_offset = (tmval->tm_isdst > 0 && daylight) ? altzone : timezone ;
     utc_offset /= 60;	// CIM only uses minutes, not seconds.
 #else
-    tmval = localtime(&mSysTime);
+    tmval = localtime_r(&mSysTime, &local_tm);
+    PEGASUS_ASSERT(tmval != 0);
     gettimeofday(&tv,&tz);
 #endif
 

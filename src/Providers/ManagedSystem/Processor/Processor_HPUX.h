@@ -49,7 +49,6 @@
 #include <Pegasus/Common/CIMDateTime.h>
 
 #include <sys/dirent.h>   // readdir
-#include <time.h>         // localtime
 #include <sys/param.h>    // pstat
 #include <sys/pstat.h>    // pstat
 #include <devnm.h>        // devnm

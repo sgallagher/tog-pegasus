@@ -33,8 +33,9 @@
 //         Jim Metcalfe, Hewlett-Packard Company
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//         Carol Ann Krug Graves, Hewlett-Packard Company
+//             (carolann_graves@hp.com)
+//         Roger Kumpf, Hewlett-Packard Company <roger_kumpf@hp.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -275,11 +276,12 @@ NOTES             :
 */
 Boolean Process::getCreationDate(CIMDateTime& d) const
 {
-  // convert 64-bit pInfo data to 32-bit needed by localtime()
+  // convert 64-bit pInfo data to 32-bit needed by localtime_r()
   time_t start = pInfo.pst_start;
-  struct tm *t = localtime(&start);
+  struct tm tmBuffer;
+  struct tm *t = localtime_r(&start, &tmBuffer);
 
-  // If localtime() failed, we will not return this property
+  // If localtime_r() failed, we will not return this property
   // There's really no way it can fail for a process start time
   // since the only failures occur when its argument is not a
   // valid time, but if this happened, the system must have had
@@ -887,7 +889,8 @@ NOTES             :
 String Process::getCurrentTime(void) const
 {
   time_t t = time(0);
-  return String(ctime(&t));
+  char buffer[40];
+  return String(ctime_r(&t, buffer));
 }
 
 

@@ -68,7 +68,7 @@ CIMServerDiscoveryRep::lookup(const Array<Attribute> & criteria)
   int8 *scopes = strdup("DEFAULT");
   int8 *iface = NULL;
   int8 *addr = NULL;
-  int8 *type = strdup("service:wbem.pegasus");
+  int8 *type = strdup("service:wbem");
   int8 *predicate = NULL;
   int16 port = 427;
   BOOL dir_agent = FALSE;

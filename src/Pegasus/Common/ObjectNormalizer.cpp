@@ -87,7 +87,7 @@ static CIMProperty _resolveProperty(
     CIMName classOrigin = referenceProperty.getClassOrigin();
     Boolean propagated = referenceProperty.getPropagated();
 
-    // create "resolve" property
+    // create "resolved" property
     CIMProperty newProperty(
         propertyName,
         propertyValue,
@@ -100,6 +100,7 @@ static CIMProperty _resolveProperty(
 
     // TODO: check override (especially for references)?
 
+    // update value
     newProperty.setValue(cimProperty.getValue());
 
     Tracer::trace(
@@ -133,7 +134,7 @@ static CIMProperty _resolveProperty(
         // apply reference property qualifiers
         for(Uint32 i = 0, n = referenceProperty.getQualifierCount(); i < n;i++)
         {
-            // ATTN: convert const qualifier to non const
+            // convert const property to non const
             CIMQualifier referenceQualifier = referenceProperty.getQualifier(i).clone();
 
             Tracer::trace(
@@ -147,13 +148,35 @@ static CIMProperty _resolveProperty(
         // apply specified property qualifiers
         for(Uint32 i = 0, n = cimProperty.getQualifierCount(); i < n; i++)
         {
+            // convert const property to non const
             CIMQualifier cimQualifier = cimProperty.getQualifier(i).clone();
 
             Uint32 pos = newProperty.findQualifier(cimQualifier.getName());
 
+            // ATTN: is it legal to specify qualifiers not in the property definition?
+
             if(pos == PEG_NOT_FOUND)
             {
-                // ATTN: is it legal to specify qualifiers not in the property definition?
+                // add qualifiers not in the reference property
+
+                // TODO: ensure the qualifier is exists and is valid in this scope
+
+                Tracer::trace(
+                    TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
+                    "adding qualifier %s",
+                    (const char *)cimQualifier.getName().getString().getCString());
+
+                newProperty.addQualifier(cimQualifier);
+            }
+            else
+            {
+                // update qualifier
+                Tracer::trace(
+                    TRC_OBJECTRESOLUTION, Tracer::LEVEL4,
+                    "updating qualifier %s",
+                    (const char *)cimQualifier.getName().getString().getCString());
+
+                newProperty.getQualifier(pos).setValue(cimQualifier.getValue());
             }
 
             Tracer::trace(
@@ -240,7 +263,7 @@ static CIMClass _resolveClass(
         // apply reference class qualifiers
         for(Uint32 i = 0, n = referenceClass.getQualifierCount(); i < n;i++)
         {
-            // ATTN: convert const qualifier to non const
+            // convert const qualifier to non const
             CIMQualifier referenceQualifier = referenceClass.getQualifier(i).clone();
 
             Tracer::trace(
@@ -254,13 +277,18 @@ static CIMClass _resolveClass(
         // apply specified class qualifiers
         for(Uint32 i = 0, n = cimClass.getQualifierCount(); i < n; i++)
         {
+            // convert const qualifier to non const
             CIMQualifier cimQualifier = cimClass.getQualifier(i).clone();
 
             Uint32 pos = newClass.findQualifier(cimQualifier.getName());
 
+            // ATTN: is it legal to specify qualifiers not in the class definition?
+
             if(pos == PEG_NOT_FOUND)
             {
-                // ATTN: is it legal to specify qualifiers not in the class definition?
+                String message = cimQualifier.getName().getString() + String(" qualifier not found in class definition.");
+
+                throw CIMException(CIM_ERR_FAILED, message);
             }
 
             Tracer::trace(
@@ -275,7 +303,7 @@ static CIMClass _resolveClass(
     // apply reference class properties
     for(Uint32 i = 0, n = referenceClass.getPropertyCount(); i < n; i++)
     {
-        // ATTN: convert const property to non const
+        // convert const property to non const
         CIMProperty referenceProperty = referenceClass.getProperty(i).clone();
 
         Tracer::trace(
@@ -283,6 +311,7 @@ static CIMClass _resolveClass(
             "adding property %s",
             (const char *)referenceProperty.getName().getString().getCString());
 
+        // convert const property to non const
         CIMProperty cimProperty = referenceClass.getProperty(i).clone();
 
         newClass.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
@@ -291,7 +320,7 @@ static CIMClass _resolveClass(
     // apply reference class methods
     for(Uint32 i = 0, n = referenceClass.getMethodCount(); i < n; i++)
     {
-        // ATTN: convert const method to non const
+        // convert const method to non const
         CIMMethod referenceMethod = referenceClass.getMethod(i).clone();
 
         Tracer::trace(
@@ -299,6 +328,7 @@ static CIMClass _resolveClass(
             "adding method %s",
             (const char *)referenceMethod.getName().getString().getCString());
 
+        // convert const method to non const
         CIMMethod cimMethod = referenceClass.getMethod(i).clone();
 
         newClass.addMethod(_resolveMethod(referenceMethod, cimMethod, includeQualifiers, includeClassOrigin));
@@ -324,7 +354,7 @@ static CIMClass _resolveClass(
             // ATTN: temporarily remove property until a better way to update is implemented.
             newClass.removeProperty(pos);
 
-            // ATTN: convert const property to non const
+            // convert const property to non const
             CIMProperty cimProperty = cimClass.getProperty(i).clone();
 
             DEBUG_PRINT("updating property - " << cimProperty.getName().getString());
@@ -387,7 +417,7 @@ static CIMInstance _resolveInstance(
         // apply reference instance qualifiers
         for(Uint32 i = 0, n = referenceInstance.getQualifierCount(); i < n;i++)
         {
-            // ATTN: convert const qualifier to non const
+            // convert const method to non const
             CIMQualifier referenceQualifier = referenceInstance.getQualifier(i).clone();
 
             Tracer::trace(
@@ -401,13 +431,16 @@ static CIMInstance _resolveInstance(
         // apply specified instance qualifiers
         for(Uint32 i = 0, n = cimInstance.getQualifierCount(); i < n; i++)
         {
+            // convert const method to non const
             CIMQualifier cimQualifier = cimInstance.getQualifier(i).clone();
 
             Uint32 pos = newInstance.findQualifier(cimQualifier.getName());
 
+            // ATTN: is it legal to specify qualifiers not in the class definition?
+
             if(pos == PEG_NOT_FOUND)
             {
-                // add qualifiers not in the reference class
+                // add qualifiers not in the reference instance
 
                 // TODO: ensure the qualifier is exists and is valid in this scope
 
@@ -438,7 +471,7 @@ static CIMInstance _resolveInstance(
     // apply reference instance properties
     for(Uint32 i = 0, n = referenceInstance.getPropertyCount(); i < n; i++)
     {
-        // ATTN: convert const property to non const
+        // convert const property to non const
         CIMProperty referenceProperty = referenceInstance.getProperty(i).clone();
 
         DEBUG_PRINT("adding property - " << referenceProperty.getName().getString());
@@ -449,7 +482,7 @@ static CIMInstance _resolveInstance(
     // apply specified instance properties
     for(Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
     {
-        // ATTN: convert const property to non const
+        // convert const property to non const
         CIMProperty cimProperty = cimInstance.getProperty(i).clone();
 
         Uint32 pos = newInstance.findProperty(cimProperty.getName());
@@ -474,7 +507,7 @@ static CIMInstance _resolveInstance(
     // apply ONLY specified instance properties
     for(Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
     {
-        // ATTN: convert const property to non const
+        // convert const property to non const
         CIMProperty cimProperty = cimInstance.getProperty(i).clone();
 
         Uint32 pos = referenceInstance.findProperty(cimProperty.getName());
@@ -489,7 +522,7 @@ static CIMInstance _resolveInstance(
             throw CIMException(CIM_ERR_NO_SUCH_PROPERTY);
         }
 
-        // ATTN: convert const property to non const
+        // convert const property to non const
         CIMProperty referenceProperty = referenceInstance.getProperty(pos).clone();
 
         Tracer::trace(
@@ -500,6 +533,19 @@ static CIMInstance _resolveInstance(
         newInstance.addProperty(_resolveProperty(referenceProperty, cimProperty, includeQualifiers, includeClassOrigin));
     }
 
+    // pass the keybindings along untouched if they are specified. do nothing if they are not specified.
+    if(cimInstance.getPath().getKeyBindings().size() != 0)
+    {
+        // udpate object path
+        CIMObjectPath path = newInstance.getPath();
+
+        // assume the specified instance has the correct keys
+        path.setKeyBindings(cimInstance.getPath().getKeyBindings());
+
+        newInstance.setPath(path);
+    }
+
+    /*
     // use the object path in the instance, if it exists
     if(cimInstance.getPath().getKeyBindings().size() != 0)
     {
@@ -540,6 +586,7 @@ static CIMInstance _resolveInstance(
 
         newInstance.setPath(path);
     }
+    */
 
     return(newInstance);
 }
@@ -687,6 +734,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     CIMInstance referenceInstance(className);
 
     // build a reference object path for the reference instance
+    /*
     Array<CIMName> keyNames;
 
     referenceClass.getKeyNames(keyNames);
@@ -699,14 +747,16 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
 
         keyBindings.append(CIMKeyBinding(referenceProperty.getName(), referenceProperty.getValue()));
     }
+    */
 
     // propagate host and namespace in object
-    referenceInstance.setPath(CIMObjectPath(hostName, nameSpace, className, keyBindings));
+    referenceInstance.setPath(CIMObjectPath(hostName, nameSpace, className));
 
     // copy all qualifiers to reference instance. no attempt is made at this time
     // to propagate based on flavor.
     for(Uint32 i = 0, n = referenceClass.getQualifierCount(); i < n; i++)
     {
+        // convert const property to non const
         CIMQualifier referenceQualifier = referenceClass.getQualifier(i).clone();
 
         Tracer::trace(
@@ -721,6 +771,7 @@ Array<CIMInstance> ObjectNormalizer::normalizeInstances(
     // local properties and the following code will operate correctly)
     for(Uint32 i = 0, n = referenceClass.getPropertyCount(); i < n; i++)
     {
+        // convert const property to non const
         CIMProperty referenceProperty = referenceClass.getProperty(i).clone();
 
         Tracer::trace(

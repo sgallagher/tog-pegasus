@@ -1247,18 +1247,18 @@ class CIMNotifyProviderTerminationRequestMessage : public CIMRequestMessage
    public:
       CIMNotifyProviderTerminationRequestMessage(
 	 const String & messageId_,
-	 const CIMInstance & provider_,
+	 const Array <CIMInstance> & providers_,
 	 QueueIdStack queueIds_)
 	 :
 	 CIMRequestMessage(
             CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE,
 	    messageId_, queueIds_),
-	 provider (provider_)
+	 providers (providers_)
       {
 
       }
 
-      CIMInstance provider;
+      Array <CIMInstance> providers;
 };
 
 class CIMHandleIndicationRequestMessage : public CIMRequestMessage

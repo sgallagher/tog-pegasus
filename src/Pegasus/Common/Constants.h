@@ -99,6 +99,14 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_CLASSNAME_INDHANDLER_SNMP      "PG_IndicationHandlerSNMPMapper"
 #define PEGASUS_CLASSNAME_INDFILTER            "PG_IndicationFilter"
 
+
+//
+// Property Names
+//
+
+#define PEGASUS_PROPERTYNAME_INDSUB_CREATOR    "Creator"
+
+
 //
 // CIM Namespace Names
 //

@@ -277,7 +277,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    
    while(client->get_pending_callback_count() > 0 )
    {
-      sleep(1);
+      pegasus_sleep(1);
    }
 
    cout << "sending stop to server " << endl;

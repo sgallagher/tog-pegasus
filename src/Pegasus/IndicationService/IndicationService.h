@@ -188,8 +188,8 @@ private:
     /**
 	Notifies the Indication Service that a change in provider registration
 	has occurred.  The Indication Service retrieves the subscriptions
-	affected by the registration change, sends the appropriate enable,
-        modify, and/or disable requests to the provider, and sends an alert to 
+	affected by the registration change, sends the appropriate Create,
+        Modify, and/or Delete requests to the provider, and sends an alert to 
         handler instances of subscriptions that are no longer served by the 
         provider.
     */
@@ -245,15 +245,6 @@ private:
      */
     void _deleteSubscription (
         const CIMNamedInstance subscription);
-
-    /**
-        Ensures that all subscription classes in the repository include the
-        Creator property.
-
-        @throw   CIMException               if any error except 
-                                            CIM_ERR_INVALID_CLASS occurs
-     */
-    void _checkClasses (void);
 
     /**
         Determines if it is legal to create an instance. 
@@ -755,7 +746,7 @@ private:
         CIMInstance & instance);
 
     /**
-        Gets the parameter values required to create or modify the subscription
+        Gets the parameter values required to Create or Modify the subscription
         request.
         If no indication providers are found, condition and queryLanguage are 
         set to empty string.
@@ -771,7 +762,7 @@ private:
         @param   queryLanguage         Output query language in which the filter
                                            query is expressed
      */
-    void _getEnableParams (
+    void _getCreateParams (
         const String & nameSpaceName,
         const CIMInstance & subscriptionInstance,
         Array <ProviderClassList> & indicationProviders,
@@ -781,7 +772,7 @@ private:
         String & queryLanguage);
 
     /**
-        Gets the parameter values required to create or modify the subscription
+        Gets the parameter values required to Create or Modify the subscription
         request.
 
         @param   nameSpace             Input namespace name (of subscription)
@@ -793,7 +784,7 @@ private:
         @param   queryLanguage         Output query language in which the filter
                                            query is expressed
      */
-    void _getEnableParams (
+    void _getCreateParams (
         const String & nameSpaceName,
         const CIMInstance & subscriptionInstance,
         CIMPropertyList & propertyList,
@@ -802,33 +793,34 @@ private:
         String & queryLanguage);
 
     /**
-        Gets the parameter values required to disable the subscription request.
+        Gets the parameter values required to Delete the subscription request.
 
         @param   nameSpace             Input namespace name
         @param   subscription          Input subscription instance
 
-        @return  List of providers with associated classes to disable
+        @return  List of providers with associated classes to Delete
      */
-    Array <ProviderClassList> _getDisableParams (
+    Array <ProviderClassList> _getDeleteParams (
         const String & nameSpaceName,
         const CIMInstance & subscriptionInstance);
 
 
       /**
-	 Asynchronous completion routine for _sendEnableRequests.
+	 Asynchronous completion routine for _sendCreateRequests.
 	 
-	 @param  operation            shared data structure that controls msg processing
+	 @param  operation            shared data structure that controls msg 
+                                      processing
 	 @param  destination          target queue of completion callback
 	 @param  parm                 user parameter for callback processing
       */
 
-      static void _sendEnableRequestsCallBack(AsyncOpNode *operation, 
+      static void _sendCreateRequestsCallBack(AsyncOpNode *operation, 
 					      MessageQueue *destination, 
 					      void *parm);
        
 
     /**
-        Sends enable subscription request for the specified subscription
+        Sends Create subscription request for the specified subscription
         to each provider in the list.
 
         @param   indicationProviders   list of providers with associated classes
@@ -838,14 +830,14 @@ private:
         @param   condition             the condition part of the filter query
         @param   queryLanguage         the query language in which the filter
                                            query is expressed
-        @param   subscription          the subscription to be enabled
+        @param   subscription          the subscription to be created
         @param   userName              the userName for authentication
         @param   authType              the authentication type
 
         @return  True if at least one provider accepted the subscription
                  False otherwise
      */
-    Boolean _sendEnableRequests (
+    Boolean _sendCreateRequests (
         const Array <ProviderClassList> & indicationProviders,
         const String & nameSpace,
         const CIMPropertyList & propertyList,
@@ -867,7 +859,7 @@ private:
       
 
     /**
-        Sends modify subscription request for the specified subscription
+        Sends Modify subscription request for the specified subscription
         to each provider in the list.
 
         @param   indicationProviders   list of providers with associated classes
@@ -893,15 +885,16 @@ private:
 
 
       /** 
-	  Asynchronous completion routine for _sendDisableRequests. 
+	  Asynchronous completion routine for _sendDeleteRequests. 
       */
 
-      static void _sendDisableRequestsCallBack(AsyncOpNode *operation, 
-					       MessageQueue *callback_destination,
-					       void *parameter);
+      static void _sendDeleteRequestsCallBack (
+          AsyncOpNode *operation, 
+          MessageQueue *callback_destination,
+          void *parameter);
 
     /**
-        Sends disable subscription request for the specified subscription
+        Sends Delete subscription request for the specified subscription
         to each provider in the list.
 
         @param   indicationProviders   list of providers with associated classes
@@ -910,7 +903,7 @@ private:
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
-    void _sendDisableRequests (
+    void _sendDeleteRequests (
         const Array <ProviderClassList> & indicationProviders,
         const String & nameSpace,
         const CIMNamedInstance & subscription,
@@ -979,20 +972,20 @@ private:
         /* const */ CIMInstance & alertInstance);
       
 
-      /** Async completion routine for _sendStart */
+      /** Async completion routine for _sendEnable */
 
-      static void _sendStartCallBack(AsyncOpNode *operation, 
+      static void _sendEnableCallBack(AsyncOpNode *operation, 
 				     MessageQueue *callback_destination, 
 				     void *parameter);
       
       
     /**
-        Sends a start message to the specified provider.
+        Sends an Enable message to the specified provider.
 
-        @param   startProvider         the provider to be started
+        @param   enableProvider        the provider to be enabled
      */
-    void _sendStart (
-        const ProviderClassList & startProvider);
+    void _sendEnable (
+        const ProviderClassList & enableProvider);
 
     WQLSimplePropertySource _getPropertySourceFromInstance(
         CIMInstance & indicationInstance);
@@ -1291,11 +1284,6 @@ private:
      */
     static const char   _PROPERTY_PROVIDERMODULENAME [];
 
-    /**
-        The name of the Creator property for a class
-     */
-    static const char   _PROPERTY_CREATOR [];
-
 
     //
     //  Qualifier names
@@ -1350,6 +1338,8 @@ private:
     static const char _MSG_INVALID_VALUE [];
 
     static const char _MSG_FOR_PROPERTY [];
+
+    static const char _MSG_CLASS_NOT_SERVED [];
 };
 
 PEGASUS_NAMESPACE_END

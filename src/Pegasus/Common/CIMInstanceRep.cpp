@@ -31,6 +31,7 @@
 #include "Indentor.h"
 #include "CIMName.h"
 #include "XmlWriter.h"
+#include "Constants.h"
 
 PEGASUS_USING_STD;
 
@@ -113,12 +114,27 @@ void CIMInstanceRep::resolve(
 	Uint32 pos = cimClass.findProperty(property.getName());
 
 	if (pos == PEG_NOT_FOUND)
-	    throw NoSuchProperty(property.getName());
-
-	// resolve the property
-	property.resolve(context, 
-	    nameSpace, true, cimClass.getProperty(pos), propagateQualifiers);
-        property.setClassOrigin(classOrigin);
+        {
+            //
+            //  Allow addition of Creator property to Indication Subscription,
+            //  Filter and Handler instances
+            //
+            if (!(((classOrigin == PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
+                (classOrigin == PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+                (classOrigin == PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
+                (classOrigin == PEGASUS_CLASSNAME_INDFILTER)) &&
+                (property.getName () == PEGASUS_PROPERTYNAME_INDSUB_CREATOR)))
+            {
+	        throw NoSuchProperty(property.getName());
+            }
+        }
+        else
+        {
+	    // resolve the property
+	    property.resolve (context, nameSpace, true, 
+                cimClass.getProperty (pos), propagateQualifiers);
+            property.setClassOrigin(classOrigin);
+        }
     }
 
     //----------------------------------------------------------------------

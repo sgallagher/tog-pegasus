@@ -279,7 +279,7 @@ AsyncOperationStart::AsyncOperationStart(Uint32 routing,
 }
 
 
-inline Message * AsyncOperationStart::get_action(void)
+Message * AsyncOperationStart::get_action(void)
 {
    Message *ret = _act;
    _act = 0;

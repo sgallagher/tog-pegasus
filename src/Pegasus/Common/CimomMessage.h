@@ -356,11 +356,12 @@ class PEGASUS_COMMON_LINKAGE AsyncOperationStart : public AsyncRequest
 
       virtual ~AsyncOperationStart(void)
       {
-
+	 delete _act;
       }
       
 
-      Message *get_action(void);
+      Message *get_action(void ) ;
+      
       
    private:
       friend class MessageQueueService;
@@ -398,7 +399,7 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest
       
       virtual ~AsyncLegacyOperationStart(void)
       {
-
+	 delete _act;
       }
 
       Message *get_action(void);
@@ -421,7 +422,7 @@ class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult : public AsyncReply
       
       virtual ~AsyncLegacyOperationResult(void)
       {
-
+	 delete _res;
       }
 
       Message *get_result(void);

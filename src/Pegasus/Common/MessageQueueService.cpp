@@ -47,7 +47,7 @@ MessageQueueService::MessageQueueService(const char *name,
      _mask(mask),
      _die(0),
      _pending(true), 
-     _incoming(true, 1000),
+     _incoming(true, 100 ),
      _incoming_queue_shutdown(0),
      _req_thread(_req_proc, this, false)
 { 
@@ -90,7 +90,9 @@ MessageQueueService::~MessageQueueService(void)
    _die = 1;
    if (_incoming_queue_shutdown.value() == 0 )
    {
-       _incoming.shutdown_queue();
+      _shutdown_incoming_queue();
+      
+ //_incoming.shutdown_queue();
        _req_thread.join();
    }
    
@@ -123,8 +125,11 @@ void MessageQueueService::_shutdown_incoming_queue(void)
 				    0);
 
    msg->op = get_op();
-   msg->op->_request.insert_first(msg);
+   msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+   msg->op->_flags &= ~ASYNC_OPFLAGS_CALLBACK; 
+   
    msg->op->_op_dest = this;
+   msg->op->_request.insert_first(msg);
    
    _incoming.insert_last_wait(msg->op);
    msg->op->_client_sem.wait();
@@ -134,6 +139,7 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    reply->op = 0;
    msg->op->unlock();
    delete reply; 
+
       
    msg->op->_request.remove(msg);
    msg->op->_state |= ASYNC_OPSTATE_RELEASED;
@@ -194,8 +200,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
 void MessageQueueService::_handle_async_callback(AsyncOpNode *op)
 {
    // note that _callback_node may be different from op 
-   // op->_callback_q is a "this" pointer we can use for static callback methods
-   op->_async_callback(op->_callback_node, op->_callback_q, op->_callback_ptr);
+   // op->_callback_response_q is a "this" pointer we can use for 
+   // static callback methods
+   op->_async_callback(op->_callback_node, op->_callback_response_q, op->_callback_ptr);
 }
 
 
@@ -228,7 +235,7 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
 	 return;
       }
 
-      if ( operation->_state & ASYNC_OPFLAGS_CALLBACK && 
+      if ( operation->_flags & ASYNC_OPFLAGS_CALLBACK && 
 	   (operation->_state & ASYNC_OPSTATE_COMPLETE))
       {
 	 operation->unlock();
@@ -341,6 +348,14 @@ void MessageQueueService::_completeAsyncResponse(AsyncRequest *request,
 }
 
 
+void MessageQueueService::_complete_op_node(AsyncOpNode *op,
+					    Uint32 state, 
+					    Uint32 flag, 
+					    Uint32 code)
+{
+   cimom::_complete_op_node(op, state, flag, code);
+}
+
 
 Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 {
@@ -360,6 +375,17 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
       _incoming.insert_last_wait(op);
       return true;
    }
+//    else
+//    {
+//       if(  (rq != 0 && (true == MessageQueueService::messageOK(rq))) || 
+// 	   (rp != 0 && ( true == MessageQueueService::messageOK(rp) )) &&  
+// 	   _die.value() == 0)
+//       {
+// 	 MessageQueueService::_incoming.insert_last_wait(op);
+// 	 return true;
+//       }
+//    }
+   
    return false;
 }
 
@@ -576,7 +602,7 @@ Boolean MessageQueueService::ForwardOp(AsyncOpNode *op,
 Boolean MessageQueueService::SendAsync(AsyncOpNode *op, 
 				       Uint32 destination,
 				       void (*callback)(AsyncOpNode *, 
-							MessageQueue *, 
+							MessageQueue *,
 							void *),
 				       MessageQueue *callback_response_q,
 				       void *callback_ptr)
@@ -586,16 +612,16 @@ Boolean MessageQueueService::SendAsync(AsyncOpNode *op,
    // get the queue handle for the destination
 
    op->lock();
-   op->_op_dest = MessageQueue::lookup(destination);
+   op->_op_dest = MessageQueue::lookup(destination); // destination of this message
    op->_flags |= ASYNC_OPFLAGS_CALLBACK;
    op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET);
    op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    // initialize the callback data
-   op->_async_callback = callback;
-   op->_callback_node = op;
-   op->_callback_response_q = callback_response_q;
-   op->_callback_ptr = callback_ptr;
-   op->_callback_q = this;
+   op->_async_callback = callback;   // callback function to be executed by recpt. of response
+   op->_callback_node = op;          // the op node
+   op->_callback_response_q = callback_response_q;  // the queue that will receive the response
+   op->_callback_ptr = callback_ptr;   // user data for callback
+   op->_callback_request_q = this;     // I am the originator of this request
    
    op->unlock();
    if(op->_op_dest == 0) 

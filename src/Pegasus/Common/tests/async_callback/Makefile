@@ -1,5 +1,5 @@
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/async_callback	
+DIR = Pegasus/Common/tests/async_callback
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

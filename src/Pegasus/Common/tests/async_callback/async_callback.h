@@ -61,7 +61,8 @@ class async_start : public AsyncOperationStart
    public:
       typedef AsyncOperationStart Base;
       
-      async_start(Uint32 start_q,
+      async_start(AsyncOpNode *op, 
+		  Uint32 start_q,
 		  Uint32 completion_q,
 		  Message *op_data);
 
@@ -74,15 +75,14 @@ class async_start : public AsyncOperationStart
 
 
 class async_complete: public AsyncOperationResult
-{
-   public:
+{   public:
       typedef AsyncOperationResult Base;
 
-      async_complete(async_start & start_op,
+      async_complete(const async_start & start_op,
 		     Uint32 result,
 		     Message *result_data);
       
-      virtual ~async_complete(void) { }
+      virtual ~async_complete(void) {    delete _result_data; }
       
       Message *get_result_data(void);
       
@@ -96,15 +96,21 @@ class test_async_queue : public MessageQueueService
 {
    public: 
       typedef MessageQueueService Base;
+
+      enum ROLE
+      {
+	 CLIENT,
+	 SERVER
+      };
       
-      test_async_queue(Uint32 role);
+      test_async_queue(ROLE role);
       virtual ~test_async_queue(void) { }
 
       // pure virtuals that will go away eventually 
       void handleEnqueue(void)
       {
 	 Message *msg = dequeue();
-	 if(message)
+	 if(msg)
 	    handleEnqueue(msg);
       }
       
@@ -113,14 +119,23 @@ class test_async_queue : public MessageQueueService
 	 delete msg;
       }
       
+      // static callback function 
+      static void async_handleEnqueue(AsyncOpNode *op, MessageQueue *, void *);
+      static AtomicInt msg_count;
+      AtomicInt _die_now;
    protected:
+      virtual Boolean messageOK(const Message *);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _handle_async_callback(AsyncOpNode *operation);
-      virtual Boolean MessageOK(const Message *);
-      static void async_handleEnqueue(AsyncOpNode *op);
+      
+
    private:
       test_async_queue(void);
-      _role;
+      void _handle_stop(CimServiceStop *stop);
+      
+      ROLE _role;
+
+
 };
 
 

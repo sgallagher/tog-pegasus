@@ -59,14 +59,9 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 			  message_mask::ha_async ) ;
       
       virtual ~MessageQueueService(void);
-      
-
-      
+            
       virtual Boolean isAsync(void) {  return true;  }
-      
-
-
-      
+            
       virtual void enqueue(Message *) throw(IPCException);
       
       AsyncReply *SendWait(AsyncRequest *request);
@@ -83,6 +78,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       Boolean update_service(Uint32 capabilities, Uint32 mask);
       Boolean deregister_service(void);
       virtual void _shutdown_incoming_queue(void);
+      
       void find_services(String name,
 			 Uint32 capabilities, 
 			 Uint32 mask, 
@@ -124,6 +120,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 				 AsyncReply *reply, 
 				 Uint32 state, 
 				 Uint32 flag);
+      void _complete_op_node(AsyncOpNode *, Uint32, Uint32, Uint32);
+      
 
       static cimom *_meta_dispatcher;
       static AtomicInt _service_count;
@@ -133,8 +131,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
       DQueue<AsyncOpNode> _pending;
       AsyncDQueue<AsyncOpNode> _incoming;
-
-
+      AsyncDQueue<AsyncOpNode> _callback;
+      
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
       AtomicInt _incoming_queue_shutdown;
       Thread _req_thread;

@@ -162,9 +162,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       AsyncOpNode *_callback_node;
       MessageQueue *_callback_response_q;
       void *_callback_ptr;
-      MessageQueue *_callback_q;
-      
-
+      MessageQueue *_callback_request_q;
       
       friend class cimom;
       friend class MessageQueueService;

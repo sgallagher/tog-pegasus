@@ -422,7 +422,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    
    sprintf(name_buf, "test client %ld", pegasus_thread_self());
    
-
    MessageQueueClient *q_client = new MessageQueueClient("name_buf");
    
    client_count++;

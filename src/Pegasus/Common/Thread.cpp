@@ -401,7 +401,6 @@ ThreadPool::~ThreadPool(void)
 	    // is needed.
 	    sleep_sem->signal();
 	    th->dereference_tsd();
-	    th->cancel();
 	    th->join();
 	    delete th;
          }
@@ -431,7 +430,6 @@ ThreadPool::~ThreadPool(void)
 	    sleep_sem->signal();
 	    sleep_sem->signal();
 	    th->dereference_tsd();	 
-	    th->cancel();
 	    th->join();
 	    delete th;
          }
@@ -456,7 +454,7 @@ ThreadPool::~ThreadPool(void)
 	       sleep_sem->signal();
 	       sleep_sem->signal();
 	       th->dereference_tsd();
-	       th->cancel();
+	       //th->cancel();
 	       pegasus_yield();
 	    
 	       th->join();
@@ -862,146 +860,84 @@ Uint32 ThreadPool::kill_dead_threads(void)
          return 0;
       }
    
-      DQueue<Thread> * map[2] =
-         {
-      	    &_pool, &_running
-         };
-
-
-      DQueue<Thread> *q = 0;
-      int i = 0;
       Thread *th = 0;
       internal_dq idq;
       
-#ifdef PEGASUS_KILL_LONG_RUNNING_THREADS
-      // Defining PEGASUS_KILL_LONG_RUNNING_THREADS causes the thread pool
-      // to kill threads that are on the _running queue longer than the
-      // _deadlock_detect time interval specified for the thread pool.
-      // Cancelling long-running threads has proven to be problematic and
-      // may cause a crash depending on the state of the thread when it is
-      // killed.  Use this option with care.
-      for( ; i < 2; i++)
-#else
-      for( ; i < 1; i++)
-#endif
+      if(_pool.count() > 0 )
       {
-         q = map[i];
-         if(q->count() > 0 )
-         {
+	 try
+	 {
+	    _pool.try_lock();
+	 }
+	 catch(...)
+	 {
+	    return bodies;
+	 }
+
+	 struct timeval dt = { 0, 0 };
+	 struct timeval *dtp;
+
+	 th = _pool.next(th);
+	 while (th != 0 )
+	 {
 	    try
 	    {
-	       q->try_lock();
+	       dtp = (struct timeval *)th->try_reference_tsd("deadlock timer");
 	    }
 	    catch(...)
 	    {
+	       _pool.unlock();
 	       return bodies;
 	    }
 
-	    struct timeval dt = { 0, 0 };
-	    struct timeval *dtp;
+	    if(dtp != 0)
+	    {
+	       memcpy(&dt, dtp, sizeof(struct timeval));
+	    }
+	    th->dereference_tsd();
+	    struct timeval deadlock_timeout;
+	    Boolean too_long;
+	    too_long = check_time(&dt, get_deallocate_wait(&deadlock_timeout));
 
-	    th = q->next(th);
-	    while (th != 0 )
+	    if( true == too_long)
 	    {
-	       try
+	       // escape if we are down to the minimum thread count
+	       _current_threads--;
+	       if( _current_threads.value() < (Uint32)_min_threads )
 	       {
-	          dtp = (struct timeval *)th->try_reference_tsd("deadlock timer");
+		  _current_threads++;
+		  th = _pool.next(th);
+		  continue;
 	       }
-	       catch(...)
-	       {
-	          q->unlock();
-	          return bodies;
-	       }
-	
-	       if(dtp != 0)
-	       {
-	          memcpy(&dt, dtp, sizeof(struct timeval));
-	       }
-	       th->dereference_tsd();
-	       struct timeval deadlock_timeout;
-	       Boolean too_long;
-	       if( i == 0)
-	       {
-	          too_long = check_time(&dt, get_deallocate_wait(&deadlock_timeout));
-	       }
-	       else 
-	       {
-	          too_long = check_time(&dt, get_deadlock_detect(&deadlock_timeout));
-	       }
-	    
-	       if( true == too_long)
-	       {
-	          // if we are deallocating from the pool, escape if we are
-	          // down to the minimum thread count
-	          _current_threads--;
-	          if( _current_threads.value() < (Uint32)_min_threads )
-	          {
-		     if( i == 0)
-		     {
-		        _current_threads++;
-		        th = q->next(th);
-		        continue;
-		     }
-		     else
-		     {
-		        // we are killing a hung thread and we will drop below the
-		        // minimum. create another thread to make up for the one
-		        // we are about to kill
-		        needed++;
-		     }
-	          }
-	
-	          th = q->remove_no_lock((void *)th);
-		  idq.insert_first((void*)th);
-	       }
-	       th = q->next(th);
-	    }
-	    q->unlock();
-         }
 
-	 th = (Thread*)idq.remove_last();
-	 while(th != 0)
-	 {
-	    if( i == 0 )
-	    {
-	       th->delete_tsd("work func");
-	       th->put_tsd("work func", NULL,
-			   sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
-			   (void *)&_undertaker);
-	       th->delete_tsd("work parm");
-	       th->put_tsd("work parm", NULL, sizeof(void *), th);
-	       
-	       // signal the thread's sleep semaphore to awaken it
-	       Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-	       PEGASUS_ASSERT(sleep_sem != 0);
-	       
-	       bodies++;
-	       th->dereference_tsd();
-	       // Putting thread on _dead queue delays availability to others
-	       //_dead.insert_first(th);
-	       sleep_sem->signal();
-	       th->join();  // Note: Clean up the thread here rather than
-	       delete th;   // leave it sitting unused on the _dead queue
-	       th = 0;
+	       th = _pool.remove_no_lock((void *)th);
+               idq.insert_first((void*)th);
 	    }
-	    else 
-	    {
-	       // deadlocked threads
-               Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
-                             "A thread has run longer than %u seconds and "
-                                 "will be cancelled.",
-                             Uint32(_deadlock_detect.tv_sec));
-               Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
-                             Logger::SEVERE,
-                             "Common.Thread.CANCEL_LONG_RUNNING_THREAD",
-                             "A thread has run longer than {0} seconds and "
-                                 "will be cancelled.",
-                             Uint32(_deadlock_detect.tv_sec));
-	       th->cancel();
-	       delete th;
-	    }
-	    th = (Thread*)idq.remove_last();
+	    th = _pool.next(th);
 	 }
+	 _pool.unlock();
+      }
+
+      th = (Thread*)idq.remove_last();
+      while(th != 0)
+      {
+         th->delete_tsd("work func");
+         th->put_tsd("work func", NULL,
+            sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
+            (void *)&_undertaker);
+         th->delete_tsd("work parm");
+         th->put_tsd("work parm", NULL, sizeof(void *), th);
+	       
+         // signal the thread's sleep semaphore to awaken it
+         Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+         PEGASUS_ASSERT(sleep_sem != 0);
+	       
+         bodies++;
+         th->dereference_tsd();
+         sleep_sem->signal();
+         th->join();  // Note: Clean up the thread here rather than
+         delete th;   // leave it sitting unused on the _dead queue
+         th = (Thread*)idq.remove_last();
       }
 
      Tracer::trace(TRC_THREAD, Tracer::LEVEL2,

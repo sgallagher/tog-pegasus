@@ -108,6 +108,8 @@ int main(int argc, char **argv)
 	//}
 	//}
 
+// Note: A glibc problem on some versions of Linux makes Thread::cancel unsafe
+#if !defined(PEGASUS_OS_LINUX)
 	{
 	// Test deadlocked thread handling
 	Thread t( test4_thread, 0, false );
@@ -118,6 +120,7 @@ int main(int argc, char **argv)
 	// Shouldn't hang forever
 	cout << "Deadlock test finished." << endl;
 	}
+#endif
 
    ReadWriteSem *rw = new ReadWriteSem();
    Thread *readers[40];

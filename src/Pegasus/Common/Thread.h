@@ -561,15 +561,6 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
 	 _deadlock_detect.tv_usec = deadlock.tv_usec;
       }
       
-      inline struct timeval * get_deadlock_detect(struct timeval *buffer) const
-      {
-	 if(buffer == 0)
-	    throw NullPointer();
-	 buffer->tv_sec = _deadlock_detect.tv_sec;
-	 buffer->tv_usec = _deadlock_detect.tv_usec;
-	 return buffer;
-      }
-
       inline Uint32 running_count(void)
       {
 	 return _running.count();

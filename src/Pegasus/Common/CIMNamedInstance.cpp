@@ -121,4 +121,8 @@ CIMNamedInstance CIMNamedInstance::clone() const
     return ni;
 }
 
+#define PEGASUS_ARRAY_T CIMNamedInstance
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END

@@ -30,3 +30,8 @@
 
 int Str::_constructions = 0;
 int Str::_destructions = 0;
+
+#define PEGASUS_ARRAY_T Str
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+

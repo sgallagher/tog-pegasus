@@ -84,6 +84,10 @@ struct flagspec {
   Boolean   active;
 };
 
+#define PEGASUS_ARRAY_T flagspec
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
 //
 // Class Optarg encapsulates a command line argument as it was parsed.
 // If it has a name, it means that it is bound to that command line option.
@@ -136,6 +140,9 @@ class PEGASUS_GETOOPT_LINKAGE Optarg {
   ostream &print(ostream &os) const;  // print the members (for debug)
 };
 
+#define PEGASUS_ARRAY_T Optarg
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
 
 
 //

@@ -275,6 +275,10 @@ private:
 #endif
 };
 
+#define PEGASUS_ARRAY_T CIMObject
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMConstObject
@@ -411,6 +415,10 @@ private:
     CIMObjectPath _reference;
     CIMObject _object;
 };
+
+#define PEGASUS_ARRAY_T CIMObjectWithPath
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
 

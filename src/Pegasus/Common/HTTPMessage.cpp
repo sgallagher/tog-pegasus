@@ -37,6 +37,10 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T HTTPHeader
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 
 //------------------------------------------------------------------------------
 //

@@ -29,3 +29,8 @@
 #include "Int.h"
 
 int Int::_count = 0;
+
+#define PEGASUS_ARRAY_T Int
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+

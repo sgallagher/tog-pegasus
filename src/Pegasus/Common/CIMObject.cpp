@@ -38,6 +38,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CIMObject
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CIMObject
@@ -414,6 +418,10 @@ void CIMConstObject::_checkRep() const
 // CIMObjectWithPath
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+#define PEGASUS_ARRAY_T CIMObjectWithPath
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
 
 CIMObjectWithPath::CIMObjectWithPath()
 {

@@ -32,6 +32,7 @@
 #include <cstring>
 #include <iostream>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Array.h>
 
 PEGASUS_USING_PEGASUS;
 
@@ -95,5 +96,9 @@ inline Boolean operator==(const Str& x1, const Str& x2)
 {
     return ::strcmp(x1.getStr(), x2.getStr()) == 0;
 }
+
+#define PEGASUS_ARRAY_T Str
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
 
 #endif /* X_h */

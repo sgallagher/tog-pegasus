@@ -131,6 +131,10 @@ private:
     CIMNamedInstanceRep* _rep;
 };
 
+#define PEGASUS_ARRAY_T CIMNamedInstance
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMNamedInstance_h */

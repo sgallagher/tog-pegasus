@@ -37,6 +37,14 @@
 #include <cctype>
 #include <cstdlib>
 
+#define PEGASUS_ARRAY_T flagspec
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+#define PEGASUS_ARRAY_T Optarg
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_USING_STD;
 
 //-----------------------------------------------------------------------

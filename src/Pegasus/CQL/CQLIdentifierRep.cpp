@@ -205,6 +205,7 @@ void CQLIdentifierRep::parse(String identifier){
 	*/
 
 	Uint32 index;
+	Boolean hasCIMName = true;
 	if(identifier == String::EMPTY){
 		_name = CIMName();
 		return;	
@@ -251,6 +252,10 @@ void CQLIdentifierRep::parse(String identifier){
 		_isWildcard = true;
 	}else if((index = identifier.find(HASH)) != PEG_NOT_FOUND){
 		// symbolic constant
+
+		// check if we only have a symbolic constant without a leading identifier
+		if(index == 0) hasCIMName = false;
+
 		_isSymbolicConstant = true;
 		_symbolicConstant = identifier.subString(index+1);
 		identifier = identifier.subString(0,index);
@@ -259,7 +264,8 @@ void CQLIdentifierRep::parse(String identifier){
 	// name
 	if(!_isWildcard){
 		try{
-			_name = CIMName(identifier);
+			if(hasCIMName)
+				_name = CIMName(identifier);
 		}catch(Exception e){
 			// throw invalid name exception ?
 			printf("CQLIdentifier::parse(), error\n");

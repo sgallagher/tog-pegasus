@@ -154,6 +154,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         // Create Instance Names
         _instanceNames.append(_instances[i].buildPath(_referencedClass));
     }
+    _delay = 3000;
     CDEBUG ("initialize - referenced Class Instance Names Built using buildpath");
     //
     // Now make the instances for the associations
@@ -389,6 +390,9 @@ void SampleFamilyProvider::enumerateInstanceNames(
 
     CIMName myClass = classReference.getClassName();
     CIMClass cimClass;
+    CDEBUG("timer = " << _delay);
+    pegasus_sleep(_delay);
+    _delay += 10000;
 	try
     {
     cimClass = _cimom.getClass(

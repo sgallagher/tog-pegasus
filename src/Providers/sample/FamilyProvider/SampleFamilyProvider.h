@@ -149,6 +149,7 @@ protected:
     // Corresponds to Lineage association class
     Array<CIMObjectPath> _instanceNamesLineageDynamic;
     Array<CIMInstance> _instancesLineageDynamic;
+    Uint32 _delay;
     
     // Corresponds to the LineageLabeled Class
     Array<CIMObjectPath> _instanceNamesLabeledLineageDynamic;

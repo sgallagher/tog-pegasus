@@ -195,3 +195,10 @@ Topical To-Do List
     -   Use Service class in cimserver
 
     -   Implement Service class on Unix (daemonization from Comer book).
+
+Short-term Items
+================
+
+-   Make HashTable take Equal template function argument.
+
+-   Make InheritanceTree case-insensitive.

@@ -31,6 +31,7 @@
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -42,22 +43,174 @@ struct InheritanceTreeRep;
     inheritance information (represented using file names). The InheritanceTree 
     provides O(1) access (via hashing) to any class in the inheritance tree.
 
+    The inheritance tree provides methods for interrogating certain kinds of
+    information about a class, including:
+
+	<ul>
+	<li>the superclass</li>
+	<li>the subclasses</li>
+	<li>the descendent classes</li>
+	</ul>
+
+    The insert() method is used to build up an InheritanceTree. The insert()
+    method is called for each class-subclass relationship. For example, consider
+    the following list of class-subclass pairs:
+
+	<pre>
+	{ "D", "B" }
+	{ "E", "B" }
+	{ "B", "A" }
+	{ "C", "A" }
+	{ "F", "C" }
+	</pre>
+
+    These pairs specify the following inheritance tree:
+
+	<pre>
+              A
+            /   \
+           B     C
+         /   \     \
+        D     E     F
+	</pre>
+
+    The pairs above may be used to build a class tree as follows:
+
+	<pre>
+	InheritanceTree it;
+	it.insert("D", "B");
+	it.insert("E", "B");
+	it.insert("B", "A");
+	it.insert("C", "A");
+	it.insert("F", "C");
+	it.insert("A", "");
+	it.check();
+	</pre>
+
+    The check() method determines whether insert() was called for every class
+    used as a superclass. In the following example, check() would fail (and
+    throw and exception) since the "B" class is passed as a superclass (second
+    argument) in two insert() calls but was never passed as the class itself
+    (first argument) in any insert() call:
+
+	<pre>
+	InheritanceTree it;
+	it.insert("D", "B");
+	it.insert("E", "B");
+	it.insert("C", "A");
+	it.insert("F", "C");
+	it.insert("A", "");
+	it.check();
+	</pre>
+
+    In this case, check() throws an InvalidInheritanceTree exception.
+
+    The InheritanceTree may be printed by calling the print() method.
+
+    The insertFromPath() method is used to build up an InheritanceTree from
+    the file names in a certain directory as used by the CIMRepository. The
+    CIMRepository contains a disk file per class and the name has this form:
+
+	<pre>
+	<ClassName>.<SuperClassName>
+	</pre>
+
+    For example, a class called "ThisClass" with super class "ThatClass" 
+    has this name:
+
+	<pre>
+	ThisClass.ThisClass
+	</pre>
+
+    The file or course contains the XML encoding of the ThisClass class (which 
+    is irrelevant for the InheritanceTree). A root class (with no superclass
+    has the following form):
+
+	<pre>
+	<ClassName>.#
+	</pre>
+
+    Suppose that ThatClass is a root class; then its file name is:
+
+	<pre>
+	ThatClass.#
+	</pre>
+
+    It must be obvious by now that the insertFromPath() method just scans
+    the file names in a directory and calls insert() for each one (splitting
+    the class name from superclass name and translating '#' to an empty string).
+
+    The insertFromPath() method does NOT call check(), so it still must be 
+    called to verify the InheritanceTree.
 */
 class PEGASUS_REPOSITORY_LINKAGE InheritanceTree
 {
 public:
 
+    /** Default constructor. */
     InheritanceTree();
 
+    /** Destructor. */
     ~InheritanceTree();
 
-    Boolean insert(const String& className, const String& superClassName);
+    /** Inserts a class-subclass relationship into the inheritance three.
+	Note that a class CAN be inserted before its superclass, in which case
+	a provisional entry is made for the superclass and flagged as such; 
+	when the superclass is later inserted, the provisional flag is cleared.
+	@param className - name of class being inserted.
+	@param superClassName - name of super class of class.
+    */
+    void insert(const String& className, const String& superClassName);
 
+    /** Scan directory for file names of the form <ClassName>.<SuperClass> and
+	call insert on insert for each one. Note that root classes (classes with
+	no superclass) will use "#" for a SuperClass name.
+	@param path - directory that contains files describing inheritance 
+	    infoformation.
+	@exception throws CannotOpenDirectory is invalid path specifies an
+	    invalid directory.
+    */
+    void insertFromPath(const String& path);
+
+    /** Checks that every superClassName passed to insert() was also passed
+	as a className argument to insert(). In other words, it checks that
+	there are no provisional entries as described in the insert() method.
+	@exception InvalidInheritanceTree
+    */
+    void check() const;
+
+    /** Prints the class */
     void print(std::ostream& os) const;
+
+    /** Get subclass names of the given class.
+	@param className - class whose subclass names will be gotten. If
+	    className is empty, all classnames are returned.
+	@param deepInheritance - if true all descendent classes of class
+	    are returned. If className is empty, only root classes are returned.
+	@param subClassNames - output argument to hold subclass names.
+	@return true on success. False if no such class.
+    */
+    Boolean getSubClassNames(
+	const String& className,
+	Boolean deepInheritance,
+	Array<String>& subclassNames);
 
 private:
 
     InheritanceTreeRep* _rep;
+};
+
+/** The InvalidInheritanceTree exception is thrown when the
+    InheritanceTreeRep::check() method determines that an inheritance tree
+    was not fully specified (when any class was passed as a superClassName
+    argument to insert() but never as a className argument.
+*/
+class InvalidInheritanceTree : public Exception
+{
+public:
+
+    InvalidInheritanceTree(const String& className) 
+	: Exception("Invalid inheritance tree: unknown class: " + className) { }
 };
 
 PEGASUS_NAMESPACE_END

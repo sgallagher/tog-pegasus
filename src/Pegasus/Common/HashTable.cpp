@@ -36,7 +36,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint32 Hash(const String& str)
+Uint32 HashFunc<String>::hash(const String& str)
 {
     Uint32 h = 0;
 
@@ -48,7 +48,7 @@ Uint32 Hash(const String& str)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// _HashTableBase::_BucketBase
+// _HashTableRep::_BucketBase
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -118,11 +118,11 @@ _HashTableIteratorBase::_HashTableIteratorBase(
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// _HashTableBase
+// _HashTableRep
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-_HashTableBase::_HashTableBase(Uint32 numChains) : _size(0), _numChains(numChains)
+_HashTableRep::_HashTableRep(Uint32 numChains) : _size(0), _numChains(numChains)
 {
     if (numChains < 8)
 	numChains = 8;
@@ -131,7 +131,7 @@ _HashTableBase::_HashTableBase(Uint32 numChains) : _size(0), _numChains(numChain
     memset(_chains, 0, sizeof(_BucketBase*) * _numChains);
 }
 
-_HashTableBase::_HashTableBase(const _HashTableBase& x)
+_HashTableRep::_HashTableRep(const _HashTableRep& x)
 {
     _size = 0;
     _numChains = 0;
@@ -139,13 +139,13 @@ _HashTableBase::_HashTableBase(const _HashTableBase& x)
     operator=(x);
 }
 
-_HashTableBase::~_HashTableBase()
+_HashTableRep::~_HashTableRep()
 {
     clear();
     delete [] _chains;
 }
 
-_HashTableBase& _HashTableBase::operator=(const _HashTableBase& x)
+_HashTableRep& _HashTableRep::operator=(const _HashTableRep& x)
 {
     if (this == &x)
 	return *this;
@@ -185,7 +185,7 @@ _HashTableBase& _HashTableBase::operator=(const _HashTableBase& x)
     return *this;
 }
 
-void _HashTableBase::clear()
+void _HashTableRep::clear()
 {
     for (Uint32 i = 0; i < _numChains; i++)
     {
@@ -203,7 +203,7 @@ void _HashTableBase::clear()
 	memset(_chains, 0, sizeof(_BucketBase*) * _numChains);
 }
 
-Boolean _HashTableBase::insert(
+Boolean _HashTableRep::insert(
     Uint32 hashCode, 
     _BucketBase* bucket, 
     const void* key)
@@ -237,7 +237,7 @@ Boolean _HashTableBase::insert(
     return true;
 }
 
-const _BucketBase* _HashTableBase::lookup(
+const _BucketBase* _HashTableRep::lookup(
     Uint32 hashCode, 
     const void* key)
 {
@@ -253,7 +253,7 @@ const _BucketBase* _HashTableBase::lookup(
     return 0;
 }
 
-Boolean _HashTableBase::remove(Uint32 hashCode, const void* key)
+Boolean _HashTableRep::remove(Uint32 hashCode, const void* key)
 {
     for (Uint32 i = 0; i < _numChains; i++)
     {

@@ -48,7 +48,8 @@ void test01()
 
     CIMClass c("MyClass");
 
-    r.setQualifier(NAMESPACE, CIMQualifierDecl("key", true, CIMScope::PROPERTY));
+    r.setQualifier(
+	NAMESPACE, CIMQualifierDecl("key", true, CIMScope::PROPERTY));
 
     c.addProperty(
 	CIMProperty("key", Uint32(0))

@@ -624,7 +624,7 @@ Uint32 CIMReference::makeHashCode() const
     for (Uint32 i = 0, n = ref._keyBindings.getSize(); i < n; i++)
 	ref._keyBindings[i]._name.toLower();
 
-    return Hash(ref.toString());
+    return HashFunc<String>::hash(ref.toString());
 }
 
 PEGASUS_NAMESPACE_END

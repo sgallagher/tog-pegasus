@@ -27,6 +27,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/Dir.h>
 #include "InheritanceTree.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -47,35 +48,36 @@ struct InheritanceTreeNode
 
     void print(std::ostream& os) const;
 
-    String _className;
-    InheritanceTreeNode* _superClass;
-    InheritanceTreeNode* _sibling;
-    InheritanceTreeNode* _subClasses;
+    String className;
+    InheritanceTreeNode* superClass;
+    InheritanceTreeNode* sibling;
+    InheritanceTreeNode* subClasses;
+    Boolean provisional;
 };
 
 InheritanceTreeNode::InheritanceTreeNode(const String& className) 
-    : _className(className), _superClass(0), 
-    _sibling(0), _subClasses(0)
+    : className(className), superClass(0), 
+    sibling(0), subClasses(0), provisional(true)
 {
 
 }
 
 void InheritanceTreeNode::addSubClass(InheritanceTreeNode* child)
 {
-    child->_superClass = this;
-    child->_sibling = _subClasses;
-    _subClasses = child;
+    child->superClass = this;
+    child->sibling = subClasses;
+    subClasses = child;
 }
 
 void InheritanceTreeNode::print(std::ostream& os) const
 {
-    os << _className << " : " ;
-    os << (_superClass ? _superClass->_className : "<None>");
+    os << className << " : " ;
+    os << (superClass ? superClass->className : "<None>");
 
     os << " { ";
 
-    for (InheritanceTreeNode* p = _subClasses; p; p = p->_sibling)
-	os << p->_className << ' ';
+    for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
+	os << p->className << ' ';
 
     os << "}" << endl;
 }
@@ -109,7 +111,7 @@ InheritanceTree::~InheritanceTree()
     delete _rep;
 }
 
-Boolean InheritanceTree::insert(
+void InheritanceTree::insert(
     const String& className, 
     const String& superClassName)
 {
@@ -136,12 +138,86 @@ Boolean InheritanceTree::insert(
 	_rep->_table.insert(className, classNode);
     }
 
+    classNode->provisional = false;
+
     // -- Link the class and superclass nodes:
 
     if (superClassNode)
 	superClassNode->addSubClass(classNode);
+}
 
-    return true;
+void InheritanceTree::insertFromPath(const String& path)
+{
+    for (Dir dir(path); dir.more(); dir.next())
+    {
+	String fileName = dir.getName();
+
+	// Ignore the current and parent directories.
+
+	if (fileName == "." || fileName == "..")
+	    continue;
+
+	Uint32 dot = fileName.find('.');
+
+	// Ignore files without dots in them:
+
+	if (dot == Uint32(-1))
+	    continue;
+
+	String className = fileName.subString(0, dot);
+	String superClassName = fileName.subString(dot + 1);
+
+	if (superClassName == "#")
+	    superClassName.clear();
+
+	insert(className, superClassName);
+    }
+}
+
+void InheritanceTree::check() const
+{
+    for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
+    {
+	if (i.value()->provisional)
+	    throw InvalidInheritanceTree(i.value()->className);
+    }
+}
+
+Boolean InheritanceTree::getSubClassNames(
+    const String& className,
+    Boolean deepInheritance,
+    Array<String>& subclassNames)
+{
+    // -- Case 1: className is empty:
+
+    if (!className.getLength())
+    {
+	if (deepInheritance)
+	{
+	    // -- Case 1-A: deepInheritance requested, get all class names:
+
+	    for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
+	    {
+		subclassNames.append(i.key());
+		return true;
+	    }
+	}
+	else
+	{
+	    // -- Case 1-B: deepInheritance not requested, get names of roots:
+
+	    if (!i.value()->superClass)
+		subclassNames.append(i.key());
+	    return true;
+	}
+    }
+
+    // -- Case 2: className non-empty:
+
+    for (InheritanceTable::Iterator i = _rep->_table.start(); i; i++)
+    {
+
+    }
 }
 
 void InheritanceTree::print(std::ostream& os) const

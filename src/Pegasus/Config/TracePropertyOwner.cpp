@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -56,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"traceLevel", "1", 1, 0, 0},
-    {"traceFilePath", "cimom.trace", 1, 0, 0},
+    {"traceFilePath", "cimserver.trc", 1, 0, 0},
     {"traceComponents", "", 1, 0, 0},
 };
 
@@ -162,52 +162,17 @@ void TracePropertyOwner::initialize()
             _traceFilePath->domainSize = properties[i].domainSize;
         }
     }
-
     if (_traceFilePath->defaultValue != String::EMPTY)
     {
-	// Get the value of environment variable PEGASUS_HOME to set the
-	// default trace filepath
-	// The default trace file location is <$PEGASUS_HOME/logs>
-        String pegasusHome = ConfigManager::getHomedPath(ConfigManager::getPegasusHome() + String("/logs/"));
+        String pegasusHome = ConfigManager::getPegasusHome();
 
-	// Create $PEGASUS_HOME/logs directory if it does not exist
-	// If unable to create the directory then create the traceFile
-	// in the current working directory
-        if (!FileSystem::isDirectory(pegasusHome))
-	{
-	    if (!FileSystem::makeDirectory(pegasusHome))
-	    {
-	        Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
-		    Logger::WARNING,
-	            "Unable to create $0 directory",pegasusHome);
-	        Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
-		    Logger::WARNING,
-	            "Creating the trace file in the current directory");
-		pegasusHome = String::EMPTY; 
-            }
-        }
-        pegasusHome += _traceFilePath->defaultValue;
-        FileSystem::translateSlashes(pegasusHome);
-
-        ArrayDestroyer<char> fileName(pegasusHome.allocateCString());
-	if (Tracer::isValidFileName(fileName.getPointer()))
-	{ 
-            Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
-	    // Check whether the filepath was set
-	    if ( retCode == 1 )
-	    {
-	        Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
-	            Logger::WARNING,
-	            "Unable to write to trace file $0",pegasusHome);
-
-	        _traceFilePath->currentValue = "";
-            }
-	    else
-	    {
-	        _traceFilePath->currentValue = pegasusHome;
-	    }
-        }
+	// Set the file path to  $PEGASUS_HOME directory 
+        _traceFilePath->defaultValue = pegasusHome + String("/") + 
+                                          _traceFilePath->defaultValue;
+        _traceFilePath->currentValue = _traceFilePath->defaultValue;
+        _traceFilePath->plannedValue = _traceFilePath->defaultValue;
     }
+
     if (_traceLevel->defaultValue != String::EMPTY)
     {
         if (_traceLevel->defaultValue == "1")
@@ -313,6 +278,24 @@ void TracePropertyOwner::initCurrentValue(
     {
         _traceComponents->currentValue = value;
 	Tracer::setTraceComponents(_traceComponents->currentValue);
+        if (_traceFilePath->currentValue != String::EMPTY && _traceComponents->currentValue != String::EMPTY)
+        {
+
+            ArrayDestroyer<char> fileName(_traceFilePath->currentValue.allocateCString());
+	    if (Tracer::isValidFileName(fileName.getPointer()))
+	    { 
+                Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
+	        // Check whether the filepath was set
+	        if ( retCode == 1 )
+	        {
+	            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+	                Logger::WARNING,
+	                "Unable to write to trace file $0",fileName.getPointer());
+
+	            _traceFilePath->currentValue = "";
+                }
+            }
+        }
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
@@ -324,7 +307,26 @@ void TracePropertyOwner::initCurrentValue(
     {
         ArrayDestroyer<char> fileName(value.allocateCString());
         _traceFilePath->currentValue = value;
-	Tracer::setTraceFile( fileName.getPointer() );
+        if (_traceFilePath->currentValue != String::EMPTY && 
+            _traceComponents->currentValue != String::EMPTY)
+        {
+
+            ArrayDestroyer<char> 
+                fileName(_traceFilePath->currentValue.allocateCString());
+	    if (Tracer::isValidFileName(fileName.getPointer()))
+	    { 
+                Uint32 retCode = Tracer::setTraceFile(fileName.getPointer());
+
+	        // Check whether the filepath was set
+	        if ( retCode == 1 )
+	        {
+	            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
+	             Logger::WARNING,
+	             "Unable to write to trace file $0", fileName.getPointer());
+	            _traceFilePath->currentValue = "";
+                }
+            }
+        }
     }
     else
     {
@@ -416,6 +418,10 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
 	//
         // Check if the file path is valid
 	//
+        if ( value == String::EMPTY ) 
+        {
+            throw InvalidPropertyValue(name, value);
+        }
         ArrayDestroyer<char> fileName(value.allocateCString());
 	if (!Tracer::isValidFileName(fileName.getPointer()))
 	{

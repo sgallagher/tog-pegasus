@@ -5,7 +5,10 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     EnumerateInstances \
     EnumerateInstanceNames \
-    getInstance
+    GetInstance \
+    DeleteInstance \
+    CreateInstance
+    
 
 
 include $(ROOT)/mak/recurse.mak

@@ -2770,6 +2770,10 @@ CIM server listening on HTTPS port {0}."}
         */
         IndicationService.IndicationService._MSG_SELECT_PROPERTY_NOT_FOUND:string {"PGS10220: The property {0} referenced in the WQL SELECT clause was not found in the indication class {1}."}
 
+	/**
+	* @note  PGS10221:
+	*/
+        IndicationService.IndicationService.UNKNOWN_ERROR:string {"PGS10221: Unknown error."}
 
         // ==========================================================
         // Messages for IndicationHandlerService

@@ -2580,6 +2580,8 @@ void IndicationService::_handleNotifyProviderEnableRequest
     CIMInstance provider = request->provider;
     Array <CIMInstance> capabilities = request->capInstances;
 
+    CIMException cimException;
+
     //
     //  Set path in each instance, so instances may later be easily
     //  compared
@@ -2651,12 +2653,20 @@ void IndicationService::_handleNotifyProviderEnableRequest
             PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
                "Exception caught in handling provider enable notification: " +
                 exception.getMessage ());
+
+	    cimException = CIMException(CIM_ERR_FAILED, exception.getMessage());
             break;
         }
         catch (...)
         {
             PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
                "Error in handling provider enable notification");
+
+	    cimException = PEGASUS_CIM_EXCEPTION_L(
+		CIM_ERR_FAILED,
+		MessageLoaderParms(
+		    "IndicationService.IndicationService.UNKNOWN_ERROR",
+		    "Unknown Error"));
             break;
         }
 
@@ -2758,6 +2768,14 @@ void IndicationService::_handleNotifyProviderEnableRequest
             }
         }
     }
+
+    CIMNotifyProviderEnableResponseMessage * response =
+	new CIMNotifyProviderEnableResponseMessage(
+	    request->messageId,
+	    cimException,
+	    request->queueIds.copyAndPop());
+
+    _enqueueResponse(request, response);
 
     PEG_METHOD_EXIT ();
 }

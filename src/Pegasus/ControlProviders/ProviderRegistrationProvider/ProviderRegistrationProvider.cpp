@@ -1621,15 +1621,27 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
                 enable_req,
                 _queueId);
 	    
-	if( false  == _controller->ClientSendForget(
-                      *_client_handle,
-                      _queueId,
-                      asyncRequest))
-        {
-            delete asyncRequest;
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
-        }
+	AsyncReply * asyncReply = 
+	    _controller->ClientSendWait(*_client_handle,
+                      			_queueId,
+                      			asyncRequest);
 
+        CIMNotifyProviderEnableResponseMessage * response =
+	    reinterpret_cast<CIMNotifyProviderEnableResponseMessage *>(
+		(static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+
+        if (response->cimException.getCode() != CIM_ERR_SUCCESS)
+	{
+	    CIMException e = response->cimException;
+	    delete asyncRequest;
+	    delete asyncReply;
+	    delete response;
+	    throw (e);
+	}
+
+        delete asyncRequest;
+        delete asyncReply;
+        delete response;
     }
 }
 

@@ -74,10 +74,6 @@ else
 FLAGS += -O2 -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 endif
 
-ifdef PEGASUS_HAS_PERFINST
-  FLAGS += -DPEGASUS_HAS_PERFINST
-endif
-
 ifndef PEGASUS_USE_MU_DEPEND
 PEGASUS_HAS_MAKEDEPEND = yes
 endif
@@ -103,8 +99,7 @@ ifdef PEGASUS_HAS_MESSAGES
 ##################################
 ##
 ## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root resource bundle,
-## default is to uppercase the root resource bundle
-##
+## default is to uppercase the root resource bundle##
 ##################################
 
 ifdef ICU_NO_UPPERCASE_ROOT

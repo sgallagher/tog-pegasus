@@ -360,6 +360,10 @@ endif
 # compile in the experimental APIs
 DEFINES+= -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
 
+# Set compile flag to control compilation of CIMOM statistics
+ifdef PEGASUS_HAS_PERFINST
+  FLAGS += -DPEGASUS_HAS_PERFINST
+endif
 
 ############################################################
 #

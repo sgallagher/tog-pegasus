@@ -54,7 +54,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Compiler/Linkage.h>
 
-PEGASUS_USING_PEGASUS;
+PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_COMPILER_LINKAGE compilerDeclContext :
 public RepositoryDeclContext {
@@ -92,5 +92,7 @@ public RepositoryDeclContext {
   const CIMClass *_findClassInMemory(const CIMName &classname) const;
   const CIMQualifierDecl *_findQualifierInMemory(const CIMName &name) const;
 };
+
+PEGASUS_NAMESPACE_END
 
 #endif // PegasusCompiler_Compiler_Decl_Context_h

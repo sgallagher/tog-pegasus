@@ -51,6 +51,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class RepositoryDeclContext;
+class compilerDeclContext;
 
 /** This class provides a simple implementation of a CIM repository.
     Concurrent access is controlled by an internal lock.

@@ -36,6 +36,8 @@
 
 #include "compilerDeclContext.h"
 
+PEGASUS_NAMESPACE_BEGIN
+
 compilerDeclContext::compilerDeclContext(CIMRepository *repository,
 					compilerCommonDefs::operationType ot) :
   RepositoryDeclContext(repository), _cimRepository(repository), _ot(ot)
@@ -140,3 +142,5 @@ compilerDeclContext::_findQualifierInMemory(const CIMName &classname) const
   }
   return 0;
 }
+
+PEGASUS_NAMESPACE_END

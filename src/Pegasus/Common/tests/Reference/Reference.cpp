@@ -37,8 +37,6 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-//#define DDD(X) // X
-#define DDD(X) X
 
 static char * verbose;
 
@@ -175,7 +173,7 @@ void test01()
      {
         errorDetected = true;
      }
-     ASSERTTEMP(errorDetected);
+     assert(errorDetected);
 
      // Now, try some bad object paths.
      errorDetected = false;
@@ -188,7 +186,7 @@ void test01()
      {
         errorDetected = true;
      }
-     ASSERTTEMP(errorDetected);
+     assert(errorDetected);
 
 
      errorDetected = false;
@@ -213,9 +211,7 @@ void test01()
      {
         errorDetected = true;
      }
-// #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
-// #endif
 
      errorDetected = false;
      try
@@ -227,9 +223,7 @@ void test01()
      {
         errorDetected = true;
      }
-// #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
-// #endif
 
      errorDetected = false;
      try
@@ -241,9 +235,7 @@ void test01()
      {
         errorDetected = true;
      }
-// #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
-// #endif
 
      errorDetected = false;
      try
@@ -255,9 +247,7 @@ void test01()
      {
         errorDetected = true;
      }
-// #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
-// #endif
 }
 
 void test02()
@@ -514,6 +504,53 @@ void test04()
     // instnaces for associations and referenced classes.
 }
 
+// Test handling of escape characters
+void test05()
+{
+    // Test '\' and '"' characters in a key value
+    // This represents MyClass.key1="\\\"\"\\",key2="\"\"\"\"\\\\\\\\"
+    String s1 = "MyClass.key1=\"\\\\\\\"\\\"\\\\\","
+                "key2=\"\\\"\\\"\\\"\\\"\\\\\\\\\\\\\\\\\"";
+    CIMObjectPath r1 = s1;
+    assert(r1.toString() == s1);
+
+    // Catch invalid escape sequences in a key value
+    Boolean errorDetected;
+
+    // Invalid trailing backslash
+    errorDetected = false;
+    try
+    {
+        CIMObjectPath r1("MyClass.key1=\"\\\"");
+    } catch (MalformedObjectNameException& e)
+    {
+       errorDetected = true;
+    }
+    assert(errorDetected);
+
+    // Invalid "\n" sequence
+    errorDetected = false;
+    try
+    {
+        CIMObjectPath r1("MyClass.key1=\"\\n\"");
+    } catch (MalformedObjectNameException& e)
+    {
+       errorDetected = true;
+    }
+    assert(errorDetected);
+
+    // Invalid hex sequence
+    errorDetected = false;
+    try
+    {
+        CIMObjectPath r1("MyClass.key1=\"\\x000A\"");
+    } catch (MalformedObjectNameException& e)
+    {
+       errorDetected = true;
+    }
+    assert(errorDetected);
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -524,6 +561,7 @@ int main(int argc, char** argv)
 	test02();
 	test03();
 	test04();
+	test05();
 
         cout << argv[0] << " +++++ passed all tests" << endl;
     }

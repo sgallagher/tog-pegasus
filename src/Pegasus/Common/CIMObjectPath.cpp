@@ -77,16 +77,8 @@ static String _escapeSpecialCharacters(const String& str)
     {
         switch (str[i])
         {
-            case '\n':
-                result.append("\\n");
-                break;
-
-            case '\r':
-                result.append("\\r");
-                break;
-
-            case '\t':
-                result.append("\\t");
+            case '\\':
+                result.append("\\\\");
                 break;
 
             case '"':
@@ -674,10 +666,15 @@ void _parseKeyBindingPairs(
 
             while (*p && *p != '"')
             {
-                // ATTN: need to handle special characters here:
-
                 if (*p == '\\')
+                {
                     *p++;
+
+                    if ((*p != '\\') && (*p != '"'))
+                    {
+                        throw MalformedObjectNameException(objectName);
+                    }
+                }
 
                 valueString.append(*p++);
             }
@@ -693,10 +690,15 @@ void _parseKeyBindingPairs(
 
             while (*p && *p != '"')
             {
-                // ATTN: need to handle special characters here:
-
                 if (*p == '\\')
+                {
                     *p++;
+
+                    if ((*p != '\\') && (*p != '"'))
+                    {
+                        throw MalformedObjectNameException(objectName);
+                    }
+                }
 
                 valueString.append(*p++);
             }

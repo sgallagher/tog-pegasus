@@ -34,7 +34,14 @@ repository:
 
 	@ $(ECHO) +++++ Registering TestInstanceProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" TestInstanceProviderRegistration.mof
+ifdef PEGASUS_CMPI_CQL_PROVIDER
+	@ $(ECHO) +++++ Loading TestCMPI_Indication class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(TESTPROVIDERNS)" TestCMPI_Indication.mof
 
+	@ $(ECHO) +++++ Registering TestCMPI_Indication ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" TestCMPI_IndicationR.mof
+
+endif
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 	@ $(ECHO) +++++ Loading UserContextTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(TESTPROVIDERNS)" UserContextTestProvider.mof
@@ -58,6 +65,12 @@ endif
 repositoryServer:
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
 	@ cimmof -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+ifdef PEGASUS_CMPI_CQL_PROVIDER
+	@ $(ECHO) +++++ Loading TestCMPI_Indication class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_Indication.mof
+	@ $(ECHO) +++++ Registering TestCMPI_Indication ...
+	@ cimmofl "-n$(INTEROPNS)" TestCMPI_IndicationR.mof
+endif
 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 	@ $(ECHO) +++++ Loading UserContextTestProvider class definitions into $(TESTPROVIDERNS) namespace ...
@@ -86,6 +99,9 @@ unregister:
 	$(MAKE) -i unregisterproviders
 
 unregisterproviders:
+ifdef PEGASUS_CMPI_CQL_PROVIDER
+	cimprovider -r -m TestCMPIIndicationProviderModule
+endif 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR
 	cimprovider -r -m UserContextRequestorModule

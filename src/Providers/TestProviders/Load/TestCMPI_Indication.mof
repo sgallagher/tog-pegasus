@@ -1,0 +1,13 @@
+[Indication]
+class TestCMPI_Indication 
+{
+	string PropertyA;
+    string PropertyB;
+
+	string s; 
+    uint64 n;
+    real64 f;
+    datetime d;
+
+
+};

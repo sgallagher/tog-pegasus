@@ -37,7 +37,7 @@
 #include "cimmofRepository.h"
 
 cimmofRepository::cimmofRepository(const String &path) :
-	CIMRepository(Cat(path, "./repository"))
+	CIMRepository(Cat(path, "/repository"))
 {;}
 
 cimmofRepository::~cimmofRepository() {;}

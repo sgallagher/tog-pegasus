@@ -24,6 +24,9 @@
 //==============================================================================
 //
 // Author: Mike Day (mdday@us.ibm.com)
+// 
+// Modified by:
+//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +35,7 @@
 
 #ifdef PEGASUS_OS_TRU64
 # include <unistd.h>
-extern "C" void usleep(unsigned int);
+//extern "C" void usleep(unsigned int);
 #endif
 
 #if defined(PEGASUS_OS_HPUX)

@@ -265,6 +265,13 @@ will be deleted.
       or use the following new macro:
          PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2, "Operation Failed.");
     
+25.  (Ramnath Ravindran - Compaq) 8 March 2002 - added IPCTru64.h and modified
+	several files so that Pegasus could build and run on Tru64 unix.  Added
+	one macro in ConfigUnix and ConfigWindows (PEGASUS_OR_IOS_BINARY) in 
+	the case where std::ios::binary is present with a bitwise OR operator.
+	This macro only works when the std::ios::binary is NOT the first 
+	operator to be "OR"ed.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

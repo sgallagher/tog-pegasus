@@ -51,8 +51,10 @@ CIMOperationRequestDecoder::CIMOperationRequestDecoder(
     MessageQueue* outputQueue,
     Uint32 returnQueueId)
     :  Base("CIMOpRequestDecoder", MessageQueue::getNextQueueId()),
+       _outputQueue(outputQueue),
        _returnQueueId(returnQueueId),
        _serverTerminating(false)
+
 {
 }
 

@@ -432,7 +432,7 @@ public:
 	const KeyBindingArray& keyBindings = getKeyBindingArray());
 
     /** Set the reference from an object name . */
-    void set(const String& objectName);
+      void set(const String& objectName);
 
     /** Same as set() above except that it is an assignment operator */
     CIMReference& operator=(const String& objectName)

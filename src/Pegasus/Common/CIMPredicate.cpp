@@ -418,7 +418,7 @@ Boolean PredicateReference::evaluate(void)
 
 
 PredicateTree::PredicateTree(void)
-   : _mut(), _truth_value(true), _logical_op(AND),
+   : _truth_value(true), _logical_op(AND),
       _children(true), _pred(NULL) { }
 
 PredicateTree::~PredicateTree(void)
@@ -429,14 +429,14 @@ PredicateTree::~PredicateTree(void)
 }
 
 PredicateTree::PredicateTree(const PredicateReference& pred)
-   : _mut(), _truth_value(true), _logical_op(AND),
+   : _truth_value(true), _logical_op(AND),
      _children(true)
 {
    _pred = new PredicateReference(pred);
 }
 
 PredicateTree::PredicateTree(PredicateReference* pred)
-   : _mut(), _truth_value(true), _logical_op(AND),
+   : _truth_value(true), _logical_op(AND),
      _children(true)
 {
    _pred = pred;

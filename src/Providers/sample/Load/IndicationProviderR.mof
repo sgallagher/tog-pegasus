@@ -25,7 +25,7 @@ instance of PG_ProviderCapabilities
     CapabilityID = "SampleIndicationProvider-01";
     ClassName = "Sample_IndicationProviderClass";
     Namespaces = { "root/SampleProvider" };
-    ProviderType = { 4 };  // Inidcation
+    ProviderType = { 4 };  // Indication
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };

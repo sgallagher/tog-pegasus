@@ -25,7 +25,7 @@ instance of PG_ProviderCapabilities
     CapabilityID = "1";
     ClassName = "RT_TestIndication";
     Namespaces = { "root/SampleProvider" };
-    ProviderType = { 2, 4, 5 };  // Indication & Indication & Method
+    ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
     SupportedMethods = {"SendTestIndication"};
 };

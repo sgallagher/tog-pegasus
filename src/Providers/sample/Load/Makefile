@@ -1,4 +1,4 @@
-# Makefile builds a Sample Provider Namepspace
+# Makefile builds a Sample Provider Namespace
 # ATTN: Today this makefile is implementation dependent.
 #       It assumes that the repository is a set of directories
 #       that can be removed by removing the directories.

@@ -2,7 +2,7 @@
 <html>
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.76 [en] (X11; U; Linux 2.4.2-2 i686) [Netscape]">
+   <meta name="GENERATOR" content="Mozilla/4.78 [en] (X11; U; Linux 2.4.7-10 i686) [Netscape]">
 </head>
 <body text="#000000" bgcolor="#FFFFFF" link="#0000EF" vlink="#55188A" alink="#FF0000">
 
@@ -69,9 +69,12 @@ Support UTF-8 for external data.</li>
 The CIM-XML documents contained in the HTTP messages</li>
 
 <li>
-Repository files and MOF files&nbsp; (<b>TODO</b> - remove MOF files if
-we can't get this into 2.3)</li>
-</ul>
+The files in the repository</li>
+
+<li>
+Note:&nbsp; Pegasus 2.3 does NOT&nbsp;support UTF-8 in the MOF files</li>
+
+<br>&nbsp;</ul>
 
 <li>
 Support UTF-16 for internal data.</li>
@@ -126,15 +129,14 @@ section, and then the developer section that relates to what you are doing.
 External data to Pegasus is encoded in UTF-8.&nbsp; Internal data is encoded
 in UTF-16.
 <br>&nbsp;
-<p>External data includes the CIM-XML messages passed over the network,
-the repository files, and the MOF files.&nbsp; For the CIM-XML messages,
-Pegasus follows section 4.8 of the&nbsp; <a href="http://www.dmtf.org/standards/documents/WBEM/DSP200.html">CIM-HTTP
+<p>UTF-8 support for external data includes the CIM-XML messages passed
+over the network, and the repository files.&nbsp; Note:&nbsp; UTF-8 support
+was NOT added to the MOF&nbsp;Compiler for MOF files in release 2.3.&nbsp;
+For the CIM-XML messages, Pegasus follows section 4.8 of the&nbsp; <a href="http://www.dmtf.org/standards/documents/WBEM/DSP200.html">CIM-HTTP
 specification</a>&nbsp;&nbsp;&nbsp; Specifically, Pegasus supports the
 "utf-8" setting for the charset parameter of the Content-Type header and
 the XML encoding attribute.&nbsp; If no charset is specified, the 7-bit
-ASCII is assumed.&nbsp; The Pegasus MOF compiler supports UTF-8 encoding
-in the MOF files.&nbsp; (<b>TODO</b> - remove this statement if this is
-not in 2.3)
+ASCII is assumed.
 <br>&nbsp;
 <p>The internal support of UTF-16 is encapsulated in the Pegasus String
 class.&nbsp; This class has been updated to contain UTF-16 characters.&nbsp;
@@ -309,7 +311,30 @@ Note:&nbsp; your resource bundles should be organized in a tree structure
 similiar to the one shown in the Resource Management section, including
 the empty bundles in the tree.&nbsp; It is recommended that you ship a
 root resource bundle to be used as the fallback in case the client requests
-a language that you are not supporting.
+a language that you are not supporting.&nbsp; The Pegasus make files are
+set up to automatically create and compile a root resource bundle for you.&nbsp;
+For Pegasus 2.3, the make will use your "en" bundle, upper case all the
+messages, and then put the uppercased messages into the root bundle.&nbsp;
+The uppercasing of the messages is necessary to create a "fallback" root
+bundle that contains invariant characters across all EBCIC and ASCII&nbsp;codepages.
+<br>&nbsp;
+<p>NOTE:&nbsp; When creating your resource bundles, the name of the table
+resource should contain the package name.&nbsp;&nbsp;&nbsp; For example,
+if you have a bundle with a package name of "xyz", then the "en" bundle
+should start like this:
+<p>xyz_en:table {
+<br>..... messages here
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}
+<br>&nbsp;
+<p><i>not</i> like this:
+<p>en:table {
+<br>..... messages here
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}
+<p>This is different than some of the examples in the <a href="http://oss.software.ibm.com/icu/userguide/ResourceManagement.html">Resource
+Management</a> section, but is needed because the -p option is not used
+on genrb by the make files.
 <br>&nbsp;
 <p>NOTE:&nbsp; Pegasus 2.3 only supports simple string resources in the
 ICU resource bundles.&nbsp; String resources may only be loaded by key.&nbsp;
@@ -988,7 +1013,7 @@ MOF compiler (cimmof, cimmofl) messages</li>
 
 <li>
 pegasus/src/Pegasus/msg/CLI/pegasusCLI_*.txt for all CLI messages (except
-the MOF&nbsp;compiler)</li>
+the MOF compiler)</li>
 </ul>
 
 <p><br>The make messages target will compile these resource bundles.

@@ -468,8 +468,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    
    cout << "deregistering client qid " << q_client->getQueueId() << endl;
  
-   q_client->deregister_service(); 
- 
+   q_client->deregister_service();
+
    cout << "closing service queue" << endl;
    
    q_client->_shutdown_incoming_queue();

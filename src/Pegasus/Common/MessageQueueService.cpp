@@ -87,10 +87,11 @@ MessageQueueService::~MessageQueueService(void)
 {
    _die = 1;
    if (_incoming_queue_shutdown.value() == 0 )
+   {
        _incoming.shutdown_queue();
-
-   _req_thread.join();
-
+       _req_thread.join();
+   }
+   
    _meta_dispatcher_mutex.lock(pegasus_thread_self());
    _service_count--;
    if (_service_count.value() == 0 )
@@ -139,6 +140,8 @@ void MessageQueueService::_shutdown_incoming_queue(void)
 
    msg->op = 0;
    delete msg;
+   _req_thread.join();
+   
 }
 
 

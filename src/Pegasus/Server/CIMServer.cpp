@@ -98,7 +98,7 @@
 #endif
 
 
-#ifdef PEGASUS_ENABLE_SLP
+#if defined(PEGASUS_HAS_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
 #include <Pegasus/ControlProviders/InteropProvider/InteropProvider.h>
 #endif
 
@@ -318,7 +318,8 @@ void CIMServer::_init(void)
 #endif
 
 
-#ifdef PEGASUS_ENABLE_SLP
+#if defined(PEGASUS_HAS_PERFINST) ||  defined(PEGASUS_ENABLE_SLP)
+
 // Create the interop control provider
      ProviderMessageFacade * interopProvider =
          new ProviderMessageFacade(new InteropProvider(_repository));

@@ -58,7 +58,8 @@ endif
 
 ifdef PEGASUS_HAS_PERFINST
  LIBRARIES += \
-       CIMOMStatDataProvider
+       CIMOMStatDataProvider \
+	 InteropProvider
 endif
 
 

@@ -254,22 +254,24 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
  #endif
 
 
+ #if defined(PEGASUS_HAS_PERFINST) || defined(PEGASUS_ENABLE_SLP)
 
-#ifdef PEGASUS_ENABLE_SLP
-     // PG_Namespace.  Note that this means that CIM_Namespace is not
-     // managed by the provider.  It is not implemented so that the
-     // information comes from PG_Namespace.
-	 _routing_table.insert_record(PEGASUS_CLASSNAME_PGNAMESPACE,
-				      _wild,
+	     // Interop Class, InteropProvider ObjectManager Class
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_OBJECTMANAGER,
+					  _wild,
 				      DynamicRoutingTable::INTERNAL,
 				      0,
 				      static_cast<MessageQueueService *>
 				      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
 				      PEGASUS_MODULENAME_INTEROPPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
+#endif
 
-     // Interop Class, InteropProvider ObjectManager Class
-	 _routing_table.insert_record(PEGASUS_CLASSNAME_OBJECTMANAGER,
+#ifdef PEGASUS_ENABLE_SLP
+     // PG_Namespace.  Note that this means that CIM_Namespace is not
+     // managed by the provider.  It is not implemented so that the
+     // information comes from PG_Namespace.
+	 _routing_table.insert_record(PEGASUS_CLASSNAME_PGNAMESPACE,
 				      _wild,
 				      DynamicRoutingTable::INTERNAL,
 				      0,

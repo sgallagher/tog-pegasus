@@ -72,8 +72,8 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
 	    //class1.addProperty(prop1);
         _referencedClass = class1;
 
-		XmlWriter::printClassElement(_referencedClass);
-		MofWriter::printClassElement(_referencedClass);
+		//XmlWriter::printClassElement(_referencedClass);
+		//MofWriter::printClassElement(_referencedClass);
 
         // Create the association class
         CIMClass a1("TST_Lineage");
@@ -91,9 +91,13 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         .addProperty(CIMProperty(p1))
         .addProperty(CIMProperty(p2));
         _assocClass = a1;
+
+        // ATTN KS the following is just a hack to get a class for the lineagelabeled assoc
+
+        _assocLabeledClass = a1;
         CDEBUG ("Initialize - Association Class built");
-		XmlWriter::printClassElement(_assocClass);
-		MofWriter::printClassElement(_assocClass);
+		//XmlWriter::printClassElement(_assocClass);
+		//MofWriter::printClassElement(_assocClass);
 
     }
     // Build instances of the referenced class
@@ -263,54 +267,6 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     // From the enumerateinstancenames  Why the R
     // TST_Lineage.child=R"Person.name=\"Sofi\"",parent=R"Person.name=\"Mike\""
     
-    /*String myParent = "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Father\"";
-    String myChild = "//localhost/root/SampleProvider:TST_PersonDynamic.Name=\"Daughter1\"";
-    CIMName className = "TST_LineageDynamic";
-    CIMInstance instance(className);
-    CIMObjectPath parent =  myParent;
-    CIMObjectPath child = myChild;
-    CIMName thisClassReference = "TST_PersonDynamic";  
-    instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
-    instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
-    CDEBUG ("initialize - Assoc Class Instance Built");
-    */
-    //CIMObjectPath reference = "//localhost/root/SampleProvider:TST_LineageDynamic.parent=\"TST_PersonDynamic.name=\"Father\"\",Child=\"TST_PersonDynamic.name=\"Daughter1\"\"";
-    
-    //Array <CIMKeyBinding> keyBindings;
-    /*
-    CIMKeyBinding aBinding ("a", "A.y=\"lavender\",x=\"rose\",z=\"rosemary\"", 
-        CIMKeyBinding::REFERENCE);
-    CIMKeyBinding bBinding ("b", "B.s=\"sage\",q=\"pelargonium\",r=\"tyme\"",
-        CIMKeyBinding::REFERENCE);
-    keyBindings.append (aBinding);
-    keyBindings.append (bBinding);
-
-    CIMObjectPath cPath2 ("", CIMNamespaceName (),
-        cPath.getClassName (), keyBindings);
-        
-    CIMObjectPath aPath = instanceA.buildPath (classA);
-    
-        CIMKeyBinding aBinding ("a", "TST_PersonDynamic.Name=\"Father\"", 
-        CIMKeyBinding::REFERENCE);
-    */
-    //CIMObjectPath reference instance.buildPath( className );  
- // CIMObjectPath reference("//localhost/root/SampleProvider:TST_LineageDynamic.parent=TST_PersonDynamic.name=\"Father\",Child=TST_PersonDynamic.name=\"Daughter1\"");
-    /*String referenceString = "TST_Lineage";
-    referenceString.append(".parent=\"");
-    referenceString.append(myParent);
-    referenceString.append("\"");
-    referenceString.append(",child=\"");
-    referenceString.append(myChild);
-    referenceString.append("\"");
-    PEGASUS_STD(cout) << "KSTEST ASSOC String = " << referenceString << PEGASUS_STD(endl);
-    //CIMObjectPath reference =  referenceString;
-
-    
-    CDEBUG ("initialize - 3");
-        
-    _instancesLineage.append(instance);
-    //_instanceNamesLineage.append(reference);
-    }*/
     CDEBUG ("initialize - 4 ");
     PEG_METHOD_EXIT();
 }
@@ -335,7 +291,7 @@ void SampleFamilyProvider::getInstance(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
       "SampleFamilyProvider::getInstance");
-  // convert a potential fully qualified reference into a local reference
+    // convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
@@ -440,15 +396,16 @@ void SampleFamilyProvider::enumerateInstanceNames(
     {
     	for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
     	{
-    		handler.deliver(_instanceNamesLineageDynamic[i]);
+    		handler.deliver(_instancesLineageDynamic[i].buildPath(_assocClass));
     	}
 
     }
+    //ATTN KS This one is in error since we did not build the corresponding class.
     if (myClass ==  CIMName("tst_labeledlineagedynamic"))
     {
     	for(Uint32 i = 0, n = _instancesLabeledLineageDynamic.size(); i < n; i++)
     	{
-    		handler.deliver(_instanceNamesLabeledLineageDynamic[i]);
+    		handler.deliver(_instancesLabeledLineageDynamic[i].buildPath(_assocLabeledClass));
     	}
 
     }
@@ -603,6 +560,8 @@ void SampleFamilyProvider::deleteInstance(
     	}
 
     }
+	handler.complete();
+    PEG_METHOD_EXIT();
     /*
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
@@ -622,8 +581,6 @@ void SampleFamilyProvider::deleteInstance(
 	}
 	**** Delete this whole thing*/
 	// complete processing the request
-	handler.complete();
-    PEG_METHOD_EXIT();
 }
 
 void SampleFamilyProvider::associators(
@@ -640,7 +597,7 @@ void SampleFamilyProvider::associators(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
        "SampleFamilyProvider::associators");
-	PEGASUS_STD(cout) << "KSTEST Associators SampleFamilyProvider" << PEGASUS_STD(endl);
+	CDEBUG("Associators");
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath
 
@@ -654,7 +611,44 @@ void SampleFamilyProvider::associators(
     // This is wrong.  Simply want to deliver something right now.
     for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
 	{
-        // Filter out by resultClass and role.
+        /*
+        The AssocClass input parameter, if not NULL, MUST be a valid CIM 
+        Association Class name.  It acts as a filter on the returned set of 
+        Objects by mandating that each returned Object MUST be associated to the 
+        source Object via an Instance of this Class or one of its subclasses.
+  
+        The ResultClass input parameter, if not NULL, MUST be a valid CIM Class 
+        name.  It acts as a filter on the returned set of Objects by mandating 
+        that each returned Object MUST be either an Instance of this Class (or one 
+        of its subclasses) or be this Class (or one of its subclasses).  
+
+        The Role input parameter, if not NULL, MUST be a valid Property name.  It 
+        acts as a filter on the returned set of Objects by mandating that each 
+        returned Object MUST be associated to the source Object via an Association 
+        in which the source Object plays the specified role (i.e.  the name of the 
+        Property in the Association Class that refers to the source Object MUST 
+        match the value of this parameter).  
+
+        The ResultRole input parameter, if not NULL, MUST be a valid Property 
+        name.  It acts as a filter on the returned set of Objects by mandating 
+        that each returned Object MUST be associated to the source Object via an 
+        Association in which the returned Object plays the specified role (i.e.  
+        the name of the Property in the Association Class that refers to the 
+        returned Object MUST match the value of this parameter).  
+        
+        If the IncludeQualifiers input parameter is true, this specifies that all 
+        Qualifiers for each Object (including Qualifiers on the Object and on any 
+        returned Properties) MUST be included as <QUALIFIER> elements in the 
+        response.  If false no <QUALIFIER> elements are present in each returned 
+        Object.  
+        
+        If the IncludeClassOrigin input parameter is true, this specifies that the 
+        CLASSORIGIN attribute MUST be present on all appropriate elements in each 
+        returned Object.  If false, no CLASSORIGIN attributes are present in each 
+        returned Object.
+        */  
+        
+    // Filter out by resultClass and role.
         // The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name.
         // It acts as a filter on the returned set of Object Names by mandating that each
         // returned Object Name MUST identify an Instance of this Class (or one of its subclasses),
@@ -668,14 +662,30 @@ void SampleFamilyProvider::associators(
         // Note that here we test to determine if the returned object name equals resultClass
         // or any of its subclasses
         
+        // NOTE: THis code is just a hack today to return objects so we can test the internal
+        // paths.  In fact, it just returns the associations, not the corresponding objects from
+        // the association.
+        // ATTN: Fix this KS.
         CIMInstance instance = _instancesLineageDynamic[i];
-        PEGASUS_STD(cout) << "KSTEST Result Class = " << resultClass.getString() 
-            << " Role = " << role
-            << PEGASUS_STD(endl);
-        if (resultClass.isNull() || instance.getClassName().equal(resultClass))
+        // Filter out associations that do not match the association class
+        if (instance.getClassName().equal(associationClass))
         {
-            // Incomplete.  Need to add the other filters.
-            handler.deliver(instance);
+            CDEBUG("FamilyProvider AssociatorsResult Class = " << resultClass.getString()<< " Role = " << role);
+            if (resultClass.isNull() || instance.getClassName().equal(resultClass))
+            {
+                // Incomplete.  Need to add the other filters.
+                CIMObjectPath objectPathInput = objectName;
+                if (objectPathInput.getHost().size() == 0)
+                    objectPathInput.setHost(host);
+    
+                if (objectPathInput.getNameSpace().isNull())
+                    objectPathInput.setNameSpace(nameSpace);
+                CIMObject cimObject(instance);
+                cimObject.setPath (objectPathInput);
+    
+                // set path from CIMObjectPath containing the path.
+                handler.deliver(cimObject);
+            }
         }
 	}
     
@@ -695,7 +705,42 @@ void SampleFamilyProvider::associatorNames(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
        "SampleFamilyProvider::associatorNames");
-	throw CIMNotSupportedException("SampleFamilyProvider::associatorNames");
+    // Get the namespace and host names to create the CIMObjectPath
+    String nameSpace = "SampleProvider";
+    String host = System::getHostName();
+    // ATTN: Just a hack to get objects back. Note that today it returns the
+    // association class, not the corresponding 
+    for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
+	{
+        // Filter out by resultClass and role.
+        // The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name.
+        // It acts as a filter on the returned set of Object Names by mandating that each
+        // returned Object Name MUST identify an Instance of this Class (or one of its subclasses),
+        // or this Class (or one of its subclasses). 
+
+        // The Role input parameter, if not NULL, MUST be a valid Property name. It acts as a
+        // filter on the returned set of Object Names by mandating that each returned Object Name
+        // MUST identify an Object that refers to the target Instance via a Property whose name
+        // matches the value of this parameter. 
+        
+        // Note that here we test to determine if the returned object name equals resultClass
+        // or any of its subclasses
+        
+        CIMObjectPath r = _instanceNamesLineageDynamic[i];
+        CDEBUG("Result Class = " << resultClass.getString() << " Role = " << role);
+
+        if (resultClass.isNull() || r.getClassName().equal(resultClass))
+        {
+            if (r.getHost().size() == 0)
+                r.setHost(host);
+    
+            if (r.getNameSpace().isNull())
+                r.setNameSpace(nameSpace);
+        }
+	}
+    
+	// complete processing the request
+	handler.complete();
     PEG_METHOD_EXIT();
 }
 
@@ -711,7 +756,7 @@ void SampleFamilyProvider::references(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
        "SampleFamilyProvider::references");
-	PEGASUS_STD(cout) << "KSTESTreferences SampleFamilyProvider" << PEGASUS_STD(endl);
+	CDEBUG("references");
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath
     String nameSpace = "SampleProvider";
@@ -719,8 +764,10 @@ void SampleFamilyProvider::references(
 
     handler.processing();
     // Here make the decision between Lineage and LabeledLineage
+    CIMName objectClassName = objectName.getClassName();
 
-	// For all of the association objects.
+	// For all of the corresponding association objects.
+    // NOTE: This is just a hack today to return objects so we can get paths running
     for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
 	{
         // Filter out by resultClass and role.
@@ -738,13 +785,20 @@ void SampleFamilyProvider::references(
         // or any of its subclasses
         
         CIMInstance instance = _instancesLineageDynamic[i];
-        PEGASUS_STD(cout) << "KSTEST Result Class = " << resultClass.getString() 
-            << " Role = " << role
-            << PEGASUS_STD(endl);
+
+        CDEBUG("References Result Class = " << resultClass.getString() << " Role = " << role);
         if (resultClass.isNull() || instance.getClassName().equal(resultClass))
         {
             // Incomplete.  Need to add the other filters.
-            handler.deliver(instance);
+            CIMObjectPath objectPathInput = objectName;
+            if (objectPathInput.getHost().size() == 0)
+                objectPathInput.setHost(host);
+
+            if (objectPathInput.getNameSpace().isNull())
+                objectPathInput.setNameSpace(nameSpace);
+            CIMObject cimObject(instance);
+            cimObject.setPath (objectPathInput);
+            handler.deliver(cimObject);
         }
 	}
     
@@ -766,8 +820,7 @@ void SampleFamilyProvider::referenceNames(
 {
     PEG_METHOD_ENTER(TRC_PROVIDER,
        "SampleFamilyProvider::referenceNames");
-	PEGASUS_STD(cout) << "KSTESTreferenceNames SampleFamilyProvider" << PEGASUS_STD(endl);
-    
+	CDEBUG("referenceNames Operation");
     
     // Get the namespace and host names to create the CIMObjectPath
     String nameSpace = "SampleProvider";
@@ -802,11 +855,7 @@ void SampleFamilyProvider::referenceNames(
     
             if (r.getNameSpace().isNull())
                 r.setNameSpace(nameSpace);
-
-            PEGASUS_STD(cout) << "KSTEST Deliver CIMOBjectPath = " << r.toString() << PEGASUS_STD(endl);
-         handler.deliver(r);
         }
-        
 	}
     
 	// complete processing the request

@@ -135,16 +135,23 @@ public:
     
 
 protected:
-	CIMClass _referencedClass;
+	// save for the class objects that we use
+    CIMClass _referencedClass;
+    CIMClass _assocClass;
+    CIMClass _assocLabeledClass;
+
+    // Built arrays of instances for each type
+    // corresponds to referencedClass
     Array<CIMObjectPath> _instanceNames;
 	Array<CIMInstance> _instances;
 
+    // Corresponds to Lineage association class
     Array<CIMObjectPath> _instanceNamesLineageDynamic;
     Array<CIMInstance> _instancesLineageDynamic;
     
+    // Corresponds to the LineageLabeled Class
     Array<CIMObjectPath> _instanceNamesLabeledLineageDynamic;
     Array<CIMInstance> _instancesLabeledLineageDynamic;
-    CIMClass _assocClass;
 };
 
 PEGASUS_NAMESPACE_END

@@ -483,6 +483,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	    }
 	    catch(...)
 	    {
+	       q->unlock();
 	       return bodies;
 	    }
 	
@@ -541,6 +542,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	
 		  if(sleep_sem == 0)
 		  {
+	             q->unlock();
 		     th->dereference_tsd();
 		     throw NullPointer();
 		  }

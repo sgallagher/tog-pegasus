@@ -102,9 +102,9 @@ PEGASUS_UNIX_MAN_USER_PAGES = \
    wbemexec.1 
 
 PEGASUS_UNIX_MAN_ADMIN_PAGES = \
-   cimauth.1m \
-   cimconfig.1m \
-   cimserver.1m
+   cimauth.8 \
+   cimconfig.8 \
+   cimserver.8
 
 CIM28_MOF_FILES = \
    Application28_AppRuntime.mof \

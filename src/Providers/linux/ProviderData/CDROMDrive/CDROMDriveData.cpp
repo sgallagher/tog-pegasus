@@ -53,15 +53,17 @@ void CDROMDriveData::terminate(void)
 {
 }
 
+#if 0
 /* Get all the diskdrives and put them in an array */
-Array <MediaAccessDeviceInformation *> CDROMDriveData::GetAllCDROMDrives(void)
+Array <MediaAccessDeviceInformationPtr> CDROMDriveData::GetAllCDROMDrives(void)
 {
 	MediaAccessDeviceInformation *diskdrive;
-	Array <MediaAccessDeviceInformation *> diskdrives;
+	Array <MediaAccessDeviceInformationPtr> diskdrives;
 
 	diskdrive = (MediaAccessDeviceInformation *) GetFirstCDROMDrive();
 	while(diskdrive){
-		diskdrives.append((MediaAccessDeviceInformation *)diskdrive);
+		diskdrives.append(
+                    static_cast<MediaAccessDeviceInformationPtr>(diskdrive));
 		/* Need to keep diskdrives lingering because we are using an 
 		   array of pointers to objects */
 		diskdrive=(MediaAccessDeviceInformation *)GetNextCDROMDrive();
@@ -69,6 +71,7 @@ Array <MediaAccessDeviceInformation *> CDROMDriveData::GetAllCDROMDrives(void)
 	EndGetCDROMDrive();
 	return diskdrives;
 }
+#endif
 
 /* Get the first diskdrive in the database */
 MediaAccessDeviceInformation * CDROMDriveData::GetFirstCDROMDrive(void)

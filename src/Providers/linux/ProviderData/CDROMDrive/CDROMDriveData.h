@@ -56,7 +56,7 @@ public:
    int initialize(void);
    void terminate(void);
 
-   Array<MediaAccessDeviceInformation *> GetAllCDROMDrives(void);
+   //Array<MediaAccessDeviceInformationPtr> GetAllCDROMDrives(void);
    MediaAccessDeviceInformation *GetFirstCDROMDrive(void);
    MediaAccessDeviceInformation *GetNextCDROMDrive(void);
    void EndGetCDROMDrive(void);

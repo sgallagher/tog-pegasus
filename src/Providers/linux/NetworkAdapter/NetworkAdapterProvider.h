@@ -102,7 +102,7 @@ class LinuxNetworkAdapterProvider : public CIMInstanceProvider
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
-		          ResponseHandler<CIMInstance>& handler );
+		          ResponseHandler<void>& handler );
 
       void createInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
@@ -111,7 +111,7 @@ class LinuxNetworkAdapterProvider : public CIMInstanceProvider
 
       void deleteInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
-		          ResponseHandler<CIMInstance>& handler );
+		          ResponseHandler<void>& handler );
 
       void initialize(CIMOMHandle& handle);
       void terminate(void);

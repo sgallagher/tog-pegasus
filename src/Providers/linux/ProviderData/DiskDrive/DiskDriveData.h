@@ -55,7 +55,7 @@ public:
    int initialize(void);
    void terminate(void);
 
-   Array<MediaAccessDeviceInformation *> GetAllDiskDrives(void);
+   //Array<MediaAccessDeviceInformation *> GetAllDiskDrives(void);
    MediaAccessDeviceInformation *GetFirstDiskDrive(void);
    MediaAccessDeviceInformation *GetNextDiskDrive(void);
    void EndGetDiskDrive(void);

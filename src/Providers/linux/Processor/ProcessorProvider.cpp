@@ -151,7 +151,7 @@ void LinuxProcessorProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxProcessorProvider::modifyInstance called" << endl;
    throw NotSupported(PROCESSORCLASSNAME "::modifyInstance");
@@ -171,7 +171,7 @@ LinuxProcessorProvider::createInstance(
 void LinuxProcessorProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxProcessorProvider::deleteInstance called" << endl;
    throw NotSupported(PROCESSORCLASSNAME "::deleteInstance");

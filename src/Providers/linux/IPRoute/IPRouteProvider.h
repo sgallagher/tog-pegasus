@@ -111,7 +111,7 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
-		          ResponseHandler<CIMInstance>& handler );
+		          ResponseHandler<void>& handler );
 
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
@@ -124,7 +124,7 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
        *  here. */
       void deleteInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
-		          ResponseHandler<CIMInstance>& handler );
+		          ResponseHandler<void>& handler );
 
       void initialize(CIMOMHandle& handle);
       void terminate(void);

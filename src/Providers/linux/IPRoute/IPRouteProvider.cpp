@@ -176,7 +176,7 @@ LinuxIPRouteProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    throw NotSupported(IPROUTECLASSNAME"::modifyInstance");
 }
@@ -194,7 +194,7 @@ LinuxIPRouteProvider::createInstance(
 void 
 LinuxIPRouteProvider::deleteInstance(const OperationContext& context,
 			  	     const CIMObjectPath& ref,
-			  	     ResponseHandler<CIMInstance>& handler )
+			  	     ResponseHandler<void>& handler )
 {
    throw NotSupported(IPROUTECLASSNAME"::deleteInstance");
 }

@@ -149,7 +149,7 @@ LinuxCDROMDriveProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 		          	const Uint32 flags, 
 		          	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxCDROMDriveProvider::modifyInstance called" << endl;
    throw NotSupported(CDROMDRIVECLASSNAME"::modifyInstance");
@@ -170,7 +170,7 @@ void
 LinuxCDROMDriveProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxCDROMDriveProvider::deleteInstance called" << endl;
    throw NotSupported(CDROMDRIVECLASSNAME"::deleteInstance");

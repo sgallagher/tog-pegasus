@@ -202,7 +202,7 @@ DebianSoftwareElementProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "DebianSoftwareElementProvider::modifyInstance called" << endl;
    throw NotSupported(DEBIANCLASSNAME "::modifyInstance");
@@ -223,7 +223,7 @@ void
 DebianSoftwareElementProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "DebianSoftwareElementProvider::deleteInstance called" << endl;
    throw NotSupported(DEBIANCLASSNAME "::deleteInstance");

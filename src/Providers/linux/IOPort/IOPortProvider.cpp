@@ -201,7 +201,7 @@ LinuxIOPortProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxIOPortProvider::modifyInstance called" << endl;
    throw NotSupported(IOPORTCLASSNAME "::modifyInstance");
@@ -222,7 +222,7 @@ void
 LinuxIOPortProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxIOPortProvider::deleteInstance called" << endl;
    throw NotSupported(IOPORTCLASSNAME"::deleteInstance");

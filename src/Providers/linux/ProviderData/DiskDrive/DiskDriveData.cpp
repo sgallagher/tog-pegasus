@@ -53,15 +53,16 @@ void DiskDriveData::terminate(void)
 {
 }
 
+#if 0
 /* Get all the diskdrives and put them in an array */
 Array <MediaAccessDeviceInformation *> DiskDriveData::GetAllDiskDrives(void)
 {
 	MediaAccessDeviceInformation *diskdrive;
-	Array <MediaAccessDeviceInformation *> diskdrives;
+	Array <MediaAccessDeviceInformation> diskdrives;
 
 	diskdrive = (MediaAccessDeviceInformation *) GetFirstDiskDrive();
 	while(diskdrive){
-		diskdrives.append((MediaAccessDeviceInformation *)diskdrive);
+		diskdrives.append((MediaAccessDeviceInformation *) diskdrive);
 		/* Need to keep diskdrives lingering because we are using an 
 		   array of pointers to objects */
 		diskdrive=(MediaAccessDeviceInformation *)GetNextDiskDrive();
@@ -69,6 +70,7 @@ Array <MediaAccessDeviceInformation *> DiskDriveData::GetAllDiskDrives(void)
 	EndGetDiskDrive();
 	return diskdrives;
 }
+#endif
 
 /* Get the first diskdrive in the database */
 MediaAccessDeviceInformation * DiskDriveData::GetFirstDiskDrive(void)

@@ -78,7 +78,7 @@ class SoftwareElementProvider : public CIMInstanceProvider
 				  const CIMInstance& instanceObject,
 				  const Uint32 flags,
 				  const CIMPropertyList& propertyList,
-				  ResponseHandler<CIMInstance>& handler) = 0;
+				  ResponseHandler<void>& handler) = 0;
 
       virtual void createInstance(const OperationContext& context,
 				  const CIMObjectPath& ref,
@@ -87,7 +87,7 @@ class SoftwareElementProvider : public CIMInstanceProvider
 
       virtual void deleteInstance(const OperationContext& context,
 				  const CIMObjectPath& ref,
-				  ResponseHandler<CIMInstance>& handler) = 0;
+				  ResponseHandler<void>& handler) = 0;
 
       virtual void initialize(CIMOMHandle& handle) = 0;
       virtual void terminate(void) = 0;

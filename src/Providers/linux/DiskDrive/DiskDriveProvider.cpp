@@ -149,7 +149,7 @@ LinuxDiskDriveProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxDiskDriveProvider::modifyInstance called" << endl;
    throw NotSupported(DISKDRIVECLASSNAME"::modifyInstance");
@@ -170,7 +170,7 @@ void
 LinuxDiskDriveProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
    cout << "LinuxDiskDriveProvider::deleteInstance called" << endl;
    throw NotSupported(DISKDRIVECLASSNAME"::deleteInstance");

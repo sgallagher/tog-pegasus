@@ -36,7 +36,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <math.h>
-#include <iostream.h>
+#include <iostream>
 
 
 PEGASUS_NAMESPACE_BEGIN

@@ -50,7 +50,11 @@ CMPIProviderModule::CMPIProviderModule(const String & fileName,
     _ref_count(0),
     _library(0)
 {
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+   if (fileName[1] != ':')
+#else
    if (fileName[0]!='/')
+#endif
       _fileName=ProviderManager::_resolvePhysicalName(fileName);
    else _fileName=fileName;
 }

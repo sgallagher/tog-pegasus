@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMQualifierList.h,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -40,14 +43,6 @@
 //
 //
 //END_HISTORY
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// CIMQualifierList.h
-//
-//	All class represents a list of CIM qualifiers.
-//
-////////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_QualifierList_h
 #define Pegasus_QualifierList_h
@@ -69,11 +64,16 @@ public:
 
     Uint32 getCount() const { return _qualifiers.getSize(); }
 
-    CIMQualifier getQualifier(Uint32 pos) { return _qualifiers[pos]; }
+    CIMQualifier& getQualifier(Uint32 pos) { return _qualifiers[pos]; }
 
-    CIMConstQualifier getQualifier(Uint32 pos) const { return _qualifiers[pos]; }
+    const CIMConstQualifier& getQualifier(Uint32 pos) const 
+    {
+	return _qualifiers[pos];
+    }
 
     Uint32 find(const String& name) const;
+
+    Uint32 findReverse(const String& name) const;
 
     void resolve(
 	DeclContext* declContext,

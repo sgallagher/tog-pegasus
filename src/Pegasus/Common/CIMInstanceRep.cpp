@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMInstanceRep.cpp,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -60,6 +63,8 @@
 #include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+using namespace std;
 
 CIMInstanceRep::CIMInstanceRep(const String& className)
     : _className(className), _resolved(false)
@@ -188,7 +193,7 @@ void CIMInstanceRep::resolve(
 
     for (Uint32 i = 0, m = 0, n = cimClass.getPropertyCount(); i < n; i++)
     {
-	CIMConstProperty property = cimClass.getProperty(i);
+	ConstCIMProperty property = cimClass.getProperty(i);
 	const String& name = property.getName();
 
 	// See if this instance already contains a property with this name:
@@ -302,7 +307,70 @@ void CIMInstanceRep::print() const
 
 String CIMInstanceRep::getInstanceName(ConstCIMClass& cimClass) const
 {
-    return String();
+    // ATTN-A: should we disallow keys on arrays and reals?
+    // ATTN-A: shift the case of each identifier to lower case:
+
+    // First append the class name:
+
+    String instanceName = ToLower(getClassName());
+    instanceName.append('.');
+
+    // Form the key-value pairs:
+
+    Array<String> keyNames;
+    cimClass.getKeyNames(keyNames);
+
+    if (keyNames.getSize() == 0)
+	return String();
+
+    // Sort the key names:
+
+    BubbleSort(keyNames);
+
+    // Append key value pairs to the instance-name:
+
+    for (Uint32 i = 0, n = keyNames.getSize(); i < n; i++)
+    {
+	const String keyName = ToLower(keyNames[i]);
+
+	Uint32 pos = findProperty(keyName);
+	PEGASUS_ASSERT(pos != Uint32(-1));
+
+	ConstCIMProperty tmp = getProperty(pos);
+
+	if (tmp.getName() == keyName)
+	{
+	    const CIMValue& value = tmp.getValue();
+
+	    // ATTN-A: for now just assert:
+	    if (value.isArray())
+		PEGASUS_ASSERT(false);
+
+	    CIMType type = value.getType();
+
+	    // ATTN-A: throw an actual exception:
+	    if (type == CIMType::REAL32 || type == CIMType::REAL64)
+		PEGASUS_ASSERT(false);
+
+	    instanceName.append(keyName);
+	    instanceName.append('=');
+
+	    String str = value.toString();
+
+	    if (type == CIMType::STRING)
+		instanceName.append('"');
+
+	    instanceName.append(str);
+	    
+	    if (type == CIMType::STRING)
+		instanceName.append('"');
+
+	    if (i + 1 != n)
+		instanceName.append(',');
+	}
+    }
+
+    return instanceName;
 }
 
 PEGASUS_NAMESPACE_END

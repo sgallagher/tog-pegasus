@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMProperty.h,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -61,23 +64,26 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class CIMConstProperty;
+class ConstCIMProperty;
 class CIMInstanceRep;
 /** CIMProperty Class - ATTN:
 */
 class PEGASUS_COMMON_LINKAGE CIMProperty
 {
 public:
+
     /// CIMMethod CIMProperty
     CIMProperty() : _rep(0)
     {
 
     }
+
     /// CIMMethod CIMProperty
     CIMProperty(const CIMProperty& x)
     {
 	Inc(_rep = x._rep);
     }
+
     /** CIMMethod CIMProperty
 
     @return
@@ -99,6 +105,7 @@ public:
     {
 	Dec(_rep);
     }
+
     /// CIMMethod
     CIMProperty& operator=(const CIMProperty& x)
     {
@@ -109,72 +116,81 @@ public:
 	}
 	return *this;
     }
+
     /// CIMMethod
     const String& getName() const
     {
 	_checkRep();
 	return _rep->getName();
     }
-    /** CIMMethod setName - Set the property name
-    @return
-    Throws IllegalName if name argument not legal CIM identifier.
+
+    /** CIMMethod setName - Set the property name. Throws IllegalName if name 
+        argument not legal CIM identifier.
     */
     void setName(const String& name)
     {
 	_checkRep();
 	_rep->setName(name);
     }
+
     /// CIMMethod getValue - ATTN:
     const CIMValue& getValue() const
     {
 	_checkRep();
 	return _rep->getValue();
     }
+
     /// CIMMethod setValue - ATTN
     void setValue(const CIMValue& value)
     {
 	_checkRep();
 	_rep->setValue(value);
     }
+
     /// CIMMethod getArraySize - ATTN:
     Uint32 getArraySize() const
     {
 	_checkRep();
 	return _rep->getArraySize();
     }
+
     /// CIMMethod getReferenceClassName - ATTN:
     const String& getReferenceClassName() const
     {
 	_checkRep();
 	return _rep->getReferenceClassName();
     }
+
     /// CIMMethod getClassOrigin - ATTN
     const String& getClassOrigin() const
     {
 	_checkRep();
 	return _rep->getClassOrigin();
     }
+
     /// CIMMethod setClassOrigin
     void setClassOrigin(const String& classOrigin)
     {
 	_checkRep();
 	_rep->setClassOrigin(classOrigin);
     }
+
     /// CIMMethod getPropagated - ATTN
     Boolean getPropagated() const
     {
 	_checkRep();
 	return _rep->getPropagated();
     }
+
     /// CIMMethod setProgagated - ATTN
     void setPropagated(Boolean propagated)
     {
 	_checkRep();
 	_rep->setPropagated(propagated);
     }
+
     /** CIMMethod addQualifier - ATTN
-    @return
-    Throws AlreadyExists.
+	Throws AlreadyExists.
     */
     CIMProperty& addQualifier(const CIMQualifier& x)
     {
@@ -182,46 +198,53 @@ public:
 	_rep->addQualifier(x);
 	return *this;
     }
+
     /// CIMMethod findQualifier - ATTN
     Uint32 findQualifier(const String& name)
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
+
     /// CIMMethod findQualifier - ATTN
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
+
     /// CIMMethod getQualifier - ATTN
     CIMQualifier getQualifier(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
+
     /// CIMMethod getQualifier - ATTN
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
+
     /// CIMMethod getQualifier - ATTN
     Uint32 getQualifierCount() const
     {
 	_checkRep();
 	return _rep->getQualifierCount();
     }
+
     /// CIMMethod resolve
     void resolve(
 	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart,
-	const CIMConstProperty& property)
+	const ConstCIMProperty& property)
     {
 	_checkRep();
 	_rep->resolve(declContext, nameSpace, isInstancePart, property);
     }
+
     /// CIMMethod resolve - ATTN
     void resolve(
 	DeclContext* declContext,
@@ -231,22 +254,33 @@ public:
 	_checkRep();
 	_rep->resolve(declContext, nameSpace, isInstancePart);
     }
+
     /// ATTN
     operator int() const { return _rep != 0; }
+
     /// mthod toXML
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
+
     /// mthod print -ATTN
     void print() const
     {
 	_checkRep();
 	_rep->print();
     }
+
     /// CIMMethod identical - ATTN
-    Boolean identical(const CIMConstProperty& x) const;
+    Boolean identical(const ConstCIMProperty& x) const;
+
+    Boolean isKey() const
+    {
+	_checkRep();
+	return _rep->isKey();
+    }
+
     /// CIMMethod clone - ATTN
     CIMProperty clone() const
     {
@@ -262,7 +296,7 @@ private:
     // This constructor allows the CIMClassRep friend class to cast
     // away constness.
 
-    explicit CIMProperty(const CIMConstProperty& x);
+    explicit CIMProperty(const ConstCIMProperty& x);
 
     void _checkRep() const
     {
@@ -271,39 +305,39 @@ private:
     }
 
     CIMPropertyRep* _rep;
-    friend class CIMConstProperty;
+    friend class ConstCIMProperty;
     friend class CIMClassRep;
     friend class CIMInstanceRep;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// CIMConstProperty
+// ConstCIMProperty
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_COMMON_LINKAGE CIMConstProperty
+class PEGASUS_COMMON_LINKAGE ConstCIMProperty
 {
 public:
 
-    CIMConstProperty() : _rep(0)
+    ConstCIMProperty() : _rep(0)
     {
 
     }
 
-    CIMConstProperty(const CIMConstProperty& x)
+    ConstCIMProperty(const ConstCIMProperty& x)
     {
 	Inc(_rep = x._rep);
     }
 
-    CIMConstProperty(const CIMProperty& x)
+    ConstCIMProperty(const CIMProperty& x)
     {
 	Inc(_rep = x._rep);
     }
 
     // Throws IllegalName if name argument not legal CIM identifier.
 
-    CIMConstProperty(
+    ConstCIMProperty(
 	const String& name,
 	const CIMValue& value,
 	Uint32 arraySize = 0,
@@ -315,12 +349,12 @@ public:
 	    arraySize, referenceClassName, classOrigin, propagated);
     }
 
-    ~CIMConstProperty()
+    ~ConstCIMProperty()
     {
 	Dec(_rep);
     }
 
-    CIMConstProperty& operator=(const CIMConstProperty& x)
+    ConstCIMProperty& operator=(const ConstCIMProperty& x)
     {
 	if (x._rep != _rep)
 	{
@@ -330,7 +364,7 @@ public:
 	return *this;
     }
 
-    CIMConstProperty& operator=(const CIMProperty& x)
+    ConstCIMProperty& operator=(const CIMProperty& x)
     {
 	if (x._rep != _rep)
 	{
@@ -408,11 +442,17 @@ public:
 	_rep->print();
     }
 
-    Boolean identical(const CIMConstProperty& x) const
+    Boolean identical(const ConstCIMProperty& x) const
     {
 	x._checkRep();
 	_checkRep();
 	return _rep->identical(x._rep);
+    }
+
+    Boolean isKey() const
+    {
+	_checkRep();
+	return _rep->isKey();
     }
 
     CIMProperty clone() const

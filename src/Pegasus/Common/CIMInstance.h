@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMInstance.h,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -231,7 +234,7 @@ public:
     /**	CIMMethod
     
     */
-    CIMConstProperty getProperty(Uint32 pos) const
+    ConstCIMProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);
@@ -291,6 +294,23 @@ public:
 	return CIMInstance(_rep->clone());
     }
 
+    /** Get the instance name of this instance. The class argument is used
+	to determine which fields are keys. The instance name has this from:
+
+	<pre> 
+	    ClassName.key1=value1,...,keyN=valueN
+	</pre>
+
+	The instance name is in standard form (the class name and key name
+	is all lowercase; the keys-value pairs appear in sorted order by
+	key name).
+    */
+    String getInstanceName(ConstCIMClass& cimClass) const
+    {
+	_checkRep();
+	return _rep->getInstanceName(cimClass);
+    }
+
 private:
 
     CIMInstance(CIMInstanceRep* rep) : _rep(rep)
@@ -301,12 +321,6 @@ private:
     {
 	if (!_rep)
 	    throw UnitializedHandle();
-    }
-
-    String getInstanceName(ConstCIMClass& cimClass) const
-    {
-	_checkRep();
-	return _rep->getInstanceName(cimClass);
     }
 
     CIMInstanceRep* _rep;
@@ -400,7 +414,7 @@ public:
 	return _rep->findProperty(name);
     }
 
-    CIMConstProperty getProperty(Uint32 pos) const
+    ConstCIMProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);

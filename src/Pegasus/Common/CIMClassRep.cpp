@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMClassRep.cpp,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -265,7 +268,7 @@ void CIMClassRep::resolve(
 	    }
 	    else
 	    {
-		CIMConstProperty superClassProperty = superClass.getProperty(pos);
+		ConstCIMProperty superClassProperty = superClass.getProperty(pos);
 		property.resolve(context, nameSpace, false, superClassProperty);
 	    }
 	}
@@ -279,7 +282,7 @@ void CIMClassRep::resolve(
 
 	for (Uint32 i = 0, m = 0, n = superClass.getPropertyCount(); i < n; i++)
 	{
-	    CIMConstProperty superClassProperty = superClass.getProperty(i);
+	    ConstCIMProperty superClassProperty = superClass.getProperty(i);
 
 	    // Find the property in *this* class; if not found, then clone and
 	    // insert it (setting the propagated flag). Otherwise, change 
@@ -539,9 +542,14 @@ Boolean CIMClassRep::identical(const CIMClassRep* x) const
 
 void CIMClassRep::getKeyNames(Array<String>& keyNames) const
 {
+    keyNames.clear();
+
     for (Uint32 i = 0, n = getPropertyCount(); i < n; i++)
     {
-	CIMConstProperty property = getProperty(i);
+	ConstCIMProperty property = getProperty(i);
+
+	if (property.isKey())
+	    keyNames.append(property.getName());
     }
 }
 

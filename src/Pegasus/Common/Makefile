@@ -9,6 +9,8 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
+    CIMInstanceRep.cpp \
+    CIMInstance.cpp \
     Stopwatch.cpp \
     Array.cpp \
     CGIQueryString.cpp \
@@ -16,8 +18,6 @@ SOURCES = \
     CIMClassRep.cpp \
     CIMDateTime.cpp \
     CIMFlavor.cpp \
-    CIMInstance.cpp \
-    CIMInstanceRep.cpp \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \

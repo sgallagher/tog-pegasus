@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMValue.h,v $
+// Revision 1.2  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
@@ -67,93 +70,130 @@ class PEGASUS_COMMON_LINKAGE CIMValue
 public:
     ///	Constructor
     CIMValue();
+
     ///	Constructor
     CIMValue(Boolean x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Uint8 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Sint8 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Uint16 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Sint16 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Uint32 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Sint32 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Uint64 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Sint64 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Real32 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(Real64 x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Char16& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const String& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const char* x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const CIMDateTime& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const CIMReference& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Boolean>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Uint8>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Sint8>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Uint16>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Sint16>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Uint32>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Sint32>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Uint64>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Sint64>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Real32>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Real64>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<Char16>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<String>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const Array<CIMDateTime>& x) { _init(); set(x); }
+
     ///	Constructor
     CIMValue(const CIMValue& x);
+
     ///	Destrustructor
     ~CIMValue();
+
     /// Operator =
     CIMValue& operator=(const CIMValue& x) 
     { 
 	assign(x); return *this; 
     }
+
     /// CIMMethod assign
     void assign(const CIMValue& x);
+
     /// CIMMethod clear
     void clear();
-    /** CIMMethod typeCompatible - Compares the types of
-    two values.
-    @return TRUE if ATTN
+
+    /** CIMMethod typeCompatible - Compares the types of two values.
+	@return true if compatible.
     */
     Boolean typeCompatible(const CIMValue& x) const
     {
 	return _type == x._type && _isArray == x._isArray;
     }
+
     /** CIMMethod isArray - Determines if the value is an array
-    @return TRUE if the value is an array
+	@return TRUE if the value is an array
     */
     Boolean isArray() const { return _isArray; }
+
     /** CIMMethod getArraySize
-    @return The number of entries in the array
+	@return The number of entries in the array
     */
     Uint32 getArraySize() const;
 
@@ -161,10 +201,13 @@ public:
     { 
 	return CIMType(_type); 
     }
+
     /// method setNullvalue - ATTN:
     void setNullValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
+
     /// method set - ATTN:
     void set(Boolean x);
+
     /// CIMMethod Set
     void set(Uint8 x);
 
@@ -223,6 +266,7 @@ public:
     void set(const Array<String>& x);
 
     void set(const Array<CIMDateTime>& x);
+
     /// CIMMethod get - ATTN
     void get(Boolean& x) const;
 
@@ -281,10 +325,13 @@ public:
     void get(Array<String>& x) const;
 
     void get(Array<CIMDateTime>& x) const; 
+
     /// CIMMethod toXML  - ATTN
     void toXml(Array<Sint8>& out) const;
+
     /// CIMMethod print - ATTN
     void print() const;
+
     /// CIMMethod toString	- ATTN
     String toString() const;
 

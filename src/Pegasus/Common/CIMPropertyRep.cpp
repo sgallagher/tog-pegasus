@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMPropertyRep.cpp,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -127,7 +130,7 @@ void CIMPropertyRep::resolve(
     DeclContext* declContext, 
     const String& nameSpace,
     Boolean isInstancePart,
-    const CIMConstProperty& inheritedProperty)
+    const ConstCIMProperty& inheritedProperty)
 {
     assert (inheritedProperty);
 
@@ -285,6 +288,19 @@ Boolean CIMPropertyRep::identical(const CIMPropertyRep* x) const
 	return false;
 
     return true;
+}
+
+Boolean CIMPropertyRep::isKey() const
+{
+    Uint32 pos = _qualifiers.findReverse("key");
+
+    if (pos == Uint32(-1))
+	return false;
+
+    Boolean flag;
+    _qualifiers.getQualifier(pos).getValue().get(flag);
+
+    return flag;
 }
 
 CIMPropertyRep::CIMPropertyRep()

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMPropertyRep.h,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -57,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMClassRep;
 class CIMProperty;
-class CIMConstProperty;
+class ConstCIMProperty;
 class DeclContext;
 
 class PEGASUS_COMMON_LINKAGE CIMPropertyRep : public Sharable
@@ -144,7 +147,7 @@ public:
 	DeclContext* declContext, 
 	const String& nameSpace,
 	Boolean isInstancePart,
-	const CIMConstProperty& property);
+	const ConstCIMProperty& property);
 
     void resolve(
 	DeclContext* declContext, 
@@ -156,6 +159,8 @@ public:
     void print() const;
 
     Boolean identical(const CIMPropertyRep* x) const;
+
+    Boolean isKey() const;
 
     CIMPropertyRep* clone() const
     {

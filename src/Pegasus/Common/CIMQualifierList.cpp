@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMQualifierList.cpp,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -84,6 +87,17 @@ Uint32 CIMQualifierList::find(const String& name) const
     {
 	if (CIMName::equal(_qualifiers[i].getName(), name))
 	    return i;
+    }
+    
+    return Uint32(-1);
+}
+
+Uint32 CIMQualifierList::findReverse(const String& name) const
+{
+    for (Uint32 i = _qualifiers.getSize(); i; --i)
+    {
+	if (CIMName::equal(_qualifiers[i - 1].getName(), name))
+	    return i - 1;
     }
     
     return Uint32(-1);

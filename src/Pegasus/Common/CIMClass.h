@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMClass.h,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -102,11 +105,11 @@ public:
     }
 
     /**	 Constructor - Creates a Class from inputs of a classname and 
-    SuperClassName
-    @param className - String representing the name of the class being created
-    @param superClassName - String representing the name of the SuperClass
-    ATTN: Define what makes up legal name.
-    @return Throws IllegalName if className argument not legal CIM identifier.
+	SuperClassName
+	@param className - String representing name of the class being created 
+	@param superClassName - String representing name of the SuperClass
+	ATTN: Define what makes up legal name.
+	@return Throws IllegalName if className argument illegal CIM identifier.
     */
     CIMClass(
 	const String& className, 
@@ -114,64 +117,71 @@ public:
     {
 	_rep = new CIMClassRep(className, superClassName);
     }
+
     /// Destructor
     ~CIMClass()
     {
 	Dec(_rep);
     }
-    /** CIMMethod isAssociation - Identifies whether or not this CIM class is an 
-    association.  An association is a relationship between two (or more) classes 
-    or instances of two classes.  The properties of an association class include 
-    pointers, or references, to the two (or more) instances.  All CIM classes can 
-    be included in one or more associations.  
-    ATTN: Move the association definition elsewhere
-    @return  Boolean True if this CIM class belongs to an association; 
-    otherwise, false. 
+
+    /** CIMMethod isAssociation - Identifies whether or not this CIM class 
+	is an association. An association is a relationship between two 
+	(or more) classes or instances of two classes.  The properties of an 
+	association class include pointers, or references, to the two (or 
+	more) instances. All CIM classes can be included in one or more 
+	associations.  ATTN: Move the association definition elsewhere
+	@return  Boolean True if this CIM class belongs to an association; 
+	otherwise, false. 
     */ 
     Boolean isAssociation() const
     {
 	_checkRep();
 	return _rep->isAssociation();
     }
+
     ///	 CIMMethod isAbstract
     Boolean isAbstract() const
     {
 	_checkRep();
 	return _rep->isAbstract();
     }
+
     /** CIMMethod Gets the name of the class
-    ATTN: COMMENT. Why not just get name so we have common method for all.
+	ATTN: COMMENT. Why not just get name so we have common method for all.
     */
     const String& getClassName() const 
-    { 
+    {
 	_checkRep();
 	return _rep->getClassName(); 
     }
+
     /** CIMMethod getSuperClassName - Gets the name of the Parent
-    @return String with parent class name.
+	@return String with parent class name.
     */
     const String& getSuperClassName() const 
-    { 
+    {
 	_checkRep();
 	return _rep->getSuperClassName(); 
     }
+
     /**	CIMMethod setSuperClassName - Sets the name of the parent class from
-    the input parameter. \REF{CLASSNAME}.
-    ATTN: Define legal classnames
-    @param - String defining parent name.
-    @return Throws IllegalName if superClassName argument not legal CIM 
-    identifier. */
+	the input parameter. \REF{CLASSNAME}. ATTN: Define legal classnames
+	@param - String defining parent name.
+	@return Throws IllegalName if superClassName argument not legal CIM 
+	identifier. 
+    */
     void setSuperClassName(const String& superClassName)
     {
 	_checkRep();
 	_rep->setSuperClassName(superClassName);
     }
+
     /** CIMMethod addQualifier - Adds the specified qualifier to the class
-    and increments the qualifier count. It is illegal to add the same
-    qualifier more than one time.
-    @param - CIMQualifier object representing the qualifier to be added
-    ATTN: Pointer to qualifier object.
-    @return Throws AlreadyExists.
+	and increments the qualifier count. It is illegal to add the same
+	qualifier more than one time.
+	@param - CIMQualifier object representing the qualifier to be added
+	ATTN: Pointer to qualifier object.
+	@return Throws AlreadyExists.
     */
     CIMClass& addQualifier(const CIMQualifier& qualifier)
     {
@@ -179,56 +189,60 @@ public:
 	_rep->addQualifier(qualifier);
 	return *this;
     }
-    /**	CIMMethod findQualifier - Finds a qualifier with the specified input name
-    if it exists in the class
-    @param name CIMName of the qualifier to be found
-    @return Position of the qualifier in the Class
-    ATTN: Clarify the return.  What if not found, etc.
+
+    /**	CIMMethod findQualifier - Finds a qualifier with the specified input 
+	name if it exists in the class @param name CIMName of the qualifier 
+	to be found @return Position of the qualifier in the Class ATTN: 
+	Clarify the return.  What if not found, etc.
     */
     Uint32 findQualifier(const String& name)
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
+
     /** CIMMethod FindQualifier - ATTN:
-    @param name of the qualifier to be found
-    @return ATTN: Define this
+	@param name of the qualifier to be found
+	@return ATTN: Define this
     */
     Uint32 findQualifier(const String& name) const
     {
 	_checkRep();
 	return _rep->findQualifier(name);
     }
+
     /**	 CIMMethod getQualifier - Gets the CIMQualifier object defined
-    by the input parameter
-    @param pos defines the position of the qualifier in the class from the
-    findQualifier method
-    @return CIMQualifier object representing the qualifier found.
-    ATTN: what is error return here?
+	by the input parameter
+	@param pos defines the position of the qualifier in the class from the
+	findQualifier method
+	@return CIMQualifier object representing the qualifier found.
+	ATTN: what is error return here?
     */
     CIMQualifier getQualifier(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
+
     /// CIMMethod getQualifier - ATTN:
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getQualifier(pos);
     }
+
     /** CIMMethod getQualifierCount - Returns the number of qualifiers
-    in the class.
-    @return ATTN:
+	in the class.  
+	@return ATTN:
     */
     Uint32 getQualifierCount() const
     {
 	_checkRep();
 	return _rep->getQualifierCount();
     }
+
     /**	CIMMethod addProperty - Adds the specified property object to the
-    properties in the CIM class
-    
+	properties in the CIM class
     */
     CIMClass& addProperty(const CIMProperty& x)
     {
@@ -236,66 +250,72 @@ public:
 	_rep->addProperty(x);
 	return *this;
     }
+
     /** CIMMethod removeProperty - Removes the property represented
-    by the position input parameter from the class
-    @param position parameter for the property to be removed from the 
-    findPropety method
-    @return ATTN:
+	by the position input parameter from the class
+	@param position parameter for the property to be removed from the 
+	findPropety method
+	@return ATTN:
     */
     void removeProperty(Uint32 pos)
     {
 	_checkRep();
 	_rep->removeProperty(pos);
     }
+
     /** CIMMethod findProperty - Finds the property object with the
-    name defined by the input parameter in the class.
-    @param String parameter with the property name.
-    @return position representing the property object found.
-    ATTN:   Clarify case of not found
+	name defined by the input parameter in the class.
+	@param String parameter with the property name.
+	@return position representing the property object found.
+	ATTN:   Clarify case of not found
     */
     Uint32 findProperty(const String& name)
     {
 	_checkRep();
 	return _rep->findProperty(name);
     }
+
     /// CIMMethod findProperty
     Uint32 findProperty(const String& name) const
     {
 	_checkRep();
 	return _rep->findProperty(name);
     }
+
     /** CIMMethod getProperty - Returns a property representing the property 
-    defined by the input parameter
-    @param position for this property
-    ATTN: Should we not use something like handle for position???
-    @return CIMProperty object
-    ATTN: what is error return?
+	defined by the input parameter
+	@param position for this property
+	ATTN: Should we not use something like handle for position???
+	@return CIMProperty object
+	ATTN: what is error return?
     */
     CIMProperty getProperty(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getProperty(pos);
     }
+
     /// CIMMethod getProperty - ATTN
-    CIMConstProperty getProperty(Uint32 pos) const
+    ConstCIMProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);
     }
+
     /** CIMMethod getProperty -   Gets the count of the number of properties
-    defined in the class.
-    @return count of number of proerties in the class
+	defined in the class.
+	@return count of number of proerties in the class
     */
     Uint32 getPropertyCount() const
     {
 	_checkRep();
 	return _rep->getPropertyCount();
     }
+
     /** CIMMethod addMethod - Adds the method object defined by the input 
-    parameter to the class and increments the count of the number of methods in 
-    the class
-    @param - method object representing the method to be added 
-    /REF{METHODOBJECT}
+	parameter to the class and increments the count of the number of 
+	methods in the class
+	@param - method object representing the method to be added 
     */
     CIMClass& addMethod(const CIMMethod& x)
     {
@@ -303,55 +323,59 @@ public:
 	_rep->addMethod(x);
 	return *this;
     }
+
     /** CIMMethod findMethod - Located the method object defined by the
-    name input
-    @param String representing the name of the method to be found
-    @return Position of the method object in the class to be used in 
-    subsequent getmethod, etc. operations
+	name input
+	@param String representing the name of the method to be found
+	@return Position of the method object in the class to be used in 
+	subsequent getmethod, etc. operations
     */
     Uint32 findMethod(const String& name)
     {
 	_checkRep();
 	return _rep->findMethod(name);
     }
+
     /// CIMMethod findMethod - ATTN:
     Uint32 findMethod(const String& name) const
     {
 	_checkRep();
 	return _rep->findMethod(name);
     }
+
     /** CIMMethod getMethod - Gets the method object defined by the
-    input parameter.
-    @param   ATTN:
-    @ method object representing the method defined 
-    ATTN: Error???
+	input parameter.
+	@param   ATTN:
+	@ method object representing the method defined 
+	ATTN: Error???
     */
     CIMMethod getMethod(Uint32 pos)
     {
 	_checkRep();
 	return _rep->getMethod(pos);
     }
+
     /// CIMMethod getMethod - ATTN:
     CIMConstMethod getMethod(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getMethod(pos);
     }
+
     /** CIMMethod getMethodCount - Count of the number of methods in the class
-    @return integer representing the number of methods in the class
+	@return integer representing the number of methods in the class
     */
     Uint32 getMethodCount() const
     {
 	_checkRep();
 	return _rep->getMethodCount();
     }
-
     
     /** CIMMethod Resolve -  Resolve the class: inherit any properties and 
-    qualifiers. Make sure the superClass really exists and is consistent with
-    this class. Also set the propagated flag class-origin for each
-    class feature.
-    ATTN: explain why this here
+	qualifiers. Make sure the superClass really exists and is consistent 
+	with this class. Also set the propagated flag class-origin for each
+	class feature.
+	ATTN: explain why this here
     */
     void resolve(
 	DeclContext* declContext,
@@ -360,30 +384,41 @@ public:
 	_checkRep();
 	_rep->resolve(declContext, nameSpace);
     }
+
     /// operator - ATTN:
     operator int() const { return _rep != 0; }
+
     /// CIMMethod toXML 
     void toXml(Array<Sint8>& out) const
     {
 	_checkRep();
 	_rep->toXml(out);
     }
+
     /// CIMMethod print 
     void print() const
     {
 	_checkRep();
 	_rep->print();
     }
+
     /** CIMMethod identical -  Compares with another class
-    ATTN: Clarify exactly what identical means
-    @parm Class object for the class to be compared
-    @return True if the classes are identical
+	ATTN: Clarify exactly what identical means
+	@parm Class object for the class to be compared
+	@return True if the classes are identical
     */
     Boolean identical(const ConstCIMClass& x) const;
+
     /// CIMMethod clone - ATTN:
     CIMClass clone() const
     {
 	return CIMClass(_rep->clone());
+    }
+
+    void getKeyNames(Array<String>& keyNames) const
+    {
+	_checkRep();
+	_rep->getKeyNames(keyNames);
     }
 
 private:
@@ -402,11 +437,9 @@ private:
     friend class ConstCIMClass;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// ConstCIMClass
-//
-////////////////////////////////////////////////////////////////////////////////
+/** ConstCIMClass
+
+*/
 
 class PEGASUS_COMMON_LINKAGE ConstCIMClass
 {
@@ -509,7 +542,7 @@ public:
 	return _rep->findProperty(name);
     }
 
-    CIMConstProperty getProperty(Uint32 pos) const
+    ConstCIMProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);
@@ -563,6 +596,12 @@ public:
     CIMClass clone() const
     {
 	return CIMClass(_rep->clone());
+    }
+
+    void getKeyNames(Array<String>& keyNames) const
+    {
+	_checkRep();
+	_rep->getKeyNames(keyNames);
     }
 
 private:

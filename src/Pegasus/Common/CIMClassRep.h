@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMClassRep.h,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -120,7 +123,7 @@ public:
 
     CIMProperty getProperty(Uint32 pos);
 
-    CIMConstProperty getProperty(Uint32 pos) const
+    ConstCIMProperty getProperty(Uint32 pos) const
     {
 	return ((CIMClassRep*)this)->getProperty(pos);
     }
@@ -160,6 +163,9 @@ public:
 	return new CIMClassRep(*this);
     }
 
+    /** Return the names of all properties which bear a true key qualifier. 
+	Sort the keys in ascending order.
+    */
     void getKeyNames(Array<String>& keyNames) const;
 
 private:

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: InstanceDecl.cpp,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
 //
@@ -32,6 +35,7 @@
 //
 //END_HISTORY
 
+#include <cassert>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
@@ -56,8 +60,8 @@ void test01()
     context->addQualifierDecl(
 	NAMESPACE, CIMQualifierDecl("max", String(), CIMScope::PROPERTY));
 
-    context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl("Description", String(), CIMScope::PROPERTY));
+    context->addQualifierDecl(NAMESPACE, 
+	CIMQualifierDecl("Description", String(), CIMScope::PROPERTY));
 
     CIMClass class1("MyClass");
 
@@ -79,11 +83,38 @@ void test01()
     instance1.resolve(context, NAMESPACE);
 }
 
+void test02()
+{
+    const String NAMESPACE = "/zzz";
+
+    CIMClass cimClass("MyClass");
+
+    cimClass
+	.addProperty(CIMProperty("Last", String())
+	    .addQualifier(CIMQualifier("key", true)))
+	.addProperty(CIMProperty("First", String())
+	    .addQualifier(CIMQualifier("key", true)))
+	.addProperty(CIMProperty("Age", String())
+	    .addQualifier(CIMQualifier("key", true)));
+
+    CIMInstance cimInstance("MyClass");
+    cimInstance.addProperty(CIMProperty("first", "John"));
+    cimInstance.addProperty(CIMProperty("last", "Smith"));
+    cimInstance.addProperty(CIMProperty("age", Uint8(101)));
+
+    // ATTN-1: ugly! Should we get rid of Const types?
+    String instanceName = cimInstance.getInstanceName(ConstCIMClass(cimClass));
+
+    const char EXPECT[] = "myclass.age=101,first=\"John\",last=\"Smith\"";
+    assert(instanceName == EXPECT);
+}
+
 int main()
 {
     try
     {
 	test01();
+	test02();
     }
     catch (Exception& e)
     {

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMProperty.cpp,v $
+// Revision 1.3  2001/02/20 05:16:57  mike
+// Implemented CIMInstance::getInstanceName()
+//
 // Revision 1.2  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -45,12 +48,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMProperty::CIMProperty(const CIMConstProperty& x)
+CIMProperty::CIMProperty(const ConstCIMProperty& x)
 {
     Inc(_rep = x._rep);
 }
 
-Boolean CIMProperty::identical(const CIMConstProperty& x) const
+Boolean CIMProperty::identical(const ConstCIMProperty& x) const
 {
     x._checkRep();
     _checkRep();

@@ -37,11 +37,11 @@ void test01(int& argc, char** argv)
     om.registerOptions(options, NUM_OPTIONS);
 
     // cout << "=== Default options:" << endl;
-    om.print();
+    // om.print();
     om.mergeCommandLine(argc, argv);
 
     // cout << "=== Selected options:" << endl;
-    om.print();
+    // om.print();
 
     // Check for missing required option:
     om.checkRequiredOptions();
@@ -59,7 +59,7 @@ void test02()
     om.registerOptions(options, NUM_OPTIONS);
 
     om.mergeFile("config.dat");
-    om.print();
+    // om.print();
 
     // Check for missing required option:
     om.checkRequiredOptions();

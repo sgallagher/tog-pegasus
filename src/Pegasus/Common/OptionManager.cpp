@@ -117,7 +117,7 @@ void OptionManager::registerOptions(OptionRow* options, Uint32 numOptions)
 
 	// Get the required flag:
 
-	Boolean required = options[i].required;
+	Boolean required = options[i].required != 0;
 
 	// Get the type:
 
@@ -524,10 +524,11 @@ Boolean Option::isValid(const String& value) const
 	    char* tmp = value.allocateCString();
 	    char* end = 0;
 	    long x = strtol(tmp, &end, 10);
-	    delete [] tmp;
 
 	    if (!end || *end != '\0')
 		return false;
+
+	    delete [] tmp;
 
 	    switch (_type)
 	    {

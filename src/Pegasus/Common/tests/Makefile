@@ -20,7 +20,6 @@ DIRS = \
     FileSystem \
     InstanceDecl \
     Method \
-    OptionManager \
     Parameter \
     Property \
     Qualifier \
@@ -37,9 +36,10 @@ DIRS = \
     XmlParser \
     XmlPrint \
     Reference \
-    Logger \
     DynLib \
-    DynLoad
+    DynLoad \
+    Logger \
+    OptionManager
 
 XDIRS = \
     ValidateClass \

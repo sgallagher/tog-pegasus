@@ -42,6 +42,7 @@
 #include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"
 #include "AssocInstTable.h"
+#include "AssocClassTable.h"
 
 #define INDENT_XML_FILES
 
@@ -110,7 +111,7 @@ void _SaveObject(const String& path, const Object& object)
 #endif
 }
 
-String _MakeAssocInstPath(
+static String _MakeAssocInstPath(
     const String& nameSpace,
     const String& repositoryRoot)
 {
@@ -119,6 +120,14 @@ String _MakeAssocInstPath(
     return String(Cat(repositoryRoot, "/", tmp, "/instances/associations"));
 }
 
+static String _MakeAssocClassPath(
+    const String& nameSpace,
+    const String& repositoryRoot)
+{
+    String tmp = nameSpace;
+    tmp.translate('/', '#');
+    return String(Cat(repositoryRoot, "/", tmp, "/classes/associations"));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -319,6 +328,57 @@ void CIMRepository::deleteInstance(
 	AssocInstTable::deleteAssociation(assocFileName, instanceName);
 }
 
+void CIMRepository::_createAssocClassEntries(
+    const String& nameSpace,
+    const CIMConstClass& assocClass)
+{
+    // Open input file:
+
+    String assocFileName = _MakeAssocClassPath(nameSpace, _repositoryRoot);
+    ofstream os;
+
+    if (!OpenAppend(os, assocFileName))
+	throw CannotOpenFile(assocFileName);
+
+    // Get the association's class name:
+
+    String assocClassName = assocClass.getClassName();
+
+    // For each property:
+
+    Uint32 n = assocClass.getPropertyCount();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+	CIMConstProperty fromProp = assocClass.getProperty(i);
+
+	if (fromProp.getType() == CIMType::REFERENCE)
+	{
+	    for (Uint32 j = 0; j < n; j++)
+	    {
+		CIMConstProperty toProp = assocClass.getProperty(j);
+
+		if (toProp.getType() == CIMType::REFERENCE &&
+		    fromProp.getName() != toProp.getName())
+		{
+		    String fromClassName = fromProp.getReferenceClassName();
+		    String fromPropertyName = fromProp.getName();
+		    String toClassName = toProp.getReferenceClassName();
+		    String toPropertyName = toProp.getName();
+
+		    AssocClassTable::append(
+			os,
+			assocClassName,
+			fromClassName,
+			fromPropertyName,
+			toClassName,
+			toPropertyName);
+		}
+	    }
+	}
+    }
+}
+
 void CIMRepository::createClass(
     const String& nameSpace,
     const CIMClass& newClass)
@@ -327,6 +387,11 @@ void CIMRepository::createClass(
 	CIMClass cimClass(newClass);
 	
     cimClass.resolve(_context, nameSpace);
+
+    // -- If an association, populate associations file:
+
+    if (cimClass.isAssociation())
+	_createAssocClassEntries(nameSpace, cimClass);
 
     // -- Create namespace manager entry:
 

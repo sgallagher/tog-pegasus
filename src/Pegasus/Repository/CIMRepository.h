@@ -267,8 +267,13 @@ private:
 	const CIMInstance& cimInstance,
 	const CIMReference& instanceName);
 
+    void _createAssocClassEntries(
+	const String& nameSpace,
+	const CIMConstClass& assocClass);
+
     String _repositoryRoot;
     NameSpaceManager _nameSpaceManager;
+
 protected:
     RepositoryDeclContext* _context;
 };

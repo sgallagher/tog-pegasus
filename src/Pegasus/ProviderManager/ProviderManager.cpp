@@ -635,7 +635,7 @@ Provider* ProviderManager::_initProvider(
         auto_mutex lock(&_providerTableMutex);
 
 	// unload provider module
-        provider->_module->unloadModule();
+        module->unloadModule();
     }
 
     PEG_METHOD_EXIT();

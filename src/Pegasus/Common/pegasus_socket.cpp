@@ -28,7 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-
+// << Thu Aug 14 15:00:35 2003 mdd >> domain sockets and socket tests work 
 #include "pegasus_socket.h"
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/TLS.h>

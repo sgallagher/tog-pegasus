@@ -229,7 +229,15 @@ static void PrintAHref(const String& href, const String& content)
 {
     cout << "<a href=\"" << href << "\">\n" << content << "</a>\n";
 }
-
+/* just prints HTML form spaces. Count is number of spaces
+*/
+static void PrintSpaces(Uint32 count)
+{
+    for (Uint32 i = 0; i < count; i++)
+    {
+        cout << "&nbsp;";
+    }
+}
 static void PrintTableHeader(const String& tableName)
 {
     cout << "<h2>" << tableName << "</h2>\n";
@@ -321,7 +329,7 @@ static void PrintEnumInstanceNameHref(String nameSpace, String className)
                                       EncodeQueryStringValue(nameSpace));
     AppendHrefField(href,"ClassName",className);
 
-    PrintAHref(href, "<SMALL Align=right>Instance Names</SMALL>");
+    PrintAHref(href, "<BOLD Align=right>Instance Names</BOLD>");
 
 }
 
@@ -595,7 +603,11 @@ void PrintClass(
             BuildOperationHref("enumerateInstanceNames", nameSpace);
 
     }
-    // ATTNAdditionKS 26 Jan 2002: Add button here to enum instances
+
+    // Output the href so user can get to instance names in one click
+
+    PrintSpaces(4);
+    PrintEnumInstanceNameHref(nameSpace, cimClass.getClassName());
 
     if (includeQualifiers)
 	PrintQualifiers(cimClass);
@@ -619,8 +631,19 @@ void PrintClass(
     }
     cout << "</body>\n" << "</html>\n";
 }
-
-/** PrintInstance - Print an HTML page with the characteristics
+/* PrintInstanceBody - Prints the body of an instance without
+the headers and trailers.  Needed because we use both for getInstance
+and EnumerateInstance.
+*/
+void PrintInstanceBody(
+const String& nameSpace,
+    CIMInstance& cimInstance,
+    Boolean localOnly)
+{
+    PrintQualifiers(cimInstance);
+    PrintObjectProperties(nameSpace, cimInstance, localOnly);
+}
+/** PrintInstance - Print an HTML page with the instance and its properties, etc.
     of the instance including:
     <UL>
 	<LI>ClassName
@@ -638,10 +661,12 @@ const String& nameSpace,
     Boolean includeClassOrigin)
 {
     PrintHTMLHead("GetInstance", cimInstance.getClassName());
+    PrintInstanceBody(nameSpace, cimInstance,localOnly);
+    /* ATTNKS: delete the following
     PrintQualifiers(cimInstance);
     PrintObjectProperties(nameSpace, cimInstance, localOnly);
-    //KS Add showMof here
-
+    */
+    //ATTNKS: Add showMof here
     cout << "<h2>Display MOF for Instance</h2>";
     cout << "<pre>";
     Array<Sint8> x;
@@ -1282,7 +1307,7 @@ static void GetInstance(const CGIQueryString& qs)
     if (!(tmp = qs.findValue("InstanceName")))
 	ErrorExit("Missing InstanceName field");
 
-    // This must be modified for the toString ATTN KS
+    // ATTNKS: This must be modified for the toString
     CIMReference referenceName;
     try
     {
@@ -1296,11 +1321,18 @@ static void GetInstance(const CGIQueryString& qs)
     // if (!instanceName.size())
     // ErrorExit("InstanceName parameter is null");
 
-    // ATTN: handle these later!
+    // ATTNKS: Test the following!
 
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
+
+    if (!(tmp = qs.findValue("LocalOnly")))
+	localOnly = false;
+    if (!(tmp = qs.findValue("IncludeQualifiers")))
+	includeQualifiers = false;
+    if ((tmp = qs.findValue("IncludeClassOrigin")))
+	includeClassOrigin = true;
 
     try
     {
@@ -1321,6 +1353,13 @@ static void GetInstance(const CGIQueryString& qs)
     }
 }
 
+
+/** PrintInstancetable - Print a table of enumerated instance information
+*/
+void PrintInstanceTableRow(String nameSpace, CIMNamedInstance CIMInstance)
+{
+   // ATTNKS: Need to add code here
+}
 /***************************************************************************
     EnumerateInstances Function
 ***************************************************************************/
@@ -1337,23 +1376,82 @@ static void EnumerateInstances(const CGIQueryString& qs)
     if ((tmp = qs.findValue("ClassName")))
 	className = tmp;
 
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = false;
+
+    if (!(tmp = qs.findValue("LocalOnly")))
+	localOnly = false;
+    if (!(tmp = qs.findValue("IncludeQualifiers")))
+	includeQualifiers = false;
+    if ((tmp = qs.findValue("IncludeClassOrigin")))
+	includeClassOrigin = true;
+
+    // Get DeepInheritance:
+    Boolean deepInheritance = false;
+
+    if (qs.findValue("DeepInheritance"))
+	deepInheritance = true;
+
+
+    CIMPropertyList propertyList;
+    //ATTNKS: Fill out the property list
+
     // Invoke the method:
     String message = "operation EnumerateInstances Under Construction: ";
     ErrorExit(message);
-    //try
-    //{
-    //    CIMClient client;
-    //    client.connect("localhost:5988");
-    //
-    //    Array<String> classNames = client.enumerateInstancs(
-    //        nameSpace, className);
-    //    // Print the name array
-    //    PrintInstance(nameSpace, classNames);
-    //}
-    //catch(Exception& e)
-    //{
-    //    ErrorExit(e.getMessage());
-    //}
+    try
+    {
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
+	HostInfo hostinfo;
+	client.connect(hostinfo.getAddress());
+        /*
+        virtual Array<CIMNamedInstance> enumerateInstances(
+            const String& nameSpace,
+            const String& className,
+            Boolean deepIn
+            heritance = true,
+            Boolean localOnly = true,
+            Boolean includeQualifiers = false,
+            Boolean includeClassOrigin = false,
+            const CIMPropertyList& propertyList = CIMPropertyList());
+        */
+        Array<CIMNamedInstance> instances = client.enumerateInstances(
+                                            nameSpace,
+                                            className,
+                                            deepInheritance,
+                                            localOnly,
+                                            includeQualifiers,
+                                            includeClassOrigin,
+                                            propertyList);
+        // Generate Table Head
+        //Number of Colums is determined by number of properties
+        // Name row and each property row. ?? from class or instance
+        // step through properties and get name fields. Generate
+        // header entries and a table so that individual entires can
+        // be gotten.
+
+        cout << "<table border=1>\n";
+        cout << "<tr><th>Object Names</th>\n";
+
+        for (Uint32 i = 0, n = instances.size(); i < n; i++)
+        {
+        cout << "<th>xxx</th>";
+        }
+        cout << "</tr>\n";
+        //Generate a Table Row for every instance found
+
+        for (Uint32 i = 0, n = instances.size(); i < n; i++)
+        {
+            PrintInstanceTableRow(nameSpace, instances[i]);
+        }
+    }
+    catch(Exception& e)
+    {
+        ErrorExit(e.getMessage());
+    }
 
 }
 

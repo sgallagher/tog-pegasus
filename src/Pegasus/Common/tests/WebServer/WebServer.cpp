@@ -210,13 +210,12 @@ int main()
 
 	// Create a queue to receive incoming HTTP messages:
 
-	WebServerQueue* webServerQueueueue = new WebServerQueue;
+	WebServerQueue* webServerQueueue = new WebServerQueue;
 
 	// Create an acceptor to wait for and accept connections on the
 	// server port.
 
-	HTTPAcceptor* httpAcceptor 
-	    = new HTTPAcceptor(monitor, webServerQueueueue);
+	HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor,webServerQueueue);
 
 	// Bind the acceptor to listen on the given port:
 

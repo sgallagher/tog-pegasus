@@ -35,24 +35,37 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// WebClientQueue
+//
+////////////////////////////////////////////////////////////////////////////////
+
 class WebClientQueue : public MessageQueue
 {
 public:
 
-    virtual void handleEnqueue()
-    {
-	Message* message = dequeue();
-	assert(message != 0);
-
-	if (message->getType() == HTTP_MESSAGE)
-	{
-	    HTTPMessage* httpMessage = (HTTPMessage*)message;
-	    httpMessage->print(cout);
-
-	    // PEGASUS_OUT(httpMessage->message.getData());
-	}
-    }
+    virtual void handleEnqueue();
 };
+
+void WebClientQueue::handleEnqueue()
+{
+    Message* message = dequeue();
+    assert(message != 0);
+
+    if (message->getType() == HTTP_MESSAGE)
+    {
+	HTTPMessage* httpMessage = (HTTPMessage*)message;
+	httpMessage->print(cout);
+	exit(0);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Local routines:
+//
+////////////////////////////////////////////////////////////////////////////////
 
 void ParseURL(const String& url, String& host, String& document)
 {
@@ -112,12 +125,16 @@ void GetDocument(
     // Enqueue message on the connection's queue (so that it will be sent
     // to the sever it is conneted to:
 
-cout << "================================" << endl;
-    httpMessage->print(cout);
-cout << "================================" << endl;
+    // httpMessage->print(cout);
 
     connection->enqueue(httpMessage);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// main()
+//
+////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char** argv)
 {
@@ -136,13 +153,14 @@ int main(int argc, char** argv)
     String document;
     ParseURL(url, host, document);
 
+    // Connect to server and get the document:
+
     try
     {
 	Monitor* monitor = new Monitor;
 	WebClientQueue* webClientQueue = new WebClientQueue;
 	HTTPConnector* httpConnector = new HTTPConnector(monitor);
 
-	cout << "Connecting to " << host << "..." << endl;
 	HTTPConnection* connection 
 	    = httpConnector->connect(host, webClientQueue);
 

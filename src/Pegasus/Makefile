@@ -12,6 +12,10 @@ DIRS = \
     Config \
     Repository \
     Protocol \
+    getoopt \
+    Compiler \
+    Compiler/load \
+    Compiler/cmdline \
     Client \
     ExportClient \
     Provider \
@@ -19,10 +23,6 @@ DIRS = \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
     Server \
-    getoopt \
-    Compiler \
-    Compiler/load \
-    Compiler/cmdline \
     Common/tests \
     Config/tests \
     Repository/tests \

@@ -2,7 +2,12 @@ ROOT=../../../..
 
 include $(ROOT)/mak/config.mak
 
+_NEW_DIRS = \
+    WebClient \
+    WebServer
+
 DIRS = \
+    $(NEW_DIRS) \
     Config \
     HashTable \
     Resolve \
@@ -38,16 +43,10 @@ DIRS = \
     Reference \
     DynLib \
     DynLoad \
-    Logger \
-    WebClient \
-    WebServer
+    Logger
 
 ifeq ($(OS),linux)
 SOURCES += IPC
 endif
-
-XDIRS = \
-    ValidateClass \
-    Resolve \
 
 include $(ROOT)/mak/recurse.mak

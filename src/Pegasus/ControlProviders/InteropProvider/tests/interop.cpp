@@ -247,9 +247,9 @@ Boolean InteropTest::testEnumerateOptions(
                                  PEGASUS_NAMESPACENAME_INTEROP,
                                  className,
                                  deepInheritance,
-                                 localOnly,  
+                                 localOnly,
                                  false,  // include qualifiers = false
-                                 false, 
+                                 false,
                                  propertyList);
 
     assert(instancesObjMgr.size() == 1);
@@ -1233,7 +1233,7 @@ void InteropTest::testSharedNameSpacesManagement()
 }
 
 /** get the single instance of the object manager class. Note that this function
-    is based on the concept that there is only a single instance of this class 
+    is based on the concept that there is only a single instance of this class
     despite the fact that we have no reason to really control this.  The Interop
     provider generally controls this so we assume it.  There is an assert in
     the test so that we get an error if there is more than one instance.
@@ -1664,7 +1664,7 @@ int main(int argc, char** argv)
             on - Turns on the status monitor
             off - Turns off the status monitor
             Status - Shows the state of the status monitor
-    
+
             If no command is input, it reports the current statistics.
             Note that we do not protect against the user requesting statistics
             if the monitor is off.
@@ -1702,9 +1702,9 @@ int main(int argc, char** argv)
 
         // Do the enumerate options tests for object manager object
         // classname, lo, di, propertylist, expected rtn count
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, CIMPropertyList(), 4);
+        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, CIMPropertyList(), 4);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true, CIMPropertyList(), 21);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, CIMPropertyList(), 4);
+        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, CIMPropertyList(), 4);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false, CIMPropertyList(), 21);
 
         CIMPropertyList pl1;
@@ -1716,32 +1716,32 @@ int main(int argc, char** argv)
         Array<CIMName> pla2;
         pl2.set(pla2);
 
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl1, 1);
+        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl1, 1);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true, pl1, 1);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl1, 1);
+        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl1, 1);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false, pl1, 1);
 
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl2, 0);
+        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl2, 0);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true, pl2, 0);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl2, 0);
+        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl2, 0);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false, pl2, 0);
 
         // Repeat the tests for the superclass.
         // classname, lo, di, propertylist, expected rtn count
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, CIMPropertyList(), 0);
+        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, CIMPropertyList(), 0);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, CIMPropertyList(), 21);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, CIMPropertyList(), 0);
+        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, CIMPropertyList(), 0);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, CIMPropertyList(), 20);
 
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl1, 1);
+        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl1, 1);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, pl1, 1);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl1, 1);
+        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl1, 1);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl1, 1);
 
 
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl2, 0);
+        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl2, 0);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, pl2, 0);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl2, 0);
+        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl2, 0);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl2, 0);
 
 

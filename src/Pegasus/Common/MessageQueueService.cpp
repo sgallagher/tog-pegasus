@@ -94,16 +94,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
    DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
    while ( _stop_polling.value()  == 0 ) 
    {
-      try
-      {
-         _polling_sem.wait();
-      }
-      catch (WaitInterrupted)
-      {
-         PEG_TRACE_STRING(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4, 
-            "polling_routine(): got WaitInterrupted exception." );
-      }
-      
+      _polling_sem.wait();
+
       if(_stop_polling.value() != 0 )
       {
          break;
@@ -282,15 +274,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_callback_proc(v
    
    while ( service->_die.value() == 0 ) 
    {
-      try 
-      {
-         service->_callback_ready.wait();
-      }
-      catch (WaitInterrupted)
-      {
-         PEG_TRACE_STRING(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4, 
-            "_callback_proc(): got WaitInterrupted exception." );
-      }
+      service->_callback_ready.wait();
       
       service->_callback.lock();
       operation = service->_callback.next(0);
@@ -966,15 +950,8 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest *request)
 	     this,
 	     (void *)0);
    
-   try
-   {
-      request->op->_client_sem.wait();
-   }
-   catch (WaitInterrupted)
-   {
-      PEG_TRACE_STRING(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4, 
-         "SendWait(): got WaitInterrupted exception" );
-   }
+   request->op->_client_sem.wait();
+
    request->op->lock();
    AsyncReply * rpl = static_cast<AsyncReply *>(request->op->_response.remove_first());
    rpl->op = 0;

@@ -327,11 +327,14 @@ Sint32 bsd_socket_rep::write(const void* ptr, Uint32 size)
 int bsd_socket_rep::close(void)
 {
    int ccode;
-   
+
    shutdown(2);
    ccode = Socket::close2(_socket);
    if(ccode == -1)
+   {
       _errno = errno;
+   }
+   
    return ccode;
 }
 
@@ -373,7 +376,24 @@ int bsd_socket_rep::bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 
 abstract_socket* bsd_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
    int new_sock = ::accept(_socket, addr, length_ptr);
+#else 
+   int new_sock = ::accept(_socket, addr, length_ptr);
+   if(new_sock == -1 && errno == EAGAIN)
+   {
+      int retries = 0;
+      
+      do 
+      {
+	 pegasus_sleep(1);
+	 new_sock = ::accept(_socket, addr, length_ptr);
+	 retries++;
+      } while(new_sock == -1 && errno == EAGAIN && retries < 20);
+      
+   }
+#endif 
    if(new_sock == -1)
    {
       _errno = errno;
@@ -924,13 +944,20 @@ class unix_socket_rep : public bsd_socket_rep
       // used to allow the accept method to work
       unix_socket_rep(int sock);
 
+      virtual int socket(void);
+      
       virtual int close(void);
-      int enableBlocking(void);
-      int disableBlocking(void);
+      virtual int enableBlocking(void);
+      virtual int disableBlocking(void);
 
       virtual int bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
 
       virtual abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+
+
+      virtual Sint32 read(void*, Uint32);
+      virtual Sint32 write(const void*, Uint32);
+      
 
 
    private:
@@ -951,8 +978,9 @@ unix_socket_rep::unix_socket_rep(void)
 unix_socket_rep::unix_socket_rep(int sock)
    : Base(sock)
 {
-
+   
 }
+
 
 
 /**
@@ -964,10 +992,16 @@ unix_socket_rep::~unix_socket_rep(void)
    close();
 }
 
+int unix_socket_rep::socket(void)
+{
+   _socket = ::socket(AF_LOCAL, SOCK_STREAM, 0);
+   return _socket;
+}
+
 
 int unix_socket_rep::close(void)
 {
-   int ccode = Base::close();
+   int ccode =::close(_socket);
    return ccode;
 }
 
@@ -998,7 +1032,25 @@ int unix_socket_rep::bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 
 abstract_socket* unix_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr)
 {
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
    int new_sock = ::accept(_socket, addr, length_ptr);
+#else 
+   int new_sock = ::accept(_socket, addr, length_ptr);
+   if(new_sock == -1 && errno == EAGAIN)
+   {
+      int retries = 0;
+      
+      do 
+      {
+	 pegasus_sleep(1);
+	 new_sock = ::accept(_socket, addr, length_ptr);
+	 retries++;
+      } while(new_sock == -1 && errno == EAGAIN && retries < 20);
+      
+   }
+#endif 
+
    if(new_sock == -1)
    {
       _errno = errno;
@@ -1008,6 +1060,23 @@ abstract_socket* unix_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_
    // set the close-on-exec flag
    rep->set_close_on_exec();
    return rep;
+}
+
+
+Sint32 unix_socket_rep::read(void* ptr, Uint32 size)
+{
+   int ccode = Socket::read(_socket, ptr, size);
+   if(ccode == -1)
+      _errno = errno;
+   return ccode;
+}
+
+Sint32 unix_socket_rep::write(const void* ptr, Uint32 size)
+{
+   int ccode = Socket::write(_socket, ptr, size);
+   if(ccode == -1)
+      _errno = errno;
+   return ccode;
 }
 
 unix_socket_factory::unix_socket_factory(void)

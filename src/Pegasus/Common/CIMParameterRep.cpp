@@ -120,6 +120,13 @@ void CIMParameterRep::toXml(Array<Sint8>& out) const
                     << "\"";
             }
 
+			if (_arraySize)
+            {
+                char buffer[32];
+                sprintf(buffer, "%d", _arraySize);
+                out << " ARRAYSIZE=\"" << buffer << "\"";
+            }
+
             out << ">\n";
 
             _qualifiers.toXml(out);

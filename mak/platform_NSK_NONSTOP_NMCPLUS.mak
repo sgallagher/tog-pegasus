@@ -15,9 +15,9 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 DEPEND_INCLUDES =                         
 
 ifdef PEGASUS_DEBUG
-FLAGS = -g -Winspect -Wversion2 -I $(HOME)/dist091301/pegasus/src -Werrors=10
+FLAGS = -g -Winspect -Wversion2 -Werrors=10
 else
-FLAGS = -Wversion2 -I $(HOME)/dist091301/pegasus/src -Werrors=10
+FLAGS = -Wversion2 -Werrors=10
 endif
 
 GUARDIAN_FLAGS = -Wextensions

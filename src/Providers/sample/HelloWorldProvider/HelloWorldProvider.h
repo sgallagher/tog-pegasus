@@ -30,6 +30,7 @@
 #define Pegasus_HelloWorldProvider_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Provider/CIMBaseProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 #include <Pegasus/Common/IPC.h>
@@ -95,7 +96,7 @@ public:
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler);
+		ResponseHandler<CIMInstance> & handler);
 
 	virtual void updateIndication(
 		const OperationContext & context,
@@ -103,18 +104,59 @@ public:
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler);
+		ResponseHandler<CIMInstance> & handler);
 
 	virtual void cancelIndication(
 		const OperationContext & context,
 		const CIMReference & classReference,
-		ResponseHandler<CIMIndication> & handler);
+		ResponseHandler<CIMInstance> & handler);
 
 	virtual void checkIndication(
 		const OperationContext & context,
 		const CIMReference & classReference,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMIndication> & handler);
+		ResponseHandler<CIMInstance> & handler);
+
+       virtual void enableIndication(
+                const OperationContext & context,
+                const String & nameSpace,
+                const Array<String> & classNames,
+                const String & providerName,
+                const Array<String> & propertyList,
+                const Uint16 repeatNotificationPolicy,
+                const String & otherRepeatNotificationPolicy,
+                const CIMDateTime & repeatNotificationInterval,
+                const CIMDateTime & repeatNotificationGap,
+                const Uint16 repeatNotificationCount,
+                const String & condition,
+                const String & queryLanguage,
+                const CIMInstance & subscription,
+                ResponseHandler<CIMInstance> & handler);
+
+        virtual void disableIndication(
+                const OperationContext & context,
+                const String & nameSpace,
+                const Array<String> & classNames,
+                const String & providerName,
+                const CIMInstance & subscription,
+                ResponseHandler<CIMInstance> & handler);
+
+        virtual void modifyIndication(
+                const OperationContext & context,
+                const String & nameSpace,
+                const Array<String> & classNames,
+                const String & providerName,
+                const Array<String> & propertyList,
+                const Uint16 repeatNotificationPolicy,
+                const String & otherRepeatNotificationPolicy,
+                const CIMDateTime & repeatNotificationInterval,
+                const CIMDateTime & repeatNotificationGap,
+                const Uint16 repeatNotificationCount,
+                const String & condition,
+                const String & queryLanguage,
+                const CIMInstance & subscription,
+                ResponseHandler<CIMInstance> & handler);
+
 
 protected:
 	Array<CIMReference> _enumerateInstanceNames(

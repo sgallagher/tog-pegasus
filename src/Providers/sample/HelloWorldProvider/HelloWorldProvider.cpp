@@ -366,7 +366,7 @@ void HelloWorldProvider::provideIndication(
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	handler.processing();
 }
@@ -377,7 +377,7 @@ void HelloWorldProvider::updateIndication(
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	handler.processing();
 }
@@ -385,7 +385,7 @@ void HelloWorldProvider::updateIndication(
 void HelloWorldProvider::cancelIndication(
 	const OperationContext & context,
 	const CIMReference & classReference,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	handler.complete();
 }
@@ -394,7 +394,7 @@ void HelloWorldProvider::checkIndication(
 	const OperationContext & context,
 	const CIMReference & classReference,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMIndication> & handler)
+	ResponseHandler<CIMInstance> & handler)
 {
 	throw NotSupported("HelloWorldProvider::checkIndication");
 }

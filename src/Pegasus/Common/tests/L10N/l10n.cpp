@@ -499,14 +499,17 @@ void drive_MessageLoader(){
 	MessageLoader::_useDefaultMsg = false;
 
 	MessageLoader::_acceptlanguages.add(AcceptLanguageElement("st_at_ic"));
+	MessageLoaderParms mlp_static("CIMStatusCode.CIM_ERR_SUCCESS","Default CIMStatusCode, $0",
+                                                                                                                                                             
+                                                        "rab oof is foo bar backwards static");
+	mlp_static.msg_src_path = "test/pegasusTest";
 
 #ifdef PEGASUS_HAS_ICU
-
-	assert ( MessageLoader::getMessage(mlp) == "CIM_ERR_SUCCESS: SUCCESSFUL st_at_ic rab oof is foo bar backwards, number = 64,000" );
+	assert ( MessageLoader::getMessage(mlp_static) == "CIM_ERR_SUCCESS: SUCCESSFUL st_at_ic rab oof is foo bar backwards static" );
 
 #else
 
-	assert ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
+	assert ( MessageLoader::getMessage(mlp_static) == "Default CIMStatusCode, rab oof is foo bar backwards static" );
 
 #endif
 

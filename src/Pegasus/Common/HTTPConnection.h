@@ -114,8 +114,6 @@ private:
 
     void _handleReadEvent();
 
-    void _handleWriteEvent();
-
     Monitor* _monitor;
     Sint32 _socket;
     MessageQueue* _ownerMessageQueue;
@@ -124,8 +122,6 @@ private:
     Sint32 _contentOffset;
     Sint32 _contentLength;
     Array<Sint8> _incomingBuffer;
-
-    Array<Sint8> _outgoingBuffer;
 };
 
 PEGASUS_NAMESPACE_END

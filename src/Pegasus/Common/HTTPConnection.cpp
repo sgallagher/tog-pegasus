@@ -246,32 +246,38 @@ void HTTPConnection::handleEnqueue()
 	    if (socketMessage->events & SocketMessage::READ)
 		_handleReadEvent();
 
-	    if (socketMessage->events & SocketMessage::WRITE)
-		_handleWriteEvent();
-
 	    break;
 	}
 
 	case HTTP_MESSAGE:
 	{
-	    // Send this message back to the client:
-
 	    HTTPMessage* httpMessage = (HTTPMessage*)message;
 
-	    if (_outgoingBuffer.size() == 0)
-	    {
-		_monitor->unsolicitSocketMessages(_socket);
+	    // ATTN: convert over to asynchronous write scheme:
 
-		_monitor->solicitSocketMessages(_socket,
-		    SocketMessage::READ |
-		    SocketMessage::WRITE |
-		    SocketMessage::EXCEPTION,
-		    getQueueId());
+	    // Send response message to the client (use synchronous I/O for now:
+
+	    Socket::enableBlocking(_socket);
+
+	    const Array<Sint8>& buffer = httpMessage->message;
+	    const Uint32 CHUNK_SIZE = 16 * 1024;
+
+	    for (Uint32 bytesRemaining = buffer.size(); bytesRemaining > 0; )
+	    {
+		Uint32 bytesToWrite = _Min(bytesRemaining, CHUNK_SIZE);
+
+		Uint32 bytesWritten = Socket::write(
+		    _socket, 
+		    buffer.getData() + buffer.size() - bytesRemaining, 
+		    bytesToWrite);
+
+		if (bytesWritten < 0)
+		    break;
+
+		bytesRemaining -= bytesWritten;
 	    }
 
-	    _outgoingBuffer.append(
-		httpMessage->message.getData(),
-		httpMessage->message.size());
+	    Socket::disableBlocking(_socket);
 	}
 
 	default:
@@ -410,45 +416,6 @@ void HTTPConnection::_handleReadEvent()
 	    _closeConnection();
 	    return;
 	}
-    }
-}
-
-void HTTPConnection::_handleWriteEvent()
-{
-    // cout << "HTTPConnection::_handleWriteEvent()" << endl;
-
-    // Write until the socket queue is full (which will force the socket
-    // into a non-write-enabled state). Next time the socket becomes 
-    // write-enabled, this methid will be called back and the process 
-    // continues.
-
-    const Uint32 CHUNK_SIZE = 16 * 1024;
-
-    while (_outgoingBuffer.size())
-    {
-	Sint32 bytesWritten = Socket::write(
-	    _socket, 
-	    _outgoingBuffer.getData(), 
-	    _Min(CHUNK_SIZE, _outgoingBuffer.size()));
-
-	// PEGASUS_OUT(bytesWritten);
-
-	if (bytesWritten < 0)
-	    break;
-
-	_outgoingBuffer.remove(0, bytesWritten);
-
-	break;
-    }
-
-    if (_outgoingBuffer.size() == 0)
-    {
-	_monitor->unsolicitSocketMessages(_socket);
-
-	_monitor->solicitSocketMessages(_socket,
-	    SocketMessage::READ |
-	    SocketMessage::EXCEPTION,
-	    getQueueId());
     }
 }
 

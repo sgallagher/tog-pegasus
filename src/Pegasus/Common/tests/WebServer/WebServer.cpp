@@ -101,7 +101,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
     requestMessage->parse(firstLine, headers, content, contentLength);
 
-    requestMessage->print(cout);
+    // requestMessage->print(cout);
 
     // Split the first line about the method name and the rest:
 
@@ -122,8 +122,6 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
 	String fullDocumentName = "htdocs/";
 	fullDocumentName += documentName;
-
-PEGASUS_OUT(fullDocumentName);
 
 	// Load the document into memory:
 
@@ -155,8 +153,6 @@ PEGASUS_OUT(fullDocumentName);
 	if (dot != PEGASUS_NOT_FOUND)
 	{
 	    String ext = fullDocumentName.subString(dot + 1);
-	    PEGASUS_OUT(ext);
-
 	    if (ext == ".jpg")
 		strcpy(docuentType, "image/jpeg");
 	    else if (ext == ".gif")
@@ -164,8 +160,6 @@ PEGASUS_OUT(fullDocumentName);
 	    else if (ext == ".html")
 		strcpy(docuentType, "text/html");
 	}
-
-PEGASUS_OUT(docuentType);
 
 	char header[sizeof(HEADER) + 32];
 	sprintf(header, HEADER, content.size(), docuentType);
@@ -177,11 +171,6 @@ PEGASUS_OUT(docuentType);
     }
 
     return 0;
-
-#if 0
-
-
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

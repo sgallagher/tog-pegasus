@@ -2613,7 +2613,7 @@ CIM server listening on HTTPS port {0}."}
 
         // ==========================================================
         // Messages for IndicationService
-	//  Please use message prefix "CIMINDSVC"
+	//  Please use message prefix "CIMINDSVC_"
         // ==========================================================
 
 	/**
@@ -2750,7 +2750,7 @@ CIM server listening on HTTPS port {0}."}
 
         // ==========================================================
         // Messages for snmpDeliverTrap_emanate
-	//  Please use message prefix "SNMPTRAPE"
+	//  Please use message prefix "SNMPTRAPE_"
         // ==========================================================
 
 	Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INITSUBAGENT_FAILED:string {"SNMPTRAPE_MSG_INITSUBAGENT_FAILED:  The SNMP subagent failed to initialize."}

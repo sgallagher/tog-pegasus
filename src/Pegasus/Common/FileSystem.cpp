@@ -239,17 +239,18 @@ Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
     ArrayDestroyer<char> p(_clonePath(path));
 
     is.open(p.getPointer() PEGASUS_IOS_BINARY);
-    
-	//not supported on Tru64
-	return is != 0;
-
+	
 #ifdef PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX
 	if (is.good() != 0)
 		return true;
 	else
 		return false;
+#else
+
+	//not supported on Tru64
+	return is != 0;
+
 #endif
-	
 }
 
 Boolean FileSystem::isDirectory(const String& path)

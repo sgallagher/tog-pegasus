@@ -3,9 +3,9 @@ ROOT = ..
 include $(ROOT)/mak/config.mak
 
 ifdef PEGASUS_ENABLE_SLP
-DIRS = platforms utils Pegasus slp Clients Providers Server
+DIRS = Platforms utils Pegasus slp Clients Providers Server
 else
-DIRS = platforms utils Pegasus Clients Providers Server
+DIRS = Platforms utils Pegasus Clients Providers Server
 endif
 
 

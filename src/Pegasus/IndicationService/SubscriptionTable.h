@@ -129,8 +129,8 @@ struct SubscriptionClassesTableEntry
  */
 typedef HashTable <String,
                    SubscriptionClassesTableEntry,
-                   EqualFunc <String>,
-                   HashFunc <String> > SubscriptionClassesTable;
+                   EqualNoCaseFunc,
+                   HashLowerCaseFunc> SubscriptionClassesTable;
 
 /**
 

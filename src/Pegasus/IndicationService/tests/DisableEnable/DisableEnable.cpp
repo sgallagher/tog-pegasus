@@ -362,7 +362,7 @@ void _setup (CIMClient & client)
             String ("CIM_ProcessIndication"),
             supportedProperties);
         _createFilterInstance (client, String ("DEFilter01"),
-            String ("SELECT IndicationTime FROM CIM_ProcessIndication"));
+            String ("SELECT IndicationTime FROM cim_processindication"));
         _createHandlerInstance (client, String ("DEHandler01"), 
             String ("localhost/CIMListener/test1"));
     }

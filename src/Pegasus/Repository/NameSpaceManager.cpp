@@ -244,31 +244,8 @@ void NameSpace::print(PEGASUS_STD(ostream)& os) const
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-struct NameSpaceEqual
-{
-    static Boolean equal(const String & x, const String & y)
-    {
-        if (0 == String::compareNoCase(x, y))
-            return true;
-        return false;
-    }
-};
-
-struct NameSpaceHash
-{
-    static Uint32 hash(const String & str)
-    {
-        String cpy(str);
-        cpy.toLower();
-        Uint32 h = 0;
-        for(Uint32 i = 0, n = cpy.size(); i < n; i++)
-            h = 5 * h + cpy[i];
-        return h;
-    }
-};
-
-
-typedef HashTable <String, NameSpace *, NameSpaceEqual, NameSpaceHash> Table;
+typedef HashTable <String, NameSpace *, EqualNoCaseFunc, HashLowerCaseFunc> 
+    Table;
 
 struct NameSpaceManagerRep
 {

@@ -25,7 +25,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,6 +57,28 @@ PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<Uint32>
     static Uint32 hash(Uint32 x) { return x + 13; }
 };
 
+/*
+    Hash function object that converts to lowercase.  
+
+    This function can be used for hash table keys constructed from strings that
+    should be treated as case insensitive (e.g. class names, namespace names, 
+    system names).  
+
+    Note: this function converts to lower case based on the process locale.
+*/
+struct HashLowerCaseFunc
+{
+    static Uint32 hash (const String & str)
+    {
+        String cpy (str);
+        cpy.toLower ();
+        Uint32 h = 0;
+        for (Uint32 i = 0, n = cpy.size (); i < n; i++)
+            h = 5 * h + cpy [i];
+        return h;
+    }
+};
+
 /*  This is a function object used by the HashTable to compare keys. This is
     the default implementation. Others may be defined and passed in the 
     template argument list to perform other kinds of comparisons.
@@ -66,6 +89,24 @@ struct EqualFunc
     static Boolean equal(const K& x, const K& y)
     {
 	return x == y;
+    }
+};
+
+/*
+    Equal function object that can be used by HashTable to compare keys that 
+    should be treated as case insensitive.  
+
+    This function can be used for hash table keys constructed from strings that
+    should be treated as case insensitive (e.g. class names, namespace names, 
+    system names).
+
+    Note: this function compares Strings based on the process locale.
+*/
+struct EqualNoCaseFunc
+{
+    static Boolean equal (const String & x, const String & y)
+    {
+        return (0 == String::compareNoCase (x, y));
     }
 };
 

@@ -43,7 +43,7 @@
     {"SSL",                 "false"},
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "false"},
-    {"enableIndicationService", "false"},
+    {"enableIndicationService", "true"},
     {"enableClientCertification", "false"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},

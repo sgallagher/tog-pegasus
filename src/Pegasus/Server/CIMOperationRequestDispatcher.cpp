@@ -442,7 +442,7 @@ String _showPropertyList(const CIMPropertyList& pl)
 
     String tmp = " ";
 
-    tmp.append((pl.size() == 0) ? "Empty" : _toStringPropertyList(pl));
+    tmp.append((pl.size() == 0) ? String("Empty") : _toStringPropertyList(pl));
     return(tmp);
 }
 
@@ -671,11 +671,12 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
            pi._hasProvider = true;
            providerCount++;
            CDEBUG("FoundProvider for class = " << classNames[i].getString());
-            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-               "Provider found for Class = " + classNames[i].getString()
-			   + " servicename = " + serviceName
-			   + " controlProviderName = "
-               + ((controlProviderName != String::EMPTY)  ? controlProviderName : "None"));
+           PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+               "Provider found for Class = " + classNames[i].getString() +
+                   " servicename = " + serviceName +
+                   " controlProviderName = " +
+                   ((controlProviderName.size()) ? controlProviderName
+                                                 : String("None")));
 		}
        else
        {
@@ -1000,10 +1001,11 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
             // ATTN: Do not need this trace.  The _LookupNewAssoc Function should
             // handle it.
             PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                "Provider found for Class = " + classNames[i].getString()
-                + " servicename = " + serviceName
-                + " controlProviderName = "
-                + ((controlProviderName != String::EMPTY)  ? controlProviderName : "None"));
+                "Provider found for Class = " + classNames[i].getString() +
+                    " servicename = " + serviceName +
+                    " controlProviderName = " +
+                    ((controlProviderName.size()) ? controlProviderName
+                                                  : String("None")));
             CDEBUG("Found Assoc wo Provider for class= "  << classNames[i].getString());
         }
         else

@@ -47,6 +47,9 @@
 #include <Pegasus/Common/Exception.h> 
 #include "CIMOperationResponseDecoder.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -112,15 +115,25 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     Uint32 contentLength;
 
     if (httpMessage->message.size() == 0)
-    {
-        CIMClientMalformedHTTPException* malformedHTTPException =
-            new CIMClientMalformedHTTPException("Empty HTTP response message.");
-        ClientExceptionMessage * response =
-            new ClientExceptionMessage(malformedHTTPException);
-
-        _outputQueue->enqueue(response);
-        return;
-    }
+      {
+	
+	// l10n
+	
+	// CIMClientMalformedHTTPException* malformedHTTPException =
+	//   new CIMClientMalformedHTTPException("Empty HTTP response message.");
+	
+	MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EMPTY_RESPONSE", "Empty HTTP response message.");
+	String mlString(MessageLoader::getMessage(mlParms));
+	
+	CIMClientMalformedHTTPException* malformedHTTPException =
+	  new CIMClientMalformedHTTPException(mlString);
+	
+	ClientExceptionMessage * response =
+	  new ClientExceptionMessage(malformedHTTPException);
+	
+	_outputQueue->enqueue(response);
+	return;
+      }
 
     httpMessage->parse(startLine, headers, contentLength);
 
@@ -135,13 +148,23 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         startLine, httpVersion, statusCode, reasonPhrase);
     if (!parsableMessage)
     {
-        CIMClientMalformedHTTPException* malformedHTTPException = new
-            CIMClientMalformedHTTPException("Malformed HTTP response message.");
-        ClientExceptionMessage * response =
-            new ClientExceptionMessage(malformedHTTPException);
 
-        _outputQueue->enqueue(response);
-        return;
+      // l10n
+
+      // CIMClientMalformedHTTPException* malformedHTTPException = new
+      //   CIMClientMalformedHTTPException("Malformed HTTP response message.");
+     
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MALFORMED_RESPONSE", "Malformed HTTP response message.");
+      String mlString(MessageLoader::getMessage(mlParms));
+     
+      CIMClientMalformedHTTPException* malformedHTTPException =
+	new CIMClientMalformedHTTPException(mlString);
+      
+      ClientExceptionMessage * response =
+	new ClientExceptionMessage(malformedHTTPException);
+      
+      _outputQueue->enqueue(response);
+      return;
     }
 
 #ifdef PEGASUS_CLIENT_TRACE_ENABLE
@@ -209,14 +232,19 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
          // ATTN-SF-P3-20030115: Need to create a specific exception
          // to indicate Authentication failure. See JAGae53944.
 
-         const String ERROR_MESSAGE = "Authentication failed.";
-         CannotConnectException* cannotConnectException =
-            new CannotConnectException(ERROR_MESSAGE);
-	 ClientExceptionMessage * response =
-            new ClientExceptionMessage(cannotConnectException);
-
-        _outputQueue->enqueue(response);
-        return;
+      // l10n
+      // const String ERROR_MESSAGE = "Authentication failed.";
+  
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.AUTHENTICATION_FAILED", "Authentication failed.");
+      String ERROR_MESSAGE(MessageLoader::getMessage(mlParms));
+      
+      CannotConnectException* cannotConnectException =
+	new CannotConnectException(ERROR_MESSAGE);
+      ClientExceptionMessage * response =
+	new ClientExceptionMessage(cannotConnectException);
+      
+      _outputQueue->enqueue(response);
+      return;
     }
 
     //
@@ -256,8 +284,17 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     if (!HTTPMessage::lookupHeader(
 	headers, "CIMOperation", cimOperation, true))
     {
-        CIMClientMalformedHTTPException* malformedHTTPException = new
-            CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
+      // l10n
+
+      // CIMClientMalformedHTTPException* malformedHTTPException = new
+      //   CIMClientMalformedHTTPException("Missing CIMOperation HTTP header");
+
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER", "Missing $0 HTTP header", "CIMOperation");
+      String mlString(MessageLoader::getMessage(mlParms));
+      
+      CIMClientMalformedHTTPException* malformedHTTPException = new
+	CIMClientMalformedHTTPException(mlString);
+      
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
@@ -283,13 +320,23 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    }			
    catch (Exception &e)
    {
-		CIMClientMalformedHTTPException* malformedHTTPException = new
-	   		CIMClientMalformedHTTPException("Malformed Content-Language header.");
-    	ClientExceptionMessage * response =
-       		new ClientExceptionMessage(malformedHTTPException);
-       		
-	    _outputQueue->enqueue(response);
-	    return;    	
+
+     // l10n
+
+     // CIMClientMalformedHTTPException* malformedHTTPException = new
+     //  CIMClientMalformedHTTPException("Malformed Content-Language header.");
+
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MALFORMED_CONTENT", "Malformed Content-Language header.");
+      String mlString(MessageLoader::getMessage(mlParms));
+
+      CIMClientMalformedHTTPException* malformedHTTPException =
+	new CIMClientMalformedHTTPException(mlString);
+
+     ClientExceptionMessage * response =
+       new ClientExceptionMessage(malformedHTTPException);
+     
+     _outputQueue->enqueue(response);
+     return;    	
    }        
 // l10n end   
     //
@@ -328,12 +375,23 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     if (!String::equalNoCase(cimOperation, "MethodResponse"))
     {
-        CIMClientMalformedHTTPException* malformedHTTPException =
-            new CIMClientMalformedHTTPException(
-                String("Received CIMOperation HTTP header value \"") +
-                cimOperation + "\", expected \"MethodResponse\"");
-        ClientExceptionMessage * response =
-            new ClientExceptionMessage(malformedHTTPException);
+
+      // l10n
+
+      // CIMClientMalformedHTTPException* malformedHTTPException =
+      //   new CIMClientMalformedHTTPException(
+      //        String("Received CIMOperation HTTP header value \"") +
+      //        cimOperation + "\", expected \"MethodResponse\"");
+
+
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE", "Received $0 HTTP header value \"$1\", expected \"$2\"", "CIMOperation", cimOperation, "MethodResponse");
+      String mlString(MessageLoader::getMessage(mlParms));
+
+      CIMClientMalformedHTTPException* malformedHTTPException =
+	new CIMClientMalformedHTTPException(mlString);
+
+      ClientExceptionMessage * response =
+	new ClientExceptionMessage(malformedHTTPException);
 
         _outputQueue->enqueue(response);
         return;
@@ -383,16 +441,36 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 	String messageId;
 	String protocolVersion;
 
-	if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion))
-	    throw XmlValidationError(
-		parser.getLine(), "expected MESSAGE element");
+	if (!XmlReader::getMessageStartTag(parser, messageId, protocolVersion)) {
+
+	  // l10n
+
+	  // throw XmlValidationError(
+	  // parser.getLine(), "expected MESSAGE element");
+
+	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT",
+				     "expected $0 element", "MESSAGE");
+
+	  throw XmlValidationError(parser.getLine(), mlParms);
+	}
+
 
         if (!String::equalNoCase(protocolVersion, "1.0"))
 	{
-            CIMClientResponseException* responseException =
-                new CIMClientResponseException(
-                    String("Received unsupported protocol version \"") +
-                    protocolVersion + "\", expected \"1.0\"");
+
+	  // l10n
+
+	  // CIMClientResponseException* responseException =
+	  //   new CIMClientResponseException(
+	  //        String("Received unsupported protocol version \"") +
+	  //        protocolVersion + "\", expected \"1.0\"");
+
+	MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL", "Received unsupported protocol version \"$0\", expected \"1.0\"", protocolVersion);
+	String mlString(MessageLoader::getMessage(mlParms));
+	
+	CIMClientResponseException* responseException =
+	  new CIMClientResponseException(mlString);
+
             ClientExceptionMessage * response =
                 new ClientExceptionMessage(responseException);
 
@@ -467,10 +545,19 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 		response = _decodeExecQueryResponse(parser, messageId);
 	    else
 	    {
+
+	      // l10n
+
                 // Unrecognized IMethodResponse name attribute
-	        throw XmlValidationError(parser.getLine(),
-	            String("Unrecognized IMethodResponse name \"") +
-                        iMethodResponseName + "\"");
+	      // throw XmlValidationError(parser.getLine(),
+	      //   String("Unrecognized IMethodResponse name \"") +
+	      //        iMethodResponseName + "\"");
+
+	      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME",
+					 "Unrecognized $0 name \"$1\"", "IMethodResponse", 
+					 iMethodResponseName);
+	      
+	      throw XmlValidationError(parser.getLine(), mlParms);
 	    }
 	
 	    //
@@ -492,8 +579,15 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 	}
 	else
 	{
-	    throw XmlValidationError(parser.getLine(),
-	        "expected METHODRESPONSE or IMETHODRESPONSE element");
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),
+	  //   "expected METHODRESPONSE or IMETHODRESPONSE element");
+
+	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
+				     "expected $0 or $1 element", "METHODRESPONSE", "METHODRESPONSE");
+
+	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
 
         //
@@ -606,7 +700,15 @@ CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse
 	if ((entry.type == XmlEntry::EMPTY_TAG) ||
 	    !XmlReader::getClassElement(parser, cimClass))
 	{
-	    throw XmlValidationError(parser.getLine(),"expected CLASS element");
+
+	  // l10n
+
+	  // throw XmlValidationError(parser.getLine(),"expected CLASS element");
+
+	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT",
+				     "expected $0 element", "CLASS");
+
+	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
 
 	XmlReader::expectEndTag(parser, "IRETURNVALUE");
@@ -619,8 +721,16 @@ CIMGetClassResponseMessage* CIMOperationResponseDecoder::_decodeGetClassResponse
     }
     else
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or IRETURNVALUE element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected ERROR or IRETURNVALUE element");
+
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
+				 "expected $0 or $1 element", "ERROR", "IRETURNVALUE");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -791,8 +901,16 @@ CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInst
     }
     else
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or IRETURNVALUE element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected ERROR or IRETURNVALUE element");
+
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
+				 "expected $0 or $1 element", "ERROR", "IRETURNVALUE");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -817,8 +935,16 @@ CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceRe
 	if ((entry.type == XmlEntry::EMPTY_TAG) ||
 	    !XmlReader::getInstanceElement(parser, cimInstance))
 	{
-	    throw XmlValidationError(
-		parser.getLine(), "expected INSTANCE element");
+
+	  // l10n
+
+	  // throw XmlValidationError(
+	  // parser.getLine(), "expected INSTANCE element");
+
+	  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT",
+				     "expected $0 element", "INSTANCE");
+
+	  throw XmlValidationError(parser.getLine(), mlParms);
 	}
 
 	XmlReader::expectEndTag(parser, "IRETURNVALUE");
@@ -831,8 +957,16 @@ CIMGetInstanceResponseMessage* CIMOperationResponseDecoder::_decodeGetInstanceRe
     }
     else
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or IRETURNVALUE element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected ERROR or IRETURNVALUE element");
+
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
+				 "expected $0 or $1 element", "ERROR", "IRETURNVALUE");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -1118,8 +1252,16 @@ CIMGetQualifierResponseMessage* CIMOperationResponseDecoder::_decodeGetQualifier
     }
     else
     {
-	throw XmlValidationError(parser.getLine(),
-	    "expected ERROR or IRETURNVALUE element");
+
+      // l10n
+
+      // throw XmlValidationError(parser.getLine(),
+      //   "expected ERROR or IRETURNVALUE element");
+
+      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_OR_ELEMENT",
+				 "expected $0 or $1 element", "ERROR", "IRETURNVALUE");
+      
+      throw XmlValidationError(parser.getLine(), mlParms);
     }
 }
 
@@ -1432,8 +1574,16 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
             {
                 if (gotReturnValue)
                 {
-	            throw XmlValidationError(parser.getLine(),
-	                "unexpected RETURNVALUE element");
+
+		  // l10n
+
+		  // throw XmlValidationError(parser.getLine(),
+		  //   "unexpected RETURNVALUE element");
+
+		  MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.EXPECTED_ELEMENT",
+					     "expected $0 element", "RETURNVALUE");
+		  
+		  throw XmlValidationError(parser.getLine(), mlParms);
                 }
                 gotReturnValue = true;
             }

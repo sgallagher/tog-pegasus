@@ -49,6 +49,9 @@
 #include "ClientAuthenticator.h"
 #include "CIMClient.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 #include <iostream>
 #include <fstream>
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
@@ -1394,10 +1397,18 @@ Message* CIMClientRep::_doRequest(
           
                 if (cimResponse->messageId != messageId)
                 {
-                    CIMClientResponseException responseException(
-                        String("Mismatched response message ID:  Got \"") +
-                        cimResponse->messageId + "\", expected \"" +
-                        messageId + "\".");
+		  // l10n
+
+		  // CIMClientResponseException responseException(
+		  //   String("Mismatched response message ID:  Got \"") +
+		  //    cimResponse->messageId + "\", expected \"" +
+		  //    messageId + "\".");
+
+		  MessageLoaderParms mlParms("Client.CIMClient.MISMATCHED_RESPONSE", "Mismatched response message ID:  Got \"$0\", expected \"$1\".", cimResponse->messageId, messageId);
+		  String mlString(MessageLoader::getMessage(mlParms));
+
+		  CIMClientResponseException responseException(mlString);
+
                     delete response;
 	            throw responseException;
                 }
@@ -1418,8 +1429,17 @@ Message* CIMClientRep::_doRequest(
             }
             else
             {
-                CIMClientResponseException responseException(
-                    "Mismatched response message type.");
+
+	      // l10n
+
+	      // CIMClientResponseException responseException(
+	      //   "Mismatched response message type.");
+
+	      MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.MISMATCHED_RESPONSE_TYPE", "Mismatched response message type.");
+	      String mlString(MessageLoader::getMessage(mlParms));
+
+	      CIMClientResponseException responseException(mlString);
+
                 delete response;
 	        throw responseException;
             }

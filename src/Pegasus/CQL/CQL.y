@@ -168,8 +168,6 @@ class_path : class_name
                  sprintf(msg,"BISON::class_path\n"); 
 		 printf_(msg);
 		 $$ = $1;
-		 sprintf(msg,"BISON::class_path = %s\n", (const char *)($$->getName().getString().getCString()));
-                 printf_(msg);
              }
 ;
 /*
@@ -291,6 +289,7 @@ literal : literal_string
               sprintf(msg,"BISON::literal->literal_string\n");
 	      printf_(msg);
               $$ = new CQLValue(*$1);
+	      delete $1;
           }
         | decimal_value
           {
@@ -362,6 +361,7 @@ chain : literal
 
             chain_state = CQLVALUE;
 	    $$ = _factory.makeObject($1,Predicate);  
+	    delete $1;
         }
       | LPAR expr RPAR
         {
@@ -378,7 +378,7 @@ chain : literal
 
            chain_state = CQLIDENTIFIER;
 	   $$ = _factory.makeObject($1,Predicate);
-           CQLPredicate* _pred = (CQLPredicate*)$$;
+	   delete $1;
         }
       | identifier HASH literal_string
         {
@@ -390,6 +390,7 @@ chain : literal
             CQLIdentifier _id(tmp);
    	    $$ = _factory.makeObject(&_id,Predicate);
 	    chain_state = CQLIDENTIFIER;
+	    delete $1; delete $3;
         }
       | scoped_property
         {
@@ -398,6 +399,7 @@ chain : literal
 
             chain_state = CQLIDENTIFIER;
 	    $$ = _factory.makeObject($1,Predicate);
+	    delete $1;
         }
       | identifier LPAR arg_list RPAR
         {
@@ -407,7 +409,7 @@ chain : literal
 	    CQLFunction _func(*$1,_arglist);
 	    $$ = (CQLPredicate*)(_factory.makeObject(&_func,Predicate));
 	    _arglist.clear();
-	    
+	    delete $1; 
         }
       | chain DOT scoped_property
         {
@@ -420,12 +422,14 @@ chain : literal
                 CQLChainedIdentifier _cid(*_id);
                 _cid.append(*$3);
 		$$ = _factory.makeObject(&_cid,Predicate);
+		delete $3;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
 		CQLChainedIdentifier *_cid;
 		_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		_cid->append(*$3);
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
 		$$ = $1;
+		delete $3;
 	    }else{
 		/* error */
             }
@@ -442,11 +446,13 @@ chain : literal
                 CQLChainedIdentifier _cid(*_id);
                 _cid.append(*$3);
                 $$ = _factory.makeObject(&_cid,Predicate);
+		delete $3;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
 		CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
                 _cid->append(*$3);
                 _factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
                 $$ = $1;
+		delete $3;
             }else{
                 /* error */
             }
@@ -469,6 +475,7 @@ chain : literal
                 _cid.append(_id1);
 		_factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
                 $$ = $1;
+		delete $3; delete $5;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
 		CQLChainedIdentifier *_cid =  ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		String tmp($3->getName().getString());
@@ -477,6 +484,7 @@ chain : literal
                 _cid->append(_id1);
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
 		$$ = $1;
+		delete $3; delete $5;
             }else{
                 /* error */
             }
@@ -496,7 +504,8 @@ chain : literal
 		CQLIdentifier _id1(tmp);
 		CQLChainedIdentifier _cid(_id1);
 		_factory.setObject(((CQLPredicate*)$1),&_cid,ChainedIdentifier);
-                $$ = $1;		
+                $$ = $1;	
+		delete $3;	
 	    }else if(chain_state == CQLCHAINEDIDENTIFIER || chain_state == CQLVALUE){
 		CQLPredicate* _pred = (CQLPredicate*)$1;
 		CQLChainedIdentifier *_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
@@ -512,6 +521,7 @@ chain : literal
 		}
 		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
                 $$ = $1;
+		delete $3;
 	    }else{
 		/* error */
 	    }
@@ -536,6 +546,9 @@ concat : chain
 		CQLTerm _term1(*_fctr1);
 		_term1.appendOperation(concat,*_fctr2);
 		$$ = (CQLPredicate*)(_factory.makeObject(&_term1,Predicate));
+		delete $1; 
+		CQLPredicate* _pred = (CQLPredicate*)$3;
+		delete _pred;
 	     }
          }
 ;
@@ -621,6 +634,7 @@ value_symbol : HASH literal_string
 		   tmp.append(*$2);
 		   CQLIdentifier tmpid(tmp);
 		   $$ = new CQLValue(tmpid);
+		   delete $2;
                }
 ;
 
@@ -639,6 +653,7 @@ arith_or_value_symbol : arith
 
 			    CQLFactor _fctr(*$1);
 			    $$ = (CQLPredicate*)(_factory.makeObject(&_fctr, Predicate));
+			    delete $1;
                         }
 ;
 
@@ -746,6 +761,7 @@ comp : arith
            CQLSimplePredicate _sp(*_expr1, *_expr2, ISA);
 	   _factory.setObject($1,&_sp,SimplePredicate);
            $$ = $1;
+	   delete $3;
        }
      | arith _LIKE literal_string
        {
@@ -759,6 +775,7 @@ comp : arith
 	   CQLSimplePredicate _sp(*_expr1, *_expr2, LIKE);
            _factory.setObject($1,&_sp,SimplePredicate);
            $$ = $1;
+	   delete $3;
        }
 ;
 expr_factor : comp
@@ -818,6 +835,7 @@ arg_list : {;}
            {
                sprintf(msg,"BISON::arg_list->STAR\n");
 	       printf_(msg);
+
 	       CQLIdentifier _id("*");
 	       CQLPredicate* _pred = (CQLPredicate*)(_factory.makeObject(&_id,Predicate));
 	       _arglist.append(*_pred);
@@ -826,7 +844,7 @@ arg_list : {;}
 	   {
                    sprintf(msg,"BISON::arg_list_sub->expr\n");
                    printf_(msg);
-                                                                                                                                                             
+
                    _arglist.append(*$1);
            }
 /*
@@ -882,6 +900,7 @@ from_specifier : class_path
 		     printf_(msg);
 
 		     globalParserState->statement->appendClassPath(*$1);
+		     delete $1;
                  } 
 
 		| class_path AS identifier
@@ -893,6 +912,7 @@ from_specifier : class_path
 			String _alias($3->getName().getString());
 			globalParserState->statement->insertClassPathAlias(_class,_alias);
 			globalParserState->statement->appendClassPath(_class);
+			delete $1; delete $3;
 		  }
 		| class_path identifier
 		  {
@@ -903,6 +923,7 @@ from_specifier : class_path
                         String _alias($2->getName().getString());
                         globalParserState->statement->insertClassPathAlias(_class,_alias);
                         globalParserState->statement->appendClassPath(_class);
+			delete $1; delete $2;
 		  }
 ;
 

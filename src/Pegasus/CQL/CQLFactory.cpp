@@ -76,7 +76,7 @@ void CQLFactory::cleanupArray(Array<CQLObjectPtr>& arr, FactoryType type){
 }
 
 void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target){
-printf("CQLFactory::makeObject(identifier)\n");
+//printf("CQLFactory::makeObject(identifier)\n");
 	_CQLObjectPtr._ptr = new CQLChainedIdentifier(*obj);
         _makeObjectChainedIdentifiers.append(_CQLObjectPtr);
 	switch(target){
@@ -92,8 +92,9 @@ printf("CQLFactory::makeObject(identifier)\n");
         }
 }
 void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target){
-printf("CQLFactory::makeObject(chainedidentifier)\n");
+//printf("CQLFactory::makeObject(chainedidentifier)\n");
 	_CQLObjectPtr._ptr = new CQLValue(*obj);
+	CQLValue* _val = (CQLValue*)_CQLObjectPtr._ptr;
         _makeObjectValues.append(_CQLObjectPtr);
 	switch(target){
           case Value:
@@ -109,7 +110,7 @@ printf("CQLFactory::makeObject(chainedidentifier)\n");
 
 }
 void* CQLFactory::makeObject(CQLValue* obj, FactoryType target){
-printf("CQLFactory::makeObject(value)\n");
+//printf("CQLFactory::makeObject(value)\n");
 	_CQLObjectPtr._ptr = new CQLFactor(*obj);
         _makeObjectFactors.append(_CQLObjectPtr);
 	switch(target){
@@ -126,7 +127,7 @@ printf("CQLFactory::makeObject(value)\n");
 
 }
 void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target){
-printf("CQLFactory::makeObject(function)\n");
+//printf("CQLFactory::makeObject(function)\n");
 	_CQLObjectPtr._ptr = new CQLFactor(*obj);
         _makeObjectFactors.append(_CQLObjectPtr);
         switch(target){
@@ -139,7 +140,7 @@ printf("CQLFactory::makeObject(function)\n");
         }
 }
 void* CQLFactory::makeObject(CQLFactor* obj, FactoryType target){
-printf("CQLFactory::makeObject(factor)\n");
+//printf("CQLFactory::makeObject(factor)\n");
 	_CQLObjectPtr._ptr = new CQLTerm(*obj);
         _makeObjectTerms.append(_CQLObjectPtr);
 	switch(target){
@@ -156,7 +157,7 @@ printf("CQLFactory::makeObject(factor)\n");
 
 }
 void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target){
-printf("CQLFactory::makeObject(term)\n");
+//printf("CQLFactory::makeObject(term)\n");
 	_CQLObjectPtr._ptr = new CQLExpression(*obj);
         _makeObjectExpressions.append(_CQLObjectPtr);
 	switch(target){
@@ -173,7 +174,7 @@ printf("CQLFactory::makeObject(term)\n");
 
 }
 void* CQLFactory::makeObject(CQLExpression* obj, FactoryType target){
-printf("CQLFactory::makeObject(expression)\n");
+//printf("CQLFactory::makeObject(expression)\n");
 	_CQLObjectPtr._ptr = new CQLSimplePredicate(*obj);
 	_makeObjectSimplePredicates.append(_CQLObjectPtr);
 	switch(target){
@@ -190,7 +191,7 @@ printf("CQLFactory::makeObject(expression)\n");
 
 }
 void* CQLFactory::makeObject(CQLSimplePredicate* obj, FactoryType target){
-printf("CQLFactory::makeObject(simplepredicate)\n");
+//printf("CQLFactory::makeObject(simplepredicate)\n");
 	_CQLObjectPtr._ptr = new CQLPredicate(*obj);
 	_makeObjectPredicates.append(_CQLObjectPtr);
 	switch(target){
@@ -227,7 +228,7 @@ void* CQLFactory::getObject(void* inObject, FactoryType inObjectType, FactoryTyp
 }
 
 void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target){
-	printf("CQLFactory::getObject(CQLChainedIdentifier* obj)\n");
+//	printf("CQLFactory::getObject(CQLChainedIdentifier* obj)\n");
 	switch(target){
           case Identifier:
 		if(obj->_rep->_subIdentifiers.size() > 0){
@@ -242,7 +243,7 @@ void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target){
 }
 
 void* CQLFactory::getObject(CQLValue* obj, FactoryType target){
-	printf("CQLFactory::getObject(CQLValue* obj)\n");
+//	printf("CQLFactory::getObject(CQLValue* obj)\n");
 	switch(target){
           case ChainedIdentifier:
 		_CQLObjectPtr._ptr = new CQLChainedIdentifier(obj->_rep->_CQLChainId);
@@ -257,7 +258,7 @@ void* CQLFactory::getObject(CQLValue* obj, FactoryType target){
 }
 
 void* CQLFactory::getObject(CQLFactor* obj, FactoryType target){
-	printf("CQLFactory::getObject(CQLFactor* obj)\n");
+//	printf("CQLFactory::getObject(CQLFactor* obj)\n");
         switch(target){
           case Function:
 		_CQLObjectPtr._ptr = new CQLFunction(obj->_rep->_CQLFunct);
@@ -278,7 +279,7 @@ void* CQLFactory::getObject(CQLFactor* obj, FactoryType target){
 
 
 void* CQLFactory::getObject(CQLTerm* obj, FactoryType target){
-	printf("CQLFactory::getObject(CQLTerm* obj)\n");
+//	printf("CQLFactory::getObject(CQLTerm* obj)\n");
         switch(target){
 	  case Factor:
 		_CQLObjectPtr._ptr = new CQLFactor(obj->getFactors()[0]);
@@ -296,7 +297,7 @@ void* CQLFactory::getObject(CQLTerm* obj, FactoryType target){
 }
 
 void* CQLFactory::getObject(CQLExpression* obj, FactoryType target){
-	printf("CQLFactory::getObject(CQLExpression* obj)\n");
+//	printf("CQLFactory::getObject(CQLExpression* obj)\n");
         switch(target){
 	  case Term:
 		_CQLObjectPtr._ptr = new CQLTerm(obj->getTerms()[0]);
@@ -315,7 +316,7 @@ void* CQLFactory::getObject(CQLExpression* obj, FactoryType target){
 }
 
 void* CQLFactory::getObject(CQLSimplePredicate* obj, FactoryType target){
-	printf("CQLFactory::getObject(CQLSimplePredicate* obj)\n");
+//	printf("CQLFactory::getObject(CQLSimplePredicate* obj)\n");
         switch(target){
 	  case Expression:
 		_CQLObjectPtr._ptr = new CQLExpression(obj->_rep->_leftSide);
@@ -335,7 +336,7 @@ void* CQLFactory::getObject(CQLSimplePredicate* obj, FactoryType target){
 }
 
 void* CQLFactory::getObject(CQLPredicate* obj, FactoryType target){
-	printf("CQLFactory::getObject(CQLPredicate* obj)\n");
+//	printf("CQLFactory::getObject(CQLPredicate* obj)\n");
         switch(target){
           case SimplePredicate:
 		_CQLObjectPtr._ptr = new CQLSimplePredicate(obj->_rep->_simplePredicate);

@@ -878,6 +878,16 @@ void monitor_2::_dispatch(void)
 	static PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
 	entry->get_sock().disableBlocking();
 	pegasus_socket connected = entry->get_sock().accept(&peer, &peer_size);
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    if((Sint32)connected  == SOCKET_ERROR)
+#else
+	if((Sint32)connected == -1 )
+#endif
+	{
+	   delete entry;
+	   break;
+	}
+	
 	entry->get_sock().enableBlocking();
 	monitor_2_entry *temp = add_entry(connected, SESSION, entry->get_accept(), entry->get_dispatch());
 	if(temp && _accept_dispatch != 0)

@@ -269,7 +269,6 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
 {
    long                year;
    struct timeval      tv;
-   struct timezone     tz;
    struct tm           tmval;
    struct pst_static   pst;
    Timestamp_t         bootTime;
@@ -306,7 +305,7 @@ Boolean OSTestClient::goodLastBootUpTime(const CIMDateTime &btime,
            tmval.tm_sec,
            0,
            tzMinutesWest);
-   if (tz.tz_minuteswest > 0) 
+   if (tzMinutesWest > 0) 
    {
        bootTime.plusOrMinus = '-';
    }

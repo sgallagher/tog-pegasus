@@ -36,6 +36,7 @@
 #ifndef PEGASUS_OS_OS400
 #   include <unistd.h>
 #else
+#   include <Pegasus/Common/OS400ConvertChar.h>
 #   include <unistd.cleinc>
 #endif
 # include <cstdlib>
@@ -59,6 +60,10 @@ Sint32 Socket::read(Sint32 socket, void* ptr, Uint32 size)
     int i=::read(socket, (char*)ptr, size);
     __atoe_l((char *)ptr,size);
     return i;
+#elif defined(PEGASUS_OS_OS400)
+    int i=::read(socket, (char*)ptr, size);
+    AtoE((char *)ptr, size);
+    return i;
 #else
     return ::read(socket, (char*)ptr, size);
 #endif
@@ -73,6 +78,14 @@ Sint32 Socket::write(Sint32 socket, const void* ptr, Uint32 size)
     int i;
     memcpy(ptr2,ptr,size);
     __etoa_l(ptr2,size);
+    i = ::write(socket, ptr2, size);
+    free(ptr2);
+    return i;
+#elif defined(PEGASUS_OS_OS400)
+    char * ptr2 = (char *)malloc(size);
+    int i;
+    memcpy(ptr2,ptr,size);
+    EtoA(ptr2,size);
     i = ::write(socket, ptr2, size);
     free(ptr2);
     return i;

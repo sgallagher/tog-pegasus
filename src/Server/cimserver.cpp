@@ -268,6 +268,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         String referenceStr = "//";
         referenceStr.append(hostStr);
+        referenceStr.append("/");  
         referenceStr.append(PEGASUS_NAMESPACENAME_SHUTDOWN);
         referenceStr.append(":");
         referenceStr.append(PEGASUS_CLASSNAME_SHUTDOWN);
@@ -469,12 +470,14 @@ int main(int argc, char** argv)
                     //
                     // check to see if user is root
                     //
+#ifndef PEGASUS_OS_OS400
                     if (!System::isPrivilegedUser(System::getEffectiveUserName()))
                     {
                         cout << "You must have superuser privilege to run ";
                         cout << "cimserver." << endl;
                         exit(0);
                     }
+#endif
 
                     //
                     // Check to see if shutdown has already been specified:

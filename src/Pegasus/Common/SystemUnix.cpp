@@ -211,6 +211,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     if (fileName == NULL || strlen(fileName) == 0 || strlen(fileName) >= 200)
        return 0;
 
+    // More checking here!
     char name[200];
     strcpy(name, fileName);
 
@@ -218,7 +219,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     if (lib == NULL || strlen(lib) == 0)
        return 0;
 
-    char* srvpgm = strtok(name, NULL);
+    char* srvpgm = strtok(NULL,"/");              
     if (srvpgm == NULL || strlen(srvpgm) == 0)
        return 0;
 
@@ -334,9 +335,10 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     os400ErrorCode.Bytes_Available = 0;
 
     int exportType;
+    int hdl = (int)libraryHandle; 
     void * procAddress = NULL;
 
-    QleGetExp((int *)&libraryHandle,
+    QleGetExp(&hdl,
 	     0,
 	     0,
 	     (char *)symbolName,

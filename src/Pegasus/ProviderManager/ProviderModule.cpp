@@ -76,6 +76,8 @@ ProviderModule::ProviderModule(const String & fileName,
                 ConfigManager::getInstance()->getCurrentValue("providerDir"));
             _interfaceFilename.append(
                 String("/lib") + _interfaceName + String(".sl"));
+            #elif defined(PEGASUS_OS_OS400)
+            _interfaceFilename = _interfaceName;
             #else
             _interfaceFilename = ConfigManager::getHomedPath(
                 ConfigManager::getInstance()->getCurrentValue("providerDir"));

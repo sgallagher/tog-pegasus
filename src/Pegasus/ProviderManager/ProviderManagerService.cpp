@@ -170,6 +170,8 @@ Triad<String, String, String> _getProviderRegPair(
     #elif defined(PEGASUS_OS_HPUX)
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
     fileName.append(String("/lib") + location + String(".0"));
+    #elif defined(PEGASUS_OS_OS400)
+    fileName = location;
     #else
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
     fileName.append(String("/lib") + location + String(".so"));
@@ -258,6 +260,8 @@ void ProviderManagerService::_lookupProviderForAssocClass(
         #elif defined(PEGASUS_OS_HPUX)
         fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
         fileName.append(String("/lib") + Location + String(".sl"));
+        #elif defined(PEGASUS_OS_OS400)
+        fileName = Location;
         #else
         fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
         fileName.append(String("/lib") + Location + String(".so"));

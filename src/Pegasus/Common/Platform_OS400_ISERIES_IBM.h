@@ -36,7 +36,17 @@
 #define _MSE_PROTOS
 #define _OPEN_SOURCE 3
 
-#define _MULTI_THREADED  
+#define _MULTI_THREADED 
+
+#ifndef PEGASUS_INTERNALONLY
+  // Need this because Sint8 is typedef as a char,
+  // and char defaults to unsigned on OS/400.
+  // Internal Pegasus code needs char to be unsigned
+  // so that Sint8 * can be cast to char *.
+  // External code needs char to be signed for comparison
+  // operators (<, <=, etc).
+  #pragma chars(signed)
+#endif 
 
 #include <cstddef>
 
@@ -54,7 +64,7 @@
 
 #define PEGASUS_UINT64 unsigned long long
 
-#define PEGASUS_SINT64 long long
+#define PEGASUS_SINT64 signed long long  
 
 #define PEGASUS_HAVE_NAMESPACES
 
@@ -67,6 +77,8 @@
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
 #define PEGASUS_HAVE_EBCDIC
+
+#define PEGASUS_HAVE_IOS_BINARY
 
 #define PEGASUS_STATIC_CDECL __cdecl
 

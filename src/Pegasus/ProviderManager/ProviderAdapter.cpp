@@ -258,6 +258,8 @@ DynamicLibraryHandle ProviderAdapterManager::_loadlibrary(
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->
                getCurrentValue("providerDir")) + String("/lib") +
                adapterName + String(".sl");
+#elif defined(PEGASUS_OS_OS400)
+    fileName = adapterName;
 #else
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->
                getCurrentValue("providerDir")) + String("/lib") +

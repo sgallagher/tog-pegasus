@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.cpp,v $
+// Revision 1.8  2001/03/30 01:59:14  karl
+// clean up get property
+//
 // Revision 1.7  2001/03/05 19:54:50  mike
 // Fixed earlier boo boo (renamed CimException to CIMException).
 //
@@ -124,7 +127,13 @@ void Dispatcher::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName) 
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    String className = instanceName.getClassName();
+    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
+
+    if (provider)
+	provider->deleteInstance(nameSpace,instanceName );
+    else
+	_repository->deleteInstance(nameSpace, instanceName);
 }
 
 void Dispatcher::createClass(
@@ -139,7 +148,6 @@ void Dispatcher::createInstance(
     CIMInstance& newInstance) 
 {
     String className = newInstance.getClassName();
-
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
     if (provider)
@@ -278,8 +286,14 @@ CIMValue Dispatcher::getProperty(
     const CIMReference& instanceName,
     const String& propertyName) 
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return CIMValue();
+    cout << "getProperty Dispatcher" << endl;
+    String className = instanceName.getClassName();
+    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
+
+    if (provider)
+	return provider->getProperty(nameSpace,instanceName, propertyName );
+    else
+	return _repository->getProperty(nameSpace, instanceName,propertyName);
 }
 
 void Dispatcher::setProperty(
@@ -288,7 +302,13 @@ void Dispatcher::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 { 
-    throw CIMException(CIMException::NOT_SUPPORTED);
+    String className = instanceName.getClassName();
+    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
+
+    if (provider)
+	provider->setProperty(nameSpace,instanceName,propertyName,newValue); 
+    else 
+	_repository->setProperty(nameSpace,instanceName,propertyName,newValue);
 }
 
 CIMQualifierDecl Dispatcher::getQualifier(
@@ -325,8 +345,22 @@ CIMValue Dispatcher::invokeMethod(
     const Array<CIMValue>& inParameters,
     Array<CIMValue>& outParameters) 
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return CIMValue();
+    String className = instanceName.getClassName();
+    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
+
+    if (provider)
+	return provider->invokeMethod(nameSpace,
+				    instanceName,
+				    methodName,
+				    inParameters,
+				    outParameters); 
+    else 
+	return _repository->invokeMethod(nameSpace,
+				    instanceName,
+				    methodName,
+				    inParameters,
+				    outParameters); 
+
 }
 
 CIMProvider* Dispatcher::_lookupProviderForClass(

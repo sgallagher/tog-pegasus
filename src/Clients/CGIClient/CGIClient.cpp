@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.22  2001/03/30 01:59:14  karl
+// clean up get property
+//
 // Revision 1.21  2001/03/29 16:41:38  karl
 // Add Class Tree Stuff
 //
@@ -244,8 +247,7 @@ static String EncodeQueryStringValue(const String& x)
 static void PrintA(const String& href, const String& content)
 {
     cout << "<a href=\"" << href << "\">\n";
-    cout << content << '\n';
-    cout << "</a>\n";
+    cout << content << "</a>\n";
 }
 
 static void PrintTableHeader(const String& tableName)
@@ -386,6 +388,7 @@ void PrintObjectProperties(
     // Loop for each property
     for (Uint32 i = 0, n = object.getPropertyCount(); i < n; i++)
     {
+	// ATTN: All of this can become PrintProperty()
 	CIMProperty property = object.getProperty(i);
 	const CIMValue& value = property.getValue();
 
@@ -546,6 +549,10 @@ void PrintPropertyDeclaration(CIMProperty& property)
     cout << "</html>\n";
 }
 
+/***************************************************************************
+   GetClass Function
+***************************************************************************/
+
 /** Function GetClass Peforms the getClass
     request and prints the result as an HTML page  
 */
@@ -703,7 +710,11 @@ static void PrintClassNames(
     cout << "</body>\n" << "</html>\n";
 }
 
-/**
+
+/***************************************************************************
+   EnumerateClassNames Function
+***************************************************************************/
+ /**
     EnumerateClassNames gets the parameters for NameSpace
     and ClassName and calls the  enumerate class name
     CIMOperation.
@@ -751,6 +762,10 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	ErrorExit(e.getMessage());
     }
 }
+
+ /***************************************************************************
+   DeleteClass Function
+***************************************************************************/
 
 /** DeleteClass - Deletes the class defined on input
 */
@@ -1162,14 +1177,59 @@ static void EnumerateInstances(const CGIQueryString& qs)
     String nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String className;
+    String instanceName;
+    String propertyName;
 
-    const char* tmp;
+const char* tmp;
 
-    if ((tmp = qs.findValue("ClassName")))
-	className = tmp;
-    String message = "operation getProperty Under Construction: ";
-    ErrorExit(message);
+    if (!(tmp = qs.findValue("InstanceName")))
+	ErrorExit("Missing InstanceName field");
+    cout << "GetProperty " << __LINE__ << endl;
+    // This must be modified for the toString ATTN KS
+    CIMReference referenceName;
+
+    try
+    {
+	CIMReference::instanceNameToReference(tmp,referenceName);
+    }
+    catch(Exception& e)
+    {
+        ErrorExit(e.getMessage());
+    }
+
+    if (!(tmp = qs.findValue("PropertyName")))
+	ErrorExit("Missing InstanceName field");
+    else
+	propertyName = tmp;
+    cout << "GetProperty " << __LINE__ << endl;
+
+    try
+	{
+	    CIMClient client;
+	    client.connect("localhost", 8888);
+	    cout << "GetProperty " << __LINE__ << endl;
+
+	    CIMValue value = client.getProperty(nameSpace, 
+		referenceName, propertyName); 
+	    cout << "GetProperty " << __LINE__ << endl;
+
+	    cout << "value" << TypeToString(value.getType()) << "\n";
+
+		   String valueString = value.toString();
+
+		   if (valueString.getLength())
+		       cout << " " << valueString << " \n";
+		   else
+		       cout << " null \n";
+	    //ATTN: Stopped here with the GetProperty
+	    //PrintInstance(nameSpace, cimInstance, localOnly, 
+	    //includeQualifiers, includeClassOrigin); 
+	}
+	catch(Exception& e)
+	{
+	    ErrorExit(e.getMessage());
+	}
+
 
 }
 
@@ -1374,16 +1434,8 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	    // Create href for click to get classnames
 
 	    
-	    String href = BuildOperationHref("EhumerateClassNames",work);
+	    String href = BuildOperationHref("EnumerateClassNames",work);
 
-	    // ATTN: Delete if this works.
-	    //String href = "/pegasus/cgi-bin/CGIClient?";
-	    //href.append("Operation=EnumerateClassNames&");
-	    //href.append("NameSpace=");
-	    //href.append(work);
-	    //href.append("&");
-
-    
 	    href.append("InstanceName=&");
 	    href.append("DeepInheritance=true");
 
@@ -1449,9 +1501,7 @@ void PrintClassTreeEntry(const String& nameSpace,
     cout << "<LI>";
     cout << level;
     cout << " ";
-    //cout << className;
-    //cout << "\n";
-
+   
     //ATTN figure out why clasName in href and printa.
     String href = createClassHref(nameSpace,
 		"GetClass",
@@ -1469,6 +1519,13 @@ void PrintClassTreeEntry(const String& nameSpace,
     to traverse the complete Class Tree.
     Note that the initial call is expected to be -1 which starts
     us at the root.  We don't want to print the root.
+    @param - nameSpace - target namespace. Used to build href
+    @param - className at top of hiearchy (should be "" for complete
+    @param - superClassNames - Array of superclasses to className
+    array
+    @param - classNames - Array of all classNames
+    @param - size - size of className array
+    @level - Current level of inheritance tree.
 */
 void TraverseClassTree(
     const String& nameSpace,
@@ -1478,24 +1535,30 @@ void TraverseClassTree(
     Uint32 size, 
     Uint32 level)
  {
-    if (level++ >= 0)
-    {
-        cout << "<ul>";
-	PrintClassTreeEntry(nameSpace,className,level);
-    }
+    Boolean putUL = false;
+    level++;
 
     for (Uint32 i = 0; i < size; i++)
     {
        if (className == superClassNames[i])
        {   
- 	   TraverseClassTree(nameSpace,
+	   if (!putUL)
+	   {
+	       putUL = true;
+	       cout << "<ul>"; 
+	   }
+
+	   PrintClassTreeEntry(nameSpace,classNames[i], level);
+
+	   TraverseClassTree(nameSpace,
 			  classNames[i],
 			  superClassNames,
 			  classNames, size, level);
        }
     }
-    if (level > 0)
-	cout << "</UL>\n";  
+
+    if (putUL)
+	cout << "</UL><!-- " << level << " -->\n"; 
 }
 /**
     ClassInheritance
@@ -1582,7 +1645,7 @@ static void ClassInheritance(const CGIQueryString& qs)
 	    cout << "<td>\n";
 
 	    String href = createClassHref(nameSpace,
-			"getClass",
+			"GetClass",
 			classArray[i].getClassName());
 
 	    href.append("LocalOnly=true");

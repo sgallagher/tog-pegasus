@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: MyProvider.cpp,v $
+// Revision 1.10  2001/03/30 01:59:14  karl
+// clean up get property
+//
 // Revision 1.9  2001/02/18 21:56:12  karl
 // conflicts fix
 //
@@ -110,6 +113,30 @@ public:
 
 	return instanceNames;
     }
+    virtual CIMValue getProperty(
+	    const String& nameSpace,
+	    const CIMReference& instanceName,
+	    const String& propertyName)
+    {
+	cout << "__NamespaceProvider::getProperty() called" << endl;
+
+	String tmp;
+	CIMReference::referenceToInstanceName(instanceName, tmp);
+	cout << "instanceName=" << tmp << endl;
+
+	
+	CIMInstance instance("Process");
+	instance.addProperty(CIMProperty("pid", Uint32(2001)));
+	instance.addProperty(CIMProperty("name", "awk"));
+	instance.addProperty(CIMProperty("age", Uint32(300)));
+
+
+	//ATTN: Simply return fixed value
+	CIMValue result(Uint32(-77));
+	return result;
+
+    }
+
 
     void initialize(CIMRepository& repository)
     {

@@ -36,30 +36,6 @@
     required to complete the single call, this display uses enumerate names to
     get the complete namelist of classes and then acquires the class information
     one-by-one and therefore can operate with the normal timeout.</p>
-    <hr>
-    <h2>Return Request</h2>
- If unsuccessful, one of the following status codes MUST be returned
-    by this method, where the first applicable error in the list (starting with
-    the first element of the list, and working down) is the error returned. Any
-    additional method-specific interpretation of the error in is given in
-    parentheses.
-    <UL>
-      <LI>CIM_ERR_ACCESS_DENIED
-      <LI>CIM_ERR_INVALID_NAMESPACE
-
-      <LI>CIM_ERR_INVALID_PARAMETER (including
-      missing,duplicate, unrecognized or otherwise incorrect parameters)
-
-      <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified
-      namespace)
-      <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
-      CIM Instance does not exist in the specified namespace)
-      <LI>CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the
-      requested CIMProperty does not)
-      <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
-    </UL>
-    <hr>
-    <pre>&nbsp;</pre>
   <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
      Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
 

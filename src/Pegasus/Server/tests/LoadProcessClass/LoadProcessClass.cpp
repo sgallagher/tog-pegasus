@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
+// Revision 1.11  2001/03/30 01:59:14  karl
+// clean up get property
+//
 // Revision 1.10  2001/02/18 20:01:45  karl
 // clean up conflict in cout that meant nothing
 //
@@ -92,6 +95,18 @@ int main(int argc, char** argv)
 	c.addProperty(CIMProperty("age", Uint32(0)));
 
 	r.createClass(NAMESPACE, c);
+
+
+	CIMClass d("PEG_Instance");
+
+
+	d.addProperty(CIMProperty("pid", Uint32(0))
+	    .addQualifier(CIMQualifier("key", true)));
+
+	d.addProperty(CIMProperty("name", Uint32(0)));
+	d.addProperty(CIMProperty("age", Uint32(0)));
+
+	r.createClass(NAMESPACE, d);
 
 
 	// cout << "Created Process class with MyProvider Qualifier" <<endl;

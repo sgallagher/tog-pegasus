@@ -1,8 +1,13 @@
 CHANGE LOG FOR PEGASUS
 
+--------------------------------------------------------------
+Version 0.97.4 - In Process.
+
+1. Deamonizaiton added to CIMServer.cpp by Mike Day.  This includes code bothe
+for NT and Linux platforms.
 
 ---------------------------------------------------------------
-Version 0.97.3
+Version 0.97.3 - Released 5 June 2001
 
 1. (KS)OptionManager (CPP and H), Logger (CPP and H), Handler (CPP and H),
 CIMServer (both)
@@ -85,6 +90,7 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
 
 
 

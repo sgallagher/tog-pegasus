@@ -26,7 +26,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Mike Day (mdday@us.ibm.com) 
-=======
+// =======
 // Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////

@@ -1176,9 +1176,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     try
     {
-		String userName = ((IdentityContainer)request->operationContext.
-			                                             get(IdentityContainer :: NAME)).getUserName();
-		_checkNonprivilegedAuthorization(userName);
+		_checkNonprivilegedAuthorization(request->userName);
 
         enumInstanceNames = 
             _subscriptionRepository->enumerateInstanceNamesForClass

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.4  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.3  2001/02/13 02:06:40  mike
 // Added renameFile() method.
 //
@@ -323,7 +327,7 @@ Boolean FileSystem::getDirectoryContents(
     {
 	String name = dir.getName();
 
-	if (name == "." || name ==  "..")
+	if (String::equal(name, ".") || String::equal(name, ".."))
 	    continue;
 
 	paths.append(name);

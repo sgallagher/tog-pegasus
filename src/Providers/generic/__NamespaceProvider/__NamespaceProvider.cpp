@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: __NamespaceProvider.cpp,v $
+// Revision 1.2  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.1  2001/02/24 16:59:12  karl
 // move namespaceprovider to generic directory
 //
@@ -148,7 +152,7 @@ public:
 	for (Uint32 i = 0, n = ns.getSize(); i < n; i++)
 	    {
        	cout <<"Loop " << ns[i] << " " << n << " " << myName << endl;  
-		if (ns[i] == myName)
+		if (String::equal(ns[i], myName))
 		     throw CimException(CimException::ALREADY_EXISTS);
 	    }
 

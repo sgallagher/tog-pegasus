@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.5  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.4  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
 //
@@ -119,11 +123,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 Array<String> _GlobClassesDir(
     const String& path, 
-    const String& className_,
-    const String& superClassName_)
+    const String& className,
+    const String& superClassName)
 {
-    String className = className_;
-    String superClassName = superClassName_;
     Array<String> fileNames;
 
     if (!FileSystem::getDirectoryContents(path, fileNames))
@@ -145,8 +147,10 @@ Array<String> _GlobClassesDir(
 	String first = tmp.subString(0, dot);
 	String second = tmp.subString(dot + 1);
 
-	if ((className == "*" || first == className) &&
-	    (superClassName == "*" || second == superClassName))
+	if ((String::equal(className, "*") || 
+	    CIMName::equal(first, className)) &&
+	    (String::equal(superClassName, "*") || 
+	    CIMName::equal(second, superClassName)))
 	{
 	    result.append(tmp);
 	}
@@ -398,7 +402,7 @@ static void _AppendSubclassesDeepAux(
 {
     for (Uint32 i = 0, n = table.getSize(); i < n; i++)
     {
-	if (className == table[i].second)
+	if (CIMName::equal(className, table[i].second))
 	{
 	    classNames.append(table[i].first);
 	    _AppendSubclassesDeepAux(table, table[i].first, classNames);
@@ -431,7 +435,7 @@ static void _AppendSubclassesDeep(
 	String first = fileName.subString(0, dot);
 	String second = fileName.subString(dot + 1);
 
-	if (second == "#")
+	if (String::equal(second, "#"))
 	    table.append(Node(first, String()));
 	else
 	    table.append(Node(first, second));
@@ -446,10 +450,10 @@ static Boolean _HasSubclasses(
     const String& className)	
 {
     const char CLASSES[] = "/classes";
+
     String path;
     _MakeNameSpacePath(root, nameSpace, path);
     path.append(CLASSES);
-
     Array<String> fileNames = _GlobClassesDir(path, "*", className);
 
     return fileNames.getSize() != 0;
@@ -782,7 +786,7 @@ Array<String> CIMRepository::enumerateClassNames(
 
     if (deepInheritance)
     {
-	if (className == String::EMPTY)
+	if (className.getLength() == 0)
 	{
 	    Array<String> classNames;
 	    _AppendSubclassesDeep(path, String(), classNames);
@@ -797,7 +801,7 @@ Array<String> CIMRepository::enumerateClassNames(
     }
     else
     {
-	if (className == String::EMPTY)
+	if (className.getLength() == 0)
 	{
 	    Array<String> classNames;
 	    _AppendClassNames(path, "*", "#", classNames);

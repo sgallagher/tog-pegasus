@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: CIMReference.cpp,v $
+// Revision 1.2  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
@@ -183,9 +187,9 @@ void CIMReference::setKeyBindings(const Array<KeyBinding>& keyBindings)
 Boolean CIMReference::identical(const CIMReference& x) const
 {
     return 
-	_host == x._host && 
-	_nameSpace == x._nameSpace && 
-	_className == x._className && 
+	String::equal(_host, x._host) && 
+	String::equal(_nameSpace, x._nameSpace) && 
+	CIMName::equal(_className, x._className) && 
 	_keyBindings == x._keyBindings;
 }
 

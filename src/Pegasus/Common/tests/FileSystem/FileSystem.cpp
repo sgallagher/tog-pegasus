@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.5  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.4  2001/02/13 02:06:40  mike
 // Added renameFile() method.
 //
@@ -62,7 +66,7 @@ int main()
 
     for (Uint32 i = 0; i < paths.getSize(); i++)
     {
-	if (paths[i] == "CVS")
+	if (String::equal(paths[i], "CVS"))
 	{
 	    paths.remove(i);
 	    break;
@@ -71,17 +75,17 @@ int main()
 
     String realName;
     assert(FileSystem::existsIgnoreCase("filesystem.cpp", realName));
-    assert(realName == "FileSystem.cpp");
+    assert(String::equal(realName, "FileSystem.cpp"));
 
     assert(FileSystem::existsIgnoreCase(
 	"../FileSystem/filesystem.cpp", realName));
-    assert(realName == "../FileSystem/FileSystem.cpp");
+    assert(String::equal(realName, "../FileSystem/FileSystem.cpp"));
 
     BubbleSort(paths);
     assert(paths.getSize() == 3);
-    assert(paths[0] == "a");
-    assert(paths[1] == "b");
-    assert(paths[2] == "c");
+    assert(String::equal(paths[0], "a"));
+    assert(String::equal(paths[1], "b"));
+    assert(String::equal(paths[2], "c"));
 
     // Try out renameFile:
     {

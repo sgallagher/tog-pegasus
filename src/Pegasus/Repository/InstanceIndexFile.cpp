@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: InstanceIndexFile.cpp,v $
+// Revision 1.3  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.2  2001/02/17 00:34:53  bob
 // Added <cstdlib> for strtol on linux
 //
@@ -124,7 +128,7 @@ Boolean InstanceIndexFile::lookup(
 
 	while (_GetNextLine(is, tmpInstanceName, index, error))
 	{
-	    if (instanceName == tmpInstanceName)
+	    if (String::equal(instanceName, tmpInstanceName))
 	    {
 		indexOut = index;
 		return true;
@@ -171,7 +175,7 @@ Boolean InstanceIndexFile::insert(
 
 	while (_GetNextLine(is, tmpInstanceName, index, error))
 	{
-	    if (instanceName == tmpInstanceName)
+	    if (String::equal(instanceName, tmpInstanceName))
 	    {
 		indexOut = Uint32(-1);
 		return false;
@@ -257,7 +261,7 @@ Boolean InstanceIndexFile::remove(
 
     while (_GetNextLine(is, tmpInstanceName, index, error))
     {
-	if (instanceName == tmpInstanceName)
+	if (String::equal(instanceName, tmpInstanceName))
 	    found = true;
 	else
 	    os << tmpInstanceName << ' ' << index << '\n';

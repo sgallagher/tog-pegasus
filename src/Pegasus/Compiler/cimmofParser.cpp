@@ -23,6 +23,10 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // $Log: cimmofParser.cpp,v $
+// Revision 1.4  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.3  2001/02/18 19:02:17  mike
 // Fixed CIM debacle
 //
@@ -209,7 +213,7 @@ cimmofParser::setRepository(void) {
 //------------------------------------------------------------------
 void 
 cimmofParser::setDefaultNamespacePath(const String &path) {
-  if (_defaultNamespacePath == "")  // it can only be set once
+  if (String::equal(_defaultNamespacePath, ""))  // it can only be set once
     _defaultNamespacePath = path;
 }
 
@@ -241,7 +245,7 @@ cimmofParser::getCurrentNamespacePath() const {
 
 const String &
 cimmofParser::getNamespacePath() const {
-  if (_currentNamespacePath == "") {
+  if (String::equal(_currentNamespacePath, "")) {
     return _defaultNamespacePath;
   }
   return _currentNamespacePath;
@@ -619,7 +623,7 @@ cimmofParser::QualifierValue(const String &qualifierName, const String &valstr)
   //cout << "      type is " << v.getType() << ", isArray=" << v.isArray() <<
   //     endl;
   //cout << "      value to set is " << valstr << endl;
-  if (valstr == String::EMPTY) {
+  if (String::equal(valstr, String::EMPTY)) {
     if (v.getType() == CIMType::BOOLEAN) {
       Boolean b;
       v.get(b);

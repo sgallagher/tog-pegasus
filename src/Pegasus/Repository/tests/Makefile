@@ -6,10 +6,10 @@ XDIRS = \
     TestClasses \
 
 DIRS = \
+    ClassDeclRep \
     Repository \
     QualifierDeclRep \
     NameSpace \
-    ClassDeclRep \
     EnumerateClassNames \
     Inst \
     LoadRepository \

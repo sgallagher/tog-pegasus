@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Dir.cpp,v $
+// Revision 1.3  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.2  2001/02/11 06:52:32  mike
 // fixed compiler error
 //
@@ -54,17 +58,20 @@ void test01()
     {
 	String name = dir.getName();
 
-	if (name == "." || name == ".." || name == "CVS")
+	if (String::equal(name, ".") || String::equal(name, "..") 
+	    || String::equal(name, "CVS"))
+	{
 	    continue;
+	}
 
 	names.append(name);
     }
 
     BubbleSort(names);
     assert(names.getSize() == 3);
-    assert(names[0] == "a");
-    assert(names[1] == "b");
-    assert(names[2] == "c");
+    assert(String::equal(names[0], "a"));
+    assert(String::equal(names[1], "b"));
+    assert(String::equal(names[2], "c"));
 }
 
 int main()

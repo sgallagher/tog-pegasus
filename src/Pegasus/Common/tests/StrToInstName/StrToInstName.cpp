@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: StrToInstName.cpp,v $
+// Revision 1.4  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.3  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
 //
@@ -56,7 +60,7 @@ void test(const String& instanceName)
     // cout << "instanceName[" << instanceName << "]" << endl;
     // cout << "tmpInstanceName[" << tmpInstanceName << "]" << endl;
 
-    assert(instanceName == tmpInstanceName);
+    assert(String::equal(instanceName, tmpInstanceName));
 }
 
 int main()

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
+// Revision 1.6  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.5  2001/02/19 01:47:17  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -84,8 +88,8 @@ void Test01()
     // Print(classNames);
 
     assert(classNames.getSize() == 2);
-    assert(classNames[0] == "Class1");
-    assert(classNames[1] == "Class2");
+    assert(CIMName::equal(classNames[0], "Class1"));
+    assert(CIMName::equal(classNames[1], "Class2"));
 
     // Attempt to delete Class1. It should fail since the class has
     // children.

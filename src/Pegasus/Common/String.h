@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.9  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.8  2001/02/20 14:05:24  karl
 // Comments for Document
 //
@@ -227,6 +231,21 @@ public:
     */
     static int compare(const Char16* s1, const Char16* s2);
 
+    /// Return true if the two strins are equal.
+    static Boolean equal(const String& x, const String& y);
+
+    /// Return true if the two strins are equal.
+    static Boolean equal(const String& x, const Char16* y);
+
+    /// Return true if the two strins are equal.
+    static Boolean equal(const Char16* x, const String& y);
+
+    /// Return true if the two strins are equal.
+    static Boolean equal(const String& x, const char* y);
+
+    /// Return true if the two strins are equal.
+    static Boolean equal(const char* x, const String& y);
+
     /// Convert the plain old C-string to lower case:
     static void toLower(char* str);
 
@@ -243,15 +262,24 @@ private:
     Array<Char16> _rep;
 };
 
-PEGASUS_COMMON_LINKAGE Boolean operator==(const String& x, const String& y);
+inline Boolean operator==(const String& x, const String& y)
+{
+    return String::equal(x, y);
+}
 
-PEGASUS_COMMON_LINKAGE Boolean operator==(const String& x, const char* y);
+inline Boolean operator==(const String& x, const char* y)
+{
+    return String::equal(x, y);
+}
 
-PEGASUS_COMMON_LINKAGE Boolean operator==(const char* x, const String& y);
+inline Boolean operator==(const char* x, const String& y)
+{
+    return String::equal(x, y);
+}
 
 inline Boolean operator!=(const String& x, const String& y)
 {
-    return !operator==(x, y);
+    return !String::equal(x, y);
 }
 
 PEGASUS_COMMON_LINKAGE std::ostream& operator<<(

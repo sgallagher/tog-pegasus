@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.11  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.10  2001/02/21 01:50:30  karl
 // comments
 //
@@ -623,6 +627,16 @@ void Array<T>::_copyOnWriteAux()
 }
 
 template<class T>
+inline Boolean Equal(const T& x, const T& y)
+{
+    return x == y;
+}
+
+const class String;
+
+PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
+
+template<class T>
 Boolean operator==(const Array<T>& x, const Array<T>& y)
 {
     if (x.getSize() != y.getSize())
@@ -630,7 +644,7 @@ Boolean operator==(const Array<T>& x, const Array<T>& y)
 
     for (Uint32 i = 0, n = x.getSize(); i < n; i++)
     {
-	if (!(x[i] == y[i]))
+	if (!Equal(x[i], y[i]))
 	    return false;
     }
 

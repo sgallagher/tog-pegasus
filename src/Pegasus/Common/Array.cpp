@@ -23,13 +23,18 @@
 // Author:
 //
 // $Log: Array.cpp,v $
-// Revision 1.1  2001/01/14 19:50:33  mike
-// Initial revision
+// Revision 1.2  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
+// Revision 1.1.1.1  2001/01/14 19:50:33  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
 #include "Array.h"
+#include "String.h"
 #include "Exception.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -37,6 +42,13 @@ PEGASUS_NAMESPACE_BEGIN
 void ThrowOutOfBounds()
 {
     throw OutOfBounds();
+}
+
+// ATTN-A: Remove this function!
+
+Boolean Equal(const String& x, const String& y)
+{
+    return String::equal(x, y);
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: CIMReference.h,v $
+// Revision 1.3  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.2  2001/02/20 14:05:24  karl
 // Comments for Document
 //
@@ -73,6 +77,7 @@ CIMReference.h defines the KeyBinding and CIMReference Classes
 #define Pegasus_Reference_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
@@ -150,7 +155,10 @@ private:
 
 inline Boolean operator==(const KeyBinding& x, const KeyBinding& y)
 {
-    return x._name == y._name && x._value == y._value && x._type == y._type;
+    return 
+	CIMName::equal(x._name, y._name) && 
+	String::equal(x._value, y._value) && 
+	x._type == y._type;
 }
 
 typedef Array<KeyBinding> KeyBindingArray;

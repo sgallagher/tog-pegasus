@@ -12,22 +12,23 @@
 
     Now:
 
-    -    Get ACE working on Tandem (or remove ACE from Pegasus).
-    -    Port Pegasus to Tandem (look for Tandem machine at BMC).
-    -    Instance repository.
-    -    Finalize provider interface.
-    -    Associations (basic).
-    -    Provider registration (by the standard).
-    -    MOF compiler (finalize).
-    -    Write short paper on Pegasus data objects.
-    -    Integrate DOC++ with make system.
-    -    Implement the process provider.
-    -    Compaq requested SQL level-1 description.
-    -    Get rid of ACE (required if no ACE on Tandem).
-    -    Need query capability for Compaq.
-    -    Threading (and process forking).
-    -    Implement protocol module (the default uses ACE).
-    -	 Package up pegasus in Install Shield application.
+    -	Change CimException to CIMException
+    -   Get ACE working on Tandem (or remove ACE from Pegasus).
+    -   Port Pegasus to Tandem (look for Tandem machine at BMC).
+    -   Instance repository.
+    -   Finalize provider interface.
+    -   Associations (basic).
+    -   Provider registration (by the standard).
+    -   MOF compiler (finalize).
+    -   Write short paper on Pegasus data objects.
+    -   Integrate DOC++ with make system.
+    -   Implement the process provider.
+    -   Compaq requested SQL level-1 description.
+    -   Get rid of ACE (required if no ACE on Tandem).
+    -   Need query capability for Compaq.
+    -   Threading (and process forking).
+    -   Implement protocol module (the default uses ACE).
+    -	Package up pegasus in Install Shield application.
 
 
     ------------------------------------------------------------------------

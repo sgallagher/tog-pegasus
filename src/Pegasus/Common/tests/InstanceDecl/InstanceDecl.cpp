@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: InstanceDecl.cpp,v $
+// Revision 1.4  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
 //
@@ -106,7 +110,8 @@ void test02()
     String instanceName = cimInstance.getInstanceName(ConstCIMClass(cimClass));
 
     const char EXPECT[] = "myclass.age=101,first=\"John\",last=\"Smith\"";
-    assert(instanceName == EXPECT);
+
+    assert(String::equal(instanceName, EXPECT));
 }
 
 int main()

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: CIMValue.cpp,v $
+// Revision 1.2  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
@@ -1330,7 +1334,7 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 		return x._u._char16Value == y._u._char16Value;
 
 	    case CIMType::STRING:
-		return *x._u._stringValue == *y._u._stringValue;
+		return String::equal(*x._u._stringValue, *y._u._stringValue);
 
 	    case CIMType::DATETIME:
 		return *x._u._dateTimeValue == *y._u._dateTimeValue;

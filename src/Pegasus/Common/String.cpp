@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.4  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.3  2001/02/11 17:19:30  mike
 // added reverseFind() method
 //
@@ -238,27 +242,6 @@ void String::remove(Uint32 pos, Uint32 size)
 	_rep.remove(pos, size);
 }
 
-Boolean operator==(const String& x, const String& y)
-{
-    if (x.getLength() != y.getLength())
-	return false;
-
-    return String::compare(x.getData(), y.getData(), x.getLength()) == 0;
-}
-
-Boolean operator==(const String& x, const Char16* y)
-{
-    if (x.getLength() != StrLen(y))
-	return false;
-
-    return String::compare(x.getData(), y, x.getLength()) == 0;
-}
-
-inline Boolean operator==(const Char16* x, const String& y)
-{
-    return operator==(y, x);
-}
-
 int String::compare(const Char16* s1, const Char16* s2, Uint32 n)
 {
     while (n--)
@@ -271,6 +254,38 @@ int String::compare(const Char16* s1, const Char16* s2, Uint32 n)
 
     return 0;
 }
+
+Boolean String::equal(const String& x, const String& y)
+{
+    if (x.getLength() != y.getLength())
+	return false;
+
+    return String::compare(x.getData(), y.getData(), x.getLength()) == 0;
+}
+
+Boolean String::equal(const String& x, const Char16* y)
+{
+    if (x.getLength() != StrLen(y))
+	return false;
+
+    return String::compare(x.getData(), y, x.getLength()) == 0;
+}
+
+Boolean String::equal(const Char16* x, const String& y)
+{
+    return equal(y, x);
+}
+
+Boolean String::equal(const String& x, const char* y)
+{
+    return equal(x, String(y));
+}
+
+Boolean String::equal(const char* x, const String& y)
+{
+    return equal(String(x), y);
+}
+
 
 String String::subString(Uint32 pos, Uint32 length) const
 {
@@ -336,16 +351,6 @@ std::ostream& operator<<(std::ostream& os, const String& x)
 	os << x[i];
 
     return os;
-}
-
-Boolean operator==(const String& x, const char* y)
-{
-    return operator==(x, String(y));
-}
-
-Boolean operator==(const char* x, const String& y)
-{
-    return operator==(String(x), y);
 }
 
 void String::toLower(char* str)

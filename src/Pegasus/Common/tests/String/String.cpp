@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.3  2001/02/26 04:33:30  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.2  2001/02/11 05:42:33  mike
 // new
 //
@@ -46,7 +50,7 @@ int main()
     String s2 = s1;
     String s3(s2);
 
-    assert(s1 == s3);
+    assert(String::equal(s1, s3));
 
     String s4 = "Hello";
     s4.append(Char16(0x0000));
@@ -99,38 +103,38 @@ int main()
     {
 	String s = "abcdefg";
 	s.remove(3, 3);
-	assert(s == "abcg");
+	assert(String::equal(s, "abcg"));
 	assert(s.getLength() == 4);
 
 	s = "abcdefg";
 	s.remove(3, 4);
-	assert(s == "abc");
+	assert(String::equal(s, "abc"));
 	assert(s.getLength() == 3);
 
 	s = "abcdefg";
 	s.remove(3);
-	assert(s == "abc");
+	assert(String::equal(s, "abc"));
 	assert(s.getLength() == 3);
 
 	s = "abc";
 	s.remove(3);
-	assert(s == "abc");
+	assert(String::equal(s, "abc"));
 	assert(s.getLength() == 3);
 
 	s = "abc";
 	s.remove(0);
-	assert(s == "");
+	assert(String::equal(s, ""));
 	assert(s.getLength() == 0);
 
 	s = "abc";
 	s.remove(0, 1);
-	assert(s == "bc");
+	assert(String::equal(s, "bc"));
 	assert(s.getLength() == 2);
 
 	String t1 = "HELLO";
 	String t2 = ToLower(t1);
-	assert(t1 == "HELLO");
-	assert(t2 == "hello");
+	assert(String::equal(t1, "HELLO"));
+	assert(String::equal(t2, "hello"));
     }
 
     cout << "+++++ passed all tests" << endl;

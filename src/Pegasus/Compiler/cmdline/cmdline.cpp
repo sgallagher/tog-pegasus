@@ -182,7 +182,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata) {
 	break;
       }
   }
-  if (cmdlinedata.get_repository_name() == String::EMPTY) {
+  if (String::equal(cmdlinedata.get_repository_name(), String::EMPTY)) {
     // FIXME
     cerr << "You must specify -R or set PEGASUS_HOME environment variable"
 	    << endl;

@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: XmlReader.cpp,v $
+// Revision 1.4  2001/02/26 04:33:28  mike
+// Fixed many places where cim names were be compared with operator==(String,String).
+// Changed all of these to use CIMName::equal()
+//
 // Revision 1.3  2001/02/19 01:47:16  mike
 // Renamed names of the form CIMConst to ConstCIM.
 //
@@ -1647,11 +1651,11 @@ KeyBinding::CIMType XmlReader::getValueTypeAttribute(
     if (!entry.getAttributeValue("VALUETYPE", tmp))
 	return KeyBinding::STRING;
 
-    if (tmp == "string")
+    if (String::equal(tmp, "string"))
 	return KeyBinding::STRING;
-    else if (tmp == "boolean")
+    else if (String::equal(tmp, "boolean"))
 	return KeyBinding::BOOLEAN;
-    else if (tmp == "numeric")
+    else if (String::equal(tmp, "numeric"))
 	return KeyBinding::NUMERIC;
 
     char buffer[MESSAGE_SIZE];

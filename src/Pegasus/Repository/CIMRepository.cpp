@@ -709,7 +709,6 @@ Array<CIMObjectWithPath> CIMRepository::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-PEGASUS_TRACE;
     Array<CIMReference> names = associatorNames(
 	nameSpace,
 	objectName,
@@ -718,13 +717,10 @@ PEGASUS_TRACE;
 	role,
 	resultRole);
 
-PEGASUS_OUT(names.size());
-PEGASUS_TRACE;
     Array<CIMObjectWithPath> result;
 
     for (Uint32 i = 0, n = names.size(); i < n; i++)
     {
-PEGASUS_TRACE;
 	String tmpNameSpace = names[i].getNameSpace();
 
 	if (tmpNameSpace.size() == 0)
@@ -742,7 +738,8 @@ PEGASUS_TRACE;
 		includeClassOrigin,
 		propertyList);
 
-	    result.append(CIMObjectWithPath(reference, CIMObject(cimClass)));
+	    CIMObject cimObject(cimClass);
+	    result.append(CIMObjectWithPath(reference, cimObject));
 	}
 	else
 	{
@@ -754,7 +751,8 @@ PEGASUS_TRACE;
 		includeClassOrigin,
 		propertyList);
 
-	    result.append(CIMObjectWithPath(reference, CIMObject(cimInstance)));
+	    CIMObject cimObject(cimInstance);
+	    result.append(CIMObjectWithPath(reference, cimObject));
 	}
     }
 

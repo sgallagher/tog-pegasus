@@ -17,7 +17,7 @@
 // HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
+// 
 //==============================================================================
 //
 // Author: Mike Day (mdday@us.ibm.com)
@@ -51,12 +51,10 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size,
 				       line) ;
 }
 
-
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead) 
 {
    internal_allocator.vs_free(dead); 
 }
-
 
 void * operator new(size_t size)
 {
@@ -200,35 +198,13 @@ peg_suballocator::peg_suballocator(Sint8 *log_file_name, Boolean mode)
 }
 
 peg_suballocator::~peg_suballocator(void)
-{
+{ 
    DeInitSubAllocator(&internal_handle);
 }
 
 peg_suballocator::SUBALLOC_HANDLE *peg_suballocator::InitializeProcessHeap(Sint8 *f)
 {
-   WAIT_MUTEX(&init_mutex);
-   if( initialized == 0 )
-   {
-      RELEASE_MUTEX(&init_mutex);
-      if(false == InitializeSubAllocator())
-	 return NULL;
-      WAIT_MUTEX(&init_mutex);
-   }
-   
-   SUBALLOC_HANDLE *h = NULL;
-   
-   if(initialized )
-   {
-      h = (SUBALLOC_HANDLE *)calloc(1, sizeof(SUBALLOC_HANDLE));
-      /* FREE the handle on de-init !!!! */
-      if (NULL != h)
-      {
-	 memcpy(&(h->logpath[0]), f, 255);
-	 init_count++;
-      }
-   }
-   RELEASE_MUTEX(&init_mutex);
-   return(h);
+   return new SUBALLOC_HANDLE(f);
 }	
 
 /****************************************************************
@@ -691,7 +667,6 @@ void peg_suballocator::PutHugeNode(SUBALLOC_NODE *node)
  *   		 or NULL. 
  *
  ***************************************************************/
-
 void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, Sint8 *classname, Sint8 *f, Sint32 l)
 {
    // we don't need to grab any semaphores, 
@@ -787,7 +762,7 @@ void *peg_suballocator::vs_calloc(size_t num, size_t s, void *handle, int type, 
       temp = GetNode(1, (size >> 8));
    }
    else if (! (size >> 16))
-   {
+   { 
       temp = GetNode(2, (size >> 12));
    }
    else
@@ -918,7 +893,7 @@ Sint8 * peg_suballocator::vs_strdup(const Sint8 *string, void *handle, int type,
  ***************************************************************/
 Boolean peg_suballocator::_UnfreedNodes(void * handle)
 {
-   Sint8 i, y;
+   Sint8 i, y;  
    Sint32 waitCode;
    SUBALLOC_NODE *temp;
    Boolean ccode = false;
@@ -940,8 +915,8 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 	    {
 	       if (dumpFile != NULL)
 	       {
-		  fprintf(dumpFile, "\nfreeing memory: vector %d index %d %s, %s, %s", 
-			  y, i, temp->classname, temp->file, temp->line);
+		  fprintf(dumpFile, "\nfreeing memory: %s, %s, %s", 
+			  temp->classname, temp->file, temp->line);
 	       }
 	       ccode = true;
 	       temp->avail = AVAILABLE;

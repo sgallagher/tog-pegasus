@@ -18,7 +18,7 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
+//============================================================================
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
@@ -104,6 +104,8 @@ namespace
 
 PEGASUS_NAMESPACE_BEGIN
 
+class guardian;
+
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t, Sint8 *classname, Sint8 *file, int line );
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
 
@@ -160,11 +162,32 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 #endif
 
-
 // to reduce the number of wasted bytes:
 // reduce GUARD_SIZE
 // eliminate guard checking from SUBALLOC_NODEs 
 // 
+
+class peg_suballoc;
+
+#define PEGASUS_MEMCHECK(a) pegasus_alloc(1, (a), __FILE__, __LINE__)
+
+typedef class PEGASUS_SUBALLOC_LINKAGE guardian
+{
+   private:
+      guardian(void);
+      void *_ptr;
+      
+   public:
+      guardian(void *ptr)
+	 :_ptr(ptr)
+      {
+      }
+      virtual ~guardian(void)
+      {
+	 delete _ptr;
+      }
+} PEGASUS_CHECKED_OBJECT ;
+
 
 class PEGASUS_SUBALLOC_LINKAGE peg_suballocator 
 {
@@ -218,14 +241,13 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       PEGASUS_MUTEX_T init_mutex;
       Boolean debug_mode;
 
-      
-      
-      int CREATE_MUTEX(PEGASUS_MUTEX_T *mut);
-      void WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result);
-      void WAIT_MUTEX(PEGASUS_MUTEX_T *mut);
-      void RELEASE_MUTEX(PEGASUS_MUTEX_T *mut);
-      void CLOSE_MUTEX(PEGASUS_MUTEX_T *mut);
-
+   public:
+      static int CREATE_MUTEX(PEGASUS_MUTEX_T *mut);
+      static void WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result);
+      static void WAIT_MUTEX(PEGASUS_MUTEX_T *mut);
+      static void RELEASE_MUTEX(PEGASUS_MUTEX_T *mut);
+      static void CLOSE_MUTEX(PEGASUS_MUTEX_T *mut);
+   private:
       Boolean IS_HEAD(SUBALLOC_NODE *x);
       void INSERT(SUBALLOC_NODE *new_node, SUBALLOC_NODE *after);
       void INSERT_AFTER(SUBALLOC_NODE *new_node, SUBALLOC_NODE *after);
@@ -261,7 +283,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 
       inline Boolean PEGASUS_DEBUG_ALLOC(void) { return _debug; }
 
-      typedef class _suballocHandle 
+      typedef class PEGASUS_SUBALLOC_LINKAGE _suballocHandle 
       { 
 	 public:
 	    Sint8 logpath[MAX_PATH_LEN + 1];
@@ -279,7 +301,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
       }SUBALLOC_HANDLE;
 
       Boolean InitializeSubAllocator(Sint8 *f = NULL);
-      SUBALLOC_HANDLE *InitializeProcessHeap(Sint8 *f = NULL);
+      static SUBALLOC_HANDLE *InitializeProcessHeap(Sint8 *f = NULL);
       void *vs_malloc(size_t size, void *handle, int type = NORMAL, Sint8 *classname = 0, Sint8 *f = 0, Sint32 l = 0);
       void *vs_calloc(size_t num, size_t size, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
       void *vs_realloc(void *pblock, size_t newsize, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);

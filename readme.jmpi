@@ -1,0 +1,112 @@
+
+Java Manageability Programming Interface - JMPI
+
+Author: Adrian Schuur, schuur@de.ibm.com  - 30 Apr 2004 -
+
+First installment
+
+   This installment of JMPI has been committed to the 2.4 branch.
+   This installment has been build and tested on Suse 9.0 with Sun's j2sdk 1.4.2_04.
+
+
+Environment settings
+
+   In order to build this support a few environment variables have to used.
+   The following script has been proven useful for setting up the build and execution environment.
+   You might need to adjust this to your system layout.
+
+   export PEGASUS_HOME=`pwd`
+   export PEGASUS_PLATFORM=LINUX_IX86_GNU
+   export ENABLE_PROVIDER_MANAGER2=1
+   export ENABLE_CMPI_PROVIDER_MANAGER=1
+   export ENABLE_JMPI_PROVIDER_MANAGER=1
+   export PEGASUS_DEBUG=1
+   export JAVA_SDK=/usr/java/j2sdk1.4.2_04
+   export JAVA_SDKINC=$JAVA_SDK/include
+   export LD_LIBRARY_PATH=$PEGASUS_HOME/lib:$JAVA_SDK/jre/lib/i386/server:$JAVA_SDK/jre/lib/i386/native_threads:$JAVA_SDK/jre/lib/i386
+   export PATH=$JAVA_SDK/bin:$PATH
+   export CLASSPATH=$PEGASUS_HOME/src/Pegasus/ProviderManager2/JMPI
+   export PATH=$PEGASUS_HOME/bin:$PATH
+   export PEGASUS_ROOT=$PEGASUS_HOME
+   export LD_ASSUME_KERNEL=2.2.5
+   cd $PEGASUS_HOME
+
+   When using this script, place a copy of this script above your PEGASUS_HOME directory.
+   "cd" to PEGASUS_HOME, and issue ". ../setJPeg". Then do a normal make.
+
+
+This installent has a number of restrictios:
+
+   The provider interfaces follow the SNIA OpenWBEM APIs
+   Only Instance and Association providers are supported at the moment.
+	SetProperty and GetProperty CIM operations will crash cimserver
+   Jar support is not yet implemented - all classes must be accessable via the CLASSPATH variabe.
+   The Makefiles are not yet Pegasus conforming.
+	cimmofl must be used for provider registration.
+
+	Unloading of idle providers is not supported and Java will increase the memory footprint.
+
+
+poststarttests
+
+   This installment has a set of tests modelled after wetest/static. All tests work properly except
+   the Property tests. I had to modify "diff" to "diff -w", why that is needed I do not understand.
+
+
+Building poststarttests:
+
+   cd to .../src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/Load
+   Issue "make"
+
+   This will load a schema to the repository and register the provider.
+
+
+Running poststarttests:
+
+   cd to .../src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests
+   Issue "find -name "*.rsp" -exec rm {} \;" to clean up *.rsp files
+   Issue "make poststarttests"
+
+
+Samples
+
+   The provider used for posstarttest,
+	.../JMPI/org/pegasus/jmpi/test/JMPI_TestPropertyTypes/JMPI_TestPropertyTest.java is a working
+	example of how to code an JMPI tyle instance provider.
+	This directors also constains the required Makefile.
+
+	.../JMPI/org/pegasus/jmpi/sample contains more samples, one of which is an incomplete CIMClient
+	sample.
+
+	Notice that all provider classes must be accessibe via the CASSPATH environment setting.
+
+
+Provider Registration
+
+   JMPI providers are registered as usual. The Location property in P_ProviderModule has a special format.
+	The format is: <jar-file-name>:<provider-class-name>
+
+	Although jar support is not yet working correctly, this format must be used. You should use cimmofl
+	for registration untill cimmof is prepared for JMPI.
+
+   instance of PG_ProviderModule
+   {
+      Name = "JMPI_TestPropertyTypesModule";
+      Location = "JMPI_TestPropertyTypes.jar:"
+		           "org/pegasus/jmpi/tests/JMPI_TestPropertyTypes/JMPI_TestPropertyTypes";
+      Vendor = "Pegasus Community";
+      Version = "2.0.0";
+      InterfaceType = "JMPI";
+      InterfaceVersion = "1.0.0";
+   };
+
+
+Bug reports
+
+   Use normal Pegasus bugzilla procedures to report malfunctions. However, I will be out of town and
+   offline though 5/14/2004.
+
+	
+Regards, Adrian Schuur.
+
+

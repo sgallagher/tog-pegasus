@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 {
     try
     {
-  #ifdef PEGASUS_USE_23HTTPMONITOR
+  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	Monitor* monitor = new Monitor;
 	HTTPConnector* httpConnector = new HTTPConnector(monitor);
   #else

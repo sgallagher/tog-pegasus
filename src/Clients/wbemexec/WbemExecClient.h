@@ -200,7 +200,7 @@ private:
     String _getLocalHostName();
     String _promptForPassword();
 
-    #ifdef PEGASUS_USE_23HTTPMONITOR
+    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     Monitor* _monitor;
     HTTPConnector* _httpConnector;
     HTTPConnection* _httpConnection;

@@ -211,7 +211,7 @@ int main()
     {
 	// Create a monitor to watch for activity on sockets:
 
-  #ifdef PEGASUS_USE_23HTTPMONITOR
+  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
   Monitor* monitor = new Monitor;
   #else
   monitor_2* monitor = new monitor_2;
@@ -224,7 +224,7 @@ int main()
 	// Create an acceptor to wait for and accept connections on the
 	// server port.
 
-  #ifdef PEGASUS_USE_23HTTPMONITOR
+  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
   HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor,webServerQueueue);
   #else
   pegasus_acceptor* httpAcceptor = new pegasus_acceptor(monitor,webServerQueueue);
@@ -243,7 +243,7 @@ int main()
 	for (;;)
 	{
 	    // cout << "Loop..." << endl;
-      #ifdef PEGASUS_USE_23HTTPMONITOR
+      #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	    monitor->run(FIVE_SECONDS_MSEC);
       #else
       monitor->run();

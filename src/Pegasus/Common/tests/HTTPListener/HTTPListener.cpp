@@ -77,7 +77,7 @@ int main()
 	for (;;)
 	{
 	    cout << "Loop..." << endl;
-      #ifdef PEGASUS_USE_23HTTPMONITOR
+      #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	    monitor->run(5000);
       #else
       monitor->run();

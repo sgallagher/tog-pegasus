@@ -97,7 +97,7 @@ WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     //
     // Create Monitor and HTTPConnector
     //
-    #ifdef PEGASUS_USE_23HTTPMONITOR
+    #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
     _monitor = new Monitor();
     _httpConnector = new HTTPConnector(_monitor);
     #else
@@ -141,7 +141,7 @@ void WbemExecClient::_connect(
     //{
     //    throw e;
     //}
-    
+
     _connected = true;
     _isRemote  = true;
 }
@@ -219,7 +219,7 @@ void WbemExecClient::connectLocal()
         //
         // Look up the WBEM HTTP port number for the local system
         //
-        portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME, 
+        portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
             WBEM_DEFAULT_HTTP_PORT);
 
         //
@@ -236,7 +236,7 @@ void WbemExecClient::connectLocal()
         //
         // Look up the WBEM HTTPS port number for the local system
         //
-        portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, 
+        portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
             WBEM_DEFAULT_HTTPS_PORT);
 
         //
@@ -285,9 +285,9 @@ void WbemExecClient::disconnect()
 }
 
 /**
-  
+
     Prompt for password.
-  
+
     @return  String value of the user entered password
 
  */
@@ -301,7 +301,7 @@ String WbemExecClient::_promptForPassword()
   do
     {
       pw = System::getPassword( PASSWORD_PROMPT );
-      
+
       if ( pw == String::EMPTY || pw == "" )
 	{
 	  if( retries < MAX_PW_RETRIES )
@@ -331,9 +331,9 @@ Array<Sint8> WbemExecClient::issueRequest(
     {
 	throw NotConnectedException();
     }
-    
+
     HTTPMessage* httpRequest = new HTTPMessage(request);
-    
+
     _authenticator.setRequestMessage(httpRequest);
 
     Boolean finished = false;
@@ -368,13 +368,13 @@ Array<Sint8> WbemExecClient::issueRequest(
             delete httpResponse;
         }
     } while (!finished);
-    
+
     HTTPMessage* origRequest = (HTTPMessage*)_authenticator.getRequestMessage();
     _authenticator.setRequestMessage(0);
     delete origRequest;
 
     Destroyer<HTTPMessage> destroyer(httpResponse);
-    
+
     return(httpResponse->message);
 }
 
@@ -395,7 +395,7 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
 	//
 	// Wait until the timeout expires or an event occurs:
 	//
-  #ifdef PEGASUS_USE_23HTTPMONITOR
+  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	_monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
   #else
   _monitor->run();

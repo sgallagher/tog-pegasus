@@ -220,10 +220,10 @@ int main(int argc, char** argv)
     try
     {
  WebClientQueue* webClientQueue = new WebClientQueue;
-  #ifdef PEGASUS_USE_23HTTPMONITOR
+  #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
   Monitor* monitor = new Monitor;
   HTTPConnector* httpConnector = new HTTPConnector(monitor);
-  HTTPConnection* connection 
+  HTTPConnection* connection
 	    = httpConnector->connect(host, portNumber, webClientQueue);
   #else
   monitor_2* monitor = new monitor_2;
@@ -232,14 +232,14 @@ int main(int argc, char** argv)
 	    = httpConnector->connect(host, portNumber, webClientQueue);
   #endif
 
-      
+
 
 	GetDocument(connection, host, portNumber, document);
 
 	for (;;)
 	{
 	    cout << "Loop..." << endl;
-      #ifdef PEGASUS_USE_23HTTPMONITOR
+      #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
 	    monitor->run(5000);
       #else
       monitor->run();

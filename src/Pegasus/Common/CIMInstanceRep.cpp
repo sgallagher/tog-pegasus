@@ -29,6 +29,7 @@
 #include "CIMInstanceRep.h"
 #include "CIMInstance.h"
 #include "CIMClassRep.h"
+#include "CIMScope.h"
 #include "DeclContext.h"
 #include "Indentor.h"
 #include "CIMName.h"

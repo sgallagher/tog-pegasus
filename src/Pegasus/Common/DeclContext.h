@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 

@@ -34,8 +34,6 @@
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>

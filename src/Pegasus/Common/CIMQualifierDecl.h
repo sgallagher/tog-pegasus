@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,13 @@
 #define Pegasus_QualifierDecl_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMQualifierDeclRep.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/CIMScope.h>
+#include <Pegasus/Common/CIMType.h>
+#include <Pegasus/Common/CIMValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,214 +58,130 @@ class PEGASUS_COMMON_LINKAGE CIMQualifierDecl
 {
 public:
     /// Constructor - 
-    CIMQualifierDecl() : _rep(0)
-    {
+    CIMQualifierDecl();
 
-    }
     /// Constructor - Creates a CIMQualifierDecl from another CIMQualifierDecl
+    CIMQualifierDecl(const CIMQualifierDecl& x);
 
-    CIMQualifierDecl(const CIMQualifierDecl& x) 
-    {
-	Inc(_rep = x._rep); 
-    }
     /** Constructor for CIMQualifierDecl. Constructs a single CIMQualifierDecl
-		object.
-		@param name	 Name of the Qualifier being declared
-		@param value CIMValue for the qualifier
-		@param scope scope of the qualifier
-		@param flavor Optional defintion of the flavor for the qualifier.  
-		CIMFlavor::DEFAULTS is used if no value supplied.  This is how we install
-		the flavor defaults defined in the CIM specificaiton
-        @param arraySize Optional integer defining the arraysize if the qualifier is an
-		array type with fixed value array. The default is zero indicating that
-		the qualifier declaration is not a fixed size array.
-		@exceptions Throws IllegalName if name argument not legal CIM identifier.
+        object.
+        @param name Name of the Qualifier being declared
+        @param value CIMValue for the qualifier
+        @param scope scope of the qualifier
+        @param flavor Optional defintion of the flavor for the qualifier.  
+        CIMFlavor::DEFAULTS is used if no value supplied.  This is how we
+        install the flavor defaults defined in the CIM specificaiton
+        @param arraySize Optional integer defining the arraysize if the
+        qualifier is an array type with fixed value array. The default is
+        zero indicating that the qualifier declaration is not a fixed size
+        array.
+        @exception IllegalName if name argument not legal CIM identifier.
     */
-    
     CIMQualifierDecl(
-	const String& name, 
-	const CIMValue& value, 
-	Uint32 scope,
-	Uint32 flavor = CIMFlavor::DEFAULTS,
-	Uint32 arraySize = 0)
-    {
-	_rep = new CIMQualifierDeclRep(name, value, scope, flavor, arraySize);
-    }
+        const String& name, 
+        const CIMValue& value, 
+        Uint32 scope,
+        Uint32 flavor = CIMFlavor::DEFAULTS,
+        Uint32 arraySize = 0);
+
     /// Destructor
-    ~CIMQualifierDecl()
-    {
-	Dec(_rep);
-    }
+    ~CIMQualifierDecl();
+
     /// Operator
-    CIMQualifierDecl& operator=(const CIMQualifierDecl& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
+    CIMQualifierDecl& operator=(const CIMQualifierDecl& x);
 
-	return *this;
-    }
     /** CIMMethod ATTN:
-
-    
     */
-    const String& getName() const 
-    { 
-	_checkRep();
-	return _rep->getName(); 
-    }
+    const String& getName() const;
 
     /** setName - Puts the name into a CIMQualifierdecl
-    @param Name String containing name to be put on this qualifier.
-    This must be a legal qualifier name.
-    @exception - Throws IllegalName if name argument not a legal
-    CIM Qualifier name
+        @param Name String containing name to be put on this qualifier.
+        This must be a legal qualifier name.
+        @exception - Throws IllegalName if name argument not a legal
+        CIM Qualifier name
     */
-    void setName(const String& name) 
-    { 
-	_checkRep();
-	_rep->setName(name); 
-    }
+    void setName(const String& name);
+
     /** getType - gets the Qualifier Declaration type which is the
         value type (boolean, etc. for this qualifier.
         ATTN: P3 Documentation clean up
         @return Returns the type as CIMType
     */
-    CIMType getType() const 
-    { 
-	_checkRep();
-	return _rep->getType(); 
-    }
+    CIMType getType() const;
+
     /** isArray - test if this qualifier declaration is an array type.
-    @return Boolean true if this is array type.
-    ATTN: P1 KS 04/17/02 Confirm this correspond to array type or fixed array?
+        @return Boolean true if this is array type.
+        ATTN: P1 KS 04/17/02 Confirm this correspond to array type or fixed array?
     */
-    Boolean isArray() const 
-    {
-	_checkRep();
-	return _rep->isArray();
-    }
+    Boolean isArray() const;
+
     /** CIMMethod
-    
     */
-    const CIMValue& getValue() const 
-    { 
-	_checkRep();
-	return _rep->getValue(); 
-    }
+    const CIMValue& getValue() const;
+
     /** CIMMethod
-    
     */
-    void setValue(const CIMValue& value) 
-    { 
-	_checkRep();
-	_rep->setValue(value); 
-    }
+    void setValue(const CIMValue& value);
+
     /** CIMMethod
-    
     */
-    Uint32 getScope() const 
-    {
-	_checkRep();
-	return _rep->getScope();
-    }
+    Uint32 getScope() const;
+
     /** getFlavor - Gets the Flavor definition from the qualifer declaration
-		constant
-		@return - a Uint32 integer containing the flavor flags.  This can be
-		tested against the flavor constants defined in CIMFlavor.
-		@SeeAlso 
-
+        constant
+        @return - a Uint32 integer containing the flavor flags.  This can be
+        tested against the flavor constants defined in CIMFlavor.
+        @SeeAlso 
     */
+    Uint32 getFlavor() const;
 
-    Uint32 getFlavor() const 
-    {
-	_checkRep();
-	return _rep->getFlavor();
-    }
-
-	/**	isFlavor - Boolean function that determines if particular flavor
-	flags are set in the flavor variable of a qualifier.
-	@param flavor - The flavor bits to test.
-	Return True if the defined flavor is set.
-	<pre>
-	if (q.isFlavor(CIMType::TOSUBCLASS)
-		do something based on TOSUBCLASS being true
-	</pre>
-		
-	*/
-	Boolean isFlavor(Uint32 flavor) const
-	{
-		return ((getFlavor() & flavor) !=0);
-	}
+    /** isFlavor - Boolean function that determines if particular flavor
+        flags are set in the flavor variable of a qualifier.
+        @param flavor - The flavor bits to test.
+        Return True if the defined flavor is set.
+        <pre>
+        if (q.isFlavor(CIMType::TOSUBCLASS)
+            do something based on TOSUBCLASS being true
+        </pre>
+    */
+    Boolean isFlavor(Uint32 flavor) const;
 
     /** CIMMethod
-
     */
+    Uint32 getArraySize() const;
 
-    Uint32 getArraySize() const 
-    {
-	_checkRep();
-	return _rep->getArraySize();
-    }
+#ifdef PEGASUS_INTERNALONLY
     /** CIMMethod
-    
     */
-
-    operator int() const { return _rep != 0; }
+    operator int() const;
+#endif
     
     /** toXml  Generates XML output for the Qualifier Declaration object.
-    
     */
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
+    void toXml(Array<Sint8>& out) const;
 
     /** toMof  Generates MOF output for the Qualifier Declaration object.
-    
     */
-    void toMof(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toMof(out);
-    }
+    void toMof(Array<Sint8>& out) const;
 
     /** print Output the XML for the Qualifier Declaration object to stdout.
-    
     */
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
+
     /** identical Compares two qualifier declarations
-    @return Returns true if they are identical
-    
+        @return Returns true if they are identical
     */ 
     Boolean identical(const CIMConstQualifierDecl& x) const;
-    /** CIMMethod
-    
-    */
 
-    CIMQualifierDecl clone() const
-    {
-	return CIMQualifierDecl(_rep->clone());
-    }
+    /** CIMMethod
+    */
+    CIMQualifierDecl clone() const;
 
 private:
 
-    CIMQualifierDecl(CIMQualifierDeclRep* rep) : _rep(rep)
-    {
-    }
+    CIMQualifierDecl(CIMQualifierDeclRep* rep);
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMQualifierDeclRep* _rep;
     friend class CIMConstQualifierDecl;
@@ -275,149 +197,84 @@ private:
 class PEGASUS_COMMON_LINKAGE CIMConstQualifierDecl
 {
 public:
-	///
-    CIMConstQualifierDecl() : _rep(0)
-    {
+    ///
+    CIMConstQualifierDecl();
 
-    }
-	///
-    CIMConstQualifierDecl(const CIMConstQualifierDecl& x) 
-    {
-	Inc(_rep = x._rep); 
-    }
-	///
-    CIMConstQualifierDecl(const CIMQualifierDecl& x) 
-    {
-	Inc(_rep = x._rep); 
-    }
+    ///
+    CIMConstQualifierDecl(const CIMConstQualifierDecl& x);
 
-	/** Constructor creates a CIMConstQualiferDecl - 
-	@param name Name of the qualifier declaration object
-	param @value - CIMValue to put into the declaration
-	@param scope
-	@param flavor - Optional flavor to define for the declaration. Default
-	if not specified is CIMFlavor::DEFAULTS
-	@arraysize - Optional integer with array size for fixed size arrays.  If
-	not supplied, assumes 0.
-    @exception Throws IllegalName if name argument not legal CIM identifier.
-	*/
+    ///
+    CIMConstQualifierDecl(const CIMQualifierDecl& x);
+
+    /** Constructor creates a CIMConstQualiferDecl.
+        @param name Name of the qualifier declaration object
+        @param value CIMValue to put into the declaration
+        @param scope
+        @param flavor Optional flavor to define for the declaration. Default
+        if not specified is CIMFlavor::DEFAULTS
+        @arraysize Optional integer with array size for fixed size arrays.  If
+        not supplied, assumes 0.
+        @exception IllegalName if name argument not legal CIM identifier.
+    */
     CIMConstQualifierDecl(
-	const String& name, 
-	const CIMValue& value, 
-	Uint32 scope,
-	Uint32 flavor = CIMFlavor::DEFAULTS,
-	Uint32 arraySize = 0)
-    {
-	_rep = new CIMQualifierDeclRep(name, value, scope, flavor, arraySize);
-    }
+        const String& name, 
+        const CIMValue& value, 
+        Uint32 scope,
+        Uint32 flavor = CIMFlavor::DEFAULTS,
+        Uint32 arraySize = 0);
 
-    ~CIMConstQualifierDecl()
-    {
-	Dec(_rep);
-    }
-	///
-    CIMConstQualifierDecl& operator=(const CIMConstQualifierDecl& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
+    ~CIMConstQualifierDecl();
 
-	return *this;
-    }
-	///
-    CIMConstQualifierDecl& operator=(const CIMQualifierDecl& x)
-    {
-	if (x._rep != _rep)
-	{
-	    Dec(_rep);
-	    Inc(_rep = x._rep);
-	}
+    ///
+    CIMConstQualifierDecl& operator=(const CIMConstQualifierDecl& x);
 
-	return *this;
-    }
-	///
-    const String& getName() const 
-    { 
-	_checkRep();
-	return _rep->getName(); 
-    }
-	///
-    CIMType getType() const 
-    { 
-	_checkRep();
-	return _rep->getType(); 
-    }
-	///
-    Boolean isArray() const 
-    {
-	_checkRep();
-	return _rep->isArray();
-    }
-	 ///
-    const CIMValue& getValue() const 
-    { 
-	_checkRep();
-	return _rep->getValue(); 
-    }
-	///
-    Uint32 getScope() const 
-    {
-	_checkRep();
-	return _rep->getScope();
-    }
-	///
-    const Uint32 getFlavor() const 
-    {
-	_checkRep();
-	return _rep->getFlavor();
-    }
-	///
-	Boolean isFlavor(Uint32 flavor) const
-	{
-		return ((getFlavor() & flavor) !=0);
-	}
-	///
-    Uint32 getArraySize() const 
-    {
-	_checkRep();
-	return _rep->getArraySize();
-    }
-	///
-    operator int() const { return _rep != 0; }
-	///
-    void toXml(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toXml(out);
-    }
-	///
-    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
-    {
-	_checkRep();
-	_rep->print(o);
-    }
-	///
-    Boolean identical(const CIMConstQualifierDecl& x) const
-    {
-	x._checkRep();
-	_checkRep();
-	return _rep->identical(x._rep);
-    }
-	///
-    CIMQualifierDecl clone() const
-    {
-	return CIMQualifierDecl(_rep->clone());
-    }
+    ///
+    CIMConstQualifierDecl& operator=(const CIMQualifierDecl& x);
+
+    ///
+    const String& getName() const;
+
+    ///
+    CIMType getType() const;
+
+    ///
+    Boolean isArray() const;
+
+    ///
+    const CIMValue& getValue() const;
+
+    ///
+    Uint32 getScope() const;
+
+    ///
+    const Uint32 getFlavor() const;
+
+    ///
+    Boolean isFlavor(Uint32 flavor) const;
+
+    ///
+    Uint32 getArraySize() const;
+
+#ifdef PEGASUS_INTERNALONLY
+    ///
+    operator int() const;
+
+    ///
+    void toXml(Array<Sint8>& out) const;
+
+    ///
+    void print(PEGASUS_STD(ostream)& o=PEGASUS_STD(cout)) const;
+#endif
+
+    ///
+    Boolean identical(const CIMConstQualifierDecl& x) const;
+
+    ///
+    CIMQualifierDecl clone() const;
 
 private:
 
-    void _checkRep() const
-    {
-	if (!_rep)
-	    ThrowUnitializedHandle();
-    }
+    void _checkRep() const;
 
     CIMQualifierDeclRep* _rep;
     friend class CIMQualifierDecl;

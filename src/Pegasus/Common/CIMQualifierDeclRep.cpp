@@ -28,8 +28,8 @@
 
 #include <cstdio>
 #include "CIMQualifierDecl.h"
+#include "CIMQualifierDeclRep.h"
 #include "Indentor.h"
-#include "DeclContext.h"
 #include "CIMName.h"
 #include "Exception.h"
 #include "XmlWriter.h"

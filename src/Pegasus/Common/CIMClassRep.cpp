@@ -32,6 +32,7 @@
 #include "Indentor.h"
 #include "CIMName.h"
 #include "CIMQualifierNames.h"
+#include "CIMScope.h"
 #include "XmlWriter.h"
 #include <Pegasus/Common/Tracer.h>
 

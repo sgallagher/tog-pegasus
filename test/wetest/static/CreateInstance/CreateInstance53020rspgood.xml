@@ -1,4 +1,4 @@
 HTTP/1.1 400 Bad Request
 CIMError: request-not-valid
-PGErrorDetail: Semantic error: on line 42: Invalid unsigned integer value
+PGErrorDetail: Semantic error: on line 42: Illegal unsigned integer value - 18446744073709551616
 

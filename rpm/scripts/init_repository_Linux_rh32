@@ -49,7 +49,7 @@
 #
 
 PG_SCHEMA_VER=20
-CIM_SCHEMA_VER=25
+CIM_SCHEMA_VER=27
 
 MOF_PATH=/etc/pegasus/mof
 
@@ -60,6 +60,7 @@ MOF_PATH=/etc/pegasus/mof
 INTEROPNS=root/PG_InterOp
 
 /usr/bin/cimmof -I$MOF_PATH -n$INTEROPNS $MOF_PATH/CIM_Core$CIM_SCHEMA_VER.mof
+/usr/bin/cimmof -I$MOF_PATH -n$INTEROPNS $MOF_PATH/CIM_Event$CIM_SCHEMA_VER.mof
 /usr/bin/cimmof -I$MOF_PATH -n$INTEROPNS $MOF_PATH/InterOpSchema.mof
 
 #
@@ -68,7 +69,7 @@ INTEROPNS=root/PG_InterOp
 
 INTERNALNS=root/PG_Internal
 
-/usr/bin/cimmof -I$MOF_PATH -n$INTERNALNS $MOF_PATH/CIM_Qualifiers$CIM_SCHEMA_VER.mof
+/usr/bin/cimmof -I$MOF_PATH -n$INTERNALNS $MOF_PATH/Core27_Qualifiers.mof
 /usr/bin/cimmof -I$MOF_PATH -n$INTERNALNS $MOF_PATH/InternalSchema.mof
 
 #
@@ -78,6 +79,6 @@ INTERNALNS=root/PG_Internal
 # ATTN:    MANAGEDSYSTEMNS=root/PG_ManagedSystem
 MANAGEDSYSTEMNS=root/cimv2
 
-/usr/bin/cimmof -I$MOF_PATH -n$MANAGEDSYSTEMNS $MOF_PATH/CIM_Schema$CIM_SCHEMA_VER.mof
-/usr/bin/cimmof -I$MOF_PATH -n$MANAGEDSYSTEMNS $MOF_PATH/ManagedSystemSchema.mof
+/usr/bin/cimmof -I$MOF_PATH -n$MANAGEDSYSTEMNS -aE $MOF_PATH/CIM_Schema$CIM_SCHEMA_VER.mof
+/usr/bin/cimmof -I$MOF_PATH -n$MANAGEDSYSTEMNS -aE $MOF_PATH/ManagedSystemSchema.mof
 /usr/bin/cimmof -I$MOF_PATH -n$INTEROPNS $MOF_PATH/ManagedSystemSchemaR.mof

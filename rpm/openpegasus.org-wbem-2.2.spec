@@ -35,7 +35,7 @@
 Summary: WBEM Services for Linux
 Name: pegasus-wbem
 Version: 2.2
-Release: 1
+Release: 2
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -117,25 +117,109 @@ install -D -m 0755 -o 0 -g 0 $PEGASUS_HOME/lib/libUserAuthProvider.so.1  $RPM_BU
 #
 # CIM schema
 #
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Application25.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Application25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Core25.mof        $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Core25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Core25_Add.mof    $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Core25_Add.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Device25.mof      $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Device25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Events25.mof      $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Events25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Metrics25.mof     $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Metrics25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Network25.mof     $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Network25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Physical25.mof    $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Physical25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Policy25.mof      $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Policy25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Schema25.mof      $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Schema25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_Support25.mof     $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Support25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_System25.mof      $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_System25.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_System25_Add.mof  $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_System25_Add.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM25/CIM_User25.mof        $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_User25.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Core27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Core27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Qualifiers.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Qualifiers.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_CoreElements.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_CoreElements.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Physical.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Physical.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Software.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Software.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Device.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Device.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_StorageExtent.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_StorageExtent.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Collection.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Collection.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Redundancy.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Redundancy.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_ProductFRU.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_ProductFRU.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Statistics.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Statistics.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Capabilities.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Capabilities.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_Settings.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_Settings.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_MethodParms.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_MethodParms.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Core27_PowerMgmt.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Core27_PowerMgmt.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Application27_BIOS.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Application27_BIOS.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Application27_CheckAction.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Application27_CheckAction.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Application27_DeploymentModel.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Application27_DeploymentModel.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Application27_InstalledProduct.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Application27_InstalledProduct.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Application27_SystemSoftware.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Application27_SystemSoftware.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Application27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Application27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Database27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Database27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Device27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Device27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Event27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Event27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Interop27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Interop27.mof 
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Metrics27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Metrics27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Network27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Network27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Physical27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Physical27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Policy27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Policy27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Schema27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Schema27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_Support27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Support27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_System27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_System27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/CIM_User27.mof $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_User27.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_Controller.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_Controller.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_CoolingAndPower.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_CoolingAndPower.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_DeviceElements.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_DeviceElements.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_DiskGroup.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_DiskGroup.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_FC.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_FC.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_IB.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_IB.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_Memory.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_Memory.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_Modems.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_Modems.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_NetworkAdapter.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_NetworkAdapter.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_Ports.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_Ports.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_Printing.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_Printing.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_Processor.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_Processor.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_SccExtents.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_SccExtents.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_Sensors.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_Sensors.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_StorageDevices.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_StorageDevices.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_StorageExtents.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_StorageExtents.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_StorageLib.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_StorageLib.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_StorageServices.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_StorageServices.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_USB.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_USB.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Device27_UserDevices.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Device27_UserDevices.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Metrics27_BaseMetric.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Metrics27_BaseMetric.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Metrics27_UnitOfWork.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Metrics27_UnitOfWork.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_BGP.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_BGP.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_Buffers.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_Buffers.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_Collections.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_Collections.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_Filtering.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_Filtering.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_OSPF.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_OSPF.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_Pipes.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_Pipes.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_ProtocolEndpoints.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_ProtocolEndpoints.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_QoS.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_QoS.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_Routes.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_Routes.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_RoutingForwarding.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_RoutingForwarding.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_SNMP.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_SNMP.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_SwitchingBridging.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_SwitchingBridging.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_Systems.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_Systems.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Network27_VLAN.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Network27_VLAN.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Physical27_Component.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Physical27_Component.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Physical27_Connector.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Physical27_Connector.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Physical27_Link.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Physical27_Link.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Physical27_Misc.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Physical27_Misc.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Physical27_Package.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Physical27_Package.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Physical27_PhysicalMedia.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Physical27_PhysicalMedia.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/Physical27_StoragePackage.mof $RPM_BUILD_ROOT/etc/pegasus/mof/Physical27_StoragePackage.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_Boot.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_Boot.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_Diagnostics.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_Diagnostics.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_FileElements.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_FileElements.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_Logs.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_Logs.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_OperatingSystem.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_OperatingSystem.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_Processing.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_Processing.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_SystemElements.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_SystemElements.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_SystemResources.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_SystemResources.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_Time.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_Time.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/System27_Unix.mof $RPM_BUILD_ROOT/etc/pegasus/mof/System27_Unix.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_AccessControl.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_AccessControl.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_Account.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_Account.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_AuthenticationReqmt.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_AuthenticationReqmt.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_Credential.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_Credential.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_Group.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_Group.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_Kerberos.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_Kerberos.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_Org.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_Org.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_PublicKey.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_PublicKey.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_Role.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_Role.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_SecurityServices.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_SecurityServices.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_SharedSecret.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_SharedSecret.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/CIM27/User27_UsersAccess.mof $RPM_BUILD_ROOT/etc/pegasus/mof/User27_UsersAccess.mof
 
 #
 # Pegasus' schema
 #
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_Events20.mof          $RPM_BUILD_ROOT/etc/pegasus/mof/PG_Events20.mof
+install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_Events20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/PG_Events20.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_InterOpSchema20.mof   $RPM_BUILD_ROOT/etc/pegasus/mof/InterOpSchema.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/InterOp/VER20/PG_ProviderModule20.mof  $RPM_BUILD_ROOT/etc/pegasus/mof/PG_ProviderModule20.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_Authorization20.mof  $RPM_BUILD_ROOT/etc/pegasus/mof/PG_Authorization20.mof
@@ -143,7 +227,6 @@ install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_Con
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_InternalSchema20.mof $RPM_BUILD_ROOT/etc/pegasus/mof/InternalSchema.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_User20.mof           $RPM_BUILD_ROOT/etc/pegasus/mof/PG_User20.mof
 install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/Internal/VER20/PG_ShutdownService20.mof           $RPM_BUILD_ROOT/etc/pegasus/mof/PG_ShutdownService20.mof
-install -D -m 0644 -o 0 -g 0 $PEGASUS_ROOT/Schemas/Pegasus/CIM_Qualifiers25.mof                   $RPM_BUILD_ROOT/etc/pegasus/mof/CIM_Qualifiers25.mof
 
 #
 # Pegasus Default Providers' schema
@@ -233,13 +316,27 @@ chgrp bin /var/cache/pegasus/ssl.cnf
 /bin/rpm -qa >/var/cache/pegasus/ssl.rnd 2>>%{INSTALL_LOG}
 /bin/netstat -a >>/var/cache/pegasus/ssl.rnd 2>>%{INSTALL_LOG}
 
-/usr/bin/openssl req -x509 -days 365 -newkey rsa:512          \
+/usr/bin/openssl req -x509 -days 365 -newkey rsa:2048 \
    -rand /var/cache/pegasus/ssl.rnd -nodes -config /var/cache/pegasus/ssl.cnf   \
    -keyout /var/cache/pegasus/key.pem -out /var/cache/pegasus/cert.pem 2>>%{INSTALL_LOG}
 
-cat /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem > /var/cache/pegasus/server.pem
+cat /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem > /var/cache/pegasus/server_2048.pem
+cat /var/cache/pegasus/cert.pem > /var/cache/pegasus/client_2048.pem
 rm /var/cache/pegasus/key.pem /var/cache/pegasus/cert.pem
-cp /var/cache/pegasus/server.pem /var/cache/pegasus/client.pem
+
+if [ -f /var/cache/pegasus/server.pem ] 
+then
+    echo "WARNING: /var/cache/pegasus/server.pem SSL Certificate file already exists."
+else
+    cp /var/cache/pegasus/server_2048.pem /var/cache/pegasus/server.pem
+fi
+
+if [ -f /var/cache/pegasus/client.pem ]
+then
+    echo "WARNING: /var/cache/pegasus/client.pem SSL Certificate trust store already exists."
+else
+    cp /var/cache/pegasus/client_2048.pem /var/cache/pegasus/client.pem
+fi
 
 if [ -d "/var/cache/pegasus/repository/root#PG_Internal" ]
 then
@@ -380,20 +477,104 @@ fi
 %attr(-,root,root) /usr/lib/pegasus/libsendmailIndicationHandler.so.1
 %attr(-,root,root) /usr/lib/pegasus/libsnmpIndicationHandler.so.1
 %attr(-,root,root) /usr/lib/pegasus/libUserAuthProvider.so.1
-%attr(-,root,root) /etc/pegasus/mof/CIM_Application25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Core25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Core25_Add.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Device25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Events25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Metrics25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Network25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Physical25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Policy25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Schema25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Support25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_System25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_System25_Add.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_User25.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Core27.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Qualifiers.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_CoreElements.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Physical.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Software.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Device.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_StorageExtent.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Collection.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Redundancy.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_ProductFRU.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Statistics.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Capabilities.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_Settings.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_MethodParms.mof
+%attr(-,root,root) /etc/pegasus/mof/Core27_PowerMgmt.mof
+%attr(-,root,root) /etc/pegasus/mof/Application27_BIOS.mof
+%attr(-,root,root) /etc/pegasus/mof/Application27_CheckAction.mof
+%attr(-,root,root) /etc/pegasus/mof/Application27_DeploymentModel.mof
+%attr(-,root,root) /etc/pegasus/mof/Application27_InstalledProduct.mof
+%attr(-,root,root) /etc/pegasus/mof/Application27_SystemSoftware.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Application27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Database27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Device27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Event27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Interop27.mof 
+%attr(-,root,root) /etc/pegasus/mof/CIM_Metrics27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Network27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Physical27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Policy27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Schema27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_Support27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_System27.mof
+%attr(-,root,root) /etc/pegasus/mof/CIM_User27.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_Controller.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_CoolingAndPower.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_DeviceElements.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_DiskGroup.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_FC.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_IB.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_Memory.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_Modems.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_NetworkAdapter.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_Ports.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_Printing.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_Processor.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_SccExtents.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_Sensors.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_StorageDevices.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_StorageExtents.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_StorageLib.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_StorageServices.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_USB.mof
+%attr(-,root,root) /etc/pegasus/mof/Device27_UserDevices.mof
+%attr(-,root,root) /etc/pegasus/mof/Metrics27_BaseMetric.mof
+%attr(-,root,root) /etc/pegasus/mof/Metrics27_UnitOfWork.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_BGP.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_Buffers.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_Collections.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_Filtering.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_OSPF.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_Pipes.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_ProtocolEndpoints.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_QoS.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_Routes.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_RoutingForwarding.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_SNMP.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_SwitchingBridging.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_Systems.mof
+%attr(-,root,root) /etc/pegasus/mof/Network27_VLAN.mof
+%attr(-,root,root) /etc/pegasus/mof/Physical27_Component.mof
+%attr(-,root,root) /etc/pegasus/mof/Physical27_Connector.mof
+%attr(-,root,root) /etc/pegasus/mof/Physical27_Link.mof
+%attr(-,root,root) /etc/pegasus/mof/Physical27_Misc.mof
+%attr(-,root,root) /etc/pegasus/mof/Physical27_Package.mof
+%attr(-,root,root) /etc/pegasus/mof/Physical27_PhysicalMedia.mof
+%attr(-,root,root) /etc/pegasus/mof/Physical27_StoragePackage.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_Boot.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_Diagnostics.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_FileElements.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_Logs.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_OperatingSystem.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_Processing.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_SystemElements.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_SystemResources.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_Time.mof
+%attr(-,root,root) /etc/pegasus/mof/System27_Unix.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_AccessControl.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_Account.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_AuthenticationReqmt.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_Credential.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_Group.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_Kerberos.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_Org.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_PublicKey.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_Role.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_SecurityServices.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_SharedSecret.mof
+%attr(-,root,root) /etc/pegasus/mof/User27_UsersAccess.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_Events20.mof
 %attr(-,root,root) /etc/pegasus/mof/InterOpSchema.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_ProviderModule20.mof
@@ -410,7 +591,6 @@ fi
 %attr(-,root,root) /etc/pegasus/mof/ManagedSystemSchemaR.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_UnixProcess20.mof
 %attr(-,root,root) /etc/pegasus/mof/PG_UnixProcess20R.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Qualifiers25.mof
 %attr(-,root,root) /usr/share/man/man1/cimmof.1.gz
 %attr(-,root,root) /usr/share/man/man1/cimprovider.1.gz
 %attr(-,root,root) /usr/share/man/man1/osinfo.1.gz

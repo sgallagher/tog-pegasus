@@ -340,10 +340,7 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 	   _monitor->unsolicitSocketMessages(socket);
 	   _rep->connections.remove(i);
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-            // add a close socket
-            closesocket(socket);
-#endif
+            Socket::close(socket);
             return;
         }
     }

@@ -95,7 +95,7 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern WQLParserState* globalParserState;
+extern AutoPtr<WQLParserState> globalParserState;
 
 PEGASUS_NAMESPACE_END
 

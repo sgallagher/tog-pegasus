@@ -34,13 +34,13 @@
 //                  (sushma_fernandes@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderFacade.h"
 
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/MessageLoader.h>
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>

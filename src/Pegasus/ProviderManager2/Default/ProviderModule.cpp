@@ -32,12 +32,12 @@
 //		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //     Mike Day, IBM (mdday@us.ibm.com)
 //     Adrian Schuur, IBM (schuur@de.ibm.com)
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderModule.h"
 
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 

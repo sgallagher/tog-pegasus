@@ -30,6 +30,7 @@
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +43,6 @@
 
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>

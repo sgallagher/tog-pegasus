@@ -30,6 +30,7 @@
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +53,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
 #include <Pegasus/Repository/CIMRepository.h>

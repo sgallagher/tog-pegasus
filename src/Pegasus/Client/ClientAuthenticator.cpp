@@ -29,13 +29,13 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Constants.h>

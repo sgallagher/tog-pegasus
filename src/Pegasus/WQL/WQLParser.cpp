@@ -29,15 +29,16 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//                    Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <iostream>
 #include "WQLParser.h"
 #include "WQLParserState.h"
@@ -49,7 +50,7 @@ extern void WQL_restart (FILE *input_file);
 
 PEGASUS_NAMESPACE_BEGIN
 
-WQLParserState* globalParserState = 0;
+AutoPtr<WQLParserState> globalParserState; 
 static Mutex WQL_mutex;
 
 void WQLParser::parse(
@@ -68,7 +69,7 @@ void WQLParser::parse(
 
     statement.clear();
 
-    globalParserState = new WQLParserState;
+    globalParserState.reset(new WQLParserState);
     globalParserState->error = false;
     globalParserState->text = text;
     globalParserState->textSize = strlen(text) + 1;
@@ -81,13 +82,13 @@ void WQLParser::parse(
     {
 	String errorMessage = globalParserState->errorMessage;
 	cleanup();
-	delete globalParserState;
+    globalParserState.reset();
         PEG_METHOD_EXIT();
 	throw ParseError(errorMessage);
     }
 
     cleanup();
-    delete globalParserState;
+    globalParserState.reset();
     PEG_METHOD_EXIT();
 }
 

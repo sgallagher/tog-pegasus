@@ -28,6 +28,7 @@
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1519
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +37,6 @@
 #include <fstream>
 
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #if defined(PEGASUS_OS_OS400)

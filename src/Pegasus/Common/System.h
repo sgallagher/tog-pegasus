@@ -66,7 +66,7 @@ typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
 /** This is an opaque type which is returned by System::loadDynamicSymbol().
     Values of this type may be casted to the appropriate target type.
 */
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)         
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 typedef struct DynamicSymbolHandle_* DynamicSymbolHandle; 
 #else                                                     
 extern "C" {typedef int (* DynamicSymbolHandle)(void);}   

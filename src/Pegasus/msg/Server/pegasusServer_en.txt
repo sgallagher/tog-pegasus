@@ -4099,7 +4099,6 @@ CIM server listening on HTTPS port {0}."}
         //       Please use message prefix "PGS14600 - PGS15399"
         // ==========================================================
 
-
         // ==========================================================
         // Messages for CQLFunction
         //  Please use message prefix "PGS14600 - PGS14699"
@@ -4107,45 +4106,49 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS14600
-        *     Substitution {0] is a 
+        *     Substitution {0} is a function name (a string)
         */ 
         CQL.CQLFunctionRep.INVALID_FUNCTION:string {"PGS14600: Function {0} is not a supported function."}
         
         /**
         * @note  PGS14601
-        *     Substitution {0] is a
+        *     Substitution {0} is a function identifier (a number)
         */
         CQL.CQLFunctionRep.INVALID_FUNCTION_ID:string {"PGS14601: Function ID {0} is not a supported function ID."}
 
         /**
         * @note  PGS14602
-        *     Substitution {0] is a
-        *     Substitution {1] is a
-        *     Substitution {2] is a
-        *     Substitution {3] is a
+        *     Substitution {0] is a function name (a string)
+        *     Substitution {1} is a count of parameters (a number)
+        *     Substitution {2} is a count of parameters (a number)
+        *     Substitution {3} is a count of parameters (a number)
         */
-        CQL.CQLFunctionRep.IVALID_PARM_COUNT:string {"PGS14602: Function {0} has {1} parameters.  It must have between {2} and {3}."}
+        CQL.CQLFunctionRep.INVALID_PARM_COUNT:string {"PGS14602: Function {0} has {1} parameters.  It must have between {2} and {3}."}
 
         /**
         * @note  PGS14603
-        *     Substitution {0] is a
-        *     Substitution {1] is a
-        *     Substitution {2] is a
-        *     Substitution {3] is a
+        *     Substitution {0} is a parameter name (a string)
+        *     Substitution {1} is a function name (a string)
+        *     Substitution {2} is a type name (a string)
+        *     Substitution {3} is a type name (a string)
         */
-        CQL.CQLFunctionRep.IVALID_PARM_TYPE:string {"PGS14603: Parameter {0} for function {1} has type {2}.  It must be type {3}."}
+        CQL.CQLFunctionRep.INVALID_PARM_TYPE:string {"PGS14603: Parameter {0} for function {1} has type {2}.  It must be type {3}."}
 
         /**
         * @note  PGS14604
+        *     Substitution {0] is a parameter name (a string)
+        *     Substitution {1] is a function name (a string)
+        *     do not translate CIM because it is the type of the instance.
         */
-        CQL.CQLFunctionRep.IVALID_OBJECT_TYPE:string {"PGS14604: CIM Object function parameter must be an instance."}
+        CQL.CQLFunctionRep.INVALID_OBJECT_TYPE:string {"PGS14604: Parameter {0} for function {1} must be a CIM instance."}
 
         /**
         * @note  PGS14605
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is a parameter name (a string)
+        *     Substitution {1} is a function name (a string)
+        *     Substitution {2} is a parameter value (a number)
         */
-        CQL.CQLFunctionRep.NEGATIVE_INT_ERROR:string {"PGS14605: Function parameter {0} has a value of {1}.  It must be non-negative."}
+        CQL.CQLFunctionRep.NEGATIVE_INT_ERROR:string {"PGS14605: Parameter {0} for function {1} has a value of {2}.  It must be non-negative."}
         
 
         // ==========================================================
@@ -4155,25 +4158,26 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS14700
-        *     Substitution {0] is a
+        *     Substitution {0} is the identifier name (a string)
         */
         CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH:string {"PGS14700: The identifier contains a mismatched symbolic constant symbol and an array symbol: {0}"}
  
         /**
         * @note  PGS14701
-        *     Substitution {0] is a
+        *     Substitution {0} is the identifier name (a string)
+        *     Do not translate CQL because it is the name of the basic query language.
         */
         CQL.CQLIdentifier.TOO_MANY_ARRAY_INDICES:string {"PGS14701: The identifier contains one or more commas which is not allowed in CQL Basic query: {0}"}
 
         /**
         * @note  PGS14702
-        *     Substitution {0] is a
+        *     Substitution {0} is the identifier name (a string)
         */
         CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH:string {"PGS14702: The identifier contains a mismatched array symbol: {0}"}
 
         /**
         * @note  PGS14703
-        *     Substitution {0] is a
+        *     Substitution {0} is the identifier name (a string)
         */
         CQL.CQLIdentifier.INVALID_CIMNAME:string {"PGS14703: The identifier contains an invalid CIMName: {0}."}
         
@@ -4191,58 +4195,60 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS14801
-        *     Substitution {0] is a
+        *     Substitution {0} is the property name (a string)
         */
         CQL.CQLSelectStatementRep.PROP_NOT_EMB:string {"PGS14801: The property {0} must contain an embedded object."}
 
         /**
         * @note  PGS14802
-        *     Substitution {0] is a
+        *     Substitution {0} is the property name (a string)
         */
         CQL.CQLSelectStatementRep.NULL_EMB_OBJ:string {"PGS14802: The embedded object property {0} cannot contain a null value."}
 
         /**
         * @note  PGS14803
-        *     Substitution {0] is a
+        *     Substitution {0} is the property name (a string)
+        *     Do not translate CQL
         */
         CQL.CQLSelectStatementRep.PROJ_WHOLE_ARRAY:string {"PGS14803: CQL requires that array indexing is used on embedded object property {0}."}
 
         /**
         * @note  PGS14804
-        *     Substitution {0] is a
+        *     Substitution {0} is the property name (a string)
         */
         CQL.CQLSelectStatementRep.PROJ_UNINIT:string {"PGS14804: The embedded object property {0} is uninitialized."}
 
         /**
         * @note  PGS14805
-        *     Substitution {0] is a
+        *     Substitution {0} is the class name (a string)
+        *     Do not translate CQL
         */
         CQL.CQLSelectStatementRep.PROJ_CLASS:string {"PGS14805: CQL does not allow properties to be projected on class {0}."}
 
         /**
         * @note  PGS14806
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the property name (a string)
+        *     Substitution {1} is the class name (a string)
         */
         CQL.CQLSelectStatementRep.PROJ_MISSING_PROP:string {"PGS14806: The property {0} is missing on the instance of class {1}."}
 
         /**
         * @note  PGS14807
-        *     Substitution {0] is a
+        *     Substitution {0} is the class name (a string)
         */
         CQL.CQLSelectStatementRep.VAL_CLASS_NOT_EXIST:string {"PGS14807: The class {0} does not exist."}
 
         /**
         * @note  PGS14808
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the property name (a string)
+        *     Substitution {1} is the class name (a string)
         */
         CQL.CQLSelectStatementRep.VAL_PROP_NOT_ON_CLASS:string {"PGS14808: The property {0} does not exist on class {1}."}
 
         /**
         * @note  PGS14809
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is a class name (a string)
+        *     Substitution {1} is a class name (a string)
         */
         CQL.CQLSelectStatementRep.VAL_SCOPE_VIOLATION:string {"PGS14809: The class {0} is not a superclass, subclass, or the same class as {1}."}
 
@@ -4253,7 +4259,8 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS14811
-        *     Substitution {0] is a
+        *     Substitution {0} is the class name (a string)
+        *     Do not translate FROM since it is the name of a class
         */
         CQL.CQLSelectStatementRep.CLASS_NOT_FROM_LIST_CLASS:string {"PGS14811: Class {0} does not match the FROM class or any of its subclasses."}
 
@@ -4264,54 +4271,58 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS14813
+        *     Do not translate FROM since it is the name of a class
         */
         CQL.CQLSelectStatementRep.SINGLE_CHID_IN_SELECT:string {"PGS14813: A property on the FROM class must be selected."}
 
         /**
         * @note  PGS14814
-        *     Substitution {0] is a
+        *     Substitution {0} is the name of the identifier (a string)
         */
         CQL.CQLSelectStatementRep.FIRST_ID_ILLEGAL:string {"PGS14814: The chained identifier {0} is illegal."}
 
         /**
         * @note  PGS14815
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the name of an identifier (a string)
+        *     Substitution {1} is the name of another identifier that contains the first identifier (a string)
+        *     Do not translate SELECT because it is the name of the list
         */
         CQL.CQLSelectStatementRep.ARRAY_IN_SELECT:string {"PGS14815: The identifier {0} of {1} in the SELECT list cannot use an array index."}
 
         /**
         * @note  PGS14816
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the name of an identifier (a string)
+        *     Substitution {1} is the name of another identifier that contains the first identifier (a string)
+        *     Do not translate SELECT because it is the name of the list
         */
         CQL.CQLSelectStatementRep.SYMCONST_IN_SELECT:string {"PGS14816: The identifier {0} of {1} in the SELECT list cannot use a symbolic constant."}
 
         /**
         * @note  PGS14817
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the name of an identifier that contains the first identifier (a string)
+        *     Substitution {1} is the name of another identifier (a string)
         */
         CQL.CQLSelectStatementRep.SYMCONST_NOT_LAST:string {"PGS14817: The symbolic constant identifier {0} of {1} must be the last element."}
 
         /**
         * @note  PGS14818
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the name of an identifier (a string)
+        *     Substitution {1} is the name of another identifier that contains the first identifier (a string)
+        *     Do not translate WHERE because it is the name of the list
         */
         CQL.CQLSelectStatementRep.WILD_IN_WHERE:string {"PGS14818: The identifier {0} of {1} in the WHERE list cannot use a wildcard."}
 
         /**
         * @note  PGS14819
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the name of an identifier (a string)
+        *     Substitution {1} is the name of another identifier that contains the first identifier (a string)
         */
         CQL.CQLSelectStatementRep.WILD_NOT_END:string {"PGS14819: The wildcard identifier {0} of {1} must be the last element."}
 
         /**
         * @note  PGS14820
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the name of an identifier (a string)
+        *     Substitution {1} is the name of another identifier that contains the first identifier (a string)
         */
         CQL.CQLSelectStatementRep.EMB_PROP_NOT_SCOPED:string {"PGS14820: The identifier {0} of {1} must use the scope operator."}
         
@@ -4324,42 +4335,47 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS14900
+        *        Do not translate NULL.
         */
         CQL.CQLSimplePredicateRep.NULL_CONTAGION:string {"PGS14900: The expression evaluates to NULL."}
 
         /**
         * @note  PGS14901
-        *     Substitution {0] is a
+        *     Substitution {0} is the expression (a string)
+        *     Do not translate ISA since it is the name of an operator 
         */
         CQL.CQLSimplePredicateRep.RHS_ISA_NOT_SIMPLE:string {"PGS14901: The expression {0} on the right side of the ISA operator must be a simple value."}
 
         /**
         * @note  PGS14902
-        *     Substitution {0] is a
+        *     Substitution {0} is the expression (a string)
+        *     Do not translate LIKE since it is the name of an operator 
         */
         CQL.CQLSimplePredicateRep.RHS_LIKE_NOT_SIMPLE:string {"PGS14902: The expression {0} on the right side of the LIKE operator must be a simple value."}
 
         /**
         * @note  PGS14903
-        *     Substitution {0] is a
+        *     Substitution {0} is the expression (a string)
+        *     Do not translate LIKE since it is the name of an operator 
         */
         CQL.CQLSimplePredicateRep.RHS_LIKE_NOT_LITERAL:string {"PGS14903: The expression {0} on the right side of the LIKE operator must be a literal."}
 
         /**
         * @note  PGS14903
-        *     Substitution {0] is a
+        *     Substitution {0} is the name of the predicate (a string)
         */
         CQL.CQLSimplePredicateRep.RIGHT_STANDALONE_SYMCONST_ERROR:string {"PGS14904: The right side of predicate {0} must be a simple property name because a symbolic constant exists on the left side."}
 
         /**
         * @note  PGS14904
-        *     Substitution {0] is a
+        *     Substitution {0} is the name of the predicate (a string)
         */
         CQL.CQLSimplePredicateRep.LEFT_STANDALONE_SYMCONST_ERROR:string {"PGS14905: The left side of predicate {0} must be a simple property name because a symbolic constant exists on the right side."}
 
         /**
         * @note  PGS14905
-        *     Substitution {0] is a
+        *     Substitution {0} is the expression (a string)
+        *     Do not translate ISA because it is the name of an operator
         */
         CQL.CQLSimplePredicateRep.APPLY_CTX_RHS_ISA_NOT_SIMPLE:string {"PGS14906: The right side expression {0} of the ISA operator must be a simple value."}
         
@@ -4383,84 +4399,92 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS15100
+        *     Substitution {0} is the object type that the string is being converted to (a string) 
+        *     Substitution {1} is the object type that the string is now (a string)
         */
-        CQL.CQLUtilities.EMPTY_STRING:string {"PGS15100: String cannot be empty."}
-
-        /**
-        * @note  PGS15101
-        */
-        CQL.CQLUtilities.NULL_INPUT:string {"PGS15101: String cannot be NULL."}
+        CQL.CQLUtilities.EMPTY_STRING:string {"PGS15100: Error converting string to {0}.  String cannot be {1}."}
 
         /**
         * @note  PGS15102
-        *     Substitution {0] is a
+        *     Substitution {0} is the object type that the string is being converted to (a string)
+        *     Substitution {1} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_NEG:string {"PGS15102: String {0} cannot begin with \'-\'."}
+        CQL.CQLUtilities.INVALID_NEG:string {"PGS15102: Error converting string to {0}.  String \'{1}\' cannot begin with \'-\'."}
 
         /**
         * @note  PGS15103
-        *     Substitution {0] is a
+        *     Substitution {0} is the object type that the string is being converted to (a string) 
+        *     Substitution {1} is the string being converted (a string) 
         */
-        CQL.CQLUtilities.INVALID_NUM_FORMAT:string {"PGS15103: String \'{0}\' is badly formed.  It must be of the form; [+][0-9]*"}
+        CQL.CQLUtilities.INVALID_NUM_FORMAT:string {"PGS15103: Error converting string to {0}.  String \'{1}\' is badly formed."}
 
         /**
         * @note  PGS15104
-        *     Substitution {0] is a
+        *     Substitution {0} is the object type that the string is being converted to (a string)  
+        *     Substitution {1} is the string being converted (a string) 
         */
-        CQL.CQLUtilities.OVERFLOW:string {"PGS15104: String {0} caused an overflow."}
+        CQL.CQLUtilities.OVERFLOW:string {"PGS15104: Error converting string to {0}.  String \'{1}\' caused an overflow."}
 
         /**
         * @note  PGS15105
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the object type that the string is being converted to (a string)   
+        *     Substitution {1} is the character in the string that cannot be converted (a single character)
+        *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_BIN_CHAR:string {"PGS15105: Character \'{0}\' in string \'{1}\' is not a binary digit."}
+        CQL.CQLUtilities.INVALID_BIN_CHAR:string {"PGS15105: Error converting string to {0}.  Character \'{1}\' in string \'{2}\' is not a binary digit."}
 
         /**
         * @note  PGS15106
-        *     Substitution {0] is a
+        *     Substitution {0} is the object type that the string is being converted to (a string)   
+        *     Substitution {1} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_HEX_FORMAT:string {"PGS15106: String \'{0}\' needs a hexadecimal digit character following \'0x\'"}
+        CQL.CQLUtilities.INVALID_HEX_FORMAT:string {"PGS15106: Error converting string to {0}.  String \'{1}\' needs a hexadecimal digit character following \'0x\'."}
 
         /**
         * @note  PGS15107
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the object type that the string is being converted to (a string)  
+        *     Substitution {1} is the character in the string that cannot be converted (a single character)
+        *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_HEX_CHAR:string {"PGS15107: Character \'{0}\' in string \'{1}\' is not a hexidecimal digit."}
+        CQL.CQLUtilities.INVALID_HEX_CHAR:string {"PGS15107: Error converting string to {0}.  Character \'{1}\' in string \'{2}\' is not a hexidecimal digit."}
 
         /**
         * @note  PGS15108
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the object type that the string is being converted to (a string)  
+        *     Substitution {1} is the character in the string that cannot be converted (a single character)
+        *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_DECIMAL_CHAR:string {"PGS15108: Character \'{0}\' in string \'{1}\' is not a decimal digit."}
+        CQL.CQLUtilities.INVALID_DECIMAL_CHAR:string {"PGS15108: Error converting string to {0}.  Character \'{1}\' in string \'{2}\' is not a decimal digit."}
 
         /**
         * @note  PGS15109
-        *     Substitution {0] is a
+        *     Substitution {0} is the string being converted (a string)
+        *     Do not translate Real64 since it is the name of a data type
         */
-        CQL.CQLUtilities.INVALID_CHAR_POST_DOT:string {"PGS15109: String \'{0}\' must have a digit character following the decimal point."}
+        CQL.CQLUtilities.INVALID_CHAR_POST_DOT:string {"PGS15109: Error converting string to Real64.  String \'{0}\' must have a digit character following the decimal point."}
 
         /**
         * @note  PGS15110
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the object type that the string is being converted to (a string) 
+        *     Substitution {1} is the character in the string that cannot be converted (a single character)
+        *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_REAL_CHAR:string {"PGS15110: Character \'{0}\' in string \'{1}\` is invalid for a real number."}
+        CQL.CQLUtilities.INVALID_REAL_CHAR:string {"PGS15110: Error converting string to {0}.  Character \'{1}\' in string \'{2}\` is invalid."}
 
         /**
         * @note  PGS1511
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the string being converted (a string) 
+        *     Substitution {1} is the character in the string that cannot be converted (a single character)
+        *     Do not translate Real64 because it is the name of a data type
         */
-        CQL.CQLUtilities.INVALID_REAL_EXP:string {"PGS15111: String \'{0}\' has an badly formed exponent.  It must be of the form [eE][+-][0-9]*..  Character \'{1}\' is invalid."}
+        CQL.CQLUtilities.INVALID_REAL_EXP:string {"PGS15111: Error converting string to Real64.  String \'{0}\' has an badly formed exponent.  Character \'{1}\' is invalid."}
 
         /**
         * @note  PGS15112
-        *     Substitution {0] is a
+        *     Substitution {0} is the string being converted (a string) 
+        *     Do not translate Real64 because it is the name of a data type
         */
-        CQL.CQLUtilities.CONVERSION_REAL_ERROR:string {"PGS15112: String {0} was unable to be converted to a Real64.  It could be out of range."}
+        CQL.CQLUtilities.CONVERSION_REAL_ERROR:string {"PGS15112: String \'{0}\' was unable to be converted to a Real64.  It could be out of range."}
         
 
         // ==========================================================
@@ -4470,61 +4494,76 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS15200
+        *     Substitution {0} is the case number (a number)
         */
-        CQL.CQLValueRep.CONSTRUCTOR_FAILURE:string {"PGS15200: Undefined case in constructor."}
+        CQL.CQLValueRep.CONSTRUCTOR_FAILURE:string {"PGS15200: Undefined case:{0} in constructor."}
 
         /**
         * @note  PGS15201
+        *     Substitution {0} is the type (a number)
         */
-        CQL.CQLValueRep.ISA_TYPE_MISMATCH:string {"PGS15201: The type is not an object."}
+        CQL.CQLValueRep.ISA_TYPE_MISMATCH:string {"PGS15201: The type: {0} is not an object, or the object is not resolved."}
 
         /**
         * @note  PGS15202
+        *     Substitution {0} is the first type (a number)
+        *     Substitution {1} is the second type (a number)
         */
-        CQL.CQLValueRep.LIKE_TYPE_MISMATCH:string {"PGS15202: The type is not a string."}
+        CQL.CQLValueRep.LIKE_TYPE_MISMATCH:string {"PGS15202: The following types may not be strings:{0},{1}."}
 
         /**
         * @note  PGS15203
+        *     Substitution {0} is the type name (a string)
+        *     Substitution {1} is the operation name (a string)
         */ 
-        CQL.CQLValueRep.TYPE_MISMATCH:string {"PGS15203: The type is not correct for get operation."}
+        CQL.CQLValueRep.TYPE_MISMATCH:string {"PGS15203: The type: {0} is not correct for {1} operation."}
 
         /**
         * @note  PGS15204
+        *     Substitution {0} is the type (a string)
         */
-        CQL.CQLValueRep.OP_TYPE_MISMATCH:string {"PGS15204: Invalid types for operation."}
+        CQL.CQLValueRep.OP_TYPE_MISMATCH:string {"PGS15204: Validation type mismatch error for type: {0}."}
 
         /**
         * @note  PGS15205
+        *     Substitution {0} is the type (a number)
         */
-        CQL.CQLValueRep.SET_VALUE:string {"PGS15205: Unable to set internal object."}
+        CQL.CQLValueRep.SET_VALUE:string {"PGS15205: Unable to set internal object type: {0}."}
 
         /**
         * @note  PGS15206
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the property name (a string)
+        *     Substitution {1} is the class name (a string)
         */
         CQL.CQLValueRep.PROP_NOT_FOUND:string {"PGS15206: Property {0} not found on class {1}."}
 
         /**
         * @note  PGS15207
-        *     Substitution {0] is a
-        *     Substitution {1] is a
-        *     Substitution {2] is a
+        *     Substitution {0} is the qualifier name (a string)
+        *     Substitution {1} is the property name (a string)
+        *     Substitution {2} is the class name (a string)
         */
         CQL.CQLValueRep.QUALIFIER_NOT_FOUND:string {"PGS15207: Qualifier {0} not found on Property {1} in class {2}."}
 
         /**
         * @note  PGS15208
-        *     Substitution {0] is a
-        *     Substitution {1] is a
-        *     Substitution {2] is a
+        *     Substitution {0} is the symbolic constant name (a string)
+        *     Substitution {1} is the property name (a string)
+        *     Substitution {2} is the class name (a string)
         */
         CQL.CQLValueRep.INVALID_SYMBOLIC_CONSTANT:string {"PGS15208: Provided symbolic constant {0} is not valid for property {1} in class {2}."}
 
         /**
         * @note  PGS15209
+        *     Substitution {0} is the type (a number)
         */
-        CQL.CQLValueRep.INVALID_ARRAY_COMPARISON:string {"PGS15209: Invalid array comparison type."}
+        CQL.CQLValueRep.INVALID_ARRAY_COMPARISON:string {"PGS15209: Invalid array comparison type: {0}."}
+
+        /**
+        * @note  PGS15210
+        *     Substitution {0} is the object context name (a string)
+        */
+        CQL.CQLValueRep.OBJECT_CONTEXT_NOT_INSTANCE:string {"PGS15210: The object context {0} is not an instance."}
 
 
         // ==========================================================
@@ -4534,39 +4573,64 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS15300
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the rule being parsed (a string) 
+        *     Substitution {1} is the position in the rule (a number)
+        *     Do not translate UTF8 since it is an industry standard acronym
         */
         CQL.CQL_y.BAD_UTF8:string {"PGS15300: Bad UTF8 encountered parsing rule {0} in position {1}."}
 
         /**
         * @note  PGS15301
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the rule being parsed (a string) 
+        *     Substitution {1} is the position in the rule (a number)
+        *     Do not translate CQLIdentifier and CQLChainedIdentifier because these are names
         */
         CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER:string {"PGS15301: Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule {0} in position {1}."}
 
         /**
         * @note  PGS15302
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the rule being parsed (a string) 
+        *     Substitution {1} is the position in the rule (a number)
+        *     Do not translate CQLIdentifier and CQLChainedIdentifier and CQLValue because these are names
         */
         CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER_OR_VALUE:string {"PGS15302: Chain state not a CQLIdentifier or a CQLChainedIdentifier or a CQLValue while parsing rule {0} in position {1}."}
 
         /**
         * @note  PGS15303
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the rule being parsed (a string) 
+        *     Substitution {1} is the position in the rule (a number)
+        *     Do not translate CQLSimplePredicate because it is a name
         */
         CQL.CQL_y.NOT_SIMPLE:string {"PGS15303: The CQLSimplePredicate is not simple while parsing rule {0} in position {1}."}
 
         /**
         * @note  PGS15304
-        *     Substitution {0] is a
-        *     Substitution {1] is a
+        *     Substitution {0} is the rule being parsed (a string) 
+        *     Substitution {1} is the position in the rule (a number)
+        *     Do not translate CQLPredicate because it is a name
         */
         CQL.CQL_y.NOT_SIMPLE_VALUE:string {"PGS15304: The CQLPredicate is not a simple value while parsing rule {0} in position {1}."}
 
+        /**
+        * @note  PGS15305
+        *     Substitution {0} is the rule being processed (a string) 
+        *     Do not translate CQLFactors because it is a name
+        */
+        CQL.CQL_y.CONCAT_PRODUCTION_FACTORS_NOT_SIMPLE:string {"PGS15305: The CQLFactors are not simple while processing rule {0}."}
+
+        /**
+        * @note  PGS15306
+        *     Substitution {0} is the rule being processed (a string) 
+        *     Do not translate CQLValue because it is a name
+        */
+        CQL.CQL_y.CONCAT_PRODUCTION_VALUE_NOT_LITERAL:string {"PGS15306: The CQLValue is not a string literal while processing rule {0}."}
+        /**
+        * @note  PGS15307
+        *     Substitution {0} is the name of the object in the rule (a string)
+        *     Substitution {1} is the rule being processed (a string)
+        */
+        CQL.CQL_y.CONCAT_PRODUCTION_NOT_SIMPLE:string {"PGS15307: The {0} is not simple while processing rule {1}."}
+   
         // ==========================================================
         //
         // **************** Messages for Query **********************
@@ -4587,7 +4651,8 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS15401
-        *     Substitution {0] is a
+        *     Substitution {0} is the class name (a string)
+        *     Do not translate FROM since it is the type of the class
         */
         QueryCommon.QueryChainedIdentifierRep.FROM_CLASS_DOES_NOT_EXIST:string {"PGS15401: The FROM class {0} does not exist."}
         
@@ -4604,11 +4669,13 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS15501
+        *        Do not translate FROM since it is the type of the list
         */
         QueryCommon.QueryContext.CLASS_ALREADY_ALIAS:string {"PGS15501: A class name in the FROM list is already used as an alias."}
 
         /**
         * @note  PGS15502
+        *        Do not translate FROM since it is the type of the list
         */
         QueryCommon.QueryContext.ALIAS_ALREADY_CLASS:string {"PGS15502: An alias name in the FROM list is already used as a class name."}
 
@@ -4625,75 +4692,81 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS15600
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error in the query (a string)
         */
         QueryCommon.QueryException.QUERY_EXCEPTION:string {"PGS15600: Query error: {0}"}
 
         /**
         * @note  PGS15601
-        *     Substitution {0] is a
+        *     Substitution {0} is the language name causing the error (a string) 
         */
         QueryCommon.QueryException.QUERY_LANGUAGE_INVALID_EXCEPTION:string {"PGS15601: Invalid language error: {0}"}
 
         /**
         * @note  PGS15602
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error found while parsing the query (a string)
         */
         QueryCommon.QueryException.QUERY_PARSE_EXCEPTION:string {"PGS15602: Query parse error: {0}"}
 
         /**
         * @note  PGS15603
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error found while validating the query
         */
         QueryCommon.QueryException.QUERY_VALIDATION_EXCEPTION:string {"PGS15603: Query validation error: {0}"}
 
         /**
         * @note  PGS15604
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error found while running the query
         */
         QueryCommon.QueryException.QUERY_RUNTIME_EXCEPTION:string {"PGS15604: Query runtime error: {0}"}
 
         /**
         * @note  PGS15605
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error (a string)
         */
         QueryCommon.QueryException.QUERY_RUNTIME_PROPERTY_EXCEPTION:string {"PGS15605: Query property error: {0}"}
 
         /**
         * @note  PGS15606
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error (a string)
         */
         QueryCommon.QueryException.QUERY_MISSINGPROPERTY_EXCEPTION:string {"PGS15606: Query missing property error: {0}"}
 
         /**
         * @note  PGS15607
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error (a string)
+        *     Do not translate CQL since it is the name of the language
         */
         QueryCommon.QueryException.CQL_CHAINED_ID_EXCEPTION:string {"PGS15607: CQL chained identifier parse error: {0}"}
 
         /**
         * @note  PGS15608
-        *     Substitution {0] is a
+        *     Substitution {0] is the description of the error (a string)
+        *     Do not translate CQL since it is the name of the language 
         */
         QueryCommon.QueryException.CQL_IDENTIFIER_EXCEPTION:string {"PGS15608: CQL identifier parse error: {0}"}
 
         /**
         * @note  PGS15609
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error (a string)
+        *     Do not translate CQL since it is the name of the language
         */
         QueryCommon.QueryException.CQL_RUNTIME_EXCEPTION:string {"PGS15609: CQL runtime error: {0}"}
 
         /**
         * @note  PGS15610
-        *     Substitution {0] is a
-        *     Substitution {1] is a
-        *     Substitution {2] is a
+        *     Substitution {0} is the error description (a string)
+        *     Substitution {1} is the token number in the rule that caused the error (a number)
+        *     Substitution {2} is the position in the rule that caused the error (a number)
+        *     Substitution {3} is the rule being processed (a string)
+        *     Do not translate CQL since it is the name of the language
         */
         QueryCommon.QueryException.CQL_SYNTAX_ERROR_EXCEPTION:string {"PGS15610: CQL syntax error: {0} around token {1} in position {2} while processing rule {3}"}
 
         /**
         * @note  PGS15611
-        *     Substitution {0] is a
+        *     Substitution {0} is the description of the error (a string)
+        *     Do not translate CQL since it is the name of the language
         */
         QueryCommon.QueryException.CQL_NULL_CONTAGION_EXCEPTION:string {"PGS15611: CQL null evaluation error: {0}"}
 
@@ -4704,6 +4777,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS15700
+        *        Do not translate QueryContext and SelectStatement since they are names of objects
         */
         QueryCommon.SelectStatementRep.QUERY_CTX_ALREADY_SET:string {"PGS15700: The QueryContext can only be set once on a SelectStatement."}
 
@@ -4730,16 +4804,29 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS15900
-        *     Substitution {0] is a
+        *     Substitution {0} is the name of the query language (a string)
         */
         Query.QueryExpression.INVALID_QUERY_LANGUAGE:string {"PGS15900: The query language specified is invalid: {0}."}
 
         
         /**
         * @note  PGS15901
-        *     Substitution {0] is a
+        *     Do not translate NULL since it is a value of SelectStatement
+        *     Do not translate SelectStatement since it is an object name
         */
         Query.QueryExpression.SS_IS_NULL:string {"PGS15901: Cannot process a query with a NULL SelectStatement."} 
+
+        // ==========================================================
+        // Messages for CQLFactor
+        //  Please use message prefix "PGS16000 - PGS16099"
+        // ==========================================================
+
+        /**
+        * @note  PGS16000
+        *     Do not translate CQLFactor since it is an object name
+        */
+        CQL.CQLFactorRep.FACTOR_HAS_NO_TYPE:string {"PGS16000: The CQLFactor was constructed without a type."}
+
 
 
 // ==============================================================================

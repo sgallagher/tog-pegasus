@@ -139,8 +139,6 @@ void GetOptions(
 			"Directory for log files"},
 	{"cleanlogs", "false", false, Option::BOOLEAN, 0, 0, "clean", 
 			"Clears the log files at startup"},
-	{"daemon", "false", false, Option::BOOLEAN, 0, 0, "d", 
-			"Not Used "},
 	{"version", "false", false, Option::BOOLEAN, 0, 0, "v",
 			"Displays Pegasus Version "},
 	{"help", "false", false, Option::BOOLEAN, 0, 0, "h",

@@ -561,6 +561,8 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
 
     CIMInstance providerModule;
     CIMInstance provider;
+    Boolean remoteNamespace=false;
+    String remoteInfo=String::EMPTY;
 
     switch (message->getType())
     {
@@ -592,6 +594,7 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
             dynamic_cast<const CIMOperationRequestMessage*>(message);
         _providerRegistrationManager->lookupInstanceProvider(
             request->nameSpace, request->className, provider, providerModule);
+	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
         break;
     }
 
@@ -606,6 +609,7 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
             0, &hasNoQuery);
         // We shouldn't have gotten this far if this isn't a query provider
         PEGASUS_ASSERT(!hasNoQuery);
+	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
         break;
     }
 
@@ -621,6 +625,7 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
             providers, providerModules);
         providerModule = providerModules[0];
         provider = providers[0];
+	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
         break;
     }
 
@@ -636,6 +641,7 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
             providers, providerModules);
         providerModule = providerModules[0];
         provider = providers[0];
+	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
         break;
     }
 
@@ -651,6 +657,7 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
             providers, providerModules);
         providerModule = providerModules[0];
         provider = providers[0];
+	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
         break;
     }
 
@@ -666,6 +673,7 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
             providers, providerModules);
         providerModule = providerModules[0];
         provider = providers[0];
+	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
         break;
     }
 
@@ -677,6 +685,7 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
         _providerRegistrationManager->lookupMethodProvider(
             request->nameSpace, request->className, request->methodName,
             provider, providerModule);
+	remoteNamespace=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo);
         break;
     }
 
@@ -741,7 +750,7 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
     PEGASUS_ASSERT(!provider.isUninitialized());
 
     PEG_METHOD_EXIT();
-    return ProviderIdContainer(providerModule, provider);
+    return ProviderIdContainer(providerModule, provider, remoteNamespace, remoteInfo);
 }
 
 // Updates the providerModule instance and the ProviderRegistrationManager

@@ -70,6 +70,8 @@ public:
     virtual Boolean hasActiveProviders();
     virtual void unloadIdleProviders();
 
+    virtual Boolean supportsRemoteNameSpaces() { return true; }
+
    struct indProvRecord {
       indProvRecord() : enabled(false), count(1), handler(NULL) {}
       Boolean enabled;

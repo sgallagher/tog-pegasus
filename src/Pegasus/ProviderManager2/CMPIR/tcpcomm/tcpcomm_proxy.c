@@ -655,6 +655,15 @@ __provider_connect(provider_address * addr,
     return socket;
 }
 
+CMPIString *connect_error(provider_address * addr)
+{
+   CMPIString *str;
+   char msg[512]="Unable to connect to ";
+
+   strcat(msg,addr->dst_address);
+   str=CMNewString(__init_broker,msg,NULL);
+   return str;
+}
 
 //! Waits on incoming broker service requests.
 /*!
@@ -702,7 +711,7 @@ static CMPIStatus TCPCOMM_InstanceMI_enumInstanceNames(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     {
 	CMPIStatus rc;
 	CMPIArray *r;
@@ -729,7 +738,7 @@ static CMPIStatus TCPCOMM_InstanceMI_enumInstances(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     socketcomm_serialize_props(socket, (__sft), props);
     {
 	CMPIStatus rc;
@@ -757,7 +766,7 @@ static CMPIStatus TCPCOMM_InstanceMI_getInstance(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     socketcomm_serialize_props(socket, (__sft), props);
     {
 	CMPIStatus rc;
@@ -786,7 +795,7 @@ static CMPIStatus TCPCOMM_InstanceMI_createInstance(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPIInstance(socket, inst);
     {
 	CMPIStatus rc;
@@ -815,7 +824,7 @@ static CMPIStatus TCPCOMM_InstanceMI_setInstance(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPIInstance(socket, inst);
     socketcomm_serialize_props(socket, (__sft), props);
     {
@@ -844,7 +853,7 @@ static CMPIStatus TCPCOMM_InstanceMI_deleteInstance(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     {
 	CMPIStatus rc;
 	CMPIArray *r;
@@ -870,7 +879,7 @@ static CMPIStatus TCPCOMM_InstanceMI_execQuery(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, lang);
     (__sft)->serialize_string(socket, query);
     {
@@ -902,7 +911,7 @@ static CMPIStatus TCPCOMM_AssociationMI_associators(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, assocclass);
     (__sft)->serialize_string(socket, resultclass);
     (__sft)->serialize_string(socket, role);
@@ -937,7 +946,7 @@ static CMPIStatus TCPCOMM_AssociationMI_associatorNames(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, assocclass);
     (__sft)->serialize_string(socket, resultclass);
     (__sft)->serialize_string(socket, role);
@@ -969,7 +978,7 @@ static CMPIStatus TCPCOMM_AssociationMI_references(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, assocclass);
     (__sft)->serialize_string(socket, role);
     socketcomm_serialize_props(socket, (__sft), props);
@@ -1000,7 +1009,7 @@ static CMPIStatus TCPCOMM_AssociationMI_referenceNames(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, assocclass);
     (__sft)->serialize_string(socket, role);
     {
@@ -1030,7 +1039,7 @@ static CMPIStatus TCPCOMM_MethodMI_invokeMethod(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, method);
     (__sft)->serialize_CMPIArgs(socket, in);
     {
@@ -1065,7 +1074,7 @@ static CMPIStatus TCPCOMM_PropertyMI_setProperty(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, name);
     (__sft)->serialize_CMPIData(socket, data);
     {
@@ -1093,7 +1102,7 @@ static CMPIStatus TCPCOMM_PropertyMI_getProperty(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_string(socket, name);
     {
 	CMPIStatus rc;
@@ -1123,7 +1132,7 @@ static CMPIStatus TCPCOMM_IndicationMI_authorizeFilter(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPISelectExp(socket, filter);
     (__sft)->serialize_string(socket, indType);
     (__sft)->serialize_string(socket, owner);
@@ -1153,7 +1162,7 @@ static CMPIStatus TCPCOMM_IndicationMI_mustPoll(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPISelectExp(socket, filter);
     (__sft)->serialize_string(socket, indType);
     {
@@ -1185,7 +1194,7 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPISelectExp(socket, filter);
     (__sft)->serialize_string(socket, indType);
     (__sft)->serialize_UINT8(socket, firstActivation);
@@ -1218,7 +1227,7 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(provider_address * addr,
     socket = __provider_connect(addr, cThis->provider, &cThis->ticket,
 			   __FUNCTION__, context, cop);
     if (socket < 0)
-	CMReturn(CMPI_RC_ERR_FAILED);;
+	CMReturnWithString(CMPI_RC_ERR_FAILED,connect_error(addr));
     (__sft)->serialize_CMPISelectExp(socket, filter);
     (__sft)->serialize_string(socket, indType);
     (__sft)->serialize_UINT8(socket, lastActivation);

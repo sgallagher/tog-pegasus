@@ -340,14 +340,14 @@ protected:
         */
         ReadWriteSem _registrationTableLock;
 
-	String _generateKey(const String & name, 
+	String _generateKey(const String & name,
 		const String & provider);
 
-	String _generateKey(const CIMNamespaceName & namespaceName, 
+	String _generateKey(const CIMNamespaceName & namespaceName,
 		const CIMName & className,
 		const String & providerType);
 
-	String _generateKey(const CIMNamespaceName & namespaceName, 
+	String _generateKey(const CIMNamespaceName & namespaceName,
 		const CIMName & className,
 		const String & supportedMethod,
 		const String & providerType);
@@ -435,6 +435,19 @@ private:
         */
 	void _setStatus(const Array<Uint16> & status, CIMInstance & moduleInstance); 
 
+};
+
+class WildCardNamespaceNames {
+   static Array<String> _nsstr;
+   static Array<CIMNamespaceName> _ns;
+   static Array<Uint32> _nsl;
+  public:
+   static String add(String ns);
+//   static String & check(const String & in);
+   static const CIMNamespaceName & check(const CIMNamespaceName & in);
+   static void remap(CIMRepository *repos,
+        Array<String> & in, Array<CIMNamespaceName> & names);
+   static const Array<String> & getArray();
 };
 
 PEGASUS_NAMESPACE_END

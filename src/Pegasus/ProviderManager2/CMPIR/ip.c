@@ -81,7 +81,7 @@ int open_connection ( const char * address, int port )
 	sin.sin_addr.s_addr =
 		( (struct in_addr *) ( server_host_name->h_addr ) )->s_addr;
 
-	if ( ( sockfd = socket ( PF_INET, 
+	if ( ( sockfd = socket ( PF_INET,
 				 SOCK_STREAM, 
 				 IPPROTO_TCP ) ) == -1 ) {
 

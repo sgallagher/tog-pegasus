@@ -7,7 +7,8 @@ DIRS = \
    deleteInstances \
    modifyInstances \
    lookupInstanceProvider \
-   lookupMethodProvider
+   lookupMethodProvider \
+   wildCardNamespaceNames
 
 #   lookupIndicationProvider \
 

@@ -65,6 +65,8 @@ PEGASUS_NAMESPACE_BEGIN
 typedef HashTable<String,
     ProviderRegistrationTable*, EqualFunc<String>,HashFunc<String> > Table;
 
+static Boolean supportWildCardNamespaceNames=false;
+
 struct RegistrationTable
 {
     Table table;
@@ -90,6 +92,8 @@ Boolean containsCIMInstance (
 ProviderRegistrationManager::ProviderRegistrationManager(CIMRepository* repository)
     : _repository(repository)
 {
+    supportWildCardNamespaceNames=true;
+
     _registrationTable = new RegistrationTable;
 
     WriteLock lock(_registrationTableLock);
@@ -151,7 +155,7 @@ void ProviderRegistrationManager::initializeProviders(void)
 			    String _moduleKey = _generateKey(module, MODULE_KEY);
 			    // get provider module instance from the table
 			    ProviderRegistrationTable* _providerModule = 0;
-			    if (!_registrationTable->table.lookup(_moduleKey, 
+			    if (!_registrationTable->table.lookup(_moduleKey,
 				_providerModule))
 			    {
 				Logger::put_l (Logger::STANDARD_LOG, 
@@ -225,8 +229,8 @@ void ProviderRegistrationManager::initializeProviders(
                     instances[j].getProperty(instances[j].findProperty(
 		        _PROPERTY_PROVIDERMODULENAME)).getValue().get(moduleName);
 
-                    // if the moduleName is same as providerModuleName and 
-                    // autoStart is true send message to Provider Manager Service 
+                    // if the moduleName is same as providerModuleName and
+                    // autoStart is true send message to Provider Manager Service
                     // to load and initialize providers in the module
                     if (String::equalNoCase(providerModuleName, moduleName))
                     {
@@ -234,7 +238,7 @@ void ProviderRegistrationManager::initializeProviders(
                         instances[j].getProperty(pos).getValue().get(autoStart);
                         if (autoStart)
 			{
-		            _sendInitializeProviderMessage(instances[j], 
+		            _sendInitializeProviderMessage(instances[j],
                                 providerModule);
                         }
                     }
@@ -290,21 +294,24 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     //
     // create the key by using nameSpace, className, and providerType
     //
+
+    const CIMNamespaceName & nameSpaceKey=CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
+
     String capabilityKey;
     if (!is_assoc) {
        if (has_no_query) {
           *has_no_query=true;
-          capabilityKey = _generateKey(nameSpace, className, INSTANCE_QUERY_PROVIDER);
+          capabilityKey = _generateKey(nameSpaceKey, className, INSTANCE_QUERY_PROVIDER);
           if (!_registrationTable->table.lookup(
                   capabilityKey, providerCapability))
-        capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
+             capabilityKey = _generateKey(nameSpaceKey, className, INS_PROVIDER);
           else *has_no_query=false;
        }
     else
-          capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
+          capabilityKey = _generateKey(nameSpaceKey, className, INS_PROVIDER);
     }
     else {
-        capabilityKey = _generateKey(nameSpace, className, ASSO_PROVIDER);
+        capabilityKey = _generateKey(nameSpaceKey, className, ASSO_PROVIDER);
     }
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                      "\nnameSpace = " + nameSpace.getString() +
@@ -458,11 +465,12 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 
   try
   {
+    const CIMNamespaceName & nameSpaceKey=CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
     //
     // check if the provider was registered to support all methods
     // create the key by using nameSpace, className, allMethods, and providerType
     //
-    String capabilityKey = _generateKey(nameSpace, className, "{}", MET_PROVIDER);
+    String capabilityKey = _generateKey(nameSpaceKey, className, "{}", MET_PROVIDER);
 
     if (_registrationTable->table.lookup(capabilityKey, providerCapability))
     {
@@ -517,7 +525,7 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
         // provider was not registered to support all the methods
         // create the key by using nameSpace, className, method, and providerType
         //
-        capabilityKey = _generateKey(nameSpace, className, method.getString(),
+        capabilityKey = _generateKey(nameSpaceKey, className, method.getString(),
             MET_PROVIDER);
         if (_registrationTable->table.lookup(capabilityKey, providerCapability))
         {
@@ -703,10 +711,11 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 
   try
   {
+    const CIMNamespaceName & nameSpaceKey=CIMNamespaceName(WildCardNamespaceNames::check(nameSpace));
     //
     // create the key by using nameSpace, className, and providerType
     //
-    String capabilityKey = _generateKey(nameSpace, className, IND_PROVIDER);
+    String capabilityKey = _generateKey(nameSpaceKey, className, IND_PROVIDER);
 
     //
     // get provider capability instances from the table
@@ -1786,7 +1795,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             // and providerType. Use this key to store the
                             // instance to the hash table
                             //
-                            capabilityKey = _generateKey(namespaces[k],
+                            if (supportWildCardNamespaceNames) capabilityKey =
+			       _generateKey(WildCardNamespaceNames::add(namespaces[k]),
+                               className, INS_PROVIDER);
+                            else capabilityKey = _generateKey(namespaces[k],
                                                 className, INS_PROVIDER);
                             instances.append(instance);
                             _addInitialInstancesToTable(capabilityKey, instances);
@@ -1805,7 +1817,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             // and providerType. Use this key to store the
                             // instance to the hash table
                             //
-                            capabilityKey = _generateKey(namespaces[k],
+                            if (supportWildCardNamespaceNames) capabilityKey =
+			       _generateKey(WildCardNamespaceNames::add(namespaces[k]),
+                               className, ASSO_PROVIDER);
+                            else capabilityKey = _generateKey(namespaces[k],
                                                 className, ASSO_PROVIDER);
                             instances.append(instance);
                             _addInitialInstancesToTable(capabilityKey, instances);
@@ -1825,7 +1840,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             // create key by using namespace, className and
                             // providerType, store the instance to the table
                             //
-                            capabilityKey = _generateKey(namespaces[k],
+                            if (supportWildCardNamespaceNames) capabilityKey =
+			       _generateKey(WildCardNamespaceNames::add(namespaces[k]),
+                               className, IND_PROVIDER);
+                            else capabilityKey = _generateKey(namespaces[k],
                                         className, IND_PROVIDER);
 
                             if (_registrationTable->table.lookup(capabilityKey, capabilities))
@@ -1886,7 +1904,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                                 Array<CIMInstance> instances;
 
                                 // The provider supports all the methods
-                                capabilityKey = _generateKey(namespaces[k],
+                            if (supportWildCardNamespaceNames) capabilityKey =
+			       _generateKey(WildCardNamespaceNames::add(namespaces[k]),
+                               className, "{}", MET_PROVIDER);
+                            else capabilityKey = _generateKey(namespaces[k],
                                     className, "{}", MET_PROVIDER);
 
                                 instances.append(instance);
@@ -1898,7 +1919,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                                 {
                                     Array<CIMInstance> instances;
 
-                                    capabilityKey = _generateKey(namespaces[k],
+                                    if (supportWildCardNamespaceNames) capabilityKey =
+			               _generateKey(WildCardNamespaceNames::add(namespaces[k]),
+                                       className, supportedMethods[n], MET_PROVIDER);
+                                    else capabilityKey = _generateKey(namespaces[k],
                                         className, supportedMethods[n], MET_PROVIDER);
                                     instances.append(instance);
                                     _addInitialInstancesToTable(capabilityKey, instances);
@@ -1920,7 +1944,10 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             // and providerType. Use this key to store the
                             // instance to the hash table
                             //
-                            capabilityKey = _generateKey(namespaces[k],
+                            if (supportWildCardNamespaceNames) capabilityKey =
+			       _generateKey(WildCardNamespaceNames::add(namespaces[k]),
+                               className, INSTANCE_QUERY_PROVIDER);
+                            else capabilityKey = _generateKey(namespaces[k],
                                                 className, INSTANCE_QUERY_PROVIDER);
                             instances.append(instance);
                             _addInitialInstancesToTable(capabilityKey, instances);
@@ -2247,7 +2274,10 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                 instance.getProperty(instance.findProperty
                     (_PROPERTY_NAMESPACES)).getValue().get(_namespaces);
                 Array<CIMNamespaceName> _namespaceNames;
-                for (Uint32 i=0; i < _namespaces.size(); i++)
+
+                if (supportWildCardNamespaceNames)
+		    WildCardNamespaceNames::remap(_repository,_namespaces,_namespaceNames);
+                else for (Uint32 i=0; i < _namespaces.size(); i++)
                 {
                     _namespaceNames.append (CIMNamespaceName (_namespaces [i]));
                 }
@@ -2272,7 +2302,10 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // create a key by using namespace, className
                                 // and providerType
                                 //
-                                _capabilityKey = _generateKey(_namespaces[j],
+                                if (supportWildCardNamespaceNames) _capabilityKey =
+			            _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                    _className, INS_PROVIDER);
+                                else _capabilityKey = _generateKey(_namespaces[j],
                                      _className, INS_PROVIDER);
                                 if (_registrationTable->table.contains(_capabilityKey))
                                 {
@@ -2302,8 +2335,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // create a key by using namespace, className
                                 // and providerType
                                 //
-                                _capabilityKey = _generateKey(_namespaces[j],
-                                     _className, ASSO_PROVIDER);
+                                if (supportWildCardNamespaceNames) _capabilityKey =
+			            _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                    _className, ASSO_PROVIDER);
+                                else _capabilityKey = _generateKey(_namespaces[j],
+                                    _className, ASSO_PROVIDER);
                                 if (_registrationTable->table.contains(_capabilityKey))
                                 {
                                     // the instance was already registered
@@ -2331,7 +2367,10 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // and providerType, store the instance to
                                 // the table
                                 //
-                                _capabilityKey = _generateKey(_namespaces[j],
+                                if (supportWildCardNamespaceNames) _capabilityKey =
+			           _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                   _className, IND_PROVIDER);
+                                else _capabilityKey = _generateKey(_namespaces[j],
                                      _className, IND_PROVIDER);
 
                                 if (_registrationTable->table.lookup(_capabilityKey, providerCapabilities))
@@ -2449,8 +2488,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                     Array<CIMInstance> instances;
 
                                     // Provider supports all methods
-                                    _capabilityKey = _generateKey(_namespaces[j],
-                                    _className, "{}", MET_PROVIDER);
+                                    if (supportWildCardNamespaceNames) _capabilityKey =
+			                _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                        _className, "{}", MET_PROVIDER);
+                                    else _capabilityKey = _generateKey(_namespaces[j],
+                                        _className, "{}", MET_PROVIDER);
 
                                     if (_registrationTable->table.contains(_capabilityKey))
                                     {
@@ -2471,7 +2513,10 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                     {
                                         Array<CIMInstance> instances;
 
-                                        _capabilityKey = _generateKey(_namespaces[j],
+                                        if (supportWildCardNamespaceNames) _capabilityKey =
+			                    _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                            _className, _supportedMethods[k], MET_PROVIDER);
+                                        else _capabilityKey = _generateKey(_namespaces[j],
                                             _className, _supportedMethods[k], MET_PROVIDER);
                                         if (_registrationTable->table.contains(_capabilityKey))
                                         {
@@ -2515,8 +2560,11 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                                 // create a key by using namespace, className
                                 // and providerType
                                 //
-                                _capabilityKey = _generateKey(_namespaces[j],
-                                     _className, INSTANCE_QUERY_PROVIDER);
+                                if (supportWildCardNamespaceNames) _capabilityKey =
+			            _generateKey(WildCardNamespaceNames::add(_namespaces[j]),
+                                    _className, INSTANCE_QUERY_PROVIDER);
+                                else _capabilityKey = _generateKey(_namespaces[j],
+                                    _className, INSTANCE_QUERY_PROVIDER);
                                 if (_registrationTable->table.contains(_capabilityKey))
                                 {
                                     // the instance was already registered
@@ -3338,7 +3386,10 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
     instance.getProperty(instance.findProperty
         (_PROPERTY_NAMESPACES)).getValue().get(_namespaces);
     Array<CIMNamespaceName> _namespaceNames;
-    for (Uint32 i=0; i < _namespaces.size(); i++)
+
+    if (supportWildCardNamespaceNames)
+	WildCardNamespaceNames::remap(_repository,_namespaces,_namespaceNames);
+    else  for (Uint32 i=0; i < _namespaces.size(); i++)
     {
         _namespaceNames.append (CIMNamespaceName (_namespaces [i]));
     }
@@ -3622,6 +3673,81 @@ void ProviderRegistrationManager::_sendInitializeProviderMessage(
 		PROVIDER_CANNOT_BE_LOAD, e.getMessage());
 	}
     }
+}
+
+
+Array<String> WildCardNamespaceNames::_nsstr;
+Array<Uint32> WildCardNamespaceNames::_nsl;
+Array<CIMNamespaceName> WildCardNamespaceNames::_ns;
+
+String WildCardNamespaceNames::add(String ns)
+{
+     Uint32 s=ns.size();
+     int cond;
+
+	if (ns[s-1]=='*')  {
+	   if (--s==0 || ns[s]=='/')
+	      return ns;
+	   ns=ns.subString(0,s);
+	}
+
+	for (int i=0,m=_nsstr.size(); i<m; i++) {
+           if ((cond=String::compareNoCase(ns,_nsstr[i]))==0) return ns;
+	   if (cond>0) {
+              _nsstr.insert(i,ns);
+	      _ns.insert(i,CIMNamespaceName(ns));
+	      _nsl.insert(i,s);
+	      return ns;
+	   }
+	}
+	_nsstr.append(ns);
+	_ns.append(CIMNamespaceName(ns));
+	_nsl.append(s);
+	return ns;
+}
+
+const CIMNamespaceName & WildCardNamespaceNames::check(const CIMNamespaceName & ns)
+{
+        if (!supportWildCardNamespaceNames) return ns;
+
+        const String & nsstr=ns.getString();
+	for (int i=0,m=_nsstr.size(); i<m; i++) {
+	   if (String::equalNoCase(nsstr.subString(0,_nsl[i]),_nsstr[i]))
+	      return _ns[i];
+	}
+	return ns;
+}
+
+void WildCardNamespaceNames::remap(CIMRepository *repos,
+        Array<String> & in, Array<CIMNamespaceName> &out)
+{
+   Array<CIMNamespaceName> _names=repos->enumerateNameSpaces();
+
+   for (Uint32 i=0,m=in.size(); i<m; i++) {
+      if ((in[i])[in[i].size()-1]=='*') {
+         int s=in[i].size()-1;
+	 String ns=in[i].subString(0,s);
+	 for (Uint32 j=0; j<_names.size(); j++) {
+	     String n=_names[j].getString().subString(0,s);
+	     if (String::equalNoCase(n,ns)) {
+	        out.append(_names[j]);
+		_names.remove(j);
+	     }
+	 }
+      }
+      else for (Uint32 j=0; j<_names.size(); j++) {
+	 if (String::equalNoCase(_names[j].getString(),in[i])) {
+	    out.append(_names[j]);
+	    _names.remove(j);
+	    break;
+	  }
+      }
+   }
+}
+
+const Array<String> & WildCardNamespaceNames::getArray()
+{
+        return _nsstr;
 }
 
 PEGASUS_NAMESPACE_END

@@ -329,7 +329,9 @@ struct specialNameSpace {
 };
 #endif
 
-NameSpace::NameSpace(const String& nameSpacePath, 
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+
+NameSpace::NameSpace(const String& nameSpacePath,
                      const CIMNamespaceName& nameSpaceName,
                      specialNameSpace *pns, String *extDir)
     : _nameSpacePath(nameSpacePath), _nameSpaceName(nameSpaceName),
@@ -342,6 +344,45 @@ NameSpace::NameSpace(const String& nameSpacePath,
 
     else {
        if (pns->shared) {
+          ro=pns->ro;
+          final=pns->final;
+          parent=pns->parentSpace;
+          if (parent==NULL)
+             _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
+
+          else {
+             if (!pns->ro) _inheritanceTree.insertFromPath(nameSpacePath +"/classes",
+                 &parent->_inheritanceTree,this);
+
+             NameSpace *ens=parent->primaryParent();
+             nextDependent=ens->dependent;
+             ens->dependent=this;
+          }
+       }
+       else _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
+
+       if (pns->remote) {
+          cout<<"--- remote namespace: "<<nameSpacePath<<" >"<<pns->remDirName<<"<"<<endl;
+          remoteDirName=pns->remDirName;
+       }
+    }
+    if (extDir) sharedDirName=*extDir;
+}
+
+#else
+
+NameSpace::NameSpace(const String& nameSpacePath,
+                     const CIMNamespaceName& nameSpaceName,
+                     specialNameSpace *pns, String *extDir)
+    : _nameSpacePath(nameSpacePath), _nameSpaceName(nameSpaceName),
+      parent(NULL), dependent(NULL), nextDependent(NULL),
+      ro(false), final(false)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::NameSpace()");
+
+    if (pns==NULL) _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
+
+    else {
        ro=pns->ro;
        final=pns->final;
        parent=pns->parentSpace;
@@ -357,48 +398,79 @@ NameSpace::NameSpace(const String& nameSpacePath,
           ens->dependent=this;
        }
     }
-       else _inheritanceTree.insertFromPath(nameSpacePath +"/classes");
-       
-       if (pns->remote) {
-          cout<<"--- remote namespace: "<<nameSpacePath<<" >"<<pns->remDirName<<"<"<<endl;
-          remoteDirName=pns->remDirName;
-       }
-    }
     if (extDir) sharedDirName=*extDir;
 }
+
+#endif
 
 NameSpace::~NameSpace()
 {
 
 }
 
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+
 NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &repositoryRoot)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::newNameSpace()");
 
-	AutoPtr<NameSpace> nameSpace;
+    AutoPtr<NameSpace> nameSpace;
 
-	String nameSpaceName = _dirNameToNamespaceName((*nameSpaceNames)[index]);
+    String nameSpaceName = _dirNameToNamespaceName((*nameSpaceNames)[index]);
     nameSpace.reset(nsm->lookupNameSpace(nameSpaceName));
-        if ((nameSpace.get()) != 0) return nameSpace.release();
+    if ((nameSpace.get()) != 0) return nameSpace.release();
 
     specialNameSpace *pns=(*specialNames)[index];
 
     if (pns && pns->shared && pns->parent.size()) {
+       int j=0,m=0;
+       for (m=nameSpaceNames->size(); j<m; j++)
+           if ((*nameSpaceNames)[j]==pns->parent) break;
+       if (j>=m) {
+          cout<<"--- Ooops"<<endl;
+       }
+       pns->parentSpace=newNameSpace(j,nsm,repositoryRoot);
+    }
+    else if (pns) pns->parentSpace=NULL;
+
+    String nameSpacePath = repositoryRoot + "/" + (*nameSpaceNames)[index];
+    nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName,pns));
+
+    nsm->_rep->table.insert(nameSpaceName, nameSpace.get());
+    return nameSpace.release();
+}
+
+#else
+
+NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &repositoryRoot)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpace::newNameSpace()");
+
+        AutoPtr<NameSpace> nameSpace;
+
+        String nameSpaceName = _dirNameToNamespaceName((*nameSpaceNames)[index]);
+        nameSpace.reset(nsm->lookupNameSpace(nameSpaceName));
+        if ((nameSpace.get()) != 0) return nameSpace.release();
+
+        specialNameSpace *pns=(*specialNames)[index];
+
+        if (pns && pns->parent.size()) {
            int j=0,m=0;
            for (m=nameSpaceNames->size(); j<m; j++)
               if ((*nameSpaceNames)[j]==pns->parent) break;
            if (j>=m) { cout<<"--- Ooops"<<endl; }
            pns->parentSpace=newNameSpace(j,nsm,repositoryRoot);
         }
-	else if (pns) pns->parentSpace=NULL;
+        else if (pns) pns->parentSpace=NULL;
 
-	String nameSpacePath = repositoryRoot + "/" + (*nameSpaceNames)[index];
-	nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName,pns));
-	
+        String nameSpacePath = repositoryRoot + "/" + (*nameSpaceNames)[index];
+        nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName,pns));
+
     nsm->_rep->table.insert(nameSpaceName, nameSpace.get());
     return nameSpace.release();
 }
+
+#endif
 
 void NameSpace::modify(Boolean shareable, Boolean updatesAllowed, const String& nameSpacePath)
 {
@@ -603,7 +675,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
            switch (tmp[0]) {
            case 's': {
                  if ((tmp[1]=='w' || tmp[1]=='r') &&
-                     (tmp[2]=='f' || tmp[2]=='s')) { 
+                     (tmp[2]=='f' || tmp[2]=='s')) {
 		    if (sns==NULL) sns=new specialNameSpace();
                     sns->setShared(tmp[1]=='r',
                        tmp[2]=='f',
@@ -639,7 +711,9 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
            specialNames->append(sns);
 	}
      }
+
 #else
+
     for (Dir dir(repositoryRoot); dir.more(); dir.next()) {
 	String dirName = dir.getName();
 	if (dirName == ".." || dirName == ".") continue;
@@ -1481,11 +1555,11 @@ void NameSpaceManager::getSuperClassNames(
 	throw PEGASUS_CIM_EXCEPTION
             (CIM_ERR_INVALID_NAMESPACE, nameSpaceName.getString());
     }
+    nameSpace=nameSpace->rwParent();
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
 
     // -- Get names of all superclasses:
-
     if (!it.getSuperClassNames(className, subClassNames))
     {
         PEG_METHOD_EXIT();

@@ -61,6 +61,8 @@ public:
     virtual void setIndicationCallback(
         PEGASUS_INDICATION_CALLBACK indicationCallback);
 
+    virtual Boolean supportsRemoteNameSpaces() { return false; }
+
 protected:
     PEGASUS_INDICATION_CALLBACK _indicationCallback;
 

@@ -69,7 +69,8 @@ public:
     static const String NAME;
 
     ProviderIdContainer(const OperationContext::Container & container);
-    ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider);
+    ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
+        Boolean remoteNameSpace=false, String remoteInfo=String::EMPTY);
     virtual ~ProviderIdContainer(void);
 
     virtual String getName(void) const;
@@ -78,10 +79,14 @@ public:
 
     CIMInstance getModule(void) const;
     CIMInstance getProvider(void) const;
+    const String & getRemoteInfo() const;
+    Boolean isRemoteNameSpace() const;
 
 protected:
     CIMInstance _module;
     CIMInstance _provider;
+    Boolean _remoteNameSpace;
+    String _remoteInfo;
 
 };
 

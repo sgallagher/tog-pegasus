@@ -98,10 +98,13 @@ ProviderIdContainer::ProviderIdContainer(const OperationContext::Container & con
     *this = *p;
 }
 
-ProviderIdContainer::ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider)
+ProviderIdContainer::ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
+        Boolean remoteNameSpace, String remoteInfo)
 {
     _module = module;
     _provider = provider;
+    _remoteNameSpace=remoteNameSpace;
+    _remoteInfo=remoteInfo;
 }
 
 ProviderIdContainer::~ProviderIdContainer(void)
@@ -131,6 +134,16 @@ CIMInstance ProviderIdContainer::getModule(void) const
 CIMInstance ProviderIdContainer::getProvider(void) const
 {
     return(_provider);
+}
+
+Boolean ProviderIdContainer::isRemoteNameSpace(void) const
+{
+    return(_remoteNameSpace);
+}
+
+const String & ProviderIdContainer::getRemoteInfo(void) const
+{
+    return(_remoteInfo);
 }
 
 PEGASUS_NAMESPACE_END

@@ -176,6 +176,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     PEGASUS_ASSERT(request != 0);
 
     Message* response = 0;
+    Boolean remoteNameSpaceRequest=false;
 
     //
     // Retrieve the ProviderManager routing information
@@ -191,6 +192,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         ProviderIdContainer pidc = (ProviderIdContainer)
             request->operationContext.get(ProviderIdContainer::NAME);
         providerModule = pidc.getModule();
+	remoteNameSpaceRequest=pidc.isRemoteNameSpace();
     }
     else if (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0)
     {
@@ -223,7 +225,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         // Error: Unrecognized message type.
         PEGASUS_ASSERT(0);
         CIMResponseMessage* resp = request->buildResponse();
-        resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "Unknown message type.");
         response = resp;
     }
@@ -246,13 +248,13 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
             }
         }
 
-        response = request->buildResponse(); 
+        response = request->buildResponse();
     }
     else if(request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
     {
-        // Do not need to forward this request to in-process provider 
+        // Do not need to forward this request to in-process provider
         // managers
-        response = request->buildResponse(); 
+        response = request->buildResponse();
     }
     else
     {
@@ -264,7 +266,14 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 
         // Look up the appropriate ProviderManager by InterfaceType
         ProviderManager* pm = _lookupProviderManager(interfaceType);
-        response = pm->processMessage(request);
+	if (remoteNameSpaceRequest && !pm->supportsRemoteNameSpaces()) {
+           CIMResponseMessage* resp = request->buildResponse();
+           resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+               "Remote Namespace operations not supported for interface type "+interfaceType);
+           std::cout<<"--- Remote Namespace operations not supported for interface type "+interfaceType<<std::endl;
+           response = resp;
+	}
+        else response = pm->processMessage(request);
     }
 
     // preserve message key

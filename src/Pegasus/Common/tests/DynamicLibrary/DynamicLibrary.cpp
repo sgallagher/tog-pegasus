@@ -41,6 +41,9 @@ PEGASUS_USING_STD;
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 static const String VALID_FILE_NAME = "DynLib.dll";
 static const String INVALID_FILE_NAME = "BADDynLib.dll";
+#elif defined(PEGASUS_OS_DARWIN)
+static const String VALID_FILE_NAME = "libDynLib.dylib";
+static const String INVALID_FILE_NAME = "libBADDynLib.dylib";
 #else
 static const String VALID_FILE_NAME = "libDynLib.so";
 static const String INVALID_FILE_NAME = "libBADDynLib.so";

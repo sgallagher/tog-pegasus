@@ -40,6 +40,8 @@
 # include "OperatingSystem_Linux.cpp"
 #elif defined (PEGASUS_OS_AIX)
 # include "OperatingSystem_AIX.cpp"
+#elif defined (PEGASUS_OS_DARWIN)
+#include "OperatingSystem_DARWIN.cpp"
 #else
 # include "OperatingSystem_Stub.cpp"
 #endif

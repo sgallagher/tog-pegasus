@@ -38,4 +38,6 @@
  #include "OperatingSystem_AIX.cpp"
 #elif defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
  #include "OperatingSystem_zOS.cpp"
+#elif defined PEGASUS_PLATFORM_DARWIN_PPC_GNU
+#include "OperatingSystem_DARWIN.cpp"
 #endif

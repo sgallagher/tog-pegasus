@@ -172,6 +172,8 @@ void slp_service_agent::_init(void)
    _lib_fileName.append("slp_client.sl");
 #elif defined(PEGASUS_OS_OS400)
    _lib_fileName.append("slp_client");
+#elif defined(PEGASUS_OS_DARWIN)
+   _lib_fileName.append("libslp_client.dylib");
 #else
    _lib_fileName.append("libslp_client.so");
 #endif

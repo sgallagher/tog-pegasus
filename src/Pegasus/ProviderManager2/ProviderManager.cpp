@@ -88,6 +88,8 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
     # endif
     #elif defined(PEGASUS_OS_OS400)
     // do nothing
+    #elif defined(PEGASUS_OS_DARWIN)
+    temp =  String("lib") + physicalName + String(".dylib");
     #else
     temp =  String("lib") + physicalName + String(".so");
     #endif

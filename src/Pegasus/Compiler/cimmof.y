@@ -38,7 +38,11 @@
 
 #include <cstdlib>
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(__OS400__)
+#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#include <sys/malloc.h>
+#else
 #include <malloc.h>
+#endif
 #endif
 #include <cstdio>
 #include <cstring>

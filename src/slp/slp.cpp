@@ -60,7 +60,7 @@ PEGASUS_EXPORT String slp_get_host_name(void)
   Sint8 *buf = new Sint8[255];
   if( 0 == gethostname(buf, 254) ) 
     s.append(buf);
-  delete buf;
+  delete [] buf;
   return(s);
 }
 
@@ -288,24 +288,19 @@ static int slp_get_local_interfaces(Uint32 **list)
     if( -1 < ioctl(sock, SIOCGIFCONF, &conf ) ) {
       
       // count the interfaces 
+       interfaces = conf.ifc_len / sizeof(struct ifreq);
 
-
-      struct ifreq *r = conf.ifc_req;
-      struct sockaddr_in *addr ;
-      addr = SOCKADDR_IN_CAST&r->ifr_addr;
-      while(  addr->sin_addr.s_addr != 0 ) {
-	interfaces++;
-	r++;
-	addr = SOCKADDR_IN_CAST&r->ifr_addr;
-      }
-
+       struct ifreq* r = conf.ifc_req;
+       struct sockaddr_in *addr;
+       
       // now store the addresses
 
       *list  = new Uint32 [interfaces + 1 ];
       Uint32 *this_addr = *list;
       r = conf.ifc_req;
       addr = SOCKADDR_IN_CAST&r->ifr_addr;
-      while(  addr->sin_addr.s_addr != 0 ) {
+      for(int ifc_len = 0; ifc_len < conf.ifc_len; ifc_len += sizeof(struct ifreq)) 
+      {
 	*this_addr = addr->sin_addr.s_addr;
 	r++;
 	this_addr++;

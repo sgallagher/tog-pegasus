@@ -13,7 +13,7 @@
 <p style="margin-top: 0; margin-bottom: 0"><b>PEP #:</b> 103</p>
 <p style="margin-top: 0; margin-bottom: 0"><b>Title: </b>OpenPegasus Version 2.3 
 Release Readme file</p>
-<p style="margin-top: 0; margin-bottom: 0"><b>Version: </b>1.1</p>
+<p style="margin-top: 0; margin-bottom: 0"><b>Version: </b>1.2</p>
 <p style="margin-top: 0; margin-bottom: 0"><b>Created:</b> 12 November 2003</p>
 <p style="margin-top: 0; margin-bottom: 0"><b>Authors: </b>Karl Schopmeyer, Konrad Rzeszutek</p>
 <p style="margin-top: 0; margin-bottom: 0"><b>Status:&nbsp; </b>draft</p>
@@ -40,10 +40,10 @@ Release Readme file</p>
     <td>Added sections describing SSL and PAM configuration</td>
   </tr>
   <tr>
-    <td align="center">&nbsp;</td>
-    <td align="center">&nbsp;</td>
-    <td align="center">&nbsp;</td>
-    <td>&nbsp;</td>
+    <td align="center">1.2</td>
+    <td align="center">April 2004</td>
+    <td align="center">Karl Schopmeyer</td>
+    <td>Update for Pegasus 2.3.2</td>
   </tr>
  </table>
 <hr>
@@ -65,12 +65,12 @@ and supported by The Open Group </p>
 
 <p align="left">
 
-<b>STATUS:</b> Revised November 2003 for&nbsp; Pegasus release version 2.3.0
+<b>STATUS:</b> Revised April 2004 for&nbsp; Pegasus release version 2.3.2
 &nbsp;</p>
 
 <p align="center">
 <b><font size="4">Table of Contents</font></b><p align="left" style="margin-top: 0; margin-bottom: 0">
-<a href="#Overview">&nbsp;Overview</a>
+<a href="#Overview">Overview</a>
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Availability of Pegasus">Availability of Pegasus</a><p align="left" style="margin-top: 0; margin-bottom: 0">
@@ -111,6 +111,8 @@ Providers</a><p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Development with Pegasus and Pegasus Tools">Development with Pegasus and Pegasus Tools</a>
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;&nbsp;&nbsp; <a href="#Client Development">Client Development</a><p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;&nbsp;&nbsp; <a href="#Provider Development">Provider Development</a><p align="left" style="margin-top: 0; margin-bottom: 0">
 <a href="#Commands">Commands</a>
 
 <p align="left" style="margin-top: 0; margin-bottom: 0">
@@ -135,7 +137,8 @@ Providers</a><p align="left" style="margin-top: 0; margin-bottom: 0">
 
 <p><b>OpenPegasus (also referred to as Pegasus):</b>
 
-Pegasus is an open-source CIM Server for DMTF CIM objects. It is written
+Pegasus is an open-source CIM Server for based on the DMTF CIM/WBEM 
+specifications. It is written
 in C++ and includes the Object manager (CIMOM), a set of defined interfaces, an 
 implemenation of the CIMOperations over HTTP operations and their cimxml HTTP 
 encodings, and 
@@ -159,12 +162,14 @@ release of Pegasus
 <ul>
 <li>What's new for this release - See the PEPs (Pegasus Enhancement Procedures) 
 release notes on the Pegasus web site and duplicated in the source top level 
-directory<li>What's Broken - BUGS - See the ReleaseNotes for this release in the CVS and 
-the web site as a Pegasus PEP.</ul>
+directory.<li>What's Broken and what was fixed - BUGS - See the ReleaseNotes for 
+this release in the root directory and the web site as a Pegasus PEP and review 
+the bugs in the Pegasus bug list maintained in bugzilla on the Pegasus web site.</ul>
 
 
-<p>The release notes are available on the WEB site as Pegasus PEP documents and 
-in the CVS for each release.</p>
+<p>The release notes for each release are available on the WEB site as Pegasus PEP documents and 
+in the CVS top level directory for each release. See the release notes PEP&nbsp; 
+for a definition of what is new or different for each Pegasus release</p>
 <table border="1" cellspacing="1" width="31%" id="AutoNumber3">
   <tr>
     <td width="42%"><b>Release</b></td>
@@ -185,6 +190,10 @@ in the CVS for each release.</p>
   <tr>
     <td width="42%">2.3</td>
     <td width="58%">PEP 98</td>
+  </tr>
+  <tr>
+    <td width="42%">2.3.2</td>
+    <td width="58%">PEP 150</td>
   </tr>
 </table>
 
@@ -235,13 +244,16 @@ Martin Kirk (m.kirk@opengroup.org) or Karl Schopmeyer
 
 <p>The major components of Pegasus are:
 <ul>
-  <li><b>Pegasus Server</b> - WBEM/CIM Server with interfaces for providers and clients
-  </li>
+  <li><b>Pegasus Server</b> - WBEM/CIM Server with interfaces for providers and clients. 
+  The Pegasus server handles DMTF CIM Operations, DMTF CIM Indications in 
+  conjunction with providers.&nbsp; It provides overall management of the server 
+  iteself, the repository and providers that have been registered with the 
+  server.</li>
   <li><b>Pegasus Repositories</b> - Today Pegasus provides a defined class repository
 interface and a simple file based class repository. It also includes
 an instance repository. Note that these repository were created for
-functionality, not efficieny. It is expected that they will be replaced
-with other implementations of the respository function as the need arises.
+functionality, not efficiency. It is expected that they will be replaced
+with other implementations of the repository function as the need arises.
   </li>
   <li><b>Pegasus Client Library</b> - Tools for building Pegasus clients based on the Pegasus
 C++ interfaces and using the WBEM HTTP/XML protocols or directly
@@ -257,22 +269,46 @@ HTML to allow the entry of Pegasus operations from a WEB browser as forms
 and the receipt of the response as WEB pages. This has proven useful as a
 test tool and can be used for a wide variety of demonstrations.
   </li>
-  <li><b>Pegasus Provider Library</b> - Tools for building Pegasus providers using the Pegasus
+  <li>Pegasus Provider Managers - Pegasus incorporates the concept of pluggable 
+  provider managers allowing multiple provider managers with different provider 
+  interfaces.&nbsp; Today Pegasus includes the C++ provider interfaces and the 
+  CMPI C provider interface.</li>
+  <li><b>Pegasus C++ Provider&nbsp; Interface Library</b> - Interfaces for building Pegasus providers using the Pegasus
 C++ interfaces.
   </li>
+  <li><b>Pegasus CMPI Provider Interface Library</b> - Interfaces for building 
+  Pegasus providers using the CMPI defined C interfaces.
+  </li>
   <li><b>Pegasus Providers</b> - Providers to illustrate the use of Pegasus services 
-including providers for test and demonstration.
+including providers for test and demonstration.&nbsp; In addition to sample and 
+  test providers, there are a number of operational providers that manage 
+  particular DMTF defined classes such as the CIM_ComputerSystem class.</li>
+  <li><b>Pegasus Control Providers</b> - Special providers that require direct 
+  access back to the server for information -- these are considered Pegasus 
+  internal providers.&nbsp; There are several of this type of provider defined 
+  including configuration information, the DMTF interop classes ( Including 
+  namespace management).&nbsp;  
   </li>
-  <li><b>Pegasus Control Providers</b> - Common services for use by other Pegasus 
-components to extend Pegasus capabilites. 
-  </li>
-  <li><b>Pegasus MOF Compiler </b>- There&nbsp; standalone compiler (cimmofl) for MOF files that can be used
-to install MOF into the Pegasus schema repository and also to check syntax. 
-  There is also a compiler that operates as a Pegasus client(cimmof) 
-There is also a tool to extract the MOF from the repository.
-
-  </li>
+  <li><b>Pegasus MOF Compiler </b>- Pegasus includes a compiler (cimmof) that is 
+  used to install MOF into Pegasus. This compiler operates as a Pegasus client 
+  using the running CIM Server to install MOF definitions. This means that MOF 
+  input may be delivered directly to the repository or to providers for classes 
+  which are registered for providers. There is also a standalone compiler (cimmofl) 
+  that writes directly to the repository. <font color="#FF0000">WARNING:</font> 
+  The cimmofl compiler should be used with caution because it puts all objects 
+  defined in the MOF directly into the repository bypassing any defined provider 
+  processing. There are several <br>
+  potential problems with using cimmofl including 1) bypasses any provider 
+  processing to put information directly into the <br>
+  repository, 2) can cause repository corruption if it is executed simultaneous 
+  with the CIM Server using the repository 3) may <br>
+  put information into repository that is not available until the CIM Server is 
+  stopped and restarted.</li>
   </ul>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+We strongly encourage the use of cimmof instead of cimmofl, particularly in 
+production.</p>
 
 <h1>
 <a name="Pegasus Supported Platforms">Pegasus Supported Platforms</a></h1>
@@ -324,7 +360,7 @@ Generally Pegasus is supported on the following Platforms and Compilers.</p>
 
 <p>
 We have worked to minimize the dependence of Pegasus on other software
-packages and tools. Currently Pegasus has the following dependencies:
+packages and tools. Currently the Pegasus build process has the following dependencies:
 <p>
 <b>1. GNUMAKE</b> - To simplify the building of Pegasus across multiple platforms we
 
@@ -495,7 +531,8 @@ depends </font></li>
             </li>
             <li><font face="Courier New"><b>Server</b> Pegasus executable build
             </font></li>
-            <li><font face="Courier New"><b>slp</b> - </font></li>
+            <li><font face="Courier New"><b>slp</b> - SLP agent libraries and 
+            test tools.</font></li>
             <li><font face="Courier New"><b>Standard Includes</b> - </font></li>
             <li><font face="Courier New"><b>test</b> - Directory of end-end 
             tests that are regularly conducted on Pegasus</font></li>
@@ -532,7 +569,7 @@ Pegasus build. This directory should be make public so that the test functions,
               modules. Note that today, the trace file is located in the 
               PEGASUS_HOME directory, not in the log directory if Pegasus 
               internal tracing is enabled.</font></li>
-              <li><font face="Courier New"><b>repository</b> - This Directory 
+              <li><font face="Courier New"><b>repository</b> - This directory 
               contains the created repository </font></li>
               </ul>
 
@@ -737,7 +774,7 @@ to final status.&nbsp; </p>
 
 <p>
 Registration is performed by defining a MOF for the instances of the 
-registration classes that represent the porvider module, providers, classes, 
+registration classes that represent the provider module, providers, classes, 
 etc. to be registered.&nbsp; The easiest way to create a new registration today 
 is to copy from one of the existing registration MOFs.&nbsp; See the 
 providers/sample/load directory for examples of several registration instance 
@@ -839,9 +876,31 @@ set path=%path%;%PEGASUS_HOME%/bin
 This is a separate test tool that allows Pegasus requests to be initiated from
 any WEB browser and that uses a WEB browser, CGI scripts and HTML pages for
 the formatting and connections. It requires a WEB server, etc. The
-instructions for setting up this environment are maintained in a separate readme in the CGI directory. <h1><a name="Development with Pegasus and Pegasus Tools">Development with Pegasus and Pegasus Tools</a></h1><p>
-ATTN: This section needs to be completed. It should reference the more complete 
-documentation.<h1><a name="Commands">Commands</a></h1><p>
+instructions for setting up this environment are maintained in a separate readme in the 
+Pegasus CGI directory. <h1><a name="Development with Pegasus and Pegasus Tools">Development with Pegasus and Pegasus Tools</a></h1><p>
+<b>ATTN:</b> This section is incomplete today. For more information on 
+developing clients and providers for Pegasus see the Pegasus Workshop 
+presentations available on the Pegasus web site.<h2>
+<a name="Client Development">Client Development</a></h2>
+<p>
+ATTN: Incomplete today.<h2>
+<a name="Provider Development">Provider Development</a></h2>
+<p>
+ATTN: Incomplete today.<h3>
+Debugging Providers</h3>
+<p>
+To debug providers you should be running the Pegasus CIMServer in a non-forked 
+mode (not as a daemon or service).&nbsp; The configuration option 'daemon' 
+defines such behavior. You can set this by either running cimserver as: <br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cimserver 
+daemon=false <br>
+<br>
+Or use the cimconfig to turn this option on: <br>
+<br>
+&nbsp;&nbsp;&nbsp; cimconfig -s daemon=false -p <br>
+When running in production, make sure to turn it back to true. <br>
+&nbsp;<h1><a name="Commands">Commands</a></h1><p>
 The manpages for each of the commands are in rpm/manLinux/man1.Z directory (on 
 CVS) <p>
 To see simple help for each of the commands, use the &quot;-h&quot; flag. <blockquote><pre>Examples:
@@ -885,16 +944,14 @@ before embarking on this endeavour.<br><br>
 
 To configure Pegasus to take advantage of SSL, configure
 CIMServer to have the following configuration options set to:
-<blockquote><pre>
-	sslTrustFilePath=client.pem
+<blockquote><pre>	sslTrustFilePath=client.pem
 	sslCertificateFilePath=server.pem
 	sslKeyFilePath=file.pem
 	httpsPort=5989
 	enableHttpsConnection=true
 </pre></blockquote>
 using the <b>cimconfig</b> utility:
-<blockquote><pre>
-	cimconfig -p -s enableHttpsConnection=true
+<blockquote><pre>	cimconfig -p -s enableHttpsConnection=true
 </pre></blockquote><br>
 (The client.pem and server.pem are the certifications
 files created per the steps in the earlier section).
@@ -902,16 +959,14 @@ files created per the steps in the earlier section).
 For good riddance you might consider closing down
 the cleartext 5988 port. Modify your CIMServer configuration
 to include:
-<blockquote><pre>
-	enableHttpConnection=false
+<blockquote><pre>	enableHttpConnection=false
 </pre></blockquote>
 using <b>cimconfig</b>.
 <h1><a name="Configuring PAM">Configuring Pegasus to use PAM</a></h1><p>
 
 In order to use PAM Authentication you have to compile Pegasus
 with one extra enviroment flags:
-<blockquote><pre>
-	PEGASUS_PAM_AUTHENTICATION=1
+<blockquote><pre>	PEGASUS_PAM_AUTHENTICATION=1
 </blockquote></pre>
 You can also set the PEGASUS_ALWAYS_USE_PAM=1 flag to disable
 Pegasus password authentication using a flag text-file (recommended).
@@ -925,19 +980,16 @@ After compiling (refer to section <a href="#Building Pegasus">Building Pegasus <
       Pegasus.</uL>
  <ul>
  b).  Modify CIMServer configuration options:
-	<blockquote><pre>
-	usePAMAuthentication=true
+	<blockquote><pre>	usePAMAuthentication=true
 	enableAuthentication=true
 	</blockquote></pre>
       And if you want to allow 'root' to login (*not recommended*)
 
-	<blockquote><pre>
-	enableRemotePrivilegedUserAccess=true
+	<blockquote><pre>	enableRemotePrivilegedUserAccess=true
 	</blockquote></pre>
 
 	using the <b>cimconfig</b> utility, such as:
-	<blockquote><pre>
-	cimconfig -p -s usePAMAuthentication=true
+	<blockquote><pre>	cimconfig -p -s usePAMAuthentication=true
 	</pre></blockquote>	
   </ul>
 </ul>

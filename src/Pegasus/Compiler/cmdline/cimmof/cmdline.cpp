@@ -56,6 +56,7 @@ PEGASUS_USING_PEGASUS;
 //#include <sstream>
 #ifdef PEGASUS_OS_OS400
 #include <qycmutiltyUtility.H> 
+#include <qycmutilu2.H>
 #endif 
 
 

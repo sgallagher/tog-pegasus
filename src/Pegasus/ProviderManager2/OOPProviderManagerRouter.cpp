@@ -926,6 +926,7 @@ OOPProviderManagerRouter::OOPProviderManagerRouter()
 // Private, unimplemented constructor
 OOPProviderManagerRouter::OOPProviderManagerRouter(
     const OOPProviderManagerRouter&)
+    : ProviderManagerRouter(*this)
 {
 }
 

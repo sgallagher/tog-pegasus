@@ -62,7 +62,7 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
    CQLExpressionRep(){}
     /** constructor takes one CQLTerm object.
       */
-    CQLExpressionRep(CQLTerm& theTerm);
+    CQLExpressionRep(const CQLTerm& theTerm);
    CQLExpressionRep(const CQLExpressionRep* rep);
     /**  the getValue method evaluates the expression and returns the value.
           Any property that need to be resolved into a value is taken from the
@@ -77,24 +77,24 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
           when invoked will always pass in an integer that is the Term operation
           type and a CQLTerm object.
       */
-    void appendOperation(TermOpType theTermOpType, CQLTerm& theTerm);
+    void appendOperation(const TermOpType theTermOpType, const CQLTerm& theTerm);
 
-   String toString();
+   String toString()const;
 
-   Boolean isSimple();
+   Boolean isSimple()const;
 
-   Boolean isSimpleValue();
+   Boolean isSimpleValue()const;
 
-   Array<CQLTerm> getTerms();
+   Array<CQLTerm> getTerms()const;
 
-   Array<TermOpType> getOperators();
+   Array<TermOpType> getOperators()const;
 
    void applyContext(QueryContext& inContext,
                      CQLChainedIdentifier& inCid);
 
-   Boolean operator==(const CQLExpressionRep& rep);
+   Boolean operator==(const CQLExpressionRep& rep)const;
 
-   Boolean operator!=(const CQLExpressionRep& rep);
+   Boolean operator!=(const CQLExpressionRep& rep)const;
 
    friend class CQLFactory;
 

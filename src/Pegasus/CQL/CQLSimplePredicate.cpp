@@ -76,17 +76,17 @@ Boolean CQLSimplePredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 	return _rep->evaluate(CI,QueryCtx);
 }
 
-CQLExpression CQLSimplePredicate::getLeftExpression()
+CQLExpression CQLSimplePredicate::getLeftExpression()const
 {
 	return _rep->getLeftExpression();
 }
 
-CQLExpression CQLSimplePredicate::getRightExpression()
+CQLExpression CQLSimplePredicate::getRightExpression()const
 {
         return _rep->getRightExpression();
 }
 
-enum ExpressionOpType CQLSimplePredicate::getOperation()
+enum ExpressionOpType CQLSimplePredicate::getOperation()const
 {
 	return _rep->getOperation();
 }
@@ -96,14 +96,14 @@ void CQLSimplePredicate::applyContext(QueryContext& queryContext)
   _rep->applyContext(queryContext);
 }
 
-String CQLSimplePredicate::toString()
+String CQLSimplePredicate::toString()const
 {
 	return _rep->toString();
 }
-Boolean CQLSimplePredicate::isSimple(){
+Boolean CQLSimplePredicate::isSimple()const{
         return _rep->isSimple();
 }
-Boolean CQLSimplePredicate::isSimpleValue(){
+Boolean CQLSimplePredicate::isSimpleValue()const{
 	return _rep->isSimpleValue();
 }
  

@@ -48,7 +48,7 @@ CQLExpression::CQLExpression(){
 	_rep = new CQLExpressionRep();
 }
 
-CQLExpression::CQLExpression(CQLTerm& theTerm)
+CQLExpression::CQLExpression(const CQLTerm& theTerm)
 {
    _rep = new CQLExpressionRep(theTerm);
 
@@ -69,30 +69,30 @@ CQLValue CQLExpression::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 	return _rep->resolveValue(CI,QueryCtx);
 }
 
-void CQLExpression::appendOperation(TermOpType theTermOpType, CQLTerm& theTerm)
+void CQLExpression::appendOperation(const TermOpType theTermOpType, const CQLTerm& theTerm)
 {
 	_rep->appendOperation(theTermOpType,theTerm);
 }
 
-String CQLExpression::toString() 
+String CQLExpression::toString()const
 {
    return _rep->toString();
 }
-Boolean CQLExpression::isSimple()
+Boolean CQLExpression::isSimple()const
 {
         return _rep->isSimple();
 }
-Boolean CQLExpression::isSimpleValue()
+Boolean CQLExpression::isSimpleValue()const
 {
 	return _rep->isSimpleValue();
 }
 
-Array<CQLTerm> CQLExpression::getTerms()
+Array<CQLTerm> CQLExpression::getTerms()const
 {
    return _rep->getTerms();
 }
 
-Array<TermOpType> CQLExpression::getOperators()
+Array<TermOpType> CQLExpression::getOperators()const
 {
    return _rep->getOperators();
 }
@@ -110,11 +110,11 @@ CQLExpression& CQLExpression::operator=(const CQLExpression& rhs){
 	}
 	return *this;
 }
-Boolean CQLExpression::operator==(const CQLExpression& expr){
+Boolean CQLExpression::operator==(const CQLExpression& expr)const{
 	return _rep == expr._rep;
 }
 
-Boolean CQLExpression::operator!=(const CQLExpression& expr){
+Boolean CQLExpression::operator!=(const CQLExpression& expr)const{
 	return (!operator==(expr));
 }
 

@@ -150,17 +150,17 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
   return true;  // keep the compiler happy
 }
 
-CQLExpression CQLSimplePredicateRep::getLeftExpression()
+CQLExpression CQLSimplePredicateRep::getLeftExpression()const
 {
 	return _leftSide;
 }
 
-CQLExpression CQLSimplePredicateRep::getRightExpression()
+CQLExpression CQLSimplePredicateRep::getRightExpression()const
 {
         return _rightSide;
 }
 
-enum ExpressionOpType CQLSimplePredicateRep::getOperation()
+enum ExpressionOpType CQLSimplePredicateRep::getOperation()const
 {
 	return _operator;
 }
@@ -250,7 +250,7 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
    }
 }
 
-String CQLSimplePredicateRep::toString()
+String CQLSimplePredicateRep::toString()const
 {
 	String s = _leftSide.toString();
 	if(!_isSimple){
@@ -300,10 +300,10 @@ String CQLSimplePredicateRep::toString()
 	}
 	return s;
 }
-Boolean CQLSimplePredicateRep::isSimple(){
+Boolean CQLSimplePredicateRep::isSimple()const{
         return _isSimple;
 }
-Boolean CQLSimplePredicateRep::isSimpleValue(){
+Boolean CQLSimplePredicateRep::isSimpleValue()const{
 	return _leftSide.isSimpleValue();
 }
  

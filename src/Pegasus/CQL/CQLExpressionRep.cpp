@@ -36,7 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CQLExpressionRep::CQLExpressionRep(CQLTerm& theTerm)
+CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)
 {
    _CQLTerms.append(theTerm);
 
@@ -74,13 +74,13 @@ CQLValue CQLExpressionRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
    return returnVal;
 }
 
-void CQLExpressionRep::appendOperation(TermOpType theTermOpType, CQLTerm& theTerm)
+void CQLExpressionRep::appendOperation(const TermOpType theTermOpType, const CQLTerm& theTerm)
 {
    _TermOperators.append(theTermOpType);
    _CQLTerms.append(theTerm);
 }
 
-String CQLExpressionRep::toString() 
+String CQLExpressionRep::toString()const
 {
    String returnStr;
 
@@ -95,24 +95,24 @@ String CQLExpressionRep::toString()
    return returnStr;
 }
 
-Boolean CQLExpressionRep::isSimple()
+Boolean CQLExpressionRep::isSimple()const
 {
    return (_CQLTerms.size() == 1);
 }
 
-Boolean CQLExpressionRep::isSimpleValue()
+Boolean CQLExpressionRep::isSimpleValue()const
 {
    if(_CQLTerms.size() == 1) 
       return _CQLTerms[0].isSimpleValue();
    return false;
 }
 
-Array<CQLTerm> CQLExpressionRep::getTerms()
+Array<CQLTerm> CQLExpressionRep::getTerms()const
 {
    return _CQLTerms;
 }
 
-Array<TermOpType> CQLExpressionRep::getOperators()
+Array<TermOpType> CQLExpressionRep::getOperators()const
 {
    return _TermOperators;
 }
@@ -126,11 +126,11 @@ void CQLExpressionRep::applyContext(QueryContext& inContext,
   }
 }
 
-Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep){
+Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep)const{
 	return true;
 }
 
-Boolean CQLExpressionRep::operator!=(const CQLExpressionRep& rep){
+Boolean CQLExpressionRep::operator!=(const CQLExpressionRep& rep)const{
 	return (!operator==(rep));
 }
 

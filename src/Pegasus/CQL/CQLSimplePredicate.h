@@ -100,19 +100,19 @@ class CQLSimplePredicate
       */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
 
-    CQLExpression getLeftExpression();
+    CQLExpression getLeftExpression()const;
 
-    CQLExpression getRightExpression();
+    CQLExpression getRightExpression()const;
 
-    enum ExpressionOpType getOperation();
+    enum ExpressionOpType getOperation()const;
 
     void applyContext(QueryContext& queryContext);
 
-    String toString();
+    String toString()const;
 
-    Boolean isSimple();
+    Boolean isSimple()const;
 
-    Boolean isSimpleValue();
+    Boolean isSimpleValue()const;
 
     CQLSimplePredicate& operator=(const CQLSimplePredicate& rhs);
 

@@ -38,6 +38,11 @@ PEGASUS_NAMESPACE_BEGIN
 class SSLContext;
 class CIMIndicationConsumer;
 
+
+/** CIMListener provides the interfaces that allows CIMListeners to be
+    created and managed. CIMListeners are the receivers for cim/xml indications.
+    ATTN: KS needs to be completed.TBD
+*/
 class PEGASUS_LISTENER_LINKAGE CIMListener
 {
 public:

@@ -74,16 +74,20 @@ public:
         DDD(cout << _SENDMAILINDICATIONHANDLER << "terminate()" << endl;)
     }
 
+// l10n
     void handleIndication(
 	CIMInstance& indicationHandlerInstance, 
 	CIMInstance& indicationInstance, 
-	String nameSpace);
+	String nameSpace,
+	ContentLanguages& contentLanguages);
 };
 
+// l10n - note: ignoring the indication language
 void sendmailIndicationHandler::handleIndication(
     CIMInstance& indicationHandlerInstance,
     CIMInstance& indicationInstance,
-    String nameSpace)
+    String nameSpace,
+    ContentLanguages& contentLanguages)
 {
 #ifdef PEGASUS_OS_HPUX
     //get destination for the indication

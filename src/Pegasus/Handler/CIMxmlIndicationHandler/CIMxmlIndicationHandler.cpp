@@ -79,10 +79,12 @@ public:
         DDD(cout << _CIMXMLINDICATIONHANDLER << "terminate()" << endl;)
     }
 
+// l10n
     void handleIndication(
 	CIMInstance& indicationHandlerInstance, 
 	CIMInstance& indicationInstance, 
-	String nameSpace)
+	String nameSpace,
+	ContentLanguages& contentLanguages)
     {
 	//get destination for the indication
 	Uint32 pos = indicationHandlerInstance.findProperty 
@@ -191,8 +193,10 @@ public:
                 exportclient.connect (destStr.subString (0, colon), portNumber);
             }
 
+// l10n
 	    exportclient.exportIndication(
-                destStr.subString(destStr.find("/")), indicationInstance);
+                destStr.subString(destStr.find("/")), indicationInstance,
+                contentLanguages);
 	}
 	catch(Exception& e)
         {

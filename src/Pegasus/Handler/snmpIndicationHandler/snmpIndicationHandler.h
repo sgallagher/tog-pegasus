@@ -60,7 +60,8 @@ public:
     void handleIndication(
 	CIMInstance& handler, 
 	CIMInstance& indication, 
-	String nameSpace);
+	String nameSpace,
+	ContentLanguages& contentLanguauges);  // l10n
 };
 
 PEGASUS_NAMESPACE_END

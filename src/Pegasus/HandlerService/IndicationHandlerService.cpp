@@ -78,6 +78,22 @@ void IndicationHandlerService::handleEnqueue(Message* message)
    if( ! message )
       return;
    
+// l10n
+   // Set the client's requested language into this service thread.
+   // This will allow functions in this service to return messages
+   // in the correct language.
+   CIMMessage * msg = dynamic_cast<CIMMessage *>(message);
+   if (msg != NULL)
+   {
+	   AcceptLanguages *langs = 
+   			new AcceptLanguages(msg->acceptLanguages);	
+	   Thread::setLanguages(langs);   		
+   }  
+   else
+   {
+   		Thread::clearLanguages();
+   }       
+
    switch (message->getType())
    {
       case CIM_HANDLE_INDICATION_REQUEST_MESSAGE:
@@ -182,7 +198,10 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 	        "1234",
 	        destination.subString(15), //taking localhost:5988 portion out from reg
 	        indication,
-	        QueueIdStack(exportServer[0], getQueueId()));
+	        QueueIdStack(exportServer[0], getQueueId()),
+	        String::EMPTY,
+	        String::EMPTY,
+	        request->contentLanguages);
 	
           AsyncOpNode* op = this->get_op();
 
@@ -219,7 +238,8 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 	     	   handlerLib->handleIndication(
 	        	handler,
 	        	indication,
-	        	nameSpace.getString());
+	        	nameSpace.getString(),
+	            request->contentLanguages);
 	      }
 	      catch(CIMException& e)
     	      {

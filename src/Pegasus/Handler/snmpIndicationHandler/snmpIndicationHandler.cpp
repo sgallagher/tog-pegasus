@@ -53,8 +53,10 @@ void snmpIndicationHandler::initialize(CIMRepository* repository)
     _repository = repository;
 }
 
+// l10n - note: ignoring indication language
 void snmpIndicationHandler::handleIndication(CIMInstance& handler, 
-    CIMInstance& indication, String nameSpace)
+    CIMInstance& indication, String nameSpace,
+    ContentLanguages & contentLanguages)
 {
     Array<String> propOIDs;
     Array<String> propTYPEs;

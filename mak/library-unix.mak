@@ -42,14 +42,14 @@ endif
 ifeq ($(COMPILER),gnu)
   ifneq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
    ifdef PEGASUS_USE_RELEASE_DIRS
-      LINK_COMMAND = g++ -shared
+      LINK_COMMAND = $(CXX) -shared
       LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)
    else
-      LINK_COMMAND = g++ -shared
+      LINK_COMMAND = $(CXX) -shared
       LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
    endif
   else
-    LINK_COMMAND = g++ -dynamiclib
+    LINK_COMMAND = $(CXX) -dynamiclib
     LINK_ARGUMENTS = --helplib$(LIBRARY)$(LIB_SUFFIX) -ldl
   endif
   ifeq ($(PEGASUS_PLATFORM), SOLARIS_SPARC_GNU)

@@ -559,6 +559,7 @@ CIMOMHandle & CIMOMHandle::operator =(const CIMOMHandle & handle)
 {
    if(this != &handle)
    {
+      Dec(_rep);
       Inc(_rep = handle._rep);
    }
    return *this;

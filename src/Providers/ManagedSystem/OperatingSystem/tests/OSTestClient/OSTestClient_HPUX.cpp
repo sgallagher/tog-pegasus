@@ -656,6 +656,7 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
    // garbage values).
    return (delta < 65536 );   
 }
+
 /**
    goodFreePhysicalMemory method for HP-UX implementation of
    OS Provider Test Client. 
@@ -666,19 +667,27 @@ Boolean OSTestClient::goodFreePhysicalMemory(const Uint64 &freepmem,
 					     Boolean verbose)
 {
    struct pst_dynamic psd;  
+   struct pst_static pst;  
+   float psize;
 
    if (verbose)
       cout<<"Checking FreePhysicalMemory "<<Uint32(freepmem) << endl;
 
+   if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
+   {
+       return false;
+   }
+   psize = pst.page_size / 1024;
+ 
    if (pstat_getdynamic(&psd, sizeof(psd), (size_t)1, 0) == -1)
    {
        return false;
    }
  
    if (verbose)
-      cout<<" Should be close to "  << Sint32(psd.psd_free) << endl;
+      cout<<" Should be close to "  << Sint32(psd.psd_free * psize) << endl;
 
-   Sint32 raw_delta = (freepmem - psd.psd_free);
+   Sint32 raw_delta = (freepmem - Sint32(psd.psd_free * psize));
    Uint32 delta = abs(raw_delta);
 
    if (verbose)
@@ -710,9 +719,8 @@ Boolean OSTestClient::goodTotalVisibleMemorySize(const Uint64 &totalvmem,
        return false;
    }
 
-   // this constant is 1/1024 - used for efficiency vs. dividing
-   psize = pst.page_size * 0.000977;
-   total = ((float)pst.physical_memory * 0.000977 * psize);
+   psize = pst.page_size / 1024;
+   total = ((float)pst.physical_memory * psize);
    Uint64 totalVMem = total;
  
    if (verbose)

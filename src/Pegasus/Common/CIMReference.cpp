@@ -464,7 +464,7 @@ void CIMReference::setNameSpace(const String& nameSpace)
 
 	if(!CIMName::legal(temp)) 
 	{
-	    throw(IllegalName());
+	    throw IllegalName() ;
 	}
     }
 

@@ -22,12 +22,14 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//         Mike Day (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/lslp-perl-lib.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 
@@ -80,7 +82,9 @@ void GetOptions(
 	{"help", "false", false, Option::BOOLEAN, 0, 0, "h",
 		    "Prints help message with command line options "},
 	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
-			"Not Used "}
+	             "Not Used "},
+	{"slp", "true", false, Option::BOOLEAN, 0, 0, "d", 
+			"use SLP to find cim servers to test"}
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -150,7 +154,8 @@ static void TestNameSpaceOperations(CIMClient& client)
     {
 	cout << "Error NameSpace Enumeration:" << endl;
 	cout << e.getMessage() << endl;
-    } 
+    }
+
 
 }
 
@@ -324,9 +329,11 @@ static void TestInstanceOperations(CIMClient& client)
 
 int main(int argc, char** argv)
 {
-    char* connection = "localhost:5988";
-    if (argc > 1)
-	 connection= argv[1];
+  LSLP_LIB_SRVRPLY *replies = NULL, *thisReply = NULL;
+  char* connection = "localhost:5988";
+  char *address_string = NULL;
+  
+
     Uint32 repetitions = 1;
 
     // Get environment variables:
@@ -356,7 +363,6 @@ int main(int argc, char** argv)
 	exit(1);
     }
 
-    // Check to see if we should (can) remove Pegasus as an NT service
 
     String localNameSpace;
     if(om.lookupValue("namespace", localNameSpace))
@@ -368,31 +374,76 @@ int main(int argc, char** argv)
     cout << "Namespace = " << localNameSpace << endl;
     
     cout << "Namespace = " << NAMESPACE << endl;
-    try
-    {
-	cout << "connecting to " << connection << endl;
-	Selector selector;
-	CIMClient client(&selector);
-	client.connect(connection);
-	testStatus("Test NameSpace Operations");
-	TestNameSpaceOperations(client);
+    
+    Boolean useSLP;
+    if(om.valueEquals("slp", "true")) 
+      useSLP = true;
+
+    if(useSLP == false && argc > 1)
+      connection= argv[1];
+    else if ( lslp_lib_init("pegasus_cim_client", 
+			    "239.255.255.253",   
+			    "0.0.0.0", 
+			    427, NULL ) ) // try slp
+      { 
 	
-	testStatus("Test Qualifier Operations");
-	TestQualifierOperations(client);
-	testStatus("Test Class Operations");
-	TestClassOperations(client);
-	testStatus("Test Instance Operations");
-	TestInstanceOperations(client);
-	
-    }
-    catch(Exception& e)
-    {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	exit(1);
-    }
+	replies = (LSLP_LIB_SRVRPLY *)lslp_lib_converge_srv_req("pegasus_cim_client",
+								"service:cim.pegasus",
+								"(namespace=*)",
+								"DEFAULT");
+	if(replies != NULL) 
+	  {
+	    thisReply = replies->next;
+	    if  (! thisReply->isHead ) 
+	      {
+		connection = (address_string = lslp_lib_get_addr_string_from_url(thisReply->url) );
+		thisReply = thisReply->next;
+	      }
+	  }
+      }
+    
+    do {
+
+      if(connection == NULL)
+	continue;
+
+      try
+	{
+	  cout << "connecting to " << connection << endl;
+	  Selector selector;
+	  CIMClient client(&selector);
+	  client.connect(connection);
+	  testStatus("Test NameSpace Operations");
+	  TestNameSpaceOperations(client);
+	  
+	  testStatus("Test Qualifier Operations");
+	  TestQualifierOperations(client);
+	  testStatus("Test Class Operations");
+	  TestClassOperations(client);
+	  testStatus("Test Instance Operations");
+	  TestInstanceOperations(client);
+	  
+	}
+      catch(Exception& e)
+	{
+	  PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	  //	exit(1);
+	}
+      
+
+      if( thisReply != NULL && ( ! thisReply->isHead ) )
+	{
+	  // reinitialize the connection string
+	  connection = (address_string = lslp_lib_get_addr_string_from_url(thisReply->url) );
+	  thisReply = thisReply->next;
+	}
+      else
+	connection = NULL;
+    
+    } while ( connection != NULL ); 
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
-
+    lslp_lib_deinit("pegasus_cim_client");
     return 0;
 }
 

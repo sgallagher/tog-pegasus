@@ -7,7 +7,8 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegrepository$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegprotocol$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegserver$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)pegprovider$(LIB_SUFFIX)
+    $(LIB_DIR)/$(LIB_PREFIX)pegprovider$(LIB_SUFFIX) \
+    $(LIB_DIR)/lslp-perl-lib$(LIB_SUFFIX)		
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
@@ -17,7 +18,10 @@ SOURCES = cimserver.cpp
 
 include $(ROOT)/mak/program.mak
 
-SYS_LIBS = ws2_32.lib advapi32.lib
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  SYS_LIBS = ws2_32.lib advapi32.lib	
+endif
+
 
 tests:
 

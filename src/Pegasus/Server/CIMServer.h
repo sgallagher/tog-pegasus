@@ -22,6 +22,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
+//         Mike Day (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,14 +77,18 @@ public:
     */
     void runForever();
     void killServer() { _dieNow = 1 ; }
+    void setSLP(int on_off) { _useSLP = on_off ; }
+    void setServiceURL(String &url);
 
 private:
 
     String _rootPath;
     String _repositoryRootPath;
+    String _serviceURL;   // will change this to an array<String> when we modularize channels mdday
     Selector* _selector;
     ChannelAcceptor* _acceptor;
     int _dieNow;
+    Boolean _useSLP;
 };
 
 PEGASUS_NAMESPACE_END

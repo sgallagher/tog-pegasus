@@ -122,11 +122,19 @@ cimmofParser::setRepository(void) {
       // FIX KAS/MEB Change exception to CIMException June 11 2001
       try {
         _repository->createNameSpace(s);
-      } catch(CIMException& e) {
-	  if (e.getCode() != CIMException::ALREADY_EXISTS)
-	      throw e;
-	// OK, that's what we expect
-      } catch(CIMException &e) {
+      } 
+
+      // mdday@us.ibm.com Thu Jun 14 14:49:16 2001
+      // doesn't compile on windows - due to catching exception twice for the 
+      // same try block. 
+      // MEB - you should look at this to be certain I commented out the right piece!! 
+      // catch(CIMException& e) {
+// 	  if (e.getCode() != CIMException::ALREADY_EXISTS)
+// 	      throw e;
+// 	// OK, that's what we expect
+//       } 
+
+      catch(CIMException &e) {
 	if (e.getCode() == CIMException::ALREADY_EXISTS) {
 	  // Not a problem.  Happens all the time.
 	} else {

@@ -80,6 +80,7 @@
 #include <Pegasus/Common/System.h>
 
 
+
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "cimserver_windows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
@@ -148,7 +149,9 @@ void GetOptions(
 	{"remove", "false", false, Option::BOOLEAN, 0, 0, "remove",
 		    "Removes Pegasus as a Windows NT Service "},
 	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
-			"Not Used "}
+	                "Not Used "},
+	{"slp", "true", false, Option::BOOLEAN, 0, 0, "slp", 
+			"Register Pegasus as a Service with SLP"}
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -331,6 +334,10 @@ int main(int argc, char** argv)
 		address,
 		(pegasusIOTrace ? " Tracing": " "));
 
+    Boolean useSLP;
+    if(om.valueEquals("slp", "true")) 
+      useSLP = true;
+
     // do we need to run as a daemon ?
     String daemonOption;
     if(om.lookupValue("daemon", daemonOption) && daemonOption == "true") 
@@ -345,6 +352,7 @@ int main(int argc, char** argv)
     {
 	Selector selector;
 	CIMServer server(&selector, pegasusHome);
+	server.setSLP(useSLP );
 
 	// bind throws an exception of the bind fails
 	server.bind(address);
@@ -365,4 +373,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-

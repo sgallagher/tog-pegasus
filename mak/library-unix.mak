@@ -49,6 +49,9 @@ ifeq ($(COMPILER),gnu)
     LINK_COMMAND = g++ -dynamiclib
     LINK_ARGUMENTS = --helplib$(LIBRARY)$(LIB_SUFFIX) -ldl
   endif
+  ifeq ($(PEGASUS_PLATFORM), SOLARIS_SPARC_GNU)
+	LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX) -Xlinker -L$(LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
+  endif
   LINK_OUT = -o
 endif
 

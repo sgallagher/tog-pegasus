@@ -22,6 +22,8 @@ SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet -lrt
 
 CXX = g++
 
+CC = gcc
+
 SH = sh
 
 YACC = yacc

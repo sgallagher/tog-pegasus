@@ -1,0 +1,694 @@
+/*
+*/
+
+#define CMPI_VER_87 1
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
+#include <Pegasus/Provider/CMPI/cmpimacs.h>
+
+#define _IndClassName "TestCMPI_Indication"
+#define _Namespace    "test/TestProvider"
+#define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestIndications/tests/"
+#define _LogExtension ".log"
+
+static CMPIBroker *_broker;
+
+unsigned char CMPI_true = 1;
+unsigned char CMPI_false = 0;
+static FILE *fd = NULL;
+
+/* ---------------------------------------------------------------------------*/
+/* private declarations                                                       */
+
+#define PROV_LOG(fmt, args...) if (!fd) fd=stderr; fprintf(fd, "%s: ", __FILE__); fprintf(fd, fmt, ## args); fprintf(fd,"\n"); fflush(fd);
+/* ---------------------------------------------------------------------------*/
+
+void
+PROV_LOG_CLOSE ()
+{
+  fclose (fd);
+  fd = stderr;
+}
+
+void
+PROV_LOG_OPEN (const char *file)
+{
+  char *path = NULL;
+  const char *env;
+  int i = 0;
+  int j = 0;
+  int len = strlen (file);
+  int env_len = 0;
+  int loc_len = strlen (_ProviderLocation);
+  int ext_len = strlen (_LogExtension);
+
+  env = getenv ("PEGASUS_ROOT");
+  if (env)
+    env_len = strlen (env);
+
+  path = malloc (env_len + len + loc_len + ext_len);
+
+  strncpy (path, env, env_len);
+
+  path[env_len] = 0;
+  strncat (path, _ProviderLocation, loc_len);
+  for (i = 0; i < len; i++)
+    // Only use good names.
+    if (isalpha (file[i]))
+      {
+        path[j + env_len + loc_len] = file[i];
+        j++;
+      }
+  path[j + env_len + loc_len] = 0;
+  strncat (path, _LogExtension, ext_len);
+  path[j + env_len + loc_len + ext_len] = 0;
+
+  //fprintf(stderr,"File to log is %s\n", path); 
+  fd = fopen (path, "a+");
+  if (fd == NULL)
+    fd = stderr;
+
+}
+
+/* ---------------------------------------------------------------------------*/
+/*                       Helper functions                        */
+/* ---------------------------------------------------------------------------*/
+char *
+strCMPIStatus (CMPIStatus rc)
+{
+
+
+  switch (rc.rc)
+    {
+
+    case CMPI_RC_OK:
+      return "CMPI_RC_OK";
+    case CMPI_RC_ERR_FAILED:
+      return "CMPI_RC_ERR_FAILED";
+    case CMPI_RC_ERR_ACCESS_DENIED:
+      return "CMPI_RC_ERR_ACCESS_DENIED";
+    case CMPI_RC_ERR_INVALID_NAMESPACE:
+      return "CMPI_RC_ERR_INVALID_NAMESPACE";
+    case CMPI_RC_ERR_INVALID_PARAMETER:
+      return "CMPI_RC_ERR_INVALID_PARAMETER";
+    case CMPI_RC_ERR_INVALID_CLASS:
+      return "CMPI_RC_ERR_INVALID_CLASS";
+    case CMPI_RC_ERR_NOT_FOUND:
+      return "CMPI_RC_ERR_NOT_FOUND";
+    case CMPI_RC_ERR_NOT_SUPPORTED:
+      return "CMPI_RC_ERR_NOT_SUPPORTED";
+    case CMPI_RC_ERR_CLASS_HAS_CHILDREN:
+      return "CMPI_RC_ERR_CLASS_HAS_CHILDREN";
+    case CMPI_RC_ERR_CLASS_HAS_INSTANCES:
+      return "CMPI_RC_ERR_CLASS_HAS_INSTANCES";
+    case CMPI_RC_ERR_INVALID_SUPERCLASS:
+      return "CMPI_RC_ERR_INVALID_SUPERCLASS";
+    case CMPI_RC_ERR_ALREADY_EXISTS:
+      return "CMPI_RC_ERR_ALREADY_EXISTS";
+    case CMPI_RC_ERR_NO_SUCH_PROPERTY:
+      return "CMPI_RC_ERR_NO_SUCH_PROPERTY";
+    case CMPI_RC_ERR_TYPE_MISMATCH:
+      return "CMPI_RC_ERR_TYPE_MISMATCH";
+    case CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED:
+      return "CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED";
+    case CMPI_RC_ERR_INVALID_QUERY:
+      return "CMPI_RC_ERR_INVALID_QUERY";
+    case CMPI_RC_ERR_METHOD_NOT_AVAILABLE:
+      return "CMPI_RC_ERR_METHOD_NOT_AVAILABLE";
+    case CMPI_RC_ERR_METHOD_NOT_FOUND:
+      return "CMPI_RC_ERR_METHOD_NOT_FOUND";
+    case CMPI_RC_ERROR_SYSTEM:
+      return "CMPI_RC_ERROR_SYSTEM";
+    case CMPI_RC_ERROR:
+      return "CMPI_RC_ERROR";
+    default:
+      return "Unknown error.";
+    }
+
+  return "";
+}
+
+char *
+strCMPIType (CMPIType type)
+{
+
+  switch (type)
+    {
+    case CMPI_null:
+      return "CMPI_null";
+    case CMPI_SIMPLE:
+      return "CMPI_SIMPLE";
+    case CMPI_char16:
+      return "CMPI_char16";
+    case CMPI_REAL:
+      return "CMPI_REAL";
+    case CMPI_real64:
+      return "CMPI_real64";
+    case CMPI_UINT:
+      return "CMPI_UINT";
+    case CMPI_uint16:
+      return "CMPI_uint16";
+    case CMPI_uint32:
+      return "CMPI_uint32";
+    case CMPI_uint64:
+      return "CMPI_uint64";
+    case CMPI_sint16:
+      return "CMPI_sint16";
+    case CMPI_sint32:
+      return "CMPI_sint32";
+    case CMPI_ENC:
+      return "CMPI_ENC";
+    case CMPI_ref:
+      return "CMPI_ref";
+    case CMPI_args:
+      return "CMPI_args";
+    case CMPI_class:
+      return "CMPI_class";
+    case CMPI_filter:
+      return "CMPI_filter";
+    case CMPI_enumeration:
+      return "CMPI_enumeration";
+    case CMPI_string:
+      return "CMPI_string";
+    case CMPI_chars:
+      return "CMPI_chars";
+    case CMPI_dateTime:
+      return "CMPI_dateTime";
+    case CMPI_ptr:
+      return "CMPI_ptr";
+    case CMPI_charsptr:
+      return "CMPI_charsptr";
+    case CMPI_ARRAY:
+      return "CMPI_ARRAY";
+    case CMPI_SIMPLEA:
+      return "CMPI_SIMPLEA";
+    case CMPI_char16A:
+      return "CMPI_char16A";
+    case CMPI_REALA:
+      return "CMPI_REALA";
+    case CMPI_real64A:
+      return "CMPI_real64A";
+    case CMPI_uint16A:
+      return "CMPI_uint16A";
+    case CMPI_uint32A:
+      return "CMPI_uint32A";
+    case CMPI_uint64A:
+      return "CMPI_uint64A";
+    case CMPI_SINTA:
+      return "CMPI_SINTA";
+    case CMPI_sint16A:
+      return "CMPI_sint16A";
+    case CMPI_sint32A:
+      return "CMPI_sint32A";
+    case CMPI_sint64A:
+      return "CMPI_sint64A";
+    case CMPI_ENCA:
+      return "CMPI_ENCA";
+    case CMPI_stringA:
+      return "CMPI_stringA";
+    case CMPI_charsA:
+      return "CMPI_charsA";
+    case CMPI_dateTimeA:
+      return "CMPI_dateTimeA";
+    case CMPI_refA:
+      return "CMPI_refA";
+    case CMPI_charsptrA:
+      return "CMPI_charsptrA";
+    case CMPI_keyInteger:
+      return "CMPI_keyInteger";
+    case CMPI_integerString:
+      return "CMPI_integerString";
+    case CMPI_realString:
+      return "CMPI_realString";
+    case CMPI_numericString:
+      return "CMPI_numericString";
+    case CMPI_booleanString:
+      return "CMPI_booleanString";
+    case CMPI_dateTimeString:
+      return "CMPI_dateTimeString";
+    default:
+      return "Unknown";
+
+    }
+  return "";
+}
+
+char *
+strCMPIValueState (CMPIValueState state)
+{
+  switch (state)
+    {
+    case CMPI_goodValue:
+      return "CMPI_goodValue";
+    case CMPI_nullValue:
+      return "CMPI_nullValue";
+    case CMPI_keyValue:
+      return "CMPI_keyValue";
+    case CMPI_notFound:
+      return "CMPI_notFound";
+    case CMPI_badValue:
+      return "CMPI_badValue";
+    default:
+      return "Unknown state";
+
+    }
+  return "";
+
+}
+
+char *
+strCMPIPredOp (CMPIPredOp op)
+{
+  switch (op)
+    {
+    case CMPI_PredOp_Equals:
+      return " CMPI_PredOp_Equals ";
+    case CMPI_PredOp_NotEquals:
+      return " CMPI_PredOp_NotEquals ";
+    case CMPI_PredOp_LessThan:
+      return " CMPI_PredOp_LessThan ";
+    case CMPI_PredOp_GreaterThanOrEquals:
+      return " CMPI_PredOp_GreaterThanOrEquals ";
+    case CMPI_PredOp_GreaterThan:
+      return " CMPI_PredOp_GreaterThan ";
+    case CMPI_PredOp_LessThanOrEquals:
+      return " CMPI_PredOp_LessThanOrEquals ";
+    case CMPI_PredOp_Isa:
+      return " CMPI_PredOp_Isa ";
+    case CMPI_PredOp_NotIsa:
+      return " CMPI_PredOp_NotIsa ";
+    case CMPI_PredOp_Like:
+      return " CMPI_PredOp_Like ";
+    case CMPI_PredOp_NotLike:
+      return " CMPI_PredOp_NotLike ";
+    default:
+      return "Unknown operation";
+    }
+}
+char *
+strCMPIValue (CMPIValue value)
+{
+  /* This function only handles string values */
+  if (value.string != NULL)
+    return CMGetCharPtr (value.string);
+  return "No value";
+}
+
+/* ---------------------------------------------------------------------------*/
+/*                       CMPI Helper function                        */
+/* ---------------------------------------------------------------------------*/
+
+CMPIObjectPath *
+make_ObjectPath (const char *ns, const char *class)
+{
+  CMPIObjectPath *objPath = NULL;
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+  PROV_LOG ("--- make_ObjectPath: CMNewObjectPath");
+  objPath = CMNewObjectPath (_broker, ns, class, &rc);
+
+  //assert ( rc.rc == CMPI_RC_OK);
+  PROV_LOG ("----- %s", strCMPIStatus (rc));
+
+  return objPath;
+}
+
+/* ---------------------------------------------------------------------------*/
+/*                       CMPI Accessor function                        */
+/* ---------------------------------------------------------------------------*/
+
+CMPIData
+instance_accessor (const char *name, void *param)
+{
+
+  CMPIData data = { 0, CMPI_null, {0} };
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+  PROV_LOG ("-- #4.2 instance_accessor");
+  PROV_LOG ("-- Property: %s", name);
+/* SELECT * FROM CIM_InstModification WHERE (SourceInstance="Boo" OR SourceInstance="Hello") AND PreviousInstance !="Hello again"]
+*/
+  if (strcmp ("PropertyA", name) == 0)
+    {
+      data.type = CMPI_string;
+      data.state = CMPI_goodValue;
+      data.value.string = CMNewString (_broker, "AccessorPropertyA", &rc);
+    }
+  if (strcmp ("PropertyB", name) == 0)
+    {
+      data.type = CMPI_string;
+      data.state = CMPI_goodValue;
+      data.value.string = CMNewString (_broker, "AccessorPropertyB", &rc);
+    }
+  if (strcmp ("n", name) == 0)
+    {
+      data.type = CMPI_uint64;
+      data.state = CMPI_goodValue;
+      data.value.uint64 = 42;
+    }
+  if (strcmp ("f", name) == 0)
+    {
+      data.type = CMPI_real64;
+      data.state = CMPI_goodValue;
+      data.value.real64 = 0.42;
+    }
+  if (strcmp ("s", name) == 0)
+    {
+      data.type = CMPI_string;
+      data.state = CMPI_goodValue;
+      data.value.string = CMNewString (_broker, "s", &rc);
+    }
+
+  PROV_LOG ("----  (%s)", strCMPIStatus (rc));
+  return data;
+}
+
+/* ---------------------------------------------------------------------------*/
+/*                       Indication Provider Interface                        */
+/* ---------------------------------------------------------------------------*/
+
+
+CMPIStatus
+TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
+                                             CMPIContext * ctx)
+{
+  /*
+     PROV_LOG ("--- %s CMPI IndicationCleanup() called", _IndClassName);
+     PROV_LOG ("--- %s CMPI IndicationCleanup() exited", _IndClassName);
+   */
+  CMReturn (CMPI_RC_OK);
+}
+
+CMPIStatus
+TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
+                                           CMPIContext * ctx,
+                                           CMPIResult * rslt,
+                                           CMPISelectExp * se,
+                                           const char *ns,
+                                           CMPIObjectPath * op,
+                                           const char *user)
+{
+  CMPIString *str = NULL;
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+  str = CMGetSelExpString (se, &rc);
+  PROV_LOG_OPEN (CMGetCharPtr (str));
+
+  PROV_LOG ("--- %s CMPI AuthorizeFilter() called", _IndClassName);
+  /* we don't object */
+  if (strcasecmp (ns, _IndClassName) == 0)
+    {
+      PROV_LOG ("--- %s Correct class", _IndClassName);
+      CMReturnData (rslt, (CMPIValue *) & CMPI_true, CMPI_boolean);
+      CMReturnDone (rslt);
+    }
+  else
+    CMReturnData (rslt, (CMPIValue *) & CMPI_false, CMPI_boolean);
+
+  PROV_LOG ("--- %s CMPI AuthorizeFilter() exited", _IndClassName);
+
+  PROV_LOG_CLOSE ();
+  CMReturn (CMPI_RC_OK);
+}
+
+
+CMPIStatus
+TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
+                                    CMPIContext * ctx,
+                                    CMPIResult * rslt,
+                                    CMPISelectExp * se,
+                                    const char *ns, CMPIObjectPath * op)
+{
+  CMPIString *str = NULL;
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+  str = CMGetSelExpString (se, &rc);
+  PROV_LOG_OPEN (CMGetCharPtr (str));
+
+  PROV_LOG ("--- %s CMPI MustPoll() called", _IndClassName);
+  /* no polling */
+  CMReturnData (rslt, (CMPIValue *) & (CMPI_false), CMPI_boolean);
+  CMReturnDone (rslt);
+  PROV_LOG ("--- %s CMPI MustPoll() exited", _IndClassName);
+
+  PROV_LOG_CLOSE ();
+  CMReturn (CMPI_RC_OK);
+}
+
+CMPIStatus
+TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
+                                          CMPIContext * ctx,
+                                          CMPIResult * rslt,
+                                          CMPISelectExp * se,
+                                          const char *ns,
+                                          CMPIObjectPath * op,
+                                          CMPIBoolean firstActivation)
+{
+  CMPIString *str = NULL;
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+  CMPIStatus rc_Eval = { CMPI_RC_OK, NULL };
+  CMPIStatus rc_Clone = { CMPI_RC_OK, NULL };
+  CMPIStatus rc_Inst = { CMPI_RC_OK, NULL };
+  CMPIStatus rc_Pred = { CMPI_RC_OK, NULL };
+
+  CMPIString *type = NULL;
+  CMPISelectExp *clone = NULL;
+  CMPIBoolean evalRes;
+  CMPIInstance *inst = NULL;
+  CMPIObjectPath *objPath = NULL;
+  unsigned int idx;
+  CMPIString *name = NULL;
+  CMPIStatus rc_CMGetPropertyAt = { CMPI_RC_OK, NULL };
+  CMPIData prop_data;
+
+  str = CMGetSelExpString (se, &rc);
+  PROV_LOG_OPEN (CMGetCharPtr (str));
+
+  PROV_LOG ("--- %s CMPI ActivateFilter() called", _IndClassName);
+
+  PROV_LOG ("-- #1 Clone");
+  clone = CMClone (se, &rc_Clone);
+  PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
+
+  PROV_LOG ("-- #2 MakeObjectPath");
+  // Create instance
+
+  objPath = make_ObjectPath (_Namespace, _IndClassName);
+  type = CDGetType (_broker, objPath, &rc_Inst);
+  PROV_LOG ("---- %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc_Inst));
+  CMRelease (type);
+
+  PROV_LOG ("-- #3 Instance");
+  inst = CMNewInstance (_broker, objPath, &rc_Inst);
+  PROV_LOG ("---- %s", strCMPIStatus (rc_Inst));
+
+  if (rc_Inst.rc == CMPI_RC_ERR_NOT_FOUND)
+    {
+      PROV_LOG (" --- Class %s is not found in the %s namespace!",
+                _IndClassName, _Namespace);
+      PROV_LOG (" --- Aborting!!! ");
+      CMReturn (CMPI_RC_ERR_NOT_FOUND);
+    }
+
+  type = CDGetType (_broker, inst, &rc_Inst);
+  if (type)
+    {
+      PROV_LOG ("---- %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc_Inst));
+      CMRelease (type);
+    }
+
+  PROV_LOG ("- CMGetPropertyCount: %d", CMGetPropertyCount (inst, &rc));
+  // Set each property.
+  for (idx = 0; idx < CMGetPropertyCount (inst, &rc); idx++)
+    {
+      prop_data = CMGetPropertyAt (inst, idx, &name, &rc_CMGetPropertyAt);
+      // Really dumb way of doing it. Just set each property with its own property name.
+      if (prop_data.type == CMPI_string)
+        {
+          CMSetProperty (inst, CMGetCharPtr (name), CMGetCharPtr (name),
+                         CMPI_chars);
+        }
+      prop_data = CMGetPropertyAt (inst, idx, &name, &rc_CMGetPropertyAt);
+
+      PROV_LOG ("-- %d: %s(%s: %s: %s) [%s]", idx,
+                CMGetCharPtr (name),
+                strCMPIType (prop_data.type),
+                strCMPIValueState (prop_data.state),
+                strCMPIValue (prop_data.value),
+                strCMPIStatus (rc_CMGetPropertyAt));
+
+    }
+
+  PROV_LOG ("-- #4 Evaluate using instance");
+  evalRes = CMEvaluateSelExp (se, inst, &rc_Eval);
+  PROV_LOG ("---- %s", strCMPIStatus (rc_Eval));
+  if (evalRes == CMPI_true)
+    {
+      PROV_LOG ("--- True");
+    }
+  else
+    {
+      PROV_LOG ("--- False");
+    }
+
+  PROV_LOG ("-- #4.1 Evalute using accessor");
+  evalRes =
+    CMEvaluateSelExpUsingAccessor (se, instance_accessor, NULL, &rc_Eval);
+  PROV_LOG ("---- %s", strCMPIStatus (rc_Eval));
+  if (evalRes == CMPI_true)
+    {
+      PROV_LOG ("--- True");
+    }
+  else
+    {
+      PROV_LOG ("--- False");
+    }
+  PROV_LOG ("-- #5 CMGetSelExpString");
+  str = CMGetSelExpString (se, &rc);
+  type = CDGetType (_broker, str, &rc_Inst);
+  if (type != NULL)
+    {
+      PROV_LOG ("---- %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc_Inst));
+      CMRelease (type);
+    }
+
+  PROV_LOG ("---- %s", strCMPIStatus (rc));
+  PROV_LOG ("-- #5.1 Query is [%s]", CMGetCharPtr (str));
+  PROV_LOG ("-- #5.2 Query is [%s]", ns);
+
+  PROV_LOG ("-- #6 Continue evaluating using GetDOC");
+  {
+    CMPISelectCond *cond = NULL;
+    cond = CMGetDoc (se, &rc);
+    PROV_LOG ("---- %s", strCMPIStatus (rc));
+    if (cond != NULL)
+      {
+        int type;
+        PROV_LOG ("--- #6.1 CMGetSubCondCountAndType ");
+        CMPICount cnt = CMGetSubCondCountAndType (cond, &type, &rc);
+        PROV_LOG ("---- %s", strCMPIStatus (rc));
+
+        PROV_LOG ("---- Count: %d, Type: %X", cnt, type);
+
+        unsigned int idx;
+        for (idx = 0; idx < cnt; idx++)
+          {
+            PROV_LOG ("--- #6.2 CMGetSubCondAt ");
+            CMPISubCond *subcnd = CMGetSubCondAt (cond, idx, &rc);
+            PROV_LOG ("---- %s", strCMPIStatus (rc));
+
+            PROV_LOG ("--- #6.3 CMGetPredicateCount");
+            CMPICount pred_cnd = CMGetPredicateCount (subcnd, &rc);
+            PROV_LOG ("---- %s", strCMPIStatus (rc));
+
+            unsigned int pred_idx;
+            for (pred_idx = 0; pred_idx < pred_cnd; pred_idx++)
+              {
+                PROV_LOG ("--- #6.4 CMGetPredicateAt");
+                CMPIPredicate *pred =
+                  CMGetPredicateAt (subcnd, pred_idx, &rc);
+
+                PROV_LOG ("---- %s", strCMPIStatus (rc));
+                CMPIType type;
+                CMPIPredOp pred_op;
+                CMPIString *left_side;
+                CMPIString *right_side;
+                PROV_LOG ("--- #6.4 CMGetPredicateData");
+                rc = CMGetPredicateData (pred,
+                                         &type,
+                                         &pred_op, &left_side, &right_side);
+                PROV_LOG ("---- %s", strCMPIStatus (rc));
+
+                PROV_LOG ("----- Type: %s , CMPIPredOp: %s, LS: %s, RS: %s",
+                          strCMPIType (type), strCMPIPredOp (pred_op),
+                          CMGetCharPtr (left_side),
+                          CMGetCharPtr (right_side));
+
+                // One can also evaluate this specific predicate 
+                PROV_LOG ("--- #6.5 CMEvaluatePredicate");
+
+                evalRes =
+                  CMEvaluatePredicate (pred, "PredicateEvaluation",
+                                       CMPI_chars, &rc_Pred);
+                PROV_LOG ("---- %s", strCMPIStatus (rc_Pred));
+
+                if (evalRes == CMPI_true)
+                  {
+                    PROV_LOG ("--- True");
+                  }
+                else
+                  {
+                    PROV_LOG ("--- False");
+                  }
+              }
+
+          }
+      }
+  }
+  PROV_LOG ("-- #7 GetCOD");
+  {
+    CMPISelectCond *cond = CMGetCod (se, &rc);
+    PROV_LOG ("---- %s", strCMPIStatus (rc));
+    /* Currently this is not supported in Pegasus. */
+    if (cond != NULL)
+      {
+      }
+  }
+  PROV_LOG ("--- %s CMPI ActivateFilter() exited", _IndClassName);
+
+  PROV_LOG_CLOSE ();
+  CMReturn (CMPI_RC_OK);
+}
+
+CMPIStatus
+TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
+                                            CMPIContext * ctx,
+                                            CMPIResult * rslt,
+                                            CMPISelectExp * se,
+                                            const char *ns,
+                                            CMPIObjectPath * op,
+                                            CMPIBoolean lastActivation)
+{
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+  CMPIString *str = NULL;
+
+  str = CMGetSelExpString (se, &rc);
+  PROV_LOG_OPEN (CMGetCharPtr (str));
+  PROV_LOG ("--- %s CMPI DeActivateFilter() called", _IndClassName);
+  str = CMGetSelExpString (se, &rc);
+  PROV_LOG ("-- Query is [%s]", CMGetCharPtr (str));
+  PROV_LOG ("--- %s CMPI DeActivateFilter() exited", _IndClassName);
+
+  PROV_LOG_CLOSE ();
+  CMReturn (CMPI_RC_OK);
+}
+
+void
+TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi)
+{
+  //PROV_LOG ("--- CMPI EnableIndication() called");
+}
+
+
+void
+TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi)
+{
+  //PROV_LOG ("---  CMPI DisableIndication() called");
+}
+
+/* ---------------------------------------------------------------------------*/
+/*                              Provider Factory                              */
+/* ---------------------------------------------------------------------------*/
+
+CMIndicationMIStub (TestCMPIIndicationProvider,
+                    TestCMPIIndicationProvider, _broker, CMNoHook);
+
+
+/* ---------------------------------------------------------------------------*/
+/*             end of TestCMPIProvider                      */
+/* ---------------------------------------------------------------------------*/

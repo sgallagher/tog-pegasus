@@ -13,9 +13,7 @@ LIBRARY = peglistener
 LIBRARIES = \
     pegcommon \
     pegexportserver \
-    pegconfig \
-    peguser \
-    peglocalauth 
+    pegconfig 
 
 PRE_DEPEND_INCLUDES = -I./depends
 

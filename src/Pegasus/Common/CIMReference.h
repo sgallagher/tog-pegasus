@@ -29,18 +29,17 @@
 #ifndef Pegasus_Reference_h
 #define Pegasus_Reference_h
 
-#include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Exception.h>
 
+#include <iostream>
+
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMReference;
-
-typedef CIMReference CIMObjectPath;
 
 /** The KeyBinding class associates a key name, value, and type.
     It is used by the reference class to represent key bindings.

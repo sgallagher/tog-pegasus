@@ -31,7 +31,6 @@
 
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -39,11 +38,6 @@ PEGASUS_NAMESPACE_BEGIN
 ProviderModule::ProviderModule(const String & fileName, const String & providerName)
     : _fileName(fileName), _providerName(providerName), _library(0), _provider(0)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderModule::ProviderModule");
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
-                     "providerName = " + providerName + "; fileName = " + 
-                         fileName);
-    PEG_METHOD_EXIT();
 }
 
 ProviderModule::~ProviderModule(void)
@@ -59,64 +53,64 @@ void ProviderModule::load(void)
 
     if(_library == 0)
     {
-        String errorString = "Cannot load library, error: " + System::dynamicLoadError();
-        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+	String errorString = "Cannot load library, error: " + System::dynamicLoadError();
+	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
     }
 
-	// find libray entry point
-	CIMBaseProvider * (*createProvider)(const String &) = 0;
+    // find libray entry point
+    CIMBaseProvider * (*createProvider)(const String &) = 0;
 
-	createProvider = (CIMBaseProvider * (*)(const String &))System::loadDynamicSymbol(
-		_library, "PegasusCreateProvider");
+    createProvider = (CIMBaseProvider * (*)(const String &))System::loadDynamicSymbol(
+	_library, "PegasusCreateProvider");
 
-	if(createProvider == 0)
-	{
-		unload();
+    if(createProvider == 0)
+    {
+	unload();
 
-		String errorString = "entry point not found.";
-		throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
-	}
+	String errorString = "entry point not found.";
+	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+    }
 
-	// invoke the provider entry point
-	CIMBaseProvider * provider = createProvider(_providerName);
+    // invoke the provider entry point
+    CIMBaseProvider * provider = createProvider(_providerName);
 
-	if(provider == 0)
-	{
-		unload();
+    if(provider == 0)
+    {
+	unload();
 
-		String errorString = "entry point returned null.";
-		throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
-	}
+	String errorString = "entry point returned null.";
+	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+    }
 
-	// test for the appropriate interface
-	if(dynamic_cast<CIMBaseProvider *>(provider) == 0)
-	{
-		unload();
+    // test for the appropriate interface
+    if(dynamic_cast<CIMBaseProvider *>(provider) == 0)
+    {
+	unload();
 
-		String errorString = "provider is not a CIMBaseProvider.";
-		throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
-	}
+	String errorString = "provider is not a CIMBaseProvider.";
+	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+    }
 
-	// save provider handle
-	_provider = provider;
+    // save provider handle
+    _provider = provider;
 
-	return;
+    return;
 }
 
 void ProviderModule::unload(void)
 {
     if(_provider != 0)
     {
-        delete _provider;
+	delete _provider;
 
-        _provider = 0;
+	_provider = 0;
     }
 
     if(_library != 0)
     {
-        System::unloadDynamicLibrary(_library);
+	System::unloadDynamicLibrary(_library);
 
-        _library = 0;
+	_library = 0;
     }
 }
 

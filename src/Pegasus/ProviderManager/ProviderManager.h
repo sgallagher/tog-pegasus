@@ -33,6 +33,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Pair.h>
 
+// temp
+#include <Pegasus/Common/CIMNamedInstance.h>
+
 #include <Pegasus/ProviderManager/Lockable.h>
 #include <Pegasus/ProviderManager/Provider.h>
 
@@ -41,25 +44,25 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderManager
 {
 public:
-	ProviderManager(void);
-	virtual ~ProviderManager(void);
+    ProviderManager(void);
+    virtual ~ProviderManager(void);
 
-public:	
-	Provider getProvider(const String & fileName, const String & providerName);
+public:
+    Provider getProvider(const String & fileName, const String & providerName);
 
-	void addProviderToTable(const String & providerName, Boolean BlockFlag);
-	void removeProviderFromTable(const String & providerName);
-	Uint32 blockProvider(const String & providerName);
-	Uint32 unblockProvider(const String & providerName);
-	Uint32 stopProvider(const String & providerName);
-	Boolean isProviderBlocked(const String & providerName);
-	void createProviderBlockTable(Array<CIMNamedInstance> & instances);
+    void addProviderToTable(const String & providerName, Boolean BlockFlag);
+    void removeProviderFromTable(const String & providerName);
+    Uint32 blockProvider(const String & providerName);
+    Uint32 unblockProvider(const String & providerName);
+    Uint32 stopProvider(const String & providerName);
+    Boolean isProviderBlocked(const String & providerName);
+    void createProviderBlockTable(Array<CIMNamedInstance> & instances);
 
     void shutdownAllProviders(const String & providerName, const String & className);
 
 protected:
-	//CIMOMHandle _cimom;
-	Array<Provider> _providers;
+    //CIMOMHandle _cimom;
+    Array<Provider> _providers;
 
 };
 

@@ -36,18 +36,18 @@ template<class T>
 class Lockable
 {
 public:
-	Lockable(void);
-	virtual ~Lockable(void);
+    Lockable(void);
+    virtual ~Lockable(void);
 
-	operator const T &(void) const;
-	operator T &(void);
-	
-	void lock(void);
-	void unlock(void);
+    operator const T &(void) const;
+    operator T &(void);
+
+    void lock(void);
+    void unlock(void);
 
 protected:
-	T _object;
-	//Mutex _mutex;
+    T _object;
+    //Mutex _mutex;
 
 };
 
@@ -59,31 +59,31 @@ inline Lockable<T>::Lockable(void)
 template<class T>
 inline Lockable<T>::~Lockable(void)
 {
-	//_mutex.unlock();
+    //_mutex.unlock();
 }
 
 template<class T>
 inline Lockable<T>::operator const T &(void) const
 {
-	return(_object);
+    return(_object);
 }
 
 template<class T>
 inline Lockable<T>::operator T &(void)
 {
-	return(_object);
+    return(_object);
 }
 
 template<class T>
 inline void Lockable<T>::lock(void)
 {
-	//_mutex.lock(pegasus_thread_self());
+    //_mutex.lock(pegasus_thread_self());
 }
 
 template<class T>
 inline void Lockable<T>::unlock(void)
 {
-	//_mutex.unlock();
+    //_mutex.unlock();
 }
 
 #endif

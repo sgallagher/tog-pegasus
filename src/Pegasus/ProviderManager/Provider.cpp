@@ -28,11 +28,16 @@
 
 #include "Provider.h"
 
+#include <Pegasus/Common/Tracer.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 Provider::Provider(const String & name, const String & path)
-	: ProviderFacade(0), _module(path, name)
+    : ProviderFacade(0), _module(path, name)
 {
+    //PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "Provider::Provider");
+    //PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "name = " + name + "; path = " + path);
+    //PEG_METHOD_EXIT();
 }
 
 Provider::~Provider(void)
@@ -41,35 +46,36 @@ Provider::~Provider(void)
 
 String Provider::getName(void) const
 {
-	return(_module.getProviderName());
+    return(_module.getProviderName());
 }
 
 void Provider::initialize(CIMOMHandle & cimom)
 {
-	// NOTE: yield before a potentially lengthy operation.
-	pegasus_yield();
-	
-	_module.load();
+    // NOTE: yield before a potentially lengthy operation.
+    pegasus_yield();
 
-	ProviderFacade::_provider = _module.getProvider();
+    _module.load();
 
-	// NOTE: yield before a potentially lengthy operation.
-	pegasus_yield();
-	
-	ProviderFacade::initialize(cimom);
+    ProviderFacade::_provider = _module.getProvider();
+
+    // NOTE: yield before a potentially lengthy operation.
+    pegasus_yield();
+
+    ProviderFacade::initialize(cimom);
 }
 
 void Provider::terminate(void)
 {
-	// NOTE: yield before a potentially lengthy operation.
-	pegasus_yield();
-	
-	ProviderFacade::terminate();
+    // NOTE: yield before a potentially lengthy operation.
+    pegasus_yield();
 
-	// NOTE: yield before a potentially lengthy operation.
-	pegasus_yield();
+    ProviderFacade::terminate();
 
-	_module.unload();
+    // NOTE: yield before a potentially lengthy operation.
+    pegasus_yield();
+
+    _module.unload();
 }
 
 PEGASUS_NAMESPACE_END
+

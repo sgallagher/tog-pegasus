@@ -35,7 +35,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Pair.h>
-#include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Thread.h>
@@ -49,67 +48,68 @@ class ProviderManager;
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {
 public:
-	ProviderManagerService(void);
-	virtual ~ProviderManagerService(void);
+    ProviderManagerService(void);
+    virtual ~ProviderManagerService(void);
 
-	// short term hack
-	ProviderManager * getProviderManager(void);
-
-protected:
-	virtual Boolean messageOK(const Message * message);
-	virtual void handleEnqueue(void);
-	virtual void handleEnqueue(Message * message);
-	
-	virtual void _handle_async_request(AsyncRequest * request);
+    // short term hack
+    ProviderManager * getProviderManager(void);
 
 protected:
-	Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
+    virtual Boolean messageOK(const Message * message);
+    virtual void handleEnqueue(void);
+    virtual void handleEnqueue(Message * message);
 
-protected:	
-	//void handleServiceOperation(void) throw()
-
-	//void handleStartService();
-	//void handleStopService();
-	//void handlePauseService();
-	//void handleResumeService();
-
-	void handleCimOperation(void) throw();
-
-	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetClassRequest(void *) throw();
-	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateClassesRequest(void *) throw();
-	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateClassNamesRequest(void *) throw();
-	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCreateClassRequest(void *) throw();
-	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyClassRequest(void *) throw();
-	//static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDeleteClassRequest(void *) throw();
-	
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetInstanceRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstancesRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnumerateInstanceNamesRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCreateInstanceRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyInstanceRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDeleteInstanceRequest(void *) throw();
-	
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleExecuteQueryRequest(void *) throw();
-	
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleAssociatorsRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleAssociatorNamesRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleReferencesRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleReferenceNamesRequest(void *) throw();
-	
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleGetPropertyRequest(void *) throw();
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleSetPropertyRequest(void *) throw();
-	
-	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleInvokeMethodRequest(void *) throw();
-
-  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleEnableIndicationRequest(void *) throw();
-  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleModifyIndicationRequest(void *) throw();
-  	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleDisableIndicationRequest(void *) throw();
+    virtual void _handle_async_request(AsyncRequest * request);
 
 protected:
-	ThreadPool _threadPool;
-	Semaphore _threadSemaphore;
-	
-	SafeQueue<Message *> messageQueue;
+    Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
+
+protected:
+    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();
+
+    //void handleStartService();
+    //void handleStopService();
+    //void handlePauseService();
+    //void handleResumeService();
+
+    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(void * arg) throw();
+
+    //void handleGetClassRequest(Message * message) throw();
+    //void handleEnumerateClassesRequest(Message * message) throw();
+    //void handleEnumerateClassNamesRequest(Message * message) throw();
+    //void handleCreateClassRequest(Message * message) throw();
+    //void handleModifyClassRequest(Message * message) throw();
+    //void handleDeleteClassRequest(Message * message) throw();
+
+    void handleGetInstanceRequest(Message * message) throw();
+    void handleEnumerateInstancesRequest(Message * message) throw();
+    void handleEnumerateInstanceNamesRequest(Message * message) throw();
+    void handleCreateInstanceRequest(Message * message) throw();
+    void handleModifyInstanceRequest(Message * message) throw();
+    void handleDeleteInstanceRequest(Message * message) throw();
+
+    void handleExecuteQueryRequest(Message * message) throw();
+
+    void handleAssociatorsRequest(Message * message) throw();
+    void handleAssociatorNamesRequest(Message * message) throw();
+    void handleReferencesRequest(Message * message) throw();
+    void handleReferenceNamesRequest(Message * message) throw();
+
+    void handleGetPropertyRequest(Message * message) throw();
+    void handleSetPropertyRequest(Message * message) throw();
+
+    void handleInvokeMethodRequest(Message * message) throw();
+
+    void handleEnableIndicationRequest(Message * message) throw();
+    void handleModifyIndicationRequest(Message * message) throw();
+    void handleDisableIndicationRequest(Message * message) throw();
+
+protected:
+    ThreadPool _threadPool;
+    Semaphore _threadSemaphore;
+
+    SafeQueue<Message *> _incomingQueue;
+    SafeQueue<Message *> _outgoingQueue;
 
 };
 

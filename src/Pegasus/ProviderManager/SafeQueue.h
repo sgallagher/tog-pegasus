@@ -40,10 +40,10 @@ template<class T>
 class PEGASUS_SERVER_LINKAGE SafeQueue
 {
 public:
-	SafeQueue(void);
-	virtual ~SafeQueue(void);
+    SafeQueue(void);
+    virtual ~SafeQueue(void);
 
-	void enqueue(const T & O);
+    void enqueue(const T & O);
     T & dequeue(void);
 
     T & front(void);
@@ -55,30 +55,30 @@ public:
     Uint32 size(void) const;
 
 protected:
-	class LocalMutex
+    class LocalMutex
+    {
+    public:
+	LocalMutex(Mutex & mutex, Boolean lock = true) : _mutex(mutex)
 	{
-	public:
-		LocalMutex(Mutex & mutex, Boolean lock = true) : _mutex(mutex)
-		{
-			if(lock == true)
-			{
-				_mutex.lock(pegasus_thread_self());
-			}
-		}
+	    if(lock == true)
+	    {
+		_mutex.lock(pegasus_thread_self());
+	    }
+	}
 
-		~LocalMutex(void)
-		{
-			_mutex.unlock();
-		}
+	~LocalMutex(void)
+	{
+	    _mutex.unlock();
+	}
 
-	private:
-		Mutex & _mutex;
+    private:
+	Mutex & _mutex;
 
-	};
+    };
 
 protected:
-	Mutex _mutex;
-	Queue<T> _queue;
+    Mutex _mutex;
+    Queue<T> _queue;
 
 };
 
@@ -95,53 +95,59 @@ SafeQueue<T>::~SafeQueue(void)
 template<class T>
 void SafeQueue<T>::enqueue(const T & O)
 {
-	LocalMutex mutex(_mutex);
+    LocalMutex mutex(_mutex);
 
-	_queue.enqueue(O);
+    _queue.enqueue(O);
 }
 
 template<class T>
 T & SafeQueue<T>::dequeue(void)
 {
-	LocalMutex mutex(_mutex);
-	
-	T & O = _queue.front();
+    LocalMutex mutex(_mutex);
 
-	_queue.dequeue();	
+    T & O = _queue.front();
 
-	return(O);
+    _queue.dequeue();
+
+    return(O);
 }
 
 template<class T>
 T & SafeQueue<T>::front(void)
 {
-	LocalMutex mutex(_mutex);
-	
-	return(_queue.front());
+    LocalMutex mutex(_mutex);
+
+    return(_queue.front());
 }
 
 template<class T>
 const T & SafeQueue<T>::front(void) const
 {
-	LocalMutex mutex(_mutex);
-	
-	return(_queue.front());
+    LocalMutex mutex(_mutex);
+
+    return(_queue.front());
 }
 
 template<class T>
 T & SafeQueue<T>::back(void)
 {
-	LocalMutex mutex(_mutex);
-	
-	return(_queue.back());
+    LocalMutex mutex(_mutex);
+
+    return(_queue.back());
 }
 
 template<class T>
 const T & SafeQueue<T>::back(void) const
 {
-	LocalMutex mutex(_mutex);
-	
-	return(_queue.back());
+    LocalMutex mutex(_mutex);
+
+    return(_queue.back());
+}
+
+template<class T>
+Uint32 SafeQueue<T>::size(void) const
+{
+    return(_queue.size());
 }
 
 PEGASUS_NAMESPACE_END

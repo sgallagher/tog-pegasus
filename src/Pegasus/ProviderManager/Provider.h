@@ -43,16 +43,16 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE Provider : public ProviderFacade
 {
 public:
-	Provider(const String & name, const String & path);
-	virtual ~Provider(void);
+    Provider(const String & name, const String & path);
+    virtual ~Provider(void);
 
-	virtual void initialize(CIMOMHandle & cimom);
-	virtual void terminate(void);
+    virtual void initialize(CIMOMHandle & cimom);
+    virtual void terminate(void);
 
-	String getName(void) const;
+    String getName(void) const;
 
 protected:
-	ProviderModule _module;
+    ProviderModule _module;
 
 };
 

@@ -23,7 +23,6 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,22 +43,22 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_SERVER_LINKAGE ProviderModule
 {
 public:
-	ProviderModule(const String & fileName, const String & providerName);
-	virtual ~ProviderModule(void);
+    ProviderModule(const String & fileName, const String & providerName);
+    virtual ~ProviderModule(void);
 
-	const String & getFileName(void) const;
-	const String & getProviderName(void) const;
+    const String & getFileName(void) const;
+    const String & getProviderName(void) const;
 
-	void load(void);
-	void unload(void);
+    void load(void);
+    void unload(void);
 
-	virtual CIMBaseProvider * getProvider(void) const;
+    virtual CIMBaseProvider * getProvider(void) const;
 
 protected:
-	String _fileName;
-	String _providerName;
-	DynamicLibraryHandle _library;
-	CIMBaseProvider * _provider;
+    String _fileName;
+    String _providerName;
+    DynamicLibraryHandle _library;
+    CIMBaseProvider * _provider;
 
 };
 

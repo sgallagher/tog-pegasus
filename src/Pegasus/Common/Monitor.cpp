@@ -53,6 +53,7 @@ CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
 # endif
 # define FD_SETSIZE 1024
 # include <windows.h>
+# define errno WSAGetLastError()
 #else
 # include <sys/types.h>
 # include <sys/socket.h>

@@ -24,7 +24,7 @@
 //
 // Modified By: Arthur Pichlkostner
 //             (checked in: Markus Mueller sedgewick_de@yahoo.de)
-//
+//              Mary Hinton (m.hinton@verizon.net)
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -160,8 +160,8 @@ inline int pegasus_gettimeofday(struct timeval *tv)
    } else {
       LARGE_INTEGER counter;
       QueryPerformanceCounter(&counter);
-      tv->tv_sec = (long int)((counter.QuadPart)/(frequency.QuadPart));
-      tv->tv_usec = ((long int)
+      tv->tv_sec = (__int64)((counter.QuadPart)/(frequency.QuadPart));
+      tv->tv_usec = ((__int64)
           ((counter.QuadPart)*1000000/(frequency.QuadPart)))%1000000;
       return(0);
    }

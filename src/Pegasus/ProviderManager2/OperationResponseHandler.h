@@ -43,7 +43,6 @@
 #define Pegasus_OperationResponseHandler_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Constants.h>
@@ -207,6 +206,14 @@ public:
         }
 
         #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+        // The normalizer expects an object path embedded in instances even
+        // though it is not required by this operation. Use the requested
+        // object path is missing from the instance.
+        if(cimInstance.getPath().getKeyBindings().size() == 0)
+        {
+            cimInstance.setPath(request->instanceName);
+        }
+
         SimpleInstanceResponseHandler::deliver(_normalizer.processInstance(cimInstance));
         #else
         SimpleInstanceResponseHandler::deliver(cimInstance);

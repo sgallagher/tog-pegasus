@@ -61,7 +61,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm );
 //PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test3_thread( void* parm );
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm );
 
-
+#define  THREAD_NR 500
 AtomicInt read_count ;
 AtomicInt write_count ;
 AtomicInt testval1 = 0;
@@ -84,16 +84,29 @@ int main(int argc, char **argv)
 
 	{
 	// There shouldn't be a memory leak here
-	Thread* threads[1000];
-	for( i = 0; i < 1000; i++ )
+	Thread* threads[THREAD_NR];
+	int max_threads = THREAD_NR;	
+	for( i = 0; i < THREAD_NR; i++ )
 	{
 		threads[i] = new Thread( test2_thread, 0, false );
-		threads[i]->put_tsd( "test1", thread_data::default_delete, 20000, new char[ 20000 ] );
+		char *data = NULL;
+		try {
+			data = new char[2];
+		} catch (bad_alloc &e)
+		{
+			cerr << "Not enough memory. Changing the amount of threads used." << endl;
+			max_threads = i;
+			delete threads[i];
+			break;
+		}
+		data[0] = 'B';
+		data[1] = 'E';
+		threads[i]->put_tsd( "test2", thread_data::default_delete, 2, data );
 		threads[i]->run();
 	}
-	for( i = 0; i < 500; i++ )
+	for( i = 0; i < max_threads; i++ )
 		threads[i]->join();
-	for( i = 0; i < 500; i++ )
+	for( i = 0; i < max_threads; i++ )
 		delete threads[i];
 	// TODO: Programatically check
 	//pegasus_sleep( 10000 );
@@ -399,6 +412,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test1_thread( void* parm )
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm )
 {
 	Thread* thread = (Thread*)parm;
+	char *data = (char *)thread->reference_tsd("test2");
+	assert (data != NULL);
+
+	assert (data[0] == 'B');
+	assert (data[1] == 'E');
+
+	thread->dereference_tsd();	
+
 	thread->exit_self( (PEGASUS_THREAD_RETURN)33 );
 	return( (PEGASUS_THREAD_RETURN)32 );
 }

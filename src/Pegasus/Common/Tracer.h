@@ -117,9 +117,10 @@ public:
 	    return 0;
         }
 
-        static void setTraceComponents(String traceComponents)
+        static void setTraceComponents(
+	  const String traceComponents)
 	{
-	    // empty function
+	      // empty function
         }
         
 
@@ -224,7 +225,8 @@ public:
             @param    traceComponents list of components to be traced, 
 		      components should be separated by ','
         */
-        static void setTraceComponents(String traceComponents);
+        static void setTraceComponents(
+	   const String traceComponents);
         
     #endif 
 
@@ -269,13 +271,23 @@ public:
      */
     static Boolean isValid(const char* filePath);
 
-
+    /** Validates the trace components
+        @param    traceComponents   comma separated list of trace components
+        @param    invalidComponents comma separated list of invalid components
+        @return   1        if the components are valid
+                  0        if one or more components are invalid
+     */
+    static Boolean isValid(
+       const String traceComponents, String& invalidComponents=_EMPTY_STRING);
 
 private:
 
     static const char   _COMPONENT_SEPARATOR;
     static const Uint32 _NUM_COMPONENTS;
     static const Uint32 _STRLEN_MAX_UNSIGNED_INT;
+    static const Boolean _SUCCESS;
+    static const Boolean _FAILURE;
+    static String  _EMPTY_STRING;
     Boolean*            _traceComponentMask;
     Uint32              _traceLevelMask;
     TraceFileHandler*   _traceHandler;

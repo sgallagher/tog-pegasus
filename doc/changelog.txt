@@ -260,6 +260,11 @@ repository implementation.
     to process the more expensive operation of retrieving the class
     definition to determine the key property types.
 
+36. (Sushma Fernandes - HP) Modified tracer to return invalid components 
+    in case of error in setting trace components. Modified the property owner
+    init and update methods. Submitted the pegasus/mak/Buildmakefile with 
+    cleanbuild, rebuild and trace configuration options.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

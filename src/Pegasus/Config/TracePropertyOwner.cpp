@@ -24,6 +24,7 @@
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
+//              Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,6 +61,48 @@ static struct ConfigPropertyRow properties[] =
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 
+
+// 
+// Checks if the trace level is valid
+//
+Boolean isLevelValid(const String& traceLevel)
+{
+    //
+    // Check if the level is valid
+    //
+    if ( traceLevel == "1" || traceLevel == "2" || 
+	 traceLevel == "3" || traceLevel == "4")
+    {
+        return 1;
+    }
+    else
+    {
+        return 0; 
+    }
+}
+
+//
+// Get the appropriate trace level
+//
+Uint32 getTraceLevel(const String& traceLevel)
+{
+    if ( traceLevel == "1" )
+    {
+        return (Tracer::LEVEL1);
+    }
+    else if ( traceLevel == "2" )
+    {
+        return (Tracer::LEVEL2);
+    }
+    else if ( traceLevel == "3" )
+    {
+        return (Tracer::LEVEL3);
+    }
+    else 
+    {
+        return (Tracer::LEVEL4);
+    }
+}
 
 /** Constructors  */
 TracePropertyOwner::TracePropertyOwner()
@@ -324,85 +367,54 @@ void TracePropertyOwner::initCurrentValue(
     const String& name, 
     const String& value)
 {
-    Uint32 retCode;
-
+    // Perform validation
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
+	//
+	// Check if the trace components are valid;
+	// if not set it to default value
+	//
 	String newValue = value;
-	if (String::equal(newValue, EMPTY_VALUE))
+
+        _traceComponents->currentValue = _traceComponents->defaultValue;
+	if ( String::equal( newValue, EMPTY_VALUE ) )
 	{
-		newValue = "";
-	} else
+	    newValue = "";
+        }
+	if ( Tracer::isValid ( newValue ) )
 	{
-		newValue = value;
-	}
-        Tracer::setTraceComponents(newValue);
-        _traceComponents->currentValue = newValue;
+            _traceComponents->currentValue = newValue;
+        }
+
+	Tracer::setTraceComponents(_traceComponents->currentValue);
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
-        String newValue = value;
-
-        if (newValue == String::EMPTY)
+	//
+	// Check if the trace level is valid, if not set it to default value
+	//
+        _traceLevel->currentValue = _traceLevel->defaultValue;
+        if ( isLevelValid( value ) )
         {
-            newValue = _traceLevel->defaultValue;
+            _traceLevel->currentValue = value;
         }
-	
-        if (newValue == "1")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL1);
-        }
-        else if (newValue == "2")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL2);
-        }
-        else if (newValue == "3")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL3);
-        }
-        else if (newValue == "4")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL4);
-        }
-        else
-        {
-            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
-                Logger::WARNING, 
-                "Trace level $0 is not valid", newValue);
-
-            throw InvalidPropertyValue(name, value); 
-        }
-        _traceLevel->currentValue = newValue;
+	Uint32 traceLevel = getTraceLevel( _traceLevel->currentValue );
+        Tracer::setTraceLevel(traceLevel);
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
-        String newValue = value;
+	//
+	// Check if the file path is valid, if not set it to default value
+	//
+	_traceFilePath->currentValue = _traceFilePath->defaultValue;
 
-        if (newValue == String::EMPTY)
+        ArrayDestroyer<char> fileName(value.allocateCString());
+	if ( Tracer::isValid( fileName.getPointer() ) )
         {
-            newValue =  _traceFilePath->defaultValue;
+            _traceFilePath->currentValue = value;
         }
 
-	if (String::equal(newValue, EMPTY_VALUE))
-	{
-            throw InvalidPropertyValue(name,newValue);
-	}
-
-        ArrayDestroyer<char> fileName(newValue.allocateCString());
-	if (!Tracer::isValid(fileName.getPointer()))
-        {
-            throw InvalidPropertyValue(name,newValue);
-        }
-        retCode = Tracer::setTraceFile(fileName.getPointer());
-        if (retCode == 1)
-        {
-            Logger::put(Logger::DEBUG_LOG,"TracePropertyOwner",
-                Logger::WARNING, 
-                "Unable to write to trace file $0", newValue);
-
-            throw InvalidPropertyValue(name, newValue); 
-        }
-        _traceFilePath->currentValue = newValue;
+	Tracer::setTraceFile( fileName.getPointer() );
     }
     else
     {
@@ -421,57 +433,45 @@ void TracePropertyOwner::initPlannedValue(
     // Perform validation
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        String newValue = value;
-        if (String::equal(newValue, EMPTY_VALUE))
-        {
-                newValue = "";
-        } else
-        {
-                newValue = value;
+	String newValue = value;
+
+	//
+	// Check if the trace components are valid;
+	// if not set it to default value
+	//
+        _traceComponents->plannedValue= _traceComponents->defaultValue;
+
+	if ( String::equal( newValue, EMPTY_VALUE) )
+	{
+	    newValue = "";
         }
-        _traceComponents->plannedValue= newValue;
+	if ( Tracer::isValid ( newValue ) )
+	{
+            _traceComponents->plannedValue= newValue;
+        }
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
-        if (value == String::EMPTY)
-        {
-            _traceLevel->plannedValue = _traceLevel->defaultValue;
-        }
-        // Validate Trace Level
-        // Level should be between 1 and 4
-        else if (value == "1" || value == "2" || value == "3" || value == "4")
+	//
+	// Check if the trace level is valid, if not set it to default value
+	//
+        _traceLevel->plannedValue = _traceLevel->defaultValue;
+        if ( isLevelValid( value ) )
         {
             _traceLevel->plannedValue= value;
-        }
-        else
-        {
-            throw InvalidPropertyValue(name, value); 
         }
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
-	String newValue = value;
-	if (String::equal(newValue, EMPTY_VALUE))
-        {
-            throw InvalidPropertyValue(name,newValue);
-        }
+	//
+	// Check if the file path is valid, if not set it to default value
+	//
+	_traceFilePath->plannedValue = _traceFilePath->defaultValue;
 
-        if (value == String::EMPTY)
+        ArrayDestroyer<char> fileName(value.allocateCString());
+	if (Tracer::isValid(fileName.getPointer()))
         {
-            _traceFilePath->plannedValue = _traceFilePath->defaultValue;
-        }
-        else
-        {
-            // Validate Trace File
-            ArrayDestroyer<char> fileName(value.allocateCString());
-	    if (Tracer::isValid(fileName.getPointer()))
-            {
-                _traceFilePath->plannedValue = value;
-            }
-	    else
-	    {
-		throw InvalidPropertyValue(name,value);
-            }
+            _traceFilePath->plannedValue = value;
         }
     }
     else
@@ -496,11 +496,64 @@ void TracePropertyOwner::updateCurrentValue(
     }
 
     //
-    // Since the validations done in initCurrrentValue are sufficient and 
-    // no additional validations required for update, we will call 
-    // initCurrrentValue.
+    // Perform validation
     //
-    initCurrentValue(name, value);
+    if (String::equalNoCase(_traceComponents->propertyName, name))
+    {
+	String newValue          = value;
+	String invalidComponents = String::EMPTY;
+	if ( String::equal( newValue, EMPTY_VALUE) )
+	{
+	    newValue = "";
+        }
+	//
+	// Check if the components are valid, if not throw exception
+	//
+	if ( Tracer::isValid ( newValue, invalidComponents ) )
+        {
+            _traceComponents->currentValue = newValue;
+            Tracer::setTraceComponents(_traceComponents->currentValue);
+        }
+        else
+        {
+            throw InvalidPropertyValue(name,invalidComponents);
+        } 
+    }
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+	//
+	// Check if the trace level is valid, if not throw exception
+	//
+        if ( isLevelValid( value ) )
+        {
+            _traceLevel->currentValue = value;
+            Tracer::setTraceLevel( getTraceLevel( value ) );
+        }
+	else 
+	{
+	    throw InvalidPropertyValue(name,value);
+        }
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+	//
+	// Check if the filepath are valid, if not throw exception
+	//
+        ArrayDestroyer<char> fileName(value.allocateCString());
+        if (Tracer::isValid(fileName.getPointer()))
+        {
+            _traceFilePath->currentValue = value;
+	    Tracer::setTraceFile(fileName.getPointer());
+        }
+	else 
+	{
+	    throw InvalidPropertyValue(name,value);
+        }
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
 
@@ -511,12 +564,60 @@ void TracePropertyOwner::updatePlannedValue(
     const String& name, 
     const String& value)
 {
-    //
-    // Since the validations done in initPlannedValue are sufficient and 
-    // no additional validations required for update, we will call 
-    // initPlannedValue.
-    //
-    initPlannedValue(name, value);
+    if (String::equalNoCase(_traceComponents->propertyName, name))
+    {
+	String newValue          = value;
+	String invalidComponents = String::EMPTY;
+
+	if ( String::equal( newValue, EMPTY_VALUE) )
+	{
+	    newValue = "";
+        }
+	//
+	// Check if the components are valid, if not throw exception
+	//
+        if (Tracer::isValid(newValue,invalidComponents))
+        {
+            _traceComponents->plannedValue = newValue;
+        }
+        else
+        {
+            throw InvalidPropertyValue(name,invalidComponents);
+        }
+    }
+    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    {
+	//
+	// Check if the trace level is valid, if not throw exception
+	//
+        if ( isLevelValid( value ) )
+        {
+            _traceLevel->plannedValue = value;
+        }
+        else
+        {
+            throw InvalidPropertyValue(name,value);
+        }
+    }
+    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    {
+	//
+	// Check if the file path is valid, if not throw exception
+	//
+        ArrayDestroyer<char> fileName(value.allocateCString());
+        if (Tracer::isValid(fileName.getPointer()))
+        {
+            _traceFilePath->plannedValue = value;
+        }
+        else
+        {
+            throw InvalidPropertyValue(name,value);
+        }
+    }
+    else
+    {
+        throw UnrecognizedConfigProperty(name);
+    }
 }
 
 /** 
@@ -526,35 +627,48 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
+	String newValue          = value;
+	String invalidComponents = String::EMPTY;
+
+	if ( String::equal( newValue, EMPTY_VALUE) )
+	{
+	    newValue = "";
+        }
+	//
+	// Check if the trace components are valid
+	//
+	if (!Tracer::isValid(newValue,invalidComponents))
+	{
+	    throw InvalidPropertyValue(name, invalidComponents);
+        }
+
         return 1;
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
-        // Validate Trace Level
-        // Level should be between 1 and 4
-        // This validation should be updated incase if new levels are added
-        // in future
-        if (value == "1" || value == "2" || value == "3" || value == "4")
+	//
+        // Check if the level is valid
+	//
+        if ( isLevelValid( value ) )
         {
             return 1;
         }
-        else
-        {
-            return 0;
+	else
+	{
+	    throw InvalidPropertyValue(name, value);
         }
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
-        // Check if the file path is a directory
+	//
+        // Check if the file path is valid
+	//
         ArrayDestroyer<char> fileName(value.allocateCString());
-	if (Tracer::isValid(fileName.getPointer()))
+	if (!Tracer::isValid(fileName.getPointer()))
 	{
-            return 1;
+	    throw InvalidPropertyValue(name, value);
 	}
-	else
-	{
-            return 0;
-	}
+        return 1;
     }
     else
     {

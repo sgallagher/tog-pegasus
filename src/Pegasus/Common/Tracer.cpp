@@ -43,6 +43,11 @@ const Uint32 Tracer::LEVEL2 = (1 << 1);
 const Uint32 Tracer::LEVEL3 = (1 << 2);
 const Uint32 Tracer::LEVEL4 = (1 << 3);
 
+// Set the return codes
+const Boolean Tracer::_SUCCESS = 1;
+const Boolean Tracer::_FAILURE = 0;
+String  Tracer::_EMPTY_STRING = String::EMPTY;
+
 // Set the Enter and Exit messages
 const char Tracer::_FUNC_ENTER_MSG[] = "Entering method";
 const char Tracer::_FUNC_EXIT_MSG[]  = "Exiting method";
@@ -331,6 +336,91 @@ Boolean Tracer::isValid(const char* filePath)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//Validate the trace components
+////////////////////////////////////////////////////////////////////////////////
+Boolean Tracer::isValid(
+		     const String traceComponents, String& invalidComponents)
+{
+    // Validate the trace components and modify the traceComponents argument
+    // to reflect the invalid components
+
+    Uint32    position=0;
+    Uint32    index=0;
+    String    componentName = String::EMPTY;
+    String    componentStr = String::EMPTY;
+    Boolean   validComponent=false;
+    Boolean   retCode=true;
+
+    componentStr = traceComponents;
+    invalidComponents = String::EMPTY;
+
+    if (componentStr != String::EMPTY)
+    {
+        // Check if ALL is specified
+        if (String::equalNoCase(componentStr,"ALL"))
+        {
+            return _SUCCESS;
+        }
+
+        // Append _COMPONENT_SEPARATOR to the end of the traceComponents
+        componentStr += _COMPONENT_SEPARATOR;
+
+        while (componentStr != String::EMPTY)
+        {
+	    //
+            // Get the Component name from traceComponents.
+            // Components are separated by _COMPONENT_SEPARATOR
+	    //
+            position = componentStr.find(_COMPONENT_SEPARATOR);
+            componentName = componentStr.subString(0,(position));
+
+            // Lookup the index for Component name in TRACE_COMPONENT_LIST
+            index = 0;
+            validComponent = false;
+
+            while (index < _NUM_COMPONENTS)
+            {
+                if (String::equalNoCase( 
+		       componentName, TRACE_COMPONENT_LIST[index]))
+                {
+                    // Found component, break from the loop
+		    validComponent = true;
+                    break;
+                }
+                else
+                {
+                   index++;
+                }
+            }
+
+            // Remove the searched componentname from the traceComponents
+            componentStr.remove(0,position+1);
+
+	    if ( !validComponent )
+	    {
+		invalidComponents += componentName;
+		invalidComponents += _COMPONENT_SEPARATOR;
+            }
+        }
+    }
+    else
+    {
+	// trace components is empty, it is a valid value so return true
+	return _SUCCESS;
+    }
+    if ( invalidComponents != String::EMPTY )
+    {
+	retCode = false;
+	//
+	// Remove the extra ',' at the end
+	//
+	invalidComponents.remove(
+	    invalidComponents.reverseFind(_COMPONENT_SEPARATOR));
+    }
+    return retCode;
+}
+    
+////////////////////////////////////////////////////////////////////////////////
 //Returns the Singleton instance of the Tracer
 ////////////////////////////////////////////////////////////////////////////////
 Tracer* Tracer::_getInstance()
@@ -388,66 +478,69 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//Set components to be traced. 
-//The String traceComponents will be updated within the function.
+// Set components to be traced. 
 ////////////////////////////////////////////////////////////////////////////////
-void Tracer::setTraceComponents(String traceComponents)
+void Tracer::setTraceComponents( const String traceComponents )
 {
-    Uint32 position=0;
-    Uint32 index=0;
-    String componentName;
-
-    if (traceComponents != String::EMPTY)
+    Uint32 position          = 0;
+    Uint32 index             = 0;
+    String componentName     = String::EMPTY;
+    String componentStr      = traceComponents;
+    String invalidComponents = String::EMPTY;
+    
+    if (componentStr != String::EMPTY)
     {
-	// Check if ALL is specified
-	if (String::equalNoCase(traceComponents,"ALL"))
-	{
-	    for (int index=0; index < _NUM_COMPONENTS;
-		_getInstance()->_traceComponentMask[index++] = true);
-            return; 
+        // Check if ALL is specified
+        if (String::equalNoCase(componentStr,"ALL"))
+        {
+            for (index=0; index < _NUM_COMPONENTS;
+                    _getInstance()->_traceComponentMask[index++] = true);
+            return ; 
         }
 
         // initialise ComponentMask array to False
         for (index = 0;index < _NUM_COMPONENTS; 
-	    _getInstance()->_traceComponentMask[index++] = false);
+	        _getInstance()->_traceComponentMask[index++] = false);
 
  	// Append _COMPONENT_SEPARATOR to the end of the traceComponents
-        traceComponents += _COMPONENT_SEPARATOR;
+        componentStr += _COMPONENT_SEPARATOR;
 
-        while (traceComponents != String::EMPTY)
+        while (componentStr != String::EMPTY)
         {
             // Get the Component name from traceComponents. 
 	    // Components are separated by _COMPONENT_SEPARATOR
-            position = traceComponents.find(_COMPONENT_SEPARATOR);
- 	    componentName = traceComponents.subString(0,(position));
+            position = componentStr.find(_COMPONENT_SEPARATOR);
+ 	    componentName = componentStr.subString(0,(position));
 
 	    // Lookup the index for Component name in TRACE_COMPONENT_LIST
             index = 0;
 	    while (index < _NUM_COMPONENTS)
 	    {
-	        if (componentName == TRACE_COMPONENT_LIST[index])
+	        if (String::equalNoCase(
+		       componentName,TRACE_COMPONENT_LIST[index]))
 	        {
                     _getInstance()->_traceComponentMask[index]=true;
 
-	 	    // Found component, break from the loop
+                    // Found component, break from the loop
                     break;
 	        }
 	        else
 	        {
-	 	   index++;
+	 	    index++;
                 }
             }   
 
             // Remove the searched componentname from the traceComponents
-            traceComponents.remove(0,position+1);
+            componentStr.remove(0,position+1);
         }
     }
     else
     {
         // initialise ComponentMask array to False
         for (int index = 0;index < _NUM_COMPONENTS; 
-	    _getInstance()->_traceComponentMask[index++] = false);
+                 _getInstance()->_traceComponentMask[index++] = false);
     }
+    return ;
 }
 
 #endif

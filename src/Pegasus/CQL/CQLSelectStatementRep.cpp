@@ -200,9 +200,9 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
     }
   }
 
-  PEGASUS_ASSERT(false);
-  PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"should not get here in evaluate");
-  return true;  //should never get here
+  PEGASUS_UNREACHABLE( PEGASUS_ASSERT(false); )
+  PEGASUS_UNREACHABLE( PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"should not get here in evaluate"); )
+  PEGASUS_UNREACHABLE( return true; ) //should never get here
 }
 
 void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)

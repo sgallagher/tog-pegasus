@@ -154,9 +154,9 @@ public:
     // Methods associated with Namespace testing
     Array<CIMNamespaceName> _getNamespacesOld();
 
-    Boolean InteropTest::_deleteOneLevelOfNamespace(
-                         const CIMNamespaceName& parent,
-                         const String & child);
+    Boolean _deleteOneLevelOfNamespace(
+        const CIMNamespaceName& parent,
+        const String & child);
 
     Boolean _deleteNamespaceOld(const String & name);
 

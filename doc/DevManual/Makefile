@@ -1,4 +1,4 @@
-ROOT = ../..
+ROOT = $(PEGASUS_ROOT)
 
 DIR = DevManual
 include $(ROOT)/mak/config.mak
@@ -20,7 +20,6 @@ all:
 	$(RM) pegdocsidebarleft.shtml
 clean:
 	$(RM) $(DOC_OUTPUT)/*
-
 depend:
 
 tests:

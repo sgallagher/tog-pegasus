@@ -198,12 +198,12 @@ inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
 
 inline Uint32 pegasus_key_delete(PEGASUS_THREAD_KEY_TYPE key)
 {
-	return pthread_key_delete(key);
+	return 0;
 } 
 
 inline void * pegasus_get_thread_specific(PEGASUS_THREAD_KEY_TYPE key)
 {
-	return pthread_getspecific(key);
+	return pthread_getspecific_d8_np(key);
 } 
 
 inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,

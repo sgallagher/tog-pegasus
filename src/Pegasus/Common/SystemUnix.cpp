@@ -53,6 +53,10 @@
 #include <crypt.h> 
 #endif
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <arpa/inet.h>
+#endif
+
 #if defined(PEGASUS_USE_SYSLOGS) 
 #include <syslog.h>
 #endif

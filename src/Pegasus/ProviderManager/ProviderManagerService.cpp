@@ -172,7 +172,7 @@ Triad<String, String, String> _getProviderRegPair(
     fileName = location + String(".dll");
     #elif defined(PEGASUS_OS_HPUX)
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    fileName += String("/lib") + location + String(".sl");
+    fileName += String("/lib") + location + String(".0");
     #else
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
     fileName += String("/lib") + location + String(".so");

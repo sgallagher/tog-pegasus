@@ -5,7 +5,7 @@ ifeq ($(COMPILER),xlc)
 endif
 
 ifeq ($(COMPILER),acc)
-  LINK_COMMAND = aCC -b
+  LINK_COMMAND = aCC -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX)
   ifeq ($(HPUX_IA64_VERSION), yes)
     LINK_COMMAND += +DD64 -mt
   endif
@@ -60,6 +60,9 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 	touch $(ROOT)/src/$(DIR)/lib$(LIBRARY).x
 	cp $(ROOT)/src/$(DIR)/lib$(LIBRARY).x $(LIB_DIR)
     endif
+    ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+	$(MAKE) --directory=$(LIB_DIR) -f $(PEGASUS_ROOT)/mak/library-unix.mak ln LIBRARY=lib$(LIBRARY) SUFFIX=$(LIB_SUFFIX)
+    endif
   else
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES)
   endif
@@ -68,5 +71,8 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
 
 clean-lib: $(ERROR)
 	rm -f $(FULL_LIB)
+
+ln:
+	ln -f -s $(LIBRARY)$(SUFFIX) $(LIBRARY).sl
 
 FILES_TO_CLEAN = $(OBJECTS) $(FULL_LIB)

@@ -1,5 +1,7 @@
 include $(ROOT)/mak/config-unix.mak
 
+MAJOR_VERSION_NUMBER = 0
+
 OS = hpux
 
 ARCHITECTURE = parisc
@@ -113,4 +115,4 @@ COPY = cp
 
 MOVE = mv
 
-LIB_SUFFIX = .sl
+LIB_SUFFIX = .$(MAJOR_VERSION_NUMBER)

@@ -121,9 +121,6 @@ void SignalHandler::activate(Uint32 signum)
     sig_acts->sa_sigaction = rh.sh;
     sigfillset(&(sig_acts->sa_mask));
     sig_acts->sa_flags = SA_SIGINFO;
-#if !defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    sig_acts->sa_restorer = NULL;
-#endif
 
     sigaction(signum, sig_acts, &rh.oldsa);
 

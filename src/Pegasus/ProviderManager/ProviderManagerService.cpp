@@ -926,7 +926,7 @@ void ProviderManagerService::handleDeleteInstanceRequest(const Message * message
 void ProviderManagerService::handleExecuteQueryRequest(const Message * message) throw()
 {
     CIMExecQueryRequestMessage * request =
-	dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>)message));
+	dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
@@ -975,8 +975,8 @@ void ProviderManagerService::handleAssociatorsRequest(const Message * message) t
 
 void ProviderManagerService::handleAssociatorNamesRequest(const Message * message) throw()
 {
-    const CIMAssociatorNamesRequestMessage * request =
-	dynamic_cast<const CIMAssociatorNamesRequestMessage *>(message);
+    CIMAssociatorNamesRequestMessage * request =
+	dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1050,7 +1050,7 @@ void ProviderManagerService::handleReferenceNamesRequest(const Message * message
 void ProviderManagerService::handleGetPropertyRequest(const Message * message) throw()
 {
     CIMGetPropertyRequestMessage * request =
-	dynamic_cast<CIMGetPropertyRequestMessage *>(const_cast<Message *>(message)));
+	dynamic_cast<CIMGetPropertyRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 
@@ -1076,7 +1076,7 @@ void ProviderManagerService::handleGetPropertyRequest(const Message * message) t
 void ProviderManagerService::handleSetPropertyRequest(const Message * message) throw()
 {
     CIMSetPropertyRequestMessage * request =
-	dynamic_cast<const CIMSetPropertyRequestMessage *>(const_cast<Message *>(message));
+	dynamic_cast<CIMSetPropertyRequestMessage *>(const_cast<Message *>(message));
 
     PEGASUS_ASSERT(request != 0);
 

@@ -1,6 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en"><head>
-<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>XML Pointer Language (XPointer) Version 1.0</title><style type="text/css">
+<META http-equiv="Content-Type" content="text/html;
+      charset=ISO-8859-1"><meta http-equiv="Content-Type"
+				content="text/html;
+				charset=ISO-8859-1"><title>Pegasus
+      Meta Dispatcher </title><style type="text/css">
 
 body {
   margin: 2em 1em 2em;
@@ -40,12 +44,12 @@ p.copyright { font-size: small }
 p.copyright small { font-size: small }
 
 pre { margin-left: 2em }
-/*
+
 p {
   margin-top: 0.6em;
   margin-bottom: 0.6em;
 }
-*/
+
 dt, dd { margin-top: 0; margin-bottom: 0 } /* opera 3.50 */
 dt { font-weight: bold }
 
@@ -56,16 +60,18 @@ ul.toc {
   list-style: none;
 }
 
-code           { font-family: monospace; }
-
+code        { font-family: monospace; }
+var {font-family: monospace; font-style: normal; font-weight: bold;}
 div.constraint,
 div.issue,
 div.note,
 div.notice     { margin-left: 2em; }
 
-li p           { margin-top: 0.3em;
-                 margin-bottom: 0.3em; }
+li p           { margin-top: 0.8em;
+                 margin-bottom: 0.8em; }
       
+li {margin-top: 0.4em; margin-bottom: 0.4em;}
+
 div.exampleInner pre { margin-left: 1em;
                        margin-top: 0em; margin-bottom: 0em}
 div.exampleOuter {border: 4px double gray;
@@ -97,11 +103,6 @@ table { background-color: #d5dee3;
 
   <body>
 
-<p class="copyright">this is copyright text</p>
-
-<div class="constraint">this is a constraint</div>
-
-<div class="exampleInner"><code>this is an inner example</code></div>
     <h1>Pegasus Meta Dispatcher</h1>
     <p>
       The Pegasus Meta Dispatcher is a set of classes that extend the
@@ -124,9 +125,11 @@ table { background-color: #d5dee3;
 	<br>
 	<br>
 
+	<a href = "#non-blocking">Jump to the non-blocking message interface.</a>
+
       <h2>Purposes of Meta Dispatcher</h2>
     <p>
-      The Meta Dispatcher has two primary goals:
+      The Meta Dispatcher has three primary goals:
       <ol>
       <li>Provide for orderly asynchronous message-based communication
 	among a dynamic set of Pegasus Services.</li>
@@ -796,8 +799,7 @@ void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
     <hr>
 
 
-
-<h2>Sending Messages without Blocking (Async with Callback)</h2>
+<a name="non-blocking"><h2>Sending Messages without Blocking (Async with Callback)</h2></a>
 
 	      <p>
 		Whenever there is a possibility that the processing of
@@ -842,757 +844,1759 @@ void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
 		The <code>MessageQueueService</code> class sends
 		non-blocking messages using the <code>SendAsync</code>
 		method from <code>MessageQueueService.h</code>.
-	      </p>
+	      </p><br>
+
+
+	      <div class="exampleOuter"><div class="exampleInner">
 <pre>
-      Boolean <b><font color=#000000>SendAsync</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> 
-			Uint32 destination<font color=#990000>,</font>
-			<font color=#009900>void</font> <font color=#990000>(</font><font color=#990000>*</font>callback<font color=#990000>)</font><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>,</font>
-			MessageQueue <font color=#990000>*</font>callback_q<font color=#990000>,</font>
-			<font color=#009900>void</font> <font
-							      color=#990000>*</font>callback_ptr<font color=#990000>)</font><font color=#990000>;</font>
-</pre>
+
+Boolean <b><font color=#000000>SendAsync</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> 
+ 		  Uint32 destination<font color=#990000>,</font>
+ 		  <font color=#009900>void</font> <font color=#990000>(</font><font color=#990000>*</font>callback<font color=#990000>)</font><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>,</font>
+		  MessageQueue <font color=#990000>*</font>callback_q<font color=#990000>,</font>
+		  <font color=#009900>void</font> <font
+						      color=#990000>*</font>callback_ptr<font color=#990000>)</font><font color=#990000>;</font>
+		</pre>
+		<br>
+		<div class="note">
+		  <var>AsyncOpNode *op (In)</var> is the shared data
+		  structure that controls the message flow and
+		  consolidates the response data. This data structure is
+		  also passed to the callback function as the first
+		  parameter. The caller must
+		  allocate and free this data structure. <br>
+		  <br>
+		  <var>Uint32 destination (In)</var> is the queue ID of
+		  the service which will receive the asynchronous
+		  request message.</var><br>
+		  <br>
+		  <var>void (*callback)(AsyncOpNode *, MessageQueue *,
+		    void *) (In)</var> is the static class method that
+		  will be called when the request/response pair is complete.<br>
+		  <br>
+		  The callback is always passed <var>op</var> as the
+		  first parameter. The second parameter is the
+		  <var>MessageQueue *</var> object instance that is
+		  executing the callback function. Because callback
+		  functions must be static class methods, the callback
+		  can use the <var>MessageQueue *</var> parameter as a
+		  pseudo <var>this</var> pointer. <br>
+		  <br>
+		  <var>MessageQueue *callback_q (In)</var> is the
+		  queue pointer that will be passed to the callback
+		  routine as the second parameter. It also controls
+		  which queue instance receives the callback.
+		  <br>
+		  <br>
+		  <var>void *callback_ptr (In)</var> is a pointer that will
+		  be passed to the callback function. 
+
+		</div>
+	      </div></div>
+
+	      <br>
+
+	      <h3>How the Meta Dispatcher Processes Non-Blocking Messages</h3>
+	      <p>
+		The focus of processing non-blocking messages is to
+		remove the possibility of deadlock. Therefore, all
+		message processing is performed by background
+		threads. All access by services to shared data
+		structures is discrete in the sense that one service
+		never calls into another service. For example,
+		callback routines are executed by the background
+		thread of the receiving service. (As opposed to the
+		sending service making a callback <i>into</i> the
+		receiving service.) 
+	      </p>
+
+		  <ol>
+		    <li>The requesting service creates a request, an
+		    <code>AsyncOpNode</code> and calls
+		    <code>MessageQueueService::SendAsync(...)</code>.</li>
+		    <li><code>SendAsync</code> marks the
+		    <code>AsyncOpNode</code> as
+		    <code>ASYNC_OPFLAGS_CALLBACK</code> with the
+		    <code>ASYNC_OPSTATE_COMPLETE</code> bit
+		    <i>clear</i>.</li> <li>The Meta Dispatcher routes
+		    the <code>AsyncOpNode</code> to the responding
+		    service.</li> <li>The responding service's
+		    background thread pulls the message off its
+		    internal queue and processes the request. This
+		    will frequently entail creating and inserting a
+		    response message into the <code>AsyncOpNode</code>
+		    by calling
+		    <code>AsyncOpNode::put_response(AsyncMessage
+		    *)</code>.</li> <li>The responding service
+		    completes the response by calling
+		    <code>MessageQueueService::_complete_op_node(AsyncOpNode
+		    *, Uint32, Uint32, Uint32)</code>.</li>
+		    <li><code>_complete_op_node</code> passes the
+		    operation back to the Meta Dispatcher, which
+		    routes it <i>back</i> to the requesting
+		    service.</li> <li>The requesting service's
+		    background thread pulls the
+		    <code>AsyncOpNode</code> off its internal queue
+		    and calls
+		    <code>AsyncOpNode::_async_callback</code>, which
+		  is a function pointer that holds the address of the
+		  requesting service's static callback method..</li>
+		    <li>The requesting service deallocates the op
+		      node, the request message, and the response message.</li>
+		  </ol>
+
+	      <h3>Virtual Methods for Non-Blocking Messages</h3>
+	      <p>
+		To use non-blocking messages, a service should
+		implement the following virtual method from
+		<code>MessageQueueService</code>, plus a static class
+		callback function.
+	      </p>
+	      <div class="exampleOuter"><div class="exampleInner">
+		  <pre>
+<b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>_handle_async_request</font></b><font color=#990000>(</font>AsyncRequest <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+		  </pre>
+		  <div class="note">
+		    <var>AsyncRequest *req (In)</var> is the incoming
+		    request. <code>req->op</code> is the
+		    <code>AsyncOpNode</code> that is controlling this
+		    operation. 
+		    <br><br>
+		    This method is called by the service's background
+		    thread whenever an <code>AsyncRequest</code>
+		    message is sent to the service. <i>This includes
+		      both blocking and non-blocking request messages.</i><p>
+		    <p>
+		      Within <code>_handle_async_request</code> you
+		      can determine whether the message is blocking or
+		      non-blocking by using the following code
+		      segment: 
+<pre><code>
+
+if(req->op->read_flags() & ASYNC_OPFLAGS_CALLBACK )
+{
+
+   // let everyone know you are working on the request
+   req->op->processing();
+
+   // this request is part of a callback (non-blocking) operation 
+   AsyncResponse *response = new AsyncResponse(...);
+
+   // initialize the response message however is appropriate
+
+  // put the response to the op node
+  req->op->put_response(response);
+
+  // complete the operation 
+  _complete_op_node(req->op, 0, 0, async_results::OK);
+
+  return;
+}
+</code></pre>
+		  </div>		
+		</div>
+	      </div>
+	      <br>
+
+
+<div class="exampleOuter"><div class = "exampleInner">
+
+		  <pre>
+
+<b><font color=#0000FF>static</font></b> <font color=#009900>void</font> <b><font color=#000000>async_callback_function</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
+
+		  </pre>
+		  <div class="note">
+		    <var>AsyncOpNode *op (In)</var> is the
+		    incoming shared object that is controlling this
+		    completing operation.<br>
+		    <br>
+		    <var>MessageQueue *q (In)</var> is a pointer to
+		    the class that has received the complete
+		    <var>op</var>. This parameter is meant to be used
+		    as a <code>this</code> pointer because the
+		    callback is a static class method. 
+		    <br>
+		    <br>
+		    <var>void *parm (In)</var> is a pointer that the
+		    class passed to <code>SendAsync</code>. It can be
+		    used as a convenience for the class.<br>
+		    <br>
+
+		    This method is <i>only</i> called when a
+		    non-blocking operation is complete, meaning that
+		    the responding service has added a response
+		    message to the <var>op</var> and set the
+		    <code>ASYNC_OPSTATE_COMPLETE</code> bit. <br><br>
+		    <pre>
+
+void my_class::async_callback_function(AsyncOpNode *op,
+                                       MessageQueue *q,
+                                       void *parm)
+{
+
+   my_class *myself = static_cast&lt;my_class *&gt;(q);
+   AsyncRequest *request = op-&gt;get_request();
+   AsyncResponse *response = op-&gt;get_response();
+
+   // process response
+
+   delete request;
+   delete response;
+   myself-&gt;put_op(op);
+   return;
+}                                       
+
+		  </div>
+		</div>
+	      </div>
+
+	      <h3>Strategies for Handling Non-Blocking Responses</h3>
+	      <p>
+		All of the legacy message handling code in Pegasus is
+		syncrhonous, meaning that a service can send a request
+		and receive the response in two adjacent lines of
+		code. Non-blocking messages are different because the
+		timing and existence of a response message is
+		undetermined. 
+	      </p>
+	      <p>
+		There are couple of possible strategies for handing
+		non-blocking response messages. 
+		
+		<ol>
+		  <li>Seperate the request creation and sending code
+		  from the response handling code into distinct methods.</li>
+		<li>Handle request creation and sending and response
+		  handling in the same method using different code blocks.
+		</ol>
+	      </p>
+
+	      <h4>Separate Request and Response Handling Methods</h4>
+	      <div class="exampleOuter">
+		<div class="exampleInner">
+		  <ol>
+		    <li>Write the request generation method.
+		  <pre>
+
+ void my_class::generate_request(Uint32 destination)
+{
+   AsyncOpNode *op = get_op();
+   my_request *req = new my_request(...);
+   op-&gt;put_request(req);
+   
+   SendAsync(op, destination, my_callback, this, (void *)0);
+   return;
+}
+		      </pre>
+		      </li>
+		    <li> Write the request handling method.
+		      <pre>
+
+void my_class::handle_response(AsyncOpNode *op)
+{
+   my_response *res = op-&gt;get_response();
+   if(res != 0 )
+   {
+      // handle response
+      delete response;
+   }
+   put_op(op);
+   return;
+}
+		      </pre>
+		    </li>
+		    <li> Have your callback method call your response
+		      method.
+		      <pre>
+
+void my_class:my_callback(AsyncOpNode *op, MessageQueue *queue, void *parm) 
+{
+   my_class *myself = static_cast&lt;queue&gt;
+
+   myself-&gt;handle_response(op);
+   return;
+}
+		      </pre>
+		    </li>
+		  </ol>
+		</div>
+	      </div>
+
+	      
+	      <h4>Singe Request and Response Handling Method</h4>
+	      <p>
+		This strategy requires two separate code blocks within
+		the request/response method, and conditional execution
+		depending on the status of the operation. 
+	      </p>
+	      <p>
+		I think the advantage of this strategy is that it
+		matches more closely the current<br>
+		<code>handleEnqueue(Message *msg)</code> code
+		convention that is in Pegasus.
+	      </p>
+
+	      <div class="exampleOuter">
+		<div class="exampleInner">
+		  <ol>
+		    <li>Write the request generation block.
+		  <pre>
+
+ void my_class::handle_operation(AsyncOpNode *op)
+{
+   if(op == NULL)
+   {
+      AsyncOpNode *op = get_op();
+      my_request *req = new my_request(...);
+      op-&gt;put_request(req);
+   
+      SendAsync(op, destination, my_callback, this, (void *)0);
+      
+   }
+   else 
+   {
+
+   }
+   return;
+}
+		      </pre>
+		      </li>
+		    <li> Write the request handling block.
+		      <pre>
+
+ void my_class::handle_operation(AsyncOpNode *op)
+{
+   if(op == NULL)
+   {
+      AsyncOpNode *op = get_op();
+      my_request *req = new my_request(...);
+      op-&gt;put_request(req);
+   
+      SendAsync(op, destination, my_callback, this, (void *)0);
+      
+   }
+   else 
+   {
+      my_response *res = op-&gt;get_response();
+      if(res != 0 )
+      {
+         // handle response
+         delete response;
+      }
+      put_op(op);
+   }
+   return;
+}
+
+		      </pre>
+		    </li>
+		    <li> Have your callback method call your handler
+		      method.
+		      <pre>
+
+void my_class:my_callback(AsyncOpNode *op, MessageQueue *queue, void *parm) 
+{
+   my_class *myself = static_cast&lt;queue&gt;
+
+   myself-&gt;handle_operation(op);
+   return;
+}
+		      </pre>
+		    </li>
+		  </ol>
+		</div>
+	      </div>
+
+<hr><hr>
 
 <h2>Class Definitions</h2>
 
 <h3>cimom (Meta Dispatcher)</h3>
+
 <pre>
-class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
-{
-   public : 
-      cimom(void);
+<tt>
+<i><font color=#9A1900>//%///-*-c++-*-/////////////////////////////////////////////////////////////////</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,</font></i>
+<i><font color=#9A1900>// The Open Group, Tivoli Systems</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Permission is hereby granted, free of charge, to any person obtaining a copy</font></i>
+<i><font color=#9A1900>// of this software and associated documentation files (the "Software"), to </font></i>
+<i><font color=#9A1900>// deal in the Software without restriction, including without limitation the </font></i>
+<i><font color=#9A1900>// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or </font></i>
+<i><font color=#9A1900>// sell copies of the Software, and to permit persons to whom the Software is</font></i>
+<i><font color=#9A1900>// furnished to do so, subject to the following conditions:</font></i>
+<i><font color=#9A1900>// </font></i>
+<i><font color=#9A1900>// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN </font></i>
+<i><font color=#9A1900>// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED</font></i>
+<i><font color=#9A1900>// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT</font></i>
+<i><font color=#9A1900>// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR </font></i>
+<i><font color=#9A1900>// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT </font></i>
+<i><font color=#9A1900>// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN </font></i>
+<i><font color=#9A1900>// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION</font></i>
+<i><font color=#9A1900>// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>//==============================================================================</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Author: Mike Day (mdday@us.ibm.com</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Modified By: </font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>//%/////////////////////////////////////////////////////////////////////////////</font></i>
+
+<b><font color=#000080>#ifndef</font></b> CIMOM_include
+<b><font color=#000080>#define</font></b> CIMOM_include
+
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Config.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Exception.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/MessageQueue.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/DQueue.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Thread.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Array.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/AsyncOpNode.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/CimomMessage.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/MessageQueueService.h&gt;</font>
+
+PEGASUS_NAMESPACE_BEGIN
+
+<b><font color=#0000FF>extern</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIMOM_Q_ID<font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE module_capabilities 
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#0000FF>static</font></b> Uint32 async<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> Uint32 remote<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> Uint32 trusted<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> Uint32 paused<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> Uint32 stopped<font color=#990000>;</font>
+<font color=#FF0000>}</font> <font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE cimom<font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE message_module
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>message_module</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+	 <font color=#990000>:</font> <b><font color=#000000>_name</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> <b><font color=#000000>_capabilities</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>)</font><font color=#990000>,</font> 
+	   <b><font color=#000000>_mask</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>)</font><font color=#990000>,</font> <b><font color=#000000>_q_id</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>)</font> <font color=#FF0000>{</font> <font color=#FF0000>}</font>
       
-      virtual ~cimom(void) ;
+      <b><font color=#000000>message_module</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> String <font color=#990000>&amp;</font> name<font color=#990000>,</font>
+		     Uint32 capabilities<font color=#990000>,</font>
+		     Uint32 mask<font color=#990000>,</font>
+		     Uint32 queue<font color=#990000>)</font>
+      	 <font color=#990000>:</font> <b><font color=#000000>_name</font></b><font color=#990000>(</font>name<font color=#990000>)</font><font color=#990000>,</font> <b><font color=#000000>_capabilities</font></b><font color=#990000>(</font>capabilities<font color=#990000>)</font><font color=#990000>,</font>
+	   <b><font color=#000000>_mask</font></b><font color=#990000>(</font>mask<font color=#990000>)</font><font color=#990000>,</font> <b><font color=#000000>_q_id</font></b><font color=#990000>(</font>queue<font color=#990000>)</font>  <font color=#FF0000>{</font> <font color=#FF0000>}</font>
+      
+      Boolean <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><b><font color=#0000FF>const</font></b> message_module <font color=#990000>*</font>mm<font color=#990000>)</font> <b><font color=#0000FF>const</font></b><font color=#990000>;</font>
+      Boolean <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><b><font color=#0000FF>const</font></b> String <font color=#990000>&amp;</font> name <font color=#990000>)</font> <b><font color=#0000FF>const</font></b> <font color=#990000>;</font>
+      Boolean <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><b><font color=#0000FF>const</font></b> message_module <font color=#990000>&amp;</font> mm <font color=#990000>)</font> <b><font color=#0000FF>const</font></b> <font color=#990000>;</font>
+      Boolean <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><b><font color=#0000FF>const</font></b> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font> <b><font color=#0000FF>const</font></b><font color=#990000>;</font>
+      Boolean <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font>Uint32<font color=#990000>)</font> <b><font color=#0000FF>const</font></b><font color=#990000>;</font>
+      
+      <b><font color=#0000FF>const</font></b> String <font color=#990000>&amp;</font> <b><font color=#000000>get_name</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>const</font></b> <font color=#990000>;</font>
+      Uint32 <b><font color=#000000>get_capabilities</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>const</font></b> <font color=#990000>;</font> 
+      Uint32 <b><font color=#000000>get_mask</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>const</font></b> <font color=#990000>;</font> 
+      Uint32 <b><font color=#000000>get_queue</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>const</font></b> <font color=#990000>;</font> 
+
+      <font color=#009900>void</font> <b><font color=#000000>put_name</font></b><font color=#990000>(</font>String <font color=#990000>&amp;</font> name<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>put_capabilities</font></b><font color=#990000>(</font>Uint32 capabilities<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>put_mask</font></b><font color=#990000>(</font>Uint32 mask<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>put_queue</font></b><font color=#990000>(</font>Uint32 queue<font color=#990000>)</font> <font color=#990000>;</font>
+
+   <b><font color=#0000FF>private</font></b><font color=#990000>:</font>
+      String _name<font color=#990000>;</font>
+      Uint32 _capabilities<font color=#990000>;</font>
+      Uint32 _mask<font color=#990000>;</font>
+      <b><font color=#0000FF>struct</font></b> timeval _heartbeat<font color=#990000>;</font>
+      
+
+      Uint32 _q_id<font color=#990000>;</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> cimom<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> MessageQueueService<font color=#990000>;</font>
+
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE cimom <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> MessageQueue
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b> <font color=#990000>:</font> 
+      <b><font color=#000000>cimom</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>cimom</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>;</font>
             
-      Boolean moduleChange(struct timeval last);
+      Boolean <b><font color=#000000>moduleChange</font></b><font color=#990000>(</font><b><font color=#0000FF>struct</font></b> timeval last<font color=#990000>)</font><font color=#990000>;</font>
       
-      Uint32 getModuleCount(void);
-      Uint32 getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException);
+      Uint32 <b><font color=#000000>getModuleCount</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      Uint32 <b><font color=#000000>getModuleIDs</font></b><font color=#990000>(</font>Uint32 <font color=#990000>*</font>ids<font color=#990000>,</font> Uint32 count<font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
 
-      AsyncOpNode *get_cached_op(void) throw(IPCException);
-      void cache_op(AsyncOpNode *op) throw(IPCException);
+      AsyncOpNode <font color=#990000>*</font><b><font color=#000000>get_cached_op</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>cache_op</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
             
-      void set_default_op_timeout(const struct timeval *buffer);
-      void get_default_op_timeout(struct timeval *timeout) const ;
+      <font color=#009900>void</font> <b><font color=#000000>set_default_op_timeout</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> <b><font color=#0000FF>struct</font></b> timeval <font color=#990000>*</font>buffer<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>get_default_op_timeout</font></b><font color=#990000>(</font><b><font color=#0000FF>struct</font></b> timeval <font color=#990000>*</font>timeout<font color=#990000>)</font> <b><font color=#0000FF>const</font></b> <font color=#990000>;</font>
 
-      virtual void handleEnqueue();
-      void register_module(RegisterCimService *msg);
-      void deregister_module(Uint32 quid);
-      void update_module(UpdateCimService *msg );
-      void ioctl(AsyncIoctl *msg );
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handleEnqueue</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>register_module</font></b><font color=#990000>(</font>RegisterCimService <font color=#990000>*</font>msg<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>deregister_module</font></b><font color=#990000>(</font>Uint32 quid<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>update_module</font></b><font color=#990000>(</font>UpdateCimService <font color=#990000>*</font>msg <font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>ioctl</font></b><font color=#990000>(</font>AsyncIoctl <font color=#990000>*</font>msg <font color=#990000>)</font><font color=#990000>;</font>
 
-      void find_service_q(FindServiceQueue *msg );
-      void enumerate_service(EnumerateService *msg );
-      Boolean route_async(AsyncOpNode *operation);
-      void _shutdown_routed_queue(void);
+      <font color=#009900>void</font> <b><font color=#000000>find_service_q</font></b><font color=#990000>(</font>FindServiceQueue <font color=#990000>*</font>msg <font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>enumerate_service</font></b><font color=#990000>(</font>EnumerateService <font color=#990000>*</font>msg <font color=#990000>)</font><font color=#990000>;</font>
+      Boolean <b><font color=#000000>route_async</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>_shutdown_routed_queue</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
       
             
-   protected:
-      Uint32 get_module_q(const String & name);
-      void _make_response(AsyncRequest *req, Uint32 code);
-      void _completeAsyncResponse(AsyncRequest *request, 
-				  AsyncReply *reply, 
-				  Uint32 state, 
-				  Uint32 flag);
-   private:
-      struct timeval _default_op_timeout;
-      struct timeval _last_module_change;
-      DQueue&lt;message_module&gt; _modules;
-
-      DQueue&lt;AsyncOpNode&gt; _recycle;
+   <b><font color=#0000FF>protected</font></b><font color=#990000>:</font>
+      Uint32 <b><font color=#000000>get_module_q</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> String <font color=#990000>&amp;</font> name<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <font color=#009900>void</font> <b><font color=#000000>_make_response</font></b><font color=#990000>(</font>Message <font color=#990000>*</font>req<font color=#990000>,</font> Uint32 code<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <font color=#009900>void</font> <b><font color=#000000>_completeAsyncResponse</font></b><font color=#990000>(</font>AsyncRequest <font color=#990000>*</font>request<font color=#990000>,</font> 
+				  AsyncReply <font color=#990000>*</font>reply<font color=#990000>,</font> 
+				  Uint32 state<font color=#990000>,</font> 
+				  Uint32 flag<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <font color=#009900>void</font> <b><font color=#000000>_complete_op_node</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> Uint32 state<font color=#990000>,</font> Uint32 flag<font color=#990000>,</font> Uint32 code<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <font color=#009900>void</font> <b><font color=#000000>_default_callback</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
       
-      AsyncDQueue&lt;AsyncOpNode&gt; _routed_ops;
-      DQueue&lt;AsyncOpNode&gt; _internal_ops;
+   <b><font color=#0000FF>private</font></b><font color=#990000>:</font>
+      <b><font color=#0000FF>struct</font></b> timeval _default_op_timeout<font color=#990000>;</font>
+      <b><font color=#0000FF>struct</font></b> timeval _last_module_change<font color=#990000>;</font>
+      DQueue<font color=#FF0000>&lt;message_module&gt;</font> _modules<font color=#990000>;</font>
+
+      DQueue<font color=#FF0000>&lt;AsyncOpNode&gt;</font> _recycle<font color=#990000>;</font>
       
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _routing_proc(void *);
-
-      Thread _routing_thread;
-
-      static Uint32 get_xid(void);
-      void _handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queue);
-      Uint32 _ioctl(Uint32, Uint32, void *);
-
-
-      AtomicInt _die;
-      AtomicInt _routed_queue_shutdown;
+      AsyncDQueue<font color=#FF0000>&lt;AsyncOpNode&gt;</font> _routed_ops<font color=#990000>;</font>
+      DQueue<font color=#FF0000>&lt;AsyncOpNode&gt;</font> _internal_ops<font color=#990000>;</font>
       
-      static AtomicInt _xid;
-      
-//       CIMOperationRequestDispatcher *_cim_dispatcher;
-//       CIMOperationResponseEncoder *_cim_encoder;
-//       CIMOperationRequestDecoder *_cim_decoder;
-//       CIMRepository *_repository;
-      
-};
+      <b><font color=#0000FF>static</font></b> PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL <b><font color=#000000>_routing_proc</font></b><font color=#990000>(</font><font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
 
+      Thread _routing_thread<font color=#990000>;</font>
+
+      <b><font color=#0000FF>static</font></b> Uint32 <b><font color=#000000>get_xid</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>_handle_cimom_op</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> Thread <font color=#990000>*</font>thread<font color=#990000>,</font> MessageQueue <font color=#990000>*</font>queue<font color=#990000>)</font><font color=#990000>;</font>
+      Uint32 <b><font color=#000000>_ioctl</font></b><font color=#990000>(</font>Uint32<font color=#990000>,</font> Uint32<font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
+
+
+      AtomicInt _die<font color=#990000>;</font>
+      AtomicInt _routed_queue_shutdown<font color=#990000>;</font>
+      
+      <b><font color=#0000FF>static</font></b> AtomicInt _xid<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> cimom <font color=#990000>*</font>_global_this<font color=#990000>;</font>
+      
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> MessageQueueService<font color=#990000>;</font>
+      
+<font color=#FF0000>}</font><font color=#990000>;</font>
+
+PEGASUS_NAMESPACE_END
+
+<b><font color=#000080>#endif</font></b> <i><font color=#9A1900>// CIMOM_include</font></i>
+</tt>
 </pre>
-	  
 
 <h3>MessageQueueService</h3>
 
 <pre>
+<tt>
+<i><font color=#9A1900>//%////-*-c++-*-////////////////////////////////////////////////////////////////</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Permission is hereby granted, free of charge, to any person obtaining a copy</font></i>
+<i><font color=#9A1900>// of this software and associated documentation files (the "Software"), to</font></i>
+<i><font color=#9A1900>// deal in the Software without restriction, including without limitation the</font></i>
+<i><font color=#9A1900>// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or</font></i>
+<i><font color=#9A1900>// sell copies of the Software, and to permit persons to whom the Software is</font></i>
+<i><font color=#9A1900>// furnished to do so, subject to the following conditions:</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN</font></i>
+<i><font color=#9A1900>// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED</font></i>
+<i><font color=#9A1900>// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT</font></i>
+<i><font color=#9A1900>// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR</font></i>
+<i><font color=#9A1900>// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT</font></i>
+<i><font color=#9A1900>// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN</font></i>
+<i><font color=#9A1900>// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION</font></i>
+<i><font color=#9A1900>// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>//==============================================================================</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Author: Mike Day (mdday@us.ibm.com)</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Modified By:</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>//%/////////////////////////////////////////////////////////////////////////////</font></i>
 
-class message_module;
+<b><font color=#000080>#ifndef</font></b> Pegasus_MessageQueue_Service_h
+<b><font color=#000080>#define</font></b> Pegasus_MessageQueue_Service_h
 
-class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
-{
-   public:
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Config.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Message.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Exception.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/IPC.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Thread.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/AsyncOpNode.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Cimom.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/CimomMessage.h&gt;</font>
 
-      typedef MessageQueue Base;
+PEGASUS_NAMESPACE_BEGIN
+
+<b><font color=#0000FF>extern</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIMOM_Q_ID<font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> message_module<font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE MessageQueueService <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> MessageQueue
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+
+      <b><font color=#0000FF>typedef</font></b> MessageQueue Base<font color=#990000>;</font>
       
-      MessageQueueService(const char *name, Uint32 queueID, Uint32 capabilities, Uint32 mask) ;
+      <b><font color=#000000>MessageQueueService</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> <font color=#009900>char</font> <font color=#990000>*</font>name<font color=#990000>,</font> Uint32 queueID<font color=#990000>,</font> 
+			  Uint32 capabilities <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>,</font> 
+			  Uint32 mask <font color=#990000>=</font> message_mask<font color=#990000>:</font><font color=#990000>:</font>type_cimom <font color=#990000>|</font> 
+			  message_mask<font color=#990000>:</font><font color=#990000>:</font>type_service <font color=#990000>|</font> 
+			  message_mask<font color=#990000>:</font><font color=#990000>:</font>ha_request <font color=#990000>|</font> 
+			  message_mask<font color=#990000>:</font><font color=#990000>:</font>ha_reply <font color=#990000>|</font> 
+			  message_mask<font color=#990000>:</font><font color=#990000>:</font>ha_async <font color=#990000>)</font> <font color=#990000>;</font>
       
-      virtual ~MessageQueueService(void);
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>MessageQueueService</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+            
+      <b><font color=#0000FF>virtual</font></b> Boolean <b><font color=#000000>isAsync</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#FF0000>{</font>  <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>true</font></b><font color=#990000>;</font>  <font color=#FF0000>}</font>
+            
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>enqueue</font></b><font color=#990000>(</font>Message <font color=#990000>*</font><font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
       
-      virtual void handle_heartbeat_request(AsyncRequest *req);
-      virtual void handle_heartbeat_reply(AsyncReply *rep);
+      AsyncReply <font color=#990000>*</font><b><font color=#000000>SendWait</font></b><font color=#990000>(</font>AsyncRequest <font color=#990000>*</font>request<font color=#990000>)</font><font color=#990000>;</font>
+      Boolean <b><font color=#000000>SendAsync</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> 
+			Uint32 destination<font color=#990000>,</font>
+			<font color=#009900>void</font> <font color=#990000>(</font><font color=#990000>*</font>callback<font color=#990000>)</font><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>,</font>
+			MessageQueue <font color=#990000>*</font>callback_q<font color=#990000>,</font>
+			<font color=#009900>void</font> <font color=#990000>*</font>callback_ptr<font color=#990000>)</font><font color=#990000>;</font>
+      Boolean  <b><font color=#000000>SendForget</font></b><font color=#990000>(</font>Message <font color=#990000>*</font>msg<font color=#990000>)</font><font color=#990000>;</font>
+      Boolean <b><font color=#000000>ForwardOp</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> Uint32 destination<font color=#990000>)</font><font color=#990000>;</font>
       
-      virtual void handle_AsyncIoctl(AsyncIoctl *req);
-      virtual void handle_CimServiceStart(CimServiceStart *req);
-      virtual void handle_CimServiceStop(CimServiceStop *req);
-      virtual void handle_CimServicePause(CimServicePause *req);
-      virtual void handle_CimServiceResume(CimServiceResume *req);
-      
-      virtual void handle_AsyncOperationStart(AsyncOperationStart *req);
-      virtual void handle_AsyncOperationResult(AsyncOperationResult *req);
-      virtual Boolean accept_async(AsyncOpNode *op);
-      virtual Boolean messageOK(const Message *msg) ;
 
-      AsyncReply *SendWait(AsyncRequest *request);
+      Boolean <b><font color=#000000>register_service</font></b><font color=#990000>(</font>String name<font color=#990000>,</font> Uint32 capabilities<font color=#990000>,</font> Uint32 mask<font color=#990000>)</font><font color=#990000>;</font>
+      Boolean <b><font color=#000000>update_service</font></b><font color=#990000>(</font>Uint32 capabilities<font color=#990000>,</font> Uint32 mask<font color=#990000>)</font><font color=#990000>;</font>
+      Boolean <b><font color=#000000>deregister_service</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>_shutdown_incoming_queue</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
       
-      void _completeAsyncResponse(AsyncRequest *request, 
-				 AsyncReply *reply, 
-				 Uint32 state, 
-				 Uint32 flag);
-      Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
-      Boolean update_service(Uint32 capabilities, Uint32 mask);
-      Boolean deregister_service(void);
-      virtual void _shutdown_incoming_queue(void);
-      void find_services(String name,
-			 Uint32 capabilities, 
-			 Uint32 mask, 
-			 Array&lt;Uint32&gt; *results);
-      void enumerate_service(Uint32 queue, message_module *result);
-      Uint32 get_next_xid(void);
-      AsyncOpNode *get_op(void);
-      void return_op(AsyncOpNode *op);
-      Uint32 _capabilities;
-      Uint32 _mask;
-      AtomicInt _die;
-   protected:
+      <font color=#009900>void</font> <b><font color=#000000>find_services</font></b><font color=#990000>(</font>String name<font color=#990000>,</font>
+			 Uint32 capabilities<font color=#990000>,</font> 
+			 Uint32 mask<font color=#990000>,</font> 
+			 Array<font color=#FF0000>&lt;Uint32&gt;</font> <font color=#990000>*</font>results<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>enumerate_service</font></b><font color=#990000>(</font>Uint32 queue<font color=#990000>,</font> message_module <font color=#990000>*</font>result<font color=#990000>)</font><font color=#990000>;</font>
+      Uint32 <b><font color=#000000>get_next_xid</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      AsyncOpNode <font color=#990000>*</font><b><font color=#000000>get_op</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>return_op</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>)</font><font color=#990000>;</font>
 
-      virtual void _handle_incoming_operation(AsyncOpNode *operation, Thread *thread, MessageQueue *queue);
-      virtual void _handle_async_request(AsyncRequest *req);
-      virtual void _make_response(AsyncRequest *req, Uint32 code);
-      cimom *_meta_dispatcher;
-
-   private: 
-      void handleEnqueue();
-      DQueue&lt;AsyncOpNode&gt; _pending;
-      AsyncDQueue&lt;AsyncOpNode&gt; _incoming;
+      Uint32 _mask<font color=#990000>;</font>
+      AtomicInt _die<font color=#990000>;</font>
+   <b><font color=#0000FF>protected</font></b><font color=#990000>:</font>
+      <b><font color=#0000FF>virtual</font></b> Boolean <b><font color=#000000>accept_async</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> Boolean <b><font color=#000000>messageOK</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Message <font color=#990000>*</font>msg<font color=#990000>)</font> <font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handleEnqueue</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handleEnqueue</font></b><font color=#990000>(</font>Message <font color=#990000>*</font><font color=#990000>)</font> <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>;</font>
+      Boolean <b><font color=#000000>_enqueueResponse</font></b><font color=#990000>(</font>Message <font color=#990000>*</font><font color=#990000>,</font> Message <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>_handle_incoming_operation</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
       
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
-      AtomicInt _incoming_queue_shutdown;
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>_handle_async_request</font></b><font color=#990000>(</font>AsyncRequest <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>_handle_async_callback</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>)</font><font color=#990000>;</font>     
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>_make_response</font></b><font color=#990000>(</font>Message <font color=#990000>*</font>req<font color=#990000>,</font> Uint32 code<font color=#990000>)</font><font color=#990000>;</font>
       
-      Thread _req_thread;
+
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_heartbeat_request</font></b><font color=#990000>(</font>AsyncRequest <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_heartbeat_reply</font></b><font color=#990000>(</font>AsyncReply <font color=#990000>*</font>rep<font color=#990000>)</font><font color=#990000>;</font>
       
-      struct timeval _default_op_timeout;
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_AsyncIoctl</font></b><font color=#990000>(</font>AsyncIoctl <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_CimServiceStart</font></b><font color=#990000>(</font>CimServiceStart <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_CimServiceStop</font></b><font color=#990000>(</font>CimServiceStop <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_CimServicePause</font></b><font color=#990000>(</font>CimServicePause <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_CimServiceResume</font></b><font color=#990000>(</font>CimServiceResume <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_AsyncOperationStart</font></b><font color=#990000>(</font>AsyncOperationStart <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_AsyncOperationResult</font></b><font color=#990000>(</font>AsyncOperationResult <font color=#990000>*</font>rep<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_AsyncLegacyOperationStart</font></b><font color=#990000>(</font>AsyncLegacyOperationStart <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>handle_AsyncLegacyOperationResult</font></b><font color=#990000>(</font>AsyncLegacyOperationResult <font color=#990000>*</font>rep<font color=#990000>)</font><font color=#990000>;</font>
 
-      static AtomicInt _xid;
+      <font color=#009900>void</font> <b><font color=#000000>_completeAsyncResponse</font></b><font color=#990000>(</font>AsyncRequest <font color=#990000>*</font>request<font color=#990000>,</font> 
+				 AsyncReply <font color=#990000>*</font>reply<font color=#990000>,</font> 
+				 Uint32 state<font color=#990000>,</font> 
+				 Uint32 flag<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>_complete_op_node</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> Uint32<font color=#990000>,</font> Uint32<font color=#990000>,</font> Uint32<font color=#990000>)</font><font color=#990000>;</font>
+      
 
- };
+      <b><font color=#0000FF>static</font></b> cimom <font color=#990000>*</font>_meta_dispatcher<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> AtomicInt _service_count<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> Mutex _meta_dispatcher_mutex<font color=#990000>;</font>
+      
+   <b><font color=#0000FF>private</font></b><font color=#990000>:</font> 
+      
+      DQueue<font color=#FF0000>&lt;AsyncOpNode&gt;</font> _pending<font color=#990000>;</font>
+      AsyncDQueue<font color=#FF0000>&lt;AsyncOpNode&gt;</font> _incoming<font color=#990000>;</font>
+      AsyncDQueue<font color=#FF0000>&lt;AsyncOpNode&gt;</font> _callback<font color=#990000>;</font>
+      
+      <b><font color=#0000FF>static</font></b> PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL <b><font color=#000000>_req_proc</font></b><font color=#990000>(</font><font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <font color=#009900>void</font> <b><font color=#000000>_sendwait_callback</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
+      AtomicInt _incoming_queue_shutdown<font color=#990000>;</font>
+      Thread _req_thread<font color=#990000>;</font>
+      <b><font color=#0000FF>struct</font></b> timeval _default_op_timeout<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> AtomicInt _xid<font color=#990000>;</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> cimom<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
+PEGASUS_NAMESPACE_END
 
+<b><font color=#000080>#endif</font></b> <i><font color=#9A1900>/* Pegasus_MessageQueue_Service_h */</font></i>
+</tt>
 </pre>
 
 <h3>Asynchronous Messages</h3>
 
 <pre>
+<tt>
+<i><font color=#9A1900>//%///-*-c++-*-/////////////////////////////////////////////////////////////////</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,</font></i>
+<i><font color=#9A1900>// The Open Group, Tivoli Systems</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Permission is hereby granted, free of charge, to any person obtaining a copy</font></i>
+<i><font color=#9A1900>// of this software and associated documentation files (the "Software"), to</font></i>
+<i><font color=#9A1900>// deal in the Software without restriction, including without limitation the</font></i>
+<i><font color=#9A1900>// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or</font></i>
+<i><font color=#9A1900>// sell copies of the Software, and to permit persons to whom the Software is</font></i>
+<i><font color=#9A1900>// furnished to do so, subject to the following conditions:</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN</font></i>
+<i><font color=#9A1900>// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED</font></i>
+<i><font color=#9A1900>// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT</font></i>
+<i><font color=#9A1900>// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR</font></i>
+<i><font color=#9A1900>// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT</font></i>
+<i><font color=#9A1900>// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN</font></i>
+<i><font color=#9A1900>// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION</font></i>
+<i><font color=#9A1900>// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>//==============================================================================</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Author: Mike Day (mdday@us.ibm.com)</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Modified By:</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>//%/////////////////////////////////////////////////////////////////////////////</font></i>
 
-extern const Uint32 CIMOM_Q_ID;
+<b><font color=#000080>#ifndef</font></b> Pegasus_CimomMessage_h
+<b><font color=#000080>#define</font></b> Pegasus_CimomMessage_h
 
-class AsyncOpNode;
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Config.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Exception.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/MessageQueue.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/AsyncOpNode.h&gt;</font>
 
-class PEGASUS_COMMON_LINKAGE async_results
-{
-   public:
-      static const Uint32 OK;
-      static const Uint32 PARAMETER_ERROR;
-      static const Uint32 MODULE_ALREADY_REGISTERED;
-      static const Uint32 MODULE_NOT_FOUND;
-      static const Uint32 INTERNAL_ERROR;
+PEGASUS_NAMESPACE_BEGIN
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// This identifier is the queue id for CIMOM queue. It is initialized in</font></i>
+<i><font color=#9A1900>// CimomMessage.cpp by calling MessageQueue::getNextQueueId(). Note that</font></i>
+<i><font color=#9A1900>// this value is passed in the constructor for the CIMOM queue.</font></i>
+<i><font color=#9A1900>//</font></i>
+<b><font color=#0000FF>extern</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIMOM_Q_ID<font color=#990000>;</font>
 
-      static const Uint32 ASYNC_STARTED;
-      static const Uint32 ASYNC_PROCESSING;
-      static const Uint32 ASYNC_COMPLETE;
-      static const Uint32 ASYNC_CANCELLED;
-      static const Uint32 ASYNC_PAUSED;
-      static const Uint32 ASYNC_RESUMED;
+<b><font color=#0000FF>class</font></b> AsyncOpNode<font color=#990000>;</font>
 
-      static const Uint32 CIM_SERVICE_STARTED;
-      static const Uint32 CIM_SERVICE_STOPPED;
-      static const Uint32 CIM_SERVICE_PAUSED;
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE async_results
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 OK<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 PARAMETER_ERROR<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 MODULE_ALREADY_REGISTERED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 MODULE_NOT_FOUND<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 INTERNAL_ERROR<font color=#990000>;</font>
 
-      static const Uint32 CIM_SERVICE_RESUMED;
-      static const Uint32 CIM_NAK;
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_STARTED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_PROCESSING<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_COMPLETE<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_CANCELLED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_PAUSED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_RESUMED<font color=#990000>;</font>
 
-      static const Uint32 ASYNC_PHASE_COMPLETE;
-      static const Uint32 ASYNC_CHILD_COMPLETE;
-      static const Uint32 ASYNC_PHASE_STARTED;
-      static const Uint32 ASYNC_CHILD_STARTED;
-      static const Uint32 CIM_PAUSED;
-      static const Uint32 CIM_STOPPED;
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIM_SERVICE_STARTED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIM_SERVICE_STOPPED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIM_SERVICE_PAUSED<font color=#990000>;</font>
+
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIM_SERVICE_RESUMED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIM_NAK<font color=#990000>;</font>
+
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_PHASE_COMPLETE<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_CHILD_COMPLETE<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_PHASE_STARTED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_CHILD_STARTED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIM_PAUSED<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIM_STOPPED<font color=#990000>;</font>
       
-};
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
 
-class PEGASUS_COMMON_LINKAGE async_messages
-{
-   public:
-      static const Uint32 HEARTBEAT;
-      static const Uint32 REPLY;
-      static const Uint32 REGISTER_CIM_SERVICE;
-      static const Uint32 DEREGISTER_CIM_SERVICE;
-      static const Uint32 UPDATE_CIM_SERVICE;
-      static const Uint32 IOCTL;
-      static const Uint32 CIMSERVICE_START;
-      static const Uint32 CIMSERVICE_STOP;
-      static const Uint32 CIMSERVICE_PAUSE;
-      static const Uint32 CIMSERVICE_RESUME;
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE async_messages
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 HEARTBEAT<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 REPLY<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 REGISTER_CIM_SERVICE<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 DEREGISTER_CIM_SERVICE<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 UPDATE_CIM_SERVICE<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 IOCTL<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIMSERVICE_START<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIMSERVICE_STOP<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIMSERVICE_PAUSE<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 CIMSERVICE_RESUME<font color=#990000>;</font>
 
-      static const Uint32 ASYNC_OP_START;
-      static const Uint32 ASYNC_OP_RESULT;
-      static const Uint32 ASYNC_LEGACY_OP_START;
-      static const Uint32 ASYNC_LEGACY_OP_RESULT;
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_OP_START<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_OP_RESULT<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_LEGACY_OP_START<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ASYNC_LEGACY_OP_RESULT<font color=#990000>;</font>
 
-      static const Uint32 FIND_SERVICE_Q;
-      static const Uint32 FIND_SERVICE_Q_RESULT;
-      static const Uint32 ENUMERATE_SERVICE;
-      static const Uint32 ENUMERATE_SERVICE_RESULT;
-};
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 FIND_SERVICE_Q<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 FIND_SERVICE_Q_RESULT<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ENUMERATE_SERVICE<font color=#990000>;</font>
+      <b><font color=#0000FF>static</font></b> <b><font color=#0000FF>const</font></b> Uint32 ENUMERATE_SERVICE_RESULT<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
 
-class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
-{
-   public:
-      AsyncMessage(Uint32 type, 
-		   Uint32 key, 
-		   Uint32 routing,
-		   Uint32 mask,
-		   AsyncOpNode *operation);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncMessage <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> Message
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>AsyncMessage</font></b><font color=#990000>(</font>Uint32 type<font color=#990000>,</font> 
+		   Uint32 destination<font color=#990000>,</font>
+		   Uint32 key<font color=#990000>,</font> 
+		   Uint32 routing<font color=#990000>,</font>
+		   Uint32 mask<font color=#990000>,</font>
+		   AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>)</font><font color=#990000>;</font>
            
-      virtual ~AsyncMessage(void) 
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>AsyncMessage</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+      <font color=#FF0000>{</font>
 	 
-      }
+      <font color=#FF0000>}</font>
       
-      Boolean operator ==(void *key);
-      Boolean operator ==(const AsyncMessage& msg);
+      Boolean <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font><font color=#990000>(</font><b><font color=#0000FF>const</font></b> <font color=#009900>void</font> <font color=#990000>*</font>key<font color=#990000>)</font><font color=#990000>;</font>
+      Boolean <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font><font color=#990000>(</font><b><font color=#0000FF>const</font></b> AsyncMessage<font color=#990000>&amp;</font> msg<font color=#990000>)</font><font color=#990000>;</font>
       
-      AsyncOpNode *op;
-      Thread *_myself;
-      MessageQueue *_service;
-};
+      AsyncOpNode <font color=#990000>*</font>op<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
 
-inline Boolean AsyncMessage::operator ==(void *key)
-{
-   if( key == reinterpret_cast&lt;void *&gt;(this))
-      return true;
-   return false;
-}
+<b><font color=#0000FF>inline</font></b> Boolean AsyncMessage<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font><font color=#990000>(</font><b><font color=#0000FF>const</font></b> <font color=#009900>void</font> <font color=#990000>*</font>key<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font> key <font color=#990000>=</font><font color=#990000>=</font> <b><font color=#0000FF>reinterpret_cast</font></b><font color=#990000>&lt;</font><font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font><b><font color=#0000FF>this</font></b><font color=#990000>)</font><font color=#990000>)</font>
+      <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>true</font></b><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>false</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
 
-inline Boolean AsyncMessage::operator ==(const AsyncMessage& msg)
-{
-   return this-&gt;operator==(reinterpret_cast&lt;void *&gt;(const_cast&lt;AsyncMessage *&gt;(&msg)));
-}
+<b><font color=#0000FF>inline</font></b> Boolean AsyncMessage<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font><font color=#990000>(</font><b><font color=#0000FF>const</font></b> AsyncMessage<font color=#990000>&amp;</font> msg<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>this</font></b><font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#0000FF>operator</font></b><font color=#990000>=</font><font color=#990000>=</font><font color=#990000>(</font><b><font color=#0000FF>reinterpret_cast</font></b><font color=#990000>&lt;</font><font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font><b><font color=#0000FF>const_cast</font></b><font color=#990000>&lt;</font>AsyncMessage <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font><font color=#990000>&amp;</font>msg<font color=#990000>)</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
 
 
-class PEGASUS_COMMON_LINKAGE AsyncRequest : public AsyncMessage
-{
-   public:
-      AsyncRequest(Uint32 type, 
-		   Uint32 key, 
-		   Uint32 routing,
-		   Uint32 mask,
-		   AsyncOpNode *operation,
-		   Uint32 destination,
-		   Uint32 response,
-		   Boolean blocking);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncRequest <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncMessage
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>AsyncRequest</font></b><font color=#990000>(</font>Uint32 type<font color=#990000>,</font> 
+		   Uint32 key<font color=#990000>,</font> 
+		   Uint32 routing<font color=#990000>,</font>
+		   Uint32 mask<font color=#990000>,</font>
+		   AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font>
+		   Uint32 destination<font color=#990000>,</font>
+		   Uint32 response<font color=#990000>,</font>
+		   Boolean blocking<font color=#990000>)</font><font color=#990000>;</font>
       
       
-      virtual ~AsyncRequest(void) 
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>AsyncRequest</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+      <font color=#FF0000>{</font>
 
-      }
+      <font color=#FF0000>}</font>
             
-      Uint32 dest;
-      Uint32 resp;
-      Boolean block;
-};
+      Uint32 resp<font color=#990000>;</font>
+      Boolean block<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
-{
-   public:
-      AsyncReply(Uint32 type, 
-		 Uint32 key, 
-		 Uint32 routing, 
-		 Uint32 mask,
-		 AsyncOpNode *operation,
-		 Uint32 result_code,
-		 Uint32 destination,
-		 Boolean blocking);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncReply <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncMessage
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>AsyncReply</font></b><font color=#990000>(</font>Uint32 type<font color=#990000>,</font> 
+		 Uint32 key<font color=#990000>,</font> 
+		 Uint32 routing<font color=#990000>,</font> 
+		 Uint32 mask<font color=#990000>,</font>
+		 AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font>
+		 Uint32 result_code<font color=#990000>,</font>
+		 Uint32 destination<font color=#990000>,</font>
+		 Boolean blocking<font color=#990000>)</font><font color=#990000>;</font>
       
       
-      virtual ~AsyncReply(void)
-      {
-	 if(op != 0 )
-	    delete op;
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>AsyncReply</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
 	 
-      }
+      <font color=#FF0000>}</font>
             
-      Uint32 result;
-      Uint32 dest;
-      Boolean block;
-};
+      Uint32 result<font color=#990000>;</font>
+      Boolean block<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
 
 
-class PEGASUS_COMMON_LINKAGE RegisterCimService : public AsyncRequest
-{
-   public: 
-      RegisterCimService(Uint32 routing, 
-			 AsyncOpNode *operation,
-			 Boolean blocking,
-			 String service_name,
-			 Uint32 service_capabilities, 
-			 Uint32 service_mask,
-			 Uint32 service_queue);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE RegisterCimService <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font> 
+      <b><font color=#000000>RegisterCimService</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+			 AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font>
+			 Boolean blocking<font color=#990000>,</font>
+			 String service_name<font color=#990000>,</font>
+			 Uint32 service_capabilities<font color=#990000>,</font> 
+			 Uint32 service_mask<font color=#990000>,</font>
+			 Uint32 service_queue<font color=#990000>)</font><font color=#990000>;</font>
       
-      virtual ~RegisterCimService(void) 
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>RegisterCimService</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+      <font color=#FF0000>{</font>
 
-      }
+      <font color=#FF0000>}</font>
       
-      String name;
-      Uint32 capabilities;
-      Uint32 mask;
-      Uint32 queue;
-};
+      String name<font color=#990000>;</font>
+      Uint32 capabilities<font color=#990000>;</font>
+      Uint32 mask<font color=#990000>;</font>
+      Uint32 queue<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-class PEGASUS_COMMON_LINKAGE DeRegisterCimService : public AsyncRequest
-{
-   public:
-      DeRegisterCimService(Uint32 routing, 
-			   AsyncOpNode *operation,
-			   Boolean blocking, 
-			   Uint32 service_queue);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE DeRegisterCimService <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>DeRegisterCimService</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+			   AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font>
+			   Boolean blocking<font color=#990000>,</font> 
+			   Uint32 service_queue<font color=#990000>)</font><font color=#990000>;</font>
       
       
-      virtual ~DeRegisterCimService(void)
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>DeRegisterCimService</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
 
-      }
+      <font color=#FF0000>}</font>
       
-      Uint32 queue;
-} ;
+      Uint32 queue<font color=#990000>;</font>
+<font color=#FF0000>}</font> <font color=#990000>;</font>
 
-class PEGASUS_COMMON_LINKAGE UpdateCimService : public AsyncRequest
-{
-   public:
-      UpdateCimService(Uint32 routing, 
-		       AsyncOpNode *operation,
-		       Boolean blocking, 
-		       Uint32 service_queue, 
-		       Uint32 service_capabilities, 
-		       Uint32 service_mask);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE UpdateCimService <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>UpdateCimService</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+		       AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font>
+		       Boolean blocking<font color=#990000>,</font> 
+		       Uint32 service_queue<font color=#990000>,</font> 
+		       Uint32 service_capabilities<font color=#990000>,</font> 
+		       Uint32 service_mask<font color=#990000>)</font><font color=#990000>;</font>
 
-      virtual ~UpdateCimService(void) 
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>UpdateCimService</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+      <font color=#FF0000>{</font>
 
-      }
+      <font color=#FF0000>}</font>
       
-      Uint32 queue;
-      Uint32 capabilities;
-      Uint32 mask;
-};
+      Uint32 queue<font color=#990000>;</font>
+      Uint32 capabilities<font color=#990000>;</font>
+      Uint32 mask<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
 
-class PEGASUS_COMMON_LINKAGE AsyncIoctl : public AsyncRequest
-{
-   public:
-      AsyncIoctl(Uint32 routing, 
-		 AsyncOpNode *operation, 
-		 Uint32 destination, 
-		 Uint32 response,
-		 Boolean blocking,
-		 Uint32 code, 
-		 Uint32 int_param,
-		 void *p_param);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncIoctl <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>AsyncIoctl</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+		 AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+		 Uint32 destination<font color=#990000>,</font> 
+		 Uint32 response<font color=#990000>,</font>
+		 Boolean blocking<font color=#990000>,</font>
+		 Uint32 code<font color=#990000>,</font> 
+		 Uint32 int_param<font color=#990000>,</font>
+		 <font color=#009900>void</font> <font color=#990000>*</font>p_param<font color=#990000>)</font><font color=#990000>;</font>
 
-      virtual ~AsyncIoctl(void)
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>AsyncIoctl</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
 
-      }
+      <font color=#FF0000>}</font>
       
-      enum 
-      {
-	 IO_CLOSE,
-	 IO_OPEN,
-	 IO_SOURCE_QUENCH,
+      <b><font color=#0000FF>enum</font></b> 
+      <font color=#FF0000>{</font>
+	 IO_CLOSE<font color=#990000>,</font>
+	 IO_OPEN<font color=#990000>,</font>
+	 IO_SOURCE_QUENCH<font color=#990000>,</font>
 	 IO_SERVICE_DEFINED
-      };
+      <font color=#FF0000>}</font><font color=#990000>;</font>
       
       
 
-      Uint32 ctl;
-      Uint32 intp;
-      void *voidp;
+      Uint32 ctl<font color=#990000>;</font>
+      Uint32 intp<font color=#990000>;</font>
+      <font color=#009900>void</font> <font color=#990000>*</font>voidp<font color=#990000>;</font>
 
-};
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-class PEGASUS_COMMON_LINKAGE CimServiceStart : public AsyncRequest
-{
-   public:
-      CimServiceStart(Uint32 routing, 
-		      AsyncOpNode *operation, 
-		      Uint32 destination, 
-		      Uint32 response, 
-		      Boolean blocking);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE CimServiceStart <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>CimServiceStart</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+		      AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+		      Uint32 destination<font color=#990000>,</font> 
+		      Uint32 response<font color=#990000>,</font> 
+		      Boolean blocking<font color=#990000>)</font><font color=#990000>;</font>
       
-      virtual ~CimServiceStart(void) 
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>CimServiceStart</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+      <font color=#FF0000>{</font>
 	 
-      }
-};
+      <font color=#FF0000>}</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
 
-class PEGASUS_COMMON_LINKAGE CimServiceStop : public AsyncRequest
-{
-   public:
-      CimServiceStop(Uint32 routing, 
-		     AsyncOpNode *operation, 
-		     Uint32 destination, 
-		     Uint32 response, 
-		     Boolean blocking);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE CimServiceStop <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>CimServiceStop</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+		     AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+		     Uint32 destination<font color=#990000>,</font> 
+		     Uint32 response<font color=#990000>,</font> 
+		     Boolean blocking<font color=#990000>)</font><font color=#990000>;</font>
             
-      virtual ~CimServiceStop(void) 
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>CimServiceStop</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+      <font color=#FF0000>{</font>
 
-      }
-};
+      <font color=#FF0000>}</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-class PEGASUS_COMMON_LINKAGE CimServicePause : public AsyncRequest
-{
-   public:
-      CimServicePause(Uint32 routing, 
-		      AsyncOpNode *operation, 
-		      Uint32 destination, 
-		      Uint32 response, 
-		      Boolean blocking);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE CimServicePause <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>CimServicePause</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+		      AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+		      Uint32 destination<font color=#990000>,</font> 
+		      Uint32 response<font color=#990000>,</font> 
+		      Boolean blocking<font color=#990000>)</font><font color=#990000>;</font>
       
       
-      virtual ~CimServicePause(void)
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>CimServicePause</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
 
-      }
-};
+      <font color=#FF0000>}</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-class PEGASUS_COMMON_LINKAGE CimServiceResume : public AsyncRequest
-{
-   public:
-      CimServiceResume(Uint32 routing, 
-		       AsyncOpNode *operation, 
-		       Uint32 destination, 
-		       Uint32 response, 
-		       Boolean blocking);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE CimServiceResume <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>CimServiceResume</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+		       AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+		       Uint32 destination<font color=#990000>,</font> 
+		       Uint32 response<font color=#990000>,</font> 
+		       Boolean blocking<font color=#990000>)</font><font color=#990000>;</font>
       
       
-      virtual ~CimServiceResume(void)
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>CimServiceResume</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
 
-      }
-};
+      <font color=#FF0000>}</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-class PEGASUS_COMMON_LINKAGE AsyncOperationStart : public AsyncRequest
-{
-   public:
-      AsyncOperationStart(Uint32 routing, 
-			  AsyncOpNode *operation, 
-			  Uint32 destination, 
-			  Uint32 response, 
-			  Boolean blocking, 
-			  Message *action);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncOperationStart <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>AsyncOperationStart</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+			  AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+			  Uint32 destination<font color=#990000>,</font> 
+			  Uint32 response<font color=#990000>,</font> 
+			  Boolean blocking<font color=#990000>,</font> 
+			  Message <font color=#990000>*</font>action<font color=#990000>)</font><font color=#990000>;</font>
       
 
-      virtual ~AsyncOperationStart(void)
-      {
-
-      }
-      
-      Message *act;
-};
-
-class PEGASUS_COMMON_LINKAGE AsyncOperationResult : public AsyncReply
-{
-   public:
-      AsyncOperationResult(Uint32 key, 
-			   Uint32 routing, 
-			   AsyncOpNode *operation,
-			   Uint32 result_code, 
-			   Uint32 destination,
-			   Uint32 blocking);
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>AsyncOperationStart</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
+	 <b><font color=#0000FF>delete</font></b> _act<font color=#990000>;</font>
+      <font color=#FF0000>}</font>
       
 
-      virtual ~AsyncOperationResult(void)
-      {
-
-      }
-};
-
-
-class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest
-{
-   public:
-      AsyncLegacyOperationStart(Uint32 routing, 
-				AsyncOpNode *operation, 
-				Uint32 destination, 
-				Message *action);
+      Message <font color=#990000>*</font><b><font color=#000000>get_action</font></b><font color=#990000>(</font><font color=#009900>void</font> <font color=#990000>)</font> <font color=#990000>;</font>
       
       
-      virtual ~AsyncLegacyOperationStart(void)
-      {
+   <b><font color=#0000FF>private</font></b><font color=#990000>:</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> MessageQueueService<font color=#990000>;</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> cimom<font color=#990000>;</font>
+      Message <font color=#990000>*</font>_act<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-      }
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncOperationResult <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncReply
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>AsyncOperationResult</font></b><font color=#990000>(</font>Uint32 key<font color=#990000>,</font> 
+			   Uint32 routing<font color=#990000>,</font> 
+			   AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font>
+			   Uint32 result_code<font color=#990000>,</font> 
+			   Uint32 destination<font color=#990000>,</font>
+			   Uint32 blocking<font color=#990000>)</font><font color=#990000>;</font>
       
-      Message *act;
-};
 
-class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult : public AsyncReply
-{
-   public:
-      AsyncLegacyOperationResult(Uint32 key, 
-				 Uint32 routing, 
-				 AsyncOpNode *operation,
-				 Message *result);
-      
-      virtual ~AsyncLegacyOperationResult(void)
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>AsyncOperationResult</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
 
-      }
-
-      Message *res;
-};
+      <font color=#FF0000>}</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
 
-class PEGASUS_COMMON_LINKAGE FindServiceQueue : public AsyncRequest
-{
-   public:
-      FindServiceQueue(Uint32 routing, 
-		       AsyncOpNode *operation, 
-		       Uint32 response,
-		       Boolean blocking, 
-		       String service_name, 
-		       Uint32 service_capabilities, 
-		       Uint32 service_mask);
-      
-      virtual ~FindServiceQueue(void)
-      {
-
-      }
-      
-      String name;
-      Uint32 capabilities;
-      Uint32 mask;
-} ;
-
-class PEGASUS_COMMON_LINKAGE FindServiceQueueResult : public AsyncReply
-{
-   public:
-      FindServiceQueueResult(Uint32 key, 
-			     Uint32 routing, 
-			     AsyncOpNode *operation, 
-			     Uint32 result_code, 
-			     Uint32 destination, 
-			     Boolean blocking, 
-			     Array&lt;Uint32&gt; queue_ids);
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>AsyncLegacyOperationStart</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+				AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+				Uint32 destination<font color=#990000>,</font> 
+				Message <font color=#990000>*</font>action<font color=#990000>,</font> 
+				Uint32 action_destination<font color=#990000>)</font><font color=#990000>;</font>
       
       
-      virtual ~FindServiceQueueResult(void)
-      {
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>AsyncLegacyOperationStart</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
+	 <b><font color=#0000FF>delete</font></b> _act<font color=#990000>;</font>
+      <font color=#FF0000>}</font>
 
-      }
-      
-      Array&lt;Uint32&gt; qids;
-} ;
+      Message <font color=#990000>*</font><b><font color=#000000>get_action</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
 
-class PEGASUS_COMMON_LINKAGE EnumerateService : public AsyncRequest
-{
-   public:
-      EnumerateService(Uint32 routing, 
-		       AsyncOpNode *operation, 
-		       Uint32 response, 
-		       Boolean blocking, 
-		       Uint32 queue_id);
+   <b><font color=#0000FF>private</font></b><font color=#990000>:</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> MessageQueueService<font color=#990000>;</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> cimom<font color=#990000>;</font>
+      Message <font color=#990000>*</font>_act<font color=#990000>;</font>
+      Uint32 _legacy_destination<font color=#990000>;</font>
       
-      
-      virtual ~EnumerateService(void)
-      {
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-      }
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncReply
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>AsyncLegacyOperationResult</font></b><font color=#990000>(</font>Uint32 key<font color=#990000>,</font> 
+				 Uint32 routing<font color=#990000>,</font> 
+				 AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font>
+				 Message <font color=#990000>*</font>result<font color=#990000>)</font><font color=#990000>;</font>
       
-      Uint32 qid;
-};
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>AsyncLegacyOperationResult</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
+	 <b><font color=#0000FF>delete</font></b> _res<font color=#990000>;</font>
+      <font color=#FF0000>}</font>
 
-class PEGASUS_COMMON_LINKAGE EnumerateServiceResponse : public AsyncReply
-{
-   public:
-      EnumerateServiceResponse(Uint32 key, 
-			       Uint32 routing, 
-			       AsyncOpNode *operation, 
-			       Uint32 result_code, 
-			       Uint32 response, 
-			       Boolean blocking,
-			       String service_name, 
-			       Uint32 service_capabilities, 
-			       Uint32 service_mask, 
-			       Uint32 service_qid);
+      Message <font color=#990000>*</font><b><font color=#000000>get_result</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
       
-      
-      virtual ~EnumerateServiceResponse(void)
-      {
 
-      }
-      
-      String name;
-      Uint32 capabilities;
-      Uint32 mask;
-      Uint32 qid;
-};
+   <b><font color=#0000FF>private</font></b><font color=#990000>:</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> MessageQueueService<font color=#990000>;</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> cimom<font color=#990000>;</font>
+      Message <font color=#990000>*</font>_res<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE FindServiceQueue <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>FindServiceQueue</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+		       AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+		       Uint32 response<font color=#990000>,</font>
+		       Boolean blocking<font color=#990000>,</font> 
+		       String service_name<font color=#990000>,</font> 
+		       Uint32 service_capabilities<font color=#990000>,</font> 
+		       Uint32 service_mask<font color=#990000>)</font><font color=#990000>;</font>
+      
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>FindServiceQueue</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
+
+      <font color=#FF0000>}</font>
+      
+      String name<font color=#990000>;</font>
+      Uint32 capabilities<font color=#990000>;</font>
+      Uint32 mask<font color=#990000>;</font>
+<font color=#FF0000>}</font> <font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE FindServiceQueueResult <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncReply
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>FindServiceQueueResult</font></b><font color=#990000>(</font>Uint32 key<font color=#990000>,</font> 
+			     Uint32 routing<font color=#990000>,</font> 
+			     AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+			     Uint32 result_code<font color=#990000>,</font> 
+			     Uint32 destination<font color=#990000>,</font> 
+			     Boolean blocking<font color=#990000>,</font> 
+			     Array<font color=#FF0000>&lt;Uint32&gt;</font> queue_ids<font color=#990000>)</font><font color=#990000>;</font>
+      
+      
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>FindServiceQueueResult</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
+
+      <font color=#FF0000>}</font>
+      
+      Array<font color=#FF0000>&lt;Uint32&gt;</font> qids<font color=#990000>;</font>
+<font color=#FF0000>}</font> <font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE EnumerateService <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncRequest
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>EnumerateService</font></b><font color=#990000>(</font>Uint32 routing<font color=#990000>,</font> 
+		       AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+		       Uint32 response<font color=#990000>,</font> 
+		       Boolean blocking<font color=#990000>,</font> 
+		       Uint32 queue_id<font color=#990000>)</font><font color=#990000>;</font>
+      
+      
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>EnumerateService</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
+
+      <font color=#FF0000>}</font>
+      
+      Uint32 qid<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE EnumerateServiceResponse <font color=#990000>:</font> <b><font color=#0000FF>public</font></b> AsyncReply
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+      <b><font color=#000000>EnumerateServiceResponse</font></b><font color=#990000>(</font>Uint32 key<font color=#990000>,</font> 
+			       Uint32 routing<font color=#990000>,</font> 
+			       AsyncOpNode <font color=#990000>*</font>operation<font color=#990000>,</font> 
+			       Uint32 result_code<font color=#990000>,</font> 
+			       Uint32 response<font color=#990000>,</font> 
+			       Boolean blocking<font color=#990000>,</font>
+			       String service_name<font color=#990000>,</font> 
+			       Uint32 service_capabilities<font color=#990000>,</font> 
+			       Uint32 service_mask<font color=#990000>,</font> 
+			       Uint32 service_qid<font color=#990000>)</font><font color=#990000>;</font>
+      
+      
+      <b><font color=#0000FF>virtual</font></b> <font color=#990000>~</font><b><font color=#000000>EnumerateServiceResponse</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+      <font color=#FF0000>{</font>
+
+      <font color=#FF0000>}</font>
+      
+      String name<font color=#990000>;</font>
+      Uint32 capabilities<font color=#990000>;</font>
+      Uint32 mask<font color=#990000>;</font>
+      Uint32 qid<font color=#990000>;</font>
+<font color=#FF0000>}</font><font color=#990000>;</font>
+
+
+PEGASUS_NAMESPACE_END
+
+<b><font color=#000080>#endif</font></b> <i><font color=#9A1900>// CIMOM_MESSAGE_include</font></i>
+</tt>
 </pre>
 
-<h3>AsyncOPNode</h3>
+
+<h3>AsyncOpNode</h3>
 
 <pre>
-#define ASYNC_OPFLAGS_UNKNOWN           0x00000000
-#define ASYNC_OPFLAGS_INTERVAL_REPEAT   0x00000010
-#define ASYNC_OPFLAGS_INDICATION        0x00000020
-#define ASYNC_OPFLAGS_REMOTE            0x00000040
-#define ASYNC_OPFLAGS_LOCAL_OUT_OF_PROC 0x00000080
-#define ASYNC_OPFLAGS_PHASED            0x00000001
-#define ASYNC_OPFLAGS_PARTIAL           0x00000002
-#define ASYNC_OPFLAGS_NORMAL            0x00000000
-#define ASYNC_OPFLAGS_SINGLE            0x00000008
-#define ASYNC_OPFLAGS_MULTIPLE          0x00000010
-#define ASYNC_OPFLAGS_TOTAL             0x00000020
-#define ASYNC_OPFLAGS_META_DISPATCHER   0x00000040
+<tt>
+<i><font color=#9A1900>//%///////////-*-c++-*-//////////////////////////////////////////////////////</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Permission is hereby granted, free of charge, to any person obtaining a copy</font></i>
+<i><font color=#9A1900>// of this software and associated documentation files (the "Software"), to </font></i>
+<i><font color=#9A1900>// deal in the Software without restriction, including without limitation the </font></i>
+<i><font color=#9A1900>// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or </font></i>
+<i><font color=#9A1900>// sell copies of the Software, and to permit persons to whom the Software is</font></i>
+<i><font color=#9A1900>// furnished to do so, subject to the following conditions:</font></i>
+<i><font color=#9A1900>// </font></i>
+<i><font color=#9A1900>// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN </font></i>
+<i><font color=#9A1900>// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED</font></i>
+<i><font color=#9A1900>// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT</font></i>
+<i><font color=#9A1900>// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR </font></i>
+<i><font color=#9A1900>// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT </font></i>
+<i><font color=#9A1900>// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN </font></i>
+<i><font color=#9A1900>// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION</font></i>
+<i><font color=#9A1900>// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>//==============================================================================</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Author: Mike Day (mdday@us.ibm.com)</font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>// Modified By: </font></i>
+<i><font color=#9A1900>//</font></i>
+<i><font color=#9A1900>//%/////////////////////////////////////////////////////////////////////////////</font></i>
 
-#define ASYNC_OPSTATE_UNKNOWN           0x00000000
-#define ASYNC_OPSTATE_OFFERED           0x00000001
-#define ASYNC_OPSTATE_DECLINED          0x00000002
-#define ASYNC_OPSTATE_STARTED           0x00000004
-#define ASYNC_OPSTATE_PROCESSING        0x00000008
-#define ASYNC_OPSTATE_DELIVER           0x00000010 
-#define ASYNC_OPSTATE_RESERVE           0x00000020
-#define ASYNC_OPSTATE_COMPLETE          0x00000040
-#define ASYNC_OPSTATE_TIMEOUT           0x00000080
-#define ASYNC_OPSTATE_CANCELLED         0x00000100
-#define ASYNC_OPSTATE_PAUSED            0x00000200
-#define ASYNC_OPSTATE_SUSPENDED         0x00000400
-#define ASYNC_OPSTATE_RESUMED           0x00000800
-#define ASYNC_OPSTATE_ORPHANED          0x00001000
-#define ASYNC_OPSTATE_RELEASED          0x00002000
 
-class Cimom;
+<b><font color=#000080>#ifndef</font></b> Pegasus_AsyncOpNode_h
+<b><font color=#000080>#define</font></b> Pegasus_AsyncOpNode_h
 
-class PEGASUS_COMMON_LINKAGE AsyncOpNode
-{
-   public:
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Config.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/Message.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/OperationContext.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/internal_dq.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;Pegasus/Common/IPC.h&gt;</font>
 
-      AsyncOpNode(void);
-      ~AsyncOpNode(void);
+PEGASUS_NAMESPACE_BEGIN
+
+<i><font color=#9A1900>// ATTN usage of flags and state is inconsistent</font></i>
+<i><font color=#9A1900>// &lt;&lt; Wed Jan 16 17:41:57 2002 mdd &gt;&gt;</font></i>
+<i><font color=#9A1900>// resolved mdd </font></i>
+
+
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_UNKNOWN           <font color=#993399>0x00000000</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_INTERVAL_REPEAT   <font color=#993399>0x00000010</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_INDICATION        <font color=#993399>0x00000020</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_REMOTE            <font color=#993399>0x00000040</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_LOCAL_OUT_OF_PROC <font color=#993399>0x00000080</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_PHASED            <font color=#993399>0x00000001</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_PARTIAL           <font color=#993399>0x00000002</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_NORMAL            <font color=#993399>0x00000000</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_SINGLE            <font color=#993399>0x00000008</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_MULTIPLE          <font color=#993399>0x00000010</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_TOTAL             <font color=#993399>0x00000020</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_META_DISPATCHER   <font color=#993399>0x00000040</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_FIRE_AND_FORGET   <font color=#993399>0x00000080</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_SIMPLE_STATUS     <font color=#993399>0x00000100</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_CALLBACK          <font color=#993399>0x00000200</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPFLAGS_FORWARD           <font color=#993399>0x00000400</font>
+
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_UNKNOWN           <font color=#993399>0x00000000</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_OFFERED           <font color=#993399>0x00000001</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_DECLINED          <font color=#993399>0x00000002</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_STARTED           <font color=#993399>0x00000004</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_PROCESSING        <font color=#993399>0x00000008</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_DELIVER           <font color=#993399>0x00000010</font> 
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_RESERVE           <font color=#993399>0x00000020</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_COMPLETE          <font color=#993399>0x00000040</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_TIMEOUT           <font color=#993399>0x00000080</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_CANCELLED         <font color=#993399>0x00000100</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_PAUSED            <font color=#993399>0x00000200</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_SUSPENDED         <font color=#993399>0x00000400</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_RESUMED           <font color=#993399>0x00000800</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_ORPHANED          <font color=#993399>0x00001000</font>
+<b><font color=#000080>#define</font></b> ASYNC_OPSTATE_RELEASED          <font color=#993399>0x00002000</font>
+
+<b><font color=#0000FF>class</font></b> Cimom<font color=#990000>;</font>
+<b><font color=#0000FF>class</font></b> Thread<font color=#990000>;</font>
+
+<b><font color=#0000FF>class</font></b> PEGASUS_COMMON_LINKAGE AsyncOpNode
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>public</font></b><font color=#990000>:</font>
+
+      <b><font color=#000000>AsyncOpNode</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#990000>~</font><b><font color=#000000>AsyncOpNode</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
             
-      Boolean  operator == (const void *key) const;
-      Boolean operator == (const AsyncOpNode & node) const;
+      Boolean  <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><b><font color=#0000FF>const</font></b> <font color=#009900>void</font> <font color=#990000>*</font>key<font color=#990000>)</font> <b><font color=#0000FF>const</font></b><font color=#990000>;</font>
+      Boolean <b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><b><font color=#0000FF>const</font></b> AsyncOpNode <font color=#990000>&amp;</font> node<font color=#990000>)</font> <b><font color=#0000FF>const</font></b><font color=#990000>;</font>
 
-      void get_timeout_interval(struct timeval *buffer) ;
-      void set_timeout_interval(const struct timeval *interval);
+      <font color=#009900>void</font> <b><font color=#000000>get_timeout_interval</font></b><font color=#990000>(</font><b><font color=#0000FF>struct</font></b> timeval <font color=#990000>*</font>buffer<font color=#990000>)</font> <font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>set_timeout_interval</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> <b><font color=#0000FF>struct</font></b> timeval <font color=#990000>*</font>interval<font color=#990000>)</font><font color=#990000>;</font>
       
-      Boolean timeout(void)  ;
+      Boolean <b><font color=#000000>timeout</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>  <font color=#990000>;</font>
 
-      OperationContext & get_context(void) ;
+      OperationContext <font color=#990000>&amp;</font> <b><font color=#000000>get_context</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>;</font>
 
-      void put_request(const Message *request) ;
-      Message *get_request(void) ;
+      <font color=#009900>void</font> <b><font color=#000000>put_request</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Message <font color=#990000>*</font>request<font color=#990000>)</font> <font color=#990000>;</font>
+      Message <font color=#990000>*</font><b><font color=#000000>get_request</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>;</font>
       
-      void put_response(const Message *response) ;
-      Message *get_response(void) ;
+      <font color=#009900>void</font> <b><font color=#000000>put_response</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Message <font color=#990000>*</font>response<font color=#990000>)</font> <font color=#990000>;</font>
+      Message <font color=#990000>*</font><b><font color=#000000>get_response</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>;</font>
       
-      Uint32 read_state(void) ;
-      void write_state(Uint32) ;
+      Uint32 <b><font color=#000000>read_state</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>write_state</font></b><font color=#990000>(</font>Uint32<font color=#990000>)</font> <font color=#990000>;</font>
       
-      Uint32 read_flags(void);
-      void write_flags(Uint32);
+      Uint32 <b><font color=#000000>read_flags</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>write_flags</font></b><font color=#990000>(</font>Uint32<font color=#990000>)</font><font color=#990000>;</font>
       
-      void lock(void)  throw(IPCException);
-      void unlock(void) throw(IPCException);
-      void udpate(void) throw(IPCException);
-      void deliver(const Uint32 count) throw(IPCException);
-      void reserve(const Uint32 size) throw(IPCException);
-      void processing(void) throw(IPCException) ;
-      void processing(OperationContext *context) throw(IPCException);
-      void complete(void) throw(IPCException) ;
-      void complete(OperationContext *context) throw(IPCException);
-      void release(void);
-      void wait(void);
+      <font color=#009900>void</font> <b><font color=#000000>lock</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>  <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>udpate</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>deliver</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Uint32 count<font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>reserve</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Uint32 size<font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>processing</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font> <font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>processing</font></b><font color=#990000>(</font>OperationContext <font color=#990000>*</font>context<font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>complete</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font> <font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>complete</font></b><font color=#990000>(</font>OperationContext <font color=#990000>*</font>context<font color=#990000>)</font> <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>release</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>wait</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font><font color=#990000>;</font>
       
       
-   private:
-      Semaphore _client_sem;
-      Mutex _mut;
-      unlocked_dq&lt;Message&gt; _request;
-      unlocked_dq&lt;Message&gt; _response; 
+   <b><font color=#0000FF>private</font></b><font color=#990000>:</font>
+      Semaphore _client_sem<font color=#990000>;</font>
+      Mutex _mut<font color=#990000>;</font>
+      unlocked_dq<font color=#FF0000>&lt;Message&gt;</font> _request<font color=#990000>;</font>
+      unlocked_dq<font color=#FF0000>&lt;Message&gt;</font> _response<font color=#990000>;</font> 
+      
+      OperationContext _operation_list<font color=#990000>;</font>
+      Uint32 _state<font color=#990000>;</font>
+      Uint32 _flags<font color=#990000>;</font>
+      Uint32 _offered_count<font color=#990000>;</font>
+      Uint32 _total_ops<font color=#990000>;</font>
+      Uint32 _completed_ops<font color=#990000>;</font>
+      Uint32 _user_data<font color=#990000>;</font>
+      Uint32 _completion_code<font color=#990000>;</font>
+      MessageQueue <font color=#990000>*</font>_op_dest<font color=#990000>;</font>
+            
+      <b><font color=#0000FF>struct</font></b> timeval _start<font color=#990000>;</font>
+      <b><font color=#0000FF>struct</font></b> timeval _lifetime<font color=#990000>;</font>
+      <b><font color=#0000FF>struct</font></b> timeval _updated<font color=#990000>;</font>
+      <b><font color=#0000FF>struct</font></b> timeval _timeout_interval<font color=#990000>;</font>
 
-      OperationContext _operation_list;
-      Uint32 _state;
-      Uint32 _flags;
-      Uint32 _offered_count;
-      Uint32 _total_ops;
-      Uint32 _completed_ops;
-      Uint32 _user_data;
+      AsyncOpNode <font color=#990000>*</font>_parent<font color=#990000>;</font>
+      unlocked_dq<font color=#FF0000>&lt;AsyncOpNode&gt;</font> _children<font color=#990000>;</font>
+
+      <font color=#009900>void</font> <b><font color=#000000>_reset</font></b><font color=#990000>(</font>unlocked_dq<font color=#FF0000>&lt;AsyncOpNode&gt;</font> <font color=#990000>*</font>dst_q<font color=#990000>)</font><font color=#990000>;</font>
+
+      <i><font color=#9A1900>// the lifetime member is for cache management by the cimom</font></i>
+      <font color=#009900>void</font> <b><font color=#000000>_set_lifetime</font></b><font color=#990000>(</font><b><font color=#0000FF>struct</font></b> timeval <font color=#990000>*</font>lifetime<font color=#990000>)</font> <font color=#990000>;</font>
+      Boolean <b><font color=#000000>_check_lifetime</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>;</font>
+
+      Boolean <b><font color=#000000>_is_child</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>;</font>
+      Uint32 <b><font color=#000000>_is_parent</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> <font color=#990000>;</font>
+      Boolean <b><font color=#000000>_is_my_child</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> AsyncOpNode <font color=#990000>&amp;</font> caller<font color=#990000>)</font> <b><font color=#0000FF>const</font></b><font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>_make_orphan</font></b><font color=#990000>(</font> AsyncOpNode <font color=#990000>&amp;</font> parent<font color=#990000>)</font> <font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>_adopt_child</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>child<font color=#990000>)</font> <font color=#990000>;</font>
+      <font color=#009900>void</font> <b><font color=#000000>_disown_child</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>child<font color=#990000>)</font> <font color=#990000>;</font>
+      <font color=#009900>void</font> <font color=#990000>(</font><font color=#990000>*</font>_async_callback<font color=#990000>)</font><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> 
+			      MessageQueue <font color=#990000>*</font><font color=#990000>,</font> 
+			      <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
+      <i><font color=#9A1900>// &lt;&lt; Tue Mar 12 14:44:51 2002 mdd &gt;&gt;</font></i>
+      <i><font color=#9A1900>// pointers for async callbacks  - don't use </font></i>
+      AsyncOpNode <font color=#990000>*</font>_callback_node<font color=#990000>;</font>
+      MessageQueue <font color=#990000>*</font>_callback_response_q<font color=#990000>;</font>
+      <font color=#009900>void</font> <font color=#990000>*</font>_callback_ptr<font color=#990000>;</font>
+      MessageQueue <font color=#990000>*</font>_callback_request_q<font color=#990000>;</font>
+      <i><font color=#9A1900>//      &lt;&lt; Tue Mar 12 14:44:53 2002 mdd &gt;&gt;</font></i>
+      <i><font color=#9A1900>// pointers to help static class message handlers - don't use </font></i>
+      MessageQueue <font color=#990000>*</font>_service_ptr<font color=#990000>;</font>
+      Thread <font color=#990000>*</font>_thread_ptr<font color=#990000>;</font>
+            
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> cimom<font color=#990000>;</font>
+      <b><font color=#0000FF>friend</font></b> <b><font color=#0000FF>class</font></b> MessageQueueService<font color=#990000>;</font>
       
-      struct timeval _start;
-      struct timeval _lifetime;
-      struct timeval _updated;
-      struct timeval _timeout_interval;
+<font color=#FF0000>}</font><font color=#990000>;</font>
 
-      AsyncOpNode *_parent;
-      unlocked_dq&lt;AsyncOpNode&gt; _children;
 
-      void _reset(unlocked_dq&lt;AsyncOpNode&gt; *dst_q);
+<b><font color=#0000FF>inline</font></b> Boolean AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><b><font color=#0000FF>const</font></b> <font color=#009900>void</font> <font color=#990000>*</font>key<font color=#990000>)</font> <b><font color=#0000FF>const</font></b>
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>key <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><b><font color=#0000FF>this</font></b><font color=#990000>)</font>
+      <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>true</font></b><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>false</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
 
-      // the lifetime member is for cache management by the cimom
-      void _set_lifetime(struct timeval *lifetime) ;
-      Boolean _check_lifetime(void) ;
+<b><font color=#0000FF>inline</font></b> Boolean AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b> <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>(</font><b><font color=#0000FF>const</font></b> AsyncOpNode <font color=#990000>&amp;</font> node<font color=#990000>)</font> <b><font color=#0000FF>const</font></b>
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>return</font></b> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b><font color=#990000>=</font><font color=#990000>=</font><font color=#990000>(</font><font color=#990000>(</font><b><font color=#0000FF>const</font></b> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>&amp;</font>node<font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
 
-      Boolean _is_child(void) ;
-      Uint32 _is_parent(void) ;
 
-      Boolean _is_my_child(const AsyncOpNode & caller) const;
-      void _make_orphan( AsyncOpNode & parent) ;
-      void _adopt_child(AsyncOpNode *child) ;
-      void _disown_child(AsyncOpNode *child) ;
-      friend class cimom;
-      friend class MessageQueueService;
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>get_timeout_interval</font></b><font color=#990000>(</font><b><font color=#0000FF>struct</font></b> timeval <font color=#990000>*</font>buffer<font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font>buffer <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>)</font>
+   <font color=#FF0000>{</font>
+      _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font> <b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font> <font color=#990000>)</font><font color=#990000>;</font>
+      buffer<font color=#990000>-</font><font color=#990000>&gt;</font>tv_sec <font color=#990000>=</font> _timeout_interval<font color=#990000>.</font>tv_sec<font color=#990000>;</font>
+      buffer<font color=#990000>-</font><font color=#990000>&gt;</font>tv_usec <font color=#990000>=</font> _timeout_interval<font color=#990000>.</font>tv_usec<font color=#990000>;</font>
+      _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <font color=#FF0000>}</font>
+   <b><font color=#0000FF>return</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>set_timeout_interval</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> <b><font color=#0000FF>struct</font></b> timeval <font color=#990000>*</font>interval<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font>interval <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>)</font>
+   <font color=#FF0000>{</font>
+      _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+      _timeout_interval<font color=#990000>.</font>tv_sec <font color=#990000>=</font> interval<font color=#990000>-</font><font color=#990000>&gt;</font>tv_sec<font color=#990000>;</font>
+      _timeout_interval<font color=#990000>.</font>tv_usec <font color=#990000>=</font> interval<font color=#990000>-</font><font color=#990000>&gt;</font>tv_usec<font color=#990000>;</font>
+      <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+      _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <font color=#FF0000>}</font>
+<font color=#FF0000>}</font>
+
+
+<b><font color=#0000FF>inline</font></b> Boolean AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>timeout</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>struct</font></b> timeval now<font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>now<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   Boolean ret <font color=#990000>=</font> <b><font color=#0000FF>false</font></b><font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font><font color=#990000>(</font>_updated<font color=#990000>.</font>tv_sec <font color=#990000>+</font> _timeout_interval<font color=#990000>.</font>tv_sec <font color=#990000>)</font> <font color=#990000>&lt;</font> now<font color=#990000>.</font>tv_sec<font color=#990000>)</font>
+      <b><font color=#0000FF>if</font></b><font color=#990000>(</font><font color=#990000>(</font>_updated<font color=#990000>.</font>tv_usec <font color=#990000>+</font> _timeout_interval<font color=#990000>.</font>tv_usec <font color=#990000>)</font> <font color=#990000>&lt;</font> now<font color=#990000>.</font>tv_usec<font color=#990000>)</font>
+	 ret <font color=#990000>=</font>  <b><font color=#0000FF>true</font></b><font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> ret<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>// context is now a locked list</font></i>
+<b><font color=#0000FF>inline</font></b> OperationContext <font color=#990000>&amp;</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>get_context</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> _operation_list<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+
+<b><font color=#0000FF>inline</font></b>  <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>put_request</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Message <font color=#990000>*</font>request<font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font> <b><font color=#0000FF>false</font></b> <font color=#990000>=</font><font color=#990000>=</font> _request<font color=#990000>.</font><b><font color=#000000>exists</font></b><font color=#990000>(</font><b><font color=#0000FF>reinterpret_cast</font></b><font color=#990000>&lt;</font><font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font><b><font color=#0000FF>const_cast</font></b><font color=#990000>&lt;</font>Message <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font>request<font color=#990000>)</font><font color=#990000>)</font><font color=#990000>)</font> <font color=#990000>)</font>
+   _request<font color=#990000>.</font><b><font color=#000000>insert_last</font></b><font color=#990000>(</font> <b><font color=#0000FF>const_cast</font></b><font color=#990000>&lt;</font>Message <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font>request<font color=#990000>)</font> <font color=#990000>)</font> <font color=#990000>;</font>
+
+<i><font color=#9A1900>//   _request = const_cast&lt;Message *&gt;(request);</font></i>
+   
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> Message <font color=#990000>*</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>get_request</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   Message <font color=#990000>*</font>ret<font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   ret <font color=#990000>=</font> _request<font color=#990000>.</font><b><font color=#000000>remove_first</font></b><font color=#990000>(</font><font color=#990000>)</font> <font color=#990000>;</font>
+<i><font color=#9A1900>//   ret = _request;</font></i>
+   
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> ret<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>put_response</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Message <font color=#990000>*</font>response<font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>if</font></b> <font color=#990000>(</font><b><font color=#0000FF>false</font></b> <font color=#990000>=</font><font color=#990000>=</font> _response<font color=#990000>.</font><b><font color=#000000>exists</font></b><font color=#990000>(</font><b><font color=#0000FF>reinterpret_cast</font></b><font color=#990000>&lt;</font><font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font><b><font color=#0000FF>const_cast</font></b><font color=#990000>&lt;</font>Message <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font>response<font color=#990000>)</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>)</font>
+   _response<font color=#990000>.</font><b><font color=#000000>insert_last</font></b><font color=#990000>(</font> <b><font color=#0000FF>const_cast</font></b><font color=#990000>&lt;</font>Message <font color=#990000>*</font><font color=#990000>&gt;</font><font color=#990000>(</font>response<font color=#990000>)</font> <font color=#990000>)</font><font color=#990000>;</font>
+
+<i><font color=#9A1900>//   _response = const_cast&lt;Message *&gt;(response);</font></i>
+   
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> Message <font color=#990000>*</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>get_response</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   Message <font color=#990000>*</font>ret<font color=#990000>;</font>
+
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+<i><font color=#9A1900>//   gettimeofday(&amp;_updated, NULL);</font></i>
+   ret <font color=#990000>=</font> _response<font color=#990000>.</font><b><font color=#000000>remove_first</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<i><font color=#9A1900>//   ret = _response;</font></i>
+   
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> ret<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> Uint32 AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>read_state</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   Uint32 ret <font color=#990000>=</font> _state<font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> ret<font color=#990000>;</font>
+   
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>write_state</font></b><font color=#990000>(</font>Uint32 state<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   _state <font color=#990000>=</font> state<font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> Uint32 AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>read_flags</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   Uint32 ret <font color=#990000>=</font> _flags<font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> ret<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>write_flags</font></b><font color=#990000>(</font>Uint32 flags<font color=#990000>)</font>
+<font color=#FF0000>{</font>   
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   _flags <font color=#990000>=</font> flags<font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+
+<b><font color=#0000FF>inline</font></b>  <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>  
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>udpate</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>deliver</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Uint32 count<font color=#990000>)</font> 
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   _completed_ops <font color=#990000>=</font> count<font color=#990000>;</font>
+   _state <font color=#990000>|</font><font color=#990000>=</font> ASYNC_OPSTATE_DELIVER<font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>reserve</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> Uint32 size<font color=#990000>)</font>
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   _total_ops <font color=#990000>=</font> size<font color=#990000>;</font>
+   _state <font color=#990000>|</font><font color=#990000>=</font> ASYNC_OPSTATE_RESERVE<font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>processing</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   _state <font color=#990000>|</font><font color=#990000>=</font> ASYNC_OPSTATE_PROCESSING<font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>// con will be empty upon return of this member function</font></i>
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>processing</font></b><font color=#990000>(</font>OperationContext <font color=#990000>*</font>con<font color=#990000>)</font> 
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   _state <font color=#990000>|</font><font color=#990000>=</font> ASYNC_OPSTATE_PROCESSING<font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   
+   context <font color=#990000>*</font>c <font color=#990000>=</font> con<font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#000000>remove_context</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>while</font></b><font color=#990000>(</font>c <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>)</font>
+   <font color=#FF0000>{</font>
+      _operation_list<font color=#990000>.</font><b><font color=#000000>add_context</font></b><font color=#990000>(</font>c<font color=#990000>)</font><font color=#990000>;</font>
+      c <font color=#990000>=</font> con<font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#000000>remove_context</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <font color=#FF0000>}</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>complete</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   _state <font color=#990000>|</font><font color=#990000>=</font> ASYNC_OPSTATE_COMPLETE<font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+
+   <b><font color=#0000FF>return</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>complete</font></b><font color=#990000>(</font>OperationContext <font color=#990000>*</font>con<font color=#990000>)</font>
+   <b><font color=#0000FF>throw</font></b><font color=#990000>(</font>IPCException<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   _state <font color=#990000>|</font><font color=#990000>=</font> ASYNC_OPSTATE_COMPLETE<font color=#990000>;</font>
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>_updated<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   context <font color=#990000>*</font>c <font color=#990000>=</font> con<font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#000000>remove_context</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>while</font></b><font color=#990000>(</font>c <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>)</font>
+   <font color=#FF0000>{</font>
+      _operation_list<font color=#990000>.</font><b><font color=#000000>add_context</font></b><font color=#990000>(</font>c<font color=#990000>)</font><font color=#990000>;</font>
+      c <font color=#990000>=</font> con<font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#000000>remove_context</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <font color=#FF0000>}</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>wait</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _client_sem<font color=#990000>.</font><b><font color=#000000>wait</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>release</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   _state <font color=#990000>|</font><font color=#990000>=</font> ASYNC_OPSTATE_RELEASED<font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b>  <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>_set_lifetime</font></b><font color=#990000>(</font><b><font color=#0000FF>struct</font></b> timeval <font color=#990000>*</font>lifetime<font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>lock</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   _lifetime<font color=#990000>.</font>tv_sec <font color=#990000>=</font> lifetime<font color=#990000>-</font><font color=#990000>&gt;</font>tv_sec<font color=#990000>;</font>
+   _lifetime<font color=#990000>.</font>tv_usec <font color=#990000>=</font> lifetime<font color=#990000>-</font><font color=#990000>&gt;</font>tv_usec<font color=#990000>;</font>
+   _mut<font color=#990000>.</font><b><font color=#000000>unlock</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> Boolean AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>_check_lifetime</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>struct</font></b> timeval now<font color=#990000>;</font>
+   
+   <b><font color=#000000>gettimeofday</font></b><font color=#990000>(</font><font color=#990000>&amp;</font>now<font color=#990000>,</font> NULL<font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font><font color=#990000>(</font>_start<font color=#990000>.</font>tv_sec <font color=#990000>+</font> _lifetime<font color=#990000>.</font>tv_sec <font color=#990000>)</font> <font color=#990000>&gt;</font><font color=#990000>=</font> now<font color=#990000>.</font>tv_sec<font color=#990000>)</font>
+      <b><font color=#0000FF>if</font></b><font color=#990000>(</font><font color=#990000>(</font>_start<font color=#990000>.</font>tv_usec <font color=#990000>+</font> _lifetime<font color=#990000>.</font>tv_usec <font color=#990000>)</font> <font color=#990000>&gt;</font><font color=#990000>=</font> now<font color=#990000>.</font>tv_usec<font color=#990000>)</font>
+	 <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>true</font></b><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>false</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> Boolean AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>_is_child</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>_parent <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>)</font>
+      <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>true</font></b><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>false</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> Uint32 AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>_is_parent</font></b><font color=#990000>(</font><font color=#009900>void</font><font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>return</font></b> _children<font color=#990000>.</font><b><font color=#000000>count</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> Boolean AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>_is_my_child</font></b><font color=#990000>(</font><b><font color=#0000FF>const</font></b> AsyncOpNode <font color=#990000>&amp;</font> caller<font color=#990000>)</font> <b><font color=#0000FF>const</font></b>
+<font color=#FF0000>{</font> 
+   <b><font color=#0000FF>if</font></b> <font color=#990000>(</font> _parent <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>&amp;</font>caller <font color=#990000>)</font>
+      <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>true</font></b><font color=#990000>;</font>
+   <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>false</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>_make_orphan</font></b><font color=#990000>(</font> AsyncOpNode <font color=#990000>&amp;</font> parent<font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font> _parent <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>&amp;</font>parent <font color=#990000>)</font>
+   <font color=#FF0000>{</font>
+      _parent <font color=#990000>=</font> NULL<font color=#990000>;</font>
+      parent<font color=#990000>.</font>_children<font color=#990000>.</font><b><font color=#000000>remove</font></b><font color=#990000>(</font><b><font color=#0000FF>this</font></b><font color=#990000>)</font><font color=#990000>;</font>
+   <font color=#FF0000>}</font>
+   <b><font color=#0000FF>else</font></b>
+      <b><font color=#0000FF>throw</font></b> <b><font color=#000000>Permission</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>_adopt_child</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>child<font color=#990000>)</font> 
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font>child <font color=#990000>=</font><font color=#990000>=</font> NULL<font color=#990000>)</font>
+      <b><font color=#0000FF>throw</font></b> <b><font color=#000000>NullPointer</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font><b><font color=#0000FF>true</font></b> <font color=#990000>=</font><font color=#990000>=</font> child<font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#000000>_is_child</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font>
+      <b><font color=#0000FF>throw</font></b> <b><font color=#000000>Permission</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   child<font color=#990000>-</font><font color=#990000>&gt;</font>_parent <font color=#990000>=</font> <b><font color=#0000FF>this</font></b><font color=#990000>;</font>
+   _children<font color=#990000>.</font><b><font color=#000000>insert_last</font></b><font color=#990000>(</font>child<font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
       
-};
+<b><font color=#0000FF>inline</font></b> <font color=#009900>void</font> AsyncOpNode<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>_disown_child</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>child<font color=#990000>)</font>
+<font color=#FF0000>{</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font>child <font color=#990000>=</font><font color=#990000>=</font> NULL<font color=#990000>)</font>
+      <b><font color=#0000FF>throw</font></b> <b><font color=#000000>NullPointer</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+   <b><font color=#0000FF>if</font></b><font color=#990000>(</font> <b><font color=#0000FF>false</font></b> <font color=#990000>=</font><font color=#990000>=</font> child<font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#000000>_is_child</font></b><font color=#990000>(</font><font color=#990000>)</font> <font color=#990000>|</font><font color=#990000>|</font> <b><font color=#0000FF>false</font></b> <font color=#990000>=</font><font color=#990000>=</font> child<font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#000000>_is_my_child</font></b><font color=#990000>(</font> <font color=#990000>*</font><b><font color=#0000FF>this</font></b> <font color=#990000>)</font><font color=#990000>)</font>
+      <b><font color=#0000FF>throw</font></b> <b><font color=#000000>Permission</font></b><font color=#990000>(</font><b><font color=#000000>pegasus_thread_self</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+   child<font color=#990000>-</font><font color=#990000>&gt;</font><b><font color=#000000>_make_orphan</font></b><font color=#990000>(</font> <font color=#990000>*</font><b><font color=#0000FF>this</font></b> <font color=#990000>)</font><font color=#990000>;</font>
+   _children<font color=#990000>.</font><b><font color=#000000>remove</font></b><font color=#990000>(</font>child<font color=#990000>)</font><font color=#990000>;</font>
+<font color=#FF0000>}</font> 
+
+PEGASUS_NAMESPACE_END
+
+<b><font color=#000080>#endif</font></b> <i><font color=#9A1900>//Pegasus_AsyncOpNode_h</font></i>
+</tt>
 </pre>
+
 
 <hr>
     <address><a href="mailto:mdday@us.ibm.com">Michael Day</a></address>
 <!-- Created: Tue Feb  5 13:21:55 EST 2002 -->
 <!-- hhmts start -->
-Last modified: Tue Mar 12 17:48:45 EST 2002
+Last modified: Wed Mar 13 12:26:56 EST 2002
 <!-- hhmts end -->
   </body>
 </html>

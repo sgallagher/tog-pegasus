@@ -734,8 +734,7 @@ String System::getEffectiveUserName()
     {
         String errorMsg = String("getpwuid_r failure : ") +
                             String(strerror(errno));
-        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                  errorMsg);
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
         // L10N TODO - This message needs to be added.
         //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
         //                          errorMsg);
@@ -797,8 +796,7 @@ Boolean System::isSystemUser(const char* userName)
     {
         String errorMsg = String("getpwnam_r failure : ") +
                             String(strerror(errno));
-        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                  errorMsg);
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
         // L10N TODO - This message needs to be added.
         //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
         //                          errorMsg);
@@ -842,8 +840,7 @@ Boolean System::isPrivilegedUser(const String& userName)
     {
         String errorMsg = String("getpwnam_r failure : ") +
                             String(strerror(errno));
-        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                  errorMsg);
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
         // L10N TODO - This message needs to be added.
         //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
         //                          errorMsg);
@@ -887,8 +884,7 @@ String System::getPrivilegedUserName()
         {
             String errorMsg = String("getpwuid_r failure : ") +
                             String(strerror(errno));
-            Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                  errorMsg);
+            PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
             // L10N TODO - This message needs to be added.
             //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
             //                      errorMsg);
@@ -944,8 +940,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     {
         String errorMsg = String("getpwnam_r failure : ") +
                             String(strerror(errno));
-        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                  errorMsg);
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
                                   errorMsg);
         throw InternalSystemError();
@@ -963,8 +958,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
         {
             String errorMsg = String("getgrgid_r failure : ") +
                                  String(strerror(errno));
-            Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                      errorMsg);
+            PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
             Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
                                   errorMsg);
             throw InternalSystemError();
@@ -993,8 +987,7 @@ Boolean System::isGroupMember(const char* userName, const char* groupName)
     {
         String errorMsg = String("getgrnam_r failure : ") +
                             String(strerror(errno));
-        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                  errorMsg);
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2, errorMsg);
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
                                   errorMsg);
         throw InternalSystemError();
@@ -1055,7 +1048,7 @@ Boolean System::changeUserContext(const char* userName)
 
     if (result == 0)
     {
-        Tracer::PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
             "getpwnam_r failed.");
         return false;
     }

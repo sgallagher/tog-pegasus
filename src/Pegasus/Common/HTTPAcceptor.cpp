@@ -722,7 +722,7 @@ void pegasus_acceptor::bind()
 #else
     bsd_socket_factory sf;
 #endif
-    pegasus_socket temp(&sf);
+    pegasus_socket temp(&sf, _sslcontext);
     _listener = temp;
     _listener.socket(PF_INET, SOCK_STREAM, 0);
   }

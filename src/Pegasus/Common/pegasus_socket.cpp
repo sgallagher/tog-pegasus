@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Tracer.h>
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #include <windows.h>
@@ -139,8 +140,8 @@ class empty_socket_rep : public abstract_socket
       int socket(int sock_type, int sock_style,
 		 int sock_protocol, void *ssl_context = 0) { return -1 ;}
 
-      Sint32 read(void* ptr, Uint32 size) { return -1 ;}
-      Sint32 write(const void* ptr, Uint32 size){ return -1 ;}
+      virtual Sint32 read(void* ptr, Uint32 size) { return -1 ;}
+      virtual Sint32 write(const void* ptr, Uint32 size){ return -1 ;}
       int close(void){ return -1 ;}
       int enableBlocking(void){ return -1 ;}
       int disableBlocking(void){ return -1 ;}
@@ -241,10 +242,10 @@ class bsd_socket_rep : public abstract_socket
 	    }
       };
 
-   public:
+   protected:
       static struct _library_init _lib_init;
       int _socket;
-      void *_ssl_context;
+      //void *_ssl_context;
       int _errno;
       char _strerr[256];
 };
@@ -595,12 +596,14 @@ class ssl_socket_rep : public bsd_socket_rep
       ~ssl_socket_rep(void);
       ssl_socket_rep(SSLContext *);
 
-      Sint32 read(void* ptr, Uint32 size);
-      Sint32 write(const void* ptr, Uint32 size);
-      int close(void);
+      virtual Sint32 read(void* ptr, Uint32 size);
+      virtual Sint32 write(const void* ptr, Uint32 size);
+      virtual int close(void);
+      virtual abstract_socket* accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr);
+      virtual int connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length);
 
-      Boolean incompleteReadOccurred(Sint32 retCode);
-      Boolean is_secure(void);
+      virtual Boolean incompleteReadOccurred(Sint32 retCode);
+      virtual Boolean is_secure(void);
       const char* get_err_string(void);
 
       void set_ctx(SSLContext *);
@@ -657,16 +660,53 @@ void ssl_socket_rep::set_ctx(SSLContext *ctx)
    _ctx = ctx;
 }
 
+abstract_socket* ssl_socket_rep::accept(struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE *length_ptr) {
+  
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+  int new_sock = ::accept(_socket, addr, length_ptr);
+#else
+  int new_sock = ::accept(_socket, addr, length_ptr);
+  if(new_sock == -1 && errno == EAGAIN)
+    {
+      int retries = 0;      
+      do
+	{
+	  pegasus_sleep(1);
+	  new_sock = ::accept(_socket, addr, length_ptr);
+	  retries++;
+        } while(new_sock == -1 && errno == EAGAIN && retries < 20);
+      
+    }
+#endif
+  
+  if(new_sock == -1)
+    {
+      _errno = errno;
+    }
+  
+     ssl_socket_rep *rep = new ssl_socket_rep(_ctx);
+     
+     rep->_socket = new_sock;
+     if (rep->_init() == true) {
+       _errno = rep->_internal_socket->accept();
+     }
+     rep->set_close_on_exec();
+     return rep;
+}
 
 Boolean ssl_socket_rep::_init(void)
 {
-   if(_ctx == 0 )
+  if(_ctx == 0 ) {
+    // This is a serious issue. If we don't have the SSL context we cannot do
+    // anything.
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "ssl_socket_rep::_init: Missing SSL context? Do you have the certs? ");    
       return false;
-
+  }
    if(_internal_socket && _initialized.value())
       return true;
    if(_internal_socket != 0 && _initialized.value() == 0 )
       delete _internal_socket;
+
    _internal_socket = new SSLSocket(_socket, _ctx);
    if(_internal_socket)
    {
@@ -675,7 +715,15 @@ Boolean ssl_socket_rep::_init(void)
    }
    return false;
 }
+int ssl_socket_rep::connect (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length) {
 
+  // IBM-KR: I've not had a chance to test this. 
+  if (true == _init())
+    return _internal_socket->connect();
+  else
+    return -1;
+
+}
 Sint32 ssl_socket_rep::read(void* ptr, Uint32 size)
 {
    if(true == _init())
@@ -753,7 +801,14 @@ pegasus_socket::pegasus_socket(void)
 
 pegasus_socket::pegasus_socket(socket_factory *factory)
 {
+  // This factory does NOT pass the SSL context information. It is good
+  // _only_ for non-SSL sockets.
     _rep = factory->make_socket();
+}
+
+pegasus_socket::pegasus_socket(socket_factory *factory, SSLContext *ctx)
+{
+    _rep = factory->make_socket(ctx);
 }
 
 pegasus_socket::pegasus_socket(const pegasus_socket& s)

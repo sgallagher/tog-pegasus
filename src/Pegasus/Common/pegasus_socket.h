@@ -108,6 +108,7 @@ public:
   
   pegasus_socket(void);
   pegasus_socket(socket_factory *);
+  pegasus_socket(socket_factory *, SSLContext *);
   pegasus_socket(abstract_socket *);
   pegasus_socket(const pegasus_socket& s);
   ~pegasus_socket(void);

@@ -127,6 +127,11 @@ public:
 	const char* parameterName,
 	Boolean flag);
 
+    static Array<Sint8>& appendStringParameter(
+	Array<Sint8>& out,
+	const char* parameterName,
+	const String& str);
+
     static Array<Sint8>& appendClassNameParameter(
 	Array<Sint8>& out,
 	const char* parameterName,

@@ -84,6 +84,18 @@ struct EnumerateClassNamesResult
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// AssociatorsResult
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct AssociatorsResult
+{
+    CIMException::Code code;
+    Array<CIMObjectWithPath> objectWithPathArray;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // CreateInstanceResult
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -246,24 +258,36 @@ public:
     int handleGetInstanceResponse(XmlParser& parser, const String& messageId);
 
     //STUB{
-    int handleEnumerateClassNamesResponse(XmlParser& parser, const String& messageId);
+    int handleEnumerateClassNamesResponse(
+	XmlParser& parser, 
+	const String& messageId);
     //STUB}
 
-    int handleCreateInstanceResponse(XmlParser& parser, const String& messageId);
+    int handleAssociatorsResponse(XmlParser& parser, const String& messageId);
+
+    int handleCreateInstanceResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
     int handleEnumerateInstanceNamesResponse(
 	XmlParser& parser,
 	const String& messageId);
 
-    int handleDeleteQualifierResponse(XmlParser& parser, const String& messageId);
+    int handleDeleteQualifierResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
     int handleGetQualifierResponse(XmlParser& parser, const String& messageId);
 
     int handleSetQualifierResponse(XmlParser& parser, const String& messageId);
 
-    int handleEnumerateQualifiersResponse(XmlParser& parser, const String& messageId);
+    int handleEnumerateQualifiersResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
-    int handleEnumerateClassesResponse(XmlParser& parser, const String& messageId);
+    int handleEnumerateClassesResponse(
+	XmlParser& parser, 
+	const String& messageId);
 
     int handleCreateClassResponse(XmlParser& parser, const String& messageId);
 
@@ -286,6 +310,7 @@ public:
 	//STUB{
 	EnumerateClassNamesResult* _enumerateClassNamesResult;
 	//STUB}
+	AssociatorsResult* _associatorsResult;
 	CreateInstanceResult* _createInstanceResult;
 	EnumerateInstanceNamesResult* _enumerateInstanceNamesResult;
 	DeleteQualifierResult* _deleteQualifierResult;
@@ -428,6 +453,8 @@ int ClientHandler::handleMethodResponse()
     else if (strcmp(iMethodResponseName, "EnumerateClassNames") == 0)
 	handleEnumerateClassNamesResponse(parser, messageId);
     //STUB}
+    else if (strcmp(iMethodResponseName, "Associators") == 0)
+	handleAssociatorsResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "CreateInstance") == 0)
 	handleCreateInstanceResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "EnumerateInstanceNames") == 0)
@@ -452,9 +479,6 @@ int ClientHandler::handleMethodResponse()
 	handleGetPropertyResponse(parser, messageId);
     else if (strcmp(iMethodResponseName, "SetProperty") == 0)
 	handleSetPropertyResponse(parser, messageId);
-
-
-    //BOOKMARK
 
     //--------------------------------------------------------------------------
     // Handle end tags:
@@ -612,6 +636,55 @@ int ClientHandler::handleEnumerateClassNamesResponse(
     return 0;
 }
 //STUB}
+
+//------------------------------------------------------------------------------
+//
+// ClientHandler::handleAssociatorsResponse()
+//
+// <!ELEMENT VALUE.OBJECTWITHPATH 
+//     ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
+//
+//------------------------------------------------------------------------------
+
+int ClientHandler::handleAssociatorsResponse(
+    XmlParser& parser,
+    const String& messageId)
+{
+    XmlEntry entry;
+    CIMException::Code code;
+    const char* description = 0;
+
+    if (XmlReader::getErrorElement(parser, code, description))
+    {
+	_associatorsResult = new AssociatorsResult;
+	_associatorsResult->code = code;
+	_blocked = false;
+	return 0;
+    }
+    else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
+    {
+	Array<CIMObjectWithPath> objectWithPathArray;
+	CIMObjectWithPath tmp;
+
+	while (XmlReader::getObjectWithPath(parser, tmp))
+	    objectWithPathArray.append(tmp);
+
+	XmlReader::testEndTag(parser, "IRETURNVALUE");
+
+	_associatorsResult = new AssociatorsResult;
+	_associatorsResult->code = code;
+	_associatorsResult->objectWithPathArray = objectWithPathArray;
+	_blocked = false;
+	return 0;
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "expected ERROR or IRETURNVALUE element");
+    }
+
+    return 0;
+}
 
 //------------------------------------------------------------------------------
 //
@@ -1329,27 +1402,27 @@ CIMClass CIMClient::getClass(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     XmlWriter::appendClassNameParameter(
-	parameters, "ClassName", className);
+	params, "ClassName", className);
 	
     if (localOnly != true)
 	XmlWriter::appendBooleanParameter(
-	    parameters, "LocalOnly", false);
+	    params, "LocalOnly", false);
 
     if (includeQualifiers != true)
 	XmlWriter::appendBooleanParameter(
-	    parameters, "IncludeQualifiers", false);
+	    params, "IncludeQualifiers", false);
 
     if (includeClassOrigin != false)
 	XmlWriter::appendBooleanParameter(
-	    parameters, "IncludeClassOrigin", true);
+	    params, "IncludeClassOrigin", true);
 
     // ATTN-A: inject the real hostname here!
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	_getHostName(), nameSpace, "GetClass", parameters);
+	_getHostName(), nameSpace, "GetClass", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1381,25 +1454,25 @@ CIMInstance CIMClient::getInstance(
 
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     XmlWriter::appendInstanceNameParameter(
-	parameters, "InstanceName", instanceName);
+	params, "InstanceName", instanceName);
 	
     if (localOnly != true)
 	XmlWriter::appendBooleanParameter(
-	    parameters, "LocalOnly", false);
+	    params, "LocalOnly", false);
 
     if (includeQualifiers != false)
 	XmlWriter::appendBooleanParameter(
-	    parameters, "IncludeQualifiers", true);
+	    params, "IncludeQualifiers", true);
 
     if (includeClassOrigin != false)
 	XmlWriter::appendBooleanParameter(
-	    parameters, "IncludeClassOrigin", true);
+	    params, "IncludeClassOrigin", true);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	_getHostName(), nameSpace, "GetInstance", parameters);
+	_getHostName(), nameSpace, "GetInstance", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1424,14 +1497,14 @@ void CIMClient::deleteClass(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     if (className.size())
-	XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
+	XmlWriter::appendClassNameParameter(params, "ClassName", className);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "DeleteClass", parameters);
+	nameSpace, "DeleteClass", params);
 	
     _channel->writeN(message.getData(), message.size());
 
@@ -1461,12 +1534,12 @@ void CIMClient::createClass(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
-    XmlWriter::appendClassParameter(parameters, "NewClass", newClass);
+    Array<Sint8> params;
+    XmlWriter::appendClassParameter(params, "NewClass", newClass);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "CreateClass", parameters);
+	nameSpace, "CreateClass", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1488,14 +1561,14 @@ void CIMClient::createInstance(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     XmlWriter::appendInstanceParameter(
-	parameters, "NewInstance", newInstance);
+	params, "NewInstance", newInstance);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "CreateInstance", parameters);
+	nameSpace, "CreateInstance", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1517,12 +1590,12 @@ void CIMClient::modifyClass(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
-    XmlWriter::appendClassParameter(parameters, "ModifiedClass", modifiedClass);
+    Array<Sint8> params;
+    XmlWriter::appendClassParameter(params, "ModifiedClass", modifiedClass);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "ModifyClass", parameters);
+	nameSpace, "ModifyClass", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1556,28 +1629,28 @@ Array<CIMClass> CIMClient::enumerateClasses(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     if (className.size())
-	XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
+	XmlWriter::appendClassNameParameter(params, "ClassName", className);
 	
     if (deepInheritance != false)
-	XmlWriter::appendBooleanParameter(parameters, "DeepInheritance", true);
+	XmlWriter::appendBooleanParameter(params, "DeepInheritance", true);
 
     if (localOnly != true)
-	XmlWriter::appendBooleanParameter(parameters, "LocalOnly", false);
+	XmlWriter::appendBooleanParameter(params, "LocalOnly", false);
 
     if (includeQualifiers != true)
 	XmlWriter::appendBooleanParameter(
-	    parameters, "IncludeQualifiers", false);
+	    params, "IncludeQualifiers", false);
 
     if (includeClassOrigin != false)
 	XmlWriter::appendBooleanParameter(
-	    parameters, "IncludeClassOrigin", true);
+	    params, "IncludeClassOrigin", true);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "EnumerateClasses", parameters);
+	nameSpace, "EnumerateClasses", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1610,24 +1683,26 @@ Array<String> CIMClient::enumerateClassNames(
 //STUB{:
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     if (className.size())
-	XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
+	XmlWriter::appendClassNameParameter(params, "ClassName", className);
 	
     if (deepInheritance != false)
-	XmlWriter::appendBooleanParameter(parameters, "DeepInheritance", true);
+	XmlWriter::appendBooleanParameter(params, "DeepInheritance", true);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "EnumerateClassNames", parameters);
+	nameSpace, "EnumerateClassNames", params);
 
     _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    EnumerateClassNamesResult* result = _getHandler()->_enumerateClassNamesResult;
+    EnumerateClassNamesResult* result 
+	= _getHandler()->_enumerateClassNamesResult;
+
     Array<String> classNames = result->classNames;
     CIMException::Code code = result->code;
     delete result;
@@ -1653,20 +1728,19 @@ Array<CIMInstance> CIMClient::enumerateInstances(
     return Array<CIMInstance>();
 }
 
-
 Array<CIMReference> CIMClient::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
-    XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
+    XmlWriter::appendClassNameParameter(params, "ClassName", className);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "EnumerateInstanceNames", parameters);
+	nameSpace, "EnumerateInstanceNames", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1695,7 +1769,7 @@ Array<CIMInstance> CIMClient::execQuery(
 }
 
 
-Array<CIMInstance> CIMClient::associators(
+Array<CIMObjectWithPath> CIMClient::associators(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& assocClass,
@@ -1706,10 +1780,68 @@ Array<CIMInstance> CIMClient::associators(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMInstance>();
-}
 
+    String messageId = XmlWriter::getNextMessageId();
+    Array<Sint8> params;
+
+    // Append "ObjectName" parameter:
+
+    if (objectName.isClassName())
+    {
+	XmlWriter::appendClassNameParameter(
+	    params, "ObjectName", objectName.getClassName());
+    }
+    else
+    {
+	XmlWriter::appendInstanceNameParameter(
+	    params, "ObjectName", objectName);
+    }
+
+    // Append "AssocClass" parameter:
+
+    XmlWriter::appendClassNameParameter(params, "AssocClass", assocClass);
+
+    // Append "ResultClass" parameter:
+
+    XmlWriter::appendClassNameParameter(params, "ResultClass", resultClass);
+
+    // Append "Role" parameter:
+
+    XmlWriter::appendStringParameter(params, "Role", role);
+
+    // Append "ResultRole" parameter:
+
+    XmlWriter::appendStringParameter(params, "ResultRole", resultRole);
+
+    // Append "IncludeQualifiers" paramter:
+
+    if (includeQualifiers != false)
+	XmlWriter::appendBooleanParameter(params, "IncludeQualifiers", true);
+
+    if (includeClassOrigin != false)
+	XmlWriter::appendBooleanParameter(params, "IncludeClassOrigin", true);
+
+    // Format the message:
+
+    Array<Sint8> message = XmlWriter::formatSimpleReqMessage(_getHostName(),
+	nameSpace, "Associators", params);
+
+    _channel->writeN(message.getData(), message.size());
+
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
+	throw TimedOut();
+
+    AssociatorsResult* result = _getHandler()->_associatorsResult;
+    Array<CIMObjectWithPath> objectWithPathArray = result->objectWithPathArray;
+    CIMException::Code code = result->code;
+    delete result;
+    _getHandler()->_associatorsResult = 0;
+
+    if (code != CIMException::SUCCESS)
+	throw CIMException(code);
+
+    return objectWithPathArray;
+}
 
 Array<CIMReference> CIMClient::associatorNames(
     const String& nameSpace,
@@ -1748,8 +1880,7 @@ Array<CIMReference> CIMClient::referenceNames(
     return Array<CIMReference>();
 }
 
-/* ---------------------------------------------
-
+/**-----------------------------------------------------------------------------
 
 <?xml version="1.0" encoding="utf-8" ?>
  <CIM CIMVERSION="2.0" DTDVERSION="2.0">
@@ -1770,7 +1901,9 @@ Array<CIMReference> CIMClient::referenceNames(
    </SIMPLEREQ>
   </MESSAGE>
  </CIM>
-------------------------------------------------*/
+
+-----------------------------------------------------------------------------**/
+
 CIMValue CIMClient::getProperty(
     const String& nameSpace,
     const CIMReference& instanceName,
@@ -1781,18 +1914,18 @@ CIMValue CIMClient::getProperty(
     // taken from get instance
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
     cout << "DEBUG getProperty " << __LINE__ << endl;
 
     XmlWriter::appendInstanceNameParameter(
-	parameters, "InstanceName", instanceName);
+	params, "InstanceName", instanceName);
 
-    XmlWriter::appendPropertyNameParameter(parameters,propertyName);
+    XmlWriter::appendPropertyNameParameter(params,propertyName);
 
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "GetProperty", parameters);
+	nameSpace, "GetProperty", params);
 
     // -------- Append propertyName parameter here
 
@@ -1813,10 +1946,7 @@ CIMValue CIMClient::getProperty(
 	throw CIMException(code);
 
     return cimValue;
-
-
 }
-
 
 void CIMClient::setProperty(
     const String& nameSpace,
@@ -1829,13 +1959,13 @@ void CIMClient::setProperty(
 
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
     XmlWriter::appendInstanceNameParameter(
-	parameters, "InstanceName", instanceName);
+	params, "InstanceName", instanceName);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "SetProperty", parameters);
+	nameSpace, "SetProperty", params);
 
     // append propertyName and newValue properties here
 
@@ -1855,25 +1985,24 @@ void CIMClient::setProperty(
 
 }
 
-
 CIMQualifierDecl CIMClient::getQualifier(
     const String& nameSpace,
     const String& qualifierName)
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     // ATTN: no way in the specification to pass a qualifier name within
     // an IPARAMVALUE. Need help to solve this one.
 
     if (qualifierName.size())
 	XmlWriter::appendClassNameParameter(
-	    parameters, "QualifierName", qualifierName);
+	    params, "QualifierName", qualifierName);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "GetQualifier", parameters);
+	nameSpace, "GetQualifier", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1898,13 +2027,13 @@ void CIMClient::setQualifier(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
     XmlWriter::appendQualifierDeclarationParameter(
-	parameters, "QualifierDeclaration", qualifierDeclaration);
+	params, "QualifierDeclaration", qualifierDeclaration);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "SetQualifier", parameters);
+	nameSpace, "SetQualifier", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1926,18 +2055,18 @@ void CIMClient::deleteQualifier(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     // ATTN: no way in the specification to pass a qualifier name within
     // an IPARAMVALUE. Need help to solve this one.
 
     if (qualifierName.size())
 	XmlWriter::appendClassNameParameter(
-	    parameters, "QualifierName", qualifierName);
+	    params, "QualifierName", qualifierName);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
 	_getHostName(),
-	nameSpace, "DeleteQualifier", parameters);
+	nameSpace, "DeleteQualifier", params);
 
     _channel->writeN(message.getData(), message.size());
 
@@ -1958,18 +2087,19 @@ Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
 {
     String messageId = XmlWriter::getNextMessageId();
 
-    Array<Sint8> parameters;
+    Array<Sint8> params;
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	_getHostName(),
-	nameSpace, "EnumerateQualifiers", parameters);
+	_getHostName(), nameSpace, "EnumerateQualifiers", params);
 
     _channel->writeN(message.getData(), message.size());
 
     if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    EnumerateQualifiersResult* result = _getHandler()->_enumerateQualifiersResult;
+    EnumerateQualifiersResult* result 
+	= _getHandler()->_enumerateQualifiersResult;
+
     Array<CIMQualifierDecl> qualifierDecls = result->qualifierDecls;
     CIMException::Code code = result->code;
     delete result;

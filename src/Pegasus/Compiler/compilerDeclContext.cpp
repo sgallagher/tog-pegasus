@@ -49,7 +49,7 @@ compilerDeclContext::lookupQualifierDecl(const String &nameSpace,
   if (_repository && (_ot != cimmofRepository::IGNORE_REPOSITORY)) {
     try {
       return _repository->getQualifier(nameSpace, qualifierName);
-    } catch (Exception &e) {
+    } catch (Exception &) {
       // FIXME:  catch the NOT_FOUND condition.  Don't catch others.
       // ignore.  It either isn't there or something's broken.
     }
@@ -69,7 +69,7 @@ compilerDeclContext::lookupClass(const String &nameSpace,
   if (_repository && _ot != cimmofRepository::IGNORE_REPOSITORY) {
     try {
       return _repository->getClass(nameSpace, className);
-    } catch(Exception &e) {
+    } catch(Exception &) {
       // ignore failure to find.  FIXME:  pass others on.
     }
   }

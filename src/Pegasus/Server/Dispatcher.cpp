@@ -232,7 +232,7 @@ Array<CIMInstance> Dispatcher::execQuery(
     return Array<CIMInstance>();
 }
 
-Array<CIMInstance> Dispatcher::associators(
+Array<CIMObjectWithPath> Dispatcher::associators(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& assocClass,
@@ -244,7 +244,7 @@ Array<CIMInstance> Dispatcher::associators(
     const Array<String>& propertyList)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMInstance>();
+    return Array<CIMObjectWithPath>();
 }
 
 Array<CIMReference> Dispatcher::associatorNames(

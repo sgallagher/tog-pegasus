@@ -22,12 +22,12 @@ include $(ROOT)/mak/recurse.mak
 # repository
 
 rebuild: clean depend all repository
-	$(MAKE) -s tests
+	@ $(MAKE) -s tests
 
 world: depend all repository
-	$(MAKE) -s tests
+	@ $(MAKE) -s tests
 
 # The repository Target removes and rebuilds the CIM repository
 
 repository:
-	$(MAKE) -SC src/Pegasus/Compiler/load repository
+	@ $(MAKE) -SC src/Pegasus/Compiler/load repository

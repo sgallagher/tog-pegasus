@@ -27,7 +27,7 @@ void TestAssociations(CIMRepository& r)
     {
 	CIMReference instanceName = "X.key=\"John Smith\"";
 
-	Array<CIMInstance> result = r.associators(
+	Array<CIMObjectWithPath> result = r.associators(
 	    nameSpace,
 	    instanceName,
 	    "a",
@@ -37,8 +37,11 @@ void TestAssociations(CIMRepository& r)
 
 	assert(result.size() == 1);
 
-	CIMClass tmpClass = r.getClass(nameSpace, result[0].getClassName());
-	CIMReference tmpInstanceName = result[0].getInstanceName(tmpClass);
+	CIMReference cimReference = result[0].getReference();
+	CIMInstance cimInstance = result[0].getObject().getInstance();
+
+	CIMClass tmpClass = r.getClass(nameSpace, cimInstance.getClassName());
+	CIMReference tmpInstanceName = cimInstance.getInstanceName(tmpClass);
 
 	Boolean t = tmpInstanceName == CIMReference("Y.key=\"John Jones\"");
 	assert(t);
@@ -94,7 +97,6 @@ void TestAssociations(CIMRepository& r)
 	    "left=\"x.key=\\\"John Smith\\\"\","
 	    "right=\"y.key=\\\"John Jones\\\"\"";
 
-cout << "deleting " << nameSpace << ": " << assocInstanceName << endl;
 	r.deleteInstance(nameSpace, assocInstanceName);
     }
 }

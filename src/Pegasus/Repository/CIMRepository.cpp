@@ -312,8 +312,10 @@ void CIMRepository::deleteInstance(
     // -- true is returned. Otherwise, true is returned.
 
     String assocFileName = _MakeAssocPath(nameSpace, _repositoryRoot);
-    AssocTable::deleteAssociation(
-	assocFileName, instanceName);
+
+
+    if (FileSystem::exists(assocFileName))
+	AssocTable::deleteAssociation(assocFileName, instanceName);
 }
 
 void CIMRepository::createClass(
@@ -696,7 +698,7 @@ Array<CIMInstance> CIMRepository::execQuery(
     return Array<CIMInstance>();
 }
 
-Array<CIMInstance> CIMRepository::associators(
+Array<CIMObjectWithPath> CIMRepository::associators(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& assocClass,
@@ -715,7 +717,7 @@ Array<CIMInstance> CIMRepository::associators(
 	role,
 	resultRole);
 
-    Array<CIMInstance> result;
+    Array<CIMObjectWithPath> result;
 
     for (Uint32 i = 0, n = names.size(); i < n; i++)
     {
@@ -724,15 +726,32 @@ Array<CIMInstance> CIMRepository::associators(
 	if (tmpNameSpace.size() == 0)
 	    tmpNameSpace = nameSpace;
 
-	CIMInstance instance = getInstance(
-	    tmpNameSpace,
-	    names[i],
-	    false,
-	    includeQualifiers,
-	    includeClassOrigin,
-	    propertyList);
+	CIMReference reference = names[i];
 
-	result.append(instance);
+	if (reference.isClassName())
+	{
+	    CIMClass cimClass = getClass(
+		tmpNameSpace,
+		reference.getClassName(),
+		false,
+		includeQualifiers,
+		includeClassOrigin,
+		propertyList);
+
+	    result.append(CIMObjectWithPath(reference, CIMObject(cimClass)));
+	}
+	else
+	{
+	    CIMInstance cimInstance = getInstance(
+		tmpNameSpace,
+		reference,
+		false,
+		includeQualifiers,
+		includeClassOrigin,
+		propertyList);
+
+	    result.append(CIMObjectWithPath(reference, CIMObject(cimInstance)));
+	}
     }
 
     return result;

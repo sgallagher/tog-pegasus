@@ -1812,7 +1812,6 @@ Boolean XmlReader::getKeyBindingElement(
 //         %ClassName;>
 //
 // ATTN-B: VALUE.REFERENCE sub-element not accepted yet.
-// ATTN-B: KEYVALUE sub-element nothandled yet.
 //
 //------------------------------------------------------------------------------
 
@@ -2763,11 +2762,6 @@ Boolean XmlReader::getBooleanValueElement(
     return true;
 }
 
-
-
-
-
-
 //------------------------------------------------------------------------------
 //
 // getErrorElement()
@@ -2813,6 +2807,70 @@ Boolean XmlReader::getErrorElement(
 
     if (!empty)
 	expectEndTag(parser, "ERROR");
+
+    return true;
+}
+
+
+//------------------------------------------------------------------------------
+// getObjectWithPath()
+//
+// <!ELEMENT VALUE.OBJECTWITHPATH ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getObjectWithPath(
+    XmlParser& parser, 
+    CIMObjectWithPath& objectWithPath)
+{
+    XmlEntry entry;
+
+    if (!testStartTag(parser, entry, "VALUE.OBJECTWITHPATH"))
+	return false;
+
+    if (testStartTag(parser, entry, "INSTANCEPATH"))
+    {
+	CIMReference reference;
+
+	if (!XmlReader::getInstancePathElement(parser, reference))
+	{
+	    throw XmlValidationError(parser.getLine(),
+		"Expected INSTANCEPATH element");
+	}
+
+	CIMInstance instance;
+
+	if (!XmlReader::getInstanceElement(parser, instance))
+	{
+	    throw XmlValidationError(parser.getLine(),
+		"Expected INSTANCE element");
+	}
+    }
+    if (testStartTag(parser, entry, "CLASSPATH"))
+    {
+	CIMReference reference;
+
+	if (!XmlReader::getClassPathElement(parser, reference))
+	{
+	    throw XmlValidationError(parser.getLine(),
+		"Expected CLASSPATH element");
+	}
+
+	CIMClass cimClass;
+
+	if (!XmlReader::getClassElement(parser, cimClass))
+	{
+	    throw XmlValidationError(parser.getLine(),
+		"Expected CLASS element");
+	}
+    }
+    else
+    {
+	throw XmlValidationError(parser.getLine(),
+	    "Expected INSTANCEPATH or CLASSPATH element");
+    }
+
+    expectEndTag(parser, "VALUE.OBJECTWITHPATH");
 
     return true;
 }

@@ -429,6 +429,24 @@ Array<Sint8>& XmlWriter::appendBooleanParameter(
 
 //------------------------------------------------------------------------------
 //
+// appendStringParameter()
+//
+//------------------------------------------------------------------------------
+
+Array<Sint8>& XmlWriter::appendStringParameter(
+    Array<Sint8>& out,
+    const char* name,
+    const String& str)
+{
+    Array<Sint8> tmp;
+    tmp << "<VALUE>";
+    appendSpecial(tmp, str);
+    tmp << "</VALUE>\n";
+    return formatIParamValueElement(out, name, tmp);
+}
+
+//------------------------------------------------------------------------------
+//
 // appendClassNameParameter()
 //
 //------------------------------------------------------------------------------

@@ -113,3 +113,6 @@ Development Conventions
 
 31. Be mindful that the tests must run on all supported platforms and
     that a commit may break another platform.
+
+33. Tests must clean up the effect they have on the repository.
+

@@ -38,6 +38,7 @@
 #include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMOperations.h>
+#include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Client/ClientException.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -174,7 +175,7 @@ public:
 	const String& query) ;
 
     ///
-    virtual Array<CIMInstance> associators(
+    virtual Array<CIMObjectWithPath> associators(
 	const String& nameSpace,
 	const CIMReference& objectName,
 	const String& assocClass = String::EMPTY,

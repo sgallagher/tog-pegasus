@@ -116,7 +116,7 @@ public:
 	const String& queryLanguage,
 	const String& query) ;
 
-    virtual Array<CIMInstance> associators(
+    virtual Array<CIMObjectWithPath> associators(
 	const String& nameSpace,
 	const CIMReference& objectName,
 	const String& assocClass = String::EMPTY,

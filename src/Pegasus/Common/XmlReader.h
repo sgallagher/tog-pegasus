@@ -44,6 +44,8 @@ class CIMInstance;
 class CIMProperty;
 class CIMParameter;
 class CIMMethod;
+class CIMObject;
+class CIMObjectWithPath;
 
 class PEGASUS_COMMON_LINKAGE XmlReader
 {
@@ -326,6 +328,10 @@ public:
 	CIMException::Code& code,
 	const char*& description,
 	Boolean required = false);
+
+    static Boolean getObjectWithPath(
+	XmlParser& parser, 
+	CIMObjectWithPath& objectWithPath);
 
 private:
 

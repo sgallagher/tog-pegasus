@@ -47,6 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 class CIMConstInstance;
+class CIMObject;
 
 /** Class CIMInstance	- The CIMInstance class represents the instance of
     a CIM class in Pegasus. It is used manipulate instances and the
@@ -403,6 +404,7 @@ private:
 
     CIMInstanceRep* _rep;
     friend class CIMConstInstance;
+    friend class CIMObject;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

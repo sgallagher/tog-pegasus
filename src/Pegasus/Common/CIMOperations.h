@@ -33,6 +33,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/CIMObject.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1027,7 +1028,7 @@ public:
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
     </UL>
     */
-    virtual Array<CIMInstance> associators(
+    virtual Array<CIMObjectWithPath> associators(
         const String& nameSpace,
         const CIMReference& objectName,
         const String& assocClass = String::EMPTY,

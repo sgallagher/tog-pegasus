@@ -272,6 +272,7 @@ public:
 
     InstantiatedAbstractClass() : Exception(MSG) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchProperty : public Exception
 {
@@ -282,6 +283,7 @@ public:
     NoSuchProperty(const String& propertyName)
 	: Exception(MSG + propertyName) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE TruncatedCharacter : public Exception
 {
@@ -291,6 +293,7 @@ public:
 
     TruncatedCharacter() : Exception(MSG) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE ExpectedReferenceValue : public Exception
 {
@@ -300,6 +303,7 @@ public:
 
     ExpectedReferenceValue() : Exception(MSG) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE MissingReferenceClassName : public Exception
 {
@@ -309,6 +313,7 @@ public:
 
     MissingReferenceClassName() : Exception(MSG) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE IllegalTypeTag : public Exception
 {
@@ -318,6 +323,7 @@ public:
 
     IllegalTypeTag() : Exception(MSG) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE TypeMismatch : public Exception
 {
@@ -327,6 +333,7 @@ public:
 
     TypeMismatch() : Exception(MSG) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchFile : public Exception
 {
@@ -395,6 +402,7 @@ public:
     ChangeDirectoryFailed(const String& directoryName)
 	: Exception(MSG + directoryName) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE CannotCreateDirectory : public Exception
 {
@@ -405,6 +413,7 @@ public:
     CannotCreateDirectory(const String& path)
 	: Exception(MSG + path) { }
 };
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE NoSuchNameSpace : public Exception
 {

@@ -35,6 +35,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstClass;
+class CIMObject;
 
 /** The CIMClass class is used to represent CIM classes in Pegasus.  In CIM,
     a class object may be a class or an associator.  A CIM class must contain a
@@ -515,6 +516,7 @@ private:
 
     CIMClassRep* _rep;
     friend class CIMConstClass;
+    friend class CIMObject;
 };
 
 #define PEGASUS_ARRAY_T CIMClass

@@ -1,4 +1,30 @@
 
+*===============================================================================
+*
+* Scheduled
+*
+*===============================================================================
+
+    -   Null vs. empty CIM/HTTP parameters.
+
+    -   Resolve constness problems. (get rid or Const classes?)
+
+    -	Change CIMReference to CIMObjectPath?
+
+    -	Finish associations.
+
+    -	Provide CIMOM Context.
+
+    -	Complete conventions document.
+
+*===============================================================================
+*
+* Unscheduled
+*
+*===============================================================================
+
+    -   Clean up exceptions.
+
     -   Resolve redundancy in which the namespace is passed to certain methods
 	(getClass) and the CIMReference itself may contain a namespace arguent.
 

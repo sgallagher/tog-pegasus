@@ -156,7 +156,7 @@ Array<CIMInstance> CIMProvider::execQuery(
     return Array<CIMInstance>();
 }
 
-Array<CIMInstance> CIMProvider::associators(
+Array<CIMObjectWithPath> CIMProvider::associators(
     const String& nameSpace,
     const CIMReference& objectName,
     const String& assocClass,
@@ -168,7 +168,7 @@ Array<CIMInstance> CIMProvider::associators(
     const Array<String>& propertyList)
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
-    return Array<CIMInstance>();
+    return Array<CIMObjectWithPath>();
 }
 
 Array<CIMReference> CIMProvider::associatorNames(

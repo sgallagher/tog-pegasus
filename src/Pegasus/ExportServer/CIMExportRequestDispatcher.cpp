@@ -70,12 +70,17 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
     }
     else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
     {
+       try 
+       {
+	  
         req->op->processing();
         Message *legacy = (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
 	handleEnqueue(legacy);
-	
-//         if (false == handleEnqueue(legacy))
-//             _make_response(req, async_results::CIM_NAK);
+       }
+       catch(Exception & )
+       {
+	  _make_response(req, async_results::CIM_NAK);
+       }
         return;
     }
     else
@@ -147,27 +152,35 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     }
     else
     {
-        CIMIndicationConsumer* consumer;
-        try
-        {
-            consumer = _lookupConsumer(request->url);
-        }
-        catch (Exception e)
-        {
-        }
-
-	if (consumer)
-	{
-    	    consumer->handleIndication(
+       Boolean caught_exception = false;
+       
+       CIMIndicationConsumer* consumer;
+       try
+       {
+	  consumer = _lookupConsumer(request->url);
+       }
+       catch (Exception & )
+       {
+	  caught_exception = true;
+	  cimException = 
+	     PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+				   "No consumer is registered for this location.");
+       }
+       if( caught_exception == false) 
+       {
+	  if (consumer)
+	  {
+	     consumer->handleIndication(
 		context,
 		request->url,
 		request->indicationInstance);
-	}
-	else
-	{
-            cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-                "No consumer is registered for this location.");
-	}
+	  }
+	  else
+	  {
+	     cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+						  "No consumer is registered for this location.");
+	  }
+       }
     }
 
     CIMExportIndicationResponseMessage* response =
@@ -179,6 +192,13 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     //
     //  Set response destination
     //
+    PEG_TRACE_STRING(TRC_EXP_REQUEST_DISP, Tracer::LEVEL4, 
+		     "CIMExportRequestDispatcher setting export indication response dest " +
+		     ((MessageQueue::lookup(request->queueIds.top())) ? 
+		      String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
+		      String("BAD queue name")));
+		     
+    
     response->dest = request->queueIds.top();
 
     _enqueueResponse(request, response);
@@ -197,14 +217,16 @@ CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
     {
 	consumer = _consumerTable.loadConsumer(url);
 
-	if (!consumer)
-	    throw CIMException(CIM_ERR_FAILED);
+// << Mon Apr 29 12:49:49 2002 mdd >>
+//	if (!consumer)
+//	    throw CIMException(CIM_ERR_FAILED);
 
 	//ATTN: How will get this handle? Defining just to proceed further.
 	//CIMOMHandle cimom;
 
 	//consumer->initialize(cimom);
-	consumer->initialize();
+	if(consumer)
+	   consumer->initialize();
     }
 
     return consumer;

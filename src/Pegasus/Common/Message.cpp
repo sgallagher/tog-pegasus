@@ -148,14 +148,43 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "CLOSE_CONNECTION_MESSAGE",
     "HTTP_MESSAGE",
     "HTTP_ERROR_MESSAGE",
-    "CLIENT_EXCEPTION_MESSAGE"
+    "CLIENT_EXCEPTION_MESSAGE",
+        
+    "ASYNC::REGISTER_CIM_SERVICE", //            async_message::0x00000001;
+    "ASYNC::DEREGISTER_CIM_SERVICE", //          async_message::0x00000002;
+    "ASYNC::UPDATE_CIM_SERVICE", //              async_message::0x00000003;
+    "ASYNC::IOCTL", //                           async_message::0x00000004;
+    "ASYNC::CIMSERVICE_START", //                async_message::0x00000005;
+    "ASYNC::CIMSERVICE_STOP", //                 async_message::0x00000006;
+    "ASYNC::CIMSERVICE_PAUSE", //                async_message::0x00000007;
+    "ASYNC::CIMSERVICE_RESUME", //               async_message::0x00000008;
+
+    "ASYNC::ASYNC_OP_START", //                  async_message::0x00000009;
+    "ASYNC::ASYNC_OP_RESULT", //                 async_message::0x0000000a;
+    "ASYNC::ASYNC_LEGACY_OP_START", //           async_message::0x0000000b;
+    "ASYNC::ASYNC_LEGACY_OP_RESULT", //          async_message::0x0000000c;
+    
+    "ASYNC::FIND_SERVICE_Q", //                  async_message::0x0000000d;
+    "ASYNC::FIND_SERVICE_Q_RESULT", //           async_message::0x0000000e;
+    "ASYNC::ENUMERATE_SERVICE", //               async_message::0x0000000f;
+    "ASYNC::ENUMERATE_SERVICE_RESULT", //        async_message::0x00000010;
+    
+    "ASYNC::REGISTERED_MODULE", //               async_message::0x00000011;
+    "ASYNC::DEREGISTERED_MODULE", //             async_message::0x00000012;
+    "ASYNC::FIND_MODULE_IN_SERVICE", //          async_message::0x00000013;
+    "ASYNC::FIND_MODULE_IN_SERVICE_RESPONSE", // async_message::0x00000014;
+    
+    "ASYNC::ASYNC_MODULE_OP_START", //           async_message::0x00000015;
+    "ASYNC::ASYNC_MODULE_OP_RESULT " //          async_message::0x00000016;
+    
 };
 
 const char* MessageTypeToString(Uint32 messageType)
 {
-    if (messageType > DUMMY_MESSAGE && messageType < NUMBER_OF_MESSAGES)
+    if (messageType > DUMMY_MESSAGE && messageType < NUMBER_OF_MESSAGES )
 	return _MESSAGE_TYPE_STRINGS[messageType - 1];
-
+    if(messageType == 0 )
+       return "HEARTBEAT/REPLY" ;
     return "Unknown message type";
 }
 

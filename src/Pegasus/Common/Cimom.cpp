@@ -114,7 +114,6 @@ Boolean cimom::route_async(AsyncOpNode *op)
    if( _routed_queue_shutdown.value() > 0 )
       return false;
    
-
    _routed_ops.insert_last_wait(op);
    
    return true;
@@ -379,7 +378,9 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
       op->unlock();
       haveLock = false;
       
-      delete op;
+      op->release();
+     _global_this->cache_op(op);
+      
       PEG_METHOD_EXIT();
       return;
    }

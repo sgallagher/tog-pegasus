@@ -28,6 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -184,21 +185,18 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 	    _queueId);
       //getQueueId());
 
-
+      PEG_TRACE_STRING(TRC_IND_HANDLE, Tracer::LEVEL4, 
+		       "Indication handler forwarding message to " +
+		       ((MessageQueue::lookup(exportServer[0])) ? 
+			String( ((MessageQueue::lookup(exportServer[0]))->getQueueName()) ) : 
+			String("BAD queue name")));
+            
       SendAsync(op, 
 		exportServer[0],
 		IndicationHandlerService::_handleIndicationCallBack,
 		this, 
 		(void *)request->queueIds.top());
 
-// << Thu Apr  4 14:30:33 2002 mdd >>
-//       AsyncReply* reply = SendWait(req);
-
-//       _enqueueResponse(req, reply);
-
-//       delete req;
-//       delete exportmessage;
-//       delete reply;
    }
    else
    {
@@ -216,7 +214,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 	 throw CIMException(CIM_ERR_FAILED);
    }
 
-   delete request;
+//   delete request;
    return;
 }
 

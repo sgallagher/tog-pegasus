@@ -74,7 +74,7 @@ Message * pegasus_module::module_rep::module_receive_message(Message *msg)
    Message * ret;
    _thread_safety.lock(pegasus_thread_self());
    try {  ret = _receive_message(msg, _module_address); }
-   catch(...) { _thread_safety.unlock(); throw; }
+   catch(...) {cout << " caught exception in module_receive_message " << endl ;  _thread_safety.unlock(); throw; }
    _thread_safety.unlock();
    return ret;
 }
@@ -401,9 +401,11 @@ ModuleController & ModuleController::register_module(const String & controller_n
       new RegisteredModule(controller->get_next_xid(),
 			   0, 
 			   true, 
-			   controller->_meta_dispatcher->getQueueId(),
+			   CIMOM_Q_ID,
 			   module_name);
-   request->dest = controller->_meta_dispatcher->getQueueId();
+
+   request->dest = CIMOM_Q_ID;
+   
    AsyncReply * response = controller->SendWait(request);
    if( response != NULL)
       result  = response->result;
@@ -854,6 +856,8 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
       
       if(module_result == NULL)
       {
+	 cout << "NAK response in ModuleController.cpp " << endl;
+	 
 	 module_result = new AsyncReply(async_messages::REPLY, 
 					static_cast<AsyncModuleOperationStart *>(rq)->_act->getKey(),
 					static_cast<AsyncModuleOperationStart *>(rq)->_act->getRouting(),

@@ -63,34 +63,34 @@ const Uint32 async_results::CIM_STOPPED =               0x00000015;
 
 
 
-const Uint32 async_messages::HEARTBEAT =                       0x00000000;
-const Uint32 async_messages::REPLY =                           0x00000000;
-const Uint32 async_messages::REGISTER_CIM_SERVICE =            0x00000001;
-const Uint32 async_messages::DEREGISTER_CIM_SERVICE =          0x00000002;
-const Uint32 async_messages::UPDATE_CIM_SERVICE =              0x00000003;
-const Uint32 async_messages::IOCTL =                           0x00000004;
-const Uint32 async_messages::CIMSERVICE_START =                0x00000005;
-const Uint32 async_messages::CIMSERVICE_STOP =                 0x00000006;
-const Uint32 async_messages::CIMSERVICE_PAUSE =                0x00000007;
-const Uint32 async_messages::CIMSERVICE_RESUME =               0x00000008;
+const Uint32 async_messages::HEARTBEAT =                       DUMMY_MESSAGE;
+const Uint32 async_messages::REPLY =                           DUMMY_MESSAGE;
+const Uint32 async_messages::REGISTER_CIM_SERVICE =            NUMBER_OF_MESSAGES + 0x00000001;
+const Uint32 async_messages::DEREGISTER_CIM_SERVICE =          NUMBER_OF_MESSAGES + 0x00000002;
+const Uint32 async_messages::UPDATE_CIM_SERVICE =              NUMBER_OF_MESSAGES + 0x00000003;
+const Uint32 async_messages::IOCTL =                           NUMBER_OF_MESSAGES + 0x00000004;
+const Uint32 async_messages::CIMSERVICE_START =                NUMBER_OF_MESSAGES + 0x00000005;
+const Uint32 async_messages::CIMSERVICE_STOP =                 NUMBER_OF_MESSAGES + 0x00000006;
+const Uint32 async_messages::CIMSERVICE_PAUSE =                NUMBER_OF_MESSAGES + 0x00000007;
+const Uint32 async_messages::CIMSERVICE_RESUME =               NUMBER_OF_MESSAGES + 0x00000008;
 
-const Uint32 async_messages::ASYNC_OP_START =                  0x00000009;
-const Uint32 async_messages::ASYNC_OP_RESULT =                 0x0000000a;
-const Uint32 async_messages::ASYNC_LEGACY_OP_START =           0x0000000b;
-const Uint32 async_messages::ASYNC_LEGACY_OP_RESULT =          0x0000000c;
+const Uint32 async_messages::ASYNC_OP_START =                  NUMBER_OF_MESSAGES + 0x00000009;
+const Uint32 async_messages::ASYNC_OP_RESULT =                 NUMBER_OF_MESSAGES + 0x0000000a;
+const Uint32 async_messages::ASYNC_LEGACY_OP_START =           NUMBER_OF_MESSAGES + 0x0000000b;
+const Uint32 async_messages::ASYNC_LEGACY_OP_RESULT =          NUMBER_OF_MESSAGES + 0x0000000c;
 
-const Uint32 async_messages::FIND_SERVICE_Q =                  0x0000000d;
-const Uint32 async_messages::FIND_SERVICE_Q_RESULT =           0x0000000e;
-const Uint32 async_messages::ENUMERATE_SERVICE =               0x0000000f;
-const Uint32 async_messages::ENUMERATE_SERVICE_RESULT =        0x00000010;
+const Uint32 async_messages::FIND_SERVICE_Q =                  NUMBER_OF_MESSAGES + 0x0000000d;
+const Uint32 async_messages::FIND_SERVICE_Q_RESULT =           NUMBER_OF_MESSAGES + 0x0000000e;
+const Uint32 async_messages::ENUMERATE_SERVICE =               NUMBER_OF_MESSAGES + 0x0000000f;
+const Uint32 async_messages::ENUMERATE_SERVICE_RESULT =        NUMBER_OF_MESSAGES + 0x00000010;
 
-const Uint32 async_messages::REGISTERED_MODULE =               0x00000011;
-const Uint32 async_messages::DEREGISTERED_MODULE =             0x00000012;
-const Uint32 async_messages::FIND_MODULE_IN_SERVICE =          0x00000013;
-const Uint32 async_messages::FIND_MODULE_IN_SERVICE_RESPONSE = 0x00000014;
+const Uint32 async_messages::REGISTERED_MODULE =               NUMBER_OF_MESSAGES + 0x00000011;
+const Uint32 async_messages::DEREGISTERED_MODULE =             NUMBER_OF_MESSAGES + 0x00000012;
+const Uint32 async_messages::FIND_MODULE_IN_SERVICE =          NUMBER_OF_MESSAGES + 0x00000013;
+const Uint32 async_messages::FIND_MODULE_IN_SERVICE_RESPONSE = NUMBER_OF_MESSAGES + 0x00000014;
 
-const Uint32 async_messages::ASYNC_MODULE_OP_START =           0x00000015;
-const Uint32 async_messages::ASYNC_MODULE_OP_RESULT  =         0x00000016;
+const Uint32 async_messages::ASYNC_MODULE_OP_START =           NUMBER_OF_MESSAGES + 0x00000015;
+const Uint32 async_messages::ASYNC_MODULE_OP_RESULT  =         NUMBER_OF_MESSAGES + 0x00000016;
 
 
 

@@ -39,8 +39,6 @@
 #include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 
-// REVIEW: Ask how this all works (note to myself)?
-
 PEGASUS_NAMESPACE_BEGIN
 
 /** Tracer implements tracing of messages to a defined file
@@ -558,6 +556,7 @@ private:
      */
     #define PEG_TRACE_STRING(traceComponent,traceLevel,traceString) \
 	Tracer::trace(__FILE__, __LINE__,traceComponent,traceLevel,traceString)
+
 #endif
 
 PEGASUS_NAMESPACE_END

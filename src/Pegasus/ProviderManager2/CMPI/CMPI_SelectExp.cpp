@@ -272,9 +272,6 @@ extern "C" {
 			try
 			{
 	  			CQLParser::parse (sx->cond, selectStatement);
-	  			selectStatement.validate ();
-	  			selectStatement.applyContext ();
-	  			selectStatement.normalizeToDOC ();
 	  			dnf = new CMPI_Cql2Dnf (selectStatement);
 			}
 			catch (Exception & e)

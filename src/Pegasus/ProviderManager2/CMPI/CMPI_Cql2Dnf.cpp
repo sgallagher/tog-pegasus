@@ -44,7 +44,6 @@
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLValue.h>
 
-//#include "CMPI_Query2Dnf.h"
 #include "CMPI_Cql2Dnf.h"
 
 PEGASUS_USING_STD;
@@ -79,33 +78,37 @@ CQL2PredOp (ExpressionOpType op, Boolean isInverted)
 
   switch (op)
     {
-    LT:if (isInverted)
+    case LT:
+      if (isInverted)
         op_type = CMPI_PredOp_GreaterThan;
       else
         op_type = CMPI_PredOp_LessThan;
       break;
-    GT:if (isInverted)
+    case GT:
+      if (isInverted)
         op_type = CMPI_PredOp_LessThan;
       else
         op_type = CMPI_PredOp_GreaterThan;
       break;
-    EQ:if (isInverted)
+    case EQ:
+      if (isInverted)
         op_type = CMPI_PredOp_NotEquals;
       else
         op_type = CMPI_PredOp_Equals;
       break;
-    LE:if (isInverted)
+    case LE:
+      if (isInverted)
         op_type = CMPI_PredOp_GreaterThanOrEquals;
       else
         op_type = CMPI_PredOp_LessThanOrEquals;
       break;
-    GE:
+    case GE:
       if (isInverted)
         op_type = CMPI_PredOp_LessThanOrEquals;
       else
         op_type = CMPI_PredOp_GreaterThanOrEquals;
       break;
-    NE:
+    case NE:
       if (isInverted)
         op_type = CMPI_PredOp_Equals;
       else
@@ -114,25 +117,25 @@ CQL2PredOp (ExpressionOpType op, Boolean isInverted)
       /* CMPI does not sport this operation. We convert the
          IS NULL to EQ operation. (or NE if "IS NULL" has 'NOT' in
          front (isInverted == true). */
-    IS_NULL:
+    case IS_NULL:
       if (isInverted)
         op_type = CMPI_PredOp_NotEquals;
       else
         op_type = CMPI_PredOp_Equals;
       break;
-    IS_NOT_NULL:
+    case IS_NOT_NULL:
       if (isInverted)
         op_type = CMPI_PredOp_Equals;
       else
         op_type = CMPI_PredOp_NotEquals;
       break;
-    ISA:
+    case ISA:
       if (isInverted)
         op_type = CMPI_PredOp_NotIsa;
       else
         op_type = CMPI_PredOp_Isa;
       break;
-    LIKE:
+    case LIKE:
       if (isInverted)
         op_type = CMPI_PredOp_NotLike;
       else
@@ -171,7 +174,7 @@ CQL2Type (CQLValue::CQLValueType typ)
       return CMPI_QueryOperand::PROPERTY_TYPE;
     case CQLValue::CIMObject_type:
       /* There is not such thing as object type. */
-	break;
+      break;
     case CQLValue::Boolean_type:
       return CMPI_QueryOperand::BOOLEAN_TYPE;
     default:
@@ -190,11 +193,11 @@ CMPI_Cql2Dnf::_populateTableau ()
 
   CQLPredicate pred = cqs.getPredicate ();
   Array < CQLPredicate > pred_Array;
+  Array < BooleanOpType > oper_Array = pred.getOperators ();
 
   if (pred.isSimple ())
     {
       pred_Array.append (pred);
-      CQLSimplePredicate aa = pred.getSimplePredicate ();
     }
   else
     {
@@ -203,13 +206,17 @@ CMPI_Cql2Dnf::_populateTableau ()
 
   _tableau.reserveCapacity (pred_Array.size ());
 
+  //cerr << "Expression:  " <<  cqs.toString() << endl;
+  //cerr << cqs.getQuery() << endl;
+
+  CMPI_TableauRow tr;
   for (Uint32 i = 0; i < pred_Array.size (); i++)
     {
       CQLPredicate pred = pred_Array[i];
 
       if (pred.isSimple ())
         {
-          CMPI_TableauRow tr;
+
           CQLSimplePredicate simple = pred.getSimplePredicate ();
 
           CQLExpression lhs_cql = simple.getLeftExpression ();
@@ -220,19 +227,61 @@ CMPI_Cql2Dnf::_populateTableau ()
 
           CQLValue lhs_val;
           CQLValue rhs_val;
-          if (lhs_cql.getTerms ().size () != 0)
+
+          if (lhs_cql.isSimpleValue ())
+            //if (lhs_cql.getTerms ().size () != 0)
             lhs_val = lhs_cql.getTerms ()[0].getFactors ()[0].getValue ();
-          if (rhs_cql.getTerms ().size () != 0)
+          if (rhs_cql.isSimpleValue ())
+            //if (rhs_cql.getTerms ().size () != 0)
             rhs_val = rhs_cql.getTerms ()[0].getFactors ()[0].getValue ();
 
+          // Have both side of the operation, such as 'A < 2'
           CMPI_QueryOperand lhs (CQL2String (lhs_cql),
                                  CQL2Type (lhs_val.getValueType ()));
           CMPI_QueryOperand rhs (CQL2String (rhs_cql),
                                  CQL2Type (rhs_val.getValueType ()));
 
+          // Add it as an row to the table row. 
           tr.append (CMPI_term_el (false, opr, lhs, rhs));
-          _tableau.append (tr);
 
+          if (i < oper_Array.size ())
+            {
+              // If the next operation is OR (disjunction), then treat the table row 
+              // as as set of conjunctions and ..
+              if (oper_Array[i] == OR)
+                {
+                  /*
+                     cerr << " (L: " << lhs_cql.
+                     toString () << ", R: " << rhs_cql.toString () << ") OR " <<endl;
+                   */
+
+                  // .. put the table of conjunctives in the tableau.  Each element in the 
+                  // tableau is a set of conjunctives. It is understood that the boolean
+                  // logic seperating the conjunctives is the disjunctive operator (OR).
+
+                  _tableau.append (tr);
+                  // Clear the table of conjunctives for the next operands.
+                  tr.clear ();
+                }
+
+              // If the operator is a conjunction, let the operands pile up on
+              // the table row until there is disjunction (OR) or there are ..
+
+              /*
+                 else { 
+                 cerr << " (L: " << lhs_cql.
+                 toString () << ", R: " << rhs_cql.toString () << ") AND "<<endl;
+
+                 }
+               */
+            }
+          else
+            {
+              // ... no more operations. This is the last operand. Add it
+              // to the tableau as a disjunctions.
+              _tableau.append (tr);
+
+            }
         }
     }
 }

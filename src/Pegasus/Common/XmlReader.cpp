@@ -986,8 +986,10 @@ CIMValue XmlReader::stringToValue(
 
 	    if (!stringToUnsignedInteger(valueString, x))
 	    {
-		throw XmlSemanticError(
-		    lineNumber, "Invalid unsigned integer value");
+            char message[128];
+            sprintf(message, "Illegal unsigned integer value - %s", valueString);
+    		throw XmlSemanticError(
+    		    lineNumber, message);
 	    }
 
 	    switch (type)
@@ -1154,8 +1156,14 @@ Boolean XmlReader::getValueElement(
 
 	expectEndTag(parser, "VALUE");
     }
-
-    value = stringToValue(parser.getLine(), valueString,type);
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // KS 20021004 - tries to put value in even if empty.
+    // Think this is general problem with empty value
+    // Need to check meaning of (#PCDATA) - Does it allow empty.
+    // Bugzilla tbd
+    if (!empty)
+#endif
+        value = stringToValue(parser.getLine(), valueString,type);
     
     return true;
 }

@@ -3173,6 +3173,11 @@ static void InvokeMethod(const CGIQueryString& qs)
                                     CIMValue( tmp[0] )));
                                     break;
                                 }
+                            case CIMTYPE_OBJECT:
+                                // No support for embedded objects in this
+                                // "test and demonstration tool". This case
+                                // eliminate the compiler warning msg.
+                                break;
                         }
                     }
 

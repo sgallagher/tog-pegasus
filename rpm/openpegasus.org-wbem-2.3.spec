@@ -152,7 +152,7 @@ install -D -m 0755  $PEGASUS_ROOT/rpm/wbem22.lnx $RPM_BUILD_ROOT/etc/init.d/pega
 #
 # Programs
 install -D -m 0544  $PEGASUS_HOME/bin/cimserver $RPM_BUILD_ROOT/usr/sbin/cimserver
-install -D -m 0544  $PEGASUS_HOME/bin/cimserver $RPM_BUILD_ROOT/usr/sbin/cimservera
+install -D -m 0544  $PEGASUS_HOME/bin/cimservera $RPM_BUILD_ROOT/usr/sbin/cimservera
 install -D -m 0544  $PEGASUS_HOME/bin/cimauth   $RPM_BUILD_ROOT/usr/sbin/cimauth
 install -D -m 0544  $PEGASUS_HOME/bin/cimuser   $RPM_BUILD_ROOT/usr/sbin/cimuser
 install -D -m 0544  $PEGASUS_HOME/bin/cimconfig $RPM_BUILD_ROOT/usr/sbin/cimconfig

@@ -1437,24 +1437,25 @@ Uint32 CIMClientRep::_acquireIP(const char* hostname)
 	} else
 	{
 		// given hostname starts with an numeric character
+		// get address in network byte order
 #ifdef PEGASUS_OS_OS400
 		Uint32 tmp_addr = inet_addr(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
 		Uint32 tmp_addr = inet_addr_ebcdic((char *)hostname);
-#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined(PEGASUS_OS_HPUX)
-		// resolve hostaddr to a real host entry
-		entry = gethostbyaddr((char *) hostname, sizeof(hostname), AF_INET);
 #else
 		Uint32 tmp_addr = inet_addr((char *) hostname);
 #endif
 		
-#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) && !defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && !defined(PEGASUS_OS_HPUX)
 		// 0xFFFFFFF is same as -1 in an unsigned int32
 		if (tmp_addr == 0xFFFFFFFF)
 		{
 			// error, given ip does not follow format requirements
 			return 0xFFFFFFFF;
-		}
+		}		
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined(PEGASUS_OS_HPUX)
+		// resolve hostaddr to a real host entry
+		entry = gethostbyaddr((char *) &tmp_addr,sizeof(tmp_addr),AF_INET);
+#else
 		// resolve hostaddr to a real host entry
 		entry = gethostbyaddr(&tmp_addr,sizeof(tmp_addr),AF_INET);
 #endif

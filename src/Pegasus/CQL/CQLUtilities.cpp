@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-inline Uint8 _CQLUtilities_hexCharToNumeric(const char c)
+inline Uint8 _CQLUtilities_hexCharToNumeric(const Char16 c)
 {
     Uint8 n;
 
@@ -250,7 +250,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     while (isxdigit(*p))
     {
       // Make sure we won't overflow when we multiply by 16
-      if (x > PEGASUS_SINT64_MIN/16)
+      if (x < PEGASUS_SINT64_MIN/16)
         throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
 
       x = x << 4;
@@ -260,7 +260,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
       if (PEGASUS_SINT64_MIN - x > -newDigit)
         throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
 
-      x = x + newDigit;
+      x = x - newDigit;
     }
 
     // If we found a non-hexadecimal digit, report an error
@@ -287,7 +287,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   while (isdigit(*p))
   {
     // Make sure we won't overflow when we multiply by 10
-    if (x > PEGASUS_SINT64_MIN/10)
+    if (x < PEGASUS_SINT64_MIN/10)
       throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
     x = 10 * x;
 
@@ -296,7 +296,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     if (PEGASUS_SINT64_MIN - x > -newDigit)
       throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
 
-    x = x + newDigit;
+    x = x - newDigit;
   }
 
   // If we found a non-decimal digit, report an error
@@ -320,15 +320,36 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
 {
   Real64 x = 0;
   const Char16* p = stringNum.getChar16Data();
+  Boolean neg = false;
+  const Char16* pStart = p;
 
   if (!*p)
     throw(Exception(String("CQLUtilities::stringToReal64 -- string to convert is empty")));
 
+  
   // Skip optional sign:
 
-  if (*p == '+' || *p  == '-')
+  if (*p == '+')
     p++;
+  
+  if (*p  == '-')
+  {
+    neg = true;
+    p++;
+  };
 
+  // Check if it it is a binary or hex integer
+  Uint32 endString = stringNum.size() - 1;
+  if ((*p == '0' && (p[1] == 'x' || p[1] == 'X')) ||  // hex OR
+      pStart[endString] == 'b' || pStart[endString] == 'B')  // binary
+  {
+    if (neg)
+      x = stringToSint64(stringNum);
+    else
+      x = stringToUint64(stringNum);
+    return x;
+  }  
+  
   // Skip optional first set of digits:
 
   while (isdigit(*p))

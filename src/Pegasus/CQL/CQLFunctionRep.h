@@ -36,47 +36,16 @@
 #define Pegasus_CQLFactor_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/Linkage.h>
-//#include <Pegasus/CQL/CQLExpression.h>
 #include <Pegasus/CQL/CQLPredicate.h>
+#include <Pegasus/CQL/CQLFunction.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Forward declares
+class PEGASUS_CQL_LINKAGE CIMNamespaceName;
 class PEGASUS_CQL_LINKAGE CQLFactory;
-//class PEGASUS_CQL_LINKAGE CQLPredicate;
-/*
-   CQLFunction objects are populated by the
-   Bison code.
-
-   Supported functions are in accordance with the
-   DMTF CQL Specification.
-   TODO:  THIS LIST IS SUBJECT TO CHANGE
- 
-    classname( <expr> )
-    classname( )
-    count(*)
-    count( distinct * )
-    count( distinct <expr> )
-    something for createarray
-    something for datetime
-    something for hostname
-    max( <expr> )
-    mean( <expr> )
-    median( <expr> )
-    min( <expr> )
-    something for modelpath
-    something for namespacename
-    something for namespacepath
-    something for objectpath
-    something for scheme
-    sum( <expr> )
-    something for userinfo
-    uppercase( <expr> )
-
-  */
-
 
 class PEGASUS_CQL_LINKAGE CQLFunctionRep
 {
@@ -102,9 +71,9 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
       */
     CQLValue resolveValue(const CIMInstance& CI, const QueryContext& queryCtx);
 
-   Array<CQLPredicate> getParms()const;
+   Array<CQLPredicate> getParms() const;
 
-   FunctionOpType getFunctionType()const;
+   FunctionOpType getFunctionType() const;
 
    String toString()const;
 
@@ -117,26 +86,31 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
    friend class CQLFactory;
 
  private:
-   CQLValue dateTimeToMicrosecond(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue stringToUint(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue stringToSint(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue stringToReal(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue stringToNumeric(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue upperCase(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue numericToString(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue referenceToString(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue className(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue nameSpaceName(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue nameSpaceType(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue hostPort(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue modelPath(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue classPath(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue objectPath(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue instanceToReference(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue currentDateTime(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue dateTime(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue microsecondToTimestamp(const CIMInstance& CI, const QueryContext& queryCtx);
-   CQLValue microsecondToInterval(const CIMInstance& CI, const QueryContext& queryCtx);
+   CQLValue dateTimeToMicrosecond(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue stringToUint(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue stringToSint(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue stringToReal(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue stringToNumeric(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue upperCase(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue numericToString(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue referenceToString(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue className(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue nameSpaceName(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue nameSpaceType(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue hostPort(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue modelPath(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue classPath(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue objectPath(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue instanceToReference(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue currentDateTime() const;
+   CQLValue dateTime(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue microsecondToTimestamp(const CIMInstance& CI, const QueryContext& queryCtx) const;
+   CQLValue microsecondToInterval(const CIMInstance& CI, const QueryContext& queryCtx) const;
+
+   // Used by the path functions
+   CQLValue buildModelPath(const CIMObjectPath& objPath) const;
+   CQLValue buildClassPath(const CIMObjectPath& objPath, const CIMNamespaceName& ns) const;
+   CQLValue buildObjectPath(const CIMObjectPath& objPath, const CIMNamespaceName& ns) const;
 
    FunctionOpType _funcOpType;
 

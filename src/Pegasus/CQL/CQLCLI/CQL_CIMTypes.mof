@@ -82,6 +82,14 @@ class CQL_TestPropertyTypes:CQL_TestElement
       "a sint8 property of CQL_TestPropertyTypes")]
    sint8 PropertySint8;
 
+      [Description (
+      "a sint8 property of CQL_TestPropertyTypes")]
+   sint8 PropertySint8Lower;
+
+      [Description (
+      "a sint8 property of CQL_TestPropertyTypes")]
+   sint8 PropertySint8Upper;
+
       [Description ("A sint8 array"),
        ArrayType ( "Indexed" ) ]
    sint8 PropertySint8Array[];
@@ -106,6 +114,14 @@ class CQL_TestPropertyTypes:CQL_TestElement
       "a sint64 property of CQL_TestPropertyTypes")]
    sint64 PropertySint64;
 
+      [Description (
+      "a sint64 property of CQL_TestPropertyTypes")]
+   sint64 PropertySint64Lower;
+
+      [Description (
+      "a sint64 property of CQL_TestPropertyTypes")]
+   sint64 PropertySint64Upper;
+
       [Description ("A sint64 array"),
        ArrayType ( "Indexed" ) ]
    sint64 PropertySint64Array[];
@@ -122,6 +138,53 @@ class CQL_TestPropertyTypes:CQL_TestElement
       "a real32 property of CQL_TestPropertyTypes")]
    real32 PropertyReal32;
 
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32NegOverflow;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32NegNormUpper;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32NegNormLower;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32NegDeNormUpper;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32NegDeNormLower;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32NegUnderflow;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32PosUnderflow;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32PosDeNormLower;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32PosDeNormUpper;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32PosNormLower;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32PosNormUpper;
+
+     [Description (
+      "a real32 property of CQL_TestPropertyTypes")]
+   real32 PropertyReal32PosOverflow;
      [Description ("A real32 array"),
        ArrayType ( "Indexed" ) ]
    real32 PropertyReal32Array[];
@@ -130,6 +193,38 @@ class CQL_TestPropertyTypes:CQL_TestElement
       "a real64 property of CQL_TestPropertyTypes")]
    real64 PropertyReal64;
 
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64NegNormUpper;
+
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64NegNormLower;
+
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64NegDeNormUpper;
+
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64NegDeNormLower;
+
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64PosDeNormLower;
+
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64PosDeNormUpper;
+
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64PosNormLower;
+
+     [Description (
+      "a real64 property of CQL_TestPropertyTypes")]
+   real64 PropertyReal64PosNormUpper;
+
      [Description ("A real64 array"),
        ArrayType ( "Indexed" ) ]
    real64 PropertyReal64Array[];
@@ -137,6 +232,10 @@ class CQL_TestPropertyTypes:CQL_TestElement
       [Description (
       "a datetime property of CQL_TestPropertyTypes")]
    datetime PropertyDatetime;
+
+      [Description (
+      "a datetime property of CQL_TestPropertyTypes")]
+   datetime PropertyInterval;
 
       [Description ("A datetime array"),
        ArrayType ( "Indexed" ) ]

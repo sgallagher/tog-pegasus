@@ -51,7 +51,7 @@ public:
     };
     enum { NUM_LOGS = 4 };
       
-    /** Log file Level - Defines the level of seriousness of the
+    /** Log file Level - Defines the level of severity of the
         log entry irrespective of which log file it goes into. This is 
         actually a bit mask as defined in logger.cpp.  Thus, it serves both
         as a level of indication of the seriousness and possibly as a mask
@@ -101,6 +101,11 @@ public:
     /** setHomeDirectory
     */
     static void setHomeDirectory(const String& homeDirectory);
+
+    /* clean - Cleans the logger files.
+    @param directory Defines the directory that the logs are in
+    */
+    static void clean(const String& directory);
 
     /** setSeverityMask
     */

@@ -21,7 +21,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@ void GetOptions(
 			"Not Used "},
 	{"logdir", "./logs", false, Option::STRING, 0, 0, "logdir", 
 			"Directory for log files"},
-	{"clearlogs", "false", false, Option::BOOLEAN, 0, 0, "cl", 
+	{"cleanlogs", "false", false, Option::BOOLEAN, 0, 0, "clean", 
 			"Clears the log files at startup"},
 	{"daemon", "false", false, Option::BOOLEAN, 0, 0, "d", 
 			"Not Used "},
@@ -175,7 +175,6 @@ int main(int argc, char** argv)
     }
 
     // Check to see if user asked for help (-h otpion):
-
     String helpOption;
 
     if (om.lookupValue("help", helpOption) && helpOption == "true")
@@ -189,15 +188,15 @@ int main(int argc, char** argv)
     Boolean pegasusIOTrace = false;
     if (om.valueEquals("trace", "true"))
     {
-         Handler::setMessageTrace(true);
-	 pegasusIOTrace = true;
+	Handler::setMessageTrace(true);
+	pegasusIOTrace = true;
     }
 
     Boolean pegasusIOLog = false;
     if (om.valueEquals("logtrace", "true"))
     {
 	Handler::setMessageLogTrace(true);
-	 pegasusIOLog = true;
+	pegasusIOLog = true;
     }
     
     // Grab the port otpion:
@@ -212,15 +211,17 @@ int main(int argc, char** argv)
     String logsDirectory;
     om.lookupValue("logdir", logsDirectory);
 
-    char* lgDir = logsDirectory.allocateCString();
+    // Set up the Logger. This does not open the logs
+    // Might be more logical to clean before set.
+    // ATTN: Need tool to completely disable logging.
+    Logger::setHomeDirectory(logsDirectory);
+    
+    if (om.valueEquals("cleanlogs", "true"))
+    {
+	Logger::clean(logsDirectory);;
+    }
 
-    if (!System::isDirectory(lgDir))
-	System::makeDirectory(lgDir);
-
-    if (!System::isDirectory(lgDir))
-	cout << "Logging Disabled";
-    delete [] lgDir;
-
+    // Leave this in until people get familiar with the logs.
     cout << "Logs Directory = " << logsDirectory << endl;
 
 
@@ -240,14 +241,13 @@ int main(int argc, char** argv)
     if (om.valueEquals("options", "true"))
 	om.print();
 
-    // Set up the Logger
-    Logger::setHomeDirectory(logsDirectory);
-
-
     // Put server start message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	"Start $0 $1 port $2 $3 ", 88, PEGASUS_NAME, 
-	PEGASUS_VERSION, address, (pegasusIOTrace ? " Tracing": " "));
+	"Start $0 $1 port $2 $3 ",
+		PEGASUS_NAME, 
+		PEGASUS_VERSION,
+		address,
+		(pegasusIOTrace ? " Tracing": " "));
 
     // try loop to bind the address, and run the server
     try
@@ -259,9 +259,16 @@ int main(int argc, char** argv)
 	server.bind(address);
 	delete [] address;
 	server.runForever();
+
+	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	    "Normal Termination");
+
     }
     catch(Exception& e)
     {
+	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	    "Abnormal Termination $0", e.getMessage());
+	
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     }
 

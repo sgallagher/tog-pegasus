@@ -24,6 +24,12 @@ are put
 a preliminary version.
 6. Corrected problem with acceptor.bind where failure was being lost. Now
 throws CannotBind exception.
+7. Added logger entry to XMLParser for errors.  NOTE: At this point it may not
+print out all of the message.  At the least it prints out the error message
+and components of the message causing the problem.
+8. Added clean option to server but temprarily disabled.
+9. Fixed problem where logs were not created unless logs directory already
+existed.
 ----------------------------------------------------------------
 Version 0.97.2
 
@@ -76,6 +82,8 @@ with the complete unit test and client/server test successfully.
 29 May 2001
 
 1.  Implemented CIMRepository::setProperty() and CIMRepository::getProperty().
+
+
 
 
 

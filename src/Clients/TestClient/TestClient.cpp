@@ -62,6 +62,13 @@ void GetOptions(
 {
     static struct OptionRow optionsTable[] =
     {
+	{"active", "false", false, Option::BOOLEAN, 0, 0, "a",
+			"If set allows test that modify the repository" },
+	
+	
+	{"repeat", "1", false, Option::WHOLE_NUMBER, 0, 0, "r",
+			"specifies port number to listen on" },
+	
 	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port",
 			"specifies port number to listen on" },
 	{"version", "false", false, Option::BOOLEAN, 0, 0, "v",

@@ -169,6 +169,9 @@ void Handler::print() const
     ((Array<Sint8>&)_message).remove(_message.size() - 1);
 }
 
+/** Handler::log generates a log entry for the message.
+   It depends on the message being defined in -message
+*/
 void Handler::log() const
 {
     ostrstream os;

@@ -29,6 +29,7 @@
 #include <fstream>
 #include "System.h"
 #include "Logger.h"
+#include "System.h"
 
 PEGASUS_USING_STD;
 
@@ -86,6 +87,21 @@ public:
 
     LoggerRep(const String& homeDirectory)
     {
+	// Add test for home directory set.
+
+	// If home directory does not exist, create it.
+	char* lgDir = homeDirectory.allocateCString();
+
+	if (!System::isDirectory(lgDir))
+	    System::makeDirectory(lgDir);
+
+	// I put the second test in just in case some trys to create
+	// a completly erronous directory.  At least we will get a message
+	if (!System::isDirectory(lgDir))
+	    cout << "Logging Disabled";
+	delete [] lgDir;
+
+
 	char* fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
 	_logs[Logger::TRACE_LOG].open(fileName, ios::app);
 	delete [] fileName;
@@ -97,6 +113,11 @@ public:
 	fileName = _allocLogFileName(homeDirectory, Logger::ERROR_LOG);
 	_logs[Logger::ERROR_LOG].open(fileName, ios::app);
 	delete [] fileName;
+
+	fileName = _allocLogFileName(homeDirectory, Logger::DEBUG_LOG);
+	_logs[Logger::DEBUG_LOG].open(fileName, ios::app);
+	delete [] fileName;
+
     }
 
     ostream& logOf(Logger::LogFileType logFileType)
@@ -164,6 +185,21 @@ void Logger::put(
 	   arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) << endl;
 
     }
+}
+
+void Logger::clean(const String& directory)
+{
+    //String logFiles = logsDirectory;
+    //logFiles.append("/PegasusTrace.log");
+    //char* lgFiles = logFiles.allocateCString();
+    //cout << "Delete logs in " << logFiles << endl;
+    //System::removeFile(lgFiles);
+    //delete [] lgFiles;
+    //for (i = xx; i < yy; i++)
+    //(
+    //_allocateLogFileName(directory, i)
+    //removeFile(
+    //}
 }
 
 void Logger::setHomeDirectory(const String& homeDirectory)

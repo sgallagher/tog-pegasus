@@ -242,6 +242,7 @@ int ServerHandler::handleMessage()
     if (strncmp(m, _GET, _GET_LEN) == 0 && isspace(m[_GET_LEN]))
     {
 	print();
+
 	return handleGetRequest();
     }
     else if ((strncmp(m, _M_POST, _M_POST_LEN) == 0 && isspace(m[_M_POST_LEN]))
@@ -255,8 +256,20 @@ int ServerHandler::handleMessage()
 	    {
 		return handleMethodCall();
 	    }
+
+	    // Common point to catch XML parsing errors that generate
+	    // exceptions. Puts out the error message to the console,
+	    // to the Logger and also puts the message to the Logger
 	    catch (Exception& e)
 	    {
+		Logger::put(Logger::ERROR_LOG,
+			    "XMLParser", 
+			    Logger::WARNING, 
+			    "Error: $0\n======\n$1\n========\n",
+			    e.getMessage(),
+			    m);
+
+		// ATTN-KS - At some point remove this console outpt
 		PEGASUS_STD(cerr) << 
 		    "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	    }
@@ -265,6 +278,7 @@ int ServerHandler::handleMessage()
     }
 
     // cout << "Error: unknown message: " << m << endl;
+    // ATTN: Is this a valid point to log?
     return -1;
 }
 
@@ -274,6 +288,10 @@ int ServerHandler::handleMessage()
 //
 //------------------------------------------------------------------------------
 
+// ATTN-KS: The handleGetRequest is where we can begin to move in a WEB 
+//	server.
+// This is also where an external module can be really effective.  If the 
+// external module exists, it would do the WEB stuff.
 int ServerHandler::handleGetRequest()
 {
     const char* m = _message.getData();
@@ -307,6 +325,7 @@ int ServerHandler::handleGetRequest()
     }
     else
     {
+	// ATTN: We can expand this to a web server here
 	const char HEADER[] = 
 	    "HTTP/1.1 404 Not Found\r\n"
 	    "CIMServer: Pegasus 1.0\r\n"

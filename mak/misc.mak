@@ -21,7 +21,7 @@ endif
 
 ifeq ($(OPTION),3)
 general:
-	@$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep -ni ATTN $(i);)
+	@$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep -n -eATTN -eREVIEW -e" FIX" -eFIXME $(i);)
 endif
 
 endif

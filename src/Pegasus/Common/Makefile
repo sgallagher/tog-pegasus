@@ -9,6 +9,7 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
+    OptionManager.cpp \
     CGIQueryString.cpp \
     Array.cpp \
     Channel.cpp \

@@ -362,7 +362,13 @@ public:
 
     static Boolean getIParamValueTag(
 	XmlParser& parser, 
-	const char*& name);
+	const char*& name,
+	Boolean& isEmptyTag);
+
+    static void rejectNullIParamValue(
+        XmlParser& parser,
+        Boolean isEmptyTag,
+        const char* paramName);
 
     static Boolean getPropertyValue(
 	XmlParser& parser, 

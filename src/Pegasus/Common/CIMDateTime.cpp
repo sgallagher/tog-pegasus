@@ -277,7 +277,7 @@ Boolean CIMDateTimeRep::set_utcOffSet(String uOffSet)
     for (int i=0; i < 3; i++) {
         if (!isdigit(uOff_num[i])) {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                 "Format is wrong - UTC off set contains non digit charichter. Off set is %s.", uOff_num.getCString());
+                 "Format is wrong - UTC off set contains non digit charichter.");
             return false;
         }
     }
@@ -677,7 +677,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
 
     if (!isInterval && dateTimeStr[SIGN_OFFSET] != '+' && dateTimeStr[SIGN_OFFSET] != '-'){
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-             "CIMDateTime object has an incorrect format. Input is %s.",dateTimeStr.getCString());
+             "CIMDateTime object has an incorrect format.");
         return false;
     }
 
@@ -697,8 +697,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
     for (Uint32 i = 0; i < CIMDateTimeRep::FORMAT_LENGTH; i++){
 	    if (i != DOT_OFFSET && i != SIGN_OFFSET && !isdigit(dateTimeStr[i]) && (String::compare(dateTimeStr.subString(i,1),"*") != 0)){
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                    "CIMdateTime object has an incorrect format. \
-                          Input is %s.",dateTimeStr.getCString());
+                    "CIMdateTime object has an incorrect format.");
             return false;
         }
     }
@@ -717,15 +716,14 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
       ans = fieldcheck(buffer, _rep->year);
       if (ans == SOME_WILD_CARDS){
           Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-               "CIMDateTime - Format of the string is incorrect. String \
-                        is %s", dateTimeStr.getCString());
+               "CIMDateTime - Format of the string is incorrect. ");
           return false;
       }
       else if (ans == ONLY_WILD_CARDS) {
           if (!restOfFields(4,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the string is incorrect. All fields after the year \
-                            field should be wild cards. String is %s", dateTimeStr.getCString());
+                            field should be wild cards.");
               return false;
           }
       }
@@ -735,9 +733,8 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         ans = fieldcheck(buffer, _rep->month);
         if (ans == SOME_WILD_CARDS) {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                "CIMDateTime - Format of the month field is incorrect. \
-                          String is %s", dateTimeStr.getCString());
-           cout << "one was returned form fieldcheck" << endl << endl;
+                "CIMDateTime - Format of the month field is incorrect");
+           //cout << "one was returned form fieldcheck" << endl << endl;
             return false;           // month field has both wildcards and digits
         }
 
@@ -755,7 +752,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           if (!restOfFields(6,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the string is incorrect. All fields after the month \
-                        field should ve wild cards. String is %s", dateTimeStr.getCString());
+                        field should ve wild cards.");
               return false;
           }
         }
@@ -767,7 +764,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         ans = fieldcheck(buffer, _rep->days);
         if (ans == SOME_WILD_CARDS) {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                "CIMDateTime - Format of the day field is incorrect. String is %s", dateTimeStr.getCString());
+                "CIMDateTime - Format of the day field is incorrect.");
             return false;           // month field has both wildcards and digits
         }
 
@@ -789,7 +786,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           if (!restOfFields(6,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the string is incorrect. All fields after day field \
-                            should be only wild cards String is %s", dateTimeStr.getCString());
+                            should be only wild cards.");
               return false;
           }
         }
@@ -803,7 +800,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         if(spot != PEG_NOT_FOUND){  // the UTC must not have astricks in it
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the is incorrect. UTC offset should not have \
-                          a wild card in it. String is %s", dateTimeStr.getCString());
+                          a wild card in it.");
             return false;
         }          
 
@@ -817,14 +814,14 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         if (ans == SOME_WILD_CARDS) {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the object is incorrect. Day field must be have all \
-                          wild cards or no wild cards. String is %s", dateTimeStr.getCString());
+                          wild cards or no wild cards.");
             return false;
         }
         else if (ans == ONLY_WILD_CARDS) {
           if (!restOfFields(8,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                   "CIMDateTime - Format of the object is incorrect. All fields after day field \
-                            should be wild cards. String is %s", dateTimeStr.getCString()); 
+                            should be wild cards."); 
               return false;
           }
         }
@@ -852,7 +849,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
     if (ans == SOME_WILD_CARDS) {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                    "CIMDateTime - Format of the object is incorrect.Hour field must have all \
-                          wild cards or no wild cards. String is %s", dateTimeStr.getCString());
+                          wild cards or no wild cards.");
         return false;           // hour field has both wildcards and digits
      }
 
@@ -871,7 +868,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           if (!restOfFields(10,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the object is incorrect. All fields after the hour field \
-                            should be wild cards. String is %s", dateTimeStr.getCString()); 
+                            should be wild cards."); 
               return false;
           }
      }
@@ -884,7 +881,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
     if (ans == SOME_WILD_CARDS) {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                    "CIMDateTime - Format of the object is incorrect.Minute field must have all \
-                          wild cards or no wild cards. String is %s", dateTimeStr.getCString());
+                          wild cards or no wild cards.");
         return false;           // minutes field has both wildcards and digits
     }
 
@@ -903,7 +900,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           if (!restOfFields(12,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the object is incorrect. All fields after the minute \
-                            field should be wild cards. String is %s", dateTimeStr.getCString()); 
+                            field should be wild cards."); 
               return false;
           }
       }
@@ -916,7 +913,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
     if (ans == SOME_WILD_CARDS) {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                    "CIMDateTime - Format of the object is incorrect.Second field must have all \
-                          wild cards or no wild cards. String is %s", dateTimeStr.getCString());
+                          wild cards or no wild cards.");
         return false;           // seconds field has both wildcards and digits
     }
 
@@ -933,7 +930,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           if (!restOfFields(14,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the object is incorrect. All fields after the seconds \
-                            field should have wild cards. String is %s", dateTimeStr.getCString());
+                            field should have wild cards.");
               return false;
           }
       }

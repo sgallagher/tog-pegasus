@@ -30,10 +30,10 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMServerDescription.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Client/CIMServerDiscovery.h>
-#include <Pegasus/Client/CIMServerDescription.h>
 #include <Pegasus/Client/WBEMSLPTemplate.h>
 #include <string.h> // for strdup
 

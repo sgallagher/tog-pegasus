@@ -1,0 +1,27 @@
+// ===================================================================
+// Title:       Master MOF
+// Filename:    CIM_Schema24.mof
+// Version:     2.4
+// Release:     0
+// Date:        08/08/2000
+// Description: This is overall Schema 
+// ===================================================================
+// Author     : DMTF Technical Committee
+// ===================================================================
+// includes
+// ===================================================================
+#pragma include ("CIM_Core24.mof")
+#pragma include ("CIM_User24.mof")
+#pragma include ("CIM_Application24.mof")
+#pragma include ("CIM_System24.mof")
+#pragma include ("CIM_Device24.mof")
+#pragma include ("CIM_Physical24.mof")
+#pragma include ("CIM_Network24.mof")
+#pragma include ("CIM_Policy24.mof")
+#pragma include ("CIM_Dap24.mof")
+#pragma include ("CIM_Support24.mof")
+
+
+
+
+

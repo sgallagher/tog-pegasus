@@ -46,22 +46,38 @@ OperatingSystem::~OperatingSystem(void)
 
 Boolean OperatingSystem::getCSName(String& csName)
 {
+//ATTN-SLC-P2-18-Apr-02: need to implement CSName key for Windows OS BZ#42
+
+    // how get fully qualified machine name in Windows?
     return false;
 }
 
 Boolean OperatingSystem::getName(String& osName)
 {
+//ATTN-SLC-P2-18-Apr-02: need to implement Name key for Windows OS BZ#42
+
+    // could set to some string based on OSType calculated below
+    // see OS provider in generic directory.
+    // would be nice to only do it once for both properties
     return false;
 }
 
 Boolean OperatingSystem::getCaption(String& caption)
 {
-    return false;
+
+   caption.assign("The current Operating System");
+
+   return true;
 }
 
 Boolean OperatingSystem::getDescription(String& description)
 {
-    return false;
+
+    description.assign("This instance reflects the Operating System"
+        " on which the CIMOM is executing (as differentiated from instances"
+        " of other installed operating systems that could be run).");
+
+   return true;
 }
 
 Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
@@ -69,9 +85,24 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
     return false;
 }
 
+/**
+   getStatus method for Windows implementation of OS provider
+
+   Would like to be able to return and actual status vs. just
+   always Unknown, but didn't know how to differentiate between
+   OK and Degraded (assuming they are the only values that make
+   sense, since the CIMOM is up and running), but one could see
+   an argument for including Stopping if the Shutdown or Reboot
+   methods have been invoked. For now, always return "Unknown".
+   */
 Boolean OperatingSystem::getStatus(String& status)
 {
-    return false;
+
+// ATTN-SLC-P3-17-Apr-02: Get true Windows status (vs. Unknown) BZ#44
+
+   status.assign("Unknown");
+
+   return true;
 }
 
 Boolean OperatingSystem::getVersion(String& osVersion)
@@ -136,9 +167,12 @@ Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
 
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 {
-   DWORD dw = ::GetTickCount();
 
-   return(true);
+   // May involve GetTickCount subtracted from local time and
+   // formatted as CIMDateTime
+   // DWORD dw = ::GetTickCount();
+
+   return false;
 }
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)

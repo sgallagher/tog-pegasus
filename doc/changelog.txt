@@ -161,6 +161,11 @@ TAG: Version_1_09.
 
 26. (MM) 22 Apr 2002 - Performance Measurement Implementation
 
+27. (Susan Campbell - HP) 22 Apr 2002 - Various enhancements and bug fixes
+   to the Managed System OS provider.  Rolled in the Linux support from
+   the Linux-specific OS provider and added properties to the HP-UX and
+   Windows OS providers.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

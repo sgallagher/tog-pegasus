@@ -19,9 +19,25 @@ instance of PG_ProviderCapabilities
    ProviderModuleName = "OperatingSystemProvider";
    ProviderName = "PG_OperatingSystemProvider";
    CapabilityID = "1";
+   ClassName = "CIM_OperatingSystem";
+   Namespaces[] = {"root/cimv2"};
+// do instances, but won't do enum for this superclass,
+// the CIMOM will invoke us for that, we just do Get
+   ProviderType[] = { 2 }; // Instance
+// will add method support for shutdown/reboot
+   SupportedProperties[] = NULL; // All properties
+   SupportedMethods[] = NULL; // All methods
+};
+
+instance of PG_ProviderCapabilities 
+{
+   ProviderModuleName = "OperatingSystemProvider";
+   ProviderName = "PG_OperatingSystemProvider";
+   CapabilityID = "2";
    ClassName = "PG_OperatingSystem";
    Namespaces[] = {"root/cimv2"};
    ProviderType[] = { 2 }; // Instance
+// will add method support for shutdown/reboot
    SupportedProperties[] = NULL; // All properties
    SupportedMethods[] = NULL; // All methods
 };

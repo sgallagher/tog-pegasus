@@ -63,6 +63,8 @@ CIMProperty::CIMProperty(
         arraySize, referenceClassName, classOrigin, propagated);
 }
 
+// This constructor allows the CIMClassRep friend class to cast
+// away constness.
 CIMProperty::CIMProperty(const CIMConstProperty& x)
 {
     Inc(_rep = x._rep);
@@ -72,10 +74,6 @@ CIMProperty::CIMProperty(CIMPropertyRep* rep)
     : _rep(rep)
 {
 }
-
-// This constructor allows the CIMClassRep friend class to cast
-// away constness.
-PEGASUS_EXPLICIT CIMProperty::CIMProperty(const CIMConstProperty& x);
 
 CIMProperty::~CIMProperty()
 {

@@ -257,32 +257,34 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 
     if (verify_certificate(certInfo))
     {
-        verifyError = X509_V_OK;
+        //verifyError = X509_V_OK;
         preVerifyOk = 1;
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
             "--> SSL: verify_certificate() returned X509_V_OK");
     }
     else
     {
-        verifyError = certInfo.getErrorCode();
+        //verifyError = certInfo.getErrorCode();
         preVerifyOk = 0;
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
             "--> SSL: verify_certificate() returned error %d", verifyError);
     }
 
+
+    // We need a way for the server to retain the verification result,
+    // so that in 'optional' settings, we can still continue the connection.
+    // We can then give the verification result to a consumer and let them 
+    // decide whether to accept or reject the request.
     //
-    // Reset the error. It is logically not required to reset the error code, but
-    // openSSL code does not take just the return value on a failed certificate
-    // verification.
+    // The server's 'optional' callback returns true but does not set the
+    // error code, so the original verification error will still be in
+    // SSL_get_verify_result.
     //
-    // Using PEGASUS_USE_232_CLIENT_VERIFICATION does not set the error, because
-    // we want to access the original preverification error even if the
-    // callback returns true.  This works in conjunction with the 'optional'
-    // verification setting.
-    //
-#ifndef PEGASUS_USE_232_CLIENT_VERIFICATION
-    X509_STORE_CTX_set_error(ctx, verifyError);
-#endif
+    // Clients need to set the error code to V_OK in their callbacks
+    // if they are verifying servers, otherwise, the error code
+    // will be the original result and verification will fail.
+
+    X509_STORE_CTX_set_error(ctx, certInfo.getErrorCode()); 
 
     PEG_METHOD_EXIT();
 

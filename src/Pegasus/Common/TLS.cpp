@@ -372,28 +372,33 @@ redo_connect:
     }
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Connected");
 
-    // get server's certificate
-    X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
-    if (server_cert != NULL)
+    // this will be true if the client specified a callback function and/or a truststore
+    if (_SSLContext->isPeerVerificationEnabled())
     {
-       if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
-       {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate verified.");
-       }
-       else
-       {
-           PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate NOT verified.");    
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to verify server certificate.");
+
+        X509 * server_cert = SSL_get_peer_certificate(_SSLConnection);
+        if (server_cert != NULL)
+        {
+            if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
+            {
+               PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate verified.");
+            }
+            else
+            {
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server Certificate NOT verified.");    
+                PEG_METHOD_EXIT();
+                return -1;
+            }
+
+            X509_free (server_cert);
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server not certified.");
            PEG_METHOD_EXIT();
            return -1;
-       }
-
-       X509_free (server_cert);
-    }
-    else
-    {
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Server not certified.");
-       PEG_METHOD_EXIT();
-       return -1;
+        }
     }
 
     PEG_METHOD_EXIT();

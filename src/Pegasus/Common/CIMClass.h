@@ -296,7 +296,8 @@ public:
     */
     Boolean isUninitialized() const;
 
-    /**
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /**  <I><B>Experimental Interface</B></I><BR>
     Build a CIMInstance based on this CIM Class.  Properties in the instance 
     are initialized to the default values (if any) specified in the class 
     definition.  The parameters of the call determine whether qualifiers are 
@@ -330,14 +331,18 @@ public:
     property to the instance.  
     
     @return CIMInstance of this class appropriately initialized.
-    
-    EXAMPLE:
-
-    <Will be provided with the code>
+    <p><b>Example:</b>
+    <pre>
+        CIMClass myClass .. a defined and complete CIMClass.
+        // create instance with qualifiers, class origin and all properties
+        CIMInstance myInstance =
+                myClass.buildInstance(true, true, CIMPropertyList());
+    </pre>
     */
     CIMInstance buildInstance(Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList & propertyList) const;
+#endif
 
 private:
 

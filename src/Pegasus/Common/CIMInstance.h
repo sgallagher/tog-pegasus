@@ -238,7 +238,8 @@ public:
      */
     Boolean isUninitialized() const;
 
-    /**
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /**  <I><B>Experimental Interface</B></I><BR>
     Filter the properties, qualifiers and class origin attributes from this 
     instance based on filtering criteria defined in the input parameters.  
     Note that this function does not add anything that was not in the instance 
@@ -267,14 +268,21 @@ public:
     
     @return The CIMInstance with properties and qualifiers from this
     instance based on the filtering criteria. 
-    
-    EXAMPLE: 
-        <Will be supplied with the code>
+    <p><b>Example:</b>
+    <pre>
+        CIMClass myClass .. a defined and complete CIMClass.
+        // create instance with qualifiers, class origin and all properties
+        CIMInstance myInstance =
+                myClass.buildInstance(true, true, CIMPropertyList());
+        // filter qualifiers off of the instance.
+                myInstance.filterInstance(false, true, CIMPropertyList());
+    </pre>
     */ 
 
     void filter(Boolean includeQualifiers,
             Boolean includeClassOrigin,
             const CIMPropertyList & propertyList);
+#endif
 
 private:
 

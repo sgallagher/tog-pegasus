@@ -149,6 +149,7 @@ void AsyncOpNode::print_to_buffer(Sint8 **buf)
    if(buf == NULL)
       return;
    
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
    static Sint8 work_buf[4096];
    snprintf(work_buf, 4096, "AsyncOpNode %p\n" \
 	    "\trq %d; rp %d; state %d; flags %d; op_dst q %p\n" \
@@ -160,6 +161,7 @@ void AsyncOpNode::print_to_buffer(Sint8 **buf)
 	    _callback_ptr, _callback_parameter, _callback_handle, _callback_notify,
 	    _callback_request_q, _service_ptr, _thread_ptr);
    *buf = strdup(work_buf);
+#endif
    return;
    
 }
@@ -167,6 +169,7 @@ void AsyncOpNode::print_to_buffer(Sint8 **buf)
 String &AsyncOpNode::print_to_string(void)
 {
    static Sint8 work_buf[4096];
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
    snprintf(work_buf, 4096, "AsyncOpNode %p\n" \
 	    "\trq %d; rp %d; state %d; flags %d; op_dst q %p\n" \
 	    "\tcallback node %p; callback rp q %p; callback ptr %p\n" \
@@ -176,6 +179,9 @@ String &AsyncOpNode::print_to_string(void)
 	    _state, _flags, _op_dest, _callback_node, _callback_response_q,
 	    _callback_ptr, _callback_parameter, _callback_handle, _callback_notify,
 	    _callback_request_q, _service_ptr, _thread_ptr);
+#else
+   work_buf[0] = (char)0;
+#endif
    String *ret = new String(work_buf);
    
    return *ret;

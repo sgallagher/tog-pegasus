@@ -83,7 +83,7 @@ so is maintained in a configuration file for the client.
 These are set initially to localhost and 5988.
 HostInfo is defined as those parameters associated with a particular
 CIMOM CIMServer and user of that server
-ATTN: Under Construction
+KSREVIEW: Under Construction
 */
 class HostInfo
 {
@@ -99,7 +99,7 @@ private:
 
 void HostInfo::setHostName( const char* str)
 {
-  ///ATTN: to be done.
+  ///KSREVIEW: to be done.
 }
 
 const char* HostInfo::getAddress()
@@ -180,7 +180,7 @@ void ErrorExit(const String& message)
     cout << "    <p><B>" << " Error Message" << "</B></p>\n";
     cout << "    <p>" << message << "</p>\n";
 
-    //ATTNKS: Define standard ender instead of this special
+    //KSREVIEWKS: Define standard ender instead of this special
     cout << "  </body>\n";
     cout << "</html>\n";
     exit(1);
@@ -267,8 +267,8 @@ static void PrintPropertiesTableHeader(const String& tableName)
     operation field set up.
     @return - The result string
 */
-//ATTN: Why do we not do the EncodeQueryStringValue
-//ATTN: Why is host address part of this?
+//KSREVIEW: Why do we not do the EncodeQueryStringValue
+//KSREVIEW: Why is host address part of this?
 String BuildOperationHref(String operation, String nameSpace)
 {
     
@@ -287,7 +287,7 @@ String BuildOperationHref(String operation, String nameSpace)
 }
 
 /** AppendHrefField - Install a single key/value pair in an href.
-ATTN: this should have been an object href with the constructors, etc.
+KSREVIEW: this should have been an object href with the constructors, etc.
 Constructs the string key=value& and appends to the href.
 */
 String AppendHrefField(String& href, String key, String value)
@@ -309,7 +309,7 @@ String createGetClassHref(String nameSpace, String className)
     href.append("ClassName=");
     href.append(className);
     href.append("&");
-    // ATTNKS: The following is probably duplicate.  See BuildOperationHref above
+    // KSREVIEWKS: The following is probably duplicate.  See BuildOperationHref above
     HostInfo hostinfo;
     href.append("hostaddress=");
     href.append(EncodeQueryStringValue(hostinfo.getAddress()));
@@ -403,31 +403,19 @@ void PrintObjectProperties(
     // Loop for each property
     for (Uint32 i = 0, n = object.getPropertyCount(); i < n; i++)
     {
-	// ATTN: All of this can become PrintProperty()
+	// KSREVIEW: All of this can become PrintProperty()
 	CIMProperty property = object.getProperty(i);
 	const CIMValue& value = property.getValue();
 
 	// Define href with the property name
         String href = 
             BuildOperationHref("GetPropertyDeclaration", EncodeQueryStringValue(nameSpace));
-	/***********************ATTNKS: Drop the following
-        String href = "/pegasus/cgi-bin/CGIClient?";
-	href.append("Operation=GetPropertyDeclaration&");
-	href.append("NameSpace=");
-	href.append(EncodeQueryStringValue(nameSpace));
-	href.append("&");
-        ******************************/
 	href.append("ClassName=");
 	href.append(object.getClassName());
 	href.append("&");
 	href.append("PropertyName=");
 	href.append(property.getName());
 	href.append("&");
-        /*************** ATTNKS: This allso goes away
-	HostInfo hostinfo;
-	href.append("hostaddress=");
-	href.append(EncodeQueryStringValue(hostinfo.getAddress()));
-        *******************************/
 	cout << "<tr>\n";
 	cout << "<td>";
 	PrintAHref(href, property.getName());
@@ -441,7 +429,7 @@ void PrintObjectProperties(
 	else
 	    cout << "<td>null</td>\n";
 	// Output the ClassOrigin
-	// ATTN: Make this optional
+	// KSREVIEW: Make this optional
 	cout << "<td>" << property.getClassOrigin() << "</td>\n";
 	// Output the Propagated field
 	cout << "<td>" << (property.getPropagated() ? "true" : "false");
@@ -475,7 +463,7 @@ void PrintQualifiers(OBJECT& object)
     for each method defined in the class with the CIMName
     and type of the CIMMethod in each entry
     @param cimClass - Class for which methods to be output
-    ATTNKS: this is here temporarily.  Should be moved to more
+    KSREVIEWKS: this is here temporarily.  Should be moved to more
     common client library so generally available
 */
 
@@ -529,7 +517,7 @@ void mofFormat(
 */
 void PrintClassMethods(CIMClass& cimClass)
 {
-    // ATTN:If there are no methods.  State that rather than empty table
+    // KSREVIEW:If there are no methods.  State that rather than empty table
     cout << "<h2>Methods:</h2>\n";
     // Create the table
     cout << "<table border=1 width=\"50%\">\n";
@@ -576,7 +564,7 @@ void PrintClass(
     Boolean includeClassOrigin,
     Boolean showMof)
 {
-    //ATTN: Should say GetClass and then classname
+    //KSREVIEW: Should say GetClass and then classname
     //Aregument for combining to one parm
     PrintHTMLHead("GetClass", cimClass.getClassName());
 
@@ -592,8 +580,8 @@ void PrintClass(
         String href = createGetClassHref(nameSpace,
 	                              cimClass.getSuperClassName());
 
-        // ATTNKS (localOnly)?"  ": " ";
-        // ATTNKS (includeQualifiers)? "%IncludeQualifiers=true" : "";
+        // KSREVIEWKS (localOnly)?"  ": " ";
+        // KSREVIEWKS (includeQualifiers)? "%IncludeQualifiers=true" : "";
 	PrintAHref(href, cimClass.getSuperClassName());
         //ANNTTNKS 26 Jan 2002 - Add the options params to this call
 
@@ -609,7 +597,7 @@ void PrintClass(
 
     if (includeQualifiers)
 	PrintQualifiers(cimClass);
-    // ATTNKS: Delete this optionelse
+    // KSREVIEWKS: Delete this optionelse
     //    cout << "\n\nQualifier Parameters Not Requested" << endl;
 
     PrintObjectProperties(nameSpace, cimClass,includeClassOrigin);
@@ -669,11 +657,7 @@ const String& nameSpace,
 {
     PrintHTMLHead("GetInstance", cimInstance.getClassName());
     PrintInstanceBody(nameSpace, cimInstance,localOnly);
-    /* ATTNKS: delete the following
-    PrintQualifiers(cimInstance);
-    PrintObjectProperties(nameSpace, cimInstance, localOnly);
-    */
-    //ATTNKS: Add showMof here
+    //KSREVIEWKS: Add showMof here
     cout << "<h2>Display MOF for Instance</h2>";
     cout << "<pre>";
     Array<Sint8> x;
@@ -735,7 +719,7 @@ static void GetClass(const CGIQueryString& qs)
 	includeQualifiers = false;
     if ((tmp = qs.findValue("IncludeClassOrigin")))
 	includeClassOrigin = true;
-    // ATTN: KS - Just delete thisif ((tmp = qs.findValue("ShowMof")))
+    // KSREVIEW: KS - Just delete thisif ((tmp = qs.findValue("ShowMof")))
     //    showMof = true;
     
     CIMClass cimClass;
@@ -1140,7 +1124,7 @@ static void GetQualifier(const CGIQueryString& qs)
     parameters on the getInstance
     @param nameSpace
     @param InstanceNames - The array of references to print
-    ATTN: Change so the user can select extra params.
+    KSREVIEW: Change so the user can select extra params.
 */
 static void PrintObjectNames(
     const String& header,
@@ -1159,21 +1143,10 @@ static void PrintObjectNames(
 	cout << "<tr><td>\n";
         String href = 
             BuildOperationHref("GetInstance", EncodeQueryStringValue(nameSpace));
-        /************ATTNKS: Delete after test
-	String href = "/pegasus/cgi-bin/CGIClient?";
-	href.append("Operation=GetInstance&");
-	href.append("NameSpace=");
-	href.append(EncodeQueryStringValue(nameSpace));
-	href.append("&");
-	HostInfo hostinfo;
-	href.append("hostaddress=");
-	href.append(EncodeQueryStringValue(hostinfo.getAddress()));
-	href.append("&");
-        *******/
 	href.append("InstanceName=");
 
         //
-        // ATTNKS: - Need to convert the '"' (double quote) character to '%22' to
+        // KSREVIEWKS: - Need to convert the '"' (double quote) character to '%22' to
         // make it a valid URL string in the HTML tag.  Also, need to
         // convert the '_' (underscore) character in the instanceName
         // string to a '.' (dot).
@@ -1288,7 +1261,7 @@ static void GetInstance(const CGIQueryString& qs)
     if (!(tmp = qs.findValue("InstanceName")))
 	ErrorExit("Missing InstanceName field");
 
-    // ATTNKS: This must be modified for the toString
+    // KSREVIEWKS: This must be modified for the toString
     CIMReference referenceName;
     try
     {
@@ -1302,7 +1275,7 @@ static void GetInstance(const CGIQueryString& qs)
     // if (!instanceName.size())
     // ErrorExit("InstanceName parameter is null");
 
-    // ATTNKS: Test the following!
+    // KSREVIEWKS: Test the following!
 
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
@@ -1337,7 +1310,7 @@ static void GetInstance(const CGIQueryString& qs)
 */
 void PrintInstanceTableRow(String nameSpace, CIMNamedInstance CIMInstance)
 {
-   // ATTNKS: Need to add code here
+   // KSREVIEWKS: Need to add code here
 }
 /***************************************************************************
     EnumerateInstances Function
@@ -1374,7 +1347,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 
 
     CIMPropertyList propertyList;
-    //ATTNKS: Fill out the property list
+    //KSREVIEWKS: Fill out the property list
 
     // Invoke the method:
     String message = "operation EnumerateInstances Under Construction: ";
@@ -1451,7 +1424,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 	ErrorExit("Missing InstanceName field");
     cout << "DEBUG GetProperty " << __LINE__
 	<< " Name " << inputInstanceName << endl;
-    // This must be modified for the toString ATTN KS
+    // This must be modified for the toString KSREVIEW KS
     CIMReference referenceName;
 
     // Convert instanceName to referenceName
@@ -1774,7 +1747,7 @@ void PrintClassTreeEntry(const String& nameSpace,
     cout << level;
     cout << " ";
 
-    //ATTN figure out why clasName in href and printaHref.
+    //KSREVIEW figure out why clasName in href and printaHref.
     String href = createGetClassHref(nameSpace,
 		                  className);
 
@@ -1850,7 +1823,7 @@ void TraverseClassTree(
     This version simply prints out one level of the class tree starting at
     a defined superclass. Note that it does not print the starting class,
     Simply the subclasses.
-    ATTN: In reality this is the enumerate class itself and should be
+    KSREVIEW: In reality this is the enumerate class itself and should be
     merged with that.
 
 */
@@ -1868,7 +1841,7 @@ static void ClassInheritance(const CGIQueryString& qs)
     Uint32 timeOut = 5 * 1000;
     if ((tmp = qs.findValue("timeout")))
 	timeOut = 60 * 1000;
-    // ATTN: Need the ascitointeger function.
+    // KSREVIEW: Need the ascitointeger function.
 
 
     // Get the ClassName field:
@@ -2079,7 +2052,7 @@ static void AllInstances(const  CGIQueryString& qs)
             {
                 cout << "Class " << classNames[i] << " " 
                      << instanceNames.size() << " Instances" << endl;
-                //ATTNKS: Link to the instances  Expand for keyword in Href.
+                //KSREVIEWKS: Link to the instances  Expand for keyword in Href.
                 PrintEnumInstanceNameHref(nameSpace,classNames[i]);
                 cout << "<br>" << endl;
             }

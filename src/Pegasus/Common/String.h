@@ -87,10 +87,13 @@ public:
     */
     String& operator=(const String& x) { _rep = x._rep; return *this; }
 
-    /// Assign this string with x.
+    /// Assign this string with Char16 x.
     String& operator=(const Char16* x) { assign(x); return *this; }
 
-    /// Assign this string with x.
+    /** Assign this string with String x
+    @param x String to assign
+    @return Returns the String
+    */.
     String& assign(const String& x) { _rep = x._rep; return *this; }
 
     /// Assign this string with x.
@@ -105,7 +108,7 @@ public:
     /// Assign this string with first n characters of the plain old C-String x.
     String& assign(const char* x, Uint32 n);
 
-    /** Clear this string. After calling clear(), size() will return 0.
+    /** clear - Clear this string. After calling clear(), size() will return 0.
 	<pre>
 	    String test = "abc";
 	    test.clear();	// String test is now NULL (length == 0)
@@ -113,7 +116,8 @@ public:
     */
     void clear() { _rep.clear(); _rep.append('\0'); }
 
-    /** Reserves memory for capacity characters. Notice that this does not
+    /** reserve - Reserves memory for capacity characters. Notice that this does
+    not
 	change the size of the string (size() returns what it did before).
 	If the capacity of the string is already greater or equal to the
 	capacity argument, this method has no effect. After calling reserve(),
@@ -134,7 +138,6 @@ public:
 
     /** Returns a pointer to the first character in the null-terminated string
 	string.
-	@param
 	@return	Pointer to the first character of the String object
     	<pre>
 	    String t1 = "abc";
@@ -143,7 +146,8 @@ public:
     */
     const Char16* getData() const { return _rep.getData(); }
 
-    /** Allocates an 8 bit representation of this string. The user is
+    /** AallocateCString - llocates an 8 bit representation of this string. The
+    user is
 	responsible for freeing the result. If any characters are truncated,
 	a TruncatedCharacter exception is thrown. This exception may
 	be suppressed by passing true as the noThrow argument. Extra
@@ -163,7 +167,8 @@ public:
     */
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
 
-    /** Append the given string to a C-string. If the length is not Uint32(-1),
+    /** appendToCString - Append the given string to a C-string. If the length
+    is not Uint32(-1),
 	then the lesser of the the length argument and the length of this
 	string is truncated. Otherwise, the entire string is trunctated. The
 	TruncatedCharacter exception is thrown if any characters are truncated.
@@ -307,17 +312,23 @@ public:
     Uint32 find(const String& s) const;
 
     /** Find substring
-	@ param - 16 bit character pointer
+	@ param 16 bit character pointer
 	@seealso find
+	@return Position of the substring in the String or -1 if not
+	found.
     */
     Uint32 find(const Char16* s) const;
 
     /** find substring
-	@param char* to substring
+	@param s char* to substring
+	@return Position of the substring in the String or -1 if not
+	found.
     */
     Uint32 find(const char* s) const;
 
-    /** Same as find() but start looking in reverse (last character first).
+    /** reverseFind - Same as find() but start looking in reverse (last
+    character first).
+    	@param c Char16 character to find in String.
 	@Seealso find
 	@return Position of the character in the string or -1 if not found.
 
@@ -634,3 +645,4 @@ inline String Cat(
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */
+

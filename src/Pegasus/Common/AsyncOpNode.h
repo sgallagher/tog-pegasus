@@ -155,6 +155,9 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void _make_orphan( AsyncOpNode & parent) ;
       void _adopt_child(AsyncOpNode *child) ;
       void _disown_child(AsyncOpNode *child) ;
+      void (*_async_callback)(AsyncOpNode *, 
+			      MessageQueueService *, 
+			      void *);
       friend class cimom;
       friend class MessageQueueService;
       

@@ -144,6 +144,16 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    
 }
 
+void MessageQueueService::default_async_callback(AsyncOpNode *op, 
+						 MessageQueueService *mq, 
+						 void *parm)
+{
+   PEGASUS_ASSERT(op != 0 && mq != 0 );
+   op->complete();
+   return;
+}
+
+
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
 {
@@ -290,11 +300,14 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
    if (_incoming_queue_shutdown.value() > 0 )
       return false;
    
+// ATTN optimization remove the message checking altogether in the base 
+// << Mon Feb 18 14:02:20 2002 mdd >>
    op->lock();
    Message *rq = op->_request.next(0);
+   Message *rp = op->_response.next(0);
    op->unlock();
    
-   if( true == messageOK(rq) &&  _die.value() == 0  )
+   if(  ((true == messageOK(rq)) || ( true == messageOK(rp) )) &&  _die.value() == 0  )
    {
       _incoming.insert_last_wait(op);
       return true;
@@ -491,7 +504,7 @@ Boolean MessageQueueService::SendAsync(AsyncRequest *request,
 				       void (*callback)(AsyncOpNode *, 
 							MessageQueueService *, 
 							void *))
-{
+{ 
    
    return true;
 }
@@ -507,9 +520,11 @@ Boolean MessageQueueService::SendForget(Message *msg)
       op = (static_cast<AsyncMessage *>(msg))->op ;
    }
    if( op == 0 )
+   {
       op = get_op();
-   
-   op->_request.insert_first(msg);
+      op->_request.insert_first(msg);
+   }
+
    op->_state &= ~ASYNC_OPSTATE_COMPLETE;
    op->_flags &= ASYNC_OPFLAGS_FIRE_AND_FORGET;
    op->put_response(0);

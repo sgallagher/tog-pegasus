@@ -361,7 +361,7 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
 
    AsyncOpNode *op = request->op;
    op->lock();
-   op->_state |= state ;
+   op->_state |= (state | ASYNC_OPSTATE_COMPLETE);
    op->_flags |= flag;
    gettimeofday(&(op->_updated), NULL);
    if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
@@ -419,19 +419,7 @@ void cimom::_handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queu
    }
    if ( accepted == false )
    {
-      // we don't handle this message, reply with a NAK
-      AsyncReply *reply = new AsyncReply(async_messages::REPLY,
-					 msg->getKey(),
-					 msg->getRouting(),
-					 0,
-					 op,
-					 async_results::CIM_NAK,
-					 (static_cast<AsyncRequest *>(msg))->resp,
-					 (static_cast<AsyncRequest *>(msg))->block);
-      _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-			     reply,
-			     ASYNC_OPSTATE_COMPLETE,
-			     0);
+      _make_response(msg, async_results::CIM_NAK);
    }
 
 }

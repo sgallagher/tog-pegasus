@@ -110,6 +110,8 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual void _handle_incoming_operation(AsyncOpNode *operation, Thread *thread, MessageQueue *queue);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _make_response(Message *req, Uint32 code);
+      static void default_async_callback(AsyncOpNode *, MessageQueueService *, void *);
+      
       static cimom *_meta_dispatcher;
       static AtomicInt _service_count;
       static Mutex _meta_dispatcher_mutex;

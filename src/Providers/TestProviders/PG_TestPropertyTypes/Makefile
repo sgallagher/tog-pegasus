@@ -1,6 +1,6 @@
 ROOT = ../../../..
 
-DIR = /Providers/TestProviders/PG_TestPropertyTypes
+DIR = Providers/TestProviders/PG_TestPropertyTypes
 
 include $(ROOT)/mak/config.mak
 

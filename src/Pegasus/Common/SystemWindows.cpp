@@ -32,6 +32,7 @@
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1428
+//				Seema Gupta (gseema@in.ibm.com) for Bug#1617
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,10 +56,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define ACCESS_EXISTS 0
-#define ACCESS_WRITE 2
-#define ACCESS_READ 4
-#define ACCESS_READ_AND_WRITE 6
+#define PEGASUS_ACCESS_EXISTS 0
+#define PEGASUS_ACCESS_WRITE 2
+#define PEGASUS_ACCESS_READ 4
+#define PEGASUS_ACCESS_READ_AND_WRITE 6
 
 #define PW_BUFF_LEN 65
 
@@ -93,17 +94,17 @@ void System::sleep(Uint32 seconds)
 
 Boolean System::exists(const char* path)
 {
-    return _access(path, ACCESS_EXISTS) == 0;
+    return _access(path, PEGASUS_ACCESS_EXISTS) == 0;
 }
 
 Boolean System::canRead(const char* path)
 {
-    return _access(path, ACCESS_READ) == 0;
+    return _access(path, PEGASUS_ACCESS_READ) == 0;
 }
 
 Boolean System::canWrite(const char* path)
 {
-    return _access(path, ACCESS_WRITE) == 0;
+    return _access(path, PEGASUS_ACCESS_WRITE) == 0;
 }
 
 Boolean System::getCurrentDirectory(char* path, Uint32 size)

@@ -98,6 +98,7 @@ Boolean PAMBasicAuthenticator::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");
 
+    Boolean authenticated = false;
     struct pam_conv pconv;
     pam_handle_t *phandle;
     char *name;
@@ -105,15 +106,13 @@ Boolean PAMBasicAuthenticator::authenticate(
     pconv.conv = PAMBasicAuthenticator::PAMCallback;
     pconv.appdata_ptr = NULL;
 
-    Boolean authenticated = false;
-
     ArrayDestroyer<char> p(password.allocateCString());
     userPassword = p.getPointer();
 
     ArrayDestroyer<char> user(userName.allocateCString());
 
     //
-    //call pam_start since you need to before making any other PAM calls
+    //Call pam_start since you need to before making any other PAM calls
     //
     if ( ( pam_start(service, 
         (const char *)user.getPointer(), &pconv, &phandle) ) != PAM_SUCCESS ) 
@@ -126,33 +125,29 @@ Boolean PAMBasicAuthenticator::authenticate(
     //
     //Call pam_authenticate to authenticate the user
     //
-    if ( ( pam_authenticate(phandle, 0) ) != PAM_SUCCESS ) 
+    if ( ( pam_authenticate(phandle, 0) ) == PAM_SUCCESS ) 
     {
-        userPassword = 0;
-        PEG_METHOD_EXIT();
-        return (authenticated);
-    }
-    else
-    {
-        authenticated = true;
+        //
+        //Call pam_acct_mgmt, to check if the user account is valid. This includes 
+        //checking for password and account expiration, as well as verifying access 
+        //hour restrictions.
+        //
+        if ( ( pam_acct_mgmt(phandle, 0) ) == PAM_SUCCESS ) 
+        {
+            authenticated = true;
+        }
     }
 
     //
     //Call pam_end to end our PAM work
     //
-    if ( ( pam_end(phandle, 0) ) != PAM_SUCCESS ) 
-    {
-        userPassword = 0;
-        PEG_METHOD_EXIT();
-        return (authenticated);
-    }
+    pam_end(phandle, 0);
 
     userPassword = 0;
     PEG_METHOD_EXIT();
 
     return (authenticated);
 }
-
 
 //
 // Create authentication response header
@@ -198,12 +193,8 @@ Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **m
         return PAM_CONV_ERR;
     }
 
-    Uint32 i = 0;
-    Uint32 len = 0;
-
-    for ( i = 0; i < num_msg; i++ ) 
+    for ( Uint32 i = 0; i < num_msg; i++ ) 
     {
-        len = strlen(msg[i]->msg);
         switch ( msg[i]->msg_style ) 
         {
             case PAM_PROMPT_ECHO_OFF:
@@ -212,74 +203,12 @@ Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **m
                 // 
                 resp[i]->resp = (char *)malloc(PAM_MAX_MSG_SIZE);
                 strcpy(resp[i]->resp, userPassword);
-
                 resp[i]->resp_retcode = 0;
                 break;
 
             default:
                 PEG_METHOD_EXIT();
                 return PAM_CONV_ERR;
-
-#ifdef NOT_REQUIRED
-// ATTN-NB-02-20000412: Add code to do the user policy management. 
-// Keeping the following code here becuase I think this will be useful
-// in implementing user account policy management.
-            case PAM_PROMPT_ECHO_ON:
-                //
-                // Remove any trailing \n from prompt
-                //
-                if (msg[i]->msg[len-1] == '\n')
-                    msg[i]->msg[len-1] = 0;
-                printf("%s", msg[i]->msg);
-
-                //
-                // Get the response from the user
-                //
-                resp[i]->resp = (char *)malloc(PAM_MAX_MSG_SIZE);
-                fgets(resp[i]->resp, PAM_MAX_MSG_SIZE, stdin);
-
-                //
-                // Remove trailing \n from input
-                //
-                len = strlen(resp[i]->resp);
-                if (resp[i]->resp[len-1] == '\n')
-                        resp[i]->resp[len-1] = 0;
-                resp[i]->resp_retcode = 0;
-                break;
-
-            case PAM_ERROR_MSG:
-                //
-                // Take into account that we may need to add a \n to the line
-                //
-                if (msg[i]->msg[len-1] == '\n') 
-                {
-                    printf("%s", msg[i]->msg);
-                } 
-                else 
-                {
-                    printf("%s\n", msg[i]->msg);
-                }
-                break;
-
-            case PAM_TEXT_INFO:
-                //
-                // Take into account that we may need to add a \n to the line
-                //
-                if (msg[i]->msg[len-1] == '\n') 
-                {
-                    printf("%s", msg[i]->msg);
-                } 
-                else 
-                {
-                    printf("%s\n", msg[i]->msg);
-                }
-                break;
-
-            default:
-                PEG_METHOD_EXIT();
-                return PAM_CONV_ERR;
-#endif
-
         }
     }
 

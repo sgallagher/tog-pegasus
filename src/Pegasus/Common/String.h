@@ -31,7 +31,11 @@
 #ifndef Pegasus_String_h
 #define Pegasus_String_h
 
-#include <iostream>
+#ifdef PEGASUS_OS_HPUX
+# include <iostream.h>
+#else
+# include <iostream>
+#endif
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Linkage.h>

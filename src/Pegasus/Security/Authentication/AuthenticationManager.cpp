@@ -32,6 +32,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Security/Authentication/LocalAuthenticationHandler.h>
 #include <Pegasus/Security/Authentication/BasicAuthenticationHandler.h>
@@ -46,6 +47,10 @@ PEGASUS_NAMESPACE_BEGIN
 //
 AuthenticationManager::AuthenticationManager()
 {
+    const char METHOD_NAME[] = "AuthenticationManager::AuthenticationManager()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
     //
     // get authentication handler
     //
@@ -73,6 +78,7 @@ AuthenticationManager::AuthenticationManager()
     _realm.append(":"); 
     _realm.append(port); 
 
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
 }
 
 //
@@ -80,6 +86,10 @@ AuthenticationManager::AuthenticationManager()
 //
 AuthenticationManager::~AuthenticationManager()
 {
+    const char METHOD_NAME[] = "AuthenticationManager::~AuthenticationManager()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
     //
     // delete authentication handler
     //
@@ -91,6 +101,8 @@ AuthenticationManager::~AuthenticationManager()
     {
         delete _httpAuthHandler;
     }
+
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
 }
 
 //
@@ -98,10 +110,14 @@ AuthenticationManager::~AuthenticationManager()
 //
 Boolean AuthenticationManager::performHttpAuthentication
 (
-    String authHeader,
+    const String& authHeader,
     AuthenticationInfo* authInfo
 )
 {
+    const char METHOD_NAME[] = "AuthenticationManager::performHttpAuthentication()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
     Boolean authenticated = false;
 
     String type = String::EMPTY;
@@ -121,6 +137,7 @@ Boolean AuthenticationManager::performHttpAuthentication
     if (authInfo->isAuthenticated() && (authInfo->isPrivileged() ||
         String::equal(userName, authInfo->getAuthenticatedUser())))
     {
+        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return true;
     }
 
@@ -143,6 +160,7 @@ Boolean AuthenticationManager::performHttpAuthentication
         if (!String::equalNoCase(authType, "Basic"))
         {
             // ATTN: Log basic authentication not supported message
+            PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
             return ( authenticated );
         }
 
@@ -164,6 +182,8 @@ Boolean AuthenticationManager::performHttpAuthentication
         authInfo->setAuthStatus(AuthenticationInfo::AUTHENTICATED);
     }
 
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+
     return ( authenticated );
 }
 
@@ -172,10 +192,14 @@ Boolean AuthenticationManager::performHttpAuthentication
 //
 Boolean AuthenticationManager::performPegasusAuthentication
 (
-    String authHeader,
+    const String& authHeader,
     AuthenticationInfo* authInfo
 )
 {
+    const char METHOD_NAME[] = "AuthenticationManager::performPegasusAuthentication()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
     Boolean authenticated = false;
 
     String authType = String::EMPTY; 
@@ -196,6 +220,7 @@ Boolean AuthenticationManager::performPegasusAuthentication
     if (authInfo->isAuthenticated() && (authInfo->isPrivileged() ||
         String::equal(userName, authInfo->getAuthenticatedUser())))
     {
+        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return true;
     }
 
@@ -204,6 +229,7 @@ Boolean AuthenticationManager::performPegasusAuthentication
     //
     if (String::equal(cookie, String::EMPTY))
     {
+        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return false;
     }
 
@@ -224,6 +250,8 @@ Boolean AuthenticationManager::performPegasusAuthentication
         }
     }
 
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+
     return ( authenticated );
 }
 
@@ -232,10 +260,14 @@ Boolean AuthenticationManager::performPegasusAuthentication
 //
 String AuthenticationManager::getPegasusAuthResponseHeader
 (
-    String authHeader,
+    const String& authHeader,
     AuthenticationInfo* authInfo
 )
 {
+    const char METHOD_NAME[] = "AuthenticationManager::getPegasusAuthResponseHeader()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
     String authType = String::EMPTY;
     String userName = String::EMPTY;
     String cookie = String::EMPTY;
@@ -256,10 +288,13 @@ String AuthenticationManager::getPegasusAuthResponseHeader
         // User name can not be empty 
         //
         // ATTN: throw an exception
+        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return (String::EMPTY);
     }
 
-    return(_localAuthHandler->getAuthResponseHeader(userName, authInfo));
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+
+    return(_localAuthHandler->getAuthResponseHeader(authType, userName, authInfo));
 }
 
 //
@@ -267,6 +302,12 @@ String AuthenticationManager::getPegasusAuthResponseHeader
 //
 String AuthenticationManager::getHttpAuthResponseHeader()
 {
+    const char METHOD_NAME[] = "AuthenticationManager::getHttpAuthResponseHeader()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+
     return (_httpAuthHandler->getAuthResponseHeader(_realm));
 }
 
@@ -274,8 +315,12 @@ String AuthenticationManager::getHttpAuthResponseHeader()
 // parse the authentication header
 //
 void AuthenticationManager::_parseAuthHeader(
-    String authHeader, String& authType, String& userName, String& cookie)
+    const String& authHeader, String& authType, String& userName, String& cookie)
 {
+    const char METHOD_NAME[] = "AuthenticationManager::_parseAuthHeader()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
     Uint32 pos;
 
     if ( (pos = authHeader.find("LocalPrivileged")) == PEG_NOT_FOUND )
@@ -286,6 +331,7 @@ void AuthenticationManager::_parseAuthHeader(
             //Invalid authorization header
             //
             //ATTN: throw exception
+            PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
             return;
         }
     }
@@ -297,6 +343,7 @@ void AuthenticationManager::_parseAuthHeader(
         //Invalid authorization header
         //
         //ATTN: throw exception
+        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return; 
     }
 
@@ -307,6 +354,7 @@ void AuthenticationManager::_parseAuthHeader(
         //Invalid authorization header
         //
         //ATTN: throw exception
+        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return;
     }
 
@@ -320,6 +368,7 @@ void AuthenticationManager::_parseAuthHeader(
     if ((colonPos = temp.find(0, ':')) == PEG_NOT_FOUND)
     {
         userName = temp;
+        PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
         return;
     }
     else
@@ -327,6 +376,8 @@ void AuthenticationManager::_parseAuthHeader(
         userName = temp.subString(0, colonPos);
         cookie = temp;
     }
+
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
 }
 
 //
@@ -334,6 +385,11 @@ void AuthenticationManager::_parseAuthHeader(
 //
 Authenticator* AuthenticationManager::_getLocalAuthHandler()
 {
+    const char METHOD_NAME[] = "AuthenticationManager::_getLocalAuthHandler()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
     //
     // create and return a local authentication handler.
     //
@@ -346,6 +402,10 @@ Authenticator* AuthenticationManager::_getLocalAuthHandler()
 //
 Authenticator* AuthenticationManager::_getHttpAuthHandler()
 {
+    const char METHOD_NAME[] = "AuthenticationManager::_getHttpAuthHandler()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
     Authenticator* handler = 0;
 
     //
@@ -370,6 +430,8 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     //    handler = (Authenticator* ) new DigestAuthenticationHandler( );
     //}
     
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+
     return ( handler );
 }
 

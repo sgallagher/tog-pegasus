@@ -30,115 +30,95 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <fstream>
 #include <iostream>
-#include <cstdio>
-
-#include <unistd.h>
-#include <pwd.h>
-
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Security/Authentication/LocalAuthenticationHandler.h>
 
-#define PWENT_BUFFER_LEN  256
+// Uncomment this if you want detailed messages to be printed.
+//#define VERBOSE 1
+
 
 PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
 
-/**
-     Returns passwd struct for a given UID.
-        If an error occurs a NULL is returned and errno is recorded.
-
-        Parameters:
-            uid       - A UNIX UID
-            pwdStruct - A pwd struct.
-            buffer    - A char buffer used to store data for pwd struct.
-            buflen    - A the length of the char buffer (Recommend 1024).
-        Returns:
-            Zero if lookup succeeds or 1 on error.
-*/
-int getPwd(uid_t           uid,
-           struct passwd & pwdStruct,
-           char          * buffer,
-           size_t          buflen)
-{
-    struct passwd *   pwd    = &pwdStruct;
-    struct passwd **  result = &pwd;
-
-    int    pwRetVal = getpwuid_r( uid, pwd, buffer, buflen, result);
-    if ( pwd == NULL )
-    {
-        pwRetVal = 1;
-    }
-
-    return pwRetVal;
-}
-
-char* getCurrentLoginName()
-{
-
-    char *currentUser;
-    char buffer[PWENT_BUFFER_LEN];
-    struct passwd pwd;
-
-    //
-    //  get the real user's UID.
-    //
-    uid_t uid = getuid();
-
-    //
-    //  lookup that UID in the password list.
-    //
-    int pwRetVal = getPwd(uid, pwd, buffer, PWENT_BUFFER_LEN);
-    if( pwRetVal != 0 )
-    {
-       cout << "user may have been removed just after user logged in" << endl;
-       return((char *)NULL);
-    }
-
-    // extract user name
-    currentUser = new char[strlen(pwd.pw_name)];
-    strncpy(currentUser, pwd.pw_name, strlen(pwd.pw_name));
-    currentUser[strlen(pwd.pw_name)]=0;
-
-    return((char *)currentUser);
-}
-
-
-
-
+//
+//
+//
 int main()
 {
     String testUser = String::EMPTY;
     String authHeader = String::EMPTY;
+    String authType = "Local";
+    Boolean authenticated;
 
-    testUser.assign(getCurrentLoginName());
+    testUser.assign(System::getCurrentLoginName());
 
+//---------------------- Test Case 1 ----------------------------------------
     LocalAuthenticationHandler  localAuthHandler;
 
-    String challenge = String::EMPTY;
+    AuthenticationInfo  authInfo;
 
-    cout << "User Name: " << testUser << endl;
+    String respHeader = 
+        localAuthHandler.getAuthResponseHeader(authType, testUser, &authInfo);
 
-    String respHeader = localAuthHandler.getAuthResponseHeader(testUser, challenge);
+    Uint32 startQuote = respHeader.find(0, '"');
+    assert(startQuote != PEG_NOT_FOUND);
 
-    cout << "Challenge: " << challenge << endl;
+    Uint32 endQuote = respHeader.find(startQuote + 1, '"');
+    assert(startQuote != PEG_NOT_FOUND);
 
+//---------------------------------------------------------------------------
+
+
+//---------------------- Test Case 2 ----------------------------------------
     authHeader.assign(testUser);
-    authHeader.append(":");
-    authHeader.append(challenge);
 
-    cout << "Auth Header: " << authHeader << endl;
-
-    Boolean authenticated = localAuthHandler.authenticate(authHeader, challenge);
-
+    authenticated = localAuthHandler.authenticate(authHeader, &authInfo);
+#ifdef VERBOSE
     if (authenticated)
-        cout << "authenticated" << endl;
+        cout << "Authenticated" << endl;
     else
         cout << "Not authenticated" << endl;
+#endif
+    assert(!authenticated);
+//---------------------------------------------------------------------------
 
-    cout << endl;
+
+//---------------------- Test Case 3 ----------------------------------------
+    String filePath = respHeader.subString(startQuote + 1, (endQuote - startQuote - 1));
+
+    authHeader.append(":");
+    authHeader.append(filePath);
+
+    authenticated = localAuthHandler.authenticate(authHeader, &authInfo);
+#ifdef VERBOSE
+    if (authenticated)
+        cout << "Authenticated" << endl;
+    else
+        cout << "Not authenticated" << endl;
+#endif
+    assert(!authenticated);
+//---------------------------------------------------------------------------
+
+
+//---------------------- Test Case 4 ----------------------------------------
+    authHeader.append(":");
+    authHeader.append(authInfo.getAuthChallenge());
+
+    authenticated = localAuthHandler.authenticate(authHeader, &authInfo);
+#ifdef VERBOSE
+    if (authenticated)
+        cout << "Authenticated" << endl;
+    else
+        cout << "Not authenticated" << endl;
+#endif
+    assert(authenticated);
+//---------------------------------------------------------------------------
+
+
     cout << "+++++ passed all tests" << endl;
 
     return 0;

@@ -23,14 +23,14 @@ Version 1.06 working towards 1.1 Started 13 December 2001
    intrinsic methods.  If a parameter is specified more than once, a
    CIM_ERR_INVALID_PARAMETER exception is thrown.
 
-6. (Nag Boranna - HP) 14 Jan 2002 - Created CIMOperationRequestAuthorizer queue
+4. (Nag Boranna - HP) 14 Jan 2002 - Created CIMOperationRequestAuthorizer queue
    and moved Authorization verification code from CIMOperationRequestDecoder
    queue to this new queue. Modified CIMServer.cpp to create
    CIMOperationRequestAuthorizer queue only when authorization is enabled.
    Also modified CIMRequestMessagesin CIMMessage.h to include userName to make
    it available to the CIMOperationRequestDispatcher.
 
-7. (Mary Hinton - Jan 17, 2002) Fixed the problem with the CIMserver when it 
+5. (Mary Hinton - Jan 17, 2002) Fixed the problem with the CIMserver when it 
    runs as a Windows service. The work thread was exiting instead of running 
    forever. The problem was noticed when the TestClient program and CIMserver 
    service were both running. The service wasn't accessible to the TestClient 

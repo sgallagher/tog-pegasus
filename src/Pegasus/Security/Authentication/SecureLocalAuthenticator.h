@@ -53,16 +53,21 @@ public:
     ~SecureLocalAuthenticator();
 
     /** authenticate. */ 
-    Boolean authenticate(String userName, String password);
+    Boolean authenticate(
+        const String& userName, 
+        const String& password);
 
     /** authenticate. */ 
     Boolean authenticate(
-        String userName, 
-        String secretReceived, 
-        String secretKept);
+        const String& userName, 
+        const String& secretReceived, 
+        const String& secretKept);
 
     /** getAuthResponseHeader. */ 
-    String getAuthResponseHeader(String requestHeader, String& challenge);
+    String getAuthResponseHeader(
+        const String& authType, 
+        const String& userName, 
+        String& challenge);
 };
 
 

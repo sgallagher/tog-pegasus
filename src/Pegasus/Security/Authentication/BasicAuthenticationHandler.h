@@ -56,12 +56,24 @@ public:
     /**
     Authenticate the request
     */
-    Boolean authenticate(String authHeader, AuthenticationInfo* authInfo);
+    Boolean authenticate(
+        const String& authHeader, 
+        AuthenticationInfo* authInfo);
     
     /**
     Construct and return the authentication response header
     */
-    String getAuthResponseHeader(String realm, AuthenticationInfo* authInfo);    
+    String getAuthResponseHeader(
+        const String& authType, 
+        const String& userName, 
+        AuthenticationInfo* authInfo);    
+
+    /**
+    Construct and return the authentication response header
+    */
+    String getAuthResponseHeader(
+        const String& realm, 
+        AuthenticationInfo* authInfo);    
 
 private:
 

@@ -58,13 +58,23 @@ public:
     /**
     Authenticate the request
     */
-    virtual Boolean authenticate(String authHeader, AuthenticationInfo* authInfo) = 0;
+    virtual Boolean authenticate(
+        const String& authHeader, 
+        AuthenticationInfo* authInfo) = 0;
 
     /**
     Construct and return the authentication response header
     */
     virtual String getAuthResponseHeader(
-        String requestHeader,
+        const String& authType,
+        const String& userName,
+        AuthenticationInfo* authInfo = 0) = 0;
+
+    /**
+    Construct and return the authentication response header
+    */
+    virtual String getAuthResponseHeader(
+        const String& authHeader,
         AuthenticationInfo* authInfo = 0) = 0;
 
 };

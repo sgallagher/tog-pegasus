@@ -31,6 +31,7 @@
 
 
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Security/Authentication/LocalAuthFile.h>
 #include "SecureLocalAuthenticator.h"
 
@@ -40,17 +41,38 @@ PEGASUS_NAMESPACE_BEGIN
 /* constructor. */
 SecureLocalAuthenticator::SecureLocalAuthenticator() 
 { 
+    const char METHOD_NAME[] = 
+        "SecureLocalAuthenticator::SecureLocalAuthenticator()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
 
 }
 
 /* destructor. */
 SecureLocalAuthenticator::~SecureLocalAuthenticator() 
 { 
+    const char METHOD_NAME[] = 
+        "SecureLocalAuthenticator::~SecureLocalAuthenticator()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
 
 }
 
-Boolean SecureLocalAuthenticator::authenticate(String userName, String password) 
+Boolean SecureLocalAuthenticator::authenticate(
+    const String& userName, 
+    const String& password) 
 {
+    const char METHOD_NAME[] = 
+        "SecureLocalAuthenticator::authenticate()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+
     //
     // not supported, so return false.
     //
@@ -62,11 +84,16 @@ Boolean SecureLocalAuthenticator::authenticate(String userName, String password)
 //
 Boolean SecureLocalAuthenticator::authenticate
 (
-   String filePath, 
-   String secretReceived, 
-   String secretKept
+   const String& filePath, 
+   const String& secretReceived, 
+   const String& secretKept
 )
 {
+    const char METHOD_NAME[] = 
+        "SecureLocalAuthenticator::authenticate()";
+
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
     Boolean authenticated = false;
 
     if ((!String::equal(secretReceived, String::EMPTY)) &&
@@ -89,6 +116,8 @@ Boolean SecureLocalAuthenticator::authenticate
         }
     }
 
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
+
     return (authenticated);
 }
 
@@ -96,11 +125,18 @@ Boolean SecureLocalAuthenticator::authenticate
 // Create authentication response header
 //
 String SecureLocalAuthenticator::getAuthResponseHeader(
-    String userName, 
+    const String& authType, 
+    const String& userName, 
     String& challenge)
 {
-    String responseHeader = "WWW-Authenticate: Local \"";
+    const char METHOD_NAME[] = 
+        "SecureLocalAuthenticator::getAuthResponseHeader()";
 
+    PEG_FUNC_ENTER(TRC_AUTHENTICATION, METHOD_NAME);
+
+    String responseHeader = "WWW-Authenticate: ";
+    responseHeader.append(authType);
+    responseHeader.append(" \"");
     //
     // create a file using user name and write a random number in it.
     //
@@ -118,6 +154,8 @@ String SecureLocalAuthenticator::getAuthResponseHeader(
     //
     responseHeader.append(filePath);
     responseHeader.append("\"");
+
+    PEG_FUNC_EXIT(TRC_AUTHENTICATION, METHOD_NAME);
 
     return (responseHeader);
 }

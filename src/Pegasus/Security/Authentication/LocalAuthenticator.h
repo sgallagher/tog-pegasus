@@ -55,17 +55,20 @@ public:
     virtual ~LocalAuthenticator() { };
 
     /** authenticate. */ 
-    virtual Boolean authenticate(String userName, String password) = 0;
+    virtual Boolean authenticate(
+        const String& userName, 
+        const String& password) = 0;
 
     /** authenticate. */ 
     virtual Boolean authenticate(
-        String userName, 
-        String secretReceived, 
-        String secretKept) = 0;
+        const String& userName, 
+        const String& secretReceived, 
+        const String& secretKept) = 0;
 
     /** getAuthResponseHeader. */ 
     virtual String getAuthResponseHeader(
-        String requestHeader, 
+        const String& authType, 
+        const String& userName, 
         String& challenge) = 0;
 };
 

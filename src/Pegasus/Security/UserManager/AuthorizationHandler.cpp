@@ -43,8 +43,9 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMReference.h>
 
-#include <Pegasus/Security/UserManager/AuthorizationHandler.h>
-#include <Pegasus/Security/UserManager/UserExceptions.h>
+#include "AuthorizationHandler.h"
+#include "UserExceptions.h"
+
 
 PEGASUS_USING_STD;
 
@@ -122,6 +123,10 @@ static const char* WRITE_OPERATIONS []    = {
 //
 AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 {
+    const char METHOD_NAME[] = "AuthorizationHandler::AuthorizationHandler()";
+
+    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+
     _repository = repository;
 
     try
@@ -136,6 +141,8 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 
         //throw e;
     }
+
+    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 }
 
 //
@@ -143,7 +150,11 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 //
 AuthorizationHandler::~AuthorizationHandler()
 {
+    const char METHOD_NAME[] = "AuthorizationHandler::~AuthorizationHandler()";
 
+    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+
+    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 }
 
 //
@@ -151,6 +162,10 @@ AuthorizationHandler::~AuthorizationHandler()
 //
 Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
 {
+    const char METHOD_NAME[] = "AuthorizationHandler::verifyNamespace()";
+
+    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+
     try
     {
         //
@@ -169,14 +184,18 @@ Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
         {
              if (String::equal(nameSpace, namespaceNames[i]))
              {
+                 PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
                  return true;
              }
         }
     }
     catch (Exception& e)
     {
+        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 	throw InvalidNamespace(nameSpace + e.getMessage());
     }
+
+    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 
     return false;
 }
@@ -186,6 +205,10 @@ Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
 //
 void AuthorizationHandler::_loadAllAuthorizations()
 {
+    const char METHOD_NAME[] = "AuthorizationHandler::_loadAllAuthorizations()";
+
+    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+
     Array<CIMNamedInstance> namedInstances;
 
     try
@@ -234,9 +257,11 @@ void AuthorizationHandler::_loadAllAuthorizations()
     }
     catch(Exception& e)
     {
+        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
         throw e;
     }
 
+    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 }
 
 void AuthorizationHandler::setAuthorization(
@@ -244,6 +269,10 @@ void AuthorizationHandler::setAuthorization(
                             const String& nameSpace,
 			    const String& auth)
 {
+    const char METHOD_NAME[] = "AuthorizationHandler::setAuthorization()";
+
+    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+
     //
     // Remove auth if it already exists
     //
@@ -254,28 +283,40 @@ void AuthorizationHandler::setAuthorization(
     //
     if (!_authTable.insert(userName + nameSpace, auth))
     {
+        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
         throw AuthorizationCacheError();
     }
 
+    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 }
 
 void AuthorizationHandler::removeAuthorization(
                             const String& userName,
                             const String& nameSpace)
 {
+    const char METHOD_NAME[] = "AuthorizationHandler::removeAuthorization()";
+
+    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+
     //
     // Remove the specified authorization
     //
     if (!_authTable.remove(userName + nameSpace))
     {
+        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
         throw AuthorizationEntryNotFound(userName, nameSpace);
     }
+    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 }
 
 String AuthorizationHandler::getAuthorization(
                             const String& userName,
                             const String& nameSpace)
 {
+    const char METHOD_NAME[] = "AuthorizationHandler::getAuthorization()";
+
+    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+
     String auth;
 
     //
@@ -283,8 +324,11 @@ String AuthorizationHandler::getAuthorization(
     //
     if (!_authTable.lookup(userName + nameSpace, auth))
     {
+        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
         throw AuthorizationEntryNotFound(userName, nameSpace);
     }
+
+    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 
     return auth;
 }
@@ -298,6 +342,10 @@ Boolean AuthorizationHandler::verifyAuthorization(
                             const String& nameSpace,
                             const String& cimMethodName)
 {
+    const char METHOD_NAME[] = "AuthorizationHandler::verifyAuthorization()";
+
+    PEG_FUNC_ENTER(TRC_AUTHORIZATION, METHOD_NAME);
+
     Boolean authorized = false;
     Boolean readOperation = false;
     Boolean writeOperation = false;
@@ -336,6 +384,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
     }
     catch (Exception& e)
     {
+        PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
         return authorized;
     }
 
@@ -352,6 +401,8 @@ Boolean AuthorizationHandler::verifyAuthorization(
     {
         authorized = true;
     }
+
+    PEG_FUNC_EXIT(TRC_AUTHORIZATION, METHOD_NAME);
 
     return authorized;
 }

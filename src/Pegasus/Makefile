@@ -27,7 +27,9 @@ DIRS = \
     Server/tests \
     ExportServer/tests \
     Client/tests \
-    Compiler/tests
+    Compiler/tests \
+    Security/UserManager/tests \
+    Security/Authentication/tests 
 
 #    Subscription \
 #    Subscription/tests \

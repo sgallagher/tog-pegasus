@@ -1,15 +1,15 @@
 ROOT = ../../../../../..
 
-DIR = Pegasus/Security/Authentication/tests/AuthenticationManager
+DIR = Pegasus/Security/UserManager/tests/AuthorizationHandler
 
 include $(ROOT)/mak/config.mak
 
 include ../libraries.mak
 
 
-PROGRAM = AuthenticationManager
+PROGRAM = AuthorizationHandler
 
-SOURCES = AuthenticationManager.cpp
+SOURCES = AuthorizationHandler.cpp
 
 include $(ROOT)/mak/program.mak
 

@@ -51,15 +51,15 @@ public:
     ~AuthenticationManager();
 
     Boolean performHttpAuthentication(
-        String authHeader,
+        const String& authHeader,
         AuthenticationInfo* authInfo);
 
     Boolean performPegasusAuthentication(
-        String authHeader,
+        const String& authHeader,
         AuthenticationInfo* authInfo);
 
     String getPegasusAuthResponseHeader(
-        String authHeader,
+        const String& authHeader,
         AuthenticationInfo* authInfo);
 
     String getHttpAuthResponseHeader();
@@ -69,7 +69,10 @@ private:
     String _realm;
 
     void _parseAuthHeader(
-        String authHeader, String& authType, String& userName, String& cookie);
+        const String& authHeader, 
+        String& authType, 
+        String& userName, 
+        String& cookie);
 
     Authenticator* _localAuthHandler;
 

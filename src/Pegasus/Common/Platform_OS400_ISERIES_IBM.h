@@ -86,4 +86,6 @@
 
 #define PEGASUS_LOCAL_DOMAIN_SOCKET
 
+#define PEGASUS_HAS_PERFINST
+
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

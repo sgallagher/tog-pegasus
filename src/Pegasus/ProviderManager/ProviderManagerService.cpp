@@ -253,7 +253,10 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 	// get thread and start request method
 	_threadPool.allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
 
-        PEG_METHOD_EXIT();
+	// give the thread a chance to run
+	System::sleep(1);
+
+	PEG_METHOD_EXIT();
 	return;
     }
 
@@ -284,9 +287,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     PEGASUS_ASSERT(service != 0);
 
-    // get message from service queue
-    PEGASUS_ASSERT(service->_incomingQueue.size() != 0);
+    if(service->_incomingQueue.size() == 0)
+    {
+	// thread started with no message in queue.
+	return(1);
+    }
 
+    // get message from service queue
     Message * message = service->_incomingQueue.dequeue();
 
     PEGASUS_ASSERT(message != 0);
@@ -1132,13 +1139,32 @@ void ProviderManagerService::handleCreateSubscriptionRequest(const Message * mes
 	// convert arguments
 	OperationContext context;
 
+	context.add_context(
+	    sizeof(String *),
+	    const_cast<String *>(&(request->userName)),
+	    0,
+	    0,
+	    CONTEXT_IDENTITY,
+	    0,
+	    0);
+	
 	CIMReference subscriptionName = request->subscriptionInstance.getPath();
 	
 	Array<CIMReference> classNames;
 
-	CIMPropertyList propertyList;
+	for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
+	{
+	    CIMReference className(
+		System::getHostName(),
+		request->nameSpace,
+		request->classNames[i]);
+
+	    classNames.append(className);
+	}
+
+	CIMPropertyList propertyList = request->propertyList;
 	
-	Uint16 repeatNotificationPolicy = 2;
+	Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
 	
 	provider.createSubscription(
 	    context,
@@ -1191,15 +1217,35 @@ void ProviderManagerService::handleModifySubscriptionRequest(const Message * mes
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
 	
+	// convert arguments
 	OperationContext context;
-	
-	CIMReference subscriptionName;
 
+	context.add_context(
+	    sizeof(String *),
+	    const_cast<String *>(&(request->userName)),
+	    0,
+	    0,
+	    CONTEXT_IDENTITY,
+	    0,
+	    0);
+	
+	CIMReference subscriptionName = request->subscriptionInstance.getPath();
+	
 	Array<CIMReference> classNames;
 
-	CIMPropertyList propertyList;
+	for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
+	{
+	    CIMReference className(
+		System::getHostName(),
+		request->nameSpace,
+		request->classNames[i]);
+
+	    classNames.append(className);
+	}
+
+	CIMPropertyList propertyList = request->propertyList;
 	
-	Uint16 repeatNotificationPolicy = 2;
+	Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
 	
 	provider.modifySubscription(
 	    context,
@@ -1252,11 +1298,31 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(const Message * mes
 	// get cached or load new provider module
 	Provider provider = providerManager.getProvider(pair.first, pair.second);
 
+	// convert arguments
 	OperationContext context;
-	
-	CIMReference subscriptionName;
 
+	context.add_context(
+	    sizeof(String *),
+	    const_cast<String *>(&(request->userName)),
+	    0,
+	    0,
+	    CONTEXT_IDENTITY,
+	    0,
+	    0);
+	
+	CIMReference subscriptionName = request->subscriptionInstance.getPath();
+	
 	Array<CIMReference> classNames;
+
+	for(Uint32 i = 0, n = request->classNames.size(); i < n; i++)
+	{
+	    CIMReference className(
+		System::getHostName(),
+		request->nameSpace,
+		request->classNames[i]);
+
+	    classNames.append(className);
+	}
 
 	provider.deleteSubscription(
 	    context,
@@ -1297,7 +1363,7 @@ void ProviderManagerService::handleEnableIndicationsRequest(const Message * mess
     // preserve message key
     response->setKey(request->getKey());
 
-    static EnableIndicationsResponseHandler handler(request, response, this);
+    EnableIndicationsResponseHandler handler(request, response, this);
 
     try
     {

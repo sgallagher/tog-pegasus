@@ -367,9 +367,7 @@ public:
 	CIMProcessIndicationRequestMessage * request =
 	    new CIMProcessIndicationRequestMessage(
 		getRequest()->messageId,
-                // ATTN-RK-P2-20020408: Need to get the namespace from provider
-		//static_cast<CIMEnableIndicationsRequestMessage *>(getRequest())->nameSpace,
-		String::EMPTY,
+		cimInstance.getPath().getNameSpace(),
 		cimInstance,
 		QueueIdStack(_target->getQueueId(), _source->getQueueId()));
 
@@ -382,7 +380,7 @@ public:
                 op,
                 _target->getQueueId(),
                 request,
-                _source->getQueueId());
+                _target->getQueueId());
 
 	PEGASUS_ASSERT(asyncRequest != 0);
 	

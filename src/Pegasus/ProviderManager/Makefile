@@ -15,6 +15,7 @@ LIBRARIES = \
 	pegconfig
 
 SOURCES = \
+	MutexLock.cpp \
 	Lockable.cpp \
 	SafeQueue.cpp \
 	ProviderManagerService.cpp \

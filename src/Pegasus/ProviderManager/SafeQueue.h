@@ -32,7 +32,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Queue.h>
-#include <Pegasus/Common/IPC.h>
+
+#include <Pegasus/ProviderManager/MutexLock.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -55,28 +56,6 @@ public:
     Uint32 size(void) const;
 
 protected:
-    class LocalMutex
-    {
-    public:
-	LocalMutex(Mutex & mutex, Boolean lock = true) : _mutex(mutex)
-	{
-	    if(lock == true)
-	    {
-		_mutex.lock(pegasus_thread_self());
-	    }
-	}
-
-	~LocalMutex(void)
-	{
-	    _mutex.unlock();
-	}
-
-    private:
-	Mutex & _mutex;
-
-    };
-
-protected:
     Mutex _mutex;
     Queue<T> _queue;
 
@@ -95,7 +74,7 @@ SafeQueue<T>::~SafeQueue(void)
 template<class T>
 void SafeQueue<T>::enqueue(const T & O)
 {
-    LocalMutex mutex(_mutex);
+    MutexLock mutex(_mutex);
 
     _queue.enqueue(O);
 }
@@ -103,7 +82,7 @@ void SafeQueue<T>::enqueue(const T & O)
 template<class T>
 T & SafeQueue<T>::dequeue(void)
 {
-    LocalMutex mutex(_mutex);
+    MutexLock mutex(_mutex);
 
     T & O = _queue.front();
 
@@ -115,7 +94,7 @@ T & SafeQueue<T>::dequeue(void)
 template<class T>
 T & SafeQueue<T>::front(void)
 {
-    LocalMutex mutex(_mutex);
+    MutexLock mutex(_mutex);
 
     return(_queue.front());
 }
@@ -123,7 +102,7 @@ T & SafeQueue<T>::front(void)
 template<class T>
 const T & SafeQueue<T>::front(void) const
 {
-    LocalMutex mutex(_mutex);
+    MutexLock mutex(_mutex);
 
     return(_queue.front());
 }
@@ -131,7 +110,7 @@ const T & SafeQueue<T>::front(void) const
 template<class T>
 T & SafeQueue<T>::back(void)
 {
-    LocalMutex mutex(_mutex);
+    MutexLock mutex(_mutex);
 
     return(_queue.back());
 }
@@ -139,7 +118,7 @@ T & SafeQueue<T>::back(void)
 template<class T>
 const T & SafeQueue<T>::back(void) const
 {
-    LocalMutex mutex(_mutex);
+    MutexLock mutex(_mutex);
 
     return(_queue.back());
 }

@@ -1,23 +1,27 @@
-//%=============================================================================
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-// DEALINGS IN THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+//==============================================================================
 //
 // Author: Michael E. Brasher
 //
@@ -58,7 +62,7 @@ void Warning(const string& message)
 }
 
 void ProcessOptions(
-    int& argc, char**& argv, 
+    int& argc, char**& argv,
     vector<string>& includePath,
     string& objectDir,
     bool& warn)
@@ -117,7 +121,7 @@ void PrintVector(const vector<string>& v)
 bool GetIncludePath(
     const string& fileName,
     size_t lineNumber,
-    const char* line, 
+    const char* line,
     string& path,
     char& openDelim)
 {
@@ -156,7 +160,7 @@ bool GetIncludePath(
 		// encountered!
 
 		char message[64];
-		sprintf(message, 
+		sprintf(message,
 		    "corrupt #include directive at %s(%d)",
 		    fileName.c_str(),
 		    lineNumber);
@@ -185,7 +189,7 @@ bool GetIncludePath(
 		return false;
 #if 0
 		char message[64];
-		sprintf(message, 
+		sprintf(message,
 		    "corrupt #include directive at %s(%d)",
 		    fileName.c_str(),
 		    lineNumber);
@@ -201,7 +205,7 @@ bool GetIncludePath(
 		return false;
 #if 0
 		char message[64];
-		sprintf(message, 
+		sprintf(message,
 		    "empty path in #include directive at %s(%d)",
 		    fileName.c_str(),
 		    lineNumber);
@@ -219,7 +223,7 @@ bool GetIncludePath(
 		return false;
 #if 0
 		char message[64];
-		sprintf(message, 
+		sprintf(message,
 		    "empty path in #include directive at %s(%d)",
 		    fileName.c_str(),
 		    lineNumber);
@@ -236,9 +240,9 @@ bool GetIncludePath(
 }
 
 FILE* FindFile(
-    const vector<string>& includePath, 
-    const string& path, 
-    char openDelim, 
+    const vector<string>& includePath,
+    const string& path,
+    char openDelim,
     string& fullPath)
 {
     // If the opening delimiter was '"', then check the current
@@ -283,8 +287,8 @@ void PrintDependency(
 }
 
 void ProcessFile(
-    const string& objectFileName, 
-    const string& fileName, 
+    const string& objectFileName,
+    const string& fileName,
     FILE* fp,
     const vector<string>& includePath,
     size_t nesting,
@@ -312,13 +316,13 @@ void ProcessFile(
 	string path;
 	char openDelim;
 
-	if (line[0] == '#' && 
+	if (line[0] == '#' &&
 	    GetIncludePath(fileName, lineNumber, line, path, openDelim))
 	{
 	    // ATTN: danger! not distinguising between angle brack delimited
 	    // and quote delimited paths!
-	    
-	    set<string, less<string> >::const_iterator pos 
+
+	    set<string, less<string> >::const_iterator pos
 		= cache.find(path);
 
 	    if (pos != cache.end())
@@ -333,13 +337,13 @@ void ProcessFile(
 	    {
 		if (warn)
 		{
-		    Warning("header file not found: " + path + 
+		    Warning("header file not found: " + path +
 			" included from " + objectFileName);
 		}
 	    }
 	    else
 	    {
-		ProcessFile(objectFileName, fullPath, fp, includePath, 
+		ProcessFile(objectFileName, fullPath, fp, includePath,
 		    nesting + 1, cache);
 	    }
 	}
@@ -354,7 +358,7 @@ int DependCmdMain(int argc, char** argv)
 
     if (argc == 1)
     {
-	fprintf(stderr, 
+	fprintf(stderr,
 	    "Usage: %s [-W]? [-Oobject_dir]? [-Iinclude_dir]* source_files...\n"
 	    "Where: \n"
 	    "    -W - warn doube include files which cannot be found\n"

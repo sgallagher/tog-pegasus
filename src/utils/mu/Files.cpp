@@ -1,23 +1,27 @@
-//%=============================================================================
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-// DEALINGS IN THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
+//==============================================================================
 //
 // Author: Michael E. Brasher
 //
@@ -65,13 +69,13 @@ static inline size_t _find_last_of(const string& str, char c)
 
     if (p)
 	return size_t(p - str.c_str());
-    
+
     return (size_t)-1;
 }
 
 void _SplitPath(
-    const string& path, 
-    string& dirname, 
+    const string& path,
+    string& dirname,
     string& basename)
 {
     size_t pos = _find_last_of(path, '/');
@@ -174,11 +178,11 @@ _matchrange(const MatchChar *range, MatchChar c, int nocase)
 }
 
 static int
-_StringMatch( 
-    const MatchChar *testString, 
+_StringMatch(
+    const MatchChar *testString,
     const MatchChar *pattern,
     int nocase			/* Ignore case if this is true */
-    ) 
+    )
 {
   const MatchChar *pat = pattern;
   const MatchChar *str = testString;
@@ -270,7 +274,7 @@ static int _StringMatch(
 	 * If so, we succeeded.  If we're at the end of the pattern
 	 * but not at the end of the string, we failed.
 	 */
-	
+
 	if (*pattern == 0) {
 	    if (*string == 0) {
 		return 1;
@@ -287,7 +291,7 @@ static int _StringMatch(
 	 * recursively for each postfix of string, until either we
 	 * MatchString or we reach the end of the string.
 	 */
-	
+
 	if (*pattern == '*') {
 	    pattern += 1;
 	    if (*pattern == 0) {
@@ -303,7 +307,7 @@ static int _StringMatch(
 		string += 1;
 	    }
 	}
-    
+
 	/* Check for a "?" as the next pattern character.  It MatchStringes
 	 * any single character.
 	 */
@@ -316,7 +320,7 @@ static int _StringMatch(
 	 * by a list of characters that are acceptable, or by a range
 	 * (two characters separated by "-").
 	 */
-	
+
 	if (*pattern == '[') {
 	    pattern += 1;
 	    while (1) {
@@ -350,11 +354,11 @@ static int _StringMatch(
 	    }
 	    goto thisCharOK;
 	}
-    
+
 	/* If the next pattern character is '/', just strip off the '/'
 	 * so we do exact MatchStringing on the character that follows.
 	 */
-	
+
 	if (*pattern == '\\') {
 	    pattern += 1;
 	    if (*pattern == 0) {
@@ -365,7 +369,7 @@ static int _StringMatch(
 	/* There's no special character.  Just make sure that the next
 	 * characters of each string MatchString.
 	 */
-	
+
 	if (*pattern != *string) {
 	    return 0;
 	}
@@ -385,7 +389,7 @@ static bool _contains_special_chars(const string& str)
 {
     const char* p = str.c_str();
 
-    return 
+    return
 	strchr(p, '[') || strchr(p, ']') || strchr(p, '*') || strchr(p, '?');
 }
 
@@ -521,8 +525,8 @@ bool CopyFiles(const vector<string>& from, const string& to)
 }
 
 bool CompareFiles(
-    const string& filename1, 
-    const string& filename2, 
+    const string& filename1,
+    const string& filename2,
     size_t& offset)
 {
 #ifdef OS_WINDOWS

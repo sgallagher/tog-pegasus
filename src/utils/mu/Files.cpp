@@ -136,8 +136,109 @@ bool MkDirHier(const string& path)
 
     return true;
 }
+//ATTN: KS 22 Apr 2002 - Put in nonlicensed match function but left the
+// old one enabled for the minute until test complete.
+// ATTN: KS 22 Apr 2002 P1 Test new and delete old TCL licensed code.
+//#define newmatchfunct
+#if defined NEWMATCHFUNCT
+typedef char MatchChar;
 
-
+/*
+inline Boolean _Equal(MatchChar ch1, MatchChar
+     ch2, int nocase)
+{
+	return ch1 == ch2;
+}
+*/
+static const MatchChar *
+_matchrange(const MatchChar *range, MatchChar c, int nocase)
+{
+  const MatchChar *p = range;
+  const MatchChar *rstart = range + 1;
+  const MatchChar *rend = 0;
+  MatchChar compchar;
+
+  for (rend = rstart; *rend && *rend != ']'; rend++);
+  if (*rend == ']') {  // if there is an end to this thing
+    for (compchar = *rstart; rstart != rend; rstart++) {
+      if (*rstart == c)
+        return ++rend;
+      if (*rstart == '-') {
+        rstart++;
+        if (c >= compchar && c <= *rstart)
+          return ++rend;
+      }
+    }
+  }
+  return (const MatchChar *)0;
+}
+
+static int
+_StringMatch( 
+    const MatchChar *testString, 
+    const MatchChar *pattern,
+    int nocase			/* Ignore case if this is true */
+    ) 
+{
+  const MatchChar *pat = pattern;
+  const MatchChar *str = testString;
+  unsigned int done = 0;
+  unsigned int res = 0;  // the result: 1 == match
+
+  while (!done) { // main loop walks through pattern and test string
+    //cerr << "Comparing <" << *pat << "> and <" << *str << ">" << endl;
+    if (!*pat) {                                         //end of pattern
+      done = 1;                                          // we're done
+      if (!*str)                                         //end of test, too?
+        res = 1;                                         // then we matched
+    } else {                                             //Not end of pattern
+      if (!*str) {                                       // but end of test
+        done = 1;                                        // We're done
+        if (*pat == '*')                                 // If pattern openends
+          res = 1;                                       //  then we matched
+      } else {                                           //Not end of test
+        if (*pat == '*') {                               //Ambiguuity found
+          if (!*++pat) {                                 //and it ends pattern
+            done = 1;                                    //  then we're done
+            res = 1;                                     //  and match
+          } else {                                       //if it doesn't end
+            while (!done) {                              //  until we're done
+              if (_StringMatch(str, pat, nocase)) {      //  we recurse
+                done = 1;                                //if it recurses true
+                res = 1;                                 //  we done and match
+              } else {                                   //it recurses false
+                if (!*str)                               // see if test is done
+                  done = 1;                              //  yes: we done
+                else                                     // not done:
+                  str++;                                 //   keep testing
+              } // end test on recursive call
+            } // end looping on recursive calls
+          } // end logic when pattern is ambiguous
+        } else {                                         //pattern not ambiguus
+          if (*pat == '?') {                             //pattern is 'any'
+            pat++, str++;                                //  so move along
+          } else if (*pat == '[') {                      //see if it's a range
+            pat = _matchrange(pat, *str, nocase);         // and is a match
+            if (!pat) {                                  //It is not a match
+              done = 1;                                  //  we're done
+              res = 1;                                   //  no match
+            } else {                                     //Range matches
+              str++, pat++;                              //  keep going
+            }
+          } else {               // only case left is individual characters
+            if (*pat++ !=*str++)                         // if they don't match
+            //if (!_Equal(*pat++, *str++, nocase))         // if they don't match
+              done = 1;                                  //   bail.
+          }
+        }  // end ("pattern is not ambiguous (*)" logic
+      } // end logic when pattern and string still have data
+    } // end logic when pattern still has data
+  } // end main loop
+  return res;
+}
+
+#else
+
 /*
  *----------------------------------------------------------------------
  *
@@ -157,10 +258,10 @@ bool MkDirHier(const string& path)
  *----------------------------------------------------------------------
  */
 
-static int _Tcl_StringMatch(
+static int _StringMatch(
     char *string,		/* String. */
-    char *pattern)		/* Pattern, which may contain special
-				 * characters. */
+    char *pattern,		/* Pattern, which may contain special characters*/
+    int  nocase)    		/* nocase - Do nocase test Not used.. */
 {
     char c2;
 
@@ -193,7 +294,7 @@ static int _Tcl_StringMatch(
 		return 1;
 	    }
 	    while (1) {
-		if (_Tcl_StringMatch(string, pattern)) {
+		if (_StringMatch(string, pattern, nocase)) {
 		    return 1;
 		}
 		if (*string == 0) {
@@ -273,10 +374,11 @@ static int _Tcl_StringMatch(
 	string += 1;
     }
 }
+#endif
 
 inline bool MatchString(const string& pattern, const string& str)
 {
-    return _Tcl_StringMatch((char*)str.c_str(), (char*)pattern.c_str()) != 0;
+    return _StringMatch((char*)str.c_str(), (char*)pattern.c_str(), 0) != 0;
 }
 
 static bool _contains_special_chars(const string& str)

@@ -54,8 +54,7 @@ CIMExportRequestDispatcher::CIMExportRequestDispatcher(
 }
 
 CIMExportRequestDispatcher::CIMExportRequestDispatcher()
-   :
-   Base("CIMExportRequestDispatcher", MessageQueue::getNextQueueId())
+   : Base(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER)
 {
    PEG_METHOD_ENTER(TRC_EXP_REQUEST_DISP,
       "CIMExportRequestDispatcher::CIMExportRequestDispatcher");

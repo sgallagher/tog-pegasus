@@ -170,7 +170,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
       CIMExportIndicationRequestMessage* exportmessage =
 	 new CIMExportIndicationRequestMessage(
 	    "1234",
-	    destination.subString(15), //taking localhost:5988/ portion out from reg
+	    destination.subString(15), //taking localhost:5988 portion out from reg
 	    indication,
 	    QueueIdStack(exportServer[0], getQueueId()));
 	

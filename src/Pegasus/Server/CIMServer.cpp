@@ -191,9 +191,7 @@ CIMServer::CIMServer(
 	= new CIMOperationRequestDispatcher(_repository,
                                             _providerRegistrationManager);
 
-    _indicationService = new IndicationService
-        (_repository, _providerRegistrationManager);
-
+    
     _cimOperationResponseEncoder
 	= new CIMOperationResponseEncoder;
 
@@ -268,6 +266,13 @@ CIMServer::CIMServer(
     }
     else
         sslcontext = NULL;
+
+    // IMPORTANT-NU-20020513: Indication service must start after ExportService
+    // otherwise HandlerService started by indicationService will never
+    // get ExportQueue to export indications for existing subscriptions
+
+    _indicationService = new IndicationService
+        (_repository, _providerRegistrationManager);
 
     _acceptor = new HTTPAcceptor(_monitor, serverQueue, sslcontext);
 

@@ -38,99 +38,90 @@ PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size)
  				       &(internal_allocator.get_handle())) ;
 }
 
+PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t size, 
+					      Sint8 *classname, 
+					      Sint8 *file,
+					      int line)
+{
+   return internal_allocator.vs_malloc(size, 
+ 				       &(internal_allocator.get_handle()),
+				       NORMAL, 
+				       classname, 
+				       file,  
+				       line) ;
+}
+
+
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void * dead) 
 {
    internal_allocator.vs_free(dead); 
 }
 
+
 void * operator new(size_t size)
 {
-   return internal_allocator.vs_malloc(size, 
- 				       &(internal_allocator.get_handle())) ;
+   
+   if( size == 0 )
+      size = 1;
+   void *p;
+   
+   while(1)
+   {
+      p = internal_allocator.vs_malloc(size, 
+				       &(internal_allocator.get_handle()),
+				       NORMAL, 
+				       "BUILTIN NEW", 
+				       __FILE__, __LINE__) ;
+      if( p )
+	 return p;
+      new_handler global = set_new_handler(0);
+      set_new_handler(global);
+      if( global) 
+	 (*global)();
+      else
+	 throw std::bad_alloc();
+   }
 }
+
 
 void operator delete(void *dead)
 {
-   internal_allocator.vs_free(dead); 
-} 
+   if( dead == 0 )
+      return;
+   internal_allocator.vs_free(dead);
+   return;
+}
 
+void * operator new [] (size_t size)
+{
 
-// void * operator new(size_t size)
-// {
-//    cout << "operator new " << endl;
+   if( size == 0 )
+      size = 1;
+   void *p;
    
-// //    if( internal_allocator.get_mode() == false)
-// //    {
-// //       cout << " recursing on operator new " << endl;
-      
-// //       return(::operator new(size));
-// //    }
-   
-   
-//    if( size == 0 )
-//       size = 1;
-//    void *p;
-   
-//    while(1)
-//    {
-//       p = internal_allocator.vs_malloc(size, 
-// 				       &(internal_allocator.get_handle())) ;
-//       if( p )
-// 	 return p;
-//       new_handler global = set_new_handler(0);
-//       set_new_handler(global);
-//       if( global) 
-// 	 (*global)();
-//       else
-// 	 throw std::bad_alloc();
-//    }
-// }
+   while(1)
+   {
+      p = internal_allocator.vs_malloc(size, 
+				       &(internal_allocator.get_handle()), 
+				       ARRAY) ;
+      if( p )
+	 return p;
+      new_handler global = set_new_handler(0);
+      set_new_handler(global);
+      if( global) 
+	 (*global)();
+      else
+	 throw std::bad_alloc();
+   }
+}
 
-// void operator delete(void *dead)
-// {
-//    if( dead == 0 )
-//       return;
-//    if( internal_allocator.get_mode() == false)
-//       return(::operator delete (dead));
-//    internal_allocator.vs_free(dead);
-//    return;
-// }
-
-// void * operator new [] (size_t size)
-// {
-
-//    if( internal_allocator.get_mode() == false)
-//       return(::operator new(size));
-   
-//    if( size == 0 )
-//       size = 1;
-//    void *p;
-   
-//    while(1)
-//    {
-//       p = internal_allocator.vs_malloc(size, 
-// 				       &(internal_allocator.get_handle()), 
-// 				       ARRAY) ;
-//       if( p )
-// 	 return p;
-//       new_handler global = set_new_handler(0);
-//       set_new_handler(global);
-//       if( global) 
-// 	 (*global)();
-//       else
-// 	 throw std::bad_alloc();
-//    }
-// }
-
-// void operator delete [] (void *dead)
-// {
-//    if( dead == 0 )
-//       return;
-//    if( internal_allocator.get_mode() == false)
-//       return(::operator delete (dead));
-//    internal_allocator.vs_free(dead, ARRAY);
-//    return;
-// }
+void operator delete [] (void *dead)
+{
+   if( dead == 0 )
+      return;
+   internal_allocator.vs_free(dead, ARRAY);
+   return;
+}
 
 
 // <<< Sun May  5 22:25:14 2002 mdd >>> 
@@ -701,7 +692,7 @@ void peg_suballocator::PutHugeNode(SUBALLOC_NODE *node)
  *
  ***************************************************************/
 
-void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, Sint8 *f, Sint32 l)
+void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, Sint8 *classname, Sint8 *f, Sint32 l)
 {
    // we don't need to grab any semaphores, 
    // called routines will do that for us
@@ -739,6 +730,9 @@ void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, Sint8 *f,
    g = (Sint8 *)temp->allocPtr;
    assert(*(SUBALLOC_NODE **)g == temp);
    g += sizeof(SUBALLOC_NODE **);
+   memset(temp->classname, 0x00, MAX_CLASS_LEN + 1);
+   if(classname)
+      strncpy(temp->classname, classname, MAX_CLASS_LEN);
    memset(temp->file, 0x00, MAX_PATH_LEN + 1);
    if( f ) 
       strncpy(temp->file, f, MAX_PATH_LEN);
@@ -860,7 +854,7 @@ void peg_suballocator::vs_free(void *m, int type )
 void *peg_suballocator::vs_realloc(void *pblock, size_t newsize, void *handle, int type, Sint8 *f, Sint32 l)
 {
    if (pblock == NULL) {
-      return(vs_malloc(newsize, handle, type, f, l));	
+      return(vs_malloc(newsize, handle, type, 0, f, l));	
    }
    if (newsize == 0) {
       vs_free(pblock);
@@ -900,7 +894,7 @@ Sint8 * peg_suballocator::vs_strdup(const Sint8 *string, void *handle, int type,
 
    if (!string)
       return(NULL);
-   if ((memory = (Sint8 *)vs_malloc(strlen(string) + 1, handle, type, f, l)))
+   if ((memory = (Sint8 *)vs_malloc(strlen(string) + 1, handle, type, 0, f, l)))
       return(strcpy(memory,string));
    
    return(NULL);
@@ -946,8 +940,8 @@ Boolean peg_suballocator::_UnfreedNodes(void * handle)
 	    {
 	       if (dumpFile != NULL)
 	       {
-		  fprintf(dumpFile, "\nfreeing memory: vector %d index %d %s, %s", 
-			  y, i, temp->file, temp->line);
+		  fprintf(dumpFile, "\nfreeing memory: vector %d index %d %s, %s, %s", 
+			  y, i, temp->classname, temp->file, temp->line);
 	       }
 	       ccode = true;
 	       temp->avail = AVAILABLE;

@@ -94,6 +94,7 @@ namespace
    static const int GUARD_SIZE = 0x10;
    static const int MAX_PATH_LEN = 0xff;
    static const int MAX_LINE_LEN = 0x14;
+   static const int MAX_CLASS_LEN = 0x40;
    static const int PRE_ALLOCATE = 0x00;
    static const int STEP_ALLOCATE = 0x01;
    static const int AVAILABLE = 0x00;
@@ -103,7 +104,7 @@ namespace
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t );
+PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t, Sint8 *classname, Sint8 *file, int line );
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -192,6 +193,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 	    Uint8 guardPost[GUARD_SIZE];
 	    Sint8 file[MAX_PATH_LEN + 1];
 	    Sint8 line[MAX_LINE_LEN + 1];
+	    Sint8 classname[MAX_CLASS_LEN + 1];
 	    void *concurrencyHandle;
       } SUBALLOC_NODE;
 
@@ -278,7 +280,7 @@ class PEGASUS_SUBALLOC_LINKAGE peg_suballocator
 
       Boolean InitializeSubAllocator(Sint8 *f = NULL);
       SUBALLOC_HANDLE *InitializeProcessHeap(Sint8 *f = NULL);
-      void *vs_malloc(size_t size, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
+      void *vs_malloc(size_t size, void *handle, int type = NORMAL, Sint8 *classname = 0, Sint8 *f = 0, Sint32 l = 0);
       void *vs_calloc(size_t num, size_t size, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
       void *vs_realloc(void *pblock, size_t newsize, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);
       Sint8 * vs_strdup(const Sint8 *string, void *handle, int type = NORMAL, Sint8 *f = 0, Sint32 l = 0);

@@ -94,7 +94,7 @@ private:
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleCimOperation(void * arg) throw();
 
-    ProviderManager *locateProviderManager(const Message *m, String &itf);
+    ProviderManager *locateProviderManager(const Message *m, String &itf, ProviderName& providerName);
     void handleCimRequest(AsyncOpNode *op, const Message * message);
 
 private:

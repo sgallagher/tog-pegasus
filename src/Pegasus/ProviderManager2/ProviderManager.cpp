@@ -42,7 +42,7 @@ ProviderManager::~ProviderManager(void)
 {
 }
 
-Message * ProviderManager::processMessage(Message * message)
+Message * ProviderManager::processMessage(Message * message, ProviderName providerName)
 {
     // subclasses should implement this method. if not implented, the base
     // classes generates a generic failure.

@@ -44,6 +44,9 @@
 #include "snmpDeliverTrap_stub.h"
 #endif
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
@@ -171,7 +174,13 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
 	}
 	else
 	{
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Invalid MappingStrings Value");
+	  // l10n
+
+	  // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Invalid MappingStrings Value");
+
+	  throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED, 
+					 MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_VALUE", 
+							    "Invalid $0 Value", "MappingStrings"));
 	}
 
 	handler.getProperty(targetHostPos).getValue().get(targetHost);
@@ -198,8 +207,15 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
     }
     else
     {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"Invalid IndicationHandlerSNMPMapper instance");
+
+      // l10n
+
+      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+      // "Invalid IndicationHandlerSNMPMapper instance");
+
+      throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED, 
+				     MessageLoaderParms("Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_INSTANCE", 
+							"Invalid $0 instance", "IndicationHandlerSNMPMapper"));
     }
 }
 

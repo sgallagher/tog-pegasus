@@ -6,7 +6,7 @@ depend: $(OBJ_DIR)/target $(ERROR)
 	
 else
 ifdef PEGASUS_HAS_MAKEDEPEND
-DEPEND_INCLUDES = -DPEGASUS_OS_TYPE_UNIX -I/usr/include $(SYS_INCLUDES)
+DEPEND_INCLUDES += -DPEGASUS_OS_TYPE_UNIX -I/usr/include $(SYS_INCLUDES)
 
 depend: $(OBJ_DIR)/target $(ERROR)
 	touch $(DEPEND_MAK)

@@ -2105,6 +2105,17 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                            (void *) & (matchedSubscriptions [i]));
             }
         }
+
+        //
+        //  Log a trace message if there were no matching subscriptions
+        //
+        if (matchedSubscriptions.size() == 0)
+        {
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2,
+                "No matching subscriptions found for "
+                + indication.getClassName ().getString () +
+                " indication");
+        }
     }
     catch (CIMException& exception)
     {

@@ -34,6 +34,8 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -334,11 +336,11 @@ int main(int argc, char** argv)
 	{
 	    CIMInstance instance = namedInstances[i].getInstance();
 	    if(isXMLOutput)
-		instance.print(cout);
+		XmlWriter::printInstanceElement(instance, cout);
 	    else
 	    {
 		Array<Sint8> x;
-		instance.toMof(x);
+		MofWriter::appendInstanceElement(x, instance);
 	
 		x.append('\0');
 	

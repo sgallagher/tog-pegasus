@@ -363,7 +363,7 @@ int main(int argc, char** argv)
 	    ) throw(CIMClientException);
 
 	****/
-	    cimReference.print(cout);
+	    // ATTN Temp generates an errorcimReference.print(cout);
         /* Output the returned instances
             if(isXMLOutput)
                 cimInstance.print(cout);

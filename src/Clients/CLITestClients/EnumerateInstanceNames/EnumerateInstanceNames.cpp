@@ -224,12 +224,12 @@ int main(int argc, char** argv)
     }
 	catch(CIMClientException& e)
 	{
-	      PEGASUS_STD(cerr) << Argv[0] << " CIMClientException : " << e.getMessage()
+	      PEGASUS_STD(cerr) << argv[0] << " CIMClientException : " << e.getMessage()
 	      <<  " ClassName = " << className << PEGASUS_STD(endl);
 	}
 	catch(Exception& e)
 	{
-	    PEGASUS_STD(cerr) << Argv[0] << " Pegasus Exception: " << e.getMessage() 
+	    PEGASUS_STD(cerr) << argv[0] << " Pegasus Exception: " << e.getMessage() 
 		<<  " ClassName = " << className << PEGASUS_STD(endl);
 	    exit(1);
 	}

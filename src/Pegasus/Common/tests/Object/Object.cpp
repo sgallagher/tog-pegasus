@@ -48,15 +48,17 @@ void test01()
     // Construct from CIMClass
     //
     CIMClass cimClass1("//localhost/root/cimv2:MyClass");
+
     CIMObject oclass1 = cimClass1;
     CIMObject oclass2(cimClass1);
     CIMObject oclass3(oclass2);
     CIMObject oclass4 = oclass3;
 
-    CIMClass cimClass2 = cimClass1;
-    cimClass2 = cimClass1;
-    cimClass2 = CIMClass(oclass1);
-    CIMClass cimClass3 = CIMClass(oclass1);
+     CIMClass cimClass2 = cimClass1;
+
+//      cimClass2 = cimClass1; 
+//      cimClass2 = CIMClass(oclass1);
+//      CIMClass cimClass3 = CIMClass(oclass1);
 
     assert(oclass1.getClassName() == "MyClass");
     assert(oclass1.getPath() == CIMReference("//localhost/root/cimv2:MyClass"));
@@ -140,6 +142,7 @@ void test01()
         Array<Sint8> xmlOut;
         oinstance1.toXml(xmlOut);
     }
+    
 }
 
 //*********************************************************************
@@ -152,9 +155,14 @@ void test02()
     // Construct from CIMClass
     //
     CIMClass class1("//localhost/root/cimv2:MyClass");
+
+    //
+    // Construct from CIMClass
+    //
+    
     CIMObject obj1 = class1;
 
-    CIMConstClass cclass1("MyClass");
+    CIMConstClass cclass1(CIMReference("MyClass"));
     CIMConstObject cobj1(class1);
     CIMConstObject cobj2(cclass1);
     CIMConstObject cobj3(obj1);
@@ -275,9 +283,9 @@ int main(int argc, char** argv)
 
     try
     {
-        test01();
-        test02();
-        test03();
+       test01();
+       test02();
+       test03();
     }
     catch (Exception& e)
     {

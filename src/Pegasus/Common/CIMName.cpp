@@ -41,11 +41,7 @@ Boolean CIMName::legal(const String& name) throw()
 
     for (Uint32 i=1; i<length; i++)
     {
-#ifdef PEGASUS_HAS_EBCDIC
-        if (name[i] > 255)
-#else
-        if (name[i] > 127)
-#endif
+        if (name[i] > PEGASUS_MAX_PRINTABLE_CHAR)
             return false;
 
         if (!(isalpha(name[0]) || name[0] == '_'))

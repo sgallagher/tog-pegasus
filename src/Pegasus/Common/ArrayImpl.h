@@ -39,10 +39,6 @@ PEGASUS_NAMESPACE_END
 #include <Pegasus/Common/ArrayRep.h>
 #include <Pegasus/Common/Exception.h>
 
-#ifdef PEGASUS_HAS_EBCDIC
-#include <unistd.h>
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 #ifndef PEGASUS_ARRAY_T
@@ -314,30 +310,6 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 
     static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size -= size;
 }
-
-#ifdef PEGASUS_HAS_EBCDIC
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-void Array<PEGASUS_ARRAY_T>::etoa()
-{
-#if PEGASUS_ARRAY_T == Sint8
-    __etoa_l((char *)_data(),static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size);
-#endif
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-void Array<PEGASUS_ARRAY_T>::atoe()
-{
-#if PEGASUS_ARRAY_T == Sint8
-    __atoe_l((char *)_data(),static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->size);
-#endif
-}
-
-#endif
 
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>

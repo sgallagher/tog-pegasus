@@ -171,12 +171,6 @@ public:
     */
     void remove(Uint32 pos, Uint32 size);
 
-#ifdef PEGASUS_HAS_EBCDIC
-    void etoa();
-
-    void atoe();
-#endif
-
     typedef PEGASUS_ARRAY_T* iterator;
 
     typedef const PEGASUS_ARRAY_T* const_iterator;

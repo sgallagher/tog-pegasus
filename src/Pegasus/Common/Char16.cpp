@@ -36,12 +36,10 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Char16& x)
 {
     Uint16 code = x.getCode();
 
-#ifdef PEGASUS_HAS_EBCDIC
-    if (code > 0 && code <= 255)
-#else
-    if (code > 0 && code <= 127)
-#endif
+    if (code > 0 && code <= PEGASUS_MAX_PRINTABLE_CHAR)
+    {
 	os << char(code);
+    }
     else
     {
 	// Print in hex format:

@@ -73,7 +73,7 @@
 
 #define PEGASUS_HAVE_BOOLEAN
 
-#define PEGASUS_HAS_EBCDIC
+#define PEGASUS_HAVE_EBCDIC
 
 #define PEGASUS_STATIC_CDECL __cdecl
 

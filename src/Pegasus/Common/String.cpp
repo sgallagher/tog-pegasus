@@ -408,11 +408,7 @@ void String::toLower()
 {
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {
-#ifdef PEGASUS_HAS_EBCDIC
-	if (*p <= 255)
-#else
-	if (*p <= 127)
-#endif
+	if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
 	    *p = tolower(*p);
     }
 }
@@ -494,11 +490,8 @@ int String::compareNoCase(const String& s1, const String& s2)
     {
         int r;
 
-#ifdef PEGASUS_HAS_EBCDIC
-        if (*_s1 <= 255 && *_s2 <= 255)
-#else
-        if (*_s1 <= 127 && *_s2 <= 127)
-#endif
+        if (*_s1 <= PEGASUS_MAX_PRINTABLE_CHAR &&
+            *_s2 <= PEGASUS_MAX_PRINTABLE_CHAR)
         {
             r = tolower(*_s1++) - tolower(*_s2++);
         }
@@ -536,11 +529,8 @@ Boolean String::equalNoCase(const String& str1, const String& str2)
 
     while (n--)
     {
-#ifdef PEGASUS_HAS_EBCDIC
-	if (*p <= 255 && *q <= 255)
-#else
-	if (*p <= 127 && *q <= 127)
-#endif
+	if (*p <= PEGASUS_MAX_PRINTABLE_CHAR &&
+            *q <= PEGASUS_MAX_PRINTABLE_CHAR)
 	{
 	    if (tolower(*p++) != tolower(*q++))
 		return false;
@@ -577,11 +567,7 @@ typedef Uint16 MatchChar;
 
 inline Uint16 _ToLower(Uint16 ch)
 {
-#ifdef PEGASUS_HAS_EBCDIC
-    return ch <= 255 ? tolower(char(ch)) : ch;
-#else
-    return ch <= 127 ? tolower(char(ch)) : ch;
-#endif
+    return ch <= PEGASUS_MAX_PRINTABLE_CHAR ? tolower(char(ch)) : ch;
 }
 
 inline Boolean _Equal(MatchChar ch1, MatchChar ch2, int nocase)

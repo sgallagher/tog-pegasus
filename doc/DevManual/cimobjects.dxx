@@ -1,5 +1,8 @@
 /*
     $Log: cimobjects.dxx,v $
+    Revision 1.3  2001/02/23 20:27:46  karl
+    correct documentation
+
     Revision 1.2  2001/02/05 14:14:00  karl
     doc++ extension for respository
 
@@ -22,6 +25,7 @@ defined in the CIM specification.  This includes:
 Pegasus implements representations of these objects in C++ classes and
 provides methods for creation, manipulation, and deletion of the objects.
 
+
 In addition, Pegasus implements a number of the key concepts built into CIM as objects including:
 <UL>
 <LI> Scope
@@ -29,93 +33,19 @@ In addition, Pegasus implements a number of the key concepts built into CIM as o
 <LI>Object Path
 <LI>etc.
 </UL>
-There is a class for every major CIM object as shown in the following table:
 
-<table border cellspacing=4 cellpadding=5>
-<tr>
-<th colspan=4 align=center>CIM Objects anc Concepts and their Pegasus Implementation</th>
-</tr>
+Much of the programming of the Pegasus object broker, clients, and in particular providers and service extensions in the Pegasus envrinment depends on the use of these C++ representations of CIM Objects and concepts.
 
-<tr>
-<th>CIM Concept / Object</th>
-<th>Pegasus Class</th>
-<th>Reference
-<th>Description</th>
-</tr>
-<tr>
-    <td>CIM Classes</td>
-    <td>classDecl</td>
-    <td>\Ref{CLASSDECL}</td>
-<td>A CIM Class is a collection of instances, all of which support a common type; that is, a set of properties and methods. The common properties and methods are defined as features of the class</td>
-    
-</tr>
+Each Pegasus CIM C++ Object representation includes:
 
-<tr>
-    <td>CIM Instance</td>
-    <td>InstanceDecl</td>
-    <td></td>    <td></td>
-</tr>
-<tr>
-    <td>CIM DateTime</td>
-    <td>DateTime</td>
-    <td></td>    <td></td>
-</tr>
-
-<tr>
-    <td>CIM Qualifier Declaration</td>
-    <td>?????</td>
-    <td></td>    <td></td>
-</tr>
-    
-<tr>
-    <td>CIM Qualifier</td>
-    <td>InstanceDecl</td>
-    <td></td>    <td></td>
-</tr>
-
-<tr>
-    <td>CIM Property</td>
-    <td>Property</td>
-    <td>\Ref{PROPERTY}</td>
-    <td>A value used to characterize an instance of a class.</td>
-</tr>
-
-<tr>
-    <td>CIM Object Path</td>
-    <td>Reference</td>
-    <td></td>    <td></td>
-</tr>
-
-<tr>
-    <td>CIM Method</td>
-    <td>method</td>
-    <td></td>    <td></td>
-</tr>
-
-<tr>
-    <td>CIM Scope</td>
-    <td>scope</td>
-    <td></td>    <td></td>
-</tr>
-
-<tr>
-    <td>CIM flavor</td>
-    <td>flavor</td>
-    <td>\Ref{FLAVOR}</td>
-    <td>Part of a qualifier spcification indicating overriding and inheritance rules.</td>
-</tr>
-
-<tr>
-    <td>CIM ????</td>
-    <td>Qualifier Type</td>
-    <td></td>    <td></td>
-    </tr>
-
-<tr>
-    <td>CIM Array</td>
-    <td>Array</td>
-    <td></td>    <td></td>
-    </tr>
-</table>
-
+<UL>
+<LI>TConstructors and destructors
+<LI>Methods for manipulation of sub-objects.  Thus, the class and instance classes provide for manipulation of the property, qualifier, and method objects that are contained in these classes.
+<LI>Methods for finding sub-objects. Thus, the class and instance classes provide for finding property, qualifier, and method objects within an instnace of a CIMClass or CIMInstance. These methods are generally built around defining the name of the object to be found and having an index to that object returned.
+<LI>Methods for comparison
+<LI>Methods for cloning
+<LI>Methods to convert the object to XML
+<LI>Methods to convert the object to MOF (Planned)
+</UL>
+There is a class for every major CIM object and concept as shown in the table in \Ref{CIM Object Table}
 */

@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.12  2001/02/23 20:27:46  karl
+	correct documentation
+	
 	Revision 1.11  2001/02/21 01:53:08  karl
 	Namespaces stuff
 	
@@ -37,14 +40,42 @@ This file defines the document strucuture and provides the introduction
 	
 	$Author: karl $
 */
-/** @name Pegasus
+/* do not change the following Name.  Used in the Frame definition
+*/
+/** @name Introduction
 
-<STRONG><B>Welcome to PEGASUS</B></STRONG>
+<CENTER><FONT Size=+4>Welcome to PEGASUS</FONT></CENTER>
 
-<P><B>DRAFT FOR REVIEW</B>
-<P>Version 0.5, 01/02/02</P>
-<P>Version 0.6  01/04/02 - Clean up the API defintions. and Add repository section.
-<P>Version 0.7  02/20/02 - Change Class names, Add definitions, Add Architecture documentation.
+<P><B><CENTER>DRAFT FOR REVIEW</CENTER></B>
+
+<table border="1" width="100%">
+  <CAPTION>Revision History</CAPTION>
+  <tr>
+    <td width="10%"><b>Versions</b></td>
+    <td width="13%"><b>Date</b></td>
+    <td width="37%"><b>Author</b></td>
+    <td width="117%"><b>Comments</b></td>
+  </tr>
+  <tr>
+    <td width="10%">0.5</td>
+    <td width="13%">01/02/02</td>
+    <td width="37%">Karl</td>
+    <td width="117%">&nbsp;</td>
+  </tr>
+    <tr>
+      <td width="10%">0.6</td>
+      <td width="13%">01/04/02</td>
+      <td width="37%">Karl</td>
+      <td width="117%">Clean up the API defintions. and Add repository section.</td>
+  </tr>
+  </tr>
+    <tr>
+      <td width="10%">0.7</td>
+      <td width="13%">02/20/02</td>
+      <td width="37%">Karl</td>
+      <td width="117%">Change Class names, Add definitions, Add Architecture documentation.</td>
+  </tr>  
+</table>
 
 Pegasus is an open source implementation of the manageability environment defined by the DMTF WBEM standards.
 
@@ -54,7 +85,7 @@ Pegasus is an open source implementation of the manageability environment define
 
 This manual serves as both a manual for installation and operation of the prototype version of Pegasus and a manual for developing components to attach to Pegasus. In addition to the manual, we keep current working information in a set of README files within the Pegasus distributions. Please consult these files also.
 
-Within this manual you should find:
+Within this manual you will find:
 <UL>
 <LI>Information on the installation and operation of the broker and additional components.
 <LI> A basic defintion of the architecture and function of Pegasus.
@@ -71,31 +102,10 @@ NOTE: This a working document today.  It is revised frequently as we learn more 
 
 This version of the Pegasus User Manual was created at \today
 */
-
-/*
-Table stuff to see if it worksl
-
-<table border cellspacing=0 cellpadding=5>
-<tr>
-<td colspan=2 rowspan=2></td>
-<th colspan=2 align=center>Preferences></th>
-</tr>
-<tr>
-<th>Eating Kumquats</th>
-<th>poke int he eye</th>
-</tr>
-</table>
-*/
-
-/* Change list to mvoe this into repository
-    Datetime - Done Comments need more work
-    String - Moved but comments need work
-    Name
-    Type
-    Property
-    Reference
-    Value
-    Union  - First comments in
+/* The following is the complete file haearchy for this document.
+   We ahve tried to keep all file references in only this one place
+   to make modification easier.  In the future, please keep the
+   references here and text in the individual files.
 */
 //@{
     //@Include: objectives.dxx
@@ -105,7 +115,9 @@ Table stuff to see if it worksl
     //@Include: Components.dxx
     //@Include: Utilization.dxx
     //@Include: CIMOBJECTS.dxx
-         //@{ 
+        //@{
+	   //@Include: CIMOBJECTTable.dxx 
+           //@{ 
     		//@Include: ..\..\src\Pegasus\Common\Array.h
     		//@Include: ..\..\src\Pegasus\Common\CIMClass.h
     		//@Include: ..\..\src\Pegasus\Common\CIMDateTime.h
@@ -126,7 +138,11 @@ Table stuff to see if it worksl
     		//@Include: ..\..\src\Pegasus\Common\CIMFlavor.h
     		//@Include: ..\..\src\Pegasus\Common\Char16.h
         	//@Include: ..\..\src\Pegasus\Common\DeclContext.h
+        	//@{
+		//@Include: ..\..\src\Pegasus\Common\Exception.dxx  
         	//@Include: ..\..\src\Pegasus\Common\Exception.h
+        	//@}
+            //@}
         	
 	//@}
     //@Include: Interfaces.dxx
@@ -153,9 +169,12 @@ Table stuff to see if it worksl
     //@Include: ProviderWriting.dxx
     //@Include: definitions.dxx
     //@Include: Examples.dxx
+    	
+    	//@{
+    		//@Include: ExamplesClient.dxx
+     		//@Include: ExamplesProvider.dxx  
+    	//@}
     //@Include: references.dxx
     //@Include: FAQ.dxx
 //@}
-
-
 

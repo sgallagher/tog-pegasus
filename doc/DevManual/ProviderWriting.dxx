@@ -1,12 +1,15 @@
 /*
 
     $Log: ProviderWriting.dxx,v $
+    Revision 1.2  2001/02/23 20:27:46  karl
+    correct documentation
+
     Revision 1.1  2001/02/02 18:49:53  karl
     Doc++ expansion
 
 */
-/** @Name Provider Writing
 
+/** @name Writing Providers.
 ATTN:
 
 */

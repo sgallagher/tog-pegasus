@@ -31,14 +31,6 @@
 #include "Base64.h"
 #include <Pegasus/Common/ArrayInternal.h>
 
-#ifdef PEGASUS_OS_OS400
-// OS400 is EBCDIC so it needs to convert string and characters to ASCII
-// prior to decode and encode.  The encoding and decoding are done in ASCII.
-#include <Pegasus/Common/OS400ConvertChar.h>
-// This converts all string literal to ccsid 819
-#pragma convert(819) 
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
@@ -127,12 +119,6 @@ Array<Sint8> Base64::encode(const Array<Uint8>& vby)
     if (vby.size() == 0)
         return retArray;
     // for every character in the input array taken 3 bytes at a time
-
-#ifdef PEGASUS_OS_OS400
-    //For OS400 convert from ebcdic to ascii
-    EtoA((char *)vby.getData(), vby.size());
-#endif
-
     for (Uint32 i=0; i < vby.size(); i+=3)
     {
         
@@ -178,11 +164,6 @@ Array<Sint8> Base64::encode(const Array<Uint8>& vby)
         */
     };
 
-#ifdef PEGASUS_OS_OS400
-    //For OS400 convert from ascii to ebcdic
-    AtoE((char *)retArray.getData(), retArray.size());
-#endif
-
     return retArray;
 };
 /*I checked for the zero length. The algorithm would also work for zero length input stream, but I’m pretty adamant about handling border conditions. They are often the culprits of run-time production failures.
@@ -194,11 +175,6 @@ The algorithm goes thru each three bytes of data at a time. The first thing I do
 */
 Array<Uint8> Base64::decode(const Array<Sint8> strInput)
 {
-#ifdef PEGASUS_OS_OS400
-    //For OS400 convert from ebcdic to ascii
-    EtoA((char *)strInput.getData(), strInput.size());
-#endif
-
     //Strip any non-base64 characters from the input
     Array<Sint8> str;
     for (Uint32 j=0;j<strInput.size();j++)
@@ -248,10 +224,6 @@ Array<Uint8> Base64::decode(const Array<Sint8> strInput)
             retArray.append( ((by3&0x3)<<6)|by4 );
     }
 
-#ifdef PEGASUS_OS_OS400
-    //For OS400 convert from ascii to ebcdic
-    AtoE((char *)retArray.getData(), retArray.size());
-#endif
 
     return retArray;
 };

@@ -234,7 +234,15 @@ Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
     if (!existsNoCase(path, realPath))
 	return false;
 
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = _clonePath(realPath);
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    is.open(tmp PEGASUS_IOS_BINARY);
+#else
     is.open(_clonePath(realPath) PEGASUS_IOS_BINARY);
+#endif
+
     return !!is;
 }
 
@@ -250,7 +258,14 @@ Boolean FileSystem::openNoCase(
 #if defined(__GNUC__) && GCC_VERSION >= 30200
     fs.open(_clonePath(realPath), PEGASUS_STD(ios_base::openmode)(mode));
 #else
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = _clonePath(realPath);
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    fs.open(tmp, mode, PEGASUS_STD(_CCSID_T(1208)) );
+#else
     fs.open(_clonePath(realPath), mode);
+#endif
 #endif
     return !!fs;
 }

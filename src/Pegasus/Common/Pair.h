@@ -23,19 +23,14 @@
 // Author:
 //
 // $Log: Pair.h,v $
-// Revision 1.1  2001/01/14 19:53:01  mike
-// Initial revision
+// Revision 1.2  2001/02/18 16:11:25  mike
+// delete
+//
+// Revision 1.1.1.1  2001/01/14 19:53:01  mike
+// Pegasus import
 //
 //
 //END_HISTORY
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Pair.h
-//
-//	This template class represents a simple pair of two elements.
-//
-////////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Pair_h
 #define Pegasus_Pair_h

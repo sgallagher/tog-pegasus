@@ -34,7 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include "CGIQueryString.h"
+#include "../../CGIQueryString.h"
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

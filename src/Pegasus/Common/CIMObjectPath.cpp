@@ -184,9 +184,16 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const String& value, Type type
     _rep = new CIMKeyBindingRep(name, value, type);
 }
 
-#ifdef PEGASUS_FUTURE
 CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
 {
+    // ATTN-RK-20020920: Verify that real numbers cannot be keys
+    if (value.isArray() ||
+        (value.getType() == CIMTYPE_REAL32) ||
+        (value.getType() == CIMTYPE_REAL64))
+    {
+        throw TypeMismatchException();
+    }
+
     String kbValue = value.toString();
     Type kbType;
 
@@ -210,7 +217,6 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
 
     _rep = new CIMKeyBindingRep(name, kbValue, kbType);
 }
-#endif
 
 CIMKeyBinding::~CIMKeyBinding()
 {
@@ -253,9 +259,16 @@ void CIMKeyBinding::setType(CIMKeyBinding::Type type)
     _rep->_type = type;
 }
 
-#ifdef PEGASUS_FUTURE
 Boolean CIMKeyBinding::equal(CIMValue value)
 {
+    // ATTN-RK-20020920: Verify that real numbers cannot be keys
+    if (value.isArray() ||
+        (value.getType() == CIMTYPE_REAL32) ||
+        (value.getType() == CIMTYPE_REAL64))
+    {
+        return false;
+    }
+
     CIMValue kbValue;
 
     try
@@ -263,18 +276,28 @@ Boolean CIMKeyBinding::equal(CIMValue value)
         switch (value.getType())
         {
         case CIMTYPE_CHAR16:
+            if (getType() != STRING) return false;
             kbValue.set(getValue()[0]);
             break;
         case CIMTYPE_DATETIME:
+            if (getType() != STRING) return false;
             kbValue.set(CIMDateTime(getValue()));
             break;
         case CIMTYPE_STRING:
+            if (getType() != STRING) return false;
             kbValue.set(getValue());
             break;
         case CIMTYPE_REFERENCE:
+            if (getType() != REFERENCE) return false;
             kbValue.set(CIMObjectPath(getValue()));
             break;
-        default:  // Boolean and numerics
+        case CIMTYPE_BOOLEAN:
+            if (getType() != BOOLEAN) return false;
+            kbValue = XmlReader::stringToValue(0, getValue().getCString(),
+                                               value.getType());
+            break;
+        default:  // Numerics
+            if (getType() != NUMERIC) return false;
             kbValue = XmlReader::stringToValue(0, getValue().getCString(),
                                                value.getType());
             break;
@@ -287,7 +310,6 @@ Boolean CIMKeyBinding::equal(CIMValue value)
 
     return value.equal(kbValue);
 }
-#endif
 
 Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
 {

@@ -71,14 +71,14 @@ public:
     */
     CIMKeyBinding(const CIMName& name, const String& value, Type type);
 
-#ifdef PEGASUS_FUTURE
     /** Construct a CIMKeyBinding with a name and CIMValue, mapping from
         CIMValue types to CIMKeyBinding types.
         @param name CIMName for the key for this binding object.
         @param value CIMValue from which to extract the value for this key.
+        @exception TypeMismatchException if the type of the value is not valid
+        for a key property.
     */
     CIMKeyBinding(const CIMName& name, const CIMValue& value);
-#endif
 
     /** Destructor */
     ~CIMKeyBinding();
@@ -105,9 +105,7 @@ public:
     /** Modifier */
     void setType(Type type);
 
-#ifdef PEGASUS_FUTURE
     Boolean equal(CIMValue value);
-#endif
 
 private:
 

@@ -250,6 +250,7 @@ void CIMInstanceRep::toMof(Array<Sint8>& out) const
     out << "\n};\n";
 
 }
+
 CIMObjectPath CIMInstanceRep::buildPath(
     const CIMConstClass& cimClass) const
 {
@@ -267,7 +268,7 @@ CIMObjectPath CIMInstanceRep::buildPath(
     cimClass.getKeyNames(keyNames);
 
     if (keyNames.size() == 0)
-	return CIMObjectPath();
+	return CIMObjectPath("", CIMNamespaceName(), className);
 
     //--------------------------------------------------------------------------
     // Get type and value for each key (building up key bindings):
@@ -286,54 +287,7 @@ CIMObjectPath CIMInstanceRep::buildPath(
 
 	if (keyName.equal(tmp.getName()))
 	{
-	    const CIMValue& value = tmp.getValue();
-
-	    // ATTN-A: for now just assert:
-	    if (value.isArray())
-		PEGASUS_ASSERT(false);
-
-	    CIMType type = value.getType();
-	    String valueStr;
-
-	    CIMKeyBinding::Type kbType = CIMKeyBinding::STRING;
-
-	    switch (type)
-	    {
-		case CIMTYPE_BOOLEAN:
-		    kbType = CIMKeyBinding::BOOLEAN;
-		    valueStr = value.toString();
-		    break;
-
-		case CIMTYPE_UINT8:
-		case CIMTYPE_SINT8:
-		case CIMTYPE_UINT16:
-		case CIMTYPE_SINT16:
-		case CIMTYPE_UINT32:
-		case CIMTYPE_SINT32:
-		case CIMTYPE_UINT64:
-		case CIMTYPE_SINT64:
-		case CIMTYPE_CHAR16:
-		    kbType = CIMKeyBinding::NUMERIC;
-		    valueStr = value.toString();
-		    break;
-
-		case CIMTYPE_STRING:
-		case CIMTYPE_DATETIME:
-		    kbType = CIMKeyBinding::STRING;
-		    valueStr = value.toString();
-		    break;
-
-		case CIMTYPE_REFERENCE:
-		    kbType = CIMKeyBinding::REFERENCE;
-		    valueStr = value.toString();
-		    break;
-
-		case CIMTYPE_REAL32:
-		case CIMTYPE_REAL64:
-		    PEGASUS_ASSERT(false);
-	    }
-
-	    keyBindings.append(CIMKeyBinding(keyName, valueStr, kbType));
+	    keyBindings.append(CIMKeyBinding(keyName, tmp.getValue()));
 	}
     }
 

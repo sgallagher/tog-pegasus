@@ -221,6 +221,89 @@ void test02()
     assert(errorDetected);
 }
 
+// Test CIMKeyBinding constructor (CIMValue variety) and equal(CIMValue) method
+void test03()
+{
+    Boolean exceptionFlag = false;
+    try
+    {
+        CIMKeyBinding kb0("test0", Real32(3.14159));
+    }
+    catch (TypeMismatchException&)
+    {
+        exceptionFlag = true;
+    }
+    assert(exceptionFlag);
+
+    CIMKeyBinding kb1("test1", String("3.14159"), CIMKeyBinding::NUMERIC);
+    assert(!kb1.equal(Real32(3.14159)));
+
+    CIMKeyBinding kb2("test2", Uint32(1000));
+    assert(kb2.equal(Uint32(1000)));
+    assert(!kb2.equal(Uint32(1001)));
+    assert(kb2.getValue() == "1000");
+
+    CIMKeyBinding kb3("test3", Char16('X'));
+    assert(kb3.equal(Char16('X')));
+    assert(!kb3.equal(Char16('Y')));
+    assert(kb3.getValue() == "X");
+
+    CIMKeyBinding kb4("test4", CIMDateTime("19991224120000.000000+360"));
+    assert(kb4.equal(CIMDateTime("19991224120000.000000+360")));
+    assert(!kb4.equal(CIMDateTime("19991225120000.000000+360")));
+    assert(kb4.getValue() == "19991224120000.000000+360");
+    kb4.setValue("0");
+    assert(!kb4.equal(CIMDateTime("19991224120000.000000+360")));
+
+    CIMKeyBinding kb5("test5", String("StringTest"));
+    assert(kb5.equal(String("StringTest")));
+    assert(!kb5.equal(String("StringTest1")));
+    assert(kb5.getValue() == "StringTest");
+
+    CIMKeyBinding kb6("test6", Boolean(true));
+    assert(kb6.equal(Boolean(true)));
+    assert(!kb6.equal(Boolean(false)));
+    assert(kb6.getValue() == "TRUE");
+    kb6.setValue("true1");
+    assert(!kb6.equal(Boolean(true)));
+
+    CIMKeyBinding kb7("test7", CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\""));
+    assert(kb7.equal(CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"")));
+    assert(kb7.equal(CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.FIRST=\"Patrick\",LAST=\"Rafter\"")));
+    assert(!kb7.equal(CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"")));
+
+    exceptionFlag = false;
+    try
+    {
+        CIMKeyBinding kb8("test8", Array<Uint32>());
+    }
+    catch (TypeMismatchException&)
+    {
+        exceptionFlag = true;
+    }
+    assert(exceptionFlag);
+
+    CIMKeyBinding kb9("test9", String("1000"), CIMKeyBinding::STRING);
+    assert(!kb9.equal(Uint32(1000)));
+
+    CIMKeyBinding kb10("test10", String("100"), CIMKeyBinding::NUMERIC);
+    assert(kb10.equal(Uint64(100)));
+    assert(kb10.equal(Uint32(100)));
+    assert(kb10.equal(Uint16(100)));
+    assert(kb10.equal(Uint8(100)));
+    assert(kb10.equal(Sint64(100)));
+    assert(kb10.equal(Sint32(100)));
+    assert(kb10.equal(Sint16(100)));
+    assert(kb10.equal(Sint8(100)));
+    assert(!kb10.equal(String("100")));
+
+    CIMKeyBinding kb11("test11", String("+100"), CIMKeyBinding::NUMERIC);
+    assert(kb11.equal(Sint64(100)));
+    assert(kb11.equal(Sint32(100)));
+    assert(kb11.equal(Sint16(100)));
+    assert(kb11.equal(Sint8(100)));
+    assert(!kb11.equal(String("100")));
+}
 
 int main(int argc, char** argv)
 {
@@ -230,6 +313,7 @@ int main(int argc, char** argv)
     {
 	test01();
 	test02();
+	test03();
 
         cout << argv[0] << " +++++ passed all tests" << endl;
     }

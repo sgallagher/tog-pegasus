@@ -306,8 +306,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
          PEG_METHOD_EXIT();
 	 throw NullPointer();
       }
-      if(_work == &_undertaker)
+
+      if(_work ==
+         (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)) &_undertaker)
+      {
 	 _work(parm);
+      }
+
       gettimeofday(deadlock_timer, NULL);
       try 
       {

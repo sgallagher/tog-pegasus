@@ -45,11 +45,18 @@ typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 
 typedef struct {
+	PEGASUS_SEMAPHORE_TYPE sem;
+	PEGASUS_THREAD_TYPE owner;
+} PEGASUS_SEM_HANDLE ;
+
+/*
+typedef struct {
     Uint32 waiters;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
     PEGASUS_THREAD_TYPE owner;
 } PEGASUS_SEM_HANDLE ;
+*/
 
 typedef struct {
     pthread_mutex_t mut;

@@ -167,24 +167,67 @@ void test01()
         // Leading numeric (the second 1) 
         CIMObjectPath h1
          ("//usopen-9.usta-1-a.1org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception& e)
+     {
+        errorDetected = true;
+     }
+     assert(errorDetected);
 
+     errorDetected = false;
+     try
+     {
         // Non-alphanum char (?)
         CIMObjectPath h11 
          ("//usopen-9.usta?-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception& e)
+     {
+        errorDetected = true;
+     }
+     assert(errorDetected);
+
+     errorDetected = false;
+     try
+     {
         // Leading dot
         CIMObjectPath h2 
          ("//.usopen-9.usta-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception& e)
+     {
+        errorDetected = true;
+     }
+     assert(errorDetected);
+
+     errorDetected = false;
+     try
+     {
         // Dot in the wrong spot (before a -)
         CIMObjectPath h3 
          ("//usopen.-9.usta-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception& e)
+     {
+        errorDetected = true;
+     }
+     assert(errorDetected);
+
+     errorDetected = false;
+     try
+     {
         // Two dots in a row
         CIMObjectPath h4 
          ("//usopen-9.usta-1-a..org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception& e)
+     {
+        errorDetected = true;
+     }
+     assert(errorDetected);
+
+     errorDetected = false;
+     try
+     {
         // Trailing dot
         CIMObjectPath h5 
          ("//usopen-9.usta-1-a.org.:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     }
-     catch (Exception& e)
+     } catch (Exception& e)
      {
         errorDetected = true;
      }

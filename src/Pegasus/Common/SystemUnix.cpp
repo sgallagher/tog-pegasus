@@ -142,10 +142,8 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     *dot = '\0';
     strcat(p, ".sl");
 
-PEGASUS_OUT(p);
     void* handle = shl_load(p, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
     delete [] p;
-PEGASUS_OUT(handle);
 
     return DynamicLibraryHandle(handle);
 #else

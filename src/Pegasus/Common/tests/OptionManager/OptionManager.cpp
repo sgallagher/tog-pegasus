@@ -2,10 +2,10 @@
 #include <cassert>
 #include <Pegasus/Common/OptionManager.h>
 
-using namespace std;
-using namespace Pegasus;
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
-static char* colors[] = { "red", "green", "blue" };
+static const char* colors[] = { "red", "green", "blue" };
 static const Uint32 NCOLORS = sizeof(colors) / sizeof(colors[0]);
 
 //struct OptionRow
@@ -23,7 +23,7 @@ static struct OptionRow options[] =
 {
     {"host", "", true, Option::STRING, 0, 0, "h"},
     {"port", "80", false, Option::WHOLE_NUMBER, 0, 0, "p"},
-    {"color", "red", false, Option::STRING, colors, NCOLORS, "c"},
+    {"color", "red", false, Option::STRING, (char**)colors, NCOLORS, "c"},
     {"trace", "false", false, Option::BOOLEAN, 0, 0, "t"},
     {"message", "Hello World", false, Option::STRING, 0, 0, "m"},
     {"falsetest","false",false, Option::BOOLEAN, 0, 0, "f",}
@@ -71,13 +71,13 @@ int main()
     {
 	// Emulate a command line:
 
-	char* argv[] = 
+	const char* argv[] = 
 	{
 	    "main", "-h", "www.opengroup.org", "-p", "8080", "-t", "-c", "blue",
 	    "-one", "two", "-three", "four", "-five", 0
 	};
 	int argc = sizeof(argv) / sizeof(argv[0]) - 1;
-	test01(argc, argv);
+	test01(argc, (char**)argv);
 
 	// The routine should have removed all the processed options
 	// and left the following:

@@ -9,17 +9,17 @@
     "based on the DMTF WBEM SLP Template.  Each property in the class "
     "represents one object in the template registration." ) ]
 class PG_WBEMSLPTemplate {
+   [key, Description ("Unique key for the class") ]
+   string InstanceID;
    string template_type="wbem";
    string template_version="1.0";
    string template_description="This template describes the attributes used for advertising CIM Servers.";
-   [key]
    string template_url_syntax;
    string service_hi_name;
   [Description ("This string is used as a description of the CIM service "
     "for human interfaces. This attribute MUST be the "
     "CIM_ObjectManager.Description property value.") ]
    string service_hi_description;
-   [Key]
    string service_id;
    string service_location_tcp;
    string CommunicationMechanism;

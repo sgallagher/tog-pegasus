@@ -320,6 +320,8 @@ class PEGASUS_EXPORT Thread
       inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
       inline PEGASUS_THREAD_TYPE self(void) {return pegasus_thread_self(); }
 
+      PEGASUS_THREAD_HANDLE getThreadHandle() {return _handle;}
+
    private:
       Thread();
       inline void create_tsd(Sint8 *key ) throw(IPCException)

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.cpp,v $
+// Revision 1.5  2001/02/13 16:35:32  mike
+// Fixed compiler error with createInstance()
+//
 // Revision 1.4  2001/02/11 05:45:33  mike
 // Added case insensitive logic for files in Repository
 //
@@ -1322,7 +1325,7 @@ void Client::createClass(
 
 void Client::createInstance(
     const String& nameSpace,
-    const InstanceDecl& newInstance) 
+    InstanceDecl& newInstance) 
 {
     throw CimException(CimException::NOT_SUPPORTED);
 }

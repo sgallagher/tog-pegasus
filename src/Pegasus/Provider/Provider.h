@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Provider.h,v $
+// Revision 1.5  2001/02/13 16:35:32  mike
+// Fixed compiler error with createInstance()
+//
 // Revision 1.4  2001/02/13 07:00:18  mike
 // Added partial createInstance() method to repository.
 //
@@ -87,8 +90,8 @@ public:
 	ClassDecl& newClass);
 
     virtual void createInstance(
-	String& nameSpace,
-	const InstanceDecl& newInstance) ;
+	const String& nameSpace,
+	InstanceDecl& newInstance);
 
     virtual void modifyClass(
 	const String& nameSpace,

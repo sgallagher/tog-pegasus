@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Provider.cpp,v $
+// Revision 1.4  2001/02/13 16:35:32  mike
+// Fixed compiler error with createInstance()
+//
 // Revision 1.3  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -97,7 +100,7 @@ void Provider::createClass(
 
 void Provider::createInstance(
     const String& nameSpace,
-    const InstanceDecl& newInstance) 
+    InstanceDecl& newInstance) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
 }

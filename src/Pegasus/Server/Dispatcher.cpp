@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.cpp,v $
+// Revision 1.2  2001/02/13 16:35:32  mike
+// Fixed compiler error with createInstance()
+//
 // Revision 1.1  2001/01/31 08:22:28  mike
 // added dispatcher
 //
@@ -106,7 +109,7 @@ void Dispatcher::createClass(
 
 void Dispatcher::createInstance(
     const String& nameSpace,
-    const InstanceDecl& newInstance) 
+    InstanceDecl& newInstance) 
 { 
     throw CimException(CimException::NOT_SUPPORTED);
 }

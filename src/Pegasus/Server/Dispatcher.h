@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.h,v $
+// Revision 1.2  2001/02/13 16:35:32  mike
+// Fixed compiler error with createInstance()
+//
 // Revision 1.1  2001/01/31 08:22:28  mike
 // added dispatcher
 //
@@ -86,7 +89,7 @@ public:
 
     virtual void createInstance(
 	const String& nameSpace,
-	const InstanceDecl& newInstance) ;
+	InstanceDecl& newInstance) ;
 
     virtual void modifyClass(
 	const String& nameSpace,

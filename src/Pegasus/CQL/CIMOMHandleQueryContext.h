@@ -57,6 +57,8 @@ class PEGASUS_CQL_LINKAGE CIMOMHandleQueryContext: public QueryContext
 	CIMOMHandleQueryContext& operator=(const CIMOMHandleQueryContext& rhs);
 
         CIMClass getClass (const CIMName& inClassName);
+
+	Array<CIMName> enumerateClassNames(const CIMName& inClassName);
        
   private:  
 	CIMOMHandleQueryContext();

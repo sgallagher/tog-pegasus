@@ -58,6 +58,8 @@ class PEGASUS_CQL_LINKAGE QueryContext
 
         virtual CIMClass getClass(const CIMName& inClassName) = 0;
 
+	virtual Array<CIMName> enumerateClassNames(const CIMName& inClassName) = 0;
+
         String getHost(Boolean fullyQualified = true);
 
         CIMNamespaceName getNamespace() const;

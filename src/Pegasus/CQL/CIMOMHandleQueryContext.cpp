@@ -39,7 +39,6 @@ CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName)
 
   // ATTN - constructing OperationContext from scratch may be a problem
   // once security is added to that object
-
   CIMClass _class = _CH.getClass(OperationContext(),
 				 getNamespace(),
 				 inClassName,
@@ -48,6 +47,16 @@ CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName)
 				 includeClassOrigin,
 				 CIMPropertyList());
   return _class;
+}
+
+Array<CIMName> CIMOMHandleQueryContext::enumerateClassNames(const CIMName& inClassName)
+{
+  // ATTN - constructing OperationContext from scratch may be a problem
+  // once security is added to that object
+  return _CH.enumerateClassNames(OperationContext(),
+				  getNamespace(),
+				  inClassName,
+				  true);          // deepInheritance
 }
 
 PEGASUS_NAMESPACE_END

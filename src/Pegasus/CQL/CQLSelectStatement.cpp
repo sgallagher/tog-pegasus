@@ -152,22 +152,47 @@ Boolean CQLSelectStatement::appendWhereIdentifier(const CQLChainedIdentifier& x)
    return _rep->appendWhereIdentifier(x);
 }
 
-String CQLSelectStatement::toString(){
-	return _rep->toString();
+void CQLSelectStatement::applyContext()
+{
+   PEGASUS_ASSERT(_rep != NULL);
+
+   _rep->applyContext();
 }
 
-void CQLSelectStatement::setHasWhereClause(){
-	_rep->setHasWhereClause();
+void CQLSelectStatement::normalizeToDOC()
+{
+   PEGASUS_ASSERT(_rep != NULL);
+
+   _rep->normalizeToDOC();
 }
 
-Boolean CQLSelectStatement::hasWhereClause(){
-	return _rep->hasWhereClause();
+void CQLSelectStatement::setHasWhereClause()
+{
+  PEGASUS_ASSERT(_rep != NULL);
+
+  _rep->setHasWhereClause();
+}
+
+Boolean CQLSelectStatement::hasWhereClause()
+{
+  PEGASUS_ASSERT(_rep != NULL);
+
+  return _rep->hasWhereClause();
+}
+
+String CQLSelectStatement::toString()
+{
+  PEGASUS_ASSERT(_rep != NULL);
+
+  return _rep->toString();
 }
 
 void CQLSelectStatement::clear(){
-	_rep->clear();
-	if(_rep) delete _rep;
-	_rep = new CQLSelectStatementRep();
+  PEGASUS_ASSERT(_rep != NULL);
+
+  _rep->clear();
+  if(_rep) delete _rep;
+  _rep = new CQLSelectStatementRep();
 }
 
 PEGASUS_NAMESPACE_END

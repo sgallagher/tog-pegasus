@@ -56,6 +56,8 @@ class PEGASUS_CQL_LINKAGE RepositoryQueryContext: public QueryContext
 	~RepositoryQueryContext();
 
         CIMClass getClass (const CIMName& inClassName);
+
+	Array<CIMName> enumerateClassNames(const CIMName& inClassName);
          
    private: 
 	RepositoryQueryContext();

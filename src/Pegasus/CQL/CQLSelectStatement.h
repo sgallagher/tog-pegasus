@@ -209,11 +209,22 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
            */
         const CQLChainedIdentifier& x);
 
-    String toString();
+    /**
+       Applies the class contexts from the FROM list to the identifiers
+       in the statement.
+     */
+    void applyContext();
+
+    /**
+       Normalizes the WHERE clause to disjunction of conjunctions.
+     */
+    void normalizeToDOC();
 
     void setHasWhereClause();
 
     Boolean hasWhereClause();
+
+    String toString();
 
     void clear();
 

@@ -44,6 +44,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+struct EmbeddedPropertyNode;
+
 /**  
 This class is derived from the SelectStatement base class.  
 The purpose of this class is to perform the select statement operations for
@@ -209,6 +211,17 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
            */
         const CQLChainedIdentifier& x);
 
+    /**
+       Applies the class contexts from the FROM list to the identifiers
+       in the statement.
+     */
+    void applyContext();
+
+    /**
+       Normalizes the WHERE clause to disjunction of conjunctions.
+     */
+    void normalizeToDOC();
+
     String toString();
 
     void setHasWhereClause();
@@ -249,6 +262,26 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     Boolean _hasWhereClause;
 
   private:
+
+    void applyProjection(EmbeddedPropertyNode* node, CIMProperty& nodeProp);
+
+    void removeUnneededProperties(CIMInstance& inst, 
+				  Array<CIMName>& requiredProps);
+
+    void validateProperty(CQLChainedIdentifier& chainId);
+
+    CIMName lookupFromClass(const String&  lookup);
+
+    Boolean addRequiredProperty(Array<CIMName>& reqProps,
+				CIMClass& theClass,
+				CQLChainedIdentifier& chainId);
+
+    Boolean containsProperty(const CIMName& name,
+			     const Array<CIMName>& props);
+
+    Boolean isSubClass(const CIMName& derived,
+		       const CIMName& base); 
+
     CQLPredicate _predicate;
 };
 

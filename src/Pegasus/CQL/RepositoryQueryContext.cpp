@@ -83,5 +83,12 @@ CIMClass RepositoryQueryContext::getClass(const CIMName& inClassName)
   return _class;
 }
   
+Array<CIMName> RepositoryQueryContext::enumerateClassNames(const CIMName& inClassName)
+{
+  return _CIMRep->enumerateClassNames(getNamespace(),
+				      inClassName,
+				      true);          // deepInheritance
+}
+
 PEGASUS_NAMESPACE_END
 

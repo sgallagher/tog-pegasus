@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -86,26 +86,26 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepositoryInterface {
   };
   cimmofRepositoryInterface();
   virtual ~cimmofRepositoryInterface();
-  void init(_repositoryType type, String location, CIMRepository_Mode Mode,
+  void init(_repositoryType type, String location, const CIMRepository_Mode Mode,
 	    compilerCommonDefs::operationType ot);
   Boolean ok() const { return _repository || _client; }
   virtual void addClass(
-      const CIMNamespaceName &nameSpace, 
+      const CIMNamespaceName &nameSpace,
       CIMClass &Class) const;
   virtual void addQualifier(
-      const CIMNamespaceName &nameSpace, 
+      const CIMNamespaceName &nameSpace,
       CIMQualifierDecl &qual) const;
   virtual void addInstance(
-      const CIMNamespaceName &nameSpace, 
+      const CIMNamespaceName &nameSpace,
       CIMInstance &instance) const;
   virtual CIMQualifierDecl getQualifierDecl(
       const CIMNamespaceName &nameSpace,
       const CIMName &qualifierName) const;
   virtual CIMClass getClass(
-      const CIMNamespaceName &nameSpace, 
+      const CIMNamespaceName &nameSpace,
       const CIMName &className) const;
   virtual void modifyClass(
-      const CIMNamespaceName &nameSpace, 
+      const CIMNamespaceName &nameSpace,
       CIMClass &Class) const;
   virtual void createNameSpace(const CIMNamespaceName &nameSpace) const;
 };

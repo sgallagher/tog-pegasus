@@ -79,7 +79,7 @@ SignalHandler::~SignalHandler()
 
 void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
 {
-    reg_mutex.lock(pthread_self());
+    reg_mutex.lock(pegasus_thread_self());
     deactivate_i(signum);
     reg_handler[signum].sh = _sighandler;
     reg_mutex.unlock();
@@ -87,14 +87,14 @@ void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
 
 void SignalHandler::activate(Uint32 signum)
 {
-    reg_mutex.lock(pthread_self());
+    reg_mutex.lock(pegasus_thread_self());
     if (reg_handler[signum].active) return; // throw exception
 
     struct sigaction * sig_acts = new struct sigaction;
 
     sig_acts->sa_sigaction = reg_handler[signum].sh;
     sigfillset(&(sig_acts->sa_mask));
-#ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     sig_acts->sa_flags = SA_SIGINFO | SA_RESETHAND;
 #else
     sig_acts->sa_flags = SA_SIGINFO | SA_ONESHOT;
@@ -111,7 +111,7 @@ void SignalHandler::activate(Uint32 signum)
 
 void SignalHandler::deactivate(Uint32 signum)
 {
-    reg_mutex.lock(pthread_self());
+    reg_mutex.lock(pegasus_thread_self());
     deactivate_i(signum);
     reg_mutex.unlock();
 }
@@ -127,7 +127,7 @@ void SignalHandler::deactivate_i(Uint32 signum)
 
 void SignalHandler::deactivateAll()
 {
-    reg_mutex.lock(pthread_self());
+    reg_mutex.lock(pegasus_thread_self());
     for (Uint32 i=0; i < 32; i++)
         if (reg_handler[i].active) deactivate_i(i);
     reg_mutex.unlock();

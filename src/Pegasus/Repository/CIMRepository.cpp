@@ -64,7 +64,15 @@
 #endif
 
 #define INDENT_XML_FILES
-
+/* See bug report 1046
+The following fix  turns off the filtering of enumerate
+instances for localOnly, includeQualifiers, IncludClassOrigin
+deepInheritance, PropertyList. It is included for the moment
+13 November 2003 to keep the code installed but not change
+current client behavior pending architecture team decison.
+KS, 13 Sept 2003  Note that there is also a flag in 
+tests/cimrepository2.cpp */
+#define PEGASUS_NO_ENUMERATEINSTANCE_FILTER
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -2008,7 +2016,7 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
             enumerateInstancesForClass(nameSpace, className,
                 deepInheritance, localOnly,
                 includeQualifiers, includeClassOrigin, false, propertyList);
-        /*
+        /* Code from before we changed to call once per class.
         if (!_loadAllInstances(nameSpace, classNames[i], localNamedInstances))
         {
         	//l10n
@@ -2096,6 +2104,8 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
         }
         // Do any required filtering of properties, qualifiers, classorigin
         // on the returned instances.
+// Turn off this function for the moment since it changes client behavior
+#ifndef PEGASUS_NO_ENUMERATEINSTANCE_FILTER
         for (Uint32 i = 0 ; i < namedInstances.size(); i++)
         {
             _filterInstance(namedInstances[i],
@@ -2104,8 +2114,8 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
                 includeQualifiers,
                 includeClassOrigin);
         }
+#endif    
     }
-    
     PEG_METHOD_EXIT();
     return namedInstances;
 }

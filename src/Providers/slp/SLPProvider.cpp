@@ -88,8 +88,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
 
-//#define CDEBUG(X)
-#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
+#define CDEBUG(X)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -615,7 +615,7 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
 
     // Add the registered instance to the current active list.
 
-    CDEBUG("Register Instance internally");
+    CDEBUG("Registered Instance internally Good");
     _instances.append(instance1);
     _instanceNames.append(reference1);
     PEG_METHOD_EXIT();
@@ -679,6 +679,7 @@ Boolean SLPProvider::issueSLPRegistrations()
         }
         catch(...)
         {
+            CDEBUG("slp_agend.start_listener failed");
             throw CIMOperationFailedException("Start SLP Listener Failed");
         }
     
@@ -897,7 +898,7 @@ void SLPProvider::invokeMethod(
     
     handler.processing();
     
-    Uint32 response = 0;
+    Sint32 response = 0;
     if (objectReference.getClassName().equal (SlpTemplateClassName))
     {
         if (methodName.equal ("register"))
@@ -940,11 +941,12 @@ void SLPProvider::invokeMethod(
 
 // Do not allow termination of this function.
 // ATTN: Note that we should allow termination if unregistered.
+/*   Remove this function completely as it is no longer supported.
 Boolean SLPProvider::tryterminate(void)
 {
    return false;
 }
-
+*/ 
 void SLPProvider::terminate(void)
 {
     slp_agent.unregister();

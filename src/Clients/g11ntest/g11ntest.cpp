@@ -460,7 +460,7 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
       // message file will cause us to test the default message
       // strings compiled into the code.	
  
-      for (Uint32 n = 0; n < testRepeat; n++)        // repeat the test x time
+      for (Uint32 q = 0; q < testRepeat; q++)        // repeat the test x time
       {
           //
           //  TEST 1 - Enumerate Instances of the base class, deepInheritance == false.  

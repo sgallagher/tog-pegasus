@@ -1,5 +1,8 @@
 /*
 	$Log: Utilization.dxx,v $
+	Revision 1.2  2001/02/02 18:48:20  karl
+	Doc++ expansion
+	
 	Revision 1.1  2001/01/24 14:18:49  karl
 	import Dev Doc Files
 	
@@ -50,8 +53,7 @@ Provider implementations and thier associated tools.
 	
 	/** @name Pegasus Installation
 	
-	The Installation for Pegasus is currently defined in the readme file in the Pegasus
-	root directory
+	The Installation for Pegasus is currently defined in the readme file in the Pegasus root directory
 	
 	*/
 	

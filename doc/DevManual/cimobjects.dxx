@@ -1,0 +1,44 @@
+/*
+    $Log: cimobjects.dxx,v $
+    Revision 1.1  2001/02/02 18:48:20  karl
+    Doc++ expansion
+
+*/
+/** @name CIM Objects in Pegasus
+
+The Common Information model (CIM) consists of a number of basic objects
+defined in the CIM specification.  This includes:
+<UL>
+<LI>Classes \Ref{CLASS}
+<LI>Instances of Classes \Rf{REFERENCE}
+<LI>Qualifiers \Ref{QUALIFIER}
+<LI>Properties
+<LI>Methods
+<LI>Arrays
+<LI>etc.
+</UL>
+Pegasus implements representations of these objects in C++ classes and
+provides methods for creation, manipulation, and deletion of the objects.
+
+In addition, Pegasus implements a number of the key concepts built into CIM as objects including:
+
+<UL>
+<LI> Scope
+<LI> Flavor
+<LIetc.
+</UL>
+
+
+There is a class for every major CIM object as follows:
+
+CIM Classes - ClassDecl
+CIM Instances - InstanceDecl
+CIM Qualifiers - Qualifier
+CIM Properties - Property
+CIM Methods - Method
+CIM Scope - Scope
+CIM Flavor - Flavor
+CIM Qualifier Type - Qualifier types
+CIM Arrays Array
+
+*/

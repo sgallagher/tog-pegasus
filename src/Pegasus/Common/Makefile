@@ -12,10 +12,11 @@ _NEW_SOURCES = \
     Monitor.cpp \
     HTTPAcceptor.cpp \
     HTTPConnection.cpp \
-    HTTPConnector.cpp 
+    HTTPConnector.cpp  \
+    HTTPMessage.cpp
 
 SOURCES = \
-    $(_NEW_SOURCES) \
+    $(NEW_SOURCES) \
     OptionManager.cpp \
     Socket.cpp \
     CIMStatusCode.cpp \

@@ -57,29 +57,6 @@ public:
     Sint32 socket;
 };
 
-/** This message is sent from a connection to its output queue when
-    a complete HTTP message is received.
-*/
-class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
-{
-public:
-
-    HTTPMessage(const Array<Sint8>& message_, Uint32 returnQueueId_ = 0);
-
-    Array<Sint8> message;
-    Uint32 returnQueueId;
-
-    typedef Pair<String, String> HTTPHeader;
-
-    void parse(
-	String& firstLine,
-	Array<HTTPHeader>& headers,
-	Sint8*& content,
-	Uint32& contentLength) const;
-
-    void print(PEGASUS_STD(ostream)& os) const;
-};
-
 /** This class represents an HTTP listener.
 */
 class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue

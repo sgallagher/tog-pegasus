@@ -85,20 +85,20 @@ void WebServerQueue::handleEnqueue()
 
 Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 {
-    String firstLine;
+    String startLine;
     Array<HTTPMessage::HTTPHeader> headers;
     Sint8* content;
     Uint32 contentLength;
 
-    requestMessage->parse(firstLine, headers, content, contentLength);
+    requestMessage->parse(startLine, headers, content, contentLength);
 
     // requestMessage->print(cout);
 
     // Split the first line about the method name and the rest:
 
-    Uint32 space = firstLine.find(' ');
-    String methodName = firstLine.subString(0, space);
-    String remainder = firstLine.subString(space + 1);
+    Uint32 space = startLine.find(' ');
+    String methodName = startLine.subString(0, space);
+    String remainder = startLine.subString(space + 1);
 
     // Handle GET requests:
 

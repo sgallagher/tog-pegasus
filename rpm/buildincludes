@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Build include files
+#
+#PROOT=/home/markus/src/pegasus
+#BROOT=/home/markus/src/tmp
+PROOT=$1
+BROOT=$2
+
+rm -f $BROOT/rpm_pegasus_include_files
+pushd  $PROOT/src
+list=`find Pegasus -iname '*.h'`
+popd
+for i in $list;do
+    j=`dirname $i`;
+    echo "/usr/include/"$i >> $BROOT/rpm_pegasus_include_files
+    mkdir -p $BROOT/usr/include/$j
+    cp $PROOT/src/$i $BROOT/usr/include/$i
+done;

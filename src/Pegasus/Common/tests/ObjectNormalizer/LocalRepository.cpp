@@ -56,21 +56,15 @@ LocalRepository::LocalRepository(void) : context(0)
 
         classA.addQualifier(CIMQualifier("Abstract", Boolean(true)));
 
-        CIMProperty property1("property1", CIMValue(CIMTYPE_UINT32, 0, 0), 0, CIMName(), "ClassA");
-
-        property1.addQualifier(CIMQualifier("Key", Boolean(true)));
+        CIMProperty property1("Property1", CIMValue(CIMTYPE_UINT32, 0, 0), 0, CIMName(), "ClassA");
 
         classA.addProperty(property1);
 
-        CIMProperty property2("property2", CIMValue(String("default_value")), 0, CIMName(), "ClassA");
-
-        property2.addQualifier(CIMQualifier("Key", Boolean(true)));
+        CIMProperty property2("Property2", CIMValue(String("default_value")), 0, CIMName(), "ClassA");
 
         classA.addProperty(property2);
 
-        CIMProperty property3("property3", CIMValue(CIMTYPE_DATETIME, 0, 0), 0, CIMName(), "ClassA");
-
-        property3.addQualifier(CIMQualifier("Key", Boolean(true)));
+        CIMProperty property3("Property3", CIMValue(CIMTYPE_DATETIME, 0, 0), 0, CIMName(), "ClassA");
 
         classA.addProperty(property3);
 
@@ -84,26 +78,25 @@ LocalRepository::LocalRepository(void) : context(0)
 
         classB.addQualifier(CIMQualifier("Abstract", Boolean(true)));
 
-        CIMProperty property1("property1", CIMValue(CIMTYPE_UINT32, 0, 0), 0, CIMName(), "ClassA");
+        CIMProperty property1("Property1", CIMValue(CIMTYPE_UINT32, 0, 0), 0, CIMName(), "ClassA");
 
         property1.addQualifier(CIMQualifier("Key", Boolean(true)));
 
         classB.addProperty(property1);
 
-        CIMProperty property2("property2", CIMValue(String("default_value")), 0, CIMName(), "ClassA");
+        CIMProperty property2("Property2", CIMValue(String("default_value")), 0, CIMName(), "ClassA");
 
         property2.addQualifier(CIMQualifier("Key", Boolean(true)));
 
         classB.addProperty(property2);
 
-        CIMProperty property3("property3", CIMValue(CIMTYPE_DATETIME, 0, 0), 0, CIMName(), "ClassA");
+        CIMProperty property3("Property3", CIMValue(CIMTYPE_DATETIME, 0, 0), 0, CIMName(), "ClassA");
 
         property3.addQualifier(CIMQualifier("Key", Boolean(true)));
 
         classB.addProperty(property3);
 
-        // create default value for property2
-        CIMProperty property4("property4", CIMValue(String("default_value")), 0, CIMName(), "ClassB");
+        CIMProperty property4("Property4", CIMValue(String("default_value")), 0, CIMName(), "ClassB");
 
         classB.addProperty(property4);
 
@@ -111,32 +104,102 @@ LocalRepository::LocalRepository(void) : context(0)
         context->addClass("test_namespace", classB);
     }
 
-    // creae sub-class
+    // create sub-class
     {
         CIMClass classC("ClassC", "ClassB");
 
-        CIMProperty property1("property1", CIMValue(CIMTYPE_UINT32, 0, 0), 0, CIMName(), "ClassA");
+        classC.addQualifier(CIMQualifier("Description", String("")));
+
+        CIMProperty property1("Property1", CIMValue(CIMTYPE_UINT32, 0, 0), 0, CIMName(), "ClassA");
 
         property1.addQualifier(CIMQualifier("Key", Boolean(true)));
+        property1.addQualifier(CIMQualifier("Description", String("")));
 
         classC.addProperty(property1);
 
-        CIMProperty property2("property2", CIMValue(String("default_value")), 0, CIMName(), "ClassA");
+        CIMProperty property2("Property2", CIMValue(String("default_value")), 0, CIMName(), "ClassA");
 
         property2.addQualifier(CIMQualifier("Key", Boolean(true)));
+        property2.addQualifier(CIMQualifier("Description", String("")));
 
         classC.addProperty(property2);
 
-        CIMProperty property3("property3", CIMValue(CIMTYPE_DATETIME, 0, 0), 0, CIMName(), "ClassA");
+        CIMProperty property3("Property3", CIMValue(CIMTYPE_DATETIME, 0, 0), 0, CIMName(), "ClassA");
 
         property3.addQualifier(CIMQualifier("Key", Boolean(true)));
+        property3.addQualifier(CIMQualifier("Description", String("")));
 
         classC.addProperty(property3);
 
-        // create default value for property2
-        CIMProperty property4("property4", CIMValue(String("default_value")), 0, CIMName(), "ClassB");
+        CIMProperty property4("Property4", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassB");
+
+        property4.addQualifier(CIMQualifier("Description", String("")));
 
         classC.addProperty(property4);
+
+        CIMProperty property5("Property5", CIMValue(CIMTYPE_REAL32, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property5);
+
+        CIMProperty property6("Property6", CIMValue(CIMTYPE_REAL64, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property6);
+
+        CIMProperty property7("Property7", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property7);
+
+        CIMProperty property8("Property8", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property8);
+
+        CIMProperty property9("Property9", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property9);
+
+        CIMProperty property10("Property10", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property10);
+
+        CIMProperty property11("Property11", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property11);
+
+        CIMProperty property12("Property12", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property12);
+
+        CIMProperty property13("Property13", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property13);
+
+        CIMProperty property14("Property14", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property14);
+
+        CIMProperty property15("Property15", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property15);
+
+        CIMProperty property16("Property16", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property16);
+
+        CIMProperty property17("Property17", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property17);
+
+        CIMProperty property18("Property18", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property18);
+
+        CIMProperty property19("Property19", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property19);
+
+        CIMProperty property20("Property20", CIMValue(CIMTYPE_STRING, 0, 0), 0, CIMName(), "ClassC");
+
+        classC.addProperty(property20);
 
         // add class to namespace
         context->addClass("test_namespace", classC);
@@ -157,28 +220,14 @@ LocalRepository::~LocalRepository(void)
 CIMClass LocalRepository::getClass(
     const String & nameSpace,
     const String & className,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    CIMClass cimClass = context->lookupClass("test_namespace", className);
+    // create a duplicate object before modifying
+    CIMClass cimClass = context->lookupClass("test_namespace", className).clone();
 
-
-    if(localOnly == true)
-    {
-        // remove parent properties
-        for(Uint32 i = 0, n = cimClass.getPropertyCount(); i < n; i++)
-        {
-            if(String::equalNoCase(cimClass.getProperty(i).getClassOrigin().getString(), className))
-            {
-                cimClass.removeProperty(i);
-                i--;
-            }
-        }
-    }
-
-    if(includeQualifiers == false)
+    if(!includeQualifiers)
     {
         // remove qualifiers from class
         for(Uint32 i = 0, n = cimClass.getQualifierCount(); i < n; i++)
@@ -198,7 +247,7 @@ CIMClass LocalRepository::getClass(
         }
     }
 
-    if(includeClassOrigin == false)
+    if(!includeClassOrigin)
     {
         // remove class origin
         for(Uint32 i = 0, n = cimClass.getPropertyCount(); i < n; i++)
@@ -207,7 +256,6 @@ CIMClass LocalRepository::getClass(
         }
     }
 
-    // ATTN: patch the class object path because the repository does not set the host or namespace elements.
     cimClass.setPath(CIMObjectPath("localhost", "test_namespace", cimClass.getClassName()));
 
     return(cimClass);

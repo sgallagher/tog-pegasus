@@ -128,7 +128,6 @@ void Test002a(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -136,9 +135,8 @@ void Test002a(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -175,7 +173,6 @@ void Test002b(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -183,9 +180,8 @@ void Test002b(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -224,7 +220,6 @@ void Test002c(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -232,9 +227,8 @@ void Test002c(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -275,7 +269,6 @@ void Test002d(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -283,9 +276,8 @@ void Test002d(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -330,7 +322,6 @@ void Test003a(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -338,9 +329,8 @@ void Test003a(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -373,7 +363,6 @@ void Test003b(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -381,9 +370,8 @@ void Test003b(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -421,7 +409,6 @@ void Test003c(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -429,9 +416,8 @@ void Test003c(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -463,14 +449,13 @@ void Test003c(void)
     PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
-// instance object path (with missing information--use default values)
+// instance object path (with missing information)
 void Test003d(void)
 {
     PRINT("Test003d");
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -478,9 +463,8 @@ void Test003d(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -501,25 +485,33 @@ void Test003d(void)
 
     cimObjectPath.setKeyBindings(keys);
 
-    _stopwatch.start();
+    try
+    {
+        _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
-    _stopwatch.stop();
+        _stopwatch.stop();
 
-    PRINT(normalizedObjectPath.toString());
+        throw Exception("Failed to dected instance with missing keys.");
+    }
+    catch(CIMException & e)
+    {
+        _stopwatch.stop();
+
+        PRINT("expected CIMException: " << e.getMessage());
+    }
 
     PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
-// instance object path (with erroneous and extra information)
+// instance object path (with extra information)
 void Test003e(void)
 {
     PRINT("Test003e");
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -527,9 +519,8 @@ void Test003e(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -576,7 +567,6 @@ void Test004a(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
 
@@ -584,9 +574,8 @@ void Test004a(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -627,7 +616,6 @@ void Test004b(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
 
@@ -635,9 +623,8 @@ void Test004b(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -681,24 +668,22 @@ void Test004b(void)
 // instance object successes
 //
 
-// instance with key properties but no object path
+// instance with class origin
 void Test005a(void)
 {
     PRINT("Test005a");
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = true;
-    Boolean includeClassOrigin = false;
+    Boolean includeClassOrigin = true;
 
     CIMClass cimClass =
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -712,8 +697,22 @@ void Test005a(void)
     cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
     cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005a"))));
     cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
-    // no object path specified
+    // complete object path
+    CIMObjectPath cimObjectPath;
+
+    cimObjectPath.setClassName(cimInstance.getClassName());
+
+    Array<CIMKeyBinding> keys;
+
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+
+    cimObjectPath.setKeyBindings(keys);
+
+    cimInstance.setPath(cimObjectPath);
 
     _stopwatch.start();
 
@@ -738,7 +737,6 @@ void Test005b(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
 
@@ -746,9 +744,8 @@ void Test005b(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -795,17 +792,13 @@ void Test005b(void)
     PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
-/*
-ATTN: disabled test because localOnly is deprecated
-
-// instance with local properties only
+// instance with qualifiers
 void Test005c(void)
 {
     PRINT("Test005c");
 
     _stopwatch.reset();
 
-    Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
 
@@ -813,9 +806,8 @@ void Test005c(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -825,11 +817,18 @@ void Test005c(void)
 
     CIMInstance cimInstance(cimClass.getClassName());
 
+    cimInstance.addQualifier(CIMQualifier("Description", String("This object qualifier value comes from the instance")));
+
     // all properties
     cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
     cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005c"))));
     cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+
+    CIMProperty property4("property4", CIMValue(String("Pegasus TestObjectNormalizer")));
+
+    property4.addQualifier(CIMQualifier("Description", String("This property qualifier value comes from the instance")));
+
+    cimInstance.addProperty(property4);
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -861,7 +860,6 @@ void Test005c(void)
 
     PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
-*/
 
 // include with properties containing class origin
 void Test005d(void)
@@ -870,17 +868,15 @@ void Test005d(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = true;
-    Boolean includeClassOrigin = true;
+    Boolean includeClassOrigin = false;
 
     CIMClass cimClass =
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -936,7 +932,6 @@ void Test100a(void)
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -944,9 +939,8 @@ void Test100a(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -981,14 +975,13 @@ void Test100a(void)
     PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
-// large instance set with object paths set and without qualifiers
+// large instance set without qualifiers and without class origin
 void Test101a(void)
 {
     PRINT("Test101a");
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
 
@@ -996,9 +989,8 @@ void Test101a(void)
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -1006,7 +998,7 @@ void Test101a(void)
         includeQualifiers,
         includeClassOrigin);
 
-    for(Uint32 i = 0, n = 100; i < n; i++)
+    for(Uint32 i = 0, n = 1000; i < n; i++)
     {
         CIMInstance cimInstance(cimClass.getClassName());
 
@@ -1023,11 +1015,13 @@ void Test101a(void)
 
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
-        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101a"))));
         keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
         cimObjectPath.setKeyBindings(keys);
+
+        cimInstance.setPath(cimObjectPath);
 
         _stopwatch.start();
 
@@ -1046,24 +1040,22 @@ void Test101a(void)
     PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.")
 }
 
-// large instance set without object paths and without qualifiers
+// large instance set without qualifiers and with class origin
 void Test101b(void)
 {
     PRINT("Test101b");
 
     _stopwatch.reset();
 
-    Boolean localOnly = false;
     Boolean includeQualifiers = false;
-    Boolean includeClassOrigin = false;
+    Boolean includeClassOrigin = true;
 
     CIMClass cimClass =
         repository->getClass(
             "test_namespace",
             "ClassC",
-            localOnly,
-            true,   // always true. needed for key qualifiers
-            localOnly ? true : includeClassOrigin,  // class origin is needed if local only is true
+            true,
+            includeClassOrigin,
             CIMPropertyList());
 
     ObjectNormalizer normalizer(
@@ -1071,7 +1063,7 @@ void Test101b(void)
         includeQualifiers,
         includeClassOrigin);
 
-    for(Uint32 i = 0, n = 100; i < n; i++)
+    for(Uint32 i = 0, n = 1000; i < n; i++)
     {
         CIMInstance cimInstance(cimClass.getClassName());
 
@@ -1081,7 +1073,85 @@ void Test101b(void)
         cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
         cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
-        // no object path specified (obtained via instance)
+        // complete object path
+        CIMObjectPath cimObjectPath;
+
+        cimObjectPath.setClassName(cimInstance.getClassName());
+
+        Array<CIMKeyBinding> keys;
+
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101b"))));
+        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+
+        cimObjectPath.setKeyBindings(keys);
+
+        cimInstance.setPath(cimObjectPath);
+
+        _stopwatch.start();
+
+        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
+
+        _stopwatch.stop();
+
+        if(verbose)
+        {
+            cout << normalizedInstance.getPath().toString() << endl;
+
+            XmlWriter::printInstanceElement(normalizedInstance);
+        }
+    }
+
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
+}
+
+// large instance set with qualifiers and with class origin
+void Test101c(void)
+{
+    PRINT("Test101c");
+
+    _stopwatch.reset();
+
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = true;
+
+    CIMClass cimClass =
+        repository->getClass(
+            "test_namespace",
+            "ClassC",
+            true,
+            includeClassOrigin,
+            CIMPropertyList());
+
+    ObjectNormalizer normalizer(
+        cimClass,
+        includeQualifiers,
+        includeClassOrigin);
+
+    for(Uint32 i = 0, n = 1000; i < n; i++)
+    {
+        CIMInstance cimInstance(cimClass.getClassName());
+
+        // only populate keys, let the normalizer do the rest
+        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
+        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101b"))));
+        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+
+        // complete object path
+        CIMObjectPath cimObjectPath;
+
+        cimObjectPath.setClassName(cimInstance.getClassName());
+
+        Array<CIMKeyBinding> keys;
+
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101c"))));
+        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
+
+        cimObjectPath.setKeyBindings(keys);
+
+        cimInstance.setPath(cimObjectPath);
 
         _stopwatch.start();
 
@@ -1112,7 +1182,6 @@ int main(int argc, char** argv)
             repository->getClass(
                 "test_namespace",
                 "ClassC",
-                false,
                 true,
                 true,
                 CIMPropertyList());
@@ -1148,7 +1217,7 @@ int main(int argc, char** argv)
         // instance object successes
         Test005a();
         Test005b();
-        //Test005c();
+        Test005c();
         Test005d();
 
         // object path processing performance tests
@@ -1157,6 +1226,7 @@ int main(int argc, char** argv)
         // instance processing performance tests
         Test101a();
         Test101b();
+        Test101c();
     }
     catch(CIMException & e)
     {

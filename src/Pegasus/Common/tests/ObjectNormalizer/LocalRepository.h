@@ -46,7 +46,6 @@ public:
     CIMClass getClass(
         const String & nameSpace,
         const String & className,
-        Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList & propertyList);

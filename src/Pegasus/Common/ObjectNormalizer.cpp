@@ -38,8 +38,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 static CIMQualifier _processQualifier(
-    const CIMQualifier & referenceQualifier,
-    const CIMQualifier & cimQualifier)
+    CIMConstQualifier & referenceQualifier,
+    CIMConstQualifier & cimQualifier)
 {
     // check name
     if(!referenceQualifier.getName().equal(cimQualifier.getName()))
@@ -69,6 +69,8 @@ static CIMQualifier _processQualifier(
         referenceQualifier.getFlavor(),
         referenceQualifier.getPropagated() == 0 ? false : true);
 
+    // TODO: check override
+
     // update value
     if(!cimQualifier.getValue().isNull())
     {
@@ -79,10 +81,10 @@ static CIMQualifier _processQualifier(
 }
 
 static CIMProperty _processProperty(
-    const CIMProperty & referenceProperty,
-    const CIMProperty & cimProperty,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin)
+    CIMConstProperty & referenceProperty,
+    CIMConstProperty & cimProperty,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
 {
     // check name
     if(!referenceProperty.getName().equal(cimProperty.getName()))
@@ -134,36 +136,31 @@ static CIMProperty _processProperty(
     if(includeQualifiers)
     {
         // propagate class property qualifiers
-        for(Uint32 i = 0, n = referenceProperty.getQualifierCount(); i < n;i++)
+        for(Uint32 i = 0, n = referenceProperty.getQualifierCount(); i < n; i++)
         {
             CIMConstQualifier referenceQualifier = referenceProperty.getQualifier(i);
 
-            normalizedProperty.addQualifier(referenceQualifier.clone());
-        }
+            Uint32 pos = cimProperty.findQualifier(referenceQualifier.getName());
 
-        // update qualifier values from property or add any new ones
-        for(Uint32 i = 0, n = cimProperty.getQualifierCount(); i < n; i++)
-        {
-            CIMConstQualifier cimQualifier = cimProperty.getQualifier(i);
-
-            // attempt to find existing qualifier
-            Uint32 pos = normalizedProperty.findQualifier(cimQualifier.getName());
-
-            if(pos == PEG_NOT_FOUND)
+            // update value if qualifier is present in the specified property
+            if(pos != PEG_NOT_FOUND)
             {
-                // add qualifier
+                CIMConstQualifier cimQualifier = cimProperty.getQualifier(pos);
 
-                // TODO: ensure the qualifier is exists and is valid in this scope
+                std::cout << "cimQualifier: " << cimQualifier.getName().getString() << std::endl;
 
-                normalizedProperty.addQualifier(cimQualifier.clone());
+                CIMQualifier normalizedQualifier =
+                    _processQualifier(
+                        referenceQualifier,
+                        cimQualifier);
+
+                normalizedProperty.addQualifier(normalizedQualifier);
             }
             else
             {
-                // update qualifier
+                std::cout << "using reference qualifier." << std::endl;
 
-                // TODO: normalize qualifier first to check type, etc.?
-
-                normalizedProperty.getQualifier(pos).setValue(cimQualifier.getValue());
+                normalizedProperty.addQualifier(referenceQualifier.clone());
             }
         }
     }
@@ -179,13 +176,40 @@ ObjectNormalizer::ObjectNormalizer(void)
 
 ObjectNormalizer::ObjectNormalizer(
     const CIMClass & cimClass,
-    const Boolean includeQualifiers,
-    const Boolean includeClassOrigin)
-    :
-    _cimClass(cimClass),
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
+    : _cimClass(cimClass),
     _includeQualifiers(includeQualifiers),
     _includeClassOrigin(includeClassOrigin)
 {
+    if(!_cimClass.isUninitialized())
+    {
+        // ATTN: the following code is intended to expedite normalizing instances and instance object
+        // paths by establishing the keys once now rather than multiple times later. it is biased
+        // toward providers that return many instances with many properties.
+
+        // build a reference object path within the class
+        Array<CIMKeyBinding> keys;
+
+        for(Uint32 i = 0, n = _cimClass.getPropertyCount(); i < n; i++)
+        {
+            CIMConstProperty referenceProperty = _cimClass.getProperty(i);
+
+            Uint32 pos = referenceProperty.findQualifier("key");
+
+            if((pos != PEG_NOT_FOUND) && (referenceProperty.getQualifier(pos).getValue().equal(CIMValue(true))))
+            {
+                keys.append(CIMKeyBinding(referenceProperty.getName(), referenceProperty.getValue()));
+            }
+        }
+
+        // update class object path
+        CIMObjectPath cimObjectPath(_cimClass.getPath());
+
+        cimObjectPath.setKeyBindings(keys);
+
+        _cimClass.setPath(cimObjectPath);
+    }
 }
 
 CIMObjectPath ObjectNormalizer::processClassObjectPath(const CIMObjectPath & cimObjectPath) const
@@ -231,7 +255,7 @@ CIMObjectPath ObjectNormalizer::processClassObjectPath(const CIMObjectPath & cim
     CIMObjectPath normalizedObjectPath(
         _cimClass.getPath().getHost(),
         _cimClass.getPath().getNameSpace(),
-        _cimClass.getClassName());      // use reference class name to preserve case
+        _cimClass.getClassName());
 
     // ignore any keys, they are not part of a class object path
 
@@ -281,105 +305,54 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(const CIMObjectPath & 
     CIMObjectPath normalizedObjectPath(
         _cimClass.getPath().getHost(),
         _cimClass.getPath().getNameSpace(),
-        _cimClass.getClassName());      // use reference class name to preserve case
+        _cimClass.getClassName());
 
-    // get the key property names from the class
-    Array<CIMKeyBinding> keys;
+    Array<CIMKeyBinding> normalizedKeys;
 
-    // identify and complete the keys
-    for(Uint32 i = 0, n = _cimClass.getPropertyCount(); i < n; i++)
+    Array<CIMKeyBinding> referenceKeys = _cimClass.getPath().getKeyBindings();
+    Array<CIMKeyBinding> cimKeys = cimObjectPath.getKeyBindings();
+
+    for(Uint32 i = 0, n = referenceKeys.size(); i < n; i++)
     {
-        CIMConstProperty cimProperty = _cimClass.getProperty(i);
+        CIMKeyBinding key;
 
-        Uint32 pos = cimProperty.findQualifier("key");
-
-        if((pos != PEG_NOT_FOUND) && (cimProperty.getQualifier(pos).getValue().equal(CIMValue(true))))
+        // override the value from the specified object
+        for(Uint32 j = 0, m = cimKeys.size(); j < m; j++)
         {
-            // get the property name from the class to preserve case
-            CIMName name = cimProperty.getName();
-
-            // ATTN: there is no way to determine the differenciate a null string and a
-            // zero length string. the former is invalid, while the later is valid. as
-            // a lame workaround, the string value of a key is set to the literal '<null>'
-            // if there is no default value. this allows a missing key without a default value
-            // to be detected. hopefully, '<null>' is never used as a literal key value.
-
-            // get the string value regardless of type
-            String value = cimProperty.getValue().isNull() ? "<null>" : cimProperty.getValue().toString();
-
-            // override the value from the specified object
-            for(Uint32 j = 0, m = cimObjectPath.getKeyBindings().size(); j < m; j++)
+            if(referenceKeys[i].getName().equal(cimKeys[j].getName()))
             {
-                if(name.equal(cimObjectPath.getKeyBindings()[j].getName()))
-                {
-                    // TODO: convert to value to check type compatibility
-                    value = cimObjectPath.getKeyBindings()[j].getValue();
-
-                    break;
-                }
-            }
-
-            // no default and not overriden by specified object path
-            if(value == "<null>")
-            {
-                MessageLoaderParms message(
-                    "Common.ObjectNormalizer.MISSING_KEY",
-                    "Missing key: $0",
-                    name.getString());
-
-                throw CIMException(CIM_ERR_FAILED, message);
-            }
-
-            CIMKeyBinding::Type type;
-
-            switch(cimProperty.getType())
-            {
-            case CIMTYPE_BOOLEAN:
-                type = CIMKeyBinding::BOOLEAN;
-
-                break;
-            case CIMTYPE_UINT8:
-            case CIMTYPE_SINT8:
-            case CIMTYPE_UINT16:
-            case CIMTYPE_SINT16:
-            case CIMTYPE_UINT32:
-            case CIMTYPE_SINT32:
-            case CIMTYPE_UINT64:
-            case CIMTYPE_SINT64:
-            case CIMTYPE_REAL32:
-            case CIMTYPE_REAL64:
-                type = CIMKeyBinding::NUMERIC;
-
-                break;
-            case CIMTYPE_CHAR16:
-            case CIMTYPE_STRING:
-            case CIMTYPE_DATETIME:
-                type = CIMKeyBinding::STRING;
-
-                break;
-            case CIMTYPE_REFERENCE:
-                type = CIMKeyBinding::REFERENCE;
-
-                break;
-            case CIMTYPE_OBJECT:
-            default:
+                // check type
+                if(referenceKeys[i].getType() != cimKeys[j].getType())
                 {
                     MessageLoaderParms message(
-                        "Common.ObjectNormalizer.INVALID_KEY",
-                        "Invalid key: $0",
-                        name.getString());
+                        "Common.ObjectNormalizer.INVALID_KEY_TYPE",
+                        "Invalid key type: $0",
+                        referenceKeys[i].getName().getString());
 
                     throw CIMException(CIM_ERR_FAILED, message);
                 }
 
+                key = CIMKeyBinding(referenceKeys[i].getName(), cimKeys[j].getValue());
+
                 break;
             }
-
-            keys.append(CIMKeyBinding(name, value, type));
         }
+
+        // key not found
+        if(key.getName().isNull())
+        {
+            MessageLoaderParms message(
+                "Common.ObjectNormalizer.MISSING_KEY",
+                "Missing key: $0",
+                referenceKeys[i].getName().getString());
+
+            throw CIMException(CIM_ERR_FAILED, message);
+        }
+
+        normalizedKeys.append(key);
     }
 
-    normalizedObjectPath.setKeyBindings(keys);
+    normalizedObjectPath.setKeyBindings(normalizedKeys);
 
     return(normalizedObjectPath);
 }
@@ -398,33 +371,10 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
         throw CIMException(CIM_ERR_FAILED, "unintialized instance object.");
     }
 
-    /*
-    // ATTN: The following code is currently redundant because the CIMName object validates
-    // legal names when it is constructed. It is included here for completeness.
-    // check class name
-    if(!CIMName(cimInstance.getClassName()).legal())
-    {
-        MessageLoaderParms message(
-            "Common.ObjectNormalizer.INVALID_CLASS_NAME",
-            "Invalid class name: \"$0\"",
-            cimInstance.getClassName().getString());
+    CIMInstance normalizedInstance(_cimClass.getClassName());
 
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-    */
-
-    // check class type
-    if(!_cimClass.getClassName().equal(cimInstance.getClassName()))
-    {
-        MessageLoaderParms message(
-            "Common.ObjectNormalizer.INVALID_CLASS_TYPE",
-            "Invalid class type: \"$0\"",
-            cimInstance.getClassName().getString());
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    CIMInstance normalizedInstance(_cimClass.getClassName());   // use the original class name to preserve case
+    // proces object path
+    normalizedInstance.setPath(processInstanceObjectPath(cimInstance.getPath()));
 
     // process instance qualifiers
     if(_includeQualifiers)
@@ -434,96 +384,49 @@ CIMInstance ObjectNormalizer::processInstance(const CIMInstance & cimInstance) c
         {
             CIMConstQualifier referenceQualifier = _cimClass.getQualifier(i);
 
-            // ATTN: all class qualifiers are propagated to instance because making it
-            // work as it should (only pass qualifiers with TOINSTANCE) would break
-            // existing behavior.
-            CIMQualifier cimQualifier(
-                referenceQualifier.getName(),
-                referenceQualifier.getValue(),
-                referenceQualifier.getFlavor(),
-                false);
+            Uint32 pos = cimInstance.findQualifier(referenceQualifier.getName());
 
-            normalizedInstance.addQualifier(cimQualifier);
-        }
-
-        // update qualifier values from instance or add any new ones
-        for(Uint32 i = 0, n = cimInstance.getQualifierCount(); i < n; i++)
-        {
-            CIMConstQualifier cimQualifier = cimInstance.getQualifier(i);
-
-            // attempt to find existing qualifier
-            Uint32 pos = normalizedInstance.findQualifier(cimQualifier.getName());
-
-            if(pos == PEG_NOT_FOUND)
+            // update value if qualifier is present in the specified property
+            if(pos != PEG_NOT_FOUND)
             {
-                // add
+                CIMConstQualifier cimQualifier = cimInstance.getQualifier(pos);
 
-                // TODO: ensure the qualifier is exists and is valid in this scope
+                CIMQualifier normalizedQualifier =
+                    _processQualifier(
+                        referenceQualifier,
+                        cimQualifier);
 
-                normalizedInstance.addQualifier(cimQualifier.clone());
+                normalizedInstance.addQualifier(normalizedQualifier);
             }
             else
             {
-                // update
-
-                // ATTN: normalize qualifier fisrt to check type, etc.?
-
-                normalizedInstance.getQualifier(pos).setValue(cimQualifier.getValue());
+                normalizedInstance.addQualifier(referenceQualifier.clone());
             }
         }
     }
 
-    // 3) check property names and types. any properties in the instance but not in the
-    // class are implictly dropped (normalized).
-    for(Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
+    // check property names and types. any properties in the class but not in the instance
+    // are implicitly dropped.
+    for(Uint32 i = 0, n = _cimClass.getPropertyCount(); i < n; i++)
     {
-        CIMConstProperty cimProperty = cimInstance.getProperty(i);
+        CIMConstProperty referenceProperty = _cimClass.getProperty(i);
 
-        Uint32 pos = _cimClass.findProperty(cimProperty.getName());
+        Uint32 pos = cimInstance.findProperty(referenceProperty.getName());
 
         if(pos != PEG_NOT_FOUND)
         {
-            CIMConstProperty referenceProperty = _cimClass.getProperty(pos);
+            CIMConstProperty cimProperty = cimInstance.getProperty(pos);
 
             CIMProperty normalizedProperty =
                 _processProperty(
-                    referenceProperty.clone(),
-                    cimProperty.clone(),
+                    referenceProperty,
+                    cimProperty,
                     _includeQualifiers,
                     _includeClassOrigin);
 
             normalizedInstance.addProperty(normalizedProperty);
         }
     }
-
-    // update object path
-    CIMObjectPath cimObjectPath(cimInstance.getPath());
-
-    cimObjectPath.setClassName(_cimClass.getClassName());
-
-    // add keys from instance if none specified
-    if(cimInstance.getPath().getKeyBindings().size() == 0)
-    {
-        Array<CIMKeyBinding> keys;
-
-        Array<CIMName> keyNames;
-
-        _cimClass.getKeyNames(keyNames);
-
-        for(Uint32 i = 0, n = keyNames.size(); i < n; i++)
-        {
-            Uint32 pos = cimInstance.findProperty(keyNames[i]);
-
-            if(pos != PEG_NOT_FOUND)
-            {
-                keys.append(CIMKeyBinding(keyNames[i], cimInstance.getProperty(pos).getValue()));   // get key name from class to preserve case
-            }
-        }
-
-        cimObjectPath.setKeyBindings(keys);
-    }
-
-    normalizedInstance.setPath(processInstanceObjectPath(cimObjectPath));
 
     return(normalizedInstance);
 }

@@ -51,8 +51,8 @@ public:
     ObjectNormalizer(void);
     ObjectNormalizer(
         const CIMClass & cimClass,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin);
+        Boolean includeQualifiers,
+        Boolean includeClassOrigin);
 
     CIMObjectPath processClassObjectPath(const CIMObjectPath & cimObjectPath) const;
     CIMObjectPath processInstanceObjectPath(const CIMObjectPath & cimObjectPath) const;

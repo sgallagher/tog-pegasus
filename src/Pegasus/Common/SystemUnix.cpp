@@ -145,7 +145,7 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
 
 DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 {
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX)
     char* p = strcpy(new char[strlen(fileName) + 4], fileName);
     char* dot = strrchr(p, '.');
 
@@ -160,7 +160,13 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 
     return DynamicLibraryHandle(handle);
 #else
+
+# ifdef PEGASUS_OS_TRU64
+    return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
+# else
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
+# endif
+
 #endif
 }
 

@@ -27,8 +27,8 @@
 #define _EchoCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int EchoCmd(const vector<string>& args);
 

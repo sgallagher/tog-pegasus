@@ -27,8 +27,8 @@
 #define _CopyCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int CopyCmd(const vector<string>& args);
 

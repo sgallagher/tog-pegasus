@@ -66,7 +66,7 @@ bool MakeDir(const string& path)
 
 bool GetDirEntries(const string& path, vector<string>& filenames)
 {
-    filenames.clear();
+    filenames.erase(filenames.begin(), filenames.end());
 
     DIR* dir = opendir(path.c_str());
 

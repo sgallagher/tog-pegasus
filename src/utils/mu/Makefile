@@ -4,20 +4,15 @@
 #
 # Building:
 #
-#     On Windows type "make OS_TYPE=windows"
+#     On Windows type "make OS=windows"
 #     On Unix type "make"
 #
 ################################################################################
 
-OS_TYPE=windows
-
-ifndef OS_TYPE
-    OS_TYPE = unix
-endif
+OS=tru64
 
 # Set Parameters for OS type
-ifeq ($(OS_TYPE),compaq_oss)
-    OS_TYPE = oss
+ifeq ($(OS),compaq_oss)
     CXX = c89
     CXXFLAGS = -Wversion2 -I /cw/rudys/nsm/pegasus/src
     LIBFLAGS = /usr/lib/crtlmain.o -obey /usr/lib/libc.obey
@@ -31,8 +26,7 @@ ifeq ($(OS_TYPE),compaq_oss)
     PLATFORM_SOURCES = FilesUnix.cpp
 endif
 
-ifeq ($(OS_TYPE),windows)
-    OS_TYPE = windows
+ifeq ($(OS),windows)
     CXX = cl
     LXX = $(CXX)
     CXXFLAGS = -nologo -W3 -GX
@@ -44,11 +38,22 @@ ifeq ($(OS_TYPE),windows)
     PLATFORM_SOURCES = FilesWindows.cpp
 endif
 
-ifeq ($(OS_TYPE),unix)
-    OS_TYPE = unix
+ifeq ($(OS),unix)
     CXX = g++
     LXX = $(CXX)
     CXXFLAGS = -O2 -Wall -Wno-unused -pedantic
+    DEFINES = -DOS_TYPE_UNIX
+    PROGRAM = mu
+    EXE_OUT = -o
+    RM = rm -f
+    OBJ = .o
+    PLATFORM_SOURCES = FilesUnix.cpp
+endif
+
+ifeq ($(OS),tru64)
+    CXX = g++
+    LXX = $(CXX)
+    CXXFLAGS = -O2 -Wall -Wno-unused -pedantic -I../../stdcxx/stream
     DEFINES = -DOS_TYPE_UNIX
     PROGRAM = mu
     EXE_OUT = -o
@@ -93,7 +98,7 @@ HEADERS = \
 OBJECTS=$(SOURCES:.cpp=$(OBJ))
 
 $(PROGRAM): $(OBJECTS)
-	$(LXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT)$(PROGRAM) $(OBJECTS)
+	$(LXX) $(LIBFLAGS) $(SRLFLAGS) $(EXE_OUT) $(PROGRAM) $(OBJECTS)
 
 %$(OBJ) : %.cpp
 	$(CXX) -c $(CXXFLAGS) $(DEFINES) $*.cpp

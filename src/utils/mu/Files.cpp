@@ -24,11 +24,11 @@
 //%=============================================================================
 
 #include "Config.h"
+#include "Files.h"
 #include <iostream>
 #include <fstream>
 #include <cstdio>
 #include <cstring>
-#include "Files.h"
 
 static void _SplitPath(const string& path, vector<string>& components)
 {
@@ -294,7 +294,7 @@ bool Glob(const string& pattern_, vector<string>& fileNames)
     string pattern = pattern_;
 
     while (pattern.size() > 0 && pattern[pattern.size()-1] == '/')
-	pattern.erase(pattern.begin() + pattern.size() - 1);
+	pattern.remove(pattern.size() - 1);
 
     // Split the pattern into directory name and base name:
 

@@ -27,8 +27,8 @@
 #define _PrependCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 // Usage: prepend prepend-file change-file
 

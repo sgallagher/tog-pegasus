@@ -27,8 +27,8 @@
 #define _StripCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
 //

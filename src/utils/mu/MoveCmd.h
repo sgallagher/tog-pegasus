@@ -27,8 +27,8 @@
 #define _MoveCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int MoveCmd(const vector<string>& args);
 

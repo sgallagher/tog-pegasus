@@ -27,8 +27,8 @@
 #define _CompareCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int CompareCmd(const vector<string>& args);
 

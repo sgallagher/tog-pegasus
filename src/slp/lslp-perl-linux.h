@@ -46,8 +46,11 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#ifdef PEGASUS_OS_HPUX
-extern char *strtok_r(char *, const char *, char **);
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64)
+extern "C" char *strtok_r(char *, const char *, char **);
+# include <arpa/inet.h>
+# include <net/if.h>
+#elif defined (PEGASUS_OS_TRU64)
 # include <arpa/inet.h>
 # include <net/if.h>
 #else

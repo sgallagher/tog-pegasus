@@ -27,8 +27,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
 #include "slp.h"
+
+#ifdef PEGASUS_OS_TRU64
+# include <unistd.h>
+extern "C" void usleep(unsigned int);
+#endif
+
 
 PEGASUS_USING_STD;
 
@@ -68,7 +73,7 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 
 #endif
 
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64)
 
 PEGASUS_EXPORT int gethostbyname_r(const char *name, 
 		    struct hostent *resultbuf, 
@@ -88,6 +93,7 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
   } 
   return(0);
 }
+
 #endif
 
 PEGASUS_EXPORT void slp_get_addr_string_from_url(const Sint8 *url, String &addr) 
@@ -99,7 +105,14 @@ PEGASUS_EXPORT void slp_get_addr_string_from_url(const Sint8 *url, String &addr)
 #ifdef _WIN32
     _snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
 #else
+
+// ATTN: Mike Brasher: Hack to get built of TRU64:
+#ifdef PEGASUS_OS_TRU64
+    sprintf(name, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
+#else
     snprintf(name, 254, "%s:%d", inet_ntoa(a.sin_addr), ntohs(a.sin_port) );
+#endif
+
 #endif
     addr.clear();
     addr = name;
@@ -186,8 +199,10 @@ PEGASUS_EXPORT Boolean get_addr_from_url(const Sint8 *url, struct sockaddr_in *a
       temp = (Uint8 *)malloc(hostbuflen); 
       if(temp != NULL) {
 	host = NULL;
-	while(temp != NULL && (result = gethostbyname_r(bptr, &hostbuf, (char *)temp, hostbuflen, 
-							&host, (int *)&err)) == ERANGE){
+	while(temp != NULL && (result = gethostbyname_r(bptr, &hostbuf, 
+	    (char *)temp, 
+	    hostbuflen, 
+	    &host, (int *)&err)) == ERANGE){
 	  hostbuflen *= 2;
 	  temp = (Uint8 *)realloc(temp, hostbuflen);
 	}
@@ -389,7 +404,7 @@ template<class L> inline L *slp2_list<L>::next(L * init)
   if( init == NULL )
     _cur = _next;
   else {
-    assert( init = _cur->_rep );
+    assert( (init = _cur->_rep) != 0 );
     _cur = _cur->_next;
   }
   return(_cur->_rep);
@@ -1523,7 +1538,12 @@ Sint32 slp_client::service_listener_wait(time_t wait, SOCKET extra_sock, Boolean
     if(rcv > 0)
       if(one_only == true)
 	return(rcv);
+
+#ifdef PEGASUS_OS_TRU64
+    usleep(10 * 1000);
+#else
     _LSLP_SLEEP(10);
+#endif
   }
   rcv += service_listener(extra_sock);
   return(rcv);
@@ -1549,7 +1569,7 @@ Sint32 slp_client::service_listener(SOCKET extra_sock )
   if( 0 < err ) {
     struct sockaddr_in remote;
 
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64)
     int size = sizeof(remote);
 #else
     socklen_t size = sizeof(remote);

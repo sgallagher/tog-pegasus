@@ -23,7 +23,6 @@
 //
 //%=============================================================================
 
-#include <vector>
 #include <iostream>
 #include "RmCmd.h"
 #include "Files.h"

@@ -23,7 +23,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Mike Day (mdday@us.ibm.com) 
-// =======
+//
 // Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ void GetOptions(
 	{"logs", "ALL", false, Option::STRING, 0, 0, "X", 
 			"Not Used "},
 	{"daemon", "false", false, Option::BOOLEAN, 0, 0, "d", 
-			"Detach Pegasus from the console and run it in the background "},
+	    "Detach Pegasus from the console and run it in the background "},
 	{"logdir", "./logs", false, Option::STRING, 0, 0, "logdir", 
 			"Directory for log files"},
 	{"cleanlogs", "false", false, Option::BOOLEAN, 0, 0, "clean", 
@@ -167,6 +167,7 @@ void GetOptions(
       om.mergeCommandLine(argc, argv);
 
     om.checkRequiredOptions();
+
 }
 
 /* PrintHelp - This is temporary until we expand the options manager to allow
@@ -182,7 +183,7 @@ void PrintHelp(const char* arg0)
     cout << endl;
 }
 
-//////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 //  MAIN
 //////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
@@ -371,6 +372,7 @@ int main(int argc, char** argv)
 	CIMServer server(&selector, pegasusHome);
 
 	// bind throws an exception of the bind fails
+	cout << "Binding to " << address << endl;
 	server.bind(address);
 	delete [] address;
 

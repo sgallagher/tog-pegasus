@@ -23,6 +23,12 @@ ifeq ($(COMPILER),gnu)
   LINK_OUT = -o
 endif
 
+ifeq ($(COMPILER),deccxx)
+  LINK_COMMAND = cxx -shared
+  LINK_ARGUMENTS =
+  LINK_OUT = -o
+endif
+
 FULL_LIB=$(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX)
 
 ## Rule for all UNIX library builds
@@ -38,7 +44,7 @@ ifneq ($(COMPILER),xlc)
     ##
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT)$(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES)
   else
-	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT)$(FULL_LIB) $(OBJECTS) $(LIBRARIES)
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(LIBRARIES)
   endif
 else
   ## Actions for xlc compiler only

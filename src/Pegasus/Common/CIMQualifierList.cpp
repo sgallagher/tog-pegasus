@@ -223,7 +223,10 @@ Boolean CIMQualifierList::identical(const CIMQualifierList& x) const
 	return false;
 
     for (Uint32 i = 0; i < count; i++)
-	return _qualifiers[i].identical(x._qualifiers[i]);
+    {
+	if (!_qualifiers[i].identical(x._qualifiers[i]))
+	    return false;
+    }
 
     return true;
 }

@@ -27,8 +27,8 @@
 #define _DependCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int DependCmd(const vector<string>& args);
 

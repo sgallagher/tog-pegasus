@@ -278,13 +278,15 @@ int ClientConnection::handleMethodCall()
     // <!ATTLIST IMETHODCALL %CIMName;>
     //--------------------------------------------------------------------------
     DDD(cout <<"RCV CIMServer handleMethodCall" << __LINE__  << endl;)
-    DDD(cout << _message.getData() << endl;)
+    DDD(cout << "DATA: " << _message.getData() << endl;)
 
     const char* iMethodCallName = 0;
 
     if (!XmlReader::getIMethodCallStartTag(parser, iMethodCallName))
+    {
 	throw XmlValidationError(parser.getLine(), 
 	    "expected IMETHODCALL element");
+    }
 
     //--------------------------------------------------------------------------
     // <!ELEMENT LOCALNAMESPACEPATH (NAMESPACE+)>

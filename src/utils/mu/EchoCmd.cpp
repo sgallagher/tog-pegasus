@@ -23,8 +23,8 @@
 //
 //%=============================================================================
 
-#include <iostream>
 #include "EchoCmd.h"
+#include <iostream>
 
 int EchoCmd(const vector<string>& args)
 {

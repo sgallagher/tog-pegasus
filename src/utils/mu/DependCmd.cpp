@@ -23,11 +23,11 @@
 //
 //%=============================================================================
 
+#include <string>
+#include <vector>
 #include "Config.h"
 #include <set>
-#include <string>
 #include <cstdio>
-#include <vector>
 #include <iostream>
 #include <cstddef>
 #include <cassert>
@@ -39,7 +39,9 @@
 # define OBJ_EXT ".o"
 #endif
 
+#ifdef OS_TYPE_WINDOWS
 using namespace std;
+#endif
 
 static const char* programName = "";
 bool warn = false;
@@ -286,7 +288,7 @@ void ProcessFile(
     FILE* fp,
     const vector<string>& includePath,
     size_t nesting,
-    set<string>& cache)
+    set<string, equal_to<string> >& cache)
 {
     PrintDependency(objectFileName, fileName);
 
@@ -316,7 +318,8 @@ void ProcessFile(
 	    // ATTN: danger! not distinguising between angle brack delimited
 	    // and quote delimited paths!
 	    
-	    set<string>::const_iterator pos = cache.find(path);
+	    set<string, equal_to<string> >::const_iterator pos 
+		= cache.find(path);
 
 	    if (pos != cache.end())
 		continue;
@@ -408,7 +411,7 @@ int DependCmdMain(int argc, char** argv)
 	objectFileName.append(start, dot - start);
 	objectFileName += OBJ_EXT;
 
-	set<string> cache;
+	set<string, equal_to<string> > cache;
 
 	ProcessFile(objectFileName, fileName, fp, includePath, 0, cache);
     }

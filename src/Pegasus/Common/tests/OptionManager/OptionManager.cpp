@@ -72,6 +72,8 @@ void test01(int& argc, char** argv)
 
     // Test correct value for optional not installed
     assert(om.valueEquals("falsetest","false"));
+
+    // om.print();
 }
 
 void test02()

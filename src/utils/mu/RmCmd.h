@@ -27,8 +27,8 @@
 #define _RmCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int RmCmd(const vector<string>& args);
 

@@ -52,7 +52,7 @@ public:
     MessageQueue();
 
     /** Removes this queue from the queue table. */
-    ~MessageQueue();
+    virtual ~MessageQueue();
 
     /** Enques a message (places it at the back of the queue).
 	@param message pointer to message to be enqueued.

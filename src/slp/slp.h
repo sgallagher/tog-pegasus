@@ -57,7 +57,7 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
 				   struct hostent **result, 
 				   int *errno) ;
 #endif
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TRU64)
 PEGASUS_EXPORT int gethostbyname_r(const char *name, 
 				   struct hostent *resultbuf, 
 				   char *buf, 

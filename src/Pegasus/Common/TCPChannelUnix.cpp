@@ -346,6 +346,8 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
     socklen_t n;
 #elif defined (PEGASUS_OS_HPUX)
     int n;
+#elif defined (PEGASUS_OS_TRU64)
+    int n;
 #endif
 
     n = sizeof(address);

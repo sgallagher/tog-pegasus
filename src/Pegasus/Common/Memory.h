@@ -75,7 +75,16 @@ template<class T, class U>
 inline void CopyToRaw(T* to, const U* from, Uint32 size)
 {
     while (size--)
-	new(to++) T(*from++);
+    {
+	// The following fails on TRU64:
+	//     new(to++) T(*from++);
+	// Probably a compiler error so I changed it to this:
+	// Mike Brasher
+
+	new(to) T(*from);
+	to++;
+	from++;
+    }
 }
 
 inline void CopyToRaw(Boolean* to, const Boolean* from, Uint32 size)

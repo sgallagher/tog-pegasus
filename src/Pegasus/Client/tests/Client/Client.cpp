@@ -315,7 +315,6 @@ int main(int argc, char** argv)
 
 	client.connect("localhost:5988");
 
-
 	TestGetClass(client);
 	TestQualifierOperations(client);
 	TestClassOperations(client);

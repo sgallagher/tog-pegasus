@@ -27,8 +27,8 @@
 #define _MkDirHierCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int MkDirHierCmd(const vector<string>& args);
 

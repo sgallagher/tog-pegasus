@@ -43,9 +43,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// TODO: add descriptions for each otpion so that they may be printed out
-// to the command line user to tell him which command line options are legal.
-//
 // TODO: expand varaibles in the configuration file. For example:
 //
 //     provider_dir = "${home}/providers"
@@ -326,7 +323,6 @@ void OptionManager::mergeFile(const String& fileName)
 
 		    case '\0':
 			throw ConfigFileSyntaxError(fileName, lineNumber);
-			break;
 
 		    default:
 			value += *p;

@@ -98,7 +98,8 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
         if (!provider)
 	    throw CIMException(CIM_ERR_FAILED);
 
-	provider->initialize(CIMOMHandle(this, _repository));
+	CIMOMHandle cimomHandle(this, _repository); 
+	provider->initialize(cimomHandle);
     }
 
     return provider;

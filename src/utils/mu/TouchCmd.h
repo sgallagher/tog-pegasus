@@ -27,8 +27,8 @@
 #define _TouchCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int TouchCmd(const vector<string>& args);
 

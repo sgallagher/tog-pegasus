@@ -27,8 +27,8 @@
 #define _RmDirHierCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int RmDirHierCmd(const vector<string>& args);
 

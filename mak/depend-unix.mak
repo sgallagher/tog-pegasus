@@ -9,7 +9,7 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 NOT_DEFINED = "1"
 endif
 
-ifeq ($(NOT_DEFINED),"1")
+ifeq ($(NOT_DEFINED),"0")
 depend: $(OBJ_DIR)/target $(ERROR)
 	@ touch $(DEPEND_MAK)
 	makedepend $(LOCAL_DEFINES) $(DEFINES) $(DEPEND_DEFINES) $(PRE_DEPEND_INCLUDES) $(DEPEND_INCLUDES) $(INCLUDES) $(SOURCES) -f $(DEPEND_MAK) -p $(OBJ_DIR)/

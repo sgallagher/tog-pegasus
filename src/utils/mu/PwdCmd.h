@@ -27,8 +27,8 @@
 #define _PwdCmd_h
 
 #include "Config.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 int PwdCmd(const vector<string>& args);
 

@@ -99,4 +99,40 @@ AtomicInt::AtomicInt(const AtomicInt& original)
 
 #endif // Native Atomic Type 
 
+
+//-----------------------------------------------------------------
+// Native implementation of Conditional semaphore object
+//-----------------------------------------------------------------
+
+#ifdef PEGASUS_CONDITIONAL_NATIVE
+
+Condition::Condition(void) : _disallow(0), _condition()
+{ 
+   _cond_mutex = new Mutex();
+   _destroy_mut = true;
+} 
+
+Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
+{
+   _cond_mutex = const_cast<Mutex *>(&mutex);
+   _destroy_mut = false;
+}
+
+
+Condition::~Condition(void)
+{
+   // don't allow any new waiters
+   _disallow++;
+   
+   PulseEvent(_condition._event);
+   if(_destroy_mut == true)
+      delete _cond_mutex;
+}
+
+#endif // native conditional semaphore
+//----------------------------------------------------------------- 
+// END of native conditional semaphore implementation
+//-----------------------------------------------------------------
+
+
 PEGASUS_NAMESPACE_END

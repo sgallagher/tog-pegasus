@@ -31,6 +31,7 @@ DIRS = \
     String \
     StrToInstName \
     Thread \
+    ThreadPool \
     TimeValue \
     ValidateClass \
     Value \

@@ -103,7 +103,6 @@ int main(int argc, char **argv)
 
 
    
-
    for( i = 0; i < NUMBER_CLIENTS; i++)
    {
       client_sender[i] = new Thread(client_sending_thread, &rw, false );

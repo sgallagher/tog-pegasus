@@ -234,4 +234,107 @@ inline AtomicInt& AtomicInt::operator-=(Uint32 val)
 
 #endif // inline atomic int
 
-#endif // xbIPCWindows_inline_h
+//_________________________________________________________________
+//
+/// Native Windows implementation of the conditional semaphore
+//_________________________________________________________________
+
+#ifdef  PEGASUS_CONDITIONAL_NATIVE
+
+
+inline void Condition::signal(PEGASUS_THREAD_TYPE caller)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0)
+      throw ListClosed();
+   lock_object(caller);
+   try 
+   {
+      unlocked_signal(caller);
+   }
+   catch(...)
+   {
+      unlock_object();
+      throw;
+   }
+   unlock_object();
+}
+
+inline void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0)
+      throw ListClosed();
+
+   if(_cond_mutex->_mutex.owner != caller)
+      throw Permission((PEGASUS_THREAD_TYPE)caller);
+   PulseEvent(_condition._event);
+}
+
+
+
+
+
+inline void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0)
+      throw ListClosed();
+   _cond_mutex->lock(caller);
+}
+
+inline void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0 ) 
+      throw ListClosed();
+   _cond_mutex->try_lock(caller);
+}
+
+inline void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
+   throw(IPCException)
+{
+   if(_disallow.value() > 0) 
+      throw ListClosed();
+   _cond_mutex->timed_lock(milliseconds, caller);
+}
+
+inline void Condition::unlock_object(void)
+{
+   _cond_mutex->unlock();
+}
+
+
+inline void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
+{
+   unlocked_timed_wait(-1, caller);
+}
+
+inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
+{
+   if(_disallow.value() > 0)
+   {
+      _cond_mutex->unlock();
+      throw ListClosed();
+   }
+   
+   if(_cond_mutex->_mutex.owner != caller)
+      throw Permission((PEGASUS_THREAD_TYPE)caller);
+   if(milliseconds == -1)
+      milliseconds = INFINITE;
+   
+   DWORD retcode = SignalObjectAndWait(_cond_mutex->_mutex.mut,
+				       _condition._event,
+				       milliseconds, 
+				       FALSE);
+   _cond_mutex->lock(caller);
+   if(retcode == WAIT_TIMEOUT)
+      throw TimeOut(pegasus_thread_self());
+   
+   
+}
+
+
+#endif // inline native conditional 
+
+#endif // IPCWindows_inline_h

@@ -364,6 +364,8 @@ void ThreadPool::kill_dead_threads(void)
 	 dead->_handle.thid = 0;
 	 while(dead->_cleanup.count() )
 	 {
+	    // this may throw a permission exception, 
+	    // which I will remove from the code prior to stabilizing
 	    dead->cleanup_pop(true);
 	 }
       }

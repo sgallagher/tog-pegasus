@@ -530,7 +530,7 @@ void extricate_condition(void *parm)
       c->_cond_mutex->lock(pegasus_thread_self());
 }
 
-Condition::Condition(void) : _disallow(0), _condition(), _cond_mutex() 
+Condition::Condition(void) : _disallow(0), _condition()
 { 
    _cond_mutex = new Mutex();
    _destroy_mut = true;
@@ -636,12 +636,6 @@ void Condition::unlock_object(void)
 void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
    throw(IPCException)
 {
-   if(_disallow.value() > 0) 
-   {
-      _cond_mutex->unlock();
-      throw ListClosed();
-   }
-   
    unlocked_timed_wait(-1, caller);
 }
 
@@ -668,7 +662,16 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
       if(milliseconds == -1)
 	 waiter->signalled.wait();
       else
-	 waiter->signalled.time_wait(milliseconds);
+	 try 
+	 {
+	    waiter->signalled.time_wait(milliseconds);
+	 }
+	 catch(TimeOut & to)
+	 {
+	    _cond_mutex->lock(caller);
+	    throw;
+	 }
+      
       _condition._spin.lock(caller);
       _condition._waiters.remove(waiter);
       _condition._spin.unlock();

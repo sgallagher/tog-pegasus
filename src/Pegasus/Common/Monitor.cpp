@@ -33,7 +33,7 @@
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # define FD_SETSIZE 1024
-# include <winsock.h>
+# include <winsock2.h>
 #else
 # include <sys/types.h>
 # include <sys/socket.h>

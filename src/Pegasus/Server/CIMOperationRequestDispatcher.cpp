@@ -58,16 +58,25 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
       _cimom(this, server, repository),
       _configurationManager(_cimom)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::CIMOperationRequestDispatcher()");
    DDD(cout << _DISPATCHER << endl;)
+   PEG_METHOD_EXIT();
 }
 
 CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)	
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()");
    _dying = 1;
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::_handle_async_request()");
+
    	// pass legacy operations to handleEnqueue
 	if(req->getType() == async_messages::ASYNC_LEGACY_OP_START)
 	{
@@ -77,11 +86,13 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 
 	   handleEnqueue(message);
 
+	   PEG_METHOD_EXIT();
 	   return;
 	}
 
 	// pass all other operations to the default handler
 	Base::_handle_async_request(req);
+	PEG_METHOD_EXIT();
 }
 
 Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
@@ -90,12 +101,16 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
    String& service,
    String& provider)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_lookupInternalProvider()");
+
     if (String::equalNoCase(className, "PG_Provider") ||
         String::equalNoCase(className, "PG_ProviderCapabilities") ||
         String::equalNoCase(className, "PG_ProviderModule"))
     {
         service = "Server::ConfigurationManagerQueue";
         provider = String::EMPTY;
+        PEG_METHOD_EXIT();
         return true;
     }
     if (String::equalNoCase(className, "PG_IndicationSubscription") ||
@@ -106,8 +121,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     {
         service = "Server::IndicationService";
         provider = String::EMPTY;
+        PEG_METHOD_EXIT();
         return true;
     }
+    PEG_METHOD_EXIT();
     return false;
 }
 
@@ -159,6 +176,9 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
    const String& className,
    const String& methodName)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "CIMOperationRequestDispatcher::_lookupMethodProvider()");
+
     CIMInstance pInstance;
     CIMInstance pmInstance;
     String providerName;
@@ -173,16 +193,19 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 	{
 	    pInstance.getProperty(pos).getValue().get(providerName);
 
+	    PEG_METHOD_EXIT();
 	    return (providerName);
 	}
 	else
 	{
+	    PEG_METHOD_EXIT();
    	    return(String::EMPTY);
 	}
     }
     else
     {
-   	return(String::EMPTY);
+	PEG_METHOD_EXIT();
+	return(String::EMPTY);
     }
 }
 
@@ -191,6 +214,10 @@ String CIMOperationRequestDispatcher::_lookupIndicationProvider(
    const String& nameSpace,
    const String& className)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_lookupIndicationProvider()");
+
+    PEG_METHOD_EXIT();
     return(String::EMPTY);
 }
 
@@ -199,6 +226,10 @@ String CIMOperationRequestDispatcher::_lookupAssociationProvider(
    const String& nameSpace,
    const String& className)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationRequestDispatcher::_lookupAssociationProvider()");
+
+    PEG_METHOD_EXIT();
     return(String::EMPTY);
 }
 
@@ -206,17 +237,25 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
    CIMRequestMessage* request,
    CIMResponseMessage* response)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::_enqueueResponse()");
+
    // Use the same key as used in the request:
 
    response->setKey(request->getKey());
 
    if( true == Base::_enqueueResponse(request, response))
+   {
+      PEG_METHOD_EXIT();
       return;
+   }
 	
    MessageQueue * queue = MessageQueue::lookup(request->queueIds.top());
    PEGASUS_ASSERT(queue != 0 );
 	
    queue->enqueue(response);
+
+   PEG_METHOD_EXIT();
 }
 
 
@@ -446,6 +485,9 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    CIMGetInstanceRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleGetInstanceRequest()");
+
    // ATTN: Need code here to expand partial instance!
 
    // get the class name
@@ -487,6 +529,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -526,6 +569,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -585,11 +629,15 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
       _enqueueResponse(request, response);
    }
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleDeleteClassRequest(
    CIMDeleteClassRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleDeleteClassRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
 
@@ -627,11 +675,16 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    CIMDeleteInstanceRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleDeleteInstanceRequest()");
+
    // get the class name
    String className = request->instanceName.getClassName();
    String service;
@@ -671,6 +724,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -709,6 +763,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -761,11 +816,16 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleCreateClassRequest(
    CIMCreateClassRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleCreateClassRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
 
@@ -803,11 +863,16 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    CIMCreateInstanceRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleCreateInstanceRequest()");
+
    // get the class name
    String className = request->newInstance.getClassName();
    String service;
@@ -847,6 +912,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -890,6 +956,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    CIMReference());
 
       _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
       return;
    }
    // End test block
@@ -929,6 +996,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -984,11 +1052,16 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleModifyClassRequest(
    CIMModifyClassRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleModifyClassRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
 
@@ -1026,11 +1099,16 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    CIMModifyInstanceRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleModifyInstanceRequest()");
+
    // ATTN: Who makes sure the instance name and the instance match?
 
    // get the class name
@@ -1072,6 +1150,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -1111,6 +1190,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -1165,11 +1245,16 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
    CIMEnumerateClassesRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleEnumerateClassesRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
    Array<CIMClass> cimClasses;
@@ -1213,11 +1298,16 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 	 cimClasses);
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
    CIMEnumerateClassNamesRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
    Array<String> classNames;
@@ -1258,11 +1348,16 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 	 classNames);
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    CIMEnumerateInstancesRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest()");
+
    // get the class name
    String className = request->className;
    String service;
@@ -1302,6 +1397,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -1341,6 +1437,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -1401,11 +1498,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    CIMEnumerateInstanceNamesRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest()");
+
    // get the class name
    String className = request->className;
    String service;
@@ -1445,6 +1547,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -1484,6 +1587,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -1539,11 +1643,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    CIMAssociatorsRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleAssociatorsRequest()");
+
    String className = request->objectName.getClassName();
 	
    // check the class name for an "external provider"
@@ -1582,6 +1691,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -1644,11 +1754,16 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    CIMAssociatorNamesRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleAssociatorNamesRequest()");
+
    String className = request->objectName.getClassName();
 	
    // check the class name for an "external provider"
@@ -1687,6 +1802,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -1746,11 +1862,16 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleReferencesRequest(
    CIMReferencesRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleReferencesRequest()");
+
    String className = request->objectName.getClassName();
 	
    // check the class name for an "external provider"
@@ -1789,6 +1910,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -1849,11 +1971,16 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
    CIMReferenceNamesRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleReferenceNamesRequest()");
+
    String className = request->objectName.getClassName();
 	
    // check the class name for an "external provider"
@@ -1892,6 +2019,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -1949,11 +2077,15 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
       _enqueueResponse(request, response);
    }
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    CIMGetPropertyRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleGetPropertyRequest()");
+
    String className = request->instanceName.getClassName();
 	
    // check the class name for an "external provider"
@@ -1992,6 +2124,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -2048,11 +2181,15 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
       _enqueueResponse(request, response);
    }
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleSetPropertyRequest(
    CIMSetPropertyRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleSetPropertyRequest()");
+
    {
       CIMStatusCode errorCode = CIM_ERR_SUCCESS;
       String errorDescription;
@@ -2085,6 +2222,9 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
                request->queueIds.copyAndPop());
 
          _enqueueResponse(request, response);
+
+         PEG_METHOD_EXIT();
+         return;
       }
    }
 
@@ -2126,6 +2266,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
    else if (_repository->isDefaultInstanceProvider())
@@ -2180,11 +2321,16 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
       _enqueueResponse(request, response);
    }
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleGetQualifierRequest(
    CIMGetQualifierRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleGetQualifierRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
    CIMQualifierDecl cimQualifierDecl;
@@ -2223,11 +2369,16 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 	 cimQualifierDecl);
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleSetQualifierRequest(
    CIMSetQualifierRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleSetQualifierRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
 
@@ -2264,11 +2415,16 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
    CIMDeleteQualifierRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleDeleteQualifierRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
 
@@ -2306,11 +2462,16 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 	 request->queueIds.copyAndPop());
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
    CIMEnumerateQualifiersRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest()");
+
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
    String errorDescription;
    Array<CIMQualifierDecl> qualifierDeclarations;
@@ -2349,11 +2510,16 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 	 qualifierDeclarations);
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    CIMInvokeMethodRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleInvokeMethodRequest()");
+
    {
       CIMStatusCode errorCode = CIM_ERR_SUCCESS;
       String errorDescription;
@@ -2389,6 +2555,9 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
                request->methodName);
 
          _enqueueResponse(request, response);
+
+         PEG_METHOD_EXIT();
+         return;
       }
    }
 
@@ -2432,6 +2601,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 	
@@ -2451,11 +2621,17 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 	 request->methodName);
 
    _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
    CIMEnableIndicationSubscriptionRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::"
+          "handleEnableIndicationSubscriptionRequest()");
+
    //
    // check the class name for an "external provider"
    //
@@ -2495,6 +2671,7 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -2506,11 +2683,17 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 	 request->queueIds.copyAndPop ());
 
    _enqueueResponse (request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
    CIMModifyIndicationSubscriptionRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::"
+          "handleModifyIndicationSubscriptionRequest()");
+
    //  ATTN: Provider to be loaded is known to serve all classes
    //  in classNames list.  The getProvider function requires a class
    //  name.  There is no form that takes only the provider name.
@@ -2556,6 +2739,7 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -2567,11 +2751,17 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 	 request->queueIds.copyAndPop ());
 
    _enqueueResponse (request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
    CIMDisableIndicationSubscriptionRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::"
+          "handleDisableIndicationSubscriptionRequest()");
+
    //  ATTN: Provider to be loaded is known to serve all classes
    //  in classNames list.  The getProvider function requires a class
    //  name.  There is no form that takes only the provider name.
@@ -2617,6 +2807,7 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
        delete asyncReply;
        delete asyncRequest;
 
+       PEG_METHOD_EXIT();
        return;
    }
 
@@ -2628,11 +2819,16 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 	 request->queueIds.copyAndPop ());
 
    _enqueueResponse (request, response);
+
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
    CIMProcessIndicationRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleProcessIndicationRequest()");
+
    //
    // forward request to IndicationService. IndicartionService will take care
    // of response to this request.
@@ -2647,11 +2843,15 @@ void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
    // deleted by this service.
    queue->enqueue(new CIMProcessIndicationRequestMessage(*request));
 
+   PEG_METHOD_EXIT();
    return;
 }
 
 ProviderRegistrationManager* CIMOperationRequestDispatcher::getProviderRegistrationManager(void)
 {
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::getProviderRegistrationManager()");
+    PEG_METHOD_EXIT();
     return _providerRegistrationManager;
 }
 
@@ -2663,6 +2863,9 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
    const CIMValue& value,
    CIMType type)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::_convertValueType()");
+
    CIMValue newValue;
 
    if (value.isArray())
@@ -2697,6 +2900,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       }
       catch (XmlSemanticError e)
       {
+         PEG_METHOD_EXIT();
 	 throw PEGASUS_CIM_EXCEPTION(
 	    CIM_ERR_INVALID_PARAMETER,
 	    String("Malformed ") + TypeToString(type) +
@@ -2722,6 +2926,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       }
       catch (XmlSemanticError e)
       {
+         PEG_METHOD_EXIT();
 	 throw PEGASUS_CIM_EXCEPTION(
 	    CIM_ERR_INVALID_PARAMETER,
 	    String("Malformed ") + TypeToString(type) +
@@ -2729,6 +2934,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       }
    }
 
+   PEG_METHOD_EXIT();
    return newValue;
 }
 
@@ -2740,6 +2946,9 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
    CIMInvokeMethodRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes()");
+
    Boolean gotMethodDefinition = false;
    CIMMethod method;
 
@@ -2776,16 +2985,19 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 catch (CIMException& exception)
                 {
                     _repository->read_unlock();
+                    PEG_METHOD_EXIT();
                     throw exception;
                 }
                 catch (Exception& exception)
                 {
                     _repository->read_unlock();
+                    PEG_METHOD_EXIT();
                     throw exception;
                 }
                 catch (...)
                 {
                     _repository->read_unlock();
+                    PEG_METHOD_EXIT();
                     throw CIMException(CIM_ERR_FAILED);
                 }
                 _repository->read_unlock();
@@ -2828,6 +3040,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                                  param.isArray())
                     {
                         // ATTN-RK-P1-20020222: Who catches this?  They aren't.
+                        PEG_METHOD_EXIT();
                         throw CIMException(CIM_ERR_TYPE_MISMATCH);
                     }
                     else
@@ -2843,6 +3056,8 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
             }
         }
     }
+
+    PEG_METHOD_EXIT();
 }
 
 /**
@@ -2853,6 +3068,9 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
 void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    CIMSetPropertyRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::_fixSetPropertyValueType()");
+
    CIMValue inValue = request->newValue;
 
    //
@@ -2861,6 +3079,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    if ((inValue.getType() != CIMType::STRING) &&
        (inValue.getType() != CIMType::NONE))
    {
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -2882,16 +3101,19 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    catch (CIMException& exception)
    {
       _repository->read_unlock();
+      PEG_METHOD_EXIT();
       throw exception;
    }
    catch (Exception& exception)
    {
       _repository->read_unlock();
+      PEG_METHOD_EXIT();
       throw exception;
    }
    catch (...)
    {
       _repository->read_unlock();
+      PEG_METHOD_EXIT();
       throw CIMException(CIM_ERR_FAILED);
    }
    _repository->read_unlock();
@@ -2902,6 +3124,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    Uint32 propertyPos = cimClass.findProperty(request->propertyName);
    if (propertyPos == PEG_NOT_FOUND)
    {
+      PEG_METHOD_EXIT();
       throw CIMException(CIM_ERR_NO_SUCH_PROPERTY);
    }
    CIMProperty property = cimClass.getProperty(propertyPos);
@@ -2919,6 +3142,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    else if (inValue.isArray() != property.isArray())
    {
       // ATTN-RK-P1-20020222: Who catches this?  They aren't.
+      PEG_METHOD_EXIT();
       throw CIMException(CIM_ERR_TYPE_MISMATCH);
    }
    else
@@ -2930,6 +3154,8 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    // Put the retyped value back into the message
    //
    request->newValue = newValue;
+
+   PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,7 +23,8 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +75,8 @@ public:
 	String nameSpace)
     {
 	//get destination for the indication
-	Uint32 pos = indicationHandlerInstance.findProperty("destination");
+	Uint32 pos = indicationHandlerInstance.findProperty 
+            (CIMName ("destination"));
         if (pos == PEG_NOT_FOUND)
         {
             // ATTN: Deal with a malformed handler instance

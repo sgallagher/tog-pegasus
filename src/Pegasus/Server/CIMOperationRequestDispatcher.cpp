@@ -105,8 +105,8 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest *req)
 }
 
 Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
-   const String& nameSpace,
-   const String& className,
+   const CIMNamespaceName& nameSpace,
+   const CIMName& className,
    String& service,
    String& provider)
 {
@@ -116,8 +116,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     service =  String::EMPTY;
     provider = String::EMPTY;
 
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_CONFIGSETTING) &&
-        String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_CONFIG))
+    if (className.equal (PEGASUS_CLASSNAME_CONFIGSETTING) &&
+        nameSpace.equal (PEGASUS_NAMESPACENAME_CONFIG))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_CONFIGPROVIDER;
@@ -126,10 +126,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         PEG_METHOD_EXIT();
         return true;
     }
-    if ((String::equalNoCase(className, PEGASUS_CLASSNAME_AUTHORIZATION) &&
-         String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_AUTHORIZATION)) ||
-        (String::equalNoCase(className, PEGASUS_CLASSNAME_USER) &&
-         String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_USER)))
+    if ((className.equal (PEGASUS_CLASSNAME_AUTHORIZATION) &&
+         nameSpace.equal (PEGASUS_NAMESPACENAME_AUTHORIZATION)) ||
+        (className.equal (PEGASUS_CLASSNAME_USER) &&
+         nameSpace.equal (PEGASUS_NAMESPACENAME_USER)))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_USERAUTHPROVIDER;
@@ -138,8 +138,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         PEG_METHOD_EXIT();
         return true;
     }
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME_SHUTDOWN) &&
-        String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_SHUTDOWN))
+    if (className.equal (PEGASUS_CLASSNAME_SHUTDOWN) &&
+        nameSpace.equal (PEGASUS_NAMESPACENAME_SHUTDOWN))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_SHUTDOWNPROVIDER;
@@ -148,8 +148,8 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         PEG_METHOD_EXIT();
         return true;
     }
-    if (String::equalNoCase(className, PEGASUS_CLASSNAME___NAMESPACE) ||
-	String::equalNoCase(className, PEGASUS_CLASSNAME_NAMESPACE))
+    if (className.equal (PEGASUS_CLASSNAME___NAMESPACE) ||
+	className.equal (PEGASUS_CLASSNAME_NAMESPACE))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_NAMESPACEPROVIDER;
@@ -159,10 +159,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         return true;
     }
 
-    if ((String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE) ||
-         String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) ||
-         String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES)) &&
-        String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_PROVIDERREG))
+    if ((className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE) ||
+         className.equal (PEGASUS_CLASSNAME_PROVIDER) ||
+         className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES)) &&
+         nameSpace.equal (PEGASUS_NAMESPACENAME_PROVIDERREG))
     {
         service = PEGASUS_QUEUENAME_CONTROLSERVICE;
         provider = PEGASUS_MODULENAME_PROVREGPROVIDER;
@@ -172,11 +172,11 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         return true;
     }
     if (_enableIndicationService &&
-        (String::equalNoCase(className, PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-         String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER) ||
-         String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-         String::equalNoCase(className, PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
-         String::equalNoCase(className, PEGASUS_CLASSNAME_INDFILTER)))
+        (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
+         className.equal (PEGASUS_CLASSNAME_INDHANDLER) ||
+         className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
+         className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
+         className.equal (PEGASUS_CLASSNAME_INDFILTER)))
     {
         service = PEGASUS_QUEUENAME_INDICATIONSERVICE;
         provider = String::EMPTY;
@@ -202,18 +202,18 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     which does not have any representation in the class repository.
     @exception CIMException(CIM_ERR_INVALID_CLASS)
 */
-Array<String> CIMOperationRequestDispatcher::_getSubClassNames(
-		    String& nameSpace,
-		    String& className) throw(CIMException)
+Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
+		    CIMNamespaceName& nameSpace,
+		    CIMName& className) throw(CIMException)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
        "CIMOperationRequestDispatcher::_getSubClassNames");
 
-    Array<String> subClassNames;
+    Array<CIMName> subClassNames;
     //
     // Get names of descendent classes:
     //
-    if(!String::equalNoCase(className, PEGASUS_CLASSNAME___NAMESPACE))
+    if(!className.equal (PEGASUS_CLASSNAME___NAMESPACE))
     {
     	try
     	{
@@ -244,8 +244,8 @@ Array<String> CIMOperationRequestDispatcher::_getSubClassNames(
     Shouldn't we be able to change this to a binary return???
 */
 String CIMOperationRequestDispatcher::_lookupInstanceProvider(
-   const String& nameSpace,
-   const String& className)
+   const CIMNamespaceName& nameSpace,
+   const CIMName& className)
 {
     CIMInstance pInstance;
     CIMInstance pmInstance;
@@ -257,7 +257,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
 	nameSpace, className, pInstance, pmInstance, false))
     {
 	// get the provder name
-	Uint32 pos = pInstance.findProperty("Name");
+	Uint32 pos = pInstance.findProperty(CIMName ("Name"));
 
 	if ( pos != PEG_NOT_FOUND )
 	{
@@ -279,7 +279,7 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     else
     {
         PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                   "Provider for " + className + " not found.");
+                   "Provider for " + className.getString() + " not found.");
         PEG_METHOD_EXIT();
    	return(String::EMPTY);
     }
@@ -295,8 +295,8 @@ String CIMOperationRequestDispatcher::_lookupInstanceProvider(
     ATTN: KS P3 20 May 2002 Merge this with lookupinstnaceprovider
 */
 Boolean CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
-				 const String& nameSpace,
-                                 const String& className,
+				 const CIMNamespaceName& nameSpace,
+                                 const CIMName& className,
 				 String& serviceName,
 				 String& controlProviderName)
 {
@@ -336,9 +336,9 @@ Boolean CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
 }
 
 String CIMOperationRequestDispatcher::_lookupMethodProvider(
-   const String& nameSpace,
-   const String& className,
-   const String& methodName)
+   const CIMNamespaceName& nameSpace,
+   const CIMName& className,
+   const CIMName& methodName)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_lookupMethodProvider");
@@ -351,7 +351,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 	nameSpace, className, methodName, pInstance, pmInstance))
     {
 	// get the provder name
-	Uint32 pos = pInstance.findProperty("Name");
+	Uint32 pos = pInstance.findProperty(CIMName ("Name"));
 
 	if ( pos != PEG_NOT_FOUND )
 	{
@@ -380,10 +380,10 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 // registered for classes and give back this list
 
 Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
-   const String& nameSpace,
-   const String& className,
-   const String& assocClassName,
-   const String& resultClassName)
+   const CIMNamespaceName& nameSpace,
+   const CIMName& className,
+   const CIMName& assocClassName,
+   const CIMName& resultClassName)
 {
     Array<CIMInstance> pInstances; // Provider
     Array<CIMInstance> pmInstances; // ProviderModule
@@ -406,7 +406,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
         for(Uint32 i=0,n=pInstances.size(); i<n; i++)
         {
             // get the provider name
-            Uint32 pos = pInstances[i].findProperty("Name");
+            Uint32 pos = pInstances[i].findProperty(CIMName ("Name"));
 
             if ( pos != PEG_NOT_FOUND )
             {
@@ -722,7 +722,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     I did not make the change universal. 
 */
 void CIMOperationRequestDispatcher::_forwardRequest(
-    const String& className,        // only for diagnostic
+    const CIMName& className,        // only for diagnostic
     const String& serviceName,
     const String& controlProviderName,
     CIMRequestMessage* request)
@@ -751,7 +751,7 @@ void CIMOperationRequestDispatcher::_forwardRequest(
 
         PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
             "Forwarding " + String(MessageTypeToString(request->getType())) + 
-            " on class " + className + " to service " + serviceName +
+            " on class " + className.getString() + " to service " + serviceName +
             ". Response should go to queue " + 
             ((MessageQueue::lookup(request->queueIds.top())) ? 
              String( ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) ) : 
@@ -777,7 +777,7 @@ void CIMOperationRequestDispatcher::_forwardRequest(
 
         PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
             "Forwarding " + String(MessageTypeToString(request->getType())) + 
-            " on class " + className + " to service " + serviceName +
+            " on class " + className.getString() + " to service " + serviceName +
             ", control provider " + controlProviderName +
             ". Response should go to queue " + 
             ((MessageQueue::lookup(request->queueIds.top())) ? 
@@ -1236,7 +1236,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
    // ATTN: Need code here to expand partial instance!
 
    // get the class name
-   String className = request->instanceName.getClassName();
+   CIMName className = request->instanceName.getClassName();
 
    CIMException checkClassException;
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
@@ -1254,7 +1254,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
       return;
    }
 
-   //String NameSpace = request->nameSpace;
+   //CIMNamespaceName NameSpace = request->nameSpace;
    // ATTNKSDELETE CIMResponseMessage * response;
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
@@ -1425,7 +1425,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       "CIMOperationRequestDispatcher::handleDeleteInstanceRequest");
 
    // get the class name
-   String className = request->instanceName.getClassName();
+   CIMName className = request->instanceName.getClassName();
    CIMResponseMessage * response;
    
    CIMException checkClassException;
@@ -1589,7 +1589,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       "CIMOperationRequestDispatcher::handleCreateInstanceRequest()");
 
    // get the class name
-   String className = request->newInstance.getClassName();
+   CIMName className = request->newInstance.getClassName();
    CIMResponseMessage * response;
 
    CIMException checkClassException;
@@ -1758,7 +1758,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    // ATTN: Who makes sure the instance name and the instance match?
    // ATTN: KS May 28. Change following to reflect new instancelookup
    // get the class name
-   String className = request->modifiedInstance.getClassName();
+   CIMName className = request->modifiedInstance.getClassName();
    CIMResponseMessage * response;
 
    CIMException checkClassException;
@@ -1934,7 +1934,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
    STAT_PROVIDERSTART
 
-   Array<String> classNames;
+   Array<CIMName> classNames;
 
    _repository->read_lock();
 
@@ -1985,7 +1985,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
       "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
 
    // get the class name
-   String className = request->className;
+   CIMName className = request->className;
 
    CIMException checkClassException;
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
@@ -2009,7 +2009,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    // unless there is specific propertylist. Assume that
    // specific property list has priority over that generated
    // from localOnly
-   Array<String> classProperties;
+   Array<CIMName> classProperties;
    if (!request->deepInheritance || request->localOnly)
    {
        if (request->propertyList.isNull())
@@ -2042,7 +2042,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    //
    // Get names of descendent classes:
    //
-   Array<String> subClassNames;
+   Array<CIMName> subClassNames;
    CIMException cimException;
    try
    {
@@ -2067,7 +2067,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    // Find all providers for these classes and modify the subclass list.
    // The following arrays represent the list of subclasses with
    // valid providers
-   Array<String> subClassNameList;
+   Array<CIMName> subClassNameList;
    Array<String> serviceNames;
    Array<String> controlProviderNames;
 
@@ -2092,7 +2092,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 //            << " i = " << i << endl;
 
            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-               "Provider found for Class = " + subClassNames[i] 
+               "Provider found for Class = " + subClassNames[i].getString() 
                + " servicename = " + serviceName
                + " controlProviderName = " 
                + ((controlProviderName != String::EMPTY)  ? controlProviderName : "None"));
@@ -2239,7 +2239,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     	   PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
                Formatter::format(
                "Enumerate instance Req. class $0 to svc $1 for control provider $2 No $3 of $4",
-               poA->classes[current], poA->serviceNames[current],
+               poA->classes[current].getString(), poA->serviceNames[current],
                ((poA->controlProviderNames[current] != String::EMPTY)  ?
                     poA->controlProviderNames[current] : "None"),
                i, ps));
@@ -2256,7 +2256,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
    if ((ps == 0) && !(_repository->isDefaultInstanceProvider()))
    {         
        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-                        "No provider for " + className + " and subclasses."); 
+           "No provider for " + className.getString() + " and subclasses."); 
 
        CIMEnumerateInstancesResponseMessage* response =
           new CIMEnumerateInstancesResponseMessage(
@@ -2282,7 +2282,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
       "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
 
    // get the class name
-   String className = request->className;
+   CIMName className = request->className;
 
    CIMException checkClassException;
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
@@ -2303,7 +2303,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    //
    // Get names of descendent classes:
    //
-   Array<String> subClassNames;
+   Array<CIMName> subClassNames;
    CIMException cimException;
    try
    {
@@ -2332,7 +2332,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    //
    // The following arrays represent the list of subclasses with
    // valid providers
-   Array<String> subClassNameList;
+   Array<CIMName> subClassNameList;
    Array<String> serviceNames;
    Array<String> controlProviderNames;
 
@@ -2351,7 +2351,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 		   controlProviderNames.append(controlProviderName);
 	
             PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-               "Provider found for Class = " + subClassNames[i] 
+               "Provider found for Class = " + subClassNames[i].getString()
 			   + " servicename = " + serviceName
 			   + " controlProviderName = " 
                + ((controlProviderName != String::EMPTY)  ? controlProviderName : "None"));
@@ -2487,7 +2487,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     	   PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
                Formatter::format(
                "EnumerateNames Req. class $0 to svc $1 for control provider $2 No $3 of $4",
-               poA->classes[current], poA->serviceNames[current],
+               poA->classes[current].getString(), poA->serviceNames[current],
                ((poA->controlProviderNames[current] != String::EMPTY)  ?
                     poA->controlProviderNames[current] : "None"),
                i, ps));
@@ -2520,7 +2520,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    if ((ps == 0) && !(_repository->isDefaultInstanceProvider()))
    {         
        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4, 
-                        "No provider for " + className + " and subclasses."); 
+           "No provider for " + className.getString() + " and subclasses."); 
 
        CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage(
@@ -2565,9 +2565,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
        return;
    }
 
-   String className = request->objectName.getClassName();
-   String assocClassName = request->assocClass;
-   String resultClassName = request->resultClass;
+   CIMName className = request->objectName.getClassName();
+   CIMName assocClassName = request->assocClass;
+   CIMName resultClassName = request->resultClass;
 
    CIMResponseMessage * response;
 
@@ -2681,8 +2681,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
        return;
    }
 
-   String className = request->objectName.getClassName();
-   String resultClassName = request->resultClass;
+   CIMName className = request->objectName.getClassName();
+   CIMName resultClassName = request->resultClass;
    CIMResponseMessage * response;
 
    // check the class name for an "external provider"
@@ -2792,7 +2792,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
        return;
    }
 
-   String className = request->objectName.getClassName();
+   CIMName className = request->objectName.getClassName();
    CIMResponseMessage * response;
 
    // check the class name for an "external provider"
@@ -2903,7 +2903,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
        return;
    }
 
-   String className = request->objectName.getClassName();
+   CIMName className = request->objectName.getClassName();
    CIMResponseMessage * response;
 
    // check the class name for an "external provider"
@@ -2989,7 +2989,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleGetPropertyRequest");
 
-   String className = request->instanceName.getClassName();
+   CIMName className = request->instanceName.getClassName();
    CIMResponseMessage * response;
 
    // check the class name for an "external provider"
@@ -3111,7 +3111,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       }
    }
 
-   String className = request->instanceName.getClassName();
+   CIMName className = request->instanceName.getClassName();
    CIMResponseMessage * response;
 
    // check the class name for an "external provider"
@@ -3463,7 +3463,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
    }
 
 
-   String className = request->instanceName.getClassName();
+   CIMName className = request->instanceName.getClassName();
 
    CIMException checkClassException;
    _checkExistenceOfClass(request->nameSpace, className, checkClassException);
@@ -3699,7 +3699,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
             //
             // Find the parameter definition for this input parameter
             //
-            String paramName = inParameters[i].getParameterName();
+            CIMName paramName = inParameters[i].getParameterName();
             Uint32 numParams = method.getParameterCount();
             for (Uint32 j=0; j<numParams; j++)
             {
@@ -3840,11 +3840,11 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
 }
 
 void CIMOperationRequestDispatcher::_checkExistenceOfClass(
-   const String& nameSpace,
-   const String& className,
+   const CIMNamespaceName& nameSpace,
+   const CIMName& className,
    CIMException& cimException)
 {
-   if (String::equalNoCase(className,"__Namespace"))
+   if (className.equal (CIMName ("__Namespace")))
    {
       return;
    }

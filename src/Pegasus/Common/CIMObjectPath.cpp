@@ -111,7 +111,8 @@ static void _BubbleSort(Array<CIMKeyBinding>& x)
     {
         for (Uint32 j = 0; j < n - 1; j++)
         {
-            if (String::compareNoCase(x[j].getName(), x[j+1].getName()) > 0)
+            if (String::compareNoCase(x[j].getName().getString(), 
+                                      x[j+1].getName().getString()) > 0)
             {
                 CIMKeyBinding t = x[j];
                 x[j] = x[j+1];
@@ -528,10 +529,11 @@ void CIMObjectPath::_parseKeyBindingPairs(
         }
 
         *equalsign = 0;
-        CIMName keyString(p);
 
-        if (!CIMName::legal(keyString))
+        if (!CIMName::legal(p))
             throw MalformedObjectNameException(objectName);
+
+        CIMName keyName (p);
 
         // Get the value part:
 
@@ -637,7 +639,8 @@ void CIMObjectPath::_parseKeyBindingPairs(
             p = p + n;
         }
 
-        keyBindings.append(CIMKeyBinding(keyString, valueString, type));
+        keyBindings.append(CIMKeyBinding(keyName.getString (), valueString, 
+            type));
 
         if (*p)
         {
@@ -691,7 +694,7 @@ void CIMObjectPath::set(const String& objectName)
         // ATTN: remove this later: a reference should only be able to hold
         // an instance name.
 
-        _rep->_className = p;
+        _rep->_className = CIMName (p);
         return;
     }
 
@@ -773,13 +776,13 @@ String CIMObjectPath::toString() const
 
     if (!_rep->_nameSpace.isNull() || _rep->_host.size())
     {
-        objectName.append(_rep->_nameSpace);
+        objectName.append(_rep->_nameSpace.getString ());
         objectName.append(":");
     }
 
     // Get the class name:
 
-    objectName.append(getClassName());
+    objectName.append(getClassName().getString ());
 
     //
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
@@ -797,7 +800,7 @@ String CIMObjectPath::toString() const
 
         for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
         {
-            objectName.append(keyBindings[i].getName());
+            objectName.append(keyBindings[i].getName().getString ());
             objectName.append('=');
 
             const String& value = _escapeSpecialCharacters(
@@ -830,13 +833,14 @@ String CIMObjectPath::_toStringCanonical() const
 
     // ATTN-RK-P2-20020510: Need to make hostname and namespace lower case?
 
-    String classNameLower = ref._rep->_className;
+    String classNameLower = ref._rep->_className.getString ();
     classNameLower.toLower();
     ref._rep->_className = classNameLower;
 
     for (Uint32 i = 0, n = ref._rep->_keyBindings.size(); i < n; i++)
     {
-        String keyBindingNameLower = ref._rep->_keyBindings[i]._rep->_name;
+        String keyBindingNameLower = 
+            ref._rep->_keyBindings[i]._rep->_name.getString ();
         keyBindingNameLower.toLower();
         ref._rep->_keyBindings[i]._rep->_name = keyBindingNameLower;
     }

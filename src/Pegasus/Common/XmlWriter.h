@@ -96,16 +96,16 @@ public:
 
     static void appendLocalNameSpacePathElement(
 	Array<Sint8>& out, 
-	const String& nameSpace);
+	const CIMNamespaceName& nameSpace);
 
     static void appendNameSpacePathElement(
 	Array<Sint8>& out, 
 	const String& host,
-	const String& nameSpace);
+	const CIMNamespaceName& nameSpace);
 
     static void appendClassNameElement(
 	Array<Sint8>& out,
-	const String& className);
+	const CIMName& className);
 
     static void appendInstanceNameElement(
 	Array<Sint8>& out,
@@ -235,7 +235,7 @@ public:
     static void appendMethodCallHeader(
 	Array<Sint8>& out,
 	const char* host,
-	const char* cimMethod,
+	const CIMName& cimMethod,
 	const String& cimObject,
 	const String& authenticationHeader,
 	Uint32 contentLength);
@@ -276,7 +276,7 @@ public:
     static void appendClassNameIParameter(
 	Array<Sint8>& out,
 	const char* name,
-	const String& className);
+	const CIMName& className);
 
     static void appendInstanceNameIParameter(
 	Array<Sint8>& out,
@@ -305,7 +305,7 @@ public:
 
     static void appendPropertyNameIParameter(
 	Array<Sint8>& out,
-	const String& propertyName);
+	const CIMName& propertyName);
 
     static void appendPropertyValueIParameter(
 	Array<Sint8>& out,
@@ -328,38 +328,38 @@ public:
 
     static Array<Sint8> formatSimpleMethodReqMessage(
 	const char* host,
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMObjectPath& path,
-	const char* methodName,
+	const CIMName& methodName,
 	const Array<CIMParamValue>& parameters,
 	const String& messageId,
         const String& authenticationHeader);
 
     static Array<Sint8> formatSimpleMethodRspMessage(
-	const char* methodName,
+	const CIMName& methodName,
         const String& messageId,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleMethodErrorRspMessage(
-	const String& methodName,
+	const CIMName& methodName,
 	const String& messageId,
 	const CIMException& cimException);
 
     static Array<Sint8> formatSimpleIMethodReqMessage(
 	const char* host,
-	const String& nameSpace,
-	const char* iMethodName,
+	const CIMNamespaceName& nameSpace,
+	const CIMName& iMethodName,
 	const String& messageId,
         const String& authenticationHeader,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleIMethodRspMessage(
-	const char* iMethodName,
+	const CIMName& iMethodName,
         const String& messageId,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleIMethodErrorRspMessage(
-	const String& iMethodName,
+	const CIMName& iMethodName,
 	const String& messageId,
 	const CIMException& cimException);
 
@@ -367,7 +367,7 @@ public:
     	Array<Sint8>& out,
         const char* requestUri,
     	const char* host,
-    	const char* cimMethod,
+    	const CIMName& cimMethod,
         const String& authenticationHeader,
 	Uint32 contentLength);
 
@@ -378,18 +378,18 @@ public:
     static Array<Sint8> formatSimpleEMethodReqMessage(
         const char* requestUri,
 	const char* host,
-	const char* eMethodName,
+	const CIMName& eMethodName,
 	const String& messageId,
 	const String& authenticationHeader,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleEMethodRspMessage(
-	const char* eMethodName,
+	const CIMName& eMethodName,
         const String& messageId,
 	const Array<Sint8>& body);
 
     static Array<Sint8> formatSimpleEMethodErrorRspMessage(
-	const String& eMethodName,
+	const CIMName& eMethodName,
 	const String& messageId,
 	const CIMException& cimException);
 
@@ -418,13 +418,13 @@ private:
 
     static void _appendMethodCallElementBegin(
 	Array<Sint8>& out,
-	const char* name);
+	const CIMName& name);
     static void _appendMethodCallElementEnd(
 	Array<Sint8>& out);
 
     static void _appendIMethodCallElementBegin(
 	Array<Sint8>& out,
-	const char* name);
+	const CIMName& name);
     static void _appendIMethodCallElementEnd(
 	Array<Sint8>& out);
 
@@ -439,13 +439,13 @@ private:
 
     static void _appendMethodResponseElementBegin(
 	Array<Sint8>& out,
-	const char* name);
+	const CIMName& name);
     static void _appendMethodResponseElementEnd(
 	Array<Sint8>& out);
 
     static void _appendIMethodResponseElementBegin(
 	Array<Sint8>& out,
-	const char* name);
+	const CIMName& name);
     static void _appendIMethodResponseElementEnd(
 	Array<Sint8>& out);
 
@@ -461,7 +461,7 @@ private:
 
     static void _appendEMethodCallElementBegin(
     	Array<Sint8>& out,
-    	const char* name);
+    	const CIMName& name);
     static void _appendEMethodCallElementEnd(
     	Array<Sint8>& out);
 
@@ -470,7 +470,7 @@ private:
 
     static void _appendEMethodResponseElementBegin(
     	Array<Sint8>& out,
-    	const char* name);
+    	const CIMName& name);
     static void _appendEMethodResponseElementEnd(
     	Array<Sint8>& out);
 
@@ -501,9 +501,21 @@ PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
     Array<Sint8>& out, 
     Uint32 x);
 
+PEGASUS_COMMON_LINKAGE Array<Sint8>& operator<<(
+    Array<Sint8>& out, 
+    const CIMName& name);
+
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
     PEGASUS_STD(ostream)& os,
     const CIMDateTime& x);
+
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMName& name);
+
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
+    const CIMNamespaceName& name);
 
 PEGASUS_NAMESPACE_END
 

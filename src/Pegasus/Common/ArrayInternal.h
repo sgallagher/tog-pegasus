@@ -23,7 +23,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/CIMName.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -83,6 +85,48 @@ void BubbleSort(Array<PEGASUS_ARRAY_T>& x)
             if (x[j] > x[j+1])
             {
                 PEGASUS_ARRAY_T t = x[j];
+                x[j] = x[j+1];
+                x[j+1] = t;
+            }
+        }
+    }
+}
+
+inline void BubbleSort(Array<CIMName>& x) 
+{
+    Uint32 n = x.size();
+
+    if (n < 2)
+        return;
+
+    for (Uint32 i = 0; i < n - 1; i++)
+    {
+        for (Uint32 j = 0; j < n - 1; j++)
+        {
+            if (x[j].getString() > x[j+1].getString())
+            {
+                CIMName t = x[j];
+                x[j] = x[j+1];
+                x[j+1] = t;
+            }
+        }
+    }
+}
+
+inline void BubbleSort(Array<CIMNamespaceName>& x) 
+{
+    Uint32 n = x.size();
+
+    if (n < 2)
+        return;
+
+    for (Uint32 i = 0; i < n - 1; i++)
+    {
+        for (Uint32 j = 0; j < n - 1; j++)
+        {
+            if (x[j].getString() > x[j+1].getString())
+            {
+                CIMNamespaceName t = x[j];
                 x[j] = x[j+1];
                 x[j+1] = t;
             }

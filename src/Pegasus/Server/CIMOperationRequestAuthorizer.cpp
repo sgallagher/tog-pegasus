@@ -25,6 +25,8 @@
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //		(sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +85,7 @@ void CIMOperationRequestAuthorizer::sendResponse(
 void CIMOperationRequestAuthorizer::sendIMethodError(
    Uint32 queueId,
    const String& messageId,
-   const String& iMethodName,
+   const CIMName& iMethodName,
    const CIMException& cimException)
 {
     PEG_METHOD_ENTER(TRC_SERVER,
@@ -139,7 +141,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 
    String userName = String::EMPTY;
    String authType = String::EMPTY;
-   String nameSpace = String::EMPTY;
+   CIMNamespaceName nameSpace;
    String cimMethodName = String::EMPTY;
 
    switch (request->getType())
@@ -351,7 +353,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 String description = "Not authorized to run ";
 	 description.append(cimMethodName);
 	 description.append(" in the namespace ");
-	 description.append(nameSpace);
+	 description.append(nameSpace.getString());
 
 	 sendIMethodError(
 	    queueId,

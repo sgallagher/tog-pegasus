@@ -360,7 +360,7 @@ void IndicationService::_initialize (void)
             continue;
         }
 
-        String sourceNameSpace;
+        CIMNamespaceName sourceNameSpace;
         _getCreateParams 
             (activeSubscriptions [i].getPath ().getNameSpace (),
             activeSubscriptions [i], indicationProviders,
@@ -534,7 +534,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             String condition;
             String queryLanguage;
             CIMPropertyList requiredProperties;
-            String sourceNameSpace;
+            CIMNamespaceName sourceNameSpace;
             Array <ProviderClassList> indicationProviders;
             if (instance.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION)
             {
@@ -1116,7 +1116,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //
                 Array <ProviderClassList> indicationProviders;
                 CIMPropertyList requiredProperties;
-                String sourceNameSpace;
+                CIMNamespaceName sourceNameSpace;
                 String condition;
                 String queryLanguage;
         
@@ -1458,7 +1458,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     CIMInstance indication = request->indicationInstance;
     PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4, 
 		     "Received Indication " + 
-		     indication.getClassName() );
+		     indication.getClassName().getString());
     try
     {
         WQLSimplePropertySource propertySource = _getPropertySourceFromInstance(
@@ -1474,7 +1474,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
         propertyList = _checkPropertyList (propertyNames, request->nameSpace, 
             indication.getClassName ());
 
-        Array <String> nameSpaces;
+        Array <CIMNamespaceName> nameSpaces;
         nameSpaces.append (request->nameSpace);
         matchedSubscriptions = _getMatchingSubscriptions(
             indication.getClassName (), nameSpaces, propertyList);
@@ -1516,8 +1516,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                  // clause from indication as they are not required to pass to 
                  // consumer
 
-                 Array <String> selectPropertyList;
-                 String selectProperty;
+                 Array <CIMName> selectPropertyList;
+                 CIMName selectProperty;
 
                  //
                  //  Get all the properties from SELECT clause
@@ -1545,7 +1545,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                      {
                          for (Uint32 j = 0; j < whereCount; j++)
                          {
-                             String whereProperty = 
+                             CIMName whereProperty = 
                                  selectStatement.getWherePropertyName(j);
                              // check if where property is not in select 
                              if (!Contains(selectPropertyList, whereProperty))
@@ -1636,9 +1636,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 
     CIMInstance provider = request->provider;
     CIMInstance providerModule = request->providerModule;
-    String className = request->className;
-    Array <String> newNameSpaces = request->newNamespaces;
-    Array <String> oldNameSpaces = request->oldNamespaces;
+    CIMName className = request->className;
+    Array <CIMNamespaceName> newNameSpaces = request->newNamespaces;
+    Array <CIMNamespaceName> oldNameSpaces = request->oldNamespaces;
     CIMPropertyList newPropertyNames = request->newPropertyNames;
     CIMPropertyList oldPropertyNames = request->oldPropertyNames;
 
@@ -1716,7 +1716,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //
         for (Uint8 i = 0; i < newSubscriptions.size (); i++)
         {
-            String sourceNameSpace;
+            CIMNamespaceName sourceNameSpace;
             _getCreateParams 
                 (newSubscriptions [i].getPath ().getNameSpace (), 
                 newSubscriptions [i], 
@@ -1829,7 +1829,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 //
                 else
                 {
-                    String sourceNameSpace;
+                    CIMNamespaceName sourceNameSpace;
                     _getCreateParams 
                         (formerSubscriptions [i].getPath ().getNameSpace (),
                         formerSubscriptions [i], 
@@ -2066,7 +2066,7 @@ void IndicationService::_deleteSubscription (
 
 Boolean IndicationService::_canCreate (
     CIMInstance & instance,
-    const String & nameSpace)
+    const CIMNamespaceName & nameSpace)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_canCreate");
 
@@ -2142,8 +2142,9 @@ Boolean IndicationService::_canCreate (
             //  Default value for Source Namespace is the namespace of the
             //  Filter registration
             //
-            String sourceNameSpace = _checkPropertyWithDefault (instance, 
-                _PROPERTY_SOURCENAMESPACE, nameSpace);
+            CIMNamespaceName sourceNameSpace = CIMNamespaceName 
+                (_checkPropertyWithDefault (instance, _PROPERTY_SOURCENAMESPACE,
+                 nameSpace.getString()));
 
             //
             //  Validate the query and indication class name
@@ -2154,7 +2155,7 @@ Boolean IndicationService::_canCreate (
                 (_PROPERTY_QUERY)).getValue ().toString ();
             WQLSelectStatement selectStatement = 
                 _getSelectStatement (filterQuery);
-            String indicationClassName = _getIndicationClassName 
+            CIMName indicationClassName = _getIndicationClassName 
                 (selectStatement, sourceNameSpace);
         }
 
@@ -2216,7 +2217,7 @@ Boolean IndicationService::_canCreate (
 
 void IndicationService::_checkRequiredProperty (
     CIMInstance & instance,
-    const String & propertyName,
+    const CIMName & propertyName,
     const String & message)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -2252,7 +2253,7 @@ void IndicationService::_checkRequiredProperty (
     if (missingProperty)
     {
         String exceptionStr = _MSG_MISSING_REQUIRED;
-        exceptionStr.append (propertyName);
+        exceptionStr.append (propertyName.getString());
         exceptionStr.append (message);
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
@@ -2263,8 +2264,8 @@ void IndicationService::_checkRequiredProperty (
 
 void IndicationService::_checkPropertyWithOther (
     CIMInstance & instance,
-    const String & propertyName,
-    const String & otherPropertyName,
+    const CIMName & propertyName,
+    const CIMName & otherPropertyName,
     const Uint16 defaultValue,
     const Uint16 otherValue,
     const Array <Uint16> & validValues)
@@ -2310,7 +2311,7 @@ void IndicationService::_checkPropertyWithOther (
                 String exceptionStr = _MSG_INVALID_VALUE;
                 exceptionStr.append (theValue.toString ());
                 exceptionStr.append (_MSG_FOR_PROPERTY);
-                exceptionStr.append (propertyName);
+                exceptionStr.append (propertyName.getString());
                 PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
                     exceptionStr);
@@ -2326,7 +2327,7 @@ void IndicationService::_checkPropertyWithOther (
             if (instance.findProperty (otherPropertyName) == PEG_NOT_FOUND)
             {
                 String exceptionStr = _MSG_MISSING_REQUIRED;
-                exceptionStr.append (otherPropertyName);
+                exceptionStr.append (otherPropertyName.getString());
                 exceptionStr.append (_MSG_PROPERTY);
                 PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
@@ -2340,7 +2341,7 @@ void IndicationService::_checkPropertyWithOther (
                 if (theOtherValue.isNull ())
                 {
                     String exceptionStr = _MSG_MISSING_REQUIRED;
-                    exceptionStr.append (otherPropertyName);
+                    exceptionStr.append (otherPropertyName.getString());
                     exceptionStr.append (_MSG_PROPERTY);
                     PEG_METHOD_EXIT ();
                     throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER,
@@ -2360,9 +2361,9 @@ void IndicationService::_checkPropertyWithOther (
             CIMValue theOtherValue = otherProperty.getValue ();
             if (!theOtherValue.isNull ())
             {
-                String exceptionStr = otherPropertyName;
+                String exceptionStr = otherPropertyName.getString();
                 exceptionStr.append (_MSG_PROPERTY_PRESENT);
-                exceptionStr.append (propertyName);
+                exceptionStr.append (propertyName.getString());
                 exceptionStr.append (_MSG_VALUE_NOT);
                 exceptionStr.append (CIMValue (otherValue).toString ());
                 PEG_METHOD_EXIT ();
@@ -2377,7 +2378,7 @@ void IndicationService::_checkPropertyWithOther (
 
 String IndicationService::_checkPropertyWithDefault (
     CIMInstance & instance,
-    const String & propertyName,
+    const CIMName & propertyName,
     const String & defaultValue)
 {
     String result = defaultValue;
@@ -2504,11 +2505,11 @@ Boolean IndicationService::_canModify (
 
 Boolean IndicationService::_canDelete (
     const CIMObjectPath & instanceReference,
-    const String & nameSpace,
+    const CIMNamespaceName & nameSpace,
     const String & currentUser)
 {
-    String superClass;
-    String propName;
+    CIMName superClass;
+    CIMName propName;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, "IndicationService::_canDelete");
 
@@ -2652,7 +2653,7 @@ Boolean IndicationService::_canDelete (
 Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
 {
     Array <CIMInstance> activeSubscriptions;
-    Array <String> nameSpaceNames;
+    Array <CIMNamespaceName> nameSpaceNames;
     Array <CIMInstance> subscriptions;
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
@@ -2717,12 +2718,12 @@ Array <CIMInstance> IndicationService::_getActiveSubscriptions () const
 
 
 Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
-    const String & supportedClass,
-    const Array <String> nameSpaces,
+    const CIMName & supportedClass,
+    const Array <CIMNamespaceName> nameSpaces,
     const CIMPropertyList & supportedProperties) 
 {
     Array <CIMInstance> matchingSubscriptions;
-    Array <String> nameSpaceNames;
+    Array <CIMNamespaceName> nameSpaceNames;
     Array <CIMInstance> subscriptions;
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
@@ -2768,9 +2769,9 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             {
                 String filterQuery;
                 WQLSelectStatement selectStatement;
-                String indicationClassName;
-                Array <String> indicationSubclasses;
-                String sourceNameSpace;
+                CIMName indicationClassName;
+                Array <CIMName> indicationSubclasses;
+                CIMNamespaceName sourceNameSpace;
                 CIMPropertyList propertyList;
                 Boolean match;
 
@@ -2875,15 +2876,15 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
 }
 
 void IndicationService::_getModifiedSubscriptions (
-    const String & supportedClass,
-    const Array <String> & newNameSpaces,
-    const Array <String> & oldNameSpaces,
+    const CIMName & supportedClass,
+    const Array <CIMNamespaceName> & newNameSpaces,
+    const Array <CIMNamespaceName> & oldNameSpaces,
     const CIMPropertyList & newProperties,
     const CIMPropertyList & oldProperties,
     Array <CIMInstance> & newSubscriptions,
     Array <CIMInstance> & formerSubscriptions)
 {
-    Array <String> nameSpaceNames;
+    Array <CIMNamespaceName> nameSpaceNames;
     Array <CIMInstance> subscriptions;
     CIMValue subscriptionStateValue;
     Uint16 subscriptionState;
@@ -2932,9 +2933,9 @@ void IndicationService::_getModifiedSubscriptions (
             {
                 String filterQuery;
                 WQLSelectStatement selectStatement;
-                String indicationClassName;
-                Array <String> indicationSubclasses;
-                String sourceNameSpace;
+                CIMName indicationClassName;
+                Array <CIMName> indicationSubclasses;
+                CIMNamespaceName sourceNameSpace;
                 CIMPropertyList requiredProperties;
                 Boolean newMatch;
                 Boolean formerMatch;
@@ -3050,9 +3051,9 @@ void IndicationService::_getModifiedSubscriptions (
     PEG_METHOD_EXIT ();
 }
 
-Array <String> IndicationService::_getNameSpaceNames (void) const
+Array <CIMNamespaceName> IndicationService::_getNameSpaceNames (void) const
 {
-    Array <String> nameSpaceNames;
+    Array <CIMNamespaceName> nameSpaceNames;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::__getNameSpaceNames");
@@ -3077,7 +3078,7 @@ Array <String> IndicationService::_getNameSpaceNames (void) const
 }
 
 Array <CIMInstance> IndicationService::_getSubscriptions (
-    const String & nameSpaceName) const
+    const CIMNamespaceName & nameSpaceName) const
 {
     Array <CIMInstance> subscriptions;
 
@@ -3190,9 +3191,9 @@ Array <CIMInstance> IndicationService::_getProviderSubscriptions (
 
 void IndicationService::_getFilterProperties (
     const CIMInstance & subscription,
-    const String & nameSpaceName, 
+    const CIMNamespaceName & nameSpaceName, 
     String & query,
-    String & sourceNameSpace,
+    CIMNamespaceName & sourceNameSpace,
     String & queryLanguage) 
 {
     CIMValue filterValue;
@@ -3238,9 +3239,9 @@ void IndicationService::_getFilterProperties (
 
 void IndicationService::_getFilterProperties (
     const CIMInstance & subscription,
-    const String & nameSpaceName, 
+    const CIMNamespaceName & nameSpaceName, 
     String & query,
-    String & sourceNameSpace) 
+    CIMNamespaceName & sourceNameSpace) 
 {
     CIMValue filterValue;
     CIMObjectPath filterReference;
@@ -3281,7 +3282,7 @@ void IndicationService::_getFilterProperties (
 
 void IndicationService::_getFilterProperties (
     const CIMInstance & subscription,
-    const String & nameSpaceName, 
+    const CIMNamespaceName & nameSpaceName, 
     String & query) 
 {
     CIMValue filterValue;
@@ -3353,12 +3354,12 @@ WQLSelectStatement IndicationService::_getSelectStatement (
     return selectStatement;
 }
 
-String IndicationService::_getIndicationClassName (
+CIMName IndicationService::_getIndicationClassName (
     const WQLSelectStatement & selectStatement,
-    const String & nameSpaceName) const
+    const CIMNamespaceName & nameSpaceName) const
 {
-    String indicationClassName;
-    Array <String> indicationSubclasses;
+    CIMName indicationClassName;
+    Array <CIMName> indicationSubclasses;
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_getIndicationClassName");
@@ -3402,11 +3403,11 @@ String IndicationService::_getIndicationClassName (
     if (!validClass)
     {
         String exceptionStr = _MSG_INVALID_CLASSNAME;
-        exceptionStr.append (indicationClassName);
+        exceptionStr.append (indicationClassName.getString());
         exceptionStr.append (_MSG_IN_FROM);
-        exceptionStr.append (PEGASUS_CLASSNAME_INDFILTER);
+        exceptionStr.append (PEGASUS_CLASSNAME_INDFILTER.getString());
         exceptionStr.append (" ");
-        exceptionStr.append (_PROPERTY_QUERY);
+        exceptionStr.append (_PROPERTY_QUERY.getString());
         exceptionStr.append (_MSG_PROPERTY);
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, 
@@ -3417,11 +3418,11 @@ String IndicationService::_getIndicationClassName (
     return indicationClassName;
 }
 
-Array <String> IndicationService::_getIndicationSubclasses (
-        const String & nameSpace,
-        const String & indicationClassName) const
+Array <CIMName> IndicationService::_getIndicationSubclasses (
+        const CIMNamespaceName & nameSpace,
+        const CIMName & indicationClassName) const
 {
-    Array <String> indicationSubclasses;
+    Array <CIMName> indicationSubclasses;
 
     const char METHOD_NAME [] = "IndicationService::_getIndicationSubclasses";
 
@@ -3452,9 +3453,9 @@ Array <String> IndicationService::_getIndicationSubclasses (
 
 Array <ProviderClassList> 
     IndicationService::_getIndicationProviders (
-        const String & nameSpace,
-        const String & indicationClassName,
-        const Array <String> & indicationSubclasses,
+        const CIMNamespaceName & nameSpace,
+        const CIMName & indicationClassName,
+        const Array <CIMName> & indicationSubclasses,
         const CIMPropertyList & requiredPropertyList) const
 {
     ProviderClassList provider;
@@ -3536,8 +3537,8 @@ Array <ProviderClassList>
 
 CIMPropertyList IndicationService::_getPropertyList 
     (const WQLSelectStatement & selectStatement,
-     const String & nameSpaceName,
-     const String & indicationClassName) const
+     const CIMNamespaceName & nameSpaceName,
+     const CIMName & indicationClassName) const
 {
     Array <CIMName> propertyList;
     CIMName propertyName;
@@ -3595,8 +3596,8 @@ CIMPropertyList IndicationService::_getPropertyList
 
 CIMPropertyList IndicationService::_checkPropertyList 
     (const Array <CIMName> & propertyList,
-     const String & nameSpaceName,
-     const String & indicationClassName) const
+     const CIMNamespaceName & nameSpaceName,
+     const CIMName & indicationClassName) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_checkPropertyList");
@@ -3719,7 +3720,7 @@ CIMInstance IndicationService::_getHandler (
 }
 
 Boolean IndicationService::_isTransient (
-    const String & nameSpace,
+    const CIMNamespaceName & nameSpace,
     const CIMObjectPath & handler) const
 {
     CIMValue persistenceValue;
@@ -3771,8 +3772,8 @@ Boolean IndicationService::_isTransient (
 }
 
 void IndicationService::_deleteReferencingSubscriptions (
-    const String & nameSpace,
-    const String & referenceProperty,
+    const CIMNamespaceName & nameSpace,
+    const CIMName & referenceProperty,
     const CIMObjectPath & handler)
 {
     Array <CIMInstance> subscriptions;
@@ -3833,7 +3834,7 @@ void IndicationService::_deleteReferencingSubscriptions (
                 //  Namespace and host must not be set in path passed to 
                 //  repository
                 //
-                CIMObjectPath path ("", "",
+                CIMObjectPath path ("", CIMNamespaceName (),
                     subscriptions [i].getPath ().getClassName(),
                     subscriptions [i].getPath ().getKeyBindings());
                 _repository->deleteInstance (nameSpace, path);
@@ -3888,8 +3889,8 @@ void IndicationService::_deleteExpiredSubscription (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_deleteExpiredSubscription");
 
-    String nameSpace = subscription.getNameSpace ();
-    subscription.setNameSpace ("");
+    CIMNamespaceName nameSpace = subscription.getNameSpace ();
+    subscription.setNameSpace (CIMNamespaceName ());
 
     //
     //  Delete the subscription instance
@@ -4011,18 +4012,18 @@ void IndicationService::_setTimeRemaining (
 }
 
 void IndicationService::_getCreateParams (
-    const String & nameSpaceName,
+    const CIMNamespaceName & nameSpaceName,
     const CIMInstance & subscriptionInstance,
     Array <ProviderClassList> & indicationProviders,
     CIMPropertyList & propertyList,
-    String & sourceNameSpace,
+    CIMNamespaceName & sourceNameSpace,
     String & condition,
     String & queryLanguage)
 {
     String filterQuery;
     WQLSelectStatement selectStatement;
-    String indicationClassName;
-    Array <String> indicationSubclasses;
+    CIMName indicationClassName;
+    Array <CIMName> indicationSubclasses;
     condition = String::EMPTY;
     queryLanguage = String::EMPTY;
 
@@ -4081,10 +4082,10 @@ void IndicationService::_getCreateParams (
 }
     
 void IndicationService::_getCreateParams (
-    const String & nameSpaceName,
+    const CIMNamespaceName & nameSpaceName,
     const CIMInstance & subscriptionInstance,
     CIMPropertyList & propertyList,
-    String & sourceNameSpace,
+    CIMNamespaceName & sourceNameSpace,
     String & condition,
     String & queryLanguage)
 {
@@ -4110,7 +4111,7 @@ void IndicationService::_getCreateParams (
     if ((selectStatement.getSelectPropertyNameCount () > 0) ||
         (selectStatement.getWherePropertyNameCount () > 0))
     {
-        String indicationClassName = _getIndicationClassName (selectStatement,
+        CIMName indicationClassName = _getIndicationClassName (selectStatement,
             sourceNameSpace);
         propertyList = _getPropertyList (selectStatement,
             sourceNameSpace, indicationClassName);
@@ -4128,14 +4129,14 @@ void IndicationService::_getCreateParams (
 }
     
 Array <ProviderClassList> IndicationService::_getDeleteParams (
-    const String & nameSpaceName,
+    const CIMNamespaceName & nameSpaceName,
     const CIMInstance & subscriptionInstance)
 {
     String filterQuery;
-    String sourceNameSpace;
+    CIMNamespaceName sourceNameSpace;
     WQLSelectStatement selectStatement;
-    String indicationClassName;
-    Array <String> indicationSubclasses;
+    CIMName indicationClassName;
+    Array <CIMName> indicationSubclasses;
     CIMPropertyList propertyList;
     Array <ProviderClassList> indicationProviders;
 
@@ -4244,7 +4245,7 @@ void IndicationService::_sendCreateRequestsCallBack(AsyncOpNode *op,
 
 Boolean IndicationService::_sendCreateRequests
     (const Array <ProviderClassList> & indicationProviders,
-     const String & nameSpace,
+     const CIMNamespaceName & nameSpace,
      const CIMPropertyList & propertyList,
      const String & condition,
      const String & queryLanguage,
@@ -4394,7 +4395,7 @@ void IndicationService::_sendModifyRequestsCallBack (
 
 void IndicationService::_sendModifyRequests
     (const Array <ProviderClassList> & indicationProviders,
-     const String & nameSpace,
+     const CIMNamespaceName & nameSpace,
      const CIMPropertyList & propertyList,
      const String & condition,
      const String & queryLanguage,
@@ -4530,7 +4531,7 @@ void IndicationService::_sendDeleteRequestsCallBack (
 
 void IndicationService::_sendDeleteRequests
     (const Array <ProviderClassList> & indicationProviders,
-     const String & nameSpace,
+     const CIMNamespaceName & nameSpace,
      const CIMInstance & subscription,
      const String & userName,
      const String & authType)
@@ -4596,7 +4597,7 @@ String IndicationService::_generateKey (
     //
     //  Append subscription namespace name to key
     //
-    tableKey.append (subscription.getPath ().getNameSpace ());
+    tableKey.append (subscription.getPath ().getNameSpace ().getString());
 
     //
     //  Append subscription filter key values to key
@@ -4647,7 +4648,7 @@ String IndicationService::_generateKey (
 void IndicationService::_insertEntry (
     const CIMInstance & subscription,
     const CIMInstance & provider,
-    const Array <String> classList)
+    const Array <CIMName> classList)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
                       "IndicationService::_insertEntry");
@@ -4665,7 +4666,7 @@ void IndicationService::_insertEntry (
 }
 
 CIMInstance IndicationService::_createAlertInstance (
-    const String & alertClassName,
+    const CIMName & alertClassName,
     const Array <CIMInstance> & subscriptions)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -4683,7 +4684,7 @@ CIMInstance IndicationService::_createAlertInstance (
     //  Currently using Alert class name
     //
     indicationInstance.addProperty 
-        (CIMProperty (_PROPERTY_OTHERALERTTYPE, alertClassName));
+        (CIMProperty (_PROPERTY_OTHERALERTTYPE, alertClassName.getString()));
 
     indicationInstance.addProperty 
         (CIMProperty (_PROPERTY_PERCEIVEDSEVERITY,
@@ -4949,95 +4950,95 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
         CIMProperty property = indicationInstance.getProperty(i);
         CIMValue propertyValue = property.getValue();
         CIMType type = property.getType();
-        String propertyName = property.getName();
+        CIMName propertyName = property.getName();
 
         switch (type)
         {
             case CIMTYPE_UINT8:
                 Uint8 propertyValueUint8;
                 propertyValue.get(propertyValueUint8);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueUint8, WQL_INTEGER_VALUE_TAG));
                 break;
 
             case CIMTYPE_UINT16:
                 Uint16 propertyValueUint16;
                 propertyValue.get(propertyValueUint16);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueUint16, WQL_INTEGER_VALUE_TAG));
                 break;
 
             case CIMTYPE_UINT32:
                 Uint32 propertyValueUint32;
                 propertyValue.get(propertyValueUint32);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueUint32, WQL_INTEGER_VALUE_TAG));
                 break;
 
             case CIMTYPE_UINT64:
                 Uint64 propertyValueUint64;
                 propertyValue.get(propertyValueUint64);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueUint64, WQL_INTEGER_VALUE_TAG));
                 break;
 
             case CIMTYPE_SINT8:
                 Sint8 propertyValueSint8;
                 propertyValue.get(propertyValueSint8);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueSint8, WQL_INTEGER_VALUE_TAG));
                 break;
 
             case CIMTYPE_SINT16:
                 Sint16 propertyValueSint16;
                 propertyValue.get(propertyValueSint16);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueSint16, WQL_INTEGER_VALUE_TAG));
                 break;
 
             case CIMTYPE_SINT32:
                 Sint32 propertyValueSint32;
                 propertyValue.get(propertyValueSint32);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueSint32, WQL_INTEGER_VALUE_TAG));
                 break;                break;
 
             case CIMTYPE_SINT64:
                 Sint64 propertyValueSint64;
                 propertyValue.get(propertyValueSint64);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueSint64, WQL_INTEGER_VALUE_TAG));
                 break;
 
             case CIMTYPE_REAL32:
                 Real32 propertyValueReal32;
                 propertyValue.get(propertyValueReal32);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueReal32, WQL_DOUBLE_VALUE_TAG));
                 break;
 
             case CIMTYPE_REAL64:
                 Real64 propertyValueReal64;
                 propertyValue.get(propertyValueReal64);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(propertyValueReal64, WQL_DOUBLE_VALUE_TAG));
                 break;
 
             case CIMTYPE_BOOLEAN :
                 property.getValue().get(booleanValue);
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(booleanValue, WQL_BOOLEAN_VALUE_TAG));
                 break;
 
             case CIMTYPE_CHAR16:
             case CIMTYPE_STRING :
-                source.addValue(propertyName,
+                source.addValue(propertyName.getString(),
                     WQLOperand(property.getValue().toString(),
                     WQL_STRING_VALUE_TAG));
                 break;
 
             case CIMTYPE_DATETIME :
-                source.addValue (propertyName,
+                source.addValue (propertyName.getString(),
                     WQLOperand ());
                 break;
         }
@@ -5058,8 +5059,8 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
 //
 //  ATTN: Update once CimomShutdownAlertIndication has been defined
 //
-const char   IndicationService::_CLASS_CIMOM_SHUTDOWN_ALERT [] =
-                 "CIM_AlertIndication";
+const CIMName IndicationService::_CLASS_CIMOM_SHUTDOWN_ALERT =
+              CIMName ("CIM_AlertIndication");
 
 /**
     The name of the No Provider alert indication class
@@ -5067,8 +5068,8 @@ const char   IndicationService::_CLASS_CIMOM_SHUTDOWN_ALERT [] =
 //
 //  ATTN: Update once NoProviderAlertIndication has been defined
 //
-const char   IndicationService::_CLASS_NO_PROVIDER_ALERT [] =
-                 "CIM_AlertIndication";
+const CIMName IndicationService::_CLASS_NO_PROVIDER_ALERT =
+              CIMName ("CIM_AlertIndication");
 
 /**
     The name of the CIMOM shutdown alert indication class
@@ -5076,8 +5077,8 @@ const char   IndicationService::_CLASS_NO_PROVIDER_ALERT [] =
 //
 //  ATTN: Update once ProviderTerminatedAlertIndication has been defined
 //
-const char   IndicationService::_CLASS_PROVIDER_TERMINATED_ALERT [] =
-                 "CIM_AlertIndication";
+const CIMName IndicationService::_CLASS_PROVIDER_TERMINATED_ALERT =
+              CIMName ("CIM_AlertIndication");
 
 
 //
@@ -5087,210 +5088,213 @@ const char   IndicationService::_CLASS_PROVIDER_TERMINATED_ALERT [] =
 /**
     The name of the filter reference property for indication subscription class
  */
-const char   IndicationService::_PROPERTY_FILTER []     = "Filter";
+const CIMName IndicationService::_PROPERTY_FILTER = CIMName ("Filter");
 
 /**
     The name of the handler reference property for indication subscription class
  */
-const char   IndicationService::_PROPERTY_HANDLER []     = "Handler";
+const CIMName IndicationService::_PROPERTY_HANDLER = CIMName ("Handler");
 
 /**
     The name of the subscription state property for indication subscription 
     class
  */
-const char   IndicationService::_PROPERTY_STATE []      = 
-                 "SubscriptionState";
+const CIMName IndicationService::_PROPERTY_STATE = 
+              CIMName ("SubscriptionState");
 
 /**
     The name of the Other Subscription State property for Indication 
     Subscription class
  */
-const char   IndicationService::_PROPERTY_OTHERSTATE [] = 
-                 "OtherSubscriptionState";
+const CIMName IndicationService::_PROPERTY_OTHERSTATE = 
+              CIMName ("OtherSubscriptionState");
 
 /**
     The name of the repeat notification policy property for indication
     subscription class
  */
-const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONPOLICY [] =
-                 "RepeatNotificationPolicy";
+const CIMName IndicationService::_PROPERTY_REPEATNOTIFICATIONPOLICY =
+              CIMName ("RepeatNotificationPolicy");
 
 /**
     The name of the other repeat notification policy property for
     indication subscription class
  */
-const char   IndicationService::_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY []
-                 = "OtherRepeatNotificationPolicy";
+const CIMName IndicationService::_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY =
+              CIMName ("OtherRepeatNotificationPolicy");
 
 /**
     The name of the repeat notification interval property for indication
     subscription class
  */
-const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONINTERVAL [] =
-                 "RepeatNotificationInterval";
+const CIMName IndicationService::_PROPERTY_REPEATNOTIFICATIONINTERVAL =
+              CIMName ("RepeatNotificationInterval");
 
 /**
     The name of the repeat notification gap property for indication
     subscription class
  */
-const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONGAP [] =
-                 "RepeatNotificationGap";
+const CIMName IndicationService::_PROPERTY_REPEATNOTIFICATIONGAP =
+              CIMName ("RepeatNotificationGap");
 
 /**
     The name of the repeat notification count property for indication
     subscription class
  */
-const char   IndicationService::_PROPERTY_REPEATNOTIFICATIONCOUNT [] =
-                 "RepeatNotificationCount";
+const CIMName IndicationService::_PROPERTY_REPEATNOTIFICATIONCOUNT =
+              CIMName ("RepeatNotificationCount");
 
 /**
     The name of the On Fatal Error Policy property for Indication Subscription 
     class
  */
-const char   IndicationService::_PROPERTY_ONFATALERRORPOLICY [] = 
-                 "OnFatalErrorPolicy";
+const CIMName IndicationService::_PROPERTY_ONFATALERRORPOLICY = 
+              CIMName ("OnFatalErrorPolicy");
 
 /**
     The name of the Other On Fatal Error Policy property for Indication 
     Subscription class
  */
-const char   IndicationService::_PROPERTY_OTHERONFATALERRORPOLICY [] = 
-                 "OtherOnFatalErrorPolicy";
+const CIMName IndicationService::_PROPERTY_OTHERONFATALERRORPOLICY = 
+              CIMName ("OtherOnFatalErrorPolicy");
 
 /**
     The name of the Time Of Last State Change property for Indication 
     Subscription class
  */
-const char   IndicationService::_PROPERTY_LASTCHANGE []      = 
-                 "TimeOfLastStateChange";
+const CIMName IndicationService::_PROPERTY_LASTCHANGE = 
+              CIMName ("TimeOfLastStateChange");
 
 /**
     The name of the Subscription Start Time property for Indication 
     Subscription class
  */
-const char   IndicationService::_PROPERTY_STARTTIME []      = 
-                 "SubscriptionStartTime";
+const CIMName IndicationService::_PROPERTY_STARTTIME = 
+              CIMName ("SubscriptionStartTime");
 
 /**
     The name of the Subscription Duration property for Indication 
     Subscription class
  */
-const char   IndicationService::_PROPERTY_DURATION []      = 
-                 "SubscriptionDuration";
+const CIMName IndicationService::_PROPERTY_DURATION = 
+              CIMName ("SubscriptionDuration");
 
 /**
     The name of the Subscription Time Remaining property for Indication 
     Subscription class
  */
-const char   IndicationService::_PROPERTY_TIMEREMAINING []      = 
-                 "SubscriptionTimeRemaining";
+const CIMName IndicationService::_PROPERTY_TIMEREMAINING = 
+              CIMName ("SubscriptionTimeRemaining");
 
 /**
     The name of the query property for indication filter class
  */
-const char   IndicationService::_PROPERTY_QUERY []      = "Query";
+const CIMName IndicationService::_PROPERTY_QUERY = CIMName ("Query");
 
 /**
     The name of the query language property for indication filter class
  */
-const char   IndicationService::_PROPERTY_QUERYLANGUAGE [] = 
-                 "QueryLanguage";
+const CIMName IndicationService::_PROPERTY_QUERYLANGUAGE = 
+              CIMName ("QueryLanguage");
 
 /**
     The name of the Source Namespace property for indication filter class
  */
-const char   IndicationService::_PROPERTY_SOURCENAMESPACE [] = 
-                 "SourceNamespace";
+const CIMName IndicationService::_PROPERTY_SOURCENAMESPACE = 
+              CIMName ("SourceNamespace");
 
 /**
     The name of the name property for indication filter and indications handler     classes
  */
-const char   IndicationService::_PROPERTY_NAME []       = "Name";
+const CIMName IndicationService::_PROPERTY_NAME = CIMName ("Name");
 
 /**
     The name of the creation class name property for indication filter and 
     indications handler classes
  */
-const char   IndicationService::_PROPERTY_CREATIONCLASSNAME [] = 
-             "CreationClassName";
+const CIMName IndicationService::_PROPERTY_CREATIONCLASSNAME = 
+              CIMName ("CreationClassName");
 
 /**
     The name of the system name property for indication filter and indications 
     handler classes
  */
-const char   IndicationService::_PROPERTY_SYSTEMNAME [] = "SystemName";
+const CIMName IndicationService::_PROPERTY_SYSTEMNAME = 
+              CIMName ("SystemName");
 
 /**
     The name of the system creation class name property for indication filter 
     and indications handler classes
  */
-const char   IndicationService::_PROPERTY_SYSTEMCREATIONCLASSNAME [] = 
-             "SystemCreationClassName";
+const CIMName IndicationService::_PROPERTY_SYSTEMCREATIONCLASSNAME = 
+              CIMName ("SystemCreationClassName");
 
 /**
     The name of the Persistence Type property for Indication Handler class
  */
-const char   IndicationService::_PROPERTY_PERSISTENCETYPE [] = 
-                 "PersistenceType";
+const CIMName IndicationService::_PROPERTY_PERSISTENCETYPE = 
+              CIMName ("PersistenceType");
 
 /**
     The name of the Other Persistence Type property for Indication Handler 
     class
  */
-const char   IndicationService::_PROPERTY_OTHERPERSISTENCETYPE [] = 
-                 "OtherPersistenceType";
+const CIMName IndicationService::_PROPERTY_OTHERPERSISTENCETYPE = 
+              CIMName ("OtherPersistenceType");
 
 /**
     The name of the Destination property for CIM XML Indication Handler 
     subclass
  */
-const char   IndicationService::_PROPERTY_DESTINATION [] = "Destination";
+const CIMName IndicationService::_PROPERTY_DESTINATION = 
+              CIMName ("Destination");
 
 /**
     The name of the Trap Destination property for SNMP Mapper Indication 
     Handler subclass
  */
-const char   IndicationService::_PROPERTY_TRAPDESTINATION [] = 
-                 "TrapDestination";
+const CIMName IndicationService::_PROPERTY_TRAPDESTINATION = 
+              CIMName ("TrapDestination");
 
 /**
     The name of the SNMP Type property for SNMP Indication Handler class
  */
-const char   IndicationService::_PROPERTY_SNMPTYPE [] = "SNMPVersion";
+const CIMName IndicationService::_PROPERTY_SNMPTYPE = 
+              CIMName ("SNMPVersion");
 
 /**
     The name of the Alert Type property for Alert Indication class
  */
-const char   IndicationService::_PROPERTY_ALERTTYPE [] = "AlertType";
+const CIMName IndicationService::_PROPERTY_ALERTTYPE = CIMName ("AlertType");
 
 /**
     The name of the Other Alert Type property for Alert Indication class
  */
-const char   IndicationService::_PROPERTY_OTHERALERTTYPE [] = 
-             "OtherAlertType";
+const CIMName IndicationService::_PROPERTY_OTHERALERTTYPE = 
+              CIMName ("OtherAlertType");
 
 /**
     The name of the Perceived Severity property for Alert Indication class
  */
-const char   IndicationService::_PROPERTY_PERCEIVEDSEVERITY [] = 
-             "PerceivedSeverity";
+const CIMName IndicationService::_PROPERTY_PERCEIVEDSEVERITY = 
+              CIMName ("PerceivedSeverity");
 
 /**
     The name of the Probable Cause property for Alert Indication class
  */
-const char   IndicationService::_PROPERTY_PROBABLECAUSE [] = 
-             "ProbableCause";
+const CIMName IndicationService::_PROPERTY_PROBABLECAUSE = 
+              CIMName ("ProbableCause");
 
 /**
     The name of the Provider Name property for Provider class
  */
-const char   IndicationService::_PROPERTY_PROVIDERNAME [] = "Name";
+const CIMName IndicationService::_PROPERTY_PROVIDERNAME = CIMName ("Name");
 
 /**
     The name of the Provider Module Name property for Provider class
  */
-const char   IndicationService::_PROPERTY_PROVIDERMODULENAME [] = 
-             "ProviderModuleName";
+const CIMName IndicationService::_PROPERTY_PROVIDERMODULENAME = 
+              CIMName ("ProviderModuleName");
 
 
 //
@@ -5300,7 +5304,7 @@ const char   IndicationService::_PROPERTY_PROVIDERMODULENAME [] =
 /**
     The name of the Indication qualifier for classes
  */
-const char   IndicationService::_QUALIFIER_INDICATION []     = "INDICATION";
+const CIMName IndicationService::_QUALIFIER_INDICATION = CIMName ("INDICATION");
 
 
 //

@@ -53,8 +53,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-String globalNamespace = "root/cimv2";
-static const char __NAMESPACE_NAMESPACE [] = "root";
+CIMNamespaceName globalNamespace = CIMNamespaceName ("root/cimv2");
+static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -93,7 +93,7 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 		 		 Boolean verboseTest)
 {
     // Enumerate NameSpaces using the old technique
-    String className = "__Namespace";
+    CIMName className = CIMName ("__Namespace");
 
     Array<CIMObjectPath> instanceNames;
 
@@ -127,10 +127,10 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     	    cout << "Conducting Create / Delete namespace test " << endl;
     
     	// Build the instance name for __namespace
-    	String testNamespaceName = "karl/junk";
-    	String instanceName = className;
+    	CIMNamespaceName testNamespaceName = CIMNamespaceName ("karl/junk");
+    	String instanceName = className.getString();
     	instanceName.append( ".Name=\"");
-    	instanceName.append(testNamespaceName);
+    	instanceName.append(testNamespaceName.getString());
     	instanceName.append("\"");
     	if(verboseTest)
     	{
@@ -147,7 +147,8 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
     	{
     	    // Build the new instance
     	    CIMInstance newInstance(instanceName);
-    	    newInstance.addProperty(CIMProperty("name", testNamespaceName));
+    	    newInstance.addProperty(CIMProperty(CIMName ("name"), 
+                testNamespaceName.getString()));
     	    newInstanceName = client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
     	}
     	catch(CIMException& e)
@@ -231,7 +232,7 @@ static void TestGetClass(CIMClient& client, Boolean activeTest,
 		     Boolean verboseTest)
 {
     CIMClass c = client.getClass(
-		 globalNamespace, "CIM_ComputerSystem", false, false, true);
+        globalNamespace, CIMName ("CIM_ComputerSystem"), false, false, true);
 
     XmlWriter::printClassElement(c);
 }
@@ -243,13 +244,13 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
 		 		 		     Boolean verboseTest) {
 
     // Name of Class to use in create/delete test
-    String testClass = "PEG_TestSubClass";
+    CIMName testClass = CIMName ("PEG_TestSubClass");
     // NOte that this creates a subclass of ManagedElement so will fail if
     // if managedelement not intalled.
 
     //Test for class already existing
     Array<CIMName> classNames = client.enumerateClassNames(
-		 globalNamespace, "CIM_ManagedElement", false);
+		 globalNamespace, CIMName ("CIM_ManagedElement"), false);
     cout << "KSTEST verboseTest = " << verboseTest << " ActiveTest ' " << ActiveTest << endl;
     if (ActiveTest)
     {
@@ -272,10 +273,10 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     
         // CreateClass:
     
-        CIMClass c1(testClass, "CIM_ManagedElement");
-        c1.addProperty(CIMProperty("count", Uint32(99)));
-        c1.addProperty(CIMProperty("ratio", Real64(66.66)));
-        c1.addProperty(CIMProperty("message", String("Hello World")));
+        CIMClass c1(testClass, CIMName ("CIM_ManagedElement"));
+        c1.addProperty(CIMProperty(CIMName ("count"), Uint32(99)));
+        c1.addProperty(CIMProperty(CIMName ("ratio"), Real64(66.66)));
+        c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
     
         try
         {
@@ -307,7 +308,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     
         // Modify the class:
     
-        c2.removeProperty(c2.findProperty("message"));
+        c2.removeProperty(c2.findProperty(CIMName ("message")));
         try
         {
         	client.modifyClass(globalNamespace, c2);
@@ -329,7 +330,7 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
         // Determine if the new Class exists in Enumerate
     
         classNames = client.enumerateClassNames(
-    		 globalNamespace, "CIM_ManagedElement", false);
+    		 globalNamespace, CIMName ("CIM_ManagedElement"), false);
     
         Boolean found = false;
     
@@ -404,19 +405,23 @@ static void TestQualifierOperations(CIMClient& client, Boolean activeTest,
     {
 		 // Create two qualifier declarations:
 
-		 CIMQualifierDecl qd1("qd1", false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS);
+		 CIMQualifierDecl qd1(CIMName ("qd1"), false, CIMScope::CLASS, 
+                     CIMFlavor::TOSUBCLASS);
 		 client.setQualifier(globalNamespace, qd1);
 
-		 CIMQualifierDecl qd2("qd2", String("Hello"), CIMScope::PROPERTY + CIMScope::CLASS,
+		 CIMQualifierDecl qd2(CIMName ("qd2"), String("Hello"), 
+                     CIMScope::PROPERTY + CIMScope::CLASS,
 		     CIMFlavor::OVERRIDABLE);
 		 client.setQualifier(globalNamespace, qd2);
 
 		 // Get them and compare:
 
-		 CIMQualifierDecl tmp1 = client.getQualifier(globalNamespace, "qd1");
+		 CIMQualifierDecl tmp1 = client.getQualifier(globalNamespace, 
+                     CIMName ("qd1"));
 		 assert(tmp1.identical(qd1));
 
-		 CIMQualifierDecl tmp2 = client.getQualifier(globalNamespace, "qd2");
+		 CIMQualifierDecl tmp2 = client.getQualifier(globalNamespace, 
+                     CIMName ("qd2"));
 		 assert(tmp2.identical(qd2));
 
 		 // Enumerate the qualifiers:
@@ -427,17 +432,17 @@ static void TestQualifierOperations(CIMClient& client, Boolean activeTest,
 		 {
 		     CIMQualifierDecl tmp = qualifierDecls[i];
 
-		     if (tmp.getName().equal("qd1"))
+		     if (tmp.getName().equal(CIMName ("qd1")))
 		 		 assert(tmp1.identical(tmp));
 
-		     if (tmp.getName().equal("qd2"))
+		     if (tmp.getName().equal(CIMName ("qd2")))
 		 		 assert(tmp2.identical(tmp));
 		 }
 
 		 // Delete the qualifiers:
 
-		 client.deleteQualifier(globalNamespace, "qd1");
-		 client.deleteQualifier(globalNamespace, "qd2");
+		 client.deleteQualifier(globalNamespace, CIMName ("qd1"));
+		 client.deleteQualifier(globalNamespace, CIMName ("qd2"));
 
     }
 
@@ -449,7 +454,7 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
     // Get all instances
     // Get all classes
 
-    //Array<String> classNames = client.enumerateClassNames(
+    //Array<CIMName> classNames = client.enumerateClassNames(
     //    globalNamespace, "CIM_ManagedElement", false);
 
     Array<CIMName> classNames = client.enumerateClassNames(
@@ -502,12 +507,12 @@ static void TestInstanceGetOperations(CIMClient& client, Boolean activeTest,
     }
     /*
     virtual Array<CIMObjectPath> enumerateInstanceNames(
-        const String& nameSpace,
-        const String& className) = 0;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) = 0;
 
     virtual Array<CIMInstance> enumerateInstances(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         Boolean deepInheritance = true,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
@@ -525,7 +530,7 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
         return;
     }
     // name of class to play with
-    String className = "PEG_TESTLocalClass";
+    CIMName className = CIMName ("PEG_TESTLocalClass");
 
     // Delete the class if it already exists:
     try
@@ -541,24 +546,24 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
 
     CIMClass cimClass(className);
     cimClass
-		 .addProperty(CIMProperty("last", String())
-		     .addQualifier(CIMQualifier("key", true)))
-		 .addProperty(CIMProperty("first", String())
-		     .addQualifier(CIMQualifier("key", true)))
-		 .addProperty(CIMProperty("age", Uint32(0))
-		     .addQualifier(CIMQualifier("key", true)))
-		 .addProperty(CIMProperty("nick", String())
-		      .addQualifier(CIMQualifier("key", false)));
+		 .addProperty(CIMProperty(CIMName ("last"), String())
+		     .addQualifier(CIMQualifier(CIMName ("key"), true)))
+		 .addProperty(CIMProperty(CIMName ("first"), String())
+		     .addQualifier(CIMQualifier(CIMName ("key"), true)))
+		 .addProperty(CIMProperty(CIMName ("age"), Uint32(0))
+		     .addQualifier(CIMQualifier(CIMName ("key"), true)))
+		 .addProperty(CIMProperty(CIMName ("nick"), String())
+		      .addQualifier(CIMQualifier(CIMName ("key"), false)));
     client.createClass(globalNamespace, cimClass);
 
     // Create an instance of that class:
     cout << "Create one Instance of class " << className << endl;
 
     CIMInstance cimInstance(className);
-    cimInstance.addProperty(CIMProperty("last", String("Smith")));
-    cimInstance.addProperty(CIMProperty("first", String("John")));
-    cimInstance.addProperty(CIMProperty("age", Uint32(1010)));
-    cimInstance.addProperty(CIMProperty("nick", String("Duke")));
+    cimInstance.addProperty(CIMProperty(CIMName ("last"), String("Smith")));
+    cimInstance.addProperty(CIMProperty(CIMName ("first"), String("John")));
+    cimInstance.addProperty(CIMProperty(CIMName ("age"), Uint32(1010)));
+    cimInstance.addProperty(CIMProperty(CIMName ("nick"), String("Duke")));
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
     client.createInstance(globalNamespace, cimInstance);
 
@@ -623,9 +628,9 @@ static void TestInstanceModifyOperations(CIMClient& client, Boolean
     for (Uint32 i = 0; i < repeatCount; i++)
     {
         CIMInstance cimInstance(className);
-        cimInstance.addProperty(CIMProperty("last", String("Smith")));
-        cimInstance.addProperty(CIMProperty("first", String("John")));
-        cimInstance.addProperty(CIMProperty("age", Uint32(i)));
+        cimInstance.addProperty(CIMProperty(CIMName ("last"), String("Smith")));
+        cimInstance.addProperty(CIMProperty(CIMName ("first"), String("John")));
+        cimInstance.addProperty(CIMProperty(CIMName ("age"), Uint32(i)));
         instanceNames.append( cimInstance.buildPath(cimClass) );
         client.createInstance(globalNamespace, cimInstance);
     }
@@ -661,12 +666,15 @@ static void TestMethodOperations( CIMClient& client, Boolean
         return;
     
     //Indication to be created
-    CIMClass cimClass = client.getClass(globalNamespace, "TestSoftwarePkg", false);
-    CIMInstance cimInstance("TestSoftwarePkg");
-    cimInstance.addProperty(CIMProperty("PkgName", String("WBEM")));
-    cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
-    cimInstance.addProperty(CIMProperty("trapOid", String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
-    cimInstance.addProperty(CIMProperty("computerName", String("NU744781")));
+    CIMClass cimClass = client.getClass(globalNamespace, 
+        CIMName ("TestSoftwarePkg"), false);
+    CIMInstance cimInstance(CIMName ("TestSoftwarePkg"));
+    cimInstance.addProperty(CIMProperty(CIMName ("PkgName"), String("WBEM")));
+    cimInstance.addProperty(CIMProperty(CIMName ("PkgIndex"), Uint32(101)));
+    cimInstance.addProperty(CIMProperty(CIMName ("trapOid"), 
+        String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
+    cimInstance.addProperty(CIMProperty(CIMName ("computerName"), 
+        String("NU744781")));
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
     instanceName.setNameSpace(globalNamespace);
     client.createInstance(globalNamespace, cimInstance);
@@ -675,8 +683,10 @@ static void TestMethodOperations( CIMClient& client, Boolean
     {
     	Array<CIMParamValue> inParams;
     	Array<CIMParamValue> outParams;
-    	inParams.append(CIMParamValue("param1", CIMValue(String("Hewlett-Packard"))));
-    	inParams.append(CIMParamValue("param2", CIMValue(String("California"))));
+    	inParams.append(CIMParamValue("param1", 
+            CIMValue(String("Hewlett-Packard"))));
+    	inParams.append(CIMParamValue("param2", 
+            CIMValue(String("California"))));
             Uint32 testRepeat = 100;
             
     	for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
@@ -684,7 +694,7 @@ static void TestMethodOperations( CIMClient& client, Boolean
                 CIMValue retValue = client.invokeMethod(
                     globalNamespace,
                     instanceName,
-                    "ChangeName",
+                    CIMName ("ChangeName"),
                     inParams,
                     outParams);
                 if (verboseTest)
@@ -717,9 +727,9 @@ static void TestInvokeMethod( CIMClient& client,
 			      Boolean activeTest,
 			      Boolean verboseTest )
 {
-  const String NAMESPACE  = "root/SampleProvider";
-  const String classname  = "Sample_MethodProviderClass";
-  const String methodName = "SayHello";
+  const CIMNamespaceName NAMESPACE  = CIMNamespaceName ("root/SampleProvider");
+  const CIMName classname  = CIMName ("Sample_MethodProviderClass");
+  const CIMName methodName = CIMName ("SayHello");
   const String OUTSTRING = "Yoda";
   const String GOODREPLY = "Hello, " + OUTSTRING + "!";
   const String GOODPARAM = "From Neverland";
@@ -797,15 +807,15 @@ static void TestEnumerateInstances( CIMClient& client,
 				    Boolean verboseTest )
 {
 
-  const String NAMESPACE = "root/SampleProvider";
+  const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
   const String INSTANCE0 = "instance 0Sample_InstanceProviderClass";
   const String INSTANCE1 = "instance 1Sample_InstanceProviderClass";
   const String INSTANCE2 = "instance 2Sample_InstanceProviderClass";
-  const String CLASSNAME = "Sample_InstanceProviderClass";
+  const CIMName CLASSNAME = CIMName ("Sample_InstanceProviderClass");
 
   try
     {
-      const String classname = CLASSNAME;
+      const CIMName classname = CLASSNAME;
       Boolean deepInheritance = true;
       Boolean localOnly = true;
       Boolean includeQualifiers = false;
@@ -830,7 +840,7 @@ static void TestEnumerateInstances( CIMClient& client,
 	      // Test for INSTANCE0..2 when getInstanceName returns
 	      // the full reference string
 
-	      if( !(String::equal(  instanceRef, CLASSNAME ) ) )
+	      if( !(String::equal(  instanceRef, CLASSNAME.getString() ) ) )
 		{
 		  PEGASUS_STD(cerr) << "Error: EnumInstances failed" <<
 		    PEGASUS_STD(endl);
@@ -981,8 +991,9 @@ int main(int argc, char** argv)
 		 exit(0);
     }
 
-    String localNameSpace;
-    om.lookupValue("namespace", localNameSpace);
+    String tmp;
+    om.lookupValue("namespace", tmp);
+    CIMNamespaceName localNameSpace = CIMNamespaceName (tmp);
     globalNamespace = localNameSpace;
     cout << "Namespace = " << localNameSpace << endl;
 

@@ -71,7 +71,8 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
 	throw UninitializedObjectException();
 
     if (findParameter(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExistsException("parameter \"" + x.getName() + "\"");
+	throw AlreadyExistsException
+            ("parameter \"" + x.getName().getString () + "\"");
 
     _parameters.append(x);
 }
@@ -249,7 +250,7 @@ CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
 
 Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
 {
-    if (_name != x->_name)
+    if (!_name.equal (x->_name))
 	return false;
 
     if (_type != x->_type)

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,12 +56,12 @@ class CIMOperationResponseEncoder : public MessageQueueService
       void sendMethodError(
 	 Uint32 queueId, 
 	 const String& messageId,
-	 const String& methodName,
+	 const CIMName& methodName,
 	 const CIMException& cimException);
 
       void sendMethodError(
 	 CIMResponseMessage* response,
-	 const String& cimMethodName);
+	 const CIMName& cimMethodName);
 
       void sendIMethodError(
 	 Uint32 queueId, 

@@ -54,7 +54,7 @@ struct providerClassList
 {
     CIMInstance provider;
     CIMInstance providerModule;
-    Array <String> classList;
+    Array <CIMName> classList;
       providerClassList() 
       {
       }
@@ -109,7 +109,7 @@ struct SubscriptionTableEntry
 {
     CIMInstance subscription;
     CIMInstance provider;
-    Array <String> classList;
+    Array <CIMName> classList;
 };
 
 /**
@@ -269,7 +269,7 @@ private:
      */
     Boolean _canCreate (
         CIMInstance & instance,
-        const String & nameSpace);
+        const CIMNamespaceName & nameSpace);
 
     /**
         Validates the specified required property in the instance.
@@ -292,7 +292,7 @@ private:
      */
     void _checkRequiredProperty (
         CIMInstance & instance,
-        const String & propertyName,
+        const CIMName & propertyName,
         const String & message);
 
     /**
@@ -326,8 +326,8 @@ private:
      */
     void _checkPropertyWithOther (
         CIMInstance & instance,
-        const String & propertyName,
-        const String & otherPropertyName,
+        const CIMName & propertyName,
+        const CIMName & otherPropertyName,
         const Uint16 defaultValue,
         const Uint16 otherValue,
         const Array <Uint16> & validValues);
@@ -351,7 +351,7 @@ private:
      */
     String _checkPropertyWithDefault (
         CIMInstance & instance,
-        const String & propertyName,
+        const CIMName & propertyName,
         const String & defaultValue);
 
     /**
@@ -398,7 +398,7 @@ private:
      */
     Boolean _canDelete (
         const CIMObjectPath & instanceReference,
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         const String & currentUser);
 
     /**
@@ -421,8 +421,8 @@ private:
         @return   list of CIMInstance subscriptions
      */
     Array <CIMInstance> _getMatchingSubscriptions (
-        const String & supportedClass,
-        const Array <String> nameSpaces,
+        const CIMName & supportedClass,
+        const Array <CIMNamespaceName> nameSpaces,
         const CIMPropertyList & supportedProperties);
 
     /**
@@ -454,9 +454,9 @@ private:
                                           subscriptions
      */
     void _getModifiedSubscriptions (
-        const String & supportedClass,
-        const Array <String> & newNameSpaces,
-        const Array <String> & oldNameSpaces,
+        const CIMName & supportedClass,
+        const Array <CIMNamespaceName> & newNameSpaces,
+        const Array <CIMNamespaceName> & oldNameSpaces,
         const CIMPropertyList & newProperties,
         const CIMPropertyList & oldProperties,
         Array <CIMInstance> & newSubscriptions,
@@ -467,7 +467,7 @@ private:
 
         @return   List of all namespace names
      */
-    Array <String> _getNameSpaceNames (void) const;
+    Array <CIMNamespaceName> _getNameSpaceNames (void) const;
 
     /**
         Retrieves list of subscriptions in the specified namespace.
@@ -477,7 +477,7 @@ private:
         @return   List of subscription named instances
      */
     Array <CIMInstance> _getSubscriptions (
-        const String & nameSpaceName) const;
+        const CIMNamespaceName & nameSpaceName) const;
 
     /**
         Determines if all of the required properties in the specified list
@@ -518,9 +518,9 @@ private:
      */
     void _getFilterProperties (
         const CIMInstance & subscription,
-        const String & nameSpaceName,
+        const CIMNamespaceName & nameSpaceName,
         String & query,
-        String & sourceNameSpace,
+        CIMNamespaceName & sourceNameSpace,
         String & queryLanguage);
 
     /**
@@ -535,9 +535,9 @@ private:
      */
     void _getFilterProperties (
         const CIMInstance & subscription,
-        const String & nameSpaceName,
+        const CIMNamespaceName & nameSpaceName,
         String & query,
-        String & sourceNameSpace);
+        CIMNamespaceName & sourceNameSpace);
 
     /**
         Retrieves the values of the filter query property 
@@ -549,7 +549,7 @@ private:
      */
     void _getFilterProperties (
         const CIMInstance & subscription,
-        const String & nameSpaceName,
+        const CIMNamespaceName & nameSpaceName,
         String & query);
 
     /**
@@ -573,9 +573,9 @@ private:
 
         @return  String containing the indication class name
      */
-    String _getIndicationClassName (
+    CIMName _getIndicationClassName (
         const WQLSelectStatement & selectStatement,
-        const String & nameSpaceName) const;
+        const CIMNamespaceName & nameSpaceName) const;
 
     /**
         Enumerates the subclass names of the specified indication class.
@@ -585,9 +585,9 @@ private:
 
         @return  List of indication subclass names
      */
-    Array <String> _getIndicationSubclasses (
-        const String & nameSpace,
-        const String & indicationClassName) const;
+    Array <CIMName> _getIndicationSubclasses (
+        const CIMNamespaceName & nameSpace,
+        const CIMName & indicationClassName) const;
 
     /**
         Retrieves the list of indication providers that serve the specified
@@ -601,9 +601,9 @@ private:
         @return  list of ProviderClassList structs
      */
     Array <ProviderClassList> _getIndicationProviders (
-        const String & nameSpace,
-        const String & indicationClassName,
-        const Array <String> & indicationSubclasses,
+        const CIMNamespaceName & nameSpace,
+        const CIMName & indicationClassName,
+        const Array <CIMName> & indicationSubclasses,
         const CIMPropertyList & requiredPropertyList) const;
 
     /**
@@ -619,8 +619,8 @@ private:
      */
     CIMPropertyList _getPropertyList (
         const WQLSelectStatement & selectStatement,
-        const String & nameSpaceName,
-        const String & indicationClassName) const;
+        const CIMNamespaceName & nameSpaceName,
+        const CIMName & indicationClassName) const;
 
     /**
         Checks if the property list includes all properties in the specified 
@@ -636,8 +636,8 @@ private:
      */
     CIMPropertyList _checkPropertyList (
         const Array <CIMName> & propertyList,
-        const String & nameSpaceName,
-        const String & indicationClassName) const;
+        const CIMNamespaceName & nameSpaceName,
+        const CIMName & indicationClassName) const;
 
     /**
         Extracts the condition (WHERE Clause) from the specified filter query
@@ -671,7 +671,7 @@ private:
                  False otherwise
      */
     Boolean _isTransient (
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         const CIMObjectPath & handler) const;
 
     /**
@@ -683,8 +683,8 @@ private:
         @param   handler               the handler reference
      */
     void _deleteReferencingSubscriptions (
-        const String & nameSpace,
-        const String & referenceProperty,
+        const CIMNamespaceName & nameSpace,
+        const CIMName & referenceProperty,
         const CIMObjectPath & handler);
 
     /**
@@ -767,11 +767,11 @@ private:
                                            query is expressed
      */
     void _getCreateParams (
-        const String & nameSpaceName,
+        const CIMNamespaceName & nameSpaceName,
         const CIMInstance & subscriptionInstance,
         Array <ProviderClassList> & indicationProviders,
         CIMPropertyList & propertyList,
-        String & sourceNameSpace,
+        CIMNamespaceName & sourceNameSpace,
         String & condition,
         String & queryLanguage);
 
@@ -789,10 +789,10 @@ private:
                                            query is expressed
      */
     void _getCreateParams (
-        const String & nameSpaceName,
+        const CIMNamespaceName & nameSpaceName,
         const CIMInstance & subscriptionInstance,
         CIMPropertyList & propertyList,
-        String & sourceNameSpace,
+        CIMNamespaceName & sourceNameSpace,
         String & condition,
         String & queryLanguage);
 
@@ -805,7 +805,7 @@ private:
         @return  List of providers with associated classes to Delete
      */
     Array <ProviderClassList> _getDeleteParams (
-        const String & nameSpaceName,
+        const CIMNamespaceName & nameSpaceName,
         const CIMInstance & subscriptionInstance);
 
 
@@ -843,7 +843,7 @@ private:
      */
     Boolean _sendCreateRequests (
         const Array <ProviderClassList> & indicationProviders,
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         const CIMPropertyList & propertyList,
         const String & condition,
         const String & queryLanguage,
@@ -879,7 +879,7 @@ private:
      */
     void _sendModifyRequests (
         const Array <ProviderClassList> & indicationProviders,
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         const CIMPropertyList & propertyList,
         const String & condition,
         const String & queryLanguage,
@@ -909,7 +909,7 @@ private:
      */
     void _sendDeleteRequests (
         const Array <ProviderClassList> & indicationProviders,
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         const CIMInstance & subscription,
         const String & userName,
         const String & authType = String::EMPTY);
@@ -937,7 +937,7 @@ private:
     void _insertEntry (
         const CIMInstance & subscription,
         const CIMInstance & provider,
-        const Array <String> classList);
+        const Array <CIMName> classList);
 
     /**
         Creates an alert instance of the specified class.
@@ -949,7 +949,7 @@ private:
         @return  the created alert instance
      */
     CIMInstance _createAlertInstance (
-        const String & alertClassName,
+        const CIMName & alertClassName,
         const Array <CIMInstance> & subscriptions);
 
 
@@ -1084,17 +1084,17 @@ private:
     /**
         The name of the CIMOM Shutdown alert indication class
      */
-    static const char   _CLASS_CIMOM_SHUTDOWN_ALERT [];
+    static const CIMName   _CLASS_CIMOM_SHUTDOWN_ALERT;
 
     /**
         The name of the No Provider alert indication class
      */
-    static const char   _CLASS_NO_PROVIDER_ALERT [];
+    static const CIMName   _CLASS_NO_PROVIDER_ALERT;
 
     /**
         The name of the CIMOM shutdown alert indication class
      */
-    static const char   _CLASS_PROVIDER_TERMINATED_ALERT [];
+    static const CIMName   _CLASS_PROVIDER_TERMINATED_ALERT;
 
 
     //
@@ -1105,188 +1105,188 @@ private:
         The name of the Subscription State property for Indication Subscription
         class
      */
-    static const char   _PROPERTY_STATE [];
+    static const CIMName   _PROPERTY_STATE;
 
     /**
         The name of the Other Subscription State property for Indication
         Subscription class
      */
-    static const char   _PROPERTY_OTHERSTATE [];
+    static const CIMName   _PROPERTY_OTHERSTATE;
 
     /**
         The name of the repeat notification policy property for indication
         subscription class
      */
-    static const char   _PROPERTY_REPEATNOTIFICATIONPOLICY [];
+    static const CIMName   _PROPERTY_REPEATNOTIFICATIONPOLICY;
 
     /**
         The name of the other repeat notification policy property for
         indication subscription class
      */
-    static const char   _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY [];
+    static const CIMName   _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY;
 
     /**
         The name of the repeat notification interval property for indication
         subscription class
      */
-    static const char   _PROPERTY_REPEATNOTIFICATIONINTERVAL [];
+    static const CIMName   _PROPERTY_REPEATNOTIFICATIONINTERVAL;
 
     /**
         The name of the repeat notification gap property for indication
         subscription class
      */
-    static const char   _PROPERTY_REPEATNOTIFICATIONGAP [];
+    static const CIMName   _PROPERTY_REPEATNOTIFICATIONGAP;
 
     /**
         The name of the repeat notification count property for indication
         subscription class
      */
-    static const char   _PROPERTY_REPEATNOTIFICATIONCOUNT [];
+    static const CIMName   _PROPERTY_REPEATNOTIFICATIONCOUNT;
 
     /**
         The name of the On Fatal Error Policy property for Indication 
         Subscription class
      */
-    static const char   _PROPERTY_ONFATALERRORPOLICY [];
+    static const CIMName   _PROPERTY_ONFATALERRORPOLICY;
 
     /**
         The name of the Other On Fatal Error Policy property for Indication
         Subscription class
      */
-    static const char   _PROPERTY_OTHERONFATALERRORPOLICY [];
+    static const CIMName   _PROPERTY_OTHERONFATALERRORPOLICY;
 
     /**
         The name of the Time Of Last State Change property for Indication 
         Subscription class
      */
-    static const char   _PROPERTY_LASTCHANGE [];
+    static const CIMName   _PROPERTY_LASTCHANGE;
 
     /**
         The name of the Subscription Start Time property for Indication 
         Subscription class
      */
-    static const char   _PROPERTY_STARTTIME [];
+    static const CIMName   _PROPERTY_STARTTIME;
 
     /**
         The name of the Subscription Duration property for Indication 
         Subscription class
      */
-    static const char   _PROPERTY_DURATION [];
+    static const CIMName   _PROPERTY_DURATION;
 
     /**
         The name of the Subscription Time Remaining property for Indication 
         Subscription class
      */
-    static const char   _PROPERTY_TIMEREMAINING [];
+    static const CIMName   _PROPERTY_TIMEREMAINING;
 
     /**
         The name of the filter reference property for indication subscription
         class
      */
-    static const char   _PROPERTY_FILTER [];
+    static const CIMName   _PROPERTY_FILTER;
 
     /**
         The name of the handler reference property for indication subscription
         class
      */
-    static const char   _PROPERTY_HANDLER [];
+    static const CIMName   _PROPERTY_HANDLER;
 
     /**
         The name of the query property for indication filter class
      */
-    static const char   _PROPERTY_QUERY [];
+    static const CIMName   _PROPERTY_QUERY;
 
     /**
         The name of the query language property for indication filter class
      */
-    static const char   _PROPERTY_QUERYLANGUAGE [];
+    static const CIMName   _PROPERTY_QUERYLANGUAGE;
 
     /**
         The name of the Source Namespace property for indication filter class
      */
-    static const char   _PROPERTY_SOURCENAMESPACE [];
+    static const CIMName   _PROPERTY_SOURCENAMESPACE;
 
     /**
         The name of the name property for indication filter and indication
         handler classes
      */
-    static const char   _PROPERTY_NAME [];
+    static const CIMName   _PROPERTY_NAME;
 
     /**
         The name of the creation class name property for indication filter and
         indication handler classes
      */
-    static const char   _PROPERTY_CREATIONCLASSNAME [];
+    static const CIMName   _PROPERTY_CREATIONCLASSNAME;
 
     /**
         The name of the system name property for indication filter and
         indication handler classes
      */
-    static const char   _PROPERTY_SYSTEMNAME [];
+    static const CIMName   _PROPERTY_SYSTEMNAME;
 
     /**
         The name of the system creation class name property for indication
         filter and indication handler classes
      */
-    static const char   _PROPERTY_SYSTEMCREATIONCLASSNAME [];
+    static const CIMName   _PROPERTY_SYSTEMCREATIONCLASSNAME;
 
     /**
         The name of the Persistence Type property for Indication Handler class
      */
-    static const char   _PROPERTY_PERSISTENCETYPE [];
+    static const CIMName   _PROPERTY_PERSISTENCETYPE;
 
     /**
         The name of the Other Persistence Type property for Indication Handler
         class
      */
-    static const char   _PROPERTY_OTHERPERSISTENCETYPE [];
+    static const CIMName   _PROPERTY_OTHERPERSISTENCETYPE;
 
     /**
         The name of the Destination property for CIM XML Indication Handler 
         subclass
      */
-    static const char   _PROPERTY_DESTINATION [];
+    static const CIMName   _PROPERTY_DESTINATION;
 
     /**
         The name of the Trap Destination property for SNMP Mapper Indication
         Handler subclass
      */
-    static const char   _PROPERTY_TRAPDESTINATION [];
+    static const CIMName   _PROPERTY_TRAPDESTINATION;
 
     /**
         The name of the SNMP Type property for SNMP Indication Handler class
      */
-    static const char   _PROPERTY_SNMPTYPE [];
+    static const CIMName   _PROPERTY_SNMPTYPE;
 
     /**
         The name of the Alert Type property for Alert Indication class
      */
-    static const char   _PROPERTY_ALERTTYPE [];
+    static const CIMName   _PROPERTY_ALERTTYPE;
 
     /**
         The name of the Other Alert Type property for Alert Indication class
      */
-    static const char   _PROPERTY_OTHERALERTTYPE [];
+    static const CIMName   _PROPERTY_OTHERALERTTYPE;
 
     /**
         The name of the Perceived Severity property for Alert Indication class
      */
-    static const char   _PROPERTY_PERCEIVEDSEVERITY [];
+    static const CIMName   _PROPERTY_PERCEIVEDSEVERITY;
 
     /**
         The name of the Probable Cause property for Alert Indication class
      */
-    static const char   _PROPERTY_PROBABLECAUSE [];
+    static const CIMName   _PROPERTY_PROBABLECAUSE;
 
     /**
         The name of the Provider Name property for Provider class
      */
-    static const char   _PROPERTY_PROVIDERNAME [];
+    static const CIMName   _PROPERTY_PROVIDERNAME;
 
     /**
         The name of the Provider Module Name property for Provider class
      */
-    static const char   _PROPERTY_PROVIDERMODULENAME [];
+    static const CIMName   _PROPERTY_PROVIDERMODULENAME;
 
 
     //
@@ -1296,7 +1296,7 @@ private:
     /**
         The name of the Indication qualifier for classes
      */
-    static const char   _QUALIFIER_INDICATION [];
+    static const CIMName   _QUALIFIER_INDICATION;
 
 
     //

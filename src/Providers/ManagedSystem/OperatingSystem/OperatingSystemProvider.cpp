@@ -28,6 +28,8 @@
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
 //              Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -41,9 +43,9 @@ PEGASUS_USING_STD;
 
 #define DEBUG(X) // cout << "OperatingSystemProvider" <<  X << endl;
 
-#define STANDARDOPERATINGSYSTEMCLASS "CIM_OperatingSystem"
-#define EXTENDEDOPERATINGSYSTEMCLASS "PG_OperatingSystem"
-#define CSCREATIONCLASSNAME "CIM_UnitaryComputerSystem"
+#define STANDARDOPERATINGSYSTEMCLASS CIMName ("CIM_OperatingSystem")
+#define EXTENDEDOPERATINGSYSTEMCLASS CIMName ("PG_OperatingSystem")
+#define CSCREATIONCLASSNAME CIMName ("CIM_UnitaryComputerSystem")
 
 OperatingSystemProvider::OperatingSystemProvider(void)
 {
@@ -64,20 +66,20 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     Array<CIMKeyBinding> keys;
     CIMInstance instance;
     OperatingSystem os;
-    String className;
+    CIMName className;
     String csName;
     String name;
 
 
     //-- make sure we're working on the right class
     className = ref.getClassName();
-    if (!String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS) &&
-        !String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
-        throw CIMNotSupportedException("OperatingSystemProvider does not support class " + className);
+    if (!(className.equal (STANDARDOPERATINGSYSTEMCLASS)) &&
+        !(className.equal (EXTENDEDOPERATINGSYSTEMCLASS)))
+        throw CIMNotSupportedException("OperatingSystemProvider does not support class " + className.getString());
 
     //-- make sure we're the right instance
     int keyCount;
-    String keyName;
+    CIMName keyName;
 
     keyCount = 4;
     keys = ref.getKeyBindings();
@@ -106,24 +108,24 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     {
          keyName = keys[ii].getName();
 
-         if (String::equalNoCase(keyName, "CSCreationClassName") &&
+         if ((keyName.equal ("CSCreationClassName")) &&
        	    String::equalNoCase(keys[ii].getValue(),
-                                CSCREATIONCLASSNAME))
+                                CSCREATIONCLASSNAME.getString()))
          {
               keyCount--;
          }
-         else if (String::equalNoCase(keyName, "CSName") &&
+         else if ((keyName.equal ("CSName")) &&
   	         String::equalNoCase(keys[ii].getValue(), csName))
          {
               keyCount--;
          }
-         else if (String::equalNoCase(keyName, "CreationClassName") &&
+         else if ((keyName.equal ("CreationClassName")) &&
  	         String::equalNoCase(keys[ii].getValue(),
-                                     STANDARDOPERATINGSYSTEMCLASS))
+                                     STANDARDOPERATINGSYSTEMCLASS.getString()))
          {
               keyCount--;
          }
-         else if (String::equalNoCase(keyName, "Name") &&
+         else if ((keyName.equal ("Name")) &&
  	         String::equalNoCase(keys[ii].getValue(), name))
          {
               keyCount--;
@@ -131,7 +133,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
          else
          {
               throw CIMInvalidParameterException("OperatingSystemProvider"
-                             " unrecognized key " + keyName);
+                             " unrecognized key " + keyName.getString());
          }
      }
 
@@ -165,7 +167,7 @@ OperatingSystemProvider::enumerateInstances(
 			        const CIMPropertyList& propertyList,
 			        InstanceResponseHandler& handler)
 {
-    String className;
+    CIMName className;
     CIMInstance instance;
     CIMObjectPath newref;
 
@@ -175,7 +177,7 @@ OperatingSystemProvider::enumerateInstances(
     // will call us as natural part of recursing through subtree on
     // enumerate - if we return instances on enumerate of our superclass,
     // there would be dups
-    if (String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
+    if (className.equal (EXTENDEDOPERATINGSYSTEMCLASS))
     {
         handler.processing();
         newref = _fill_reference(ref.getNameSpace(), className);
@@ -184,7 +186,7 @@ OperatingSystemProvider::enumerateInstances(
         handler.deliver(instance);
         handler.complete();
     }
-    else if (String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS))
+    else if (className.equal (STANDARDOPERATINGSYSTEMCLASS))
     {
         handler.processing();
         handler.complete();
@@ -192,7 +194,7 @@ OperatingSystemProvider::enumerateInstances(
     else
     {
         throw CIMNotSupportedException("OperatingSystemProvider "
-                "does not support class " + className);
+                "does not support class " + className.getString());
     }
     return;
 }
@@ -204,23 +206,23 @@ OperatingSystemProvider::enumerateInstanceNames(
 			  	ObjectPathResponseHandler& handler )
 {
     CIMObjectPath newref;
-    String className;
+    CIMName className;
 
     // only return instances when enumerate on our subclass, CIMOM
     // will call us as natural part of recursing through subtree on
     // enumerate - if we return instances on enumerate of our superclass,
     // there would be dups
     className = ref.getClassName();
-    if (String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS))
+    if (className.equal (STANDARDOPERATINGSYSTEMCLASS))
     {
         handler.processing();
         handler.complete();
         return;
     }
-    else if (!String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
+    else if (!className.equal (EXTENDEDOPERATINGSYSTEMCLASS))
     {
         throw CIMNotSupportedException("OperatingSystemProvider "
-                       "does not support class " + className);
+                       "does not support class " + className.getString());
     }
 
     // so we know it is for EXTENDEDOPERATINGSYSTEMCLASS
@@ -286,7 +288,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
 {
     CIMInstance instance(objectReference.getClassName());
     OperatingSystem os;
-    String className;
+    CIMName className;
     String stringValue;
     Uint16 uint16Value;
     CIMDateTime cimDateTimeValue;
@@ -299,7 +301,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
 
     //-- fill in all the blanks
     instance.addProperty(CIMProperty("CSCreationClassName",
- 	                 String(CSCREATIONCLASSNAME)));
+ 	                 (CSCREATIONCLASSNAME.getString())));
 
     if (os.getCSName(stringValue))
     {
@@ -307,7 +309,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
     }
 
     instance.addProperty(CIMProperty("CreationClassName",
- 	                 String(STANDARDOPERATINGSYSTEMCLASS)));
+ 	                 (STANDARDOPERATINGSYSTEMCLASS.getString())));
 
     if (os.getName(stringValue))
     {
@@ -434,7 +436,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
         instance.addProperty(CIMProperty("MaxProcessesPerUser", uint32Value));
     }
 
-    if (String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
+    if (className.equal (EXTENDEDOPERATINGSYSTEMCLASS))
     {
         if (os.getSystemUpTime(uint64Value))
         {
@@ -451,8 +453,8 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
 }
 
 CIMObjectPath
-OperatingSystemProvider::_fill_reference(const String &nameSpace,
-				         const String &className)
+OperatingSystemProvider::_fill_reference(const CIMNamespaceName &nameSpace,
+				         const CIMName &className)
 {
     Array<CIMKeyBinding> keys;
     OperatingSystem os;
@@ -472,11 +474,12 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
     }
 
     keys.append(CIMKeyBinding("CSCreationClassName",
- 	                   CSCREATIONCLASSNAME,
+ 	                   CSCREATIONCLASSNAME.getString(),
 			   CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("CSName", csName, CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("CreationClassName", STANDARDOPERATINGSYSTEMCLASS,
-        CIMKeyBinding::STRING));
+    keys.append(CIMKeyBinding("CreationClassName", 
+                              STANDARDOPERATINGSYSTEMCLASS.getString(),
+                              CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("Name", name, CIMKeyBinding::STRING));
 
     return CIMObjectPath(csName, nameSpace, className, keys);

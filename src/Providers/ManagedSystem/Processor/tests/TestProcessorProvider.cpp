@@ -55,6 +55,7 @@
 // ==========================================================================
 
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/XmlWriter.h>
 #include "TestProcessorProvider.h"
 #include "../ProcessorPlatform.h"
 

@@ -24,6 +24,8 @@
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -173,7 +175,7 @@ public:
     @param myNamespace   string containing the namespace name.
     @return true if the specified name space is valid and exists, false otherwise.
     */
-    Boolean verifyNamespace( const String& myNamespace );
+    Boolean verifyNamespace( const CIMNamespaceName& myNamespace );
 
     /** Verify whether the specified operation has authorization to be performed
     by the specified user.
@@ -185,8 +187,8 @@ public:
     */
     Boolean verifyAuthorization(
                             const String& userName,
-                            const String& nameSpace,
-                            const String& cimMethodName);
+                            const CIMNamespaceName& nameSpace,
+                            const CIMName& cimMethodName);
 
     /** Set the authorization to the specified user on the specified namespace.
     @param userName   string containing the user name.
@@ -195,7 +197,7 @@ public:
     */
     void setAuthorization(
                             const String& userName,
-                            const String& myNamespace,
+                            const CIMNamespaceName& myNamespace,
                             const String& auth);
 
     /** Remove the authorizations of the specified user on the specified namespace.
@@ -204,7 +206,7 @@ public:
     */
     void removeAuthorization(
                             const String& userName,
-                            const String& myNamespace);
+                            const CIMNamespaceName& myNamespace);
 
     /** Get the authorizations of the specified user on the specified namespace.
     @param userName   string containing the user name.
@@ -213,7 +215,7 @@ public:
     */
     String getAuthorization(
                             const String& userName,
-                            const String& myNamespace);
+                            const CIMNamespaceName& myNamespace);
 };
 
 PEGASUS_NAMESPACE_END

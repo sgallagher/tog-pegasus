@@ -28,6 +28,8 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -653,7 +655,7 @@ void ConfigManager::_loadConfigProperties()
         String value = String::EMPTY;
 
         if (_configFileHandler->getCurrentValue(
-                _properties[i].propertyName, value))
+                CIMName (_properties[i].propertyName), value))
         {
             //
             // initialize the current value of the property owner

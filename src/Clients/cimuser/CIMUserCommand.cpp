@@ -24,6 +24,8 @@
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -58,12 +60,12 @@ static const char COMMAND_NAME []              = "cimuser";
 /**
     This constant represents the name of the User name property in the schema
 */
-static const char PROPERTY_NAME_USER_NAME []                 = "Username";
+static const CIMName PROPERTY_NAME_USER_NAME            = CIMName ("Username");
 
 /**
     This constant represents the name of the Password property in the schema
 */
-static const char PROPERTY_NAME_PASSWORD []                  = "Password";
+static const CIMName PROPERTY_NAME_PASSWORD             = CIMName ("Password");
 
 /**
     The usage string for this command.  This string is displayed
@@ -211,7 +213,7 @@ static const char   OPTION_LIST                = 'l';
 /**
     The name of the Method that implements modify password
 */
-static const char   MODIFY_METHOD[]            = "modifyPassword";
+static const CIMName   MODIFY_METHOD            = CIMName ("modifyPassword");
 
 /**
     The input parameter name for old password 
@@ -1125,7 +1127,7 @@ void CIMUserCommand::_ModifyUser
 	inParams.append ( CIMParamValue ( NEW_PASS_PARAM, 
                                           CIMValue ( _newpassword )));
 
-        kb.setName("Username");
+        kb.setName(CIMName ("Username"));
         kb.setValue(_userName);
         kb.setType(CIMKeyBinding::STRING);
 

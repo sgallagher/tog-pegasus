@@ -23,7 +23,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -64,10 +65,9 @@ void MethodProvider::invokeMethod(
 
 	handler.processing();
 
-        if(String::equalNoCase(objectReference.getClassName(), 
-                               "Sample_MethodProviderClass"))
+        if (objectReference.getClassName().equal ("Sample_MethodProviderClass"))
 	{
-		if(String::equalNoCase(methodName, "SayHello"))
+		if (methodName.equal ("SayHello"))
 		{
 		  String outString = "Hello";
 		  if( inParameters.size() > 0 )

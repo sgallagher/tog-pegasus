@@ -195,13 +195,13 @@ void CIMParameterRep::toMof(Array<Sint8>& out) const
 
 Boolean CIMParameterRep::identical(const CIMParameterRep* x) const
 {
-    if (_name != x->_name)
+    if (!_name.equal (x->_name))
 	return false;
 
     if (_type != x->_type)
 	return false;
 
-    if (_referenceClassName != x->_referenceClassName)
+    if (!_referenceClassName.equal (x->_referenceClassName))
 	return false;
 
     if (!_qualifiers.identical(x->_qualifiers))

@@ -1512,7 +1512,7 @@ case 81:
 case 82:
 #line 536 "cimmof.y"
 {
-             modelPath *m = new modelPath(*yyvsp[-2].cimnameval, g_KeyBindingArray);
+             modelPath *m = new modelPath((*yyvsp[-2].cimnameval).getString(), g_KeyBindingArray);
              g_KeyBindingArray.clear(); 
              delete yyvsp[-2].cimnameval;;
     break;}

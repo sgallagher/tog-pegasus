@@ -105,7 +105,8 @@ void CIMClassRep::addProperty(const CIMProperty& x)
     // Reject addition of duplicate property name:
 
     if (findProperty(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExistsException("property \"" + x.getName() + "\"");
+	throw AlreadyExistsException
+            ("property \"" + x.getName().getString () + "\"");
 
     // Set the class origin:
     // ATTN: put this check in other places:
@@ -126,7 +127,8 @@ void CIMClassRep::addMethod(const CIMMethod& x)
     // Reject duplicate method names:
 
     if (findMethod(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExistsException("method \"" + x.getName() + "\"");
+	throw AlreadyExistsException
+            ("method \"" + x.getName().getString() + "\"");
 
     // Add the method:
 
@@ -179,8 +181,8 @@ void CIMClassRep::resolve(
 
 	PEG_TRACE_STRING(TRC_OBJECTRESOLUTION, Tracer::LEVEL3,
 		String("CIMClassRep::resolve  class = ") +
-		_reference.getClassName() + ", superclass = " +
-		_superClassName);
+		_reference.getClassName().getString() + ", superclass = " +
+		_superClassName.getString());
 
     if (!_superClassName.isNull())
 	{
@@ -193,7 +195,8 @@ void CIMClassRep::resolve(
 			= context->lookupClass(nameSpace, _superClassName);
 	
 		if (superClass.isUninitialized())
-			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,_superClassName);
+			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,
+                            _superClassName.getString());
 	
 #if 0
 		if (!superClass._rep->_resolved)
@@ -554,7 +557,7 @@ Boolean CIMClassRep::identical(const CIMObjectRep* x) const
     if (!tmprep)
         return false;
 
-    if (_superClassName != tmprep->_superClassName)
+    if (!_superClassName.equal (tmprep->_superClassName))
 	return false;
 
     //
@@ -573,7 +576,7 @@ Boolean CIMClassRep::identical(const CIMObjectRep* x) const
 	    if (!tmp1[i].identical(tmp2[i]))
 		return false;
 
-	    if (tmp1[i].getClassOrigin() != tmp2[i].getClassOrigin())
+	    if (!tmp1[i].getClassOrigin().equal (tmp2[i].getClassOrigin()))
 		return false;
 
 	    if (tmp1[i].getPropagated() != tmp2[i].getPropagated())
@@ -596,7 +599,7 @@ void CIMClassRep::getKeyNames(Array<CIMName>& keyNames) const
 	CIMConstProperty property = getProperty(i);
 
         Uint32 index;
-        if ((index = property.findQualifier ("key")) != PEG_NOT_FOUND)
+        if ((index = property.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
         {
             CIMValue value;
             value = property.getQualifier (index).getValue ();
@@ -618,7 +621,7 @@ Boolean CIMClassRep::hasKeys() const
 	CIMConstProperty property = getProperty(i);
 
         Uint32 index;
-        if ((index = property.findQualifier ("key")) != PEG_NOT_FOUND)
+        if ((index = property.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
         {
             CIMValue value;
             value = property.getQualifier (index).getValue ();

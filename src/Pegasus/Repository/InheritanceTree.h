@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +34,7 @@
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Repository/Linkage.h>
@@ -192,19 +194,19 @@ public:
 	@return true on success. False if no such class.
     */
     Boolean getSubClassNames(
-	const String& className,
+	const CIMName& className,
 	Boolean deepInheritance,
-	Array<String>& subClassNames) const;
+	Array<CIMName>& subClassNames) const;
 
     /** Returns true if class1 is a subclass of class2.
     */
-    Boolean isSubClass(const String& class1, const String& class2) const;
+    Boolean isSubClass(const CIMName& class1, const CIMName& class2) const;
 
     /** Get the names of all superclasses of this class (direct and indirect).
     */
     Boolean getSuperClassNames(
-	const String& className,
-	Array<String>& subClassNames) const;
+	const CIMName& className,
+	Array<CIMName>& subClassNames) const;
 
     /** Get the superclass of the given class.
 	@param className name of class.
@@ -212,22 +214,22 @@ public:
 	@return true if class was found; false otherwise.
     */
     Boolean getSuperClass(
-	const String& className,
-	String& superClassName) const;
+	const CIMName& className,
+	CIMName& superClassName) const;
 
     /** Returns true if the given class has sub-classes. */
     Boolean hasSubClasses(
-	const String& className,
+	const CIMName& className,
 	Boolean& hasSubClasses) const;
 
     /** Returns true if this inhertance tree contains the given class. */
-    Boolean containsClass(const String& className) const;
+    Boolean containsClass(const CIMName& className) const;
 
     /** Removes the given class from the class graph. 
 	@exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN)
 	@exception CIMException(CIM_ERR_INVALID_CLASS)
     */
-    void remove(const String& className);
+    void remove(const CIMName& className);
 
     /** Prints the class */
     void print(PEGASUS_STD(ostream)& os) const;

@@ -44,17 +44,17 @@ int main(int argc, char** argv)
 
 	SimpleDeclContext context;
 
-	CIMClass x("X");
-	x.addProperty(CIMProperty("one", Uint32(111)));
-	x.addProperty(CIMProperty("two", Real32(222.222)));
-	x.addProperty(CIMProperty("three", String("Three")));
+	CIMClass x(CIMName ("X"));
+	x.addProperty(CIMProperty(CIMName ("one"), Uint32(111)));
+	x.addProperty(CIMProperty(CIMName ("two"), Real32(222.222)));
+	x.addProperty(CIMProperty(CIMName ("three"), String("Three")));
 	context.addClass(NAMESPACE, x);
 	Resolver::resolveClass (x, &context, NAMESPACE);
 
-	CIMClass y("Y", "X");
-	y.addProperty(CIMProperty("three", String("Three - Three")));
-	y.addProperty(CIMProperty("four", Boolean(false)));
-	y.addProperty(CIMProperty("five", Real32(555.555)));
+	CIMClass y(CIMName ("Y"), CIMName ("X"));
+	y.addProperty(CIMProperty(CIMName ("three"), String("Three - Three")));
+	y.addProperty(CIMProperty(CIMName ("four"), Boolean(false)));
+	y.addProperty(CIMProperty(CIMName ("five"), Real32(555.555)));
 	context.addClass(NAMESPACE, y);
 	Resolver::resolveClass (y, &context, NAMESPACE);
 

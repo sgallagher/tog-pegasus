@@ -90,7 +90,7 @@ void OperatingSystemProvider::enumerateInstances(
 {
 	handler.processing();
 
-	if(classReference.getClassName().equal("pegasus_operatingsystem"))
+	if (classReference.getClassName().equal ("pegasus_operatingsystem"))
 	{
 		Array<CIMInstance> instances;
 		instances = _enumerateInstances(context, classReference);

@@ -68,9 +68,9 @@ PEGASUS_NAMESPACE_BEGIN
     The constants representing the Username and Password properties in the
     schema.
 */
-static const char PROPERTY_NAME_USERNAME []       = "Username";
+static const CIMName PROPERTY_NAME_USERNAME       = CIMName ("Username");
 
-static const char PROPERTY_NAME_PASSWORD  []      = "Password";
+static const CIMName PROPERTY_NAME_PASSWORD       = CIMName ("Password");
 
 static const char OLD_PASSWORD []                 = "OldPassword";
 
@@ -80,21 +80,21 @@ static const char NEW_PASSWORD []                 = "NewPassword";
     The constants representing the namespace and authorization
     in the schema.
 */
-static const char PROPERTY_NAME_NAMESPACE []      = "Namespace";
+static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
 
-static const char PROPERTY_NAME_AUTHORIZATION []  = "Authorization";
-
-/**
-    The constant represeting the User class name.
-*/
-static const char CLASS_NAME_PG_USER []           = "PG_User";
-
-static const char METHOD_NAME_MODIFY_PASSWORD []  = "modifyPassword";
+static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 
 /**
-    The constant represeting the authorization class name
+    The constant representing the User class name.
 */
-static const char CLASS_NAME_PG_AUTHORIZATION []  = "PG_Authorization";
+static const CIMName CLASS_NAME_PG_USER            = CIMName ("PG_User");
+
+static const CIMName METHOD_NAME_MODIFY_PASSWORD   = CIMName ("modifyPassword");
+
+/**
+    The constant representing the authorization class name
+*/
+static const CIMName CLASS_NAME_PG_AUTHORIZATION = CIMName ("PG_Authorization");
 
 //
 // Verify user authorization
@@ -205,11 +205,10 @@ void UserAuthProvider::createInstance(
     //
     // check if the class name requested is PG_Authorization
     //
-    else if (String::equal(
-        CLASS_NAME_PG_AUTHORIZATION, instanceReference.getClassName()))
+    else if (instanceReference.getClassName().equal 
+        (CLASS_NAME_PG_AUTHORIZATION))
 #else
-    if (String::equal(
-        CLASS_NAME_PG_AUTHORIZATION, instanceReference.getClassName()))
+    if (instanceReference.getClassName().equal (CLASS_NAME_PG_AUTHORIZATION))
 #endif
     {
         try
@@ -297,7 +296,7 @@ void UserAuthProvider::createInstance(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION (
-            CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName());
+            CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName().getString());
     }
 
     handler.deliver(instanceReference);
@@ -353,7 +352,7 @@ void UserAuthProvider::deleteInstance(
     //
     // check if the class name requested is PG_User
     //
-    if (String::equal(CLASS_NAME_PG_USER , myInstance.getClassName()))
+    if (myInstance.getClassName().equal (CLASS_NAME_PG_USER))
     {
         //
         // Get the user name from the instance
@@ -397,11 +396,9 @@ void UserAuthProvider::deleteInstance(
     //
     // check if the class name requested is PG_Authorization
     //
-    else if (String::equal(
-        CLASS_NAME_PG_AUTHORIZATION, myInstance.getClassName()))
+    else if (myInstance.getClassName().equal (CLASS_NAME_PG_AUTHORIZATION))
 #else
-    if (String::equal(
-        CLASS_NAME_PG_AUTHORIZATION, myInstance.getClassName()))
+    if (myInstance.getClassName().equal (CLASS_NAME_PG_AUTHORIZATION))
 #endif
     {
         try
@@ -451,7 +448,7 @@ void UserAuthProvider::deleteInstance(
             // the hostname and namespace included in the CIMObjectPath
             // passed to it as a parameter.
             //
-            CIMObjectPath ref("", "",
+            CIMObjectPath ref("", CIMNamespaceName (),
                 myInstance.getClassName(), myInstance.getKeyBindings());
 
             _repository->deleteInstance(
@@ -474,7 +471,7 @@ void UserAuthProvider::deleteInstance(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_NOT_FOUND, myInstance.getClassName());
+            CIM_ERR_NOT_FOUND, myInstance.getClassName().getString());
     }
 
 
@@ -523,12 +520,11 @@ void UserAuthProvider::modifyInstance(
     //
     // check if the class name requested is PG_Authorization
     //
-    if (!String::equal(
-        CLASS_NAME_PG_AUTHORIZATION, instanceReference.getClassName()))
+    if (!instanceReference.getClassName().equal (CLASS_NAME_PG_AUTHORIZATION))
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION (
-            CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName());
+            CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName().getString());
     }
 
     CIMInstance newInstance = modifiedIns;
@@ -569,7 +565,7 @@ void UserAuthProvider::modifyInstance(
         // the hostname and namespace included in the CIMObjectPath
         // passed to it as a parameter.
         //
-        CIMObjectPath ref("", "",
+        CIMObjectPath ref("", CIMNamespaceName (),
             modifiedIns.getClassName(), instanceReference.getKeyBindings());
 
         CIMInstance newModifiedIns = modifiedIns.clone ();
@@ -642,10 +638,11 @@ void UserAuthProvider::enumerateInstances(
     //
     // check if the class name requested is PG_Authorization
     //
-    if (!String::equal(CLASS_NAME_PG_AUTHORIZATION, ref.getClassName()))
+    if (!ref.getClassName().equal (CLASS_NAME_PG_AUTHORIZATION))
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, ref.getClassName());
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+            ref.getClassName().getString());
     }
 
     // begin processing the request
@@ -716,8 +713,8 @@ void UserAuthProvider::enumerateInstanceNames(
         _verifyAuthorization(user);
     }
 
-    const String& className = classReference.getClassName();
-    const String& nameSpace = classReference.getNameSpace();
+    const CIMName& className = classReference.getClassName();
+    const CIMNamespaceName& nameSpace = classReference.getNameSpace();
 
     // begin processing the request
     handler.processing();
@@ -726,7 +723,7 @@ void UserAuthProvider::enumerateInstanceNames(
     //
     // check if the class name requested is PG_User
     //
-    if (String::equal(CLASS_NAME_PG_USER , className))
+    if (className.equal (CLASS_NAME_PG_USER))
     {
         try
         {
@@ -766,9 +763,9 @@ void UserAuthProvider::enumerateInstanceNames(
     //
     // check if the class name requested is PG_Authorization
     //
-    else if (String::equal(CLASS_NAME_PG_AUTHORIZATION, className))
+    else if (className.equal (CLASS_NAME_PG_AUTHORIZATION))
 #else
-    if (String::equal(CLASS_NAME_PG_AUTHORIZATION, className))
+    if (className.equal (CLASS_NAME_PG_AUTHORIZATION))
 #endif
     {
         try
@@ -793,7 +790,8 @@ void UserAuthProvider::enumerateInstanceNames(
         handler.complete();
 
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, className);
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+            className.getString());
     }
 
     // complete processing the request
@@ -846,14 +844,15 @@ void UserAuthProvider::invokeMethod(
     handler.processing();
 
     // Check if the class name is PG_USER
-    if ( !String::equal (CLASS_NAME_PG_USER, ref.getClassName()))
+    if (!ref.getClassName().equal (CLASS_NAME_PG_USER))
     {
         handler.complete();
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, ref.getClassName());
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+                ref.getClassName().getString());
     }
 
     // Check if the method name is correct
-    if ( !String::equal( methodName, METHOD_NAME_MODIFY_PASSWORD ))
+    if (!methodName.equal (METHOD_NAME_MODIFY_PASSWORD))
     {
         handler.complete();
         PEG_METHOD_EXIT();
@@ -945,7 +944,8 @@ void UserAuthProvider::invokeMethod(
     return;
 #else
     PEG_METHOD_EXIT();
-    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, ref.getClassName());
+    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+        ref.getClassName().getString());
 #endif
 }
 

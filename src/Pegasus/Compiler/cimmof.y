@@ -534,7 +534,7 @@ namespaceHandleRef: namespaceHandle TOK_COLON
 namespaceHandle: stringValue {};
 
 modelPath: className TOK_PERIOD keyValuePairList {
-             modelPath *m = new modelPath(*$1, g_KeyBindingArray);
+             modelPath *m = new modelPath((*$1).getString(), g_KeyBindingArray);
              g_KeyBindingArray.clear(); 
              delete $1;} ;
 

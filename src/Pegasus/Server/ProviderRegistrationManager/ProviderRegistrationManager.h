@@ -57,30 +57,30 @@ public:
 	virtual ~ProviderRegistrationManager(void);
 
 	Boolean lookupInstanceProvider(
-		const String & nameSpace, 
-		const String & className,
+		const CIMNamespaceName & nameSpace, 
+		const CIMName & className,
 	        CIMInstance & provider, 
 		CIMInstance & providerModule,
                 Boolean is_assoc = false); 
 
 	Boolean lookupMethodProvider(
-		const String & nameSpace, 
-		const String & className, 
-	        const String & method, 
+		const CIMNamespaceName & nameSpace, 
+		const CIMName & className, 
+	        const CIMName & method, 
 	        CIMInstance & provider, 
 		CIMInstance & providerModule); 
 
 	Boolean lookupAssociationProvider(
-		const String & nameSpace, 
-		const String & className,
-                const String & assocClassName,
-                const String & resultClassName,
+		const CIMNamespaceName & nameSpace, 
+		const CIMName & className,
+                const CIMName & assocClassName,
+                const CIMName & resultClassName,
                 Array<CIMInstance>& provider, 
                 Array<CIMInstance>& providerModule);
 
 	Boolean getIndicationProviders(
-		const String & nameSpace, 
-		const String & className,
+		const CIMNamespaceName & nameSpace, 
+		const CIMName & className,
 		const CIMPropertyList & requiredProperties,
 		Array<CIMInstance> & provider,
 		Array<CIMInstance> & providerModule); 
@@ -120,12 +120,12 @@ protected:
 	String _generateKey(const String & name, 
 		const String & provider);
 
-	String _generateKey(const String & namespaceName, 
-		const String & className,
+	String _generateKey(const CIMNamespaceName & namespaceName, 
+		const CIMName & className,
 		const String & providerType);
 
-	String _generateKey(const String & namespaceName, 
-		const String & className,
+	String _generateKey(const CIMNamespaceName & namespaceName, 
+		const CIMName & className,
 		const String & supportedMethod,
 		const String & providerType);
 

@@ -23,7 +23,8 @@
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-// Modified By: 
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +34,7 @@
 // testing EnumerateInstanceNames, EnumerateInstances
 // and GetInstance.  
 
+#include <Pegasus/Common/XmlWriter.h>
 #include "DNSTestClient.h"
 
 // include the appropriate DNS-specific file for checking results
@@ -91,16 +93,16 @@ DNSTestClient::_validateKeys(CIMObjectPath &cimRef,
 
    	for (Uint32 j = 0; j < keyBindings.size(); j++)
    	{
-      	String keyName = keyBindings[j].getName();
+      	CIMName keyName = keyBindings[j].getName();
       	if (verboseTest)
          	cout << "checking key " << keyName << endl;
-	  	if ((String::equalNoCase(keyName,"CreationClassName")) &&
+	  	if ((keyName.equal ("CreationClassName")) &&
           	(goodCreationClassName(keyBindings[j].getValue(),
              verboseTest) == false))
       	{ 
          	errorExit ("CreationClassName not PG_DNSAdminDomain");
       	}
-      	else if ((String::equalNoCase(keyName,"Name")) &&
+      	else if ((keyName.equal ("Name")) &&
                  (goodName(keyBindings[j].getValue(),
                   verboseTest) == false))
       	{ 
@@ -123,12 +125,12 @@ DNSTestClient::_validateProperties(CIMInstance &inst,
    	// loop through the properties
    	for (Uint32 j=0; j < inst.getPropertyCount(); j++)
    	{
-      	String propertyName = inst.getProperty(j).getName();
+      	CIMName propertyName = inst.getProperty(j).getName();
 
       	if(verboseTest)
       		cout << "Property name: " << propertyName <<endl;
 
-      	if (String::equalNoCase(propertyName,"CreationClassName"))
+      	if (propertyName.equal ("CreationClassName"))
       	{
          	String propertyValue;
          	inst.getProperty(j).getValue().get(propertyValue); 
@@ -138,7 +140,7 @@ DNSTestClient::_validateProperties(CIMInstance &inst,
             	errorExit ("CreationClassName not PG_DNSAdminDomain");
          	}
       	}  // end if CreationClassName
-      	else if (String::equalNoCase(propertyName,"Name"))
+      	else if (propertyName.equal ("Name"))
       	{
          	String propertyValue;
          	inst.getProperty(j).getValue().get(propertyValue); 
@@ -148,7 +150,7 @@ DNSTestClient::_validateProperties(CIMInstance &inst,
          	}
       	}  // end if Name
 
-      	else if (String::equalNoCase(propertyName,"Caption"))
+      	else if (propertyName.equal ("Caption"))
       	{
          	String propertyValue;
          	inst.getProperty(j).getValue().get(propertyValue); 
@@ -158,7 +160,7 @@ DNSTestClient::_validateProperties(CIMInstance &inst,
          	}
       	}  // end if Caption
 
-      	else if (String::equalNoCase(propertyName,"Description"))
+      	else if (propertyName.equal ("Description"))
       	{
          	String propertyValue;
          	inst.getProperty(j).getValue().get(propertyValue); 
@@ -168,7 +170,7 @@ DNSTestClient::_validateProperties(CIMInstance &inst,
          	}
       	}  // end if Description
 
-      	else if (String::equalNoCase(propertyName,"NameFormat"))
+      	else if (propertyName.equal ("NameFormat"))
       	{
          	String propertyValue;
          	inst.getProperty(j).getValue().get(propertyValue); 
@@ -178,7 +180,7 @@ DNSTestClient::_validateProperties(CIMInstance &inst,
         	}
       	}  // end if NameFormat
 
-      	else if (String::equalNoCase(propertyName,"SearchList"))
+      	else if (propertyName.equal ("SearchList"))
       	{
          	Array<String> propertyValue;
          	inst.getProperty(j).getValue().get(propertyValue); 
@@ -188,7 +190,7 @@ DNSTestClient::_validateProperties(CIMInstance &inst,
          	}
       	}   // end if SearchList
 
-      	else if (String::equalNoCase(propertyName,"Addresses")) 
+      	else if (propertyName.equal ("Addresses")) 
       	{
          	Array<String> propertyValue;
          	inst.getProperty(j).getValue().get(propertyValue); 
@@ -210,7 +212,7 @@ DNSTestClient::testEnumerateInstanceNames(CIMClient &client,
   	try
     {
       	Uint32  numberInstances;
-      	String  propertyName;
+      	CIMName  propertyName;
 
       	testLog("DNS Provider Test Start EnumerateInstanceNames");
       
@@ -223,8 +225,8 @@ DNSTestClient::testEnumerateInstanceNames(CIMClient &client,
 
       	for (Uint32 i = 0; i < cimReferences.size(); i++)
       	{
-      		String className = cimReferences[i].getClassName();
-         	if (!(String::equalNoCase(className, CLASS_NAME)))
+      		CIMName className = cimReferences[i].getClassName();
+         	if (!className.equal (CLASS_NAME))
          	{
 	    		errorExit("EnumInstanceNames failed - wrong class");
 	 		}
@@ -275,7 +277,7 @@ DNSTestClient::testEnumerateInstances(CIMClient &client,
          	CIMObjectPath instanceRef = cimNInstances[i].getPath ();
          	if (verboseTest)
              	cout<<"Instance ClassName is "<<instanceRef.getClassName()<<endl; 
-	     	if( !(String::equalNoCase(instanceRef.getClassName(), CLASS_NAME ) ) )
+	     	if(!instanceRef.getClassName().equal (CLASS_NAME))
 		 	{
 	         	errorExit("EnumInstances failed");
 		 	}
@@ -322,8 +324,8 @@ DNSTestClient::testGetInstance (CIMClient &client,
 
       	for (Uint32 i = 0; i < cimReferences.size(); i++)
       	{
-         	String className = cimReferences[i].getClassName();
-         	if (!(String::equalNoCase(className, CLASS_NAME)))
+         	CIMName className = cimReferences[i].getClassName();
+         	if (!className.equal (CLASS_NAME))
          	{
 	    		errorExit("EnumInstanceNames failed - wrong class");
 	 		}

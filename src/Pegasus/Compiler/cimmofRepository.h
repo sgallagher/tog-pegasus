@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,15 +54,21 @@ class PEGASUS_COMPILER_LINKAGE cimmofRepository  {
   virtual ~cimmofRepository();
 
   // Add some methods for use at the compiler level
-  virtual int addClass(const String &nameSpace, CIMClass *classdecl);
-  virtual int addInstance(const String &nameSpace, CIMInstance *instance);
-  virtual int addQualifier(const String &nameSpace,
-			   CIMQualifierDecl *qualifier);
+  virtual int addClass(const CIMNamespaceName &nameSpace, CIMClass *classdecl);
+  virtual int addInstance(
+      const CIMNamespaceName &nameSpace, 
+      CIMInstance *instance);
+  virtual int addQualifier(
+      const CIMNamespaceName &nameSpace,
+      CIMQualifierDecl *qualifier);
 
-  virtual CIMQualifierDecl getQualifierDecl(const String &nameSpace,
-					    const String &name);
-  virtual CIMClass getClass(const String &nameSpace, const String &classname);
-  virtual void createNameSpace(const String &nameSpaceName);
+  virtual CIMQualifierDecl getQualifierDecl(
+      const CIMNamespaceName &nameSpace,
+       const CIMName &name);
+  virtual CIMClass getClass(
+      const CIMNamespaceName &nameSpace, 
+      const CIMName &classname);
+  virtual void createNameSpace(const CIMNamespaceName &nameSpaceName);
  private:
   CIMRepository *_cimrepository;
   compilerDeclContext *_context;

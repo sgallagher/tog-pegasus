@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +35,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/cimv2";
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 int main(int argc, char** argv)
 {
@@ -46,7 +47,7 @@ int main(int argc, char** argv)
 	String instanceName = "Process.pid=123456";
 
 	Array<CIMObjectPath> instanceNames = 
-	    client.enumerateInstanceNames(NAMESPACE, "Process");
+	    client.enumerateInstanceNames(NAMESPACE, CIMName ("Process"));
 
 	for (Uint32 i = 0; i < instanceNames.size(); i++)
 	    cout << instanceNames[i] << endl;

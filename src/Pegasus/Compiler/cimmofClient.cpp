@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,41 +75,41 @@ cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
 }
 
 void
-cimmofClient::addClass(const String &nameSpace, CIMClass &Class) const
+cimmofClient::addClass(const CIMNamespaceName &nameSpace, CIMClass &Class) const
 {
     _client->createClass(nameSpace, Class);
 }
 
 void
-cimmofClient::addQualifier(const String &nameSpace,
+cimmofClient::addQualifier(const CIMNamespaceName &nameSpace,
 					CIMQualifierDecl &qualifier) const
 {
     _client->setQualifier(nameSpace, qualifier);
 }
 
 void
-cimmofClient::addInstance(const String &nameSpace,
+cimmofClient::addInstance(const CIMNamespaceName &nameSpace,
 				       CIMInstance &instance) const
 {
     _client->createInstance(nameSpace, instance);
 }
 
 CIMQualifierDecl
-cimmofClient::getQualifierDecl(const String &nameSpace,
-					    const String &qualifierName) const
+cimmofClient::getQualifierDecl(const CIMNamespaceName &nameSpace,
+					    const CIMName &qualifierName) const
 {
     return (_client->getQualifier(nameSpace, qualifierName));
 }
 
 CIMClass
-cimmofClient::getClass(const String &nameSpace,
-				    const String &className) const
+cimmofClient::getClass(const CIMNamespaceName &nameSpace,
+				    const CIMName &className) const
 {
     return (_client->getClass(nameSpace, className));
 }
 
 void
-cimmofClient::createNameSpace(const String &nameSpace) const
+cimmofClient::createNameSpace(const CIMNamespaceName &nameSpace) const
 {
     // The new namespace name will be computed by
     // concatenating the target Namespace name with the
@@ -116,8 +117,8 @@ cimmofClient::createNameSpace(const String &nameSpace) const
     // value of the Name property to String::EMPTY,
     // the name of the created namespace will be the 
     // target namespace.
-    CIMInstance newInstance(NAMESPACE_CLASS);
+    CIMInstance newInstance = CIMName (NAMESPACE_CLASS);
     newInstance.addProperty(
-              CIMProperty(NAMESPACE_PROPERTY_NAME, String::EMPTY));
+              CIMProperty(CIMName (NAMESPACE_PROPERTY_NAME), String::EMPTY));
     _client->createInstance(nameSpace, newInstance);
 }

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,13 +70,16 @@ public:
 
     CIMName& operator=(const CIMName& name);
     CIMName& operator=(const String& name);
-    CIMName& operator=(const char* name);
 
-#if 0
-    String toString() const;
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    CIMName& operator=(const char* name);
 #endif
 
+    const String& getString() const;
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
     operator String() const;
+#endif
 
     Boolean isNull() const;
 
@@ -82,7 +87,7 @@ public:
 
     /** equal - Compares two names.
 	@return Return true if the two names are equal. CIM names are
-	case insensitive and so it this method.
+	case insensitive and so is this method.
     */
     Boolean equal(const CIMName& name) const;
 
@@ -94,30 +99,13 @@ public:
     */
     static Boolean legal(const String& name) throw();
 
-#if 0
-    /** equal - Compares two names.
-	@return Return true if the two names are equal. CIM names are
-	case insensitive and so it this method.
-    */
-    static Boolean equal(const String& name1, const String& name2) throw();
-#endif
-
 private:
     String cimName;
 };
 
-#if 0
-// Defining this causes ambiguous operator== errors between String and CIMName
 PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMName& name1,
     const CIMName& name2);
-#endif
-
-#if 0
-PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
-    PEGASUS_STD(ostream)& os,
-    const CIMName& name);
-#endif
 
 #define PEGASUS_ARRAY_T CIMName
 # include "ArrayInter.h"
@@ -148,13 +136,16 @@ public:
 
     CIMNamespaceName& operator=(const CIMNamespaceName& name);
     CIMNamespaceName& operator=(const String& name);
-    CIMNamespaceName& operator=(const char* name);
 
-#if 0
-    String toString() const;
+#ifndef PEGASUS_REMOVE_DEPRECATED
+    CIMNamespaceName& operator=(const char* name);
 #endif
 
+    const String& getString() const;
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
     operator String() const;
+#endif
 
     Boolean isNull() const;
 
@@ -162,7 +153,7 @@ public:
 
     /** equal - Compares two names.
 	@return Return true if the two names are equal. CIM names are
-	case insensitive and so it this method.
+	case insensitive and so is this method.
     */
     Boolean equal(const CIMNamespaceName& name) const;
 
@@ -174,17 +165,17 @@ public:
     */
     static Boolean legal(const String& name) throw();
 
-#if 0
-    /** equal - Compares two names.
-	@return Return true if the two names are equal. CIM names are
-	case insensitive and so it this method.
-    */
-    static Boolean equal(const String& name1, const String& name2) throw();
-#endif
-
 private:
     String cimNamespaceName;
 };
+
+PEGASUS_COMMON_LINKAGE Boolean operator==(
+    const CIMNamespaceName& name1,
+    const CIMNamespaceName& name2);
+
+#define PEGASUS_ARRAY_T CIMNamespaceName
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
 

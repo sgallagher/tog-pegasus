@@ -41,7 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 void Resolver::resolveClass (
     CIMClass & theClass,
     DeclContext * declContext,
-    const String & nameSpace)
+    const CIMNamespaceName & nameSpace)
 {
     theClass._checkRep ();
     theClass._rep->resolve (declContext, nameSpace);
@@ -50,7 +50,7 @@ void Resolver::resolveClass (
 void Resolver::resolveInstance (
     CIMInstance & theInstance,
     DeclContext * declContext,
-    const String & nameSpace,
+    const CIMNamespaceName & nameSpace,
     Boolean propagateQualifiers)
 {
     theInstance._checkRep ();
@@ -62,7 +62,7 @@ void Resolver::resolveInstance (
 void Resolver::resolveInstance (
     CIMInstance & theInstance,
     DeclContext * declContext,
-    const String & nameSpace,
+    const CIMNamespaceName & nameSpace,
     CIMConstClass & cimClassOut,
     Boolean propagateQualifiers)
 {
@@ -74,7 +74,7 @@ void Resolver::resolveInstance (
 void Resolver::resolveProperty (
     CIMProperty & theProperty,
     DeclContext * declContext,
-    const String & nameSpace,
+    const CIMNamespaceName & nameSpace,
     Boolean isInstancePart,
     const CIMConstProperty & inheritedProperty,
     Boolean propagateQualifiers)
@@ -87,7 +87,7 @@ void Resolver::resolveProperty (
 void Resolver::resolveProperty (
     CIMProperty & theProperty,
     DeclContext * declContext,
-    const String & nameSpace,
+    const CIMNamespaceName & nameSpace,
     Boolean isInstancePart,
     Boolean propagateQualifiers)
 {
@@ -99,7 +99,7 @@ void Resolver::resolveProperty (
 void Resolver::resolveMethod (
     CIMMethod & theMethod,
     DeclContext * declContext,
-    const String & nameSpace,
+    const CIMNamespaceName & nameSpace,
     const CIMConstMethod & inheritedMethod)
 {
     theMethod._checkRep ();
@@ -109,7 +109,7 @@ void Resolver::resolveMethod (
 void Resolver::resolveMethod (
     CIMMethod & theMethod,
     DeclContext * declContext,
-    const String & nameSpace)
+    const CIMNamespaceName & nameSpace)
 {
     theMethod._checkRep ();
     theMethod._rep->resolve (declContext, nameSpace);
@@ -118,7 +118,7 @@ void Resolver::resolveMethod (
 void Resolver::resolveParameter (
     CIMParameter & theParameter,
     DeclContext * declContext, 
-    const String & nameSpace)
+    const CIMNamespaceName & nameSpace)
 {
     theParameter._checkRep ();
     theParameter._rep->resolve (declContext, nameSpace);

@@ -42,7 +42,7 @@ int main()
 {
     try
     {
-	Array<String> all;
+	Array<CIMName> all;
 	Array<String> values;
         String value;
 

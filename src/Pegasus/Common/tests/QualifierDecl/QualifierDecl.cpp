@@ -44,7 +44,7 @@ static char * verbose;	 // Flag to control test IO
 void test01()
 {
     CIMQualifierDecl qual1(
-        "CIMTYPE", 
+        CIMName ("CIMTYPE"), 
         String(),
         CIMScope::PROPERTY,
         CIMFlavor::TOINSTANCE);
@@ -52,15 +52,15 @@ void test01()
     if(verbose)
 		XmlWriter::printQualifierDeclElement(qual1);
 
-    CIMQualifierDecl q2("Abstract", true, CIMScope::CLASS);
+    CIMQualifierDecl q2(CIMName ("Abstract"), true, CIMScope::CLASS);
     CIMQualifierDecl q3 = q2;
     
     //
     // Test getName and setName
     //
-    assert(qual1.getName() == "CIMTYPE");
-    qual1.setName("Aggregate");
-    assert(qual1.getName() == "Aggregate");
+    assert(qual1.getName() == CIMName ("CIMTYPE"));
+    qual1.setName(CIMName ("Aggregate"));
+    assert(qual1.getName() == CIMName ("Aggregate"));
 
     //
     // Test getType 
@@ -76,12 +76,14 @@ void test01()
     assert(qual1.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
     assert(qual1.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
-	CIMQualifierDecl q4("q4", true, CIMScope::CLASS, CIMFlavor::RESTRICTED);
+	CIMQualifierDecl q4(CIMName ("q4"), true, CIMScope::CLASS, 
+            CIMFlavor::RESTRICTED);
     assert(!q4.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
     assert(!q4.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
     assert(q4.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
-	CIMQualifierDecl q5("q5", true, CIMScope::CLASS, CIMFlavor::DISABLEOVERRIDE);
+	CIMQualifierDecl q5(CIMName ("q5"), true, CIMScope::CLASS, 
+            CIMFlavor::DISABLEOVERRIDE);
     assert(!q5.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
     assert(q5.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
     assert(!q5.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
@@ -123,7 +125,7 @@ void test02()
     // Test CIMConstQualifierDecl class methods
     //
     CIMConstQualifierDecl cq1(
-        "CIMTYPE", 
+        CIMName ("CIMTYPE"), 
         String(),
         CIMScope::PROPERTY,
         CIMFlavor::TOINSTANCE);
@@ -131,7 +133,7 @@ void test02()
     if(verbose)
 		XmlWriter::printQualifierDeclElement(cq1);
 
-    CIMConstQualifierDecl cq2("Abstract", true, CIMScope::CLASS);
+    CIMConstQualifierDecl cq2(CIMName ("Abstract"), true, CIMScope::CLASS);
     CIMConstQualifierDecl cq3;
     cq3 = cq2;
     CIMConstQualifierDecl cq4;
@@ -139,7 +141,7 @@ void test02()
     //
     // Test getName and setName
     //
-    assert(cq1.getName() == "CIMTYPE");
+    assert(cq1.getName() == CIMName ("CIMTYPE"));
 
     //
     // Test getType 

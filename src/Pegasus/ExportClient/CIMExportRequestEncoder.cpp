@@ -26,6 +26,8 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +100,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
    Array<Sint8> buffer = XmlWriter::formatSimpleEMethodReqMessage(
       message->url.getCString(),
       _hostName,
-      "ExportIndication", 
+      CIMName ("ExportIndication"), 
       message->messageId, 
       _authenticator->buildRequestAuthHeader(), 
       params);

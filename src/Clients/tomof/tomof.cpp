@@ -44,12 +44,12 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-String nameSpace = "root/cimv2";
+CIMNamespaceName nameSpace = CIMNamespaceName ("root/cimv2");
 /*
 class classNameList
 {
 public:
-    classNameList(String& nameSpace, clientRepositoryInterface& cli)
+    classNameList(CIMNamespaceName& nameSpace, clientRepositoryInterface& cli)
     {
     };
 };
@@ -69,7 +69,7 @@ public:
     _index = 0;
     }
     // constructor - with nameSpace and Interface
-    classNameList(const String& nameSpace, const clientRepositoryInterface& cli)
+    classNameList(const CIMNamespaceName& nameSpace, const clientRepositoryInterface& cli)
 
     {
     _nameSpace = nameSpace,
@@ -81,12 +81,12 @@ public:
 
     }
     // Set Namespace
-    void setNameSpace (const String& nameSpac)
+    void setNameSpace (const CIMNamespaceName& nameSpac)
     {
 	_nameSpace = nameSpace;
     }
     // enumerate - Executes the enumerate
-    void enumerate(String& className, Boolean deepInheritance)
+    void enumerate(CIMName& className, Boolean deepInheritance)
     {
     	/*cout << "enumerate function " << className 
 	    << " namespace " << _nameSpace
@@ -123,7 +123,7 @@ public:
 		<< " Return is " << String::equalNoCase(_classNameList[i], pattern)
 	        << " size " <<  _classNameList.size()
 		<< endl; */
-	    if (String::equalNoCase(_classNameList[i], pattern))
+            if (String::equalNoCase(_classNameList[i].getString(), pattern))
 		tmp.append(_classNameList[i]);
 	}
 	_classNameList.swap(tmp);
@@ -149,7 +149,7 @@ public:
     String next()
     {
 	if (_index < _classNameList.size())
-	    return _classNameList[_index++];
+	    return _classNameList[_index++].getString();
 	else
 	    return String::EMPTY;
     }
@@ -162,7 +162,7 @@ public:
 private:
     Array<CIMName> _classNameList;
     clientRepositoryInterface _cli;
-    String _nameSpace;
+    CIMNamespaceName _nameSpace;
     Uint32 _index;
 };
 
@@ -467,7 +467,7 @@ int main(int argc, char** argv)
     Boolean verbose = om.isTrue("verbose");
 
     Boolean singleClass = true;
-    String className;
+    CIMName className;
 
     // Set the flags to determine whether we show all or simply some classes
     if(showAll)
@@ -617,7 +617,7 @@ int main(int argc, char** argv)
 
             classNameList list(nameSpace, clRepository);
 
-            String temp = "";
+            CIMName temp;
             list.enumerate(temp,true);
 
             // Filter to this class specification
@@ -667,7 +667,7 @@ int main(int argc, char** argv)
         for(Uint32 i = 0; i < classList.size(); i++)
         {
             // Get Class Names
-            Array<String> classNames;
+            Array<CIMName> classNames;
 
             // try Block around basic instance processing
             try
@@ -677,14 +677,14 @@ int main(int argc, char** argv)
                 Boolean includeClassOrigin = false;
                 Boolean includeQualifiers = false;
 
-                String className = "";
+                CIMName className;
 
                 //	classNames = clRepository.enumerateClassNames(
                 //		nameSpace, className, deepInheritance);
                 // Start with List from class enum
                 classNameList myClassNameList(nameSpace, clRepository);
 
-                String temp = "";
+                CIMName temp;
                 myClassNameList.enumerate(temp,true);
 
                 // Filter to this class specification

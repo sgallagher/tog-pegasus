@@ -28,6 +28,8 @@
 //              Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +70,7 @@ protected:
 
     virtual Triad<String, String, String> _lookupMethodProviderForClass(
 	const CIMObjectPath & objectPath,
-	const String & methodName);
+	const CIMName & methodName);
 
     virtual void _lookupProviderForAssocClass(
         const CIMObjectPath & objectPath, const String& assocClassName,

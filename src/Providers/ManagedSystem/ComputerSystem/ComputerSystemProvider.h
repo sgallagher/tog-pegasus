@@ -26,6 +26,8 @@
 //
 // Modified By: Al Stone <ahs3@fc.hp.com>
 //              Mike Glantz <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////
 
@@ -148,9 +150,9 @@ class ComputerSystemProvider: public CIMInstanceProvider
       ComputerSystem _cs;
 
       /** Builds a filled-in instance. */
-      CIMInstance _buildInstance(const String& className);
+      CIMInstance _buildInstance(const CIMName& className);
 
-      void _checkClass(String& className);
+      void _checkClass(CIMName& className);
 };
 
 

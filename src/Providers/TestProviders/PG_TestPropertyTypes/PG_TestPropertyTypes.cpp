@@ -149,7 +149,7 @@ void PG_TestPropertyTypes::getInstance(
 	// ensure the InstanceId key is valid
 	Array<CIMKeyBinding> keys = instanceReference.getKeyBindings();
 	Uint32 i;
-	for (i=0; i<keys.size() && keys[i].getName() != "InstanceId"; i++);
+	for (i=0; i<keys.size() && !keys[i].getName().equal("InstanceId"); i++);
 
 	if (i==keys.size())
 	{
@@ -157,13 +157,13 @@ void PG_TestPropertyTypes::getInstance(
 	}
 
 	// ensure the Namespace is valid
-	if (instanceReference.getNameSpace() != "test/static")
+	if (!instanceReference.getNameSpace().equal ("test/static"))
 	{
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
 
 	// ensure the class existing in the specified namespace
-	if (instanceReference.getClassName() != "PG_TestPropertyTypes")
+	if (!instanceReference.getClassName().equal ("PG_TestPropertyTypes"))
 	{
 		throw CIMException(CIM_ERR_INVALID_CLASS);
 	}
@@ -195,13 +195,13 @@ void PG_TestPropertyTypes::enumerateInstances(
 {
 
 	// ensure the Namespace is valid
-	if (ref.getNameSpace() != "test/static")
+	if (!ref.getNameSpace().equal ("test/static"))
 	{
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
 
 	// ensure the class existing in the specified namespace
-	if (ref.getClassName() != "PG_TestPropertyTypes")
+	if (!ref.getClassName().equal ("PG_TestPropertyTypes"))
 	{
 		throw CIMException(CIM_ERR_INVALID_CLASS);
 	}
@@ -230,13 +230,13 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 {
 
 	// ensure the Namespace is valid
-	if (classReference.getNameSpace() != "test/static")
+	if (!classReference.getNameSpace().equal ("test/static"))
 	{
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
 
 	// ensure the class existing in the specified namespace
-	if (classReference.getClassName() != "PG_TestPropertyTypes")
+	if (!classReference.getClassName().equal ("PG_TestPropertyTypes"))
 	{
 		throw CIMException(CIM_ERR_INVALID_CLASS);
 	}
@@ -271,13 +271,13 @@ void PG_TestPropertyTypes::modifyInstance(
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the Namespace is valid
-	if (instanceReference.getNameSpace() != "test/static")
+	if (!instanceReference.getNameSpace().equal ("test/static"))
 	{
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
 
 	// ensure the class existing in the specified namespace
-	if (instanceReference.getClassName() != "PG_TestPropertyTypes")
+	if (!instanceReference.getClassName().equal ("PG_TestPropertyTypes"))
 	{
 		throw CIMException(CIM_ERR_INVALID_CLASS);
 	}
@@ -311,13 +311,13 @@ void PG_TestPropertyTypes::createInstance(
 
 	// ensure the Namespace is valid
 
-	if (instanceReference.getNameSpace() != "test/static")
+	if (!instanceReference.getNameSpace().equal ("test/static"))
 	{
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
 
 	// ensure the class existing in the specified namespace
-	if (instanceReference.getClassName() != "PG_TestPropertyTypes")
+	if (!instanceReference.getClassName().equal ("PG_TestPropertyTypes"))
 	{
 		throw CIMException(CIM_ERR_INVALID_CLASS);
 	}
@@ -383,13 +383,13 @@ void PG_TestPropertyTypes::deleteInstance(
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
 
 	// ensure the Namespace is valid
-	if (instanceReference.getNameSpace() != "test/static")
+	if (!instanceReference.getNameSpace().equal ("test/static"))
 	{
 		throw CIMException(CIM_ERR_INVALID_NAMESPACE);
 	}
 
 	// ensure the class existing in the specified namespace
-	if (instanceReference.getClassName() != "PG_TestPropertyTypes")
+	if (!instanceReference.getClassName().equal ("PG_TestPropertyTypes"))
 	{
 		throw CIMException(CIM_ERR_INVALID_CLASS);
 	}
@@ -444,7 +444,7 @@ void PG_TestPropertyTypes::_testPropertyTypesValue(
 	for (j=0; j<PropertyCount; j++)
 	{
 	  const CIMConstProperty & property = instanceObject.getProperty(j);
-	  const String & propertyName = property.getName();
+	  const CIMName & propertyName = property.getName();
 	  const CIMValue& propertyValue = property.getValue();
 
 	  CIMType type = propertyValue.getType();

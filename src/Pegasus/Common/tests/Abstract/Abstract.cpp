@@ -50,14 +50,15 @@ int main(int argc, char** argv)
 	SimpleDeclContext* context = new SimpleDeclContext;
 
 	context->addQualifierDecl(NAMESPACE, CIMQualifierDecl(
-	    "abstract", false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
+	    CIMName ("abstract"), false, CIMScope::CLASS, 
+            CIMFlavor::OVERRIDABLE));
 
 	// Create some classes:
 
-	CIMClass class1("PeskySuperClass");
-	class1.addQualifier(CIMQualifier("abstract", true));
+	CIMClass class1(CIMName ("PeskySuperClass"));
+	class1.addQualifier(CIMQualifier(CIMName ("abstract"), true));
 
-	CIMClass class2("Class", "PeskySuperClass");
+	CIMClass class2(CIMName ("Class"), CIMName ("PeskySuperClass"));
 
 	Resolver::resolveClass (class1, context, NAMESPACE);
 	context->addClass(NAMESPACE, class1);

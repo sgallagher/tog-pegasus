@@ -23,13 +23,15 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Dir.h>
+#include <Pegasus/Common/XmlWriter.h>
 #include "InheritanceTree.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -58,30 +60,30 @@ struct NoCaseEqualFunc
 
 struct InheritanceTreeNode
 {
-    InheritanceTreeNode(const String& className);
+    InheritanceTreeNode(const CIMName& className);
 
     void addSubClass(InheritanceTreeNode* subClass);
 
     Boolean removeSubClass(InheritanceTreeNode* subClass);
 
     void getSubClassNames(
-	Array<String>& subClassNames, 
+	Array<CIMName>& subClassNames, 
 	Boolean deepInheritance);
 
-    void getSuperClassNames(Array<String>& superClassNames);
+    void getSuperClassNames(Array<CIMName>& superClassNames);
 
     void print(PEGASUS_STD(ostream)& os) const;
 
-    Boolean isSubClass(const String& className) const;
+    Boolean isSubClass(const CIMName& className) const;
 
-    String className;
+    CIMName className;
     InheritanceTreeNode* superClass;
     InheritanceTreeNode* sibling;
     InheritanceTreeNode* subClasses;
     Boolean provisional;
 };
 
-InheritanceTreeNode::InheritanceTreeNode(const String& className) 
+InheritanceTreeNode::InheritanceTreeNode(const CIMName& className) 
     : className(className), superClass(0), 
     sibling(0), subClasses(0), provisional(true)
 {
@@ -117,7 +119,7 @@ Boolean InheritanceTreeNode::removeSubClass(InheritanceTreeNode* subClass)
 }
 
 void InheritanceTreeNode::getSubClassNames(
-    Array<String>& subClassNames, 
+    Array<CIMName>& subClassNames, 
     Boolean deepInheritance)
 {
     // For each subClass:
@@ -134,21 +136,21 @@ void InheritanceTreeNode::getSubClassNames(
     }
 }
 
-Boolean InheritanceTreeNode::isSubClass(const String& className_) const
+Boolean InheritanceTreeNode::isSubClass(const CIMName& className_) const
 {
-    if (String::equalNoCase(className, className_))
+    if (className.equal (className_))
 	return true;
 
     for (InheritanceTreeNode* p = subClasses; p; p = p->sibling)
     {
-	if (String::equalNoCase(p->className, className_))
+	if (p->className.equal (className_))
 	    return true;
     }
 
     return false;
 }
 
-void InheritanceTreeNode::getSuperClassNames(Array<String>& superClassNames)
+void InheritanceTreeNode::getSuperClassNames(Array<CIMName>& superClassNames)
 {
     // For each superClass:
 
@@ -162,7 +164,7 @@ void InheritanceTreeNode::getSuperClassNames(Array<String>& superClassNames)
 void InheritanceTreeNode::print(PEGASUS_STD(ostream)& os) const
 {
     os << className << " : " ;
-    os << (superClass ? superClass->className : String("<None>"));
+    os << (superClass ? superClass->className : CIMName ());
 
     os << " { ";
 
@@ -215,7 +217,7 @@ void InheritanceTree::insert(
 
     InheritanceTreeNode* superClassNode = 0;
 
-    if (superClassName.size() &&
+    if ((superClassName.size()) &&
 	!_rep->table.lookup(superClassName, superClassNode))
     {
 	superClassNode = new InheritanceTreeNode(superClassName);
@@ -273,19 +275,19 @@ void InheritanceTree::check() const
     for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
     {
 	if (i.value()->provisional)
-	    throw InvalidInheritanceTree(i.value()->className);
+	    throw InvalidInheritanceTree(i.value()->className.getString());
     }
 }
 
 Boolean InheritanceTree::getSubClassNames(
-    const String& className,
+    const CIMName& className,
     Boolean deepInheritance,
-    Array<String>& subClassNames) const
+    Array<CIMName>& subClassNames) const
 {
 
    // -- Case 1: className is empty: get all class names (if deepInheritance)
    // -- or just root class names (if not deepInheritance).
-   if (!className.size())
+   if (className.isNull())
    {
       for (InheritanceTreeRep::Table::Iterator i = _rep->table.start();i;i++)
       {
@@ -310,7 +312,7 @@ Boolean InheritanceTree::getSubClassNames(
    
    for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
    {
-      if (String::equalNoCase(className, i.key()))
+      if (className.equal (i.key()))
       {
 	 i.value()->getSubClassNames(subClassNames, deepInheritance);
 	 return true;
@@ -322,24 +324,24 @@ Boolean InheritanceTree::getSubClassNames(
 }
 
 Boolean InheritanceTree::isSubClass(
-    const String& class1, 
-    const String& class2) const
+    const CIMName& class1, 
+    const CIMName& class2) const
 {
     InheritanceTreeNode* node = 0;	
 
-    if (!_rep->table.lookup(class1, node))
+    if (!_rep->table.lookup(class1.getString(), node))
 	return false;
 
-    return node->isSubClass(class2);
+    return node->isSubClass(class2.getString());
 }
 
 Boolean InheritanceTree::getSuperClassNames(
-    const String& className,
-    Array<String>& superClassNames) const
+    const CIMName& className,
+    Array<CIMName>& superClassNames) const
 {
     InheritanceTreeNode* classNode;
 
-    if (_rep->table.lookup(className, classNode))
+    if (_rep->table.lookup(className.getString(), classNode))
     {
 	classNode->getSuperClassNames(superClassNames);
 	return true;
@@ -349,12 +351,12 @@ Boolean InheritanceTree::getSuperClassNames(
 }
 
 Boolean InheritanceTree::getSuperClass(
-    const String& className,
-    String& superClassName) const
+    const CIMName& className,
+    CIMName& superClassName) const
 {
     InheritanceTreeNode* classNode;
 
-    if (_rep->table.lookup(className, classNode))
+    if (_rep->table.lookup(className.getString(), classNode))
     {
 	if (classNode->superClass)
 	{
@@ -372,36 +374,38 @@ Boolean InheritanceTree::getSuperClass(
 }
 
 Boolean InheritanceTree::hasSubClasses(
-    const String& className,
+    const CIMName& className,
     Boolean& hasSubClasses) const
 {
     InheritanceTreeNode* node = 0;	
 
-    if (!_rep->table.lookup(className, node))
+    if (!_rep->table.lookup(className.getString(), node))
 	return false;
 
     hasSubClasses = node->subClasses != 0;
     return true;
 }
 
-Boolean InheritanceTree::containsClass(const String& className) const
+Boolean InheritanceTree::containsClass(const CIMName& className) const
 {
-    return _rep->table.contains(className);
+    return _rep->table.contains(className.getString());
 }
 
-void InheritanceTree::remove(const String& className)
+void InheritanceTree::remove(const CIMName& className)
 {
     // -- Lookup the node:
 
     InheritanceTreeNode* node = 0;	
 
-    if (!_rep->table.lookup(className, node))
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, className);
+    if (!_rep->table.lookup(className.getString(), node))
+	throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_INVALID_CLASS, className.getString());
 
     // -- Disallow if is has any subclasses:
 
     if (node->subClasses)
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_CLASS_HAS_CHILDREN, className);
+	throw PEGASUS_CIM_EXCEPTION
+            (CIM_ERR_CLASS_HAS_CHILDREN, className.getString());
 
     // -- Remove as child of superclass:
 
@@ -415,7 +419,7 @@ void InheritanceTree::remove(const String& className)
 
     // -- Remove from the hash table and delete:
 
-    Boolean result = _rep->table.remove(className);
+    Boolean result = _rep->table.remove(className.getString());
     PEGASUS_ASSERT(result);
     delete node;
 }

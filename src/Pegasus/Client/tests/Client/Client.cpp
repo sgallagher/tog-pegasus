@@ -40,13 +40,13 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/cimv2";
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 
 static void TestGetClass(CIMClient& client)
 {
     CIMClass c = client.getClass(
-	NAMESPACE, "CIM_ComputerSystem", false, false, true);
+	NAMESPACE, CIMName ("CIM_ComputerSystem"), false, false, true);
 
     // c.print();
 }
@@ -55,38 +55,38 @@ static void TestClassOperations(CIMClient& client)
 {
     // CreateClass:
 
-    CIMClass c1("SubClass", "CIM_ManagedElement");
-    c1.addQualifier(CIMQualifier("abstract", Boolean(true)));
-    c1.addProperty(CIMProperty("count", Uint32(99)));
-    c1.addProperty(CIMProperty("ratio", Real64(66.66)));
-    c1.addProperty(CIMProperty("message", String("Hello World")));
+    CIMClass c1(CIMName ("SubClass"), CIMName ("CIM_ManagedElement"));
+    c1.addQualifier(CIMQualifier(CIMName ("abstract"), Boolean(true)));
+    c1.addProperty(CIMProperty(CIMName ("count"), Uint32(99)));
+    c1.addProperty(CIMProperty(CIMName ("ratio"), Real64(66.66)));
+    c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
     client.createClass(NAMESPACE, c1);
 
     // GetClass:
 
-    CIMClass c2 = client.getClass(NAMESPACE, "SubClass", false);
+    CIMClass c2 = client.getClass(NAMESPACE, CIMName ("SubClass"), false);
     // assert(c1.identical(c2));
 
     // Modify the class:
 
-    c2.removeProperty(c2.findProperty("message"));
+    c2.removeProperty(c2.findProperty(CIMName ("message")));
     client.modifyClass(NAMESPACE, c2);
 
     // GetClass:
 
-    CIMClass c3 = client.getClass(NAMESPACE, "SubClass", false);
+    CIMClass c3 = client.getClass(NAMESPACE, CIMName ("SubClass"), false);
     // assert(c3.identical(c2));
 
     // EnumerateClassNames:
 
     Array<CIMName> classNames = client.enumerateClassNames(
-	NAMESPACE, "CIM_ManagedElement", false);
+	NAMESPACE, CIMName ("CIM_ManagedElement"), false);
 
     Boolean found = false;
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-	if (classNames[i].equal("SubClass"))
+	if (classNames[i].equal(CIMName ("SubClass")))
 	    found = true;
     }
 
@@ -94,7 +94,7 @@ static void TestClassOperations(CIMClient& client)
 
     // DeleteClass:
 
-    client.deleteClass(NAMESPACE, "SubClass");
+    client.deleteClass(NAMESPACE, CIMName ("SubClass"));
 
     // Get all the classes;
 
@@ -121,19 +121,20 @@ static void TestQualifierOperations(CIMClient& client)
 {
     // Create two qualifier declarations:
 
-    CIMQualifierDecl qd1("qd1", false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS);
+    CIMQualifierDecl qd1(CIMName ("qd1"), false, CIMScope::CLASS, 
+        CIMFlavor::TOSUBCLASS);
     client.setQualifier(NAMESPACE, qd1);
 
-    CIMQualifierDecl qd2("qd2", String("Hello"), CIMScope::PROPERTY + CIMScope::CLASS, 
-	CIMFlavor::OVERRIDABLE);
+    CIMQualifierDecl qd2(CIMName ("qd2"), String("Hello"), 
+        CIMScope::PROPERTY + CIMScope::CLASS, CIMFlavor::OVERRIDABLE);
     client.setQualifier(NAMESPACE, qd2);
 
     // Get them and compare:
 
-    CIMQualifierDecl tmp1 = client.getQualifier(NAMESPACE, "qd1");
+    CIMQualifierDecl tmp1 = client.getQualifier(NAMESPACE, CIMName ("qd1"));
     assert(tmp1.identical(qd1));
 
-    CIMQualifierDecl tmp2 = client.getQualifier(NAMESPACE, "qd2");
+    CIMQualifierDecl tmp2 = client.getQualifier(NAMESPACE, CIMName ("qd2"));
     assert(tmp2.identical(qd2));
 
     // Enumerate the qualifiers:
@@ -145,17 +146,17 @@ static void TestQualifierOperations(CIMClient& client)
     {
 	CIMQualifierDecl tmp = qualifierDecls[i];
 
-	if (tmp.getName().equal("qd1"))
+	if (tmp.getName().equal(CIMName ("qd1")))
 	    assert(tmp1.identical(tmp));
 
-	if (tmp.getName().equal("qd2"))
+	if (tmp.getName().equal(CIMName ("qd2")))
 	    assert(tmp2.identical(tmp));
     }
 
     // Delete the qualifiers:
 
-    client.deleteQualifier(NAMESPACE, "qd1");
-    client.deleteQualifier(NAMESPACE, "qd2");
+    client.deleteQualifier(NAMESPACE, CIMName ("qd1"));
+    client.deleteQualifier(NAMESPACE, CIMName ("qd2"));
 }
 
 static void TestInstanceOperations(CIMClient& client)
@@ -165,7 +166,7 @@ static void TestInstanceOperations(CIMClient& client)
     try
     {
         Array<CIMObjectPath> instanceNames =
-           client.enumerateInstanceNames(NAMESPACE, "MyClass");
+           client.enumerateInstanceNames(NAMESPACE, CIMName ("MyClass"));
 	for (Uint32 i = 0; i < instanceNames.size(); i++)
         {
            client.deleteInstance(NAMESPACE, instanceNames[i]);
@@ -178,7 +179,7 @@ static void TestInstanceOperations(CIMClient& client)
     }
     try
     {
-        client.deleteClass(NAMESPACE, "myclass");
+        client.deleteClass(NAMESPACE, CIMName ("myclass"));
     }
     catch (Exception& e)
     {
@@ -188,22 +189,22 @@ static void TestInstanceOperations(CIMClient& client)
 
     // Create a new class:
 
-    CIMClass cimClass("MyClass");
+    CIMClass cimClass(CIMName ("MyClass"));
     cimClass
-	.addProperty(CIMProperty("last", String())
-	    .addQualifier(CIMQualifier("key", true)))
-	.addProperty(CIMProperty("first", String())
-	    .addQualifier(CIMQualifier("key", true)))
-	.addProperty(CIMProperty("age", Uint8(0))
-	    .addQualifier(CIMQualifier("key", true)));
+	.addProperty(CIMProperty(CIMName ("last"), String())
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("first"), String())
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("age"), Uint8(0))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)));
     client.createClass(NAMESPACE, cimClass);
 
     // Create an instance of that class:
 
-    CIMInstance cimInstance("MyClass");
-    cimInstance.addProperty(CIMProperty("last", String("Smith")));
-    cimInstance.addProperty(CIMProperty("first", String("John")));
-    cimInstance.addProperty(CIMProperty("age", Uint8(101)));
+    CIMInstance cimInstance(CIMName ("MyClass"));
+    cimInstance.addProperty(CIMProperty(CIMName ("last"), String("Smith")));
+    cimInstance.addProperty(CIMProperty(CIMName ("first"), String("John")));
+    cimInstance.addProperty(CIMProperty(CIMName ("age"), Uint8(101)));
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
     CIMObjectPath createdinstanceName = client.createInstance(NAMESPACE, cimInstance);
 
@@ -224,8 +225,8 @@ static void TestAssociators(CIMClient& client)
     Array<CIMObject> result = client.associators(
 	NAMESPACE, 
 	instanceName, 
-	"Lineage", 
-	"Person", 
+	CIMName ("Lineage"), 
+	CIMName ("Person"), 
 	"parent", 
 	"child", 
 	true, 
@@ -248,8 +249,8 @@ static void TestAssociatorNames(CIMClient& client)
     Array<CIMObjectPath> result = client.associatorNames(
 	NAMESPACE, 
 	instanceName, 
-	"Lineage", 
-	"Person", 
+	CIMName ("Lineage"), 
+	CIMName ("Person"), 
 	"parent", 
 	"child");
 
@@ -266,8 +267,8 @@ static void TestAssociatorClassNames(CIMClient& client)
     Array<CIMObjectPath> result = client.associatorNames(
 	NAMESPACE, 
 	className, 
-	"Lineage", 
-	"Person", 
+	CIMName ("Lineage"), 
+	CIMName ("Person"), 
 	"parent", 
 	"child");
 
@@ -284,7 +285,7 @@ static void TestReferenceNames(CIMClient& client)
     Array<CIMObjectPath> result = client.referenceNames(
 	NAMESPACE, 
 	instanceName, 
-	"Lineage", 
+	CIMName ("Lineage"), 
 	"parent");
 
     for (Uint32 i = 0; i < result.size(); i++)
@@ -300,7 +301,7 @@ static void TestReferences(CIMClient& client)
     Array<CIMObject> result = client.references(
 	NAMESPACE, 
 	instanceName, 
-	"Lineage", 
+	CIMName ("Lineage"), 
 	"parent");
 
     for (Uint32 i = 0; i < result.size(); i++)

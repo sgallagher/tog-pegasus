@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,13 +54,13 @@ public:
     static void append(
 	PEGASUS_STD(ofstream)& os,
 	const String& assocInstanceName,
-	const String& assocClassName,
+	const CIMName& assocClassName,
 	const String& fromInstanceName,
-	const String& fromClassName,
-	const String& fromPropertyName,
+	const CIMName& fromClassName,
+	const CIMName& fromPropertyName,
 	const String& toInstanceName,
-	const String& toClassName,
-	const String& toPropertyName);
+	const CIMName& toClassName,
+	const CIMName& toPropertyName);
 
     /** Appends a row into the association table. There is no checking
 	for duplicate entries (the caller ensures this). The case of the
@@ -68,13 +69,13 @@ public:
     static void append(
 	const String& path,
 	const String& assocInstanceName,
-	const String& assocClassName,
+	const CIMName& assocClassName,
 	const String& fromInstanceName,
-	const String& fromClassName,
-	const String& fromPropertyName,
+	const CIMName& fromClassName,
+	const CIMName& fromPropertyName,
 	const String& toInstanceName,
-	const String& toClassName,
-	const String& toPropertyName);
+	const CIMName& toClassName,
+	const CIMName& toPropertyName);
 
     /** Deletes the given association from the table by removing every entry
 	with an assocInstanceName equal to the assocInstanceName parameter.
@@ -90,8 +91,8 @@ public:
     static Boolean getAssociatorNames(
 	const String& path,
 	const CIMObjectPath& objectName,
-        const String& assocClass,
-        const String& resultClass,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
         const String& role,
         const String& resultRole,
 	Array<String>& associatorNames);
@@ -103,7 +104,7 @@ public:
     static Boolean getReferenceNames(
 	const String& path,
 	const CIMObjectPath& objectName,
- 	const String& resultClass,
+ 	const CIMName& resultClass,
  	const String& role,
 	Array<String>& referenceNames);
 

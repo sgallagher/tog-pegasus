@@ -84,35 +84,36 @@ class clientRepositoryInterface
 
   Boolean ok() const { return _repository || _client; }
 
-  virtual Array<CIMQualifierDecl> enumerateQualifiers(const String &nameSpace) const;
+  virtual Array<CIMQualifierDecl> enumerateQualifiers(
+      const CIMNamespaceName &nameSpace) const;
 
   virtual CIMClass getClass(
-      const String& nameSpace,
-      const String& className,
+      const CIMNamespaceName& nameSpace,
+      const CIMName& className,
       const Boolean localOnly,
       const Boolean includeQualifiers,
       const Boolean includeClassOrigin) const;
 
   virtual Array<CIMClass> enumerateClasses(
-      const String& nameSpace,
-      const String& className,
+      const CIMNamespaceName& nameSpace,
+      const CIMName& className,
       const Boolean deepInheritance,
       const Boolean localOnly,
       const Boolean includeQualifiers,
       const Boolean includeClassOrigin) const;
 
   virtual Array<CIMName> enumerateClassNames(
-      const String& nameSpace,
-      const String& className,
+      const CIMNamespaceName& nameSpace,
+      const CIMName& className,
       const Boolean deepInheritance);
 
   virtual Array<CIMObjectPath> enumerateInstanceNames(
-	  const String& nameSpace,
-	  const String& className);
+	  const CIMNamespaceName& nameSpace,
+	  const CIMName& className);
 
   virtual Array<CIMInstance> enumerateInstances(
-	const String& nameSpace,
-	const String& className,
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className,
 	Boolean deepInheritance = true,
 	Boolean localOnly = true,
 	Boolean includeQualifiers = false,

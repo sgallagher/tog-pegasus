@@ -83,7 +83,7 @@ Triad<String, String, String> _getProviderRegPair(
     Array<Uint16> operationalStatus;
 
     // get the OperationalStatus from the provider module instance
-    Uint32 pos = pmInstance.findProperty("OperationalStatus");
+    Uint32 pos = pmInstance.findProperty(CIMName ("OperationalStatus"));
 
     if(pos == PEG_NOT_FOUND)
     {
@@ -115,7 +115,7 @@ Triad<String, String, String> _getProviderRegPair(
     }
 
     // get the provider name from the provider instance
-    pos = pInstance.findProperty("Name");
+    pos = pInstance.findProperty(CIMName ("Name"));
 
     if(pos == PEG_NOT_FOUND)
     {
@@ -133,7 +133,7 @@ Triad<String, String, String> _getProviderRegPair(
         "providerName = " + providerName + " found.");
 
     // get the provider location from the provider module instance
-    pos = pmInstance.findProperty("Location");
+    pos = pmInstance.findProperty(CIMName ("Location"));
 
     if(pos == PEG_NOT_FOUND)
     {
@@ -148,7 +148,7 @@ Triad<String, String, String> _getProviderRegPair(
     pmInstance.getProperty(pos).getValue().get(location);
 
     // get the provider location from the provider module instance
-    pos = pmInstance.findProperty("InterfaceType");
+    pos = pmInstance.findProperty(CIMName ("InterfaceType"));
 
     if (pos != PEG_NOT_FOUND)
     {
@@ -192,7 +192,8 @@ void ProviderManagerService::_lookupProviderForAssocClass(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForAssocClass");
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName());
+        "nameSpace = " + objectPath.getNameSpace().getString() + 
+        "; className = " + objectPath.getClassName().getString());
 
     // get the provider and provider module instance from the registration manager
     if(_providerRegistrationManager->lookupAssociationProvider(
@@ -211,7 +212,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
     for(Uint32 i=0,n=pInstances.size(); i<n; i++)
     {
         // get the provider name from the provider instance
-        Uint32 pos = pInstances[i].findProperty("Name");
+        Uint32 pos = pInstances[i].findProperty(CIMName ("Name"));
 
         String providerName, Location, interfaceName;
 
@@ -227,7 +228,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
             "providerName = " + providerName + " found.");
 
         // get the provider location from the provider module instance
-        pos = pmInstances[i].findProperty("Location");
+        pos = pmInstances[i].findProperty(CIMName ("Location"));
 
         if(pos == PEG_NOT_FOUND)
         {
@@ -238,7 +239,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
         pmInstances[i].getProperty(pos).getValue().get(Location);
 
         // get the provider location from the provider module instance
-        pos = pmInstances[i].findProperty("InterfaceType");
+        pos = pmInstances[i].findProperty(CIMName ("InterfaceType"));
 
         if (pos != PEG_NOT_FOUND)
         {
@@ -277,7 +278,7 @@ void ProviderManagerService::_lookupProviderForAssocClass(
 
 Triad<String, String, String> ProviderManagerService::_lookupMethodProviderForClass(
     const CIMObjectPath & objectPath,
-    const String & methodName)
+    const CIMName & methodName)
 {
     CIMInstance pInstance;
     CIMInstance pmInstance;
@@ -285,7 +286,9 @@ Triad<String, String, String> ProviderManagerService::_lookupMethodProviderForCl
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupMethodProviderForClass");
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName() + "; methodName = " + methodName);
+        "nameSpace = " + objectPath.getNameSpace().getString() + 
+        "; className = " + objectPath.getClassName().getString() + 
+        "; methodName = " + methodName.getString());
 
     // get the provider and provider module instance from the registration manager
     if(_providerRegistrationManager->lookupMethodProvider(
@@ -318,7 +321,8 @@ Triad<String, String, String> ProviderManagerService::_lookupProviderForClass(
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForClass");
 
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName());
+        "nameSpace = " + objectPath.getNameSpace().getString() + 
+        "; className = " + objectPath.getClassName().getString());
 
     // get the provider and provider module instance from the registration manager
     if(_providerRegistrationManager->lookupInstanceProvider(
@@ -1515,7 +1519,7 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
     	// add the user name to the context
     	context.insert(IdentityContainer(request->userName));
 
-        String propertyName = request->propertyName;
+        CIMName propertyName = request->propertyName;
 
         STAT_GETSTARTTIME;
 
@@ -2109,7 +2113,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     // get provider module name
     String moduleName;
     CIMInstance mInstance = request->providerModule;
-    Uint32 pos = mInstance.findProperty("Name");
+    Uint32 pos = mInstance.findProperty(CIMName ("Name"));
 
     if(pos != PEG_NOT_FOUND)
     {
@@ -2120,7 +2124,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     // get operational status
     //
     Array<Uint16> operationalStatus;
-    Uint32 pos2 = mInstance.findProperty("OperationalStatus");
+    Uint32 pos2 = mInstance.findProperty(CIMName ("OperationalStatus"));
 
     if (pos2 != PEG_NOT_FOUND)
     {
@@ -2211,7 +2215,7 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     //
     CIMInstance mInstance = request->providerModule;
     Array<Uint16> operationalStatus;
-    Uint32 pos = mInstance.findProperty("OperationalStatus");
+    Uint32 pos = mInstance.findProperty(CIMName ("OperationalStatus"));
 
     if (pos != PEG_NOT_FOUND)
     {
@@ -2235,7 +2239,7 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     // get module name
     //
     String moduleName;
-    Uint32 pos2 = mInstance.findProperty("Name");
+    Uint32 pos2 = mInstance.findProperty(CIMName ("Name"));
     if (pos2 != PEG_NOT_FOUND)
     {
 	mInstance.getProperty(pos2).getValue().get(moduleName);

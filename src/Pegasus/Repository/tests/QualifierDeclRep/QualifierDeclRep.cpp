@@ -86,8 +86,8 @@ void test()
 
     // Create two qualifiers:
 
-    CIMQualifierDecl q3("q3", Uint32(66), CIMScope::CLASS);
-    CIMQualifierDecl q4("q4", String("Hello World"), CIMScope::CLASS);
+    CIMQualifierDecl q3(CIMName ("q3"), Uint32(66), CIMScope::CLASS);
+    CIMQualifierDecl q4(CIMName ("q4"), String("Hello World"), CIMScope::CLASS);
 
     r.setQualifier(NAMESPACE, q3);
     r.setQualifier(NAMESPACE, q4);

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +71,7 @@ CIMName::CIMName(const char* name)
 
 CIMName& CIMName::operator=(const CIMName& name)
 {
-    cimName=name;
+    cimName=name.cimName;
     return *this;
 }
 
@@ -83,23 +85,25 @@ CIMName& CIMName::operator=(const String& name)
     return *this;
 }
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 CIMName& CIMName::operator=(const char* name)
 {
     cimName=name;
     return *this;
 }
+#endif
 
-#if 0
-String CIMName::toString() const
+const String& CIMName::getString() const
 {
     return cimName;
 }
-#endif
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 CIMName::operator String() const
 {
     return cimName;
 }
+#endif
 
 Boolean CIMName::isNull() const
 {
@@ -143,20 +147,10 @@ Boolean CIMName::equal(const String& name1, const String& name2) throw()
 }
 #endif
 
-#if 0
 Boolean operator==(const CIMName& name1, const CIMName& name2)
 {
     return name1.equal(name2);
 }
-#endif
-
-#if 0
-PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMName& name)
-{
-    os << name.toString();
-    return os;
-}
-#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -164,6 +158,10 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMName& name)
 // CIMNamespaceName
 //
 ////////////////////////////////////////////////////////////////////////////////
+
+#define PEGASUS_ARRAY_T CIMNamespaceName
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
 
 CIMNamespaceName::CIMNamespaceName()
     : cimNamespaceName(String::EMPTY)
@@ -192,7 +190,7 @@ CIMNamespaceName::CIMNamespaceName(const char* name)
 
 CIMNamespaceName& CIMNamespaceName::operator=(const CIMNamespaceName& name)
 {
-    cimNamespaceName=name;
+    cimNamespaceName=name.cimNamespaceName;
     return *this;
 }
 
@@ -206,23 +204,25 @@ CIMNamespaceName& CIMNamespaceName::operator=(const String& name)
     return *this;
 }
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 CIMNamespaceName& CIMNamespaceName::operator=(const char* name)
 {
     cimNamespaceName=name;
     return *this;
 }
+#endif
 
-#if 0
-String CIMNamespaceName::toString() const
+const String& CIMNamespaceName::getString() const
 {
     return cimNamespaceName;
 }
-#endif
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 CIMNamespaceName::operator String() const
 {
     return cimNamespaceName;
 }
+#endif
 
 Boolean CIMNamespaceName::isNull() const
 {
@@ -304,5 +304,10 @@ Boolean CIMNamespaceName::equal(const String& name1, const String& name2) throw(
     return String::equalNoCase(name1, name2);
 }
 #endif
+
+Boolean operator==(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
+{
+    return name1.equal(name2);
+}
 
 PEGASUS_NAMESPACE_END

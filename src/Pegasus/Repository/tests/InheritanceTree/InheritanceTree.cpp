@@ -30,11 +30,11 @@ static char * verbose;
 
 void TestGetSubClassNames(
     const InheritanceTree& it,
-    const String& className,
+    const CIMName& className,
     Boolean deepInheritance,
-    const Array<String>& expectedSubClassNames)
+    const Array<CIMName>& expectedSubClassNames)
 {
-    Array<String> subClassNames;
+    Array<CIMName> subClassNames;
     it.getSubClassNames(className, deepInheritance, subClassNames);
 
 #if 0
@@ -42,7 +42,7 @@ void TestGetSubClassNames(
 	cout << subClassNames[i] << endl;
 #endif
 
-    Array<String> expected = subClassNames;
+    Array<CIMName> expected = subClassNames;
 
     BubbleSort(expected);
     BubbleSort(subClassNames);
@@ -79,7 +79,7 @@ int main()
 	    it.print(cout);
 
 	{
-	    Array<String> expected;
+	    Array<CIMName> expected;
 	    expected.append("B");
 	    expected.append("C");
 	    expected.append("D");
@@ -88,18 +88,18 @@ int main()
 	    TestGetSubClassNames(it, "A", true, expected);
 	}
 	{
-	    Array<String> expected;
+	    Array<CIMName> expected;
 	    expected.append("B");
 	    expected.append("C");
 	    TestGetSubClassNames(it, "A", false, expected);
 	}
 	{
-	    Array<String> expected;
+	    Array<CIMName> expected;
 	    expected.append("A");
-	    TestGetSubClassNames(it, "", false, expected);
+	    TestGetSubClassNames(it, CIMName(), false, expected);
 	}
 	{
-	    Array<String> expected;
+	    Array<CIMName> expected;
 	    expected.append("A");
 	    expected.append("B");
 	    expected.append("C");
@@ -109,12 +109,13 @@ int main()
 	    TestGetSubClassNames(it, "A", true, expected);
 	}
 	{
-	    Array<String> expected;
+	    Array<CIMName> expected;
+
 	    expected.append("F");
 	    TestGetSubClassNames(it, "C", true, expected);
 	}
 	{
-	    Array<String> expected;
+	    Array<CIMName> expected;
 	    expected.append("F");
 	    TestGetSubClassNames(it, "C", false, expected);
 	}

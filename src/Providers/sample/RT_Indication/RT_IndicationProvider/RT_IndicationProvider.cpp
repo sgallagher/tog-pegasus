@@ -102,7 +102,7 @@ void _generateIndication (
             (CIMProperty ("IndicationID",String(buffer)));
 
         indicationInstance.addProperty
-            (CIMProperty ("MethodName", CIMValue(String(methodName))));
+            (CIMProperty ("MethodName", CIMValue(methodName.getString())));
         
         CIMIndication cimIndication (indicationInstance);
 
@@ -135,7 +135,7 @@ void _generateIndication (
             (CIMProperty ("IndicationID",String(buffer)));
 
         indicationInstance.addProperty
-            (CIMProperty ("MethodName", CIMValue(String(methodName))));
+            (CIMProperty ("MethodName", CIMValue(methodName.getString())));
         
         CIMIndication cimIndication (indicationInstance);
 
@@ -190,8 +190,7 @@ cout << "invokeMethod RT_IndicationProvider" << endl;
         Boolean sendIndication = false;
         handler.processing();
 
-        if(String::equalNoCase(objectReference.getClassName(),
-                               "RT_TestIndication"))
+        if (objectReference.getClassName().equal ("RT_TestIndication"))
         {                
             if(methodName.equal("SendTestIndication"))
             {

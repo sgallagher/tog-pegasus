@@ -45,82 +45,85 @@ PEGASUS_NAMESPACE_BEGIN
 /**
    The name of the operational status property
 */
-static const char _PROPERTY_OPERATIONALSTATUS [] = "OperationalStatus";
+static const CIMName _PROPERTY_OPERATIONALSTATUS  = 
+    CIMName ("OperationalStatus");
 
 /**
    The name of the name property for PG_Provider class
 */
-static const char _PROPERTY_PROVIDER_NAME [] = "Name";
+static const CIMName _PROPERTY_PROVIDER_NAME  = CIMName ("Name");
 
 /**
    The name of the Name property for PG_ProviderModule class
 */
-static const char _PROPERTY_PROVIDERMODULE_NAME [] = "Name";
+static const CIMName _PROPERTY_PROVIDERMODULE_NAME  = CIMName ("Name");
 
 /**
    The name of the Vendor property for PG_ProviderModule class
 */
-static const char _PROPERTY_VENDOR [] = "Vendor";
+static const CIMName _PROPERTY_VENDOR  = CIMName ("Vendor");
 
 /**
    The name of the Version property for PG_ProviderModule class
 */
-static const char _PROPERTY_VERSION [] = "Version";
+static const CIMName _PROPERTY_VERSION  = CIMName ("Version");
 
 /**
    The name of the interface type property for PG_ProviderModule class
 */
-static const char _PROPERTY_INTERFACETYPE [] = "InterfaceType";
+static const CIMName _PROPERTY_INTERFACETYPE  = CIMName ("InterfaceType");
 
 /**
    The name of the interface version property for PG_ProviderModule class
 */
-static const char _PROPERTY_INTERFACEVERSION [] = "InterfaceVersion";
+static const CIMName _PROPERTY_INTERFACEVERSION  = CIMName ("InterfaceVersion");
 
 /**
    The name of the location property for PG_ProviderModule class
 */
-static const char _PROPERTY_LOCATION [] = "Location";
+static const CIMName _PROPERTY_LOCATION  = CIMName ("Location");
 
 /**
    The name of the CapabilityID property for provider capabilities class
 */
-static const char _PROPERTY_CAPABILITYID [] = "CapabilityID";
+static const CIMName _PROPERTY_CAPABILITYID  = CIMName ("CapabilityID");
 
 /**
    The name of the provider module name  property for provider capabilities class
 */
-static const char _PROPERTY_PROVIDERMODULENAME [] = "ProviderModuleName";
+static const CIMName _PROPERTY_PROVIDERMODULENAME  = 
+    CIMName ("ProviderModuleName");
 
 /**
    The name of the provider name  property for provider capabilities class
 */
-static const char _PROPERTY_PROVIDERNAME [] = "ProviderName";
+static const CIMName _PROPERTY_PROVIDERNAME  = CIMName ("ProviderName");
 
 /**
    The name of the classname property for provider capabilities class
 */
-static const char _PROPERTY_CLASSNAME [] = "ClassName";
+static const CIMName _PROPERTY_CLASSNAME  = CIMName ("ClassName");
 
 /**
    The name of the Namespace property for provider capabilities class
 */
-static const char _PROPERTY_NAMESPACES [] = "Namespaces";
+static const CIMName _PROPERTY_NAMESPACES  = CIMName ("Namespaces");
 
 /**
    The name of the provider type  property for provider capabilities class
 */
-static const char _PROPERTY_PROVIDERTYPE [] = "ProviderType";
+static const CIMName _PROPERTY_PROVIDERTYPE  = CIMName ("ProviderType");
 
 /**
    The name of the supported properties property for provider capabilities class
 */
-static const char _PROPERTY_SUPPORTEDPROPERTIES [] = "SupportedProperties";
+static const CIMName _PROPERTY_SUPPORTEDPROPERTIES  = 
+    CIMName ("SupportedProperties");
 
 /**
    The name of the supported methods property for provider capabilities class
 */
-static const char _PROPERTY_SUPPORTEDMETHODS [] = "SupportedMethods";
+static const CIMName _PROPERTY_SUPPORTEDMETHODS  = CIMName ("SupportedMethods");
 
 /**
    Registered instance provider type
@@ -145,12 +148,12 @@ static const Uint16 _METHOD_PROVIDER    = 5;
 /**
    stopping provider method
 */
-static const char _STOP_PROVIDER[]     = "Stop";
+static const CIMName _STOP_PROVIDER     = CIMName ("Stop");
 
 /**
    starting provider method
 */
-static const char _START_PROVIDER[]   = "Start";
+static const CIMName _START_PROVIDER   = CIMName ("Start");
 
 /**
    Provider status
@@ -206,21 +209,21 @@ void ProviderRegistrationProvider::getInstance(
     InstanceResponseHandler & handler)
 {
 
-    if(!String::equalNoCase(instanceReference.getNameSpace(),
-      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    if(!instanceReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
 	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                    instanceReference.getNameSpace());
+            instanceReference.getNameSpace().getString());
     }
 
     // ensure the class existing in the specified namespace
-    String className = instanceReference.getClassName();
+    CIMName className = instanceReference.getClassName();
 
-    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
+    if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            className.getString());
     }
 
     // begin processing the request
@@ -252,20 +255,21 @@ void ProviderRegistrationProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    if(!String::equalNoCase(classReference.getNameSpace(),
-      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    if(!classReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, classReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            classReference.getNameSpace().getString());
     }
 
     // ensure the class existing in the specified namespace
-    String className = classReference.getClassName();
+    CIMName className = classReference.getClassName();
 
-    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
+    if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            className.getString());
     }
 
     // begin processing the request
@@ -294,20 +298,21 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
-    if(!String::equalNoCase(classReference.getNameSpace(),
-      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    if(!classReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, classReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            classReference.getNameSpace().getString());
     }
 
     // ensure the class existing in the specified namespace
-    String className = classReference.getClassName();
+    CIMName className = classReference.getClassName();
 
-    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
+    if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            className.getString());
     }
 
     // begin processing the request
@@ -361,19 +366,20 @@ void ProviderRegistrationProvider::modifyInstance(
 	    "You must have superuser privilege to modify the registration."); 	
     }
 
-    if(!String::equalNoCase(instanceReference.getNameSpace(),
-      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    if(!instanceReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, instanceReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            instanceReference.getNameSpace().getString());
     }
 
     //
     // only support to modify the instance of PG_ProviderCapabilities
     //
-    if (!String::equalNoCase(instanceReference.getClassName(),
-			     PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
+    if (!instanceReference.getClassName().equal 
+        (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, instanceReference.getClassName());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            instanceReference.getClassName().getString());
     }
 
     //
@@ -389,11 +395,12 @@ void ProviderRegistrationProvider::modifyInstance(
     Array<CIMName> propertyArray = propertyList.getPropertyNameArray();
     for (Uint32 i=0; i<propertyArray.size(); i++)
     {
-	if (!String::equalNoCase(propertyArray[i], _PROPERTY_NAMESPACES) &&
-	    !String::equalNoCase(propertyArray[i], _PROPERTY_SUPPORTEDPROPERTIES) &&
-	    !String::equalNoCase(propertyArray[i], _PROPERTY_SUPPORTEDMETHODS))
+	if (!propertyArray[i].equal (_PROPERTY_NAMESPACES) &&
+	    !propertyArray[i].equal (_PROPERTY_SUPPORTEDPROPERTIES) &&
+	    !propertyArray[i].equal (_PROPERTY_SUPPORTEDMETHODS))
 	{
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, propertyArray[i]);
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+                propertyArray[i].getString());
 	}
     }
 
@@ -439,30 +446,32 @@ void ProviderRegistrationProvider::createInstance(
 	    "You must have superuser privilege to register providers."); 	
     }
 
-    String className = instanceReference.getClassName();
-    String nameSpace = instanceReference.getNameSpace();
+    CIMName className = instanceReference.getClassName();
+    CIMNamespaceName nameSpace = instanceReference.getNameSpace();
 
     CIMObjectPath returnReference;
 
     CIMInstance instance = instanceObject;
 
-    if(!String::equalNoCase(nameSpace, PEGASUS_NAMESPACENAME_INTEROP))
+    if(!nameSpace.equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, nameSpace);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            nameSpace.getString());
     }
 
     // ensure the class existing in the specified namespace
-    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
+    if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            className.getString());
     }
 
     //
     // Check all required properties are set
     //
-    if(String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
+    if (className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
 	//
 	// Name, Version, InterfaceType, InterfaceVersion, and Location
@@ -517,7 +526,7 @@ void ProviderRegistrationProvider::createInstance(
 		(_PROPERTY_OPERATIONALSTATUS, _operationalStatus));
 	}
     }
-    else if(String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
+    else if (className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES))
     {
 	//
 	// ProviderModuleName, ProviderName, InstanceID, ClassName,
@@ -625,20 +634,21 @@ void ProviderRegistrationProvider::deleteInstance(
 	    "You must have superuser privilege to unregister providers."); 	
     }
 
-    if(!String::equalNoCase(instanceReference.getNameSpace(),
-      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    if(!instanceReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, instanceReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            instanceReference.getNameSpace().getString());
     }
 
-    String className = instanceReference.getClassName();
+    CIMName className = instanceReference.getClassName();
 
     // ensure the class existing in the specified namespace
-    if(!String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDER) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
-       !String::equalNoCase(className, PEGASUS_CLASSNAME_PROVIDERMODULE))
+    if(!className.equal (PEGASUS_CLASSNAME_PROVIDER) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES) &&
+       !className.equal (PEGASUS_CLASSNAME_PROVIDERMODULE))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, className);
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            className.getString());
     }
 
     // begin processing the request
@@ -683,10 +693,10 @@ void ProviderRegistrationProvider::invokeMethod(
 	    "You must have superuser privilege to disable or enable providers."); 	
     }
 
-    if(!String::equalNoCase(objectReference.getNameSpace(),
-      	                    PEGASUS_NAMESPACENAME_INTEROP))
+    if(!objectReference.getNameSpace().equal (PEGASUS_NAMESPACENAME_INTEROP))
     {
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, objectReference.getNameSpace());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+            objectReference.getNameSpace().getString());
     }
 
     String moduleName;
@@ -697,7 +707,7 @@ void ProviderRegistrationProvider::invokeMethod(
 
     for(Uint32 i=0; i<keys.size() ; i++)
     {
-	if(String::equalNoCase(keys[i].getName(), _PROPERTY_PROVIDERMODULE_NAME))
+	if(keys[i].getName().equal (_PROPERTY_PROVIDERMODULE_NAME))
 	{
 	    moduleName = keys[i].getValue();
 	    moduleFound = true;

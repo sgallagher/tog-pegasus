@@ -116,7 +116,7 @@ public:
     String _messageId;
     Uint32 _msgRequestType;
     Uint32 dest;
-    Array<String> classes;
+    Array<CIMName> classes;
     Array<String> serviceNames;
     Array<String> controlProviderNames;
     Array<String> propertyList;
@@ -247,32 +247,32 @@ public:
 	    class which does not have any representation in the class repository.
 	    @exception CIMException(CIM_ERR_INVALID_CLASS)
 	*/
-       Array<String> _getSubClassNames(
-	    String& nameSpace,
-	    String& className) throw(CIMException);
+       Array<CIMName> _getSubClassNames(
+	    CIMNamespaceName& nameSpace,
+	    CIMName& className) throw(CIMException);
        
        Boolean _lookupInternalProvider(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         String& service,
         String& provider);
 
       String _lookupInstanceProvider(
-    	const String& nameSpace, const String& className);
+    	const CIMNamespaceName& nameSpace, const CIMName& className);
 
       Boolean _lookupNewInstanceProvider(
-    	const String& nameSpace, 
-    	const String& className,
+    	const CIMNamespaceName& nameSpace, 
+    	const CIMName& className,
     	String& serviceName,
     	String& controlProviderName);
 
       Array<String> _lookupAssociationProvider(
-    	const String& nameSpace, const String& className,
-        const String& assocClassName = String::EMPTY,
-        const String& resultClassName = String::EMPTY);
+    	const CIMNamespaceName& nameSpace, const CIMName& className,
+        const CIMName& assocClassName = CIMName(),
+        const CIMName& resultClassName = CIMName());
 
-      String _lookupMethodProvider(const String& nameSpace,
-    	const String& className, const String& methodName);
+      String _lookupMethodProvider(const CIMNamespaceName& nameSpace,
+    	const CIMName& className, const CIMName& methodName);
 
       void _forwardRequestToService(
         const String& serviceName,
@@ -292,7 +292,7 @@ public:
         OperationAggregate* poA);
 
       void _forwardRequest(
-        const String& className,
+        const CIMName& className,
         const String& serviceName,
         const String& controlProviderName,
         CIMRequestMessage* request);
@@ -307,8 +307,8 @@ public:
       void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
 
       void _checkExistenceOfClass(
-          const String& nameSpace,
-	  const String& className,
+          const CIMNamespaceName& nameSpace,
+	  const CIMName& className,
 	  CIMException& cimException);
 
       CIMRepository * _repository;

@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +58,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
       void sendIMethodError(
 	 Uint32 queueId,
 	 const String& messageId,
-	 const String& methodName,
+	 const CIMName& methodName,
 	 const CIMException& cimException);
 
       virtual void handleEnqueue(Message *);

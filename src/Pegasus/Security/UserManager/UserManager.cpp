@@ -24,6 +24,8 @@
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -313,7 +315,7 @@ Boolean UserManager::verifyCIMUserPassword (
 //
 // Verify whether the specified namespace is valid
 //
-Boolean UserManager::verifyNamespace( const String& myNamespace )
+Boolean UserManager::verifyNamespace( const CIMNamespaceName& myNamespace )
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::verifyNamespace");
 
@@ -343,8 +345,8 @@ Boolean UserManager::verifyNamespace( const String& myNamespace )
 //
 Boolean UserManager::verifyAuthorization(
                             const String& userName,
-                            const String& nameSpace,
-                            const String& cimMethodName)
+                            const CIMNamespaceName& nameSpace,
+                            const CIMName& cimMethodName)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::verifyAuthorization");
 
@@ -374,7 +376,7 @@ Boolean UserManager::verifyAuthorization(
 //
 void UserManager::setAuthorization(
                             const String& userName,
-                            const String& myNamespace,
+                            const CIMNamespaceName& myNamespace,
                             const String& auth)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::setAuthorization");
@@ -397,7 +399,7 @@ void UserManager::setAuthorization(
 //
 void UserManager::removeAuthorization(
                             const String& userName,
-                            const String& myNamespace)
+                            const CIMNamespaceName& myNamespace)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::removeAuthorization");
 
@@ -420,7 +422,7 @@ void UserManager::removeAuthorization(
 //
 String UserManager::getAuthorization(
                             const String& userName,
-                            const String& myNamespace)
+                            const CIMNamespaceName& myNamespace)
 {
     PEG_METHOD_ENTER(TRC_AUTHORIZATION, "UserManager::getAuthorization");
 

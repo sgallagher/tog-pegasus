@@ -23,11 +23,13 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -132,19 +134,19 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
    CIMException cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_SUCCESS, String::EMPTY);
 
-   String className = request->handlerInstance.getClassName();
+   CIMName className = request->handlerInstance.getClassName();
     
-   String nameSpace = request->nameSpace;
+   CIMNamespaceName nameSpace = request->nameSpace;
 
    CIMInstance indication = request->indicationInstance;
    CIMInstance handler = request->handlerInstance;
 
    Uint32 pos = PEG_NOT_FOUND;
 
-   if (className == String("PG_IndicationHandlerCIMXML"))
-       pos = handler.findProperty("destination");
-   else if (className == String("PG_IndicationHandlerSNMPMapper"))
-       pos = handler.findProperty("TrapDestination");
+   if (className.equal (CIMName ("PG_IndicationHandlerCIMXML")))
+       pos = handler.findProperty(CIMName ("destination"));
+   else if (className.equal (CIMName ("PG_IndicationHandlerSNMPMapper")))
+       pos = handler.findProperty(CIMName ("TrapDestination"));
 
    if (pos == PEG_NOT_FOUND)
    {
@@ -161,7 +163,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
            cimException = 
                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String("invalid destination"));
        }
-       else if ((className == "PG_IndicationHandlerCIMXML") &&
+       else if ((className.equal (CIMName ("PG_IndicationHandlerCIMXML"))) &&
            (destination.subString(0, 9) == String("localhost")))
        {
           Array<Uint32> exportServer;
@@ -210,7 +212,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 	     handlerLib->handleIndication(
 	        handler,
 	        indication,
-	        nameSpace);
+	        nameSpace.getString());
           }
           else
              cimException =
@@ -228,13 +230,13 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 }
 
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
-   const String& className)
+   const CIMName& className)
 {
    String handlerId;
 
-   if (className == String("PG_IndicationHandlerCIMXML"))
+   if (className.equal (CIMName ("PG_IndicationHandlerCIMXML")))
        handlerId = String("CIMxmlIndicationHandler");
-   else if (className == String("PG_IndicationHandlerSNMPMapper"))
+   else if (className.equal (CIMName ("PG_IndicationHandlerSNMPMapper")))
        handlerId = String("snmpIndicationHandler");
    else
        return 0;

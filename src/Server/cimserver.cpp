@@ -32,6 +32,8 @@
 // Modified By: Jenny Yu (jenny_yu@hp.com)
 //
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -269,9 +271,9 @@ void shutdownCIMOM(Uint32 timeoutValue)
         String referenceStr = "//";
         referenceStr.append(hostStr);
         referenceStr.append("/");  
-        referenceStr.append(PEGASUS_NAMESPACENAME_SHUTDOWN);
+        referenceStr.append(PEGASUS_NAMESPACENAME_SHUTDOWN.getString());
         referenceStr.append(":");
-        referenceStr.append(PEGASUS_CLASSNAME_SHUTDOWN);
+        referenceStr.append(PEGASUS_CLASSNAME_SHUTDOWN.getString());
         CIMObjectPath reference(referenceStr);
 
         //

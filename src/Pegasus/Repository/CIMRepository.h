@@ -72,8 +72,8 @@ public:
     
     /// virtual class CIMClass. From the operations class
     virtual CIMClass getClass(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         Boolean localOnly = true,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false,
@@ -81,7 +81,7 @@ public:
 
     /// getInstance
     virtual CIMInstance getInstance(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
@@ -90,55 +90,55 @@ public:
 
     /// deleteClass
     virtual void deleteClass(
-        const String& nameSpace,
-        const String& className);
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
 
     /// deleteInstance
     virtual void deleteInstance(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
 
     /// createClass
     virtual void createClass(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMClass& newClass);
 
     /// createInstance
     virtual CIMObjectPath createInstance(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance);
 
     /// modifyClass
     virtual void modifyClass(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass);
 
     /// modifyInstance
     virtual void modifyInstance(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// enumerateClasses
     virtual Array<CIMClass> enumerateClasses(
-        const String& nameSpace,
-        const String& className = String::EMPTY,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className = CIMName(),
         Boolean deepInheritance = false,
         Boolean localOnly = true,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false);
 
     /// enumerateClassNames
-    virtual Array<String> enumerateClassNames(
-        const String& nameSpace,
-        const String& className = String::EMPTY,
+    virtual Array<CIMName> enumerateClassNames(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className = CIMName(),
         Boolean deepInheritance = false);
 
     
     virtual Array<CIMInstance> enumerateInstances(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         Boolean deepInheritance = true,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
@@ -152,8 +152,8 @@ public:
     // This simply adds the includeInheritance property
     */
     virtual Array<CIMInstance> enumerateInstancesForClass(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         Boolean deepInheritance = true,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
@@ -164,8 +164,8 @@ public:
 
     /// enumerateInstanceNames
     virtual Array<CIMObjectPath> enumerateInstanceNames(
-        const String& nameSpace,
-        const String& className);
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
 
     /** enumerateInstanceNames for a single Class. This is a temporary
     	hack and should eventually be merged with enumerateInstanceNames
@@ -173,8 +173,8 @@ public:
 	or not with teh boolean includeInheritance.
     */
     virtual Array<CIMObjectPath> enumerateInstanceNamesForClass(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
 	Boolean includeInheritance);
 
 
@@ -185,10 +185,10 @@ public:
 
     /// associators
     virtual Array<CIMObject> associators(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const String& assocClass = String::EMPTY,
-        const String& resultClass = String::EMPTY,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY,
         Boolean includeQualifiers = false,
@@ -197,18 +197,18 @@ public:
 
     /// associateNames
     virtual Array<CIMObjectPath> associatorNames(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const String& assocClass = String::EMPTY,
-        const String& resultClass = String::EMPTY,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY);
 
     /// references
     virtual Array<CIMObject> references(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const String& resultClass = String::EMPTY,
+        const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
@@ -216,42 +216,42 @@ public:
 
     /// referenceNames
     virtual Array<CIMObjectPath> referenceNames(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const String& resultClass = String::EMPTY,
+        const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY);
 
     /// getProperty
     virtual CIMValue getProperty(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        const String& propertyName);
+        const CIMName& propertyName);
 
     /// setProperty
     virtual void setProperty(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        const String& propertyName,
+        const CIMName& propertyName,
         const CIMValue& newValue = CIMValue());
 
     /// getQualifier
     virtual CIMQualifierDecl getQualifier(
-        const String& nameSpace,
-        const String& qualifierName);
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName);
 
     /// setQualifier
     virtual void setQualifier(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl);
 
     /// virtual deleteQualifier
     virtual void deleteQualifier(
-        const String& nameSpace,
-        const String& qualifierName);
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName);
 
     /// enumerateQualifiers
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
-        const String& nameSpace);
+        const CIMNamespaceName& nameSpace);
 
     /** CIMMethod createNameSpace - Creates a new namespace in the repository
         @param String with the name of the namespace
@@ -259,13 +259,13 @@ public:
         Throws "CannotCreateDirectory" if there are problems in the
         creation.
     */
-    virtual void createNameSpace(const String& nameSpace);
+    virtual void createNameSpace(const CIMNamespaceName& nameSpace);
 
     /** CIMMethod enumerateNameSpaces - Get all of the namespaces in the
         repository. \Ref{NAMESPACE}
         @return Array of strings with the namespaces
     */
-    virtual Array<String> enumerateNameSpaces() const;
+    virtual Array<CIMNamespaceName> enumerateNameSpaces() const;
 
     /** CIMMethod deleteNameSpace - Deletes a namespace in the repository.
         The deleteNameSpace method will only delete a namespace if there are
@@ -274,7 +274,7 @@ public:
         @param String with the name of the namespace
         @exception - Throws NoSuchDirectory if the Namespace does not exist.
     */
-    virtual void deleteNameSpace(const String& nameSpace);
+    virtual void deleteNameSpace(const CIMNamespaceName& nameSpace);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -303,10 +303,10 @@ public:
         @exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     virtual void getSubClassNames(
-        const String& nameSpaceName,
-        const String& className,
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& className,
         Boolean deepInheritance,
-        Array<String>& subClassNames) const
+        Array<CIMName>& subClassNames) const
     {
         _nameSpaceManager.getSubClassNames(nameSpaceName,
                                            className,
@@ -318,9 +318,9 @@ public:
         class.
     */
     virtual void getSuperClassNames(
-        const String& nameSpaceName,
-        const String& className,
-        Array<String>& subClassNames) const
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& className,
+        Array<CIMName>& subClassNames) const
     {
         _nameSpaceManager.getSuperClassNames(nameSpaceName,
                                              className,
@@ -330,13 +330,13 @@ public:
 private:
 
     void _createAssocInstEntries(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMConstClass& cimClass,
         const CIMInstance& cimInstance,
         const CIMObjectPath& instanceName);
 
     void _createAssocClassEntries(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMConstClass& assocClass);
 
     /** Returns the index (or byte location) and size of the instance
@@ -354,9 +354,9 @@ private:
                  false          if the instance cannot be found
      */
     Boolean _getInstanceIndex(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        String& className,
+        CIMName& className,
         Uint32& size,
         Uint32& index,
         Boolean searchSuperClasses = false) const;
@@ -369,8 +369,8 @@ private:
         @return  a string containing the index file path
      */
     String _getInstanceIndexFilePath(
-        const String& nameSpace,
-        const String& className) const;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) const;
 
     /** Returns the file path of the instance file.
 
@@ -380,8 +380,8 @@ private:
         @return  a string containing the instance file path
      */
     String _getInstanceDataFilePath(
-        const String& nameSpace,
-        const String& className) const;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) const;
 
     /** Saves an instance object from memory to disk file.  The byte
         position and the size of the newly inserted instance record are
@@ -432,8 +432,8 @@ private:
                  false     if an error occurs in loading the instances
      */
     Boolean _loadAllInstances(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         Array<CIMInstance>& namedInstances);
 
     /** Modifies an instance object saved in the disk file.  The byte position
@@ -494,7 +494,7 @@ protected:
     Boolean _resolveInstance;
 };
 
-String PEGASUS_REPOSITORY_LINKAGE namespaceNameToDirName(const String& namespaceName);
+String PEGASUS_REPOSITORY_LINKAGE namespaceNameToDirName(const CIMNamespaceName& namespaceName);
 String PEGASUS_REPOSITORY_LINKAGE dirNameToNamespaceName(const String& dirName);
 
 PEGASUS_NAMESPACE_END

@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 
     // Test Properties
     {
-    CIMProperty p1("message", String("Hi There"));
+    CIMProperty p1(CIMName ("message"), String("Hi There"));
     Array<Sint8> tmp;
     MofWriter::appendPropertyElement(tmp, p1);
     tmp.append('\0');
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
         cout << "\nProperty MOF = " << tmp.getData() << PEGASUS_STD(endl);
     }
     {
-    CIMProperty p2("message", String("test"));
+    CIMProperty p2(CIMName ("message"), String("test"));
     Array<Sint8> tmp;
     MofWriter::appendPropertyElement(tmp, p2);
     tmp.append('\0');
@@ -124,16 +124,17 @@ int main(int argc, char** argv)
     // Test CimClass none Association
     {
 	cout << "Class test\n";
-	CIMClass class1("MyClass", "YourClass");
+	CIMClass class1(CIMName ("MyClass"), CIMName ("YourClass"));
 
 	class1
-	    .addQualifier(CIMQualifier("q1", Uint32(55)))
-	    .addQualifier(CIMQualifier("q2", String("Hello")))
-	    .addProperty(CIMProperty("message", String("Hello")))
-	    .addProperty(CIMProperty("count", Uint32(77)))
-	    .addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
-		.addParameter(CIMParameter("hostname", CIMTYPE_STRING))
-		.addParameter(CIMParameter("port", CIMTYPE_UINT32)));
+	    .addQualifier(CIMQualifier(CIMName ("q1"), Uint32(55)))
+	    .addQualifier(CIMQualifier(CIMName ("q2"), String("Hello")))
+	    .addProperty(CIMProperty(CIMName ("message"), String("Hello")))
+	    .addProperty(CIMProperty(CIMName ("count"), Uint32(77)))
+	    .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
+		.addParameter(CIMParameter(CIMName ("hostname"), 
+                    CIMTYPE_STRING))
+		.addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
         if (verbose)
             XmlWriter::printClassElement(class1);
 	Array<Sint8> tmp;
@@ -150,17 +151,18 @@ int main(int argc, char** argv)
 	
         if (verbose)
             cout << "Class test\n";
-	CIMClass class1("MyClass", "YourClass");
+	CIMClass class1(CIMName ("MyClass"), CIMName ("YourClass"));
 
 	class1
-	    .addQualifier(CIMQualifier("association", true))
-	    .addQualifier(CIMQualifier("q1", Uint32(55)))
-	    .addQualifier(CIMQualifier("q2", String("Hello")))
-	    .addProperty(CIMProperty("message", String("Hello")))
-	    .addProperty(CIMProperty("count", Uint32(77)))
-	    .addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
-		.addParameter(CIMParameter("hostname", CIMTYPE_STRING))
-		.addParameter(CIMParameter("port", CIMTYPE_UINT32)));
+	    .addQualifier(CIMQualifier(CIMName ("association"), true))
+	    .addQualifier(CIMQualifier(CIMName ("q1"), Uint32(55)))
+	    .addQualifier(CIMQualifier(CIMName ("q2"), String("Hello")))
+	    .addProperty(CIMProperty(CIMName ("message"), String("Hello")))
+	    .addProperty(CIMProperty(CIMName ("count"), Uint32(77)))
+	    .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
+		.addParameter(CIMParameter(CIMName ("hostname"), 
+                    CIMTYPE_STRING))
+		.addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
         if (verbose)
             XmlWriter::printClassElement(class1);
 	Array<Sint8> tmp;
@@ -189,42 +191,49 @@ int main(int argc, char** argv)
         if (verbose)
 	    cout << "Class test of class1\n";
 
-	CIMClass class1("MyClass", "YourClass");
+	CIMClass class1(CIMName ("MyClass"), CIMName ("YourClass"));
 
 	class1
-	    .addQualifier(CIMQualifier("abstract", true))
-    	    .addQualifier(CIMQualifier("description", 
+	    .addQualifier(CIMQualifier(CIMName ("abstract"), true))
+    	    .addQualifier(CIMQualifier(CIMName ("description"), 
 	       String("This is a Description of my class. "
 	       "This is part 2 of the string to make it longer. "
 	       "This is part 3 of the same string for nothing.")
 				       
 				       ))
 
-	    .addProperty(CIMProperty("DriveLetter", String(""))
-		.addQualifier(CIMQualifier("read", true)))
+	    .addProperty(CIMProperty(CIMName ("DriveLetter"), String(""))
+		.addQualifier(CIMQualifier(CIMName ("read"), true)))
 
-	    .addProperty(CIMProperty("RawCapacity",Sint32(99))
-		.addQualifier(CIMQualifier("read", true))
-		.addQualifier(CIMQualifier("Units", String("KiloBytes"))))
+	    .addProperty(CIMProperty(CIMName ("RawCapacity"),Sint32(99))
+		.addQualifier(CIMQualifier(CIMName ("read"), true))
+		.addQualifier(CIMQualifier(CIMName ("Units"), 
+                    String("KiloBytes"))))
 
-	    .addProperty(CIMProperty("VolumeLabel", String(" ")))
+	    .addProperty(CIMProperty(CIMName ("VolumeLabel"), String(" ")))
 	
-    	    .addMethod(CIMMethod("NoParmsMethod", CIMTYPE_BOOLEAN))
+    	    .addMethod(CIMMethod(CIMName ("NoParmsMethod"), CIMTYPE_BOOLEAN))
 	    
-	    .addMethod(CIMMethod("OneParmmethod", CIMTYPE_BOOLEAN)
-	        .addParameter(CIMParameter("FastFormat", CIMTYPE_BOOLEAN)
-	        	   .addQualifier(CIMQualifier("Dangerous", true))
+	    .addMethod(CIMMethod(CIMName ("OneParmmethod"), CIMTYPE_BOOLEAN)
+	        .addParameter(CIMParameter(CIMName ("FastFormat"), 
+                    CIMTYPE_BOOLEAN)
+	        	   .addQualifier(CIMQualifier(CIMName ("Dangerous"), 
+                               true))
 			     )
 		      )
 
-	    .addMethod(CIMMethod("TwoParmMethod", CIMTYPE_BOOLEAN)
-		.addParameter(CIMParameter("FirstParam", CIMTYPE_BOOLEAN)
-			   .addQualifier(CIMQualifier("Dangerous", true))
-			   .addQualifier(CIMQualifier("in",true)) 	     
+	    .addMethod(CIMMethod(CIMName ("TwoParmMethod"), CIMTYPE_BOOLEAN)
+		.addParameter(CIMParameter(CIMName ("FirstParam"), 
+                    CIMTYPE_BOOLEAN)
+			   .addQualifier(CIMQualifier(CIMName ("Dangerous"), 
+                               true))
+			   .addQualifier(CIMQualifier(CIMName ("in"),true)) 	     
 			    )
-		.addParameter(CIMParameter("SecondParam", CIMTYPE_BOOLEAN)
-			    .addQualifier(CIMQualifier("Dangerous", true))
-			    .addQualifier(CIMQualifier("in",true)) 	     
+		.addParameter(CIMParameter(CIMName ("SecondParam"), 
+                    CIMTYPE_BOOLEAN)
+			    .addQualifier(CIMQualifier(CIMName ("Dangerous"), 
+                                true))
+			    .addQualifier(CIMQualifier(CIMName ("in"),true)) 	     
 			    )
 
 		     )
@@ -264,7 +273,7 @@ int main(int argc, char** argv)
 	try
 	{
 	    CIMQualifierDecl qual1(
-		"CIMTYPE", 
+		CIMName ("CIMTYPE"), 
 		String(),
 		CIMScope::PROPERTY,
 		CIMFlavor::TOINSTANCE);
@@ -273,7 +282,7 @@ int main(int argc, char** argv)
 	    //indication), Flavor(DisableOverride, Restricted);
 
 	    CIMQualifierDecl q2(
-		"Abstract",
+		CIMName ("Abstract"),
 		true, 
 		CIMScope::CLASS,
 		CIMFlavor::OVERRIDABLE)

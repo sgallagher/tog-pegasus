@@ -41,6 +41,7 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
@@ -98,15 +99,15 @@ static const Uint32 OPERATION_TYPE_LIST           = 4;
 /**
     The constants representing the string literals.
 */
-static const char PROPERTY_NAME []             = "PropertyName";
+static const CIMName PROPERTY_NAME              = CIMName ("PropertyName");
 
-static const char DEFAULT_VALUE []             = "DefaultValue";
+static const CIMName DEFAULT_VALUE              = CIMName ("DefaultValue");
 
-static const char CURRENT_VALUE []             = "CurrentValue";
+static const CIMName CURRENT_VALUE              = CIMName ("CurrentValue");
 
-static const char PLANNED_VALUE []             = "PlannedValue";
+static const CIMName PLANNED_VALUE              = CIMName ("PlannedValue");
 
-static const char DYNAMIC_PROPERTY []          = "DynamicProperty";
+static const CIMName DYNAMIC_PROPERTY           = CIMName ("DynamicProperty");
 
 /**
     The constants representing the messages.
@@ -213,7 +214,7 @@ CIMConfigCommand::CIMConfigCommand ()
         Initialize the instance variables.
     */
     _operationType       = OPERATION_TYPE_UNINITIALIZED;
-    _propertyName        = String::EMPTY;
+    _propertyName        = CIMName ();
     _propertyValue       = String::EMPTY;
     _currentValueSet     = false;
     _plannedValueSet     = false;
@@ -390,7 +391,8 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                         throw e;
                     }
 
-                    _propertyName  = property.subString( 0, equalsIndex );
+                    _propertyName  = CIMName (property.subString
+                        (0, equalsIndex ));
 
                     _propertyValue = property.subString( equalsIndex + 1 );
 
@@ -951,7 +953,7 @@ Uint32 CIMConfigCommand::execute (
             //
             try
             {
-                Array<String> propertyNames;
+                Array<CIMName> propertyNames;
                 Array<String> propertyValues;
 
                 if (connected)
@@ -1042,7 +1044,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
     (
     ostream&    outPrintWriter, 
     ostream&    errPrintWriter,
-    const String&    propName,
+    const CIMName&    propName,
     Array <String>&    propValues
     ) 
 {
@@ -1054,7 +1056,7 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         CIMKeyBinding        kb;
 
         kb.setName(PROPERTY_NAME);
-        kb.setValue(propName);
+        kb.setValue(propName.getString());
         kb.setType(CIMKeyBinding::STRING);
 
         kbArray.append(kb);
@@ -1099,7 +1101,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
     (
     ostream&    outPrintWriter, 
     ostream&    errPrintWriter,
-    const String&   propName,
+    const CIMName&   propName,
     const String&   propValue,
     Boolean     isUnsetOperation
     ) 
@@ -1111,7 +1113,7 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         CIMKeyBinding        kb;
 
         kb.setName(PROPERTY_NAME);
-        kb.setValue(propName);
+        kb.setValue(propName.getString());
         kb.setType(CIMKeyBinding::STRING);
 
         kbArray.append(kb);
@@ -1167,7 +1169,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
     ( 
     ostream&    outPrintWriter,
     ostream&    errPrintWriter,
-    Array <String>&   propNames,
+    Array <CIMName>&   propNames,
     Array <String>&   propValues
     )
 {
@@ -1193,7 +1195,8 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
                 CIMInstance& configInstance =
                     configNamedInstances[i];
 
-                Uint32 pos = configInstance.findProperty("PropertyName");
+                Uint32 pos = configInstance.findProperty
+                    (CIMName ("PropertyName"));
                 CIMProperty prop = (CIMProperty)configInstance.getProperty(pos);
                 propNames.append(prop.getValue().toString());
 
@@ -1202,7 +1205,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
                     //
                     // get current value
                     //
-                    pos = configInstance.findProperty("CurrentValue");
+                    pos = configInstance.findProperty(CIMName ("CurrentValue"));
                     prop = (CIMProperty)configInstance.getProperty(pos);
                     propValues.append(prop.getValue().toString());
                 }
@@ -1211,7 +1214,7 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
                     //
                     // get planned value
                     //
-                    pos = configInstance.findProperty("PlannedValue");
+                    pos = configInstance.findProperty(CIMName ("PlannedValue"));
                     prop = (CIMProperty)configInstance.getProperty(pos);
                     propValues.append(prop.getValue().toString());
                 }

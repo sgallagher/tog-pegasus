@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +134,7 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
    Array<Sint8> body;
     
    Array<Sint8> message = XmlWriter::formatSimpleEMethodRspMessage(
-      "ExportIndication", response->messageId, body);
+      CIMName ("ExportIndication"), response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
 }

@@ -82,7 +82,8 @@ void CIMInstanceRep::resolve(
 	context->lookupClass(nameSpace, _reference.getClassName());
 
     if (cimClass.isUninitialized())
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, _reference.getClassName());
+	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS, 
+            _reference.getClassName().getString ());
 
     cimClassOut = cimClass;
 
@@ -96,7 +97,7 @@ void CIMInstanceRep::resolve(
     //----------------------------------------------------------------------
 
     if (cimClass.isAbstract())
-	throw InstantiatedAbstractClass(_reference.getClassName());
+	throw InstantiatedAbstractClass(_reference.getClassName().getString ());
 
     //----------------------------------------------------------------------
     // Validate and propagate qualifiers.
@@ -128,13 +129,17 @@ void CIMInstanceRep::resolve(
             //  Allow addition of Creator property to Indication Subscription,
             //  Filter and Handler instances
             //
-            if (!(((className == PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-                (className == PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-                (className == PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
-                (className == PEGASUS_CLASSNAME_INDFILTER)) &&
-                (property.getName () == PEGASUS_PROPERTYNAME_INDSUB_CREATOR)))
+            if (!(((className.equal 
+                    (CIMName (PEGASUS_CLASSNAME_INDSUBSCRIPTION))) ||
+                (className.equal 
+                    (CIMName (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))) ||
+                (className.equal 
+                    (CIMName (PEGASUS_CLASSNAME_INDHANDLER_SNMP))) ||
+                (className.equal (CIMName (PEGASUS_CLASSNAME_INDFILTER)))) &&
+                (property.getName ().equal 
+                    (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)))))
             {
-	        throw NoSuchProperty(property.getName());
+	        throw NoSuchProperty(property.getName().getString ());
             }
         }
         else
@@ -348,14 +353,14 @@ String CIMInstanceRep::toString() const
         objectName.append(object.getHost());
         objectName.append("/");
 
-        objectName.append(object.getNameSpace());
+        objectName.append(object.getNameSpace().getString ());
         objectName.append(":");
     }
 
     // Get the class name:
 
     const CIMName& className = getClassName();
-    objectName.append(className);
+    objectName.append(className.getString ());
 
     //if (isClassName())
     //    return objectName;
@@ -370,7 +375,7 @@ String CIMInstanceRep::toString() const
     for (Uint32 i = 0, n = getPropertyCount(); i < n; i++)
     {
         prop = getProperty(i);
-        objectName.append(prop.getName());
+        objectName.append(prop.getName().getString ());
         objectName.append('=');
 
         //const String& value = _escapeSpecialCharacters(

@@ -23,7 +23,8 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +93,7 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
 
       HandlerTable _handlerTable;
 
-      CIMHandler* _lookupHandlerForClass(const String& className);
+      CIMHandler* _lookupHandlerForClass(const CIMName& className);
 
    private:
       CIMRepository* _repository;

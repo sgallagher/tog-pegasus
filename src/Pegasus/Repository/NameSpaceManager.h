@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,14 +61,14 @@ public:
 	@param nameSpaceName name of namespace.
 	@return true if namespace eixsts; false otherwise.
     */
-    Boolean nameSpaceExists(const String& nameSpaceName) const;
+    Boolean nameSpaceExists(const CIMNamespaceName& nameSpaceName) const;
 
     /** Creates the given namespace.
 	@param nameSpaceName name of namespace to be created.
 	@exception CIMException(CIM_ERR_ALREADY_EXISTS)
 	@exception CannotCreateDirectory
     */
-    void createNameSpace(const String& nameSpaceName);
+    void createNameSpace(const CIMNamespaceName& nameSpaceName);
 
     /** Deletes the given namespace.
 	@param nameSpaceName name of namespace to be deleted.
@@ -75,12 +76,12 @@ public:
 	@exception NonEmptyNameSpace
 	@exception FailedToRemoveDirectory
     */
-    void deleteNameSpace(const String& nameSpaceName);
+    void deleteNameSpace(const CIMNamespaceName& nameSpaceName);
 
     /** Gets array of all namespace names.
 	@param nameSpaceNames filled with names of all namespaces.
     */
-    void getNameSpaceNames(Array<String>& nameSpaceNames) const;
+    void getNameSpaceNames(Array<CIMNamespaceName>& nameSpaceNames) const;
 
     /** Get path to the class file for the given class. 
 	@param nameSpaceName name of the namespace.
@@ -89,8 +90,8 @@ public:
 	@exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     String getClassFilePath(
-	const String& nameSpaceName,
-	const String& className) const;
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className) const;
 
     /** Get path to the qualifier file for the given class. 
 	@param nameSpaceName name of the namespace.
@@ -99,17 +100,17 @@ public:
 	@exception CIMException(CIM_ERR_NOT_FOUND)
     */
     String getQualifierFilePath(
-	const String& nameSpaceName,
-	const String& qualifierName) const;
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& qualifierName) const;
 
     String getInstanceDataFileBase(
-	const String& nameSpaceName,
-	const String& className) const;
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className) const;
 
     /** Get path to the directory containing qualifiers:
 	@param nameSpaceName name of the namespace.
     */
-    String getQualifiersRoot(const String& nameSpaceName) const;
+    String getQualifiersRoot(const CIMNamespaceName& nameSpaceName) const;
 
     /** Deletes the class file for the given class.
 	@param nameSpaceName name of namespace.
@@ -119,8 +120,8 @@ public:
 	@exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN)
     */
     void deleteClass(
-	const String& nameSpaceName,
-	const String& className) const;
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className) const;
 
     /** Print out the namespaces. */
     void print(PEGASUS_STD(ostream)& os) const;
@@ -132,9 +133,9 @@ public:
 	@param classFilePath path of file to contain class itself.
     */
     void createClass(
-	const String& nameSpaceName,
-	const String& className,
-	const String& superClassName,
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className,
+	const CIMName& superClassName,
 	String& classFilePath);
 
     /** Checks if it is okay to modify this class.
@@ -149,9 +150,9 @@ public:
 	    has any children.
     */
     void checkModify(
-	const String& nameSpaceName,
-	const String& className,
-	const String& superClassName,
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className,
+	const CIMName& superClassName,
 	String& classFilePath);
 
     /** Get subclass names of the given class in the given namespace.
@@ -164,18 +165,18 @@ public:
 	@exception CIMException(CIM_ERR_INVALID_CLASS)
     */
     void getSubClassNames(
-	const String& nameSpaceName,
-	const String& className,
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className,
 	Boolean deepInheritance,
-	Array<String>& subClassNames) const throw(CIMException);
+	Array<CIMName>& subClassNames) const throw(CIMException);
 
     /** Get the names of all superclasses (direct and indirect) of this
 	class.
     */
     void getSuperClassNames(
-	const String& nameSpaceName,
-	const String& className,
-	Array<String>& subClassNames) const;
+	const CIMNamespaceName& nameSpaceName,
+	const CIMName& className,
+	Array<CIMName>& subClassNames) const;
 
 private:
 

@@ -66,19 +66,19 @@ void test()
     try
     {
 	// Create an array of names
-	Array<String> arr1;
-	arr1.append("/zzz");
-	arr1.append("/xxx/yyy");
-	arr1.append("/a/b/c");
+	Array<CIMNamespaceName> arr1;
+	arr1.append(CIMNamespaceName ("/zzz"));
+	arr1.append(CIMNamespaceName ("/xxx/yyy"));
+	arr1.append(CIMNamespaceName ("/a/b/c"));
 
 	BubbleSort(arr1);
 
 	// create the namespaces
 	for (Uint32 i = 0; i < arr1.size(); i++)
-	    r.createNameSpace(String(arr1[i]));
+	    r.createNameSpace(CIMNamespaceName(arr1[i]));
 
 	//retrieve the namespaces from rep. as array
-	Array<String> arr2 = r.enumerateNameSpaces();
+	Array<CIMNamespaceName> arr2 = r.enumerateNameSpaces();
 
 	BubbleSort(arr2);
 
@@ -91,7 +91,7 @@ void test()
 	assert(arr1.size() == 3);
 	assert(arr2.size() == 4);
 
-	arr1.append("root");
+	arr1.append(CIMNamespaceName ("root"));
 	BubbleSort(arr1);
 	assert(arr1 == arr2);
 
@@ -102,10 +102,10 @@ void test()
 
 	// Delete the namespaces test. Put in when delete installed
 	for (Uint32 i = 0; i < arr1.size(); i++)
-	    r.deleteNameSpace(String(arr1[i]));
+	    r.deleteNameSpace(arr1[i]);
 
 	//enumerate the namespaces
-	Array<String> arr3 = r.enumerateNameSpaces();
+	Array<CIMNamespaceName> arr3 = r.enumerateNameSpaces();
 	assert(arr3.size() == 0);
 
     }

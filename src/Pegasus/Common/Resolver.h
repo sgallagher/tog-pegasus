@@ -75,7 +75,7 @@ public:
     static void resolveClass (
         CIMClass & theClass,
         DeclContext * declContext,
-        const String & nameSpace);
+        const CIMNamespaceName & nameSpace);
 
     /** 
         Resolves the instance.  Makes sure the class exists and is not
@@ -96,7 +96,7 @@ public:
     static void resolveInstance (
         CIMInstance & theInstance,
         DeclContext * declContext,
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         Boolean propagateQualifiers);
 
     /** 
@@ -120,7 +120,7 @@ public:
     static void resolveInstance (
         CIMInstance & theInstance,
         DeclContext * declContext,
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         CIMConstClass & cimClassOut,
         Boolean propagateQualifiers);
 
@@ -144,7 +144,7 @@ public:
     static void resolveProperty (
         CIMProperty & theProperty,
 	DeclContext * declContext,
-	const String & nameSpace,
+	const CIMNamespaceName & nameSpace,
 	Boolean isInstancePart,
 	const CIMConstProperty & inheritedProperty,
 	Boolean propagateQualifiers);
@@ -169,7 +169,7 @@ public:
     static void resolveProperty (
         CIMProperty & theProperty,
 	DeclContext * declContext,
-	const String & nameSpace,
+	const CIMNamespaceName & nameSpace,
 	Boolean isInstancePart,
 	Boolean propagateQualifiers);
 
@@ -190,7 +190,7 @@ public:
     static void resolveMethod (
         CIMMethod & theMethod,
         DeclContext * declContext,
-        const String & nameSpace,
+        const CIMNamespaceName & nameSpace,
         const CIMConstMethod & inheritedMethod);
 
     /** 
@@ -208,7 +208,7 @@ public:
     static void resolveMethod (
         CIMMethod & theMethod,
         DeclContext * declContext,
-        const String & nameSpace);
+        const CIMNamespaceName & nameSpace);
 
     /** 
         Resolves the parameter.  Validates the qualifiers of the parameter.
@@ -224,7 +224,7 @@ public:
     static void resolveParameter (
         CIMParameter & theParameter,
         DeclContext * declContext, 
-        const String & nameSpace);
+        const CIMNamespaceName & nameSpace);
 
     /** 
         Resolves the qualifier flavor.  This function is used only in object 

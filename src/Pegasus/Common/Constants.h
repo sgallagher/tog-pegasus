@@ -23,7 +23,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +32,7 @@
 #define Pegasus_Constants_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMName.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -93,43 +95,66 @@ PEGASUS_NAMESPACE_BEGIN
 // CIM Class Names
 //
 
-#define PEGASUS_CLASSNAME_CONFIGSETTING        "PG_ConfigSetting"
-#define PEGASUS_CLASSNAME_AUTHORIZATION        "PG_Authorization"
-#define PEGASUS_CLASSNAME_USER                 "PG_User"
-#define PEGASUS_CLASSNAME_PROVIDERMODULE       "PG_ProviderModule"
-#define PEGASUS_CLASSNAME_PROVIDER             "PG_Provider"
-#define PEGASUS_CLASSNAME_PROVIDERCAPABILITIES "PG_ProviderCapabilities"
-#define PEGASUS_CLASSNAME_INDSUBSCRIPTION      "PG_IndicationSubscription"
-#define PEGASUS_CLASSNAME_INDHANDLER           "PG_IndicationHandler"
-#define PEGASUS_CLASSNAME_INDHANDLER_CIMXML    "PG_IndicationHandlerCIMXML"
-#define PEGASUS_CLASSNAME_INDHANDLER_SNMP      "PG_IndicationHandlerSNMPMapper"
-#define PEGASUS_CLASSNAME_INDFILTER            "PG_IndicationFilter"
-#define PEGASUS_CLASSNAME_SHUTDOWN             "PG_ShutdownService"
-#define PEGASUS_CLASSNAME___NAMESPACE          "__Namespace"
-#define PEGASUS_CLASSNAME_NAMESPACE            "CIM_Namespace"
-
+static const CIMName PEGASUS_CLASSNAME_CONFIGSETTING        = 
+    CIMName ("PG_ConfigSetting");
+static const CIMName PEGASUS_CLASSNAME_AUTHORIZATION        = 
+    CIMName ("PG_Authorization");
+static const CIMName PEGASUS_CLASSNAME_USER                 = 
+    CIMName ("PG_User");
+static const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE       = 
+    CIMName ("PG_ProviderModule");
+static const CIMName PEGASUS_CLASSNAME_PROVIDER             = 
+    CIMName ("PG_Provider");
+static const CIMName PEGASUS_CLASSNAME_PROVIDERCAPABILITIES = 
+    CIMName ("PG_ProviderCapabilities");
+static const CIMName PEGASUS_CLASSNAME_INDSUBSCRIPTION      = 
+    CIMName ("PG_IndicationSubscription");
+static const CIMName PEGASUS_CLASSNAME_INDHANDLER           = 
+    CIMName ("PG_IndicationHandler");
+static const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML    = 
+    CIMName ("PG_IndicationHandlerCIMXML");
+static const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      = 
+    CIMName ("PG_IndicationHandlerSNMPMapper");
+static const CIMName PEGASUS_CLASSNAME_INDFILTER            = 
+    CIMName ("PG_IndicationFilter");
+static const CIMName PEGASUS_CLASSNAME_SHUTDOWN             = 
+    CIMName ("PG_ShutdownService");
+static const CIMName PEGASUS_CLASSNAME___NAMESPACE          = 
+    CIMName ("__Namespace");
+static const CIMName PEGASUS_CLASSNAME_NAMESPACE            = 
+    CIMName ("CIM_Namespace");
 
 
 //
 // Property Names
 //
 
-#define PEGASUS_PROPERTYNAME_INDSUB_CREATOR    "Creator"
+static const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR    = 
+    CIMName ("Creator");
 
 
 //
 // CIM Namespace Names
 //
 
-#define PEGASUS_NAMESPACENAME_INTEROP  "root/PG_InterOp"
-#define PEGASUS_NAMESPACENAME_INTERNAL "root/PG_Internal"
-#define PEGASUS_NAMESPACENAME_CIMV2    "root/cimv2"
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_INTEROP  = 
+    CIMNamespaceName ("root/PG_InterOp");
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_INTERNAL = 
+    CIMNamespaceName ("root/PG_Internal");
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMV2    = 
+    CIMNamespaceName ("root/cimv2");
 
-#define PEGASUS_NAMESPACENAME_AUTHORIZATION PEGASUS_NAMESPACENAME_INTERNAL
-#define PEGASUS_NAMESPACENAME_CONFIG        PEGASUS_NAMESPACENAME_INTERNAL
-#define PEGASUS_NAMESPACENAME_PROVIDERREG   PEGASUS_NAMESPACENAME_INTEROP
-#define PEGASUS_NAMESPACENAME_SHUTDOWN      PEGASUS_NAMESPACENAME_INTERNAL
-#define PEGASUS_NAMESPACENAME_USER          PEGASUS_NAMESPACENAME_INTERNAL
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_AUTHORIZATION = 
+    PEGASUS_NAMESPACENAME_INTERNAL;
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_CONFIG        = 
+    PEGASUS_NAMESPACENAME_INTERNAL;
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_PROVIDERREG   = 
+    PEGASUS_NAMESPACENAME_INTEROP;
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_SHUTDOWN      = 
+    PEGASUS_NAMESPACENAME_INTERNAL;
+static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          = 
+    PEGASUS_NAMESPACENAME_INTERNAL;
+
 
 //
 // HTTP Header Tags, Status Codes, and Reason Phrases

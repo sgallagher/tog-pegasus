@@ -42,33 +42,33 @@ void TestNameSpaces()
 {
     CIMRepository r (repositoryRoot);
 
-    r.createNameSpace("namespace0");
-    r.createNameSpace("namespace1");
-    r.createNameSpace("namespace2");
+    r.createNameSpace(CIMNamespaceName ("namespace0"));
+    r.createNameSpace(CIMNamespaceName ("namespace1"));
+    r.createNameSpace(CIMNamespaceName ("namespace2"));
 
-    Array<String> nameSpaces;
+    Array<CIMNamespaceName> nameSpaces;
     nameSpaces = r.enumerateNameSpaces();
     BubbleSort(nameSpaces);
 
     assert(nameSpaces.size() == 4);
-    assert(nameSpaces[0] == "namespace0");
-    assert(nameSpaces[1] == "namespace1");
-    assert(nameSpaces[2] == "namespace2");
-    assert(nameSpaces[3] == "root");
+    assert(nameSpaces[0] == CIMNamespaceName ("namespace0"));
+    assert(nameSpaces[1] == CIMNamespaceName ("namespace1"));
+    assert(nameSpaces[2] == CIMNamespaceName ("namespace2"));
+    assert(nameSpaces[3] == CIMNamespaceName ("root"));
 
-    r.deleteNameSpace("namespace0");
-    r.deleteNameSpace("namespace1");
+    r.deleteNameSpace(CIMNamespaceName ("namespace0"));
+    r.deleteNameSpace(CIMNamespaceName ("namespace1"));
 
     nameSpaces = r.enumerateNameSpaces();
     assert(nameSpaces.size() == 2);
     BubbleSort(nameSpaces);
-    assert(nameSpaces[0] == "namespace2");
-    assert(nameSpaces[1] == "root");
+    assert(nameSpaces[0] == CIMNamespaceName ("namespace2"));
+    assert(nameSpaces[1] == CIMNamespaceName ("root"));
 
-    r.deleteNameSpace("namespace2");
+    r.deleteNameSpace(CIMNamespaceName ("namespace2"));
     nameSpaces = r.enumerateNameSpaces();
     assert(nameSpaces.size() == 1);
-    assert(nameSpaces[0] == "root");
+    assert(nameSpaces[0] == CIMNamespaceName ("root"));
 }
 
 void TestCreateClass()
@@ -76,7 +76,7 @@ void TestCreateClass()
     // -- Create repository and "xyz" namespace:
 
     CIMRepository r (repositoryRoot);
-    const String NS = "xyz";
+    const CIMNamespaceName NS = CIMNamespaceName ("xyz");
 
     try
     {
@@ -89,68 +89,68 @@ void TestCreateClass()
 
     // -- Declare the key qualifier:
 
-    r.setQualifier(NS, CIMQualifierDecl("key",true,CIMScope::PROPERTY));
+    r.setQualifier(NS, CIMQualifierDecl(CIMName ("key"),true,CIMScope::PROPERTY));
 
     // -- Construct new class:
 
-    CIMClass c1("MyClass");
+    CIMClass c1(CIMName ("MyClass"));
     c1.addProperty(
-	CIMProperty("key", Uint32(0))
-	    .addQualifier(CIMQualifier("key", true)));
+	CIMProperty(CIMName ("key"), Uint32(0))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)));
 
-    c1.addProperty(CIMProperty("ratio", Real32(1.5)));
-    c1.addProperty(CIMProperty("message", String("Hello World")));
+    c1.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
+    c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
     // -- Create the class (get it back and compare):
 
     r.createClass(NS, c1);
     CIMConstClass cc1;
-    cc1 = r.getClass(NS, "MyClass");
+    cc1 = r.getClass(NS, CIMName ("MyClass"));
     assert(c1.identical(cc1));
     assert(cc1.identical(c1));
 
     // -- Now create a sub class (get it back and compare):
 
-    CIMClass c2("YourClass", "MyClass");
-    c2.addProperty(CIMProperty("junk", Real32(66.66)));
+    CIMClass c2(CIMName ("YourClass"), CIMName ("MyClass"));
+    c2.addProperty(CIMProperty(CIMName ("junk"), Real32(66.66)));
     r.createClass(NS, c2);
     CIMConstClass cc2;
-    cc2 = r.getClass(NS, "YourClass");
+    cc2 = r.getClass(NS, CIMName ("YourClass"));
     assert(c2.identical(cc2));
     assert(cc2.identical(c2));
     // cc2.print();
 
     // -- Modify "YourClass" (add new property)
 
-    c2.addProperty(CIMProperty("newProperty", Uint32(888)));
+    c2.addProperty(CIMProperty(CIMName ("newProperty"), Uint32(888)));
     r.modifyClass(NS, c2);
-    cc2 = r.getClass(NS, "YourClass");
+    cc2 = r.getClass(NS, CIMName ("YourClass"));
     assert(c2.identical(cc2));
     assert(cc2.identical(c2));
     // cc2.print();
 
     // -- Enumerate the class names: expect "MyClass", "YourClass"
 
-    Array<String> classNames = r.enumerateClassNames(NS, String(), true);
+    Array<CIMName> classNames = r.enumerateClassNames(NS, CIMName (), true);
     BubbleSort(classNames);
     assert(classNames.size() == 2);
-    assert(classNames[0] == "MyClass");
-    assert(classNames[1] == "YourClass");
+    assert(classNames[0] == CIMName ("MyClass"));
+    assert(classNames[1] == CIMName ("YourClass"));
 
     // -- Create an instance of each class:
 
-    CIMInstance inst0("MyClass");
-    inst0.addProperty(CIMProperty("key", Uint32(111)));
+    CIMInstance inst0(CIMName ("MyClass"));
+    inst0.addProperty(CIMProperty(CIMName ("key"), Uint32(111)));
     r.createInstance(NS, inst0);
 
-    CIMInstance inst1("YourClass");
-    inst1.addProperty(CIMProperty("key", Uint32(222)));
+    CIMInstance inst1(CIMName ("YourClass"));
+    inst1.addProperty(CIMProperty(CIMName ("key"), Uint32(222)));
     r.createInstance(NS, inst1);
 
     // -- Enumerate instances names:
 
     Array<CIMObjectPath> instanceNames = 
-	r.enumerateInstanceNames(NS, "MyClass");
+	r.enumerateInstanceNames(NS, CIMName ("MyClass"));
 
     assert(instanceNames.size() == 2);
 
@@ -167,7 +167,8 @@ void TestCreateClass()
 
     // -- Enumerate instances:
 
-    Array<CIMInstance> namedInstances = r.enumerateInstances(NS, "MyClass");
+    Array<CIMInstance> namedInstances = r.enumerateInstances(NS, 
+        CIMName ("MyClass"));
 
     assert(namedInstances.size() == 2);
 
@@ -181,9 +182,9 @@ void TestCreateClass()
 
     // -- Modify one of the instances:
 
-    CIMInstance modifiedInst0("MyClass");
-    modifiedInst0.addProperty(CIMProperty("key", Uint32(111)));
-    modifiedInst0.addProperty(CIMProperty("message", String("Goodbye World")));
+    CIMInstance modifiedInst0(CIMName ("MyClass"));
+    modifiedInst0.addProperty(CIMProperty(CIMName ("key"), Uint32(111)));
+    modifiedInst0.addProperty(CIMProperty(CIMName ("message"), String("Goodbye World")));
     modifiedInst0.setPath (instanceNames[0]);
     r.modifyInstance(NS, modifiedInst0);
     // modifiedInst0.print();
@@ -199,16 +200,16 @@ void TestCreateClass()
     // -- Now modify the "message" property:
 
     CIMValue messageValue = r.getProperty(NS, CIMObjectPath 
-        ("MyClass.key=111"), "message");
+        ("MyClass.key=111"), CIMName ("message"));
     String message;
     messageValue.get(message);
     assert(message == "Goodbye World");
 
-    r.setProperty(NS, CIMObjectPath ("MyClass.key=111"), "message", 
+    r.setProperty(NS, CIMObjectPath ("MyClass.key=111"), CIMName ("message"), 
         CIMValue(String("Hello World")));
 
     messageValue = r.getProperty( NS, CIMObjectPath ("MyClass.key=111"), 
-        "message");
+        CIMName ("message"));
     messageValue.get(message);
     assert(message == "Hello World");
 
@@ -218,7 +219,7 @@ void TestCreateClass()
 
     try
     {
-	r.setProperty(NS, CIMObjectPath ("MyClass.key=111"), "key", 
+	r.setProperty(NS, CIMObjectPath ("MyClass.key=111"), CIMName ("key"), 
             Uint32(999));
     }
     catch (CIMException& e)
@@ -236,12 +237,12 @@ void TestCreateClass()
 
     // -- Delete the qualifier:
 
-    r.deleteQualifier(NS, "key");
+    r.deleteQualifier(NS, CIMName ("key"));
 
     // -- Clean up classes:
 
-    r.deleteClass(NS, "YourClass");
-    r.deleteClass(NS, "MyClass");
+    r.deleteClass(NS, CIMName ("YourClass"));
+    r.deleteClass(NS, CIMName ("MyClass"));
 
     r.deleteNameSpace(NS);
 }
@@ -252,7 +253,7 @@ void TestQualifiers()
 
     CIMRepository r (repositoryRoot);
 
-    const String NS = "xyz";
+    const CIMNamespaceName NS = CIMNamespaceName ("xyz");
 
     try
     {
@@ -265,17 +266,17 @@ void TestQualifiers()
 
     // -- Construct a qualifier declaration:
 
-    CIMQualifierDecl q("abstract", true, CIMScope::CLASS);
+    CIMQualifierDecl q(CIMName ("abstract"), true, CIMScope::CLASS);
     r.setQualifier(NS, q);
 
-    CIMQualifierDecl qq = r.getQualifier(NS, "abstract");
+    CIMQualifierDecl qq = r.getQualifier(NS, CIMName ("abstract"));
 
     assert(qq.identical(q));
     assert(q.identical(qq));
 
     // -- Delete the qualifier:
 
-    r.deleteQualifier(NS, "abstract");
+    r.deleteQualifier(NS, CIMName ("abstract"));
 
     // -- Delete the namespace:
 

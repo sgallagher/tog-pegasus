@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +64,8 @@ cimmofRepository::~cimmofRepository() {
 }
 
 int 
-cimmofRepository::addClass(const String &nameSpace, CIMClass *classdecl)
+cimmofRepository::addClass(const CIMNamespaceName &nameSpace, 
+                           CIMClass *classdecl)
 {
   // Don't catch errors: pass them up to the requester
   _context->addClass( nameSpace,  *classdecl);
@@ -72,7 +74,8 @@ cimmofRepository::addClass(const String &nameSpace, CIMClass *classdecl)
 
 
 int 
-cimmofRepository::addInstance(const String &nameSpace, CIMInstance *instance)
+cimmofRepository::addInstance(const CIMNamespaceName &nameSpace, 
+                              CIMInstance *instance)
 { 
   // Don't catch errors: pass them up to the requester
   _context->addInstance(nameSpace, *instance);
@@ -80,7 +83,7 @@ cimmofRepository::addInstance(const String &nameSpace, CIMInstance *instance)
 }
 
 int 
-cimmofRepository::addQualifier(const String &nameSpace,
+cimmofRepository::addQualifier(const CIMNamespaceName &nameSpace,
 			       CIMQualifierDecl *qualifier)
 { 
   // Don't catch errors: pass them up to the requester
@@ -89,21 +92,23 @@ cimmofRepository::addQualifier(const String &nameSpace,
 }
 
 CIMQualifierDecl
-cimmofRepository::getQualifierDecl(const String &nameSpace, const String &name)
+cimmofRepository::getQualifierDecl(const CIMNamespaceName &nameSpace, 
+                                   const CIMName &name)
 {
   // Don't catch errors: pass them up to the requester
   return _context->lookupQualifierDecl(nameSpace, name);
 }
 
 CIMClass
-cimmofRepository::getClass(const String &nameSpace, const String &classname)
+cimmofRepository::getClass(const CIMNamespaceName &nameSpace, 
+                           const CIMName &classname)
 {
   // Don't catch errors: pass them up to the requester
   return _context->lookupClass(nameSpace, classname);
 }
 
 void 
-cimmofRepository::createNameSpace(const String &nameSpaceName)
+cimmofRepository::createNameSpace(const CIMNamespaceName &nameSpaceName)
 {
   if (_cimrepository && _ot != compilerCommonDefs::IGNORE_REPOSITORY)
     _cimrepository->createNameSpace(nameSpaceName);

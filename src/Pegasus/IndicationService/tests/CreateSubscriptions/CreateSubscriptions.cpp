@@ -32,7 +32,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/cimv2";
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 void TestCreateSubscriptionInstances(CIMClient& client)
 {
@@ -43,30 +43,31 @@ void TestCreateSubscriptionInstances(CIMClient& client)
     Array<CIMKeyBinding> handlerKeys;
 
     handlerRef = client.enumerateInstanceNames(NAMESPACE, 
-        "CIM_IndicationHandlerCIMXML");
+        CIMName ("CIM_IndicationHandlerCIMXML"));
 
     /*for (Uint8 i = 0; i < handlerRef.size(); i++)
 	cout << handlerRef[i]<< endl;*/
 
     filterRef = client.enumerateInstanceNames(NAMESPACE, 
-        "CIM_IndicationFilter");
+        CIMName ("CIM_IndicationFilter"));
 
     /*for (Uint8 i = 0; i < filterRef.size(); i++)
 	cout << filterRef[i] << endl;*/
 
     CIMClass subscriptionClass = client.getClass(
-	NAMESPACE, "CIM_IndicationSubscription");
+	NAMESPACE, CIMName ("CIM_IndicationSubscription"));
 
     for (Uint8 i = 0; i < handlerRef.size(); i++)
     {
-        CIMInstance subscriptionInstance("CIM_IndicationSubscription");
+        CIMInstance subscriptionInstance
+            (CIMName ("CIM_IndicationSubscription"));
 
-        subscriptionInstance.addProperty(CIMProperty("Filter", filterRef[i], 
-            0, "CIM_IndicationFilter"));
-        subscriptionInstance.addProperty(CIMProperty("Handler", handlerRef[i], 
-            0, "CIM_IndicationHandlerCIMXML"));
-        subscriptionInstance.addProperty (CIMProperty ("SubscriptionState", 
-            CIMValue ((Uint16) 3)));
+        subscriptionInstance.addProperty(CIMProperty(CIMName ("Filter"), 
+            filterRef[i], 0, CIMName ("CIM_IndicationFilter")));
+        subscriptionInstance.addProperty(CIMProperty(CIMName ("Handler"), 
+            handlerRef[i], 0, CIMName ("CIM_IndicationHandlerCIMXML")));
+        subscriptionInstance.addProperty (CIMProperty 
+            (CIMName ("SubscriptionState"), CIMValue ((Uint16) 3)));
 
         client.createInstance(NAMESPACE, subscriptionInstance);
     }

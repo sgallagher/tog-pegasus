@@ -323,9 +323,9 @@ int main(int argc, char** argv)
     }
     */
     // "//localhost/root/cimv2:MyClass.Foo=1"
-    CIMInstance myInstance("__namespace");
+    CIMInstance myInstance(CIMName ("__namespace"));
 	
-    myInstance.addProperty(CIMProperty("name", String(myReference)));
+    myInstance.addProperty(CIMProperty(CIMName ("name"), String(myReference)));
     /*
     catch(Exception& e)
     {

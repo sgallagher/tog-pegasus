@@ -25,6 +25,8 @@
 // 	   Al Stone <ahs3@fc.hp.com>
 //
 // Modified By: Al Stone <ahs3@fc.hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////
 #ifndef _OPERATINGSYSTEMPROVIDER_H
@@ -111,8 +113,8 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       CIMInstance _build_instance(const CIMObjectPath &objectReference);
 
       // Builds a reference (a set of Key,Value pairs)
-      CIMObjectPath _fill_reference(const String &nameSpace,
-			           const String &className);
+      CIMObjectPath _fill_reference(const CIMNamespaceName &nameSpace,
+			            const CIMName &className);
 };
 
 #endif

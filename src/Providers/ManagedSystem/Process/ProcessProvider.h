@@ -31,6 +31,8 @@
 //         Jim Metcalfe, Hewlett-Packard Company
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -107,13 +109,13 @@ private:
   // first argument is the class of instance to be built
   // second argument is a Process instance that contains
   // process status information that has been fetched
-  CIMInstance _constructInstance(const String &clnam,
-                                 const String &nameSpace,
+  CIMInstance _constructInstance(const CIMName &clnam,
+                                 const CIMNamespaceName &nameSpace,
                                  const Process &p);
 
   // checks the class passed by the cimom and throws
   // an exception if it's not supported by this provider
-  void _checkClass(String&);
+  void _checkClass(CIMName&);
 
   // returns the private member _hostname
   // used so that a future version could obtain this

@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +100,8 @@ cimmofRepositoryInterface::init(_repositoryType type, String location,
 }
 
 void
-cimmofRepositoryInterface::addClass(const String &nameSpace, CIMClass &Class)
+cimmofRepositoryInterface::addClass(const CIMNamespaceName &nameSpace, 
+    CIMClass &Class)
   const {
   if (_repository)
     _repository->addClass(nameSpace, &Class);
@@ -108,7 +110,7 @@ cimmofRepositoryInterface::addClass(const String &nameSpace, CIMClass &Class)
 }
 
 void
-cimmofRepositoryInterface::addQualifier(const String &nameSpace,
+cimmofRepositoryInterface::addQualifier(const CIMNamespaceName &nameSpace,
 					CIMQualifierDecl &qualifier) const
 {
   if (_repository)
@@ -118,7 +120,7 @@ cimmofRepositoryInterface::addQualifier(const String &nameSpace,
 }
 
 void
-cimmofRepositoryInterface::addInstance(const String &nameSpace,
+cimmofRepositoryInterface::addInstance(const CIMNamespaceName &nameSpace,
 				       CIMInstance &instance) const
 {
   if (_repository)
@@ -128,8 +130,8 @@ cimmofRepositoryInterface::addInstance(const String &nameSpace,
 }
 
 CIMQualifierDecl
-cimmofRepositoryInterface::getQualifierDecl(const String &nameSpace,
-					    const String &qualifierName) const
+cimmofRepositoryInterface::getQualifierDecl(const CIMNamespaceName &nameSpace,
+					    const CIMName &qualifierName) const
 {
   if (_repository)
     return (_repository->getQualifierDecl(nameSpace, qualifierName));
@@ -140,8 +142,8 @@ cimmofRepositoryInterface::getQualifierDecl(const String &nameSpace,
 }
 
 CIMClass
-cimmofRepositoryInterface::getClass(const String &nameSpace,
-				    const String &className) const
+cimmofRepositoryInterface::getClass(const CIMNamespaceName &nameSpace,
+				    const CIMName &className) const
 {
   if (_repository)
     return (_repository->getClass(nameSpace, className));
@@ -152,7 +154,8 @@ cimmofRepositoryInterface::getClass(const String &nameSpace,
 }
 
 void
-cimmofRepositoryInterface::createNameSpace(const String &nameSpace) const
+cimmofRepositoryInterface::createNameSpace(
+    const CIMNamespaceName &nameSpace) const
 {
   if (_repository)
     _repository->createNameSpace(nameSpace);

@@ -47,10 +47,8 @@
 #include "CIMParamValue.h"
 #include "System.h"
 
-//#define PEGASUS_SINT64_MIN (-PEGASUS_SINT64_LITERAL(9223372036854775808))
-//#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(18446744073709551615)
-#define PEGASUS_SINT64_MIN (-PEGASUS_SINT64_LITERAL((Sint64) 0x8000000000000000))
-#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL((Uint64) 0xFFFFFFFFFFFFFFFF)
+#define PEGASUS_SINT64_MIN (-PEGASUS_SINT64_LITERAL(0x8000000000000000))
+#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -320,7 +318,7 @@ void XmlReader::getCimStartTag(
 //
 //------------------------------------------------------------------------------
 
-String XmlReader::getCimNameAttribute(
+CIMName XmlReader::getCimNameAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry,
     const char* elementName,
@@ -336,7 +334,7 @@ String XmlReader::getCimNameAttribute(
     }
 
     if (acceptNull && name.size() == 0)
-	return name;
+	return CIMName ();
 
     if (!CIMName::legal(name))
     {
@@ -345,7 +343,7 @@ String XmlReader::getCimNameAttribute(
 	throw XmlSemanticError(lineNumber, buffer);
     }
 
-    return name;
+    return CIMName (name);
 }
 
 //------------------------------------------------------------------------------
@@ -1525,7 +1523,7 @@ Boolean XmlReader::getQualifierElement(
 
     // Get QUALIFIER.NAME attribute:
 
-    String name = getCimNameAttribute(parser.getLine(), entry, "QUALIFIER");
+    CIMName name = getCimNameAttribute(parser.getLine(), entry, "QUALIFIER");
 
     // Get QUALIFIER.TYPE attribute:
 
@@ -1609,7 +1607,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
     // Get PROPERTY.NAME attribute:
 
-    String name = getCimNameAttribute(parser.getLine(), entry, "PROPERTY");
+    CIMName name = getCimNameAttribute(parser.getLine(), entry, "PROPERTY");
 
     // Get PROPERTY.CLASSORIGIN attribute:
 
@@ -1712,7 +1710,7 @@ Boolean XmlReader::getPropertyArrayElement(
 
     // Get PROPERTY.NAME attribute:
 
-    String name = 
+    CIMName name = 
 	getCimNameAttribute(parser.getLine(), entry, "PROPERTY.ARRAY");
 
     // Get PROPERTY.TYPE attribute:
@@ -1806,7 +1804,7 @@ Boolean XmlReader::getHostElement(
 
 Boolean XmlReader::getNameSpaceElement(
     XmlParser& parser,
-    String& nameSpaceComponent)
+    CIMName& nameSpaceComponent)
 {
     XmlEntry entry;
 
@@ -1841,14 +1839,14 @@ Boolean XmlReader::getLocalNameSpacePathElement(
     if (!testStartTag(parser, entry, "LOCALNAMESPACEPATH"))
 	return false;
 
-    String nameSpaceComponent;
+    CIMName nameSpaceComponent;
 
     while (getNameSpaceElement(parser, nameSpaceComponent))
     {
 	if (nameSpace.size())
 	    nameSpace.append('/');
 
-	nameSpace.append(nameSpaceComponent);
+	nameSpace.append(nameSpaceComponent.getString());
     }
 
     if (!nameSpace.size())
@@ -1908,7 +1906,7 @@ Boolean XmlReader::getNameSpacePathElement(
 
 Boolean XmlReader::getClassNameElement(
     XmlParser& parser,
-    String& className,
+    CIMName& className,
     Boolean required)
 {
     XmlEntry entry;
@@ -2025,7 +2023,7 @@ Boolean XmlReader::getKeyValueElement(
 
 Boolean XmlReader::getKeyBindingElement(
     XmlParser& parser,
-    String& name,
+    CIMName& name,
     String& value,
     CIMKeyBinding::Type& type)
 {
@@ -2089,7 +2087,7 @@ Boolean XmlReader::getInstanceNameElement(
         return true;
     }
 
-    String name;
+    CIMName name;
     CIMKeyBinding::Type type;
     String value;
     CIMObjectPath reference;
@@ -2238,7 +2236,7 @@ Boolean XmlReader::getClassPathElement(
 	    "expected NAMESPACEPATH element");
     }
 
-    String className;
+    CIMName className;
 
     if (!getClassNameElement(parser, className))
     {
@@ -2277,7 +2275,7 @@ Boolean XmlReader::getLocalClassPathElement(
 	    "expected LOCALNAMESPACEPATH element");
     }
 
-    String className;
+    CIMName className;
 
     if (!getClassNameElement(parser, className))
     {
@@ -2336,7 +2334,7 @@ Boolean XmlReader::getValueReferenceElement(
     else if (strcmp(entry.text, "CLASSNAME") == 0)
     {
 	parser.putBack(entry);
-	String className;
+	CIMName className;
 	getClassNameElement(parser, className);
 	reference.set(String(), CIMNamespaceName(), className);
     }
@@ -2428,7 +2426,7 @@ Boolean XmlReader::getPropertyReferenceElement(
 
     // Get PROPERTY.NAME attribute:
 
-    String name = getCimNameAttribute(
+    CIMName name = getCimNameAttribute(
 	parser.getLine(), entry, "PROPERTY.REFERENCE");
 
     // Get PROPERTY.REFERENCECLASS attribute:
@@ -2518,7 +2516,7 @@ Boolean XmlReader::getParameterElement(
 
     // Get PARAMETER.NAME attribute:
 
-    String name = getCimNameAttribute(parser.getLine(), entry, "PARAMETER");
+    CIMName name = getCimNameAttribute(parser.getLine(), entry, "PARAMETER");
 
     // Get PARAMETER.TYPE attribute:
 
@@ -2564,7 +2562,7 @@ Boolean XmlReader::getParameterArrayElement(
 
     // Get PARAMETER.ARRAY.NAME attribute:
 
-    String name = getCimNameAttribute(
+    CIMName name = getCimNameAttribute(
 	parser.getLine(), entry, "PARAMETER.ARRAY");
 
     // Get PARAMETER.ARRAY.TYPE attribute:
@@ -2615,7 +2613,7 @@ Boolean XmlReader::getParameterReferenceElement(
 
     // Get PARAMETER.NAME attribute:
 
-    String name = getCimNameAttribute(
+    CIMName name = getCimNameAttribute(
 	parser.getLine(), entry, "PARAMETER.REFERENCE");
 
     // Get PARAMETER.REFERENCECLASS attribute:
@@ -2661,7 +2659,7 @@ Boolean XmlReader::getParameterReferenceArrayElement(
 
     // Get PARAMETER.NAME attribute:
 
-    String name = getCimNameAttribute(
+    CIMName name = getCimNameAttribute(
 	parser.getLine(), entry, "PARAMETER.REFARRAY");
 
     // Get PARAMETER.REFERENCECLASS attribute:
@@ -2743,7 +2741,7 @@ Boolean XmlReader::getQualifierDeclElement(
 
     // Get NAME attribute:
 
-    String name = getCimNameAttribute(
+    CIMName name = getCimNameAttribute(
 	parser.getLine(), entry, "QUALIFIER.DECLARATION");
 
     // Get TYPE attribute:
@@ -2851,7 +2849,7 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, CIMMethod& method)
 
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
-    String name = getCimNameAttribute(parser.getLine(), entry, "PROPERTY");
+    CIMName name = getCimNameAttribute(parser.getLine(), entry, "PROPERTY");
 
     CIMType type;
     getCimTypeAttribute(parser.getLine(), entry, type, "PROPERTY");
@@ -2894,7 +2892,7 @@ Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& cimClass)
     if (!testStartTag(parser, entry, "CLASS"))
 	return false;
 
-    String name = getCimNameAttribute(parser.getLine(), entry, "CLASS");
+    CIMName name = getCimNameAttribute(parser.getLine(), entry, "CLASS");
 
     CIMName superClass = getSuperClassAttribute(parser.getLine(), entry,"CLASS");
 
@@ -3441,7 +3439,7 @@ Boolean XmlReader::getObjectNameElement(
     XmlParser& parser, 
     CIMObjectPath& objectName)
 {
-    String className;
+    CIMName className;
 
     if (getClassNameElement(parser, className, false))
     {

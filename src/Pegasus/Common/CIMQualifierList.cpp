@@ -58,7 +58,8 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 	throw UninitializedObjectException();
 
     if (find(qualifier.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExistsException("qualifier \"" + qualifier.getName() + "\"");
+	throw AlreadyExistsException
+            ("qualifier \"" + qualifier.getName().getString () + "\"");
 
     _qualifiers.append(qualifier);
 
@@ -116,7 +117,7 @@ Uint32 CIMQualifierList::findReverse(const CIMName& name) const
 
 void CIMQualifierList::resolve(
     DeclContext* declContext,
-    const String& nameSpace,
+    const CIMNamespaceName & nameSpace,
     CIMScope scope, 			 // Scope of the entity being resolved.
     Boolean isInstancePart,
     CIMQualifierList& inheritedQualifiers,
@@ -151,14 +152,14 @@ void CIMQualifierList::resolve(
 			nameSpace, q.getName());
 	
 		if (qd.isUninitialized())
-			throw UndeclaredQualifier(q.getName());
+			throw UndeclaredQualifier(q.getName().getString ());
 	
 		//----------------------------------------------------------------------
 		// 2. Check the type and isArray.  Must be the same:
 		//----------------------------------------------------------------------
 	
 		if (!(q.getType() == qd.getType() && q.isArray() == qd.isArray()))
-			throw BadQualifierType(q.getName());
+			throw BadQualifierType(q.getName().getString ());
 	
 		//----------------------------------------------------------------------
 		// 3. Check the scope: Must be legal for this qualifier
@@ -169,7 +170,8 @@ void CIMQualifierList::resolve(
 			// ks Mar 2002. Reinstalled 23 March 2002 to test.
 
 		if (!(qd.getScope().hasScope (scope)))
-			throw BadQualifierScope(qd.getName(), scope.toString ());
+			throw BadQualifierScope
+                            (qd.getName().getString (), scope.toString ());
 //#endif
 		//----------------------------------------------------------------------
 		// Resolve the qualifierflavor. Since Flavors are a combination of inheritance
@@ -234,7 +236,8 @@ void CIMQualifierList::resolve(
                                (CIMFlavor::OVERRIDABLE))
                            && (q.getFlavor ().hasFlavor
                                (CIMFlavor::OVERRIDABLE)))
-				throw BadQualifierOverride(q.getName());
+				throw BadQualifierOverride
+                                    (q.getName().getString ());
 
 			Resolver::resolveQualifierFlavor 
                             (q, CIMFlavor (qd.getFlavor ()), false);
@@ -257,7 +260,8 @@ void CIMQualifierList::resolve(
 			if (!(iq.getFlavor ().hasFlavor
                                (CIMFlavor::OVERRIDABLE)) 
                            && q.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE))
-				throw BadQualifierOverride(q.getName());
+				throw BadQualifierOverride
+                                    (q.getName().getString ());
 			
 			if (!(iq.getFlavor ().hasFlavor
                                (CIMFlavor::OVERRIDABLE)) 
@@ -276,7 +280,8 @@ void CIMQualifierList::resolve(
 				CIMValue qv = q.getValue();
 				CIMValue iqv = iq.getValue();
 				if(!(qv == iqv)) {
-					throw BadQualifierOverride(q.getName());
+					throw BadQualifierOverride
+                                            (q.getName().getString ());
 			  }
 			} 
 			//cout << iq.getFlavor()  << endl;

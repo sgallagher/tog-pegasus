@@ -49,82 +49,97 @@ void test01()
     //     string message = "Hello";
     // }
 
-    CIMClass class0("//localhost/root/cimv2:MyClass", "YourClass");
+    try
+    {
+        //
+        //  Invalid class name
+        //
+        CIMClass class0(CIMName ("//localhost/root/cimv2:MyClass"), 
+            CIMName ("YourClass"));
 
-    assert(class0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
+        assert(class0.getPath() == 
+            CIMObjectPath("//localhost/root/cimv2:MyClass"));
+    }
+    catch (InvalidNameException & ine)
+    {
+        if (verbose)
+        {
+	    cout << "Caught expected exception: " << ine.getMessage() << endl;
+        }
+    }
 
-    CIMClass class1("MyClass", "YourClass");
+    CIMClass class1(CIMName ("MyClass"), CIMName ("YourClass"));
 
     class1
-	.addQualifier(CIMQualifier("association", true))
-	.addQualifier(CIMQualifier("q1", Uint32(55)))
-	.addQualifier(CIMQualifier("q2", String("Hello")))
-	.addProperty(CIMProperty("message", String("Hello")))
-	.addProperty(CIMProperty("count", Uint32(77)))
-	.addMethod(CIMMethod("isActive", CIMTYPE_BOOLEAN)
-	    .addParameter(CIMParameter("hostname", CIMTYPE_STRING))
-	    .addParameter(CIMParameter("port", CIMTYPE_UINT32)));
+	.addQualifier(CIMQualifier(CIMName ("association"), true))
+	.addQualifier(CIMQualifier(CIMName ("q1"), Uint32(55)))
+	.addQualifier(CIMQualifier(CIMName ("q2"), String("Hello")))
+	.addProperty(CIMProperty(CIMName ("message"), String("Hello")))
+	.addProperty(CIMProperty(CIMName ("count"), Uint32(77)))
+	.addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
+	    .addParameter(CIMParameter(CIMName ("hostname"), CIMTYPE_STRING))
+	    .addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
 
     // Test the method count function
-    assert(class1.getClassName().equal("myclass"));
-    assert(class1.getSuperClassName() == "YourClass");
+    assert(class1.getClassName().equal(CIMName ("myclass")));
+    assert(class1.getSuperClassName() == CIMName ("YourClass"));
 
     assert(class1.getMethodCount() ==1);
 
 
     // Test the findMethod and isMethod functions
-    assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
-    assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
-    assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
-    assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
     // Now add another method and reconfirm.
 
-    class1.addMethod(CIMMethod("makeActive", CIMTYPE_BOOLEAN)
-	.addParameter(CIMParameter("hostname", CIMTYPE_STRING))
-	.addParameter(CIMParameter("port", CIMTYPE_UINT32)));
+    class1.addMethod(CIMMethod(CIMName ("makeActive"), CIMTYPE_BOOLEAN)
+	.addParameter(CIMParameter(CIMName ("hostname"), CIMTYPE_STRING))
+	.addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
 
     assert(class1.getMethodCount() == 2);
 
     // Test the findMethod and isMethod functions
     // with two methods defined
-    assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
-    assert(class1.findMethod("makeActive") != PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("makeActive")) != PEG_NOT_FOUND);
 
-    assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
-    assert(class1.findMethod("isActive") != PEG_NOT_FOUND);
-    assert(class1.findMethod("makeActive") != PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("makeActive")) != PEG_NOT_FOUND);
 
-    assert(class1.findMethod("DoesNotExist") == PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
 
     // Test RemoveMethod function
     Uint32 posMethod;
-    posMethod = class1.findMethod("isActive");
+    posMethod = class1.findMethod(CIMName ("isActive"));
     assert(posMethod != PEG_NOT_FOUND);
 
     class1.removeMethod(posMethod);
 
-    assert(class1.findMethod("isActive") == PEG_NOT_FOUND);
+    assert(class1.findMethod(CIMName ("isActive")) == PEG_NOT_FOUND);
     assert(class1.getMethodCount() == 1);
 
     //ATTN: P3 TODO add tests for different case names
 
     //Qualifier manipulation tests  (find, remove)
 
-    assert(class1.findQualifier("q1") != PEG_NOT_FOUND);
-    assert(class1.findQualifier("q2") != PEG_NOT_FOUND);
-    assert(class1.findQualifier("qx") == PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("qx")) == PEG_NOT_FOUND);
 
-    assert(class1.findQualifier("q1") != PEG_NOT_FOUND);
-    assert(class1.findQualifier("q2") != PEG_NOT_FOUND);
-    assert(class1.findQualifier("association") != PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("association")) != PEG_NOT_FOUND);
     assert(class1.isAssociation());
 
     // Remove middle Qualifier "q2"
     Uint32 posQualifier;
-    posQualifier = class1.findQualifier("q2");
+    posQualifier = class1.findQualifier(CIMName ("q2"));
     CIMConstQualifier qconst = class1.getQualifier(posQualifier);
 
     assert(class1.getQualifierCount() == 3);
@@ -132,22 +147,22 @@ void test01()
     class1.removeQualifier(posQualifier);
     assert(class1.getQualifierCount() == 2);
 
-    assert(class1.findQualifier("q2") == PEG_NOT_FOUND);
-    assert(class1.findQualifier("q1") != PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
     assert(class1.isAssociation());
 
 
     // Remove the first parameter "q1"
-    posQualifier = class1.findQualifier("q1");
+    posQualifier = class1.findQualifier(CIMName ("q1"));
 
     assert(class1.getQualifierCount() == 2);
-    CIMQualifier cq = class1.getQualifier( class1.findQualifier("q1"));
+    CIMQualifier cq = class1.getQualifier( class1.findQualifier(CIMName ("q1")));
     assert(posQualifier <= class1.getQualifierCount());
     class1.removeQualifier(posQualifier);
     assert(class1.getQualifierCount() == 1);
 
-    assert(class1.findQualifier("q1") == PEG_NOT_FOUND);
-    assert(class1.findQualifier("q2") == PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
+    assert(class1.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
     assert(class1.isAssociation());
 
 
@@ -157,23 +172,24 @@ void test01()
 
     //The property manipulation tests.
 
-    assert(class1.findProperty("count") != PEG_NOT_FOUND);
-    assert(class1.findProperty("message") != PEG_NOT_FOUND);
+    assert(class1.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
+    assert(class1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
 
-    assert(class1.findProperty("isActive") == PEG_NOT_FOUND);
+    assert(class1.findProperty(CIMName ("isActive")) == PEG_NOT_FOUND);
 
     assert(class1.getPropertyCount() == 2);
 
 
     Uint32  posProperty;
-    posProperty = class1.findProperty("count");
+    posProperty = class1.findProperty(CIMName ("count"));
     CIMConstProperty constprop = class1.getProperty(posProperty);
     class1.removeProperty(posProperty);
-    assert(class1.findProperty("message") != PEG_NOT_FOUND);
-    assert(class1.findProperty("count") == PEG_NOT_FOUND);
+    assert(class1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+    assert(class1.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
 
     assert(class1.getPropertyCount() == 1);
-    CIMProperty cp = class1.getProperty( class1.findProperty("message"));
+    CIMProperty cp = class1.getProperty( class1.findProperty
+        (CIMName ("message")));
 
 	if(verbose)
 	{
@@ -188,7 +204,7 @@ void test01()
     
     assert(!class1.isAbstract());
 
-    String squal("q1");
+    CIMName squal("q1");
     assert(class1.findQualifier(squal) == PEG_NOT_FOUND);
     
     assert(!class1.hasKeys());
@@ -196,14 +212,14 @@ void test01()
     Array<CIMName> keyNames;
     class1.getKeyNames(keyNames);
 
-    CIMClass c2("MyClass");
+    CIMClass c2(CIMName ("MyClass"));
 
-    assert(c2.getClassName().equal("myclass"));
+    assert(c2.getClassName().equal(CIMName ("myclass")));
 
 
     // Error uninitialized handle
-    c2.setSuperClassName("CIM_Element");
-    assert(c2.getSuperClassName() == "CIM_Element");
+    c2.setSuperClassName(CIMName ("CIM_Element"));
+    assert(c2.getSuperClassName() == CIMName ("CIM_Element"));
 
     CIMClass c3 = c2.clone();
     c3 = c2;
@@ -219,18 +235,18 @@ void test01()
 			cout << "Exception: " << e.getMessage() << endl;
     }
 
-    const CIMClass c4("MyClass", "YourClass");
+    const CIMClass c4(CIMName ("MyClass"), CIMName ("YourClass"));
 
-    CIMConstClass c5("MyClass", "YourClass");
-    CIMConstClass c6("MyClass");
+    CIMConstClass c5(CIMName ("MyClass"), CIMName ("YourClass"));
+    CIMConstClass c6(CIMName ("MyClass"));
     CIMConstClass cc7(c6);
     CIMClass c7 = c5.clone();
     const CIMClass c8(class1);
 
     // Test the findMethod and isMethod functions
-    assert(c7.findMethod("DoesNotExist") == PEG_NOT_FOUND);
+    assert(c7.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
-    assert(c7.findQualifier("dummy") == PEG_NOT_FOUND);
+    assert(c7.findQualifier(CIMName ("dummy")) == PEG_NOT_FOUND);
 
     try
     {
@@ -244,7 +260,8 @@ void test01()
 
     try
     {
-        CIMConstProperty ccp = c8.getProperty(c8.findProperty("count"));
+        CIMConstProperty ccp = c8.getProperty(c8.findProperty
+            (CIMName ("count")));
     }
     catch(IndexOutOfBoundsException& e)
     {
@@ -267,21 +284,22 @@ void test01()
 	    cout << "Exception: " << e.getMessage() << endl;
     }
     // Test the findMethod and isMethod functions
-    assert(c4.findMethod("DoesNotExist") == PEG_NOT_FOUND);
+    assert(c4.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
     //Qualifier manipulation tests  (find, remove)
 
-    assert(c4.findQualifier("qx") == PEG_NOT_FOUND);
+    assert(c4.findQualifier(CIMName ("qx")) == PEG_NOT_FOUND);
 
-    assert(c4.findQualifier("q1") == PEG_NOT_FOUND);
-    assert(c4.findQualifier("q2") == PEG_NOT_FOUND);
-    assert(c4.findQualifier("association") == PEG_NOT_FOUND);
+    assert(c4.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
+    assert(c4.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
+    assert(c4.findQualifier(CIMName ("association")) == PEG_NOT_FOUND);
 
-    posProperty = c4.findProperty("count");
+    posProperty = c4.findProperty(CIMName ("count"));
 
     try
     {
-        CIMConstQualifier ccq = c4.getQualifier(c4.findQualifier("q1"));
+        CIMConstQualifier ccq = c4.getQualifier(c4.findQualifier
+            (CIMName ("q1")));
     }
     catch (IndexOutOfBoundsException& e)
     {
@@ -289,27 +307,27 @@ void test01()
 			cout << "Exception: " << e.getMessage() << endl;
     }
 
-    assert(c4.findProperty("count") == PEG_NOT_FOUND);
+    assert(c4.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
 
-    assert(c4.getClassName() == "MyClass");
-    assert(c4.getClassName().equal("MyClass"));
-    assert(c4.getClassName().equal("MYCLASS"));
-    assert(c4.getClassName().equal("myclass"));
-    assert(!c4.getClassName().equal("blob"));
+    assert(c4.getClassName() == CIMName ("MyClass"));
+    assert(c4.getClassName().equal(CIMName ("MyClass")));
+    assert(c4.getClassName().equal(CIMName ("MYCLASS")));
+    assert(c4.getClassName().equal(CIMName ("myclass")));
+    assert(!c4.getClassName().equal(CIMName ("blob")));
 
 
-    assert(c4.getSuperClassName() == "YourClass");
+    assert(c4.getSuperClassName() == CIMName ("YourClass"));
 
     // test the setSuperClassName function
     /* ATTN KS 29 April.  This test has problems.  Relook later. Think test, not code.
-    c4.setSuperClassName("JunkClass"); 
-    assert(c4.getSuperClassName() == "JunkClass"); 
-    c4.setSuperClassName("YourClass");
+    c4.setSuperClassName(CIMName ("JunkClass")); 
+    assert(c4.getSuperClassName() == CIMName ("JunkClass")); 
+    c4.setSuperClassName(CIMName ("YourClass"));
     */
-    assert(c5.getSuperClassName() == "YourClass");
+    assert(c5.getSuperClassName() == CIMName ("YourClass"));
 
     assert(c5.getQualifierCount() == 0);
-    posQualifier = c5.findQualifier("q2");
+    posQualifier = c5.findQualifier(CIMName ("q2"));
 
     // throws out of bounds
     try

@@ -28,6 +28,8 @@
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company 
 //              (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +100,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -107,7 +109,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -115,7 +117,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -123,7 +125,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -131,7 +133,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -139,7 +141,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -147,7 +149,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -155,7 +157,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -163,7 +165,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -171,7 +173,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -179,7 +181,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -187,7 +189,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -195,7 +197,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -203,7 +205,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -211,7 +213,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -219,7 +221,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -227,7 +229,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -235,7 +237,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -243,7 +245,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -251,7 +253,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -259,7 +261,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -267,7 +269,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 
@@ -275,7 +277,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 Uint32 queueId,
 	 XmlParser& parser, 
 	 const String& messageId,
-	 const String& nameSpace,
+	 const CIMNamespaceName& nameSpace,
 	 const String& authType,
 	 const String& userName);
 

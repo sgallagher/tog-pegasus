@@ -54,18 +54,18 @@ int main(int argc, char** argv)
     //
     AssocClassTable::append(
         assocTablePath,
-	"Lineage",
-	"Person",
-	"parent",
-	"Person",
-	"child");
+	CIMName ("Lineage"),
+	CIMName ("Person"),
+	CIMName ("parent"),
+	CIMName ("Person"),
+	CIMName ("child"));
 
     //
     // delete class association 
     //
     AssocClassTable::deleteAssociation(
         assocTablePath,
-        "Lineage");
+        CIMName ("Lineage"));
 
     //
     // create instance association 
@@ -73,13 +73,13 @@ int main(int argc, char** argv)
     AssocInstTable::append(
         assocTablePath,
         "A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\"",
-        "A",
+        CIMName ("A"),
         "X.key=\"one\"",
-        "X",
-        "left",
-        "Y",
-        "right",
-        "Y.key=\"two\"");
+        CIMName ("X"),
+        CIMName ("left"),
+        "Y.key=\"two\"",
+        CIMName ("Y"),
+        CIMName ("right"));
 
     //
     // delete instance association 

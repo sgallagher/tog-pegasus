@@ -53,21 +53,21 @@ void test01()
 	// Ignore this!
     }
 
-    CIMClass c("MyClass");
+    CIMClass c(CIMName ("MyClass"));
 
     r.setQualifier(
-	NAMESPACE, CIMQualifierDecl("key", true, CIMScope::PROPERTY));
+	NAMESPACE, CIMQualifierDecl(CIMName ("key"), true, CIMScope::PROPERTY));
 
     c.addProperty(
-	CIMProperty("key", Uint32(0))
-	    .addQualifier(CIMQualifier("key", true)))
-	.addProperty(CIMProperty("ratio", Real32(1.5)))
-	.addProperty(CIMProperty("message", String("Hello World")));
+	CIMProperty(CIMName ("key"), Uint32(0))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
+	.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
     r.createClass(NAMESPACE, c);
 
     CIMConstClass cc;
-    cc = r.getClass("aa/bb", "MyClass");
+    cc = r.getClass(CIMNamespaceName ("aa/bb"), CIMName ("MyClass"));
 
     assert(c.identical(cc));
     assert(cc.identical(c));
@@ -104,12 +104,12 @@ void test02()
     CIMClass superClass(SUPERCLASS);
 
     superClass
-	.addProperty(CIMProperty("Last", String())
-	    .addQualifier(CIMQualifier("key", true)))
-	.addProperty(CIMProperty("First", String())
-	    .addQualifier(CIMQualifier("key", true)))
-	.addProperty(CIMProperty("Age", Uint8(0))
-	    .addQualifier(CIMQualifier("key", true)));
+	.addProperty(CIMProperty(CIMName ("Last"), String())
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("First"), String())
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("Age"), Uint8(0))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)));
 
     r.createClass(NAMESPACE, superClass);
 
@@ -118,7 +118,7 @@ void test02()
     //--------------------------------------------------------------------------
 
     CIMClass subClass(SUBCLASS, SUPERCLASS);
-    subClass.addProperty(CIMProperty("Role", String()));
+    subClass.addProperty(CIMProperty(CIMName ("Role"), String()));
     r.createClass(NAMESPACE, subClass);
 
     //--------------------------------------------------------------------------
@@ -126,10 +126,10 @@ void test02()
     //--------------------------------------------------------------------------
 
     CIMInstance subClassInstance(SUBCLASS);
-    subClassInstance.addProperty(CIMProperty("Last", String("Smith")));
-    subClassInstance.addProperty(CIMProperty("First", String("John")));
-    subClassInstance.addProperty(CIMProperty("Age", Uint8(101)));
-    subClassInstance.addProperty(CIMProperty("Role", String("Taylor")));
+    subClassInstance.addProperty(CIMProperty(CIMName ("Last"), String("Smith")));
+    subClassInstance.addProperty(CIMProperty(CIMName ("First"), String("John")));
+    subClassInstance.addProperty(CIMProperty(CIMName ("Age"), Uint8(101)));
+    subClassInstance.addProperty(CIMProperty(CIMName ("Role"), String("Taylor")));
     r.createInstance(NAMESPACE, subClassInstance);
 
     //--------------------------------------------------------------------------
@@ -173,12 +173,12 @@ void test02()
 //    String providerName = r.getProviderName();
 //    assert (providerName == "repository");
 
-    Array<String> subClassNames;
+    Array<CIMName> subClassNames;
     r.getSubClassNames(NAMESPACE, SUPERCLASS, true, subClassNames);
     assert(subClassNames.size() == 1);
     assert(subClassNames[0] == SUBCLASS);
 
-    Array<String> superClassNames;
+    Array<CIMName> superClassNames;
     r.getSuperClassNames(NAMESPACE, SUBCLASS, superClassNames);
     assert(superClassNames.size() == 1);
     assert(superClassNames[0] == SUPERCLASS);
@@ -199,7 +199,7 @@ void test03()
     CIMRepository r(repositoryRoot);
 
     Array<CIMObjectPath> names = r.associatorNames(
-	"root/cimv2",
+	CIMNamespaceName ("root/cimv2"),
 	CIMObjectPath ("X.key=\"John Smith\""));
 
     for (Uint32 i = 0; i < names.size(); i++)

@@ -54,6 +54,7 @@
 // Includes
 // ==========================================================================
 
+#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Client/CIMClient.h>
 #include "TestProcessProvider.h"
 #include "../ProcessPlatform.h"

@@ -37,10 +37,10 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/test";
-const String CLASSNAME = "PG_ProviderModule";
-const String CLASSNAME2 = "PG_Provider";
-const String CLASSNAME3 = "PG_ProviderCapabilities";
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/test");
+const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
+const CIMName CLASSNAME2 = CIMName ("PG_Provider");
+const CIMName CLASSNAME3 = CIMName ("PG_ProviderCapabilities");
 
 Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
 {
@@ -54,12 +54,16 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty("Name", String("providersModule1")));
-    cimInstance.addProperty(CIMProperty("Vendor", String("HP")));
-    cimInstance.addProperty(CIMProperty("Version", String("2.0")));
-    cimInstance.addProperty(CIMProperty("InterfaceType", String("PG_DefaultC++")));
-    cimInstance.addProperty(CIMProperty("InterfaceVersion", String("2.0")));
-    cimInstance.addProperty(CIMProperty("Location", String("/tmp/module1")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Name"), 
+        String("providersModule1")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), 
+        String("PG_DefaultC++")));
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), 
+        String("2.0")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Location"), 
+        String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
 
@@ -83,8 +87,10 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance2.addProperty(CIMProperty("Name", String("PG_ProviderInstance1")));
+    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+        String("providersModule1")));
+    cimInstance2.addProperty(CIMProperty(CIMName ("Name"), 
+        String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
 
@@ -123,13 +129,19 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty("ProviderName", String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty("CapabilityID", String("capability1")));
-    cimInstance3.addProperty(CIMProperty("ClassName", String("test_class1")));
-    cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
-    cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
-    cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+        String("providersModule1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), 
+        String("PG_ProviderInstance1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), 
+        String("capability1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), 
+        String("test_class1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), 
+        providerType));
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), 
+        supportedMethods));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
 
@@ -154,14 +166,16 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
     CIMInstance providerIns;
     CIMInstance providerModuleIns;
 
-    if (prmanager.lookupMethodProvider("test_namespace1", "test_class1", 
-	"test_method2", providerIns, providerModuleIns))
+    if (prmanager.lookupMethodProvider(CIMNamespaceName ("test_namespace1"), 
+        CIMName ("test_class1"), CIMName ("test_method2"), 
+        providerIns, providerModuleIns))
     {
 	providerIns.getProperty(providerIns.findProperty
-	    ("ProviderModuleName")).getValue().get(_providerModuleName);
+	    (CIMName ("ProviderModuleName"))).getValue().get
+            (_providerModuleName);
 
-	providerModuleIns.getProperty(providerModuleIns.findProperty("Name"))
-	    .getValue().get(_providerModuleName2);
+	providerModuleIns.getProperty(providerModuleIns.findProperty
+            (CIMName ("Name"))).getValue().get(_providerModuleName2);
 
 	if (String::equal(_providerModuleName, _providerModuleName2))
 	{

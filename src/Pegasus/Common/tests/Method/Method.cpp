@@ -46,45 +46,45 @@ int main(int argc, char** argv)
 
     try
     {
-	CIMMethod m1("getHostName", CIMTYPE_STRING);
-	m1.addQualifier(CIMQualifier("stuff", true));
-	m1.addQualifier(CIMQualifier("stuff2", true));
-	m1.addParameter(CIMParameter("ipaddress", CIMTYPE_STRING));
+	CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
+	m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
+	m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
+	m1.addParameter(CIMParameter(CIMName ("ipaddress"), CIMTYPE_STRING));
 
 
 	// Tests for Qualifiers
-	assert(m1.findQualifier("stuff") != PEG_NOT_FOUND);
-	assert(m1.findQualifier("stuff2") != PEG_NOT_FOUND);
-	assert(m1.findQualifier("stuff21") == PEG_NOT_FOUND);
-	assert(m1.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 	assert(m1.getQualifierCount() == 2);
 
-	assert(m1.findQualifier("stuff") != PEG_NOT_FOUND);
-	assert(m1.findQualifier("stuff2") != PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
-	assert(m1.findQualifier("stuff21") == PEG_NOT_FOUND);
-	assert(m1.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 
 	Uint32 posQualifier;
-	posQualifier = m1.findQualifier("stuff");
+	posQualifier = m1.findQualifier(CIMName ("stuff"));
 	assert(posQualifier != PEG_NOT_FOUND);
 	assert(posQualifier < m1.getQualifierCount());
 
 	m1.removeQualifier(posQualifier);
 	assert(m1.getQualifierCount() == 1);
-	assert(m1.findQualifier("stuff") == PEG_NOT_FOUND);
-	assert(m1.findQualifier("stuff2") != PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+	assert(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
         // Tests for Parameters
-        assert(m1.findParameter("ipaddress") != PEG_NOT_FOUND);
-        assert(m1.findParameter("noparam")  == PEG_NOT_FOUND);
+        assert(m1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
+        assert(m1.findParameter(CIMName ("noparam"))  == PEG_NOT_FOUND);
         assert(m1.getParameterCount()  == 1);
-        CIMParameter cp = m1.getParameter(m1.findParameter("ipaddress"));
-        assert(cp.getName() == "ipaddress");
+        CIMParameter cp = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
+        assert(cp.getName() == CIMName ("ipaddress"));
 
-        m1.removeParameter (m1.findParameter ("ipaddress"));
+        m1.removeParameter (m1.findParameter (CIMName (CIMName ("ipaddress"))));
         assert (m1.getParameterCount ()  == 0);
-        m1.addParameter (CIMParameter ("ipaddress", CIMTYPE_STRING));
+        m1.addParameter (CIMParameter (CIMName ("ipaddress"), CIMTYPE_STRING));
         assert (m1.getParameterCount ()  == 1);
  
         // throws OutOfBounds
@@ -101,38 +101,38 @@ int main(int argc, char** argv)
             }
         }
 
-        CIMMethod m2("test", CIMTYPE_STRING);
-        m2.setName("getVersion");
-        assert(m2.getName() == "getVersion");
+        CIMMethod m2(CIMName ("test"), CIMTYPE_STRING);
+        m2.setName(CIMName ("getVersion"));
+        assert(m2.getName() == CIMName ("getVersion"));
 
         m2.setType(CIMTYPE_STRING);
         assert(m2.getType() == CIMTYPE_STRING);
 
-        m2.setClassOrigin("test");
-        assert(m2.getClassOrigin() == "test");
+        m2.setClassOrigin(CIMName ("test"));
+        assert(m2.getClassOrigin() == CIMName ("test"));
 
         m2.setPropagated(true);
         assert(m2.getPropagated() == true);
 
         const CIMMethod cm1(m1);
-	assert(cm1.findQualifier("stuff21") == PEG_NOT_FOUND);
-	assert(cm1.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(cm1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	assert(cm1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
         assert((cm1.getParameterCount() != 3));
-        assert(cm1.findParameter("ipaddress") != PEG_NOT_FOUND);
-        assert(cm1.findQualifier("stuff") == PEG_NOT_FOUND);
+        assert(cm1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
+        assert(cm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
         
         CIMQualifier q = m1.getQualifier(posQualifier);
-        CIMConstParameter ccp = cm1.getParameter(cm1.findParameter("ipaddress"));
-        assert(cm1.getName() == "getHostName");
+        CIMConstParameter ccp = cm1.getParameter(cm1.findParameter(CIMName ("ipaddress")));
+        assert(cm1.getName() == CIMName ("getHostName"));
         assert(cm1.getType() == CIMTYPE_STRING);
-        assert(!(cm1.getClassOrigin() == "test"));
+        assert(!(cm1.getClassOrigin() == CIMName ("test")));
         assert(!cm1.getPropagated() == true);
         assert(!m1.identical(m2));
 
         // throws OutOfBounds
         try
         {
-            CIMConstParameter p = cm1.getParameter(cm1.findParameter("ipaddress"));
+            CIMConstParameter p = cm1.getParameter(cm1.findParameter(CIMName ("ipaddress")));
         }
         catch(IndexOutOfBoundsException& e)
         {
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
         // throws OutOfBounds
         try
         {
-            CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier("abstract"));
+            CIMConstQualifier q = cm1.getQualifier(cm1.findQualifier(CIMName ("abstract")));
         }
         catch(IndexOutOfBoundsException& e)
         {
@@ -164,17 +164,17 @@ int main(int argc, char** argv)
         CIMMethod m4;
         CIMMethod m5(m4);
 
-        CIMConstMethod ccm1("getHostName",CIMTYPE_STRING);
+        CIMConstMethod ccm1(CIMName ("getHostName"),CIMTYPE_STRING);
         assert(!(ccm1.getParameterCount() == 3));
 
-        assert(ccm1.getName() == "getHostName");
+        assert(ccm1.getName() == CIMName ("getHostName"));
         assert(ccm1.getType() == CIMTYPE_STRING);
-        assert(!(ccm1.getClassOrigin() == "test"));
+        assert(!(ccm1.getClassOrigin() == CIMName ("test")));
         assert(!ccm1.getPropagated() == true);
         assert(!(ccm1.getParameterCount() == 3));
         assert(ccm1.getQualifierCount() == 0);
-        assert(ccm1.findQualifier("Stuff") == PEG_NOT_FOUND);
-        assert(ccm1.findParameter("ipaddress") == PEG_NOT_FOUND);
+        assert(ccm1.findQualifier(CIMName ("Stuff")) == PEG_NOT_FOUND);
+        assert(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
 
         if (verbose)
         {
@@ -190,8 +190,8 @@ int main(int argc, char** argv)
         ccm3 = ccm1.clone();
         ccm1 = ccm3;
         assert(ccm1.identical(ccm3));
-        assert(ccm1.findQualifier("stuff") == PEG_NOT_FOUND);
-        assert(ccm1.findParameter("ipaddress") == PEG_NOT_FOUND);
+        assert(ccm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+        assert(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
         
         nullMethod = ccm1.isUninitialized();
         assert(!nullMethod);
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
         // throws OutOfBounds
         try
         {
-            //CIMParameter p = m1.getParameter(m1.findParameter("ipaddress"));
+            //CIMParameter p = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
             CIMConstParameter p = ccm1.getParameter(0);
         }
         catch(IndexOutOfBoundsException& e)

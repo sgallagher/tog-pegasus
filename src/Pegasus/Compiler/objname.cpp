@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -271,12 +272,12 @@ modelPath::KeyBindingsToKeyString()
   Uint32 numkeys = _KeyBindings.size();
   for (Uint32 i = 0; i < numkeys; i++) {
     const CIMKeyBinding &kb = _KeyBindings[i];
-    const String &keyname = kb.getName();
+    const CIMName &keyname = kb.getName();
     CIMKeyBinding::Type keytype = kb.getType();
     const String &keyvalue = kb.getValue();
     if (i)
       stringrep.append(",");
-    stringrep.append(keyname + "=" +
+    stringrep.append(keyname.getString() + "=" +
                      (keytype == CIMKeyBinding::STRING ? "\"" : "") +
 		     keyvalue + 
 		     (keytype == CIMKeyBinding::STRING ? "\"" : ""));

@@ -517,7 +517,7 @@ cimmofParser::addClass(CIMClass *classdecl)
   int ret = 0;
   String message;
   cimmofMessages::arglist arglist;
-  arglist.append(classdecl->getClassName());
+  arglist.append(classdecl->getClassName().getString());
   if (_cmdline) {
     if (_cmdline->xml_output() ) 
     {
@@ -588,7 +588,7 @@ cimmofParser::newClassDecl(const CIMName &name, const CIMName &superclassname)
     c = new CIMClass(name, superclassname);
   } catch(CIMException &e) {
     cimmofMessages::arglist arglist;
-    arglist.append(name);
+    arglist.append(name.getString());
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_CLASS_ERROR,
@@ -705,7 +705,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
   int ret  = 0;
   cimmofMessages::arglist arglist;
   if (qualifier)
-    arglist.append(qualifier->getName());
+    arglist.append(qualifier->getName().getString());
   String message;
   if (_cmdline) {
     if (_cmdline->xml_output()) 
@@ -795,14 +795,14 @@ cimmofParser::newQualifier(const String &name, const CIMValue &value,
 // use it to modify an existing instance
 //----------------------------------------------------------------------
 CIMInstance *
-cimmofParser::newInstance(const String &className)
+cimmofParser::newInstance(const CIMName &className)
 {
   CIMInstance *instance = 0;
   try {
     instance = new CIMInstance(className);
   } catch (Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.append(className);
+    arglist.append(className.getString());
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_INSTANCE_ERROR,
@@ -832,7 +832,7 @@ cimmofParser::newProperty(const CIMName &name, const CIMValue &val,
     p = new CIMProperty(name, val, arraySize, referencedObject);
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.append(name);
+    arglist.append(name.getString());
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_PROPERTY_ERROR,
@@ -851,8 +851,8 @@ int
 cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
 {
   cimmofMessages::arglist arglist;
-  arglist.append(c.getClassName());
-  arglist.append(p.getName());
+  arglist.append(c.getClassName().getString());
+  arglist.append(p.getName().getString());
   String message;
   try {
     c.addProperty(p);
@@ -887,9 +887,9 @@ int
 cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
 {
   cimmofMessages::arglist arglist;
-  const String &propertyName = p.getName();
-  arglist.append(i.getClassName());
-  arglist.append(propertyName);
+  const CIMName &propertyName = p.getName();
+  arglist.append(i.getClassName().getString());
+  arglist.append(propertyName.getString());
   String message;
   Boolean err_out = false;
   try {
@@ -935,7 +935,7 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
   cimmofMessages::arglist arglist;
   String message;
   CIMProperty *newprop = 0;
-  arglist.append(p.getName());  
+  arglist.append(p.getName().getString());  
   try {
     newprop = new CIMProperty(p);
     newprop->setValue(v);
@@ -963,7 +963,7 @@ cimmofParser::newMethod(const CIMName &name, const CIMType type)
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
     String message;
-    arglist.append(name);
+    arglist.append(name.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::NEW_METHOD_ERROR,
 			       arglist);
@@ -981,8 +981,8 @@ int
 cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
   cimmofMessages::arglist arglist;
   String message;
-  arglist.append(m.getName());
-  arglist.append(c.getClassName());
+  arglist.append(m.getName().getString());
+  arglist.append(c.getClassName().getString());
   try {
     c.addMethod(m);
   } catch(UninitializedObjectException) {
@@ -1017,7 +1017,7 @@ cimmofParser::newParameter(const CIMName &name, const CIMType type,
     p = new CIMParameter(name, type, isArray, array, objName);
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
-    arglist.append(name);
+    arglist.append(name.getString());
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_PARAMETER_ERROR,
@@ -1035,8 +1035,8 @@ cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
   } catch(CIMException &e) {
     cimmofMessages::arglist arglist;
     String message;
-    arglist.append(p.getName());
-    arglist.append(m.getName());
+    arglist.append(p.getName().getString());
+    arglist.append(m.getName().getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::APPLY_PARAMETER_ERROR,
 			       arglist);
@@ -1049,7 +1049,7 @@ cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
 
 
 CIMValue *
-cimmofParser::QualifierValue(const String &qualifierName, 
+cimmofParser::QualifierValue(const CIMName &qualifierName, 
                              Boolean isNull,
                              const String &valstr)
 {
@@ -1060,7 +1060,7 @@ cimmofParser::QualifierValue(const String &qualifierName,
   catch (CIMException &e) {
     cimmofMessages::arglist arglist;
     String message;
-    arglist.append(qualifierName);
+    arglist.append(qualifierName.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::GET_QUALIFIER_DECL_ERROR,
@@ -1086,11 +1086,12 @@ cimmofParser::QualifierValue(const String &qualifierName,
 
 CIMProperty *
 cimmofParser::PropertyFromInstance(CIMInstance &instance,
-				  const String &propertyName) const
+				  const CIMName &propertyName) const
 {
   cimmofMessages::arglist arglist;
-  arglist.append(propertyName);
-  String className, message;
+  arglist.append(propertyName.getString());
+  CIMName className;
+  String message;
   try {
     Uint32 pos = instance.findProperty(propertyName);
     if (pos != (Uint32)-1) {
@@ -1112,7 +1113,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   try {
     className = instance.getClassName();
   } catch (Exception &e) {
-    arglist.append(className);
+    arglist.append(className.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::FIND_CLASS_OF_INSTANCE_ERROR,
@@ -1123,7 +1124,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   // OK, we got the className.  Use it to find the class object.
   try {
     Array<String> propertyList;
-    propertyList.append(propertyName);
+    propertyList.append(propertyName.getString());
     CIMClass c = _repository.getClass(getNamespacePath(), className); 
     Uint32 pos = c.findProperty(propertyName);
     if (pos != (Uint32)-1) {
@@ -1131,7 +1132,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
     }
   } catch (Exception &e) {
     arglist.append(getNamespacePath());
-    arglist.append(className);
+    arglist.append(className.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::GET_CLASS_PROPERTY_ERROR,
@@ -1148,7 +1149,7 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
 CIMValue *
 cimmofParser::ValueFromProperty(const CIMProperty &prop) const
 {
-  String propname;
+  CIMName propname;
   try {
     propname = prop.getName();
     const CIMValue &v = prop.getValue();
@@ -1156,7 +1157,7 @@ cimmofParser::ValueFromProperty(const CIMProperty &prop) const
   } catch (Exception &e) {
     cimmofMessages::arglist arglist;
     String message;
-    arglist.append(propname);
+    arglist.append(propname.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
 			       cimmofMessages::GET_PROPERTY_VALUE_ERROR,
@@ -1170,7 +1171,7 @@ cimmofParser::ValueFromProperty(const CIMProperty &prop) const
 
 CIMValue *
 cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
-					const String &propertyName)const
+					const CIMName &propertyName)const
 {
   CIMProperty *prop = PropertyFromInstance(instance, propertyName);
   CIMValue *value = ValueFromProperty(*prop);

@@ -23,7 +23,8 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -86,7 +87,8 @@ void sendmailIndicationHandler::handleIndication(
 {
 #ifdef PEGASUS_OS_HPUX
     //get destination for the indication
-    Uint32 pos = indicationHandlerInstance.findProperty("destination");
+    Uint32 pos = indicationHandlerInstance.findProperty
+        (CIMName ("destination"));
     if (pos == PEG_NOT_FOUND)
     {
         // ATTN: Deal with a malformed handler instance
@@ -115,7 +117,7 @@ void sendmailIndicationHandler::handleIndication(
         CIMConstProperty instanceProp = indicationInstance.getProperty(i);
         fprintf(sendmailFile,
                 "%s\t%s\n",
-                (const char *)String(instanceProp.getName()).getCString(),
+                (const char *)instanceProp.getName().getString().getCString(),
                 (const char *)instanceProp.getValue().toString().getCString());
     }
     fclose(sendmailFile);

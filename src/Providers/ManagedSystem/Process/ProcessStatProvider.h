@@ -31,6 +31,8 @@
 //         Jim Metcalfe, Hewlett-Packard Company
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -104,9 +106,10 @@ private:
 
   Array<CIMKeyBinding> _constructKeyBindings(const Process&);
 
-  CIMInstance _constructInstance(const String&, const String&, const Process&);
+  CIMInstance _constructInstance(const CIMName&, const CIMNamespaceName&, 
+      const Process&);
 
-  void _checkClass(String&);
+  void _checkClass(CIMName&);
 
   String &_getCSName(void);
 

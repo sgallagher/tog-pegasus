@@ -552,15 +552,15 @@ CIMEnumerateClassNamesResponseMessage* CIMOperationResponseDecoder::_decodeEnume
 	    messageId,
 	    cimException,
 	    QueueIdStack(),
-	    Array<String>()));
+	    Array<CIMName>()));
     }
     else
     {
-	Array<String> classNames;
+	Array<CIMName> classNames;
 
 	if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
 	{
-	    String className;
+	    CIMName className;
 
 	    while (XmlReader::getClassNameElement(parser, className, false))
 	        classNames.append(className);

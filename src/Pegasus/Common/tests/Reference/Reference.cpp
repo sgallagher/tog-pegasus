@@ -99,7 +99,7 @@ void test01()
 	    {
 			cout << "keyName= " <<  kbArray[i].getName() << " Value= " 
 				 << kbArray[i].getValue() << endl;
-		if ( kbArray[i].getName() == "B" )
+		if ( kbArray[i].getName() == CIMName ("B") )
 		{
 		    keyValue = kbArray[i].getValue();
 		    if(keyValue == "TRUE")
@@ -121,7 +121,8 @@ void test01()
 
     // Test building from component parts of CIM Reference.
     {
-	CIMObjectPath r1 ("atp:77", "root/cimv25", "TennisPlayer");
+	CIMObjectPath r1 ("atp:77", CIMNamespaceName ("root/cimv25"), 
+            CIMName ("TennisPlayer"));
 	CIMObjectPath r2 ("//atp:77/root/cimv25:TennisPlayer.");
 	//cout << "r1 " << r1.toString() << endl;
 	//cout << "r2 " << r2.toString() << endl;
@@ -141,8 +142,8 @@ void test01()
 	r1.setHost(hostName);
 	r1.setNameSpace(nameSpace);
 	r1.setClassName(className);
-	assert(r1.getClassName().equal("TENNISPLAYER"));
-	assert(!r1.getClassName().equal("blob"));
+	assert(r1.getClassName().equal(CIMName ("TENNISPLAYER")));
+	assert(!r1.getClassName().equal(CIMName ("blob")));
 
 
 	String newHostName = r1.getHost();

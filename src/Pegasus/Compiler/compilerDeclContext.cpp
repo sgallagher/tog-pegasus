@@ -107,7 +107,7 @@ const CIMClass *
 compilerDeclContext::_findClassInMemory(const CIMName &classname) const
 {
   for (unsigned int i = 0; i < _classes.size(); i++) {
-    if (String::equal(classname, (_classes[i]).getClassName()))
+    if (classname.equal (_classes[i].getClassName()))
 	return &(_classes[i]);
   }
   return 0;
@@ -117,7 +117,7 @@ const CIMQualifierDecl *
 compilerDeclContext::_findQualifierInMemory(const CIMName &classname) const
 {
   for (unsigned int i = 0; i < _qualifiers.size(); i++) {
-    if (String::equal(classname, (_qualifiers[i]).getName()))
+    if (classname.equal (_qualifiers[i].getName()))
 	return &(_qualifiers[i]);
   }
   return 0;

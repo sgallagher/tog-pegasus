@@ -60,17 +60,17 @@ static const char COMMAND_NAME []                 = "cimauth";
 /**
     This constant represents the name of the User name property in the schema
 */
-static const char PROPERTY_NAME_USERNAME []       = "Username";
+static const CIMName PROPERTY_NAME_USERNAME        = CIMName ("Username");
 
 /**
     This constant represents the name of the Namespace property in the schema
 */
-static const char PROPERTY_NAME_NAMESPACE []      = "Namespace";
+static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
 
 /**
     This constant represents the name of the authorizations property in the schema
 */
-static const char PROPERTY_NAME_AUTHORIZATION []  = "Authorization";
+static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 
 /**
     The usage string for this command.  This string is displayed
@@ -1090,8 +1090,7 @@ void CIMAuthCommand::_RemoveAuthorization
 
                 for (Uint32 j = 0; j < kbArray.size(); j++)
                 {
-                    if ( String::equal(kbArray[j].getName(),
-                        PROPERTY_NAME_USERNAME) )
+                    if (kbArray[j].getName().equal (PROPERTY_NAME_USERNAME))
                     {
                         user = kbArray[j].getValue();
                     }

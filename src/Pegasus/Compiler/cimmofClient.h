@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -72,16 +73,22 @@ class PEGASUS_COMPILER_LINKAGE cimmofClient {
   virtual ~cimmofClient();
   void init(String &location,
 	    compilerCommonDefs::operationType ot);
-  virtual void addClass(const String &nameSpace, CIMClass &Class) const;
-  virtual void addQualifier(const String &nameSpace, CIMQualifierDecl &qual)
-    const;
-  virtual void addInstance(const String &nameSpace, CIMInstance &instance)
-    const;
-  virtual CIMQualifierDecl getQualifierDecl(const String &nameSpace,
-				const String &qualifierName) const;
-  virtual CIMClass getClass(const String &nameSpace, const String &className)
-    const;
-  virtual void createNameSpace(const String &nameSpace) const;
+  virtual void addClass(
+      const CIMNamespaceName &nameSpace, 
+      CIMClass &Class) const;
+  virtual void addQualifier(
+      const CIMNamespaceName &nameSpace, 
+      CIMQualifierDecl &qual) const;
+  virtual void addInstance(
+      const CIMNamespaceName &nameSpace, 
+      CIMInstance &instance) const;
+  virtual CIMQualifierDecl getQualifierDecl(
+      const CIMNamespaceName &nameSpace,
+      const CIMName &qualifierName) const;
+  virtual CIMClass getClass(
+      const CIMNamespaceName &nameSpace, 
+      const CIMName &className) const;
+  virtual void createNameSpace(const CIMNamespaceName &nameSpace) const;
 };
 
 PEGASUS_NAMESPACE_END

@@ -28,6 +28,8 @@
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
 //              Mike Glantz         <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -86,14 +88,14 @@ void ComputerSystemProvider::getInstance(
     const CIMPropertyList& propertyList,
     InstanceResponseHandler &handler)
 {
-    String className = ref.getClassName();
+    CIMName className = ref.getClassName();
     _checkClass(className);
 
     Array<CIMKeyBinding> keys = ref.getKeyBindings();
 
     //-- make sure we're the right instance
     unsigned int keyCount = NUMKEYS_COMPUTER_SYSTEM;
-    String keyName;
+    CIMName keyName;
     String keyValue;
 
     if (keys.size() != keyCount)
@@ -104,7 +106,7 @@ void ComputerSystemProvider::getInstance(
          keyName = keys[ii].getName();
          keyValue = keys[ii].getValue();
 
-         if ( String::equalNoCase(keyName,PROPERTY_CREATION_CLASS_NAME) &&
+         if (keyName.equal (PROPERTY_CREATION_CLASS_NAME) &&
               (String::equalNoCase(keyValue,CLASS_CIM_COMPUTER_SYSTEM) ||
                String::equalNoCase(keyValue,CLASS_CIM_UNITARY_COMPUTER_SYSTEM) ||
                String::equalNoCase(keyValue,CLASS_EXTENDED_COMPUTER_SYSTEM) ||
@@ -112,7 +114,7 @@ void ComputerSystemProvider::getInstance(
          {
               keyCount--;
          }
-         else if ( String::equalNoCase(keyName,"Name") &&
+         else if (keyName.equal ("Name") &&
                    String::equalNoCase(keyValue,_cs.getHostName()) )
          {
               keyCount--;
@@ -142,13 +144,13 @@ void ComputerSystemProvider::enumerateInstances(
 			        const CIMPropertyList& propertyList,
 			        InstanceResponseHandler& handler)
 {
-    String className = ref.getClassName();
+    CIMName className = ref.getClassName();
     _checkClass(className);
 
     handler.processing();
 
     // Deliver instance only if request was for leaf class
-    if (String::equalNoCase(className,CLASS_EXTENDED_COMPUTER_SYSTEM))
+    if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
       CIMInstance instance = _buildInstance(CLASS_EXTENDED_COMPUTER_SYSTEM);
       handler.deliver(instance);
@@ -163,13 +165,13 @@ void ComputerSystemProvider::enumerateInstanceNames(
 			  	const CIMObjectPath &ref,
 			  	ObjectPathResponseHandler& handler )
 {
-    String className = ref.getClassName();
+    CIMName className = ref.getClassName();
     _checkClass(className);
 
     handler.processing();
 
     // Deliver instance only if request was for leaf class
-    if (String::equalNoCase(className,CLASS_EXTENDED_COMPUTER_SYSTEM))
+    if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
       Array<CIMKeyBinding> keys;
 
@@ -234,7 +236,7 @@ void ComputerSystemProvider::terminate(void)
 }
 
 
-CIMInstance ComputerSystemProvider::_buildInstance(const String& className)
+CIMInstance ComputerSystemProvider::_buildInstance(const CIMName& className)
 {
     CIMInstance instance(className);
     CIMProperty p;
@@ -271,7 +273,7 @@ CIMInstance ComputerSystemProvider::_buildInstance(const String& className)
     if (_cs.getPowerManagementCapabilities(p)) instance.addProperty(p);
 
     // Done if we are servicing CIM_ComputerSystem
-    if (String::equalNoCase(className,CLASS_CIM_COMPUTER_SYSTEM))
+    if (className.equal (CLASS_CIM_COMPUTER_SYSTEM))
       return instance;
 
     // Fill in properties for CIM_UnitaryComputerSystem
@@ -286,11 +288,11 @@ CIMInstance ComputerSystemProvider::_buildInstance(const String& className)
     if (_cs.getWakeUpType(p)) instance.addProperty(p);
 
     // Done if we are servicing CIM_UnitaryComputerSystem
-    if (String::equalNoCase(className,CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
+    if (className.equal (CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
       return instance;
 
     // Fill in properties for <Extended>_ComputerSystem
-    if (String::equalNoCase(className,CLASS_EXTENDED_COMPUTER_SYSTEM))
+    if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
        if(_cs.getPrimaryOwnerPager(p)) instance.addProperty(p);
        if(_cs.getSecondaryOwnerName(p)) instance.addProperty(p);
@@ -302,11 +304,11 @@ CIMInstance ComputerSystemProvider::_buildInstance(const String& className)
     return instance;
 }
 
-void ComputerSystemProvider::_checkClass(String& className)
+void ComputerSystemProvider::_checkClass(CIMName& className)
 {
-    if (!String::equalNoCase(className, CLASS_CIM_COMPUTER_SYSTEM) &&
-        !String::equalNoCase(className, CLASS_CIM_UNITARY_COMPUTER_SYSTEM) &&
-        !String::equalNoCase(className, CLASS_EXTENDED_COMPUTER_SYSTEM))
+    if (!className.equal (CLASS_CIM_COMPUTER_SYSTEM) &&
+        !className.equal (CLASS_CIM_UNITARY_COMPUTER_SYSTEM) &&
+        !className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
     {
         throw CIMNotSupportedException(String::EMPTY);
     }

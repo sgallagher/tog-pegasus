@@ -35,7 +35,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/cimv2";
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/cimv2");
 
 int main(int argc, char** argv)
 {
@@ -45,25 +45,30 @@ int main(int argc, char** argv)
       client.connect("localhost:5988", String::EMPTY, String::EMPTY);
       
       //Indication
-      CIMClass cimClass = client.getClass(NAMESPACE, "TestSoftwarePkg", false);
-      CIMInstance cimInstance("TestSoftwarePkg");
-      cimInstance.addProperty(CIMProperty("PkgName", String("WBEM")));
-      cimInstance.addProperty(CIMProperty("PkgIndex", Uint32(101)));
-      cimInstance.addProperty(CIMProperty("trapOid", String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
-      cimInstance.addProperty(CIMProperty("computerName", String("NU744781")));
+      CIMClass cimClass = client.getClass(NAMESPACE, 
+          CIMName ("TestSoftwarePkg"), false);
+      CIMInstance cimInstance(CIMName ("TestSoftwarePkg"));
+      cimInstance.addProperty(CIMProperty(CIMName ("PkgName"), String("WBEM")));
+      cimInstance.addProperty(CIMProperty(CIMName ("PkgIndex"), Uint32(101)));
+      cimInstance.addProperty(CIMProperty(CIMName ("trapOid"), 
+          String("1.3.6.1.4.1.11.2.3.1.7.0.4")));
+      cimInstance.addProperty(CIMProperty(CIMName ("computerName"), 
+          String("NU744781")));
       CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
       instanceName.setNameSpace(NAMESPACE);
       client.createInstance(NAMESPACE, cimInstance);
       
 	Array<CIMParamValue> inParams;
 	Array<CIMParamValue> outParams;
-	inParams.append(CIMParamValue("param1", CIMValue(String("Hewlett-Packard"))));
-	inParams.append(CIMParamValue("param2", CIMValue(String("California"))));
+	inParams.append(CIMParamValue("param1", 
+            CIMValue(String("Hewlett-Packard"))));
+	inParams.append(CIMParamValue("param2", 
+            CIMValue(String("California"))));
 	
 	CIMValue retValue = client.invokeMethod(
 	    NAMESPACE, 
 	    instanceName, 
-	    "ChangeName", 
+	    CIMName ("ChangeName"), 
 	    inParams, 
 	    outParams);
 

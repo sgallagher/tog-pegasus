@@ -25,6 +25,8 @@
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //            : Sushma Fernandes (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -225,14 +227,14 @@ void ConfigFileHandler::loadPlannedConfigProperties ()
     config file.  
 */
 Boolean ConfigFileHandler::updateCurrentValue (
-    const String& name, 
+    const CIMName& name, 
     const String& value,
     Boolean unset)
 {
     // Remove the old property name and value from the table
-    if (_currentConfig->table.contains(name))
+    if (_currentConfig->table.contains(name.getString()))
     {
-        if (!_currentConfig->table.remove(name))
+        if (!_currentConfig->table.remove(name.getString()))
         {
             return false;
         }
@@ -241,7 +243,7 @@ Boolean ConfigFileHandler::updateCurrentValue (
     if (!unset)
     {
         // Store the new property name and value in to the table
-        if (!_currentConfig->table.insert(name, value))
+        if (!_currentConfig->table.insert(name.getString(), value))
         {
             return false;
         }
@@ -278,16 +280,16 @@ Boolean ConfigFileHandler::updateCurrentValue (
     config file.  
 */
 Boolean ConfigFileHandler::updatePlannedValue (
-    const String& name, 
+    const CIMName& name, 
     const String& value,
     Boolean unset)
 {
     //
     // Remove the old property name and value from the table
     //
-    if (_plannedConfig->table.contains(name))
+    if (_plannedConfig->table.contains(name.getString()))
     {
-        if (!_plannedConfig->table.remove(name))
+        if (!_plannedConfig->table.remove(name.getString()))
         {
             return false;
         }
@@ -298,7 +300,7 @@ Boolean ConfigFileHandler::updatePlannedValue (
         //
         // Store the new property name and value in to the table
         //
-        if (!_plannedConfig->table.insert(name, value))
+        if (!_plannedConfig->table.insert(name.getString(), value))
         {
             return false;
         }
@@ -352,11 +354,11 @@ Boolean ConfigFileHandler::updatePlannedValue (
 /** 
     Get the current property value for the specified property name. 
 */
-Boolean ConfigFileHandler::getCurrentValue (const String& name, String& value)
+Boolean ConfigFileHandler::getCurrentValue (const CIMName& name, String& value)
 {
     if (_currentFileExist)
     {
-        return _currentConfig->table.lookup(name, value);
+        return _currentConfig->table.lookup(name.getString(), value);
     }
 
     return false;
@@ -366,11 +368,11 @@ Boolean ConfigFileHandler::getCurrentValue (const String& name, String& value)
 /** 
     Get the planned property value for the specified property name. 
 */
-Boolean ConfigFileHandler::getPlannedValue (const String& name, String& value)
+Boolean ConfigFileHandler::getPlannedValue (const CIMName& name, String& value)
 {
     if (_plannedFileExist)
     {
-        return _plannedConfig->table.lookup(name, value);
+        return _plannedConfig->table.lookup(name.getString(), value);
     }
 
     return false;
@@ -380,7 +382,7 @@ Boolean ConfigFileHandler::getPlannedValue (const String& name, String& value)
 /** 
     Get all current property names.
 */
-void ConfigFileHandler::getAllCurrentPropertyNames (Array<String>& propertyNames)
+void ConfigFileHandler::getAllCurrentPropertyNames (Array<CIMName>& propertyNames)
 {
     propertyNames.clear();
 
@@ -398,7 +400,7 @@ void ConfigFileHandler::getAllCurrentPropertyNames (Array<String>& propertyNames
     Get all current property names and values.
 */
 void ConfigFileHandler::getAllCurrentProperties (
-    Array<String>& propertyNames, 
+    Array<CIMName>& propertyNames, 
     Array<String>& propertyValues)
 {
     propertyNames.clear();
@@ -419,7 +421,7 @@ void ConfigFileHandler::getAllCurrentProperties (
     Get all planned property names and values.
 */
 void ConfigFileHandler::getAllPlannedPropertyNames (
-    Array<String>& propertyNames)
+    Array<CIMName>& propertyNames)
 {
     propertyNames.clear();
 
@@ -437,7 +439,7 @@ void ConfigFileHandler::getAllPlannedPropertyNames (
     Get all planned config property names and values.
 */
 void ConfigFileHandler::getAllPlannedProperties (
-    Array<String>& propertyNames, 
+    Array<CIMName>& propertyNames, 
     Array<String>& propertyValues)
 {
     propertyNames.clear();

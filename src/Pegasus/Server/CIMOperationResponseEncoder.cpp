@@ -27,6 +27,8 @@
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -136,7 +138,7 @@ void CIMOperationResponseEncoder::sendIMethodError(
 void CIMOperationResponseEncoder::sendMethodError(
    Uint32 queueId, 
    const String& messageId,
-   const String& methodName,
+   const CIMName& methodName,
    const CIMException& cimException)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -155,7 +157,7 @@ void CIMOperationResponseEncoder::sendMethodError(
 
 void CIMOperationResponseEncoder::sendMethodError(
    CIMResponseMessage* response,
-   const String& cimMethodName)
+   const CIMName& cimMethodName)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
                     "CIMOperationResponseEncoder::sendMethodError()");
@@ -340,7 +342,7 @@ void CIMOperationResponseEncoder::encodeCreateClassResponse(
    Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "CreateClass", response->messageId, body);
+      CIMName ("CreateClass"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -368,7 +370,7 @@ void CIMOperationResponseEncoder::encodeGetClassResponse(
    XmlWriter::appendClassElement(body, response->cimClass);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "GetClass", response->messageId, body);
+      CIMName ("GetClass"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -395,7 +397,7 @@ void CIMOperationResponseEncoder::encodeModifyClassResponse(
    Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "ModifyClass", response->messageId, body);
+      CIMName ("ModifyClass"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -425,7 +427,7 @@ void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
       XmlWriter::appendClassNameElement(body, response->classNames[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "EnumerateClassNames", response->messageId, body);
+      CIMName ("EnumerateClassNames"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -455,7 +457,7 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
       XmlWriter::appendClassElement(body, response->cimClasses[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "EnumerateClasses", response->messageId, body);
+      CIMName ("EnumerateClasses"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -481,7 +483,7 @@ void CIMOperationResponseEncoder::encodeDeleteClassResponse(
    Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "DeleteClass", response->messageId, body);
+      CIMName ("DeleteClass"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -509,7 +511,7 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
    XmlWriter::appendInstanceNameElement(body, response->instanceName);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "CreateInstance", response->messageId, body);
+      CIMName ("CreateInstance"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -536,7 +538,7 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
    XmlWriter::appendInstanceElement(body, response->cimInstance);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "GetInstance", response->messageId, body);
+      CIMName ("GetInstance"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -562,7 +564,7 @@ void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
    Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "ModifyInstance", response->messageId, body);
+      CIMName ("ModifyInstance"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -592,7 +594,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
           body, response->cimNamedInstances[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "EnumerateInstances", response->messageId, body);
+      CIMName ("EnumerateInstances"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -621,7 +623,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
       XmlWriter::appendInstanceNameElement(body, response->instanceNames[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "EnumerateInstanceNames", response->messageId, body);
+      CIMName ("EnumerateInstanceNames"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -647,7 +649,7 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
    Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "DeleteInstance", response->messageId, body);
+      CIMName ("DeleteInstance"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -674,7 +676,7 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
    XmlWriter::appendValueElement(body, response->value);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "GetProperty", response->messageId, body);
+      CIMName ("GetProperty"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -700,7 +702,7 @@ void CIMOperationResponseEncoder::encodeSetPropertyResponse(
    Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "SetProperty", response->messageId, body);
+      CIMName ("SetProperty"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -726,7 +728,7 @@ void CIMOperationResponseEncoder::encodeSetQualifierResponse(
    Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "SetQualifier", response->messageId, body);
+      CIMName ("SetQualifier"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -753,7 +755,7 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
    XmlWriter::appendQualifierDeclElement(body, response->cimQualifierDecl);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "GetQualifier", response->messageId, body);
+      CIMName ("GetQualifier"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -782,7 +784,7 @@ void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
       XmlWriter::appendQualifierDeclElement(body, response->qualifierDeclarations[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "EnumerateQualifiers", response->messageId, body);
+      CIMName ("EnumerateQualifiers"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -808,7 +810,7 @@ void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
    Array<Sint8> body;
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "DeleteQualifier", response->messageId, body);
+      CIMName ("DeleteQualifier"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -841,7 +843,7 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
    }
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "ReferenceNames", response->messageId, body);
+      CIMName ("ReferenceNames"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -870,7 +872,7 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "References", response->messageId, body);
+      CIMName ("References"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -903,7 +905,7 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
    }
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "AssociatorNames", response->messageId, body);
+      CIMName ("AssociatorNames"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -932,7 +934,7 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "Associators", response->messageId, body);
+      CIMName ("Associators"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -961,7 +963,7 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
       XmlWriter::appendValueObjectWithPathElement(body, response->cimObjects[i]);
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
-      "ExecQuery", response->messageId, body);
+      CIMName ("ExecQuery"), response->messageId, body);
 
    STAT_SERVEREND
 
@@ -1000,7 +1002,7 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
    }
 
    Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(
-      response->methodName.getCString(), response->messageId, body);
+       response->methodName, response->messageId, body);
 
    STAT_SERVEREND
 

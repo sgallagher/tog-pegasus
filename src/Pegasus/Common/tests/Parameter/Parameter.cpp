@@ -43,19 +43,19 @@ void test01()
     CIMParameter p;
     assert(p.isUninitialized());
 
-    CIMParameter p1("message", CIMTYPE_STRING);
-    p1.addQualifier(CIMQualifier("in", true));
+    CIMParameter p1(CIMName ("message"), CIMTYPE_STRING);
+    p1.addQualifier(CIMQualifier(CIMName ("in"), true));
 	if(verbose)
 		XmlWriter::printParameterElement(p1, cout);
 
-    CIMParameter p2("message2", CIMTYPE_STRING);
-    p2.addQualifier(CIMQualifier("in", true));
+    CIMParameter p2(CIMName ("message2"), CIMTYPE_STRING);
+    p2.addQualifier(CIMQualifier(CIMName ("in"), true));
 	if(verbose)
 		XmlWriter::printParameterElement(p2, cout);
 
-    CIMParameter p3("message3", CIMTYPE_STRING);
-    p3.setName("message3a");
-    assert(p3.getName() == "message3a");
+    CIMParameter p3(CIMName ("message3"), CIMTYPE_STRING);
+    p3.setName(CIMName ("message3a"));
+    assert(p3.getName() == CIMName ("message3a"));
 	if(verbose)
 		XmlWriter::printParameterElement(p3, cout);
     assert(p3.getType() == CIMTYPE_STRING);;
@@ -104,10 +104,10 @@ void test01()
     //
     // find qualifier
     //
-    assert(p1.findQualifier("in") != PEG_NOT_FOUND);
-    assert(p2.findQualifier("in") != PEG_NOT_FOUND);
-    assert(p2.findQualifier("none") == PEG_NOT_FOUND);
-    assert(p3.findQualifier("none") == PEG_NOT_FOUND);
+    assert(p1.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
+    assert(p2.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
+    assert(p2.findQualifier(CIMName ("none")) == PEG_NOT_FOUND);
+    assert(p3.findQualifier(CIMName ("none")) == PEG_NOT_FOUND);
 
     //
     // get qualifiers
@@ -120,10 +120,10 @@ void test01()
     //
     // remove qualifiers
     //
-    p1.removeQualifier (p1.findQualifier ("in"));
-    assert (p1.findQualifier ("in") == PEG_NOT_FOUND);
+    p1.removeQualifier (p1.findQualifier (CIMName ("in")));
+    assert (p1.findQualifier (CIMName ("in")) == PEG_NOT_FOUND);
     assert (p1.getQualifierCount () == 0);
-    p1.addQualifier (CIMQualifier ("in", true));
+    p1.addQualifier (CIMQualifier (CIMName ("in"), true));
 
     try
     {
@@ -158,12 +158,12 @@ void test01()
     CIMConstParameter cp1 = p1;
     CIMConstParameter cp2 = p2;
     CIMConstParameter cp3 = p3;
-    CIMConstParameter cp4("message4", CIMTYPE_STRING);
+    CIMConstParameter cp4(CIMName ("message4"), CIMTYPE_STRING);
 
 	if(verbose)
 		XmlWriter::printParameterElement(cp1, cout);
 
-    assert(cp3.getName() == "message3a");
+    assert(cp3.getName() == CIMName ("message3a"));
     assert(cp3.getType() == CIMTYPE_STRING);;
 
     const CIMParameter cp1clone = cp1.clone();
@@ -177,7 +177,7 @@ void test01()
     assert(cp1.isArray() == false);
     assert(cp1.getArraySize() == 0);
     assert(cp1.getQualifierCount() == 1);
-    assert(cp1.findQualifier("in") != PEG_NOT_FOUND);
+    assert(cp1.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
     CIMConstQualifier cq1 = cp1.getQualifier(0);
     assert(!cq1.isUninitialized());
 }

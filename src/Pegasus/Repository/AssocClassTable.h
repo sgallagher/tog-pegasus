@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,11 +53,11 @@ public:
     */
     static void append(
 	PEGASUS_STD(ofstream)& os,
-	const String& assocClassName,
-	const String& fromClassName,
-	const String& fromPropertyName,
-	const String& toClassName,
-	const String& toPropertyName);
+	const CIMName& assocClassName,
+	const CIMName& fromClassName,
+	const CIMName& fromPropertyName,
+	const CIMName& toClassName,
+	const CIMName& toPropertyName);
 
     /** Appends a row into the association class table. There is no checking
 	for duplicate entries (the caller ensures this). The case of the
@@ -64,11 +65,11 @@ public:
     */
     static void append(
 	const String& path,
-	const String& assocClassName,
-	const String& fromClassName,
-	const String& fromPropertyName,
-	const String& toClassName,
-	const String& toPropertyName);
+	const CIMName& assocClassName,
+	const CIMName& fromClassName,
+	const CIMName& fromPropertyName,
+	const CIMName& toClassName,
+	const CIMName& toPropertyName);
 
     /** Deletes the given association from the table by removing every entry
 	with the given assocClassName.
@@ -76,16 +77,16 @@ public:
     */
     static Boolean deleteAssociation(
 	const String& path,
-	const String& assocClassName);
+	const CIMName& assocClassName);
 
     /** Finds all associators of the given class. See 
 	CIMOperations::associators() for a full description.
     */
     static Boolean getAssociatorNames(
 	const String& path,
-	const String& className,
-        const String& assocClass,
-        const String& resultClass,
+	const CIMName& className,
+        const CIMName& assocClass,
+        const CIMName& resultClass,
         const String& role,
         const String& resultRole,
 	Array<String>& associatorNames);
@@ -96,8 +97,8 @@ public:
     */
     static Boolean getReferenceNames(
 	const String& path,
-	const String& className,
- 	const String& resultClass,
+	const CIMName& className,
+ 	const CIMName& resultClass,
  	const String& role,
 	Array<String>& referenceNames);
 

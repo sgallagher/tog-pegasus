@@ -154,22 +154,22 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 
     CIMException cimException;
 
-    if (request->indicationInstance.getClassName() ==
-	"PG_IndicationConsumerRegistration")
+    if (request->indicationInstance.getClassName().equal 
+	(CIMName ("PG_IndicationConsumerRegistration")))
     {
 	CIMInstance instance = request->indicationInstance;
-	if ((instance.findProperty("ConsumerId") != PEG_NOT_FOUND) &&
-	    (instance.findProperty("Location") != PEG_NOT_FOUND) &&
-	    (instance.findProperty("ActionType") != PEG_NOT_FOUND))
+	if ((instance.findProperty(CIMName ("ConsumerId")) != PEG_NOT_FOUND) &&
+	    (instance.findProperty(CIMName ("Location")) != PEG_NOT_FOUND) &&
+	    (instance.findProperty(CIMName ("ActionType")) != PEG_NOT_FOUND))
 	{
             String errorDescription;
 	    CIMStatusCode errorCode = _consumerTable.registerConsumer(
-		instance.getProperty(instance.findProperty("ConsumerId"))
-		    .getValue().toString(),
-		instance.getProperty(instance.findProperty("Location"))
-		    .getValue().toString(),
-		instance.getProperty(instance.findProperty("ActionType"))
-		    .getValue().toString(),
+		instance.getProperty(instance.findProperty
+                    (CIMName ("ConsumerId"))).getValue().toString(),
+		instance.getProperty(instance.findProperty
+                    (CIMName ("Location"))).getValue().toString(),
+		instance.getProperty(instance.findProperty
+                    (CIMName ("ActionType"))).getValue().toString(),
 		errorDescription);
 
             cimException = PEGASUS_CIM_EXCEPTION(errorCode, errorDescription);

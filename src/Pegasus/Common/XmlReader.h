@@ -108,7 +108,7 @@ public:
 	const char*& cimVersion,
 	const char*& dtdVersion);
 
-    static String getCimNameAttribute(
+    static CIMName getCimNameAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry,
 	const char* elementName,
@@ -223,7 +223,7 @@ public:
 
     static Boolean getNameSpaceElement(
 	XmlParser& parser,
-	String& nameSpaceComponent);
+	CIMName& nameSpaceComponent);
 
     static Boolean getLocalNameSpacePathElement(
 	XmlParser& parser,
@@ -236,7 +236,7 @@ public:
 
     static Boolean getClassNameElement(
 	XmlParser& parser,
-	String& className,
+	CIMName& className,
 	Boolean required = false);
 
     static CIMKeyBinding::Type getValueTypeAttribute(
@@ -251,7 +251,7 @@ public:
 
     static Boolean getKeyBindingElement(
 	XmlParser& parser,
-	String& name,
+	CIMName& name,
 	String& value,
 	CIMKeyBinding::Type& type);
 

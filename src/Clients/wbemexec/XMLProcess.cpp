@@ -130,8 +130,9 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     const char*                  cimVersion            = 0;
     const char*                  dtdVersion            = 0;
     String                       protocolVersion;
-    String                       className;
-    String                       methodName;
+    CIMName                      className;
+    CIMName                      methodName;
+    String                       instanceName;
     Array<Sint8>                 encoded;
     Array <Sint8>                objPath;
     Array<CIMKeyBinding>         keyBindings;
@@ -281,7 +282,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                 //
                 //  INSTANCENAME element
                 //
-                if (!XmlReader::getInstanceNameElement (parser, className,
+                if (!XmlReader::getInstanceNameElement (parser, instanceName,
                                                         keyBindings))
                 {
                     throw XmlValidationError (parser.getLine (), 
@@ -291,7 +292,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                 //
                 //  Append CLASSNAME portion of object path
                 //
-                objPath << className;
+                objPath << instanceName;
 
                 //
                 //  Append KEYBINDING portion of object path

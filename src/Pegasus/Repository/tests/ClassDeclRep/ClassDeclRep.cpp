@@ -56,30 +56,30 @@ void Test01()
 
     // Create a namespace:
 
-    const String NAMESPACE = "/zzz";
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
     r.createNameSpace(NAMESPACE);
 
     // Create a qualifier (and read it back):
 
-    CIMQualifierDecl q1("abstract", false, CIMScope::CLASS);
+    CIMQualifierDecl q1(CIMName ("abstract"), false, CIMScope::CLASS);
     r.setQualifier(NAMESPACE, q1);
 
-    CIMConstQualifierDecl q2 = r.getQualifier(NAMESPACE, "abstract");
+    CIMConstQualifierDecl q2 = r.getQualifier(NAMESPACE, CIMName ("abstract"));
     assert(q1.identical(q2));
 
     // Create two simple classes:
 
-    CIMClass class1("Class1");
-    class1.addQualifier(CIMQualifier("abstract", true));
-    CIMClass class2("Class2", "Class1");
+    CIMClass class1(CIMName ("Class1"));
+    class1.addQualifier(CIMQualifier(CIMName ("abstract"), true));
+    CIMClass class2(CIMName ("Class2"), CIMName ("Class1"));
 
     r.createClass(NAMESPACE, class1);
     r.createClass(NAMESPACE, class2);
 
     // Enumerate the class names:
 
-    Array<String> classNames = 
-	r.enumerateClassNames(NAMESPACE, String::EMPTY, true);
+    Array<CIMName> classNames = 
+	r.enumerateClassNames(NAMESPACE, CIMName (), true);
 
     BubbleSort(classNames);
 
@@ -87,15 +87,15 @@ void Test01()
 
     assert(classNames.size() == 2);
     // ATTN-RK-20020729: Remove CIMName cast when Repository uses CIMName
-    assert(CIMName(classNames[0]).equal("Class1"));
-    assert(CIMName(classNames[1]).equal("Class2"));
+    assert(CIMName(classNames[0]).equal(CIMName ("Class1")));
+    assert(CIMName(classNames[1]).equal(CIMName ("Class2")));
 
     // Attempt to delete Class1. It should fail since the class has
     // children.
 
     try
     {
-	r.deleteClass(NAMESPACE, "Class1");
+	r.deleteClass(NAMESPACE, CIMName ("Class1"));
     }
     catch (CIMException& e)
     {
@@ -104,8 +104,8 @@ void Test01()
 
     // Delete all classes created here:
 
-    r.deleteClass(NAMESPACE, "Class2");
-    r.deleteClass(NAMESPACE, "Class1");
+    r.deleteClass(NAMESPACE, CIMName ("Class2"));
+    r.deleteClass(NAMESPACE, CIMName ("Class1"));
 
     // Be sure the class files are really gone:
 

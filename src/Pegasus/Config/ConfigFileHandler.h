@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -135,7 +136,7 @@ public:
     @return true   if the property updated successfully, else false.
     */
     Boolean updateCurrentValue(
-        const String& name,
+        const CIMName& name,
         const String& value,
         Boolean unset);
 
@@ -150,7 +151,7 @@ public:
     @return true   if the property updated successfully, else false.
     */
     Boolean updatePlannedValue(
-        const String& name,
+        const CIMName& name,
         const String& value,
         Boolean unset);
 
@@ -162,7 +163,7 @@ public:
     @param  value  value of the property (output parameter).
     @return true if the property is found and returned, false otherwise.
     */
-    Boolean getCurrentValue (const String& name, String& value);
+    Boolean getCurrentValue (const CIMName& name, String& value);
 
 
     /** 
@@ -172,7 +173,7 @@ public:
     @param  value  value of the property (output parameter).
     @return true if the property is found and returned, false otherwise.
     */
-    Boolean getPlannedValue (const String& name, String& value);
+    Boolean getPlannedValue (const CIMName& name, String& value);
 
 
     /** 
@@ -180,7 +181,7 @@ public:
 
     @param  propertyNames   string array to hold the property names.
     */
-    void getAllCurrentPropertyNames (Array<String>& propertyNames);
+    void getAllCurrentPropertyNames (Array<CIMName>& propertyNames);
 
 
     /** 
@@ -190,7 +191,7 @@ public:
     @param  propertyValues  string array to hold the property values.
     */
     void getAllCurrentProperties (
-        Array<String>& propertyNames, 
+        Array<CIMName>& propertyNames, 
         Array<String>& propertyValues);
 
 
@@ -199,7 +200,7 @@ public:
 
     @param  propertyNames   string array to hold the property names.
     */
-    void getAllPlannedPropertyNames (Array<String>& propertyNames);
+    void getAllPlannedPropertyNames (Array<CIMName>& propertyNames);
 
 
     /** 
@@ -209,7 +210,7 @@ public:
     @param  propertyValues  string array to hold the property values.
     */
     void getAllPlannedProperties(
-        Array<String>& propertyNames, 
+        Array<CIMName>& propertyNames, 
         Array<String>& propertyValues);
 
 private:

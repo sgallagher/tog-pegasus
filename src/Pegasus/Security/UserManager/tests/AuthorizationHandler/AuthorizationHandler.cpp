@@ -47,9 +47,9 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 
-static const String GOOD_NAMESPACE       = "root/cimv2";
+static const CIMNamespaceName GOOD_NAMESPACE = CIMNamespaceName ("root/cimv2");
 
-static const String BAD_NAMESPACE        = "root/cimvx99";
+static const CIMNamespaceName BAD_NAMESPACE = CIMNamespaceName ("root/cimvx99");
 
 
 //
@@ -57,7 +57,7 @@ static const String BAD_NAMESPACE        = "root/cimvx99";
 //
 int main()
 {
-    String nameSpace = String::EMPTY;
+    CIMNamespaceName nameSpace = CIMNamespaceName ();
 
     String testUser = String::EMPTY;
 
@@ -91,10 +91,10 @@ int main()
     //
     try
     {
-        nameSpace.assign(BAD_NAMESPACE);
+        nameSpace = BAD_NAMESPACE;
         assert(!userManager->verifyNamespace(nameSpace));
 
-        nameSpace.assign(GOOD_NAMESPACE);
+        nameSpace = GOOD_NAMESPACE;
         assert(!userManager->verifyNamespace(nameSpace));
 
         userManager->setAuthorization(testUser, nameSpace, "rw");
@@ -120,12 +120,14 @@ int main()
 
         if (testUser != "root") 
            assert(userManager->verifyAuthorization(testUser, nameSpace, 
-                   "GetInstance"));
-        assert(!userManager->verifyAuthorization("root", nameSpace, "GetInstance"));
+                   CIMName ("GetInstance")));
+        assert(!userManager->verifyAuthorization("root", nameSpace, 
+            CIMName ("GetInstance")));
 
         userManager->setAuthorization("root", nameSpace, "r");
 
-        assert(!userManager->verifyAuthorization("root", nameSpace, "SetProperty"));
+        assert(!userManager->verifyAuthorization("root", nameSpace, 
+            CIMName ("SetProperty")));
 
         userManager->removeAuthorization("root", nameSpace);
         if (testUser != "root")

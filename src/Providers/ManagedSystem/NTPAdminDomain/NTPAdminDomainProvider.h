@@ -25,6 +25,8 @@
 //        
 //
 // Modified By: Jair Francisco T. dos Santos (t.dos.santos.francisco@non.hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //==============================================================================
 // This template was created from DNSAdminDomainProvider.h
 //%/////////////////////////////////////////////////////////////////////////
@@ -123,11 +125,11 @@ class NTPAdminDomainProvider: public CIMInstanceProvider,
 
     private:
           // Builds a reference (a set of Key,Value pairs)
-        CIMObjectPath _fill_reference(const String &nameSpace,
-                                       const String &className);
+        CIMObjectPath _fill_reference(const CIMNamespaceName &nameSpace,
+                                       const CIMName &className);
           // Builds a filled-in instance.
-        CIMInstance    _build_instance(const String & classname,
-                                    const String & nameSpace,
+        CIMInstance    _build_instance(const CIMName & classname,
+                                    const CIMNamespaceName & nameSpace,
                                     const Array<CIMKeyBinding> keys);
 };
 #endif

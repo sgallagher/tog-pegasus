@@ -50,44 +50,50 @@ static char * verbose;
 
 void test01()
 {
-    const String NAMESPACE = "/zzz";
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
 
     // Create and populate a declaration context:
 
     SimpleDeclContext* context = new SimpleDeclContext;
 
     context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl("counter", false, CIMScope::PROPERTY));
+	NAMESPACE, CIMQualifierDecl(CIMName ("counter"), false, 
+        CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl("classcounter", false, CIMScope::CLASS));
+	NAMESPACE, CIMQualifierDecl(CIMName ("classcounter"), false, 
+        CIMScope::CLASS));
 
 
     context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl("min", String(), CIMScope::PROPERTY));
+	NAMESPACE, CIMQualifierDecl(CIMName ("min"), String(), 
+        CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-	NAMESPACE, CIMQualifierDecl("max", String(), CIMScope::PROPERTY));
+	NAMESPACE, CIMQualifierDecl(CIMName ("max"), String(), 
+        CIMScope::PROPERTY));
 
     context->addQualifierDecl(NAMESPACE,
-	CIMQualifierDecl("Description", String(), CIMScope::PROPERTY));
+	CIMQualifierDecl(CIMName ("Description"), String(), 
+        CIMScope::PROPERTY));
 
-    CIMClass class1("MyClass");
+    CIMClass class1(CIMName ("MyClass"));
 
     class1
-	.addProperty(CIMProperty("count", Uint32(55))
-	    .addQualifier(CIMQualifier("counter", true))
-	    .addQualifier(CIMQualifier("min", String("0")))
-	    .addQualifier(CIMQualifier("max", String("1"))))
-	.addProperty(CIMProperty("message", String("Hello"))
-	    .addQualifier(CIMQualifier("description", String("My Message"))))
-	.addProperty(CIMProperty("ratio", Real32(1.5)));
+	.addProperty(CIMProperty(CIMName ("count"), Uint32(55))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))))
+	.addProperty(CIMProperty(CIMName ("message"), String("Hello"))
+	    .addQualifier(CIMQualifier(CIMName ("description"), 
+                String("My Message"))))
+	.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
 
 
     // Test
-    assert(class1.findProperty("count") != PEG_NOT_FOUND);
-    assert(class1.findProperty("message") != PEG_NOT_FOUND);
-    assert(class1.findProperty("ratio") != PEG_NOT_FOUND);
+    assert(class1.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
+    assert(class1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+    assert(class1.findProperty(CIMName ("ratio")) != PEG_NOT_FOUND);
 
     Resolver::resolveClass (class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
@@ -96,23 +102,23 @@ void test01()
 		XmlWriter::printClassElement(class1);
 	}
 
-    CIMInstance instance0("MyClass");
-    assert(instance0.getClassName().equal("MyClass"));
+    CIMInstance instance0(CIMName ("MyClass"));
+    assert(instance0.getClassName().equal(CIMName ("MyClass")));
     instance0.setPath(CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
     assert(instance0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
 
     assert(instance0.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
 
-    CIMInstance instance1("MyClass");
-    instance1.addQualifier(CIMQualifier("classcounter", true));
+    CIMInstance instance1(CIMName ("MyClass"));
+    instance1.addQualifier(CIMQualifier(CIMName ("classcounter"), true));
 
-    instance1.addProperty(CIMProperty("message", String("Goodbye")));
+    instance1.addProperty(CIMProperty(CIMName ("message"), String("Goodbye")));
 
-    assert(instance1.findProperty("message") != PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
 
-    assert(instance1.findProperty("count") == PEG_NOT_FOUND);
-    assert(instance1.findProperty("ratio") == PEG_NOT_FOUND);
-    assert(instance1.findProperty("nuts") == PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("ratio")) == PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("nuts")) == PEG_NOT_FOUND);
     assert(instance1.getPropertyCount() == 1);
 
 	if(verbose)
@@ -125,64 +131,66 @@ void test01()
 
     // Now test for properties after resolution.
 
-    assert(instance1.findProperty("message") != PEG_NOT_FOUND);
-    assert(instance1.findProperty("count") != PEG_NOT_FOUND);
-    assert(instance1.findProperty("ratio") != PEG_NOT_FOUND);
-    assert(instance1.findProperty("nuts") == PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("ratio")) != PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("nuts")) == PEG_NOT_FOUND);
 
     assert(instance1.getPropertyCount() == 3);
     // Now remove a property
 
     Uint32 posProperty;
-    posProperty = instance1.findProperty("count");
+    posProperty = instance1.findProperty(CIMName ("count"));
     instance1.removeProperty(posProperty);
 
-    assert(instance1.findProperty("message") != PEG_NOT_FOUND);
-    assert(instance1.findProperty("count") == PEG_NOT_FOUND);
-    assert(instance1.findProperty("ratio") != PEG_NOT_FOUND);
-    assert(instance1.findProperty("nuts") == PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("ratio")) != PEG_NOT_FOUND);
+    assert(instance1.findProperty(CIMName ("nuts")) == PEG_NOT_FOUND);
 
     assert(instance1.getPropertyCount() == 2);
  
     // SF-HP
 
-    CIMQualifier cq=instance1.getQualifier(instance1.findQualifier("classcounter"));
+    CIMQualifier cq=instance1.getQualifier(instance1.findQualifier
+        (CIMName ("classcounter")));
 
     const CIMInstance instance2 = instance1.clone();
     assert(instance2.identical(instance1));
-    assert(instance1.findQualifier("nuts") == PEG_NOT_FOUND);
-    assert(instance2.findQualifier("nuts") == PEG_NOT_FOUND);
+    assert(instance1.findQualifier(CIMName ("nuts")) == PEG_NOT_FOUND);
+    assert(instance2.findQualifier(CIMName ("nuts")) == PEG_NOT_FOUND);
     assert(instance1.getQualifierCount() != 4);
 
 	// Confirm that the classcounter qualifier is in instance 2
 	// NOTE: This is dangerous coding and generates an exception
 	// out of bounds error if the qualifier	does not exist.
     CIMConstQualifier ccq=
-          instance2.getQualifier(instance2.findQualifier("classcounter"));
+        instance2.getQualifier(instance2.findQualifier
+        (CIMName ("classcounter")));
 
 	if(verbose)
 		XmlWriter::printInstanceElement(instance2);
 
     // Tests for CIMConstInstance 
-    CIMConstInstance cinstance1("MyClass"), cinstance3;
+    CIMConstInstance cinstance1(CIMName ("MyClass")), cinstance3;
     CIMConstInstance ccopy(cinstance1);
 
     cinstance1 = instance1;
     assert(cinstance1.identical(instance1));
 
-    ccq = cinstance1.getQualifier(cinstance1.findQualifier("classcounter"));
-    assert(cinstance1.findProperty("message") != PEG_NOT_FOUND);
+    ccq = cinstance1.getQualifier(cinstance1.findQualifier(CIMName ("classcounter")));
+    assert(cinstance1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
     CIMConstProperty ccp = 
-           cinstance1.getProperty(cinstance1.findProperty("message"));
+           cinstance1.getProperty(cinstance1.findProperty(CIMName ("message")));
 
     cinstance3 = cinstance1;
     assert(cinstance3.identical(cinstance1));
 
-    assert(cinstance1.getClassName() == "MyClass");
-    assert(cinstance1.getClassName().equal("MyClass"));
-    assert(cinstance1.getClassName().equal("MYCLASS"));
-    assert(cinstance1.getClassName().equal("myclass"));
-    assert(!cinstance1.getClassName().equal("blob"));
+    assert(cinstance1.getClassName() == CIMName ("MyClass"));
+    assert(cinstance1.getClassName().equal(CIMName ("MyClass")));
+    assert(cinstance1.getClassName().equal(CIMName ("MYCLASS")));
+    assert(cinstance1.getClassName().equal(CIMName ("myclass")));
+    assert(!cinstance1.getClassName().equal(CIMName ("blob")));
 
 
 
@@ -205,27 +213,27 @@ void test01()
 
 void test02()
 {
-    const String NAMESPACE = "/zzz";
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
 
-    CIMClass cimClass("MyClass");
+    CIMClass cimClass(CIMName ("MyClass"));
 
     cimClass
-	.addProperty(CIMProperty("Last", String())
-	    .addQualifier(CIMQualifier("key", true)))
-	.addProperty(CIMProperty("First", String())
-	    .addQualifier(CIMQualifier("key", true)))
-	.addProperty(CIMProperty("Age", String())
-	    .addQualifier(CIMQualifier("key", true)));
+	.addProperty(CIMProperty(CIMName ("Last"), String())
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("First"), String())
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("Age"), String())
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)));
 
-    CIMInstance cimInstance("MyClass");
-    cimInstance.addProperty(CIMProperty("first", String("John")));
-    cimInstance.addProperty(CIMProperty("last", String("Smith")));
-    cimInstance.addProperty(CIMProperty("age", Uint8(101)));
+    CIMInstance cimInstance(CIMName ("MyClass"));
+    cimInstance.addProperty(CIMProperty(CIMName ("first"), String("John")));
+    cimInstance.addProperty(CIMProperty(CIMName ("last"), String("Smith")));
+    cimInstance.addProperty(CIMProperty(CIMName ("age"), Uint8(101)));
 
 
-    assert(cimInstance.findProperty("first") != PEG_NOT_FOUND);
-    assert(cimInstance.findProperty("last") != PEG_NOT_FOUND);
-    assert(cimInstance.findProperty("age") != PEG_NOT_FOUND);
+    assert(cimInstance.findProperty(CIMName ("first")) != PEG_NOT_FOUND);
+    assert(cimInstance.findProperty(CIMName ("last")) != PEG_NOT_FOUND);
+    assert(cimInstance.findProperty(CIMName ("age")) != PEG_NOT_FOUND);
 
     assert(cimInstance.getPropertyCount() == 3);
 

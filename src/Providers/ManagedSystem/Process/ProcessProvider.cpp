@@ -186,8 +186,8 @@ void ProcessProvider::enumerateInstances(
     // cout << "ProcessProvider::enumerateInstances()" << endl;
 
     int pIndex;
-    String className = classReference.getClassName();
-    String nameSpace = classReference.getNameSpace();
+    CIMName className = classReference.getClassName();
+    CIMNamespaceName nameSpace = classReference.getNameSpace();
     Process _p;
 
     // Validate the classname
@@ -198,7 +198,7 @@ void ProcessProvider::enumerateInstances(
 
     // We will only return instances on enumeration requests
     // to the "leaf" class
-    if (String::equalNoCase(className,CLASS_UNIX_PROCESS))
+    if (className.equal (CLASS_UNIX_PROCESS))
     {
       // Get the process information and construct and deliver
       // an instance for each process
@@ -238,8 +238,8 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
 
     int pIndex;
     Process _p;
-    String className = ref.getClassName();
-    String nameSpace = ref.getNameSpace();
+    CIMName className = ref.getClassName();
+    CIMNamespaceName nameSpace = ref.getNameSpace();
 
     // Validate the classname
     _checkClass(className);
@@ -249,7 +249,7 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
 
     // We are only going to respond to enumeration requests on
     // CLASS_UNIX_PROCESS
-    if (String::equalNoCase(className,CLASS_UNIX_PROCESS))
+    if (className.equal (CLASS_UNIX_PROCESS))
     {
       // Get the process information and deliver an ObjectPath for
       // each process
@@ -299,8 +299,8 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
   // cout << "ProcessProvider::getInstance(" << instanceName << ")" << endl;
 
   CIMKeyBinding kb;
-  String className = instanceName.getClassName();
-  String nameSpace = instanceName.getNameSpace();
+  CIMName className = instanceName.getClassName();
+  CIMNamespaceName nameSpace = instanceName.getNameSpace();
   String handle;
   int i;
   int keysFound; // this will be used as a bit array
@@ -324,69 +324,75 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
   {
     kb = kbArray[i];
 
-    String keyName = kb.getName();
+    CIMName keyName = kb.getName();
     String keyValue = kb.getValue();
 
     // CSCreationClassName can be empty or must match
-    if (String::equalNoCase(keyName, PROPERTY_CS_CREATION_CLASS_NAME))
+    if (keyName.equal (PROPERTY_CS_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
           String::equalNoCase(keyValue, CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
         keysFound |= 1;
       else
-        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 	
     // CSName can be empty or must match
-    else if (String::equalNoCase(keyName, PROPERTY_CS_NAME))
+    else if (keyName.equal (PROPERTY_CS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
           String::equalNoCase(keyValue, _getCSName()))
         keysFound |= 2;
       else
-        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 
     // OSCreationClassName can be empty or must match
-    else if (String::equalNoCase(keyName,PROPERTY_OS_CREATION_CLASS_NAME))
+    else if (keyName.equal (PROPERTY_OS_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
 	  String::equalNoCase(keyValue, CLASS_CIM_OPERATING_SYSTEM))
         keysFound |= 4;
       else
-        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 
     // OSName can be empty or must match
-    else if (String::equalNoCase(keyName, PROPERTY_OS_NAME))
+    else if (keyName.equal (PROPERTY_OS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
 	  String::equalNoCase(keyValue, _getOSName()))
         keysFound |= 8;
       else
-        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 
     // CreationClassName can be empty or must match
-    else if (String::equalNoCase(keyName, PROPERTY_CREATION_CLASS_NAME))
+    else if (keyName.equal (PROPERTY_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
 	  String::equalNoCase(keyValue, CLASS_UNIX_PROCESS))
         keysFound |= 16;
       else
-        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 
     // Handle must be a valid pid, but we will know that later
     // For now, just verify that it's present
-    else if (String::equalNoCase(keyName, PROPERTY_HANDLE))
+    else if (keyName.equal (PROPERTY_HANDLE))
     {
       handle = keyValue;
       keysFound |= 32;
     }
 
     // Key name was not recognized by any of the above tests
-    else throw CIMInvalidParameterException(keyName+ ": Unrecognized key");
+    else throw CIMInvalidParameterException(keyName.getString() + 
+        ": Unrecognized key");
 		
   } // for
 
@@ -540,9 +546,10 @@ Array<CIMKeyBinding> ProcessProvider::_constructKeyBindings(const Process& _p)
 // PARAMETERS        : className, Process
 // ================================================================================
 
-CIMInstance ProcessProvider::_constructInstance(const String &className,
-                                                const String &nameSpace,
-                                                const Process &_p)
+CIMInstance ProcessProvider::_constructInstance(
+    const CIMName &className,
+    const CIMNamespaceName &nameSpace,
+    const Process &_p)
 {
   String s;
   Array<String> as;
@@ -664,7 +671,7 @@ CIMInstance ProcessProvider::_constructInstance(const String &className,
 // return if the requested class was CIM_Process
 // =============================================
 
-  if (String::equalNoCase(className,CLASS_CIM_PROCESS)) return inst;
+  if (className.equal (CLASS_CIM_PROCESS)) return inst;
 
 // ===========================================
 // The following properties are in UnixProcess
@@ -758,9 +765,10 @@ POST-CONDITIONS   :
 NOTES             :
 ================================================================================
 */
-void ProcessProvider::_checkClass(String& className)
+void ProcessProvider::_checkClass(CIMName& className)
 {
-  if (!String::equalNoCase(className, CLASS_CIM_PROCESS) &&
-      !String::equalNoCase(className, CLASS_UNIX_PROCESS))
-    throw CIMNotSupportedException(className+": Class not supported");
+  if (!className.equal (CLASS_CIM_PROCESS) &&
+      !className.equal (CLASS_UNIX_PROCESS))
+    throw CIMNotSupportedException(className.getString() +
+        ": Class not supported");
 }

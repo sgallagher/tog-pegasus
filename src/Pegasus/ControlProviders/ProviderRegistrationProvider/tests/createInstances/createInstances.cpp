@@ -38,9 +38,9 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String CLASSNAME = "PG_ProviderModule";
-const String CLASSNAME2 = "PG_Provider";
-const String CLASSNAME3 = "PG_ProviderCapabilities";
+const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
+const CIMName CLASSNAME2 = CIMName ("PG_Provider");
+const CIMName CLASSNAME3 = CIMName ("PG_ProviderCapabilities");
 
 void TestCreateInstances(CIMClient& client)
 {
@@ -53,12 +53,16 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty("Name", String("providersModule1")));
-    cimInstance.addProperty(CIMProperty("Vendor", String("HP")));
-    cimInstance.addProperty(CIMProperty("Version", String("2.0")));
-    cimInstance.addProperty(CIMProperty("InterfaceType", String("PG_DefaultC++")));
-    cimInstance.addProperty(CIMProperty("InterfaceVersion", String("2.0")));
-    cimInstance.addProperty(CIMProperty("Location", String("/tmp/module1")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Name"), 
+        String("providersModule1")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), 
+        String("PG_DefaultC++")));
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), 
+        String("2.0")));
+    cimInstance.addProperty(CIMProperty(CIMName ("Location"), 
+        String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
 
@@ -82,8 +86,10 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance2.addProperty(CIMProperty("Name", String("PG_ProviderInstance1")));
+    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+        String("providersModule1")));
+    cimInstance2.addProperty(CIMProperty(CIMName ("Name"), 
+        String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
 
@@ -126,14 +132,21 @@ void TestCreateInstances(CIMClient& client)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty("ProviderName", String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty("CapabilityID", String("capability1")));
-    cimInstance3.addProperty(CIMProperty("ClassName", String("TestSoftwarePkg")));
-    cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
-    cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
-    cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
-    cimInstance3.addProperty(CIMProperty("SupportedProperties", supportedProperties));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+        String("providersModule1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), 
+        String("PG_ProviderInstance1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), 
+        String("capability1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), 
+        String("TestSoftwarePkg")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), 
+        providerType));
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), 
+        supportedMethods));
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedProperties"), 
+        supportedProperties));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
 
@@ -149,7 +162,8 @@ void TestCreateInstances(CIMClient& client)
         throw (e);
     }
 
-    CIMKeyBinding kb1("Name", "providersModule1", CIMKeyBinding::STRING);
+    CIMKeyBinding kb1(CIMName ("Name"), "providersModule1", 
+        CIMKeyBinding::STRING);
     Array<CIMKeyBinding> keys;
     keys.append(kb1);
 

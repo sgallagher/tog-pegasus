@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,10 +32,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const CIMName CIMQualifierNames::KEY = "key";
-const CIMName CIMQualifierNames::ABSTRACT = "abstract";
-const CIMName CIMQualifierNames::ASSOCIATION = "association";
-const CIMName CIMQualifierNames::INDICATION = "indication";
-const CIMName CIMQualifierNames::TERMINAL = "terminal";
+const CIMName CIMQualifierNames::KEY = CIMName ("key");
+const CIMName CIMQualifierNames::ABSTRACT = CIMName ("abstract");
+const CIMName CIMQualifierNames::ASSOCIATION = CIMName ("association");
+const CIMName CIMQualifierNames::INDICATION = CIMName ("indication");
+const CIMName CIMQualifierNames::TERMINAL = CIMName ("terminal");
 
 PEGASUS_NAMESPACE_END

@@ -27,6 +27,8 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company
 //                                (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -64,20 +66,20 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     The constants representing the string literals.
 */
-static const char PROPERTY_NAME []      = "PropertyName";
+static const CIMName PROPERTY_NAME       = CIMName ("PropertyName");
 
-static const char DEFAULT_VALUE []      = "DefaultValue";
+static const CIMName DEFAULT_VALUE       = CIMName ("DefaultValue");
 
-static const char CURRENT_VALUE []      = "CurrentValue";
+static const CIMName CURRENT_VALUE       = CIMName ("CurrentValue");
 
-static const char PLANNED_VALUE []      = "PlannedValue";
+static const CIMName PLANNED_VALUE       = CIMName ("PlannedValue");
 
-static const char DYNAMIC_PROPERTY []   = "DynamicProperty";
+static const CIMName DYNAMIC_PROPERTY    = CIMName ("DynamicProperty");
 
 /**
-    The constant represeting the config setting class name
+    The constant representing the config setting class name
 */
-static const char PG_CONFIG_SETTING [] = "PG_ConfigSetting";
+static const CIMName PG_CONFIG_SETTING  = CIMName ("PG_ConfigSetting");
 
 
 void ConfigSettingProvider::getInstance(
@@ -98,11 +100,11 @@ void ConfigSettingProvider::getInstance(
         //
         // check if the class name requested is PG_ConfigSetting
         //
-        if (!String::equalNoCase(PG_CONFIG_SETTING, instanceName.getClassName()))
+        if (!instanceName.getClassName().equal (PG_CONFIG_SETTING))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                        instanceName.getClassName());
+                instanceName.getClassName().getString());
         }
 
         //
@@ -110,7 +112,7 @@ void ConfigSettingProvider::getInstance(
         //
         Array<CIMKeyBinding> kbArray = instanceName.getKeyBindings();
         if ( (kbArray.size() != 1) ||
-             (!String::equalNoCase(kbArray[0].getName(), PROPERTY_NAME)) )
+             (!kbArray[0].getName().equal (PROPERTY_NAME)))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
@@ -200,12 +202,11 @@ void ConfigSettingProvider::modifyInstance(
         //
         // check if the class name requested is PG_ConfigSetting
         //
-        if (!String::equalNoCase(PG_CONFIG_SETTING,
-                                 instanceReference.getClassName()))
+        if (!instanceReference.getClassName().equal (PG_CONFIG_SETTING))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                        instanceReference.getClassName());
+                instanceReference.getClassName().getString());
         }
 
         //
@@ -213,7 +214,7 @@ void ConfigSettingProvider::modifyInstance(
         //
         Array<CIMKeyBinding> kbArray = instanceReference.getKeyBindings();
         if ( (kbArray.size() != 1) ||
-             (!String::equalNoCase(kbArray[0].getName(), PROPERTY_NAME)) )
+             (!kbArray[0].getName().equal (PROPERTY_NAME)))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
@@ -236,12 +237,12 @@ void ConfigSettingProvider::modifyInstance(
 
         for (Uint32 i=0; i<propertyList.size(); i++)
         {
-            String propertyName = propertyList[i];
-            if (String::equalNoCase(propertyName, CURRENT_VALUE))
+            CIMName propertyName = propertyList[i];
+            if (propertyName.equal (CURRENT_VALUE))
             {
                 currentValueModified = true;
             }
-            else if (String::equalNoCase(propertyName, PLANNED_VALUE))
+            else if (propertyName.equal (PLANNED_VALUE))
             {
                 plannedValueModified = true;
             }
@@ -249,7 +250,8 @@ void ConfigSettingProvider::modifyInstance(
             {
                 PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                    String("Modification of property \"") + propertyName + "\"");
+                    String("Modification of property \"") + 
+                        propertyName.getString() + "\"");
             }
         }
 
@@ -381,11 +383,11 @@ void ConfigSettingProvider::enumerateInstances(
         //
         // check if the class name requested is PG_ConfigSetting
         //
-        if (!String::equalNoCase(PG_CONFIG_SETTING, ref.getClassName()))
+        if (!ref.getClassName().equal (PG_CONFIG_SETTING))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                        ref.getClassName());
+                                        ref.getClassName().getString());
         }
 
 	// begin processing the request
@@ -453,13 +455,14 @@ void ConfigSettingProvider::enumerateInstanceNames(
 
         hostName.assign(System::getHostName());
 
-	const String& className = classReference.getClassName();
-	const String& nameSpace = classReference.getNameSpace();
+	const CIMName& className = classReference.getClassName();
+	const CIMNamespaceName& nameSpace = classReference.getNameSpace();
 
-        if (!String::equalNoCase(PG_CONFIG_SETTING, className))
+        if (!className.equal (PG_CONFIG_SETTING))
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_NOT_SUPPORTED, className );
+            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_NOT_SUPPORTED, 
+                className.getString());
         }
 
 	// begin processing the request

@@ -59,22 +59,24 @@ static const char COMMAND_NAME []              = "cimprovider";
 /**
     The name of the Name property for PG_ProviderModule class 
 */
-static const char _PROPERTY_PROVIDERMODULE_NAME []                 = "Name";
+static const CIMName _PROPERTY_PROVIDERMODULE_NAME = CIMName ("Name");
 
 /**
    The name of the operational status property
 */
-static const char _PROPERTY_OPERATIONALSTATUS [] = "OperationalStatus";
+static const CIMName _PROPERTY_OPERATIONALSTATUS  = 
+    CIMName ("OperationalStatus");
 
 /**
    The name of the provider module name  property for PG_Provider class
 */
-static const char _PROPERTY_PROVIDERMODULENAME [] = "ProviderModuleName";
+static const CIMName _PROPERTY_PROVIDERMODULENAME = 
+    CIMName ("ProviderModuleName");
 
 /**
    The name of the Name property for PG_Provider class
 */
-static const char _PROPERTY_PROVIDER_NAME [] = "Name";
+static const CIMName _PROPERTY_PROVIDER_NAME = CIMName ("Name");
 
 /**
     The usage string for this command.  This string is displayed
@@ -233,12 +235,12 @@ static const char   OPTION_STATUS                = 's';
 /**
     The name of the Method that implements stop provider or module
 */
-static const char   STOP_METHOD[]            = "stop";
+static const CIMName   STOP_METHOD             = CIMName ("stop");
 
 /**
     The name of the Method that implements start provider or module
 */
-static const char   START_METHOD[]            = "start";
+static const CIMName   START_METHOD            = CIMName ("start");
 
 /**
 This is a CLI used to update providers of the CIM Server.  This command supports 
@@ -992,7 +994,8 @@ void CIMProviderCommand::_deleteProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    CIMKeyBinding kb1("Name", _moduleName, CIMKeyBinding::STRING);
+	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName, 
+                CIMKeyBinding::STRING);
 	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 
@@ -1042,7 +1045,8 @@ void CIMProviderCommand::_StartProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    CIMKeyBinding kb1("Name", _moduleName, CIMKeyBinding::STRING);
+	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName, 
+                CIMKeyBinding::STRING);
 	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 
@@ -1114,7 +1118,8 @@ void CIMProviderCommand::_StopProvider
 	    moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
 	    moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	    CIMKeyBinding kb1("Name", _moduleName, CIMKeyBinding::STRING);
+	    CIMKeyBinding kb1(CIMName ("Name"), _moduleName, 
+                CIMKeyBinding::STRING);
 	    Array<CIMKeyBinding> keys;
 	    keys.append(kb1);
 

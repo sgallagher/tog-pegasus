@@ -281,19 +281,19 @@ void CIMPropertyRep::toMof(Array<Sint8>& out) const  //ATTNKS:
 
 Boolean CIMPropertyRep::identical(const CIMPropertyRep* x) const
 {
-    if (_name != x->_name)
+    if (!_name.equal (x->_name))
 	return false;
 
     if (_value != x->_value)
 	return false;
 
-    if (_referenceClassName != x->_referenceClassName)
+    if (!_referenceClassName.equal (x->_referenceClassName))
 	return false;
 
     if (!_qualifiers.identical(x->_qualifiers))
 	return false;
 
-    if (_classOrigin != x->_classOrigin)
+    if (!_classOrigin.equal (x->_classOrigin))
 	return false;
 
     if (_propagated != x->_propagated)

@@ -42,6 +42,7 @@
 // testing EnumerateInstanceNames, EnumerateInstances
 // and GetInstance.  InvokeMethod is not currently tested.
 
+#include <Pegasus/Common/XmlWriter.h>
 #include "OSTestClient.h"
 
 // include the appropriate OS-specific file for checking results
@@ -110,30 +111,30 @@ void OSTestClient::_validateKeys(CIMObjectPath &cimRef,
 
    for (Uint32 j = 0; j < keyBindings.size(); j++)
    {
-      String keyName = keyBindings[j].getName();
+      CIMName keyName = keyBindings[j].getName();
       if (verboseTest)
          cout << "checking key " << keyName << endl;
-      if ((String::equalNoCase(keyName, "CSCreationClassName") &&
+      if (((keyName.equal ("CSCreationClassName")) &&
           (goodCSCreationClassName(
                keyBindings[j].getValue(),
                verboseTest) == false))) 
       {
          errorExit ("CSCreationClassName not CIM_UnitaryComputerSystem");
       }
-      else if ((String::equalNoCase(keyName,"CSName")) &&
+      else if ((keyName.equal ("CSName")) &&
                (goodCSName(keyBindings[j].getValue(),
                        verboseTest) == false))
       { 
          errorExit ("CSName not correct");
       }
-      else if ((String::equalNoCase(keyName,"CreationClassName")) &&
+      else if ((keyName.equal ("CreationClassName")) &&
           (goodCreationClassName( 
             keyBindings[j].getValue(),
             verboseTest) == false))
       { 
          errorExit ("CreationClassName not correct");
       }
-      else if ((String::equalNoCase(keyName,"Name")) &&
+      else if ((keyName.equal ("Name")) &&
                 (goodName( 
                   keyBindings[j].getValue(),
                   verboseTest) == false))
@@ -157,8 +158,8 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
    // loop through the properties
    for (Uint32 j=0; j < inst.getPropertyCount(); j++)
    {
-      String propertyName = inst.getProperty(j).getName();
-      if (String::equalNoCase(propertyName,"CSCreationClassName"))
+      CIMName propertyName = inst.getProperty(j).getName();
+      if (propertyName.equal ("CSCreationClassName"))
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -169,7 +170,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       } // end if CSCreationClassName
 
-      else if (String::equalNoCase(propertyName,"CSName"))
+      else if (propertyName.equal ("CSName"))
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue); 
@@ -179,7 +180,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }  // end if CSName
 
-      else if (String::equalNoCase(propertyName,"CreationClassName"))
+      else if (propertyName.equal ("CreationClassName"))
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue); 
@@ -189,7 +190,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
             errorExit ("CreationClassName not CIM_OperatingSystem");
          }
       }  // end if CreationClassName
-      else if (String::equalNoCase(propertyName,"Name"))
+      else if (propertyName.equal ("Name"))
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue); 
@@ -199,7 +200,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }  // end if Name
 
-      else if (String::equalNoCase(propertyName,"Caption"))
+      else if (propertyName.equal ("Caption"))
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue); 
@@ -209,7 +210,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if Caption
 
-      else if (String::equalNoCase(propertyName,"Description")) 
+      else if (propertyName.equal ("Description")) 
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue); 
@@ -219,7 +220,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if Description
 
-      else if (String::equalNoCase(propertyName,"InstallDate")) 
+      else if (propertyName.equal ("InstallDate")) 
       {
          CIMDateTime idate;
          inst.getProperty(j).getValue().get(idate);
@@ -229,7 +230,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   //  end if InstallDate
 
-      else if (String::equalNoCase(propertyName,"Status"))
+      else if (propertyName.equal ("Status"))
       { 
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -239,7 +240,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if Status
 
-      else if (String::equalNoCase(propertyName,"OSType"))
+      else if (propertyName.equal ("OSType"))
       {
          Uint16 ostype;
          inst.getProperty(j).getValue().get(ostype);
@@ -249,8 +250,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if OSType
 
-      else if (String::equalNoCase(propertyName,
-                                   "OtherTypeDescription"))
+      else if (propertyName.equal ("OtherTypeDescription"))
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -261,7 +261,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if OtherTypeDescription
 
-      else if (String::equalNoCase(propertyName,"Version"))
+      else if (propertyName.equal ("Version"))
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -271,8 +271,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if Version
 
-      else if (String::equalNoCase(propertyName,
-                                   "LastBootUpTime"))
+      else if (propertyName.equal ("LastBootUpTime"))
       {
          CIMDateTime bdate;
          inst.getProperty(j).getValue().get(bdate);
@@ -282,8 +281,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if LastBootUpTime
  
-      else if (String::equalNoCase(propertyName,
-                                   "LocalDateTime"))
+      else if (propertyName.equal ("LocalDateTime"))
       {
          CIMDateTime ldate;
          inst.getProperty(j).getValue().get(ldate);
@@ -293,8 +291,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if LocalDateTime
 
-      else if (String::equalNoCase(propertyName,
-                                   "CurrentTimeZone"))
+      else if (propertyName.equal ("CurrentTimeZone"))
       {
          Sint16 tz;
          inst.getProperty(j).getValue().get(tz);
@@ -304,8 +301,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if CurrentTimeZone
  
-      else if (String::equalNoCase(propertyName,
-                                   "NumberOfLicensedUsers"))
+      else if (propertyName.equal ("NumberOfLicensedUsers"))
       {
          Uint32 numlusers;
          inst.getProperty(j).getValue().get(numlusers);
@@ -316,8 +312,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if numberOfLicensedUsers
  
-      else if (String::equalNoCase(propertyName,
-                                   "NumberOfUsers"))
+      else if (propertyName.equal ("NumberOfUsers"))
       {
          Uint32 numUsers;
          inst.getProperty(j).getValue().get(numUsers);
@@ -328,8 +323,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if NumberOfUsers
 
-      else if (String::equalNoCase(propertyName,
-                                   "NumberOfProcesses"))
+      else if (propertyName.equal ("NumberOfProcesses"))
       {
          Uint32 numProcs;
          inst.getProperty(j).getValue().get(numProcs);
@@ -340,8 +334,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if NumberOfProcesses 
       
-      else if (String::equalNoCase(propertyName,
-                                   "MaxNumberOfProcesses"))
+      else if (propertyName.equal ("MaxNumberOfProcesses"))
       {
          Uint32 maxProcs;
          inst.getProperty(j).getValue().get(maxProcs);
@@ -352,8 +345,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if MaxNumberOfProcesses 
 
-      else if (String::equalNoCase(propertyName,
-                                   "TotalSwapSpaceSize"))
+      else if (propertyName.equal ("TotalSwapSpaceSize"))
       {
          Uint64 totalSwap;
          inst.getProperty(j).getValue().get(totalSwap);
@@ -364,8 +356,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if TotalSwapSpaceSize
 
-      else if (String::equalNoCase(propertyName,
-                                   "TotalVirtualMemorySize"))
+      else if (propertyName.equal ("TotalVirtualMemorySize"))
       {
          Uint64 totalVmem;
          inst.getProperty(j).getValue().get(totalVmem);
@@ -376,8 +367,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if TotalVirtualMemorySize
 
-      else if (String::equalNoCase(propertyName,
-                                   "FreeVirtualMemory"))
+      else if (propertyName.equal ("FreeVirtualMemory"))
       {
          Uint64 freeVmem;
          inst.getProperty(j).getValue().get(freeVmem);
@@ -388,8 +378,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if FreeVirtualMemory
 
-      else if (String::equalNoCase(propertyName,
-                                   "FreePhysicalMemory"))
+      else if (propertyName.equal ("FreePhysicalMemory"))
       {
          Uint64 freePmem;
          inst.getProperty(j).getValue().get(freePmem);
@@ -400,8 +389,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if FreePhysicalMemory
 
-      else if (String::equalNoCase(propertyName,
-                                   "TotalVisibleMemorySize"))
+      else if (propertyName.equal ("TotalVisibleMemorySize"))
       {
          Uint64 totalVisMem;
          inst.getProperty(j).getValue().get(totalVisMem);
@@ -412,8 +400,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if TotalVisibleMemorySize
 
-      else if (String::equalNoCase(propertyName,
-                                   "SizeStoredInPagingFiles"))
+      else if (propertyName.equal ("SizeStoredInPagingFiles"))
       {
          Uint64 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -424,8 +411,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if SizeStoredInPagingFiles 
 
-      else if (String::equalNoCase(propertyName,
-                                   "FreeSpaceInPagingFiles"))
+      else if (propertyName.equal ("FreeSpaceInPagingFiles"))
       {
          Uint64 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -436,8 +422,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if FreeSpaceInPagingFiles 
 
-      else if (String::equalNoCase(propertyName,
-                                   "MaxProcessMemorySize"))
+      else if (propertyName.equal ("MaxProcessMemorySize"))
       {
          Uint64 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -448,8 +433,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if MaxProcessMemorySize 
 
-      else if (String::equalNoCase(propertyName,
-                                   "Distributed"))
+      else if (propertyName.equal ("Distributed"))
       {
          Boolean propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -460,8 +444,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if Distributed 
 
-      else if (String::equalNoCase(propertyName,
-                                   "MaxProcessesPerUser"))
+      else if (propertyName.equal ("MaxProcessesPerUser"))
       {
          Uint32 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -472,8 +455,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if MaxProcessesPerUser 
 
-      else if (String::equalNoCase(propertyName,
-                                   "OperatingSystemCapability"))
+      else if (propertyName.equal ("OperatingSystemCapability"))
       {
          String propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -484,8 +466,7 @@ void OSTestClient::_validateProperties(CIMInstance &inst,
          }
       }   // end if OSCapability
 
-      else if (String::equalNoCase(propertyName,
-                                   "SystemUpTime"))
+      else if (propertyName.equal ("SystemUpTime"))
       {
          Uint64 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -521,8 +502,8 @@ void OSTestClient::testEnumerateInstanceNames(CIMClient &client,
 
       for (Uint32 i = 0; i < cimReferences.size(); i++)
       {
-         String className = cimReferences[i].getClassName();
-         if (!(String::equalNoCase(className, CLASSNAME)))
+         CIMName className = cimReferences[i].getClassName();
+         if (!className.equal (CLASSNAME))
          {
 	    errorExit("EnumInstanceNames failed - wrong class");
 	 }
@@ -571,7 +552,7 @@ void OSTestClient::testEnumerateInstances(CIMClient &client,
          //String instanceRef = cimNInstances[i].getInstanceName().toString();
          if (verboseTest)
              cout<<"Instance ClassName is "<<instanceRef.getClassName()<<endl; 
-	 if( !(String::equalNoCase(instanceRef.getClassName(), CLASSNAME ) ) )
+	 if(!instanceRef.getClassName().equal (CLASSNAME))
          {
 	    errorExit("EnumInstances failed");
 	 }
@@ -617,8 +598,8 @@ void OSTestClient::testGetInstance (CIMClient &client,
 
       for (Uint32 i = 0; i < cimReferences.size(); i++)
       {
-         String className = cimReferences[i].getClassName();
-         if (!(String::equalNoCase(className, CLASSNAME)))
+         CIMName className = cimReferences[i].getClassName();
+         if (!className.equal (CLASSNAME))
          {
 	    errorExit("EnumInstanceNames failed - wrong class");
 	 }

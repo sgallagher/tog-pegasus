@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -164,30 +165,30 @@ static void _PutRecord(ofstream& os, Array<String>& fields)
 
 void AssocClassTable::append(
     PEGASUS_STD(ofstream)& os,
-    const String& assocClassName,
-    const String& fromClassName,
-    const String& fromPropertyName,
-    const String& toClassName,
-    const String& toPropertyName)
+    const CIMName& assocClassName,
+    const CIMName& fromClassName,
+    const CIMName& fromPropertyName,
+    const CIMName& toClassName,
+    const CIMName& toPropertyName)
 {
     Array<String> fields;
     fields.reserveCapacity(5);
-    fields.append(assocClassName);
-    fields.append(fromClassName);
-    fields.append(fromPropertyName);
-    fields.append(toClassName);
-    fields.append(toPropertyName);
+    fields.append(assocClassName.getString());
+    fields.append(fromClassName.getString());
+    fields.append(fromPropertyName.getString());
+    fields.append(toClassName.getString());
+    fields.append(toPropertyName.getString());
 
     _PutRecord(os, fields);
 }
 
 void AssocClassTable::append(
     const String& path,
-    const String& assocClassName,
-    const String& fromClassName,
-    const String& fromPropertyName,
-    const String& toClassName,
-    const String& toPropertyName)
+    const CIMName& assocClassName,
+    const CIMName& fromClassName,
+    const CIMName& fromPropertyName,
+    const CIMName& toClassName,
+    const CIMName& toPropertyName)
 {
     // Open input file:
     
@@ -200,18 +201,18 @@ void AssocClassTable::append(
 
     Array<String> fields;
     fields.reserveCapacity(5);
-    fields.append(assocClassName);
-    fields.append(fromClassName);
-    fields.append(fromPropertyName);
-    fields.append(toClassName);
-    fields.append(toPropertyName);
+    fields.append(assocClassName.getString());
+    fields.append(fromClassName.getString());
+    fields.append(fromPropertyName.getString());
+    fields.append(toClassName.getString());
+    fields.append(toPropertyName.getString());
 
     _PutRecord(os, fields);
 }
 
 Boolean AssocClassTable::deleteAssociation(
     const String& path,
-    const String& assocClassName)
+    const CIMName& assocClassName)
 {
     // Open input file:
 
@@ -235,7 +236,7 @@ Boolean AssocClassTable::deleteAssociation(
 
     while (_GetRecord(is, fields))
     {
-	if (assocClassName != fields[ASSOC_CLASS_NAME_INDEX])
+	if (assocClassName.getString() != fields[ASSOC_CLASS_NAME_INDEX])
 	{
 	    _PutRecord(os, fields);
 	    found = true;
@@ -262,9 +263,9 @@ Boolean AssocClassTable::deleteAssociation(
 
 Boolean AssocClassTable::getAssociatorNames(
     const String& path,
-    const String& className,
-    const String& assocClass,
-    const String& resultClass,
+    const CIMName& className,
+    const CIMName& assocClass,
+    const CIMName& resultClass,
     const String& role,
     const String& resultRole,
     Array<String>& associatorNames)
@@ -284,9 +285,10 @@ Boolean AssocClassTable::getAssociatorNames(
 
     while (_GetRecord(is, fields))
     {
-	if (_MatchNoCase(className, fields[FROM_CLASS_NAME_INDEX]) &&
-	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], assocClass) &&
-	    _MatchNoCase(fields[TO_CLASS_NAME_INDEX], resultClass) &&
+	if (_MatchNoCase(className.getString(), fields[FROM_CLASS_NAME_INDEX]) &&
+	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
+                assocClass.getString()) &&
+	    _MatchNoCase(fields[TO_CLASS_NAME_INDEX], resultClass.getString()) &&
 	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
 	    _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
 	{
@@ -300,8 +302,8 @@ Boolean AssocClassTable::getAssociatorNames(
 
 Boolean AssocClassTable::getReferenceNames(
     const String& path,
-    const String& className,
-    const String& resultClass,
+    const CIMName& className,
+    const CIMName& resultClass,
     const String& role,
     Array<String>& referenceNames)
 {
@@ -319,8 +321,9 @@ Boolean AssocClassTable::getReferenceNames(
 
     while (_GetRecord(is, fields))
     {
-	if (_MatchNoCase(className, fields[FROM_CLASS_NAME_INDEX]) &&
-	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], resultClass) &&
+	if (_MatchNoCase(className.getString(), fields[FROM_CLASS_NAME_INDEX]) &&
+	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
+                resultClass.getString()) &&
 	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
 	{
 	    if (!Contains(referenceNames, fields[ASSOC_CLASS_NAME_INDEX]))

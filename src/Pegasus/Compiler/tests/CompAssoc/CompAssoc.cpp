@@ -46,8 +46,8 @@ void TestAssociations(CIMRepository& r)
 	Array<CIMObjectPath> names = r.associatorNames(
 	    nameSpace,
 	    instanceName,
-	    "A",
-	    "Y",
+	    CIMName ("A"),
+	    CIMName ("Y"),
 	    "left",
 	    "right");
 
@@ -62,8 +62,8 @@ void TestAssociations(CIMRepository& r)
 	Array<CIMObject> result = r.associators(
 	    nameSpace,
 	    instanceName,
-	    "a",
-	    "y",
+	    CIMName ("a"),
+	    CIMName ("y"),
 	    "LEFT",
 	    "RIGHT");
 
@@ -86,7 +86,7 @@ void TestAssociations(CIMRepository& r)
 	Array<CIMObjectPath> result = r.referenceNames(
 	    nameSpace,
 	    instanceName,
-	    "A",
+	    CIMName ("A"),
 	    "left");
 
 	assert(result.size() == 1);
@@ -105,7 +105,7 @@ void TestAssociations(CIMRepository& r)
 	Array<CIMObject> result = r.references(
 	    nameSpace,
 	    instanceName,
-	    "A",
+	    CIMName ("A"),
 	    "left");
 
 	assert(result.size() == 1);

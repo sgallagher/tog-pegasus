@@ -117,10 +117,10 @@ const char* HostInfo::getAddress()
     else 
 	return("localhost:5988");
 }
-String PrintSuperClassName(String superClassName)
+CIMName PrintSuperClassName(CIMName superClassName)
 {
-    if (superClassName == "")
-	return "No Superclass";
+    if (superClassName.isNull ())
+	return CIMName ("No_Superclass");
     else
 	return superClassName;
 }
@@ -190,7 +190,7 @@ void ErrorExit(const String& message)
     exit(1);
 }
 
-String GetNameSpaceQueryField(const CGIQueryString& qs)
+CIMNamespaceName GetNameSpaceQueryField(const CGIQueryString& qs)
 {
     const char* tmp;
 
@@ -202,7 +202,7 @@ String GetNameSpaceQueryField(const CGIQueryString& qs)
     if (!nameSpace.size())
 	ErrorExit("NameSpace parameter is null");
 
-    return nameSpace;
+    return CIMNamespaceName (nameSpace);
 }
 
 static String EncodeQueryStringValue(const String& x)
@@ -273,7 +273,7 @@ static void PrintPropertiesTableHeader(const String& tableName)
 */
 //KSREVIEW: Why do we not do the EncodeQueryStringValue
 //KSREVIEW: Why is host address part of this?
-String BuildOperationHref(String operation, String nameSpace)
+String BuildOperationHref(String operation, const CIMNamespaceName & nameSpace)
 {
     
     String result = "/pegasus/cgi-bin/CGIClient?";
@@ -281,7 +281,7 @@ String BuildOperationHref(String operation, String nameSpace)
     result.append(operation);
     result.append("&");
     result.append("NameSpace=");
-    result.append(EncodeQueryStringValue(nameSpace));
+    result.append(EncodeQueryStringValue(nameSpace.getString()));
     result.append("&");
     HostInfo hostinfo;
     result.append("hostaddress=");
@@ -306,12 +306,13 @@ String AppendHrefField(String& href, String key, String value)
     click to the defined class
 
 */
-String createGetClassHref(String nameSpace, String className)
+String createGetClassHref(const CIMNamespaceName & nameSpace, 
+    const CIMName & className)
 {
     String href = BuildOperationHref("GetClass",nameSpace);
 
     href.append("ClassName=");
-    href.append(className);
+    href.append(className.getString());
     href.append("&");
     // KSREVIEWKS: The following is probably duplicate.  See BuildOperationHref above
     HostInfo hostinfo;
@@ -325,11 +326,12 @@ String createGetClassHref(String nameSpace, String className)
 instance Names function for this class.
 @return - void
 */
-static void PrintEnumInstanceNameHref(String nameSpace, String className)
+static void PrintEnumInstanceNameHref(const CIMNamespaceName & nameSpace, 
+    const CIMName & className)
 {
     String href = BuildOperationHref("EnumerateInstanceNames",
-                                      EncodeQueryStringValue(nameSpace));
-    AppendHrefField(href,"ClassName",className);
+        EncodeQueryStringValue(nameSpace.getString()));
+    AppendHrefField(href,"ClassName",className.getString());
 
     PrintAHref(href, "<BOLD Align=right>Instance Names</BOLD>");
 
@@ -345,7 +347,7 @@ static void PrintTableTrailer()
     The entries are name, type, value
 */
 static void PrintRow(
-    const String& name,
+    const CIMName& name,
     const String& type,
     const String& value)
 {
@@ -399,7 +401,7 @@ and class definitions.
 */
 template<class OBJECT>
 void PrintObjectProperties(
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     OBJECT& object,
     Boolean includeClassOrigin)
 {
@@ -413,16 +415,17 @@ void PrintObjectProperties(
 
 	// Define href with the property name
         String href = 
-            BuildOperationHref("GetPropertyDeclaration", EncodeQueryStringValue(nameSpace));
+            BuildOperationHref("GetPropertyDeclaration", 
+            EncodeQueryStringValue(nameSpace.getString()));
 	href.append("ClassName=");
-	href.append(object.getClassName());
+	href.append(object.getClassName().getString());
 	href.append("&");
 	href.append("PropertyName=");
-	href.append(property.getName());
+	href.append(property.getName().getString());
 	href.append("&");
 	cout << "<tr>\n";
 	cout << "<td>";
-	PrintAHref(href, property.getName());
+	PrintAHref(href, property.getName().getString());
 	cout << "</td>";
 	cout << "<td>" << cimTypeToString (value.getType ()) << "</td>\n";
 
@@ -553,7 +556,7 @@ void PrintClassMethods(CIMClass& cimClass)
 	<LI>Properties
 	<LI>Methods
     <UL>
-    @param String with nameSpace
+    @param CIMNamespaceName with nameSpace
     @param pointer to class
     @param localOnly
     @param includeQualifiers
@@ -561,7 +564,7 @@ void PrintClassMethods(CIMClass& cimClass)
     @param showMof
 */
 void PrintClass(
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     CIMClass& cimClass,
     Boolean localOnly,
     Boolean includeQualifiers,
@@ -570,12 +573,12 @@ void PrintClass(
 {
     //KSREVIEW: Should say GetClass and then classname
     //Aregument for combining to one parm
-    PrintHTMLHead("GetClass", cimClass.getClassName());
+    PrintHTMLHead("GetClass", cimClass.getClassName().getString());
 
     //Consider short table of request parameters
 
     cout << "\n<B>SuperClass Name:  </b>";
-    if (cimClass.getSuperClassName() == "")
+    if (cimClass.getSuperClassName().isNull())
 	cout << "No Super Class" <<endl;
     else
     {
@@ -586,7 +589,7 @@ void PrintClass(
 
         // KSREVIEWKS (localOnly)?"  ": " ";
         // KSREVIEWKS (includeQualifiers)? "%IncludeQualifiers=true" : "";
-	PrintAHref(href, cimClass.getSuperClassName());
+	PrintAHref(href, cimClass.getSuperClassName().getString());
         //ANNTTNKS 26 Jan 2002 - Add the options params to this call
 
         String hrefenumInstance = 
@@ -635,7 +638,7 @@ the headers and trailers.  Needed because we use both for getInstance
 and EnumerateInstance.
 */
 void PrintInstanceBody(
-const String& nameSpace,
+const CIMNamespaceName& nameSpace,
     CIMInstance& cimInstance,
     Boolean localOnly)
 {
@@ -653,13 +656,13 @@ const String& nameSpace,
     level so they do not appear in the Instance page.
 */
 void PrintInstance(
-const String& nameSpace,
+const CIMNamespaceName& nameSpace,
     CIMInstance& cimInstance,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    PrintHTMLHead("GetInstance", cimInstance.getClassName());
+    PrintHTMLHead("GetInstance", cimInstance.getClassName().getString());
     PrintInstanceBody(nameSpace, cimInstance,localOnly);
     //KSREVIEWKS: Add showMof here
     cout << "<h2>Display MOF for Instance</h2>";
@@ -676,7 +679,7 @@ const String& nameSpace,
 
 void PrintPropertyDeclaration(CIMProperty& property)
 {
-    PrintHTMLHead("GetPropertyDeclaration", property.getName());
+    PrintHTMLHead("GetPropertyDeclaration", property.getName().getString());
 
     PrintQualifiers(property);
     PrintSingleProperty(property);
@@ -694,7 +697,7 @@ void PrintPropertyDeclaration(CIMProperty& property)
 */
 static void GetClass(const CGIQueryString& qs)
 {
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
     DDD(cout << "GetClass" << endl;)
     // Get ClassName:
     const char* tmp;
@@ -702,9 +705,9 @@ static void GetClass(const CGIQueryString& qs)
     if (!(tmp = qs.findValue("ClassName")))
 	ErrorExit("Missing ClassName field");
 
-    String className = tmp;
+    CIMName className = CIMName (tmp);
 
-    if (!className.size())
+    if (className.isNull())
 	ErrorExit("ClassName parameter is null");
 
     // Process Checkbox items that become call opptions
@@ -755,7 +758,7 @@ static void GetClass(const CGIQueryString& qs)
 */
 static void GetPropertyDeclaration(const CGIQueryString& qs)
 {
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
 
@@ -764,9 +767,9 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
     if (!(tmp = qs.findValue("ClassName")))
 	ErrorExit("Missing ClassName field");
 
-    String className = tmp;
+    CIMName className = CIMName (tmp);
 
-    if (!className.size())
+    if (className.isNull())
 	ErrorExit("ClassName parameter is null");
 
     // Get PropertyName:
@@ -774,9 +777,9 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
     if (!(tmp = qs.findValue("PropertyName")))
 	ErrorExit("Missing ClassName field");
 
-    String propertyName = tmp;
+    CIMName propertyName = CIMName (tmp);
 
-    if (!propertyName.size())
+    if (propertyName.isNull())
 	ErrorExit("PropertyName parameter is null");
 
     //
@@ -811,7 +814,7 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 /** PrintClassNames  - Generates a table with the class names
 */
 static void PrintClassNames(
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const Array<CIMName>& classNames,
     double elapsedTime)
 {
@@ -827,7 +830,7 @@ static void PrintClassNames(
 	String href = createGetClassHref(nameSpace,
 	                              classNames[i]);
 
-	PrintAHref(href, classNames[i]);
+	PrintAHref(href, classNames[i].getString());
         cout << "&nbsp;&nbsp;&nbsp;&nbsp;";
 
         // Build href for enumerate instance names
@@ -857,7 +860,7 @@ static void PrintClassNames(
 static void EnumerateClassNames(const CGIQueryString& qs)
 {
     // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
     CIMName className;
@@ -868,7 +871,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 
     // Get the ClassName field:
     if ((tmp = qs.findValue("ClassName")) && *tmp)
-	className = tmp;
+	className = CIMName (tmp);
 
     // Get DeepInheritance:
     Boolean deepInheritance = false;
@@ -908,7 +911,7 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 */
 static void DeleteClass(const CGIQueryString& qs)
 {
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
     const char* tmp;
@@ -916,9 +919,9 @@ static void DeleteClass(const CGIQueryString& qs)
     if (!(tmp = qs.findValue("ClassName")))
 	ErrorExit("Missing ClassName field");
 
-    String className = tmp;
+    CIMName className = CIMName (tmp);
 
-    if (!className.size())
+    if (className.isNull())
 	ErrorExit("ClassName parameter is null");
 
     try
@@ -930,7 +933,7 @@ static void DeleteClass(const CGIQueryString& qs)
 	client.deleteClass(nameSpace, className);
 
 	String message = "Class \"";
-	message.append(className);
+	message.append(className.getString());
 	message.append("\" was deleted");
 	PrintHTMLHead("DeleteClass", "Delete Class Result");
         cout << "    <h1>" << message << "</h1>\n";
@@ -943,7 +946,7 @@ static void DeleteClass(const CGIQueryString& qs)
     }
 }
 
-void PrintQualifierRow(const String& nameSpace,
+void PrintQualifierRow(const CIMNamespaceName& nameSpace,
 		       const CIMQualifierDecl& qd)
 {
     cout << "<tr>\n";
@@ -951,13 +954,14 @@ void PrintQualifierRow(const String& nameSpace,
     const CIMValue& value = qd.getValue();
 
     String href = 
-        BuildOperationHref("GetQualifier", EncodeQueryStringValue(nameSpace));
+        BuildOperationHref("GetQualifier", 
+        EncodeQueryStringValue(nameSpace.getString()));
     href.append("QualifierName=");
-    href.append(qd.getName());
+    href.append(qd.getName().getString());
     href.append("&");
 
     cout << "<td>";
-    PrintAHref(href, qd.getName());
+    PrintAHref(href, qd.getName().getString());
     cout << "</td>";
     cout << "<td>" << cimTypeToString (value.getType ()) << "</td>\n";
     cout << "<td>" << value.toString() << "</td>\n";
@@ -969,7 +973,7 @@ void PrintQualifierRow(const String& nameSpace,
 }
 
 void PrintGetQualifier(
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     CIMQualifierDecl qualifierDecl)
 {
     PrintHTMLHead("GetQualifier", "GetQualifier Result");
@@ -1021,7 +1025,7 @@ void PrintGetQualifier(
 }
 
 void PrintEnumerateQualifiers(
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const Array<CIMQualifierDecl>& qualifierDecls)
 {
     // Check this, why no HTML header here.????
@@ -1060,7 +1064,7 @@ void PrintEnumerateQualifiers(
 */
 static void EnumerateQualifiers(const CGIQueryString& qs)
 {
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     try
     {
@@ -1086,7 +1090,7 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
 */
 static void GetQualifier(const CGIQueryString& qs)
 {
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get CIMQualifier name:
     const char* tmp;
@@ -1094,9 +1098,9 @@ static void GetQualifier(const CGIQueryString& qs)
     if (!(tmp = qs.findValue("QualifierName")))
 	ErrorExit("Missing QualifierName field");
 
-    String qualifierName = tmp;
+    CIMName qualifierName = CIMName (tmp);
 
-    if (!qualifierName.size())
+    if (qualifierName.isNull())
 	ErrorExit("QualifierName parameter is null");
 
     try
@@ -1132,7 +1136,7 @@ static void GetQualifier(const CGIQueryString& qs)
 */
 static void PrintObjectNames(
     const String& header,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const Array<CIMObjectPath>& instanceNames,
     double elapsedTime)
 {
@@ -1146,7 +1150,8 @@ static void PrintObjectNames(
     {
 	cout << "<tr><td>\n";
         String href = 
-            BuildOperationHref("GetInstance", EncodeQueryStringValue(nameSpace));
+            BuildOperationHref("GetInstance", 
+            EncodeQueryStringValue(nameSpace.getString()));
 	href.append("InstanceName=");
 
         //
@@ -1209,15 +1214,15 @@ static void PrintObjectNames(
 static void EnumerateInstanceNames(const CGIQueryString& qs)
 {
     // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String className;
+    CIMName className;
 
     const char* tmp;
 
     if ((tmp = qs.findValue("ClassName")))
-	className = tmp;
+	className = CIMName (tmp);
 
     // Invoke the method:
 
@@ -1257,7 +1262,7 @@ The results of the call are printed in an HTML page.
 */
 static void GetInstance(const CGIQueryString& qs)
 {
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get InstanceName:
     const char* tmp;
@@ -1312,7 +1317,8 @@ static void GetInstance(const CGIQueryString& qs)
 
 /** PrintInstancetable - Print a table of enumerated instance information
 */
-void PrintInstanceTableRow(String nameSpace, CIMInstance CIMInstance)
+void PrintInstanceTableRow(const CIMNamespaceName & nameSpace, 
+    CIMInstance CIMInstance)
 {
    // KSREVIEWKS: Need to add code here
 }
@@ -1322,15 +1328,15 @@ void PrintInstanceTableRow(String nameSpace, CIMInstance CIMInstance)
 static void EnumerateInstances(const CGIQueryString& qs)
 {
  // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String className;
+    CIMName className;
 
     const char* tmp;
 
     if ((tmp = qs.findValue("ClassName")))
-	className = tmp;
+	className = CIMName (tmp);
 
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
@@ -1363,8 +1369,8 @@ static void EnumerateInstances(const CGIQueryString& qs)
 	client.connect(hostinfo.getAddress(), String::EMPTY, String::EMPTY);
         /*
         virtual Array<CIMInstance> enumerateInstances(
-            const String& nameSpace,
-            const String& className,
+            const CIMNamespaceName& nameSpace,
+            const CIMName& className,
             Boolean deepIn
             heritance = true,
             Boolean localOnly = true,
@@ -1415,11 +1421,11 @@ static void EnumerateInstances(const CGIQueryString& qs)
  static void GetProperty(const CGIQueryString& qs)
 {
   // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
     // String instanceName;
-    String propertyName;
+    CIMName propertyName;
 
     const char* inputInstanceName;
     const char* tmp;
@@ -1443,7 +1449,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
     if (!(tmp = qs.findValue("PropertyName")))
 	ErrorExit("Missing propertyName field");
     else
-	propertyName = tmp;
+	propertyName = CIMName (tmp);
     cout << "GetProperty " << __LINE__ << endl;
 
     try
@@ -1491,15 +1497,15 @@ static void EnumerateInstances(const CGIQueryString& qs)
 static void SetProperty(const CGIQueryString& qs)
 {
   // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String className;
+    CIMName className;
 
     const char* tmp;
 
     if ((tmp = qs.findValue("ClassName")))
-	className = tmp;
+	className = CIMName (tmp);
     String message = "operation setProperty Under Construction: ";
     ErrorExit(message);
 
@@ -1511,15 +1517,15 @@ static void SetProperty(const CGIQueryString& qs)
 static void DeleteInstance(const CGIQueryString& qs)
 {
   // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String className;
+    CIMName className;
 
     const char* tmp;
 
     if ((tmp = qs.findValue("ClassName")))
-	className = tmp;
+	className = CIMName (tmp);
     String message = "operation DeleteInstance Under Construction: ";
     ErrorExit(message);
 
@@ -1531,24 +1537,25 @@ static void DeleteInstance(const CGIQueryString& qs)
 static void CreateNameSpace(const CGIQueryString& qs)
 {
   // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get nameSpace Name:
-    String nameSpaceName;
-    String className;
+    CIMNamespaceName nameSpaceName;
+    CIMName className;
 
     const char* tmp;
 
     if ((tmp = qs.findValue("NewNameSpace")))
-	nameSpaceName = tmp;
+	nameSpaceName = CIMNamespaceName (tmp);
 
     // Create the instance with full instancename since this is the key.
     String instanceName = "__Namespace";
     instanceName.append( ".name=\"");
-    instanceName.append(nameSpaceName);
+    instanceName.append(nameSpaceName.getString());
     instanceName.append("\"");
     CIMInstance newInstance(instanceName);
-    newInstance.addProperty(CIMProperty("name", nameSpaceName));
+    newInstance.addProperty(CIMProperty(CIMName ("name"), 
+        nameSpaceName.getString()));
     try
     {
 	// Time the connection
@@ -1582,17 +1589,17 @@ static void CreateNameSpace(const CGIQueryString& qs)
 static void DeleteNameSpace(const CGIQueryString& qs)
 {
   // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get NameSpaceName to delete:
-    String nameSpaceToDelete;
+    CIMNamespaceName nameSpaceToDelete;
     const char* tmp;
     if ((tmp = qs.findValue("DeletionNameSpace")))
-	nameSpaceToDelete= tmp;
+	nameSpaceToDelete= CIMNamespaceName (tmp);
 
     // Create Instance Name
     String instanceName = "__Namespace.name=\"";
-    instanceName.append(nameSpaceToDelete);
+    instanceName.append(nameSpaceToDelete.getString());
     instanceName.append("\"");
 
     // Create Instance Reference. Name must be in form Reference
@@ -1637,16 +1644,16 @@ static void DeleteNameSpace(const CGIQueryString& qs)
 static void EnumerateNameSpaces(const CGIQueryString& qs)
 {
   // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
-    String nameSpaceName;
-    String className;
+    CIMNamespaceName nameSpaceName;
+    CIMName className;
 
     const char* tmp;
 
     if ((tmp = qs.findValue("ClassName")))
-	className = tmp;
+	className = CIMName (tmp);
 
     // Invoke the method:
     try
@@ -1747,8 +1754,8 @@ static void DefineHostParameters(const CGIQueryString& qs)
 /** PrintClassTreeEntry - Prints a single table entry for the class
     with the proper indenation, etc.
 */
-void PrintClassTreeEntry(const String& nameSpace,
-			 const String& className,
+void PrintClassTreeEntry(const CIMNamespaceName& nameSpace,
+			 const CIMName& className,
 			 Uint32 level)
 {
     cout << "<LI>";
@@ -1762,7 +1769,7 @@ void PrintClassTreeEntry(const String& nameSpace,
     href.append("LocalOnly=true");
 
 
-    PrintAHref(href, className);
+    PrintAHref(href, className.getString());
 
 }
 /***************************************************************************
@@ -1783,9 +1790,9 @@ void PrintClassTreeEntry(const String& nameSpace,
     @level - Current level of inheritance tree.
 */
 void TraverseClassTree(
-    const String& nameSpace,
-    const String& className,
-    const Array<String>& superClassNames,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    const Array<CIMName>& superClassNames,
     const Array<CIMName>& classNames,
     Uint32 size,
     Uint32 level)
@@ -1838,7 +1845,7 @@ void TraverseClassTree(
 static void ClassInheritance(const CGIQueryString& qs)
 {
     // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Get ClassName:
     CIMName className;
@@ -1854,7 +1861,7 @@ static void ClassInheritance(const CGIQueryString& qs)
 
     // Get the ClassName field:
     if ((tmp = qs.findValue("ClassName")) && *tmp)
-	className = tmp;
+	className = CIMName (tmp);
 
     // Get DeepInheritance:
     Boolean deepInheritance = false;
@@ -1901,7 +1908,7 @@ static void ClassInheritance(const CGIQueryString& qs)
 	{
 	    cout << "<tr><td>\n";
 
-	    if (classArray[i].getSuperClassName() == "")
+	    if (classArray[i].getSuperClassName().isNull ())
 		cout << "No Superclass";
 	    else
 		cout << classArray[i].getSuperClassName();
@@ -1915,7 +1922,7 @@ static void ClassInheritance(const CGIQueryString& qs)
 
 
 
-	    PrintAHref(href, classArray[i].getClassName());
+	    PrintAHref(href, classArray[i].getClassName().getString());
 
 	    cout << "</td></tr>\n";
 	}
@@ -1948,9 +1955,9 @@ static void ClassInheritance(const CGIQueryString& qs)
 */
 static void ClassTree(const CGIQueryString& qs)
 {
-    const String rootClass = "";
+    const CIMName rootClass;
     // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Invoke the method:
     try
@@ -1960,7 +1967,7 @@ static void ClassTree(const CGIQueryString& qs)
 
 	// Make the Connection
 	Boolean deepInheritance = true;
-	String className = "";
+	CIMName className;
 
 	CIMClient client;
 	HostInfo hostinfo;
@@ -1980,7 +1987,7 @@ static void ClassTree(const CGIQueryString& qs)
 	Boolean includeQualifiers = false;
 	Boolean includeClassOrigin = true;
 	CIMClass myClass;
-	Array<String> superClassNames;
+	Array<CIMName> superClassNames;
 
 	// Now we make loop getting classes to get the superclassname
 	for (Uint32 i = 0, n = classNames.size(); i < n; i++)
@@ -2027,7 +2034,7 @@ enumaterate Instance Names for the instances.
 static void AllInstances(const  CGIQueryString& qs)
 {
     // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     // Invoke the method:
     try
@@ -2037,7 +2044,7 @@ static void AllInstances(const  CGIQueryString& qs)
 
 	// Make the Connection
 	Boolean deepInheritance = true;
-	String className = "";
+	CIMName className;
 
 	CIMClient client;
 	HostInfo hostinfo;
@@ -2080,7 +2087,7 @@ static void AllInstances(const  CGIQueryString& qs)
 static void ReferenceNames(const CGIQueryString& qs)
 {
     // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     const char* tmp;
 
@@ -2132,7 +2139,7 @@ static void ReferenceNames(const CGIQueryString& qs)
 static void AssociatorNames(const CGIQueryString& qs)
 {
     // Get NameSpace:
-    String nameSpace = GetNameSpaceQueryField(qs);
+    CIMNamespaceName nameSpace = GetNameSpaceQueryField(qs);
 
     const char* tmp;
 
@@ -2142,14 +2149,14 @@ static void AssociatorNames(const CGIQueryString& qs)
     if ((tmp = qs.findValue("ObjectName")))
 	objectName = tmp;
     
-    String assocClass = String::EMPTY;
+    CIMName assocClass = CIMName ();
     if ((tmp = qs.findValue("AssocClass")))
-	assocClass = tmp;
+	assocClass = CIMName (tmp);
     
     
-    String resultClass = String::EMPTY;
+    CIMName resultClass = CIMName ();
     if ((tmp = qs.findValue("ResultClass")))
-	resultClass = tmp;
+	resultClass = CIMName (tmp);
 
     String role = String::EMPTY;
     if ((tmp = qs.findValue("ResultRole")))

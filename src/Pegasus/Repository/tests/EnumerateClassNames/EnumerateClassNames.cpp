@@ -55,10 +55,10 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "/zzz";
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
 String repositoryRoot;
 
-void print(const Array<String>& array)
+void print(const Array<CIMName>& array)
 {
 #if 0
     for (Uint32 i = 0, n = array.size(); i < n; i++)
@@ -72,15 +72,15 @@ void TestCase1()
 
     // Enumerate the class names:
 
-    Array<String> classNames = r.enumerateClassNames(
+    Array<CIMName> classNames = r.enumerateClassNames(
 	NAMESPACE, String::EMPTY, false);
 
     print(classNames);
 
-    Array<String> tmp;
-    tmp.append("A");
-    tmp.append("Class1");
-    tmp.append("Class2");
+    Array<CIMName> tmp;
+    tmp.append(CIMName ("A"));
+    tmp.append(CIMName ("Class1"));
+    tmp.append(CIMName ("Class2"));
 
     BubbleSort(tmp);
     BubbleSort(classNames);
@@ -96,26 +96,26 @@ void TestCase2()
 
     // Enumerate the class names:
 
-    const String NAMESPACE = "/zzz";
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
 
-    Array<String> classNames = r.enumerateClassNames(
+    Array<CIMName> classNames = r.enumerateClassNames(
 	NAMESPACE, String::EMPTY, true);
 
     print(classNames);
 
-    Array<String> tmp;
-    tmp.append("A");
-    tmp.append("Class1");
-    tmp.append("Class2");
-    tmp.append("X");
-    tmp.append("Y");
-    tmp.append("Z");
-    tmp.append("M");
-    tmp.append("N");
-    tmp.append("Q");
-    tmp.append("R");
-    tmp.append("S");
-    tmp.append("T");
+    Array<CIMName> tmp;
+    tmp.append(CIMName ("A"));
+    tmp.append(CIMName ("Class1"));
+    tmp.append(CIMName ("Class2"));
+    tmp.append(CIMName ("X"));
+    tmp.append(CIMName ("Y"));
+    tmp.append(CIMName ("Z"));
+    tmp.append(CIMName ("M"));
+    tmp.append(CIMName ("N"));
+    tmp.append(CIMName ("Q"));
+    tmp.append(CIMName ("R"));
+    tmp.append(CIMName ("S"));
+    tmp.append(CIMName ("T"));
 
     BubbleSort(tmp);
     BubbleSort(classNames);
@@ -128,16 +128,16 @@ void TestCase3()
 
     // Enumerate the class names:
 
-    const String NAMESPACE = "/zzz";
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
 
-    Array<String> classNames = r.enumerateClassNames(
-	NAMESPACE, "X", false);
+    Array<CIMName> classNames = r.enumerateClassNames(
+	NAMESPACE, CIMName ("X"), false);
 
     print(classNames);
 
-    Array<String> tmp;
-    tmp.append("M");
-    tmp.append("N");
+    Array<CIMName> tmp;
+    tmp.append(CIMName ("M"));
+    tmp.append(CIMName ("N"));
 
     BubbleSort(tmp);
     BubbleSort(classNames);
@@ -150,20 +150,20 @@ void TestCase4()
 
     // Enumerate the class names:
 
-    const String NAMESPACE = "/zzz";
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
 
-    Array<String> classNames = r.enumerateClassNames(
-	NAMESPACE, "X", true);
+    Array<CIMName> classNames = r.enumerateClassNames(
+	NAMESPACE, CIMName ("X"), true);
 
     print(classNames);
 
-    Array<String> tmp;
-    tmp.append("M");
-    tmp.append("N");
-    tmp.append("Q");
-    tmp.append("R");
-    tmp.append("S");
-    tmp.append("T");
+    Array<CIMName> tmp;
+    tmp.append(CIMName ("M"));
+    tmp.append(CIMName ("N"));
+    tmp.append(CIMName ("Q"));
+    tmp.append(CIMName ("R"));
+    tmp.append(CIMName ("S"));
+    tmp.append(CIMName ("T"));
 
     BubbleSort(tmp);
     BubbleSort(classNames);
@@ -172,8 +172,8 @@ void TestCase4()
 
 static void CreateClass(
     CIMRepository& r,
-    const String& className, 
-    const String superClassName = String())
+    const CIMName& className, 
+    const CIMName superClassName = String())
 {
     CIMClass c(className, superClassName);
     r.createClass(NAMESPACE, c);
@@ -198,18 +198,18 @@ int main()
     try 
     {
 	r.createNameSpace(NAMESPACE);
-	CreateClass(r, "Class1");
-	CreateClass(r, "Class2");
-	CreateClass(r, "A");
-	CreateClass(r, "X", "A");
-	CreateClass(r, "Y", "A");
-	CreateClass(r, "Z", "A");
-	CreateClass(r, "M", "X");
-	CreateClass(r, "N", "X");
-	CreateClass(r, "Q", "M");
-	CreateClass(r, "R", "M");
-	CreateClass(r, "S", "N");
-	CreateClass(r, "T", "N");
+	CreateClass(r, CIMName ("Class1"));
+	CreateClass(r, CIMName ("Class2"));
+	CreateClass(r, CIMName ("A"));
+	CreateClass(r, CIMName ("X"), CIMName ("A"));
+	CreateClass(r, CIMName ("Y"), CIMName ("A"));
+	CreateClass(r, CIMName ("Z"), CIMName ("A"));
+	CreateClass(r, CIMName ("M"), CIMName ("X"));
+	CreateClass(r, CIMName ("N"), CIMName ("X"));
+	CreateClass(r, CIMName ("Q"), CIMName ("M"));
+	CreateClass(r, CIMName ("R"), CIMName ("M"));
+	CreateClass(r, CIMName ("S"), CIMName ("N"));
+	CreateClass(r, CIMName ("T"), CIMName ("N"));
 	TestCase1();
 	TestCase2();
 	TestCase3();

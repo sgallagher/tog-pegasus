@@ -921,7 +921,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -981,7 +981,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -990,7 +990,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 
    STAT_GETSTARTTIME
 
-   String className;
+   CIMName className;
    Boolean localOnly = true;
    Boolean includeQualifiers = true;
    Boolean includeClassOrigin = false;
@@ -1088,7 +1088,7 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -1142,13 +1142,13 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
-   String className;
+   CIMName className;
    Boolean deepInheritance = false;
    Boolean duplicateParameter = false;
    Boolean gotClassName = false;
@@ -1200,13 +1200,13 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
-   String className;
+   CIMName className;
    Boolean deepInheritance = false;
    Boolean localOnly = true;
    Boolean includeQualifiers = true;
@@ -1285,13 +1285,13 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
-   String className;
+   CIMName className;
    Boolean duplicateParameter = false;
    Boolean gotClassName = false;
 
@@ -1338,7 +1338,7 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -1392,7 +1392,7 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -1492,7 +1492,7 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -1575,13 +1575,13 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
-   String className;
+   CIMName className;
    Boolean deepInheritance = false;
    Boolean localOnly = true;
    Boolean includeQualifiers = true;
@@ -1685,13 +1685,13 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
-   String className;
+   CIMName className;
    Boolean duplicateParameter = false;
    Boolean gotClassName = false;
 
@@ -1739,7 +1739,7 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -1792,7 +1792,7 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -1846,13 +1846,13 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
-   String qualifierName;
+   CIMName qualifierName;
    Boolean duplicateParameter = false;
    Boolean gotQualifierName = false;
 
@@ -1900,7 +1900,7 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -1929,13 +1929,13 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
-   String qualifierName;
+   CIMName qualifierName;
    Boolean duplicateParameter = false;
    Boolean gotQualifierName = false;
 
@@ -1983,14 +1983,14 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
    CIMObjectPath objectName;
-   String resultClass;
+   CIMName resultClass;
    String role;
    Boolean duplicateParameter = false;
    Boolean gotObjectName = false;
@@ -2055,14 +2055,14 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
    CIMObjectPath objectName;
-   String resultClass;
+   CIMName resultClass;
    String role;
    Boolean includeQualifiers = false;
    Boolean includeClassOrigin = false;
@@ -2165,15 +2165,15 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
    CIMObjectPath objectName;
-   String assocClass;
-   String resultClass;
+   CIMName assocClass;
+   CIMName resultClass;
    String role;
    String resultRole;
    Boolean duplicateParameter = false;
@@ -2255,15 +2255,15 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
    STAT_GETSTARTTIME
 
    CIMObjectPath objectName;
-   String assocClass;
-   String resultClass;
+   CIMName assocClass;
+   CIMName resultClass;
    String role;
    String resultRole;
    Boolean includeQualifiers = false;
@@ -2383,7 +2383,7 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -2445,7 +2445,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {
@@ -2519,7 +2519,7 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
    Uint32 queueId,
    XmlParser& parser, 
    const String& messageId,
-   const String& nameSpace,
+   const CIMNamespaceName& nameSpace,
    const String& authType,
    const String& userName)
 {

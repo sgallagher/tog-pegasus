@@ -162,7 +162,7 @@ public:
     */ 
     void resolve(
 	DeclContext* declContext,
-	const String& nameSpace,
+	const CIMNamespaceName & nameSpace,
 	CIMScope scope,
 	Boolean isInstancePart,
 	CIMQualifierList& inheritedQualifiers,

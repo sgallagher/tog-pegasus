@@ -52,8 +52,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-#define NAMESPACE "root/cimv2"
-#define CLASSNAME "PG_OperatingSystem"
+#define NAMESPACE CIMNamespaceName ("root/cimv2")
+#define CLASSNAME CIMName ("PG_OperatingSystem")
 
 /**  Constructor for OSInfo Client
   */
@@ -206,38 +206,35 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
    // loop through the properties
    for (Uint32 j=0; j < inst.getPropertyCount(); j++)
    {
-      String propertyName = inst.getProperty(j).getName();
+      CIMName propertyName = inst.getProperty(j).getName();
 
       // only pull out those properties of interest
-      if (String::equalNoCase(propertyName,"CSName"))
+      if (propertyName.equal (CIMName ("CSName")))
       {
          inst.getProperty(j).getValue().get(osCSName);
       }  // end if CSName
       
-      if (String::equalNoCase(propertyName,"Name"))
+      if (propertyName.equal (CIMName ("Name")))
       {
          inst.getProperty(j).getValue().get(osName); 
       }  // end if Name
 
-      if (String::equalNoCase(propertyName,"Version"))
+      if (propertyName.equal (CIMName ("Version")))
       {
          inst.getProperty(j).getValue().get(osVersion); 
       }  // end if Version 
 
-      else if (String::equalNoCase(propertyName,
-                                   "OperatingSystemCapability"))
+      else if (propertyName.equal (CIMName ("OperatingSystemCapability")))
       {
          inst.getProperty(j).getValue().get(osCapability);
       }   // end if OSCapability
 
-      else if (String::equalNoCase(propertyName,
-                                   "OtherTypeDescription"))
+      else if (propertyName.equal (CIMName ("OtherTypeDescription")))
       {
          inst.getProperty(j).getValue().get(osOtherInfo);
       }   // end if OtherTypeDescription
 
-      else if (String::equalNoCase(propertyName,
-                                   "NumberOfLicensedUsers"))
+      else if (propertyName.equal (CIMName ("NumberOfLicensedUsers")))
       {
          Uint32 propertyValue;
          inst.getProperty(j).getValue().get(propertyValue);
@@ -261,8 +258,7 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          }
       }   // end if NumberOfLicensedUsers 
       
-      else if (String::equalNoCase(propertyName,
-                                   "LastBootUpTime"))
+      else if (propertyName.equal (CIMName ("LastBootUpTime")))
       {
          CIMDateTime bdate;
          char bdateString[80];
@@ -280,8 +276,7 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          osBootUpTime.assign(bdateString);
       }   // end if LastBootUpTime 
       
-      else if (String::equalNoCase(propertyName,
-                                   "LocalDateTime"))
+      else if (propertyName.equal (CIMName ("LocalDateTime")))
       {
          CIMDateTime ldate;
          char ldateString[80];
@@ -299,8 +294,7 @@ void OSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
          osLocalDateTime.assign(ldateString);
       }   // end if LocalDateTime 
       
-      else if (String::equalNoCase(propertyName,
-                                   "SystemUpTime"))
+      else if (propertyName.equal (CIMName ("SystemUpTime")))
       {
          Uint64 total;
          char   uptime[80];
@@ -429,8 +423,7 @@ void OSInfo::getOSInfo(const int argc, const char** argv)
         for (Uint32 i = 0; i < cimNInstances.size(); i++)
         {
            CIMObjectPath instanceRef = cimNInstances[i].getPath ();
-           if ( !(String::equalNoCase(instanceRef.getClassName(), 
-                                      CLASSNAME ) ) )
+           if ( !(instanceRef.getClassName().equal (CIMName (CLASSNAME))))
            {
               errorExit("EnumerateInstances failed");
            }

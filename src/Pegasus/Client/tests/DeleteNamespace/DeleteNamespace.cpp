@@ -23,7 +23,8 @@
 //
 // Author: Warren Otsuka (warren_otsuka@hp.com)
 //
-// Modified By: 
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,14 +39,15 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-String globalNamespace = "root/cimv2";
+CIMNamespaceName globalNamespace = CIMNamespaceName ("root/cimv2");
 
-static const char __NAMESPACE_NAMESPACE [] = "root";
-static const char CLASSNAME[]   = "__Namespace";
+static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
+static const CIMName CLASSNAME = CIMName ("__Namespace");
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -91,20 +93,20 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
 			            Boolean activeTest, 
 			            Boolean verboseTest) 
 {
-    Array<String> namespaces;
+    Array<CIMNamespaceName> namespaces;
     String instanceName;
 
-    namespaces.append( "test1" );
-    namespaces.append( "test2" );
-    namespaces.append( "test3" );
-    namespaces.append( "test4" );
-    namespaces.append( "test5" );
-    namespaces.append( "test6" );
-    namespaces.append( "test1/test2" );
-    namespaces.append( "test1/test2/test3" );
-    namespaces.append( "test1/test2/test3/test4" );
-    namespaces.append( "test1/test2/test3/test4/test5" );
-    namespaces.append( "test1/test2/test3/test4/test5/test6" );
+    namespaces.append(CIMNamespaceName ("test1"));
+    namespaces.append(CIMNamespaceName ("test2"));
+    namespaces.append(CIMNamespaceName ("test3"));
+    namespaces.append(CIMNamespaceName ("test4"));
+    namespaces.append(CIMNamespaceName ("test5"));
+    namespaces.append(CIMNamespaceName ("test6"));
+    namespaces.append(CIMNamespaceName ("test1/test2"));
+    namespaces.append(CIMNamespaceName ("test1/test2/test3"));
+    namespaces.append(CIMNamespaceName ("test1/test2/test3/test4"));
+    namespaces.append(CIMNamespaceName ("test1/test2/test3/test4/test5"));
+    namespaces.append(CIMNamespaceName ("test1/test2/test3/test4/test5/test6"));
     if(verboseTest)
     {
       cout << "++ Cleanup existing test namespaces" << endl;
@@ -112,11 +114,11 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
       // Build the instance name for __namespace
-      String testNamespaceName = namespaces[i];
+      CIMNamespaceName testNamespaceName = namespaces[i];
       instanceName.clear();
-      instanceName.append( CLASSNAME );
+      instanceName.append(CLASSNAME.getString());
       instanceName.append( ".Name=\"");
-      instanceName.append(testNamespaceName);
+      instanceName.append(testNamespaceName.getString());
       instanceName.append("\"");
       
       try
@@ -139,10 +141,10 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     for (Uint32 i = 0; i < namespaces.size(); i++)
       {
 	// Build the instance name for __namespace
-	String testNamespaceName = namespaces[i];
-	String instanceName = CLASSNAME;
+	CIMNamespaceName testNamespaceName = namespaces[i];
+	String instanceName = CLASSNAME.getString();
 	instanceName.append( ".Name=\"");
-	instanceName.append(testNamespaceName);
+	instanceName.append(testNamespaceName.getString());
 	instanceName.append("\"");
 	if(verboseTest)
 	{
@@ -152,7 +154,8 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
 	{
 	    // Build the new instance
 	    CIMInstance newInstance(CLASSNAME);
-	    newInstance.addProperty(CIMProperty("name", testNamespaceName));
+	    newInstance.addProperty(CIMProperty(CIMName ("name"), 
+                testNamespaceName.getString()));
 	    client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
 	}
 	catch(Exception& e)
@@ -167,11 +170,11 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
     for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
       // Build the instance name for __namespace
-      String testNamespaceName = namespaces[i];
+      CIMNamespaceName testNamespaceName = namespaces[i];
       instanceName.clear();
-      instanceName.append( CLASSNAME );
+      instanceName.append(CLASSNAME.getString());
       instanceName.append( ".Name=\"");
-      instanceName.append(testNamespaceName);
+      instanceName.append(testNamespaceName.getString());
       instanceName.append("\"");
       
       try
@@ -196,11 +199,11 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
   for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
       // Build the instance name for __namespace
-      String testNamespaceName = namespaces[i];
+      CIMNamespaceName testNamespaceName = namespaces[i];
       instanceName.clear();
-      instanceName.append( CLASSNAME );
+      instanceName.append(CLASSNAME.getString());
       instanceName.append( ".Name=\"");
-      instanceName.append(testNamespaceName);
+      instanceName.append(testNamespaceName.getString());
       instanceName.append("\"");
       
       try
@@ -228,20 +231,20 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
 			              Boolean activeTest, 
 			              Boolean verboseTest) 
 {
-    Array<String> namespaces;
+    Array<CIMNamespaceName> namespaces;
     String instanceName;
 
-    namespaces.append( "test1" );
-    namespaces.append( "test2" );
-    namespaces.append( "test3" );
-    namespaces.append( "test4" );
-    namespaces.append( "test5" );
-    namespaces.append( "test6" );
-    namespaces.append( "test1/test2" );
-    namespaces.append( "test1/test2/test3" );
-    namespaces.append( "test1/test2/test3/test4" );
-    namespaces.append( "test1/test2/test3/test4/test5" );
-    namespaces.append( "test1/test2/test3/test4/test5/test6" );
+    namespaces.append(CIMNamespaceName ("test1"));
+    namespaces.append(CIMNamespaceName ("test2"));
+    namespaces.append(CIMNamespaceName ("test3"));
+    namespaces.append(CIMNamespaceName ("test4"));
+    namespaces.append(CIMNamespaceName ("test5"));
+    namespaces.append(CIMNamespaceName ("test6"));
+    namespaces.append(CIMNamespaceName ("test1/test2"));
+    namespaces.append(CIMNamespaceName ("test1/test2/test3"));
+    namespaces.append(CIMNamespaceName ("test1/test2/test3/test4"));
+    namespaces.append(CIMNamespaceName ("test1/test2/test3/test4/test5"));
+    namespaces.append(CIMNamespaceName ("test1/test2/test3/test4/test5/test6"));
     if(verboseTest)
     {
       cout << "++ Cleanup existing test namespaces" << endl;
@@ -250,7 +253,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
     {
       // Build the instance name for __namespace
       instanceName.clear();
-      instanceName.append( CLASSNAME );
+      instanceName.append(CLASSNAME.getString());
       instanceName.append( ".Name=\"\"");
       
       try
@@ -276,7 +279,8 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
 	{
 	    // Build the new instance
 	    CIMInstance newInstance(CLASSNAME);
-	    newInstance.addProperty(CIMProperty("name",String::EMPTY));
+	    newInstance.addProperty(CIMProperty(CIMName ("name"),
+                String::EMPTY));
             if(verboseTest)
             {
               cout << "Creating " << namespaces[i] << endl;
@@ -298,9 +302,9 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
   for (Sint32 i = namespaces.size()-1; i > -1; i--)
     {
       // Build the instance name for __namespace
-      String testNamespaceName = namespaces[i];
+      CIMNamespaceName testNamespaceName = namespaces[i];
       instanceName.clear();
-      instanceName.append( CLASSNAME );
+      instanceName.append(CLASSNAME.getString());
       instanceName.append( ".Name=\"\"");
       
       try

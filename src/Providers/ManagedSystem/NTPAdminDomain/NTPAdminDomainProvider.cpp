@@ -25,6 +25,8 @@
 //         
 //
 // Modified By: Jair Francisco T. dos Santos (t.dos.santos.francisco@non.hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //==============================================================================
 // Based on DNSAdminDomainProvider.cpp file
 //%////////////////////////////////////////////////////////////////////////////
@@ -81,19 +83,19 @@ NTPAdminDomainProvider::getInstance(const OperationContext & context,
 {
     Array<CIMKeyBinding> keys;
     CIMInstance instance;
-    String className;
+    CIMName className;
     
     //-- make sure we're working on the right class
     className = ref.getClassName();
 
-    if (!String::equalNoCase(className, CLASS_NAME))
-        throw CIMNotSupportedException("NTPAdminDomainProvider does not support class " + className);
+    if (!className.equal (CLASS_NAME))
+        throw CIMNotSupportedException("NTPAdminDomainProvider does not support class " + className.getString());
     
     ntp = new NTPAdminDomain();
 
     //-- make sure we're the right instance
     int keyCount;
-    String keyName;
+    CIMName keyName;
     String keyValue;
     String nName;
     
@@ -112,11 +114,11 @@ NTPAdminDomainProvider::getInstance(const OperationContext & context,
          keyName = keys[ii].getName();
          keyValue = keys[ii].getValue();
 
-        if (String::equalNoCase(keyName, PROPERTY_CREATION_CLASS_NAME) &&
+        if (keyName.equal (PROPERTY_CREATION_CLASS_NAME) &&
             (String::equalNoCase(keyValue, CLASS_NAME) || 
              keyValue.size() == 0))
             keyCount--;
-        else if (String::equalNoCase(keyName, PROPERTY_NAME) &&
+        else if (keyName.equal (PROPERTY_NAME) &&
                  String::equalNoCase(keyValue, nName)) 
             keyCount--;
     }
@@ -143,7 +145,7 @@ NTPAdminDomainProvider::enumerateInstances(const OperationContext & context,
                                          const CIMPropertyList & propertyList,
                                          InstanceResponseHandler & handler)
 {
-    String className;
+    CIMName className;
     CIMInstance instance;
     CIMObjectPath newref;
     
@@ -155,8 +157,8 @@ NTPAdminDomainProvider::enumerateInstances(const OperationContext & context,
     // will call us as natural part of recursing through subtree on
     // enumerate - if we return instances on enumerate of our superclass,
     // there would be dups
-    if (!String::equalNoCase(className, CLASS_NAME))
-        throw CIMNotSupportedException("NTPAdminDomainProvider does not support class " + className);
+    if (!className.equal (CLASS_NAME))
+        throw CIMNotSupportedException("NTPAdminDomainProvider does not support class " + className.getString());
 
     handler.processing();
     newref = _fill_reference(ref.getNameSpace(), className);
@@ -177,7 +179,7 @@ NTPAdminDomainProvider::enumerateInstanceNames(const OperationContext & context,
                                              ObjectPathResponseHandler & handler)
 {
     CIMObjectPath newref;
-    String className;
+    CIMName className;
 
     // only return instances when enumerate on our subclass, CIMOM
     // will call us as natural part of recursing through subtree on
@@ -188,8 +190,8 @@ NTPAdminDomainProvider::enumerateInstanceNames(const OperationContext & context,
 
     ntp = new NTPAdminDomain();
     
-    if (!String::equalNoCase(className, CLASS_NAME))
-        throw CIMNotSupportedException("NTPAdminDomainProvider does not support class " + className);
+    if (!className.equal (CLASS_NAME))
+        throw CIMNotSupportedException("NTPAdminDomainProvider does not support class " + className.getString());
 
     handler.processing();
     newref = _fill_reference(ref.getNameSpace(), className);
@@ -275,8 +277,8 @@ NTPAdminDomainProvider::terminate(void)
 // _build_instance
 //------------------------------------------------------------------------------
 CIMInstance
-NTPAdminDomainProvider::_build_instance(const String & className,
-                                        const String & nameSpace,
+NTPAdminDomainProvider::_build_instance(const CIMName & className,
+                                        const CIMNamespaceName & nameSpace,
                                         const Array<CIMKeyBinding> keys) {
     CIMInstance instance(className);
     String strValue;
@@ -338,8 +340,8 @@ NTPAdminDomainProvider::_build_instance(const String & className,
 // _fill_reference
 //------------------------------------------------------------------------------
 CIMObjectPath
-NTPAdminDomainProvider::_fill_reference(const String &nameSpace,
-                                         const String &className)
+NTPAdminDomainProvider::_fill_reference(const CIMNamespaceName &nameSpace,
+                                         const CIMName &className)
 {
     Array<CIMKeyBinding> keys;
     String hostName;

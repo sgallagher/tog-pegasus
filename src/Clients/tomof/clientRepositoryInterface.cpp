@@ -87,7 +87,7 @@ clientRepositoryInterface::init(_repositoryType type,
 
 
 Array<CIMQualifierDecl> clientRepositoryInterface::enumerateQualifiers(
-    const String& nameSpace) const 
+    const CIMNamespaceName& nameSpace) const 
 {
   if (_repository)
     return _repository->enumerateQualifiers(nameSpace);
@@ -97,8 +97,8 @@ Array<CIMQualifierDecl> clientRepositoryInterface::enumerateQualifiers(
 }
 
 CIMClass clientRepositoryInterface::getClass(
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     const Boolean localOnly,
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin) const
@@ -114,8 +114,8 @@ CIMClass clientRepositoryInterface::getClass(
 
 
 Array<CIMClass> clientRepositoryInterface::enumerateClasses(
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     const Boolean deepInheritance,
     const Boolean localOnly,
     const Boolean includeQualifiers,
@@ -142,14 +142,15 @@ Array<CIMClass> clientRepositoryInterface::enumerateClasses(
 	 throw IndexOutOfBoundsException();
 };
 Array<CIMName> clientRepositoryInterface::enumerateClassNames(
-    const String& nameSpace,
-    const String& className,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
     const Boolean deepInheritance)
 
 {
     if (_repository)
     {
-       Array<String> classNameArray = _repository->enumerateClassNames(nameSpace, className, deepInheritance);
+       Array<CIMName> classNameArray = _repository->enumerateClassNames
+           (nameSpace, className, deepInheritance);
        // ATTN: Temporary code until the repository uses CIMName
        Array<CIMName> cimNameArray;
        for (Uint32 i = 0; i < classNameArray.size(); i++)
@@ -165,8 +166,8 @@ Array<CIMName> clientRepositoryInterface::enumerateClassNames(
 };
 
 Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
-	const String& nameSpace,
-	const String& className)
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className)
 {
     if (_repository)
        return _repository->enumerateInstanceNames(nameSpace, className);
@@ -177,8 +178,8 @@ Array<CIMObjectPath> clientRepositoryInterface::enumerateInstanceNames(
 };
 
 Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
-	const String& nameSpace,
-	const String& className,
+	const CIMNamespaceName& nameSpace,
+	const CIMName& className,
 	Boolean deepInheritance,
 	Boolean localOnly,
 	Boolean includeQualifiers,

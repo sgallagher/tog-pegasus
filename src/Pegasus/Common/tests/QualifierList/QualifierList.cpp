@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,16 +53,19 @@ int main(int argc, char** argv)
 
 	SimpleDeclContext context;
 
-	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("abstract", 
+	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl
+            (CIMName ("abstract"), 
 	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
-	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("description", 
+	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl
+            (CIMName ("description"), 
 	    String(), CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
-	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("q1", 
-	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE + CIMFlavor::TOSUBCLASS));
+	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl(CIMName ("q1"), 
+	    false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE + 
+            CIMFlavor::TOSUBCLASS));
 
-	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl("q2", 
+	context.addQualifierDecl(NAMESPACE, CIMQualifierDecl(CIMName ("q2"), 
 	    false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS));
 
 	// ATTN: KS P1 29 Mar 2002 - Add Tests for Null Value
@@ -73,24 +78,26 @@ int main(int argc, char** argv)
 	CIMQualifierList qualifiers1;
 
 	qualifiers1
-	    .add(CIMQualifier("Abstract", true))
-	    .add(CIMQualifier("Description", String("CIMQualifier List 1")))
-	    .add(CIMQualifier("q1", false))
-	    .add(CIMQualifier("q2", false));
+	    .add(CIMQualifier(CIMName ("Abstract"), true))
+	    .add(CIMQualifier(CIMName ("Description"), 
+                String("CIMQualifier List 1")))
+	    .add(CIMQualifier(CIMName ("q1"), false))
+	    .add(CIMQualifier(CIMName ("q2"), false));
 	
 	// Run the find, get, etc tests.
 
 	assert(qualifiers1.getCount() == 4);
-	assert(qualifiers1.find("Abstract") == 0);
-	assert(qualifiers1.exists("Abstract"));
-	assert(qualifiers1.isTrue("Abstract"));
-	assert(qualifiers1.exists("q1"));
-	assert(!qualifiers1.isTrue("q1"));
-	assert(qualifiers1.exists("q2"));
-	assert(!qualifiers1.isTrue("q2"));
+	assert(qualifiers1.find(CIMName ("Abstract")) == 0);
+	assert(qualifiers1.exists(CIMName ("Abstract")));
+	assert(qualifiers1.isTrue(CIMName ("Abstract")));
+	assert(qualifiers1.exists(CIMName ("q1")));
+	assert(!qualifiers1.isTrue(CIMName ("q1")));
+	assert(qualifiers1.exists(CIMName ("q2")));
+	assert(!qualifiers1.isTrue(CIMName ("q2")));
 
-	assert(qualifiers1.find("QualifierDoesNotExist") == PEG_NOT_FOUND);
-	assert(!qualifiers1.exists("QualifierDoesNotExist"));
+	assert(qualifiers1.find(CIMName ("QualifierDoesNotExist")) == 
+            PEG_NOT_FOUND);
+	assert(!qualifiers1.exists(CIMName ("QualifierDoesNotExist")));
 
 	qualifiers1.resolve(
 	    &context, NAMESPACE, CIMScope::CLASS, false, qualifiers0, true);
@@ -98,16 +105,17 @@ int main(int argc, char** argv)
 	// Qualifiers after the resolve.  Should have resolved against the
 	// declarations.
 	assert(qualifiers1.getCount() == 4);
-	assert(qualifiers1.find("Abstract") == 0);
-	assert(qualifiers1.exists("Abstract"));
-	assert(qualifiers1.isTrue("Abstract"));
-	assert(qualifiers1.exists("q1"));
-	assert(!qualifiers1.isTrue("q1"));
-	assert(qualifiers1.exists("q2"));
-	assert(!qualifiers1.isTrue("q2"));
+	assert(qualifiers1.find(CIMName ("Abstract")) == 0);
+	assert(qualifiers1.exists(CIMName ("Abstract")));
+	assert(qualifiers1.isTrue(CIMName ("Abstract")));
+	assert(qualifiers1.exists(CIMName ("q1")));
+	assert(!qualifiers1.isTrue(CIMName ("q1")));
+	assert(qualifiers1.exists(CIMName ("q2")));
+	assert(!qualifiers1.isTrue(CIMName ("q2")));
 
-	assert(qualifiers1.find("QualifierDoesNotExist") == PEG_NOT_FOUND);
-	assert(!qualifiers1.exists("QualifierDoesNotExist"));
+	assert(qualifiers1.find(CIMName ("QualifierDoesNotExist")) == 
+            PEG_NOT_FOUND);
+	assert(!qualifiers1.exists(CIMName ("QualifierDoesNotExist")));
 	if(verbose)
 	    qualifiers1.print();
 
@@ -116,7 +124,7 @@ int main(int argc, char** argv)
 	Boolean exceptionCaught = false;
 	try
 	{
-	    qualifiers1.add(CIMQualifier("Abstract", true));
+	    qualifiers1.add(CIMQualifier(CIMName ("Abstract"), true));
 	}
 	catch (Exception& e)
 	{
@@ -126,25 +134,27 @@ int main(int argc, char** argv)
 
 	// Test some of the basics again after the double insertion problem
 	assert(qualifiers1.getCount() == 4);
-	assert(qualifiers1.find("Abstract") == 0);
-	assert(qualifiers1.exists("Abstract"));
-	assert(qualifiers1.isTrue("Abstract"));
+	assert(qualifiers1.find(CIMName ("Abstract")) == 0);
+	assert(qualifiers1.exists(CIMName ("Abstract")));
+	assert(qualifiers1.isTrue(CIMName ("Abstract")));
 
 	// Create qualifier list 2: Will be resolved against qualifiers1
 
 	CIMQualifierList qualifiers2;
 
 	qualifiers2
-	    .add(CIMQualifier("Description", String("CIMQualifier List 1")))
-	    .add(CIMQualifier("q1", Boolean(true), CIMFlavor::OVERRIDABLE));
+	    .add(CIMQualifier(CIMName ("Description"), 
+                String("CIMQualifier List 1")))
+	    .add(CIMQualifier(CIMName ("q1"), Boolean(true), 
+                CIMFlavor::OVERRIDABLE));
 
 	if(verbose)
 	    qualifiers2.print();
 
 	assert(qualifiers2.getCount() == 2);
-	assert(qualifiers2.exists("Description"));
-	assert(qualifiers2.exists("q1"));
-	assert(qualifiers2.isTrue("q1"));
+	assert(qualifiers2.exists(CIMName ("Description")));
+	assert(qualifiers2.exists(CIMName ("q1")));
+	assert(qualifiers2.isTrue(CIMName ("q1")));
 
 	// Resolve the qualifiers against the previous list qualifiers1
 	qualifiers2.resolve(
@@ -155,17 +165,17 @@ int main(int argc, char** argv)
 
 	// Post resolution
 	assert(qualifiers2.getCount() == 4);
-	assert(qualifiers2.exists("Description"));
-	assert(qualifiers2.exists("abstract"));
-	assert(qualifiers2.isTrue("abstract"));
+	assert(qualifiers2.exists(CIMName ("Description")));
+	assert(qualifiers2.exists(CIMName ("abstract")));
+	assert(qualifiers2.isTrue(CIMName ("abstract")));
 
 
-	assert(qualifiers2.exists("q1"));
-	assert(qualifiers2.isTrue("q1"));
+	assert(qualifiers2.exists(CIMName ("q1")));
+	assert(qualifiers2.isTrue(CIMName ("q1")));
 
-	assert(qualifiers2.exists("q2"));
+	assert(qualifiers2.exists(CIMName ("q2")));
 	// Should inherit the value from the superclass
-	assert(!qualifiers2.isTrue("q2"));
+	assert(!qualifiers2.isTrue(CIMName ("q2")));
 
     }
     catch (Exception& e)

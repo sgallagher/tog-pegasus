@@ -23,7 +23,8 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +99,7 @@ private:
         (
         PEGASUS_STD(ostream)&    outPrintWriter, 
         PEGASUS_STD(ostream)&    errPrintWriter,
-        const String&            propertyName,
+        const CIMName&           propertyName,
         Array <String>&          propertyValues
         ); //throw (CIMException);
 
@@ -118,7 +119,7 @@ private:
         (
         PEGASUS_STD(ostream)&    outPrintWriter, 
         PEGASUS_STD(ostream)&    errPrintWriter,
-        const String&            propertyName,
+        const CIMName&           propertyName,
         const String&            propertyValue,
         Boolean                  isUnsetOperation
         ); //throw (CIMException);
@@ -133,7 +134,7 @@ private:
     (
 	ostream&    outPrintWriter,
 	ostream&    errPrintWriter,
-        Array <String>&   propertyNames,
+        Array <CIMName>&  propertyNames,
         Array <String>&   propertyValues
     );
 
@@ -155,7 +156,7 @@ private:
     /**
     The name of a config property. 
     */
-    String        _propertyName;
+    CIMName       _propertyName;
 
     /**
     The value of a config property. 

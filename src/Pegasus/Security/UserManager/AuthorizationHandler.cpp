@@ -44,6 +44,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 #include "AuthorizationHandler.h"
 #include "UserExceptions.h"
@@ -57,17 +58,17 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // This constant represents the  User name property in the schema
 //
-static const char PROPERTY_NAME_USERNAME []       = "Username";
+static const CIMName PROPERTY_NAME_USERNAME        = CIMName ("Username");
 
 //
 // This constant represents the Namespace property in the schema
 //
-static const char PROPERTY_NAME_NAMESPACE []      = "Namespace";
+static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
 
 //
 // This constant represents the Authorizations property in the schema
 //
-static const char PROPERTY_NAME_AUTHORIZATION []  = "Authorization";
+static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 
 
 //
@@ -82,39 +83,39 @@ static const char PROPERTY_NAME_AUTHORIZATION []  = "Authorization";
 //
 // List of read only CIM Operations
 //
-static const char* READ_OPERATIONS []    = {
-    "GetClass",
-    "GetInstance",
-    "EnumerateClassNames",
-    "References",
-    "ReferenceNames",
-    "AssociatorNames",
-    "Associators",
-    "EnumerateInstanceNames",
-    "GetQualifier",
-    "EnumerateQualifiers",
-    "EnumerateClasses",
-    "EnumerateInstances",
-    "ExecQuery",
-    "GetProperty" };
+static const CIMName READ_OPERATIONS []    = {
+    CIMName ("GetClass"),
+    CIMName ("GetInstance"),
+    CIMName ("EnumerateClassNames"),
+    CIMName ("References"),
+    CIMName ("ReferenceNames"),
+    CIMName ("AssociatorNames"),
+    CIMName ("Associators"),
+    CIMName ("EnumerateInstanceNames"),
+    CIMName ("GetQualifier"),
+    CIMName ("EnumerateQualifiers"),
+    CIMName ("EnumerateClasses"),
+    CIMName ("EnumerateInstances"),
+    CIMName ("ExecQuery"),
+    CIMName ("GetProperty") };
     
 //
 // List of write CIM Operations
 //
-static const char* WRITE_OPERATIONS []    = {
-    "CreateClass",
-    "CreateInstance",
-    "DeleteQualifier",
-    "SetQualifier",
-    "ModifyClass",
-    "ModifyInstance",
-    "DeleteClass",
-    "DeleteInstance",
-    "SetProperty",
-    "InvokeMethod",
-    "EnableIndicationSubscription",
-    "ModifyIndicationSubscription",
-    "DisableIndicationSubscription" };
+static const CIMName WRITE_OPERATIONS []    = {
+    CIMName ("CreateClass"),
+    CIMName ("CreateInstance"),
+    CIMName ("DeleteQualifier"),
+    CIMName ("SetQualifier"),
+    CIMName ("ModifyClass"),
+    CIMName ("ModifyInstance"),
+    CIMName ("DeleteClass"),
+    CIMName ("DeleteInstance"),
+    CIMName ("SetProperty"),
+    CIMName ("InvokeMethod"),
+    CIMName ("EnableIndicationSubscription"),
+    CIMName ("ModifyIndicationSubscription"),
+    CIMName ("DisableIndicationSubscription") };
     
 
 //
@@ -157,7 +158,8 @@ AuthorizationHandler::~AuthorizationHandler()
 //
 // Check if a given namespace exists
 //
-Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
+Boolean AuthorizationHandler::verifyNamespace( 
+    const CIMNamespaceName& nameSpace )
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::verifyNamespace()");
@@ -168,7 +170,7 @@ Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
         // call enumerateNameSpaces to get all the namespaces 
         // in the repository
         //
-        Array<String> namespaceNames =
+        Array<CIMNamespaceName> namespaceNames =
             _repository->enumerateNameSpaces();
 
         //
@@ -178,7 +180,7 @@ Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
 
         for (Uint32 i = 0; i < size; i++)
         {
-             if (String::equal(nameSpace, namespaceNames[i]))
+             if (nameSpace.equal (namespaceNames[i]))
              {
                  PEG_METHOD_EXIT();
                  return true;
@@ -188,7 +190,7 @@ Boolean AuthorizationHandler::verifyNamespace( const String& nameSpace )
     catch (Exception& e)
     {
         PEG_METHOD_EXIT();
-	throw InvalidNamespace(nameSpace + e.getMessage());
+	throw InvalidNamespace(nameSpace.getString() + e.getMessage());
     }
 
     PEG_METHOD_EXIT();
@@ -260,7 +262,7 @@ void AuthorizationHandler::_loadAllAuthorizations()
 
 void AuthorizationHandler::setAuthorization(
                             const String& userName,
-                            const String& nameSpace,
+                            const CIMNamespaceName& nameSpace,
 			    const String& auth)
 {
     PEG_METHOD_ENTER(
@@ -269,12 +271,12 @@ void AuthorizationHandler::setAuthorization(
     //
     // Remove auth if it already exists
     //
-    _authTable.remove(userName + nameSpace);
+    _authTable.remove(userName + nameSpace.getString());
 
     //
     // Insert the specified authorization
     //
-    if (!_authTable.insert(userName + nameSpace, auth))
+    if (!_authTable.insert(userName + nameSpace.getString(), auth))
     {
         PEG_METHOD_EXIT();
         throw AuthorizationCacheError();
@@ -285,7 +287,7 @@ void AuthorizationHandler::setAuthorization(
 
 void AuthorizationHandler::removeAuthorization(
                             const String& userName,
-                            const String& nameSpace)
+                            const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::removeAuthorization()");
@@ -293,17 +295,17 @@ void AuthorizationHandler::removeAuthorization(
     //
     // Remove the specified authorization
     //
-    if (!_authTable.remove(userName + nameSpace))
+    if (!_authTable.remove(userName + nameSpace.getString()))
     {
         PEG_METHOD_EXIT();
-        throw AuthorizationEntryNotFound(userName, nameSpace);
+        throw AuthorizationEntryNotFound(userName, nameSpace.getString());
     }
     PEG_METHOD_EXIT();
 }
 
 String AuthorizationHandler::getAuthorization(
                             const String& userName,
-                            const String& nameSpace)
+                            const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::getAuthorization()");
@@ -313,10 +315,10 @@ String AuthorizationHandler::getAuthorization(
     //
     // Get authorization for the specified userName and nameSpace
     //
-    if (!_authTable.lookup(userName + nameSpace, auth))
+    if (!_authTable.lookup(userName + nameSpace.getString(), auth))
     {
         PEG_METHOD_EXIT();
-        throw AuthorizationEntryNotFound(userName, nameSpace);
+        throw AuthorizationEntryNotFound(userName, nameSpace.getString());
     }
 
     PEG_METHOD_EXIT();
@@ -330,8 +332,8 @@ String AuthorizationHandler::getAuthorization(
 //
 Boolean AuthorizationHandler::verifyAuthorization(
                             const String& userName,
-                            const String& nameSpace,
-                            const String& cimMethodName)
+                            const CIMNamespaceName& nameSpace,
+                            const CIMName& cimMethodName)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHORIZATION, "AuthorizationHandler::verifyAuthorization()");
@@ -346,7 +348,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
 
     for (Uint32 i = 0; i < readOpSize; i++ )
     {
-        if ( String::equal(cimMethodName, READ_OPERATIONS[i]) )
+        if (cimMethodName.equal (READ_OPERATIONS[i]))
         {
             readOperation = true;
             break;
@@ -356,7 +358,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
     {
         for (Uint32 i = 0; i < writeOpSize; i++ )
         {
-            if ( String::equal(cimMethodName, WRITE_OPERATIONS[i]) )
+            if (cimMethodName.equal (WRITE_OPERATIONS[i]))
             {
                 writeOperation = true;
                 break;

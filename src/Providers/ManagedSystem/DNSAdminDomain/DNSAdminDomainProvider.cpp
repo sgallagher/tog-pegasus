@@ -22,7 +22,8 @@
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-// Modified By: 
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +74,7 @@ DNSAdminDomainProvider::getInstance(
                 InstanceResponseHandler & handler)
 {
     DNSAdminDomain dns;
-    String className;
+    CIMName className;
     String dname;
     className = instanceReference.getClassName();
     Array<CIMKeyBinding> keys;
@@ -81,12 +82,12 @@ DNSAdminDomainProvider::getInstance(
 
     //-- make sure we're working on the right class
     className = instanceReference.getClassName();
-    if (!String::equalNoCase(className, CLASS_HPUX_DNSADMINDOMAIN))
-        throw CIMNotSupportedException("DNSAdminDomainProvider does not support class " + className);
+    if (!className.equal (CLASS_HPUX_DNSADMINDOMAIN))
+        throw CIMNotSupportedException("DNSAdminDomainProvider does not support class " + className.getString());
 
     //-- make sure we're the right instance
     int keyCount;
-    String keyName;
+    CIMName keyName;
 
     keyCount = MAX_KEYS;
     keys = instanceReference.getKeyBindings();
@@ -107,14 +108,14 @@ DNSAdminDomainProvider::getInstance(
     {
          keyName = keys[ii].getName();
 
-         if (String::equalNoCase(keyName, PROPERTY_CREATION_CLASS_NAME) &&
+         if (keyName.equal (PROPERTY_CREATION_CLASS_NAME) &&
               (String::equalNoCase(keys[ii].getValue(),
                                      CLASS_HPUX_DNSADMINDOMAIN) ||
              keys[ii].getValue() == ""))
          {
               keyCount--;
          }
-         else if (String::equalNoCase(keyName, PROPERTY_NAME) &&
+         else if (keyName.equal (PROPERTY_NAME) &&
                     String::equalNoCase(keys[ii].getValue(), dname))
          {
               keyCount--;
@@ -122,7 +123,7 @@ DNSAdminDomainProvider::getInstance(
          else
          {
               throw CIMInvalidParameterException("DNSAdminDomainProvider "
-                             " unrecognized key " + keyName);
+                             " unrecognized key " + keyName.getString());
          }
      }
 
@@ -149,7 +150,7 @@ DNSAdminDomainProvider::enumerateInstances(
                 const CIMPropertyList & propertyList,
                 InstanceResponseHandler & handler)
 {
-    String className;
+    CIMName className;
     CIMInstance instance;
     CIMObjectPath newref;
    
@@ -159,7 +160,7 @@ DNSAdminDomainProvider::enumerateInstances(
     // will call us as natural part of recursing through subtree on 
     // enumerate - if we return instances on enumerate of our superclass, 
     // there would be dups
-    if (String::equalNoCase(className, CLASS_HPUX_DNSADMINDOMAIN))
+    if (className.equal (CLASS_HPUX_DNSADMINDOMAIN))
     {
         handler.processing();
         newref = _fill_reference(classReference.getNameSpace(), className);
@@ -173,7 +174,7 @@ DNSAdminDomainProvider::enumerateInstances(
     else
     {
         throw CIMNotSupportedException("DNSAdminDomainProvider "
-                "does not support class " + className);
+                "does not support class " + className.getString());
     }
 }
 
@@ -184,17 +185,17 @@ DNSAdminDomainProvider::enumerateInstanceNames(
                 ObjectPathResponseHandler & handler)
 {
     CIMObjectPath newref;
-    String className;
+    CIMName className;
 
     // only return instances when enumerate on our subclass, CIMOM
     // will call us as natural part of recursing through subtree on
     // enumerate - if we return instances on enumerate of our superclass,
     // there would be dups
     className = classReference.getClassName();
-    if (!String::equalNoCase(className, CLASS_HPUX_DNSADMINDOMAIN))
+    if (!className.equal (CLASS_HPUX_DNSADMINDOMAIN))
     {
         throw CIMNotSupportedException("DNSAdminDomainProvider "
-                           "does not support class " + className);
+                           "does not support class " + className.getString());
     }
 
     handler.processing();
@@ -254,8 +255,8 @@ DNSAdminDomainProvider::terminate(void)
 ***********************************************************************/
 
 CIMInstance
-DNSAdminDomainProvider::_build_instance(const String & className,
-                                        const String & nameSpace,
+DNSAdminDomainProvider::_build_instance(const CIMName & className,
+                                        const CIMNamespaceName & nameSpace,
                                         const Array<CIMKeyBinding> keys)
 {
     CIMInstance instance(className);
@@ -314,8 +315,8 @@ DNSAdminDomainProvider::_build_instance(const String & className,
 ***********************************************************************/
 
 CIMObjectPath
-DNSAdminDomainProvider::_fill_reference(const String &nameSpace,
-                                        const String &className)
+DNSAdminDomainProvider::_fill_reference(const CIMNamespaceName &nameSpace,
+                                        const CIMName &className)
 {
     Array<CIMKeyBinding> keys;
     DNSAdminDomain dns;

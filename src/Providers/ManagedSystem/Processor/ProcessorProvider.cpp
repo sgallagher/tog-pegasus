@@ -31,6 +31,8 @@
 //         Jim Metcalfe, Hewlett-Packard Company
 //         Carlos Bonilla, Hewlett-Packard Company
 //         Mike Glantz, Hewlett-Packard Company <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -209,8 +211,8 @@ void ProcessorProvider::enumerateInstances(
     // cout << "ProcessorProvider::enumerateInstances()" << endl;
 
     int pIndex;
-    String className = classReference.getClassName();
-    String nameSpace = classReference.getNameSpace();
+    CIMName className = classReference.getClassName();
+    CIMNamespaceName nameSpace = classReference.getNameSpace();
     Processor _p;
 
     // Validate the classname
@@ -221,7 +223,7 @@ void ProcessorProvider::enumerateInstances(
 
     // We will only return instances on enumeration requests
     // to the "leaf" class
-    if (String::equalNoCase(className,CLASS_PROCESSOR))
+    if (className.equal (CLASS_PROCESSOR))
     {
       // Get the processor information and construct and deliver
       // an instance for each processor
@@ -258,8 +260,8 @@ void ProcessorProvider::enumerateInstanceNames(const OperationContext &ctx,
 
     int pIndex;
     Processor _p;
-    String className = ref.getClassName();
-    String nameSpace = ref.getNameSpace();
+    CIMName className = ref.getClassName();
+    CIMNamespaceName nameSpace = ref.getNameSpace();
 
     // Validate the classname
     _checkClass(className);
@@ -269,7 +271,7 @@ void ProcessorProvider::enumerateInstanceNames(const OperationContext &ctx,
 
     // We are only going to respond to enumeration requests on the
     // leaf class CLASS_PROCESSOR
-    if (String::equalNoCase(className,CLASS_PROCESSOR))
+    if (className.equal (CLASS_PROCESSOR))
     {
       // Get the process information and deliver an ObjectPath for
       // each process
@@ -319,8 +321,8 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
   // cout << "ProcessorProvider::getInstance(" << instanceName << ")" << endl;
 
   CIMKeyBinding kb;
-  String className = instanceName.getClassName();
-  String nameSpace = instanceName.getNameSpace();
+  CIMName className = instanceName.getClassName();
+  CIMNamespaceName nameSpace = instanceName.getNameSpace();
   String deviceID;
   int i;
   int keysFound; // this will be used as a bit array
@@ -344,49 +346,53 @@ void ProcessorProvider::getInstance(const OperationContext &ctx,
   {
     kb = kbArray[i];
 
-    String keyName = kb.getName();
+    CIMName keyName = kb.getName();
     String keyValue = kb.getValue();
 
     // SystemCreationClassName can be empty or must match
-    if (String::equalNoCase(keyName, PROPERTY_SYSTEM_CREATION_CLASS_NAME))
+    if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
           String::equalNoCase(keyValue, CLASS_CIM_COMPUTER_SYSTEM))
         keysFound |= 1;
       else
-        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 	
     // SystemName can be empty or must match
-    else if (String::equalNoCase(keyName, PROPERTY_SYSTEM_NAME))
+    else if (keyName.equal (PROPERTY_SYSTEM_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
           String::equalNoCase(keyValue, _getSysName()))
         keysFound |= 2;
       else
-        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 
     // CreationClassName can be empty or must match
-    else if (String::equalNoCase(keyName, PROPERTY_CREATION_CLASS_NAME))
+    else if (keyName.equal (PROPERTY_CREATION_CLASS_NAME))
     {
       if (String::equal(keyValue, String::EMPTY) ||
 	  String::equalNoCase(keyValue, CLASS_PROCESSOR))
         keysFound |= 4;
       else
-        throw CIMInvalidParameterException(keyValue+": bad value for key "+keyName);
+        throw CIMInvalidParameterException(keyValue+": bad value for key "+
+            keyName.getString());
     }
 
     // Handle must be a valid pid, but we will know that later
     // For now, just verify that it's present
-    else if (String::equalNoCase(keyName, PROPERTY_DEVICE_ID))
+    else if (keyName.equal (PROPERTY_DEVICE_ID))
     {
       deviceID = keyValue;
       keysFound |= 8;
     }
 
     // Key name was not recognized by any of the above tests
-    else throw CIMInvalidParameterException(keyName+ ": Unrecognized key");
+    else throw CIMInvalidParameterException(keyName.getString() + 
+        ": Unrecognized key");
 		
   } // for
 
@@ -527,9 +533,10 @@ Array<CIMKeyBinding> ProcessorProvider::_constructKeyBindings(const Processor& _
 // PARAMETERS        : className, nameSpace, Processor
 // ================================================================================
 
-CIMInstance ProcessorProvider::_constructInstance(const String &className,
-                                                  const String &nameSpace,
-                                                  const Processor &_p)
+CIMInstance ProcessorProvider::_constructInstance(
+    const CIMName &className,
+    const CIMNamespaceName &nameSpace,
+    const Processor &_p)
 {
   String s;
   Array<String> as;
@@ -712,7 +719,7 @@ CIMInstance ProcessorProvider::_constructInstance(const String &className,
   if (_p.getCPUStatus(i16))
     inst.addProperty(CIMProperty(PROPERTY_CPU_STATUS,i16));
     
-  if (String::equalNoCase(className,CLASS_CIM_PROCESSOR)) return inst;
+  if (className.equal (CLASS_CIM_PROCESSOR)) return inst;
 
   // =================================================
   // PG_Processor
@@ -759,9 +766,10 @@ POST-CONDITIONS   :
 NOTES             :
 ================================================================================
 */
-void ProcessorProvider::_checkClass(String& className)
+void ProcessorProvider::_checkClass(CIMName& className)
 {
-  if (!String::equalNoCase(className, CLASS_CIM_PROCESSOR) &&
-      !String::equalNoCase(className, CLASS_PROCESSOR))
-    throw CIMNotSupportedException(className+": Class not supported");
+  if (!className.equal (CLASS_CIM_PROCESSOR) &&
+      !className.equal (CLASS_PROCESSOR))
+    throw CIMNotSupportedException(className.getString() +
+        ": Class not supported");
 }

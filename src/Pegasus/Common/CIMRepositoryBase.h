@@ -63,15 +63,15 @@ public:
     virtual void write_unlock(void) = 0;
     
     virtual CIMClass getClass(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         Boolean localOnly = true,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
     virtual CIMInstance getInstance(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
@@ -79,47 +79,47 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
     virtual void deleteClass(
-        const String& nameSpace,
-        const String& className) = 0;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) = 0;
 
     virtual void deleteInstance(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName) = 0;
 
     virtual void createClass(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMClass& newClass) = 0;
 
     virtual CIMObjectPath createInstance(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance) = 0;
 
     virtual void modifyClass(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass) = 0;
 
     virtual void modifyInstance(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
     virtual Array<CIMClass> enumerateClasses(
-        const String& nameSpace,
-        const String& className = String::EMPTY,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className = CIMName(),
         Boolean deepInheritance = false,
         Boolean localOnly = true,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false) = 0;
 
-    virtual Array<String> enumerateClassNames(
-        const String& nameSpace,
-        const String& className = String::EMPTY,
+    virtual Array<CIMName> enumerateClassNames(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className = CIMName(),
         Boolean deepInheritance = false) = 0;
 
     virtual Array<CIMInstance> enumerateInstances(
-        const String& nameSpace,
-        const String& className,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         Boolean deepInheritance = true,
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
@@ -127,18 +127,18 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
     virtual Array<CIMObjectPath> enumerateInstanceNames(
-        const String& nameSpace,
-        const String& className) = 0;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className) = 0;
 
     virtual Array<CIMInstance> execQuery(
         const String& queryLanguage,
         const String& query)  = 0;
 
     virtual Array<CIMObject> associators(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const String& assocClass = String::EMPTY,
-        const String& resultClass = String::EMPTY,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY,
         Boolean includeQualifiers = false,
@@ -146,70 +146,70 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
     virtual Array<CIMObjectPath> associatorNames(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const String& assocClass = String::EMPTY,
-        const String& resultClass = String::EMPTY,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY) = 0;
 
     virtual Array<CIMObject> references(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const String& resultClass = String::EMPTY,
+        const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
     virtual Array<CIMObjectPath> referenceNames(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
-        const String& resultClass = String::EMPTY,
+        const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY) = 0;
 
     virtual CIMValue getProperty(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        const String& propertyName) = 0;
+        const CIMName& propertyName) = 0;
 
     virtual void setProperty(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        const String& propertyName,
+        const CIMName& propertyName,
         const CIMValue& newValue = CIMValue()) = 0;
 
     virtual CIMQualifierDecl getQualifier(
-        const String& nameSpace,
-        const String& qualifierName) = 0;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName) = 0;
 
     virtual void setQualifier(
-        const String& nameSpace,
+        const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl) = 0;
 
     virtual void deleteQualifier(
-        const String& nameSpace,
-        const String& qualifierName) = 0;
+        const CIMNamespaceName& nameSpace,
+        const CIMName& qualifierName) = 0;
 
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
-        const String& nameSpace) = 0;
+        const CIMNamespaceName& nameSpace) = 0;
 
-    virtual void createNameSpace(const String& nameSpace) = 0;
+    virtual void createNameSpace(const CIMNamespaceName& nameSpace) = 0;
 
-    virtual Array<String> enumerateNameSpaces() const = 0;
+    virtual Array<CIMNamespaceName> enumerateNameSpaces() const = 0;
 
-    virtual void deleteNameSpace(const String& nameSpace) = 0;
+    virtual void deleteNameSpace(const CIMNamespaceName& nameSpace) = 0;
 
     virtual void getSubClassNames(
-        const String& nameSpaceName,
-        const String& className,
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& className,
         Boolean deepInheritance,
-        Array<String>& subClassNames) const = 0;
+        Array<CIMName>& subClassNames) const = 0;
 
     virtual void getSuperClassNames(
-        const String& nameSpaceName,
-        const String& className,
-        Array<String>& subClassNames) const = 0;
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& className,
+        Array<CIMName>& subClassNames) const = 0;
 };
 
 PEGASUS_NAMESPACE_END

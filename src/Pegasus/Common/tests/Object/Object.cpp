@@ -51,7 +51,7 @@ void test01()
     //
     // Construct from CIMClass
     //
-    CIMClass cimClass1("MyClass");
+    CIMClass cimClass1(CIMName ("MyClass"));
     cimClass1.setPath(CIMObjectPath ("//localhost/root/cimv2:MyClass"));
 
     CIMObject oclass1 = cimClass1;
@@ -64,7 +64,7 @@ void test01()
     cimClass2 = CIMClass(oclass1);
     CIMClass cimClass3 = CIMClass(oclass1);
 
-    assert(oclass1.getClassName() == "MyClass");
+    assert(oclass1.getClassName() == CIMName ("MyClass"));
     assert(oclass1.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
     assert (oclass1.isClass ());
     assert (!oclass1.isInstance ());
@@ -78,7 +78,7 @@ void test01()
     //
     // Construct from CIMInstance
     //
-    CIMInstance cimInstance1("MyClass");
+    CIMInstance cimInstance1(CIMName ("MyClass"));
     CIMObject oinstance1 = cimInstance1;
     CIMObject instance2(cimInstance1);
 
@@ -88,25 +88,25 @@ void test01()
     assert (!instance2.isClass ());
 
     // Test qualifiers
-    oinstance1.addQualifier(CIMQualifier("Key", true));
-    oinstance1.addQualifier(CIMQualifier("Description", String("Just a Test")));
-    oinstance1.addQualifier(CIMQualifier("q1", true));
-    oinstance1.addQualifier(CIMQualifier("q2", true));
+    oinstance1.addQualifier(CIMQualifier(CIMName ("Key"), true));
+    oinstance1.addQualifier(CIMQualifier(CIMName ("Description"), String("Just a Test")));
+    oinstance1.addQualifier(CIMQualifier(CIMName ("q1"), true));
+    oinstance1.addQualifier(CIMQualifier(CIMName ("q2"), true));
 
-    assert(oinstance1.findQualifier("Key") != PEG_NOT_FOUND);
-    assert(oinstance1.findQualifier("Description") != PEG_NOT_FOUND);
-    assert(oinstance1.findQualifier("q1") != PEG_NOT_FOUND);
-    assert(oinstance1.findQualifier("q2") != PEG_NOT_FOUND);
-    assert(oinstance1.findQualifier("q3") == PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("Key")) != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("Description")) != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q3")) == PEG_NOT_FOUND);
     assert(oinstance1.getQualifierCount() == 4);
 
-    assert(oinstance1.findQualifier("q1") != PEG_NOT_FOUND);
-    assert(oinstance1.findQualifier("q2") != PEG_NOT_FOUND);
-    assert(oinstance1.findQualifier("q3") == PEG_NOT_FOUND);
-    assert(oinstance1.findQualifier("q4") == PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q3")) == PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q4")) == PEG_NOT_FOUND);
 
     Uint32 posQualifier;
-    posQualifier = oinstance1.findQualifier("q1");
+    posQualifier = oinstance1.findQualifier(CIMName ("q1"));
     assert(posQualifier != PEG_NOT_FOUND);
     assert(posQualifier < oinstance1.getQualifierCount());
 
@@ -126,24 +126,24 @@ void test01()
 
     oinstance1.removeQualifier(posQualifier);
     assert(oinstance1.getQualifierCount() == 3);
-    assert(oinstance1.findQualifier("q1") == PEG_NOT_FOUND);
-    assert(oinstance1.findQualifier("q2") != PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
+    assert(oinstance1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
 
     // Test properties
-    oinstance1.addProperty(CIMProperty("message", String("Hello There")));
-    oinstance1.addProperty(CIMProperty("count", Uint32(77)));
+    oinstance1.addProperty(CIMProperty(CIMName ("message"), String("Hello There")));
+    oinstance1.addProperty(CIMProperty(CIMName ("count"), Uint32(77)));
 
-    assert(oinstance1.findProperty("count") != PEG_NOT_FOUND);
-    assert(oinstance1.findProperty("message") != PEG_NOT_FOUND);
-    assert(oinstance1.findProperty("ratio") == PEG_NOT_FOUND);
+    assert(oinstance1.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
+    assert(oinstance1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+    assert(oinstance1.findProperty(CIMName ("ratio")) == PEG_NOT_FOUND);
 
     CIMProperty cp =
-       oinstance1.getProperty(oinstance1.findProperty("message"));
+       oinstance1.getProperty(oinstance1.findProperty(CIMName ("message")));
 
     Uint32 posProperty;
-    posProperty = oinstance1.findProperty("count");
+    posProperty = oinstance1.findProperty(CIMName ("count"));
     oinstance1.removeProperty(posProperty);
-    assert(oinstance1.findProperty("count") == PEG_NOT_FOUND);
+    assert(oinstance1.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
 
     assert(oinstance1.getPropertyCount() == 1);
 
@@ -167,7 +167,7 @@ void test02()
     //
     // Construct from CIMClass
     //
-    CIMClass class1("MyClass");
+    CIMClass class1(CIMName ("MyClass"));
     class1.setPath(CIMObjectPath ("//localhost/root/cimv2:MyClass"));
 
     //
@@ -176,7 +176,7 @@ void test02()
     
     CIMObject obj1 = class1;
 
-    CIMConstClass cclass1("MyClass");
+    CIMConstClass cclass1(CIMName ("MyClass"));
     CIMConstObject cobj1(class1);
     CIMConstObject cobj2(cclass1);
     CIMConstObject cobj3(obj1);
@@ -184,15 +184,15 @@ void test02()
     //
     // Construct from CIMInstance
     //
-    CIMInstance instance("MyClass");
+    CIMInstance instance(CIMName ("MyClass"));
     CIMObject obj2 = instance;
 
-    obj2.addQualifier(CIMQualifier("Key", true));
-    obj2.addQualifier(CIMQualifier("Description", String("Just a Test")));
-    obj2.addProperty(CIMProperty("message", String("Hello There")));
-    obj2.addProperty(CIMProperty("count", Uint32(77)));
+    obj2.addQualifier(CIMQualifier(CIMName ("Key"), true));
+    obj2.addQualifier(CIMQualifier(CIMName ("Description"), String("Just a Test")));
+    obj2.addProperty(CIMProperty(CIMName ("message"), String("Hello There")));
+    obj2.addProperty(CIMProperty(CIMName ("count"), Uint32(77)));
 
-    CIMConstInstance cinstance("MyClass");
+    CIMConstInstance cinstance(CIMName ("MyClass"));
     CIMConstObject cobj4(instance);
     CIMConstObject cobj5(cinstance);
     CIMConstObject cobj6(obj2);
@@ -204,7 +204,7 @@ void test02()
     CIMConstObject cobj11 = instance;
     CIMConstObject cobj12 = cinstance;
 
-    assert(cobj1.getClassName() == "MyClass");
+    assert(cobj1.getClassName() == CIMName ("MyClass"));
     assert(cobj1.getPath() == CIMObjectPath("//localhost/root/cimv2:MyClass"));
 
     // clone the instance object
@@ -221,12 +221,12 @@ void test02()
 
     // Test qualifiers
     assert(ccloneObj.getQualifierCount() == 2);
-    assert(ccloneObj.findQualifier("Key") != PEG_NOT_FOUND);
-    assert(ccloneObj.findQualifier("Description") != PEG_NOT_FOUND);
-    assert(ccloneObj.findQualifier("q1") == PEG_NOT_FOUND);
+    assert(ccloneObj.findQualifier(CIMName ("Key")) != PEG_NOT_FOUND);
+    assert(ccloneObj.findQualifier(CIMName ("Description")) != PEG_NOT_FOUND);
+    assert(ccloneObj.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
 
     Uint32 posQualifier;
-    posQualifier = ccloneObj.findQualifier("Key");
+    posQualifier = ccloneObj.findQualifier(CIMName ("Key"));
     assert(posQualifier != PEG_NOT_FOUND);
     assert(posQualifier < ccloneObj.getQualifierCount());
 
@@ -242,12 +242,12 @@ void test02()
 
     // Test properties
     assert(ccloneObj.getPropertyCount() == 2);
-    assert(ccloneObj.findProperty("count") != PEG_NOT_FOUND);
-    assert(ccloneObj.findProperty("message") != PEG_NOT_FOUND);
-    assert(ccloneObj.findProperty("ratio") == PEG_NOT_FOUND);
+    assert(ccloneObj.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
+    assert(ccloneObj.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+    assert(ccloneObj.findProperty(CIMName ("ratio")) == PEG_NOT_FOUND);
 
     Uint32 posProperty;
-    posProperty = ccloneObj.findProperty("message");
+    posProperty = ccloneObj.findProperty(CIMName ("message"));
     try
     {
         ccloneObj.getProperty(posProperty);
@@ -265,7 +265,7 @@ void test02()
 //*********************************************************************
 void test03()
 {
-    CIMClass class1("MyClass");
+    CIMClass class1(CIMName ("MyClass"));
     CIMObjectPath ref1("//localhost/root/cimv2:MyClass");
     class1.setPath(ref1);
 
@@ -275,7 +275,7 @@ void test03()
     CIMObject obj3(obj2);
     CIMObject obj4 = obj3;
 
-    CIMClass class2("YourClass");
+    CIMClass class2(CIMName ("YourClass"));
     CIMObjectPath ref2("//localhost/root/cimv2:YourClass");
     class2.setPath(ref2);
 
@@ -300,19 +300,19 @@ void test04()
     //
     //  Test CIMClass
     //
-    CIMClass class1 ("MyClass");
+    CIMClass class1 (CIMName ("MyClass"));
     class1.setPath(CIMObjectPath ("//localhost/root/cimv2:MyClass"));
     CIMProperty prop1;
-    prop1 = CIMProperty ("message", CIMValue (CIMTYPE_STRING));
-    prop1.addQualifier (CIMQualifier ("Key", true));
+    prop1 = CIMProperty (CIMName ("message"), CIMValue (CIMTYPE_STRING));
+    prop1.addQualifier (CIMQualifier (CIMName ("Key"), true));
     CIMProperty prop2;
-    prop2 = CIMProperty ("count", CIMValue (CIMTYPE_UINT32));
-    prop2.addQualifier (CIMQualifier ("Key", true));
+    prop2 = CIMProperty (CIMName ("count"), CIMValue (CIMTYPE_UINT32));
+    prop2.addQualifier (CIMQualifier (CIMName ("Key"), true));
     class1.addProperty (prop1);
     class1.addProperty (prop2);
 
     CIMObjectPath cpath = class1.getPath ();
-    class1.setPath (CIMObjectPath (class1.getClassName ()));
+    class1.setPath (CIMObjectPath (class1.getClassName ().getString()));
     CIMObjectPath cpath2 = class1.getPath ();
     class1.setPath (cpath);
     CIMObjectPath cpath3 = class1.getPath ();
@@ -333,7 +333,7 @@ void test04()
     //
     CIMObject oclass1 = class1;
     CIMObjectPath ocpath = class1.getPath ();
-    class1.setPath (CIMObjectPath (class1.getClassName ()));
+    class1.setPath (CIMObjectPath (class1.getClassName ().getString()));
     CIMObjectPath ocpath2 = class1.getPath ();
     class1.setPath (ocpath);
     CIMObjectPath ocpath3 = class1.getPath ();
@@ -352,9 +352,9 @@ void test04()
     //
     //  Test CIMInstance
     //
-    CIMInstance instance1 ("MyClass");
-    instance1.addProperty (CIMProperty ("message", String("Hello There")));
-    instance1.addProperty (CIMProperty ("count", Uint32 (77)));
+    CIMInstance instance1 (CIMName ("MyClass"));
+    instance1.addProperty (CIMProperty (CIMName ("message"), String("Hello There")));
+    instance1.addProperty (CIMProperty (CIMName ("count"), Uint32 (77)));
     CIMObjectPath path = instance1.buildPath (class1);
     CIMObjectPath path2 = instance1.getPath ();
     instance1.setPath (path);
@@ -373,9 +373,9 @@ void test04()
     //
     //  Test instance CIMObject
     //
-    CIMInstance instance2 ("MyClass");
-    instance2.addProperty (CIMProperty ("message", String("Good-bye...")));
-    instance2.addProperty (CIMProperty ("count", Uint32 (88)));
+    CIMInstance instance2 (CIMName ("MyClass"));
+    instance2.addProperty (CIMProperty (CIMName ("message"), String("Good-bye...")));
+    instance2.addProperty (CIMProperty (CIMName ("count"), Uint32 (88)));
     CIMObject oinstance1 = instance2;
     CIMObjectPath opath = instance2.buildPath (class1);
     CIMObjectPath opath1 = oinstance1.getPath ();

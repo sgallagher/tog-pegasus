@@ -45,11 +45,11 @@ void test01()
 
     assert(pnull.isUninitialized());
 
-    CIMProperty p1("message", String("Hi There"));
-    p1.addQualifier(CIMQualifier("Key", true));
-    p1.addQualifier(CIMQualifier("stuff", true));
-    p1.addQualifier(CIMQualifier("stuff2", true));
-    p1.addQualifier(CIMQualifier("Description", String("Blah Blah")));
+    CIMProperty p1(CIMName ("message"), String("Hi There"));
+    p1.addQualifier(CIMQualifier(CIMName ("Key"), true));
+    p1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
+    p1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
+    p1.addQualifier(CIMQualifier(CIMName ("Description"), String("Blah Blah")));
     CIMConstProperty p2 = p1;
 
     // Test clone
@@ -77,11 +77,11 @@ void test01()
        XmlWriter::appendPropertyElement(xmlOut, p2);
 
     // Test name
-        String name;
+        CIMName name;
         name = p1.getName();
-        assert(name == "message");
+        assert(name == CIMName ("message"));
         name = p2.getName();
-        assert(name == "message");
+        assert(name == CIMName ("message"));
 
     // Test type
         assert(p1.getType() == CIMTYPE_STRING);
@@ -90,7 +90,7 @@ void test01()
     // Test for key qualifier
         Uint32 pos;
         Boolean isKey = false;
-        if ((pos = p1.findQualifier ("key")) != PEG_NOT_FOUND)
+        if ((pos = p1.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
         {
             CIMValue value;
             value = p1.getQualifier (pos).getValue ();
@@ -101,7 +101,7 @@ void test01()
         }
         assert (isKey);
         isKey = false;
-        if ((pos = p2.findQualifier ("key")) != PEG_NOT_FOUND)
+        if ((pos = p2.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
         {
             CIMValue value;
             value = p2.getQualifier (pos).getValue ();
@@ -121,49 +121,49 @@ void test01()
         assert(p2.getPropagated() == false);
 
     // Tests for Qualifiers
-	assert(p1.findQualifier("stuff") != PEG_NOT_FOUND);
-	assert(p1.findQualifier("stuff2") != PEG_NOT_FOUND);
-	assert(p1.findQualifier("stuff21") == PEG_NOT_FOUND);
-	assert(p1.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 	assert(p1.getQualifierCount() == 4);
 
-	assert(p2.findQualifier("stuff") != PEG_NOT_FOUND);
-	assert(p2.findQualifier("stuff2") != PEG_NOT_FOUND);
-	assert(p2.findQualifier("stuff21") == PEG_NOT_FOUND);
-	assert(p2.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(p2.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	assert(p2.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	assert(p2.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	assert(p2.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 	assert(p2.getQualifierCount() == 4);
 
-	assert(p1.findQualifier("stuff") != PEG_NOT_FOUND);
-	assert(p1.findQualifier("stuff2") != PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
-	assert(p1.findQualifier("stuff21") == PEG_NOT_FOUND);
-	assert(p1.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 
 	Uint32 posQualifier;
-	posQualifier = p1.findQualifier("stuff");
+	posQualifier = p1.findQualifier(CIMName ("stuff"));
 	assert(posQualifier != PEG_NOT_FOUND);
 	assert(posQualifier < p1.getQualifierCount());
 
 	p1.removeQualifier(posQualifier);
 	assert(p1.getQualifierCount() == 3);
-	assert(p1.findQualifier("stuff") == PEG_NOT_FOUND);
-	assert(p1.findQualifier("stuff2") != PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+	assert(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
     // Tests for value insertion.
     {
-           CIMProperty p1("p1", String("Hi There"));
+           CIMProperty p1(CIMName ("p1"), String("Hi There"));
            // test for CIMValue and type
-           CIMProperty p2("p2", Uint32(999));
+           CIMProperty p2(CIMName ("p2"), Uint32(999));
            // test for CIMValue and type
 
 	   //Test getName and setName
-	   assert(p1.getName() == "p1");
-	   p1.setName("px");
-	   assert(p1.getName() == "px");
+	   assert(p1.getName() == CIMName ("p1"));
+	   p1.setName(CIMName ("px"));
+	   assert(p1.getName() == CIMName ("px"));
 
-	   assert(p2.getName() == "p2");
-	   p2.setName("py");
-	   assert(p2.getName() == "py");
+	   assert(p2.getName() == CIMName ("p2"));
+	   p2.setName(CIMName ("py"));
+	   assert(p2.getName() == CIMName ("py"));
 
 	   // Test setValue and getValue
     }
@@ -172,16 +172,16 @@ void test01()
 void test02()
 {
     // Tests for CIMConstProperty methods
-        CIMProperty p1("message", String("Hi There"));
-        p1.addQualifier(CIMQualifier("Key", true));
-        p1.addQualifier(CIMQualifier("stuff", true));
-        p1.addQualifier(CIMQualifier("stuff2", true));
-        p1.addQualifier(CIMQualifier("Description", String("Blah Blah")));
+        CIMProperty p1(CIMName ("message"), String("Hi There"));
+        p1.addQualifier(CIMQualifier(CIMName ("Key"), true));
+        p1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
+        p1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
+        p1.addQualifier(CIMQualifier(CIMName ("Description"), String("Blah Blah")));
         CIMConstProperty p2 = p1;
 
         CIMConstProperty cp1 = p1;
         CIMConstProperty cp2 = p2;
-        CIMConstProperty cp3("message3", String("hello"));
+        CIMConstProperty cp3(CIMName ("message3"), String("hello"));
         CIMConstProperty cp1clone = cp1.clone();
 
         if(verbose)
@@ -192,11 +192,11 @@ void test02()
         Array<Sint8> xmlOut;
         XmlWriter::appendPropertyElement(xmlOut, cp1);
 
-        assert(cp1.getName() == "message");
+        assert(cp1.getName() == CIMName ("message"));
         assert(cp1.getType() == CIMTYPE_STRING);
         Uint32 pos;
         Boolean isKey = false;
-        if ((pos = cp1.findQualifier ("key")) != PEG_NOT_FOUND)
+        if ((pos = cp1.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
         {
             CIMValue value;
             value = cp1.getQualifier (pos).getValue ();
@@ -209,10 +209,10 @@ void test02()
         assert(cp1.getArraySize() == 0);
         assert(cp1.getPropagated() == false);
 
-	assert(cp1.findQualifier("stuff") != PEG_NOT_FOUND);
-	assert(cp1.findQualifier("stuff2") != PEG_NOT_FOUND);
-	assert(cp1.findQualifier("stuff21") == PEG_NOT_FOUND);
-	assert(cp1.findQualifier("stuf") == PEG_NOT_FOUND);
+	assert(cp1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	assert(cp1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	assert(cp1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	assert(cp1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 	assert(cp1.getQualifierCount() == 4);
  
         try 
@@ -232,9 +232,9 @@ void test03()
     CIMPropertyList list2;
 
     Array<CIMName> names;
-    names.append("property1");
-    names.append("property2");
-    names.append("property3");
+    names.append(CIMName ("property1"));
+    names.append(CIMName ("property2"));
+    names.append(CIMName ("property3"));
     list1.set(names);
     list2 = list1;
 

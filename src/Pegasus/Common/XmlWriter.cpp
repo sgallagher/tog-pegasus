@@ -102,9 +102,28 @@ Array<Sint8>& operator<<(Array<Sint8>& out, Uint32 x)
     return out;
 }
 
+Array<Sint8>& operator<<(Array<Sint8>& out, const CIMName& name)
+{
+    XmlWriter::append(out, name.getString ());
+    return out;
+}
+
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
 {
     return os << x.toString();
+}
+
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMName& name)
+{
+    os << name.getString();
+    return os;
+}
+
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os,
+    const CIMNamespaceName& name)
+{
+    os << name.getString();
+    return os;
 }
 
 inline void _appendChar(Array<Sint8>& out, const Char16& c)
@@ -288,11 +307,11 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 
 void XmlWriter::appendLocalNameSpacePathElement(
     Array<Sint8>& out,
-    const String& nameSpace)
+    const CIMNamespaceName& nameSpace)
 {
     out << "<LOCALNAMESPACEPATH>\n";
 
-    char* nameSpaceCopy = strdup(nameSpace.getCString());
+    char* nameSpaceCopy = strdup(nameSpace.getString().getCString());
     for (const char* p = strtok(nameSpaceCopy, "/"); p; p = strtok(NULL, "/"))
     {
 	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
@@ -313,7 +332,7 @@ void XmlWriter::appendLocalNameSpacePathElement(
 void XmlWriter::appendNameSpacePathElement(
     Array<Sint8>& out,
     const String& host,
-    const String& nameSpace)
+    const CIMNamespaceName& nameSpace)
 {
     out << "<NAMESPACEPATH>\n";
     out << "<HOST>" << host << "</HOST>\n";
@@ -333,7 +352,7 @@ void XmlWriter::appendNameSpacePathElement(
 
 void XmlWriter::appendClassNameElement(
     Array<Sint8>& out,
-    const String& className)
+    const CIMName& className)
 {
     out << "<CLASSNAME NAME=\"" << className << "\"/>\n";
 }
@@ -1384,7 +1403,7 @@ void XmlWriter::appendScopeElement(
 void XmlWriter::appendMethodCallHeader(
     Array<Sint8>& out,
     const char* host,
-    const char* cimMethod,
+    const CIMName& cimMethod,
     const String& cimObject,
     const String& authenticationHeader,
     Uint32 contentLength)
@@ -1565,7 +1584,7 @@ void XmlWriter::_appendSimpleReqElementEnd(
 
 void XmlWriter::_appendMethodCallElementBegin(
     Array<Sint8>& out,
-    const char* name)
+    const CIMName& name)
 {
     out << "<METHODCALL NAME=\"" << name << "\">\n";
 }
@@ -1588,7 +1607,7 @@ void XmlWriter::_appendMethodCallElementEnd(
 
 void XmlWriter::_appendIMethodCallElementBegin(
     Array<Sint8>& out,
-    const char* name)
+    const CIMName& name)
 {
     out << "<IMETHODCALL NAME=\"" << name << "\">\n";
 }
@@ -1657,7 +1676,7 @@ void XmlWriter::_appendSimpleRspElementEnd(
 
 void XmlWriter::_appendMethodResponseElementBegin(
     Array<Sint8>& out,
-    const char* name)
+    const CIMName& name)
 {
     out << "<METHODRESPONSE NAME=\"" << name << "\">\n";
 }
@@ -1680,7 +1699,7 @@ void XmlWriter::_appendMethodResponseElementEnd(
 
 void XmlWriter::_appendIMethodResponseElementBegin(
     Array<Sint8>& out,
-    const char* name)
+    const CIMName& name)
 {
     out << "<IMETHODRESPONSE NAME=\"" << name << "\">\n";
 }
@@ -1834,7 +1853,7 @@ void XmlWriter::appendQualifierNameIParameter(
 void XmlWriter::appendClassNameIParameter(
     Array<Sint8>& out,
     const char* name,
-    const String& className)
+    const CIMName& className)
 {
     _appendIParamValueElementBegin(out, name);
     appendClassNameElement(out, className);
@@ -1939,7 +1958,7 @@ void XmlWriter::appendNamedInstanceIParameter(
 //==========================================================
 void XmlWriter::appendPropertyNameIParameter(
     Array<Sint8>& out,
-    const String& propertyName)
+    const CIMName& propertyName)
 {
     _appendIParamValueElementBegin(out, "PropertyName");
     out << "<VALUE>" << propertyName << "</VALUE>\n"; 
@@ -2028,9 +2047,9 @@ Array<Sint8> XmlWriter::formatHttpErrorRspMessage(
 // ATTN-RK-P1-20020228: Need to complete copy elimination optimization
 Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     const char* host,
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMObjectPath& path,
-    const char* methodName,
+    const CIMName& methodName,
     const Array<CIMParamValue>& parameters,
     const String& messageId,
     const String& authenticationHeader)
@@ -2038,7 +2057,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
     CIMObjectPath localObjectPath = path;
-    localObjectPath.setNameSpace(nameSpace);
+    localObjectPath.setNameSpace(nameSpace.getString());
     localObjectPath.setHost(String::EMPTY);
 
     _appendMessageElementBegin(out, messageId);
@@ -2066,7 +2085,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 }
 
 Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
-    const char* methodName,
+    const CIMName& methodName,
     const String& messageId,
     const Array<Sint8>& body)
 {
@@ -2094,7 +2113,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
-    const String& methodName,
+    const CIMName& methodName,
     const String& messageId,
     const CIMException& cimException)
 {
@@ -2103,7 +2122,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
-    _appendMethodResponseElementBegin(out, methodName.getCString());
+    _appendMethodResponseElementBegin(out, methodName);
     _appendErrorElement(out, cimException);
     _appendMethodResponseElementEnd(out);
     _appendSimpleRspElementEnd(out);
@@ -2123,8 +2142,8 @@ Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
 
 Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
     const char* host,
-    const String& nameSpace,
-    const char* iMethodName,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& iMethodName,
     const String& messageId,
     const String& authenticationHeader,
     const Array<Sint8>& body)
@@ -2135,7 +2154,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
     _appendMessageElementBegin(out, messageId);
     _appendSimpleReqElementBegin(out);
     _appendIMethodCallElementBegin(out, iMethodName);
-    appendLocalNameSpacePathElement(out, nameSpace);
+    appendLocalNameSpacePathElement(out, nameSpace.getString());
     out << body;
     _appendIMethodCallElementEnd(out);
     _appendSimpleReqElementEnd(out);
@@ -2145,7 +2164,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
 	tmp,
 	host,
 	iMethodName,
-	nameSpace,
+	nameSpace.getString(),
         authenticationHeader,
 	out.size());
     tmp << out;
@@ -2160,7 +2179,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
-    const char* iMethodName,
+    const CIMName& iMethodName,
     const String& messageId,
     const Array<Sint8>& body)
 {
@@ -2193,7 +2212,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
-    const String& iMethodName,
+    const CIMName& iMethodName,
     const String& messageId,
     const CIMException& cimException)
 {
@@ -2202,7 +2221,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
-    _appendIMethodResponseElementBegin(out, iMethodName.getCString());
+    _appendIMethodResponseElementBegin(out, iMethodName);
     _appendErrorElement(out, cimException);
     _appendIMethodResponseElementEnd(out);
     _appendSimpleRspElementEnd(out);
@@ -2232,7 +2251,7 @@ void XmlWriter::appendEMethodRequestHeader(
     Array<Sint8>& out,
     const char* requestUri,
     const char* host,
-    const char* cimMethod,
+    const CIMName& cimMethod,
     const String& authenticationHeader,
     Uint32 contentLength)
 {
@@ -2310,7 +2329,7 @@ void XmlWriter::_appendSimpleExportReqElementEnd(
 
 void XmlWriter::_appendEMethodCallElementBegin(
     Array<Sint8>& out,
-    const char* name)
+    const CIMName& name)
 {
     out << "<EXPMETHODCALL NAME=\"" << name << "\">\n";
 }
@@ -2354,7 +2373,7 @@ void XmlWriter::_appendSimpleExportRspElementEnd(
 
 void XmlWriter::_appendEMethodResponseElementBegin(
     Array<Sint8>& out,
-    const char* name)
+    const CIMName& name)
 {
     out << "<EXPMETHODRESPONSE NAME=\"" << name << "\">\n";
 }
@@ -2374,7 +2393,7 @@ void XmlWriter::_appendEMethodResponseElementEnd(
 Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
     const char* requestUri,
     const char* host,
-    const char* eMethodName,
+    const CIMName& eMethodName,
     const String& messageId,
     const String& authenticationHeader,
     const Array<Sint8>& body)
@@ -2409,7 +2428,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
-    const char* eMethodName,
+    const CIMName& eMethodName,
     const String& messageId,
     const Array<Sint8>& body)
 {
@@ -2437,7 +2456,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
-    const String& eMethodName,
+    const CIMName& eMethodName,
     const String& messageId,
     const CIMException& cimException)
 {
@@ -2446,7 +2465,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleExportRspElementBegin(out);
-    _appendEMethodResponseElementBegin(out, eMethodName.getCString());
+    _appendEMethodResponseElementBegin(out, eMethodName);
     _appendErrorElement(out, cimException);
     _appendEMethodResponseElementEnd(out);
     _appendSimpleExportRspElementEnd(out);

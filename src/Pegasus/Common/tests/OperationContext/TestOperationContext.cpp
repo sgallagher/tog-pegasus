@@ -23,7 +23,8 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -81,8 +82,8 @@ int main(void)
 
     try
     {
-        CIMInstance module("PG_ProviderModule");
-        CIMInstance provider("PG_Provider");
+        CIMInstance module(CIMName ("PG_ProviderModule"));
+        CIMInstance provider(CIMName ("PG_Provider"));
 
         context.insert(ProviderIdContainer(module, provider));
 

@@ -84,13 +84,13 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
 
 	if (!prop.isUninitialized())
         {
-            String propName = prop.getName();
+            CIMName propName = prop.getName();
             Uint32 propPos = indicationClass.findProperty(propName);
             if (propPos != PEG_NOT_FOUND)
             {
             CIMProperty trapProp = indicationClass.getProperty(propPos);
 
-            qualifierPos = trapProp.findQualifier("MappingStrings");
+            qualifierPos = trapProp.findQualifier(CIMName ("MappingStrings"));
             if (qualifierPos != PEG_NOT_FOUND)
             {
 		trapQualifier = trapProp.getQualifier(qualifierPos);
@@ -136,26 +136,31 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
         snmpDeliverTrap_stub emanateTrap;
 #endif
 
-    if ((handler.findProperty("TrapDestination") != PEG_NOT_FOUND) &&
-        (handler.findProperty("SNMPVersion") != PEG_NOT_FOUND) && 
-        (indicationClass.findQualifier("MappingStrings") != PEG_NOT_FOUND))
+    if ((handler.findProperty(CIMName ("TrapDestination")) != PEG_NOT_FOUND) &&
+        (handler.findProperty(CIMName ("SNMPVersion")) != PEG_NOT_FOUND) && 
+        (indicationClass.findQualifier(CIMName ("MappingStrings")) != 
+            PEG_NOT_FOUND))
     {
         String community, trapType, destination;   // from handler instance
 	String trapOid;	    // from indication Class
 
 	trapOid = indicationClass.getQualifier(
-	    indicationClass.findQualifier("MappingStrings")).getValue().toString();
+	    indicationClass.findQualifier
+                (CIMName ("MappingStrings"))).getValue().toString();
 
         trapOid = trapOid.subString(trapOid.find("OID.IETF | SNMP.")+16);
 
 	community = handler.getProperty(
-	    handler.findProperty("SNMPCommunityName")).getValue().toString();
+	    handler.findProperty
+                (CIMName ("SNMPCommunityName"))).getValue().toString();
 
 	destination = handler.getProperty(
-	    handler.findProperty("TrapDestination")).getValue().toString();
+	    handler.findProperty
+                (CIMName ("TrapDestination"))).getValue().toString();
 
 	trapType = handler.getProperty(
-	    handler.findProperty("SNMPVersion")).getValue().toString();
+	    handler.findProperty
+                (CIMName ("SNMPVersion"))).getValue().toString();
 
 	emanateTrap.deliverTrap(
             trapOid,

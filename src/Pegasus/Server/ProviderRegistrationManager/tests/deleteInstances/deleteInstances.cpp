@@ -37,19 +37,25 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/test";
-const String CLASSNAME = "PG_ProviderModule";
-const String CLASSNAME2 = "PG_Provider";
-const String CLASSNAME3 = "PG_ProviderCapabilities";
+const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/test");
+const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
+const CIMName CLASSNAME2 = CIMName ("PG_Provider");
+const CIMName CLASSNAME3 = CIMName ("PG_ProviderCapabilities");
 
 void TestDeleteInstances(ProviderRegistrationManager prmanager)
 {
-   CIMKeyBinding kb1("ProviderModuleName", "providersModule1", CIMKeyBinding::STRING);
-   CIMKeyBinding kb2("ProviderName", "PG_ProviderInstance1", CIMKeyBinding::STRING);
-   CIMKeyBinding kb3("CapabilityID", "capability1", CIMKeyBinding::STRING);
-   CIMKeyBinding kbp1("ProviderModuleName", "providersModule1", CIMKeyBinding::STRING);
-   CIMKeyBinding kbp2("Name", "PG_ProviderInstance1", CIMKeyBinding::STRING);
-   CIMKeyBinding kbm1("Name", "providersModule1", CIMKeyBinding::STRING);
+   CIMKeyBinding kb1(CIMName ("ProviderModuleName"), "providersModule1", 
+       CIMKeyBinding::STRING);
+   CIMKeyBinding kb2(CIMName ("ProviderName"), "PG_ProviderInstance1", 
+       CIMKeyBinding::STRING);
+   CIMKeyBinding kb3(CIMName ("CapabilityID"), "capability1", 
+       CIMKeyBinding::STRING);
+   CIMKeyBinding kbp1(CIMName ("ProviderModuleName"), "providersModule1", 
+       CIMKeyBinding::STRING);
+   CIMKeyBinding kbp2(CIMName ("Name"), "PG_ProviderInstance1", 
+       CIMKeyBinding::STRING);
+   CIMKeyBinding kbm1(CIMName ("Name"), "providersModule1", 
+       CIMKeyBinding::STRING);
 
    CIMObjectPath instanceName;
 
@@ -71,12 +77,12 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
         CIMClass cimClass(CLASSNAME);
         CIMInstance cimInstance(CLASSNAME);
 
-    	cimInstance.addProperty(CIMProperty("Name", String("providersModule1")));
-    	cimInstance.addProperty(CIMProperty("Vendor", String("HP")));
-    	cimInstance.addProperty(CIMProperty("Version", String("2.0")));
-    	cimInstance.addProperty(CIMProperty("InterfaceType", String("PG_DefaultC++")));
-    	cimInstance.addProperty(CIMProperty("InterfaceVersion", String("2.0")));
-    	cimInstance.addProperty(CIMProperty("Location", String("/tmp/module1")));
+    	cimInstance.addProperty(CIMProperty(CIMName ("Name"), String("providersModule1")));
+    	cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
+    	cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
+    	cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), String("PG_DefaultC++")));
+    	cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), String("2.0")));
+    	cimInstance.addProperty(CIMProperty(CIMName ("Location"), String("/tmp/module1")));
 
     	instanceName = cimInstance.buildPath(cimClass);
 
@@ -96,8 +102,8 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
 
     	CIMInstance cimInstance2(CLASSNAME2);
 
-    	cimInstance2.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    	cimInstance2.addProperty(CIMProperty("Name", String("PG_ProviderInstance1")));
+    	cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), String("providersModule1")));
+    	cimInstance2.addProperty(CIMProperty(CIMName ("Name"), String("PG_ProviderInstance1")));
 
     	instanceName2 = cimInstance2.buildPath(cimClass2);
 
@@ -130,13 +136,13 @@ void TestDeleteInstances(ProviderRegistrationManager prmanager)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty("ProviderModuleName", String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty("ProviderName", String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty("CapabilityID", String("capability1")));
-    cimInstance3.addProperty(CIMProperty("ClassName", String("test_class1")));
-    cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
-    cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
-    cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), String("providersModule1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), String("PG_ProviderInstance1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), String("capability1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), String("test_class1")));
+    cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), providerType));
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), supportedMethods));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
 

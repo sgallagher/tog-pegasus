@@ -32,29 +32,59 @@ en:table {
 
 	Clients.CIMConfig.CIMConfigCommand.OPTION_INVALID_CIM_RUNNING:string {"Option -{0} is not valid for this command when CIM server is not running."}
 
-	Clients.CIMConfig.CIMConfigCommand.VALUE_IS:string {"{0} value is {1}."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_IS:string {"Planned value is {0}."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_IS:string {"Current value is {0}."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_IS:string {"Default value is {0}."}
 
-	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_VALUE_CIM_RUNNING:string {"{0} value can not be determined because the CIM server is not running."}
+	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING:string {"Planned value can not be determined because the CIM server is not running."}
 
-	Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_IS:string {"{0} value for the property {1} is set to {2} in CIMServer."}
+	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING:string {"Current value can not be determined because the CIM server is not running."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CANNOT_DETERMINE_DEFAULT_VALUE_CIM_RUNNING:string {"Default value can not be determined because the CIM server is not running."}
 
-	Clients.CIMConfig.CIMConfigCommand.VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"{0} value for the property {1} can not be set because the CIM server is not running."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_IS:string {"Planned value for the property {0} is set to {1} in CIMServer."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_IS:string {"Current value for the property {0} is set to {1} in CIMServer."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_IS:string {"Default value for the property {0} is set to {1} in CIMServer."}
 
-	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_VALUE_IN_FILE:string {"Failed to update the {0} value of the Property {1} in configuration file."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"Planned value for the property {0} can not be set because the CIM server is not running."}
+
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"Current value for the property {0} can not be set because the CIM server is not running."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"Default value for the property {0} can not be set because the CIM server is not running."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_PLANNED_VALUE_IN_FILE:string {"Failed to update the planned value of the Property {0} in configuration file."}
+
+	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_CURRENT_VALUE_IN_FILE:string {"Failed to update the current value of the Property {0} in configuration file."}
+	
+	Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE:string {"Failed to update the default value of the Property {0} in configuration file."}
 
 	Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FILE:string {"Property {0} updated in configuration file."}
 
 	Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_SET_TO:string {"The property {0} value is already set to {1}."}
 
-	Clients.CIMConfig.CIMConfigCommand.PROPERTY_SET_TO_DEFAULT:string {"{0} value for the property {1} is set to default value in CIMServer."}
-
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_SET_TO_DEFAULT:string {"Planned value for the property {0} is set to default value in CIMServer."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_SET_TO_DEFAULT:string {"Current value for the property {0} is set to default value in CIMServer."}
+	
 	Clients.CIMConfig.CIMConfigCommand.PROPERTY_UNSET_IN_FILE:string {"Property {0} is unset in the configuration file."}
 
-	Clients.CIMConfig.CIMConfigCommand.PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"{0} value for the property {1} can not be unset because the CIM server is not running."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"Planned value for the property {0} can not be unset because the CIM server is not running."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"Current value for the property {0} can not be unset because the CIM server is not running."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_PROPERTY_CANNOT_BE_UNSET_CIM_NOT_RUNNING:string {"Default value for the property {0} can not be unset because the CIM server is not running."}
 
 	Clients.CIMConfig.CIMConfigCommand.PROPERTY_VALUE_ALREADY_UNSET:string {"The property {0} value is already unset."}
 
-	Clients.CIMConfig.CIMConfigCommand.VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"{0} value of properties can not be listed because the CIM server is not running."}
+	Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"Planned value of properties can not be listed because the CIM server is not running."}
+	
+	Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"Current value of properties can not be listed because the CIM server is not running."}
+	
+	Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING:string {"Default value of properties can not be listed because the CIM server is not running."}
 
 	Clients.CIMConfig.CIMConfigCommand.NO_PROPERTIES_FOUND_IN_FILE:string {"No configuration properties found in the configuration file."}
 

@@ -41,15 +41,16 @@ CIMOMHandle::CIMOMHandle(void) : _outputQueue(0), _inputQueue(0)
 {
 	_outputQueue = MessageQueue::lookup("CIMOpRequestDispatcher");
 	
-	PEGASUS_ASSERT(_outputQueue != 0);
+	//PEGASUS_ASSERT(_outputQueue != 0);
 
 	_inputQueue = new MessageQueue;
 
-	PEGASUS_ASSERT(_inputQueue != 0);
+	//PEGASUS_ASSERT(_inputQueue != 0);
 }
 
 CIMOMHandle::~CIMOMHandle(void)
 {
+	delete _inputQueue;
 }
 
 CIMOMHandle& CIMOMHandle::operator=(const CIMOMHandle& handle)

@@ -335,14 +335,19 @@ CIMName XmlReader::getCimNameAttribute(
 
     if (acceptNull && name.size() == 0)
 	return CIMName ();
-
+    
     if (!CIMName::legal(name))
     {
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // In testing, replace illegal CIMName with this value to avoid the
+    // exception and let xml parsing continue.  THIS IS TEMP.    
+    name = "BADNAMESUBSTITUTEDBYPEGASUSCLIENT";
+#else
 	char buffer[MESSAGE_SIZE];
 	sprintf(buffer, "Illegal value for %s.NAME attribute", elementName);
 	throw XmlSemanticError(lineNumber, buffer);
+#endif
     }
-
     return CIMName (name);
 }
 
@@ -1071,6 +1076,7 @@ CIMValue XmlReader::stringToValue(
             // KS 20021002 - Exception if no datatime value. Test for
             // zero length and leave the NULL value in the variable
             // Bugzilla 137  Adds the following if line.
+            // Expect this to become permanent but test only for now
 #ifdef PEGASUS_SNIA_INTEROP_TEST
             if (strlen(valueString) != 0)
 #endif
@@ -1792,6 +1798,22 @@ Boolean XmlReader::getHostElement(
 
     if (!testStartTag(parser, entry, "HOST"))
 	return false;
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // Temp code to allow empty HOST field.
+    // SNIA CIMOMs return empty field particularly on enumerateinstance.
+    // Simply substitute a string for the empty.
+	if (!parser.next(entry))
+	    throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
+
+	if (entry.type == XmlEntry::CONTENT)
+	    host = entry.text;
+	else
+    {
+	    parser.putBack(entry);
+        host = "HOSTNAMEINSERTEDBYPEGASUSCLIENT";
+    }
+
+#else
 
     if (!parser.next(entry) || entry.type != XmlEntry::CONTENT)
     {
@@ -1800,7 +1822,7 @@ Boolean XmlReader::getHostElement(
     }
 
     host = entry.text;
-
+#endif
     expectEndTag(parser, "HOST");
     return true;
 }
@@ -1933,7 +1955,6 @@ Boolean XmlReader::getClassNameElement(
 	else
 	    return false;
     }
-
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
     className = getCimNameAttribute(

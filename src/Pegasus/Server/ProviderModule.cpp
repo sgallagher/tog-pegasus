@@ -89,9 +89,8 @@ void ProviderModule::load(void)
 
     if(_library == 0)
     {
-        String errorString = "Cannot load library, error: " +
-             System::dynamicLoadError();
-        //throw ProviderFailure(fileName, _className, errorString);
+        String errorString = "Cannot load library, error: " + System::dynamicLoadError();
+        throw Exception("ProviderLoadFailure (" + _providerName + "):" + errorString);
     }
 
     // CIMBaseProvider support
@@ -111,8 +110,9 @@ void ProviderModule::load(void)
             if(provider == 0)
             {
                 unload();
-
-                //throw ProviderFailure(fileName, _className, "entry point returned null.");
+				
+				String errorString = "entry point returned null.";
+				throw Exception("ProviderLoadFailure (" + _providerName + "):" + errorString);
             }
 
             // test for the appropriate interface
@@ -120,7 +120,8 @@ void ProviderModule::load(void)
             {
                 unload();
 
-                //throw ProviderFailure(fileName, _className, "provider is not a CIMBaseProvider.");
+				String errorString = "provider is not a CIMBaseProvider.";
+				throw Exception("ProviderLoadFailure (" + _providerName + "):" + errorString);
             }
 
             // save provider handle
@@ -131,7 +132,9 @@ void ProviderModule::load(void)
     }
 
     unload();
-    //throw ProviderFailure(fileName, _className, "provider entry point not found.");
+	
+	String errorString = "entry point not found.";
+	throw Exception("ProviderLoadFailure (" + _providerName + "):" + errorString);
 }
 
 void ProviderModule::unload(void)

@@ -10,7 +10,6 @@ LIBRARY = pegcommon
 
 SOURCES = \
     CIMStatusCode.cpp \
-#   IPC.cpp\
     CIMMessage.cpp \
     Message.cpp \
     MessageQueue.cpp \
@@ -47,7 +46,6 @@ SOURCES = \
     CIMOMHandle.cpp \
     DeclContext.cpp \
     Destroyer.cpp \
-#   Dqueue.cpp\
     Dir.cpp \
     Exception.cpp \
     FileSystem.cpp \

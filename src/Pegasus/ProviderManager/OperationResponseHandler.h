@@ -29,6 +29,7 @@
 //                  (carolann_graves@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
 //		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//		Seema Gupta (gseema@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -133,6 +134,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 };
 
@@ -156,6 +158,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -180,6 +183,7 @@ public:
 
 	// l10n
 	getResponse()->contentLanguages = getLanguages();
+	getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -210,6 +214,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -267,6 +272,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 };
 
@@ -301,6 +307,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -326,6 +333,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -350,6 +358,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -374,6 +383,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -408,6 +418,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };

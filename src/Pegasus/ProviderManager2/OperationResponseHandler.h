@@ -30,6 +30,7 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //		Adrian Schuur (schuur@de.ibm.com)
+//		Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -134,6 +135,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 };
 
@@ -157,6 +159,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -181,6 +184,7 @@ public:
 
 	// l10n
 	getResponse()->contentLanguages = getLanguages();
+	getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -211,6 +215,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -268,6 +273,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 };
 
@@ -303,6 +309,7 @@ public:
   
 	// l10n
 	getResponse()->contentLanguages = getLanguages();
+	getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -328,6 +335,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -352,6 +360,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -376,6 +385,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -400,6 +410,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };
@@ -434,6 +445,7 @@ public:
 
 		// l10n
 		getResponse()->contentLanguages = getLanguages();
+		getResponse()->operationContext.set(ContentLanguageListContainer(getLanguages()));
     }
 
 };

@@ -2108,7 +2108,9 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
         // Otherwise, don't set any language in the aggregated response.
 
 	// Get the language of the first response  
-    	ContentLanguages firstLang = poA->getResponse(0)->contentLanguages;
+		ContentLanguages firstLang = ((ContentLanguageListContainer)(poA->getResponse(0))->operationContext.get
+										(ContentLanguageListContainer::NAME)).getLanguages();
+
         PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                 Formatter::format("Aggregation Processor First Lang = $0"
                                   , firstLang.toString()));    	
@@ -2122,13 +2124,15 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
        	    {
     	        CIMResponseMessage* response = poA->getResponse(j);
     	    
-    	        if (response->contentLanguages != firstLang)
-    	        {
-	           // Found a mismatch.  Set the flag and end the loop	
+				if (((ContentLanguageListContainer)response->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages()!=firstLang)
+				{
+					// Found a mismatch.  Set the flag and end the loop	
                    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                         Formatter::format("Aggregation Processor Lang Mismatch.  Mismatching lang is: $0"
-                                          , response->contentLanguages.toString()));
-	           langMismatch = true;                                     
+                                          , (((ContentLanguageListContainer)response->operationContext.get
+										    (ContentLanguageListContainer::NAME)).getLanguages()).toString())); 
+                   langMismatch = true;                                     
                    break;				    
                 }
             }
@@ -2180,7 +2184,7 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     // If all the langs didn't match, then send no language in the aggregated response.
     if (langMismatch == true)
     {
-    	response->contentLanguages.clear(); 
+		response->operationContext.set(ContentLanguageListContainer(ContentLanguages::EMPTY));
     }
     SendForget(response);
 
@@ -2249,8 +2253,9 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    {
 	if (req->thread_changed())
         {
-	   Thread::setLanguages(new AcceptLanguages(req->acceptLanguages));   		
-        }
+			Thread::setLanguages(new AcceptLanguages(((AcceptLanguageListContainer)req->operationContext.get
+							(AcceptLanguageListContainer::NAME)).getLanguages())); 
+	    }
    } 
    else
    {
@@ -2782,8 +2787,8 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
       _repository->createClass(
 	 request->nameSpace,
 	 request->newClass,
-	 request->contentLanguages);
-
+	 ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages());
       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		  "CIMOperationRequestDispatcher::handleCreateClassRequest - Name Space: $0  Class Name: $1",
 		  request->nameSpace.getString(),
@@ -2887,8 +2892,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
          instanceName = _repository->createInstance(
 	    request->nameSpace,
 	    request->newInstance,
-	    request->contentLanguages);
-
+	   ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages()); 
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleCreateInstanceRequest - Name Space: $0  Instance name: $1",
 		     request->nameSpace.getString(),
@@ -2958,7 +2963,8 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
         _repository->modifyClass(
         request->nameSpace,
         request->modifiedClass,
-	request->contentLanguages);
+		((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages()); 
    }
    catch(CIMException& exception)
    {
@@ -3061,8 +3067,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     	    request->nameSpace,
     	    request->modifiedInstance,
     	    request->includeQualifiers,request->propertyList,
-	    request->contentLanguages);
-
+	       ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages()); 
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleModifiedInstanceRequest - Name Space: $0  Instance name: $1",
 		     request->nameSpace.getString(),
@@ -5093,8 +5099,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 	    request->instanceName,
 	    request->propertyName,
 	    request->newValue,
-	    request->contentLanguages);
-
+	   ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages()); 
 	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		     "CIMOperationRequestDispatcher::handleSetPropertyRequest - Name Space: $0  Instance Name: $1  Property Name: $2  New Value: $3",
 		     request->nameSpace.getString(),
@@ -5219,8 +5225,8 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
       _repository->setQualifier(
 	 request->nameSpace,
 	 request->qualifierDeclaration,
- 	 request->contentLanguages);
-
+	 ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages()); 
  Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		  "CIMOperationRequestDispatcher::handleSetQualifierRequest - Name Space: $0  Qualifier Name: $1",
 		  request->nameSpace.getString(),
@@ -5578,8 +5584,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 	                                       // handleOperationResponseAggregation
 	   request->queueIds.copyAndPop(),
 	    Array<CIMObject>(),
-	    request->contentLanguages);
-
+	   ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages()); 
     if (_repository->isDefaultInstanceProvider())
         poA->setTotalIssued(numClasses+1);
     else poA->setTotalIssued(providerCount+1);
@@ -5609,9 +5615,14 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 		     request->messageId, request->nameSpace,
 		     providerInfos[i]._className,
 		     false,false,false,false,CIMPropertyList(),
-		     request->queueIds,request->authType,request->userName,
-		     request->contentLanguages,request->acceptLanguages);
-
+		     request->queueIds,request->authType,
+	        ((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).
+					getUserName(),
+			((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
+					getLanguages(),
+			((AcceptLanguageListContainer)request->operationContext.get(AcceptLanguageListContainer::NAME)).
+					getLanguages()); 
+		     
                 _forwardRequestForAggregation(providerInfos[i]._serviceName,
                       providerInfos[i]._controlProviderName, enumReq, poA);
 	    }

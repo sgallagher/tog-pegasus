@@ -164,6 +164,9 @@ void mofFormat(
     delete [] var;
 }
 
+
+/* method to build an OptionManager object - which holds and organizes options and the properties */
+
 void GetOptions(
     OptionManager& om,
     int& argc,
@@ -175,24 +178,30 @@ void GetOptions(
                                             sizeof(outputFormats[0]);
 
     static struct OptionRow optionsTable[] =
-        //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
+        //The values in the OptionRows below are: 
+        //optionname, defaultvalue, is required, type, domain, domainsize, flag, hlpmsg
     {
-	{"location", "localhost:5988", false, Option::STRING, 0, 0, "-n",
-                                        "specifies system and port" },
-        
-	{"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
-                                        "specifies namespace to use for operation" },
-        
+        {"port", "5988", false, Option::INTEGER, 0, 0, "p",
+                                        "specifies port" },
 
-
+        {"location", "localhost", false, Option::STRING, 0, 0, "l",
+                                        "specifies hostname of system" },
+  
         {"version", "false", false, Option::BOOLEAN, 0, 0, "v",
                                         "Displays software Version "},
 
         {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
                             "Prints help message with command line options "},
 
-        {"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
-                     "Not Used "},
+        {"help1", "false", false, Option::BOOLEAN, 0, 0, "-help",
+                            "Prints help message with command line options "},
+
+        {"user name","",false,Option::STRING, 0, 0, "u",
+                             "specifies user loging in"},
+
+        {"pass word","",false,Option::STRING, 0, 0, "pw",
+                             "login pass word for user"},
+
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
@@ -201,11 +210,13 @@ void GetOptions(
     //We want to make this code common to all of the commands
 
     String configFile = "/CLTest.conf";
-
-    cout << "Config file from " << configFile << endl;
-
+    
     if (FileSystem::exists(configFile))
-             om.mergeFile(configFile);
+    {
+        cout << "Config file from " << configFile << endl;
+        om.mergeFile(configFile);
+    }
+             
 
     om.mergeCommandLine(argc, argv);
 
@@ -213,13 +224,13 @@ void GetOptions(
 
 }
 
-void printHelp(char* name, OptionManager om)
+/*void printHelp(char* name, OptionManager om)
 {
     String header = "Usage ";
     header.append(name);
 
     //om.printOptionsHelpTxt(header, trailer);
-}
+}       */
 
 /* PrintHelp - This is temporary until we expand the options manager to allow
    options help to be defined with the OptionRow entries and presented from
@@ -282,13 +293,8 @@ int main(int argc, char** argv)
     // removes corresponding options and their arguments fromt he command
     // line.
 
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
-    // line.
-
+    
     OptionManager om;
-
-//debug code
 
     try
     {
@@ -299,30 +305,37 @@ int main(int argc, char** argv)
     catch (Exception& e)
     {
 		 cerr << argv[0] << ": " << e.getMessage() << endl;
+         String header = "Usage ";
+         String trailer = "";
+         om.printOptionsHelpTxt(header, trailer);
 		 exit(1);
     }
 
-
-    // Check to see if user asked for help (-h otpion):
+        /* this does nothing
+    :
     if (om.valueEquals("verbose", "true"))
     {
                 printHelpMsg(argv[0], usage, extra, om);
 		exit(0);
-    }
+    }       */
 
     // Establish the namespace from the input parameters
-    String nameSpace;
+    String nameSpace = "root/cimv2";
+
+    /* if flag is taken out this section of code should be taken out
     if(om.lookupValue("namespace", nameSpace))
     {
        cout << "Namespace = " << nameSpace << endl;
 
-    }
+    }  */
 
+   /*      this code serves no purpose
     Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
 
-    Boolean debug = (om.valueEquals("debug", "true")) ? true :false;
-    
-	if (om.valueEquals("help", "true"))
+    Boolean debug = (om.valueEquals("debug", "true")) ? true :false; */
+
+    // Check to see if user asked for help (-h or --help otpion)  
+	if (om.valueEquals("help", "true") || om.valueEquals("help1", "true"))
     {
         String header = "Usage ";
         String trailer = "";
@@ -330,27 +343,65 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    String location =   "localhost";
-  /*  if(om.lookupValue("location", location))
+    
+    //Get hostname form (option manager) command line if none use default
+    String location;
+    if(om.lookupValue("location", location))
     {
-       cout << "Location = " << location << endl;
+        cout << "Location = " << location << endl;
+    }
+    
 
-    }*/
+    //Get port number from (option manager) command line if none use defualt
+    String str_port;
+    Uint32 port;
+    if(om.lookupValue("port", str_port))
+    {
+        port = (Uint32) atoi(str_port.getCString());
+        cout << "Port = " << port << endl;
+    }
+
+    //Get user name and password
+    String userN;
+    String passW;
+    om.lookupValue("user name", userN);
+
+    if (userN == String::EMPTY) {
+        cout << "user name eqauls String::EMPTY" << endl;
+    }
+    else
+        cout << "user name equals " << userN << endl;
+
+    om.lookupValue("pass word", passW);
+    if (passW == String::EMPTY) {
+        cout << "pass wrod eqauls String::EMPTY" << endl;
+    }
+    else
+        cout << "pass word equals equals " << passW << endl;
+    
+
+ /****************************************************
+ The next sectoin of code connects to the server and enumerates all the instances of the 
+ CIM_CIMOMStatisticalData class. The instances are held in an Array named instances. The
+ output of cimperf is a table of averages, the last piece of code in this section prints the 
+ header of this table
+ */
+
 
 	String className = "CIM_CIMOMStatisticalData";
-
     CIMClient client;
 
 	//printf("this is right before connect\n");
     try
     {
-       	client.connect(location, 5988, String::EMPTY, String::EMPTY);
+       	client.connect(location, port, userN, passW);
     } 
     
     catch(Exception& e)
     {
 	  cerr << argv[0] << " Exception connecting to : " << location << endl;
 	  cerr << e.getMessage() << endl;
+      exit(1);
     }
 	CIMClass performanceClass;
 	try
@@ -359,7 +410,7 @@ int main(int argc, char** argv)
 										   className,
 										   false,
 										   false,
-										   false);
+										   false);    
 	}
 
     catch(Exception& e)
@@ -384,23 +435,29 @@ int main(int argc, char** argv)
 							   includeQualifiers,
 							   includeClassOrigin);
 		
-		// Output a table with the values
+	
 
 		
-		// First build the header from the values strings in the class
+		// First print the header for table of values
 		printf("%-25s%10s %10s %10s %10s %10s\n%-25s%10s %10s %10s %10s %10s\n",
 			   "CIM", "Number of", "CIMOM", "Provider",
 			    "Request", "Response",
 			   "Operation", "Requests", "Time", "Time", "Size", "Size");
 		
-		// Output the returned instances
+
+  /*****************************************************************************  
+  This section of code loops through all the instances of CIM_CIMOMStatisticalData
+  (one for each intrinsic request type) and gathers the NumberofOperations, CIMOMElapsedTime,
+   ProviderElapsedTime, ResponseSize and RequestSize for each instance. Averages are abtained
+   be dividing times and sizes by NumberofOperatons.
+  */
 
 	//	printf("right before for loop\n");
+       
 		
 		for (Uint32 inst = 0; inst < instances.size(); inst++)
 		{
 			CIMInstance instance = instances[inst];
-			// Build a line for every information entry.
 
 			// Get the request type property for this instance
 			// Note that for the moment it is simply an integer.
@@ -434,7 +491,7 @@ int main(int argc, char** argv)
 			//debug code
 	//		printf("this is before Number of Operations check\n");
 
-			// now get number of requests property "NumberofOperations"
+			//get number of requests property - "NumberofOperations"
 			Uint64 numberOfRequests = 0;
 			if ((pos = instance.findProperty("NumberOfOperations")) != PEG_NOT_FOUND)
 			{
@@ -483,14 +540,15 @@ int main(int argc, char** argv)
 			else
 				cerr << "Error Property " << "CimomElapsedTime" << endl;
 
-			
+			/* this can be taken out
+
 			// look in C++ class StatisticalData and get CIMOMElapsedTime in integer format
 			// get the average and then use toCIMDateTime function of the statsicaldata class 
 			// (not sure if this is needed)to convert the average into a CIMDateTime format
 
-			StatisticalData* statd = StatisticalData::current();
+	   // 	StatisticalData* statd = StatisticalData::current();  this 
 
-		//	printf("this is after getting statd and befor division\n");
+		//	printf("this is after getting statd and befor division\n");     */
 
 			if ((totalCT == 0) || (numberOfRequests == 0))
 			{
@@ -531,6 +589,8 @@ int main(int argc, char** argv)
 			// look in C++ class StatisticalData and get ProviderElapsedTime in integer format
 			// get the average and then use toCIMDateTime function of the statsicaldata class 
 			// (not sure if this is needed)to convert the average into a CIMDateTime format
+
+                            //I think this comment should be taken out
 
 
 			if ((totalPT == 0) || (numberOfRequests == 0))

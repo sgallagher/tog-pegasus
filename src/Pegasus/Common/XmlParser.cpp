@@ -312,6 +312,10 @@ XmlException::XmlException(
     MessageLoaderParms& msgParms) 
     : Exception(_formPartialMessage(code, lineNumber))
 {
+	if (msgParms.default_msg.size())
+    {
+    	msgParms.default_msg = ": " + msgParms.default_msg;
+    } 
 	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
 

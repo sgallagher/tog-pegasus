@@ -39,7 +39,7 @@ PEGASUS_USING_STD;
 
 static const int ID_INVALID = -1;
 static const String server_resbundl_name = "pegasus/pegasusServer";
-String MessageLoader::pegasus_MSG_HOME = String::EMPTY;
+String MessageLoader::pegasus_MSG_HOME = String();
 Boolean MessageLoader::_useProcessLocale = false;
 Boolean MessageLoader::_useDefaultMsg = false;
 AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();

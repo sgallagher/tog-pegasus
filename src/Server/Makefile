@@ -78,6 +78,8 @@ install_run:
 	$(RM) $(PEGASUS_HOME)/cimserver.rnd
 	$(RM) $(PEGASUS_HOME)/ssl.rnd
 	$(RM) $(PEGASUS_HOME)/ssl.cnf
+	$(RM) $(PEGASUS_HOME)/client_cert.pem
+	$(RM) $(PEGASUS_HOME)/client_file.pem
 	$(RMDIRHIER) $(PEGASUS_HOME)/cimserver_trust
 	$(RMDIRHIER) $(PEGASUS_HOME)/indication_trust
 	$(RMDIRHIER) $(PEGASUS_HOME)/crl
@@ -89,6 +91,8 @@ install_run:
 	$(COPY) cimserver.rnd    $(PEGASUS_HOME)
 	$(COPY) ssl.rnd    $(PEGASUS_HOME)
 	$(COPY) ssl.cnf    $(PEGASUS_HOME)
+	$(COPY) cert.pem $(PEGASUS_HOME)/client_cert.pem
+	$(COPY) file.pem $(PEGASUS_HOME)/client_file.pem
 	$(MKDIRHIER) $(PEGASUS_HOME)/cimserver_trust
 	$(MKDIRHIER) $(PEGASUS_HOME)/indication_trust
 	$(MKDIRHIER) $(PEGASUS_HOME)/crl

@@ -1256,52 +1256,75 @@ Thread * runTests(CIMClient *client, Uint32 testCount, Boolean activeTest, Boole
 	return t.release();
 }
 
-void connectClient(CIMClient *client, String host, Uint32 portNumber, String userName, String password, Boolean useSSL, Boolean localConnection,
-			Uint32 timeout){
-
-   try{
-	client->setTimeout(timeout);
-        if (useSSL){
-		if (localConnection)
+void connectClient(
+    CIMClient *client, 
+    String host, 
+    Uint32 portNumber, 
+    String userName, 
+    String password, 
+    Boolean useSSL, 
+    Boolean localConnection,
+    Uint32 timeout)
+{
+    try
+    {
+        client->setTimeout(timeout);
+        if (useSSL)
         {
-             cout << "Using local connection mechanism " << endl;
-             client->connectLocal();
-        }
-		else
-		{
-        	//
+            if (localConnection)
+            {
+                cout << "Using local connection mechanism " << endl;
+                client->connectLocal();
+            }
+            else
+            {
+                //
                 // Get environment variables:
                 //
                 const char* pegasusHome = getenv("PEGASUS_HOME");
-
-                String certpath = FileSystem::getAbsolutePath(
+                
+                String trustpath = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-                        String randFile = String::EMPTY;
+                String certpath = FileSystem::getAbsolutePath(
+                                pegasusHome, PEGASUS_SSLCLIENT_PUBLIC_KEY);
+
+                String keypath = FileSystem::getAbsolutePath(
+                                pegasusHome, PEGASUS_SSLCLIENT_PRIVATE_KEY);
+
+                String randFile = String::EMPTY;
 #ifdef PEGASUS_SSL_RANDOMFILE
-                        randFile = FileSystem::getAbsolutePath(
+                randFile = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
-                        SSLContext sslcontext(
-                                certpath, verifyCertificate, randFile);
-			cout << "connecting to " << host << ":" << portNumber << " using SSL" << endl;
-                        client->connect (host, portNumber, sslcontext, userName, password);
-		}
-         } // useSSL
-         else {
-                if (localConnection) {
-                        cout << "Using local connection mechanism " << endl;
-                        client->connectLocal();
-                }
-                else {
-                        cout << "Connecting to " << host << ":" << portNumber << endl;
-                        client->connect (host, portNumber, userName, password);
-                }
-         }
-         cout << "Client Connected" << endl;
-    } catch(Exception& e) {
-                PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-                exit(1);
+                SSLContext sslcontext(
+                    trustpath, certpath, keypath, verifyCertificate, randFile);
+
+                cout << "connecting to " << host << ":" << portNumber << " using SSL" << endl;
+
+                client->connect (host, portNumber, sslcontext, userName, password);
+            }
+        } // useSSL
+        else 
+        {
+            if (localConnection) 
+            {
+                cout << "Using local connection mechanism " << endl;
+                client->connectLocal();
+            }
+            else 
+            {
+                cout << "Connecting to " << host << ":" << portNumber << endl;
+                client->connect (host, portNumber, userName, password);
+            }
+        }
+
+        cout << "Client Connected" << endl;
+    } 
+    catch(Exception& e) 
+    {
+        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
     }
 }
 

@@ -176,3 +176,41 @@
 <mdday> Later !
 <Karl> I think I understand what we want in CIM Operation processor (old dispatcher)
 <-- Karl has quit (Client Exiting)
+* mdday is away: working on docs - watching for messages
+* kumpf is back (gone 01:49:18)
+<mdday> Hi Roger I saved the irc buffer and checked it in under Pegasus/docs/irc_logs
+<kumpf> Cool.  Thanks.
+<mdday> I had another phone call with Karl and we sorted out the CIM Operation Processor (old dispatcher) work
+<mdday> We don't need to do too many changes for the meta dispatcher this week to the CIM Operation Processor. 
+<kumpf> Glad to hear that.
+<mdday> Also, We agreed to leave the ProviderManager/Service Control stuff alone as long as possible and try to get your providers hooked in with no changes. 
+<mdday> Hopefully Chip will be back but if not we will make the providers work as they are. Except we may need to finesse the calls into the repository. 
+<kumpf> Do you mean no changes at the interface (provider API) level?
+<kumpf> Yes, I believe the calls to the repository are the only major issue at the "bottom" of those providers.
+<mdday> Right. My understanding has always been that the interfaces don't need to change. We may need to make some other code changes. 
+<mdday> Of course, we will have the option of "upgrading" the interfaces but It should not be a dependency for what we are doing this week. And maybe we won't need to at all. 
+<mdday> This is consistent with my converstations Chip and I hope I am not missing anything. 
+<kumpf> Is the net effect that we are delaying work or avoiding work?
+<mdday> We are transferring work to the PRoviderManager and MessageQueueService to avoid rewriting providers. 
+<kumpf> Denise is going to want to know how our decisions relate to the schedule, that's all.
+<mdday> Right. I think we are moving the dependency around Chip so we can keep working on the critical path.
+<kumpf> Sounds good.
+<mdday> I'll be sending you an html document within the hour. I hope it helps the team continue to work. 
+<kumpf> My folks will be really happy to see that.
+<mdday> Hopefully they's still be happy after they see it :-). Later ...
+<kumpf> Thanks.
+* mdday is away: working on docs
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+--- Disconnected (Remote host closed socket).
+--> mdday (~mdday@129.33.49.202) has joined #pegasus
+<mdday> Roger I checked the doc in under Pegasus/doc/MessageQueueService.html
+<mdday> It needs more work, which I will provide later. 
+<mdday> Signing off - late for a personal appt. !!!
+--- Disconnected ().

@@ -53,6 +53,7 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep;
       */
 enum  FunctionOpType
 {
+  UNKNOWN,
   DATETIMETOMICROSECOND,
   STRINGTOUINT,
   STRINGTOSINT,

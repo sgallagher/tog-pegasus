@@ -31,13 +31,23 @@
 // Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
 #include <Pegasus/CQL/CQLUtilities.h>
-#include <Pegasus/Common/Exception.h>
+
+// Query includes
+#include <Pegasus/Query/QueryCommon/QueryException.h>
+
+// Pegasus Common includes
+#include <Pegasus/Common/Tracer.h>
+
+// standard includes
 #include <errno.h>
 
+// symbol defines
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 
+// required for the windows compile
 #ifndef _MSC_VER
 #define _MSC_VER 0
 #endif
@@ -60,21 +70,37 @@ inline Uint8 _CQLUtilities_hexCharToNumeric(const Char16 c)
 
 Uint64 CQLUtilities::stringToUint64(const String &stringNum)
 {
+  PEG_METHOD_ENTER(TRC_CQL,"CQLUtilities::stringToUint64()");
+
   Uint64 x = 0;
   const Char16* p = stringNum.getChar16Data();
   const Char16* pStart = p;
 
   if (!p)
-    throw(Exception(String("CQLUtilities::stringToUint64 -- string to convert is NULL")));
+  {
+    MessageLoaderParms mload(String("CQL.CQLUtilities.NULL_INPUT"),
+                             String("String cannot be NULL or empty."));
+    throw CQLRuntimeException(mload);    
+  }
 
   // There cannot be a negative '-' sign
   if (*p == '-')
-    throw(Exception(String("CQLUtilities::stringToUint64 -- string to convert is negative")));
+  {
+     MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NEG"),
+                              String("String $0 cannot being with '-'."),
+                              stringNum);
+    throw CQLRuntimeException(mload);    
+  }
   if (*p == '+')
     p++;  // skip over the positive sign
 
   if (!isdigit(*p))
-    throw(Exception(String("CQLUtilities::stringToUint64 -- numeric string must begin with a digit")));
+  {
+     MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
+                              String("String $0 must begin with a decimal character following an optional sign"),
+                              stringNum);
+    throw CQLRuntimeException(mload);    
+  }
 
   // if binary
   Uint32 endString = stringNum.size() - 1;
@@ -85,7 +111,12 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     {
       // Make sure we won't overflow when we multiply by 2
       if (x > PEGASUS_UINT64_MAX/2)
-        throw(Exception(String("CQLUtilities::stringToUint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       x = x << 1;
 
@@ -94,16 +125,27 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
       if (*p++ == '1')
         newDigit = 1;
       if (PEGASUS_UINT64_MAX - x < newDigit)
-        throw(Exception(String("CQLUtilities::stringToUint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       x = x + newDigit;
     }
 
     // If we found a non-binary digit, report an error
     if (*p && (*p != 'b') && (*p != 'B'))
-      throw(Exception(String("CQLUtilities::stringToUint64 -- non-binary digit")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_BIN_CHAR"),
+                               String("String $0 has a non-binary digit character"),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
 
     // return value from the binary string
+    PEG_METHOD_EXIT();
     return x;      
   } // end if binary
 
@@ -117,30 +159,51 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
 
     // At least one hexadecimal digit is required
     if (!*p)
-      throw(Exception(String("CQLUtilities::stringToUint64 -- at least one hexadecimal digit is required")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_FORMAT"),
+                               String("String $0 needs a hexadecimal digit character following '0x'"),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
 
     // Add on each digit, checking for overflow errors
     while (isxdigit(*p))
     {
       // Make sure we won't overflow when we multiply by 16
       if (x > PEGASUS_UINT64_MAX/16)
-        throw(Exception(String("CQLUtilities::stringToUint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       x = x << 4;
 
       // We can't overflow when we add the next digit
       Uint64 newDigit = Uint64(_CQLUtilities_hexCharToNumeric(*p++));
       if (PEGASUS_UINT64_MAX - x < newDigit)
-        throw(Exception(String("CQLUtilities::stringToUint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       x = x + newDigit;
     }
 
     // If we found a non-hexadecimal digit, report an error
     if (*p)
-      throw(Exception(String("CQLUtilities::stringToUint64 -- non-hexadecimal digit")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_CHAR"),
+                               String("String $0 has a non-hexidecimal digit character"),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
 
     // return value from the hex string
+    PEG_METHOD_EXIT();
     return x;
   }  // end if hexidecimal     
 
@@ -152,34 +215,56 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   {
     // Make sure we won't overflow when we multiply by 10
     if (x > PEGASUS_UINT64_MAX/10)
-      throw(Exception(String("CQLUtilities::stringToUint64 -- overflow error")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                               String("String $0 caused an overflow."),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
     x = 10 * x;
 
     // Make sure we won't overflow when we add the next digit
     Uint64 newDigit = (*p++ - '0');
     if (PEGASUS_UINT64_MAX - x < newDigit)
-      throw(Exception(String("CQLUtilities::stringToUint64 -- overflow error")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                               String("String $0 caused an overflow."),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
 
     x = x + newDigit;
   }
 
-  // If we found a non-decimal digit, report an error
+// If we found a non-decimal digit, report an error
   if (*p)
-    throw(Exception(String("CQLUtilities::stringToUint64 -- non-decimal digit")));
+  {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
+                               String("String $0 has a non-decimal digit character"),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+  }
 
   // return the value for the decimal string
+  PEG_METHOD_EXIT();
   return x;
 }
 
 Sint64 CQLUtilities::stringToSint64(const String &stringNum)
 {
+  PEG_METHOD_ENTER(TRC_CQL,"CQLUtilities::stringToSint64()");
+  
   Sint64 x = 0;
   Boolean invert = false;
   const Char16* p = stringNum.getChar16Data();
   const Char16* pStart = p;
 
   if (!p)
-    throw(Exception(String("CQLUtilities::stringToSint64 -- string to convert is NULL")));
+  {
+    MessageLoaderParms mload(String("CQL.CQLUtilities.NULL_INPUT"),
+                             String("String cannot be NULL or empty."));
+    throw CQLRuntimeException(mload);    
+  }
 
   // skip over the sign if there is one
   if (*p == '-')
@@ -191,7 +276,12 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     p++;
 
   if (!isdigit(*p))
-    throw(Exception(String("CQLUtilities::stringToSint64 -- numeric string must begin with a digit")));
+  {
+     MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
+                              String("String $0 must begin with a decimal character following an optional sign"),
+                              stringNum);
+    throw CQLRuntimeException(mload);    
+  }
 
   // ********************
   // Build the Sint64 as a negative number, regardless of the
@@ -207,7 +297,12 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     {
       // Make sure we won't overflow when we multiply by 2
       if (x < PEGASUS_SINT64_MIN/2)
-        throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       x = x << 1;
 
@@ -216,25 +311,41 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
       if (*p++ == '1')
         newDigit = 1;
       if (PEGASUS_SINT64_MIN - x > -newDigit)
-        throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       x = x - newDigit;
     }
 
     // If we found a non-binary digit, report an error
     if (*p && (*p != 'b') && (*p != 'B'))
-      throw(Exception(String("CQLUtilities::stringToSint64 -- non-binary digit")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_BIN_CHAR"),
+                               String("String $0 has a non-binary digit character"),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
 
     // Return the integer to positive, if necessary, checking for an
     // overflow error
     if (!invert)
     {
       if (x == PEGASUS_SINT64_MIN)
-        throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
       x = -x;
     }
     
     // return value from the binary string
+    PEG_METHOD_EXIT();
     return x;      
   }  // end if binary
 
@@ -248,39 +359,65 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
 
     // At least one hexadecimal digit is required
     if (!*p)
-      throw(Exception(String("CQLUtilities::stringToSint64 -- at least one hexadecimal digit is required")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_FORMAT"),
+                               String("String $0 needs a hexadecimal digit character following '0x'"),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
 
     // Add on each digit, checking for overflow errors
     while (isxdigit(*p))
     {
       // Make sure we won't overflow when we multiply by 16
       if (x < PEGASUS_SINT64_MIN/16)
-        throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       x = x << 4;
 
       // We can't overflow when we add the next digit
       Sint64 newDigit = Sint64(_CQLUtilities_hexCharToNumeric(*p++));
       if (PEGASUS_SINT64_MIN - x > -newDigit)
-        throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       x = x - newDigit;
     }
 
     // If we found a non-hexadecimal digit, report an error
     if (*p)
-      throw(Exception(String("CQLUtilities::stringToSint64 -- non-hexadecimal digit")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_HEX_CHAR"),
+                               String("String $0 has a non-hexidecimal digit character"),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
 
     // Return the integer to positive, if necessary, checking for an
     // overflow error
     if (!invert)
     {
       if (x == PEGASUS_SINT64_MIN)
-        throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
       x = -x;
     }
     
     // return value from the hex string
+    PEG_METHOD_EXIT();
     return x;
   }  // end if hexidecimal     
 
@@ -292,43 +429,70 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   {
     // Make sure we won't overflow when we multiply by 10
     if (x < PEGASUS_SINT64_MIN/10)
-      throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+    {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+    }
     x = 10 * x;
 
     // Make sure we won't overflow when we add the next digit
     Sint64 newDigit = (*p++ - '0');
     if (PEGASUS_SINT64_MIN - x > -newDigit)
-      throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+    {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+    }
 
     x = x - newDigit;
   }
 
   // If we found a non-decimal digit, report an error
   if (*p)
-    throw(Exception(String("CQLUtilities::stringToSint64 -- non-decimal digit")));
+  {
+    MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
+                             String("String $0 has a non-decimal digit character"),
+                             stringNum);
+    throw CQLRuntimeException(mload);    
+  }
 
   // Return the integer to positive, if necessary, checking for an
   // overflow error
   if (!invert)
   {
     if (x == PEGASUS_SINT64_MIN)
-      throw(Exception(String("CQLUtilities::stringToSint64 -- overflow error")));
+    {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.OVERFLOW"),
+                                 String("String $0 caused an overflow."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+    }
     x = -x;
   }
 
   // return the value for the decimal string
+  PEG_METHOD_EXIT();
   return x;  
 }
 
 Real64 CQLUtilities::stringToReal64(const String &stringNum)
 {
+  PEG_METHOD_ENTER(TRC_CQL,"CQLUtilities::stringToReal64()");
+  
   Real64 x = 0;
   const Char16* p = stringNum.getChar16Data();
   Boolean neg = false;
   const Char16* pStart = p;
 
   if (!*p)
-    throw(Exception(String("CQLUtilities::stringToReal64 -- string to convert is empty")));
+  {
+    MessageLoaderParms mload(String("CQL.CQLUtilities.NULL_INPUT"),
+                             String("String cannot be NULL or empty."));
+    throw CQLRuntimeException(mload);    
+  }
 
   
   // Skip optional sign:
@@ -364,6 +528,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
 #else
       x = stringToUint64(stringNum);
 #endif    
+    PEG_METHOD_EXIT();
     return x;
   }  
   
@@ -377,7 +542,12 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
   {
     // One or more digits required:
     if (!isdigit(*p++))
-      throw(Exception(String("CQLUtilities::stringToReal64 -- required digit missing after the decimal")));
+    {
+      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_CHAR_POST_DOT"),
+                               String("String $0 must have a digit character following the decimal point."),
+                               stringNum);
+      throw CQLRuntimeException(mload);    
+    }
 
     while (isdigit(*p))
       p++;
@@ -389,7 +559,12 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
       // Test exponent:
 
       if (*p != 'e' && *p != 'E')
-        throw(Exception(String("CQLUtilities::stringToReal64 -- malformed string - digit or exponent symbol expected")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_REAL_CHAR"),
+                                 String("String $0 contains an invalid character for a real number."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       p++;
 
@@ -401,14 +576,24 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
       // One or more digits required:
 
       if (!isdigit(*p++))
-        throw(Exception(String("CQLUtilities::stringToReal64 -- required digit missing after the exponent symbol")));
+      {
+        MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_REAL_EXP"),
+                                 String("String $0 must have a digit following the exponent symbol."),
+                                 stringNum);
+        throw CQLRuntimeException(mload);    
+      }
 
       while (isdigit(*p))
         p++;
     }
-  }
+  } // end-if optional decimal point
   if (*p)
-    throw(Exception(String("CQLUtilities::stringToReal64 -- non-decimal digit")));
+  {
+    MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_DECIMAL_CHAR"),
+                             String("String $0 has a non-decimal digit character"),
+                             stringNum);
+    throw CQLRuntimeException(mload);    
+  }
   //
   // Do the conversion
   //
@@ -418,8 +603,12 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
   x = strtod((const char *) temp, &end);
   if (*end || (errno == ERANGE))
   {
-    throw(Exception(String("CQLUtilities::stringToReal64 -- conversion error - string may be out of range")));
+    MessageLoaderParms mload(String("CQL.CQLUtilities.OONVERSION_REAL_ERROR"),
+                             String("String $0 was unable to be converted to a Real64.  It could be out of range."),
+                             stringNum);
+    throw CQLRuntimeException(mload);    
   }
+  PEG_METHOD_EXIT();
   return x;
 }
 

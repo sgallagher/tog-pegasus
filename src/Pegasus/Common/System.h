@@ -241,6 +241,9 @@ public:
 
     // System ID constants for Logger::put and Logger::trace
     static const String CIMSERVER;
+
+    // System ID constants for Logger::put and Logger::trace
+    static const String CIMLISTENER;
 };
 
 PEGASUS_NAMESPACE_END

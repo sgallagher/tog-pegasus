@@ -27,87 +27,89 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Listener_h
-#define Pegasus_Listener_h
+#ifndef Pegasus_List_h
+#define Pegasus_List_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Listener/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class SSLContext;
-class CIMIndicationConsumer;
-
-class PEGASUS_LISTENER_LINKAGE CIMListener
+/**
+ * Iterator
+ */
+class Iterator
 {
 public:
 	/**
-	 * Constructs a CIMListener object.
+   * Returns <tt>true</tt> if the iteration has more elements. (In other
+   * words, returns <tt>true</tt> if <tt>next</tt> would return an element
+   * rather than throwing an exception.)
+   *
+   * @return <tt>true</tt> if the iterator has more elements.
+	 */
+	virtual Boolean hasNext() = 0;
+	
+	/**
+	 * Returns the next element in the interation.
+	 *
+	 * @returns the next element in the interation.
+	 * @exception NoSuchElementException iteration has no more elements.
+	 */
+	virtual void* next() = 0;
+	
+	/**
+	 * 
+	 * Removes from the underlying collection the last element returned by the
+	 * iterator (optional operation).  This method can be called only once per
+	 * call to <tt>next</tt>.  The behavior of an iterator is unspecified if
+	 * the underlying collection is modified while the iteration is in
+	 * progress in any way other than by calling this method.
+	 *
+	 * @exception UnsupportedOperationException if the <tt>remove</tt>
+	 *		  operation is not supported by this Iterator.
+	 */
+	virtual void remove() = 0;
+};
+
+/**
+ * PtrList
+ */
+class PtrList
+{
+public:
+	/**
+	 * Constructs a PtrList object.
 	 * 
 	 * @param portNumber	the specified socket port the listener will listen to
    * @param sslContext	the specifed SSL context 
 	 */
-	CIMListener(Uint32 portNumber, SSLContext* sslContext=NULL);
+	PtrList();
 	/**
-	 * Destructor of a CIMLIstener object.
+	 * Destructor of a PtrList object.
 	 */
-    ~CIMListener();
+  ~PtrList();
 
 	/**
-	 * Returns the socket port number
+	 * Adds an element into the list
 	 *
-	 * @return the socket port number.
-    */
-	Uint32 getPortNumber() const;
+	 * @param the element to add.
+	 */
+	void add(void* element);
 
 	/**
-	 * Returns the SSL context
+	 * Removes an element from the list
 	 *
-	 * @return the SSL context.
-    */
-	SSLContext* getSSLContext() const;
-
-	/** 
-	 * Sets the SSL context
-	 *
-	 * @param the SSL context.
-    */
-	void setSSLContext(SSLContext* sslContext);
-
-	/** 
-	 * Starts for listening.
-    */
-	void start();
+	 * @param the element to remove.
+	 */
+	void remove(void* element);
 
 	/**
-	 * Stops listening
-    */
-	void stop();
-
-	/**
-	 * Returns if the listener is active
-	 *
-	 * @return true if the listener is active;
-	 *				 false otherwise.
-    */
-	Boolean isAlive();
-
-	/** 
-	 * Adds a CIMIndicationConsumer to the listener
+   * Returns an iterator over the elements in this list in proper sequence.
    *
-	 * @param the CIMIndicationConsumer to add.
-	 * @return true if the indication consumer has been added successfully
-	 *				 false otherwise.
-	 */
-	Boolean addConsumer(CIMIndicationConsumer* consumer);
-	/** 
-	 * Removes a CIMIndicationConsumer from the listener.
-	 *
-	 * @param the CIMIndicationConsumer to remove.
-	 * @return true if the indication consumer has been removed successfully
-	 *				 false otherwise.
-	 */
-	Boolean removeConsumer(CIMIndicationConsumer* consumer);
+   * @return an iterator over the elements in this list in proper sequence.
+   */
+	Iterator* iterator();
 
 private:
 	void* _rep;
@@ -115,4 +117,5 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Listener_h */
+#endif /* Pegasus_List_h */
+

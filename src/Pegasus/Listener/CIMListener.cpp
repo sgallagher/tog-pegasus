@@ -21,139 +21,430 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
 //
 // Modified By:
-//         Mike Day (mdday@us.ibm.com)s
-//         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#include "CIMListener.h"
 
-#include <iostream>
-#include <cstdio>
-#include <cctype>
-#include <ctime>
-#include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
-#include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/PegasusVersion.h>
 
-#include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 
-#include "CIMListener.h"
-
-#define DDD(X) // X
-
-PEGASUS_USING_STD;
+#include <Pegasus/Consumer/CIMIndicationConsumer.h>
+#include <Pegasus/Listener/CIMListenerIndicationDispatcher.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-CIMListener::CIMListener(
-    Monitor* monitor,
-    const String& rootPath,
-    Boolean dynamicReg,
-    Boolean staticConsumers,
-    Boolean persistence,
-    Uint32 portNumber)
-    : _dieNow(false), _rootPath(rootPath),
-    _dynamicReg(dynamicReg), 
-    _staticConsumers(staticConsumers), 
-    _persistence(persistence),
-    _portNumber(portNumber)
+/////////////////////////////////////////////////////////////////////////////
+// CIMListenerService
+/////////////////////////////////////////////////////////////////////////////
+class CIMListenerService
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::CIMListener()");
+public:
+	CIMListenerService(Uint32 portNumber, SSLContext* sslContext=NULL);
+	CIMListenerService(CIMListenerService& svc);
+  ~CIMListenerService();
 
-    // -- Save the monitor or create a new one:
+	void				init();
+	/** bind to the port
+	*/
+	void				bind();
+	/** runForever Main runloop for the server.
+	*/
+	void runForever();
+	
+	/** Call to gracefully shutdown the server.  The server connection socket
+	will be closed to disable new connections from clients.
+	*/
+	void stopClientConnection();
+	
+	/** Call to gracefully shutdown the server.  It is called when the server
+	has been stopped and is ready to be shutdown.  Next time runForever()
+	is called, the server shuts down.
+	*/
+	void shutdown();
+	
+	/** Return true if the server has shutdown, false otherwise.
+	*/
+	Boolean terminated() { return _dieNow; };
+	
+	/** Call to resume the sever.
+	*/
+	void resume();
+	
+	/** Call to set the CIMServer state.  Also inform the appropriate
+	message queues about the current state of the CIMServer.
+	*/
+	void setState(Uint32 state);
+	
+	Uint32 getOutstandingRequestCount();
 
-    _monitor = monitor;
+	/** Returns the indication listener dispatcher
+	 */
+	CIMListenerIndicationDispatcher* getIndicationDispatcher() const;
 
-    // -- Create a CIMListenerState object:
+  /** Returns the indication listener dispatcher
+	 */
+	void setIndicationDispatcher(CIMListenerIndicationDispatcher* dispatcher);
 
-    _cimExportRequestDispatcher
-	= new CIMExportRequestDispatcher(dynamicReg, staticConsumers, persistence);
+	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _listener_routine(void *param);
 
-    _cimExportResponseEncoder
-	= new CIMExportResponseEncoder;
+private:
+	Uint32			_portNumber;
+	SSLContext* _sslContext;
 
-    _cimExportRequestDecoder = new CIMExportRequestDecoder(
-	_cimExportRequestDispatcher,
-	_cimExportResponseEncoder->getQueueId());
+	Monitor*				_monitor;
+  HTTPAcceptor*   _acceptor;
+	Boolean					_dieNow;
 
-    SSLContext * sslcontext = NULL;
+  CIMListenerIndicationDispatcher* _dispatcher;
 
-    _acceptor = new HTTPAcceptor(_monitor, _cimExportRequestDecoder, false, portNumber, sslcontext);
+  CIMExportResponseEncoder* _responseEncoder;
+  CIMExportRequestDecoder*  _requestDecoder;
+
+};
+
+CIMListenerService::CIMListenerService(Uint32 portNumber, SSLContext* sslContext)
+:_portNumber(portNumber)
+,_sslContext(sslContext)
+,_monitor(NULL)
+,_acceptor(NULL)
+,_dieNow(false)
+,_dispatcher(NULL)
+,_responseEncoder(NULL)
+,_requestDecoder(NULL)
+{
+}
+
+CIMListenerService::CIMListenerService(CIMListenerService& svc)
+:_portNumber(svc._portNumber)
+,_sslContext(svc._sslContext)
+,_monitor(NULL)
+,_acceptor(NULL)
+,_dieNow(svc._dieNow)
+,_dispatcher(NULL)
+,_responseEncoder(NULL)
+,_requestDecoder(NULL)
+{
+}
+CIMListenerService::~CIMListenerService()
+{
+	// if port is alive, clean up the port
+	//if(_sslContext!=NULL)
+	//	delete _sslContext;
+
+	if(_responseEncoder!=NULL)
+		delete _responseEncoder;
+
+	if(_requestDecoder!=NULL)
+		delete _requestDecoder;
+
+	//if(_dispatcher!=NULL)
+	//	delete _dispatcher;
+
+	if(_monitor!=NULL)
+		delete _monitor;
+
+	if(_acceptor!=NULL)
+		delete _acceptor;
+}
+
+void CIMListenerService::init()
+{
+	PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::init");
+
+  _monitor = new Monitor(true);
+	//_dispatcher = new CIMListenerIndicationDispatcher();
+
+	_responseEncoder = new CIMExportResponseEncoder();
+  _requestDecoder = new CIMExportRequestDecoder(
+		_dispatcher,
+		_responseEncoder->getQueueId());
+
+	_acceptor = new HTTPAcceptor(
+		 _monitor, 
+		 _requestDecoder, 
+		 false, 
+		 _portNumber, 
+		 _sslContext);
+
+	bind();
 
     PEG_METHOD_EXIT();
 }
-
-CIMListener::~CIMListener()
+void CIMListenerService::bind()
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::~CIMListener()");
+	if(_acceptor!=NULL)
+	{ // Bind to the port
+		_acceptor->bind();
 
-    // Note: do not delete the acceptor because it belongs to the Monitor
-    // which takes care of disposing of it.
+		PEGASUS_STD(cout) << "Listening on HTTP port " << _portNumber << PEGASUS_STD(endl);
+		
+		//listener.addAcceptor(false, portNumberHttp, false);
+    Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::INFORMATION,
+                        "Listening on HTTP port $0.", _portNumber);
 
-    PEG_METHOD_EXIT();
+	}
+}
+void CIMListenerService::runForever()
+{
+	static int modulator = 0;
+
+	if(!_dieNow)
+	{
+		if(false == _monitor->run(100))
+		{
+			modulator++;
+			if(!(modulator % 5000) )
+			{
+				try 
+				{
+					//MessageQueueService::_check_idle_flag = 1;
+					//MessageQueueService::_polling_sem.signal();
+					_monitor->kill_idle_threads();
+				}
+				catch(...)
+				{
+				}
+			}	
+		}
+/*
+		if (handleShutdownSignal)
+		{
+			Tracer::trace(TRC_SERVER, Tracer::LEVEL3,
+				"CIMServer::runForever - signal received.  Shutting down.");
+
+			ShutdownService::getInstance(this)->shutdown(true, 10, false);
+			handleShutdownSignal = false;
+		}
+*/
+	} 
 }
 
-void CIMListener::bind()
+void CIMListenerService::shutdown()
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::bind()");
-
-    _acceptor->bind();
-
-    PEG_METHOD_EXIT();
-}
-
-void CIMListener::runForever()
-{
-    //ATTN: Do not add Trace code in this method.
-    if(!_dieNow)
-	_monitor->run(100);
-}
-
-void CIMListener::stopClientConnection()
-{
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::stopClientConnection()");
-
-    _acceptor->closeConnectionSocket();
-
-    PEG_METHOD_EXIT();
-}
-
-void CIMListener::shutdown()
-{
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::shutdown()");
+    PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::shutdown()");
 
     _dieNow = true;
 
     PEG_METHOD_EXIT();
 }
 
-void CIMListener::resume()
+void CIMListenerService::resume()
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::resume()");
+    PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::resume()");
 
-    _acceptor->reopenConnectionSocket();
+    if(_acceptor!=NULL)
+        _acceptor->reopenConnectionSocket();
 
     PEG_METHOD_EXIT();
 }
 
-Uint32 CIMListener::getOutstandingRequestCount()
+void CIMListenerService::stopClientConnection()
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMListener::getOutstandingRequestCount()");
+    PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::stopClientConnection()");
+
+    if(_acceptor!=NULL)
+    _acceptor->closeConnectionSocket();
 
     PEG_METHOD_EXIT();
+}
 
-    return (_acceptor->getOutstandingRequestCount());
+
+CIMListenerIndicationDispatcher* CIMListenerService::getIndicationDispatcher() const
+{
+	return _dispatcher;
+}
+void CIMListenerService::setIndicationDispatcher(CIMListenerIndicationDispatcher* dispatcher)
+{
+	_dispatcher = dispatcher;
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine(void *param)
+{
+  CIMListenerService *svc = reinterpret_cast<CIMListenerService *>(param);
+
+	svc->init();
+	while(!svc->terminated())
+	{
+	  svc->runForever();
+}
+	delete svc;
+
+	return 0;
+}
+static struct timeval create_time = {0, 1};
+static struct timeval destroy_time = {15, 0};
+static struct timeval deadlock_time = {0, 0};
+
+/////////////////////////////////////////////////////////////////////////////
+// CIMListenerRep
+/////////////////////////////////////////////////////////////////////////////
+class CIMListenerRep
+{
+public:
+	CIMListenerRep(Uint32 portNumber, SSLContext* sslContext=NULL);
+  ~CIMListenerRep();
+
+	Uint32 getPortNumber() const;
+
+	SSLContext* getSSLContext() const;
+	void setSSLContext(SSLContext* sslContext);
+	
+	void start();
+	void stop();
+
+	Boolean isAlive();
+
+	Boolean addConsumer(CIMIndicationConsumer* consumer);
+	Boolean removeConsumer(CIMIndicationConsumer* consumer);
+
+private:
+	Uint32			_portNumber;
+	SSLContext* _sslContext;
+
+  CIMListenerIndicationDispatcher* _dispatcher;
+	ThreadPool* _thread_pool;
+};
+
+CIMListenerRep::CIMListenerRep(Uint32 portNumber, SSLContext* sslContext)
+:_portNumber(portNumber)
+,_sslContext(sslContext)
+,_dispatcher(new CIMListenerIndicationDispatcher())
+,_thread_pool(NULL)
+{
+}
+CIMListenerRep::~CIMListenerRep()
+{
+	// if port is alive, clean up the port
+	if(_sslContext!=NULL)
+		delete _sslContext;
+
+	if(_dispatcher!=NULL)
+		delete _dispatcher;
+
+	if(_thread_pool!=NULL)
+		delete _thread_pool;
+}
+
+Uint32 CIMListenerRep::getPortNumber() const
+{
+	return _portNumber;
+}
+
+SSLContext* CIMListenerRep::getSSLContext() const
+{
+	return _sslContext;
+}
+void CIMListenerRep::setSSLContext(SSLContext* sslContext)
+{
+	if(_sslContext!=NULL)
+		delete _sslContext;
+
+	_sslContext = sslContext;
+}
+void CIMListenerRep::start()
+{
+	// spawn a thread to do this
+	if(_thread_pool==NULL)
+	{
+		_thread_pool = new ThreadPool(0, "Listener", 0, 1, 
+			create_time, destroy_time, deadlock_time);
+
+		CIMListenerService* svc = new CIMListenerService(_portNumber,_sslContext);
+		svc->setIndicationDispatcher(_dispatcher);
+
+		_thread_pool->allocate_and_awaken(svc,CIMListenerService::_listener_routine);
+
+		Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER,
+					      Logger::INFORMATION,
+				        "CIMListener started");
+
+		PEGASUS_STD(cerr) << "CIMlistener started" << PEGASUS_STD(endl);
+	}
+}
+
+void CIMListenerRep::stop()
+{
+	if(_thread_pool!=NULL)
+	{ // stop the thread
+		
+		delete _thread_pool;
+		
+		Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER,
+						    Logger::INFORMATION,
+					      "CIMListener stopped");
+	}
+}
+
+Boolean CIMListenerRep::isAlive()
+{
+	return (_thread_pool!=NULL)?true:false;
+}
+
+Boolean CIMListenerRep::addConsumer(CIMIndicationConsumer* consumer)
+{
+	return _dispatcher->addConsumer(consumer);
+}
+Boolean CIMListenerRep::removeConsumer(CIMIndicationConsumer* consumer)
+{
+	return _dispatcher->removeConsumer(consumer);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CIMListener
+/////////////////////////////////////////////////////////////////////////////
+CIMListener::CIMListener(Uint32 portNumber, SSLContext* sslContext)
+:_rep(new CIMListenerRep(portNumber,sslContext))
+{
+}
+CIMListener::~CIMListener()
+{
+	if(_rep!=NULL)
+		delete _rep;
+	_rep=NULL;
+}
+	
+Uint32 CIMListener::getPortNumber() const
+{
+	return static_cast<CIMListenerRep*>(_rep)->getPortNumber();
+}
+
+SSLContext* CIMListener::getSSLContext() const
+{
+	return static_cast<CIMListenerRep*>(_rep)->getSSLContext();
+}
+void CIMListener::setSSLContext(SSLContext* sslContext)
+{
+	static_cast<CIMListenerRep*>(_rep)->setSSLContext(sslContext);
+}
+void CIMListener::start()
+{
+	static_cast<CIMListenerRep*>(_rep)->start();
+}
+void CIMListener::stop()
+{
+	static_cast<CIMListenerRep*>(_rep)->stop();
+}
+
+Boolean CIMListener::isAlive()
+{
+	return static_cast<CIMListenerRep*>(_rep)->isAlive();
+}
+
+Boolean CIMListener::addConsumer(CIMIndicationConsumer* consumer)
+{
+	return static_cast<CIMListenerRep*>(_rep)->addConsumer(consumer);
+}
+Boolean CIMListener::removeConsumer(CIMIndicationConsumer* consumer)
+{
+	return static_cast<CIMListenerRep*>(_rep)->removeConsumer(consumer);
 }
 
 PEGASUS_NAMESPACE_END

@@ -21,73 +21,163 @@
 //
 //==============================================================================
 //
-// Author: 
+// Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cstdio>
-#include <cassert>
-#include <iostream>
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/HTTPAcceptor.h>
-#include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/HTTPMessage.h>
+
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/Listener/CIMListener.h>
+
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// main()
+// MyIndicationConsumer
 //
+////////////////////////////////////////////////////////////////////////////////
+class MyIndicationConsumer : public CIMIndicationConsumer
+{
+public:
+	MyIndicationConsumer(String name);
+	~MyIndicationConsumer();
+	
+	void consumeIndication(const OperationContext& context,
+		const String & url, 
+		const CIMInstance& indicationInstance);
+
+private:
+	String name;
+
+};
+MyIndicationConsumer::MyIndicationConsumer(String name)
+{
+	this->name = name;
+}
+MyIndicationConsumer::~MyIndicationConsumer()
+    {
+}
+
+void MyIndicationConsumer::consumeIndication(
+		const OperationContext & context,
+		const String & url,
+	  const CIMInstance& indicationInstance)
+	{
+	String msg = "Consumer <" + name + "> received " +
+		indicationInstance.getPath().toString();
+
+	PEG_TRACE_STRING(TRC_LISTENER,Tracer::LEVEL4,msg);
+	PEGASUS_STD(cerr) << msg << PEGASUS_STD(endl);
+	}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// MyTraceSettings
+//
+///////////////////////////////////////////////////////////////////////////////
+class MyTraceSettings
+{
+public:
+	static void setTraceComponents(String traceComponents);
+
+	static String _traceFileName;
+};
+
+String MyTraceSettings::_traceFileName = "cimlistener.trc";
+
+void MyTraceSettings::setTraceComponents(String traceComponents)
+{
+	// set trace path
+	const char* tmp = getenv("PEGASUS_HOME");
+	String pegasusHome = tmp;
+
+	// set logger directory
+	String logsDirectory = pegasusHome + String("/logs");
+	Logger::setHomeDirectory(logsDirectory);
+	Logger::setlogLevelMask("TRACE");
+
+	// Set the file path to  $PEGASUS_HOME directory 
+  String traceFilePath = pegasusHome + String("/") + _traceFileName;
+
+
+	CString fileName = traceFilePath.getCString();
+	if (Tracer::isValidFileName(fileName))
+	{ 
+		cout << "setTraceFile: " << (const char*)fileName << endl;
+
+		Uint32 retCode = Tracer::setTraceFile(fileName);
+	  // Check whether the filepath was set
+	  if(retCode == 1)
+	  {
+			cout << "Unable to write to trace file: " << fileName << endl;
+
+			Logger::put(Logger::DEBUG_LOG,System::CIMLISTENER,
+	                Logger::WARNING,
+	                "Unable to write to trace file $0",
+	                (const char*)fileName);
+    }
+	}
+	// set trace level
+  Tracer::setTraceLevel(Tracer::LEVEL4);
+
+	// set trace components
+	Tracer::setTraceComponents(traceComponents);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+        //
+// main()
+        //
 ////////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
-    try
-    {
-	// Get environment variables:
+	//String traceComponents = "Http,XmlIO";
+	String traceComponents = "Listener";
+	MyTraceSettings::setTraceComponents(traceComponents);
 
-	const char* tmp = getenv("PEGASUS_HOME");
-
-	if (!tmp)
+	try
 	{
-	    cerr << "PEGASUS_HOME environment variable undefined" << endl;
-	    exit(1);
-	}
 
-	String pegasusHome = tmp;
-	FileSystem::translateSlashes(pegasusHome);
+		int portNumber = 2003;
+		CIMListener listener(portNumber);
 
-	// Create a monitor to watch for activity on sockets:
+		// add cosumer
+		MyIndicationConsumer* consumer1 = new MyIndicationConsumer("1");
+		listener.addConsumer(consumer1);
 
-        Monitor* monitor = new Monitor;
+		MyIndicationConsumer* consumer2 = new MyIndicationConsumer("2");
+		listener.addConsumer(consumer2);
 
-	char* end = 0;
-	long portNumber = strtol("8888", &end, 10);
-	assert(end != 0 && *end == '\0');
+		// start listener
+		listener.start();		
 
-	CIMListener listener(monitor, pegasusHome, false, false, false,
-                             portNumber);
-	listener.bind();
+		char buf[255]={0};
+		while(true)
+		{
+			cin.getline(buf,255);
+			
+			if(strlen(buf)>0 && strcmp(buf,"exit")==0)
+				break;
+		}
 
-        //
-        // Loop to call Listener's runForever() method until CIMListener
-        // has been shutdown
-        //
-	while(!listener.terminated())
-	    listener.runForever();
+		delete consumer1;
+		delete consumer2;
+
+		listener.stop();
     }
     catch (Exception& e)
     {
 	cerr << e.getMessage() << endl;
-	exit(1);
     }
 
-    exit(0);
-    PEGASUS_UNREACHABLE( return 0; )
+	
+	return 0;
 }

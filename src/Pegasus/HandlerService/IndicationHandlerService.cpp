@@ -153,6 +153,9 @@ void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op,
 
 void IndicationHandlerService::_handleIndication(const Message* message)
 {
+	PEG_METHOD_ENTER (TRC_IND_HANDLE,
+                    "IndicationHandlerService::_handleIndication");
+
    CIMHandleIndicationRequestMessage* request = 
       (CIMHandleIndicationRequestMessage*) message;
 
@@ -204,7 +207,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
        // ExportServer
        //	
        else if ((className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)) &&
-                (destination.subString(0, 9) == String("localhost")))
+           (destination.subString(0, 10) == String("localhost/")))
        {
           Array<Uint32> exportServer;
 

@@ -27,92 +27,42 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Listener_h
-#define Pegasus_Listener_h
+#ifndef Pegasus_CIMListenerIndicationDispatcher_h
+#define Pegasus_CIMListenerIndicationDispatcher_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Listener/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class SSLContext;
 class CIMIndicationConsumer;
-
-class PEGASUS_LISTENER_LINKAGE CIMListener
+/** This class dispatches CIM export requests. For now it simply
+ */
+class PEGASUS_LISTENER_LINKAGE CIMListenerIndicationDispatcher
+   : public MessageQueueService
 {
 public:
-	/**
-	 * Constructs a CIMListener object.
-	 * 
-	 * @param portNumber	the specified socket port the listener will listen to
-   * @param sslContext	the specifed SSL context 
-	 */
-	CIMListener(Uint32 portNumber, SSLContext* sslContext=NULL);
-	/**
-	 * Destructor of a CIMLIstener object.
-	 */
-    ~CIMListener();
+	typedef MessageQueueService Base;
 
-	/**
-	 * Returns the socket port number
-	 *
-	 * @return the socket port number.
-    */
-	Uint32 getPortNumber() const;
-
-	/**
-	 * Returns the SSL context
-	 *
-	 * @return the SSL context.
-    */
-	SSLContext* getSSLContext() const;
-
-	/** 
-	 * Sets the SSL context
-	 *
-	 * @param the SSL context.
-    */
-	void setSSLContext(SSLContext* sslContext);
-
-	/** 
-	 * Starts for listening.
-    */
-	void start();
-
-	/**
-	 * Stops listening
-    */
-	void stop();
-
-	/**
-	 * Returns if the listener is active
-	 *
-	 * @return true if the listener is active;
-	 *				 false otherwise.
-    */
-	Boolean isAlive();
-
-	/** 
-	 * Adds a CIMIndicationConsumer to the listener
-   *
-	 * @param the CIMIndicationConsumer to add.
-	 * @return true if the indication consumer has been added successfully
-	 *				 false otherwise.
-	 */
+public:
+	CIMListenerIndicationDispatcher();
+	virtual ~CIMListenerIndicationDispatcher();
+	
+protected:
+	virtual void handleEnqueue(Message *);
+  virtual void handleEnqueue();
+		
+public:
 	Boolean addConsumer(CIMIndicationConsumer* consumer);
-	/** 
-	 * Removes a CIMIndicationConsumer from the listener.
-	 *
-	 * @param the CIMIndicationConsumer to remove.
-	 * @return true if the indication consumer has been removed successfully
-	 *				 false otherwise.
-	 */
 	Boolean removeConsumer(CIMIndicationConsumer* consumer);
 
 private:
 	void* _rep;
 };
 
+#define PEGASUS_QUEUENAME_LISTENERINDICATIONDISPACTCHER "CIMListenerIndicationDispacther"
+
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Listener_h */
+#endif /* Pegasus_CIMListenerIndicationDispatcher_h */

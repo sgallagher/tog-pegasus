@@ -11,14 +11,15 @@ LOCAL_DEFINES = -DPEGASUS_LISTENER_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = peglistener
 
 LIBRARIES = \
-    pegcommon \
     pegexportserver \
-    pegconfig 
+    pegcommon 
 
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-    CIMListener.cpp
+	List.cpp \
+    CIMListener.cpp \
+	CIMListenerIndicationDispatcher.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
@@ -26,5 +27,3 @@ SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(ROOT)/mak/library.mak
 
-run:
-	Listener $(REPOSITORY_ROOT)

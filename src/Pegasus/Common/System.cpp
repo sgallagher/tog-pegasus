@@ -154,4 +154,7 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
   return dirname;
 }
 
+// System ID constants for Logger::put and Logger::trace
+const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
+
 PEGASUS_NAMESPACE_END

@@ -463,17 +463,19 @@ Uint32 String::reverseFind(Char16 c) const
 }
 
 // ATTN-RK-P3-20020509: Define case-sensitivity for non-English characters
+// ATTN-CEC-20030913: ICU code added, but uses the server's locale.  Look at adding
+// a toLower( ) with Locale parameter - like ICU's toLower( )
 void String::toLower()
 {
 #ifdef PEGASUS_HAS_ICU
     Char16* utf16str; 
-    UnicodeString UniStr((const UChar *)_rep->c16a.getData(), (int32_t)size());
-    UniStr.append((UChar)'\0');
-    UniStr = UniStr.toLower();
+    UnicodeString UniStr((const UChar *)_rep->c16a.getData());
+    UniStr.toLower();
+    UniStr.append((UChar)'\0');  // ATTN - must be after toLower, but before getTerminatedBuffer
+                                 // We should not need to do this! 
     utf16str = (Char16 *)UniStr.getTerminatedBuffer();
     assign(utf16str);
     // DEVELOPER NOTE: do not delete utf16str, this is handled by ICU
-    
 #else
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {
@@ -525,8 +527,8 @@ int String::compareNoCase(const String& s1, const String& s2)
 #ifdef PEGASUS_HAS_ICU
     UnicodeString UniStr1((const UChar *)s1.getChar16Data(), (int32_t)s1.size());
     UnicodeString UniStr2((const UChar *)s2.getChar16Data(), (int32_t)s2.size());
-    UniStr1 = UniStr1.toLower();
-    UniStr2 = UniStr2.toLower();
+    UniStr1.toLower();
+    UniStr2.toLower();
     return (UniStr2.compare(UniStr1));    
 #else
     const Char16* _s1 = s1.getChar16Data();
@@ -569,8 +571,8 @@ Boolean String::equalNoCase(const String& str1, const String& str2)
 #ifdef PEGASUS_HAS_ICU
     UnicodeString UniStr1((const UChar *)str1.getChar16Data(), (int32_t)str1.size());
     UnicodeString UniStr2((const UChar *)str2.getChar16Data(), (int32_t)str2.size());
-    UniStr1 = UniStr1.toLower();
-    UniStr2 = UniStr2.toLower();
+    UniStr1.toLower();
+    UniStr2.toLower();
     return (UniStr1 == UniStr2);    
 #else
     if (str1.size() != str2.size())
@@ -683,10 +685,11 @@ Boolean String::isUTF8(const char *legal)
  	0 otherwise.  The matching operation permits the following
  	special characters in the pattern: *?\[] (see the manual
  	entry for details on what these mean).
+
  
   Side effects: None.
  */
-
+  
 /* MatchChar defined as a separate entity because this function source used
     elsewhere was an unsigned char *. Here we use Uint16 to  maintain 16 bit 
     size.
@@ -887,7 +890,6 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     os << buf;
     os.flush();
     delete [] buf;
-
 #else
 
 

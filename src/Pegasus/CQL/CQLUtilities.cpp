@@ -33,6 +33,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/CQL/CQLUtilities.h>
 #include <Pegasus/Common/Exception.h>
+#include <errno.h>
 
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)

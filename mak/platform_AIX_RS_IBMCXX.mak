@@ -19,7 +19,7 @@ DEPEND_DEFINES = -D__IBMCPP__=500
 ifdef PEGASUS_DEBUG
 FLAGS = -g
 else
-FLAGS = -O2
+FLAGS = -O2 -s
 endif
 
 FLAGS += -qrtti=dyna -qcpluscmt

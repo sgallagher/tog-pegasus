@@ -26,11 +26,12 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By: 
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/OperationContextInternal.h> 
 #include "IndicationOperationAggregate.h"
 
 PEGASUS_USING_STD;
@@ -224,8 +225,9 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                 {
                     CIMCreateSubscriptionRequestMessage * request =
                         (CIMCreateSubscriptionRequestMessage *) getRequest (i);
-                    provider.provider = request->provider;
-                    provider.providerModule = request->providerModule;
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    provider.provider = pidc.getProvider();
+                    provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
                     break;
                 }
@@ -234,8 +236,9 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                 {
                     CIMEnableIndicationsRequestMessage * request =
                         (CIMEnableIndicationsRequestMessage *) getRequest (i);
-                    provider.provider = request->provider;
-                    provider.providerModule = request->providerModule;
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    provider.provider = pidc.getProvider();
+                    provider.providerModule = pidc.getModule();
                     break;
                 }
         
@@ -243,8 +246,9 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                 {
                     CIMModifySubscriptionRequestMessage * request =
                         (CIMModifySubscriptionRequestMessage *) getRequest (i);
-                    provider.provider = request->provider;
-                    provider.providerModule = request->providerModule;
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    provider.provider = pidc.getProvider();
+                    provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
                     break;
                 }
@@ -253,8 +257,9 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                 {
                     CIMDeleteSubscriptionRequestMessage * request =
                         (CIMDeleteSubscriptionRequestMessage *) getRequest (i);
-                    provider.provider = request->provider;
-                    provider.providerModule = request->providerModule;
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    provider.provider = pidc.getProvider();
+                    provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
                     break;
                 }
@@ -263,8 +268,9 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                 {
                     CIMDisableIndicationsRequestMessage * request =
                         (CIMDisableIndicationsRequestMessage *) getRequest (i);
-                    provider.provider = request->provider;
-                    provider.providerModule = request->providerModule;
+					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
+                    provider.provider = pidc.getProvider();
+                    provider.providerModule = pidc.getModule();
                     break;
                 }
         

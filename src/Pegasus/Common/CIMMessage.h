@@ -222,18 +222,12 @@ public:
         Uint32 type_,
         const String & messageId_,
         const QueueIdStack& queueIds_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
 	const ContentLanguages& contentLanguages_ = ContentLanguages::EMPTY,
 	const AcceptLanguages& acceptLanguages_ = AcceptLanguages::EMPTY)
     : CIMRequestMessage(type_, messageId_, queueIds_,
-	 contentLanguages_, acceptLanguages_),
-        provider(provider_),
-        providerModule(providerModule_)
+	 contentLanguages_, acceptLanguages_)
     {
     }
-    CIMInstance provider;
-    CIMInstance providerModule;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassRequestMessage
@@ -1176,14 +1170,11 @@ class PEGASUS_COMMON_LINKAGE CIMEnableIndicationsRequestMessage
 public:
     CIMEnableIndicationsRequestMessage(
         const String & messageId_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
         const QueueIdStack& queueIds_)
     : CIMIndicationRequestMessage(
         CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE,
         messageId_,
-        queueIds_,
-	provider_,providerModule_)
+        queueIds_)
     {
     }
 
@@ -1196,14 +1187,11 @@ class PEGASUS_COMMON_LINKAGE CIMDisableIndicationsRequestMessage
 public:
     CIMDisableIndicationsRequestMessage(
         const String & messageId_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
         const QueueIdStack& queueIds_)
     : CIMIndicationRequestMessage(
         CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE,
         messageId_,
-        queueIds_,
-	provider_,providerModule_)
+        queueIds_)
     {
     }
 
@@ -1319,8 +1307,6 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance & subscriptionInstance_,
         const Array<CIMName> & classNames_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
         const CIMPropertyList & propertyList_,
         const Uint16 repeatNotificationPolicy_,
         const String & condition_,
@@ -1335,7 +1321,6 @@ public:
         CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE,
         messageId_,
         queueIds_,
-        provider_,providerModule_,
         contentLanguages_, acceptLanguages_),
         nameSpace (nameSpace_),
         subscriptionInstance(subscriptionInstance_),
@@ -1373,8 +1358,6 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance & subscriptionInstance_,
         const Array<CIMName> & classNames_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
         const CIMPropertyList & propertyList_,
         const Uint16 repeatNotificationPolicy_,
         const String & condition_,
@@ -1389,7 +1372,6 @@ public:
         CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE,
         messageId_,
         queueIds_,
-        provider_,providerModule_,
 	contentLanguages_, acceptLanguages_),
         nameSpace(nameSpace_),
         subscriptionInstance(subscriptionInstance_),
@@ -1427,8 +1409,6 @@ public:
         const CIMNamespaceName & nameSpace_,
         const CIMInstance & subscriptionInstance_,
         const Array<CIMName> & classNames_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
         const QueueIdStack& queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY,
@@ -1438,7 +1418,6 @@ public:
         CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE,
         messageId_,
         queueIds_,
-        provider_,providerModule_,
         contentLanguages_, acceptLanguages_),
         nameSpace(nameSpace_),
         subscriptionInstance(subscriptionInstance_),

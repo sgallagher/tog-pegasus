@@ -5181,8 +5181,6 @@ void IndicationService::_sendCreateRequests
                 nameSpace,
                 subscription,
                 indicationProviders [i].classList, 
-                indicationProviders [i].provider, 
-                indicationProviders [i].providerModule,
                 propertyList,
                 repeatNotificationPolicy,
                 condition,
@@ -5199,6 +5197,8 @@ void IndicationService::_sendCreateRequests
         //
         CIMCreateSubscriptionRequestMessage * requestCopy =
             new CIMCreateSubscriptionRequestMessage (* request);
+        requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
+			                                                           indicationProviders [i].provider)); 
         operationAggregate->appendRequest (requestCopy);
 
         request->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
@@ -5316,8 +5316,6 @@ void IndicationService::_sendModifyRequests
                 nameSpace,
                 subscription,
                 indicationProviders [i].classList, 
-                indicationProviders [i].provider, 
-                indicationProviders [i].providerModule,
                 propertyList,
                 repeatNotificationPolicy,
                 condition,
@@ -5334,6 +5332,8 @@ void IndicationService::_sendModifyRequests
         //
         CIMModifySubscriptionRequestMessage * requestCopy =
             new CIMModifySubscriptionRequestMessage (* request);
+		requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
+																	   indicationProviders [i].provider));
         operationAggregate->appendRequest (requestCopy);
 
 		request->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
@@ -5465,8 +5465,6 @@ void IndicationService::_sendDeleteRequests
                 nameSpace,
                 subscription,
                 indicationProviders [i].classList,
-                indicationProviders [i].provider, 
-                indicationProviders [i].providerModule,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName,
@@ -5478,6 +5476,8 @@ void IndicationService::_sendDeleteRequests
         //
         CIMDeleteSubscriptionRequestMessage * requestCopy =
             new CIMDeleteSubscriptionRequestMessage (* request);
+		requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
+																		indicationProviders [i].provider));
         operationAggregate->appendRequest (requestCopy);
 
 		request->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
@@ -6485,8 +6485,6 @@ void IndicationService::_sendEnable (
         CIMEnableIndicationsRequestMessage * request =
             new CIMEnableIndicationsRequestMessage
                 (XmlWriter::getNextMessageId (),
-                enableProviders [i].provider,
-                enableProviders [i].providerModule,
                 QueueIdStack (_providerManager, getQueueId ()));
 
         //
@@ -6494,6 +6492,8 @@ void IndicationService::_sendEnable (
         //
         CIMEnableIndicationsRequestMessage * requestCopy =
             new CIMEnableIndicationsRequestMessage (* request);
+		requestCopy->operationContext.insert(ProviderIdContainer(enableProviders [i].providerModule,
+																	   enableProviders [i].provider));
         operationAggregate->appendRequest (requestCopy);
 
 		request->operationContext.insert(ProviderIdContainer(enableProviders [i].providerModule,
@@ -6609,8 +6609,6 @@ void IndicationService::_sendDisable (
         CIMDisableIndicationsRequestMessage * request =
             new CIMDisableIndicationsRequestMessage
                 (XmlWriter::getNextMessageId (),
-                disableProviders [i].provider,
-                disableProviders [i].providerModule,
                 QueueIdStack (_providerManager, getQueueId ()));
 
         //
@@ -6618,6 +6616,8 @@ void IndicationService::_sendDisable (
         //
         CIMDisableIndicationsRequestMessage * requestCopy =
             new CIMDisableIndicationsRequestMessage (* request);
+		requestCopy->operationContext.insert(ProviderIdContainer(disableProviders [i].providerModule,
+																	 disableProviders [i].provider));
         operationAggregate->appendRequest (requestCopy);
 
 		request->operationContext.insert(ProviderIdContainer(disableProviders [i].providerModule,

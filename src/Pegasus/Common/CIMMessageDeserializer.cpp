@@ -25,7 +25,7 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -205,15 +205,6 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
     else if (XmlReader::testStartTag(parser, entry, "PGINDREQ"))
     {
         CIMIndicationRequestMessage* cimIndReqMessage;
-        CIMInstance provider;
-        CIMInstance providerModule;
-
-        // Decode cimMessage->provider
-        _deserializeCIMInstance(parser, provider);
-
-        // Decode cimMessage->providerModule
-        _deserializeCIMInstance(parser, providerModule);
-
         switch (type)
         {
         case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
@@ -236,9 +227,6 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         }
 
         XmlReader::expectEndTag(parser, "PGINDREQ");
-
-        cimIndReqMessage->provider = provider;
-        cimIndReqMessage->providerModule = providerModule;
 
         message = cimIndReqMessage;
     }
@@ -1442,8 +1430,6 @@ CIMMessageDeserializer::_deserializeCIMEnableIndicationsRequestMessage(
     CIMEnableIndicationsRequestMessage* message =
         new CIMEnableIndicationsRequestMessage(
             String::EMPTY,         // messageId
-            CIMInstance(),         // provider
-            CIMInstance(),         // providerModule
             QueueIdStack());       // queueIds
 
     return(message);
@@ -1459,8 +1445,6 @@ CIMMessageDeserializer::_deserializeCIMDisableIndicationsRequestMessage(
     CIMDisableIndicationsRequestMessage* message =
         new CIMDisableIndicationsRequestMessage(
             String::EMPTY,         // messageId
-            CIMInstance(),         // provider
-            CIMInstance(),         // providerModule
             QueueIdStack());       // queueIds
 
     return(message);
@@ -1521,8 +1505,6 @@ CIMMessageDeserializer::_deserializeCIMCreateSubscriptionRequestMessage(
             nameSpace,
             subscriptionInstance,
             classNames,
-            CIMInstance(),         // provider
-            CIMInstance(),         // providerModule
             propertyList,
             repeatNotificationPolicy,
             condition,
@@ -1590,8 +1572,6 @@ CIMMessageDeserializer::_deserializeCIMModifySubscriptionRequestMessage(
             nameSpace,
             subscriptionInstance,
             classNames,
-            CIMInstance(),         // provider
-            CIMInstance(),         // providerModule
             propertyList,
             repeatNotificationPolicy,
             condition,
@@ -1638,8 +1618,6 @@ CIMMessageDeserializer::_deserializeCIMDeleteSubscriptionRequestMessage(
             nameSpace,
             subscriptionInstance,
             classNames,
-            CIMInstance(),         // provider
-            CIMInstance(),         // providerModule
             QueueIdStack(),        // queueIds
             authType,
             userName);

@@ -25,7 +25,7 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -197,12 +197,6 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
     else if (cimIndReqMessage)
     {
         XmlWriter::append(out, "<PGINDREQ>");
-
-        // Encode cimIndReqMessage->provider
-        _serializeCIMInstance(out, cimIndReqMessage->provider);
-
-        // Encode cimIndReqMessage->providerModule
-        _serializeCIMInstance(out, cimIndReqMessage->providerModule);
 
         switch (cimMessage->getType())
         {

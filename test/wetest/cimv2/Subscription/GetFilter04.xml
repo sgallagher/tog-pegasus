@@ -8,7 +8,7 @@
           <NAMESPACE NAME="cimv2"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="InstanceName">
-          <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+          <INSTANCENAME CLASSNAME="PG_IndicationFilter">
             <KEYBINDING NAME="SystemCreationClassName">
               <KEYVALUE VALUETYPE="string">
               CIM_UnitaryComputerSystem
@@ -21,7 +21,7 @@
             </KEYBINDING>
             <KEYBINDING NAME="CreationClassName">
               <KEYVALUE VALUETYPE="string">
-              CIM_IndicationFilter
+              PG_IndicationFilter
               </KEYVALUE>
             </KEYBINDING>
             <KEYBINDING NAME="Name">

@@ -1,4 +1,4 @@
-//%//-*-c++-*-///////////////////////////////////////////////////////////////////////////
+//%//-*-c++-*-//////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -260,8 +260,7 @@ public:
 	    const OperationContext & context,
 	    const String & nameSpace,
 	    const Array<String> & classNames,
-	    const String & providerName,
-	    const Array<String> & propertyList,
+	    const CIMPropertyList & propertyList,
 	    const Uint16 repeatNotificationPolicy,
 	    const String & otherRepeatNotificationPolicy,
 	    const CIMDateTime & repeatNotificationInterval,
@@ -276,7 +275,6 @@ public:
 	    const OperationContext & context,
 	    const String & nameSpace,
 	    const Array<String> & classNames,
-	    const String & providerName,
 	    const CIMInstance & subscription,
 	    ResponseHandler<CIMInstance> & handler) = 0;
 
@@ -284,8 +282,7 @@ public:
 	    const OperationContext & context,
 	    const String & nameSpace,
 	    const Array<String> & classNames,
-	    const String & providerName,
-	    const Array<String> & propertyList,
+	    const CIMPropertyList & propertyList,
 	    const Uint16 repeatNotificationPolicy,
 	    const String & otherRepeatNotificationPolicy,
 	    const CIMDateTime & repeatNotificationInterval,

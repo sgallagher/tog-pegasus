@@ -8,7 +8,7 @@
           <NAMESPACE NAME="cimv2"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="CIM_IndicationHandlerCIMXML">
+          <INSTANCE CLASSNAME="PG_IndicationHandlerCIMXML">
             <PROPERTY NAME="SystemCreationClassName" TYPE="string">
               <VALUE> CIM_UnitaryComputerSystem </VALUE>
             </PROPERTY>

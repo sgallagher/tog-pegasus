@@ -8,11 +8,11 @@
           <NAMESPACE NAME="cimv2"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="CIM_IndicationSubscription">
+          <INSTANCE CLASSNAME="PG_IndicationSubscription">
             <PROPERTY.REFERENCE NAME="Filter" 
-                                REFERENCECLASS="CIM_IndicationFilter"> 
+                                REFERENCECLASS="PG_IndicationFilter"> 
               <VALUE.REFERENCE> 
-                <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+                <INSTANCENAME CLASSNAME="PG_IndicationFilter">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
                     CIM_UnitaryComputerSystem
@@ -25,7 +25,7 @@
                   </KEYBINDING>
                   <KEYBINDING NAME="CreationClassName">
                     <KEYVALUE VALUETYPE="string">
-                    CIM_IndicationFilter
+                    PG_IndicationFilter
                     </KEYVALUE>
                   </KEYBINDING>
                   <KEYBINDING NAME="Name">

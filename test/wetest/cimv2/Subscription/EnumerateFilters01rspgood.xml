@@ -4,10 +4,10 @@
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="EnumerateInstanceNames">
 <IRETURNVALUE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -26,10 +26,10 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -48,10 +48,10 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -70,10 +70,10 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -92,10 +92,10 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -114,10 +114,10 @@ server001.acme.com
 </KEYVALUE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">

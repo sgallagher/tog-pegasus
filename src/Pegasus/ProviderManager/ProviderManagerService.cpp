@@ -652,13 +652,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInst
 		OperationContext op_context;
 		op_context.add_context( sizeof(String *),
 				     const_cast<String *>(&(request->userName)),
-				     0, 
-				     0, 
-				     CONTEXT_IDENTITY,
-				     0, 
-				     0);
-
-
+ 				     0, 
+ 				     0, 
+ 				     CONTEXT_IDENTITY,
+ 				     0, 
+ 				     0);
 // to retrieve the identity key from the context within a provider :
 // NOTE FOR ROGER << Thu Mar  7 17:18:11 2002 mdd >>
 // 		context *identity;
@@ -672,10 +670,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleGetInst
 // 		   if(userName != 0 )
 // 		      userName->print();
 // 		}
-		
-		
 
-		
 		CIMReference instanceReference(request->instanceName);
 
 		// ATTN: propagate namespace
@@ -1185,6 +1180,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleDeleteI
 				     CONTEXT_IDENTITY,
 				     0, 
 				     0);
+
 	   SimpleResponseHandler<CIMInstance> handler;
 
 	   // forward request
@@ -1659,7 +1655,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleEnableI
 				op_context,
 				request->nameSpace,
 				request->classNames,
-				request->providerName,
 				request->propertyList,
 				request->repeatNotificationPolicy,
 				request->otherRepeatNotificationPolicy,

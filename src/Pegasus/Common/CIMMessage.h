@@ -968,8 +968,9 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 const String & messageId_,
 	 const String & nameSpace_,
 	 const Array<String> & classNames_,
-	 const String & providerName_,
-	 const Array<String> & propertyList_,
+	 const CIMInstance & provider_,
+	 const CIMInstance & providerModule_,
+	 const CIMPropertyList & propertyList_,
 	 const Uint16 repeatNotificationPolicy_,
 	 const String & otherRepeatNotificationPolicy_,
 	 const CIMDateTime & repeatNotificationInterval_,
@@ -988,7 +989,8 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
        queueIds_),
 	 nameSpace (nameSpace_),
 	 classNames (classNames_),
-	 providerName (providerName_),
+	 provider (provider_),
+	 providerModule (providerModule_),
 	 propertyList (propertyList_),
 	 repeatNotificationPolicy (repeatNotificationPolicy_),
 	 otherRepeatNotificationPolicy (otherRepeatNotificationPolicy_),
@@ -1005,8 +1007,9 @@ class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 
       String nameSpace;
       Array<String> classNames;
-      String providerName;
-      Array<String> propertyList;
+      CIMInstance provider;
+      CIMInstance providerModule;
+      CIMPropertyList propertyList;
       Uint16 repeatNotificationPolicy;
       String otherRepeatNotificationPolicy;
       CIMDateTime repeatNotificationInterval;
@@ -1027,8 +1030,9 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 const String & messageId_,
 	 const String & nameSpace_,
 	 const Array<String> & classNames_,
-	 const String & providerName_,
-	 const Array<String> & propertyList_,
+	 const CIMInstance & provider_,
+	 const CIMInstance & providerModule_,
+	 const CIMPropertyList & propertyList_,
 	 const Uint16 repeatNotificationPolicy_,
 	 const String & otherRepeatNotificationPolicy_,
 	 const CIMDateTime & repeatNotificationInterval_,
@@ -1047,7 +1051,8 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
        queueIds_),
 	 nameSpace (nameSpace_),
 	 classNames (classNames_),
-	 providerName (providerName_),
+	 provider (provider_),
+	 providerModule (providerModule_),
 	 propertyList (propertyList_),
 	 repeatNotificationPolicy (repeatNotificationPolicy_),
 	 otherRepeatNotificationPolicy (otherRepeatNotificationPolicy_),
@@ -1064,8 +1069,9 @@ class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
 
       String nameSpace;
       Array<String> classNames;
-      String providerName;
-      Array<String> propertyList;
+      CIMInstance provider;
+      CIMInstance providerModule;
+      CIMPropertyList propertyList;
       Uint16 repeatNotificationPolicy;
       String otherRepeatNotificationPolicy;
       CIMDateTime repeatNotificationInterval;
@@ -1086,7 +1092,8 @@ class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 	 const String & messageId_,
 	 const String & nameSpace_,
 	 const Array<String> & classNames_,
-	 const String & providerName_,
+	 const CIMInstance & provider_,
+	 const CIMInstance & providerModule_,
 	 const CIMInstance & subscription_,
 	 QueueIdStack queueIds_,
 	 const String& authType_ = String::EMPTY,
@@ -1098,7 +1105,8 @@ class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
        queueIds_),
 	 nameSpace (nameSpace_),
 	 classNames (classNames_),
-	 providerName (providerName_),
+	 provider (provider_),
+	 providerModule (providerModule_),
 	 subscription (subscription_),
 	 authType(authType_),
 	 userName(userName_)
@@ -1107,7 +1115,8 @@ class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
 
       String nameSpace;
       Array<String> classNames;
-      String providerName;
+      CIMInstance provider;
+      CIMInstance providerModule;
       CIMInstance subscription;
       String authType;
       String userName;
@@ -1143,7 +1152,7 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
       CIMNotifyProviderRegistrationRequestMessage(
 	 const String & messageId_,
 	 const Operation operation_,
-	 const String & providerName_,
+	 const CIMInstance & provider_,
 	 const String & className_,
 	 const CIMPropertyList & newPropertyNames_,
 	 const CIMPropertyList & oldPropertyNames_,
@@ -1152,7 +1161,7 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
 	 CIMRequestMessage(
             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE, 
 	    messageId_, queueIds_),
-	 providerName (providerName_),
+	 provider (provider_),
 	 className (className_),
 	 newPropertyNames (newPropertyNames_),
 	 oldPropertyNames (oldPropertyNames_),
@@ -1161,7 +1170,7 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
     
       }
 
-      String providerName;    
+      CIMInstance provider;    
       String className;
       CIMPropertyList newPropertyNames;
       CIMPropertyList oldPropertyNames;
@@ -1173,18 +1182,18 @@ class CIMNotifyProviderTerminationRequestMessage : public CIMRequestMessage
    public:
       CIMNotifyProviderTerminationRequestMessage(
 	 const String & messageId_,
-	 const String & providerName_,
+	 const CIMInstance & provider_,
 	 QueueIdStack queueIds_)
 	 :
 	 CIMRequestMessage(
             CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE, 
 	    messageId_, queueIds_),
-	 providerName (providerName_)
+	 provider (provider_)
       {
     
       }
 
-      String providerName;    
+      CIMInstance provider;    
 };
 
 class CIMHandleIndicationRequestMessage : public CIMRequestMessage
@@ -1674,7 +1683,7 @@ class CIMInvokeMethodResponseMessage : public CIMResponseMessage
 	 CIMStatusCode errorCode_,
 	 const String& errorDescription_,
 	 const QueueIdStack& queueIds_,
-	 const CIMValue& retValue_,
+         const CIMValue& retValue_,
 	 const Array<CIMParamValue>& outParameters_,
 	 const String& methodName_)
 	 :

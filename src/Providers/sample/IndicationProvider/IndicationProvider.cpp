@@ -165,8 +165,7 @@ void IndicationProvider::enableIndication(
         const OperationContext & context,
         const String & nameSpace,
         const Array<String> & classNames,
-        const String & providerName,
-        const Array<String> & propertyList,
+        const CIMPropertyList & propertyList,
         const Uint16 repeatNotificationPolicy,
         const String & otherRepeatNotificationPolicy,
         const CIMDateTime & repeatNotificationInterval,
@@ -188,7 +187,6 @@ void IndicationProvider::disableIndication(
         const OperationContext & context,
         const String & nameSpace,
         const Array<String> & classNames,
-        const String & providerName,
         const CIMInstance & subscription,
         ResponseHandler<CIMInstance> & handler)
 {
@@ -198,8 +196,7 @@ void IndicationProvider::modifyIndication(
         const OperationContext & context,
         const String & nameSpace,
         const Array<String> & classNames,
-        const String & providerName,
-        const Array<String> & propertyList,
+        const CIMPropertyList & propertyList,
         const Uint16 repeatNotificationPolicy,
         const String & otherRepeatNotificationPolicy,
         const CIMDateTime & repeatNotificationInterval,

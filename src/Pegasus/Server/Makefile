@@ -5,7 +5,7 @@ DIR = Pegasus/Server
 OBJECT_DIRS = \
 	ConfigurationManager \
 	ProviderRegistrationManager \
-	IndicationService
+	../IndicationService
 
 include $(ROOT)/mak/config.mak
 
@@ -25,7 +25,7 @@ LIBRARIES = \
     peguser \
     peglocalauth \
     peghandlerservice \
-    pegindicationservice
+    pegwql
 
 PRE_DEPEND_INCLUDES = -I./depends
 
@@ -42,7 +42,8 @@ SOURCES = \
     ProviderRegistrationManager/ProviderRegistrationTable.cpp \
     ProviderRegistrationManager/ProviderRegistrationManager.cpp \
     ConfigurationManager/ConfigurationManagerQueue.cpp \
-    ConfigurationManager/PG_RegistrationProvider.cpp
+    ConfigurationManager/PG_RegistrationProvider.cpp \
+    ../IndicationService/IndicationService.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

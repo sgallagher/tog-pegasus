@@ -38,6 +38,8 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Server/CIMServer.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLSimplePropertySource.h>
@@ -46,7 +48,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct ProviderClassList
 {
-    String providerName;
+    CIMInstance provider;
+    CIMInstance providerModule;
     Array <String> classList;
 };
 
@@ -82,7 +85,9 @@ public:
         Constructs an IndicationSubscription instance and initializes instance
         variables.
      */
-    IndicationService(CIMRepository * repository);
+    IndicationService (
+        CIMRepository * repository,
+        CIMServer * server);
 
     virtual ~IndicationService(void);
 
@@ -261,7 +266,7 @@ private:
         @return   list of SubscriptionRef structs
      */
     Array <struct SubscriptionRef> _getProviderSubscriptions (
-        const String & providerName);
+        const CIMReference & providerReference);
 
     /**
         Retrieves the string value of the filter query property
@@ -549,7 +554,9 @@ private:
     WQLSimplePropertySource _getPropertySourceFromInstance(
         CIMInstance & indicationInstance);
 
-    CIMRepository* _repository;
+    CIMRepository * _repository;
+
+    CIMServer * _server;
 
     /**
         Integer representing queue ID for accessing Provider Manager Service
@@ -566,6 +573,10 @@ private:
      */
     //Uint32 _repository;
 
+    /**
+        Handle to Provider Registration Manager
+     */
+    ProviderRegistrationManager * _providerRegManager;
 
     /**
         Values for the Subscription State property of the Subscription class,

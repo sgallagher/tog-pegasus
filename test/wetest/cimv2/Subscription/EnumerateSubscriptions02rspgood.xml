@@ -5,13 +5,13 @@
 <IMETHODRESPONSE NAME="EnumerateInstances">
 <IRETURNVALUE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -34,10 +34,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -59,15 +59,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -79,14 +79,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -103,7 +103,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -123,14 +123,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -142,7 +142,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -154,19 +154,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -187,12 +187,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -213,27 +213,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
-<VALUE>
-3
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
@@ -241,13 +241,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -270,10 +270,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -295,15 +295,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -315,14 +315,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -339,7 +339,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -359,14 +359,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -378,7 +378,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -390,19 +390,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -423,12 +423,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -449,27 +449,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
-<VALUE>
-3
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
@@ -477,13 +477,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -506,10 +506,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -531,15 +531,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -551,14 +551,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -575,7 +575,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -595,14 +595,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -614,7 +614,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -626,19 +626,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -659,12 +659,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -685,27 +685,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
-<VALUE>
-3
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
@@ -713,13 +713,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -742,10 +742,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -767,15 +767,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -787,14 +787,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -811,7 +811,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -831,14 +831,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -850,7 +850,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -862,19 +862,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -895,12 +895,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -921,27 +921,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
-<VALUE>
-3
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
@@ -949,13 +949,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -978,10 +978,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1003,15 +1003,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -1023,14 +1023,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -1047,7 +1047,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -1067,14 +1067,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -1086,7 +1086,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -1098,19 +1098,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1131,12 +1131,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1157,27 +1157,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
-<VALUE>
-3
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
@@ -1185,13 +1185,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1214,10 +1214,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1239,15 +1239,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -1259,14 +1259,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -1283,7 +1283,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -1303,14 +1303,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -1322,7 +1322,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -1334,19 +1334,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1367,12 +1367,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1393,27 +1393,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
-<VALUE>
-3
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
@@ -1421,13 +1421,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1450,10 +1450,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1475,15 +1475,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -1495,14 +1495,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -1519,7 +1519,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -1539,14 +1539,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -1558,7 +1558,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -1570,19 +1570,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1603,12 +1603,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1629,27 +1629,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
-5
+4
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
-<VALUE>
-2
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
@@ -1657,13 +1657,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1686,10 +1686,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1711,15 +1711,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -1731,14 +1731,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -1755,7 +1755,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -1775,14 +1775,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -1794,7 +1794,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -1806,19 +1806,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1839,12 +1839,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerCIMXML
+PG_IndicationHandlerCIMXML
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1865,27 +1865,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
@@ -1893,13 +1893,13 @@ server001.acme.com
 </INSTANCE>
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+<INSTANCENAME CLASSNAME="PG_IndicationSubscription">
 <KEYBINDING NAME="Filter">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1922,10 +1922,10 @@ server001.acme.com
 </KEYBINDING>
 <KEYBINDING NAME="Handler">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerSNMP">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMP">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerSNMP
+PG_IndicationHandlerSNMP
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -1947,15 +1947,15 @@ server001.acme.com
 </VALUE.REFERENCE>
 </KEYBINDING>
 </INSTANCENAME>
-<INSTANCE CLASSNAME="CIM_IndicationSubscription">
-<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<INSTANCE CLASSNAME="PG_IndicationSubscription">
+<PROPERTY NAME="OtherOnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for OnFatalErrorPolicy. This value MUST be set to a non NULL value when OnFatalErrorPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherOnFatalErrorPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="FailureTriggerTimeInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 The FailureTriggerTimeInterval is used by the client to specify a recommended minimum delay before the OnFatalErrorPolicy is implemented.
@@ -1967,14 +1967,14 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherSubscriptionState" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for SubscriptionState. This value MUST be set to a non NULL value when SubscriptionState is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherSubscriptionState MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionDuration" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 TRUE
@@ -1991,7 +1991,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="SubscriptionTimeRemaining" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Write" TYPE="boolean" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 FALSE
@@ -2011,14 +2011,14 @@ Seconds
 0
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="string">
+<PROPERTY NAME="OtherRepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 A string defining &quot;Other&quot; values for RepeatNotificationPolicy. This value MUST be set to a non NULL value when RepeatNotificationPolicy is set to a value of 1 (&quot;Other&quot;). For all other values, the OtherRepeatNotificationPolicy MUST be NULL.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationInterval" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the time interval for the repeat notification policy calculation.
@@ -2030,7 +2030,7 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
+<PROPERTY NAME="RepeatNotificationGap" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint64">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the gap interval for the repeat notification policy calculation.
@@ -2042,19 +2042,19 @@ Seconds
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="CIM_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationCount" CLASSORIGIN="PG_IndicationSubscription" PROPAGATED="true" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
 Defines the count property for the repeat notification policy calculation.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="CIM_IndicationFilter" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Filter" REFERENCECLASS="PG_IndicationFilter" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+<INSTANCENAME CLASSNAME="PG_IndicationFilter">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationFilter
+PG_IndicationFilter
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -2075,12 +2075,12 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="CIM_IndicationHandler" CLASSORIGIN="CIM_IndicationSubscription">
+<PROPERTY.REFERENCE NAME="Handler" REFERENCECLASS="PG_IndicationHandler" CLASSORIGIN="PG_IndicationSubscription">
 <VALUE.REFERENCE>
-<INSTANCENAME CLASSNAME="CIM_IndicationHandlerSNMP">
+<INSTANCENAME CLASSNAME="PG_IndicationHandlerSNMP">
 <KEYBINDING NAME="CreationClassName">
 <KEYVALUE VALUETYPE="string">
-CIM_IndicationHandlerSNMP
+PG_IndicationHandlerSNMP
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -2101,27 +2101,27 @@ server001.acme.com
 </INSTANCENAME>
 </VALUE.REFERENCE>
 </PROPERTY.REFERENCE>
-<PROPERTY NAME="SubscriptionState" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
-<VALUE>
-3
-</VALUE>
-</PROPERTY>
-<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="SubscriptionState" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="CIM_IndicationSubscription" TYPE="uint16">
+<PROPERTY NAME="RepeatNotificationPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
 <VALUE>
 2
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="OnFatalErrorPolicy" CLASSORIGIN="PG_IndicationSubscription" TYPE="uint16">
+<VALUE>
+2
+</VALUE>
+</PROPERTY>
+<PROPERTY NAME="TimeOfLastStateChange" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="CIM_IndicationSubscription" TYPE="datetime">
+<PROPERTY NAME="SubscriptionStartTime" CLASSORIGIN="PG_IndicationSubscription" TYPE="datetime">
 <VALUE>
 00000000000000.000000:000
 </VALUE>

@@ -4,7 +4,7 @@
 <SIMPLERSP>
 <IMETHODRESPONSE NAME="GetInstance">
 <IRETURNVALUE>
-<INSTANCE CLASSNAME="CIM_IndicationFilter">
+<INSTANCE CLASSNAME="PG_IndicationFilter">
 <PROPERTY NAME="Caption" CLASSORIGIN="CIM_ManagedElement" PROPAGATED="true" TYPE="string">
 <QUALIFIER NAME="MaxLen" TYPE="uint32" OVERRIDABLE="false" TOSUBCLASS="false">
 <VALUE>
@@ -24,37 +24,37 @@ The Description property provides a textual description of the object.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
-<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemCreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
 CIM_UnitaryComputerSystem
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SystemName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SystemName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
 server001.acme.com
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="CreationClassName" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<PROPERTY NAME="CreationClassName" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
-CIM_IndicationFilter
+PG_IndicationFilter
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Name" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Name" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
 Filter04
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="Query" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<PROPERTY NAME="Query" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
 SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication WHERE IndicationTime IS NOT NULL
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="QueryLanguage" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<PROPERTY NAME="QueryLanguage" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
 WQL1
 </VALUE>
 </PROPERTY>
-<PROPERTY NAME="SourceNamespace" CLASSORIGIN="CIM_IndicationFilter" TYPE="string">
+<PROPERTY NAME="SourceNamespace" CLASSORIGIN="PG_IndicationFilter" TYPE="string">
 <VALUE>
 root/cimv2
 </VALUE>

@@ -8,7 +8,7 @@
           <NAMESPACE NAME="cimv2"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="CIM_IndicationFilter">
+          <INSTANCE CLASSNAME="PG_IndicationFilter">
             <PROPERTY NAME="SystemCreationClassName" TYPE="string">
               <VALUE> CIM_UnitaryComputerSystem </VALUE>
             </PROPERTY>
@@ -16,7 +16,7 @@
               <VALUE> server001.acme.com </VALUE>
             </PROPERTY>
             <PROPERTY NAME="CreationClassName" TYPE="string"> 
-              <VALUE> CIM_IndicationFilter </VALUE>
+              <VALUE> PG_IndicationFilter </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Name" TYPE="string"> 
               <VALUE> Filter05 </VALUE>

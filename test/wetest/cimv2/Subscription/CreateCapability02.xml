@@ -8,48 +8,32 @@
           <NAMESPACE NAME="cimv2"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="NewInstance">
-          <INSTANCE CLASSNAME="CIM_ProviderCapabilities">
-            <PROPERTY NAME="SystemCreationClassName" TYPE="string">
-              <VALUE> CIM_UnitaryComputerSystem </VALUE>
-            </PROPERTY>
-            <PROPERTY NAME="SystemName" TYPE="string">
-              <VALUE> server001.acme.com </VALUE>
-            </PROPERTY>
-            <PROPERTY NAME="ProviderCreationClassName" TYPE="string"> 
-              <VALUE> CIM_Provider </VALUE>
+          <INSTANCE CLASSNAME="PG_ProviderCapabilities">
+            <PROPERTY NAME="ProviderModuleName" TYPE="string"> 
+              <VALUE> Module02 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="ProviderName" TYPE="string"> 
               <VALUE> MyAlertProvider </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="InstanceID" TYPE="string"> 
+            <PROPERTY NAME="CapabilityID" TYPE="string"> 
               <VALUE> capability02 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="ClassName" TYPE="string"> 
               <VALUE> CIM_AlertIndication </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="ProviderType" TYPE="uint16"> 
-              <VALUE> 4 </VALUE>
-            </PROPERTY>
+            <PROPERTY.ARRAY NAME="Namespaces" TYPE="string"> 
+              <VALUE.ARRAY>
+                <VALUE> root/cimv2 </VALUE>
+                <VALUE> root </VALUE>
+              </VALUE.ARRAY>
+            </PROPERTY.ARRAY>
+            <PROPERTY.ARRAY NAME="ProviderType" TYPE="uint16"> 
+              <VALUE.ARRAY>
+                <VALUE> 4 </VALUE>
+              </VALUE.ARRAY>
+            </PROPERTY.ARRAY>
             <PROPERTY.ARRAY NAME="SupportedProperties" TYPE="string"> 
               <VALUE.ARRAY>
-                <VALUE> IndicationTime </VALUE>
-                <VALUE> IndicationIdentifier </VALUE>
-                <VALUE> CorrelatedIndications </VALUE>
-                <VALUE> Description </VALUE>
-                <VALUE> AlertingManagedElement </VALUE>
-                <VALUE> AlertType </VALUE>
-                <VALUE> OtherAlertType </VALUE>
-                <VALUE> PerceivedSeverity </VALUE>
-                <VALUE> OtherSeverity </VALUE>
-                <VALUE> ProbableCause </VALUE>
-                <VALUE> ProbableCauseDescription </VALUE>
-                <VALUE> Trending </VALUE>
-                <VALUE> RecommendedActions </VALUE>
-                <VALUE> EventID </VALUE>
-                <VALUE> EventTime </VALUE>
-                <VALUE> SystemCreationClassName </VALUE>
-                <VALUE> SystemName </VALUE>
-                <VALUE> ProviderName </VALUE>
               </VALUE.ARRAY>
             </PROPERTY.ARRAY>
           </INSTANCE>

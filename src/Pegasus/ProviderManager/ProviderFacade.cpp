@@ -543,8 +543,7 @@ void ProviderFacade::enableIndication(
 	const OperationContext & context,
 	const String & nameSpace,
 	const Array<String> & classNames,
-	const String & providerName,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	const Uint16 repeatNotificationPolicy,
 	const String & otherRepeatNotificationPolicy,
 	const CIMDateTime & repeatNotificationInterval,
@@ -565,7 +564,7 @@ void ProviderFacade::enableIndication(
 
 	// forward request
 	provider->enableIndication(context, nameSpace, classNames,
-	    providerName, propertyList, repeatNotificationPolicy,
+	    propertyList, repeatNotificationPolicy,
 	    otherRepeatNotificationPolicy, repeatNotificationInterval,
 	    repeatNotificationGap, repeatNotificationCount, condition,
 	    queryLanguage, subscription, handler);
@@ -576,7 +575,6 @@ void ProviderFacade::disableIndication(
 	const OperationContext & context,
 	const String & nameSpace,
 	const Array<String> & classNames,
-	const String & providerName,
 	const CIMInstance & subscription,
 	ResponseHandler<CIMInstance> & handler)
 {
@@ -590,15 +588,14 @@ void ProviderFacade::disableIndication(
 
 	// forward request
 	provider->disableIndication(context, nameSpace, classNames,
-	    providerName, subscription, handler);
+	    subscription, handler);
 }
 
 void ProviderFacade::modifyIndication(
 	const OperationContext & context,
 	const String & nameSpace,
 	const Array<String> & classNames,
-	const String & providerName,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	const Uint16 repeatNotificationPolicy,
 	const String & otherRepeatNotificationPolicy,
 	const CIMDateTime & repeatNotificationInterval,
@@ -619,7 +616,7 @@ void ProviderFacade::modifyIndication(
 
 	// forward request
 	provider->modifyIndication(context, nameSpace,
-	    classNames, providerName, propertyList, repeatNotificationPolicy,
+	    classNames, propertyList, repeatNotificationPolicy,
 	    otherRepeatNotificationPolicy, repeatNotificationInterval,
 	    repeatNotificationGap, repeatNotificationCount, condition,
 	    queryLanguage, subscription, handler);

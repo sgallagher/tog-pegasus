@@ -9,10 +9,10 @@
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="ModifiedInstance">
           <VALUE.NAMEDINSTANCE>
-            <INSTANCENAME CLASSNAME="CIM_ProviderCapabilities">
-              <KEYBINDING NAME="ProviderCreationClassName">
+            <INSTANCENAME CLASSNAME="PG_ProviderCapabilities">
+              <KEYBINDING NAME="ProviderModuleName">
                 <KEYVALUE VALUETYPE="string">
-                CIM_Provider
+                Module03
                 </KEYVALUE>
               </KEYBINDING>
               <KEYBINDING NAME="ProviderName">
@@ -20,23 +20,13 @@
                 MyProcessProvider2
                 </KEYVALUE>
               </KEYBINDING>
-              <KEYBINDING NAME="InstanceID">
+              <KEYBINDING NAME="CapabilityID">
                 <KEYVALUE VALUETYPE="string">
                 capability03
                 </KEYVALUE>
               </KEYBINDING>
-              <KEYBINDING NAME="SystemCreationClassName">
-                <KEYVALUE VALUETYPE="string">
-                CIM_UnitaryComputerSystem
-                </KEYVALUE>
-              </KEYBINDING>
-              <KEYBINDING NAME="SystemName">
-                <KEYVALUE VALUETYPE="string">
-                server001.acme.com
-                </KEYVALUE>
-              </KEYBINDING>
             </INSTANCENAME>
-            <INSTANCE CLASSNAME="CIM_ProviderCapabilities">
+            <INSTANCE CLASSNAME="PG_ProviderCapabilities">
               <PROPERTY.ARRAY NAME="SupportedProperties" TYPE="string"> 
                 <VALUE.ARRAY>
                   <VALUE> IndicationTime </VALUE>

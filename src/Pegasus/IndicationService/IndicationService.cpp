@@ -40,6 +40,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/OperationFlag.h>
+#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
+#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 
@@ -49,9 +51,12 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-IndicationService::IndicationService (CIMRepository* repository)
+IndicationService::IndicationService (
+    CIMRepository * repository,
+    CIMServer * server)
     : Base ("Server::IndicationService", MessageQueue::getNextQueueId ()),
-         _repository (repository)
+         _repository (repository),
+         _server (server)
 {
     //
     //  ATTN: This call to _initialize is here temporarily -- in future, it
@@ -166,7 +171,7 @@ void IndicationService::_initialize (void)
 {
     Array <struct SubscriptionRef> activeSubscriptions;
     Array <struct SubscriptionRef> noProviderSubscriptions;
-    Array <String> startProviders;
+    Array <CIMInstance> startProviders;
     Boolean duplicate;
 
     const char METHOD_NAME [] = "IndicationService::_initialize";
@@ -216,6 +221,12 @@ void IndicationService::_initialize (void)
     //  ATTN: Add code to find repository service, if repository becomes a 
     //  service
     //
+
+    //
+    //  Get handle to Provider Registration Manager
+    //
+    _providerRegManager = 
+        _server->getDispatcher ()->getProviderRegistrationManager ();
 
     //
     //  Make sure subscription classes include Creator property
@@ -282,7 +293,7 @@ void IndicationService::_initialize (void)
             duplicate = false;
             for (Uint8 k = 0; k < startProviders.size () && !duplicate; k++)
             {
-                if (indicationProviders [j].providerName == startProviders [k])
+                if (indicationProviders [j].provider == startProviders [k])
                 {
                     duplicate = true;
                 }
@@ -290,7 +301,7 @@ void IndicationService::_initialize (void)
     
             if (!duplicate)
             {
-                startProviders.append (indicationProviders [j].providerName);
+                startProviders.append (indicationProviders [j].provider);
             }
         }
     }  // for each active subscription
@@ -1292,7 +1303,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
-    String providerName = request->providerName;
+    CIMInstance provider = request->provider;
     String className = request->className;
     CIMPropertyList newPropertyNames = request->newPropertyNames;
     CIMPropertyList oldPropertyNames = request->oldPropertyNames;
@@ -1354,7 +1365,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     //
     //  Construct provider class list from input provider and class name
     //
-    indicationProvider.providerName = providerName;
+    indicationProvider.provider = provider;
     indicationProvider.classList.append (className);
     indicationProviders.append (indicationProvider);
 
@@ -1446,13 +1457,14 @@ void IndicationService::_handleNotifyProviderTerminationRequest
     CIMNotifyProviderTerminationRequestMessage* request = 
 	(CIMNotifyProviderTerminationRequestMessage*) message;
 
-    String providerName = request->providerName;
+    CIMInstance provider = request->provider;
+    CIMReference providerReference = provider.getPath ();
 
     //
     //  Get list of affected subscriptions
     //
     providerSubscriptions.clear ();
-    providerSubscriptions = _getProviderSubscriptions (providerName);
+    providerSubscriptions = _getProviderSubscriptions (providerReference);
 
     //
     //  ATTN: Should alert always be sent, or only in the case 
@@ -2667,12 +2679,13 @@ void IndicationService::_getModifiedSubscriptions (
 }
 
 Array <SubscriptionRef> IndicationService::_getProviderSubscriptions (
-    const String & providerName)
+    const CIMReference & providerReference)
 {
     Array <SubscriptionRef> providerSubscriptions;
     Array <String> propertyNames;
     Array <String> nameSpaceNames;
-    Array <CIMNamedInstance> providerCapabilities;
+    //Array <CIMNamedInstance> providerCapabilities;
+    Array <CIMInstance> providerCapabilities;
     String regProviderName;
     Array <CIMInstance> regProviders;
 
@@ -2682,246 +2695,20 @@ Array <SubscriptionRef> IndicationService::_getProviderSubscriptions (
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
     //
-    //  Construct list of requested properties from Provider Capabilities
+    //  NOTE: interface not yet final
     //
-    propertyNames.append (_PROPERTY_PROVIDER_NAME);
-    propertyNames.append (_PROPERTY_CLASS_NAME);
-    propertyNames.append (_PROPERTY_SUPPORTED_PROPERTIES);
-    propertyNames.append (_PROPERTY_PROVIDER_TYPE);
 
     //
-    //  Get list of namespaces in repository
+    //  Get Provider Capabilities instances for the specified provider from
+    //  the Provider Registration Manager
     //
-    nameSpaceNames = _repository->enumerateNameSpaces ();
+    //providerCapabilities = 
+        //_providerRegManager->getIndicationProviderCapabilities 
+            //(providerReference);
 
-    //
-    //  Check each namespace in the repository
-    //
-    for (Uint8 i = 0; i < nameSpaceNames.size (); i++)
-    {
-        //
-        //  Get Provider Capabilities instances from the repository
-        //
-        try
-        {
-            providerCapabilities = _repository->enumerateInstances 
-                (nameSpaceNames [i], _CLASS_PROVIDER_CAPABILITIES, true, true, 
-                 false, false, CIMPropertyList (propertyNames));
-        }
-        catch (CIMException e)
-        {
-            //
-            //  Some namespaces may not include the capabilities class
-            //  In that case, just continue with the next namespace
-            //
-            if (e.getCode () == CIM_ERR_INVALID_CLASS)
-            {
-                continue;
-            }
-            else
-            {
-                PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                throw e;
-            }
-        }
-    
-        //
-        //  Check for Provider Capabilities instances where provider name 
-        //  matches name of specified provider
-        //
-        for (Uint8 j = 0; j < providerCapabilities.size (); j++)
-        {
-            CIMInstance capabilityInstance =
-                providerCapabilities [j].getInstance ();
-    
-            //
-            //  Get Provider Name from instance
-            //
-            capabilityInstance.getProperty (capabilityInstance.findProperty
-                (_PROPERTY_PROVIDER_NAME)).getValue ().get (regProviderName);
-    
-            //
-            //  If registered provider name matches specified provider name, 
-            //  add to list
-            //
-            if (regProviderName == providerName)
-            {
-                regProviders.append (capabilityInstance);
-            }
-        }
-
-        //
-        //  If there were matching provider capability instances in the current
-        //  namespace, check the subscriptions in the current namespace
-        //
-        if (regProviders.size () > 0)
-        {
-            Array <CIMNamedInstance> subscriptions;
-            CIMValue subscriptionStateValue;
-            Uint16 subscriptionState;
-
-            //
-            //  Get existing subscriptions in current namespace
-            //
-            try
-            {
-            subscriptions = _repository->enumerateInstances 
-                (nameSpaceNames [i], _CLASS_SUBSCRIPTION);
-            }
-            catch (CIMException e)
-            {
-                //
-                //  Some namespaces may not include the subscription class
-                //  In that case, just continue with the next namespace
-                //
-                if (e.getCode () == CIM_ERR_INVALID_CLASS)
-                {
-                    continue;
-                }
-                else
-                {
-                    PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
-                    throw e;
-                }
-            }
-        
-            //
-            //  Process each subscription
-            //
-            for (Uint8 k = 0; k < subscriptions.size (); k++)
-            {
-                //
-                //  Get subscription state
-                //
-                subscriptionStateValue = 
-                    subscriptions [k].getInstance ().getProperty
-                    (subscriptions [k].getInstance ().findProperty 
-                    (_PROPERTY_STATE)).getValue ();
-                subscriptionStateValue.get (subscriptionState);
-        
-                //
-                //  Process each enabled subscription
-                //
-                if ((subscriptionState == _STATE_ENABLED) ||
-                    (subscriptionState == _STATE_ENABLEDDEGRADED))
-                {
-                    String filterQuery;
-                    WQLSelectStatement selectStatement;
-                    String indicationClassName;
-                    Array <String> indicationSubclasses;
-                    CIMPropertyList propertyList;
-                    Array <String> requiredProperties;
-                    String className;
-                    Array <String> supportedProperties;
-                    struct SubscriptionRef current;
-                    Boolean match;
-
-                    //
-                    //  Get filter query
-                    //
-                    filterQuery = _getFilterQuery 
-                        (subscriptions [k].getInstance (), nameSpaceNames [i]);
-                    selectStatement = _getSelectStatement (filterQuery);
-    
-                    //
-                    //  Get indication class name from filter query 
-                    //  (FROM clause)
-                    //
-                    indicationClassName = _getIndicationClassName 
-                        (selectStatement, nameSpaceNames [i]);
-            
-                    //
-                    //  Get list of subclass names for indication class
-                    //
-                    indicationSubclasses = _repository->enumerateClassNames
-                        (nameSpaceNames [i], indicationClassName, true);
-                    indicationSubclasses.append (indicationClassName);
-
-                    //
-                    //  Get property list from filter query (FROM and WHERE
-                    //  clauses)
-                    //
-                    if ((selectStatement.getSelectPropertyNameCount () > 0) ||
-                        (selectStatement.getWherePropertyNameCount () > 0))
-                    {
-                        propertyList = _getPropertyList (selectStatement);
-                    }
-
-                    //
-                    //  If all properties are required, get list
-                    //
-                    if (propertyList.isNull ())
-                    {
-                        CIMClass indicationClass = _repository->getClass
-                            (nameSpaceNames [i], indicationClassName);
-                        for (Uint32 j = 0; 
-                             j < indicationClass.getPropertyCount ();
-                             j++)
-                        {
-                            requiredProperties.append 
-                                (indicationClass.getProperty (j).getName ());
-                        }
-                    }
-                    else
-                    {
-                        requiredProperties = 
-                            propertyList.getPropertyNameArray ();
-                    }
-            
-                    match = false;
-                    for (Uint8 m = 0; m < regProviders.size () && !match; m++)
-                    {
-                        //
-                        //  Get class name from provider capability instance
-                        //
-                        regProviders [m].getProperty
-                            (regProviders [m].findProperty
-                            (_PROPERTY_CLASS_NAME)).getValue ().get (className);
-            
-                        //
-                        //  If class is a requested class, check supported 
-                        //  properties
-                        //
-                        if (Contains (indicationSubclasses, className))
-                        {
-                            regProviders [m].getProperty
-                                (regProviders [m].findProperty
-                                (_PROPERTY_SUPPORTED_PROPERTIES)).getValue ().
-                                get (supportedProperties);
-
-                            //
-                            //  Compare supported properties with properties 
-                            //  required by subscription
-                            //
-                            match = true;
-                            for (Uint8 n = 0;
-                                 n < requiredProperties.size () && match;
-                                 n++)
-                            {
-                                if (!Contains (supportedProperties,
-                                    requiredProperties [n]))
-                                {
-                                    match = false;
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-
-                    //
-                    //  Add current subscription to list of subscriptions 
-                    //  supported by specified provider
-                    //
-                    if (match)
-                    {
-                        current.subscription = subscriptions [k].getInstance ();
-                        current.nameSpaceName = nameSpaceNames [i];
-                        providerSubscriptions.append (current);
-                    }
-                }  // if subscription is enabled
-            }  // for each subscription
-        } // if any provider capabilities for specified provider
-    }  // for each namespace
+    //for (Uint8 i = 0; i < providerCapabilities.size (); i++)
+    //{
+    //}  // for each capability instance
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
     return (providerSubscriptions);
@@ -3059,43 +2846,23 @@ Array <struct ProviderClassList>
         const Array <String> & indicationSubclasses,
         const CIMPropertyList & requiredPropertyList) const
 {
-    Array <String> propertyNames;
-    Uint16 providerType;
-    String className;
-    Array <String> supportedProperties;
     Array <String> requiredProperties;
-    String providerName;
-    Array <struct ProviderClassList> indicationProviders;
     struct ProviderClassList provider;
-    Array <CIMInstance> indicationProviderInstances;
-    Boolean duplicate;
-    Boolean match;
+    Array <struct ProviderClassList> indicationProviders;
+    Array <CIMInstance> providerInstances;
+    Array <CIMInstance> providerModuleInstances;
+    Boolean duplicate = false;
 
     const char METHOD_NAME [] = "IndicationService::_getIndicationProviders";
 
     PEG_FUNC_ENTER (TRC_INDICATION_SERVICE, METHOD_NAME);
 
     //
-    //  Construct list of requested properties from Provider Capabilities
-    //
-    propertyNames.append (_PROPERTY_PROVIDER_NAME);
-    propertyNames.append (_PROPERTY_CLASS_NAME);
-    propertyNames.append (_PROPERTY_SUPPORTED_PROPERTIES);
-    propertyNames.append (_PROPERTY_PROVIDER_TYPE);
-
-    //
-    //  If all properties are required, get list
+    //  If all properties are required, must pass empty array
     //
     if (requiredPropertyList.isNull ())
     {
-        CIMClass indicationClass = _repository->getClass 
-            (nameSpace, indicationClassName);
-        for (Uint32 j = 0; j < indicationClass.getPropertyCount ();
-             j++)
-        {
-            requiredProperties.append 
-                (indicationClass.getProperty (j).getName ());
-        }
+        requiredProperties.clear ();
     }
     else
     {
@@ -3103,107 +2870,72 @@ Array <struct ProviderClassList>
     }
 
     //
-    //  Get Provider Capabilities instances from the repository
+    //  For each indication subclass, get providers
     //
-    Array <CIMNamedInstance> providerCapabilities = 
-        _repository->enumerateInstances (nameSpace, 
-            _CLASS_PROVIDER_CAPABILITIES, true, true, false, false,
-            CIMPropertyList (propertyNames));
-
-    for (Uint8 i = 0; i < providerCapabilities.size (); i++)
+    for (Uint8 i = 0; i < indicationSubclasses.size (); i++)
     {
-        CIMInstance capabilityInstance = 
-            providerCapabilities [i].getInstance ();
-
         //
-        //  Get Provider Type from instance
+        //  Get providers that can serve the subscription
         //
-        capabilityInstance.getProperty (capabilityInstance.findProperty 
-            (_PROPERTY_PROVIDER_TYPE)).getValue ().get (providerType);
-
-        //
-        //  If provider type is Indication, check class name
-        //
-        if (providerType == _VALUE_INDICATION)
+        providerInstances.clear ();
+        providerModuleInstances.clear ();
+        if (_providerRegManager->getIndicationProviders
+                (nameSpace,
+                 indicationSubclasses [i],
+                 requiredProperties,
+                 providerInstances,
+                 providerModuleInstances))
         {
-            capabilityInstance.getProperty 
-                (capabilityInstance.findProperty 
-                (_PROPERTY_CLASS_NAME)).getValue ().get (className);
-
+            PEGASUS_ASSERT (providerInstances.size () == 
+                            providerModuleInstances.size ());
+            
             //
-            //  If class is a requested class, check supported properties
+            //  Merge into list of ProviderClassList structs 
             //
-            if (Contains (indicationSubclasses, className))
+            for (Uint8 j = 0; j < providerInstances.size () && !duplicate; j++)
             {
-                Uint32 pos = capabilityInstance.findProperty
-                    (_PROPERTY_SUPPORTED_PROPERTIES);
-
-		if (pos != PEG_NOT_FOUND)
-		{
-		    capabilityInstance.getProperty (pos).getValue ().get 
-                        (supportedProperties);
-		}
+                provider.classList.clear ();
+                duplicate = false;
 
                 //
-                //  Compare supported properties with properties required by 
-                //  subscription
+                //  See if indication provider is already in list
                 //
-                match = true;
                 for (Uint8 k = 0; 
-                     k < requiredProperties.size () && match; 
-                     k++)
+                     k < indicationProviders.size () && !duplicate; k++)
                 {
-                    if (!Contains (supportedProperties, requiredProperties [k]))
+                    if ((providerInstances [j].identical 
+                        (indicationProviders [k].provider)) &&
+                        (providerModuleInstances [j].identical
+                        (indicationProviders [k].providerModule)))
                     {
-                        match = false;
+                        //
+                        //  Indication provider is already in list
+                        //  Add subclass to provider's class list
+                        //
+                        indicationProviders [k].classList.append 
+                            (indicationSubclasses [i]);
+                        duplicate = true;
                     }
                 }
-
-                if (match)
+            
+                if (!duplicate)
                 {
-                    provider.providerName = String::EMPTY;
-                    provider.classList.clear ();
-                    duplicate = false;
-    
-                    capabilityInstance.getProperty 
-                        (capabilityInstance.findProperty 
-                        (_PROPERTY_PROVIDER_NAME)).getValue ().get 
-                        (providerName);
-
-                    for (Uint8 m = 0; 
-                         m < indicationProviders.size () && !duplicate; m++)
-                    {
-                        if (indicationProviders [m].providerName == 
-                            providerName)
-                        {
-                            //
-                            //  Add subclass to list
-                            //
-                            indicationProviders [m].classList.append 
-                                (className);
-                            duplicate = true;
-                        }
-                    }
-    
                     //
                     //  Current provider is not yet in list
                     //  Create new list entry
                     //
-                    if (!duplicate)
-                    {
-                        provider.providerName = providerName;
-                        provider.classList.append (className);
-                        indicationProviders.append (provider);
-                    }
+                    provider.provider = providerInstances [j];
+                    provider.providerModule = providerModuleInstances [j];
+                    provider.classList.append (indicationSubclasses [i]);
+                    indicationProviders.append (provider);
                 }
-            }
-        }
-    }
-
+            }  // for each indication provider instance
+        }  // if any providers
+    }  // for each indication subclass
+        
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
     return (indicationProviders);
 }
-
 
 CIMPropertyList IndicationService::_getPropertyList 
     (const WQLSelectStatement & selectStatement) const
@@ -3393,6 +3125,16 @@ void IndicationService::_deleteReferencingSubscriptions (
         //
         if (handler == ref)
         {
+            Array <struct ProviderClassList> indicationProviders;
+            indicationProviders = _getDisableParams (nameSpace, 
+                subscriptions [i].getInstance ());
+
+            //
+            //  Send disable requests
+            //
+            _sendDisableRequests (indicationProviders, nameSpace, 
+                subscriptions [i].getInstance ());
+
             //
             //  Delete referencing subscription instance from repository
             //
@@ -3617,6 +3359,8 @@ void IndicationService::_getEnableParams (
     indicationProviders = _getIndicationProviders 
         (nameSpaceName, indicationClassName, indicationSubclasses, 
          propertyList);
+//cout << "Indication Providers to enable: " << indicationProviders.size () 
+//<< endl;
 
     if (indicationProviders.size () > 0)
     {
@@ -3688,6 +3432,8 @@ Array <struct ProviderClassList> IndicationService::_getDisableParams (
     indicationProviders = _getIndicationProviders 
         (nameSpaceName, indicationClassName, indicationSubclasses, 
          propertyList);
+//cout << "Indication Providers to disable: " << indicationProviders.size () 
+//<< endl;
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
     return indicationProviders;
@@ -3756,8 +3502,9 @@ void IndicationService::_sendEnableRequests
                 (XmlWriter::getNextMessageId (),
                 nameSpace,
                 indicationProviders [i].classList,
-                indicationProviders [i].providerName,
-                propertyList.getPropertyNameArray (),
+                indicationProviders [i].provider,
+                indicationProviders [i].providerModule,
+                propertyList,
                 repeatNotificationPolicy,
                 otherRepeatNotificationPolicy,
                 repeatNotificationInterval,
@@ -3870,8 +3617,9 @@ void IndicationService::_sendModifyRequests
                 (XmlWriter::getNextMessageId (),
                 nameSpace,
                 indicationProviders [i].classList,
-                indicationProviders [i].providerName,
-                propertyList.getPropertyNameArray (),
+                indicationProviders [i].provider,
+                indicationProviders [i].providerModule,
+                propertyList,
                 repeatNotificationPolicy,
                 otherRepeatNotificationPolicy,
                 repeatNotificationInterval,
@@ -3932,7 +3680,8 @@ void IndicationService::_sendDisableRequests
             (XmlWriter::getNextMessageId (),
             nameSpace,
             indicationProviders [i].classList,
-            indicationProviders [i].providerName,
+            indicationProviders [i].provider,
+            indicationProviders [i].providerModule,
             subscription,
             QueueIdStack (_providerManager, getQueueId ()));
 
@@ -4221,31 +3970,31 @@ WQLSimplePropertySource IndicationService::_getPropertySourceFromInstance(
     The name of the indication subscription class
  */
 const char   IndicationService::_CLASS_SUBSCRIPTION []  = 
-                 "CIM_IndicationSubscription";
+                 "PG_IndicationSubscription";
 
 /**
     The name of the indication filter class
  */
 const char   IndicationService::_CLASS_FILTER []        = 
-                 "CIM_IndicationFilter";
+                 "PG_IndicationFilter";
 
 /**
     The name of the indication handler class
  */
 const char   IndicationService::_CLASS_HANDLER []       = 
-                 "CIM_IndicationHandler";
+                 "PG_IndicationHandler";
 
 /**
     The name of the CIMXML Indication Handler class
  */
 const char   IndicationService::_CLASS_HANDLERCIMXML [] = 
-                 "CIM_IndicationHandlerCIMXML";
+                 "PG_IndicationHandlerCIMXML";
 
 /**
     The name of the SNMP Indication Handler class
  */
 const char   IndicationService::_CLASS_HANDLERSNMP []   = 
-                 "CIM_IndicationHandlerSNMP";
+                 "PG_IndicationHandlerSNMP";
 
 /**
     The name of the Indication class
@@ -4283,7 +4032,7 @@ const char   IndicationService::_CLASS_PROVIDER_TERMINATED_ALERT [] =
     The name of the Provider Capabilities class
  */
 const char   IndicationService::_CLASS_PROVIDER_CAPABILITIES [] = 
-                 "CIM_ProviderCapabilities";
+                 "PG_ProviderCapabilities";
 
 //
 //  Property names

@@ -169,8 +169,15 @@ static void TestInstanceOperations(CIMClient& client)
         {
            client.deleteInstance(NAMESPACE, instanceNames[i]);
         }
-
-	client.deleteClass(NAMESPACE, "myclass");
+    }
+    catch (CIMClientException& e)
+    {
+        cout << "MyClass EnumerateInstanceName error: " << e.getMessage() << endl;
+	// Continue on error!
+    }
+    try
+    {
+        client.deleteClass(NAMESPACE, "myclass");
     }
     catch (CIMClientException& e)
     {

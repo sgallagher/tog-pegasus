@@ -24,6 +24,7 @@
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -232,6 +233,7 @@ int main()
     test01(Sint64(-123456789));
     test01(String("Hello world"));
     test01(CIMDateTime("19991224120000.000000+360"));
+    test01(CIMReference("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
 
     // Test CIMValue arrays
 
@@ -306,6 +308,11 @@ int main()
     arr14.append("20020202120000.000000+360");
     test02(arr14);
 
+    Array<CIMReference> arr15;
+    arr15.append(CIMReference("//host1:77/root/test:Class1.key1=\"key1Value\",key2=\"key2Value\""));
+    arr15.append(CIMReference("//host2:88/root/static:Class2.keyA=\"keyAValue\",keyB=\"keyBValue\""));
+    arr15.append(CIMReference("//host3:99/root/test/static:Class3.keyX=\"keyXValue\",keyY=\"keyYValue\""));
+    test02(arr15);
 
     cout << "+++++ passed all tests" << endl;
 

@@ -2164,6 +2164,48 @@ Boolean XmlReader::getValueReferenceElement(
 
 //------------------------------------------------------------------------------
 //
+// getValueReferenceArrayElement()
+//
+//     <!ELEMENT VALUE.REFARRAY (VALUE.REFERENCE*)>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getValueReferenceArrayElement(
+    XmlParser& parser, 
+    CIMValue& value)
+{
+    XmlEntry entry;
+
+    value.clear();
+
+    // Get VALUE.REFARRAY open tag:
+
+    if (!testStartTagOrEmptyTag(parser, entry, "VALUE.REFARRAY"))
+	return false;
+
+    if (entry.type == XmlEntry::EMPTY_TAG)
+        // ATTN-RK-P3-20020220: Should the type and array size get set in
+        // the value even though it is null?  (See also getValueArrayElement.)
+	return true;
+
+    // For each VALUE.REFERENCE element:
+
+    Array<CIMReference> referenceArray;
+    CIMReference reference;
+
+    while (getValueReferenceElement(parser, reference))
+    {
+	referenceArray.append(reference);
+    }
+
+    expectEndTag(parser, "VALUE.REFARRAY");
+
+    value.set(referenceArray);
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
 // getPropertyReferenceElement()
 //
 //     <!ELEMENT PROPERTY.REFERENCE (QUALIFIER*,(VALUE.REFERENCE)?)>
@@ -3255,12 +3297,10 @@ Boolean XmlReader::getParamValueElement(
 	        value.set(reference);
 	        type = CIMType::REFERENCE;
 	    }
-	    // ATTN-RK-P2-20010219: This method does not exist.  CIMValue does
-	    // not currently allow for an array of CIMReferences.
-            //else if (XmlReader::getValueReferenceArrayElement(parser, value))
-	    //{
-	    //    type = CIMType::REFERENCE;
-	    //}
+            else if (XmlReader::getValueReferenceArrayElement(parser, value))
+	    {
+	        type = CIMType::REFERENCE;
+	    }
             // If type==reference but no VALUE.REFERENCE found, use null value
         }
 

@@ -278,6 +278,10 @@ public:
 	XmlParser& parser,
 	CIMReference& reference);
 
+    static Boolean getValueReferenceArrayElement(
+	XmlParser& parser, 
+	CIMValue& value);
+
     static Boolean getPropertyReferenceElement(
 	XmlParser& parser, 
 	CIMProperty& property);

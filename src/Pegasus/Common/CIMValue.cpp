@@ -362,7 +362,10 @@ inline void _toXml(Array<Sint8>& out, const CIMReference& x)
 {
     x.toXml(out);
 }
-// ATTN-RK-P2-20020220: What does toMof look like for an array of references?
+inline void _toMof(Array<Sint8>& out, const CIMReference& x)
+{
+    x.toMof(out);
+}
 
 template<class T>
 void _toString(Array<Sint8>& out, const T* p, Uint32 size)
@@ -374,9 +377,21 @@ void _toString(Array<Sint8>& out, const T* p, Uint32 size)
     }
 }
 
+void _toXml(Array<Sint8>& out, const CIMReference* p, Uint32 size)
+{
+    out << "<VALUE.REFARRAY>\n";
+    while (size--)
+    {
+	_toXml(out, *p++);
+    }
+    out << "</VALUE.REFARRAY>\n";
+}
+
 template<class T>
 void _toXml(Array<Sint8>& out, const T* p, Uint32 size)
 {
+    out << "<VALUE.ARRAY>\n";
+
     while (size--)
     {
 	out << "<VALUE>";
@@ -385,6 +400,8 @@ void _toXml(Array<Sint8>& out, const T* p, Uint32 size)
 
 	out << "</VALUE>\n";
     }
+
+    out << "</VALUE.ARRAY>\n";
 }
 /** _toMof Array -
     arrayInitializer  = "{" constantValue*( "," constantValue)"}"
@@ -793,33 +810,25 @@ void CIMValue::toXml(Array<Sint8>& out) const
         // out << "\n";
         return;
     }
-    if (_type == CIMType::REFERENCE)
+    if (_isArray)
     {
-        if (_isArray)
-        {
-	    out << "<VALUE.REFARRAY>\n";
-	    _toXml(out, _u._referenceArray->data(), _u._referenceArray->size);
-	    out << "</VALUE.REFARRAY>\n";
-        }
-        else
-        {
-	    _u._referenceValue->toXml(out);
-        }
-    }
-    else if (_isArray)
-    {
-	out << "<VALUE.ARRAY>\n";
-
 	switch (_type)
 	{
 	    case CIMType::BOOLEAN:
 	    {
+                // ATTN-RK-P3-20020220: Why can't this just use
+                // _toXml(out, _u._booleanArray->data(), _u._booleanArray->size);
+                // like everybody else?
+		out << "<VALUE.ARRAY>\n";
+
 		for (Uint32 i = 0, n = _u._booleanArray->size; i < n; i++)
 		{
 		    out << "<VALUE>";
 		    _toXml(out, Boolean(_u._booleanArray->data()[i]));
 		    out << "</VALUE>\n";
 		}
+
+		out << "</VALUE.ARRAY>\n";
 		break;
 	    }
 
@@ -874,11 +883,20 @@ void CIMValue::toXml(Array<Sint8>& out) const
 	    case CIMType::DATETIME:
 		_toXml(out, _u._dateTimeArray->data(), _u._dateTimeArray->size);
 		break;
+
+	    case CIMType::REFERENCE:
+		_toXml(out, _u._referenceArray->data(),
+			    _u._referenceArray->size);
+		break;
+
             default:
                 throw CIMValueInvalidType();
 	}
-
-	out << "</VALUE.ARRAY>\n";
+    }
+    else if (_type == CIMType::REFERENCE)
+    {
+        // Has to be separate because it uses VALUE.REFERENCE tag
+	_toXml(out, *_u._referenceValue);
     }
     else
     {
@@ -963,25 +981,13 @@ void CIMValue::toMof(Array<Sint8>& out) const
     if (_isNull)
         return;
 
-    if (_type == CIMType::REFERENCE)
-    {
-        if (_isArray)
-        {
-            // ATTN-RK-P2-20020220: How to output an array of references in MOF?
-        }
-        else
-        {
-	    _u._referenceValue->toMof(out);
-        }
-    }
-    else if (_isArray)
+    if (_isArray)
     {
 	switch (_type)
 	{
 	    case CIMType::BOOLEAN:
 	    {
-		for (Uint32 i = 0, n = _u._booleanArray->size; i < n; i++)
-		    _toMof(out, Boolean(_u._booleanArray->data()[i]));
+		_toMof(out, _u._booleanArray->data(), _u._booleanArray->size);
 		break;
 	    }
 	    case CIMType::UINT8:
@@ -1034,7 +1040,14 @@ void CIMValue::toMof(Array<Sint8>& out) const
 
 	    case CIMType::DATETIME:
 		_toMof(out, _u._dateTimeArray->data(),
-			    _u._dateTimeArray->size); break;
+			    _u._dateTimeArray->size);
+                break;
+
+	    case CIMType::REFERENCE:
+		_toMof(out, _u._referenceArray->data(),
+			    _u._referenceArray->size);
+                break;
+
             default:
                 throw CIMValueInvalidType();
 	}
@@ -1098,6 +1111,11 @@ void CIMValue::toMof(Array<Sint8>& out) const
 	    case CIMType::DATETIME:
 		_toMof(out, *_u._dateTimeValue);
 		break;
+
+	    case CIMType::REFERENCE:
+		_toMof(out, *_u._referenceValue);
+		break;
+
             default:
                 throw CIMValueInvalidType();
 	}

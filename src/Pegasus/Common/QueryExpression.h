@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class QueryExpressionRep;
 
-class QueryExpression {
+class PEGASUS_COMMON_LINKAGE QueryExpression {
     friend class DefaultProviderManager;
    protected:
    /**

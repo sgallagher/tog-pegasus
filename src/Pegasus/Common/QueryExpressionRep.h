@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class QueryExpressionRep {
+class PEGASUS_COMMON_LINKAGE QueryExpressionRep {
   friend class QueryExpression;
   public:
     QueryExpressionRep(const String & queryLanguage);

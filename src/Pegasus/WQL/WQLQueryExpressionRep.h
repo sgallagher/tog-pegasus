@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class WQLSelectStatement;
 
-class WQLQueryExpressionRep : public QueryExpressionRep {
+class PEGASUS_WQL_LINKAGE WQLQueryExpressionRep : public QueryExpressionRep {
   friend class QueryExpression;
   public:
     WQLQueryExpressionRep(const String & queryLanguage)

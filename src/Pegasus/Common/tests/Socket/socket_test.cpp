@@ -125,7 +125,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
    
    fd_set fd_listen;
    FD_ZERO(&fd_listen);
-   FD_SET( (Sint32)listener, &fd_listen );
+   if((Sint32)listener >= 0 )
+   {
+      FD_SET( (Sint32)listener, &fd_listen );
+   }
+   
    domain_ready++;
    int events = select(FD_SETSIZE, &fd_listen, NULL, NULL, NULL);
 
@@ -133,9 +137,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
    PEGASUS_SOCKLEN_SIZE peer_size = sizeof(peer);
 
    pegasus_socket connected = listener.accept(&peer, &peer_size);
-
    
-   while(1)
+     
+   while((Sint32)connected >= 0)
    {
       FD_ZERO(&fd_listen);
       FD_SET((Sint32)connected, &fd_listen);

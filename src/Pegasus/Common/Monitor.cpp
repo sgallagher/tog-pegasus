@@ -597,7 +597,9 @@ void monitor_2::run(void)
 	}
 	if(temp == 0)
 	   break;
- 	FD_SET((Sint32) temp->get_sock()  , &rd_fd_set);
+	Sint32 fd = (Sint32) temp->get_sock();
+	if(fd >= 0 )
+	   FD_SET(fd , &rd_fd_set);
 	temp = _listeners.next(temp);
       }
       _listeners.unlock();
@@ -615,8 +617,7 @@ void monitor_2::run(void)
       temp = _listeners.next(0);
       while(temp != 0 ){
 	Sint32 fd = (Sint32) temp->get_sock();
-	
-	if(FD_ISSET(fd, &rd_fd_set)) {
+	if(fd >= 0 && FD_ISSET(fd, &rd_fd_set)) {
 	  temp->set_state(BUSY);
 	  FD_CLR(fd,  &rd_fd_set);
 	  monitor_2_entry* ready = new monitor_2_entry(*temp);

@@ -143,11 +143,16 @@ void HTTPConnection::handleEnqueue(Message *message)
    
 #ifdef ENABLETIMEOUTWORKAROUNDHACK
    static Mutex handleEnqueue_mut = Mutex();
+   Boolean LockAcquired = false;
 #endif
 
 
 #ifdef ENABLETIMEOUTWORKAROUNDHACK
-   handleEnqueue_mut.lock(pegasus_thread_self());
+   if (pegasus_thread_self() != handleEnqueue_mut.get_owner())
+   {
+      handleEnqueue_mut.lock(pegasus_thread_self());
+      LockAcquired = true;
+   }
 #endif
 
    switch (message->getType())
@@ -227,7 +232,10 @@ void HTTPConnection::handleEnqueue(Message *message)
    delete message;
 
 #ifdef ENABLETIMEOUTWORKAROUNDHACK
-   handleEnqueue_mut.unlock();
+   if (LockAcquired)
+   {
+      handleEnqueue_mut.unlock();
+   }
 #endif
 
    PEG_METHOD_EXIT();

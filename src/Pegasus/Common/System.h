@@ -29,6 +29,7 @@
 #define Pegasus_System_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,8 +53,21 @@ typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
 class PEGASUS_COMMON_LINKAGE System
 {
 public:
-
+    /** getCurrentTime - Gets the current time as seconds and milliseconds
+    into the provided variables using system functions.
+    @param seconds Return for the seconds component of the time.
+    @param milliseconds Return for the milliseconds component of the time.
+    @return The value is returned in the parameters.
+    The time returned is as defined in number of seconds and milliseconds
+    since 00:00 Coordinated Universal Time (UTC), January 1, 1970,
+    
+    */
     static void getCurrentTime(Uint32& seconds, Uint32& milliseconds);
+    /** getCurrentASCIITime Gets time/date in a fixed format. The format is
+        YY MM DD-HH:MM:SS
+	@return Returns String with the ASCII time date.
+    */
+    static String getCurrentASCIITime();
 
     static void sleep(Uint32 seconds);
 

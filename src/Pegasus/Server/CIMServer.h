@@ -67,6 +67,8 @@ public:
     
     /**  bind Binds the port address to the Server.
     @param address char* to the port address for TCP.
+    @exception - This function may receive exceptions from
+    Channel specific subfunctions.
     */
     void bind(const char* address);
 

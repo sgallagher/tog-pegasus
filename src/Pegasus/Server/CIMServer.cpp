@@ -1527,7 +1527,8 @@ CIMServer::~CIMServer()
 
 void CIMServer::bind(const char* address)
 {
-    _acceptor->bind(address);
+    if (!_acceptor->bind(address))
+	throw CannotBindToAddress(address);
 }
 
 //------------------------------------------------------------------------------

@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include <fstream>
+#include "System.h"
 #include "Logger.h"
 
 PEGASUS_USING_STD;
@@ -59,8 +60,8 @@ static char* _allocLogFileName(
     static char* fileNames[] = 
     {
 	"PegasusTrace.log",
-	"PegasuStandard.log",
-	"PegasuError.log",
+	"PegasusStandard.log",
+	"PegasusError.log",
 	"PegasusDebug.log"
     };
 
@@ -135,10 +136,31 @@ void Logger::put(
     {
 	if (!_rep)
 	   _rep = new LoggerRep(_homeDirectory);
-       // ATTN: We are not using the severity at this point.
-       // Should be part of LOG entry. Also not putting in datetime
-       // group.
-       _rep->logOf(logFileType) << Formatter::format(formatString,
+
+	// Get the Severity String
+	// This converts bitmap to string based on highest order
+	// bit set
+	// ATTN: KS Fix this more efficiently.
+	static char* svNames[] = 
+	    {
+	    "TRACE   ",
+	    "INFO    ",
+	    "WARNING ",
+	    "SEVERE  ",
+	    "FATAL   "
+	    };
+	// NUM_LEVELS = 5
+	int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
+
+	char* tmp = "";
+	if (severity & Logger::TRACE) tmp =       "TRACE   ";
+	if (severity & Logger::INFORMATION) tmp = "INFO    ";
+	if (severity & Logger::WARNING) tmp =     "WARNING ";
+	if (severity & Logger::SEVERE) tmp =      "SEVERE  ";
+	if (severity & Logger::FATAL) tmp =       "FATAL   ";
+
+       _rep->logOf(logFileType) << System::getCurrentASCIITime() << " " << tmp
+	   << Formatter::format(formatString,
 	   arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) << endl;
 
     }

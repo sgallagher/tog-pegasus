@@ -117,6 +117,8 @@ const char TypeMismatch::MSG[] = "type mismatch";
 
 const char NoSuchFile::MSG[] = "no such file: ";
 
+const char CannotBindToAddress::MSG[] = "cannot bind to address: ";
+
 const char NoSuchDirectory::MSG[] = "no such directory: ";
 
 const char ChangeDirectoryFailed::MSG[] = "failed to change directory: ";

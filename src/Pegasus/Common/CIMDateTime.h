@@ -101,19 +101,21 @@ public:
     CIMDateTime();
 
     /** CIMDateTime CIMMethod creates the CIM CIMDateTime from a string 
-	constant.
+	constant representing the CIM DateTime formatted datetime
+	@param str String object containing the CIM DateTime formatted string
     */
     CIMDateTime(const char* str);
 
     /** CIMDateTime CIMMethod - Creates the CIMDateTime instance from another 
-	CIMDateTime instance
+	CIMDateTime object
+	@param x CIMDateTime object to be copied.
     */
     CIMDateTime(const CIMDateTime& x);
 
     /** Destructor. */
     ~CIMDateTime() { }
 
-    /** CIMDateTime method again
+    /**  assign CIMDateTime
     */
     CIMDateTime& operator=(const CIMDateTime& x);
 
@@ -146,7 +148,7 @@ public:
     */
     void set(const char* str);
 
-    /// CIMDateTime method clear - Clears the datetime class instance.
+    ///  clear - Clears the datetime class instance.
     void clear();
 
     /** CIMDateTime CIMMethod - ATTN: Friend operator Test for CIMDateTime 

@@ -37,6 +37,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <cstdio>
+#include <time.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,6 +55,17 @@ void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
     gettimeofday(&tv, 0);
     seconds = int(tv.tv_sec);
     milliseconds = int(tv.tv_usec) / 1000;
+}
+
+String System::getCurrentASCIITime()
+{
+    char    str[50];
+    time_t  rawTime;
+
+    time(&rawTime);
+    strftime(str, 40,"%T-%D", localtime(&rawTime));
+    String time = str;
+    return time;
 }
 
 void System::sleep(Uint32 seconds)

@@ -85,6 +85,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "XmlParser.h"
+#include "Logger.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

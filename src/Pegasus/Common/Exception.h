@@ -42,7 +42,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** Class Exception
+/** Class Exception  - This 
 */
 class PEGASUS_COMMON_LINKAGE Exception
 {
@@ -77,7 +77,7 @@ public:
 };
 
 /** define PEGASUS_ASSERT assertion statement.  This statement tests the 
-    condition defined by the parameters and if not True executes a
+    condition defined by the parameters and if not True executes an 
 
     <pre>
     throw AssertionFailureException
@@ -343,6 +343,15 @@ public:
 
     NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
 };
+class PEGASUS_COMMON_LINKAGE CannotBindToAddress : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CannotBindToAddress(const String& address) : Exception(MSG + address) { }
+};
+
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE FailedToRemoveDirectory : public Exception
 {

@@ -31,6 +31,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 #include <windows.h>
 #include <sys/types.h>
+#include <time.h>
 #include <sys/timeb.h>
 #include <io.h>
 #include <direct.h>
@@ -50,6 +51,17 @@ void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
     largeInt.QuadPart -= 0x19db1ded53e8000;
     seconds = long(largeInt.QuadPart / (10000 * 1000));
     milliseconds = long((largeInt.QuadPart % (10000 * 1000)) / 10);
+}
+
+String System::getCurrentASCIITime()
+{
+    char tmpbuf[128];
+    _strtime( tmpbuf );
+    String time = tmpbuf;
+    _strdate( tmpbuf );
+    time.append("-");
+    time.append(tmpbuf);
+    return time;
 }
 
 void System::sleep(Uint32 seconds)

@@ -35,6 +35,7 @@ PEGASUS_USING_PEGASUS;
 
 int main()
 {
+    
     TimeValue tv1 = TimeValue::getCurrentTime();
     System::sleep(5);
     TimeValue tv2 = TimeValue::getCurrentTime();
@@ -44,6 +45,8 @@ int main()
     // cout << "milliseconds=" << milliseconds << endl;
 
     assert(milliseconds >= 4500 && milliseconds <= 5500);
+
+    // cout << System::getCurrentASCIITime() << endl;
 
     cout << "+++++ passed all tests" << endl;
 

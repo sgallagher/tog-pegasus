@@ -28,9 +28,12 @@
 #include <cassert>
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/OptionManager.h>
+#include <Pegasus/Common/FileSystem.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
 
 const String NAMESPACE = "root/cimv20";
 
@@ -47,6 +50,56 @@ void ErrorExit(const String& message)
     cout << message << endl;
     exit(1);
 }
+
+/** GetOptions function - This function defines the Options Table
+    and sets up the options from that table using the option manager.
+*/
+void GetOptions(
+    OptionManager& om,
+    int& argc,
+    char** argv,
+    const String& pegasusHome)
+{
+    static struct OptionRow optionsTable[] =
+    {
+	{"port", "8888", false, Option::WHOLE_NUMBER, 0, 0, "port",
+			"specifies port number to listen on" },
+	{"version", "false", false, Option::BOOLEAN, 0, 0, "v",
+			"Displays Pegasus Version "},
+	{"help", "false", false, Option::BOOLEAN, 0, 0, "h",
+		    "Prints help message with command line options "},
+	{"debug", "false", false, Option::BOOLEAN, 0, 0, "d", 
+			"Not Used "}
+    };
+    const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
+
+    om.registerOptions(optionsTable, NUM_OPTIONS);
+
+    String configFile = pegasusHome + "/cimserver.conf";
+
+    cout << "Config file from " << configFile << endl;
+
+    if (FileSystem::exists(configFile))
+	om.mergeFile(configFile);
+
+    om.mergeCommandLine(argc, argv);
+
+    om.checkRequiredOptions();
+}
+
+/* PrintHelp - This is temporary until we expand the options manager to allow
+   options help to be defined with the OptionRow entries and presented from
+   those entries.
+*/
+void PrintHelp(const char* arg0)
+{
+    cout << '\n';
+    cout << "TestClient" << endl;
+    cout << '\n';
+    cout << "Usage: " << arg0 << endl;
+    cout << endl;
+}
+
 /* Status display of the various steps.  Shows message of function and
 time to execute.  Grow this to a class so we have start and stop and time
 display with success/failure for each function.
@@ -77,7 +130,6 @@ static void TestNameSpaceOperations(CIMClient& client)
 
     for (Uint32 i = 0; i < instanceNames.size(); i++)
 	cout << instanceNames[i].toString() << endl;
-
     }
 
 
@@ -87,8 +139,7 @@ static void TestNameSpaceOperations(CIMClient& client)
     {
 	cout << "Error NameSpace Enumeration:" << endl;
 	cout << e.getMessage() << endl;
-    }
-
+    } 
 
 }
 
@@ -254,15 +305,20 @@ static void TestInstanceOperations(CIMClient& client)
 #endif
 }
 
+///////////////////////////////////////////////////////////////
+//    MAIN
+///////////////////////////////////////////////////////////////
+
 int main(int argc, char** argv)
 {
     char* connection = "localhost:8888";
-    if (argc == 2)
+    if (argc > 1)
 	 connection= argv[1];
-    
-    cout << "connecting to " << connection << endl;
+    Uint32 repetitions = 1;
+
     try
     {
+	cout << "connecting to " << connection << endl;
 	Selector selector;
 	CIMClient client(&selector);
 	client.connect(connection);
@@ -288,3 +344,11 @@ int main(int argc, char** argv)
     return 0;
 }
 
+/*
+    TODO:  1. put in the option manager
+           2. Make passive tests only option.
+	   3. Make test loop tool
+	   4. Make display an option
+	   5. Make test multiple systems.
+	   6.
+*/

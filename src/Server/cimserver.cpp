@@ -34,6 +34,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -81,7 +82,11 @@ void GetOptions(
 		    "Sets the severity level that will be logged "},
 	{"logs", "ALL", false, Option::STRING, 0, 0, "X", 
 			"Not Used "},
-	{"daemon", "false", false, Option::STRING, 0, 0, "d", 
+	{"logdir", "./logs", false, Option::STRING, 0, 0, "logdir", 
+			"Directory for log files"},
+	{"clearlogs", "false", false, Option::BOOLEAN, 0, 0, "cl", 
+			"Clears the log files at startup"},
+	{"daemon", "false", false, Option::BOOLEAN, 0, 0, "d", 
 			"Not Used "},
 	{"version", "false", false, Option::BOOLEAN, 0, 0, "v",
 			"Displays Pegasus Version "},
@@ -200,6 +205,25 @@ int main(int argc, char** argv)
     String portOption;
     om.lookupValue("port", portOption);
 
+    // Get the log file directory definition.
+    // We put String into Cstring because
+    // Directory functions only handle Cstring.
+    // ATTN-KS: create String based directory functions.
+    String logsDirectory;
+    om.lookupValue("logdir", logsDirectory);
+
+    char* lgDir = logsDirectory.allocateCString();
+
+    if (!System::isDirectory(lgDir))
+	System::makeDirectory(lgDir);
+
+    if (!System::isDirectory(lgDir))
+	cout << "Logging Disabled";
+    delete [] lgDir;
+
+    cout << "Logs Directory = " << logsDirectory << endl;
+
+
     char* address = portOption.allocateCString();
 
     // Put out startup up message.
@@ -217,12 +241,13 @@ int main(int argc, char** argv)
 	om.print();
 
     // Set up the Logger
-    Logger::setHomeDirectory("./logs");
+    Logger::setHomeDirectory(logsDirectory);
+
 
     // Put server start message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	"Start $0 %1 port $2 $3 ", 88, PEGASUS_NAME, PEGASUS_VERSION,
-		address, (pegasusIOTrace ? " Tracing": " "));
+	"Start $0 $1 port $2 $3 ", 88, PEGASUS_NAME, 
+	PEGASUS_VERSION, address, (pegasusIOTrace ? " Tracing": " "));
 
     // try loop to bind the address, and run the server
     try
@@ -230,6 +255,7 @@ int main(int argc, char** argv)
 	Selector selector;
 	CIMServer server(&selector, pegasusHome);
 
+	// bind throws an exception of the bind fails
 	server.bind(address);
 	delete [] address;
 	server.runForever();

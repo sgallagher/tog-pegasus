@@ -1,12 +1,14 @@
 CHANGE LOG FOR PEGASUS
 
 Version 1.08 working towards 1.1 - Started 27 March 2002
-TAG: Version_1_08
+TAG: Version_1_08. Note that the tagging was not all simultaneous because
+of problems with the CVS repository
 
 1. KS 27 March 2002 - Updaded pegasus version to 1.08. Tok snapshot.
    Tagged CVS 1_08.
    
-2.
+2. KS 2 April 2002 -Add better qualifier testfunctions to cimclass, 
+   qualifierlist, etc. and start to add specific qualifier tests on creates.
 ========================================================================
 
 Version 1.07 working towards 1.1 - Started 4 Feb 2002

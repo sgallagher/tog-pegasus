@@ -234,7 +234,10 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    if (getenv("PEGASUS_CLIENT_TRACE"))
+        _enqueueHTTPMessage(buffer);
+    else
+        _outputQueue->enqueue(new HTTPMessage(buffer));
 }
 
 void CIMOperationRequestEncoder::_encodeModifyClassRequest(
@@ -250,8 +253,8 @@ void CIMOperationRequestEncoder::_encodeModifyClassRequest(
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(), params);
 
-
-    _outputQueue->enqueue(new HTTPMessage(buffer));
+    _enqueueHTTPMessage(buffer);
+    //_outputQueue->enqueue(new HTTPMessage(buffer));
 }
 
 void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
@@ -781,11 +784,12 @@ void CIMOperationRequestEncoder::_enqueueHTTPMessage(Array<Sint8>& buffer)
 {
     if (getenv("PEGASUS_CLIENT_TRACE"))
     {
-        Array<Sint8> tmp;
-        tmp << buffer;
-        tmp.append('\0');
-        XmlWriter::indentedPrint(cout, tmp.getData());
+        //Array<Sint8> tmp;
+        //tmp << buffer;
+        buffer.append('\0');
+        XmlWriter::indentedPrint(cout, buffer.getData());
         cout << endl;
+        buffer.remove(buffer.size() - 1 );
     }
     _outputQueue->enqueue(new HTTPMessage(buffer));
 }

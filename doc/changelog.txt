@@ -45,6 +45,15 @@ Version 1.1 - July 2001 Development branch (Work in Progress)
    (changed the H and CPP files for the major CIM objects. These
    functions generate CIM MOF output for the objects.
 
+7. (Bapu Patil - HP)  Implementation of Local Channel Authentication. Local
+   Authentication provides security mechanism to authenticates CIM clients that
+   connect to CIM Server on the same system without having to specify a password. 
+   Please refer to "doc/LocalCIMSecurity.pdf" for more information on design.  
+   This component only works on unix and it's not linked in with the main build. 
+   When authentication framework is defined this component may need to be 
+   modified to integrate with the framework.
+
+
 ---------------------------------------------------------------------------
 Version 0.99.x (Fixes to version 0.99) in Process
 

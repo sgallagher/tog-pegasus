@@ -1387,7 +1387,16 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
     //
 
     Array<String> classNames;
-    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+    try 
+    {
+       _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+    }
+    catch( ... )
+    {
+       ;
+
+    }
+        
     classNames.prepend(className);
 
     //

@@ -265,9 +265,22 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const ResponseHandler& handler,
    }
 
 CMPI_ResultOnStack::~CMPI_ResultOnStack() {
-//      cout<<"--- ~CMPI_ResultOnStack()"<<endl;
-      if ((flags & RESULT_set)==0)  ((ResponseHandler*)hdl)->processing();
-      if ((flags & RESULT_done)==0) ((ResponseHandler*)hdl)->complete();
+      if ((flags & RESULT_set)==0)  {
+         if (ft==CMPI_ResultRefOnStack_Ftab) ((ObjectPathResponseHandler*)hdl)->processing();
+         else if (ft==CMPI_ResultInstOnStack_Ftab) ((InstanceResponseHandler*)hdl)->processing();
+         else if (ft==CMPI_ResultObjOnStack_Ftab) ((ObjectResponseHandler*)hdl)->processing();
+         else if (ft==CMPI_ResultMethOnStack_Ftab) ((MethodResultResponseHandler*)hdl)->processing();
+         else if (ft==CMPI_ResultResponseOnStack_Ftab) ((ResponseHandler*)hdl)->processing();
+         else ((ResponseHandler*)hdl)->processing();  // shoul not get here
+      }
+      if ((flags & RESULT_done)==0) {
+         if (ft==CMPI_ResultRefOnStack_Ftab) ((ObjectPathResponseHandler*)hdl)->complete();
+         else if (ft==CMPI_ResultInstOnStack_Ftab) ((InstanceResponseHandler*)hdl)->complete();
+         else if (ft==CMPI_ResultObjOnStack_Ftab) ((ObjectResponseHandler*)hdl)->complete();
+         else if (ft==CMPI_ResultMethOnStack_Ftab) ((MethodResultResponseHandler*)hdl)->complete();
+         else if (ft==CMPI_ResultResponseOnStack_Ftab) ((ResponseHandler*)hdl)->complete();
+         else ((ResponseHandler*)hdl)->complete();  // shoul not get here
+      }
   }
 
 PEGASUS_NAMESPACE_END

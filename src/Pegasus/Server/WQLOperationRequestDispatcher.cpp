@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -126,12 +126,12 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 				{     // no path set why ?
 					if (clsRead==false)
 					{
-						cimClass = 
+						cimClass =
 							_repository->getClass(poA->_nameSpace, op.getClassName(),
 																		false,true,false, CIMPropertyList());
 						clsRead=true;
 					}
-					op = fromResponse->cimNamedInstances[j].buildPath(cimClass);     
+					op = fromResponse->cimNamedInstances[j].buildPath(cimClass);
 	      }
 	      op.setNameSpace(poA->_nameSpace);
 	      op.setHost(System::getHostName());
@@ -154,12 +154,12 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 				{     // no path set why ?
 					if (clsRead==false)
 					{
-						cimClass = 
+						cimClass =
 							_repository->getClass(poA->_nameSpace,op.getClassName(),
 																		false,true,false, CIMPropertyList());
 						clsRead=true;
 					}
-					op=CIMInstance(fromResponse->cimObjects[j]).buildPath(cimClass);     
+					op=CIMInstance(fromResponse->cimObjects[j]).buildPath(cimClass);
 	      }
 	      op.setNameSpace(poA->_nameSpace);
 	      op.setHost(System::getHostName());
@@ -252,11 +252,11 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     Uint32 providerCount;
 
     try {
-        providerInfos = _lookupAllInstanceProviders(request->nameSpace,
-                                                    className,
-				  //                request->className,
-                                                    providerCount,
-						    true);
+        providerInfos =
+            _lookupAllInstanceProviders(
+                request->nameSpace,
+                className,
+                providerCount);
     }
     catch(CIMException& exception) {
         // Return exception response if exception from getSubClasses
@@ -353,19 +353,19 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 			for (Uint32 i = 0; i < numClasses; i++)
 			{
 				ProviderInfo &providerInfo = providerInfos[i];
-			
+
 				// this class is registered to a provider - skip
 				if (providerInfo.hasProvider)
 					continue;
 
 				// If this class does not have a provider
-				
+
 				PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,  Formatter::format
 												 ("ExcecQuery Req. class $0 to repository, "
 													"No $1 of $2, SN $3",
 													providerInfo.className.getString(),
 													i, numClasses, poA->_aggregationSN));
-				
+
 				CIMException cimException;
 				Array<CIMInstance> cimInstances;
 				STAT_PROVIDERSTART
@@ -393,7 +393,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 					cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 																							 String::EMPTY);
 				}
-				
+
 				STAT_PROVIDEREND
 
 				AutoPtr<CIMEnumerateInstancesResponseMessage> response
@@ -409,13 +409,13 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 			Uint32 numberResponses = poA->numberResponses();
 			Uint32 totalIssued = providerCount + (numberResponses > 0 ? 1 : 0);
 			poA->setTotalIssued(totalIssued);
-			
+
 			if (numberResponses > 0)
 			{
 				handleEnumerateInstancesResponseAggregation(poA);
 				CIMResponseMessage *response = poA->removeResponse(0);
 				_forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
-																			String(), 
+																			String(),
 																			new CIMExecQueryRequestMessage(*request),
 																			poA, response);
 			}
@@ -445,8 +445,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 												providerInfo.serviceName,
 												providerInfo.controlProviderName,
 												i, numClasses, poA->_aggregationSN));
-				
-			ProviderIdContainer *providerIdContainer = 
+
+			ProviderIdContainer *providerIdContainer =
 				providerInfo.providerIdContainer.get();
 
 			if (providerInfo.hasNoQuery && providerIdContainer)
@@ -454,11 +454,11 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 				OperationContext *context = &request->operationContext;
 				const OperationContext::Container *container = 0;
 				container = &context->get(IdentityContainer::NAME);
-				const IdentityContainer &identityContainer = 
+				const IdentityContainer &identityContainer =
 					dynamic_cast<const IdentityContainer &>(*container);
 
-				CIMEnumerateInstancesRequestMessage *enumReq = new 
-					CIMEnumerateInstancesRequestMessage(request->messageId, 
+				CIMEnumerateInstancesRequestMessage *enumReq = new
+					CIMEnumerateInstancesRequestMessage(request->messageId,
 																							request->nameSpace,
 																							providerInfo.className,
 																							false,false,false,false,
@@ -466,7 +466,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 																							request->queueIds,
 																							request->authType,
 																							identityContainer.getUserName());
-				
+
 				context = &enumReq->operationContext;
 				context->insert(*providerIdContainer);
 				context->insert(identityContainer);
@@ -485,7 +485,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 																			providerInfo.controlProviderName,
 																			requestCopy.release(), poA);
 	    }
-			
+
 			STAT_PROVIDEREND
 
     } // for all classes and derived classes

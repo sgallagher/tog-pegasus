@@ -102,7 +102,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
                     tmval->tm_hour,
                     tmval->tm_min,
                     tmval->tm_sec,
-                    0,
+                    tv.tv_usec,
 #if defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 		    abs((int)utc_offset));
 

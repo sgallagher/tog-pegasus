@@ -20,7 +20,11 @@ else
   COMPARERESULTS = @$(ECHO) "Results not compared."
 endif
 
-TMP_DIR = .
+ifdef PEGASUS_TMP
+  TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
+else
+  TMP_DIR = .
+endif
 
 default:
 

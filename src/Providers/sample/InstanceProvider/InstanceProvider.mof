@@ -1,9 +1,9 @@
 [provider("SampleInstanceProvider")]
-class Sample_DummyInstance
+class Sample_InstanceProviderClass
 {
-   [key,
+	[key,
 	read]
-   Uint8 Identifier;
+	Uint8 Identifier;
 	
 	[read, write]
 	string Message;

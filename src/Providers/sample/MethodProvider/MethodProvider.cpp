@@ -26,108 +26,53 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "EverythingProvider.h"
+#include "MethodProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-EverythingProvider::EverythingProvider(void)
+MethodProvider::MethodProvider(void)
 {
 }
 
-EverythingProvider::~EverythingProvider(void)
+MethodProvider::~MethodProvider(void)
 {
 }
 
-void EverythingProvider::initialize(CIMOMHandle & cimom)
+void MethodProvider::initialize(CIMOMHandle & cimom)
 {
 }
 
-void EverythingProvider::terminate(void)
+void MethodProvider::terminate(void)
 {
 }
 
-void EverythingProvider::getInstance(
+void MethodProvider::invokeMethod(
 	const OperationContext & context,
-	const CIMReference & instanceReference,
-	const Uint32 flags,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	const CIMReference & objectReference,
+	const String & methodName,
+	const Array<CIMParamValue> & inParameters,
+	Array<CIMParamValue> & outParameters,
+	ResponseHandler<CIMValue> & handler)
 {
+	// convert a fully qualified reference into a local reference
+	// (class name and keys only).
+	CIMReference localReference = CIMReference(
+		String(),
+		String(),
+		objectReference.getClassName(),
+		objectReference.getKeyBindings());
+
 	handler.processing();
 
-	CIMReference localReference(instanceReference);
-
-	localReference.setHost(String::EMPTY);
-	localReference.setNameSpace(String::EMPTY);
-
-	if(localReference == CIMReference("Sample_KitchenSink.Id=1"))
+	if(objectReference == CIMReference("Sample_MethodProviderClass"))
 	{
-		CIMInstance instance("sample_kitchensink");
-
-		instance.addProperty(CIMProperty("Id", CIMValue(1)));
-
-		handler.deliver(instance);
+		if(String::equalNoCase(methodName, "SayHello")
+		{
+			handler.deliver(CIMValue("Hello"));
+		}
 	}
-
-	handler.complete();
-}
-
-void EverythingProvider::enumerateInstances(
-	const OperationContext & context,
-	const CIMReference & ref,
-	const Uint32 flags,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
-{
-	handler.processing();
-
-	CIMInstance instance("sample_kitchensink");
-
-	instance.addProperty(CIMProperty("Id", CIMValue(1)));
-
-	handler.deliver(instance);
 	
 	handler.complete();
-}
-
-void EverythingProvider::enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMReference & classReference,
-	ResponseHandler<CIMReference> & handler)
-{
-	handler.processing();
-
-	handler.deliver(CIMReference("Sample_KitchenSink.Id=1"));
-	
-	handler.complete();
-}
-
-void EverythingProvider::modifyInstance(
-	const OperationContext & context,
-	const CIMReference & instanceReference,
-	const CIMInstance & instanceObject,
-	const Uint32 flags,
-	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
-{
-	throw NotImplemented("EverythingProvider::modifyInstance");
-}
-
-void EverythingProvider::createInstance(
-	const OperationContext & context,
-	const CIMReference & instanceReference,
-	const CIMInstance & instanceObject,
-	ResponseHandler<CIMReference> & handler)
-{
-	throw NotImplemented("EverythingProvider::createInstance");
-}
-
-void EverythingProvider::deleteInstance(
-	const OperationContext & context,
-	const CIMReference & instanceReference,
-	ResponseHandler<CIMInstance> & handler)
-{
-	throw NotImplemented("EverythingProvider::deleteInstance");
 }
 
 PEGASUS_NAMESPACE_END

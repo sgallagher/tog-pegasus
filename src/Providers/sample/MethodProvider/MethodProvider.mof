@@ -1,10 +1,6 @@
-[provider("SampleInstanceProvider")]
-class Sample_DummyInstance
+[provider("SampleMethodProvider")]
+class Sample_MethodProviderClass
 {
-   [key,
-	read]
-   Uint8 Identifier;
-	
-	[read, write]
-	string Message;
+	[implemented]
+	static string SayHello();
 };

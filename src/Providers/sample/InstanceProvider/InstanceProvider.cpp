@@ -41,27 +41,27 @@ InstanceProvider::~InstanceProvider(void)
 void InstanceProvider::initialize(CIMOMHandle & cimom)
 {
 	// create default instances
-	CIMInstance instance1("Sample_DummyInstance");
-	CIMReference reference1("Sample_DummyInstance.Identifier=1");
+	CIMInstance instance1("Sample_InstanceProviderClass");
+	CIMReference reference1("Sample_InstanceProviderInstance.Identifier=1");
 
 	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
 	instance1.addProperty(CIMProperty("Message", String("Hello World")));
 
 	_instances.append(Pair<CIMReference, CIMInstance>(reference1, instance1));
 
-	CIMInstance instance2("Sample_DummyInstance");
-	CIMReference reference2("Sample_DummyInstance.Identifier=2");
+	CIMInstance instance2("Sample_InstanceProviderClass");
+	CIMReference reference2("Sample_InstanceProviderClass.Identifier=2");
 
 	instance2.addProperty(CIMProperty("Identifier", Uint8(2)));   // key
-	instance2.addProperty(CIMProperty("Message", String("Hey Planet")));
+	instance2.addProperty(CIMProperty("Message", String("Yo Planet")));
 
 	_instances.append(Pair<CIMReference, CIMInstance>(reference2, instance2));
 
-	CIMInstance instance3("Sample_DummyInstance");
-	CIMReference reference3("Sample_DummyInstance.Identifier=3");
+	CIMInstance instance3("Sample_InstanceProviderClass");
+	CIMReference reference3("Sample_InstanceProviderClass.Identifier=3");
 
 	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
-	instance3.addProperty(CIMProperty("Message", String("Yo Earth")));
+	instance3.addProperty(CIMProperty("Message", String("Hey Earth")));
 
 	_instances.append(Pair<CIMReference, CIMInstance>(reference1, instance3));
 }
@@ -77,14 +77,16 @@ void InstanceProvider::getInstance(
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
+	// convert a potential fully qualified reference into a local reference
+	// (class name and keys only).
+	CIMReference localReference = CIMReference(
+		String(),
+		String(),
+		instanceReference.getClassName(),
+		instanceReference.getKeyBindings());
+
 	// begin processing the request
 	handler.processing();
-
-	// only compare class name and keys
-	CIMReference localReference(instanceReference);
-
-	localReference.setHost(String::EMPTY);
-	localReference.setNameSpace(String::EMPTY);
 
 	// instance index corresponds to reference index
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
@@ -104,7 +106,7 @@ void InstanceProvider::getInstance(
 
 void InstanceProvider::enumerateInstances(
 	const OperationContext & context,
-	const CIMReference & ref,
+	const CIMReference & classReference,
 	const Uint32 flags,
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
@@ -114,7 +116,7 @@ void InstanceProvider::enumerateInstances(
 
 	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
 	{
-		// deliver named instance
+		// deliver instance
 		handler.deliver(_instances[i].second);
 	}
 
@@ -148,7 +150,31 @@ void InstanceProvider::modifyInstance(
 	const Array<String> & propertyList,
 	ResponseHandler<CIMInstance> & handler)
 {
-	throw NotImplemented("InstanceProvider::modifyInstance");
+	// convert a potential fully qualified reference into a local reference
+	// (class name and keys only).
+	CIMReference localReference = CIMReference(
+		String(),
+		String(),
+		instanceReference.getClassName(),
+		instanceReference.getKeyBindings());
+	
+	// begin processing the request
+	handler.processing();
+
+	// instance index corresponds to reference index
+	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+	{
+		if(localReference == _instances[i].first)
+		{
+			// deliver requested instance
+			handler.deliver(_instances[i].second);
+
+			break;
+		}
+	}
+	
+	// complete processing the request
+	handler.complete();
 }
 
 void InstanceProvider::createInstance(
@@ -157,7 +183,34 @@ void InstanceProvider::createInstance(
 	const CIMInstance & instanceObject,
 	ResponseHandler<CIMReference> & handler)
 {
-	throw NotImplemented("InstanceProvider::createInstance");
+	// convert a potential fully qualified reference into a local reference
+	// (class name and keys only).
+	CIMReference localReference = CIMReference(
+		String(),
+		String(),
+		instanceReference.getClassName(),
+		instanceReference.getKeyBindings());
+	
+	// instance index corresponds to reference index
+	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+	{
+		if(localReference == _instances[i].first)
+		{
+			throw AlreadyExists();
+		}
+	}
+			
+	// begin processing the request
+	handler.processing();
+
+	// add the new instance to the array
+	_instances.append(Pair<CIMReference, CIMInstance>(instanceReference, instanceObject));
+
+	// deliver the new instance
+	handler.deliver(_instances[_instances.size() - 1].first);
+
+	// complete processing the request
+	handler.complete();
 }
 
 void InstanceProvider::deleteInstance(
@@ -165,7 +218,38 @@ void InstanceProvider::deleteInstance(
 	const CIMReference & instanceReference,
 	ResponseHandler<CIMInstance> & handler)
 {
-	throw NotImplemented("InstanceProvider::deleteInstance");
+	// convert a potential fully qualified reference into a local reference
+	// (class name and keys only).
+	CIMReference localReference = CIMReference(
+		String(),
+		String(),
+		instanceReference.getClassName(),
+		instanceReference.getKeyBindings());
+	
+	// begin processing the request
+	handler.processing();
+
+	// instance index corresponds to reference index
+	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+	{
+		if(localReference == _instances[i].first)
+		{
+			// save the instance locally
+			CIMInstance cimInstance(_instances[i].second);
+
+			// remove instance from the array
+			_instances.remove(i);	
+
+			// deliver deleted instance
+			handler.deliver(cimInstance);
+
+			// exit loop
+			break;
+		}
+	}
+	
+	// complete processing the request
+	handler.complete();
 }
 
 PEGASUS_NAMESPACE_END

@@ -59,6 +59,7 @@ public:
 		ResponseHandler<CIMValue> & handler);
 
 protected:
+	Array<Pair<CIMReference, CIMProperty> > _properties;
 
 };
 

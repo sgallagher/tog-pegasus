@@ -40,6 +40,15 @@ PropertyProvider::~PropertyProvider(void)
 
 void PropertyProvider::initialize(CIMOMHandle & cimom)
 {
+	CIMReference reference1("Sample_PropertyProviderClass.Identifier=1");
+	CIMProperty property1("Message", CIMValue("Hello World"));
+	
+	_properties.append(Pair<CIMReference, CIMProperty>(reference1, property1));
+	
+	CIMReference reference2("Sample_PropertyProviderClass.Identifier=2");
+	CIMProperty property2("Message", CIMValue("Yo Planet"));
+	
+	_properties.append(Pair<CIMReference, CIMProperty>(reference1, property1));
 }
 
 void PropertyProvider::terminate(void)
@@ -52,7 +61,31 @@ void PropertyProvider::getProperty(
 	const String & propertyName,
 	ResponseHandler<CIMValue> & handler)
 {
-	throw NotSupported("PropertyProvider::getProperty");
+	// convert a potential fully qualified reference into a local reference
+	// (class name and keys only).
+	CIMReference localReference = CIMReference(
+		String(),
+		String(),
+		instanceReference.getClassName(),
+		instanceReference.getKeyBindings());
+
+	// begin processing the request
+	handler.processing();
+	
+	for(Uint32 i = 0, n = _properties.size(); i < n; i++)
+	{
+		if(localReference == _properties[i].first)
+		{
+			// deliver the property value associated with the specified instance
+			handler.deliver(_properties[i].second.getValue());
+
+			// exit loop
+			break;
+		}
+	}
+
+	// complete processing the request
+	handler.complete();
 }
 
 void PropertyProvider::setProperty(
@@ -62,7 +95,34 @@ void PropertyProvider::setProperty(
 	const CIMValue & newValue,
 	ResponseHandler<CIMValue> & handler)
 {
-	throw NotSupported("PropertyProvider::getProperty");
+	// convert a potential fully qualified reference into a local reference
+	// (class name and keys only).
+	CIMReference localReference = CIMReference(
+		String(),
+		String(),
+		instanceReference.getClassName(),
+		instanceReference.getKeyBindings());
+
+	// begin processing the request
+	handler.processing();
+	
+	for(Uint32 i = 0, n = _properties.size(); i < n; i++)
+	{
+		if(localReference == _properties[i].first)
+		{
+			// update the property value associated with the specified instance
+			_properties[i].second.setValue(newValue);
+
+			// deliver the property value associated with the specified instance
+			handler.deliver(_properties[i].second.getValue());
+
+			// exit loop
+			break;
+		}
+	}
+
+	// complete processing the request
+	handler.complete();
 }
 
 PEGASUS_NAMESPACE_END

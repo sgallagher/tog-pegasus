@@ -23,21 +23,25 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ConfigFileDir_h
-#define Pegasus_ConfigFileDir_h
+#ifdef PEGASUS_USE_RELEASE_DIRS
+/**
+    Default file name for the current configuration.
+*/
+static char CURRENT_CONFIG_FILE [] = "/opt/freeware/pegasus/cimserver_current.conf";
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "ConfigFileDirLinux.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "ConfigFileDirHpux.h"
-#elif PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include "ConfigFileDirZos.h"
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-#include "ConfigFileDirAix.h"
+/**
+    Default file name for the planned configuration.
+*/
+static char PLANNED_CONFIG_FILE [] = "/opt/freeware/pegasus/cimserver_planned.conf";
+
+/**
+    Default file name for the cimserver startup file containing the PID.
+*/
+static char CIMSERVER_START_FILE [] = "/var/pegasus/cimserver_start.conf";
 #else
 /**
     Default file name for the current configuration.
@@ -49,6 +53,8 @@ static char CURRENT_CONFIG_FILE [] = "cimserver_current.conf";
 */
 static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
 
+/**
+    Default file name for the cimserver startup file containing the PID.
+*/
+static char CIMSERVER_START_FILE [] = "/tmp/cimserver_start.conf";
 #endif
-
-#endif /* Pegasus_ConfigFileDir_h */

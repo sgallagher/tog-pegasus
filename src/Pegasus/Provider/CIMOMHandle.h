@@ -93,11 +93,11 @@ public:
     CIMOMHandle(MessageQueueService * service);
 
     /** */
-    virtual ~CIMOMHandle(void);
+    ~CIMOMHandle(void);
 
     CIMOMHandle & operator=(const CIMOMHandle & handle);
 
-    virtual CIMClass getClass(
+    CIMClass getClass(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
@@ -106,7 +106,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual Array<CIMClass> enumerateClasses(
+    Array<CIMClass> enumerateClasses(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
@@ -115,28 +115,28 @@ public:
         Boolean includeQualifiers,
         Boolean includeClassOrigin);
 
-    virtual Array<CIMName> enumerateClassNames(
+    Array<CIMName> enumerateClassNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance);
 
-    virtual void createClass(
+    void createClass(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass);
 
-    virtual void modifyClass(
+    void modifyClass(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass);
 
-    virtual void deleteClass(
+    void deleteClass(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    virtual CIMInstance getInstance(
+    CIMInstance getInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
@@ -145,7 +145,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual Array<CIMInstance> enumerateInstances(
+    Array<CIMInstance> enumerateInstances(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
@@ -155,35 +155,35 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual Array<CIMObjectPath> enumerateInstanceNames(
+    Array<CIMObjectPath> enumerateInstanceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    virtual CIMObjectPath createInstance(
+    CIMObjectPath createInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance);
 
-    virtual void modifyInstance(
+    void modifyInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers,
         const CIMPropertyList& propertyList);
 
-    virtual void deleteInstance(
+    void deleteInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
 
-    virtual Array<CIMInstance> execQuery(
+    Array<CIMInstance> execQuery(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query);
 
-    virtual Array<CIMObject> associators(
+    Array<CIMObject> associators(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -195,7 +195,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual Array<CIMObjectPath> associatorNames(
+    Array<CIMObjectPath> associatorNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -204,7 +204,7 @@ public:
         const String& role,
         const String& resultRole);
 
-    virtual Array<CIMObject> references(
+    Array<CIMObject> references(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -214,7 +214,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    virtual Array<CIMObjectPath> referenceNames(
+    Array<CIMObjectPath> referenceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -222,13 +222,13 @@ public:
         const String& role);
 
     // property operations
-    virtual CIMValue getProperty(
+    CIMValue getProperty(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName);
 
-    virtual void setProperty(
+    void setProperty(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
@@ -236,7 +236,7 @@ public:
         const CIMValue& newValue);
 
     /*
-    virtual CIMValue invokeMethod(
+    CIMValue invokeMethod(
     const OperationContext & context,
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,

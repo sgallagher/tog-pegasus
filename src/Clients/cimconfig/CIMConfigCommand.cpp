@@ -488,48 +488,48 @@ CIMConfigCommand::CIMConfigCommand ()
     
     usage.append(COMMAND_NAME);
 #ifdef PEGASUS_OS_OS400
-    usage.append(" [ -").append(OPTION_GET).append(" name");
+    usage.append(" -").append(OPTION_GET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
     usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 
-    usage.append("                 [ -").append(OPTION_SET).append(" name=value");
+    usage.append("                 -").append(OPTION_SET).append(" name=value");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 
-    usage.append("                 [ -").append(OPTION_UNSET).append(" name");
+    usage.append("                 -").append(OPTION_UNSET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
-    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ] ]\n");
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 
-    usage.append("                 [ -").append(OPTION_LIST);
+    usage.append("                 -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
+    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 #else  
-    usage.append(" [ -").append(OPTION_GET).append(" name");
+    usage.append(" -").append(OPTION_GET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
     usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 
-    usage.append("                 [ -").append(OPTION_SET).append(" name=value");
+    usage.append("                 -").append(OPTION_SET).append(" name=value");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 
-    usage.append("                 [ -").append(OPTION_UNSET).append(" name");
+    usage.append("                 -").append(OPTION_UNSET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 
-    usage.append("                 [ -").append(OPTION_LIST);
+    usage.append("                 -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ] ]\n");
+    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 #endif
 
-    usage.append("                 [ -").append(OPTION_HELP).append(" ] [ --")
-         .append(LONG_HELP).append(" ] ");
 
-    usage.append("[ --").append(LONG_VERSION).append(" ] \n");
+    usage.append("                 -").append(OPTION_HELP).append("\n");
+    usage.append("                 --").append(LONG_HELP).append("\n");
+    usage.append("                 --").append(LONG_VERSION).append("\n");
 
     usage.append("Options : \n");
     usage.append("    -c         - Use current configuration\n");

@@ -63,7 +63,7 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual ~MessageQueueService(void);
       
       virtual void handleEnqueue();
-      virtual Boolean accept_async(Message *message) throw(IPCException);
+//      virtual Boolean accept_async(Message *message) throw(IPCException);
       virtual Message *openEnvelope(Message *msg);
       
       void SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage>& reply_list);

@@ -73,6 +73,7 @@ Message *MessageQueueService::openEnvelope(Message *msg)
       AsyncOpNode *op = (static_cast<AsyncMessage *>(msg))->op;
       if(op == 0 )
 	 throw NullPointer();
+      // ATTN
       // start pulling the last message
       // when we reach the envelope return null
 

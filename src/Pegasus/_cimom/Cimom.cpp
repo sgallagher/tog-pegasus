@@ -313,8 +313,9 @@ void cimom::handleEnqueue(void)
        else 
        {
 	  // ATTN: this code offers the message to each registered module and 
-	  // breaks when one module accepts the message. In the future we will 
-	  // use this code to broadcast or share messages among modules. 
+	  // breaks out of the loop when one module accepts the message. In the 
+	  // future we will use this code to broadcast or share messages among 
+	  // modules. 
 	  message_module *module;
 	  // offer this request to each module 
 	  _modules.lock();

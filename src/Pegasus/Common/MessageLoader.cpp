@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -26,11 +26,11 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-// 
+//
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By:
-// 
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/MessageLoader.h>
@@ -41,7 +41,7 @@
 #ifdef PEGASUS_OS_OS400
 #include "OS400ConvertChar.h"
 #endif
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 static const int ID_INVALID = -1;
@@ -56,13 +56,13 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		try{
 		String msg;
 		parms.contentlanguages.clear();
-		
+
 		// if message loading is DISABLED return the default message
 #ifndef PEGASUS_HAS_MESSAGES
 			PEG_METHOD_EXIT();
 			return formatDefaultMessage(parms);
 #else
-		
+
 #ifdef PEGASUS_HAS_ICU
 			//cout << "PEGASUS_HAS_ICU" << endl;
 			msg = loadICUMessage(parms);
@@ -80,29 +80,29 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			//cout << "PEGASUS_HAS_ICU is NOT defined, using default message" << endl;
 			PEG_METHOD_EXIT();
 			return formatDefaultMessage(parms);
-#endif	
-#endif	
+#endif
+#endif
 		}catch(Exception&){
 			PEG_METHOD_EXIT();
-			return String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(parms.default_msg);	
+			return String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(parms.default_msg);
 		}
 	}
-	
+
 #ifdef PEGASUS_HAS_ICU
-	  
+
 	String MessageLoader::loadICUMessage(MessageLoaderParms &parms){
-		
+
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::loadICUMessage");
 		String msg;
 		UResourceBundle* resbundl;
 		UErrorCode status = U_ZERO_ERROR;
-		//String resbundl_path_ICU; 
+		//String resbundl_path_ICU;
 		CString resbundl_path_ICU;
-		
+
 		// the static AcceptLangauges takes precedence over what parms.acceptlangauges has
 		AcceptLanguages acceptlanguages;
 		acceptlanguages = (_acceptlanguages.size() > 0) ? _acceptlanguages : parms.acceptlanguages;
-		
+
 		// get the correct path to the resource bundles
 		resbundl_path_ICU = getQualifiedMsgPath(parms.msg_src_path).getCString();
 
@@ -111,7 +111,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		if (_useDefaultMsg)
 		{
 			PEG_METHOD_EXIT();
-			return formatDefaultMessage(parms);	 
+			return formatDefaultMessage(parms);
 		}
 
 		//cout << "USING PACKAGE PATH: " << endl;
@@ -122,13 +122,13 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		const char *atoe = resbundl_path_ICU;
 		AtoE((char*)atoe);
 #endif
-			
-		
-		
+
+
+
 		if(_useProcessLocale || (acceptlanguages.size() == 0 && parms.useProcessLocale)){ // use the system default resource bundle
-		        
-			resbundl = ures_open((const char*)resbundl_path_ICU, uloc_getDefault() , &status); 
-			
+
+			resbundl = ures_open((const char*)resbundl_path_ICU, uloc_getDefault() , &status);
+
 			if(U_SUCCESS(status)) {
 				//cout << "PROCESS_LOCALE: opened resource bundle" << endl;
 				UErrorCode _status = U_ZERO_ERROR;
@@ -136,7 +136,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale:");
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, ures_getLocale(resbundl, &_status));
 				if(status == U_USING_FALLBACK_WARNING || status == U_USING_DEFAULT_WARNING){
-					//cout << "PROCESS_LOCALE: using fallback or default" << endl;	
+					//cout << "PROCESS_LOCALE: using fallback or default" << endl;
 					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale fallback or default");
 				}
     			msg = extractICUMessage(resbundl,parms);
@@ -149,7 +149,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			   cl_str = etoa;
 #endif
     			parms.contentlanguages.append(ContentLanguageElement(cl_str));
-    			ures_close(resbundl); 
+    			ures_close(resbundl);
 			} else {
 				//cout << "PROCESS_LOCALE: could not open resouce, formatting default message" << endl;
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using process locale.  Could not open resource, formatting default message.");
@@ -159,20 +159,20 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			return msg;
 		} else if (acceptlanguages.size() == 0 && parms.useThreadLocale){ // get AcceptLanguages from the current Thread
 			AcceptLanguages *al = Thread::getLanguages();
-			if(al != NULL){			
+			if(al != NULL){
 				acceptlanguages = *al;
-				//cout << "THREAD_LOCALE: got acceptlanguages from thread" << endl;	
+				//cout << "THREAD_LOCALE: got acceptlanguages from thread" << endl;
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: got AcceptLanguages from thread.");
-			}else { 
+			}else {
 				//cout << "THREAD_LOCALE: thread returned NULL for acceptlanguages" << endl;
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: thread returned NULL for AcceptLanguages.");
-			 }		
+			 }
 		}
-				
+
 		const int size_locale_ICU = 50;
 		char locale_ICU[size_locale_ICU];
 		AcceptLanguageElement language_element = AcceptLanguageElement::EMPTY;
-		
+
 		// iterate through AcceptLanguages, use the first resource bundle match
 		acceptlanguages.itrStart();
 		//cout << "LOOPING THROUGH ACCEPTLANGUAGES..." << endl;
@@ -187,11 +187,11 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 #else
 			uloc_getName((const char*)(language_element.getTag()).getCString(), locale_ICU, size_locale_ICU, &status);
 #endif
-			//cout << "locale_ICU = " << locale_ICU << endl;	
+			//cout << "locale_ICU = " << locale_ICU << endl;
 			// TODO: check to see if we have previously cached the resource bundle
-			
+
 			resbundl = ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
-			
+
 			if(U_SUCCESS(status)) {
 				//cout << "ACCEPTLANGUAGES LOOP: opened resource bundle with " << language_element.getTag() << endl;
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "ACCEPTLANGUAGES LOOP: opened resource bundle with:");
@@ -230,20 +230,20 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 						parms.contentlanguages.append(ContentLanguageElement(cl_str));
 						ures_close(resbundl);
 						break;
-					}	
+					}
 				}
-				else{  // we found an exact resource bundle match, extract, and set ContentLanguage 
+				else{  // we found an exact resource bundle match, extract, and set ContentLanguage
 					//cout << "ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH" << endl;
 					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH:");
 					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,language_element.getTag());
 					msg = extractICUMessage(resbundl,parms);
-					parms.contentlanguages.append(ContentLanguageElement(language_element.getTag()));	
-    				ures_close(resbundl); 
+					parms.contentlanguages.append(ContentLanguageElement(language_element.getTag()));
+    				ures_close(resbundl);
     				break;
-				}	
+				}
 			} else { // possible errors, ex: message path incorrect
     			// for now do nothing, let the while loop continue
-    			//cout << "ACCEPTLANGUAGES LOOP: could NOT open a resource for: " << language_element.getTag() << endl;			 	   	
+    			//cout << "ACCEPTLANGUAGES LOOP: could NOT open a resource for: " << language_element.getTag() << endl;
 			}
 			status = U_ZERO_ERROR;  // reset status
 		}
@@ -300,7 +300,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		if(msg.size() == 0){ 			// else if no message, load message from root bundle explicitly
 			//cout << "EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message" << endl;
 			PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message");
-			status = U_ZERO_ERROR;	
+			status = U_ZERO_ERROR;
 			resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
 			if(U_SUCCESS(status)){
 				//cout << "EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle" << endl;
@@ -308,18 +308,18 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				msg = extractICUMessage(resbundl,parms);
 				//parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
             ures_close(resbundl);
-			}else { 
-				//cout << "EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle" << endl; 
+			}else {
+				//cout << "EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle" << endl;
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle");
 			}
 
 		}
 		PEG_METHOD_EXIT();
-		return msg; 
+		return msg;
 	}
-	
+
 	String MessageLoader::extractICUMessage(UResourceBundle * resbundl, MessageLoaderParms &parms){
-		UErrorCode status = U_ZERO_ERROR;	
+		UErrorCode status = U_ZERO_ERROR;
 		int32_t msgLen = 0;
 
 #ifdef PEGASUS_OS_OS400
@@ -330,29 +330,29 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 #else
 		const UChar *msg = ures_getStringByKey(resbundl, (const char*)parms.msg_id.getCString(), &msgLen, &status);
 #endif
-   		if(U_FAILURE(status)) {	
+   		if(U_FAILURE(status)) {
 	  		//cout << "could not extract ICU Message" << endl;
 	  		return String::EMPTY;
-		}		
+		}
 
 		return formatICUMessage(resbundl, msg, msgLen, parms);
 	}
-	
+
 	String MessageLoader::uChar2String(UChar * uchar_str){
 		return String((const Char16 *)uchar_str);
-	} 
-	
+	}
+
 	String MessageLoader::uChar2String(UChar * uchar_str, int len){
 		return String((const Char16 *)uchar_str, len);
 	}
-	
+
 	UChar* MessageLoader::string2UChar(String s){
 		return (UChar*)((uint16_t *)s.getChar16Data());
 	}
-	
-	
+
+
 	String MessageLoader::formatICUMessage(UResourceBundle * resbundl, const UChar * msg, int msg_len, MessageLoaderParms &parms){
-		
+
 		// format the message
 		UnicodeString msg_pattern(msg, msg_len);
 		UnicodeString msg_formatted;
@@ -363,17 +363,17 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			 locale = ULOC_US;
 		else
 			 locale = const_cast<char *>(ures_getLocale(resbundl, &status));
-		
+
 		//cout << "FORMAT ICU MESSAGE: using locale = " << locale << endl;
-		
-		char lang[4]; 
+
+		char lang[4];
 		char cc[4];
 		char var[arg_count];
 		uloc_getLanguage(locale, lang, 4, &status);
 		uloc_getCountry(locale, cc, 4, &status);
 		uloc_getVariant(locale, var, 10, &status);
 		Locale localeID(lang,cc,var);
-		
+
 		status = U_ZERO_ERROR;
 		MessageFormat formatter(msg_pattern, localeID, status);
 
@@ -403,10 +403,10 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		Formattable args_obj(args,arg_count);
 		status = U_ZERO_ERROR;
 		msg_formatted = formatter.format(args_obj, msg_formatted, status);
-       	
+
 		return uChar2String(const_cast<UChar *>(msg_formatted.getBuffer()), msg_formatted.length());
-	} 
-	
+	}
+
 	void MessageLoader::xferFormattable(Formatter::Arg& arg, Formattable &formattable)
    {
 			//cout << "arg" << " = " << arg.toString() << endl;
@@ -416,26 +416,26 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				case Formatter::Arg::UINTEGER:  formattable = (int32_t)arg._uinteger;break;
 				case Formatter::Arg::BOOLEAN:   formattable = (int32_t)arg._boolean;break;
 				case Formatter::Arg::REAL:      formattable = (float)arg._real;break;
-				case Formatter::Arg::LINTEGER:  formattable = (double)arg._lInteger;break;
-				case Formatter::Arg::ULINTEGER: formattable = (double)arg._lUInteger;break;
+				case Formatter::Arg::LINTEGER:  formattable = (Sint32)arg._lInteger;break;
+				case Formatter::Arg::ULINTEGER: formattable = (Sint32)arg._lUInteger;break;
 				case Formatter::Arg::STRING:    formattable = Formattable(string2UChar(arg._string));break;
-	    		case Formatter::Arg::VOIDT: 
-            default:  
+	    		case Formatter::Arg::VOIDT:
+            default:
               formattable = "";
               break;
-			}	
+			}
    }
 
 
 #endif
-	
+
 	String MessageLoader::formatDefaultMessage(MessageLoaderParms &parms){
-	
+
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::formatDefaultMessage");
 		// NOTE TO PROGRAMMERS: using native substitution functions
 		// ie. calling Formatter::format()
-		// can result in incorrect locale handling of substitutions	
-		
+		// can result in incorrect locale handling of substitutions
+
 		// locale INSENSITIVE formatting code
 		//cout << "using locale INSENSITIVE formatting" << endl;
 		parms.contentlanguages.clear(); // this could have previously been set by ICU
@@ -445,7 +445,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		return Formatter::format(parms.default_msg,
 		 						 	parms.arg0,
 								 	parms.arg1,
-								 	parms.arg2, 
+								 	parms.arg2,
 								 	parms.arg3,
 								 	parms.arg4,
 								 	parms.arg5,
@@ -453,34 +453,34 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 								 	parms.arg7,
 								 	parms.arg8,
 								 	parms.arg9);
-								 
+
 
 	}
-	
+
 	String MessageLoader::getQualifiedMsgPath(String path){
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getQualifiedMsgPath");
-		
+
 		if(pegasus_MSG_HOME.size() == 0)
 				initPegasusMsgHome();
-		
-		if(path.size() == 0)	 
+
+		if(path.size() == 0)
 		{
 			PEG_METHOD_EXIT();
 			return pegasus_MSG_HOME + server_resbundl_name;
 		}
-		
+
 		Char16 delim = '/'; // NOTE TO PROGRAMMERS: WINDOWS and non-UNIX platforms should redefine delim here
 		Uint32 i;
 		if(( i = path.find(delim)) != PEG_NOT_FOUND && i == 0){ //  fully qualified package name
 			PEG_METHOD_EXIT();
 			return path;
 		}
-		
+
 		PEG_METHOD_EXIT();
 		return pegasus_MSG_HOME	+ path;  // relative path and package name
 
 	}
-	
+
 	void MessageLoader::setPegasusMsgHome(String home){
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::setPegasusMsgHome");
 			//cout << "MessageLoader::setPegasusMsgHome()" << endl;
@@ -488,7 +488,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			// TODO: remove the next call once test cases are compatible with ICU messages
 			checkDefaultMsgLoading();
 		PEG_METHOD_EXIT();
-	} 
+	}
 	void MessageLoader::initPegasusMsgHome(){
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #pragma convert(37)
@@ -525,11 +525,11 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		else
 		{
 			// Will use current working directory
-		}	
-#endif 
+		}
+#endif
 		checkDefaultMsgLoading();
 	}
-	
+
 	void MessageLoader::checkDefaultMsgLoading(){
 	  // Note: this function is a special hook for the automated tests (poststarttests)
 	  // Since the automated tests expect the old hardcoded default messages, an env var
@@ -541,29 +541,29 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 #endif
 	  const char* env = getenv("PEGASUS_USE_DEFAULT_MESSAGES");
 #ifdef PEGASUS_OS_OS400
-#pragma convert(0) 
-#endif 
+#pragma convert(0)
+#endif
 	  if (env != NULL)
-	    _useDefaultMsg = true;	
+	    _useDefaultMsg = true;
 	}
 
 MessageLoaderParms::MessageLoaderParms()
 {
 	useProcessLocale = false;
 	useThreadLocale = true;
-	
+
 #ifdef PEGASUS_HAS_ICU
 	useICUfallback = false;
 #endif
-	
+
 	acceptlanguages = AcceptLanguages();
 	contentlanguages = ContentLanguages();
 }
 
-MessageLoaderParms::MessageLoaderParms( 
-    const String& id, 
-    const String& msg, 
-    const Formatter::Arg& arg0, 
+MessageLoaderParms::MessageLoaderParms(
+    const String& id,
+    const String& msg,
+    const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
     const Formatter::Arg& arg2,
     const Formatter::Arg& arg3,
@@ -587,10 +587,10 @@ MessageLoaderParms::MessageLoaderParms(
     this->arg7 = arg7;
     this->arg8 = arg8;
     this->arg9 = arg9;
-}	
+}
 
-MessageLoaderParms::MessageLoaderParms( 
-    const String& id, 
+MessageLoaderParms::MessageLoaderParms(
+    const String& id,
     const String& msg)
 {
     msg_id = id;
@@ -598,9 +598,9 @@ MessageLoaderParms::MessageLoaderParms(
     _init();
 }
 
-MessageLoaderParms::MessageLoaderParms( 
-    const String& id, 
-    const String& msg, 
+MessageLoaderParms::MessageLoaderParms(
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0)
 {
     msg_id = id;
@@ -609,9 +609,9 @@ MessageLoaderParms::MessageLoaderParms(
     this->arg0 = arg0;
 }
 
-MessageLoaderParms::MessageLoaderParms( 
-    const String& id, 
-    const String& msg, 
+MessageLoaderParms::MessageLoaderParms(
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1)
 {
@@ -622,9 +622,9 @@ MessageLoaderParms::MessageLoaderParms(
     this->arg1 = arg1;
 }
 
-MessageLoaderParms::MessageLoaderParms( 
-    const String& id, 
-    const String& msg, 
+MessageLoaderParms::MessageLoaderParms(
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
     const Formatter::Arg& arg2)
@@ -637,9 +637,9 @@ MessageLoaderParms::MessageLoaderParms(
     this->arg2 = arg2;
 }
 
-MessageLoaderParms::MessageLoaderParms( 
-    const String& id, 
-    const String& msg, 
+MessageLoaderParms::MessageLoaderParms(
+    const String& id,
+    const String& msg,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
     const Formatter::Arg& arg2,
@@ -655,7 +655,7 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id, 
+    const char* id,
     const char* msg)
 {
     msg_id = id;
@@ -664,8 +664,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id, 
-    const char* msg, 
+    const char* id,
+    const char* msg,
     const String& arg0)
 {
     msg_id = id;
@@ -675,8 +675,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const char* id, 
-    const char* msg, 
+    const char* id,
+    const char* msg,
     const String& arg0,
     const String& arg1)
 {
@@ -691,11 +691,11 @@ void MessageLoaderParms::_init()
 {
     useProcessLocale = false;
     useThreadLocale = true;
-    
+
 #ifdef PEGASUS_HAS_ICU
     useICUfallback = false;
 #endif
-    
+
     acceptlanguages = AcceptLanguages::EMPTY;
     contentlanguages = ContentLanguages::EMPTY;
 
@@ -720,22 +720,22 @@ String MessageLoaderParms::toString()
 #ifdef PEGASUS_HAS_ICU
     ICUfallback = (useICUfallback) ? "true" : "false";
 #endif
-    
+
     s.append("msg_id = " + msg_id + "\n");
     s.append("default_msg = " + default_msg + "\n");
     s.append("msg_src_path = " + msg_src_path + "\n");
     s.append("acceptlanguages = " + acceptlanguages.toString() + "\n");
     s.append("contentlanguages = " + contentlanguages.toString() + "\n");
-    
+
     s.append("useProcessLocale = " + processLoc + "\n");
     s.append("useThreadLocale = " + threadLoc + "\n");
 #ifdef PEGASUS_HAS_ICU
     s.append("useICUfallback = " + ICUfallback + "\n");
 #endif
-    s.append("arg0 = " + arg0.toString() + "\n" + "arg1 = " + arg1.toString() + "\n" + "arg2 = " + arg2.toString() + "\n" + "arg3 = " + arg3.toString() + "\n" + 
-	      "arg4 = " + arg4.toString() + "\n" + "arg5 = " + arg5.toString() + "\n" + "arg6 = " + arg6.toString() + "\n" + "arg7 = " + arg7.toString() + "\n" + 
+    s.append("arg0 = " + arg0.toString() + "\n" + "arg1 = " + arg1.toString() + "\n" + "arg2 = " + arg2.toString() + "\n" + "arg3 = " + arg3.toString() + "\n" +
+	      "arg4 = " + arg4.toString() + "\n" + "arg5 = " + arg5.toString() + "\n" + "arg6 = " + arg6.toString() + "\n" + "arg7 = " + arg7.toString() + "\n" +
 	      "arg8 = " + arg8.toString() + "\n" + "arg9 = " + arg9.toString() + "\n\n");
-		  
+
     return s;
 }
 

@@ -757,7 +757,6 @@ String IndicationFormatter::_formatIndicationText(
     Uint32 comma;
     Uint32 leftBracket;
     Uint32 rightBracket;
-    Uint32 space;
 
     String arrayIndexStr;
 
@@ -1135,7 +1134,7 @@ String IndicationFormatter::_getArrayValues(
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, 
+		    sprintf(propertyValueBuffer,
 			    "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
 			    propertyValueUint64[i]);
 		    arrayValues.append(propertyValueBuffer);
@@ -1150,7 +1149,7 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, 
+	        sprintf(propertyValueBuffer,
 			"%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
 		        propertyValueUint64[arrayIndex]);
 	        arrayValues = propertyValueBuffer;
@@ -1269,7 +1268,7 @@ String IndicationFormatter::_getArrayValues(
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, 
+		    sprintf(propertyValueBuffer,
                             "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
                             propertyValueSint64[i]);
 		    arrayValues.append(propertyValueBuffer);
@@ -1284,7 +1283,7 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, 
+	        sprintf(propertyValueBuffer,
 			"%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
                         propertyValueSint64[arrayIndex]);
 	        arrayValues = propertyValueBuffer;
@@ -1703,7 +1702,7 @@ String IndicationFormatter::_localizeDateTime(
     // the number of milliSeconds from the epoch starting
     // (1 January 1970 0:00 UTC)
     UDate dateTimeValueInMilliSecs =
-       (dateTimeValueInMicroSecs - dt.toMicroSeconds())/1000;
+       (Sint64)(dateTimeValueInMicroSecs - dt.toMicroSeconds())/1000;
 
     // Create a formatter for DATE and TIME with medium length
     // such as Jan 12, 1952 3:30:32pm
@@ -1713,12 +1712,12 @@ String IndicationFormatter::_localizeDateTime(
     {
         if (locale == 0)
         {
-            fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM, 
+            fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM,
                                                      DateFormat::MEDIUM);
         }
         else
         {
-            fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM, 
+            fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM,
                                                      DateFormat::MEDIUM,
                                                      locale);
         }
@@ -1731,7 +1730,7 @@ String IndicationFormatter::_localizeDateTime(
     }
     catch(...)
     {
-        PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4, 
+        PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
         "Caught General Exception During DateFormat::createDateTimeInstance");
 
         PEG_METHOD_EXIT();

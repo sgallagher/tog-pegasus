@@ -1941,13 +1941,34 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
 
             normalizedInstances.append(normalizedInstance);
         }
+        catch(CIMException & e)
+        {
+            // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
+            // Reporting this error to the provider would be ideal, but what can be done at this point?
+
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0 ($1: $2)",
+                toResponse->cimNamedInstances[i].getPath().toString(),
+                cimStatusCodeToString(e.getCode()),
+                e.getMessage());
+        }
+        catch(Exception & e)
+        {
+            // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
+            // Reporting this error to the provider would be ideal, but what can be done at this point?
+
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0 ($1)",
+                toResponse->cimNamedInstances[i].getPath().toString(),
+                e.getMessage());
+        }
         catch(...)
         {
             // ATTN: individual responses that fail to normalize are simply logged and dropped at the moment.
             // Reporting this error to the provider would be ideal, but what can be done at this point?
 
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0",
+                "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0 (unknown error)",
                 toResponse->cimNamedInstances[i].getPath().toString());
         }
     }

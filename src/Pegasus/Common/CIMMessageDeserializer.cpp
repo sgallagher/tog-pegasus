@@ -755,9 +755,11 @@ void CIMMessageDeserializer::_deserializeCIMPropertyList(
 {
     const char* name;
     CIMValue genericValue;
+    Boolean emptyTag;
 
     propertyList.clear();
-    XmlReader::getIParamValueTag(parser, name);
+    XmlReader::getIParamValueTag(parser, name, emptyTag);
+    PEGASUS_ASSERT(!emptyTag);
     PEGASUS_ASSERT(System::strcasecmp(name, "PropertyList") == 0);
     if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, genericValue))
     {

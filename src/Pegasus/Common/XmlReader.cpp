@@ -3943,12 +3943,15 @@ Boolean XmlReader::getIMethodResponseStartTag(
 
 Boolean XmlReader::getIParamValueTag(
     XmlParser& parser, 
-    const char*& name)
+    const char*& name,
+    Boolean& isEmptyTag)
 {
     XmlEntry entry;
 
-    if (!testStartTag(parser, entry, "IPARAMVALUE"))
+    if (!testStartTagOrEmptyTag(parser, entry, "IPARAMVALUE"))
 	return false;
+
+    isEmptyTag = (entry.type == XmlEntry::EMPTY_TAG);
 
     // Get IPARAMVALUE.NAME attribute:
 
@@ -3966,6 +3969,26 @@ Boolean XmlReader::getIParamValueTag(
     }
 
     return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// rejectNullIParamValue()
+//
+//------------------------------------------------------------------------------
+
+void XmlReader::rejectNullIParamValue(
+    XmlParser& parser, 
+    Boolean isEmptyTag,
+    const char* paramName)
+{
+    if (isEmptyTag)
+    {
+        MessageLoaderParms mlParms("Common.XmlReader.INVALID_NULL_IPARAMVALUE",
+            "A null value is not valid for IPARAMVALUE \"$0\".",
+            paramName);
+        throw XmlValidationError(parser.getLine(), mlParms);
+    }
 }
 
 //------------------------------------------------------------------------------

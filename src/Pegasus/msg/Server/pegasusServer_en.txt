@@ -2836,6 +2836,14 @@ en:table {
         */
         Common.XmlReader.INVALID_VALUE_FOR_VALUE_ELEMENT:string {"PGS09668:  The VALUE element must be \"TRUE\" or \"FALSE\"."}
 
+        /**
+        * @note  PGS09669:  
+        *   Substitution {0} is a string containing a parameter name
+        *   Do not translate the word 'IPARAMVALUE' since it is a standard element name for CIM in XML 
+        * @version 2.4 
+        */
+        Common.XmlReader.INVALID_NULL_IPARAMVALUE:string {"PGS09669: A null value is not valid for IPARAMVALUE \"$0\"."
+
 
         // ==========================================================
         // Messages for src.Server.cimserver

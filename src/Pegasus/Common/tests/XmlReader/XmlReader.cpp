@@ -71,7 +71,7 @@ static void testGetErrorElement()
 }
 
 // Tests PROPERTY as an embedded object.
-static void testGetInstanceElement(char* testDataFile)
+static void testGetInstanceElement(const char* testDataFile)
 {
     //--------------------------------------------------------------------------
     // Read in instance
@@ -140,7 +140,7 @@ static void testGetInstanceElement(char* testDataFile)
 }
 
 // Tests PROPERTY.ARRAY as an embedded object with array type.
-static void testGetInstanceElement2(char* testDataFile)
+static void testGetInstanceElement2(const char* testDataFile)
 {
     CIMInstance cimInstance;
     Array<char> text;

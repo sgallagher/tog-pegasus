@@ -1854,7 +1854,7 @@ void RepositoryUpgrade::_logRequestToFile(
     Uint32  	                        contentLength = 0;
     Uint32    	                        contentOffset = 0;
     HTTPMessage* 			httpMessage;
-    Array <Sint8> 			data;
+    Array<char> 			data;
 
     startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     nowMilliseconds = startMilliseconds;
@@ -1872,7 +1872,7 @@ void RepositoryUpgrade::_logRequestToFile(
         if (response)
         {
             httpMessage = (HTTPMessage*)response;
-            data = (Array <Sint8>&) httpMessage->message;
+            data = httpMessage->message;
             httpMessage->parse( startLine, headers, contentLength );
 
             if( contentLength > 0 )
@@ -1892,8 +1892,8 @@ void RepositoryUpgrade::_logRequestToFile(
                 //
                 //  Print XML response to the ostream
                 //
-                ((Array <Sint8>&) data).append ('\0');
-                const char* content = (char*) data.getData () + contentOffset;
+                data.append('\0');
+                const char* content = data.getData() + contentOffset;
 
                 ofstream outFile(fileName.getCString(), ios::app);
                 if (!outFile)

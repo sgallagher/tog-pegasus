@@ -4154,7 +4154,7 @@ Boolean XmlReader::getValueObjectElement(
     {
 	object = CIMObject(cimInstance);
     }
-    else if (!XmlReader::getClassElement(parser, cimClass))
+    else if (XmlReader::getClassElement(parser, cimClass))
     {
 	object = CIMObject(cimClass);
     }

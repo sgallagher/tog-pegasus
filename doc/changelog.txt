@@ -18,6 +18,11 @@ Version 0.98.0 - Work in progress
 3. (Denise E. - HP) HP-UX specific changes to lslp-perl-linux,h and slp.h to
    allow slp to compile.
 
+4. (Mike Brasher) - Finalized CIM messages.
+
+5. (Mike Brasher) - Added queue ids concept (using hash table which maps
+   ids to queue pointers).
+
 ------------------------------------------------------------------------------
 --
 

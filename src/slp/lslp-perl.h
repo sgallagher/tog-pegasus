@@ -5,7 +5,7 @@
  *	Original Author: Mike Day, md@soft-hackle.net
  *  Project: SLP v2 implementation
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/Attic/lslp-perl.h,v 1.1 2001/06/16 00:05:10 mday Exp $
+ *  $Header: /cvs/MSB/pegasus/src/slp/Attic/lslp-perl.h,v 1.2 2001/06/16 12:47:30 mday Exp $
  *
  *  Copyright (C) Michael Day, 2000-2001
  *
@@ -27,9 +27,6 @@
 #ifndef _LSLPDEFS_INCLUDE
 #define _LSLPDEFS_INCLUDE
 
-#ifdef __cplusplus 
-extern "C" {
-#endif
 
 #ifdef __linux__
 #include <endian.h>
@@ -303,9 +300,6 @@ extern "C" {
 #define LSLP_MTU 1432
 
 
-#ifdef __cplusplus 
-}
-#endif 
 
 #endif /* _LSLPDEFS_INCLUDE */
 

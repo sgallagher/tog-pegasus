@@ -28,9 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 
   typedef int BOOL ;
   typedef char int8;
@@ -122,6 +120,4 @@ int8 *lslp_lib_get_host_name(void) ;
 BOOL lslp_lib_get_addr_from_url(const int8 *url, struct sockaddr_in *addr ) ;
 int8 *lslp_lib_get_addr_string_from_url(const int8 *url) ;
 
-#ifdef __cplusplus
-}
-#endif
+

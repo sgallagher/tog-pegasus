@@ -31,9 +31,6 @@
 #ifndef _LSLP_WINDOWS_INCL_
 #define _LSLP_WINDOWS_INCL_
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 #ifdef _WIN32 
 #ifndef _MT
@@ -51,6 +48,10 @@ extern "C" {
 #include <errno.h>
 #include <assert.h>
 #include <io.h>
+
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN
 
 typedef char int8;
 typedef	unsigned char uint8;
@@ -107,11 +108,10 @@ typedef unsigned __int64 uint64;
 
 #define _LSLP_CTIME(t, b) memcpy(((char *)(b)), ctime(((const time_t *)(t))), 26)
 
+PEGASUS_NAMESPACE_END
+
 #endif	 /* WIN 32 */
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif /*_LSLP_WINDOWS_INCL_*/
 

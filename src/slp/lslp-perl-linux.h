@@ -58,6 +58,10 @@
 #include <ctype.h>
 #include <syslog.h>
 
+PEGASUS_USING_STD;
+
+PEGASUS_NAMESPACE_BEGIN
+
 
 typedef char int8;
 typedef	unsigned char uint8;
@@ -108,5 +112,6 @@ typedef uint32 BOOL;
 
 #define _LSLP_CTIME(t, b)  ctime_r(((const time_t *)(t)), ((char *)(b)))
 
+PEGASUS_NAMESPACE_END
 
 #endif /* _LSLP_LINUX_INCLUDE_ */

@@ -1,0 +1,211 @@
+
+<html>
+<head>
+<title>
+osinfo Command Reference
+</title>
+</head>
+
+<body>
+
+<h3>
+osinfo
+</h3>
+
+<h4>
+Name
+</h4>
+
+<p>
+<b>osinfo</b> - gather information regarding the running operating system
+
+<h4>
+Synopsis
+</h4>
+
+<p>
+<code><b>osinfo</b> [ -c ] </code>
+</p>
+
+
+<h4>
+Description
+</h4>
+
+<p>
+The osinfo command displays information regarding the operating system,
+gathered via WBEM using the PG_OperatingSystem class supported by the
+OperatingSystem Provider (bundled with HP WBEM Services).
+</p>
+
+<p>
+By default, the information is formatted for display, converting
+CIMDateTime strings into a more user-readable format (see Examples),
+and converting the total number of seconds of uptime into the 
+appropriate number of days, hours, minutes, and seconds.
+</P>
+
+<p>
+The <code><b>-c</b></code> option allows the user to specify 
+that the information is to be left in the CIM format, and not converted 
+from CIMDateTime strings and SystemUpTime seconds.
+As specified by the DMTF, the CIMDateTime format is 
+yyyymmddhhmmss.mmmmmmsutc, where yyyy is
+a 4-digit year, mm is the month, dd is the day, hh is the hour on a 24-hour
+clock, mm is the minute, ss is the second, mmmmmm is the number of
+microseconds, s is a "+" or "-" indicating the sign of the UTC
+(Universal Time Code) correction field (since the DateTime is returned in
+the local time zone of the system), and utc is the offset from UTC in
+minutes.
+</p>
+
+<p>
+If a property value is unavailable, it will be shown as "Unknown"
+</P>
+
+<h5>
+Options
+</h5>
+
+<p>
+<b><code>osinfo</code></b> recognizes the following options:
+<dl>
+  <dt>
+    <code>-c </code>
+  <dd>
+    Use the CIM formats for DateTime and SystemUpTime values (not
+    the formatting done by default).
+</dl>
+</p>
+
+<h4>
+Dependencies
+</h4>
+
+<p>
+<b><code>osinfo</code></b> requires HP WBEM Services to be 
+installed and running.
+</p>
+
+<h5>
+Return Value
+</h5>
+
+<p>
+When an error occurs, an error message is written to stderr and an
+appropriate value is returned.  The following values are returned:
+
+<table>
+<tr>
+<td> 0 </td>
+<td> Success </td>
+</tr>
+<tr>
+<td> 1 </td>
+<td> Error </td>
+</tr>
+</table>
+
+The most common error is executing the osinfo command when the CIMOM is
+not running (resulting in an "<code>
+os info error: Cannot connect" </code> error).  
+</p>
+
+
+<h4>
+Examples
+</h4>
+
+<p>
+Run the default osinfo command.
+</p>
+
+<p>
+<code>
+osinfo
+</code>
+</p>
+
+<p>
+<code>
+<PRE>
+OperatingSystem Information 
+  Host: rushmore.cup.hp.com 
+  Name: HP-UX 
+  Version: B.11.00 
+  UserLicense: Unlimited user license 
+  OSCapability: 32 bit 
+  LastBootTime: Sep 24, 2001  9:16:18 (-0700) 
+  LocalDateTime: May 23, 2002  10:55:54 (-0700) 
+  SystemUpTime: 20828377 seconds = 241 days, 1 hr, 39 mins, 37 secs  
+</PRE>
+</code>
+</p>
+
+<p>
+The system rushmore.cup.hp.com is running version B.11.00 of HP-UX,
+has an unlimited user license, and is 32-bit capable.  The Operating
+System was last booted on Sept 24, 2001 and the local date and time
+are given.  All time values are offset from GMT by -7 hours.
+<p> 
+Run osinfo, with the values displayed in their CIM format
+</p>
+
+<p> 
+<code>
+osinfo -c
+</code>
+</p>
+
+<p>
+<code>
+<PRE>
+OperatingSystem Information
+  Host: rushmore.cup.hp.com
+  Name: HP-UX
+  Version: B.11.00
+  UserLicense: Unlimited user license
+  OSCapability: 32 bit
+  LastBootTime: 20010924091618.000000-420
+  LocalDateTime: 20020523105801.000000-420
+  SystemUpTime: 20828504  
+</PRE>
+</code>
+</p>
+
+<p>
+The same rushmore.cup.hp.com system is displayed, but in this output the
+LastBootTime and LocalDateTime values are in the CIM format.  The SystemUpTime
+value is in total seconds (as specified by CIM).  Other fields do not change,
+as their CIM specification is the strings themselves.
+
+<h4>
+See Also
+</h4>
+
+<p>
+<code>cimserver(1)</code> 
+</p>
+
+<h4>
+Standards Conformance
+</h4>
+
+<p>
+<b>
+<code>osinfo</code></b> uses the WBEM (Web-Based Enterprise Management)
+and CIM (Common Information Model) standards specified by the DMTF
+(Distributed Management Task Force).
+</p>
+
+<h4>
+Author
+</h4>
+
+<p>
+<b><code>osinfo</code></b> was developed by the Hewlett-Packard Company.
+</p>
+
+
+</body>
+</html>

@@ -477,7 +477,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
    fd_set fdread, fdwrite;
    do 
    {
-      struct timeval tv = { 0, 0 };
+      struct timeval tv = { 0, 1 };
       
       FD_ZERO(&fdread);
       FD_ZERO(&fdwrite);
@@ -507,6 +507,7 @@ Boolean HTTPConnection::run(Uint32 milliseconds)
       else
 	 break;
    } while(events != 0 && _dying.value() == 0);
+      
    return handled_events;
 }
 

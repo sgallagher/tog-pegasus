@@ -185,8 +185,6 @@ Boolean Monitor::run(Uint32 milliseconds)
        &tv);
     if (count == 0)
     {
-       pegasus_sleep(milliseconds);
-       
        return false;
     }
     
@@ -196,7 +194,6 @@ Boolean Monitor::run(Uint32 milliseconds)
     else if (count == -1)
 #endif
     {
-       pegasus_sleep(milliseconds);
        return false;
     }
     
@@ -283,9 +280,11 @@ Boolean Monitor::run(Uint32 milliseconds)
 	       queue->enqueue(message);
 	    }
 	    count--;
+	    pegasus_yield();
 	}
 	handled_events = true;
     }
+
     return(handled_events);
 }
 
@@ -373,7 +372,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
    }
    if( false == dst->is_dying())
    {
-      dst->run(1);
+      if(false == dst->run(1))
+	 pegasus_sleep(1);
+      
    }
    dst->refcount--;
    return 0;

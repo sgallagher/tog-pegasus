@@ -147,7 +147,7 @@ int main(int argc, char** argv)
                        << PEGASUS_STD (endl);
     try
     {
-	String query1="SELECT MethodName FROM RT_TestIndication";
+	String query1="SELECT MethodName FROM rt_testindication";
 	String query2="SELECT MethodName FROM RT_TestIndication WHERE IndicationIdentifier != \"x\"";
 	String name1 = "TestFilter01";
 	String name2 = "TestFilter02";

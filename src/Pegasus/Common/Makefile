@@ -93,6 +93,7 @@ SOURCES = \
     TLS.cpp \
     TraceFileHandler.cpp \
     Tracer.cpp \
+    Triad.cpp \
     Thread.cpp \
     Union.cpp \
     XmlParser.cpp \
@@ -115,6 +116,7 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
 SOURCES += Signal.cpp
+AIX_LIB_PRIORITY=-20
 endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)

@@ -61,8 +61,8 @@
 
     16.	Keep all lines within 80 columns.
 
-    17.	Build seems to fail on many Linux system (threading problems).
+    17.	Build fails on many Linux system (threading support problems).
 
-    18. SSL is the default on Linux (should not be used by defualt).
+    18. SSL is the default on Linux (is this okay?).
 
-    19. Fix main logic (Unix v.s. Linux).
+    19. Fix main logic (Unix v.s. Windows).

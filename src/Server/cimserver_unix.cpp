@@ -209,8 +209,8 @@ int get_proc(int pid)
   // happen after a system reboot.  If the pids are the same, cimserver 
   // isn't really running.
   //
-  pid_t mypid = getpid();
-  if (mypid == pid)
+  Uint32 mypid = System::getPID();
+  if ((mypid == pid) || (parentPid == pid))
   {
       return -1;
   }
@@ -376,8 +376,8 @@ Boolean isCIMServerRunning(void)
       // process, this could happen after a system reboot.  If the pids are
       // the same, cimserver isn't really running.
       //
-      pid_t mypid = getpid();
-      if (mypid != pid)
+      Uint32 mypid = System::getPID();
+      if ((mypid != pid) && (parentPid != pid))
       {
           // cimserver is running
           return true;

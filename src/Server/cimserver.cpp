@@ -118,6 +118,8 @@ PEGASUS_USING_STD;
 
 int cimserver_run( int argc, char** argv, Boolean shutdownOption );
 
+Uint32 parentPid = 0;
+
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "cimserver_windows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
@@ -1028,6 +1030,9 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
 // reset message loading to NON-process locale
 MessageLoader::_useProcessLocale = false; 
 //l10n
+
+    // Get the parent's PID before forking
+    parentPid = System::getPID();
 
     // do we need to run as a daemon ?
     if (daemonOption)

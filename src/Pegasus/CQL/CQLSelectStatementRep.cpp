@@ -1008,6 +1008,11 @@ void CQLSelectStatementRep::setPredicate(const CQLPredicate& inPredicate)
   _predicate = inPredicate;
 }
 
+CQLPredicate CQLSelectStatementRep::getPredicate() const
+{
+  return _predicate;
+}
+
 void CQLSelectStatementRep::insertClassPathAlias(const CQLIdentifier& inIdentifier,
                                                  String inAlias)
 {
@@ -1111,7 +1116,10 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(const CQLChainedIdentifier
 
 void CQLSelectStatementRep::normalizeToDOC()
 {
+  if (!_contextApplied)
+    applyContext();
 
+  // ATTN - add normalize code.
 }
 
 String CQLSelectStatementRep::toString()

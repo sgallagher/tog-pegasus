@@ -163,6 +163,13 @@ void CQLSelectStatement::setPredicate(const CQLPredicate& inPredicate)
   _rep->setPredicate(inPredicate);
 }
 
+CQLPredicate CQLSelectStatement::getPredicate() const
+{
+  PEGASUS_ASSERT(_rep != NULL);
+
+  return _rep->getPredicate();
+}
+
 void CQLSelectStatement::insertClassPathAlias(const CQLIdentifier& inIdentifier, String inAlias)
 {
   PEGASUS_ASSERT(_rep != NULL);

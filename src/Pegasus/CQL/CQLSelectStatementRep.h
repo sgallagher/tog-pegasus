@@ -169,25 +169,10 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     /** Sets a predicate into this object. This method should only
             be called by Bison.
         */
-    void setPredicate(
-        // CQLOperation is an enum similar to the WQLOperation enum in CVS:
-        // enum CQLOperation
-        // {
-        //     <,
-        //     >,
-        //     =,
-        //    >=,
-        //    <=,
-        //     +,
-        //     -,
-        //     *,
-        //     /,
-        //     CQL_IS_NULL,
-        //     CQL_IS_NOT_NULL,
-        //     CQL_IS_A,
-        //     CQL_LIKE
-        // };
-        const CQLPredicate& inPredicate);
+    void setPredicate( const CQLPredicate& inPredicate);
+
+    /** Gets the top-level predicate contained by this object */
+    CQLPredicate getPredicate() const;
 
     /**  This method calls QueryContext::insertClassPathAlias()  to insert a
     classpath-alias pair

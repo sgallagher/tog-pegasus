@@ -64,6 +64,10 @@ repository implementation.
 
 18. (Markus Mueller - IBM) 13 Sep 2001 - Initial support for z/OS on z/Series, the successor of OS/390 and MVS.
 
+19. (Warren Otsuka - HP) 14 Sep 2001 - Implementation of servlet web server
+    interface to CIMServer.This is for the PEGASUS CIM Server to coexist with
+    a web server. See doc/Servlet for more information.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -356,16 +356,17 @@ void drive_operation()
 
 void drive_get_misc_functions()
 {
-   try
-   {
+   
+   
   
       const char* env = getenv("PEGASUS_HOME");
    	String repositoryDir(env);
-      repositoryDir.append("/repository");	
+		repositoryDir.append("/repository");
+      //String repositoryDir("c:/pegasus-cvs/pegasus/repository");	
 	   CIMNamespaceName _ns("root/cimv2");
 	   CIMRepository *_rep = new CIMRepository(repositoryDir);
 	   RepositoryQueryContext _query(_ns, _rep);
-
+try{
       // Get function tests
       CQLValue a1(Uint64(123));
       CQLValue a2(Sint64(-123));
@@ -416,22 +417,24 @@ void drive_get_misc_functions()
       cout << e.getMessage() << endl;
       assert(0);
    }
+   delete _rep;
    return;
 }
 
 
 void drive_resolve_primitive()
 {
-   try
-   {
+   
+   
    const char* env = getenv("PEGASUS_HOME");
 	String repositoryDir(env);
-	repositoryDir.append("/repository");	
+	repositoryDir.append("/repository");
+	//String repositoryDir("c:/pegasus-cvs/pegasus/repository");	
 	CIMNamespaceName _ns("root/cimv2");
 	CIMRepository *_rep = new CIMRepository(repositoryDir);
 	RepositoryQueryContext _query(_ns, _rep);
    RepositoryQueryContext _query1(_ns, _rep);
-
+try{
    const CQLIdentifier _Id1(String("CIM_OperatingSystem"));
 
    _query.insertClassPath(_Id1);
@@ -514,21 +517,23 @@ void drive_resolve_primitive()
       cout << e.getMessage() << endl;
       assert(0);
    }
+   delete _rep;
    return;
 }
 
 void drive_resolve_specialChars()
 {
-   try
-   {
+   
+   
       const char* env = getenv("PEGASUS_HOME");
-   	String repositoryDir(env);
-   	repositoryDir.append("/repository");	
+		String repositoryDir(env);
+      repositoryDir.append("/repository");
+   	//String repositoryDir("c:/pegasus-cvs/pegasus/repository");	
    	CIMNamespaceName _ns("root/cimv2");
    	CIMRepository *_rep = new CIMRepository(repositoryDir);
    	RepositoryQueryContext _query(_ns, _rep);
       RepositoryQueryContext _query1(_ns, _rep);
-   
+   try{
       const CQLIdentifier _Id1(String("CIM_OperatingSystem"));
    
       _query.insertClassPath(_Id1);
@@ -594,6 +599,7 @@ void drive_resolve_specialChars()
       cout << e.getMessage() << endl;
       assert(0);
    }
+   delete _rep;
    return;
 }
 

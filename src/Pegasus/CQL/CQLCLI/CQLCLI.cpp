@@ -876,12 +876,20 @@ int main(int argc, char ** argv)
       cqlcli_verbose = true;
   }
 
+  { // necessary when testing with Purifty so that _statements goes out of scope before the program exits
   Array<CQLSelectStatement> _statements;
 
   
   // setup test environment
   const char* env = getenv("PEGASUS_HOME");
   String repositoryDir(env);
+  
+  //
+  // Comment out the above line and umcomment the line below when testing with Rational Purify
+  //
+  
+  //String repositoryDir("c:/pegasus-cvs/pegasus");
+  
   repositoryDir.append("/repository");
 
   CIMNamespaceName _ns;
@@ -996,7 +1004,8 @@ int main(int argc, char ** argv)
   }else{
     cout << "Invalid number of arguments.\n" << endl;
   }
-
+  delete _rep; // cleanup repository pointer 
+  }// necessary when testing with Purifty so that _statements goes out of scope before the program exits
   return 0;                                                                                                              
 }
 

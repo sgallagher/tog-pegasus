@@ -143,9 +143,9 @@ int main (int argc, char * argv [])
         AnonymousPipe::Status readMessageStatus = pipeFromParent->readMessage
             (message);
         
-        CIMGetInstanceRequestMessage * request;
-        request = dynamic_cast <CIMGetInstanceRequestMessage *> (message);
-        PEGASUS_ASSERT (request != 0);
+        AutoPtr<CIMGetInstanceRequestMessage> request;
+        request.reset(dynamic_cast<CIMGetInstanceRequestMessage*>(message));
+        PEGASUS_ASSERT (request.get() != 0);
 
         if (verbose)
         {
@@ -169,6 +169,7 @@ int main (int argc, char * argv [])
 			(ContentLanguageListContainer::NAME)).getLanguages()== ContentLanguages::EMPTY);
         PEGASUS_ASSERT (((AcceptLanguageListContainer)request->operationContext.get
 			(AcceptLanguageListContainer::NAME)).getLanguages()== AcceptLanguages::EMPTY);
+
         CIMInstance anInstance;
         AutoPtr <CIMGetInstanceResponseMessage> response
             (new CIMGetInstanceResponseMessage

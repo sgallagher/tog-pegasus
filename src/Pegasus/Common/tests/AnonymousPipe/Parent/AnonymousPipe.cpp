@@ -275,9 +275,10 @@ int main ()
                 PEGASUS_ASSERT (0);
             }
 
-            CIMGetInstanceResponseMessage * response;
-            response = dynamic_cast <CIMGetInstanceResponseMessage *> (message);
-            PEGASUS_ASSERT (response != 0);
+            AutoPtr<CIMGetInstanceResponseMessage> response;
+            response.reset(
+                dynamic_cast<CIMGetInstanceResponseMessage*>(message));
+            PEGASUS_ASSERT (response.get() != 0);
 
             if (verbose)
             {

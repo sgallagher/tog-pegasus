@@ -26,8 +26,7 @@ endif
 
 ifeq ($(OPTION),4)
 general:
-        @$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep $(EXP) $(i
-); cd .;)
+	@$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep $(EXP) $(i); cd .;)
 endif
 
 endif

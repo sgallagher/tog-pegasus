@@ -468,8 +468,10 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	CIMObjectPath objectPath(
 	    System::getHostName(),
 	    request->nameSpace,
-	    request->modifiedInstance.getInstance().getPath().getClassName(),
-	    request->modifiedInstance.getInstance().getPath().getKeyBindings());
+	    request->modifiedInstance.getInstanceName().getClassName(),
+	    request->modifiedInstance.getInstanceName().getKeyBindings());
+// ATTN:    request->modifiedInstance.getInstance().getPath().getClassName(),
+// ATTN:    request->modifiedInstance.getInstance().getPath().getKeyBindings());
 
 	// convert arguments
 	OperationContext context;
@@ -496,8 +498,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	// forward request
 	modifyInstance(
 	    context,
-	    // ATTN: objectPath,
-	    request->modifiedInstance.getInstanceName(),
+	    objectPath,
 	    request->modifiedInstance.getInstance(),
 	    flags,
 	    propertyList.getPropertyNameArray(),

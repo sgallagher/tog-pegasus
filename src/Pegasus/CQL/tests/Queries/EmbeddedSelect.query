@@ -119,7 +119,7 @@ SELECT EmbObjSub.CQL_NonExistent::TPT, EmbObjSub, EmbObjSub.CQL_EmbeddedTestProp
 # Simple properties
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId FROM CQL_EmbeddedSubClass
 SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState FROM CQL_EmbeddedSubClass
-SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array FROM CQL_EmbeddedSubClass
+SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyUint32Array FROM CQL_EmbeddedSubClass
 
 # Bad scoping classes
 # Result: instance of the FROM class is emptied
@@ -347,14 +347,14 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId,
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*
-# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyUint32Array
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString
 # EmbObjBase.CQL_EmbeddedTestElement::SomeString 
 # EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId 
 # EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState 
 # EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description 
 #
-SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::SomeString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array, EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description FROM CQL_EmbeddedSubClass
+SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::SomeString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyUint32Array, EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description FROM CQL_EmbeddedSubClass
 
 #===================================================================
 # Runtime errors

@@ -104,7 +104,39 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     Sint8* content;
     Uint32 contentLength;
 
+    if (httpMessage->message.size() == 0)
+    {
+        CIMClientMalformedHTTPException malformedHTTPException(
+            "Empty HTTP response message.");
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
+    }
+
     httpMessage->parse(startLine, headers, contentLength);
+
+    //
+    // Get the status line info
+    //
+
+    String httpVersion;
+    Uint32 statusCode;
+    String reasonPhrase;
+
+    Boolean parsableMessage = HTTPMessage::parseStatusLine(
+        startLine, httpVersion, statusCode, reasonPhrase);
+    if (!parsableMessage)
+    {
+        CIMClientMalformedHTTPException malformedHTTPException(
+            "Malformed HTTP response message.");
+        ClientExceptionMessage * response =
+            new ClientExceptionMessage(malformedHTTPException);
+
+        _outputQueue->enqueue(response);
+        return;
+    }
 
     try
     {
@@ -147,10 +179,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Check for a success (200 OK) response
     //
-    String httpVersion;
-    Uint32 statusCode;
-    String reasonPhrase;
-    HTTPMessage::parseStatusLine(startLine, httpVersion, statusCode, reasonPhrase);
+
     if (statusCode != HTTP_STATUSCODE_OK)
     {
         String cimError;

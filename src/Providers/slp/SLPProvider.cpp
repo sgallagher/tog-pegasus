@@ -88,8 +88,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
 
-#define CDEBUG(X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X)
+#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -125,15 +125,16 @@ const char *descriptionPropertyName = "Description";
 const char *instanceIDPropertyName = "InstanceID";
 
 
+// 
 // Predefined Values that are part of the SLP template. These values are defined as part
 // of the DMTF SLP template.
 
 // This is the current template version.  Should change only if there is a new template
 // specification released.
-String templateVersion = "1.0";
+const char * templateVersion = "1.0";
 
 // Fixed test to be inserted in the templateDescription attribute.
-String templateDescription = 
+const char * templateDescription = 
     "This template describes the attributes used for advertising Pegasus CIM Servers.";
 
 // This name defines the Interop namespace.  It should be in a much more public place
@@ -142,7 +143,7 @@ String InteropSchemaNamespaceName = "root/PG_Interop";
 
 // Default list of registered Profiles until we move to 2.8 and get list from
 // the proper classes.
-String registeredProfilesList = 
+const char * registeredProfilesList = 
 "SNIA:Array,SNIA:Array:Cluster,SNIA:Array:Access Points,SNIA:Array:Disk \
 Drive,SNIA:Array:Location,SNIA:Array:LUN Mapping and Masking,SNIA:Array:Pool \
 Manipulation Capabilities and Settings,SNIA:Array:Extent Mapping,SNIA:Array:LUN \
@@ -160,58 +161,58 @@ Creation,SNIA:Array:Software,SNIA:Server";
 // names with dash in the name need a separate property name because dash is not a 
 // legal CIMName.  We used "_" instead of "-" for the property names.
 
-String serviceNameAttribute = serviceName;
+const char * serviceNameAttribute = serviceName;
 
-String templateTypeProperty = "template_type";
-String templateTypeAttribute = "template-type";
+const char * templateTypeProperty = "template_type";
+const char * templateTypeAttribute = "template-type";
 
-String templateVersionProperty = "template_version";
-String templateVersionAttribute = "template-version";
+const char * templateVersionProperty = "template_version";
+const char * templateVersionAttribute = "template-version";
 
-String templateDescriptionProperty = "template_description";
-String templateDescriptionAttribute = "template-description";
+const char * templateDescriptionProperty = "template_description";
+const char * templateDescriptionAttribute = "template-description";
 
-String serviceUrlSyntaxProperty = "template_url_syntax";
-String serviceUrlSyntaxAttribute = "template-url-syntax";
+const char * serviceUrlSyntaxProperty = "template_url_syntax";
+const char * serviceUrlSyntaxAttribute = "template-url-syntax";
 
-String serviceHiDescriptionProperty = "service_hi_description";
-String serviceHiDescriptionAttribute = "service-hi-description";
+const char * serviceHiDescriptionProperty = "service_hi_description";
+const char * serviceHiDescriptionAttribute = "service-hi-description";
 
-String serviceHiNameProperty = "service_hi_name";
-String serviceHiNameAttribute = "service-hi-name";
+const char * serviceHiNameProperty = "service_hi_name";
+const char * serviceHiNameAttribute = "service-hi-name";
 
-String serviceIDProperty = "service_id";
-String serviceIDAttribute = "service-id";
+const char * serviceIDProperty = "service_id";
+const char * serviceIDAttribute = "service-id";
 
-String communicationMechanismAttribute = "CommunicationMechanism";
+const char * communicationMechanismAttribute = "CommunicationMechanism";
 
-String otherCommunicationMechanismAttribute = "otherCommunicationMechanism";
+const char * otherCommunicationMechanismAttribute = "otherCommunicationMechanism";
 
-String otherCommunicationMechanismDescriptionAttribute = "OtherCommunicationMechanismDescription";
+const char * otherCommunicationMechanismDescriptionAttribute = "OtherCommunicationMechanismDescription";
 
-String InteropSchemaNamespaceAttribute = "InteropSchemaNamespace";
+const char * InteropSchemaNamespaceAttribute = "InteropSchemaNamespace";
 
-String protocolVersionAttribute = "ProtocolVersion";
+const char * protocolVersionAttribute = "ProtocolVersion";
 
-String functionalProfilesSupportedAttribute = "FunctionalProfilesSupported";
+const char * functionalProfilesSupportedAttribute = "FunctionalProfilesSupported";
 
-String functionalProfileDescriptionsAttribute = "FunctionalProfileDescriptions";
+const char * functionalProfileDescriptionsAttribute = "FunctionalProfileDescriptions";
 
-String otherProfileDescriptionAttribute = "OtherProfileDescription";
+const char * otherProfileDescriptionAttribute = "OtherProfileDescription";
 
-String multipleOperationsSupportedAttribute = "MultipleOperationsSupported";
+const char * multipleOperationsSupportedAttribute = "MultipleOperationsSupported";
 
-String authenticationMechanismsSupportedAttribute =  "AuthenticationMechanismsSupported";
+const char * authenticationMechanismsSupportedAttribute =  "AuthenticationMechanismsSupported";
 
-String otherAuthenticationDescriptionsAttribute = "OtherAuthenticationDescription";
+const char * otherAuthenticationDescriptionsAttribute = "OtherAuthenticationDescription";
 
-String authenticationMechanismDescriptionsAttribute = "AuthenticationMechanismDescriptions";
+const char * authenticationMechanismDescriptionsAttribute = "AuthenticationMechanismDescriptions";
 
-String namespaceAttribute = "Namespace";
+const char * namespaceAttribute = "Namespace";
 
-String classinfoAttribute =  "Classinfo";
+const char * classinfoAttribute =  "Classinfo";
 
-String registeredProfilesSupportedAttribute = "RegisteredProfilesSupported";
+const char * registeredProfilesSupportedAttribute = "RegisteredProfilesSupported";
 
 
 CIMNamespaceName _interopNamespace = PEGASUS_NAMESPACENAME_INTEROP;
@@ -284,6 +285,7 @@ String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNam
 {
     String output;
     Uint32 pos;
+    CDEBUG("_getPropertyValue for name= " << propertyName.getString() << " default= " << defaultValue);
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
     {
         CIMConstProperty p1 = instance.getProperty(pos);
@@ -476,8 +478,9 @@ void _addSeparator(String& s)
 {
     // if not first entry, set newline
     if (s != String::EMPTY)
-    // bug 1737  EOL confuses some UA s(",\n");
-        s.append(",\n");
+    // bug 1737  EOL confuses some UA 
+        // s(",\n");
+        s.append(",");
 }
 
 void SLPProvider::populateTemplateField(CIMInstance& instance, 
@@ -559,7 +562,7 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::populateRegistrationData()");
-
+    CDEBUG("PopulageRegistrationdata for " << protocol << " address " << IPAddress);
     // Clear the template instance
     _currentSLPTemplateString.clear();
 
@@ -804,20 +807,17 @@ Boolean SLPProvider::issueSLPRegistrations()
       "SLPProvider::issueSLPREgistrations()");
     CDEBUG("issueSLPReg");
     // This should be the interop namespace.
-    // ATTN: Drop this String mynamespace = "root/cimv2";
-    // ATTN: Drop this_interopNamespace = mynamespace;
-    // ATTN: Protect against exceptions here.
     // Get the CIM_ObjectManager instance
     Boolean getByAssociator = false;
     CDEBUG("issueSLPRegistrations. Get object manager from namespace= " 
                 << PEGASUS_NAMESPACENAME_INTEROP.getString());
-    Array<CIMInstance> instances_ObjMgr = _cimomHandle.enumerateInstances(
+    Array<CIMInstance> instancesObjMgr = _cimomHandle.enumerateInstances(
                                              OperationContext(),
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerClassName),
                                              false, false, false,false, CIMPropertyList());
     // Try to get the objmgrcommmech via the association first
-
+    CDEBUG("Registration found Obj Mgr. No Instance = " << instancesObjMgr.size());
     /*
     Array<CIMObjectPath> pathsObjMgr = _cimHandle.enumerateInstanceNames(
                                         OperationContext(),
@@ -849,47 +849,42 @@ Boolean SLPProvider::issueSLPRegistrations()
     }
     */
         // get instances of CIM_ObjectManagerCommMechanism and subclasses directly
-    Array<CIMInstance> instances_ObjMgrComm = _cimomHandle.enumerateInstances(
+    Array<CIMInstance> instancesObjMgrComm = _cimomHandle.enumerateInstances(
                                              OperationContext(),
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerCommMechName),
                                              false, false, false,false, CIMPropertyList());
     
 
+    CDEBUG("Registration found Obj Mgr Comm. No Instance = " << instancesObjMgrComm.size());
     //Loop to create an SLP registration for each communication mechanism
-    // Note that this depends on getting from the PG_Class.
+    // Note that this depends on getting from the PG_Class for communication.
     Uint32 itemsRegistered = 0;
-    Uint32 errorCount = 0;
-    for (Uint32 i = 0; i < instances_ObjMgrComm.size(); i++)
+
+    for (Uint32 i = 0; i < instancesObjMgrComm.size(); i++)
     {
         // get protocol property
-        String protocol  = _getPropertyValue(instances_ObjMgrComm[i], CIMName("namespaceType"), "http");
+        String protocol  = _getPropertyValue(instancesObjMgrComm[i], CIMName("namespaceType"), "http");
         
         // get ipaddress property
-        String IPAddress = _getPropertyValue(instances_ObjMgrComm[i], CIMName("IPAddress"), "127.0.0.1");
+        String IPAddress = _getPropertyValue(instancesObjMgrComm[i], CIMName("IPAddress"), "127.0.0.1");
 
         // create a registration instance, test and register it.
-        if (populateRegistrationData(protocol, IPAddress, instances_ObjMgr[0], instances_ObjMgrComm[i]))
+        if (populateRegistrationData(protocol, IPAddress, instancesObjMgr[0], instancesObjMgrComm[i]))
             itemsRegistered++;
-        else
-            errorCount++;
     }
-    // ATTN: Not sure here what we should be doing.  Should we error out for any error on only if we
-    // have an error and nothing is registered. Open Question.
-    if (errorCount != 0)
-    {
-        return(false);
-    }
-    // Start the slp listener background thread - nothing is advertised until this function returns.
+
+    // Start the Service Agent.  Note that the actual registrations are part of the populatetemplate
+    // function so that the various templates are already created.
     if (itemsRegistered != 0)
     {
+        CDEBUG("SLP Registration. Items to register = " << itemsRegistered);
         try
         {
             slp_agent.start_listener();
         }
         catch(...)
         {
-            CDEBUG("slp_agend.start_listener failed");
             throw CIMOperationFailedException("Start SLP Listener Failed");
         }
     
@@ -904,11 +899,17 @@ Boolean SLPProvider::issueSLPRegistrations()
           System::getCurrentTime(now, msec);
         }
         initFlag=true;
+        // Log slp agent started.
         PEG_METHOD_EXIT();
         return(true);
     }
+
+    // ATTN: Log failure to register because no communication mechanisms found.
+    // This error reflects NO communications mechanism objects found.  We assume that we MUST always
+    // have at least one communication mechanism object for a registration and for a CIMOM.  Anything
+    // else should be considered an error.  Reflect this in the log.
     PEG_METHOD_EXIT();
-    return(true);
+    return(false);
 }
 
 void SLPProvider::initialize(CIMOMHandle & handle)

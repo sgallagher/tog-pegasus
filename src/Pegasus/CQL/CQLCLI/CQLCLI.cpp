@@ -370,7 +370,7 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
       {
         try
         {
-          cout << "-----Instance: " << _instances[i].getPath().toString() << endl;
+          cout << "-----Instance: " << _instances[j].getPath().toString() << endl;
           Boolean result = _statements[i].evaluate(_instances[j]);
           cout << _statements[i].toString() << " = ";
           if(result) printf("TRUE\n\n");
@@ -744,7 +744,13 @@ int main(int argc, char ** argv)
 		_instances.appendArray(_rep->enumerateInstances( _ns, _testclassDEMO ));
 		_instances.remove(6,6);
 	}
-	
+for(Uint32 i = 0; i < _instances.size(); i++){
+	CIMObjectPath op = _instances[i].getPath();
+cout << "here" << endl;
+          op.setHost("cimmortal.us.ibm.com");
+cout << "here" << endl;
+          _instances[i].setPath(op);
+}	
 	// setup input stream
 	if(argc >= 2){
 		ifstream queryInputSource(argv[1]);

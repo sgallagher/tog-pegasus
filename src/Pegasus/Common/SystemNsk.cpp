@@ -106,5 +106,12 @@ Boolean System::isPrivilegedUser()
     //       This is used in cimuser CLI
     return true;
 }
+
+Uint32 System::getPID()
+{
+    // ATTN: Implement this to get the process ID of the current process
+    //       This is used by the Tracer
+    return 0;
+}
     
 PEGASUS_NAMESPACE_END

@@ -286,6 +286,7 @@ private:
     static const char   _COMPONENT_SEPARATOR;
     static const Uint32 _NUM_COMPONENTS;
     static const Uint32 _STRLEN_MAX_UNSIGNED_INT;
+    static const Uint32 _STRLEN_MAX_PID_TID;
     static const Boolean _SUCCESS;
     static const Boolean _FAILURE;
     static String  _EMPTY_STRING;

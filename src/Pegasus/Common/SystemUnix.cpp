@@ -321,5 +321,15 @@ Boolean System::isPrivilegedUser()
     }
     return true;
 }
+
+Uint32 System::getPID()
+{
+    //
+    // Get the Process ID
+    //
+    Uint32 pid = getpid();
+
+    return pid;
+}
     
 PEGASUS_NAMESPACE_END

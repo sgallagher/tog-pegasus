@@ -152,6 +152,13 @@ public:
     */
     static Boolean isPrivilegedUser();
 
+    /**
+    This function is used to get the process ID of the calling process.
+
+    @return             Process ID
+    */
+    static Uint32 getPID();
+
 };
 
 PEGASUS_NAMESPACE_END

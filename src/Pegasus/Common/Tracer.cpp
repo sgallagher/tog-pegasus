@@ -29,6 +29,9 @@
 
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_USING_STD;
 
@@ -70,6 +73,9 @@ const Uint32 Tracer::_NUM_COMPONENTS =
 
 // Set the line maximum
 const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
+
+// Set the max PID and Thread ID Length
+const Uint32 Tracer::_STRLEN_MAX_PID_TID = 20;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tracer constructor
@@ -146,9 +152,19 @@ void Tracer::_trace(
     {
         if (_isTraceEnabled(traceComponent,traceLevel))
         {
+            //
+            // Allocate memory for the message string
+            // Needs to be updated if additional info is added
+            //
 	    message = new char[ strlen(fileName) + 
-		_STRLEN_MAX_UNSIGNED_INT + 6 ];
-            sprintf(message,"[%s:%d]: ",fileName,lineNum);
+		_STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
+            sprintf(
+               message,
+               "[%d:%d:%s:%d]: ",
+               System::getPID(),
+               pegasus_thread_self(),
+               fileName,
+               lineNum);
 
             _trace(traceComponent,message,fmt,argList); 
 	    delete []message;
@@ -230,11 +246,22 @@ void Tracer::_traceEnter(
 
     if (_isTraceEnabled(traceComponent,LEVEL1))
     {
+
         va_start(argList,fmt);
 
+        //
+        // Allocate memory for the message string
+        // Needs to be updated if additional info is added
+        //
 	message = new char[ strlen(fileName) + 
-	    _STRLEN_MAX_UNSIGNED_INT + 6 ];
-        sprintf(message,"[%s:%d]: ",fileName,lineNum);
+	    _STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
+        sprintf(
+           message,
+           "[%d:%d:%s:%d]: ",
+           System::getPID(),
+           pegasus_thread_self(),
+           fileName,
+           lineNum);
         _trace(traceComponent,message,fmt,argList); 
 
         va_end(argList);
@@ -259,9 +286,19 @@ void Tracer::_traceExit(
     {
         va_start(argList,fmt);
  
+        //
+        // Allocate memory for the message string
+        // Needs to be updated if additional info is added
+        //
 	message = new char[ strlen(fileName) + 
-	    _STRLEN_MAX_UNSIGNED_INT + 6 ];
-        sprintf(message,"[%s:%d]: ",fileName,lineNum);
+	    _STRLEN_MAX_UNSIGNED_INT + _STRLEN_MAX_PID_TID ];
+        sprintf(
+           message,
+           "[%d:%d:%s:%d]: ",
+           System::getPID(),
+           pegasus_thread_self(),
+           fileName,
+           lineNum);
         _trace(traceComponent,message,fmt,argList); 
         va_end(argList);
 
@@ -299,10 +336,13 @@ void Tracer::_trace(
     String currentTime = System::getCurrentASCIITime();
     ArrayDestroyer<char> timeStamp(currentTime.allocateCString());
 
+    //
     // Allocate messageHeader. 
+    // Needs to be updated if additional info is added
+    //
     msgHeader = new char [strlen(message)
         + strlen(TRACE_COMPONENT_LIST[traceComponent]) 
-	+ strlen(timeStamp.getPointer()) + 6];
+	+ strlen(timeStamp.getPointer()) + _STRLEN_MAX_PID_TID];
 
     // Construct the message header
     // The message header is in the following format 
@@ -314,8 +354,21 @@ void Tracer::_trace(
     }
     else
     {
-        sprintf(msgHeader,"%s: %s ",timeStamp.getPointer(),
-            TRACE_COMPONENT_LIST[traceComponent] );
+        //
+        // Since the message is blank form a string using the pid and tid
+        //
+        char*  tmpBuffer;
+
+        //
+        // Allocate messageHeader. 
+        // Needs to be updated if additional info is added
+        //
+	tmpBuffer = new char[_STRLEN_MAX_PID_TID];
+        sprintf(tmpBuffer,"[%d:%d]: ",System::getPID(),pegasus_thread_self());
+
+        sprintf(msgHeader,"%s: %s %s ",timeStamp.getPointer(),
+            TRACE_COMPONENT_LIST[traceComponent] ,tmpBuffer );
+        delete []tmpBuffer;
     }
 
     // Call trace file handler to write message

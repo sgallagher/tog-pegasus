@@ -10,7 +10,7 @@ ifeq ($(COMPILER),acc)
     LINK_COMMAND += +DD64 -mt
   endif
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-    LINK_COMMAND += -Wl,+b/usr/lib -Wl,+s
+    LINK_COMMAND += -Wl,+s -Wl,+b/opt/wbem/lib
   endif
   ifdef PEGASUS_DEBUG
     LINK_COMMAND += -g

@@ -25,7 +25,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By:  Amit K Arora, IBM (amita@in.ibm.com) for Bug#1188
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -168,7 +168,7 @@ void AsyncOpNode::print_to_buffer(Sint8 **buf)
    
 }
 
-String &AsyncOpNode::print_to_string(void)
+String AsyncOpNode::print_to_string(void)
 {
    static Sint8 work_buf[4096];
 #if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
@@ -184,9 +184,8 @@ String &AsyncOpNode::print_to_string(void)
 #else
    work_buf[0] = (char)0;
 #endif
-   String *ret = new String(work_buf);
-   
-   return *ret;
+    
+   return String(work_buf);
 }
 
 PEGASUS_NAMESPACE_END

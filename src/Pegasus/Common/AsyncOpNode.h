@@ -25,7 +25,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1188
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -197,7 +197,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       // debugging utility
       // careful - wipes out current value of *buf
       void print_to_buffer(Sint8 **buf);
-      String &print_to_string(void);
+      String print_to_string(void);
 };
 
 

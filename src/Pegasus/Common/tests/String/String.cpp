@@ -365,11 +365,13 @@ int main(int argc, char** argv)
 	String ugly(utf16Chars);
 	assert(ugly == utf16Chars);
 
+#ifdef PEGASUS_HAS_ICU
 	ugly.toLower("zh_CN");
 	assert(ugly != utf16Chars);
 
 	ugly.toUpper("zh_CN");
 	assert(ugly != utf16Chars);
+#endif
  
     }
                              

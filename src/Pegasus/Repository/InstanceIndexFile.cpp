@@ -694,9 +694,17 @@ Boolean InstanceIndexFile::_lookupEntry(
     while (_GetNextRecord(
 	fs, line, freeFlag, hashCode, index, size, instanceNameTmp, error))
     {
+#ifdef PEGASUS_REPOSITORY_NOT_NORMALIZED
+        // See bugzilla 1207.  If the object paths in the repository
+        // are not normalized, then the hashcodes cannot be used for
+        // the look up (because the hash is based on the normalized path).
+        if (freeFlag == 0 &&
+	  CIMObjectPath(instanceNameTmp) == instanceName)
+#else
 	if (freeFlag == 0 &&
 	    hashCode == targetHashCode &&
 	    CIMObjectPath(instanceNameTmp) == instanceName)
+#endif
 	{
 	    indexOut = index;
 	    sizeOut = size;

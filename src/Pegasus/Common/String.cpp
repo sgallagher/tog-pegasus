@@ -550,7 +550,12 @@ int String::compareNoCase(const String& s1, const String& s2)
     UnicodeString UniStr2((const UChar *)s2.getChar16Data(), (int32_t)s2.size());
     UniStr1.toLower();
     UniStr2.toLower();
-    return (UniStr2.compare(UniStr1));    
+
+    // Note:  the ICU 2.6.1 documentation for UnicodeString::compare( ) is
+    // backwards!  The API actually returns +1 if this is greater than text.
+    // This is why the line below appears wrong based on the 2.6.1 docs.
+    // (ref. bugzilla 1207)
+    return (UniStr1.compare(UniStr2));
 #else
     const Char16* _s1 = s1.getChar16Data();
     const Char16* _s2 = s2.getChar16Data();

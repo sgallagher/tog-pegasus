@@ -52,20 +52,20 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
               ifdef PEGASUS_HAS_SSL
                 ifdef PEGASUS_USE_SSL_SHAREDLIB
                   ifdef  PEGASUS_USE_RELEASE_DIRS
-		    $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -Xlinker -rpath-link -Xlinker $(OPENSSL_HOME)/lib -Xlinker -rpath -Xlinker /usr/lib/pegasus -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+		    $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -Xlinker -rpath-link -Xlinker $(OPENSSL_HOME)/lib -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
                   else
 		    $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -Xlinker -rpath-link -Xlinker $(OPENSSL_HOME)/lib -Xlinker -rpath -Xlinker $(OPENSSL_HOME)/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
                   endif
                 else
                   ifdef  PEGASUS_USE_RELEASE_DIRS
-	            $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+	            $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
                   else
 	           $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
                   endif
                 endif
               else
                 ifdef  PEGASUS_USE_RELEASE_DIRS
-	          $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+	          $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
                 else
 	          $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -Xlinker -rpath -Xlinker ${ICU_INSTALL}/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
                 endif
@@ -76,20 +76,20 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
           ifdef PEGASUS_HAS_SSL
             ifdef PEGASUS_USE_SSL_SHAREDLIB
               ifdef  PEGASUS_USE_RELEASE_DIRS
-	        $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath-link -Xlinker $(OPENSSL_HOME)/lib -Xlinker -rpath -Xlinker /usr/lib/pegasus -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+	        $(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -Xlinker -rpath-link -Xlinker $(OPENSSL_HOME)/lib -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
               else
 		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -Xlinker -rpath-link -Xlinker $(OPENSSL_HOME)/lib -Xlinker -rpath -Xlinker $(OPENSSL_HOME)/lib -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
               endif
             else
               ifdef  PEGASUS_USE_RELEASE_DIRS
-		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
               else
 		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
               endif
             endif
           else
             ifdef  PEGASUS_USE_RELEASE_DIRS
-		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) -Xlinker -rpath-link -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
             else
 		$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
             endif
@@ -98,7 +98,7 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
       else
        ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
          ifdef  PEGASUS_USE_RELEASE_DIRS
-	   $(LINK_WRAPPER) $(CXX) -Wl,-brtl -blibpath:/usr/linux/lib:/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT) $(FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+	   $(LINK_WRAPPER) $(CXX) -Wl,-brtl -blibpath:$(PEGASUS_DEST_LIB_DIR):/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT) $(FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
          else
 	   $(LINK_WRAPPER) $(CXX) -Wl,-brtl -Wl,-bhalt:$(AIX_LD_HALT) $(FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
          endif

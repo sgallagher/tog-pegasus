@@ -70,14 +70,6 @@ ifdef PEGASUS_PAM_AUTHENTICATION
  DEFINES += -DPEGASUS_PAM_AUTHENTICATION -DPEGASUS_NO_PASSWORDFILE
 endif
 
-##
-## The following flag needs to be set to compile in the configuration
-## properties set with fixed release settings.
-##
-ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
- DEFINES += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
-endif
-
 # l10n
 ifdef PEGASUS_HAS_MESSAGES
   DEFINES += -DPEGASUS_HAS_MESSAGES
@@ -126,13 +118,6 @@ endif
   endif
 endif
 
-##
-## The following flag needs to be set to compile in the configuration
-## properties involving directories set with fixed release settings.
-##
-ifdef PEGASUS_USE_RELEASE_DIRS
- DEFINES += -DPEGASUS_USE_RELEASE_DIRS
-endif
 
 DEPEND_INCLUDES =
 
@@ -152,7 +137,7 @@ FLAGS =
 PEGASUS_SUPPORTS_DYNLIB=yes
 
 ifdef PEGASUS_USE_RELEASE_DIRS
-  FLAGS += -Wl,+s -Wl,+b/opt/wbem/lib:/usr/lib
+  FLAGS += -Wl,+s -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
 else
   ifdef PEGASUS_HAS_MESSAGES
     ifdef ICU_ROOT
@@ -167,6 +152,10 @@ endif
 
 ifdef PEGASUS_DEBUG
   FLAGS += -g
+endif
+
+ifdef PEGASUS_USE_RELEASE_DIRS
+    PEGASUS_DEST_LIB_DIR=/opt/wbem/lib
 endif
 
 #

@@ -1,7 +1,7 @@
 ifeq ($(COMPILER),xlc)
   LINK_COMMAND = xlC_r
   ifdef PEGASUS_USE_RELEASE_DIRS
-    LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -blibpath:/usr/linux/lib:/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT)
+    LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -blibpath:$(PEGASUS_DEST_LIB_DIR):/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT)
   else
     LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -Wl,-bhalt:$(AIX_LD_HALT)
   endif
@@ -18,9 +18,9 @@ ifeq ($(COMPILER),acc)
   endif
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
     ifdef PEGASUS_USE_RELEASE_DIRS
-      LINK_COMMAND += -Wl,+s -Wl,+b/opt/wbem/lib:/usr/lib
+      LINK_COMMAND += -Wl,+s -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
       ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
-        LINK_COMMAND += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:/opt/wbem/lib
+        LINK_COMMAND += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
       endif
     else
      ifdef PEGASUS_HAS_SSL

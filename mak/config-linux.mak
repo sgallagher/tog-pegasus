@@ -44,11 +44,8 @@ endif
 
 # Build using fixed release settings
 #
-ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-FLAGS += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
-endif
 ifdef PEGASUS_USE_RELEASE_DIRS
-FLAGS += -DPEGASUS_USE_RELEASE_DIRS
+  PEGASUS_DEST_LIB_DIR=/opt/tog-pegasus/lib
 endif
 
 # PAM support

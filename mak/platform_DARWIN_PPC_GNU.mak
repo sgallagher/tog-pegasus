@@ -33,3 +33,7 @@ MOVE = mv
 LIB_SUFFIX = .dylib
 
 PEGASUS_SUPPORTS_DYNLIB = yes
+
+ifdef PEGASUS_USE_RELEASE_DIRS
+  PEGASUS_DEST_LIB_DIR=/usr/lib/pegasus
+endif

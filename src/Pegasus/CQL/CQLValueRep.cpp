@@ -1297,21 +1297,27 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
 	    Array<Char16> _str16;
 	    cv.get(_str16);
 
+       Char16 _tmp[2];
+
 	    if(key == -1)
-	      {
-		Array<String> _str;
-		for(Uint32 i = 0; i < _str16.size(); ++i)
-		  {
-		    _str.append(String(&_str16[i]));
-		  }
-		_theValue = CIMValue(_str);
-	      }
+       {
+         Array<String> _str;
+         for(Uint32 i = 0; i < _str16.size(); ++i)
+         {
+           _tmp[0] = _str16[i]; 
+           _tmp[1] = '\0';
+           _str.append(String(_tmp));
+         }
+         _theValue = CIMValue(_str);
+       }
 	    else
-	      {
-		_theValue.set(String(&_str16[index]));
-	      }
+       {
+         _tmp[0] = _str16[index]; 
+         _tmp[1] = '\0';
+         _theValue.set(String(_tmp));
+       }
 	    _valueType = CQLValue::String_type;
-            break;
+       break;
 	  }
 	case CIMTYPE_STRING:
 	  {
@@ -1471,9 +1477,10 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
 	  }   
 	case CIMTYPE_CHAR16:
 	  {
-	    Char16 _tmp;
-	    cv.get(_tmp);
-	    _theValue = CIMValue(String(&_tmp));
+	    Char16 _tmp[2];
+	    cv.get(_tmp[0]);
+       _tmp[1] = '\0';
+	    _theValue = CIMValue(String(_tmp));
 	    _valueType = CQLValue::String_type;
 	    break;
 	  }  

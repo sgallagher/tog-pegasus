@@ -33,6 +33,7 @@
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //				Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //		
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -243,11 +244,9 @@ class PEGASUS_COMMON_LINKAGE Message
 
       static Uint32 getNextKey()
       {
-	
-	 _mut.lock( pegasus_thread_self() ) ;
-	 Uint32 ret = _nextKey++;
-	 _mut.unlock();
-	 return ret;
+          AutoMutex autoMut(_mut);
+          Uint32 ret = _nextKey++;
+          return ret;
       }
 
       virtual void print(

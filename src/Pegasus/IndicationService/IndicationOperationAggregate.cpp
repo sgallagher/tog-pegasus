@@ -27,6 +27,7 @@
 //             (carolann_graves@hp.com)
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -164,10 +165,10 @@ void IndicationOperationAggregate::setNumberIssued (Uint32 i)
 Boolean IndicationOperationAggregate::appendResponse (
     CIMResponseMessage * response)
 {
-    _appendResponseMutex.lock (pegasus_thread_self ());
+    AutoMutex autoMut(_appendResponseMutex);
     _responseList.append (response);
     Boolean returnValue = (getNumberResponses () == getNumberIssued ());
-    _appendResponseMutex.unlock ();
+    
     return returnValue;
 }
 
@@ -192,9 +193,9 @@ void IndicationOperationAggregate::deleteResponse (
 void IndicationOperationAggregate::appendRequest (
     CIMRequestMessage * request)
 {
-    _appendRequestMutex.lock (pegasus_thread_self ());
+    AutoMutex autoMut(_appendRequestMutex);
     _requestList.append (request);
-    _appendRequestMutex.unlock ();
+    
 }
 
 Uint32 IndicationOperationAggregate::getNumberRequests ()

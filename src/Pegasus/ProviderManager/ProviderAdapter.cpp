@@ -26,6 +26,7 @@
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By: Adrian Schuur - schuur@de.ibm.com
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +89,7 @@ ProviderAdapterManager::~ProviderAdapterManager(void)
 {
 PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::~ProviderAdapterManager\n"; )
     // unload all adapter modules
-    _listMutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_listMutex);
 
     for(Uint32 i=0,n=_listOfAdapterLibs.size();i<n;i++)
         System::unloadDynamicLibrary(_listOfAdapterLibs[i]);
@@ -96,7 +97,6 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::~ProviderAdapterManager\
     _listOfAdapterNames.clear();
     _listOfAdapterCounts.clear();
     _listOfAdapterLibs.clear();
-    _listMutex.unlock();
 }
 
 ProviderAdapterManager * ProviderAdapterManager::get_pamgr()
@@ -116,7 +116,7 @@ ProviderAdapter * ProviderAdapterManager::addAdapter(
 PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::addAdapter(): "
        <<adapterName<<" "<<providerLocation<<" "<<providerName<<"\n"; )
 
-   _listMutex.lock(pegasus_thread_self());
+   AutoMutex autoMut(_listMutex);
    ProviderAdapter *pad=NULL;
    DynamicLibraryHandle adapter;
 
@@ -136,7 +136,6 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::addAdapter(): "
        catch (Exception & e) {
             PROVIDERADAPTER_DEBUG (cerr << e.getMessage();)
        }
-       _listMutex.unlock();
        return pad;
    }
 
@@ -175,14 +174,13 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::addAdapter(): "
            }
        } // endif of not found 
    } 
-   _listMutex.unlock();
    return pad;
 }
 
 void  ProviderAdapterManager::deleteAdapter(const String & adapterName)
 {
 PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::deleteAdapter()\n"; )
-    _listMutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_listMutex);
 
     // lookup adapterName
     for(Uint32 i=0,n=_listOfAdapterNames.size();i<n;i++)
@@ -197,14 +195,13 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::deleteAdapter()\n"; )
             break;
         }
     }
-    _listMutex.unlock();
 }
 
 void  ProviderAdapterManager::deleteAdapter(
               const DynamicLibraryHandle & adapterlib)
 {
 PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::deleteAdapter()\n"; )
-    _listMutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_listMutex);
 
     // lookup adapterName
     for(Uint32 i=0,n=_listOfAdapterLibs.size();i<n;i++)
@@ -220,7 +217,6 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::deleteAdapter()\n"; )
             break;
         }
     }
-    _listMutex.unlock();
 }
 
 DynamicLibraryHandle ProviderAdapterManager::loadAdapter(
@@ -324,13 +320,12 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::loadProvider(): "<<
 
 void ProviderAdapterManager::list(void)
 {
-    _listMutex.lock(pegasus_thread_self());
+    AutMutex autoMut(_listMutex);
     for(Uint32 i=0,n=_listOfAdapterNames.size(); i<n; i++)
     {
         PEGASUS_STD(cout) << "Entry " << i << "  " << _listOfAdapterNames[i] <<
         PEGASUS_STD(endl);
     }
-    _listMutex.unlock();
 }
 
 PEGASUS_NAMESPACE_END

@@ -26,6 +26,7 @@
 // Author: Markus Mueller (markus_mueller@de.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,15 +80,14 @@ SignalHandler::~SignalHandler()
 
 void SignalHandler::registerHandler(Uint32 signum, signal_handler _sighandler)
 {
-    reg_mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(reg_mutex);
     deactivate_i(signum);
     reg_handler[signum].sh = _sighandler;
-    reg_mutex.unlock();
 }
 
 void SignalHandler::activate(Uint32 signum)
 {
-    reg_mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(reg_mutex);
     if (reg_handler[signum].active) return; // throw exception
 
     struct sigaction * sig_acts = new struct sigaction;
@@ -106,16 +106,14 @@ void SignalHandler::activate(Uint32 signum)
     sigaction(signum, sig_acts, &reg_handler[signum].oldsa);
 
     reg_handler[signum].active = -1;
-    reg_mutex.unlock();
 
     delete sig_acts;
 }
 
 void SignalHandler::deactivate(Uint32 signum)
 {
-    reg_mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(reg_mutex);
     deactivate_i(signum);
-    reg_mutex.unlock();
 }
 
 void SignalHandler::deactivate_i(Uint32 signum)
@@ -129,10 +127,9 @@ void SignalHandler::deactivate_i(Uint32 signum)
 
 void SignalHandler::deactivateAll()
 {
-    reg_mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(reg_mutex);
     for (Uint32 i=0; i < 32; i++)
         if (reg_handler[i].active) deactivate_i(i);
-    reg_mutex.unlock();
 }
 
 void SignalHandler::ignore(Uint32 signum)

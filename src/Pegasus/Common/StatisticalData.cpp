@@ -25,6 +25,7 @@
 //
 // Author: Arthur Pichlkostner
 //             (checked in: Markus Mueller sedgewick_de@yahoo.de)
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -86,7 +87,7 @@ StatisticalData::StatisticalData(){
 }
 
 void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t){
-   _mutex.lock( pegasus_thread_self() );
+   AutoMutex autoMut(_mutex);
    switch(t){
 	  case SERVER:   	numCalls[type] += 1;
                         cimomTime[type] += value;
@@ -98,7 +99,6 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t){
       case BYTES_READ:  requestSize[type] += value;
                         break;
    }
-   _mutex.unlock();
 }
 
  void StatisticalData::setCopyGSD(Boolean flag)

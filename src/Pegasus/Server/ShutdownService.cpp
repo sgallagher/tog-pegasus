@@ -27,6 +27,7 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -465,7 +466,7 @@ Boolean ShutdownService::_waitUntilNoMoreRequests(Boolean requestPending)
            maxWaitTime > 0)
     {
          // lock the mutex
-         _mutex.lock(pegasus_thread_self());
+         AutoMutex autoMut(_mutex);
 
          try
          {
@@ -481,8 +482,6 @@ Boolean ShutdownService::_waitUntilNoMoreRequests(Boolean requestPending)
              maxWaitTime = 0;
          }
 
-         // unlock the mutex
-         _mutex.unlock();
     } 
 
     if (requestCount > 1)

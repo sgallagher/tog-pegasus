@@ -26,6 +26,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +171,7 @@ template<class L> void *DQueue<L>::operator new(size_t size)
    if (size != sizeof(DQueue<L>))
       return ::operator new(size);
    
-   _alloc_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_alloc_mut);
    
    DQueue<L> *p = _headOfFreeList;
    if(p)
@@ -187,7 +188,7 @@ template<class L> void *DQueue<L>::operator new(size_t size)
       p = newBlock;
       _headOfFreeList = &newBlock[1];
    }
-   _alloc_mut.unlock();
+
    
    return p;
 }
@@ -202,10 +203,10 @@ template<class L> void DQueue<L>::operator delete(void *dead, size_t size)
       return;
    }
    DQueue<L> *p = static_cast<DQueue<L> *>(dead);
-   _alloc_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_alloc_mut);
    p->_dq_next = _headOfFreeList;
    _headOfFreeList = p;
-   _alloc_mut.unlock();
+
 }
 
 template<class L> AsyncDQueue<L> * AsyncDQueue<L>::_headOfFreeList =0;
@@ -217,7 +218,7 @@ template<class L> void * AsyncDQueue<L>::operator new(size_t size)
    if (size != sizeof(AsyncDQueue<L>))
       return ::operator new(size);
    
-   _alloc_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_alloc_mut);
    
    AsyncDQueue<L> *p = _headOfFreeList;
    if(p)
@@ -234,7 +235,7 @@ template<class L> void * AsyncDQueue<L>::operator new(size_t size)
       p = newBlock;
       _headOfFreeList = &newBlock[1];
    }
-   _alloc_mut.unlock();
+
    
    return p;
 }
@@ -249,10 +250,10 @@ template<class L> void AsyncDQueue<L>::operator delete(void *deadObject, size_t 
       return;
    }
    AsyncDQueue<L> *p = static_cast<AsyncDQueue<L> *>(deadObject);
-   _alloc_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_alloc_mut);
    p->_dq_next = _headOfFreeList;
    _headOfFreeList = p;
-   _alloc_mut.unlock();
+
 }
 
 template<class L> DQueue<L>::DQueue(void) 
@@ -300,10 +301,10 @@ template<class L> void DQueue<L>::insert_first(L *element) throw(IPCException)
 {
    if(element == 0)
       return;
-   _mutex->lock(pegasus_thread_self());
+   AutoMutex autoMut(*_mutex.get());
    Base::insert_first(static_cast<void *>(element));
    (*_actual_count.get())++;
-   _mutex->unlock();
+
 }
 
 template<class L> void DQueue<L>::insert_last_no_lock(L *element) throw(IPCException)
@@ -320,20 +321,20 @@ template<class L> void DQueue<L>::insert_last(L *element) throw(IPCException)
 {
    if(element == 0)
       return;
-   _mutex->lock(pegasus_thread_self());
+   AutoMutex autoMut(*_mutex.get());
    Base::insert_last(static_cast<void *>(element));
    (*_actual_count.get())++;
-   _mutex->unlock();
+
 }
 
 
 template<class L> void DQueue<L>::empty_list( void ) throw(IPCException) 
 {
    if( Base::count() > 0) {
-      _mutex->lock(pegasus_thread_self()); 
+      AutoMutex autoMut(*_mutex.get()); 
       Base::empty_list();
       (*_actual_count.get()) = 0;
-      _mutex->unlock();
+
    }
    return;
 }
@@ -345,11 +346,11 @@ template<class L> L * DQueue<L>::remove_first ( void ) throw(IPCException)
    
    if( _actual_count->value() )
    {
-      _mutex->lock(pegasus_thread_self());
+      AutoMutex autoMut(*_mutex.get());
       ret = static_cast<L *>(Base::remove_first());
       if( ret != 0 )
 	 (*_actual_count.get())--;
-      _mutex->unlock();
+
    }
    return ret;
 }
@@ -359,11 +360,11 @@ template<class L> L *DQueue<L>::remove_last ( void ) throw(IPCException)
    L * ret = 0;
    if( _actual_count->value() )
    {
-      _mutex->lock(pegasus_thread_self());
+      AutoMutex autoMut(*_mutex.get());
       ret = static_cast<L *>(Base::remove_last());
       if( ret != 0 )
 	 (*_actual_count.get())--;
-      _mutex->unlock();
+
    }
    return ret;
 }
@@ -426,9 +427,9 @@ template<class L> L * DQueue<L>::remove(const void *key) throw(IPCException)
    
    if( _actual_count->value() > 0 ) 
    {
-      _mutex->lock(pegasus_thread_self());
+      AutoMutex autoMut(*_mutex.get());
       ret = DQueue<L>::remove_no_lock(key);
-      _mutex->unlock( );
+
    }
    return(ret);
 }
@@ -439,9 +440,9 @@ template<class L>L *DQueue<L>::remove(const L *key) throw(IPCException)
    
    if( _actual_count->value() > 0 ) 
    {
-      _mutex->lock(pegasus_thread_self());
+      AutoMutex autoMut(*_mutex.get());
       ret = DQueue<L>::remove_no_lock(key);
-      _mutex->unlock();
+      
    }
    return(ret);
 }
@@ -510,9 +511,9 @@ template<class L> Boolean DQueue<L>::exists(const void *key) throw(IPCException)
    Boolean ret = false;
    if(_actual_count->value() > 0)
    {
-      _mutex->lock(pegasus_thread_self());
+      AutoMutex autoMut(*_mutex.get());
       ret = DQueue<L>::reference(key);
-      _mutex->unlock();
+      
    }
    return(ret);
 }
@@ -525,9 +526,9 @@ template<class L> Boolean DQueue<L>::exists(const L *key) throw(IPCException)
    Boolean ret = false;
    if(_actual_count->value() > 0)
    {
-      _mutex->lock(pegasus_thread_self());
+      AutoMutex autoMut(*_mutex.get());
       ret = DQueue<L>::reference(key);
-      _mutex->unlock();
+      
    }
    return(ret);
 }
@@ -728,16 +729,16 @@ template<class L> void AsyncDQueue<L>::unlock(void)
 
 template<class L> void AsyncDQueue<L>::signal_slot(void) throw(IPCException)
 { 
-   _cond->lock(pegasus_thread_self()); 
+   AutoMutex autoMut(*_cond->get()); 
    _slot->unlocked_signal(pegasus_thread_self());
-   _cond->unlock();
+
 }
 
 template<class L> void AsyncDQueue<L>::signal_node(void) throw(IPCException)
 {
-   _cond->lock(pegasus_thread_self()); 
+   AutoMutex autoMut(*_cond->get()); 
    _node->unlocked_signal(pegasus_thread_self());
-   _cond->unlock();
+
 }
 
 template<class L> Condition *AsyncDQueue<L>::get_node_cond(void) 

@@ -27,6 +27,7 @@
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -446,71 +447,71 @@ AtomicInt& AtomicInt::operator=(const AtomicInt& original )
     // and _then_ lock this mutex. This pattern is repeated throughout the class
   
     Uint32 temp = original._rep._value;
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value = temp;
-    _rep._mutex.unlock();
+    
     return *this;
 }
 
 AtomicInt& AtomicInt::operator=(Uint32 val)
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value = val;
-    _rep._mutex.unlock();
+    
     return *this;
 }
 
 Uint32 AtomicInt::value(void) const
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     Uint32 retval = _rep._value;
-    _rep._mutex.unlock();
+    
     return retval;
 }
 
 void AtomicInt::operator++(void)
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value++;
-    _rep._mutex.unlock();
+    
 }
 
 void AtomicInt::operator++(int)
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value++;
-    _rep._mutex.unlock();
+    
 }
 
 void AtomicInt::operator--(void)
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value--;
-    _rep._mutex.unlock();
+    
 }
 
 void AtomicInt::operator--(int)
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value--;
-    _rep._mutex.unlock();
+    
 }
 
 Uint32 AtomicInt::operator+(const AtomicInt& val)
 {
     // never acquire a mutex while holding a mutex 
     Uint32 retval = val._rep._value; 
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     retval += _rep._value ;
-    _rep._mutex.unlock();
+    
     return retval;
 }
 
 Uint32 AtomicInt::operator+(Uint32 val)
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     Uint32 retval = _rep._value + val;
-    _rep._mutex.unlock();
+    
     return retval;
 }
 
@@ -518,17 +519,17 @@ Uint32 AtomicInt::operator-(const AtomicInt& val)
 {
     // never acquire a mutex while holding a mutex
     Uint32 retval =  val._rep._value;
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     retval += _rep._value;
-    _rep._mutex.unlock();
+    
     return retval;
 }
 
 Uint32 AtomicInt::operator-(Uint32 val)
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     Uint32 retval = _rep._value - val;
-    _rep._mutex.unlock();
+    
     return retval;
 }
 
@@ -537,17 +538,17 @@ AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
 {
     // never acquire a mutex while holding a mutex
     Uint32 temp = val._rep._value;
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value += temp;
-    _rep._mutex.unlock();
+    
     return *this;
 }
 AtomicInt& AtomicInt::operator+=(Uint32 val)
 {
     // never acquire a mutex while holding a mutex
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value += val;
-    _rep._mutex.unlock();
+    
     return *this;
 }
 
@@ -555,27 +556,27 @@ AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
 {
     // never acquire a mutex while holding a mutex
     Uint32 temp = val._rep._value;
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value -= temp;
-    _rep._mutex.unlock();
+    
     return *this;
 }
 
 AtomicInt& AtomicInt::operator-=(Uint32 val)
 {
     // never acquire a mutex while holding a mutex
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value -= val;
-    _rep._mutex.unlock();
+    
     return *this;
 }
 
 Boolean AtomicInt::DecAndTestIfZero()
 {
-    _rep._mutex.lock(pegasus_thread_self());
+    AutoMutex autoMut(_rep._mutex);
     _rep._value--;
     Boolean b = (_rep._value == 0);
-    _rep._mutex.unlock();
+    
     return b;
 }
 
@@ -626,13 +627,16 @@ Condition::~Condition(void)
    cond_waiter *lingerers;
    // don't allow any new waiters
    _disallow++;
-   _condition._spin.lock(pegasus_thread_self());
+   
+   {
+   AutoMutex autoMut(_condition._spin);
 
    while(NULL != (lingerers = static_cast<cond_waiter *>(_condition._waiters.remove_last())))
    {
       lingerers->signalled.signal();
    }
-   _condition._spin.unlock();
+   } // mutex unlocks here
+   
    while( _condition._waiters.count())   {
       pegasus_yield();
    }

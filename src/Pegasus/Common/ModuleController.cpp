@@ -25,7 +25,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com) << Tue Mar 19 13:19:24 2002 mdd >>
 //
-// Modified By:  Amit K Arora, IBM (amita@in.ibm.com)
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for PEP101 and Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ void * ModuleController::callback_handle::operator new(size_t size)
 {
    if( size != sizeof(callback_handle))
       return ::operator new(size);
-   _alloc_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_alloc_mut);
    callback_handle *node = _head;
    if(node)
       _head = reinterpret_cast<callback_handle *>(node->_parm);
@@ -63,7 +63,6 @@ void * ModuleController::callback_handle::operator new(size_t size)
       node = block;
       _head = &block[1];
    }
-   _alloc_mut.unlock();
    return node;
 }
 
@@ -78,10 +77,9 @@ void ModuleController::callback_handle::operator delete(void *dead, size_t size)
       return;
    }
    callback_handle *node = reinterpret_cast<callback_handle *>(dead);
-   _alloc_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_alloc_mut);
    node->_parm = _head;
    _head = node;
-   _alloc_mut.unlock();
 }
 
 
@@ -123,28 +121,20 @@ pegasus_module::module_rep::~module_rep(void)
 Message * pegasus_module::module_rep::module_receive_message(Message *msg)
 {
    Message * ret;
-   _thread_safety.lock(pegasus_thread_self());
-   try {  ret = _receive_message(msg, _module_address); }
-   catch(...)
-   {
-      _thread_safety.unlock();
-      throw;
-   }
-   _thread_safety.unlock();
+   AutoMutex autoMut(_thread_safety);
+   ret = _receive_message(msg, _module_address);
    return ret;
 }
 
 void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message *msg, void *parm)
 {
-   _thread_safety.lock(pegasus_thread_self());
-   try  { _async_callback(msg_handle, msg, parm); }
-   catch(...) { _thread_safety.unlock(); throw; }
-   _thread_safety.unlock();
+   AutoMutex autoMut(_thread_safety);
+   _async_callback(msg_handle, msg, parm);
 }
  
 void pegasus_module::module_rep::_send_shutdown_notify(void)
 {
-   _thread_safety.lock(pegasus_thread_self());
+   AutoMutex autoMut(_thread_safety);
    if(_reference_count.value() == 0 )
    {
       if( _shutting_down == 0 )
@@ -155,7 +145,6 @@ void pegasus_module::module_rep::_send_shutdown_notify(void)
 	 _receive_message = closed_receive_message;
       }
    }
-   _thread_safety.unlock();
 }
 
 

@@ -29,6 +29,7 @@
 //                Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //                Sushma Fernandes, Hewlett-Packard Company 
 //                        (sushma_fernandes.hp.com)
+//                Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -151,9 +152,10 @@ String LocalAuthFile::create()
     //
     // extension size is username plus the sequence count
     //
-    sequenceCountLock.lock(pegasus_thread_self());
-    mySequenceNumber = sequenceCount++;
-    sequenceCountLock.unlock();
+    {
+      AutoMutex autoMut(sequenceCountLock);
+      mySequenceNumber = sequenceCount++;
+    } // mutex unlocks here
 
     char extension[2*INT_BUFFER_SIZE];
     sprintf(extension,"_%u_%u", mySequenceNumber, milliSecs);

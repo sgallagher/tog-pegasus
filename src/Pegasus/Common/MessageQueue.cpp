@@ -25,7 +25,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,10 +46,8 @@ static Mutex q_table_mut ;
 
 void MessageQueue::remove_myself(Uint32 qid)
 {
-   q_table_mut.lock(pegasus_thread_self());
-   
+   AutoMutex autoMut(q_table_mut);   
    _queueTable.remove(qid);
-   q_table_mut.unlock();
 }
 
 
@@ -62,7 +60,7 @@ Uint32 MessageQueue::getNextQueueId() throw(IPCException)
    //
 
    static Mutex _id_mut ;
-   _id_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_id_mut);
 
    Uint32 queueId;
 
@@ -77,12 +75,6 @@ Uint32 MessageQueue::getNextQueueId() throw(IPCException)
 
       queueId = _nextQueueId++;
    } while (lookup(queueId) != 0);
-
-   //
-   // Unlock mutex:
-   //
-
-   _id_mut.unlock();
 
    return queueId;
 }
@@ -114,14 +106,11 @@ MessageQueue::MessageQueue(
     // Insert into queue table:
     //
 
-    q_table_mut.lock(pegasus_thread_self());
+    AutoMutex autoMut(q_table_mut);
 
     while (!_queueTable.insert(_queueId, this))
        ;
-
-    q_table_mut.unlock();
-
-    
+  
    PEG_METHOD_EXIT();
 }
 
@@ -134,10 +123,11 @@ MessageQueue::~MessageQueue()
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::~MessageQueue queueId = %i, name = %s", _queueId, _name);
 
-    q_table_mut.lock(pegasus_thread_self());
-
-    _queueTable.remove(_queueId);
-    q_table_mut.unlock();
+    
+    {
+      AutoMutex autoMut(q_table_mut);
+      _queueTable.remove(_queueId);
+    } // mutex unlocks here
 	
     // Free the name:
     
@@ -166,7 +156,8 @@ void MessageQueue::enqueue(Message* message)
                       MessageTypeToString(message->getType()), 
                       message->getKey() );
     
-    _mut.lock(pegasus_thread_self());
+    {
+    AutoMutex autoMut(_mut);
     if (_back)
     {
        _back->_next = message;
@@ -187,7 +178,7 @@ void MessageQueue::enqueue(Message* message)
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
 		  "MessageQueue::enqueue _queueId = %d, _count = %d", _queueId, _count);
        
-    _mut.unlock();
+    } // mutex unlocks here
     
     handleEnqueue();
     PEG_METHOD_EXIT();
@@ -197,7 +188,7 @@ Message* MessageQueue::dequeue() throw(IPCException)
 {
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::dequeue()");
 
-   _mut.lock(pegasus_thread_self());
+    AutoMutex autoMut(_mut);
     if (_front)
     {
 	Message* message = _front;
@@ -213,7 +204,6 @@ Message* MessageQueue::dequeue() throw(IPCException)
             "MessageQueue::dequeue _queueId = %d, _count = %d", 
             _queueId, _count);
 
-	_mut.unlock();
 	message->_next = 0;
 	message->_prev = 0;
 	message->_owner = 0;
@@ -221,7 +211,6 @@ Message* MessageQueue::dequeue() throw(IPCException)
         PEG_METHOD_EXIT();
 	return message;
     }
-    _mut.unlock();
 
     PEG_METHOD_EXIT();
     return 0;
@@ -245,7 +234,8 @@ void MessageQueue::remove(Message* message) throw(IPCException)
 	throw NoSuchMessageOnQueue();
     }
 
-    _mut.lock(pegasus_thread_self());
+    {
+    AutoMutex autoMut(_mut);
 
     if (message->_next)
 	message->_next->_prev = message->_prev;
@@ -261,7 +251,7 @@ void MessageQueue::remove(Message* message) throw(IPCException)
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
        "MessageQueue::remove _count = %d", _count);
 
-    _mut.unlock();
+    } // mutex unlocks here
 
     message->_prev = 0;
     message->_next = 0;
@@ -272,59 +262,52 @@ void MessageQueue::remove(Message* message) throw(IPCException)
 
 Message* MessageQueue::findByType(Uint32 type) throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
 
     for (Message* m = front(); m; m = m->getNext())
     {
        if (m->getType() == type)
        {
-	  _mut.unlock();
-	  return m;
+         return m;
        }
     }
-    _mut.unlock();
     return 0;
 }
 
 Message* MessageQueue::findByKey(Uint32 key) throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
 
     for (Message* m = front(); m; m = m->getNext())
     {
        if (m->getKey() == key)
        {
-	  _mut.unlock();
-	  return m;
+          return m;
        }
 
     }
-    _mut.unlock();
     return 0;
 }
 
 void MessageQueue::print(ostream& os) const throw(IPCException)
 {
-   const_cast<MessageQueue *>(this)->_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(const_cast<MessageQueue *>(this)->_mut);
 
    for (const Message* m = front(); m; m = m->getNext())
 	m->print(os);
-   const_cast<MessageQueue *>(this)->_mut.unlock();
 }
 
 Message* MessageQueue::find(Uint32 type, Uint32 key) throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
 
     for (Message* m = front(); m; m = m->getNext())
     {
        if (m->getType() == type && m->getKey() == key)
        {
-	  _mut.unlock();
-	  return m;
+         return m;
        }
     }
-    _mut.unlock();
 
     return 0;
 }
@@ -348,17 +331,14 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId) throw(IPCException)
 {
 
     MessageQueue* queue = 0;
-    q_table_mut.lock(pegasus_thread_self());
+    AutoMutex autoMut(q_table_mut);
 
     if (_queueTable.lookup(queueId, queue))
     {
-       q_table_mut.unlock();
        return queue;
     }
 
     // Not found!
-
-    q_table_mut.unlock();
 
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::lookup failure queueId = %i", queueId);
@@ -372,19 +352,17 @@ MessageQueue* MessageQueue::lookup(const char *name) throw(IPCException)
 
    if(name == NULL)
       throw NullPointer();
-   q_table_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(q_table_mut);
 
    for(QueueTable::Iterator i = _queueTable.start(); i; i++)
    {
         // ATTN: Need to decide how many characters to compare in queue names
       if(! strcmp( ((MessageQueue *)i.value())->getQueueName(), name) )
       {
-	 q_table_mut.unlock();
-	 return( (MessageQueue *)i.value());
+         return( (MessageQueue *)i.value());
       }
 
    }
-   q_table_mut.unlock();
 
    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::lookup failure - name = %s", name);

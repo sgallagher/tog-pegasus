@@ -34,6 +34,7 @@
 //               Seema Gupta (gseema@in.ibm.com for PEP135)
 //               Dan Gorey, IBM (djgorey@us.ibm.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1730
+//               Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -4393,23 +4394,23 @@ WQLSelectStatement IndicationService::_getSelectStatement (
     {
         selectStatement.clear ();
 
-        _mutex.lock(pegasus_thread_self());
+        AutoMutex autoMut(_mutex);
 
         WQLParser::parse (filterQuery, selectStatement);
 
-        _mutex.unlock();
+        
     }
     catch (ParseError & pe)
     {
         String exceptionStr = pe.getMessage ();
-        _mutex.unlock();
+        
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
     }
     catch (MissingNullTerminator & mnt)
     {
         String exceptionStr = mnt.getMessage ();
-        _mutex.unlock();
+        
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
     }

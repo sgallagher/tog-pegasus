@@ -30,6 +30,7 @@
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Dave Rosckes (rosckes@us.ibm.com)
 //         Denise Eckstein (denise.eckstein@hp.com)
+//         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -177,7 +178,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	 CloseConnectionMessage* closeConnectionMessage 
 	    = (CloseConnectionMessage*)message;
 
-	 _rep->_connection_mut.lock(pegasus_thread_self());
+	 AutoMutex autoMut(_rep->_connection_mut);
 	 
 	 for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
 	 {
@@ -192,7 +193,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 	       break;
 	    }
 	 }
-	 _rep->_connection_mut.unlock();
+	 
 	 break;
       }
 
@@ -450,13 +451,13 @@ Uint32 HTTPAcceptor::getOutstandingRequestCount()
 {
    Uint32 count = 0;
    
-   _rep->_connection_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_rep->_connection_mut);
    if (_rep->connections.size() > 0)
    {
       HTTPConnection* connection = _rep->connections[0];	
       count = connection->getRequestCount();
    }
-   _rep->_connection_mut.unlock();
+   
    return count;
 }
 
@@ -492,7 +493,7 @@ void HTTPAcceptor::destroyConnections()
 
    // For each connection created by this object:
 
-   _rep->_connection_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_rep->_connection_mut);
    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
    {
       HTTPConnection* connection = _rep->connections[i];	
@@ -509,7 +510,7 @@ void HTTPAcceptor::destroyConnections()
    }
 
    _rep->connections.clear();
-   _rep->_connection_mut.unlock();
+   
 }
 
 void HTTPAcceptor::_acceptConnection()
@@ -621,9 +622,9 @@ void HTTPAcceptor::_acceptConnection()
 
    // Save the socket for cleanup later:
    connection->_entry_index = index;
-   _rep->_connection_mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_rep->_connection_mut);
    _rep->connections.append(connection);
-   _rep->_connection_mut.unlock();
+   
 }
 
 AsyncDQueue<pegasus_acceptor> pegasus_acceptor::acceptors(true, 0);

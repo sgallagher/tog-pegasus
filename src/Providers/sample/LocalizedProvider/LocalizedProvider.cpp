@@ -25,7 +25,7 @@
 //
 // Author: Chuck Carmack (carmack@us.ibm.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -238,7 +238,7 @@ LocalizedProvider::~LocalizedProvider(void)
 
 void LocalizedProvider::initialize(CIMOMHandle & cimom)
 {
-   mutex.lock(pegasus_thread_self());
+   AutoMutex autoMut(mutex);
 
    // Save away the CIMOMHandle
    _cimom = cimom;
@@ -284,7 +284,6 @@ void LocalizedProvider::initialize(CIMOMHandle & cimom)
    _instanceNames.append(reference3);
    _instanceLangs.append(ContentLanguages::EMPTY);	
 
-   mutex.unlock();
 }
 
 void LocalizedProvider::terminate(void)

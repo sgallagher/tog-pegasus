@@ -26,6 +26,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -196,7 +197,7 @@ MessageQueueService::MessageQueueService(const char *name,
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
 
-   _meta_dispatcher_mutex.lock(pegasus_thread_self());
+   AutoMutex autoMut(_meta_dispatcher_mutex);
    
    if( _meta_dispatcher == 0 )
    {
@@ -204,8 +205,7 @@ MessageQueueService::MessageQueueService(const char *name,
       _meta_dispatcher = new cimom();
       if (_meta_dispatcher == NULL )
       {
-	 _meta_dispatcher_mutex.unlock();
-	 throw NullPointer();
+         throw NullPointer();
       }
       _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 0,
 				    create_time, destroy_time, deadlock_time);  
@@ -222,7 +222,6 @@ MessageQueueService::MessageQueueService(const char *name,
 
    if( false == register_service(name, _capabilities, _mask) )
    {
-      _meta_dispatcher_mutex.unlock();
       //l10n
       //throw BindFailedException("MessageQueueService Base Unable to register with  Meta Dispatcher");
       MessageLoaderParms parms("Common.MessageQueueService.UNABLE_TO_REGISTER",
@@ -233,7 +232,7 @@ MessageQueueService::MessageQueueService(const char *name,
    
    _polling_list.insert_last(this);
    
-   _meta_dispatcher_mutex.unlock();
+//   _meta_dispatcher_mutex.unlock();  //Bug#1090
 //   _callback_thread.run();
    
 //   _req_thread.run();
@@ -250,10 +249,11 @@ MessageQueueService::~MessageQueueService(void)
    }
    _callback_ready.signal();
    
-   _meta_dispatcher_mutex.lock(pegasus_thread_self());
-   _service_count--;
-   if (_service_count.value() == 0 )
    {
+     AutoMutex autoMut(_meta_dispatcher_mutex);
+     _service_count--;
+     if (_service_count.value() == 0 )
+     {
 
       _stop_polling++;
       _polling_sem.signal();
@@ -266,8 +266,8 @@ MessageQueueService::~MessageQueueService(void)
 
       delete _thread_pool;
       _thread_pool = 0;
-   }
-   _meta_dispatcher_mutex.unlock();
+     }
+   } // mutex unlocks here
    _polling_list.remove(this);
    // Clean up in case there are extra stuff on the queue. 
   while (_incoming.count())
@@ -1173,11 +1173,9 @@ Uint32 MessageQueueService::get_next_xid(void)
 {
    static Mutex _monitor;
    Uint32 value;
-   _monitor.lock(pegasus_thread_self());
-   
+   AutoMutex autoMut(_monitor);   
    _xid++;
    value =  _xid.value();
-   _monitor.unlock();
    return value;
    
 }

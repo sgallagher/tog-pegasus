@@ -35,6 +35,7 @@
 //      		Adrian Schuur (schuur@de.ibm.com)
 //				Seema Gupta (gseema@in.ibm.com for PEP135)
 //              Chip Vincent (cvincent@us.ibm.com)
+//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -198,10 +199,10 @@ public:
     // whether this response is the last one expected
     Boolean appendResponse(CIMResponseMessage* response)
     {
-        _appendResponseMutex.lock(pegasus_thread_self());
+        AutoMutex autoMut(_appendResponseMutex);
         _responseList.append(response);
         Boolean returnValue = (totalIssued() == numberResponses());
-        _appendResponseMutex.unlock();
+
         return returnValue;
     }
 
@@ -222,9 +223,9 @@ public:
     CIMResponseMessage* getResponse(const Uint32& pos)
       {
       CIMResponseMessage *tmp;
-      _appendResponseMutex.lock(pegasus_thread_self());
+      AutoMutex autoMut(_appendResponseMutex);
       tmp = _responseList[pos];
-      _appendResponseMutex.unlock();
+
       return tmp;
 
     }
@@ -238,10 +239,10 @@ public:
       {
 	CIMResponseMessage* tmp;
 	
-	_appendResponseMutex.lock(pegasus_thread_self());
+	AutoMutex autoMut(_appendResponseMutex);
 	tmp = _responseList[pos];
 	_responseList.remove(pos);
-	_appendResponseMutex.unlock();
+
 	return tmp;
 	
       }
@@ -249,10 +250,10 @@ public:
 
     void deleteResponse(const Uint32&pos)
     {
-      _appendResponseMutex.lock(pegasus_thread_self());
+      AutoMutex autoMut(_appendResponseMutex);
       delete _responseList[pos];
       _responseList.remove(pos);
-      _appendResponseMutex.unlock();
+
     }
 
     Uint32 getRequestType(){ return _msgRequestType;}

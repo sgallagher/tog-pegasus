@@ -29,6 +29,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //              Heather Sterling, IBM (hsterl@us.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -394,11 +395,10 @@ SSLContextRep::SSLContextRep(
     //
     // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
     //
-    _countRepMutex.lock(pegasus_thread_self());
-
-    try
     {
-        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+       AutoMutex autoMut(_countRepMutex);
+
+       Tracer::trace(TRC_SSL, Tracer::LEVEL4,
                 "Value of Countrep in constructor %d", _countRep);
         if ( _countRep == 0 )
         {
@@ -424,14 +424,8 @@ SSLContextRep::SSLContextRep(
                 "After calling SSL_library_init %d", pegasus_thread_self());
 
         } 
-    }
-    catch(...)
-    {
-        _countRepMutex.unlock();
-        throw;
-    }
     _countRep++;
-    _countRepMutex.unlock();
+    }  // mutex unlocks here
 
     _randomInit(randomFile);
 
@@ -454,23 +448,16 @@ SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
     _randomFile = sslContextRep._randomFile;
 
     // Initialiaze SSL callbacks and increment the SSLContextRep object _counter.
-    _countRepMutex.lock(pegasus_thread_self());
-    try
     {
+        AutoMutex autoMut(_countRepMutex);
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
              "Value of Countrep in copy constructor %d", _countRep);
         if ( _countRep == 0 )
         {
             init_ssl();
         } 
-    }
-    catch(...)
-    {
-        _countRepMutex.unlock();
-        throw;
-    }
     _countRep++;
-    _countRepMutex.unlock();
+    }  // mutex unlocks here
 
     _sslContext = _makeSSLContext();
     PEG_METHOD_EXIT();
@@ -487,24 +474,19 @@ SSLContextRep::~SSLContextRep()
     SSL_CTX_free(_sslContext);
 
     // Decrement the SSLContextRep object _counter.
-    _countRepMutex.lock(pegasus_thread_self());
-    _countRep--;
-    // Free SSL locks if no instances of SSLContextRep exist.
-    try
     {
+        AutoMutex autoMut(_countRepMutex);
+        _countRep--;
+        // Free SSL locks if no instances of SSLContextRep exist.
+    
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
                 "Value of Countrep in destructor %d", _countRep);
         if ( _countRep == 0 )
         {
             free_ssl();
         }
-    }
-    catch(...)
-    {
-        _countRepMutex.unlock();
         throw;
     }
-    _countRepMutex.unlock();
     PEG_METHOD_EXIT();
 }
 

@@ -28,6 +28,7 @@
 // Modified By:
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #if defined(PEGASUS_REMOVE_TRACE)   
@@ -113,7 +114,7 @@ FAKE_MESSAGE *get_next_msg(void *key)
 {
    AutoPtr<FAKE_MESSAGE> msg;
 
-   msg_mutex.lock(pegasus_thread_self());
+   AutoMutex autoMut(msg_mutex);
    if(requests.value() < NUMBER_MSGS)
    {
       msg.reset(PEGASUS_NEW(FAKE_MESSAGE, dq_handle) FAKE_MESSAGE(key, 0));
@@ -133,7 +134,7 @@ FAKE_MESSAGE *get_next_msg(void *key)
       
       requests++;
    }
-   msg_mutex.unlock(); 
+    
    return msg.release();  
 }
  

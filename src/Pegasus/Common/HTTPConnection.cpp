@@ -32,6 +32,7 @@
 //         Amit Arora, IBM (amita@in.ibm.com)
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1851,7 +1852,7 @@ void HTTPConnection2::handleEnqueue(Message *message)
 
 void HTTPConnection2::enqueue(Message* message) throw(IPCException)
 {
-   _reentry.lock(pegasus_thread_self());
+   AutoMutex autoMut(_reentry);
    if(_closed.value())
    {
       delete message;
@@ -1861,7 +1862,7 @@ void HTTPConnection2::enqueue(Message* message) throw(IPCException)
    {
       handleEnqueue(message);
    }
-   _reentry.unlock();
+   
 }
 
 
@@ -2079,11 +2080,11 @@ void HTTPConnection2::_handleReadEvent(monitor_2_entry* entry)
 
 void HTTPConnection2::_close_connection(void)
 {
-   _reentry.lock(pegasus_thread_self());
+   AutoMutex autoMut(_reentry);
    
    _closed = 1;
    remove_myself(_queueId);
-   _reentry.unlock();
+   
    
 
 }

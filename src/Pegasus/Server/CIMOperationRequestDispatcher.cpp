@@ -39,6 +39,7 @@
 //               Dave Rosckes (rosckes@us.ibm.com)
 //               Adrian Schuur (schuur@de.ibm.com)
 //				 Seema Gupta (gseema@in.ibm.com for PEP135)
+//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -187,7 +188,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
    _wild.clear();
    if(_initialized == 0)
    {
-      _monitor.lock(pegasus_thread_self());
+      AutoMutex autoMut(_monitor);
       if(_initialized.value() == 0 )
       {
 	 _routing_table.insert_record(PEGASUS_CLASSNAME_CONFIGSETTING,
@@ -403,8 +404,6 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 	 }
 	 _initialized = 1;
       }
-
-      _monitor.unlock();
    }
 
    MessageQueueService *router =

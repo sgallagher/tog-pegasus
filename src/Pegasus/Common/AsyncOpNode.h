@@ -26,6 +26,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1188
+//              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -218,11 +219,10 @@ inline void AsyncOpNode::get_timeout_interval(struct timeval *buffer)
 {
    if(buffer != 0)
    {
-      _mut.lock( pegasus_thread_self() );
+      AutoMutex autoMut(_mut);
       buffer->tv_sec = _timeout_interval.tv_sec;
       buffer->tv_usec = _timeout_interval.tv_usec;
-      _mut.unlock();
-   }
+   } // mutex unlocks here
    return;
 }
 
@@ -230,12 +230,11 @@ inline void AsyncOpNode::set_timeout_interval(const struct timeval *interval)
 {
    if(interval != 0)
    {
-      _mut.lock(pegasus_thread_self());
+      AutoMutex autoMut(_mut);
       _timeout_interval.tv_sec = interval->tv_sec;
       _timeout_interval.tv_usec = interval->tv_usec;
       gettimeofday(&_updated, NULL);
-      _mut.unlock();
-   }
+   } // mutex unlocks here
 }
 
 
@@ -244,11 +243,12 @@ inline Boolean AsyncOpNode::timeout(void)
    struct timeval now;
    gettimeofday(&now, NULL);
    Boolean ret = false;
-   _mut.lock(pegasus_thread_self());
+   
+   AutoMutex autoMut(_mut);
    if((_updated.tv_sec + _timeout_interval.tv_sec ) < now.tv_sec)
-      if((_updated.tv_usec + _timeout_interval.tv_usec ) < now.tv_usec)
-	 ret =  true;
-   _mut.unlock();
+       if((_updated.tv_usec + _timeout_interval.tv_usec ) < now.tv_usec)
+    ret =  true;
+   
    return ret;
 }
 
@@ -262,81 +262,78 @@ inline OperationContext & AsyncOpNode::get_context(void)
 
 inline  void AsyncOpNode::put_request(const Message *request)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    if( false == _request.exists(reinterpret_cast<void *>(const_cast<Message *>(request))) )
    _request.insert_last( const_cast<Message *>(request) ) ;
 
 //   _request = const_cast<Message *>(request);
 
-   _mut.unlock();
 }
 
 inline Message * AsyncOpNode::get_request(void)
 {
    Message *ret;
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    ret = _request.remove_first() ;
-   _mut.unlock();
+
    return ret;
 }
 
 inline void AsyncOpNode::put_response(const Message *response)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    if (false == _response.exists(reinterpret_cast<void *>(const_cast<Message *>(response))))
    _response.insert_last( const_cast<Message *>(response) );
-   _mut.unlock();
 }
 
 inline Message * AsyncOpNode::get_response(void)
 {
    Message *ret;
 
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
 //   gettimeofday(&_updated, NULL);
    ret = _response.remove_first();
 //   ret = _response;
 
-   _mut.unlock();
+
    return ret;
 }
 
 inline Uint32 AsyncOpNode::read_state(void)
 {
-   _mut.lock(pegasus_thread_self());
+
+   AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    Uint32 ret = _state;
-   _mut.unlock();
+  
    return ret;
 
 }
 
 inline void AsyncOpNode::write_state(Uint32 state)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    _state = state;
-   _mut.unlock();
 }
 
 inline Uint32 AsyncOpNode::read_flags(void)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    Uint32 ret = _flags;
-   _mut.unlock();
+  
    return ret;
 }
 
 inline void AsyncOpNode::write_flags(Uint32 flags)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    _flags = flags;
-   _mut.unlock();
 }
 
 
@@ -355,41 +352,41 @@ inline void AsyncOpNode::unlock(void)
 inline void AsyncOpNode::udpate(void)
    throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
-   _mut.unlock();
+
    return;
 }
 
 inline void AsyncOpNode::deliver(const Uint32 count)
    throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    _completed_ops = count;
    _state |= ASYNC_OPSTATE_DELIVER;
    gettimeofday(&_updated, NULL);
-   _mut.unlock();
+
    return;
 }
 
 inline void AsyncOpNode::reserve(const Uint32 size)
    throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    _total_ops = size;
    _state |= ASYNC_OPSTATE_RESERVE;
    gettimeofday(&_updated, NULL);
-   _mut.unlock();
+
    return;
 }
 
 inline void AsyncOpNode::processing(void)
    throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_PROCESSING;
    gettimeofday(&_updated, NULL);
-   _mut.unlock();
+
    return;
 }
 
@@ -397,7 +394,7 @@ inline void AsyncOpNode::processing(void)
 inline void AsyncOpNode::processing(OperationContext *con)
    throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_PROCESSING;
    gettimeofday(&_updated, NULL);
 
@@ -409,17 +406,17 @@ inline void AsyncOpNode::processing(OperationContext *con)
       c = con->remove_context();
    }
    */
-   _mut.unlock();
+
    return;
 }
 
 inline void AsyncOpNode::complete(void)
    throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
-   _mut.unlock();
+   
 
    return;
 }
@@ -427,7 +424,7 @@ inline void AsyncOpNode::complete(void)
 inline void AsyncOpNode::complete(OperationContext *con)
    throw(IPCException)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
    /*
@@ -438,7 +435,7 @@ inline void AsyncOpNode::complete(OperationContext *con)
       c = con->remove_context();
    }
    */
-   _mut.unlock();
+
 }
 
 inline void AsyncOpNode::wait(void)
@@ -448,17 +445,17 @@ inline void AsyncOpNode::wait(void)
 
 inline void AsyncOpNode::release(void)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_RELEASED;
-   _mut.unlock();
+
 }
 
 inline  void AsyncOpNode::_set_lifetime(struct timeval *lifetime)
 {
-   _mut.lock(pegasus_thread_self());
+   AutoMutex autoMut(_mut);
    _lifetime.tv_sec = lifetime->tv_sec;
    _lifetime.tv_usec = lifetime->tv_usec;
-   _mut.unlock();
+
 }
 
 inline Boolean AsyncOpNode::_check_lifetime(void)

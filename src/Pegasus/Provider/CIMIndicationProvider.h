@@ -297,6 +297,32 @@ public:
 	    ResponseHandler<CIMInstance> & handler) = 0;
 };
 
+/*
+current (ongoing) indication interface proposal
+
+class CIM_IndicationProvider : virtual public CIM_BaseProvider
+{
+public:
+	  virtual void enableIndication(
+            const OperationContext & context,
+            const CIMObjectPath & className,
+            const CIMPropertyList & propertyList,
+            const CIMInstance & subscription,
+            ResponseHandler<CIMIndication> & handler) = 0;
+
+      virtual void modifyIndication(
+            const OperationContext & context,
+            const CIMObjectPath & className,
+            const CIMPropertyList & propertyList,
+            const CIMInstance & subscription) = 0;
+
+      virtual void disableIndication(
+            const OperationContext & context,
+            const CIMObjectPath & className,
+            const CIMInstance & subscription) = 0;
+};
+*/
+
 PEGASUS_NAMESPACE_END
 
 #endif

@@ -289,6 +289,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    MessageQueue* queue = MessageQueue::lookup(_entries[i].queueId);
 	    if( ! queue )
 	    {
+	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			     "Monitor::run lookup for connection entry failed, unsoliciting");
+	       
 	       unsolicitSocketMessages(socket);
 	       break;
 	    }
@@ -298,15 +301,25 @@ Boolean Monitor::run(Uint32 milliseconds)
 	       if( static_cast<HTTPConnection *>(queue)->refcount.value() == 0 )
 	       {
 		  
+		  Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+				"Monitor::run dispatching thread to idle connection");
 		  static_cast<HTTPConnection *>(queue)->refcount++;
 		  if( false == static_cast<HTTPConnection *>(queue)->is_dying())
 		     _thread_pool->allocate_and_awaken((void *)queue, _dispatch);
 		  else
 		     static_cast<HTTPConnection *>(queue)->refcount--;
 	       }
+	       else
+	       {
+		  Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+				"Monitor::run connection not idle, returning");
+	       }
+	       
 	    }
 	    else 
 	    {
+	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+			     "Monitor::run enqueueing to non-connection HTTP class");
 	       Message* message = new SocketMessage(socket, events);
 	       queue->enqueue(message);
 	    }

@@ -101,7 +101,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
         thread->sleep(30000);
         
         // check each provider for timeouts less than the current timeout
-        for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
+        //for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
+
+        // start with highest entry to prevent out-of-bounds
+        // exception in case a removed entry - Markus
+        for(Uint32 i = _this->_providers.size()-1; i >= 0; i--)
         {
             // get provider timeout
 
@@ -114,6 +118,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
             if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
             {
                 PEGASUS_STD(cout) << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getProviderName() << PEGASUS_STD(endl);
+                void * mypr = (void *)_this->_providers[i].getProvider();
 
                 _this->_providers[i].getProvider()->terminate();
                 _this->_providers.remove(i);

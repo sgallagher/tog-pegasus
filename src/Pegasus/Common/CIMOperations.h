@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMOperations.h,v $
+// Revision 1.4  2001/03/27 18:09:03  karl
+// add documentaiton
+//
 // Revision 1.3  2001/03/23 13:14:25  karl
 // fix comments
 //
@@ -1488,7 +1491,7 @@ public:
     CIMQualifier declarations from the target Namespace.
 
     @param NameSpace The NameSpace parameter is a string that defines the target
-	namespace \Ref{NAMESPACE}
+    namespace \Ref{NAMESPACE}
 
     @return If successful, the method returns zero or more CIMQualifier
     declarations.
@@ -1516,7 +1519,36 @@ public:
 
 
     /**
-    TBD Documentation on the Invoke method
+    Any CIM Server is assumed to support extrinsic methods. Extrinsic methods
+    are defined by the Schema supported by the Cim Server. If a CIM Server does
+    not support extrinsic method invocations, it MUST (subject to the
+    considerations described in the rest of this section) return the error code
+    CIM_ERR_NOT_SUPPORTED to any request to execute an extrinsic method. This
+    allows a CIM client to determine that all attempts to execute extrinsic
+    methods will fail.
+
+    @retrun - If the Cim Server is unable to perform the extrinsic method
+    invocation, one
+    of the following status codes MUST be returned by the CimServer, where the
+    first applicable error in the list
+    (starting with the first element of the list, and working down) is the error
+    returned. Any additional specific interpretation of the error is given in
+    parentheses.
+    <UL>
+
+         <LI>CIM_ERR_ACCESS_DENIED
+         <LI>CIM_ERR_NOT_SUPPORTED (the CimServer does not support extrinsic
+         method invocations)
+         <LI>CIM_ERR_INVALID_NAMESPACE
+         <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+         unrecognized or otherwise incorrect parameters)
+         <LI>CIM_ERR_NOT_FOUND (the target CIM Class or instance does not exist
+         in the specified namespace)
+         <LI>CIM_ERR_METHOD_NOT_FOUND
+         <LI>CIM_ERR_METHOD_NOT_AVAILABLE (the CimServer is unable to honor the
+         invocation request)
+         <LI>CIM_ERR_FAILED (some other unspecified error occurred)
+    </UL>
 
     */
 
@@ -1532,6 +1564,8 @@ PEGASUS_NAMESPACE_END
 
 
 #endif /* Pegasus_Operations_h */
+
+
 
 
 

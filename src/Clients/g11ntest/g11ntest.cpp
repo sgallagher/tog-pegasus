@@ -39,6 +39,8 @@
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Consumer/CIMIndicationConsumer.h>
+#include <Pegasus/Listener/CIMListener.h>
 
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/ContentLanguages.h>
@@ -74,6 +76,56 @@ Char16 utf16Chars[] =
         0xC720, 0xB2C8, 0xCF5B, 0x7D71, 0x4E00, 0x78BC,
 	0xdbc0,	0xdc01,
         0x00};
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Indication Related Stuff 
+//
+////////////////////////////////////////////////////////////////////////////////
+
+Semaphore indicationReceived(0);
+OperationContext indicationContext;
+CIMInstance indication;
+
+class MyIndicationConsumer : public CIMIndicationConsumer
+{
+public:
+	MyIndicationConsumer(String name);
+	~MyIndicationConsumer();
+	
+	void consumeIndication(const OperationContext& context,
+		const String & url, 
+		const CIMInstance& indicationInstance);
+
+private:
+	String name;
+
+};
+
+MyIndicationConsumer::MyIndicationConsumer(String name)
+{
+	this->name = name;
+}
+
+MyIndicationConsumer::~MyIndicationConsumer()
+{
+}
+
+void MyIndicationConsumer::consumeIndication(
+					     const OperationContext & context,
+					     const String & url,
+					     const CIMInstance& indicationInstance)
+{
+  // Save the objects for the main code to verify
+  indication = indicationInstance;
+  indicationContext = context;
+
+  // Signal the main code that the indication was received
+  indicationReceived.signal();
+}
+
+///////////////////////////////////////////////////////////////////////////
+
                     
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -302,7 +354,8 @@ static void TestUTFRepository( CIMClient& client,
     }
     catch(Exception& e)
     {
-      PEGASUS_STD(cerr) << "Error in TestLocalizedRepository: " << e.getMessage() << PEGASUS_STD(endl);
+      PEGASUS_STD(cerr) << "Error in TestLocalizedRepository: " 
+			<< e.getMessage() << PEGASUS_STD(endl);
       throw e;      
     }
 }
@@ -609,7 +662,8 @@ static void TestLocalizedInstances( CIMClient& client,
           //  
           //  (tests ContentLanguage aggregation in CIMOperationRequestDispatcher)
 
-	  cout << endl << "INSTANCE TEST 2: Enumerate Instances with Content-Language match"  << endl; 	
+	  cout << endl << "INSTANCE TEST 2: Enumerate Instances with Content-Language match"  
+	       << endl; 	
 
           AcceptLanguages acceptLangs2;
           if (skipICU)
@@ -661,11 +715,12 @@ static void TestLocalizedInstances( CIMClient& client,
           //  (tests ContentLanguage aggregation in CIMOperationRequestDispatcher)
           //
 
-	  cout << endl << "INSTANCE TEST 3: Enumerate Instances with Content-Language mismatch" << endl;
+	  cout << endl << "INSTANCE TEST 3: Enumerate Instances with Content-Language mismatch" 
+	       << endl;
 
           if (!activeTest)
           {
-              cout << "Active tests are disabled. Nothing to do for this test." << endl;              
+              cout << "Active tests are disabled. Nothing to do for this test." << endl;            
           }
           else
           {
@@ -727,7 +782,8 @@ static void TestLocalizedInstances( CIMClient& client,
           acceptLangs4.add(AcceptLanguageElement("x-men", float(0.4)));  	  	
           client.setRequestAcceptLanguages(acceptLangs4);	    
 
-          cout << endl << "INSTANCE TEST 4: Get Instance with AcceptLanguages = " << acceptLangs4 << endl;	        		    
+          cout << endl << "INSTANCE TEST 4: Get Instance with AcceptLanguages = " 
+	       << acceptLangs4 << endl;	        		    
 
           //  Find an instance of the base-class from the first enumerate
           Uint32 j = 0;
@@ -828,7 +884,7 @@ static void TestLocalizedInstances( CIMClient& client,
 
           if (!activeTest)
           {
-              cout << "Active tests are disabled. Nothing to do for this test." << endl;              
+              cout << "Active tests are disabled. Nothing to do for this test." << endl;            
           }
           else
           {	
@@ -838,7 +894,7 @@ static void TestLocalizedInstances( CIMClient& client,
               frInstance.addProperty(CIMProperty(CIMName(CLPROP), oui));
               frInstance.addProperty(CIMProperty(CIMName(ROUNDTRIPSTRINGPROP), String(utf16Chars)));
               frInstance.addProperty(CIMProperty(CIMName(ROUNDTRIPCHARPROP), utf16Chars[0]));
-              frInstance.addProperty(CIMProperty(CIMName(IDPROP), Uint8(3)));				
+              frInstance.addProperty(CIMProperty(CIMName(IDPROP), Uint8(3)));			
 
               CIMObjectPath frInstanceName = frInstance.buildPath(sampleClass);
               frInstance.setPath(frInstanceName);
@@ -920,7 +976,7 @@ static void TestLocalizedInstances( CIMClient& client,
 	        
           if (!activeTest)
           {
-              cout << "Active tests are disabled. Nothing to do for this test." << endl;              
+              cout << "Active tests are disabled. Nothing to do for this test." << endl;            
           }
           else
           {		
@@ -928,11 +984,11 @@ static void TestLocalizedInstances( CIMClient& client,
               baseInstance.removeProperty (baseInstance.findProperty(CLPROP));
               baseInstance.addProperty(CIMProperty(CIMName(CLPROP), doh));
 
-              baseInstance.removeProperty (baseInstance.findProperty(ROUNDTRIPSTRINGPROP));		
+              baseInstance.removeProperty (baseInstance.findProperty(ROUNDTRIPSTRINGPROP));	
               baseInstance.addProperty(CIMProperty(CIMName(ROUNDTRIPSTRINGPROP), String(utf16Chars)));	
 
-              baseInstance.removeProperty (baseInstance.findProperty(ROUNDTRIPCHARPROP));		
-              baseInstance.addProperty(CIMProperty(CIMName(ROUNDTRIPCHARPROP),utf16Chars[0]));			
+              baseInstance.removeProperty (baseInstance.findProperty(ROUNDTRIPCHARPROP));	
+              baseInstance.addProperty(CIMProperty(CIMName(ROUNDTRIPCHARPROP),utf16Chars[0]));	
 		
               client.setRequestContentLanguages(CL_HOMER);
 	    
@@ -1057,7 +1113,8 @@ static void TestLocalizedInstances( CIMClient& client,
     }
     catch(Exception& e)
     {
-      PEGASUS_STD(cerr) << "Error in TestLocalizedInstances: " << e.getMessage() << PEGASUS_STD(endl);
+      PEGASUS_STD(cerr) << "Error in TestLocalizedInstances: " 
+			<< e.getMessage() << PEGASUS_STD(endl);
       throw e;      
     }
 }
@@ -1166,6 +1223,7 @@ static void TestServerMessages( CIMClient& client,
             // Expect the error message to be returned in the language specified 
             // by the user. 
             //
+
             try
             {
 //              if (verboseTest)
@@ -1217,7 +1275,6 @@ static void TestServerMessages( CIMClient& client,
                    throw ce;
                 }
             }  // end catch
-
             
             //
             // TEST 2 - Enumerate instances of the sample classes using different
@@ -1271,12 +1328,14 @@ static void TestServerMessages( CIMClient& client,
     }
     catch (InvalidAcceptLanguageHeader& ialh)
     {
-      PEGASUS_STD(cerr) << "Invalid lang parameter was entered: " << ialh.getMessage() << PEGASUS_STD(endl);
+      PEGASUS_STD(cerr) << "Invalid lang parameter was entered: " 
+			<< ialh.getMessage() << PEGASUS_STD(endl);
       throw ialh; 
     }
     catch (InvalidContentLanguageHeader& iclh)
     {
-      PEGASUS_STD(cerr) << "Invalid expectlang parameter was entered: " << iclh.getMessage() << PEGASUS_STD(endl);
+      PEGASUS_STD(cerr) << "Invalid expectlang parameter was entered: " 
+			<< iclh.getMessage() << PEGASUS_STD(endl);
       throw iclh; 
     }
     catch(Exception& e)
@@ -1284,6 +1343,258 @@ static void TestServerMessages( CIMClient& client,
       PEGASUS_STD(cerr) << "Error in TestServerMessages: " << e.getMessage() << PEGASUS_STD(endl);
       throw e;      
     }
+}
+
+/*
+   Tests the globalization support for indications. 
+*/
+static void TestLocalizedIndications( CIMClient& client, 
+				      Boolean activeTest,
+				      Boolean verboseTest,
+				      Boolean skipIndications,
+				      Uint32 listenerPort)
+{
+  const CIMNamespaceName SAMPLE_NAMESPACE = CIMNamespaceName ("root/SampleProvider");
+  const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+  const CIMName METHOD = CIMName("generateIndication");
+  const CIMObjectPath REFERENCE = CIMObjectPath("Sample_LocalizedProviderClass.Identifier=0");
+
+  try
+  {
+    //
+    // TEST 1 - Cause the LocalizedProvider to send an indication to a CIMListener
+    // in this process.
+    //
+    // When the indication arrives then check that the UTF-16 chars in the
+    // indication properties are preserved, and that the Content-Language header 
+    // in the Export message is preserved.
+    //
+ 
+    cout << endl 
+	 << "INDICATION TEST 1: Receive indication with UTF-16 characters and language tag"
+	 << endl;
+
+    if (skipIndications)
+    {
+      cout << "Skipping the indications tests." << endl;
+      return;
+    }
+
+    // Create the handler instance
+    if (verboseTest)
+      cout << "Creating the handler" << endl;
+
+    String dest("http://localhost:");
+    char port[32];
+    memset(port, '\0', sizeof(port));
+    sprintf(port,"%d",listenerPort);
+    dest.append(port);
+    dest.append("/g11ntest");
+
+    CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
+    handlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
+        String("CIM_UnitaryComputerSystem")));
+    handlerInstance.addProperty(CIMProperty(CIMName ("SystemName"),
+        String("server001.acme.com")));
+    handlerInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString()));
+    handlerInstance.addProperty(CIMProperty(CIMName ("Name"),
+        String("g11ntest_Handler")));
+    handlerInstance.addProperty(CIMProperty(CIMName ("Destination"), dest));
+
+    CIMObjectPath handlerRef;
+    Boolean handlerCreated = true;
+    try
+    {
+      handlerRef = client.createInstance(INTEROP_NAMESPACE, handlerInstance);
+    }
+    catch (CIMException& ce)
+    {
+      if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
+	throw ce;
+      cout << "The handler already exists!" << endl;
+      cout << "If you specified the listenerport option to be different "
+	"than the one on the handler's Destination property in the repository, " 
+	"then this program will not receive indications." << endl;
+      cout << "Removing and re-making the testrepository will fix this." << endl;
+      handlerCreated = false;
+    }
+
+    // Create the filter instance
+    if (verboseTest)
+      cout << "Creating the filter" << endl;
+
+    CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
+    filterInstance.addProperty(CIMProperty (CIMName ("SystemCreationClassName"),
+        String("CIM_UnitaryComputerSystem")));
+    filterInstance.addProperty(CIMProperty(CIMName ("SystemName"),
+        String("server001.acme.com")));
+    filterInstance.addProperty(CIMProperty(CIMName ("CreationClassName"),
+        PEGASUS_CLASSNAME_INDFILTER.getString()));
+    filterInstance.addProperty(CIMProperty(CIMName ("Name"),
+        String("g11ntest_Filter")));
+    filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
+        String("root/SampleProvider")));
+    filterInstance.addProperty (CIMProperty(CIMName ("Query"),
+	String("SELECT * FROM LocalizedProvider_TestIndication")));
+    filterInstance.addProperty (CIMProperty(CIMName ("QueryLanguage"),
+        String("WQL")));
+
+    CIMObjectPath filterRef;
+    Boolean filterCreated = true;
+    try
+    {
+      filterRef = client.createInstance(INTEROP_NAMESPACE, filterInstance);
+    }
+    catch (CIMException& ce) 
+    {
+      if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
+	throw ce;
+      filterCreated = false;
+    }
+
+    // Create the subscription
+    if (verboseTest)
+      cout << "Creating the subscription" << endl;
+
+    CIMInstance subscriptionInstance(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+    subscriptionInstance.addProperty(CIMProperty(CIMName ("Filter"),
+        filterRef, 0, PEGASUS_CLASSNAME_INDFILTER));
+    subscriptionInstance.addProperty(CIMProperty(CIMName ("Handler"),
+        handlerRef, 0, PEGASUS_CLASSNAME_INDHANDLER_CIMXML));
+    subscriptionInstance.addProperty (CIMProperty
+        (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
+
+    CIMObjectPath subscriptionRef;
+    Boolean subscriptionCreated = false;
+    try
+    {
+      if (handlerCreated && filterCreated)
+      {
+	subscriptionRef = client.createInstance(INTEROP_NAMESPACE, subscriptionInstance);
+	subscriptionCreated = true;
+      }
+    }
+    catch (CIMException& ce)
+    {
+      if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
+	throw ce;
+    }
+
+    // Make ourselves a CIMListener to catch the indication
+    if (verboseTest)
+      cout << "Creating the listener" << endl;
+
+    CIMListener listener(listenerPort);
+
+    // Add our comsumer
+    MyIndicationConsumer* consumer1 = new MyIndicationConsumer("1");
+    listener.addConsumer(consumer1);
+
+    // Start the listener
+    listener.start();
+    pegasus_sleep(3000);  
+
+    // Cause the indication
+    if (verboseTest)
+      cout << "Causing the indication" << endl;
+
+    // Set the language objects to be sent to the provider
+    // This is required by the provider
+    AcceptLanguages AL_DE;
+    AL_DE.add(AcceptLanguageElement("de", float(0.8)));
+    ContentLanguages CL_DE("de"); 
+    client.setRequestAcceptLanguages(AL_DE);
+    client.setRequestContentLanguages(CL_DE);
+
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
+    CIMValue rtn = client.invokeMethod(
+	    SAMPLE_NAMESPACE, 
+	    REFERENCE, 
+	    METHOD,
+	    inParams, 
+	    outParams);
+
+    // Block until the indication comes in (let the user know we are waiting)
+    cout << "Waiting to receive the indication (timeout is 30sec)" << endl;
+    Boolean indicationTO = false;
+    try 
+    {
+      indicationReceived.time_wait(30 * 1000);
+      cout << "Received the indication" << endl;
+    }
+    catch (TimeOut & to)
+    {
+      indicationTO = true;
+    }
+
+    // Clean up the listener
+    if (verboseTest)
+      cout << "Stopping the listener"  << endl;   
+
+    listener.stop();
+    pegasus_sleep(3000);
+    listener.removeConsumer(consumer1);
+    delete consumer1;
+
+    // Clean up the repository
+    if (verboseTest)
+      cout << "Removing the handler, filter,and subscription"  << endl;    
+
+    if (subscriptionCreated)
+      client.deleteInstance(INTEROP_NAMESPACE, subscriptionRef);
+    if (filterCreated)
+      client.deleteInstance(INTEROP_NAMESPACE, filterRef);
+    if (handlerCreated)
+      client.deleteInstance(INTEROP_NAMESPACE, handlerRef);
+
+    // Done cleaning up.  Cancel the test if we timed out.
+    if (indicationTO)
+      throw Exception("Did not receive the indication!  Try remaking the testrepository "
+		      "Another possibility is the listener port is in use");
+
+    // Verify that the UTF-16  properties in the indication got to us
+    if (verboseTest)
+      cout << "Checking the indication for valid utf-16 chars" << endl;
+
+    Uint8 pos = indication.findProperty("UnicodeStr");
+    MYASSERT(pos != PEG_NOT_FOUND);
+
+    CIMValue val = indication.getProperty(pos).getValue();
+    String utf16;
+    val.get(utf16);
+    MYASSERT(utf16 == String(utf16Chars));
+
+    pos = indication.findProperty("UnicodeChar");
+    MYASSERT(pos != PEG_NOT_FOUND);
+
+    val = indication.getProperty(pos).getValue();
+    Char16 char16;
+    val.get(char16);
+    MYASSERT(char16 == utf16Chars[0]);
+ 
+    // Verify that the Content-Language of the indication got to us
+    ContentLanguages expectedCL("x-world");
+
+    if (verboseTest)
+      cout << "Checking the indication for ContentLanguages = " 
+	   << expectedCL.toString() << endl;
+
+    ContentLanguageListContainer cntr = 
+      indicationContext.get(ContentLanguageListContainer::NAME);
+    ContentLanguages cl = cntr.getLanguages();
+    MYASSERT(cl == expectedCL);
+
+    if (verboseTest)
+      cout << "Indication test completed successfully " << endl;
+  }
+  catch (Exception& e)
+  {
+    PEGASUS_STD(cerr) << "Error in TestLocalizedIndications " << 
+      e.getMessage() << PEGASUS_STD(endl);
+    throw e;
+  }
 }
 
 // l10n end
@@ -1346,6 +1657,12 @@ void GetOptions(
 
 		 {"skipactive", "false", false, Option::BOOLEAN, 0, 0, "skipactive",
 	 		      "If set then skips tests that modify CIM Objects on the server" },
+
+		 {"skipindication", "false", false, Option::BOOLEAN, 0, 0, "skipindication",
+	 		      "If set then skips indication tests" },
+
+		 {"listenerport", "49152", false, Option::WHOLE_NUMBER, 0, 0, "l",
+		 		       "Specifies the listener port for the indication tests" },
 
 		 {"utfrep", "false", false, Option::BOOLEAN, 0, 0, "utfrep",
 	 		      "If set then use UTF-16 class/qualifier names in the repository tests" }
@@ -1480,6 +1797,16 @@ int main(int argc, char** argv)
     */
     if (!om.lookupIntegerValue("repeat", repeatTestCount))
         repeatTestCount = 1;
+
+    // Settings for the indication test
+    Uint32 listenerPort = 0;
+    if (!om.lookupIntegerValue("listenerport", listenerPort))
+      // Default to the first private port defined by IANA.
+        listenerPort = 49152;
+    cout << "Listener Port = " << listenerPort << endl;
+    Boolean skipIndications = false;
+    if (om.valueEquals("skipindication", "true"))
+        skipIndications = true;
 	
     if(verboseTest)
 		cout << "Test repeat count " << repeatTestCount << endl;
@@ -1563,6 +1890,12 @@ int main(int argc, char** argv)
                      testStart("Test Class and Qualifier Operations");
                      elapsedTime.reset();
                      TestUTFRepository(client, utfRepNames, activeTest, verboseTest);
+                     testEnd(elapsedTime.getElapsed());
+
+                     testStart("Test Indication Operations");
+                     elapsedTime.reset();
+                     TestLocalizedIndications(client, activeTest, verboseTest,
+					      skipIndications,listenerPort);
                      testEnd(elapsedTime.getElapsed());
 
                      client.disconnect();

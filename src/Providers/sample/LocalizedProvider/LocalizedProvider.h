@@ -39,7 +39,7 @@
 //#include <Pegasus/Provider/CIMPropertyProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 //#include <Pegasus/Provider/CIMQueryProvider.h>
-//#include <Pegasus/Provider/CIMIndicationProvider.h>
+#include <Pegasus/Provider/CIMIndicationProvider.h>
 //#include <Pegasus/Provider/CIMIndicationConsumer.h>
 
 #include <Pegasus/Common/MessageLoader.h>
@@ -51,9 +51,9 @@ class LocalizedProvider :
     public CIMInstanceProvider,
 //    public CIMAssociationProvider,
 //    public CIMPropertyProvider,
-      public CIMMethodProvider
+      public CIMMethodProvider,
 //    public CIMQueryProvider,
-//    public CIMIndicationProvider,
+      public CIMIndicationProvider
 //    public CIMIndicationConsumer
 {
 public:
@@ -178,7 +178,7 @@ public:
         const String & query,
         ObjectResponseHandler & handler);
 */        
-/*
+
     // CIMIndicationProvider interface
     virtual void enableIndications(
         IndicationResponseHandler & handler);
@@ -203,7 +203,6 @@ public:
         const OperationContext & context,
         const CIMObjectPath & subscriptionName,
         const Array<CIMObjectPath> & classNames);
-*/        
 
 /*
     // CIMIndicationConsumer interface
@@ -214,40 +213,46 @@ public:
 */        
 
 private:
-	Array<CIMObjectPath> _instanceNames;
-	Array<CIMInstance> _instances;
-	Array<ContentLanguages> _instanceLangs;
+    Array<CIMObjectPath> _instanceNames;
+    Array<CIMInstance> _instances;
+    Array<ContentLanguages> _instanceLangs;
 	
-	MessageLoaderParms msgParms;
-	MessageLoaderParms notSupportedErrorParms;	
-	MessageLoaderParms contentLangParms;	
-	MessageLoaderParms roundTripErrorParms;
+    MessageLoaderParms msgParms;
+    MessageLoaderParms notSupportedErrorParms;	
+    MessageLoaderParms contentLangParms;	
+    MessageLoaderParms roundTripErrorParms;
 	
-	String roundTripString;
+    String roundTripString;
 	
-	void _checkRoundTripString(const OperationContext & context,
-								const CIMInstance& instanceObject);	
+    void _checkRoundTripString(const OperationContext & context,
+				   const CIMInstance& instanceObject);	
 
     AcceptLanguages getRequestAcceptLanguages(const OperationContext & context);
 
     ContentLanguages getRequestContentLanguages(const OperationContext & context);
 
-	CIMObjectPath buildRefFromInstance(const CIMInstance& instanceObject);
+    CIMObjectPath buildRefFromInstance(const CIMInstance& instanceObject);
     	
-	ContentLanguages _loadLocalizedProps(AcceptLanguages & acceptLangs,
-										ContentLanguages & contentLangs,
-										CIMInstance & instance);		
+    ContentLanguages _loadLocalizedProps(AcceptLanguages & acceptLangs,
+					 ContentLanguages & contentLangs,
+					 CIMInstance & instance);		
 	
-	ContentLanguages _addResourceBundleProp(AcceptLanguages & acceptLangs,
-										CIMInstance & instance);
+    ContentLanguages _addResourceBundleProp(AcceptLanguages & acceptLangs,
+					    CIMInstance & instance);
 	
-	ContentLanguages _addResourceBundleProp(CIMInstance & instance);	
+    ContentLanguages _addResourceBundleProp(CIMInstance & instance);	
 	
-	void _replaceRBProperty(CIMInstance & instance, String newProp);	
+    void _replaceRBProperty(CIMInstance & instance, String newProp);	
 										
-	ContentLanguages _addContentLanguagesProp(CIMInstance & instance);
+    ContentLanguages _addContentLanguagesProp(CIMInstance & instance);
 
-        void _setHandlerLanguages(ResponseHandler & handler, ContentLanguages & langs);
+    void _setHandlerLanguages(ResponseHandler & handler, ContentLanguages & langs);
+
+    void _testCIMOMHandle();
+
+    void _validateCIMOMHandleResponse(String expectedLang);
+
+    void _generateIndication();
 };
 
 PEGASUS_NAMESPACE_END

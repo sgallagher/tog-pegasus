@@ -36,6 +36,8 @@
 //
 // Instance
 // Method
+// Indication (just the simple case of an indication with a unicode property and
+// a language tag)
 
 // Testcases:
 //
@@ -108,6 +110,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
 
 PEGASUS_USING_STD;
 
@@ -116,6 +119,9 @@ PEGASUS_NAMESPACE_BEGIN
 // Class Hierarchy:
 // Sample_LocalizedProviderClass is a subclass of Sample_ProviderClass
 // Sample_LocalizedProviderSubClass is a subclass of Sample_LocalizedProviderClass
+
+// Our namespace
+#define NAMESPACE "root/SampleProvider"
 
 // Class names and references
 #define CLASSNAME "Sample_LocalizedProviderClass"
@@ -194,6 +200,17 @@ Char16 hangugo[] = {0xD55C, 0xAD6D, 0xC5B4,
 // Serializes access to the instances arrays during the CIM requests
 Mutex mutex;
 
+// Serializes access to the CIMOMHandle
+Mutex mutexCH;
+
+// CIMOMHandle we got on initialize
+CIMOMHandle _cimom;
+
+// Vars for the indication provider
+static IndicationResponseHandler * _handler = 0; 
+static Boolean _enabled = false;
+static Uint32 _nextUID = 0;
+
 // Indicates whether PEGASUS_USE_DEFAULT_MESSAGES env var is set
 const char * env = NULL;
 
@@ -219,46 +236,50 @@ LocalizedProvider::~LocalizedProvider(void)
 
 void LocalizedProvider::initialize(CIMOMHandle & cimom)
 {
-	// create default instances
+   mutex.lock(pegasus_thread_self());
 
-        mutex.lock(pegasus_thread_self());
+   // Save away the CIMOMHandle
+   _cimom = cimom;
 
-	// Instance 1 - Sample_LocalizedProviderClass 
-	CIMInstance instance1(CLASSNAME);
-	CIMObjectPath reference1(REFERENCE1);
+   // create default instances
 
-	instance1.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(0)));   
-	instance1.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));	
-	instance1.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));						 
-	_instances.append(instance1);
-	_instanceNames.append(reference1);
-	_instanceLangs.append(ContentLanguages::EMPTY);
+   // Instance 1 - Sample_LocalizedProviderClass 
+   CIMInstance instance1(CLASSNAME);
+   CIMObjectPath reference1(REFERENCE1);
+
+   instance1.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(0)));   
+   instance1.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));	
+   instance1.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));
+				 
+   _instances.append(instance1);
+   _instanceNames.append(reference1);
+   _instanceLangs.append(ContentLanguages::EMPTY);
 	
-	// Instance 2 - Sample_LocalizedProviderClass 
-	CIMInstance instance2(CLASSNAME);	
-	CIMObjectPath reference2(REFERENCE2);	
+   // Instance 2 - Sample_LocalizedProviderClass 
+   CIMInstance instance2(CLASSNAME);	
+   CIMObjectPath reference2(REFERENCE2);	
  	
-	instance2.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(1)));   
-	instance2.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
-	instance2.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
-	_instances.append(instance2);	
-	_instanceNames.append(reference2);
-	_instanceLangs.append(ContentLanguages::EMPTY);	
+   instance2.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(1)));   
+   instance2.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
+   instance2.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
+   _instances.append(instance2);	
+   _instanceNames.append(reference2);
+   _instanceLangs.append(ContentLanguages::EMPTY);	
 
-	// Instance 3 - Sample_LocalizedProviderSubClass 
-	CIMInstance instance3(SUBCLASSNAME);	
-	CIMObjectPath reference3(REFERENCE3);	
+   // Instance 3 - Sample_LocalizedProviderSubClass 
+   CIMInstance instance3(SUBCLASSNAME);	
+   CIMObjectPath reference3(REFERENCE3);	
  	
-	instance3.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(2)));   
-	instance3.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
-	instance3.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
-	_instances.append(instance3);	
-	_instanceNames.append(reference3);
-	_instanceLangs.append(ContentLanguages::EMPTY);	
+   instance3.addProperty(CIMProperty(IDENTIFIER_PROP, Uint8(2)));   
+   instance3.addProperty(CIMProperty(ROUNDTRIPSTRING_PROP, String(roundTripChars)));
+   instance3.addProperty(CIMProperty(ROUNDTRIPCHAR_PROP, roundTripChars[0]));	
+   _instances.append(instance3);	
+   _instanceNames.append(reference3);
+   _instanceLangs.append(ContentLanguages::EMPTY);	
 
-        env = getenv("PEGASUS_USE_DEFAULT_MESSAGES");
+   env = getenv("PEGASUS_USE_DEFAULT_MESSAGES");
 
-        mutex.unlock();
+   mutex.unlock();
 }
 
 void LocalizedProvider::terminate(void)
@@ -777,6 +798,11 @@ void LocalizedProvider::invokeMethod(
 	            throw CIMInvalidParameterException(roundTripErrorParms);
 		}
 
+
+		// Test CIMOMHandle localization here, for no other reason other than this is good
+		// spot for it
+		_testCIMOMHandle(); 
+
                 // Return the UTF-16 chars in the output parameters
                 handler.deliverParamValue(
                           CIMParamValue( "outStr",
@@ -804,6 +830,14 @@ void LocalizedProvider::invokeMethod(
             // Return UTF-16 chars in the return string
             handler.deliver( CIMValue( hangugoString ) );
         }
+	else if (methodName.equal ("generateIndication"))
+	{
+	  // This method is used to generate an indication so that the
+	  // globalization support can be tested for indications.
+	  _generateIndication();
+
+	  handler.deliver(CIMValue((Uint16)1));
+	}
         else
         {
             throw CIMMethodNotFoundException(methodName.getString());
@@ -813,7 +847,7 @@ void LocalizedProvider::invokeMethod(
    {
        throw CIMObjectNotFoundException(objectReference.getClassName().getString());
    }
-	
+
    handler.complete();
 }
 
@@ -827,15 +861,18 @@ void LocalizedProvider::executeQuery(
 {
 
 }
+*/
 
 void LocalizedProvider::enableIndications(IndicationResponseHandler & handler)
 {
-
+  _enabled = true;
+  _handler = &handler;
 }
 
 void LocalizedProvider::disableIndications(void)
 {
-
+  _enabled = false;
+  _handler->complete();
 }
 
 void LocalizedProvider::createSubscription(
@@ -845,7 +882,8 @@ void LocalizedProvider::createSubscription(
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-
+  // Don't do anything globalization stuff for this now.  
+  // This can get complicated (see PEP 58)
 }
 
 void LocalizedProvider::modifySubscription(
@@ -855,7 +893,8 @@ void LocalizedProvider::modifySubscription(
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-
+  // Don't do anything globalization stuff for this now.  
+  // This can get complicated (see PEP 58)
 }
 
 void LocalizedProvider::deleteSubscription(
@@ -863,9 +902,11 @@ void LocalizedProvider::deleteSubscription(
     const CIMObjectPath & subscriptionName,
     const Array<CIMObjectPath> & classNames)
 {
-
+  // Don't do anything globalization stuff for this now.  
+  // This can get complicated (see PEP 58)
 }
 
+/*
 // CIMIndicationConsumer interface
 void LocalizedProvider::handleIndication(
         const OperationContext & context,
@@ -877,7 +918,7 @@ void LocalizedProvider::handleIndication(
 */
 
 void LocalizedProvider::_checkRoundTripString(const OperationContext & context,
-								const CIMInstance& instanceObject)
+					      const CIMInstance& instanceObject)
 {
     // Get the round trip string sent by the client
     String roundTripStringProp; 
@@ -907,8 +948,7 @@ void LocalizedProvider::_checkRoundTripString(const OperationContext & context,
     }	
 }
 
-AcceptLanguages LocalizedProvider::getRequestAcceptLanguages(
-											const OperationContext & context)
+AcceptLanguages LocalizedProvider::getRequestAcceptLanguages(const OperationContext & context)
 {
 	// Get the client's list of preferred languages for the response
 	AcceptLanguageListContainer al_container = 
@@ -917,8 +957,7 @@ AcceptLanguages LocalizedProvider::getRequestAcceptLanguages(
 }	
 
 
-ContentLanguages LocalizedProvider::getRequestContentLanguages(
-											const OperationContext & context)
+ContentLanguages LocalizedProvider::getRequestContentLanguages(	const OperationContext & context)
 {
     // Get the language that the client sent in the request
     ContentLanguageListContainer cl_container = 
@@ -991,12 +1030,12 @@ ContentLanguages LocalizedProvider::_loadLocalizedProps(
 
 		// Load the ContentLanguageString from the resource bundle
 		// into the instance we are returning.
-		ContentLanguages clPropLangs = _addContentLanguagesProp(instance);					
+		ContentLanguages clPropLangs = _addContentLanguagesProp(instance);		
 
 		// The calls above returned the ContentLanguages for the language
 		// of the resource bundle that was found.
 		// If the two resource bundle langs don't match then
-		// we have a bug in our resource bundles.												
+		// we have a bug in our resource bundles.					
 		if (rtnLangs != clPropLangs)
 		{
 			throw new CIMOperationFailedException(String::EMPTY);
@@ -1027,7 +1066,7 @@ ContentLanguages LocalizedProvider::_loadLocalizedProps(
 	}
 	
 	return rtnLangs;			
-}													
+}												
 
 ContentLanguages LocalizedProvider::_addResourceBundleProp(
                                                   AcceptLanguages & acceptLangs,
@@ -1036,7 +1075,7 @@ ContentLanguages LocalizedProvider::_addResourceBundleProp(
 	// Get the string out of the resource bundle in one
 	// of the languages requested by the caller of this function.
 	msgParms.acceptlanguages = acceptLangs;	
-	String localizedMsgProp = MessageLoader::getMessage(msgParms);					
+	String localizedMsgProp = MessageLoader::getMessage(msgParms);				
 
 	// Replace the string into the instance
 	_replaceRBProperty(instance, localizedMsgProp);
@@ -1058,10 +1097,10 @@ ContentLanguages LocalizedProvider::_addResourceBundleProp(
 	// parms because that will override the thread's AcceptLanguages.
 	msgParms.acceptlanguages = AcceptLanguages::EMPTY;	
 	msgParms.useThreadLocale = true;  // Don't really need to do this
-									// because the default is true
+					// because the default is true
 									
-	// Load the string from the resource bundle										
-	String localizedMsgProp = MessageLoader::getMessage(msgParms);					
+	// Load the string from the resource bundle						
+	String localizedMsgProp = MessageLoader::getMessage(msgParms);				
 
 	// Replace the string into the instance
 	_replaceRBProperty(instance, localizedMsgProp);
@@ -1096,7 +1135,7 @@ ContentLanguages LocalizedProvider::_addContentLanguagesProp(CIMInstance & insta
 	// parms because that will override the thread's AcceptLanguages.
 	contentLangParms.acceptlanguages = AcceptLanguages::EMPTY;	
 	contentLangParms.useThreadLocale = true;  // Don't really need to do this
-									// because the default is true	
+						// because the default is true	
 
 	// Load the string from the resource bundle		
 	String localizedMsgProp = MessageLoader::getMessage(contentLangParms);	
@@ -1123,5 +1162,186 @@ void LocalizedProvider::_setHandlerLanguages(ResponseHandler & handler,
     context.insert(ContentLanguageListContainer(langs));	
     handler.setContext(context); 
 }
+
+
+void LocalizedProvider::_testCIMOMHandle()
+{
+  /* COMMENT OUT FOR NOW
+  // This function tests the localization support in the CIMOMHandle.
+
+  // Save away the AcceptLanguages currently in our thread
+  AcceptLanguages * pal = Thread::getLanguages();
+  AcceptLanguages saveAL;
+  if (pal != NULL)
+  {
+    saveAL = *pal;
+  }
+
+  OperationContext requestCtx;
+
+  // AcceptLanguages we are sending in the request to CIMOMHandle
+  AcceptLanguages requestAL;
+  requestAL.add(AcceptLanguageElement("x-horse", float(1.0)));
+  requestAL.add(AcceptLanguageElement("x-cow", float(0.4)));
+  requestAL.add(AcceptLanguageElement("x-gekko", float(0.2)));
+  requestAL.add(AcceptLanguageElement("mi", float(0.9)));
+  requestAL.add(AcceptLanguageElement("es", float(0.8)));
+
+  //------------------------------------------------------------
+  // TEST 1
+  // Do a getInstance to our instance provider, asking for the Spanish
+  // instance in AcceptLanguages.  Check that the ContentLanguages
+  // of the response indicates that Spanish was returned.
+  // NOTE - this test uses the Thread language to request Spanish.
+  //------------------------------------------------------------
+
+  // Set the requested AcceptLanguages into our thread.
+  // Note: not a memory leak because the old AcceptLanguages in the
+  // Thread will be deleted for us.
+  Thread::setLanguages(new AcceptLanguages(requestAL));
+
+  {
+    AutoMutex automut(mutexCH);
+
+    _cimom.getInstance(requestCtx,
+		     CIMNamespaceName(NAMESPACE),
+		     _instanceNames[0],
+		     false,
+		     true,
+		     true,
+		     CIMPropertyList());
+
+    // Restore the original AcceptLanguages into our thread
+    Thread::setLanguages(new AcceptLanguages(saveAL));
+
+    _validateCIMOMHandleResponse(String("es")); // uses _cimom
+  }  // mutex unlocks here
+
+  //------------------------------------------------------------
+  // TEST 2
+  // Do a getInstance to our instance provider, asking for the French
+  // instance in AcceptLanguages.  Check that the ContentLanguages
+  // of the response indicates that French was returned.
+  // NOTE - this test sets the AcceptLanguages in the request 
+  // OperationContext
+  //------------------------------------------------------------
+
+  requestAL.clear();
+  requestAL.add(AcceptLanguageElement("x-horse", float(1.0)));
+  requestAL.add(AcceptLanguageElement("x-cow", float(0.4)));
+  requestAL.add(AcceptLanguageElement("x-gekko", float(0.2)));
+  requestAL.add(AcceptLanguageElement("fr", float(0.9)));
+  requestAL.add(AcceptLanguageElement("es", float(0.8)));
+
+  requestCtx.insert(AcceptLanguageListContainer(requestAL));
+
+  {
+    AutoMutex automut(mutexCH);
+
+    _cimom.getInstance(requestCtx,
+		     CIMNamespaceName(NAMESPACE),
+		     _instanceNames[0],
+		     false,
+		     true,
+		     true,
+		     CIMPropertyList());
+
+    _validateCIMOMHandleResponse(String("fr")); // uses _cimom
+  } // mutex unlocks here
+  */
+}
+
+void LocalizedProvider::_validateCIMOMHandleResponse(String expectedLang)
+{
+  /* COMMENT OUT FOR NOW
+  // Get the ContentLanguages of the response
+  OperationContext responseCtx = _cimom.getResponseContext();
+  ContentLanguages responseCL;
+  try 
+  {
+    ContentLanguageListContainer cl_cntr  = 
+      (ContentLanguageListContainer)responseCtx.get(ContentLanguageListContainer::NAME);
+    responseCL = cl_cntr.getLanguages();
+  }
+  catch (Exception &)
+  {
+    // No ContentLanguageListContainer found.
+    // If ICU is enabled, then we must get a ContentLanguages in the response
+#if defined PEGASUS_HAS_MESSAGES 
+    if (env == NULL)
+      // $PEGASUS_USE_DEFAULT_MESSAGES is not set
+      throw CIMOperationFailedException("Did not get ContentLanguageListContainer from CIMOMHandle");
+#endif
+  }		     
+
+  // Figure out what ContentLanguage we expect
+  ContentLanguages expectedCL("en");  // default to en because this provider sets 
+                                      // C-L to en by default on getInstance
+#if defined PEGASUS_HAS_MESSAGES
+  if (env == NULL)
+  {
+    // ICU is being used and...
+    // $PEGASUS_USE_DEFAULT_MESSAGES is not set...
+    // so we expect back a language
+    expectedCL = ContentLanguages(expectedLang);
+  }
+#endif
+
+  // Now, the compare
+  if (expectedCL != responseCL)
+  {
+    // A miscompare
+    String msg("ContentLanguage miscompare in CIMOMHandle test: ");
+    msg.append(expectedCL.toString());
+    msg.append(" != ");
+    msg.append(responseCL.toString());
+    throw CIMOperationFailedException(msg);
+  }
+  */
+}
+
+void LocalizedProvider::_generateIndication()
+{
+  if (_enabled)
+    {
+      CIMInstance indicationInstance (CIMName("LocalizedProvider_TestIndication"));
+
+      CIMObjectPath path ;
+      path.setNameSpace("root/SampleProvider");
+      path.setClassName("LocalizedProvider_TestIndication");
+
+      indicationInstance.setPath(path);
+
+      char buffer[32];
+      sprintf(buffer, "%d", _nextUID++);
+      indicationInstance.addProperty
+	(CIMProperty ("IndicationIdentifier",String(buffer)));
+
+      CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+      indicationInstance.addProperty
+	(CIMProperty ("IndicationTime", currentDateTime));
+
+      Array<String> correlatedIndications; 
+      indicationInstance.addProperty
+	(CIMProperty ("CorrelatedIndications", correlatedIndications));
+
+      // Put the UTF-16 properties into the indication.  The listener will
+      // verify that it gets there.
+      indicationInstance.addProperty
+	(CIMProperty ("UnicodeStr",String(roundTripChars)));
+      indicationInstance.addProperty
+	(CIMProperty ("UnicodeChar",roundTripChars[0]));
+
+      CIMIndication cimIndication (indicationInstance);
+
+      // Tag this indication with a language.  The listener will verify this.
+      OperationContext ctx;
+      ContentLanguages cl("x-world");
+      ctx.insert(ContentLanguageListContainer(cl));
+
+      // deliver the indication 
+      _handler->deliver (ctx, indicationInstance);
+    }
+} 
 
 PEGASUS_NAMESPACE_END

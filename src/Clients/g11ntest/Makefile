@@ -11,6 +11,7 @@ ifdef PEGASUS_HAS_SSL
 endif
 
 include ../libraries.mak
+LIBRARIES += peglistener
 
 PROGRAM = g11ntest
 PROGRAM_ICU = g11ntest -reqlang en -rsplang en

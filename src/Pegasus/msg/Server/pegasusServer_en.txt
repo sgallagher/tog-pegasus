@@ -3755,4 +3755,9 @@ CIM server listening on HTTPS port {0}."}
         * @version 2.4
         */
         Server.CIMServer.EXPORT_TRUST_EMPTY:string {"PGS13201: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. cimserver not started."}
+	Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13201: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. cimserver not started."}
+	Server.CIMServer.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13201: The HTTP port must be enabled if \"sslClientVerificationMode\" is 'required' in order for the cimserver to properly shutdown. cimserver not started."}
+	Server.CIMServer.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13201: The \"sslTrustStoreUserName\" property must specify a truststore username to associate with the trusted certificates if \"sslClientVerificationMode\" is 'required' or 'optional', and a truststore is specified. cimserver not started."}
+	Server.CIMServer.SSL_CLIENT_VERIFICATION_INVALID_AUTO_UPDATE_MODE:string {"PGS13201: The \"enableSSLTrustStoreAutoUpdate\" property can only be 'true' if \"sslClientVerificationMode\" is 'optional'. cimserver not started."}
+	Server.CIMServer.SSL_CLIENT_VERIFICATION_INVALID_AUTO_UPDATE_DIRECTORY:string {"PGS13201: The \"sslTrustStore\" value must be a valid directory if \"enableSSLTrustStoreAutoUpdate\" is 'true'. cimserver not started."}
 }

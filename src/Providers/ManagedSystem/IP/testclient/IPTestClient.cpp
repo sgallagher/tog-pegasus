@@ -198,8 +198,11 @@ IPTestClient::_validateKeys(CIMObjectPath &cimRef, CIMName className,
 
        	  else if (keyName.equal(PROPERTY_ADDRESS_TYPE))
       	  {
-		// Uint16 keyVal = keyBindings[j].getValue();
-         	// _check_IPRoute_AddressType(keyVal, verbose);
+		String sVal = keyBindings[j].getValue();
+		int val;
+		sscanf((const char *)sVal.getCString(), "%d", &val);
+                Uint16 keyVal = val;
+         	_check_IPRoute_AddressType(keyVal, verbose);
       	  }
 
       } // end of properties for IPRoute
@@ -497,9 +500,9 @@ IPTestClient::_validateProperties(CIMInstance &inst, CIMName className,
 
        	  else if (propertyName.equal(PROPERTY_ADDRESS_TYPE))
       	  {
-         	// Uint16 propertyValue;
-         	// inst.getProperty(j).getValue().get(propertyValue); 
-         	// _check_IPRoute_AddressType(propertyValue, verbose);
+         	Uint16 propertyValue;
+         	inst.getProperty(j).getValue().get(propertyValue); 
+         	_check_IPRoute_AddressType(propertyValue, verbose);
       	  }
 
        	  else if (propertyName.equal(PROPERTY_DESTINATION_ADDRESS))

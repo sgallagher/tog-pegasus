@@ -4,7 +4,7 @@
 
 instance of PG_ProviderModule 
 {
-   Name = "IPProviderMod";
+   Name = "IPProviderModule";
    Location = "IPProviderModule";
    Vendor = "Pegasus Community";
    Version = "2.0.0";
@@ -16,13 +16,13 @@ instance of PG_ProviderModule
 
 instance of PG_Provider 
 {
-  ProviderModuleName = "IPProviderMod";
+  ProviderModuleName = "IPProviderModule";
   Name = "IPPEpProvider";
 };
 
 instance of PG_ProviderCapabilities 
 {
-  ProviderModuleName = "IPProviderMod";
+  ProviderModuleName = "IPProviderModule";
   ProviderName = "IPPEpProvider";
   CapabilityID = "1";
   ClassName = "CIM_IPProtocolEndpoint";
@@ -36,13 +36,13 @@ instance of PG_ProviderCapabilities
 
 instance of PG_Provider 
 {
-  ProviderModuleName = "IPProviderMod";
+  ProviderModuleName = "IPProviderModule";
   Name = "BIPTLEpProvider";
 };
 
 instance of PG_ProviderCapabilities 
 {
-  ProviderModuleName = "IPProviderMod";
+  ProviderModuleName = "IPProviderModule";
   ProviderName = "BIPTLEpProvider";
   CapabilityID = "1";
   ClassName = "PG_BindsIPToLANEndpoint";
@@ -56,13 +56,13 @@ instance of PG_ProviderCapabilities
 
 instance of PG_Provider 
 {
-  ProviderModuleName = "IPProviderMod";
+  ProviderModuleName = "IPProviderModule";
   Name = "IPRouteProvider";
 };
 
 instance of PG_ProviderCapabilities 
 {
-  ProviderModuleName = "IPProviderMod";
+  ProviderModuleName = "IPProviderModule";
   ProviderName = "IPRouteProvider";
   CapabilityID = "1";
   ClassName = "PG_IPRoute";

@@ -637,6 +637,7 @@ CIMInstance IPRouteProvider::_constructInstance(
   String s;
   CIMDateTime d;
   Boolean b;
+  Uint16 ui;
 
   CIMInstance inst(className);
 
@@ -692,35 +693,40 @@ CIMInstance IPRouteProvider::_constructInstance(
   if (_ipr.getIsStatic(b))
     inst.addProperty(CIMProperty(PROPERTY_IS_STATIC,b));
 
-// ===========================================
-// The following properties are in CIM_IPRoute
-// ===========================================
+//   String SystemCreationClassName
+  inst.addProperty(CIMProperty(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
+			       CLASS_CIM_UNITARY_COMPUTER_SYSTEM.getString()));
 
-  // The keys for this class are:
-  // [ key ] string SystemCreationClassName
-  // [ key ] string SystemName
-  // [ key ] string ServiceCreationClassName
-  // [ key ] string ServiceName
-  // [ key ] string CreationClassName
-  // [ key ] string IPDestinationAddress
-  // [ key ] string IPDestinationMask
-  // [ key ] uint16 AddressType
+//   String SystemName
+  if (IPInterface::getSystemName(s))
+	inst.addProperty(CIMProperty(PROPERTY_SYSTEM_NAME, s));
+  else
+	throw CIMNotSupportedException(
+		String("Host-specific module doesn't support Key `") +
+		PROPERTY_SYSTEM_NAME.getString() + String("'"));
 
-  // Rather than rebuilding the key properties, we will reuse
-  // the values that were inserted for us in the ObjectPath,
-  // trusting that this was done correctly
+//   String ServiceCreationClassName
+  inst.addProperty(CIMProperty(PROPERTY_SERVICE_CREATION_CLASS_NAME,
+			       String::EMPTY));
+//   String ServiceName
+  inst.addProperty(CIMProperty(PROPERTY_SERVICE_NAME,
+			       String::EMPTY));
 
-  // Get the keys
-  Array<CIMKeyBinding> key = inst.getPath().getKeyBindings();
+//   String CreationClassName
+  inst.addProperty(CIMProperty(PROPERTY_CREATION_CLASS_NAME,
+			       CLASS_PG_IP_ROUTE.getString()));
 
-  // loop through keys, inserting them as properties
-  // luckily, all keys for this class are strings, so no
-  // need to check key type
-  for (int i=0; i<key.size(); i++)
-  {
-    // add a property created from the name and value
-    inst.addProperty(CIMProperty(key[i].getName(),key[i].getValue()));
-  }
+//   String IPDestinationAddress
+  if (_ipr.getDestinationAddress(s))
+    inst.addProperty(CIMProperty(PROPERTY_IP_DESTINATION_ADDRESS,s));
+
+//   String IPDestinationMask
+  if (_ipr.getDestinationMask(s))
+    inst.addProperty(CIMProperty(PROPERTY_IP_DESTINATION_MASK,s));
+
+//   Uint16 AddressType
+  if (_ipr.getAddressType(ui))
+    inst.addProperty(CIMProperty(PROPERTY_ADDRESS_TYPE,ui));
 
 #ifdef DEBUG
   cout << "IPRouteProvider::_constructInstance() -- done" << endl;

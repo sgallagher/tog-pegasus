@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -42,7 +42,6 @@
 #include <cassert>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Client/CIMClient.h>
@@ -92,7 +91,7 @@ public:
     // Set Namespace
     void setNameSpace (const CIMNamespaceName& nameSpac)
     {
-	_nameSpace = nameSpace;
+    _nameSpace = nameSpace;
     }
     // enumerate - Executes the enumerate
     Boolean enumerate(const CIMName& className, Boolean deepInheritance)
@@ -107,7 +106,7 @@ public:
             cout << "Exception " << e.getMessage() << " on enumerateClassNames open. Terminating." << endl;
             return false;
         }
-	return true;
+    return true;
     }
     /* filter - Filters the list against a defined pattern using the
         glob type filter.
@@ -117,38 +116,38 @@ public:
        functionality is quite limited, this change is consistent with
        the way this method was being used at the time of the change.
         @param pattern -String defining the pattern used to filter the
-        list. 
+        list.
         @return Result is the list with all names that do not pass the
         filter removed.
-        
+
     */
     void filter(String& pattern)
     {
-    	// Filter the list in accordance with the pattern
+        // Filter the list in accordance with the pattern
         if (pattern == "*")
         {
             return;
         }
-    	Array<CIMName> tmp;
-    	for (Uint32 i = 0; i < _classNameList.size(); i++)
-    	{
+        Array<CIMName> tmp;
+        for (Uint32 i = 0; i < _classNameList.size(); i++)
+        {
             if (String::equalNoCase(_classNameList[i].getString(), pattern))
                 tmp.append(_classNameList[i]);
-    	}
-    	_classNameList.swap(tmp);
+        }
+        _classNameList.swap(tmp);
     }
 
     /* getIndex - Get the current index in the list.  This is used with
         next and start functions to get entries in the list one by one.
     */
     Uint32 getIndex() {
-	return _index;
+    return _index;
     }
     /* size - returns the number of entires in the list
         @return Uint32 with number of entires in the list.
     */
     Uint32 size() {
-	return _classNameList.size();
+    return _classNameList.size();
     }
     /* next - get the next entry in the list.  If there are no more entires
        returns String:EMPTY
@@ -156,10 +155,10 @@ public:
     */
     String next()
     {
-	if (_index < _classNameList.size())
-	    return _classNameList[_index++].getString();
-	else
-	    return String::EMPTY;
+    if (_index < _classNameList.size())
+        return _classNameList[_index++].getString();
+    else
+        return String::EMPTY;
     }
     /* start - Set the index to the start of the list
     */
@@ -203,11 +202,11 @@ static void _indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentSize)
     }
 
     for (Uint32 i = 0; i < n; i++)
-	os << ' ';
+    os << ' ';
 }
 void mofFormat(
-    PEGASUS_STD(ostream)& os, 
-    const char* text, 
+    PEGASUS_STD(ostream)& os,
+    const char* text,
     Uint32 indentSize)
 {
     char* var = new char[strlen(text)+1];
@@ -221,70 +220,70 @@ void mofFormat(
     char prevchar = 0;
     while ((c = *tmp++))
     {
-	count++;
-	// This is too simplistic and must move to a token based mini parser
-	// but will do for now. One problem is tokens longer than 12 characters that
-	// overrun the max line length.
-	switch (c)
-	{
-	    case '\n':
-		os << Sint8(c);
-		prevchar = c;
-		count = 0 + (indent * indentSize);
-		_indent(os, indent, indentSize);   
-		break;
+    count++;
+    // This is too simplistic and must move to a token based mini parser
+    // but will do for now. One problem is tokens longer than 12 characters that
+    // overrun the max line length.
+    switch (c)
+    {
+        case '\n':
+        os << Sint8(c);
+        prevchar = c;
+        count = 0 + (indent * indentSize);
+        _indent(os, indent, indentSize);
+        break;
 
-	    case '\"':	 // quote 
-		os << Sint8(c);
-		prevchar = c;
-		quoteState = !quoteState;
-		break;
+        case '\"':   // quote
+        os << Sint8(c);
+        prevchar = c;
+        quoteState = !quoteState;
+        break;
 
-	    case ' ':
-		os << Sint8(c);
-		prevchar = c;
-		if (count > 66)
-		{
-		    if (quoteState)
-		    {	
-			os << "\"\n";
-			_indent(os, indent + 1, indentSize);   
-			os <<"\"";
-		    }
-		    else
-		    {
-			os <<"\n";
-			_indent(os, indent + 1,  indentSize);   
-		    }
-		    count = 0 + ((indent + 1) * indentSize);
-		}
-		break;
-	    case '[':
-		if (prevchar == '\n')
-		{
-		    indent++;
-		    _indent(os, indent,  indentSize);
-		    qualifierState = true;
-		}
-		os << Sint8(c);
-		prevchar = c;
-		break;
+        case ' ':
+        os << Sint8(c);
+        prevchar = c;
+        if (count > 66)
+        {
+            if (quoteState)
+            {
+            os << "\"\n";
+            _indent(os, indent + 1, indentSize);
+            os <<"\"";
+            }
+            else
+            {
+            os <<"\n";
+            _indent(os, indent + 1,  indentSize);
+            }
+            count = 0 + ((indent + 1) * indentSize);
+        }
+        break;
+        case '[':
+        if (prevchar == '\n')
+        {
+            indent++;
+            _indent(os, indent,  indentSize);
+            qualifierState = true;
+        }
+        os << Sint8(c);
+        prevchar = c;
+        break;
 
-	    case ']':
-		if (qualifierState)
-		{
-		    if (indent > 0)
-			indent--;
-		    qualifierState = false;
-		}
-		os << Sint8(c);
-		prevchar = c;
-		break;
+        case ']':
+        if (qualifierState)
+        {
+            if (indent > 0)
+            indent--;
+            qualifierState = false;
+        }
+        os << Sint8(c);
+        prevchar = c;
+        break;
 
-	    default:
-		os << Sint8(c);
-		prevchar = c;
-	}
+        default:
+        os << Sint8(c);
+        prevchar = c;
+    }
 
     }
     delete [] var;
@@ -304,7 +303,7 @@ void mofFormat(
     Uint32 domainSize;
     const char* commandLineOptionName;
     const char* optionHelpMessage;
-    
+
 */
 void GetOptions(
     OptionManager& om,
@@ -321,7 +320,7 @@ void GetOptions(
     static struct OptionRow optionsTable[] =
     {
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
-         
+
          {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
                        "Specifies namespace to use for"},
 
@@ -334,30 +333,30 @@ void GetOptions(
          {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
                        "Prints help message with command line options"},
 
-         {"qualifiers", "false", false, Option::BOOLEAN, 0, 0, "q", 
+         {"qualifiers", "false", false, Option::BOOLEAN, 0, 0, "q",
                       "If set, show the qualifier declarations"},
 
-         {"instances", "false", false, Option::BOOLEAN, 0, 0, "i", 
+         {"instances", "false", false, Option::BOOLEAN, 0, 0, "i",
                       "If set, show the instances"},
 
-         {"noClass", "false", false, Option::BOOLEAN, 0, 0, "nc", 
+         {"noClass", "false", false, Option::BOOLEAN, 0, 0, "nc",
                       "If set, bypass the class display completely"},
-         {"all", "false", false, Option::BOOLEAN, 0, 0, "a", 
+         {"all", "false", false, Option::BOOLEAN, 0, 0, "a",
                       "If set, show qualifiers, classes, and instances"},
 
-         {"summary", "false", false, Option::BOOLEAN, 0, 0, "s", 
+         {"summary", "false", false, Option::BOOLEAN, 0, 0, "s",
                       "Print only a summary count at end"},
 
-         {"location", tmpDir, false, Option::STRING, 0, 0, "l", 
+         {"location", tmpDir, false, Option::STRING, 0, 0, "l",
         "Repository directory (/run if repository directory is /run/repository"},
 
-         {"client", "false", false, Option::BOOLEAN, 0, 0, "c", 
+         {"client", "false", false, Option::BOOLEAN, 0, 0, "c",
                       "Runs as Pegasus client using client interface"},
 
-         {"onlynames", "false", false, Option::BOOLEAN, 0, 0, "o", 
+         {"onlynames", "false", false, Option::BOOLEAN, 0, 0, "o",
                       "Show Names only, not the MOF"},
 
-         {"xml", "false", false, Option::BOOLEAN, 0, 0, "x", 
+         {"xml", "false", false, Option::BOOLEAN, 0, 0, "x",
                       "Output result in XML rather than MOF"},
 
     };
@@ -412,7 +411,7 @@ void printHelp(char* name, OptionManager om)
 ///////////////////////////////////////////////////////////////
 
 int main(int argc, char** argv)
-{   
+{
 
     String pegasusHome;
     pegasusHome = "/";
@@ -455,7 +454,7 @@ int main(int argc, char** argv)
     // Check for Version flag and print version message
     if(om.isTrue("version"))
     {
-        cout << "Pegasus Version " << PEGASUS_PRODUCT_VERSION 
+        cout << "Pegasus Version " << PEGASUS_PRODUCT_VERSION
                 << " " << argv[0] << " version 1.0 " << endl;
         return 0;
     }
@@ -477,13 +476,13 @@ int main(int argc, char** argv)
 
     // Check for the summary count flag
     Boolean summary = om.isTrue("summary");
-    
+
     Uint32 qualifierCount = 0;
     Uint32 classCount = 0;
     Uint32 classCountDisplayed = 0;
     Uint32 instanceCount = 0;
 
-    // Check for the instances 
+    // Check for the instances
     Boolean showInstances = om.isTrue("instances");
 
     Boolean showAll = om.isTrue("all");
@@ -540,7 +539,7 @@ int main(int argc, char** argv)
     // if client request set in options, set isClient variable accordingly
     Boolean isClient = om.isTrue("client");
 
-    // Determine if output is XML or MOF 
+    // Determine if output is XML or MOF
     Boolean isXMLOutput = om.isTrue("xml");
 
     // Check for repository path flag and set repository directory
@@ -583,7 +582,7 @@ int main(int argc, char** argv)
 
     if(verbose)
     {
-        cout << "Get from " << ((isClient) ? "client" : "repository ") 
+        cout << "Get from " << ((isClient) ? "client" : "repository ")
         << " at " << location << endl;
     }
 
@@ -601,7 +600,7 @@ int main(int argc, char** argv)
         cout << "Exception " << e.getMessage() << " on repository open. Terminating." << endl;
         return false;
     }
-    // Get the complete class name list	before we start anything else
+    // Get the complete class name list before we start anything else
 
     if(showQualifiers || showAll || summary)
     {
@@ -609,14 +608,14 @@ int main(int argc, char** argv)
         {
             // Enumerate the qualifiers:
 
-            Array<CIMQualifierDecl> qualifierDecls 
+            Array<CIMQualifierDecl> qualifierDecls
                     = clRepository.enumerateQualifiers(nameSpace);
             qualifierCount = qualifierDecls.size();
 
             if(showOnlyNames)
             {
                 for(Uint32 i = 0; i < qualifierDecls.size(); i++)
-                    cout << "Qualifier " << qualifierDecls[i].getName() << endl;    
+                    cout << "Qualifier " << qualifierDecls[i].getName() << endl;
             }
             if(showQualifiers || showAll)
             {
@@ -626,7 +625,7 @@ int main(int argc, char** argv)
 
                     if(isXMLOutput)
                     {
-                        XmlWriter::printQualifierDeclElement(tmp, cout);            
+                        XmlWriter::printQualifierDeclElement(tmp, cout);
                     }
                     else
                     {
@@ -657,7 +656,7 @@ int main(int argc, char** argv)
     //Filter list for input patterns
     for(Uint32 i = 0; i < inputClassList.size(); i++)
         list.filter(inputClassList[i]);
-    
+
     // get size for summary
     classCount = list.size();
 
@@ -696,9 +695,9 @@ int main(int argc, char** argv)
                 {
                     Array<char> x;
                     MofWriter::appendClassElement(x, cimClass);
-    
+
                     x.append('\0');
-    
+
                     mofFormat(cout, x.getData(), 4);
                 }
             }
@@ -719,7 +718,7 @@ int main(int argc, char** argv)
                 Boolean localOnly = false;
                 Boolean includeClassOrigin = false;
                 Boolean includeQualifiers = false;
-    
+
                 if(showOnlyNames)
                 {
                     Array<CIMObjectPath> instanceNames;
@@ -774,8 +773,8 @@ int main(int argc, char** argv)
         if(instanceCount != 0)
             cout << "Instances - " << instanceCount << endl;
     }
-    exit(0); 
-} 
+    exit(0);
+}
 //PEGASUS_NAMESPACE_END
 
 

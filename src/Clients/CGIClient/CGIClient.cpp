@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -114,7 +114,7 @@ private:
     char _address[128];
 };
 //    sprintf(address, "%s:%d",
-//	    hostinfo.getHostName(), hostinfo.getHostPort());
+//      hostinfo.getHostName(), hostinfo.getHostPort());
 
 
 void HostInfo::setHostName( const char* str)
@@ -129,9 +129,9 @@ const char* HostInfo::getAddress()
     CGIQueryString qs(queryString);
 
     if ((tmp = qs.findValue("hostaddress")))
-	return tmp; 
-    else 
-	return("localhost:5988");
+    return tmp;
+    else
+    return("localhost:5988");
 }
 
 void getHostAndPort (String & host, Uint32 & portNumber)
@@ -141,7 +141,7 @@ void getHostAndPort (String & host, Uint32 & portNumber)
     CGIQueryString qs (queryString);
 
     String tmpStr= qs.findValue ("hostaddress");
-    
+
     if (tmpStr.size () > 0)
     {
         Uint32 index = tmpStr.find (':');
@@ -153,7 +153,7 @@ void getHostAndPort (String & host, Uint32 & portNumber)
             sscanf (portStr.getCString (), "%u", &portNumber);
         }
     }
-    else 
+    else
     {
         host = "localhost";
         portNumber = 5988;
@@ -163,9 +163,9 @@ void getHostAndPort (String & host, Uint32 & portNumber)
 CIMName PrintSuperClassName(CIMName superClassName)
 {
     if (superClassName.isNull ())
-	return CIMName ("No_Superclass");
+    return CIMName ("No_Superclass");
     else
-	return superClassName;
+    return superClassName;
 }
 
 void PrintRule()
@@ -238,12 +238,12 @@ CIMNamespaceName GetNameSpaceQueryField(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("NameSpace")))
-	ErrorExit("Missing NameSpace field");
+    ErrorExit("Missing NameSpace field");
 
     String nameSpace = tmp;
 
     if (!nameSpace.size())
-	ErrorExit("NameSpace parameter is null");
+    ErrorExit("NameSpace parameter is null");
 
     return CIMNamespaceName (nameSpace);
 }
@@ -255,14 +255,14 @@ String EncodeQueryStringValue(const String& x)
     for (Uint32 j = 0, m = x.size(); j < m; j++)
     {
     //ALAGS : Typecast to avoid compiler warning
-	char c = (char)x[j];
+    char c = (char)x[j];
 
-	if (c == '/')
-	    result.append("%2F");
-	else if	 (c == ':')
-	    result.append("%3A");
-	else    
-	    result.append(c);
+    if (c == '/')
+        result.append("%2F");
+    else if  (c == ':')
+        result.append("%3A");
+    else
+        result.append(c);
     }
 
     return result;
@@ -319,7 +319,7 @@ void PrintPropertiesTableHeader(const String& tableName)
 //KSREVIEW: Why is host address part of this?
 String BuildOperationHref(String operation, const CIMNamespaceName & nameSpace)
 {
-    
+
     String result = "/pegasus/cgi-bin/CGIClient?";
     result.append("Operation=");
     result.append(operation);
@@ -346,11 +346,11 @@ String AppendHrefField(String& href, String key, String value)
     href.append("&");
     return href;
 }
-/** createClassHref - Builds a HTML href from the class name input to provide 
+/** createClassHref - Builds a HTML href from the class name input to provide
     click to the defined class
 
 */
-String createGetClassHref(const CIMNamespaceName & nameSpace, 
+String createGetClassHref(const CIMNamespaceName & nameSpace,
     const CIMName & className)
 {
     String href = BuildOperationHref("GetClass", nameSpace);
@@ -370,7 +370,7 @@ String createGetClassHref(const CIMNamespaceName & nameSpace,
 instance Names function for this class.
 @return - void
 */
-void PrintEnumInstanceNameHref(const CIMNamespaceName & nameSpace, 
+void PrintEnumInstanceNameHref(const CIMNamespaceName & nameSpace,
     const CIMName & className)
 {
     String href = BuildOperationHref("EnumerateInstanceNames", nameSpace);
@@ -399,9 +399,9 @@ void PrintRow(
     cout << "<td>" << type << "</td>\n";
 
     if (value.size())
-	cout << "<td>" << value << "</td>\n";
+    cout << "<td>" << value << "</td>\n";
     else
-	cout << "<td>null</td>\n";
+    cout << "<td>null</td>\n";
 
     cout << "<tr>\n";
 }
@@ -423,15 +423,15 @@ void PrintSingleProperty(CIMProperty& property)
     const CIMValue& value = property.getValue();
 
     PrintRow(
-	property.getName(),
-	cimTypeToString (value.getType ()),
-	value.toString());
+    property.getName(),
+    cimTypeToString (value.getType ()),
+    value.toString());
 
     PrintTableTrailer();
 }
 /** PrintObjectProperties - Template for a function
 that prints the Properties information for either Classes
-or instances.	 This prints an HTML table of the properties
+or instances.    This prints an HTML table of the properties
 fields including name, type, value, ClassOrigin, and propagated.
 The name is wrapped in an href so a click will get detailed
 property information.
@@ -453,40 +453,40 @@ void PrintObjectProperties(
     // Loop for each property
     for (Uint32 i = 0, n = object.getPropertyCount(); i < n; i++)
     {
-	// KSREVIEW: All of this can become PrintProperty()
-	CIMProperty property = object.getProperty(i);
-	const CIMValue& value = property.getValue();
+    // KSREVIEW: All of this can become PrintProperty()
+    CIMProperty property = object.getProperty(i);
+    const CIMValue& value = property.getValue();
 
-	// Define href with the property name
+    // Define href with the property name
     //ALAGS : FIX done - call func BuildOperationHref() with correct arguments
-    String href = 
+    String href =
             BuildOperationHref("GetPropertyDeclaration", nameSpace);
-	href.append("ClassName=");
-	href.append(object.getClassName().getString());
-	href.append("&");
-	href.append("PropertyName=");
-	href.append(property.getName().getString());
-	href.append("&");
-	cout << "<tr>\n";
-	cout << "<td>";
-	PrintAHref(href, property.getName().getString());
-	cout << "</td>";
-	cout << "<td>" << cimTypeToString (value.getType ()) << "</td>\n";
+    href.append("ClassName=");
+    href.append(object.getClassName().getString());
+    href.append("&");
+    href.append("PropertyName=");
+    href.append(property.getName().getString());
+    href.append("&");
+    cout << "<tr>\n";
+    cout << "<td>";
+    PrintAHref(href, property.getName().getString());
+    cout << "</td>";
+    cout << "<td>" << cimTypeToString (value.getType ()) << "</td>\n";
 
-	String valueString = value.toString();
+    String valueString = value.toString();
 
-	if (valueString.size())
-	    cout << "<td>" << valueString << "</td>\n";
-	else
-	    cout << "<td>null</td>\n";
-	// Output the ClassOrigin
-	// KSREVIEW: Make this optional
-	cout << "<td>" << property.getClassOrigin() << "</td>\n";
-	// Output the Propagated field
-	cout << "<td>" << (property.getPropagated() ? "true" : "false");
-	cout << "</td>\n";
+    if (valueString.size())
+        cout << "<td>" << valueString << "</td>\n";
+    else
+        cout << "<td>null</td>\n";
+    // Output the ClassOrigin
+    // KSREVIEW: Make this optional
+    cout << "<td>" << property.getClassOrigin() << "</td>\n";
+    // Output the Propagated field
+    cout << "<td>" << (property.getPropagated() ? "true" : "false");
+    cout << "</td>\n";
 
-	cout << "<tr>\n";
+    cout << "<tr>\n";
     }
 
     PrintTableTrailer();
@@ -499,13 +499,13 @@ void PrintQualifiers(OBJECT& object)
 
     for (Uint32 i = 0, n = object.getQualifierCount(); i < n; i++)
     {
-	CIMConstQualifier qualifier = object.getQualifier(i);
-	const CIMValue& value = qualifier.getValue();
+    CIMConstQualifier qualifier = object.getQualifier(i);
+    const CIMValue& value = qualifier.getValue();
 
-	PrintRow(
-	    qualifier.getName(),
-	    cimTypeToString (value.getType ()),
-	    value.toString());
+    PrintRow(
+        qualifier.getName(),
+        cimTypeToString (value.getType ()),
+        value.toString());
     }
 
     PrintTableTrailer();
@@ -519,13 +519,13 @@ void PrintQualifiers(OBJECT& object)
 */
 
 void mofFormat(
-    PEGASUS_STD(ostream)& os, 
-    const char* text, 
+    PEGASUS_STD(ostream)& os,
+    const char* text,
     Uint32 indentChars)
 {
     char* var = new char[strlen(text)+1];
     char* tmp = strcpy(var, text);
-    
+
     //const char* tmp = x.getData();
     Uint32 count = 0;
     Uint32 indent = 0;
@@ -533,35 +533,35 @@ void mofFormat(
     char c;
     while ((c = *tmp++))
     {
-	count++;
-	switch (c)
-	{
-	    case '\n':
-		os << Sint8(c);
-		count = 0;
-		indent = 0;
-		break;
+    count++;
+    switch (c)
+    {
+        case '\n':
+        os << Sint8(c);
+        count = 0;
+        indent = 0;
+        break;
 
-	    case '\"':	 // quote 
-		os <<Sint8(c);
-		quoteState = !quoteState;
-		break;
+        case '\"':   // quote
+        os <<Sint8(c);
+        quoteState = !quoteState;
+        break;
 
-	    case ' ':
-		os <<Sint8(c);
-		if (count > 70)
-		{
-		    if (quoteState)
-			os <<"\"\n    \"";
-		    else
-			os <<"\n    ";
-		    count = 0 - indent;
-		}
-		break;
+        case ' ':
+        os <<Sint8(c);
+        if (count > 70)
+        {
+            if (quoteState)
+            os <<"\"\n    \"";
+            else
+            os <<"\n    ";
+            count = 0 - indent;
+        }
+        break;
 
-	    default:
-		os <<Sint8(c);
-	}
+        default:
+        os <<Sint8(c);
+    }
 
     }
     delete [] var;
@@ -582,13 +582,13 @@ void PrintClassMethods(CIMClass& cimClass)
 
     for (Uint32 i = 0, n = cimClass.getMethodCount(); i < n; i++)
     {
-	CIMMethod method = cimClass.getMethod(i);
-	CIMType type = method.getType();
+    CIMMethod method = cimClass.getMethod(i);
+    CIMType type = method.getType();
 
-	cout << "<tr>\n";
-	cout << "<td>" << method.getName() << "</td>\n";
-	cout << "<td>" << cimTypeToString (type) << "</td>\n";
-	cout << "<tr>\n";
+    cout << "<tr>\n";
+    cout << "<td>" << method.getName() << "</td>\n";
+    cout << "<td>" << cimTypeToString (type) << "</td>\n";
+    cout << "<tr>\n";
     }
 
     cout << "</table>\n";
@@ -597,11 +597,11 @@ void PrintClassMethods(CIMClass& cimClass)
 /** PrintClass - Print an HTML page with the characteristics of
     the Class defined in the call including:
     <UL>
-	<LI>ClassName
+    <LI>ClassName
         <LI> SuperClass Name
-	<LI>Qualifiers
-	<LI>Properties
-	<LI>Methods
+    <LI>Qualifiers
+    <LI>Properties
+    <LI>Methods
     <UL>
     @param CIMNamespaceName with nameSpace
     @param pointer to class
@@ -626,21 +626,21 @@ void PrintClass(
 
     cout << "\n<B>SuperClass Name:  </b>";
     if (cimClass.getSuperClassName().isNull())
-	cout << "No Super Class" <<endl;
+    cout << "No Super Class" <<endl;
     else
     {
-	//cout << cimClass.getSuperClassName() << endl;
-	// output the superclass name as an href
+    //cout << cimClass.getSuperClassName() << endl;
+    // output the superclass name as an href
         String href = createGetClassHref(nameSpace,
-	                              cimClass.getSuperClassName());
+                                  cimClass.getSuperClassName());
 
         // KSREVIEWKS (localOnly)?"  ": " ";
         // KSREVIEWKS (includeQualifiers)? "%IncludeQualifiers=true" : "";
-	PrintAHref(href, cimClass.getSuperClassName().getString());
+    PrintAHref(href, cimClass.getSuperClassName().getString());
         //ANNTTNKS 26 Jan 2002 - Add the options params to this call
 
         //ALAGS : commented statement below as it is of no use
-        //String hrefenumInstance = 
+        //String hrefenumInstance =
         //    BuildOperationHref("enumerateInstanceNames", nameSpace);
 
     }
@@ -652,7 +652,7 @@ void PrintClass(
     //PrintEnumInstanceNameHref(nameSpace, cimClass.getClassName());
 
     if (includeQualifiers)
-	PrintQualifiers(cimClass);
+    PrintQualifiers(cimClass);
     // KSREVIEWKS: Delete this optionelse
     //    cout << "\n\nQualifier Parameters Not Requested" << endl;
 
@@ -660,19 +660,19 @@ void PrintClass(
     PrintClassMethods(cimClass);
     if (showMof)
     {
-	cout << "<h2>Display MOF for Class " << cimClass.getClassName() << "</h2>";
-	cout << "<pre>";
-	Array<char> x;
-	MofWriter::appendClassElement(x, cimClass);
-	x.append('\0');
+    cout << "<h2>Display MOF for Class " << cimClass.getClassName() << "</h2>";
+    cout << "<pre>";
+    Array<char> x;
+    MofWriter::appendClassElement(x, cimClass);
+    x.append('\0');
 
-	mofFormat(cout, x.getData(), 4);
+    mofFormat(cout, x.getData(), 4);
 
-	//MofWriter::printClassElement(cimClass);
-	cout << "</pre>";
+    //MofWriter::printClassElement(cimClass);
+    cout << "</pre>";
 
         // Now show the XML for this entity
-        /* note that XML formatting is real mess.  Hard to reformat as HTML 
+        /* note that XML formatting is real mess.  Hard to reformat as HTML
         without cleaning up the XML tags, etc.
         cout << "\n<h2>XML</h2>\n";
 
@@ -697,9 +697,9 @@ const CIMNamespaceName& nameSpace,
 /** PrintInstance - Print an HTML page with the instance and its properties, etc.
     of the instance including:
     <UL>
-	<LI>ClassName
-	<LI>Qualifiers
-	<LI>Properties
+    <LI>ClassName
+    <LI>Qualifiers
+    <LI>Properties
     </UL>
     Note that methods are at the class level, not the instance
     level so they do not appear in the Instance page.
@@ -753,12 +753,12 @@ void GetClass(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("ClassName")))
-	ErrorExit("Missing ClassName field");
+    ErrorExit("Missing ClassName field");
 
     CIMName className = CIMName (tmp);
 
     if (className.isNull())
-	ErrorExit("ClassName parameter is null");
+    ErrorExit("ClassName parameter is null");
 
     // Process Checkbox items that become call opptions
     // Set the Defaults
@@ -771,33 +771,33 @@ void GetClass(const CGIQueryString& qs)
     // Wierd because the form entry only sends info if
     //
     if (!(tmp = qs.findValue("LocalOnly")))
-	localOnly = false;
+    localOnly = false;
     if (!(tmp = qs.findValue("IncludeQualifiers")))
-	includeQualifiers = false;
+    includeQualifiers = false;
     if ((tmp = qs.findValue("IncludeClassOrigin")))
-	includeClassOrigin = true;
+    includeClassOrigin = true;
     // KSREVIEW: KS - Just delete thisif ((tmp = qs.findValue("ShowMof")))
     //    showMof = true;
-    
+
     CIMClass cimClass;
     try
     {
-	CIMClient client;
+    CIMClient client;
 
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
- 	    cimClass = client.getClass(nameSpace, className,
-	    localOnly, includeQualifiers, includeClassOrigin);
+        cimClass = client.getClass(nameSpace, className,
+        localOnly, includeQualifiers, includeClassOrigin);
 
         PrintClass(nameSpace, cimClass,localOnly, includeQualifiers,
-	    includeClassOrigin, showMof);
+        includeClassOrigin, showMof);
     }
     catch(Exception& e)
     {
-    	ErrorExit(e.getMessage());
+        ErrorExit(e.getMessage());
     }
 }
 
@@ -817,52 +817,52 @@ void GetPropertyDeclaration(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("ClassName")))
-	ErrorExit("Missing ClassName field");
+    ErrorExit("Missing ClassName field");
 
     CIMName className = CIMName (tmp);
 
     if (className.isNull())
-	ErrorExit("ClassName parameter is null");
+    ErrorExit("ClassName parameter is null");
 
     // Get PropertyName:
 
     if (!(tmp = qs.findValue("PropertyName")))
-	ErrorExit("Missing ClassName field");
+    ErrorExit("Missing ClassName field");
 
     CIMName propertyName = CIMName (tmp);
 
     if (propertyName.isNull())
-	ErrorExit("PropertyName parameter is null");
+    ErrorExit("PropertyName parameter is null");
 
     //
 
     try
     {
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	// get the class
-	CIMClass cimClass = client.getClass(
-	    nameSpace, className, false, true, true);
-	//
-	Uint32 pos = cimClass.findProperty(propertyName);
+    // get the class
+    CIMClass cimClass = client.getClass(
+        nameSpace, className, false, true, true);
+    //
+    Uint32 pos = cimClass.findProperty(propertyName);
 
-	if (pos == PEG_NOT_FOUND)
-	{
-	    ErrorExit("No such property");
-	    return;
-	}
-	// Now Get the property
-	CIMProperty property = cimClass.getProperty(pos);
+    if (pos == PEG_NOT_FOUND)
+    {
+        ErrorExit("No such property");
+        return;
+    }
+    // Now Get the property
+    CIMProperty property = cimClass.getProperty(pos);
 
-	PrintPropertyDeclaration(property);
+    PrintPropertyDeclaration(property);
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 /** PrintClassNames  - Generates a table with the class names
@@ -879,18 +879,18 @@ void PrintClassNames(
 
     for (Uint32 i = 0, n = classNames.size(); i < n; i++)
     {
-	    cout << "<tr><td>\n";
+        cout << "<tr><td>\n";
 
-	    String href = createGetClassHref(nameSpace,
-	                                classNames[i]);
+        String href = createGetClassHref(nameSpace,
+                                    classNames[i]);
 
-	    PrintAHref(href, classNames[i].getString());
+        PrintAHref(href, classNames[i].getString());
             cout << "&nbsp;&nbsp;&nbsp;&nbsp;";
 
             // Build href for enumerate instance names
             PrintEnumInstanceNameHref(nameSpace,classNames[i]);
 
-	    cout << "</tr></td>\n";
+        cout << "</tr></td>\n";
     }
     // Close the Table
     cout << "</table>\n";
@@ -925,37 +925,41 @@ void EnumerateClassNames(const CGIQueryString& qs)
 
     // Get the ClassName field:
     if ((tmp = qs.findValue("ClassName")) && *tmp)
-	className = CIMName (tmp);
+    className = CIMName (tmp);
 
     // Get DeepInheritance:
     Boolean deepInheritance = false;
 
     if (qs.findValue("DeepInheritance"))
-	deepInheritance = true;
+    deepInheritance = true;
 
     // Invoke the method:
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	// Make the Connection
-	CIMClient client;
+    elapsedTime.start();
+
+    // Make the Connection
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	Array<CIMName> classNames = client.enumerateClassNames(
-	    nameSpace, className, deepInheritance);
+    Array<CIMName> classNames = client.enumerateClassNames(
+        nameSpace, className, deepInheritance);
 
-	// Print the results
-	PrintClassNames(nameSpace, classNames, elapsedTime.getElapsed());
+    elapsedTime.stop();
+
+    // Print the results
+    PrintClassNames(nameSpace, classNames, elapsedTime.getElapsed());
 
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 
@@ -973,45 +977,45 @@ void DeleteClass(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("ClassName")))
-	ErrorExit("Missing ClassName field");
+    ErrorExit("Missing ClassName field");
 
     CIMName className = CIMName (tmp);
 
     if (className.isNull())
-	ErrorExit("ClassName parameter is null");
+    ErrorExit("ClassName parameter is null");
 
     try
     {
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	client.deleteClass(nameSpace, className);
+    client.deleteClass(nameSpace, className);
 
-	String message = "Class \"";
-	message.append(className.getString());
-	message.append("\" was deleted");
-	PrintHTMLHead("DeleteClass", "Delete Class Result");
+    String message = "Class \"";
+    message.append(className.getString());
+    message.append("\" was deleted");
+    PrintHTMLHead("DeleteClass", "Delete Class Result");
         cout << "    <h1>" << message << "</h1>\n";
         cout << "  </body>\n";
         cout << "</html>\n";
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 
 void PrintQualifierRow(const CIMNamespaceName& nameSpace,
-		       const CIMQualifierDecl& qd)
+               const CIMQualifierDecl& qd)
 {
     cout << "<tr>\n";
 
     const CIMValue& value = qd.getValue();
 
-    String href = 
+    String href =
         BuildOperationHref("GetQualifier", nameSpace);
     href.append("QualifierName=");
     href.append(qd.getName().getString());
@@ -1108,7 +1112,7 @@ void PrintEnumerateQualifiers(
 
     for (Uint32 i = 0; i < qualifierDecls.size(); i++)
     {
-	PrintQualifierRow(nameSpace, qualifierDecls[i]);
+    PrintQualifierRow(nameSpace, qualifierDecls[i]);
     }
 
     cout << "</table>\n" << "</body>\n" << "</html>\n";
@@ -1125,20 +1129,20 @@ void EnumerateQualifiers(const CGIQueryString& qs)
 
     try
     {
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	Array<CIMQualifierDecl> qualifierDecls =
-	    client.enumerateQualifiers(nameSpace);
+    Array<CIMQualifierDecl> qualifierDecls =
+        client.enumerateQualifiers(nameSpace);
 
-	PrintEnumerateQualifiers(nameSpace, qualifierDecls);
+    PrintEnumerateQualifiers(nameSpace, qualifierDecls);
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 
@@ -1155,28 +1159,28 @@ static void GetQualifier(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("QualifierName")))
-	ErrorExit("Missing QualifierName field");
+    ErrorExit("Missing QualifierName field");
 
     CIMName qualifierName = CIMName (tmp);
 
     if (qualifierName.isNull())
-	ErrorExit("QualifierName parameter is null");
+    ErrorExit("QualifierName parameter is null");
 
     try
     {
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	CIMQualifierDecl qd = client.getQualifier(nameSpace, qualifierName);
+    CIMQualifierDecl qd = client.getQualifier(nameSpace, qualifierName);
 
-	PrintGetQualifier(nameSpace, qd);
+    PrintGetQualifier(nameSpace, qd);
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 
@@ -1194,34 +1198,34 @@ void DeleteQualifier(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("QualifierName")))
-	ErrorExit("Missing QualifierName field");
+    ErrorExit("Missing QualifierName field");
 
     CIMName qualifierName = CIMName (tmp);
 
     if (qualifierName.isNull())
-	ErrorExit("QualifierName parameter is null");
+    ErrorExit("QualifierName parameter is null");
 
     try
     {
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	client.deleteQualifier(nameSpace, qualifierName);
+    client.deleteQualifier(nameSpace, qualifierName);
 
-	String message = "Qualifier \"";
-	message.append(qualifierName.getString());
-	message.append("\" was deleted");
-	PrintHTMLHead("DeleteQualifier", "Delete Qualifier Result");
+    String message = "Qualifier \"";
+    message.append(qualifierName.getString());
+    message.append("\" was deleted");
+    PrintHTMLHead("DeleteQualifier", "Delete Qualifier Result");
         cout << "    <h1>" << message << "</h1>\n";
         cout << "  </body>\n";
         cout << "</html>\n";
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 
@@ -1240,7 +1244,7 @@ void DeleteQualifier(const CGIQueryString& qs)
     @param InstanceNames - The array of references to print
     KSREVIEW: Change so the user can select extra params.
 
-    ALAGS : Added last parameter isClass to decide on href for 
+    ALAGS : Added last parameter isClass to decide on href for
             Associatior/Reference Names and to avoid a new method
 */
 static void PrintObjectNames(
@@ -1258,10 +1262,10 @@ static void PrintObjectNames(
     // click access to the getInstance for that name
     for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
     {
-	    cout << "<tr><td>\n";
+        cout << "<tr><td>\n";
         //ALAGS : Decide if href is to call GetClass or GetInstance
         //        This would be needed in Associator/Reference Name calls
-        //        Set this parameter to "true" if the ObjectName textbox is 
+        //        Set this parameter to "true" if the ObjectName textbox is
         //        passing a Class
         String href;
         if(isClass)
@@ -1273,7 +1277,7 @@ static void PrintObjectNames(
         else
         {
             href = BuildOperationHref("GetInstance", nameSpace);
-	        href.append("InstanceName=");
+            href.append("InstanceName=");
 
             //
             // KSREVIEWKS: - Need to convert the '"' (double quote) character to '%22' to
@@ -1282,7 +1286,7 @@ static void PrintObjectNames(
             // string to a '.' (dot).
             //
 
-            //ALAGS : No need to convert '-' to '.' as a '-' is already a valid 
+            //ALAGS : No need to convert '-' to '.' as a '-' is already a valid
             // character in a URL string. A underscore '_' must not be converted
             // as it would affect all CIM_xxx classes.
 
@@ -1295,7 +1299,7 @@ static void PrintObjectNames(
                 switch (instanceName[j])
                 {
                     /*ALAGS: Commented to fix Bug #148
-                    case '-': 
+                    case '-':
                         nameString.append(".");
                         break;*/
 
@@ -1308,19 +1312,19 @@ static void PrintObjectNames(
                 }
             }
 
-            
+
             href.append(nameString);
             href.append("&");
 
-	        href.append("LocalOnly=true");
-	        href.append("includQualifiers=false");
-	        href.append("includeClassOrigin=false");
+            href.append("LocalOnly=true");
+            href.append("includQualifiers=false");
+            href.append("includeClassOrigin=false");
 
         }
 
-	    PrintAHref(href, instanceNames[i].toString());
+        PrintAHref(href, instanceNames[i].toString());
 
-	    cout << "</tr></td>\n";
+        cout << "</tr></td>\n";
     }
     // Close the HTML Table
     cout << "</table>\n";
@@ -1353,32 +1357,36 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
     const char* tmp;
 
     if ((tmp = qs.findValue("ClassName")))
-	className = CIMName (tmp);
+    className = CIMName (tmp);
 
     // Invoke the method:
 
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	CIMClient client;
+    elapsedTime.start();
+
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	// Call enumerate Instances CIM Method
-	Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
-	    nameSpace, className);
+    // Call enumerate Instances CIM Method
+    Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
+        nameSpace, className);
 
-	// Print the CIMObjectPath array
-	PrintObjectNames( "EnumerateInstanceNames Result",
-	    nameSpace, instanceNames, elapsedTime.getElapsed(), false);
+    elapsedTime.stop();
+
+    // Print the CIMObjectPath array
+    PrintObjectNames( "EnumerateInstanceNames Result",
+        nameSpace, instanceNames, elapsedTime.getElapsed(), false);
         }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 
@@ -1401,13 +1409,13 @@ static void GetInstance(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("InstanceName")))
-	ErrorExit("Missing InstanceName field");
+    ErrorExit("Missing InstanceName field");
 
     // KSREVIEWKS: This must be modified for the toString
     CIMObjectPath referenceName;
     try
     {
-	referenceName = tmp;
+    referenceName = tmp;
     }
     catch(Exception& e)
     {
@@ -1424,35 +1432,35 @@ static void GetInstance(const CGIQueryString& qs)
     Boolean includeClassOrigin = false;
 
     if (!(tmp = qs.findValue("LocalOnly")))
-	localOnly = false;
+    localOnly = false;
     if (!(tmp = qs.findValue("IncludeQualifiers")))
-	includeQualifiers = false;
+    includeQualifiers = false;
     if ((tmp = qs.findValue("IncludeClassOrigin")))
-	includeClassOrigin = true;
+    includeClassOrigin = true;
 
     try
     {
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	CIMInstance cimInstance = client.getInstance(nameSpace,
-	    referenceName, localOnly, includeClassOrigin, includeClassOrigin);
+    CIMInstance cimInstance = client.getInstance(nameSpace,
+        referenceName, localOnly, includeClassOrigin, includeClassOrigin);
 
-	PrintInstance(nameSpace, cimInstance, localOnly, includeQualifiers,
-		includeClassOrigin); }
+    PrintInstance(nameSpace, cimInstance, localOnly, includeQualifiers,
+        includeClassOrigin); }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 
 
 /** PrintInstancetable - Print a table of enumerated instance information
 */
-void PrintInstanceTableRow(const CIMNamespaceName & nameSpace, 
+void PrintInstanceTableRow(const CIMNamespaceName & nameSpace,
     CIMInstance CIMInstance)
 {
    // KSREVIEWKS: Need to add code here
@@ -1462,48 +1470,48 @@ void PrintInstanceTableRow(const CIMNamespaceName & nameSpace,
 
     for (Uint32 i = 0, n = CIMInstance.getPropertyCount(); i < n; i++)
     {
-	    // KSREVIEW: All of this can become PrintProperty()
-	    CIMProperty property = CIMInstance.getProperty(i);
-	    const CIMValue& value = property.getValue();
+        // KSREVIEW: All of this can become PrintProperty()
+        CIMProperty property = CIMInstance.getProperty(i);
+        const CIMValue& value = property.getValue();
 
 
-        String href = 
+        String href =
             BuildOperationHref("GetPropertyDeclaration", nameSpace);
-	    href.append("ClassName=");
-	    href.append(className);
-	    href.append("&");
-	    href.append("PropertyName=");
-	    href.append(property.getName().getString());
-	    href.append("&");
-	    cout << "<tr>\n";
-	    cout << "<td>";
-	    PrintAHref(href, property.getName().getString());
-	    cout << "</td>";
+        href.append("ClassName=");
+        href.append(className);
+        href.append("&");
+        href.append("PropertyName=");
+        href.append(property.getName().getString());
+        href.append("&");
+        cout << "<tr>\n";
+        cout << "<td>";
+        PrintAHref(href, property.getName().getString());
+        cout << "</td>";
 
 
 
-	    /*cout << "<tr>\n";
-	    cout << "<td>";
-	    cout << property.getName().getString();
-	    cout << "</td>";*/
-	    cout << "<td>" << cimTypeToString (value.getType ()) << "</td>\n";
+        /*cout << "<tr>\n";
+        cout << "<td>";
+        cout << property.getName().getString();
+        cout << "</td>";*/
+        cout << "<td>" << cimTypeToString (value.getType ()) << "</td>\n";
 
-	    String valueString = value.toString();
+        String valueString = value.toString();
 
-	    if (valueString.size())
-	        cout << "<td>" << valueString << "</td>\n";
-	    else
-	        cout << "<td>null</td>\n";
-	    // Output the ClassOrigin
-	    // KSREVIEW: Make this optional
-	    cout << "<td>" << property.getClassOrigin() << "</td>\n";
-	    // Output the Propagated field
-	    cout << "<td>" << (property.getPropagated() ? "true" : "false");
-	    cout << "</td>\n";
+        if (valueString.size())
+            cout << "<td>" << valueString << "</td>\n";
+        else
+            cout << "<td>null</td>\n";
+        // Output the ClassOrigin
+        // KSREVIEW: Make this optional
+        cout << "<td>" << property.getClassOrigin() << "</td>\n";
+        // Output the Propagated field
+        cout << "<td>" << (property.getPropagated() ? "true" : "false");
+        cout << "</td>\n";
 
-	    cout << "</tr>\n";
+        cout << "</tr>\n";
     }
-    
+
 }
 /***************************************************************************
     EnumerateInstances Function
@@ -1517,27 +1525,26 @@ static void EnumerateInstances(const CGIQueryString& qs)
     CIMName className;
 
     const char* tmp;
-    double elapTime;
 
     if ((tmp = qs.findValue("ClassName")))
-	className = CIMName (tmp);
+    className = CIMName (tmp);
 
     Boolean localOnly = true;
     Boolean includeQualifiers = true;
     Boolean includeClassOrigin = false;
 
     if (!(tmp = qs.findValue("LocalOnly")))
-	localOnly = false;
+    localOnly = false;
     if (!(tmp = qs.findValue("IncludeQualifiers")))
-	includeQualifiers = false;
+    includeQualifiers = false;
     if ((tmp = qs.findValue("IncludeClassOrigin")))
-	includeClassOrigin = true;
+    includeClassOrigin = true;
 
     // Get DeepInheritance:
     Boolean deepInheritance = false;
 
     if (qs.findValue("DeepInheritance"))
-	deepInheritance = true;
+    deepInheritance = true;
 
 
     CIMPropertyList propertyList;
@@ -1546,10 +1553,12 @@ static void EnumerateInstances(const CGIQueryString& qs)
     // Invoke the method:
     try
     {
-	    // Time the connection
-	    Stopwatch elapsedTime;
+        // Time the connection
+        Stopwatch elapsedTime;
 
-	    CIMClient client;
+        elapsedTime.start();
+
+        CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
@@ -1574,7 +1583,8 @@ static void EnumerateInstances(const CGIQueryString& qs)
                                             includeClassOrigin,
                                             propertyList);
 
-        elapTime = elapsedTime.getElapsed();
+        elapsedTime.stop();
+
         // Generate Table Head
         //Number of Colums is determined by number of properties
         // Name row and each property row. ?? from class or instance
@@ -1605,7 +1615,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
             cout << "</tr>\n";
             PrintInstanceTableRow(nameSpace, instances[i]);
             cout << "</table>\n<br><br>";
-            
+
             //ALAGS : MOF disp can be put into a function
             cout << "<h2>Display MOF for Instance " << i+1 << "</h2>";
             cout << "<pre>";
@@ -1622,7 +1632,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
 
         // Close the Page
         cout << "<p>Returned " << instances.size() << " Instance(s) ";
-        cout << " in " << elapTime << " Seconds</p>\n";
+        cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
         cout << "</body>\n" << "</html>\n";
     }
     catch(Exception& e)
@@ -1648,7 +1658,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(inputInstanceName = qs.findValue("InstanceName")))
-	ErrorExit("Missing InstanceName field");
+    ErrorExit("Missing InstanceName field");
 
     // This must be modified for the toString KSREVIEW KS
     CIMObjectPath referenceName;
@@ -1656,7 +1666,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
     // Convert instanceName to referenceName
     try
     {
-	referenceName = inputInstanceName;
+    referenceName = inputInstanceName;
     }
     catch(Exception& e)
     {
@@ -1669,8 +1679,8 @@ static void EnumerateInstances(const CGIQueryString& qs)
 
 
     try
-	{
-	    CIMClient client;
+    {
+        CIMClient client;
             String host;
             Uint32 portNumber;
             getHostAndPort (host, portNumber);
@@ -1678,20 +1688,20 @@ static void EnumerateInstances(const CGIQueryString& qs)
 
         //ALAGS : this call does not return the correct "value type"
         // for a given property. So use the fix implemented below
-	    CIMValue value = client.getProperty(nameSpace,
-		referenceName, propertyName);
+        CIMValue value = client.getProperty(nameSpace,
+        referenceName, propertyName);
 
 
-	    PrintHTMLHead("GetProperty", "GetProperty Result");
+        PrintHTMLHead("GetProperty", "GetProperty Result");
 
 
-	    cout << "<B>Instance = </B> " <<
-		inputInstanceName << "\n<br>";
+        cout << "<B>Instance = </B> " <<
+        inputInstanceName << "\n<br>";
 
 
 
         //ALAGS : use this for getting correct property type
-        // as value.getType() is not returning correct type when "value" 
+        // as value.getType() is not returning correct type when "value"
         // is obtained through a client.getProperty(...) call
         CIMInstance cimInstance = client.getInstance(nameSpace, referenceName);
 
@@ -1700,7 +1710,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
         for (Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
         {
             property = cimInstance.getProperty(i);
-            if(String::equalNoCase(property.getName().getString(), 
+            if(String::equalNoCase(property.getName().getString(),
                                    propertyName.getString()))
             {
                 value1 = property.getValue();
@@ -1708,25 +1718,25 @@ static void EnumerateInstances(const CGIQueryString& qs)
             }
         }
 
-	    cout << "<B>Property = </B> " << property.getName().getString() << "\n\n<br>";
-	    cout << "<B>Value Type = </B>";
+        cout << "<B>Property = </B> " << property.getName().getString() << "\n\n<br>";
+        cout << "<B>Value Type = </B>";
 
-	    cout <<  cimTypeToString (value1.getType ()) << "\n\n<br>";
+        cout <<  cimTypeToString (value1.getType ()) << "\n\n<br>";
 
-	    String valueString = value1.toString();
-	    cout << "<B>Value = </B> ";
+        String valueString = value1.toString();
+        cout << "<B>Value = </B> ";
 
-	    if (valueString.size())
-	       cout << " " << valueString << " \n\n<br>";
-	    else
-	       cout << " NULL \n\n<br>";
+        if (valueString.size())
+           cout << " " << valueString << " \n\n<br>";
+        else
+           cout << " NULL \n\n<br>";
 
-	    cout << "</body>\n" << "</html>\n";
-	}
-	catch(Exception& e)
-	{
-	    ErrorExit(e.getMessage());
-	}
+        cout << "</body>\n" << "</html>\n";
+    }
+    catch(Exception& e)
+    {
+        ErrorExit(e.getMessage());
+    }
 
 
 }
@@ -1743,7 +1753,7 @@ static void SetProperty(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("InstanceName")))
-	ErrorExit("Missing InstanceName field");
+    ErrorExit("Missing InstanceName field");
 
     // KSREVIEWKS: This must be modified for the toString
     CIMObjectPath referenceName;
@@ -1751,7 +1761,7 @@ static void SetProperty(const CGIQueryString& qs)
     CIMValue newValue;
     try
     {
-	referenceName = tmp;
+    referenceName = tmp;
     }
     catch(Exception& e)
     {
@@ -1759,37 +1769,37 @@ static void SetProperty(const CGIQueryString& qs)
     }
 
     if ((tmp = qs.findValue("PropertyName")))
-	propertyName = CIMName (tmp);
+    propertyName = CIMName (tmp);
 
     String strValue;
     if ((tmp = qs.findValue("NewValue")))
     strValue = tmp;
-	
+
     newValue = CIMValue (strValue);
 
 
     try
     {
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	client.setProperty(nameSpace, referenceName, propertyName, newValue);
+    client.setProperty(nameSpace, referenceName, propertyName, newValue);
 
-	String message = "Property \"";
-	message.append(propertyName.getString());
-	message.append("\" has been set to ");
+    String message = "Property \"";
+    message.append(propertyName.getString());
+    message.append("\" has been set to ");
     message.append(newValue.toString());
-	PrintHTMLHead("SetProperty", "Set Property Result");
+    PrintHTMLHead("SetProperty", "Set Property Result");
         cout << "    <h1>" << message << "</h1>\n";
         cout << "  </body>\n";
         cout << "</html>\n";
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 
 }
@@ -1806,12 +1816,12 @@ static void DeleteInstance(const CGIQueryString& qs)
     const char* tmp;
 
     if (!(tmp = qs.findValue("InstanceName")))
-	ErrorExit("Missing InstanceName field");
+    ErrorExit("Missing InstanceName field");
 
     CIMObjectPath referenceName;
     try
     {
-	    referenceName = tmp;
+        referenceName = tmp;
     }
     catch(Exception& e)
     {
@@ -1820,16 +1830,20 @@ static void DeleteInstance(const CGIQueryString& qs)
 
     try
     {
-	    // Time the connection
-	    Stopwatch elapsedTime;
+        // Time the connection
+        Stopwatch elapsedTime;
 
-	    CIMClient client;
+        elapsedTime.start();
+
+        CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	    client.deleteInstance(nameSpace, referenceName);
+        client.deleteInstance(nameSpace, referenceName);
+
+        elapsedTime.stop();
 
         PrintHTMLHead("DeleteInstance", "Delete an Instance Result");
 
@@ -1837,12 +1851,12 @@ static void DeleteInstance(const CGIQueryString& qs)
         cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
         cout << "</body>\n" << "</html>\n";
 
-	    //PrintInstance(nameSpace, cimInstance, localOnly, includeQualifiers,
-		//includeClassOrigin); 
+        //PrintInstance(nameSpace, cimInstance, localOnly, includeQualifiers,
+        //includeClassOrigin);
     }
     catch(Exception& e)
     {
-	    ErrorExit(e.getMessage());
+        ErrorExit(e.getMessage());
     }
 
 }
@@ -1862,7 +1876,7 @@ static void CreateNameSpace(const CGIQueryString& qs)
     const char* tmp;
 
     if ((tmp = qs.findValue("NewNameSpace")))
-	nameSpaceName = CIMNamespaceName (tmp);
+    nameSpaceName = CIMNamespaceName (tmp);
 
     // Create the instance with full instancename since this is the key.
     String instanceName = "__Namespace";
@@ -1876,30 +1890,35 @@ static void CreateNameSpace(const CGIQueryString& qs)
 
     CIMInstance newInstance(instanceName);
 
-    newInstance.addProperty(CIMProperty(CIMName ("name"), 
+    newInstance.addProperty(CIMProperty(CIMName ("name"),
         nameSpaceName.getString()));
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	CIMClient client;
+    elapsedTime.start();
+
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	// Call create Instances CIM Method for class __Namespace
-	cout << "Creating " << nameSpaceName;
-	client.createInstance(nameSpace, newInstance);
-	PrintHTMLHead("CreateNameSpace", "Create a NameSpace Result");
-	cout << "<h1>Namespace " << nameSpaceName << " Created</H1>";
-	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
-	cout << "</body>\n" << "</html>\n";
+    // Call create Instances CIM Method for class __Namespace
+    cout << "Creating " << nameSpaceName;
+    client.createInstance(nameSpace, newInstance);
+
+    elapsedTime.stop();
+
+    PrintHTMLHead("CreateNameSpace", "Create a NameSpace Result");
+    cout << "<h1>Namespace " << nameSpaceName << " Created</H1>";
+    cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+    cout << "</body>\n" << "</html>\n";
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 }
 
@@ -1919,7 +1938,7 @@ static void DeleteNameSpace(const CGIQueryString& qs)
     CIMNamespaceName nameSpaceToDelete;
     const char* tmp;
     if ((tmp = qs.findValue("DeletionNameSpace")))
-	nameSpaceToDelete= CIMNamespaceName (tmp);
+    nameSpaceToDelete= CIMNamespaceName (tmp);
 
     // Create Instance Name
     String instanceName = "__Namespace.name=\"";
@@ -1930,37 +1949,42 @@ static void DeleteNameSpace(const CGIQueryString& qs)
     CIMObjectPath referenceName;
     try
     {
-	referenceName = instanceName;
+    referenceName = instanceName;
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
     // Now make connection and Delete the instance
     // Deleting the Instance of __Namespace deletes
     // the Namespace.
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	CIMClient client;
+    elapsedTime.start();
+
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	// Call delete Instances CIM Method for class __Namespace
-	client.deleteInstance(nameSpace, referenceName);
-	PrintHTMLHead("DeleteNameSpace", "Delete a NameSpace Result");
-	cout << "<h1>Namespace " << nameSpaceToDelete << " Deleted</H1>";
+    // Call delete Instances CIM Method for class __Namespace
+    client.deleteInstance(nameSpace, referenceName);
 
-	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
-	cout << "</body>\n" << "</html>\n";
+    elapsedTime.stop();
+
+    PrintHTMLHead("DeleteNameSpace", "Delete a NameSpace Result");
+    cout << "<h1>Namespace " << nameSpaceToDelete << " Deleted</H1>";
+
+    cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+    cout << "</body>\n" << "</html>\n";
     }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
  }
 
@@ -1979,77 +2003,81 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
     const char* tmp;
 
     if ((tmp = qs.findValue("ClassName")))
-	className = CIMName (tmp);
+    className = CIMName (tmp);
 
     // Invoke the method:
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	CIMClient client;
+    elapsedTime.start();
+
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	// Call enumerate Instances CIM Method
-	Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
-	    nameSpace, className);
+    // Call enumerate Instances CIM Method
+    Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
+        nameSpace, className);
 
-	// Convert from CIMObjectPath to String form
-	Array<String> tmpInstanceNames;
+    elapsedTime.stop();
+
+    // Convert from CIMObjectPath to String form
+    Array<String> tmpInstanceNames;
 
         for (Uint32 i = 0; i < instanceNames.size(); i++)
-	    tmpInstanceNames.append(instanceNames[i].toString());
+        tmpInstanceNames.append(instanceNames[i].toString());
 
-	// Print the name array
-	PrintHTMLHead("EnumerateNameSpaces", "Enumerate NameSpaces Result");
+    // Print the name array
+    PrintHTMLHead("EnumerateNameSpaces", "Enumerate NameSpaces Result");
 
-	cout << "<table border=1>\n";
-	cout << "<tr><th>Namespaces</th><tr>\n";
-	for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
-	{
-	    cout << "<tr><td>\n";
-	    // Instnance name in form
-	    // __Namespace.name="namespace"
-	    // Strip off all but the namespace itself
-	    String work = tmpInstanceNames[i];
-	    Uint32 pos = work.find('\"');
-	    if (pos != PEG_NOT_FOUND)
-		work = tmpInstanceNames[i].subString((pos+1), PEG_NOT_FOUND);
+    cout << "<table border=1>\n";
+    cout << "<tr><th>Namespaces</th><tr>\n";
+    for (Uint32 i = 0, n = instanceNames.size(); i < n; i++)
+    {
+        cout << "<tr><td>\n";
+        // Instnance name in form
+        // __Namespace.name="namespace"
+        // Strip off all but the namespace itself
+        String work = tmpInstanceNames[i];
+        Uint32 pos = work.find('\"');
+        if (pos != PEG_NOT_FOUND)
+        work = tmpInstanceNames[i].subString((pos+1), PEG_NOT_FOUND);
 
-	    // remove trailing quote
-	    work.remove((work.size() - 1), PEG_NOT_FOUND);
+        // remove trailing quote
+        work.remove((work.size() - 1), PEG_NOT_FOUND);
 
-	    // Create href for click to get classnames
-        
+        // Create href for click to get classnames
+
         //ALAGS : FIX - Prefix "root/" to the Namespace Name for link to work
         CIMNamespaceName nameSpaceName("root/"+work);
 
-	    String href = BuildOperationHref("EnumerateClassNames",nameSpaceName);
+        String href = BuildOperationHref("EnumerateClassNames",nameSpaceName);
 
 
-	    href.append("InstanceName=&");
-	    href.append("DeepInheritance=true");
+        href.append("InstanceName=&");
+        href.append("DeepInheritance=true");
 
-	    PrintAHref(href, work);
+        PrintAHref(href, work);
 
-	    cout << "</tr></td>\n";
-	}
-	// Close the HTML Table
-	cout << "</table>\n";
+        cout << "</tr></td>\n";
+    }
+    // Close the HTML Table
+    cout << "</table>\n";
 
-	// Close the Page
-	cout << "<p>Click on a namespace to enumerate class Names</p>";
-	cout << "<p>Returned " << instanceNames.size() << " Names";
-	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
-	cout << "</body>\n" << "</html>\n";
+    // Close the Page
+    cout << "<p>Click on a namespace to enumerate class Names</p>";
+    cout << "<p>Returned " << instanceNames.size() << " Names";
+    cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+    cout << "</body>\n" << "</html>\n";
 
-	}
+    }
     catch(Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 
 }
@@ -2067,10 +2095,10 @@ static void DefineHostParameters(const CGIQueryString& qs)
     HostInfo hostInfo;
 
     // if ((tmp = qs.findValue("HostURL")))
-	// hostInfo.setHostName(tmp);
+    // hostInfo.setHostName(tmp);
 
     // if ((tmp = qs.findValue("HostPort")))
-	// hostInfo.setHostPort("8888");
+    // hostInfo.setHostPort("8888");
 
     /// Respond with the new parameters
     PrintHTMLHead("DefineHostParameters", "HostName/Port");
@@ -2086,8 +2114,8 @@ static void DefineHostParameters(const CGIQueryString& qs)
     with the proper indenation, etc.
 */
 void PrintClassTreeEntry(const CIMNamespaceName& nameSpace,
-			 const CIMName& className,
-			 Uint32 level)
+             const CIMName& className,
+             Uint32 level)
 {
     cout << "<LI>";
     cout << level;
@@ -2095,7 +2123,7 @@ void PrintClassTreeEntry(const CIMNamespaceName& nameSpace,
 
     //KSREVIEW figure out why clasName in href and printaHref.
     String href = createGetClassHref(nameSpace,
-		                  className);
+                          className);
 
     href.append("LocalOnly=true");
 
@@ -2108,7 +2136,7 @@ void PrintClassTreeEntry(const CIMNamespaceName& nameSpace,
 ***************************************************************************/
 
 /** TraverseClassTree - Traverse the Tree of super-to-subclasses
-    printing each new subclass.	This function uses recursieve calls
+    printing each new subclass. This function uses recursieve calls
     to traverse the complete Class Tree.
     Note that the initial call is expected to be -1 which starts
     us at the root.  We don't want to print the root.
@@ -2135,28 +2163,28 @@ void TraverseClassTree(
     {
        if (className == superClassNames[i])
        {
-	   if (!putUL)
-	   {
-	       putUL = true;
-	       cout << "<ul>";
-	   }
+       if (!putUL)
+       {
+           putUL = true;
+           cout << "<ul>";
+       }
 
-	   PrintClassTreeEntry(nameSpace,classNames[i], level);
+       PrintClassTreeEntry(nameSpace,classNames[i], level);
 
            cout << "&nbsp;&nbsp;&nbsp;";
 
            // Build href for enumerate instance names
            PrintEnumInstanceNameHref(nameSpace,classNames[i]);
 
-	   TraverseClassTree(nameSpace,
-			  classNames[i],
-			  superClassNames,
-			  classNames, size, level);
+       TraverseClassTree(nameSpace,
+              classNames[i],
+              superClassNames,
+              classNames, size, level);
        }
     }
 
     if (putUL)
-	cout << "</UL><!-- " << level << " -->\n";
+    cout << "</UL><!-- " << level << " -->\n";
 }
 
 /***************************************************************************
@@ -2186,86 +2214,89 @@ static void ClassInheritance(const CGIQueryString& qs)
     // Get the timeout that is an option on this command
     Uint32 timeOut = 5 * 1000;
     if ((tmp = qs.findValue("timeout")))
-	timeOut = 60 * 1000;
+    timeOut = 60 * 1000;
     // KSREVIEW: Need the ascitointeger function.
 
 
     // Get the ClassName field:
     if ((tmp = qs.findValue("ClassName")) && *tmp)
-	className = CIMName (tmp);
+    className = CIMName (tmp);
 
     // Get DeepInheritance:
     Boolean deepInheritance = false;
     if (qs.findValue("DeepInheritance"))
-	deepInheritance = true;
+    deepInheritance = true;
 
 
     // Invoke the method:
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	// Make the Connection
-	Boolean localOnly = false;
-	Boolean includeQualifiers = false;
-	Boolean includeClassOrigin = true;
+    // Make the Connection
+    Boolean localOnly = false;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = true;
 
+    elapsedTime.start();
 
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
-	client.setTimeout(timeOut);
+    client.setTimeout(timeOut);
 
 
-	Array<CIMClass> classArray = client.enumerateClasses(
-					nameSpace,
-					className,
-					deepInheritance,
-					localOnly,
-					includeQualifiers,
-					includeClassOrigin);
-	// Organize and Print the Class Tree results
+    Array<CIMClass> classArray = client.enumerateClasses(
+                    nameSpace,
+                    className,
+                    deepInheritance,
+                    localOnly,
+                    includeQualifiers,
+                    includeClassOrigin);
+    // Organize and Print the Class Tree results
 
-	PrintHTMLHead("EnumerateInheritance", "Class Inheritance Result");
+    elapsedTime.stop();
 
-	cout << "<table border=1>\n";
-	cout << "<tr><th>Super Class Names<th>Class Names<tr></th>\n";
+    PrintHTMLHead("EnumerateInheritance", "Class Inheritance Result");
 
-	String classNameHrefBuilder;
-	cout << "Count " <<   classArray.size() << endl;
+    cout << "<table border=1>\n";
+    cout << "<tr><th>Super Class Names<th>Class Names<tr></th>\n";
 
-	for (Uint32 i = 0, n = classArray.size(); i < n; i++)
-	{
-	    cout << "<tr><td>\n";
+    String classNameHrefBuilder;
+    cout << "Count " <<   classArray.size() << endl;
 
-	    if (classArray[i].getSuperClassName().isNull ())
-		cout << "No Superclass";
-	    else
-		cout << classArray[i].getSuperClassName();
+    for (Uint32 i = 0, n = classArray.size(); i < n; i++)
+    {
+        cout << "<tr><td>\n";
 
-	    cout << "<td>\n";
+        if (classArray[i].getSuperClassName().isNull ())
+        cout << "No Superclass";
+        else
+        cout << classArray[i].getSuperClassName();
 
-	    String href = createGetClassHref(nameSpace,
-			                  classArray[i].getClassName());
+        cout << "<td>\n";
 
-	    href.append("LocalOnly=true");
+        String href = createGetClassHref(nameSpace,
+                              classArray[i].getClassName());
+
+        href.append("LocalOnly=true");
 
 
 
-	    PrintAHref(href, classArray[i].getClassName().getString());
+        PrintAHref(href, classArray[i].getClassName().getString());
 
-	    cout << "</td></tr>\n";
-	}
-	// Close the Table
-	cout << "</table>\n";
+        cout << "</td></tr>\n";
+    }
+    // Close the Table
+    cout << "</table>\n";
 
-	// Close the Page
-	cout << "<p>Returned " << classArray.size() << " Classes ";
-	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
-	cout << "</body>\n" << "</html>\n";
+    // Close the Page
+    cout << "<p>Returned " << classArray.size() << " Classes ";
+    cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+    cout << "</body>\n" << "</html>\n";
 
 
 
@@ -2295,60 +2326,69 @@ static void ClassTree(const CGIQueryString& qs)
     // Invoke the method:
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	// Make the Connection
-	Boolean deepInheritance = true;
-	CIMName className;
+    // Make the Connection
+    Boolean deepInheritance = true;
+    CIMName className;
 
-	CIMClient client;
+    elapsedTime.start();
+
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	Array<CIMName> classNames = client.enumerateClassNames(
-					nameSpace,
-					className,
-        				deepInheritance);
+    Array<CIMName> classNames = client.enumerateClassNames(
+                    nameSpace,
+                    className,
+                        deepInheritance);
 
-	// Organize and Print the Class Tree results
+    // Organize and Print the Class Tree results
 
-	PrintHTMLHead("EnumerateClassTree", "Enumerate Classes Tree Result");
+    PrintHTMLHead("EnumerateClassTree", "Enumerate Classes Tree Result");
 
 
-	Boolean localOnly = true;
-	Boolean includeQualifiers = false;
-	Boolean includeClassOrigin = true;
-	CIMClass myClass;
-	Array<CIMName> superClassNames;
+    Boolean localOnly = true;
+    Boolean includeQualifiers = false;
+    Boolean includeClassOrigin = true;
+    CIMClass myClass;
+    Array<CIMName> superClassNames;
 
-	// Now we make loop getting classes to get the superclassname
-	for (Uint32 i = 0, n = classNames.size(); i < n; i++)
-	{
+    // Now we make loop getting classes to get the superclassname
+    for (Uint32 i = 0, n = classNames.size(); i < n; i++)
+    {
             // Now get the class corresponding to the class name
-	    myClass = client.getClass(nameSpace,
-				      classNames[i],
-				      localOnly,
-				      includeQualifiers,
-				      includeClassOrigin);
+        myClass = client.getClass(nameSpace,
+                      classNames[i],
+                      localOnly,
+                      includeQualifiers,
+                      includeClassOrigin);
 
 
-	   superClassNames.append(myClass.getSuperClassName());
-	}
-  	cout << "Count of Classes Enumerated = " <<   classNames.size() << endl;
-	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+       superClassNames.append(myClass.getSuperClassName());
+    }
 
-        elapsedTime.reset();
+    elapsedTime.stop();
 
- 	TraverseClassTree(nameSpace, rootClass, superClassNames,
-			    classNames,classNames.size(),PEG_NOT_FOUND);
+    cout << "Count of Classes Enumerated = " <<   classNames.size() << endl;
+    cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
 
-	// Close the Page
-	cout << "<p>Returned " << classNames.size() << " getClasses ";
-	cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
-	cout << "</body>\n" << "</html>\n";
+    elapsedTime.reset();
+
+    elapsedTime.start();
+
+    TraverseClassTree(nameSpace, rootClass, superClassNames,
+                classNames,classNames.size(),PEG_NOT_FOUND);
+
+    elapsedTime.stop();
+
+    // Close the Page
+    cout << "<p>Returned " << classNames.size() << " getClasses ";
+    cout << " in " << elapsedTime.getElapsed() << " Seconds</p>\n";
+    cout << "</body>\n" << "</html>\n";
 
     }
     catch(Exception& e)
@@ -2365,7 +2405,7 @@ static void ClassTree(const CGIQueryString& qs)
 /** AllInstances - Show the classes that have existing instances
 and a count of the instances for the class. Includes a hyperlink to the
 enumaterate Instance Names for the instances.
-*/ 
+*/
 static void AllInstances(const  CGIQueryString& qs)
 {
     // Get NameSpace:
@@ -2374,25 +2414,22 @@ static void AllInstances(const  CGIQueryString& qs)
     // Invoke the method:
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Make the Connection
+    Boolean deepInheritance = true;
+    CIMName className;
 
-	// Make the Connection
-	Boolean deepInheritance = true;
-	CIMName className;
-
-	CIMClient client;
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	Array<CIMName> classNames = client.enumerateClassNames(
-					nameSpace,
-					className,
-					deepInheritance);
+    Array<CIMName> classNames = client.enumerateClassNames(
+                    nameSpace,
+                    className,
+                    deepInheritance);
 
-	PrintHTMLHead("EnumerateAllInstances", "Enumerate Classes with Instances");
+    PrintHTMLHead("EnumerateAllInstances", "Enumerate Classes with Instances");
 
 
         Array<CIMObjectPath> instanceNames;
@@ -2406,7 +2443,7 @@ static void AllInstances(const  CGIQueryString& qs)
                 instanceNames = client.enumerateInstanceNames(nameSpace,classNames[i]);
                 if (instanceNames.size() > 0)
                 {
-                    cout << "Class " << classNames[i] << " " 
+                    cout << "Class " << classNames[i] << " "
                         << instanceNames.size() << " Instances" << endl;
                     //KSREVIEWKS: Link to the instances  Expand for keyword in Href.
                     PrintEnumInstanceNameHref(nameSpace,classNames[i]);
@@ -2443,9 +2480,9 @@ static void ReferenceNames(const CGIQueryString& qs)
         else
             isClass = false; //Value in ObjectName textfield is InstanceName
 
-	    objectName = tmp;
+        objectName = tmp;
     }
-    
+
     CIMName resultClass;
     if ((tmp = qs.findValue("ResultClass")))
     {
@@ -2458,31 +2495,36 @@ static void ReferenceNames(const CGIQueryString& qs)
 
     String role = String::EMPTY;
     if ((tmp = qs.findValue("Role")))
-	role = tmp;
+    role = tmp;
 
     // Invoke the method:
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	CIMClient client;
+    elapsedTime.start();
+
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	Array<CIMObjectPath> objectReferences; 
-	objectReferences = client.referenceNames(
-		    nameSpace,
-		    objectName,
-		    resultClass,
-		    role);
-	// Generate table of returned CIMObjectPath
-	// Similar to Instance names response.
-	// Print the CIMObjectPath array
-	PrintObjectNames( "EnumerateReferenceNames Result",
-	    nameSpace, objectReferences, elapsedTime.getElapsed(), isClass);
+    Array<CIMObjectPath> objectReferences;
+    objectReferences = client.referenceNames(
+            nameSpace,
+            objectName,
+            resultClass,
+            role);
+
+    elapsedTime.stop();
+
+    // Generate table of returned CIMObjectPath
+    // Similar to Instance names response.
+    // Print the CIMObjectPath array
+    PrintObjectNames( "EnumerateReferenceNames Result",
+        nameSpace, objectReferences, elapsedTime.getElapsed(), isClass);
 
 
     }
@@ -2516,10 +2558,10 @@ static void AssociatorNames(const CGIQueryString& qs)
 
         objectName = tmp;
     }
-    
+
     CIMName assocClass = CIMName ();
     if ((tmp = qs.findValue("AssocClass")))
-	  assocClass = CIMName (tmp);
+      assocClass = CIMName (tmp);
 
 
     CIMName resultClass;
@@ -2536,38 +2578,42 @@ static void AssociatorNames(const CGIQueryString& qs)
 
     String role = String::EMPTY;
     if ((tmp = qs.findValue("ResultRole")))
-	role = tmp;
+    role = tmp;
 
     String resultRole = String::EMPTY;
     if ((tmp = qs.findValue("Role")))
-	resultRole = tmp;
+    resultRole = tmp;
 
     // Invoke the method:
     try
     {
-	// Time the connection
-	Stopwatch elapsedTime;
+    // Time the connection
+    Stopwatch elapsedTime;
 
-	CIMClient client;
+    elapsedTime.start();
+
+    CIMClient client;
         String host;
         Uint32 portNumber;
         getHostAndPort (host, portNumber);
         client.connect (host, portNumber, String::EMPTY, String::EMPTY);
 
-	Array<CIMObjectPath> objectReferences; 
-	objectReferences = client.associatorNames(
-	    nameSpace,
-	    objectName,
-	    assocClass,
-	    resultClass,
-	    role,
-	    resultRole);
+    Array<CIMObjectPath> objectReferences;
+    objectReferences = client.associatorNames(
+        nameSpace,
+        objectName,
+        assocClass,
+        resultClass,
+        role,
+        resultRole);
 
-	// Generate table of returned CIMObjectPath
-	// Similar to Instance names response.
-    
-	PrintObjectNames( "EnumerateAssociationNames Result",
-	    nameSpace, objectReferences, elapsedTime.getElapsed(), isClass);
+    elapsedTime.stop();
+
+    // Generate table of returned CIMObjectPath
+    // Similar to Instance names response.
+
+    PrintObjectNames( "EnumerateAssociationNames Result",
+        nameSpace, objectReferences, elapsedTime.getElapsed(), isClass);
 
     }
     catch(Exception& e)
@@ -2591,14 +2637,14 @@ inline Uint8 hexCharToNumeric(const char c)
 }
 
 static Boolean stringToUnsignedInteger(
-    const char* stringValue, 
+    const char* stringValue,
     Uint64& x)
 {
     x = 0;
     const char* p = stringValue;
 
     if (!p || !*p)
-	return false;
+    return false;
 
     if (*p == '0')
     {
@@ -2641,7 +2687,7 @@ static Boolean stringToUnsignedInteger(
         else
         {
             // A decimal string that starts with '0' must be exactly "0".
-	    return p[1] == '\0';
+        return p[1] == '\0';
         }
     }
 
@@ -2668,27 +2714,27 @@ static Boolean stringToUnsignedInteger(
 
     // If we found a non-decimal digit, report an error
     if (*p)
-	return false;
+    return false;
 
     return true;
 }
 
 static Boolean stringToSignedInteger(
-    const char* stringValue, 
+    const char* stringValue,
     Sint64& x)
 {
     x = 0;
     const char* p = stringValue;
 
     if (!p || !*p)
-	return false;
+    return false;
 
     // Skip optional sign:
 
     Boolean negative = *p == '-';
 
     if (negative || *p == '+')
-	p++;
+    p++;
 
     if (*p == '0')
     {
@@ -2744,7 +2790,7 @@ static Boolean stringToSignedInteger(
         else
         {
             // A decimal string that starts with '0' must be exactly "0".
-	    return p[1] == '\0';
+        return p[1] == '\0';
         }
     }
 
@@ -2778,7 +2824,7 @@ static Boolean stringToSignedInteger(
 
     // If we found a non-decimal digit, report an error
     if (*p)
-	return false;
+    return false;
 
     // Return the integer to positive, if necessary, checking for an
     // overflow error
@@ -2801,58 +2847,58 @@ static Boolean stringToReal(const char* stringValue, Real64& x)
     const char* p = stringValue;
 
     if (!*p)
-	return false;
+    return false;
 
     // Skip optional sign:
 
     if (*p == '+' || *p  == '-')
-	p++;
+    p++;
 
     // Skip optional first set of digits:
 
     while (isdigit(*p))
-	p++;
+    p++;
 
     // Test required dot:
 
     if (*p++ != '.')
-	return false;
+    return false;
 
     // One or more digits required:
 
     if (!isdigit(*p++))
-	return false;
+    return false;
 
     while (isdigit(*p))
-	p++;
+    p++;
 
     // If there is an exponent now:
 
     if (*p)
     {
-	// Test exponent:
+    // Test exponent:
 
-	if (*p != 'e' && *p != 'E')
-	    return false;
+    if (*p != 'e' && *p != 'E')
+        return false;
 
-	p++;
+    p++;
 
-	// Skip optional sign:
+    // Skip optional sign:
 
-	if (*p == '+' || *p  == '-')
-	    p++;
+    if (*p == '+' || *p  == '-')
+        p++;
 
-	// One or more digits required:
+    // One or more digits required:
 
-	if (!isdigit(*p++))
-	    return false;
+    if (!isdigit(*p++))
+        return false;
 
-	while (isdigit(*p))
-	    p++;
+    while (isdigit(*p))
+        p++;
     }
 
     if (*p)
-	return false;
+    return false;
 
     //
     // Do the conversion
@@ -2881,19 +2927,19 @@ static void InvokeMethod(const CGIQueryString& qs)
 
     String methodName = String::EMPTY;
     if ((tmp = qs.findValue("MethodName")))
-	methodName = tmp;
+    methodName = tmp;
 
     String argumentList = String::EMPTY;
     if ((tmp = qs.findValue("ArgumentList")))
-	argumentList = tmp;
+    argumentList = tmp;
 
     if (!(tmp = qs.findValue("InstanceName")))
-	ErrorExit("Missing InstanceName field");
+    ErrorExit("Missing InstanceName field");
 
     CIMObjectPath objectReference;
     try
     {
-	    objectReference = tmp;
+        objectReference = tmp;
     }
     catch(Exception& e)
     {
@@ -2901,7 +2947,7 @@ static void InvokeMethod(const CGIQueryString& qs)
     }
 
     //ALAGS : Input argument parser for Semicolon separated values.
-    // What is the best delimiter we could use ? 
+    // What is the best delimiter we could use ?
     // Commas and colons CANNOT be used as they are used
     // in REFs and DateTimes properties respectively.
 
@@ -2909,7 +2955,7 @@ static void InvokeMethod(const CGIQueryString& qs)
     Uint32 startIndex = 0;
     Uint32 endIndex = 0 ;
     Uint32 curIndex = 0; //Used while checking [IN] params
-    
+
     if (argumentList.size () > 0)
     {
         endIndex = argumentList.find (';'); //ARGUMENT DELIMITER
@@ -2919,7 +2965,7 @@ static void InvokeMethod(const CGIQueryString& qs)
             inpArgs.append(argumentList);
         }
         while(endIndex != PEG_NOT_FOUND)
-        {                
+        {
             String parmStr = argumentList.subString (startIndex, endIndex);
             inpArgs.append(parmStr);
             argumentList = argumentList.subString (endIndex+1,PEG_NOT_FOUND);
@@ -2927,9 +2973,9 @@ static void InvokeMethod(const CGIQueryString& qs)
             if(endIndex == PEG_NOT_FOUND)
                 inpArgs.append(argumentList);
         }
-        
+
     }
- 
+
 
     // ALAGS : Method inspection code starts
 
@@ -2937,7 +2983,7 @@ static void InvokeMethod(const CGIQueryString& qs)
     try
     {
 
-	    CIMClient client;
+        CIMClient client;
         String host;
         Uint32 portNumber;
         Uint32 inpargCount = 0;
@@ -2947,11 +2993,11 @@ static void InvokeMethod(const CGIQueryString& qs)
 
         //Just to check if instance exists in given Namespace
         //Here, the returned instance is NOT used for data extraction
-        CIMInstance cimInstance = client.getInstance(nameSpace, 
+        CIMInstance cimInstance = client.getInstance(nameSpace,
                                                      objectReference);
 
 
-        CIMClass c1=client.getClass(nameSpace, 
+        CIMClass c1=client.getClass(nameSpace,
                                     objectReference.getClassName(), false);
 
         for (Uint32 i = 0; i < c1.getMethodCount(); i++)
@@ -2979,24 +3025,24 @@ static void InvokeMethod(const CGIQueryString& qs)
                     }
 
 
-                    //Assign input Args from WebPage to Parameter only if 
+                    //Assign input Args from WebPage to Parameter only if
                     //Qualifier == [IN]
-                    if((inputQualifier == true) && 
+                    if((inputQualifier == true) &&
                         (inpArgs.size() >= inpargCount))
                     {
                         char valStr[64];
                         switch(mp.getType())
                         {
                             case CIMTYPE_BOOLEAN:
-                                if(String::equalNoCase(inpArgs[curIndex++], 
+                                if(String::equalNoCase(inpArgs[curIndex++],
                                                        "true"))
                                 {
-                                    inParams.append( CIMParamValue( parName, 
+                                    inParams.append( CIMParamValue( parName,
                                               CIMValue( Boolean(true) ) ) );
                                 }
                                 else
                                 {
-                                    inParams.append( CIMParamValue( parName, 
+                                    inParams.append( CIMParamValue( parName,
                                               CIMValue( Boolean(false) ) ) );
                                 }
                                 break;
@@ -3021,7 +3067,7 @@ static void InvokeMethod(const CGIQueryString& qs)
                                         {
                                             ErrorExit("Uint8 value out of range");
                                         }
-                                        inParams.append( CIMParamValue( parName, 
+                                        inParams.append( CIMParamValue( parName,
                                                          CIMValue( Uint8(x))));
                                         break;
                                         }
@@ -3031,7 +3077,7 @@ static void InvokeMethod(const CGIQueryString& qs)
                                         {
                                             ErrorExit("Uint16 value out of range");
                                         }
-                                        inParams.append( CIMParamValue( parName, 
+                                        inParams.append( CIMParamValue( parName,
                                                          CIMValue( Uint16(x))));
                                         break;
                                         }
@@ -3041,18 +3087,18 @@ static void InvokeMethod(const CGIQueryString& qs)
                                         {
                                             ErrorExit("Uint32 value out of range");
                                         }
-                                        inParams.append( CIMParamValue( parName, 
+                                        inParams.append( CIMParamValue( parName,
                                                          CIMValue( Uint32(x))));
                                         break;
                                         }
                                     case CIMTYPE_UINT64:
                                         {
-                                        inParams.append( CIMParamValue( parName, 
+                                        inParams.append( CIMParamValue( parName,
                                                          CIMValue( Uint64(x))));
                                         break;
                                         }
                                     default: break;
-                                    
+
                                 }
                                 break;
                             }
@@ -3073,45 +3119,45 @@ static void InvokeMethod(const CGIQueryString& qs)
                                 {
                                     case CIMTYPE_SINT8:
                                         {
-                                        if(  (x >= (Sint64(1)<<7)) || 
+                                        if(  (x >= (Sint64(1)<<7)) ||
                                              (x < (-(Sint64(1)<<7))) )
                                         {
                                          ErrorExit("Sint8 value out of range");
                                         }
-                                        inParams.append( CIMParamValue( parName, 
+                                        inParams.append( CIMParamValue( parName,
                                                          CIMValue( Sint8(x) )));
                                         break;
                                         }
                                     case CIMTYPE_SINT16:
                                         {
-                                        if(  (x >= (Sint64(1)<<15)) || 
+                                        if(  (x >= (Sint64(1)<<15)) ||
                                              (x < (-(Sint64(1)<<15))) )
                                         {
                                          ErrorExit("Sint16 value out of range");
                                         }
-                                        inParams.append( CIMParamValue( parName, 
+                                        inParams.append( CIMParamValue( parName,
                                                         CIMValue( Sint16(x) )));
                                         break;
                                         }
                                     case CIMTYPE_SINT32:
                                         {
-                                        if(  (x >= (Sint64(1)<<31)) || 
+                                        if(  (x >= (Sint64(1)<<31)) ||
                                              (x < (-(Sint64(1)<<31))) )
                                         {
                                          ErrorExit("Sint32 value out of range");
                                         }
-                                        inParams.append( CIMParamValue( parName, 
+                                        inParams.append( CIMParamValue( parName,
                                                         CIMValue( Sint32(x) )));
                                         break;
                                         }
                                     case CIMTYPE_SINT64:
                                         {
-                                        inParams.append( CIMParamValue( parName, 
+                                        inParams.append( CIMParamValue( parName,
                                                         CIMValue( Sint64(x) )));
                                         break;
                                         }
                                     default: break;
-                                   
+
                                 }
                                 break;
                             }
@@ -3125,7 +3171,7 @@ static void InvokeMethod(const CGIQueryString& qs)
                                 {
                                     ErrorExit("Invalid Real32 Number value");
                                 }
-                                inParams.append( CIMParamValue( parName, 
+                                inParams.append( CIMParamValue( parName,
                                                 CIMValue( Real32(x) )));
                                 break;
                                 }
@@ -3138,12 +3184,12 @@ static void InvokeMethod(const CGIQueryString& qs)
                                 {
                                     ErrorExit("Invalid Real64 Number value");
                                 }
-                                inParams.append( CIMParamValue( parName, 
+                                inParams.append( CIMParamValue( parName,
                                                  CIMValue(x) ));
                                 break;
                                 }
                             case CIMTYPE_STRING:
-                                inParams.append( CIMParamValue( parName, 
+                                inParams.append( CIMParamValue( parName,
                                   CIMValue( inpArgs[curIndex++] )));
                                 break;
                             case CIMTYPE_DATETIME:
@@ -3155,12 +3201,12 @@ static void InvokeMethod(const CGIQueryString& qs)
                                 else
                                     ErrorExit("Datetime string is null");
 
-                                inParams.append( CIMParamValue( parName, 
+                                inParams.append( CIMParamValue( parName,
                                   CIMValue( CIMDateTime(tmpdt))));
                                 break;
                                 }
                             case CIMTYPE_REFERENCE:
-                                inParams.append( CIMParamValue( parName, 
+                                inParams.append( CIMParamValue( parName,
                                  CIMValue(CIMObjectPath(inpArgs[curIndex++]))));
                                 break;
                             case CIMTYPE_CHAR16:
@@ -3170,7 +3216,7 @@ static void InvokeMethod(const CGIQueryString& qs)
                                     {
                                         ErrorExit("Invalid Char16 value");
                                     }
-                                    inParams.append( CIMParamValue( parName, 
+                                    inParams.append( CIMParamValue( parName,
                                     CIMValue( tmp[0] )));
                                     break;
                                 }
@@ -3182,7 +3228,7 @@ static void InvokeMethod(const CGIQueryString& qs)
                         }
                     }
 
-                    
+
                     // Check to see if client supplied atleast as many INPUT
                     // parameters that are required by the Method. Supplying
                     // more params than what is required by the method is OK.
@@ -3197,19 +3243,23 @@ static void InvokeMethod(const CGIQueryString& qs)
 
         // ALAGS : Method inspection code ends
 
-	    // Time the method call
-	    Stopwatch elapsedTime;
+        // Time the method call
+        Stopwatch elapsedTime;
+
+        elapsedTime.start();
 
         CIMValue retValue = client.invokeMethod(
-            nameSpace, 
-            objectReference, 
-            CIMName (methodName), 
-            inParams, 
+            nameSpace,
+            objectReference,
+            CIMName (methodName),
+            inParams,
             outParams);
 
+        elapsedTime.stop();
+
         PrintHTMLHead("InvokeMethod", "Invoke an Extrinsic Method");
-	
-        cout << "<br><b>Method return value : </b>" << retValue.toString() 
+
+        cout << "<br><b>Method return value : </b>" << retValue.toString()
              << "<br>" << endl;
 
         cout << "<br><b>Method Output Parameters : </b><br>" << endl;
@@ -3221,7 +3271,7 @@ static void InvokeMethod(const CGIQueryString& qs)
 
         for (Uint8 i = 0; i < outParams.size(); i++)
         {
-	        cout << "<tr>";
+            cout << "<tr>";
             cout << "   <td>" << outParams[i].getParameterName() << "</td>";
             cout << "   <td>" << outParams[i].getValue().toString() << "</td>";
             cout << "</tr><br>" << endl;
@@ -3229,14 +3279,14 @@ static void InvokeMethod(const CGIQueryString& qs)
 
         cout << "</table>\n<br>";
 
-        cout << "<br>InvokeMethod completed in " << elapsedTime.getElapsed() 
+        cout << "<br>InvokeMethod completed in " << elapsedTime.getElapsed()
              << " Seconds</p>\n";
         cout << "</body>\n" << "</html>\n";
 
     }
     catch(Exception& e)
     {
-	    ErrorExit(e.getMessage());
+        ErrorExit(e.getMessage());
     }
 }
 
@@ -3256,104 +3306,104 @@ static void InvokeMethod(const CGIQueryString& qs)
 int main(int argc, char** argv)
 {
     Logger::setHomeDirectory("");
-    
+
     /*Logger::put( Logger::TRACE_LOG,  "CGIClient", Logger::WARNING,
-	"X=$0, Y=$1, Z=$2", 
-	88, 
-	"Hello World", 
-	7.5);
+    "X=$0, Y=$1, Z=$2",
+    88,
+    "Hello World",
+    7.5);
     */
     cout << "Content-type: text/html\r\n\r\n";
 
 
-    //ALAGS : for Bug 996 : Querystring is passed as second cmd line 
+    //ALAGS : for Bug 996 : Querystring is passed as second cmd line
     //agrument in Linux. The preprocess check below is to solve this issue
-    //in Linux. 
+    //in Linux.
 
     // IS this "argc != 1" check required anyway ??
     #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
     if (argc != 1)
-	ErrorExit("unexpected command line arguments");
+    ErrorExit("unexpected command line arguments");
     #endif
     const char* tmp = getenv("QUERY_STRING");
 
     if (!tmp)
-	ErrorExit("QUERY_STRING environment variable missing");
+    ErrorExit("QUERY_STRING environment variable missing");
 
     try
     {
         char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
 
-	
 
 
-	Logger::put( Logger::TRACE_LOG,  "CGIClient", Logger::INFORMATION,
-	    "Query String $0", queryString);
 
-	CGIQueryString qs(queryString);
+    Logger::put( Logger::TRACE_LOG,  "CGIClient", Logger::INFORMATION,
+        "Query String $0", queryString);
+
+    CGIQueryString qs(queryString);
 
     const char* operation = qs.findValue("Operation");
 
-	if (!operation)
-	    ErrorExit("Missing Operation field");
-	if (strcmp(operation, "GetClass") == 0)
-	    GetClass(qs);
-	else if (strcmp(operation, "EnumerateClassNames") == 0)
-	    EnumerateClassNames(qs);
-	else if (strcmp(operation, "DeleteClass") == 0)
-	    DeleteClass(qs);
-	else if (strcmp(operation, "GetPropertyDeclaration") == 0)
-	    GetPropertyDeclaration(qs);
+    if (!operation)
+        ErrorExit("Missing Operation field");
+    if (strcmp(operation, "GetClass") == 0)
+        GetClass(qs);
+    else if (strcmp(operation, "EnumerateClassNames") == 0)
+        EnumerateClassNames(qs);
+    else if (strcmp(operation, "DeleteClass") == 0)
+        DeleteClass(qs);
+    else if (strcmp(operation, "GetPropertyDeclaration") == 0)
+        GetPropertyDeclaration(qs);
     else if (strcmp(operation, "EnumerateQualifiers") == 0)
-	    EnumerateQualifiers(qs);
+        EnumerateQualifiers(qs);
     //else if (strcmp(operation, "SetQualifier") == 0)
-	//    SetQualifier(qs);
-	else if (strcmp(operation, "DeleteQualifier") == 0)
-	    DeleteQualifier(qs);
+    //    SetQualifier(qs);
+    else if (strcmp(operation, "DeleteQualifier") == 0)
+        DeleteQualifier(qs);
     else if (strcmp(operation, "GetQualifier") == 0)
-	    GetQualifier(qs);
+        GetQualifier(qs);
     else if (strcmp(operation, "GetInstance") == 0)
-	    GetInstance(qs);
+        GetInstance(qs);
     else if (strcmp(operation, "DeleteInstance") == 0)
-	    DeleteInstance(qs);
+        DeleteInstance(qs);
     else if (strcmp(operation, "EnumerateInstanceNames") == 0)
-	    EnumerateInstanceNames(qs);
+        EnumerateInstanceNames(qs);
     else if (strcmp(operation, "EnumerateInstances") == 0)
-	    EnumerateInstances(qs);
-	else if (strcmp(operation, "DefineHostParameters") == 0)
-	    DefineHostParameters(qs);
+        EnumerateInstances(qs);
+    else if (strcmp(operation, "DefineHostParameters") == 0)
+        DefineHostParameters(qs);
     else if (strcmp(operation, "GetProperty") == 0)
-	    GetProperty(qs);
-	else if (strcmp(operation, "SetProperty") == 0)
-	    SetProperty(qs);
-	else if (strcmp(operation, "CreateNameSpace") == 0)
-	    CreateNameSpace(qs);
-	else if (strcmp(operation, "DeleteNameSpace") == 0)
-	    DeleteNameSpace(qs);
-	else if (strcmp(operation, "EnumerateNameSpaces") == 0)
-	    EnumerateNameSpaces(qs);
-	else if (strcmp(operation, "ReferenceNames") == 0)
-	    ReferenceNames(qs);
-	else if (strcmp(operation, "AssociatorNames") == 0)
-	    AssociatorNames(qs);
-	else if (strcmp(operation, "ClassInheritance") == 0)
-	    ClassInheritance(qs);
+        GetProperty(qs);
+    else if (strcmp(operation, "SetProperty") == 0)
+        SetProperty(qs);
+    else if (strcmp(operation, "CreateNameSpace") == 0)
+        CreateNameSpace(qs);
+    else if (strcmp(operation, "DeleteNameSpace") == 0)
+        DeleteNameSpace(qs);
+    else if (strcmp(operation, "EnumerateNameSpaces") == 0)
+        EnumerateNameSpaces(qs);
+    else if (strcmp(operation, "ReferenceNames") == 0)
+        ReferenceNames(qs);
+    else if (strcmp(operation, "AssociatorNames") == 0)
+        AssociatorNames(qs);
+    else if (strcmp(operation, "ClassInheritance") == 0)
+        ClassInheritance(qs);
     else if (strcmp(operation, "ClassTree") == 0)
-	    ClassTree(qs);
+        ClassTree(qs);
     else if (strcmp(operation, "AllInstances") == 0)
-	    AllInstances(qs);
+        AllInstances(qs);
     else if (strcmp(operation, "InvokeMethod") == 0)
-	    InvokeMethod(qs);
+        InvokeMethod(qs);
     else
-	{
-	    String message = "CGIClient - Unknown operation: ";
-	    message.append(operation);
-	    ErrorExit(message);
-	}
+    {
+        String message = "CGIClient - Unknown operation: ";
+        message.append(operation);
+        ErrorExit(message);
+    }
     }
     catch (Exception& e)
     {
-	ErrorExit(e.getMessage());
+    ErrorExit(e.getMessage());
     }
 
     return 0;

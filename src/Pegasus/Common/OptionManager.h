@@ -51,8 +51,6 @@ PEGASUS_NAMESPACE_BEGIN
 class Option;
 struct OptionRow;
 
-PEGASUS_MEMORY_FUNCTIONS(Option*)
-
 typedef Option* OptionPtr;
 #define PEGASUS_ARRAY_T OptionPtr
 # include "ArrayInter.h"

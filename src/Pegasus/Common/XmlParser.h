@@ -127,8 +127,6 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
     Boolean getAttributeValue(const char* name, String& value) const;
 };
 
-PEGASUS_MEMORY_FUNCTIONS(XmlEntry)
-
 inline int operator==(const XmlEntry&, const XmlEntry&)
 {
     return 0;

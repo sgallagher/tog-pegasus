@@ -284,9 +284,6 @@ private:
     friend class MofWriter;
 };
 
-PEGASUS_MEMORY_FUNCTIONS(CIMQualifier)
-PEGASUS_MEMORY_FUNCTIONS(CIMQualifier*)
-
 #define PEGASUS_ARRAY_T CIMQualifier
 # include "ArrayInter.h"
 #undef PEGASUS_ARRAY_T

@@ -29,16 +29,24 @@
 //
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if defined(_WIN32)
+
+#include <Pegasus/Common/Config.h>
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "lslp-windows.cpp"
-#elif defined(__linux__)
+#elif defined(PEGASUS_OS_LINUX)
 # include "lslp-linux.cpp"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined( PEGASUS_OS_SOLARIS )
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_SOLARIS)
 # include "lslp-linux.cpp"
+#elif defined(PEGASUS_OS_AIX)
+# include "lslp-aix.cpp"
+#elif defined(PEGASUS_OS_HPUX)
+# include "lslp-hpux.cpp"
 #else
 # error "Unsupported platform"
 #endif

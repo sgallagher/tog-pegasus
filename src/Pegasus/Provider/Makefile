@@ -26,7 +26,6 @@ SOURCES = \
     CIMIndicationProvider.cpp \
     CIMIndicationConsumerProvider.cpp \
     CIMAssociationProvider.cpp \
-    CIMNullProvider.cpp \
     CIMInstanceQueryProvider.cpp \
     CIMOMHandleQueryContext.cpp
 

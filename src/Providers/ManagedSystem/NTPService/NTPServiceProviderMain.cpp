@@ -33,6 +33,7 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Provider/ProviderException.h>        
 
 #include "NTPServiceProvider.h"

@@ -31,6 +31,8 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "ComputerSystemProvider.h"
 
 PEGASUS_USING_STD;

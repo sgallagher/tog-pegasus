@@ -43,7 +43,9 @@ repository:
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
 	@ echo +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
-	$(LOADEXTSCHEMA)
+ifeq ($(OS),HPUX)
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/$(OS)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+endif
 
 repositoryServer:
 	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...

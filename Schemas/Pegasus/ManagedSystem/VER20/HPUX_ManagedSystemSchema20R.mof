@@ -1,0 +1,2 @@
+#pragma include ("PG_DNSService20R.mof")
+#pragma include ("PG_NTPService20R.mof")

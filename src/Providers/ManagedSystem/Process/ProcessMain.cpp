@@ -34,6 +34,8 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "ProcessProvider.h"
 #include "ProcessStatProvider.h"
 

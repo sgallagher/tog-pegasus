@@ -21,12 +21,12 @@
 	</IPARAMVALUE>
         <IPARAMVALUE NAME="IncludeQualifiers">
           <VALUE>
-            TRUE
+            FALSE
           </VALUE>
         </IPARAMVALUE>
 	<IPARAMVALUE NAME="IncludeClassOrigin">
 	  <VALUE>
-	    TRUE
+	    FALSE
 	  </VALUE>
 	</IPARAMVALUE>
       </IMETHODCALL>

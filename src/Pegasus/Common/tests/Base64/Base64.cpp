@@ -116,7 +116,7 @@ int main(int argc, char** argv)
         assert(out.size() == 4);
         for (Uint32 i = 0; i <out.size(); i++ )
         {
-            assert(out[i] = 'A');    
+            assert(out[i] == 'A');    
         }
     }
 

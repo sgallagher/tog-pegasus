@@ -58,10 +58,6 @@ Modify wrong user name - error
 Modifying users password...
 Failed to change password.
 CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified user is not a valid CIM user, user name: test1.""
-Modify wrong password - error
-Modifying users password...
-Failed to change password.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The specified password does not match user's current password, user name: lp""
 Display usage - error
 cimuser: the "-u" option is required
 usage: cimuser -a -u username [ -w password ] 

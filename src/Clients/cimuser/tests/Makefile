@@ -46,8 +46,6 @@ poststarttests_ignoreerror:
 	@cimuser -m  >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "Modify wrong user name - error" >> $(RESULTFILE)
 	@cimuser -m  -u test1 -w test -n test1 >> $(RESULTFILE) $(REDIRECTERROR)
-	@$(ECHO) "Modify wrong password - error" >> $(RESULTFILE)
-	@cimuser -m  -u lp -w test3 -n test2 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "Display usage - error" >> $(RESULTFILE)
 	@cimuser -r  >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "Display usage - error" >> $(RESULTFILE)

@@ -43,7 +43,6 @@
 #include "XmlWriter.h"
 #include "XmlReader.h"
 #include "ArrayInternal.h"
-#include "CIMOMPort.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -448,7 +447,7 @@ Boolean _parseHostElement(
     String& host)
 {
     // See if there is a host name (true if it begins with "//"):
-    // Host is of the from <hostname>-<port> and begins with "//"
+    // Host is of the form <hostname>:<port> and begins with "//"
     // and ends with "/":
 
     if (p[0] != '/' || p[1] != '/')
@@ -489,7 +488,7 @@ Boolean _parseHostElement(
         }
      }
 
-    // We now expect a port (or default the port).
+    // Check for a port:
 
     if (*q == ':')
     {
@@ -501,20 +500,11 @@ Boolean _parseHostElement(
         
         while (isdigit(*q))
             q++;
-
-        // Finally, assign the host name:
-
-        host.assign(p, q - p);
     }
-    else
-    {
-        host.assign(p, q - p);
 
-        // Assign the default port number:
+    // Finally, assign the host name:
 
-        host.append(":");
-        host.append(PEGASUS_CIMOM_DEFAULT_PORT_STRING);
-    }
+    host.assign(p, q - p);
 
     // Check for slash terminating the entire sequence:
 

@@ -72,7 +72,7 @@ PEGASUS_NAMESPACE_BEGIN
 		_rep->append(element);
 	}
 
-	ContentLanguageElement ContentLanguages::getLanguageElement(int index) const{
+	ContentLanguageElement ContentLanguages::getLanguageElement(Uint32 index) const{
 		return ContentLanguageElement(_rep->getLanguageElement(index));
 	}
 

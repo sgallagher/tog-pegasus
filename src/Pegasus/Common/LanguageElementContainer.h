@@ -98,7 +98,7 @@ public:
 	 * @param index int position of AcceptLanguageElement
 	 * @return AcceptLanguageElement
 	 */
-	LanguageElement getLanguageElement(int index) const;
+	LanguageElement getLanguageElement(Uint32 index) const;
 
 	/** Gets all AcceptLanguageElement objects in the container
 	 * @return Array<AcceptLanguageElement>

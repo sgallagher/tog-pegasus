@@ -96,7 +96,7 @@ public:
 	 * @return ContentLanguageElement element at postion index
 	 * @throws IndexOutOfBounds Exception
 	 */
-	ContentLanguageElement getLanguageElement(int index) const;
+	ContentLanguageElement getLanguageElement(Uint32 index) const;
 	
 	/**
 	 * Fills in the parameter array with all this objects elements

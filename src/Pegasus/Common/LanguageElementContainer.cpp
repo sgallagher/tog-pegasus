@@ -65,7 +65,7 @@ LanguageElementContainer LanguageElementContainer::operator=(const LanguageEleme
 	return *this;
 }
 
-LanguageElement LanguageElementContainer::getLanguageElement(int index) const{
+LanguageElement LanguageElementContainer::getLanguageElement(Uint32 index) const{
 	return _rep->getLanguageElement(index);
 } 
 

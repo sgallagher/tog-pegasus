@@ -1,0 +1,82 @@
+#ifndef YYERRCODE
+#define YYERRCODE 256
+#endif
+
+#define IDENTIFIER 257
+#define STRING_LITERAL 258
+#define BINARY 259
+#define NEGATIVE_BINARY 260
+#define HEXADECIMAL 261
+#define NEGATIVE_HEXADECIMAL 262
+#define INTEGER 263
+#define NEGATIVE_INTEGER 264
+#define REAL 265
+#define NEGATIVE_REAL 266
+#define _TRUE 267
+#define _FALSE 268
+#define SCOPED_PROPERTY 269
+#define LPAR 270
+#define RPAR 271
+#define HASH 272
+#define DOT 273
+#define LBRKT 274
+#define RBRKT 275
+#define UNDERSCORE 276
+#define COMMA 277
+#define CONCAT 278
+#define DBL_PIPE 279
+#define PLUS 280
+#define MINUS 281
+#define TIMES 282
+#define DIV 283
+#define IS 284
+#define _NULL 285
+#define _EQ 286
+#define _NE 287
+#define _GT 288
+#define _LT 289
+#define _GE 290
+#define _LE 291
+#define _ISA 292
+#define _LIKE 293
+#define NOT 294
+#define _AND 295
+#define _OR 296
+#define SCOPE 297
+#define ANY 298
+#define EVERY 299
+#define IN 300
+#define SATISFIES 301
+#define STAR 302
+#define DOTDOT 303
+#define SHARP 304
+#define DISTINCT 305
+#define SELECT 306
+#define FIRST 307
+#define FROM 308
+#define WHERE 309
+#define ORDER 310
+#define BY 311
+#define ASC 312
+#define DESC 313
+#define AS 314
+#define UNEXPECTED_CHAR 315
+typedef union {
+   char * strValue;
+   int lineno;
+   int tokenpos;
+   char * linebuf;
+   String * _string;
+   CQLValue * _value;
+   CQLSelectStatement * _ss;
+   CQLIdentifier * _identifier;
+   CQLChainedIdentifier * _chainedIdentifier;
+   CQLTerm * _term;
+   CQLFactor * _factor;
+   CQLPredicate * _predicate;
+   CQLSimplePredicate * _simplePredicate;
+   ExpressionOpType _opType;
+   CQLExpression * _expression;
+   void * _node;
+} YYSTYPE;
+extern YYSTYPE CQL_lval;

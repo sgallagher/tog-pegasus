@@ -95,10 +95,68 @@ public:
    private:
       friend class ProviderManager;
       friend class ProviderManagerService;
+      friend class OpProviderHolder;
       CIMOMHandle *_cimom_handle;
       String _name;
       AtomicInt _no_unload;
       Uint32 _quantum;
+};
+
+
+//
+// Used to encapsulate the incrementing/decrementing of the _current_operations
+// for a Provider so it won't be unloaded during operations.
+//
+
+class OpProviderHolder
+{
+private:
+	Provider* _provider;
+
+public:
+	OpProviderHolder(): _provider( NULL )
+	{
+	}
+	OpProviderHolder( const OpProviderHolder& p ): _provider( NULL )
+	{
+		SetProvider( p._provider );
+	}
+	OpProviderHolder( Provider* p ): _provider( NULL )
+	{
+		SetProvider( p );
+	}
+	~OpProviderHolder()
+	{
+		UnSetProvider();
+	}
+
+	Provider& GetProvider() { return *_provider; }
+
+	OpProviderHolder& operator=( const OpProviderHolder& x )
+	{
+		if( this == &x )
+			return *this;
+		SetProvider( x._provider );
+	}
+
+	void SetProvider( Provider* p )
+	{
+		UnSetProvider();
+		if( p )
+		{
+			_provider = p;
+			_provider->_current_operations++;
+		}
+	}
+
+	void UnSetProvider()
+	{
+		if( _provider )
+		{
+			_provider->_current_operations--;
+			_provider = NULL;
+		}
+	}
 };
 
 PEGASUS_NAMESPACE_END

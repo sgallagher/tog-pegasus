@@ -53,7 +53,7 @@ public:
     virtual ~ProviderManager(void);
 
 public:
-    Provider getProvider(const String & fileName, const String & providerName,
+    OpProviderHolder getProvider(const String & fileName, const String & providerName,
                          const String & interfaceName = String::EMPTY) ;
 
     void unloadProvider(const String & fileName, const String & providerName) ;

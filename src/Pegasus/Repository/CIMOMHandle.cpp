@@ -20,9 +20,9 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Mike Brasher (mbrasher@bmc.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

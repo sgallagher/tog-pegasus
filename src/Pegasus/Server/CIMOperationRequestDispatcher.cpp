@@ -1246,6 +1246,23 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
    // get the class name
    String className = request->instanceName.getClassName();
+
+   CIMException checkClassException;
+   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+   {
+      CIMGetInstanceResponseMessage* response =
+         new CIMGetInstanceResponseMessage(
+            request->messageId,
+            checkClassException,
+            request->queueIds.copyAndPop(),
+            CIMInstance());
+
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+   }
+
    //String NameSpace = request->nameSpace;
    // ATTNKSDELETE CIMResponseMessage * response;
    String serviceName = String::EMPTY;
@@ -1420,6 +1437,21 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    String className = request->instanceName.getClassName();
    CIMResponseMessage * response;
    
+   CIMException checkClassException;
+   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+   {
+      CIMDeleteInstanceResponseMessage* response =
+         new CIMDeleteInstanceResponseMessage(
+            request->messageId,
+            checkClassException,
+            request->queueIds.copyAndPop());
+
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+   }
+
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
 
@@ -1568,6 +1600,22 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
    // get the class name
    String className = request->newInstance.getClassName();
    CIMResponseMessage * response;
+
+   CIMException checkClassException;
+   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+   {
+      CIMCreateInstanceResponseMessage* response =
+         new CIMCreateInstanceResponseMessage(
+            request->messageId,
+            checkClassException,
+            request->queueIds.copyAndPop(),
+            CIMObjectPath());
+
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+   }
 
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
@@ -1721,6 +1769,21 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    // get the class name
    String className = request->modifiedInstance.getClassName();
    CIMResponseMessage * response;
+
+   CIMException checkClassException;
+   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+   {
+      CIMModifyInstanceResponseMessage* response =
+         new CIMModifyInstanceResponseMessage(
+            request->messageId,
+            checkClassException,
+            request->queueIds.copyAndPop());
+
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+   }
 
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
@@ -1932,6 +1995,23 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
    // get the class name
    String className = request->className;
+
+   CIMException checkClassException;
+   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+   {
+      CIMEnumerateInstancesResponseMessage* response =
+         new CIMEnumerateInstancesResponseMessage(
+            request->messageId,
+            checkClassException,
+            request->queueIds.copyAndPop(),
+            Array<CIMInstance>());
+
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+   }
+
    /***** ATTN: KS 28 May 2002 - localonly and deepinheritance processing
         temporarily removed until testing complete.
    // If localonly or deepinheritance, build propertylist.
@@ -2213,6 +2293,22 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
    // get the class name
    String className = request->className;
 
+   CIMException checkClassException;
+   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+   {
+      CIMEnumerateInstanceNamesResponseMessage* response =
+         new CIMEnumerateInstanceNamesResponseMessage(
+            request->messageId,
+            checkClassException,
+            request->queueIds.copyAndPop(),
+            Array<CIMObjectPath>());
+
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+   }
+
    //
    // Get names of descendent classes:
    //
@@ -2475,6 +2571,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
        _enqueueResponse(request, response);
 
        PEG_METHOD_EXIT();
+       return;
    }
 
    String className = request->objectName.getClassName();
@@ -2590,6 +2687,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
        _enqueueResponse(request, response);
 
        PEG_METHOD_EXIT();
+       return;
    }
 
    String className = request->objectName.getClassName();
@@ -2700,6 +2798,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
        _enqueueResponse(request, response);
 
        PEG_METHOD_EXIT();
+       return;
    }
 
    String className = request->objectName.getClassName();
@@ -2810,6 +2909,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
        _enqueueResponse(request, response);
 
        PEG_METHOD_EXIT();
+       return;
    }
 
    String className = request->objectName.getClassName();
@@ -3374,6 +3474,24 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
    String className = request->instanceName.getClassName();
 
+   CIMException checkClassException;
+   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
+   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+   {
+      CIMInvokeMethodResponseMessage* response =
+         new CIMInvokeMethodResponseMessage(
+            request->messageId,
+            checkClassException,
+            request->queueIds.copyAndPop(),
+            CIMValue(),
+            Array<CIMParamValue>(),
+            request->methodName);
+
+      _enqueueResponse(request, response);
+      PEG_METHOD_EXIT();
+      return;
+   }
+
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
 
@@ -3727,6 +3845,47 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
    request->newValue = newValue;
 
    PEG_METHOD_EXIT();
+}
+
+void CIMOperationRequestDispatcher::_checkExistenceOfClass(
+   const String& nameSpace,
+   const String& className,
+   CIMException& cimException)
+{
+   if (String::equalNoCase(className,"__Namespace"))
+   {
+      return;
+   }
+
+   CIMClass cimClass;
+
+   _repository->read_lock();
+
+   try
+   {
+      cimClass = _repository->getClass(
+         nameSpace,
+         className,
+         true,
+         false,
+         false,
+         CIMPropertyList());
+   }
+   catch(CIMException& exception)
+   {
+      cimException = exception;
+   }
+   catch(Exception& exception)
+   {
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+   }
+   catch(...)
+   {
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+   }
+
+   _repository->read_unlock();
 }
 
 PEGASUS_NAMESPACE_END

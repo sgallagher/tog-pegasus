@@ -302,6 +302,11 @@ public:
 
       void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
 
+      void _checkExistenceOfClass(
+          const String& nameSpace,
+	  const String& className,
+	  CIMException& cimException);
+
       CIMRepository * _repository;
 
       ProviderRegistrationManager* _providerRegistrationManager;

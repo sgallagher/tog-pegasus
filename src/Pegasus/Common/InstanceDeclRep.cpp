@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: InstanceDeclRep.cpp,v $
+// Revision 1.3  2001/01/22 00:45:47  mike
+// more work on resolve scheme
+//
 // Revision 1.2  2001/01/15 04:31:44  mike
 // worked on resolve scheme
 //
@@ -93,8 +96,6 @@ Uint32 InstanceDeclRep::getPropertyCount() const
     return _properties.getSize();
 }
 
-// ATTN-A: rework resolve strategy using clone methodology!
-
 void InstanceDeclRep::resolve(
     DeclContext* declContext, 
     const String& nameSpace)
@@ -113,7 +114,7 @@ void InstanceDeclRep::resolve(
 	declContext->lookupClassDecl(nameSpace, _className);
 
     if (!classDecl)
-	throw NoSuchSuperClass(_className);
+	throw NoSuchClass(_className);
 
     if (!classDecl._rep->_resolved)
 	throw ClassNotResolved(_className);
@@ -185,7 +186,9 @@ void InstanceDeclRep::resolve(
 
 	if (!found)
 	{
-	    _properties.insert(start++, Property(property));
+	    Property p = property.clone();
+	    p.setPropagated(true);
+	    _properties.insert(start++, p);
 	}
     }
 

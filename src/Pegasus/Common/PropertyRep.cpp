@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: PropertyRep.cpp,v $
-// Revision 1.1  2001/01/14 19:53:05  mike
-// Initial revision
+// Revision 1.2  2001/01/22 00:45:47  mike
+// more work on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:53:05  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -118,6 +121,8 @@ void PropertyRep::resolve(
 	    tmp.append("; attempt to change type");
 	    throw InvalidPropertyOverride(tmp);
 	}
+
+	_classOrigin = inheritedProperty.getClassOrigin();
     }
 
     // Validate the qualifiers of the property (according to

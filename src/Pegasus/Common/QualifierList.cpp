@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: QualifierList.cpp,v $
-// Revision 1.1  2001/01/14 19:53:09  mike
-// Initial revision
+// Revision 1.2  2001/01/22 00:45:47  mike
+// more work on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:53:09  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -156,7 +159,9 @@ void QualifierList::resolve(
 	if (find(iq.getName()) != Uint32(-1))
 	    continue;
 
-	_qualifiers.prepend(iq);
+	Qualifier q = iq.clone();
+	q.setPropagated(true);
+	_qualifiers.prepend(q);
     }
 }
 

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Exception.h,v $
-// Revision 1.1  2001/01/14 19:51:34  mike
-// Initial revision
+// Revision 1.2  2001/01/22 00:45:47  mike
+// more work on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:51:34  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -141,6 +144,15 @@ public:
     static const char MSG[];
 
     NoSuchSuperClass(const String& className) : Exception(MSG + className) { }
+};
+
+class PEGASUS_COMMON_LINKAGE NoSuchClass : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    NoSuchClass(const String& className) : Exception(MSG + className) { }
 };
 
 class PEGASUS_COMMON_LINKAGE InvalidPropertyOverride : public Exception

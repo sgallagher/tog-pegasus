@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: MethodRep.cpp,v $
-// Revision 1.1  2001/01/14 19:52:58  mike
-// Initial revision
+// Revision 1.2  2001/01/22 00:45:47  mike
+// more work on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:52:58  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -117,25 +120,43 @@ void MethodRep::resolve(
     const String& nameSpace,
     const ConstMethod& inheritedMethod)
 {
-    assert(Name::equal(getName(), inheritedMethod.getName()));
-
-    if (getType() != inheritedMethod.getType())
+    if (inheritedMethod)
     {
-	String tmp = inheritedMethod.getName();
-	tmp.append("; attempt to change type");
-	throw InvalidMethodOverride(tmp);
+	assert(Name::equal(getName(), inheritedMethod.getName()));
+
+	if (getType() != inheritedMethod.getType())
+	{
+	    String tmp = inheritedMethod.getName();
+	    tmp.append("; attempt to change type");
+	    throw InvalidMethodOverride(tmp);
+	}
+
+	_classOrigin = inheritedMethod.getClassOrigin();
     }
 
     // Validate the qualifiers of the method (according to
     // superClass's method with the same name). This method
     // will throw an exception if the validation fails.
 
-    _qualifiers.resolve(
-	declContext,
-	nameSpace,
-	Scope::METHOD,
-	false,
-	inheritedMethod._rep->_qualifiers);
+    if (inheritedMethod)
+    {
+	_qualifiers.resolve(
+	    declContext,
+	    nameSpace,
+	    Scope::METHOD,
+	    false,
+	    inheritedMethod._rep->_qualifiers);
+    }
+    else
+    {
+	QualifierList dummyQualifiers;
+	_qualifiers.resolve(
+	    declContext,
+	    nameSpace,
+	    Scope::METHOD,
+	    false,
+	    dummyQualifiers);
+    }
 
     // Validate each of the parameters:
 

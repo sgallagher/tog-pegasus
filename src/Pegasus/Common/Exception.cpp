@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Exception.cpp,v $
-// Revision 1.1  2001/01/14 19:51:33  mike
-// Initial revision
+// Revision 1.2  2001/01/22 00:45:47  mike
+// more work on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:51:33  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -75,6 +78,8 @@ const char UnitializedHandle::MSG[] = "unitialized reference";
 const char IllegalName::MSG[] = "illegal CIM name";
 
 const char NoSuchSuperClass::MSG[] = "no such super class: ";
+
+const char NoSuchClass::MSG[] = "no such class: ";
 
 const char InvalidPropertyOverride::MSG[] = "invalid property override: ";
 

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: ParameterRep.cpp,v $
-// Revision 1.1  2001/01/14 19:53:02  mike
-// Initial revision
+// Revision 1.2  2001/01/22 00:45:47  mike
+// more work on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:53:02  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -104,7 +107,7 @@ void ParameterRep::resolve(
     _qualifiers.resolve(
 	declContext,
 	nameSpace,
-	Scope::PROPERTY,
+	Scope::PARAMETER,
 	false,
 	dummy);
 }

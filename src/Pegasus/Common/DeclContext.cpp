@@ -30,6 +30,7 @@
 
 #include "DeclContext.h"
 #include "CIMName.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -47,9 +48,15 @@ void SimpleDeclContext::addQualifierDecl(
     const CIMNamespaceName& nameSpace,
     const CIMQualifierDecl& x)
 {
-    if (!lookupQualifierDecl(nameSpace, x.getName()).isUninitialized())
-	throw AlreadyExistsException("declaration of qualifier \"" +
-                                         x.getName().getString () + "\"");
+    if (!lookupQualifierDecl(nameSpace, x.getName()).isUninitialized()){
+    	//l10n
+		//throw AlreadyExistsException("declaration of qualifier \"" +
+                       //x.getName().getString () + "\"");
+        MessageLoaderParms parms("Common.DeclContext.DECLARATION_OF_QUALIFIER",
+        						 "declaration of qualifier \"$0\"",
+        						 x.getName().getString());
+        throw AlreadyExistsException(parms);                
+    }
 
     _qualifierDeclarations.append(QPair(nameSpace, x));
 }
@@ -58,9 +65,15 @@ void SimpleDeclContext::addClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& x)
 {
-    if (!lookupClass(nameSpace, x.getClassName()).isUninitialized())
-	throw AlreadyExistsException
-            ("class \"" + x.getClassName().getString () + "\"");
+    if (!lookupClass(nameSpace, x.getClassName()).isUninitialized()){
+    	//l10n
+		//throw AlreadyExistsException
+            //("class \"" + x.getClassName().getString () + "\"");
+        MessageLoaderParms parms("Common.DeclContext.CLASS",
+        						 "class \"$0\"",
+        						 x.getClassName().getString());
+        throw AlreadyExistsException(parms);
+    }
 
     _classDeclarations.append(CPair(nameSpace, x));
 }

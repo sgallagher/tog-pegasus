@@ -29,6 +29,7 @@
 
 #include "MessageQueueService.h"
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -81,15 +82,27 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
 
 void MessageQueueService::force_shutdown(void)
 {
-   PEGASUS_STD(cout) << "Forcing shutdown of CIMOM Message Router" << PEGASUS_STD(endl);
+	//l10n
+   //PEGASUS_STD(cout) << "Forcing shutdown of CIMOM Message Router" << PEGASUS_STD(endl);
+   MessageLoaderParms parms("Common.MessageQueueService.FORCING_SHUTDOWN",
+   							"Forcing shutdown of $0",
+   							"CIMOM Message Router");
+   PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
    MessageQueueService::_stop_polling = 1;
    MessageQueueService *svc;
    
    _polling_list.lock();
    svc = _polling_list.next(0);
+   
    while(svc != 0)
    {
-      PEGASUS_STD(cout) << "Stopping " << svc->getQueueName() << PEGASUS_STD(endl);
+   		//l10n - reuse same MessageLoaderParms to avoid multiple creates
+      	//PEGASUS_STD(cout) << "Stopping " << svc->getQueueName() << PEGASUS_STD(endl);
+      	parms.msg_id = "Common.MessageQueueService.STOPPING_SERVICE";
+   	  	parms.default_msg = "Stopping $0"; 
+   	  	parms.arg0 = svc->getQueueName();
+   	  	PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+      							
       _polling_sem.signal();
       svc->_shutdown_incoming_queue();
       _polling_sem.signal();
@@ -185,7 +198,14 @@ MessageQueueService::MessageQueueService(const char *name,
    if( false == register_service(name, _capabilities, _mask) )
    {
       _meta_dispatcher_mutex.unlock();
-      throw BindFailedException("MessageQueueService Base Unable to register with  Meta Dispatcher");
+      //l10n
+      //throw BindFailedException("MessageQueueService Base Unable to register with  Meta Dispatcher");
+      MessageLoaderParms parms("Common.MessageQueueService.UNABLE_TO_REGISTER",
+      						   "$0 Unable to register with  $1",
+      						   "MessageQueueService Base",
+      						   "Meta Dispatcher");
+      						   
+      throw BindFailedException(parms);
    }
    
    _polling_list.insert_last(this);

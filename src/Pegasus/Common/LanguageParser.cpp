@@ -30,6 +30,7 @@
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 #include <cstring>
 
 //PEGASUS_USING_STD;
@@ -85,20 +86,40 @@ Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String & h
 			hdr.remove(0,i+3);  // remove everything but the quality value
 		}
 		else{
-			throw InvalidAcceptLanguageHeader(
-				"AcceptLanguage contains too many characters or non-alpha characters");
+			//l10n
+			//throw InvalidAcceptLanguageHeader(
+				//"AcceptLanguage contains too many characters or non-alpha characters");
+			String s0 = "AcceptLanguage";
+			MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS",
+									 "$0 contains too many characters or non-alpha characters",
+									 s0);
+			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
 		}
 		//validate quality 	
 		quality = atof(hdr.getCString());
 		if(quality > 1.0 || quality < 0.0){
-			throw InvalidAcceptLanguageHeader(
-				"AcceptLanguage contains an invalid quality value");
+			//l10n
+			//throw InvalidAcceptLanguageHeader(
+				//"AcceptLanguage contains an invalid quality value");
+			String s0 = "AcceptLanguage";
+			MessageLoaderParms parms("Common.LanguageParser.INVALID_QUALITY_VALUE",
+									 "$0 contains an invalid quality value",
+									 s0);
+			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
 		}
 	}
 	else{	// extract and store language, quality defaults to 1.0
 		if(isValid(hdr, validate_length)) language_tag = hdr;
-		else throw InvalidAcceptLanguageHeader(
-				"AcceptLanguage contains too many characters or non-alpha characters");
+		else{ 
+			//l10n
+			//throw InvalidAcceptLanguageHeader(
+				//"AcceptLanguage contains too many characters or non-alpha characters");
+			String s0 = "AcceptLanguage";
+			MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS",
+									 "$0 contains too many characters or non-alpha characters",
+									 s0);
+			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
+		}
 	}
 	
 	PEG_METHOD_EXIT();
@@ -115,15 +136,32 @@ String LanguageParser::parseContentLanguageValue(String & hdr){
 	while((i = value.find("(")) != PEG_NOT_FOUND){ // get rid of anything in parenthesis in hdr if found
 		if((j = value.find(")")) != PEG_NOT_FOUND)
 			value.remove(i, (j-i)+1);
-		else  throw InvalidContentLanguageHeader(
-							"ContentLanguage does not contain terminating ) character");
+		else{
+			//l10n
+			  //throw InvalidContentLanguageHeader(
+							//"ContentLanguage does not contain terminating ) character");
+			String s0 = "ContentLanguage";
+			MessageLoaderParms parms("Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING",
+									 "$0 does not contain terminating ) character",
+									 s0);
+			throw InvalidContentLanguageHeader(MessageLoader::getMessage(parms));
+		}
 	}
 	// get rid of any beginning or trailing whitespaces
 	while( (i = value.find(" ")) != PEG_NOT_FOUND ){
 		value.remove(i,1);
 	}
-	if(!isValid(value)) throw InvalidContentLanguageHeader(
-							"ContentLanguage contains too many characters or non-alpha characters");
+	if(!isValid(value)){
+		//l10n
+		 //throw InvalidContentLanguageHeader(
+							//"ContentLanguage contains too many characters or non-alpha characters");
+		String s0 = "ContentLanguage";
+		MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS",
+								 "$0 contains too many characters or non-alpha characters",
+								 s0);
+		throw InvalidContentLanguageHeader(MessageLoader::getMessage(parms));
+	
+	}
 	PEG_METHOD_EXIT();
 	return value;
 }

@@ -40,6 +40,7 @@
 #include "XmlWriter.h"
 #include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -104,9 +105,16 @@ void CIMClassRep::addProperty(const CIMProperty& x)
 
     // Reject addition of duplicate property name:
 
-    if (findProperty(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExistsException
-            ("property \"" + x.getName().getString () + "\"");
+    if (findProperty(x.getName()) != PEG_NOT_FOUND){
+    	//l10n
+		//throw AlreadyExistsException
+            //("property \"" + x.getName().getString () + "\"");
+        MessageLoaderParms parms("Common.CIMClassRep.PROPERTY",
+        						 "property \"$0\"",
+        						 x.getName().getString());
+        throw AlreadyExistsException(parms);
+            
+    }
 
     // Set the class origin:
     // ATTN: put this check in other places:
@@ -126,9 +134,16 @@ void CIMClassRep::addMethod(const CIMMethod& x)
 
     // Reject duplicate method names:
 
-    if (findMethod(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExistsException
-            ("method \"" + x.getName().getString() + "\"");
+    if (findMethod(x.getName()) != PEG_NOT_FOUND){
+    	//l10n
+		//throw AlreadyExistsException
+            //("method \"" + x.getName().getString() + "\"");
+        MessageLoaderParms parms("Common.CIMClassRep.METHOD",
+        						 "method \"$0\"",
+        						 x.getName().getString());
+        throw AlreadyExistsException(parms);
+            
+    }
 
     // Add the method:
 
@@ -196,7 +211,8 @@ void CIMClassRep::resolve(
 	
 		if (superClass.isUninitialized())
 			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_SUPERCLASS,
-                            _superClassName.getString());
+                          _superClassName.getString());
+                       
 	
 #if 0
 		if (!superClass._rep->_resolved)
@@ -225,8 +241,13 @@ void CIMClassRep::resolve(
                         if (!isAssociationClass &&
                             property.getValue().getType() == CIMTYPE_REFERENCE)
                         {
-                            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
-                                "Non-assocation class contains reference property");
+                        	//l10n
+                            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER,
+                                //"Non-assocation class contains reference property");
+                            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                            			MessageLoaderParms("Common.CIMClassRep.NON_ASSOCIATION_CLASS_CONTAINS_REFERENCE_PROPERTY",
+                            							   "Non-assocation class contains reference property"));
+                            							   
                         }
 
 			Uint32 index = superClass.findProperty(property.getName());

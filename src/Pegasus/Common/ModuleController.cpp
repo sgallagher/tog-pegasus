@@ -28,7 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ModuleController.h"
- 
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -433,7 +433,12 @@ ModuleController & ModuleController::register_module(const String & controller_n
       if(module->get_name() == module_name )
       {
 	 controller->_modules.unlock();
-	 throw AlreadyExistsException("module \"" + module_name + "\"");
+	 //l10n
+	 //throw AlreadyExistsException("module \"" + module_name + "\"");
+	 MessageLoaderParms parms("Common.ModuleController.MODULE",
+	 						  "module \"$0\"",
+	 						  module_name);
+	 throw AlreadyExistsException(parms);
       }
       module = controller->_modules.next(module);
    }
@@ -457,8 +462,15 @@ ModuleController & ModuleController::register_module(const String & controller_n
    
    delete request; 
    delete response;
-   if ( result == async_results::MODULE_ALREADY_REGISTERED)
-      throw AlreadyExistsException("module \"" + module_name + "\"");
+   if ( result == async_results::MODULE_ALREADY_REGISTERED){
+   	//l10n
+      //throw AlreadyExistsException("module \"" + module_name + "\"");
+      MessageLoaderParms parms("Common.ModuleController.MODULE",
+	 						  "module \"$0\"",
+	 						  module_name);
+	 throw AlreadyExistsException(parms);
+      
+   }
    
    // the module does not exist, go ahead and create it. 
    module = new pegasus_module(controller, 

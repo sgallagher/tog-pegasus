@@ -34,6 +34,7 @@
 #include <iostream>
 #include "Constants.h"
 #include "Socket.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # include <windows.h>
@@ -220,7 +221,11 @@ HTTPConnection* HTTPConnector::connect(
                     reinterpret_cast<sockaddr*>(&address),
                     sizeof(address)) < 0)
       {
-         throw CannotConnectException("Cannot connect to local CIM server. Connection failed.");
+      	//l10n
+         //throw CannotConnectException("Cannot connect to local CIM server. Connection failed.");
+         MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
+         						  "Cannot connect to local CIM server. Connection failed.");
+         throw CannotConnectException(parms);
       }
    }
    else
@@ -254,7 +259,13 @@ HTTPConnection* HTTPConnector::connect(
    {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
-      throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
+      //l10n
+      //throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
+      MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_TO",
+         					   "Cannot connect to $0:$1. Connection failed.",
+         					   host,
+         					   portStr);
+      throw CannotConnectException(parms);
    }
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -267,7 +278,13 @@ HTTPConnection* HTTPConnector::connect(
    if (mp_socket->connect() < 0) {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
-      throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
+      //l10n
+      //throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
+      MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_TO",
+         					   "Cannot connect to $0:$1. Connection failed.",
+         					   host,
+         					   portStr);
+      throw CannotConnectException(parms);
    }
     
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,

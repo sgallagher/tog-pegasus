@@ -98,7 +98,11 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
     if (!_fileHandle)
     {
         // Unable to open file, log a message
-        Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
+        //l10n
+        //Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
+           //"Failed to open File $0",fileName);
+        Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
+           "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
            "Failed to open File $0",fileName);
             return 1;
     }

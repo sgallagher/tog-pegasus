@@ -36,6 +36,7 @@
 #include "Logger.h"
 #include "System.h"
 #include "Destroyer.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_USING_STD;
 
@@ -125,8 +126,14 @@ public:
 
 	// KS: I put the second test in just in case some trys to create
 	// a completly erronous directory.  At least we will get a message
-	if (!System::isDirectory(lgDir))
-	    cerr << "Logging Disabled";
+	if (!System::isDirectory(lgDir)){
+		//l10n
+	   //cerr << "Logging Disabled";
+	   MessageLoaderParms parms("Common.Logger.LOGGING_DISABLED",
+	   							"Logging Disabled");
+	   			
+	   cerr << MessageLoader::getMessage(parms);
+	}
 
 	CString fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
 	_logs[Logger::TRACE_LOG].open(fileName, ios::app);

@@ -38,6 +38,7 @@
 #include "XmlWriter.h"
 #include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -57,9 +58,15 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     if (qualifier.isUninitialized())
 	throw UninitializedObjectException();
 
-    if (find(qualifier.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExistsException
-            ("qualifier \"" + qualifier.getName().getString () + "\"");
+    if (find(qualifier.getName()) != PEG_NOT_FOUND){
+    	//l10n
+		//throw AlreadyExistsException
+            //("qualifier \"" + qualifier.getName().getString () + "\"");
+        MessageLoaderParms parms("Common.CIMQualifierList.QUALIFIER",
+        						 "qualifier \"$0\"",
+        						 qualifier.getName().getString());
+        throw AlreadyExistsException(parms);
+    }
 
     _qualifiers.append(qualifier);
 

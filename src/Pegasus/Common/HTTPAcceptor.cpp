@@ -57,6 +57,7 @@
 #include "HTTPAcceptor.h"
 #include "HTTPConnection.h"
 #include "Tracer.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_USING_STD;
 
@@ -205,8 +206,15 @@ void HTTPAcceptor::handleEnqueue()
 
 void HTTPAcceptor::bind()
 {
-   if (_rep)
-      throw BindFailedException("HTTPAcceptor already bound");
+   if (_rep){
+   	//l10n
+      //throw BindFailedException("HTTPAcceptor already bound");  
+      String s0 = "HTTPAcceptor";
+      MessageLoaderParms parms("Common.HTTPAcceptor.ALREADY_BOUND",
+      						   "$0 already bound",
+      						   s0);
+      throw BindFailedException(parms);
+   }
 
    _rep = new HTTPAcceptorRep(_localConnection);
 
@@ -265,7 +273,11 @@ void HTTPAcceptor::_bind()
    {
       delete _rep;
       _rep = 0;
-      throw BindFailedException("Failed to create socket");
+      //l10n
+      //throw BindFailedException("Failed to create socket");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_CREATE_SOCKET",
+      						   "Failed to create socket");
+      throw BindFailedException(parms);
    }
 
 
@@ -303,7 +315,11 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailedException("Failed to set socket option");
+      //l10n
+      //throw BindFailedException("Failed to set socket option");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION",
+      						   "Failed to set socket option");
+      throw BindFailedException(parms);
    }
 
    // Bind socket to port:
@@ -313,7 +329,11 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailedException("Failed to bind socket");
+      //l10n
+      //throw BindFailedException("Failed to bind socket");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
+      						   "Failed to bind socket");
+      throw BindFailedException(parms);
    }
 
    // Set up listening on the given socket:
@@ -325,7 +345,11 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailedException("Failed to bind socket");
+      //l10n
+      //throw BindFailedException("Failed to bind socket");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
+      						   "Failed to bind socket");
+      throw BindFailedException(parms);
    }
 
    // Register to receive SocketMessages on this socket:
@@ -339,7 +363,11 @@ void HTTPAcceptor::_bind()
       Socket::close(_rep->socket);
       delete _rep;
       _rep = 0;
-      throw BindFailedException("Failed to solicit socket messaeges");
+      //l10n
+      //throw BindFailedException("Failed to solicit socket messaeges");
+      MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
+      						   "Failed to solicit socket messaeges");
+      throw BindFailedException(parms);
    }
 }
 

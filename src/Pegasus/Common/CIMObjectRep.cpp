@@ -30,6 +30,7 @@
 
 #include "CIMObjectRep.h"
 #include "CIMName.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_USING_STD;
 
@@ -52,9 +53,16 @@ void CIMObjectRep::addProperty(const CIMProperty& x)
 
     // Reject duplicate property names:
 
-    if (findProperty(x.getName()) != PEG_NOT_FOUND)
-        throw AlreadyExistsException
-            ("property \"" + x.getName().getString () + "\"");
+    if (findProperty(x.getName()) != PEG_NOT_FOUND){
+    	//l10n
+        //throw AlreadyExistsException
+            //("property \"" + x.getName().getString () + "\"");
+        MessageLoaderParms parms("Common.CIMObjectRep.PROPERTY",
+        						 "property \"$0\"",
+        						 x.getName().getString());
+        throw AlreadyExistsException(parms);
+            
+    }
 
     // Append property:
 

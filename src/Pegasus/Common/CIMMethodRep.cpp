@@ -37,6 +37,7 @@
 #include "CIMScope.h"
 #include "XmlWriter.h"
 #include "MofWriter.h"
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -70,9 +71,15 @@ void CIMMethodRep::addParameter(const CIMParameter& x)
     if (x.isUninitialized())
 	throw UninitializedObjectException();
 
-    if (findParameter(x.getName()) != PEG_NOT_FOUND)
-	throw AlreadyExistsException
-            ("parameter \"" + x.getName().getString () + "\"");
+    if (findParameter(x.getName()) != PEG_NOT_FOUND){
+    	//l10n
+		//throw AlreadyExistsException
+            //("parameter \"" + x.getName().getString () + "\"");
+        MessageLoaderParms parms("Common.CIMMethodRep.PARAMETER",
+        						 "parameter \"$0\"",
+        						 x.getName().getString());
+        throw AlreadyExistsException(parms);
+    }
 
     _parameters.append(x);
 }

@@ -65,7 +65,11 @@ void TraceFileHandler::handleMessage(
         if (!_fileHandle)
         {
             // Unable to re-open file, log a message
-            Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+            //l10n
+            //Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+                //"Failed to open File $0",_fileName);
+            Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+            	"Common.TraceFileHandlerUnix.FAILED_TO_OPEN_FILE",
                 "Failed to open File $0",_fileName);
             return; 
         } 	
@@ -90,8 +94,12 @@ void TraceFileHandler::handleMessage(
 	if (retCode == -1)
 	{
 	    // Failed to release lock on file. Log message and return
-	    Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
-		"Failed to release write lock on File $0",_fileName);
+	    //l10n
+	    //Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+		//"Failed to release write lock on File $0",_fileName);
+		Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+			"Common.TraceFileHandlerUnix.FAILED_TO_RELEASE_WRITE_LOCK",
+			"Failed to release write lock on File $0",_fileName);
         }
 	_wroteToLog = false;
     }
@@ -101,9 +109,13 @@ void TraceFileHandler::handleMessage(
 	// Log message and return
 	// Check if message is already logged, so as to not to flood log file
 	if (!_wroteToLog)
-	{
-	    Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
-		"Failed to obtain write lock on File $0",_fileName);
+	{ 
+		//l10n
+	    //Logger::put(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+		//"Failed to obtain write lock on File $0",_fileName);
+		Logger::put_l(Logger::DEBUG_LOG,System::CIMSERVER,Logger::WARNING,
+			"Common.TraceFileHandlerUnix.FAILED_TO_OBTAIN_WRITE_LOCK",
+			"Failed to obtain write lock on File $0",_fileName);
             _wroteToLog = true;
 	}
     }

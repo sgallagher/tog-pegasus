@@ -25,16 +25,12 @@
 //
 // Modified By:
 //
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <cassert>
 #include <strstream>
+#include <cstring>
 #include <Pegasus/Common/String.h>
 
 //ATTN: KS-P3-20020603-This added to use the ASSERTTEMP 

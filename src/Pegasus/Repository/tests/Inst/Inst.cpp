@@ -31,6 +31,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <iostream>
+#include <cstring>
 #include <cassert>
 #include <Pegasus/Repository/InstanceIndexFile.h>
 #include <Pegasus/Repository/InstanceDataFile.h>

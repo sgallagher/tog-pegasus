@@ -273,11 +273,12 @@ static const char FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE [] = "Failed to update 
 static const char FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE_KEY [] = "Clients.CIMConfig.CIMConfigCommand.FAILED_UPDATE_OF_DEFAULT_VALUE_IN_FILE";
 
 
+// 485
 static const char PROPERTY_UPDATED_IN_FILE [] = 
 	"Property '$0' updated in configuration file.";
 
 static const char PROPERTY_UPDATED_IN_FILE_KEY [] = 
-	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FIL";
+	"Clients.CIMConfig.CIMConfigCommand.PROPERTY_UPDATED_IN_FILE";
 
 //static const char VALUE_IS [] = 
 	//"$0 value: $1";

@@ -1,7 +1,8 @@
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Compiler/cimmofParser.h>
+//#include <Pegasus/Compiler/cimmofParser.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

@@ -597,9 +597,10 @@ MessageLoader::_useProcessLocale = true;
                     {
                         //l10n
                         //cout << "Missing argument for option -" << option << endl;
+                        String opt(option);
                         MessageLoaderParms parms("src.Server.cimserver.MISSING_ARGUMENT",
                 						 "Missing argument for option -$0",
-                						 String(option));
+                						 opt);
                 		cout << MessageLoader::getMessage(parms) << endl;
                         exit(0);
                     }

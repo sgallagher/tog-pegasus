@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
+// Revision 1.4  2001/01/25 02:12:05  mike
+// Added meta-qualifiers to LoadRepository program.
+//
 // Revision 1.3  2001/01/23 01:25:34  mike
 // Reworked resolve scheme.
 //
@@ -201,8 +204,10 @@ void ClassDeclRep::resolve(
     DeclContext* context,
     const String& nameSpace)
 {
+#if 0
     if (_resolved)
 	throw ClassAlreadyResolved(_className);
+#endif
 
     if (!context)
 	throw NullPointer();
@@ -219,8 +224,10 @@ void ClassDeclRep::resolve(
 	if (!superClass)
 	    throw NoSuchSuperClass(_superClassName);
 
+#if 0
 	if (!superClass._rep->_resolved)
 	    throw ClassNotResolved(_superClassName);
+#endif
 
 	//----------------------------------------------------------------------
 	// Iterate all the properties of *this* class. Resolve each one and
@@ -383,7 +390,7 @@ void ClassDeclRep::resolve(
 	    dummy);
     }
 
-    _resolved = true;
+    // _resolved = true;
 }
 
 void ClassDeclRep::toXml(Array<Sint8>& out) const

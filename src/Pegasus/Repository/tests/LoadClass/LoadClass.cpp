@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: LoadClass.cpp,v $
-// Revision 1.1  2001/01/14 19:53:57  mike
-// Initial revision
+// Revision 1.2  2001/01/25 02:12:06  mike
+// Added meta-qualifiers to LoadRepository program.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:57  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -32,6 +35,7 @@
 #include <Pegasus/Repository/Repository.h>
 
 using namespace Pegasus;
+using namespace std;
 
 int main(int argc, char** argv)
 {

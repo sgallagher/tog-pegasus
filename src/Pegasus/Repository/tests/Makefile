@@ -2,9 +2,11 @@ ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
+XDIRS = \
+    TestClasses \
+
 DIRS = \
     LoadRepository \
-    TestClasses \
     Repository \
     QualifierDeclRep \
     NameSpace \

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: InstanceDeclRep.cpp,v $
+// Revision 1.5  2001/01/25 02:12:05  mike
+// Added meta-qualifiers to LoadRepository program.
+//
 // Revision 1.4  2001/01/23 01:25:35  mike
 // Reworked resolve scheme.
 //
@@ -103,8 +106,10 @@ void InstanceDeclRep::resolve(
     DeclContext* context, 
     const String& nameSpace)
 {
+#if 0
     if (_resolved)
 	throw InstanceAlreadyResolved();
+#endif
 
     if (!context)
 	throw NullPointer();
@@ -119,8 +124,10 @@ void InstanceDeclRep::resolve(
     if (!classDecl)
 	throw NoSuchClass(_className);
 
+#if 0
     if (!classDecl._rep->_resolved)
 	throw ClassNotResolved(_className);
+#endif
 
     //----------------------------------------------------------------------
     // Disallow instantiation of abstract classes.
@@ -193,7 +200,9 @@ void InstanceDeclRep::resolve(
 	}
     }
 
+#if 0
     _resolved = true;
+#endif
 }
 
 InstanceDeclRep::InstanceDeclRep()

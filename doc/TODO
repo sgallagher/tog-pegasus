@@ -3,13 +3,23 @@
 
     ------------------------------------------------------------------------
 
+    (A) Notice that there is a bug where you select Scope::REFERENCE and
+	and the validation routines still say the scope is wrong for
+	qualifiers applied actual references (they are checking for
+	property instead).
+
+    (A) There is an odering problem when applying the qualifiers with
+    	association scope to classes. If the association qualifier does not
+	come first, then application of prior qualifiers fail.
+	Checking this should be moved to class resolution.
+
     (B) Rework resolve() scheme (add clone() methods).
 
     (A) Implement instances.
 
     (A) Providers.
 
-    (A) Port to Windows.
+    (A) Figure out whether you really need _resolved flags.
 
     ------------------------------------------------------------------------
 

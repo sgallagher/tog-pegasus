@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
-// Revision 1.1  2001/01/14 19:53:55  mike
-// Initial revision
+// Revision 1.2  2001/01/25 02:12:05  mike
+// Added meta-qualifiers to LoadRepository program.
+//
+// Revision 1.1.1.1  2001/01/14 19:53:55  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -555,9 +558,7 @@ void Repository::createClass(
 
     // Validate the new class:
 
-#if 0
     newClass.resolve(_context, nameSpace);
-#endif
 
     // Save the class:
 

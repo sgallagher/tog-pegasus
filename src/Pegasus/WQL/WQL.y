@@ -105,6 +105,7 @@ PEGASUS_NAMESPACE_END
 %token <intValue> TOK_TRUE
 %token <intValue> TOK_FALSE
 %token <intValue> TOK_NULL
+%token <intValue> TOK_ISA
 
 %token <intValue> TOK_EQ
 %token <intValue> TOK_NE
@@ -287,6 +288,12 @@ comparisonPredicate
     {
 	WQL_TRACE(("YACC: TOK_NE\n"));
 	globalParserState->statement->appendOperation(WQL_NE);
+    }
+    | propertyName TOK_ISA className
+    {
+
+    	WQL_TRACE(("YACC: TOK_ISA\n"));
+        // ADD statement phrase.
     }
 
 nullPredicate

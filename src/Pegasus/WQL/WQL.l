@@ -85,6 +85,13 @@ IDENT_CHAR [A-Za-z_]
     return TOK_WHERE;
 }
 
+[Ii][Ss][Aa] {
+
+   WQL_TRACE(("LEX: %s [TOK_ISA]\n", yytext));
+   return TOK_ISA;
+}
+
+
 [Tt][Rr][Uu][Ee] {
 
     WQL_TRACE(("LEX: %s [TOK_TRUE]\n", yytext));

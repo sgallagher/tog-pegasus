@@ -183,6 +183,8 @@ public:
 };
 
 
+#ifdef PEGASUS_INTERNALONLY
+// This type is used in CIMPropertyProvider which Pegasus does not support
 //
 // ValueResponseHandler
 //
@@ -193,8 +195,11 @@ public:
 
     virtual void deliver(const Array<CIMValue> & values) = 0;
 };
+#endif
 
 
+#ifdef PEGASUS_INTERNALONLY
+// This type is used in CIMClassProvider which Pegasus does not support
 //
 // ClassResponseHandler
 //
@@ -205,6 +210,7 @@ public:
 
     virtual void deliver(const Array<CIMClass> & classObjs) = 0;
 };
+#endif
 
 PEGASUS_NAMESPACE_END
 

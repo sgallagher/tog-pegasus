@@ -40,8 +40,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class HelloWorldProvider :
-	public CIMInstanceProvider,
-	public CIMIndicationProvider
+	public CIMInstanceProvider
+	//public CIMIndicationProvider // Out of date with CIMIndicationProvider
 {
 public:
 	HelloWorldProvider(void);
@@ -56,14 +56,14 @@ public:
 		const OperationContext & context,
 		const CIMObjectPath & ref,
 		const Uint32 flags,
-		const Array<String> & propertyList,
+		const CIMPropertyList & propertyList,
 		InstanceResponseHandler & handler);
 
 	virtual void enumerateInstances(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
 		const Uint32 flags,
-		const Array<String> & propertyList,
+		const CIMPropertyList & propertyList,
 		InstanceResponseHandler & handler);
 
 	virtual void enumerateInstanceNames(
@@ -76,8 +76,8 @@ public:
 		const CIMObjectPath & ref,
 		const CIMInstance & obj,
 		const Uint32 flags,
-		const Array<String> & propertyList,
-		InstanceResponseHandler & handler);
+		const CIMPropertyList & propertyList,
+		ResponseHandler & handler);
 
 	virtual void createInstance(
 		const OperationContext & context,
@@ -88,7 +88,7 @@ public:
 	virtual void deleteInstance(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
-		InstanceResponseHandler & handler);
+		ResponseHandler & handler);
 
 	// CIMIndicationProvider interface
 	virtual void provideIndication(
@@ -96,7 +96,7 @@ public:
 		const CIMObjectPath & classReference,
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
-		const Array<String> & propertyList,
+		const CIMPropertyList & propertyList,
 		InstanceResponseHandler & handler);
 
 	virtual void updateIndication(
@@ -104,7 +104,7 @@ public:
 		const CIMObjectPath & classReference,
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
-		const Array<String> & propertyList,
+		const CIMPropertyList & propertyList,
 		InstanceResponseHandler & handler);
 
 	virtual void cancelIndication(
@@ -115,7 +115,7 @@ public:
 	virtual void checkIndication(
 		const OperationContext & context,
 		const CIMObjectPath & classReference,
-		const Array<String> & propertyList,
+		const CIMPropertyList & propertyList,
 		InstanceResponseHandler & handler);
 
        virtual void enableIndication(

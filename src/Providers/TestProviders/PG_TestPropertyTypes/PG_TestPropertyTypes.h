@@ -85,19 +85,6 @@ public:
 		const CIMObjectPath & ref,
 		ResponseHandler & handler);
 
-	virtual void getProperty(
-		const OperationContext & context,
-		const CIMObjectPath & instanceReference,
-		const String & propertyName,
-		ValueResponseHandler & handler);
-
-	virtual void setProperty(
-		const OperationContext & context,
-		const CIMObjectPath & instanceReference,
-		const String & propertyName,
-		const CIMValue & newValue,
-		ResponseHandler & handler);
-
 protected:
 	Array<CIMObjectPath> _enumerateInstanceNames(
 		const OperationContext & context,

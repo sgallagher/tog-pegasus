@@ -31,8 +31,6 @@
 
 #include <Pegasus/Common/Config.h>
 
-#include <Pegasus/ProviderManager/SimpleResponseHandler.cpp>
-
 #include "OperatingSystemProvider.h"
 #include "OperatingSystem.h"
 
@@ -90,60 +88,13 @@ void OperatingSystemProvider::enumerateInstances(
 {
 	handler.processing();
 
-	if(String::equalNoCase(classReference.getClassName(), "pegasus_operatingsystem"))
+	if(classReference.getClassName().equal("pegasus_operatingsystem"))
 	{
-		OperatingSystem os;
-
-		CIMInstance cimInstance("Pegasus_OperatingSystem");
-
-		cimInstance.addProperty(CIMProperty("CSCreationClassName", os.GetCSCreationClassName()));
-		cimInstance.addProperty(CIMProperty("CSName", os.GetCSName()));
-		cimInstance.addProperty(CIMProperty("CreationClassName", os.GetCreationClassName()));
-		cimInstance.addProperty(CIMProperty("Name", os.GetName()));
-		cimInstance.addProperty(CIMProperty("OSType", os.GetOSType()));
-		cimInstance.addProperty(CIMProperty("OtherTypeDescription", os.GetOtherTypeDescription()));
-		cimInstance.addProperty(CIMProperty("CurrentTimeZone", os.GetCurrentTimeZone()));
-		cimInstance.addProperty(CIMProperty("LocalDateTime", os.GetLocalDateTime()));
-		cimInstance.addProperty(CIMProperty("LastBootUpTime", os.GetLastBootUpTime()));
-		cimInstance.addProperty(CIMProperty("NumberOfLicensedUsers", os.GetNumberOfLicensedUsers()));
-		cimInstance.addProperty(CIMProperty("NumberOfUsers", os.GetNumberOfUsers()));
-		cimInstance.addProperty(CIMProperty("NumberOfProcesses", os.GetNumberOfProcesses()));
-		cimInstance.addProperty(CIMProperty("MaxNumberOfProcesses", os.GetMaxNumberOfProcesses()));
-		cimInstance.addProperty(CIMProperty("InstallDate", os.GetInstallDate()));
-		cimInstance.addProperty(CIMProperty("Version", os.GetVersion()));
-		cimInstance.addProperty(CIMProperty("TotalSwapSpaceSize", os.GetTotalSwapSpaceSize()));
-		cimInstance.addProperty(CIMProperty("TotalVirtualMemorySize", os.GetTotalVirtualMemorySize()));
-		cimInstance.addProperty(CIMProperty("FreeVirtualMemory", os.GetFreeVirtualMemory()));
-		cimInstance.addProperty(CIMProperty("FreePhysicalMemory", os.GetFreePhysicalMemory()));
-		cimInstance.addProperty(CIMProperty("TotalVisibleMemorySize", os.GetTotalVisibleMemorySize()));
-		cimInstance.addProperty(CIMProperty("SizeStoredInPagingFiles", os.GetSizeStoredInPagingFiles()));
-		cimInstance.addProperty(CIMProperty("FreeSpaceInPagingFiles", os.GetFreeSpaceInPagingFiles()));
-		cimInstance.addProperty(CIMProperty("MaxProcessMemorySize", os.GetMaxProcessMemorySize()));
-		cimInstance.addProperty(CIMProperty("Distributed", os.GetDistributed()));
-
-		//
-		// Construct the instance name to return
-		// This could be done more efficiently by creating from scratch
-		//
-
-		// get class definition from repository
-		CIMClass cimclass = _cimom.getClass(
-			OperationContext(),
-			classReference.getNameSpace(),
-			classReference.getClassName(),
-			false,
-			false,
-			false,
-			CIMPropertyList());
-
-		CIMObjectPath instanceName = cimInstance.buildPath(cimclass);
-
-		// ensure references are fully qualified
-		instanceName.setHost(classReference.getHost());
-		instanceName.setNameSpace(classReference.getNameSpace());
+		Array<CIMInstance> instances;
+		instances = _enumerateInstances(context, classReference);
 
 		// deliver reference
-		handler.deliver(cimInstance);
+		handler.deliver(instances);
 	}
 
 	handler.complete();
@@ -218,22 +169,78 @@ Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference)
 {
-	SimpleInstanceResponseHandler handler;
+	OperatingSystem os;
 
-	enumerateInstances(context, classReference, 0xffffffff, CIMPropertyList(), handler);
+	CIMInstance cimInstance("Pegasus_OperatingSystem");
 
-	return(handler.getObjects());
+	cimInstance.addProperty(CIMProperty("CSCreationClassName", os.GetCSCreationClassName()));
+	cimInstance.addProperty(CIMProperty("CSName", os.GetCSName()));
+	cimInstance.addProperty(CIMProperty("CreationClassName", os.GetCreationClassName()));
+	cimInstance.addProperty(CIMProperty("Name", os.GetName()));
+	cimInstance.addProperty(CIMProperty("OSType", os.GetOSType()));
+	cimInstance.addProperty(CIMProperty("OtherTypeDescription", os.GetOtherTypeDescription()));
+	cimInstance.addProperty(CIMProperty("CurrentTimeZone", os.GetCurrentTimeZone()));
+	cimInstance.addProperty(CIMProperty("LocalDateTime", os.GetLocalDateTime()));
+	cimInstance.addProperty(CIMProperty("LastBootUpTime", os.GetLastBootUpTime()));
+	cimInstance.addProperty(CIMProperty("NumberOfLicensedUsers", os.GetNumberOfLicensedUsers()));
+	cimInstance.addProperty(CIMProperty("NumberOfUsers", os.GetNumberOfUsers()));
+	cimInstance.addProperty(CIMProperty("NumberOfProcesses", os.GetNumberOfProcesses()));
+	cimInstance.addProperty(CIMProperty("MaxNumberOfProcesses", os.GetMaxNumberOfProcesses()));
+	cimInstance.addProperty(CIMProperty("InstallDate", os.GetInstallDate()));
+	cimInstance.addProperty(CIMProperty("Version", os.GetVersion()));
+	cimInstance.addProperty(CIMProperty("TotalSwapSpaceSize", os.GetTotalSwapSpaceSize()));
+	cimInstance.addProperty(CIMProperty("TotalVirtualMemorySize", os.GetTotalVirtualMemorySize()));
+	cimInstance.addProperty(CIMProperty("FreeVirtualMemory", os.GetFreeVirtualMemory()));
+	cimInstance.addProperty(CIMProperty("FreePhysicalMemory", os.GetFreePhysicalMemory()));
+	cimInstance.addProperty(CIMProperty("TotalVisibleMemorySize", os.GetTotalVisibleMemorySize()));
+	cimInstance.addProperty(CIMProperty("SizeStoredInPagingFiles", os.GetSizeStoredInPagingFiles()));
+	cimInstance.addProperty(CIMProperty("FreeSpaceInPagingFiles", os.GetFreeSpaceInPagingFiles()));
+	cimInstance.addProperty(CIMProperty("MaxProcessMemorySize", os.GetMaxProcessMemorySize()));
+	cimInstance.addProperty(CIMProperty("Distributed", os.GetDistributed()));
+
+	//
+	// Construct the instance name to return
+	// This could be done more efficiently by creating from scratch
+	//
+
+	// get class definition from repository
+	CIMClass cimclass = _cimom.getClass(
+		OperationContext(),
+		classReference.getNameSpace(),
+		classReference.getClassName(),
+		false,
+		false,
+		false,
+		CIMPropertyList());
+
+	CIMObjectPath instanceName = cimInstance.buildPath(cimclass);
+
+	// ensure references are fully qualified
+	instanceName.setHost(classReference.getHost());
+	instanceName.setNameSpace(classReference.getNameSpace());
+
+	cimInstance.setPath(instanceName);
+
+	// deliver the instance
+        Array<CIMInstance> theInstance;
+        theInstance.append(cimInstance);
+	return theInstance;
 }
 
 Array<CIMObjectPath> OperatingSystemProvider::_enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference)
 {
-	SimpleObjectPathResponseHandler handler;
+	Array<CIMInstance> cimInstances = _enumerateInstances(context, classReference);
+	Array<CIMObjectPath> cimInstanceNames;
+	
+	// convert instances to references;
+	for(Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+	{
+		cimInstanceNames.append(cimInstances[i].getPath());
+	}
 
-	enumerateInstanceNames(context, classReference, handler);
-
-	return(handler.getObjects());
+	return cimInstanceNames;
 }
 
 PEGASUS_NAMESPACE_END

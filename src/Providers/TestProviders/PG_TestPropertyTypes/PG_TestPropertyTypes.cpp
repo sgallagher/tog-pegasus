@@ -33,7 +33,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #include <Pegasus/Provider/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
@@ -244,20 +243,10 @@ void PG_TestPropertyTypes::enumerateInstanceNames(
 	// begin processing the request
 	handler.processing();
 
-	// get class definition from repository
-	CIMClass cimclass = _cimom.getClass(context, classReference.getNameSpace(), classReference.getClassName(), false, true, true, CIMPropertyList());
+        Array<CIMObjectPath> instanceNames;
+        instanceNames = _enumerateInstanceNames(context, classReference);
 
-	// convert instances to references;
-	for(Uint32 i = 0; i < _instances.size(); i++)
-	{
-		CIMObjectPath tempRef = _instances[i].buildPath(cimclass);
-
-		// ensure references are fully qualified
-		tempRef.setHost(classReference.getHost());
-		tempRef.setNameSpace(classReference.getNameSpace());
-
-		handler.deliver(tempRef);
-	}
+	handler.deliver(instanceNames);
 
 	// complete processing the request
 	handler.complete();
@@ -420,34 +409,28 @@ void PG_TestPropertyTypes::deleteInstance(
 
 }
 
-void PG_TestPropertyTypes::getProperty(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const String & propertyName,
-	ValueResponseHandler & handler)
-{
-	throw CIMException(CIM_ERR_NOT_SUPPORTED);
-}
-
-void PG_TestPropertyTypes::setProperty(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const String & propertyName,
-	const CIMValue & newValue,
-	ResponseHandler & handler)
-{
-	throw CIMException(CIM_ERR_NOT_SUPPORTED);
-}
-
 Array<CIMObjectPath> PG_TestPropertyTypes::_enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference)
 {
-	SimpleObjectPathResponseHandler handler;
+	Array<CIMObjectPath> instanceNames;
 
-	enumerateInstanceNames(context, classReference, handler);
+	// get class definition from repository
+	CIMClass cimclass = _cimom.getClass(context, classReference.getNameSpace(), classReference.getClassName(), false, true, true, CIMPropertyList());
 
-	return(handler.getObjects());
+	// convert instances to references;
+	for(Uint32 i = 0; i < _instances.size(); i++)
+	{
+		CIMObjectPath tempRef = _instances[i].buildPath(cimclass);
+
+		// ensure references are fully qualified
+		tempRef.setHost(classReference.getHost());
+		tempRef.setNameSpace(classReference.getNameSpace());
+
+		instanceNames.append(tempRef);
+	}
+
+	return(instanceNames);
 }
 
 // private method: _testPropertyTypesValue

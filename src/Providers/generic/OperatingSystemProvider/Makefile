@@ -6,8 +6,7 @@ LIBRARY = OperatingSystemProvider
 
 LIBRARIES = \
 	pegcommon \
-	pegprovider \
-	pegprovidermanager
+	pegprovider
 
 SOURCES = \
 	OperatingSystem.cpp \

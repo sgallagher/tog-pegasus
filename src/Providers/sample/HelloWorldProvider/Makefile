@@ -9,8 +9,7 @@ LIBRARY = HelloWorldProvider
 
 LIBRARIES = \
 	 pegcommon \
-	 pegprovider \
-	 pegprovidermanager
+	 pegprovider
 	
 SOURCES = \
    HelloWorldProviderMain.cpp \

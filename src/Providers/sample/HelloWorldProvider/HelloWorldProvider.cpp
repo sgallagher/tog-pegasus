@@ -29,7 +29,6 @@
 
 #include "HelloWorldProvider.h"
 
-#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #include <Pegasus/Provider/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
@@ -145,7 +144,7 @@ void HelloWorldProvider::getInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
 	// synchronously get references
@@ -177,7 +176,7 @@ void HelloWorldProvider::enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & ref,
 	const Uint32 flags,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
 	// begin processing the request
@@ -193,12 +192,12 @@ void HelloWorldProvider::enumerateInstances(
 		false,
 		false,
 		false,
-		Array<String>());
+		CIMPropertyList());
 
 	// convert instances to references;
 	for(Uint32 i = 0; i < _instances.size(); i++)
 	{
-		CIMObjectPath tempRef = _instances[i].getInstanceName(cimclass);
+		CIMObjectPath tempRef = _instances[i].buildPath(cimclass);
 
 		// ensure references are fully qualified
 		tempRef.setHost(ref.getHost());
@@ -219,27 +218,9 @@ void HelloWorldProvider::enumerateInstanceNames(
 	// begin processing the request
 	handler.processing();
 
-	// get class definition from repository
-	CIMClass cimclass = _cimom.getClass(
-		OperationContext(),
-		classReference.getNameSpace(),
-		classReference.getClassName(),
-		false,
-		false,
-		false,
-		Array<String>());
-
-	// convert instances to references;
-	for(Uint32 i = 0; i < _instances.size(); i++)
-	{
-		CIMObjectPath tempRef = _instances[i].getInstanceName(cimclass);
-
-		// ensure references are fully qualified
-		tempRef.setHost(classReference.getHost());
-		tempRef.setNameSpace(classReference.getNameSpace());
-
-		handler.deliver(tempRef);
-	}
+	Array<CIMObjectPath> instanceNames;
+	instanceNames = _enumerateInstanceNames(context, classReference);
+	handler.deliver(instanceNames);
 
 	// complete processing the request
 	handler.complete();
@@ -250,11 +231,11 @@ void HelloWorldProvider::modifyInstance(
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
-	const Array<String> & propertyList,
-	InstanceResponseHandler & handler)
+	const CIMPropertyList & propertyList,
+	ResponseHandler & handler)
 {
         // ATTN: Partial modification is not yet supported by this provider
-        if ((flags & OperationFlag::PARTIAL_INSTANCE) ||
+        if (!propertyList.isNull() ||
             !(flags & OperationFlag::INCLUDE_QUALIFIERS))
         {
             throw CIMException(CIM_ERR_NOT_SUPPORTED);
@@ -331,7 +312,7 @@ void HelloWorldProvider::createInstance(
 void HelloWorldProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	InstanceResponseHandler & handler)
+	ResponseHandler & handler)
 {
 	// synchronously get references
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
@@ -366,7 +347,7 @@ void HelloWorldProvider::provideIndication(
 	const CIMObjectPath & classReference,
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
 	handler.processing();
@@ -377,7 +358,7 @@ void HelloWorldProvider::updateIndication(
 	const CIMObjectPath & classReference,
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
 	handler.processing();
@@ -394,7 +375,7 @@ void HelloWorldProvider::cancelIndication(
 void HelloWorldProvider::checkIndication(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	const Array<String> & propertyList,
+	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
 	throw CIMNotSupportedException("HelloWorldProvider::checkIndication");
@@ -404,11 +385,31 @@ Array<CIMObjectPath> HelloWorldProvider::_enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference)
 {
-	SimpleObjectPathResponseHandler handler;
+	// get class definition from repository
+	CIMClass cimclass = _cimom.getClass(
+		OperationContext(),
+		classReference.getNameSpace(),
+		classReference.getClassName(),
+		false,
+		false,
+		false,
+		CIMPropertyList());
 
-	enumerateInstanceNames(context, classReference, handler);
+        Array<CIMObjectPath> instanceNames;
 
-	return(handler._objects);
+	// convert instances to references;
+	for(Uint32 i = 0; i < _instances.size(); i++)
+	{
+		CIMObjectPath tempRef = _instances[i].buildPath(cimclass);
+
+		// ensure references are fully qualified
+		tempRef.setHost(classReference.getHost());
+		tempRef.setNameSpace(classReference.getNameSpace());
+
+		instanceNames.append(tempRef);
+	}
+
+	return instanceNames;
 }
 
 void HelloWorldProvider::enableIndication(

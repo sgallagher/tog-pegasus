@@ -65,7 +65,8 @@ void _createHandlerInstance
 void _createFilterInstance 
     (CIMClient & client, 
      const String & name,
-     const String & query)
+     const String & query,
+     const String & qlang)
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty (CIMProperty (CIMName 
@@ -77,7 +78,7 @@ void _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("Name"), name));
     filterInstance.addProperty (CIMProperty (CIMName ("Query"), query));
     filterInstance.addProperty (CIMProperty (CIMName ("QueryLanguage"),
-        String ("WQL")));
+        String (qlang)));
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCENAMESPACE.getString ()));
 
@@ -256,16 +257,17 @@ void _usage ()
     PEGASUS_STD (cerr) 
         << "Usage: TestDisableEnable2 "
         << "{setup | create | sendSucceed | sendFail | sendBlock "
-        << "| delete | cleanup}" 
+        << "| delete | cleanup} {wql | cim:cql}" 
         << PEGASUS_STD (endl);
 }
 
-void _setup (CIMClient & client)
+void _setup (CIMClient & client, String& qlang)
 {
     try
     {
         _createFilterInstance (client, String ("DEFilter01"),
-            String ("SELECT MethodName FROM RT_TestIndication"));
+            String ("SELECT MethodName FROM RT_TestIndication"),
+            qlang);
         _createHandlerInstance (client, String ("DEHandler01"), 
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
     }
@@ -408,6 +410,47 @@ void _cleanup (CIMClient & client)
                        << PEGASUS_STD (endl);
 }
 
+int _test(CIMClient& client, const char* opt, String& qlang)
+{
+  if (String::equalNoCase (opt, "setup"))
+  {
+    _setup (client, qlang);
+  }
+  else if (String::equalNoCase (opt, "create"))
+  {
+    _create (client);
+  }
+  else if (String::equalNoCase (opt, "sendSucceed"))
+  {
+    _sendSucceed (client);
+  }
+  else if (String::equalNoCase (opt, "sendFail"))
+  {
+    _sendFail (client);
+  }
+  else if (String::equalNoCase (opt, "sendBlock"))
+  {
+    _sendBlock (client);
+  }
+  else if (String::equalNoCase (opt, "delete"))
+  {
+    _delete (client);
+  }
+  else if (String::equalNoCase (opt, "cleanup"))
+  {
+    _cleanup (client);
+  }
+  else
+  {
+    PEGASUS_STD (cerr) << "Invalid option: " << opt 
+                       << PEGASUS_STD (endl);
+    _usage ();
+    return -1;
+  }
+  
+  return 0;
+}
+
 int main (int argc, char** argv)
 {
     CIMClient client;
@@ -421,7 +464,7 @@ int main (int argc, char** argv)
         return -1;
     }
 
-    if (argc != 2)
+    if (argc != 3)
     {
         _usage ();
         return 1;
@@ -430,42 +473,22 @@ int main (int argc, char** argv)
     else
     {
         const char * opt = argv [1];
+        const char * optLang = argv [2];
+        String qlang(optLang);
 
-        if (String::equalNoCase (opt, "setup"))
+#ifdef PEGASUS_DISABLE_CQL
+        if (String::equalNoCase(qlang, "cim:cql"))
         {
-            _setup (client);
-        }
-        else if (String::equalNoCase (opt, "create"))
-        {
-            _create (client);
-        }
-        else if (String::equalNoCase (opt, "sendSucceed"))
-        {
-            _sendSucceed (client);
-        }
-        else if (String::equalNoCase (opt, "sendFail"))
-        {
-            _sendFail (client);
-        }
-        else if (String::equalNoCase (opt, "sendBlock"))
-        {
-            _sendBlock (client);
-        }
-        else if (String::equalNoCase (opt, "delete"))
-        {
-            _delete (client);
-        }
-        else if (String::equalNoCase (opt, "cleanup"))
-        {
-            _cleanup (client);
+          PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
+          return 0;
         }
         else
         {
-            PEGASUS_STD (cerr) << "Invalid option: " << opt 
-                << PEGASUS_STD (endl);
-            _usage ();
-            return -1;
+          return _test(client, opt, qlang);
         }
+#else
+        return _test(client, opt, qlang);
+#endif
     }
 
     return 0;

@@ -69,10 +69,27 @@ pegasus_base_identity & pegasus_base_identity::operator=(const pegasus_base_iden
 {
    if( &id != this)
    {
+      _rep->dereference();
+      if( _rep->get_reference() == 0 )
+	 delete _rep;
       _rep = id._rep;
    }
-
    return *this;
+}
+
+pegasus_base_identity *pegasus_base_identity::operator=(const pegasus_base_identity *id)
+{
+   if(id == NULL)
+      throw NullPointer();
+    
+   if( id != this)
+   {
+      _rep->dereference();
+      if( _rep->get_reference() == 0 )
+	 delete _rep;
+      _rep = id->_rep;
+   }
+   return this;
 }
 
 
@@ -103,13 +120,19 @@ pegasus_basic_identity::pegasus_basic_identity(const pegasus_basic_identity & id
 {
    
 }
-
 	 
 pegasus_basic_identity::~pegasus_basic_identity(void)
 {
+   // if we are the last handle to the identity, we need to clean up our 
+   // identity and credential types
+   // our parent will delete the actual representation of the identity
+   if( get_base_reference_count() == 1 )
+   {
+      delete reinterpret_cast<String *>(get_base_identity());
+      delete reinterpret_cast<String *>(get_base_credential());
+   }
 }
 
- 
 const String & pegasus_basic_identity::get_username(void)
 {
    return *(reinterpret_cast<const String *>( get_base_identity()));

@@ -84,7 +84,7 @@ void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message
    try  { _async_callback(msg_handle, msg, _module_address); }
    catch(...) { _thread_safety.unlock(); throw; }
 }
-
+ 
 void pegasus_module::module_rep::_send_shutdown_notify(void)
 {
    _thread_safety.lock(pegasus_thread_self());
@@ -101,14 +101,13 @@ void pegasus_module::module_rep::_send_shutdown_notify(void)
    _thread_safety.unlock();
 }
 
-
-
 pegasus_module::pegasus_module(ModuleController *controller, 
 			       const String &id, 
  			       void *module_address,
 			       Message * (*receive_message)(Message *, void *),
 			       void (*async_callback)(Uint32, Message *, void *),
 			       void (*shutdown_notify)(Uint32 code, void *))
+   :Base(new pegasus_internal_identity(peg_credential_types::MODULE))
 {
    _rep = new module_rep(controller, 
 			 id, 
@@ -116,9 +115,22 @@ pegasus_module::pegasus_module(ModuleController *controller,
 			 receive_message,
 			 async_callback,
 			 shutdown_notify);
+   _allowed_operations = ModuleController::GET_CLIENT_HANDLE |
+                         ModuleController::REGISTER_MODULE |
+                         ModuleController::DEREGISTER_MODULE | 
+                         ModuleController::FIND_SERVICE |
+                         ModuleController::FIND_MODULE_IN_SERVICE | 
+                         ModuleController::GET_MODULE_REFERENCE | 
+                         ModuleController::MODULE_SEND_WAIT | 
+                         ModuleController::MODULE_SEND_WAIT_MODULE | 
+                         ModuleController::MODULE_SEND_ASYNC | 
+                         ModuleController::MODULE_SEND_ASYNC_MODULE | 
+                         ModuleController::BLOCKING_THREAD_EXEC | 
+                         ModuleController::ASYNC_THREAD_EXEC;
 }
 
 pegasus_module::pegasus_module(const pegasus_module & mod)
+   : Base(mod) 
 {
    mod._rep->reference();
    _rep = mod._rep;
@@ -132,14 +144,41 @@ pegasus_module::~pegasus_module(void)
       delete _rep;
 }
 
+Boolean pegasus_module::authorized(Uint32 operation)
+{
+   return true;
+}
+
+Boolean pegasus_module::authorized(void)
+{
+   return true;
+}
+
+
 pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
 {   
-   (mod._rep->reference());
-   if ( _rep->reference_count() == 0 )
-      delete _rep;
-   _rep = mod._rep;
+   if( this != &mod)
+   {
+      if ( _rep->reference_count() == 0 )
+	 delete _rep;
+      _rep = mod._rep;
+      _id = mod._id;
+   }
    return *this;
 }
+
+pegasus_module * pegasus_module::operator=(const pegasus_module * mod)
+{
+   if(this != mod)
+   {
+      if( _rep->reference_count() == 0 )
+	 delete _rep;
+      _rep = mod->_rep;
+      _id = mod->_id;
+   }
+   return this;
+}
+
 
 Boolean pegasus_module::operator== (const pegasus_module *mod) const
 {
@@ -232,6 +271,13 @@ const Uint32 ModuleController::CLIENT_SEND_ASYNC =          0x00000800;
 const Uint32 ModuleController::CLIENT_SEND_ASYNC_MODULE =   0x00000800;
 const Uint32 ModuleController::CLIENT_BLOCKING_THREAD_EXEC =0x00001000;
 const Uint32 ModuleController::CLIENT_ASYNC_THREAD_EXEC =   0x00001000;
+
+
+Boolean ModuleController::client_handle::authorized(Uint32 operation)
+{
+   return true;
+}
+ 
 
 
 // NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined
@@ -724,6 +770,8 @@ void ModuleController::_handle_async_callback(AsyncOpNode *op)
    Base::_handle_async_callback(op);
    
 }
+
+
 
 
 PEGASUS_NAMESPACE_END

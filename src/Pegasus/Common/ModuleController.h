@@ -46,10 +46,10 @@ PEGASUS_NAMESPACE_BEGIN
 class ModuleController;
 
 
-class PEGASUS_COMMON_LINKAGE pegasus_module
+class PEGASUS_COMMON_LINKAGE pegasus_module : pegasus_authorization_handle
 {
    private: 
-      class PEGASUS_COMMON_LINKAGE module_rep 
+      class module_rep 
       {
 	 public:
 	    module_rep(ModuleController *controller, 
@@ -87,8 +87,25 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 	 private:
 	    module_rep(void);
 	    module_rep(const module_rep & );
-	    module_rep& operator= (const module_rep & );
+	    module_rep& operator= (const module_rep & rep)
+	    {
+	       if( this != &rep )
+	       {
+		  _reference_count++;
+	       }
+	       return *this;
+	    }
 	    
+	    module_rep *operator=(const module_rep *rep)
+	    {
+	       if( this != rep)
+	       {
+		  _reference_count++;
+	       }
+	       return this;
+	    }
+	    
+	    	    
 	    Mutex _thread_safety;
 	    ModuleController *_controller;
 	    String _name;
@@ -119,7 +136,8 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
       };
 
    public:
-
+      typedef pegasus_authorization_handle Base;
+      
       pegasus_module(ModuleController *controller, 
 		     const String &id, 
 		     void *module_address,
@@ -129,7 +147,12 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
       
       ~pegasus_module(void);
       
+      virtual Boolean authorized(Uint32 operation);
+      virtual Boolean authorized(void);
+      
       pegasus_module & operator= (const pegasus_module & mod);
+      pegasus_module * operator= (const pegasus_module * mod);
+      
       Boolean operator == (const pegasus_module *mod) const;
       Boolean operator == (const pegasus_module & mod) const ; 
       Boolean operator == (const String &  mod) const;
@@ -139,6 +162,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
             
       // introspection interface
       Boolean query_interface(const String & class_id, void **object_ptr) const;
+            
 
    private:
 
@@ -150,6 +174,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
       void _send_async_callback(Uint32 msg_handle, Message *msg) ;
       void _send_shutdown_notify(void);
       Boolean _shutdown(void);
+      bitset<32> _allowed_operations;
       
       void reference(void) { _rep->reference(); }
       void dereference(void)  { _rep->dereference(); }
@@ -185,21 +210,50 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       
 
    private: 
-      class PEGASUS_COMMON_LINKAGE client_handle : pegasus_authorization_handle
+      class client_handle : pegasus_authorization_handle
       {
 	 public:
 	    typedef pegasus_authorization_handle Base;
 	    
-	    client_handle(pegasus_base_identity & id)
+	    client_handle(void)
+	       :Base(new pegasus_internal_identity(peg_credential_types::SERVICE)),
+		allowed_operations( GET_CLIENT_HANDLE | 
+				    FIND_SERVICE | 
+				    FIND_MODULE_IN_SERVICE | 
+				    GET_MODULE_REFERENCE | 
+				    CLIENT_SEND_WAIT | 
+				    CLIENT_SEND_WAIT_MODULE | 
+				    CLIENT_SEND_ASYNC | 
+				    CLIENT_SEND_ASYNC_MODULE | 
+				    CLIENT_BLOCKING_THREAD_EXEC | 
+				    CLIENT_ASYNC_THREAD_EXEC) 
+	    {
+
+	    }
+	    
+	    client_handle(pegasus_base_identity *id)
 	       :Base(id)
 	    {
+	       if( id && (id->get_base_id_type() == peg_identity_types::INTERNAL ))
+	       {
+		  if (id->get_base_cred_type() == peg_credential_types::SERVICE )
+		     allowed_operations = ModuleController::CLIENT_SEND_WAIT | 
+					  ModuleController::CLIENT_SEND_WAIT_MODULE | 
+					  ModuleController::CLIENT_SEND_ASYNC | 
+					  ModuleController::CLIENT_SEND_ASYNC_MODULE | 
+					  ModuleController::CLIENT_BLOCKING_THREAD_EXEC | 
+					  ModuleController::CLIENT_ASYNC_THREAD_EXEC;
+		  else 
+		     allowed_operations = 0;
+	       }
+	       
 	    }
 	    ~client_handle(void);
 	    virtual Boolean authorized(Uint32 operation);
 	    virtual Boolean authorized(void);
 	    
 	 private:
-	    bitset<32> allowed_operations;
+	    bitset<64> allowed_operations;
       };
       
    public:

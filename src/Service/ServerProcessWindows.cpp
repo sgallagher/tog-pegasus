@@ -35,7 +35,7 @@
 //              Tony Fiorentino (fiorentino_tony@emc.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Steve Hills (steve.hills@ncr.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032, 2031
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -272,12 +272,13 @@ bool cimserver_install_nt_service(char *service_name)
 
   strcpy(descriptionname, _server_proc->getDescription());
 
-  GetModuleFileName(NULL, filename, sizeof(filename));
-  status = pegasus_service.Install(displayname, descriptionname, filename);
+  if(0 != GetModuleFileName(NULL, filename, sizeof(filename)))
+  {
+     status = pegasus_service.Install(displayname, descriptionname, filename);
 
-  // Upon success, set home in registry
-  if (status == Service::SERVICE_RETURN_SUCCESS)
-    {
+     // Upon success, set home in registry
+     if (status == Service::SERVICE_RETURN_SUCCESS)
+     {
       char pegasus_homepath[_MAX_PATH];
       System::extract_file_path(filename, pegasus_homepath);
       pegasus_homepath[strlen(pegasus_homepath)-1] = '\0';
@@ -285,8 +286,12 @@ bool cimserver_install_nt_service(char *service_name)
       System::extract_file_path(filename, pegasus_homepath);
       pegasus_homepath[strlen(pegasus_homepath)-1] = '\0';
       _setRegInfo(g_cimservice_home, pegasus_homepath);
-    }
-
+     }
+  }
+  else
+  {
+    status = (Service::ReturnCode) GetLastError();
+  }
   return (status == Service::SERVICE_RETURN_SUCCESS) ? true : false;
 }
 
@@ -434,50 +439,51 @@ String ServerProcess::getHome(void)
   // Determine the absolute path to the running program
   char exe_pathname[_MAX_PATH] = {0};
   char home_pathname[_MAX_PATH] = {0};
-  GetModuleFileName(NULL, exe_pathname, sizeof(exe_pathname));
+  if(0 != GetModuleFileName(NULL, exe_pathname, sizeof(exe_pathname)))
+  {
 
-  // Pegasus home search rules:
-  // - look in registry (if set)
-  // - if not found, look in PEGASUS_HOME (if set)
-  // - if not found, use exe directory minus one level
+    // Pegasus home search rules:
+    // - look in registry (if set)
+    // - if not found, look in PEGASUS_HOME (if set)
+    // - if not found, use exe directory minus one level
 
-  bool found_reg = _getRegInfo("home", home_pathname);
-  if (found_reg == true)
-    {
-      // Make sure home matches
-      String current_home(home_pathname);
-      String current_exe(exe_pathname);
-      current_home.toLower();
-      current_exe.toLower();
+    bool found_reg = _getRegInfo("home", home_pathname);
+    if (found_reg == true)
+      {
+        // Make sure home matches
+        String current_home(home_pathname);
+        String current_exe(exe_pathname);
+        current_home.toLower();
+        current_exe.toLower();
 
-      Uint32 pos = current_exe.find(current_home);
-      if (pos != PEG_NOT_FOUND)
-        {
-          home = home_pathname;
-        }
-      else
-        {
-          found_reg = false;
-        }
-    }
-  if (found_reg == false)
-    {
-      const char* tmp = getenv("PEGASUS_HOME");
-      if (tmp)
-        {
-          home = tmp;
-        }
-      else
-        {
-          // ASSUMPTION: At a minimum, the cimserver program is running
-          // from a "bin" directory
-          home = FileSystem::extractFilePath(exe_pathname);
-          home.remove(home.size()-1, 1);
-          home = FileSystem::extractFilePath(home);
-          home.remove(home.size()-1, 1);
-        }
-    }
-
+        Uint32 pos = current_exe.find(current_home);
+        if (pos != PEG_NOT_FOUND)
+          {
+            home = home_pathname;
+          }
+        else
+          {
+            found_reg = false;
+          }
+      }
+    if (found_reg == false)
+      {
+        const char* tmp = getenv("PEGASUS_HOME");
+        if (tmp)
+          {
+            home = tmp;
+          }
+        else
+          {
+            // ASSUMPTION: At a minimum, the cimserver program is running
+            // from a "bin" directory
+            home = FileSystem::extractFilePath(exe_pathname);
+            home.remove(home.size()-1, 1);
+            home = FileSystem::extractFilePath(home);
+            home.remove(home.size()-1, 1);
+          }
+      }
+  }
     return home;
 }
 

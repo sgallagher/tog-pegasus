@@ -7,6 +7,7 @@
 #
 ROOT = .
 
+include $(ROOT)/env_var.status
 include $(ROOT)/mak/config.mak
 
 # This is a recurse make file
@@ -53,6 +54,9 @@ removetestrepository: FORCE
 	@ $(MAKE) -SC src/Providers/sample/Load removerepository
 	@ $(MAKE) -SC test/wetest removerepository
 	@ $(MAKE) -SC src/Clients/benchmarkTest/Load removerepository
+
+config:
+	@ $(ROOT)/SetConfig_EnvVar
 
 all: messages 
 

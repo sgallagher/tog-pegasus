@@ -5,6 +5,12 @@
 ##
 ################################################################################
 
+ifndef ROOT
+    ROOT =  $(subst \,/,$(PEGASUS_ROOT))
+endif
+
+include $(ROOT)/env_var.status
+
 ifdef PEGASUS_HOME
   HOME_DIR = $(subst \,/,$(PEGASUS_HOME))
 else

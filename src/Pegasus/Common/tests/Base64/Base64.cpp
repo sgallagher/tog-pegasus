@@ -91,7 +91,7 @@ int main(int argc, char** argv)
         assert(out.size() == 3);
         // The result should be all zeros.
         for (Uint32 i = 0; i < out.size(); i++)
-            if (out[i] != 255)
+            if (out[i] != 0xFF) //char 255
             {
                 if(verbose)
                  cout << "Decode error " << static_cast<int>(out[i]) << endl;   
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
     }
 
 
-    // Test with buffer of char 255
+    // Test with buffer of char 0xFF (255)
 	if(verbose)
 		cout << "Test 3 -- Test all 1s in buffer" << endl;
     {
@@ -184,7 +184,7 @@ int main(int argc, char** argv)
         
         for (Uint32 i = 0; i < maxLength; i++)
         {
-            in.append(255);   
+            in.append(0xFF); //char 255   
             Array<char> temp = Base64::encode(in);
             out = Base64::decode(temp);
 
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
         
         for (Uint32 i = 0; i < maxLength; i++)
         {
-            in.append(255);   
+            in.append(0xFF);   //char 255
             out = Base64::decode(Base64::encode(in));
 
             assert(in == out);

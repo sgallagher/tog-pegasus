@@ -337,6 +337,7 @@ public:
 
     /// ATTN: should return Array<CIMObject>
     virtual Array<CIMInstance> execQuery(
+	const String& nameSpace,
 	const String& queryLanguage,
 	const String& query) ;
 

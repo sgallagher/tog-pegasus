@@ -137,6 +137,9 @@ public:
       void handleEnumerateQualifiersRequest(
 	 CIMEnumerateQualifiersRequestMessage* request);
 
+      void handleExecQueryRequest(
+	 CIMExecQueryRequestMessage* request);
+
       void handleInvokeMethodRequest(
 	 CIMInvokeMethodRequestMessage* request);
 

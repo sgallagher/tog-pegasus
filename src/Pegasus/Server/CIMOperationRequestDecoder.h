@@ -276,6 +276,14 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 const String& authType,
 	 const String& userName);
 
+      CIMExecQueryRequestMessage* decodeExecQueryRequest(
+	 Uint32 queueId,
+	 XmlParser& parser, 
+	 const String& messageId,
+	 const String& nameSpace,
+	 const String& authType,
+	 const String& userName);
+
       CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
 	 Uint32 queueId,
 	 XmlParser& parser, 

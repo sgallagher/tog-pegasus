@@ -49,32 +49,25 @@ CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer(
    _outputQueue(outputQueue),
    _serverTerminating(false)
 {
-   const char METHOD_NAME[] = 
-      "CIMOperationRequestAuthorizer::CIMOperationRequestAuthorizer()";
+   PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::"
+                    "CIMOperationRequestAuthorizer");
 
-   PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
-
-   PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+   PEG_METHOD_EXIT();
 }
 
 CIMOperationRequestAuthorizer::~CIMOperationRequestAuthorizer()
 {
-   const char METHOD_NAME[] = 
-      "CIMOperationRequestAuthorizer::~CIMOperationRequestAuthorizer()";
+   PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::"
+                    "~CIMOperationRequestAuthorizer");
 
-   PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
-
-   PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestAuthorizer::sendResponse(
    Uint32 queueId,
    Array<Sint8>& message)
 {
-   const char METHOD_NAME[] = 
-      "CIMOperationRequestAuthorizer::sendResponse()";
-
-   PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+   PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::sendResponse");
 
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
@@ -83,7 +76,7 @@ void CIMOperationRequestAuthorizer::sendResponse(
       HTTPMessage* httpMessage = new HTTPMessage(message);
       queue->enqueue(httpMessage);
    }
-   PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+   PEG_METHOD_EXIT();
 }
 
 // Code is duplicated in CIMOperationRequestDecoder
@@ -94,10 +87,8 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
    CIMStatusCode code,
    const String& description)
 {
-    const char METHOD_NAME[] = 
-       "CIMOperationRequestAuthorizer::sendIMethodError()";
-
-    PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_SERVER,
+                     "CIMOperationRequestAuthorizer::sendIMethodError");
 
     Array<Sint8> message;
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
@@ -108,7 +99,7 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
 
     sendResponse(queueId, message);
 
-    PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -117,16 +108,11 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
 void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 {
 
-   const char METHOD_NAME[] = 
-      "CIMOperationRequestAuthorizer::handleEnqueue()";
-
-   PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
-
-
+   PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::handleEnqueue");
 
    if (!request)
    {
-      PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -137,13 +123,9 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 
    Uint32 queueId = qis.top();
 
-
    String userName = String::EMPTY;
-
    String authType = String::EMPTY;
-
    String nameSpace = String::EMPTY;
-
    String cimMethodName = String::EMPTY;
 
    switch (request->getType())
@@ -377,7 +359,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 CIM_ERR_FAILED,
 	 description);
 
-      PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+      PEG_METHOD_EXIT();
 
       return;
    }
@@ -417,7 +399,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	    CIM_ERR_FAILED,
 	    description);
 
-	 PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+	 PEG_METHOD_EXIT();
 
 	 return;
       }
@@ -440,7 +422,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 	 CIM_ERR_ACCESS_DENIED,
 	 description);
 
-      PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+      PEG_METHOD_EXIT();
 
       return;
    }
@@ -450,40 +432,38 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    //
    _outputQueue->enqueue(request);
 
-   PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+   PEG_METHOD_EXIT();
 
 }
 
 
 void CIMOperationRequestAuthorizer::handleEnqueue()
 {
+   PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::handleEnqueue");
+
    Message* request = dequeue();
    if( request )
       handleEnqueue(request);
+
+   PEG_METHOD_EXIT();
 }
 
 const char* CIMOperationRequestAuthorizer::getQueueName() const
 {
-   const char METHOD_NAME[] = 
-      "CIMOperationRequestAuthorizer::getQueueName()";
+   PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::getQueueName");
 
-   PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
-
-   PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
-
+   PEG_METHOD_EXIT();
    return PEGASUS_SERVICENAME_CIMOPREQAUTHORIZER;
 }
 
 void CIMOperationRequestAuthorizer::setServerTerminating(Boolean flag)
 {
-   const char METHOD_NAME[] = 
-      "CIMOperationRequestAuthorizer::setServerTerminating()";
-
-   PEG_FUNC_ENTER(TRC_SERVER, METHOD_NAME);
+   PEG_METHOD_ENTER(TRC_SERVER,
+                    "CIMOperationRequestAuthorizer::setServerTerminating");
 
    _serverTerminating = flag;
 
-   PEG_FUNC_EXIT(TRC_SERVER, METHOD_NAME);
+   PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

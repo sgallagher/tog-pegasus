@@ -131,6 +131,9 @@ private:
     void _encodeAssociatorsRequest(
 	CIMAssociatorsRequestMessage* message);
 
+    void _encodeExecQueryRequest(
+	CIMAssociatorsRequestMessage* message);
+
     void _encodeInvokeMethodRequest(
 	CIMInvokeMethodRequestMessage* message);
 

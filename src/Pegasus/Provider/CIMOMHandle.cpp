@@ -606,6 +606,7 @@ void CIMOMHandle::deleteInstanceAsync(
 
 Array<CIMInstance> CIMOMHandle::execQuery(
     const OperationContext & context,
+    const String& nameSpace,
     const String& queryLanguage,
     const String& query)
 {
@@ -617,6 +618,7 @@ Array<CIMInstance> CIMOMHandle::execQuery(
     CIMExecQueryRequestMessage * request =
 	new CIMExecQueryRequestMessage(
 	    XmlWriter::getNextMessageId(),
+	    nameSpace,
 	    queryLanguage,
 	    query,
 	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
@@ -628,6 +630,7 @@ Array<CIMInstance> CIMOMHandle::execQuery(
 
 void CIMOMHandle::execQueryAsync(
     const OperationContext & context,
+    const String& nameSpace,
     const String& queryLanguage,
     const String& query,
     ResponseHandler<CIMObject> & handler)

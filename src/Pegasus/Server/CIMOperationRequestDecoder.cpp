@@ -624,6 +624,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	 else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
 	    request = decodeSetPropertyRequest(
 	       queueId, parser, messageId, nameSpace, authType, userName);
+	 else if (CompareNoCase(cimMethodName, "ExecQuery") == 0)
+	    request = decodeExecQueryRequest(
+	       queueId, parser, messageId, nameSpace, authType, userName);
 	 else
 	 {
 	    String description = "Unknown intrinsic method: ";
@@ -942,13 +945,6 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
    {
       if (CompareNoCase(name, "ClassName") == 0)
       {
-	 /* ATTN-KS: Should be getStringValueElement(
-	    parser, qualifierName, true)
-	    Note that this could trip up the client
-	 */
-	 /* ATTN-RK: Section 2.4.1 of the Specification for CIM Operations
-	    over HTTP indicates that the CLASSNAME tag is correct.
-	 */
 	 XmlReader::getClassNameElement(parser, className, true);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
@@ -2343,6 +2339,65 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
       QueueIdStack(queueId, _returnQueueId),
       authType,
       userName);
+
+   return(request);
+}
+
+CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
+   Uint32 queueId,
+   XmlParser& parser, 
+   const String& messageId,
+   const String& nameSpace,
+   const String& authType,
+   const String& userName)
+{
+   String queryLanguage;
+   String query;
+   Boolean duplicateParameter = false;
+   Boolean gotQueryLanguage = false;
+   Boolean gotQuery = false;
+
+   for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+   {
+      if (CompareNoCase(name, "QueryLanguage") == 0)
+      {
+	 XmlReader::getStringValueElement(parser, queryLanguage, true);
+	 duplicateParameter = gotQueryLanguage;
+	 gotQueryLanguage = true;
+      }
+      else if (CompareNoCase(name, "Query") == 0)
+      {
+	 XmlReader::getStringValueElement(parser, query, true);
+	 duplicateParameter = gotQuery;
+	 gotQuery = true;
+      }
+      else
+      {
+	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
+      }
+
+      XmlReader::expectEndTag(parser, "IPARAMVALUE");
+
+      if (duplicateParameter)
+      {
+	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
+      }
+   }
+
+   if (!gotQueryLanguage || !gotQuery)
+   {
+      throw CIMException(CIM_ERR_INVALID_PARAMETER);
+   }
+
+   CIMExecQueryRequestMessage* request = 
+      new CIMExecQueryRequestMessage(
+	 messageId,
+	 nameSpace,
+	 queryLanguage,
+	 query,
+	 QueueIdStack(queueId, _returnQueueId),
+	 authType,
+	 userName);
 
    return(request);
 }

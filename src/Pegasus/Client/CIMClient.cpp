@@ -618,6 +618,7 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
 }
 
 Array<CIMInstance> CIMClient::execQuery(
+    const String& nameSpace,
     const String& queryLanguage,
     const String& query)
 {
@@ -625,6 +626,7 @@ Array<CIMInstance> CIMClient::execQuery(
     
     Message* request = new CIMExecQueryRequestMessage(
 	messageId,
+	nameSpace,
 	queryLanguage,
 	query,
 	QueueIdStack());

@@ -164,8 +164,9 @@ void CIMOperationRequestEncoder::handleEnqueue()
 		(CIMAssociatorsRequestMessage*)message);
 	    break;
 
-	// ATTN: implement this!
 	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+	    _encodeExecQueryRequest(
+		(CIMExecQueryRequestMessage*)message);
 	    break;
 
 	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
@@ -658,6 +659,24 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 
     Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, "Associators", message->messageId,
+        _authenticator->buildRequestAuthHeader(), params);
+
+    _outputQueue->enqueue(new HTTPMessage(buffer));
+}
+
+void CIMOperationRequestEncoder::_encodeExecQueryRequest(
+    CIMExecQueryRequestMessage* message)
+{
+    Array<Sint8> params;
+
+    XmlWriter::appendStringIParameter(
+	params, "QueryLanguage", message->queryLanguage);
+
+    XmlWriter::appendStringIParameter(
+	params, "Query", message->query);
+
+    Array<Sint8> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+        message->nameSpace, "ExecQuery", message->messageId,
         _authenticator->buildRequestAuthHeader(), params);
 
     _outputQueue->enqueue(new HTTPMessage(buffer));

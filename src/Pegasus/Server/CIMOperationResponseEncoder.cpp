@@ -65,7 +65,8 @@ void CIMOperationResponseEncoder::sendResponse(
    Uint32 queueId, 
    Array<Sint8>& message)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::sendResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::sendResponse()");
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
    if (queue)
@@ -87,7 +88,7 @@ void CIMOperationResponseEncoder::sendResponse(
 		    "Invalid queueId = %i, response not sent.", queueId);
    }
 
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::sendResponse()");
+   PEG_METHOD_EXIT();
 }
 
 // Code is duplicated in CIMOperationRequestDecoder
@@ -98,8 +99,8 @@ void CIMOperationResponseEncoder::sendIMethodError(
    CIMStatusCode code,
    const String& description) 
 {
-    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		   "sendIMethodError()");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+                     "CIMOperationResponseEncoder::sendIMethodError()");
 
     Array<Sint8> message;
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
@@ -110,16 +111,15 @@ void CIMOperationResponseEncoder::sendIMethodError(
 
     sendResponse(queueId, message);
 
-    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "sendIMethodError()");
+    PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::sendIMethodError(
    CIMResponseMessage* response,
    const String& cimMethodName)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "sendIMethodError()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::sendIMethodError()");
 
    Uint32 queueId = response->queueIds.top();
    response->queueIds.pop();
@@ -131,8 +131,7 @@ void CIMOperationResponseEncoder::sendIMethodError(
       response->errorCode, 
       response->errorDescription);
 
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "sendIMethodError()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::sendMethodError(
@@ -142,8 +141,8 @@ void CIMOperationResponseEncoder::sendMethodError(
    CIMStatusCode code,
    const String& description) 
 {
-    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		   "sendMethodError()");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+                     "CIMOperationResponseEncoder::sendMethodError()");
 
     Array<Sint8> message;
     message = XmlWriter::formatSimpleMethodErrorRspMessage(
@@ -154,16 +153,15 @@ void CIMOperationResponseEncoder::sendMethodError(
 
     sendResponse(queueId, message);
 
-    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "sendMethodError()");
+    PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::sendMethodError(
    CIMResponseMessage* response,
    const String& cimMethodName)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "sendMethodError()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::sendMethodError()");
 
    Uint32 queueId = response->queueIds.top();
    response->queueIds.pop();
@@ -174,20 +172,19 @@ void CIMOperationResponseEncoder::sendMethodError(
       cimMethodName, 
       response->errorCode, 
       response->errorDescription);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "sendMethodError()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::handleEnqueue(Message *message)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::handleEnqueue()");
+
    if (!message)
    {
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "handleEnqueue()");
+      PEG_METHOD_EXIT();
       return;
    }
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "handleEnqueue()");
    
    switch (message->getType())
    {
@@ -251,8 +248,9 @@ void CIMOperationResponseEncoder::handleEnqueue(Message *message)
 	    (CIMEnumerateInstanceNamesResponseMessage*)message);
 	 break;
 
-	 // ATTN: implement this!
       case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
+	 encodeExecQueryResponse(
+	    (CIMExecQueryResponseMessage*)message);
 	 break;
 
       case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
@@ -313,8 +311,7 @@ void CIMOperationResponseEncoder::handleEnqueue(Message *message)
 
    delete message;
 
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "handleEnqueue()");
+   PEG_METHOD_EXIT();
     
    return;
     
@@ -337,14 +334,13 @@ const char* CIMOperationResponseEncoder::getQueueName() const
 void CIMOperationResponseEncoder::encodeCreateClassResponse(
    CIMCreateClassResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeCreateClassResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeCreateClassResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "CreateClass");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeCreateClassResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -355,21 +351,19 @@ void CIMOperationResponseEncoder::encodeCreateClassResponse(
 
    sendResponse(response->queueIds.top(), message);
 
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeCreateClassResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeGetClassResponse(
    CIMGetClassResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeGetClassResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeGetClassResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "GetClass");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeGetClassResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -381,21 +375,19 @@ void CIMOperationResponseEncoder::encodeGetClassResponse(
 
    sendResponse(response->queueIds.top(), message);
 
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeGetClassResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeModifyClassResponse(
    CIMModifyClassResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeModifyClassResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeModifyClassResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "ModifyClass");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeModifyClassResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -406,21 +398,19 @@ void CIMOperationResponseEncoder::encodeModifyClassResponse(
 
    sendResponse(response->queueIds.top(), message);
 
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeModifyClassResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
    CIMEnumerateClassNamesResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeEnumerateClassNamesResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeEnumerateClassNamesResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "EnumerateClassNames");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeEnumerateClassNamesResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -434,21 +424,19 @@ void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
 
    sendResponse(response->queueIds.top(), message);
 
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeEnumerateClassNamesResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
    CIMEnumerateClassesResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeEnumerateClassesResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeEnumerateClassesResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "EnumerateClasses");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeEnumerateClassesResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -461,21 +449,19 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
       "EnumerateClasses", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeEnumerateClassesResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeDeleteClassResponse(
    CIMDeleteClassResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeDeleteClassResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeDeleteClassResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "DeleteClass");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeDeleteClassResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -485,21 +471,19 @@ void CIMOperationResponseEncoder::encodeDeleteClassResponse(
       "DeleteClass", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeDeleteClassResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
    CIMCreateInstanceResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeCreateInstanceResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeCreateInstanceResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "CreateInstance");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeCreateInstanceResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -511,21 +495,19 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
       "CreateInstance", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeCreateInstanceResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeGetInstanceResponse(
    CIMGetInstanceResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeGetInstanceResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeGetInstanceResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "GetInstance");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeGetInstanceResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -536,21 +518,19 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
       "GetInstance", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeGetInstanceResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
    CIMModifyInstanceResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeModifyInstanceResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeModifyInstanceResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "ModifyInstance");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeModifyInstanceResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -560,21 +540,19 @@ void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
       "ModifyInstance", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeModifyInstanceResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
    CIMEnumerateInstancesResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeEnumerateInstancesResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeEnumerateInstancesResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "EnumerateInstances");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeEnumerateInstanceResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -587,21 +565,19 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
       "EnumerateInstances", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeEnumerateInstanceResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
    CIMEnumerateInstanceNamesResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeEnumerateInstanceNamesResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeEnumerateInstanceNamesResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "EnumerateInstanceNames");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeEnumerateInstanceNamesResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -614,21 +590,19 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
       "EnumerateInstanceNames", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeEnumerateInstanceNamesResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
    CIMDeleteInstanceResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeDeleteInstanceResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeDeleteInstanceResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "DeleteInstance");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeDeleteInstanceResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -638,21 +612,19 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
       "DeleteInstance", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeDeleteInstanceResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeGetPropertyResponse(
    CIMGetPropertyResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeGetPropertyResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeGetPropertyResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "GetProperty");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeGetPropertyResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -666,21 +638,19 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
       "GetProperty", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeGetPropertyResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeSetPropertyResponse(
    CIMSetPropertyResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeSetPropertyResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeSetPropertyResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "SetProperty");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeSetPropertyResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -690,21 +660,19 @@ void CIMOperationResponseEncoder::encodeSetPropertyResponse(
       "SetProperty", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeSetPropertyResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeSetQualifierResponse(
    CIMSetQualifierResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeSetQualifierResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeSetQualifierResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "SetQualifier");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeSetQualifierResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -714,21 +682,19 @@ void CIMOperationResponseEncoder::encodeSetQualifierResponse(
       "SetQualifier", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeSetQualifierResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeGetQualifierResponse(
    CIMGetQualifierResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeGetQualifierResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeGetQualifierResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "GetQualifier");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeGetQualifierResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -739,21 +705,19 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
       "GetQualifier", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeGetQualifierResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
    CIMEnumerateQualifiersResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeEnumerateQualifierResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeEnumerateQualifierResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "EnumerateQualifiers");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeEnumerateQualifierResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -766,21 +730,19 @@ void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
       "EnumerateQualifiers", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeEnumerateQualifierResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
    CIMDeleteQualifierResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeDeleteQualifierResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeDeleteQualifierResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "DeleteQualifier");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeDeleteQualifierResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -790,21 +752,19 @@ void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
       "DeleteQualifier", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeDeleteQualifierResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
    CIMReferenceNamesResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeReferenceNamesResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeReferenceNamesResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "ReferenceNames");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeReferenceNamesResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -821,21 +781,19 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
       "ReferenceNames", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeReferenceNamesResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeReferencesResponse(
    CIMReferencesResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeReferencesResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeReferencesResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "References");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeReferencesResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -848,21 +806,19 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
       "References", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeReferencesResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
    CIMAssociatorNamesResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeAssociatorNamesResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeAssociatorNamesResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "AssociatorNames");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeAssociatorNamesResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -879,21 +835,19 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
       "AssociatorNames", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeAssociatorNamesResponse()");
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeAssociatorsResponse(
    CIMAssociatorsResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeAssociatorsResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeAssociatorsResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendIMethodError(response, "Associators");
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeAssociatorsResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -906,21 +860,44 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
       "Associators", response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeAssociatorsResponse()");
+   PEG_METHOD_EXIT();
+}
+
+void CIMOperationResponseEncoder::encodeExecQueryResponse(
+   CIMExecQueryResponseMessage* response)
+{
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+                    "CIMOperationResponseEncoder::encodeExecQueryResponse()");
+
+   if (response->errorCode != CIM_ERR_SUCCESS)
+   {
+      sendIMethodError(response, "ExecQuery");
+      PEG_METHOD_EXIT();
+      return;
+   }
+
+   Array<Sint8> body;
+
+   for (Uint32 i = 0; i < response->cimInstances.size(); i++)
+      response->cimInstances[i].toXml(body);
+
+   Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
+      "ExecQuery", response->messageId, body);
+
+   sendResponse(response->queueIds.top(), message);
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
    CIMInvokeMethodResponseMessage* response)
 {
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		  "encodeInvokeMethodResponse()");
+   PEG_METHOD_ENTER(TRC_DISPATCHER, "CIMOperationResponseEncoder::"
+		    "encodeInvokeMethodResponse()");
 
    if (response->errorCode != CIM_ERR_SUCCESS)
    {
       sendMethodError(response, response->methodName);
-      PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		    "encodeInvokeMethodResponse()");
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -939,8 +916,7 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
       _CString(response->methodName), response->messageId, body);
 
    sendResponse(response->queueIds.top(), message);
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"
-		 "encodeInvokeMethodResponse()");
+   PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

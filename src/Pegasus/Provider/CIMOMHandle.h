@@ -232,11 +232,13 @@ public:
 
     virtual Array<CIMInstance> execQuery(
 	const OperationContext & context,
+	const String& nameSpace,
 	const String& queryLanguage,
 	const String& query);
 
     virtual void execQueryAsync(
 	const OperationContext & context,
+	const String& nameSpace,
 	const String& queryLanguage,
 	const String& query,
 	ResponseHandler<CIMObject> & handler);

@@ -412,8 +412,9 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 	    (CIMEnumerateInstanceNamesRequestMessage*)request);
 	 break;
 
-	 // ATTN: implement this!
       case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+	 handleExecQueryRequest(
+	    (CIMExecQueryRequestMessage*)request);
 	 break;
 
       case CIM_ASSOCIATORS_REQUEST_MESSAGE:
@@ -2228,6 +2229,29 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 	 errorDescription,
 	 request->queueIds.copyAndPop(),
 	 qualifierDeclarations);
+
+   _enqueueResponse(request, response);
+
+   PEG_METHOD_EXIT();
+}
+
+void CIMOperationRequestDispatcher::handleExecQueryRequest(
+   CIMExecQueryRequestMessage* request)
+{
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleExecQueryRequest()");
+
+   CIMStatusCode errorCode = CIM_ERR_NOT_SUPPORTED;
+   String errorDescription = PEGASUS_CIM_EXCEPTION(errorCode, "ExecQuery").getMessage();
+   Array<CIMInstance> cimInstances;
+
+   CIMExecQueryResponseMessage* response =
+      new CIMExecQueryResponseMessage(
+	 request->messageId,
+	 errorCode,
+	 errorDescription,
+	 request->queueIds.copyAndPop(),
+	 cimInstances);
 
    _enqueueResponse(request, response);
 

@@ -568,6 +568,7 @@ class CIMExecQueryRequestMessage : public CIMRequestMessage
 
       CIMExecQueryRequestMessage(
 	 const String& messageId_,
+	 const String& nameSpace_,
 	 const String& queryLanguage_,
 	 const String& query_,
 	 QueueIdStack queueIds_,
@@ -575,6 +576,7 @@ class CIMExecQueryRequestMessage : public CIMRequestMessage
 	 const String& userName_ = String::EMPTY)
 	 :
 	 CIMRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_),
+	 nameSpace(nameSpace_),
 	 queryLanguage(queryLanguage_),
 	 query(query_),
 	 authType(authType_),
@@ -582,6 +584,7 @@ class CIMExecQueryRequestMessage : public CIMRequestMessage
       {
       }
 
+      String nameSpace;
       String queryLanguage;
       String query;
       String authType;

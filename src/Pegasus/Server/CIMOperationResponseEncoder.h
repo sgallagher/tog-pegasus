@@ -135,6 +135,9 @@ class CIMOperationResponseEncoder : public MessageQueueService
       void encodeAssociatorsResponse(
 	 CIMAssociatorsResponseMessage* response);
 
+      void encodeExecQueryResponse(
+	 CIMExecQueryResponseMessage* response);
+
       void encodeInvokeMethodResponse(
 	 CIMInvokeMethodResponseMessage* response);
 

@@ -27,7 +27,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "PAMBasicAuthenticator.h"
 
 #ifdef PEGASUS_OS_HPUX
 # include "PAMBasicAuthenticatorUnix.cpp"

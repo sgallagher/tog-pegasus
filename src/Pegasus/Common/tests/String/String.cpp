@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -79,7 +79,12 @@ int main(int argc, char** argv)
 #endif
 
 #ifdef HAVE_SSTREAM
-	const char* tmp = os.str().c_str();
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    string os_str = os.str();
+    const char* tmp = os_str.c_str();
+#else
+    const char* tmp = os.str().c_str();
+#endif
 #endif
 #ifdef HAVE_STRSTREAM
 	char *tmp = os.str();
@@ -234,7 +239,7 @@ int main(int argc, char** argv)
 	// comparison and equals
 	// compare is for null term strings
 	// therefore following does not work.
-	//assert(String::compare(t1,t2) == -1); 
+	//assert(String::compare(t1,t2) == -1);
     }
 
     {
@@ -300,14 +305,14 @@ int main(int argc, char** argv)
 
     {
 	// Test String unicode enablement
-	char utf8chr[]    = {  
+	char utf8chr[]    = {
                               0xCE,0x99,0xCE,0xBF,0xCF,0x8D,0xCE,0xBD,0xCE,
                               0xB9,0xCE,0xBA,0xCE,0xBF,0xCE,0xBD,0xCF,0x84,
                               0x00
-                            }; // utf8 string with mutliple byte characters  
-	char utf8bad[]    = {  
+                            }; // utf8 string with mutliple byte characters
+	char utf8bad[]    = {
                               0xFF,0xFF,0xFF
-                            }; // utf8 string with mutliple byte characters 
+                            }; // utf8 string with mutliple byte characters
         Char16 utf16chr[] =	{
 					  0x0399,0x03BF,0x03CD,0x03BD,0x03B9,
                               0x03BA,0x03BF,0x03BD,0x03C4,0x00
@@ -325,9 +330,9 @@ int main(int argc, char** argv)
 	
 	assert(utf16string == utf8string);
 	assert(utf16string == utf16merge);
-        assert(utf16string == utf16chr); 
-	assert(utf8string  == utf16chr); 
-        
+        assert(utf16string == utf16chr);
+	assert(utf8string  == utf16chr);
+
 	assert(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
 	assert(strcmp(utf8string.getCString(),utf8chr) == 0);
         assert(strcmp(utf16string.getCString(),utf8chr) == 0);
@@ -348,8 +353,8 @@ int main(int argc, char** argv)
 	{
 	  	assert(isUTF8(&utf8bad[count]) == false);
 	   	UTF8_NEXT(utf8bad,count);
-       	}    
-        String little("the quick brown fox jumped over the lazy dog"); 
+       	}
+        String little("the quick brown fox jumped over the lazy dog");
         String    big("THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG");
 
 	String tmpBig = big;
@@ -365,17 +370,17 @@ int main(int argc, char** argv)
         {
         0x6A19,	0x6E96,	0x842C, 0x570B,	0x78BC,
         0x042E, 0x043D, 0x0438, 0x043A, 0x043E, 0x0434,
-        0x110B, 0x1172, 0x1102, 0x1165, 0x110F, 0x1169, 0x11AE, 
+        0x110B, 0x1172, 0x1102, 0x1165, 0x110F, 0x1169, 0x11AE,
         0x10E3, 0x10DC, 0x10D8, 0x10D9, 0x10DD, 0x10D3, 0x10D8,
-	0xdbc0,	0xdc01, 
+	0xdbc0,	0xdc01,
         0x05D9, 0x05D5, 0x05E0, 0x05D9, 0x05E7, 0x05D0, 0x05B8, 0x05D3,
         0x064A, 0x0648, 0x0646, 0x0650, 0x0643, 0x0648, 0x062F,
         0x092F, 0x0942, 0x0928, 0x093F, 0x0915, 0x094B, 0x0921,
         0x016A, 0x006E, 0x012D, 0x0063, 0x014D, 0x0064, 0x0065, 0x033D,
         0x00E0, 0x248B, 0x0061, 0x2173, 0x0062, 0x1EA6, 0xFF21, 0x00AA, 0x0325, 0x2173, 0x249C, 0x0063,
         0x02C8, 0x006A, 0x0075, 0x006E, 0x026A, 0x02CC, 0x006B, 0x006F, 0x02D0, 0x0064,
-        0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9, 
-        0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E, 
+        0x30E6, 0x30CB, 0x30B3, 0x30FC, 0x30C9,
+        0xFF95, 0xFF86, 0xFF7A, 0xFF70, 0xFF84, 0xFF9E,
         0xC720, 0xB2C8, 0xCF5B, 0x7D71, 0x4E00, 0x78BC,
 	0xdbc0,	0xdc01,
         0x00};
@@ -390,9 +395,9 @@ int main(int argc, char** argv)
 	ugly.toUpper("zh_CN");
 	assert(ugly != utf16Chars);
 #endif
- 
+
     }
-                             
+
 #if 0
     // The match code has been removed from the String class
     // Test the string match functions

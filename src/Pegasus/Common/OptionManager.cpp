@@ -97,50 +97,50 @@ void OptionManager::registerOption(Option* option)
     _options.append(option);
 }
 
-void OptionManager::registerOptions(OptionRow* options, Uint32 numOptions)
+void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
 {
     for (Uint32 i = 0; i < numOptions; i++)
     {
 	// Get option name:
 
-	if (!options[i].optionName)
+	if (!optionRow[i].optionName)
 	    throw NullPointer();
 
-	String optionName = options[i].optionName;
+	String optionName = optionRow[i].optionName;
 
 	// Get default value:
 
 	String defaultValue;
 
-	if (options[i].defaultValue)
-	    defaultValue = options[i].defaultValue;
+	if (optionRow[i].defaultValue)
+	    defaultValue = optionRow[i].defaultValue;
 
 	// Get the required flag:
 
-	Boolean required = options[i].required != 0;
+	Boolean required = optionRow[i].required;
 
 	// Get the type:
 
-	Option::Type type = options[i].type;
+	Option::Type type = optionRow[i].type;
 
 	// Get the domain:
 
 	Array<String> domain;
 
-	if (options[i].domain)
+	if (optionRow[i].domain)
 	{
-	    Uint32 domainSize = options[i].domainSize;
+	    Uint32 domainSize = optionRow[i].domainSize;
 
 	    for (Uint32 j = 0; j < domainSize; j++)
-		domain.append(options[i].domain[j]);
+		domain.append(optionRow[i].domain[j]);
 	}
 
 	// Get commandLineOptionName:
 
 	String commandLineOptionName;
 
-	if (options[i].commandLineOptionName)
-	    commandLineOptionName = options[i].commandLineOptionName;
+	if (optionRow[i].commandLineOptionName)
+	    commandLineOptionName = optionRow[i].commandLineOptionName;
 
 	// Add the option:
 
@@ -401,7 +401,19 @@ Boolean OptionManager::valueEquals(const String& name, const String& value)
 	return false;
 
 }
+/*  Buried this one for the moment to think about it.
+Uint32 OptionManager::isStringInOptionMask(const String& option, 
+					   const String& entry) 
+{
+    String optionString;
 
+    if (lookupValue(name, optionString) && optionString == value)
+	if (optionString.find(entry)
+	    return 1;
+    else
+	return PEG_NOT_FOUND;
+}
+*/
 
 Option* OptionManager::_lookupOptionByCommandLineOptionName(const String& name)
 {

@@ -21,9 +21,21 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:	Karl Schopmyer
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// 
+// This file defines the classes necessary to manage commandline and 
+// configuration file options for Pegasus.  It defines 
+//   The OptionManager Class
+//   The Option Class - Used to define information about an option
+//   The Option Row structure - Used to define option declarations in a 
+//	program
+//   The optionexcptions Class
+//
+//////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_OptionManager_h
 #define Pegasus_OptionManager_h
@@ -44,6 +56,10 @@ typedef Option* OptionPtr;
 #define PEGASUS_ARRAY_T OptionPtr
 # include "ArrayInter.h"
 #undef PEGASUS_ARRAY_T
+
+///////////////////////////////////////////////////////////////////
+//  OptionManager Class
+///////////////////////////////////////////////////////////////////
 
 /** The OptionManager class manages a collection of program options.
 
@@ -172,7 +188,40 @@ typedef Option* OptionPtr;
     merged from the various sources by calling the merge functions. Finally,
     checkRequiredOptions() is called to see if any required option values were
     not provided.
+    
+    <h4>Option Types</h4>
+    
+    The option manager allows for several types of options including:
+    <UL>
+	<LI> (BOOLEAN)Simple keyword parameters (ex. -t or -h on the command 
+	line). These are Boolean parameters and there are no additional parameters 
+	after the keyword.
+	
+	<LI> (INTEGER) Numeric parameters - (ex -port 8888). These are 
+	parameters where a numeric variable follows the parameter defintion.
+ 
+	<LI>(WHOLE_NUMBER) Numeric parameters  ATTN: Finish.
+	
+	<LI> (NATURAL_NUMBER Numieric parameters - (ex ). ATTN:	finish
+	 
+	<LI>(STRING) String Parameters - (ex. -file abd.log) These are 
+	parameters that are represented by strings following the option 
+	keyword. No limitations are placed on the string except that it must
+	be resolvable to a single string.
+
+	<LI> (STRING) Domain Parameters - These are parameters where there is 
+	a choice of keywords from a domain of keywords.	The input parameter may be any 
+	one of these keywords. Thus, the domain (red blue green) for the 
+	parameter "color" (-c) could be entered as -c red. The difference 
+	between String interpretation and domain interpretation is the use of the 
+	domain fields in the option definition.
+	
+	<LI> Mask parameters - These are parameters that define an internal 
+	bit mask from a set of keywords input.
+	ATTN: Finish this definition.
+    </UL>
 */
+
 class PEGASUS_COMMON_LINKAGE OptionManager
 {
 public:
@@ -251,6 +300,17 @@ public:
     */
     Boolean lookupValue(const String& name, String& value) const;
 
+    /**	isStringInOptionMask - Looks for a String value in an option.
+	This function is used to detect particular options listed in strings of
+	entries forming a STRING option.  Thus, for example if the option string
+	were "abc,def,ijk" in option toy isStringInOption ("toy", "def") returns 
+	true.
+	@param option  name of the option in the option table
+	@param entry  Entry to compare
+	@return True if the entry String is found in the option.
+    */
+    //Uint32 isStringInOptionMask (const String& option, String& entry) const;
+
     /** optionValueEquals - Test the string value of an option.
 	@param name provides the name of the option (ex. "port")
 	@param value String value for comparison.
@@ -273,6 +333,10 @@ private:
 
     Array<Option*> _options;
 };
+
+//////////////////////////////////////////////////////////////////
+//    OPTION CLASS
+//////////////////////////////////////////////////////////////////
 
 /** The Option class is used to specify information about an Option.
 
@@ -437,6 +501,10 @@ private:
     Boolean _resolved;
 };
 
+///////////////////////////////////////////////////////////////////////
+//  OptionRow
+///////////////////////////////////////////////////////////////////'//
+
 /** The OptionRow provides a declarative way of defining Option objects.
     For the declarative programming enthusiast, we provide this structure.
     It provides a declarative way of defining options for the OptionManager
@@ -476,7 +544,11 @@ private:
 	    { "color", "red", false, Option::STRING, colors, NUM_COLORS }
 	};
     </pre>
-*/
+    When a domain is defined, any of the keywords in that domain are legal 
+    option keywords.  For example.  With the domain defined above,  a command 
+    line or config file entry that includes -c blue sets the option "color" to 
+    blue. Note that this requires a space between -c and blue. 
+ */
 struct OptionRow
 {
     const char* optionName;
@@ -487,7 +559,11 @@ struct OptionRow
     Uint32 domainSize;
     const char* commandLineOptionName;
 };
-
+/* NOTE: The "required" object must be an int rather than a Boolean because 
+    bool on some platforms is not defined so that we cannot use a Boolean here 
+    with a static object.  
+*/
+ 
 /** Exception class */
 class MissingCommandLineOptionArgument : public Exception
 {

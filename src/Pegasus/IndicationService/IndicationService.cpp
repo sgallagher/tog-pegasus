@@ -323,7 +323,7 @@ void IndicationService::handleEnqueue(Message* message)
 	    ;
 	 }
 	 break;
-	 
+
       default:
 	 //
 	 //  A message type not supported by the Indication Service
@@ -5433,9 +5433,6 @@ void IndicationService::_sendCreateRequests
     //
     for (Uint32 i = 0; i < indicationProviders.size (); i++)
     {
-        struct enableProviderList * epl = 
-            new enableProviderList (indicationProviders [i], subscription);
-
         //
         //  Create the create subscription request
         //
@@ -5445,9 +5442,9 @@ void IndicationService::_sendCreateRequests
                 (XmlWriter::getNextMessageId (),
                 nameSpace,
                 subscription,
-                epl->pcl->classList, 
-                epl->pcl->provider, 
-                epl->pcl->providerModule,
+                indicationProviders [i].classList, 
+                indicationProviders [i].provider, 
+                indicationProviders [i].providerModule,
                 propertyList,
                 repeatNotificationPolicy,
                 condition,
@@ -5557,18 +5554,15 @@ void IndicationService::_sendModifyRequests
     //
     for (Uint32 i = 0; i < indicationProviders.size (); i++)
     {
-        struct enableProviderList * epl = 
-        new enableProviderList (indicationProviders[i], subscription);
-
 // l10n
         CIMModifySubscriptionRequestMessage * request =
             new CIMModifySubscriptionRequestMessage
                 (XmlWriter::getNextMessageId (),
                 nameSpace,
                 subscription,
-                epl->pcl->classList, 
-                epl->pcl->provider, 
-                epl->pcl->providerModule,
+                indicationProviders [i].classList, 
+                indicationProviders [i].provider, 
+                indicationProviders [i].providerModule,
                 propertyList,
                 repeatNotificationPolicy,
                 condition,
@@ -5692,19 +5686,15 @@ void IndicationService::_sendDeleteRequests
     //
     for (Uint32 i = 0; i < indicationProviders.size (); i++)
     {
-
-        struct enableProviderList * epl = 
-            new enableProviderList (indicationProviders [i], subscription);
-
 // l10n
         CIMDeleteSubscriptionRequestMessage * request =
             new CIMDeleteSubscriptionRequestMessage
                 (XmlWriter::getNextMessageId (),
                 nameSpace,
                 subscription,
-                epl->pcl->classList,
-                epl->pcl->provider, 
-                epl->pcl->providerModule,
+                indicationProviders [i].classList,
+                indicationProviders [i].provider, 
+                indicationProviders [i].providerModule,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
                 userName,

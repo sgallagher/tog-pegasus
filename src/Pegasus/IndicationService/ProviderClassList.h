@@ -74,26 +74,6 @@ struct providerClassList
 
 typedef struct providerClassList ProviderClassList;
 
-struct enableProviderList
-{
-    ProviderClassList * pcl;
-    CIMInstance * cni;
-      
-    enableProviderList (
-        const ProviderClassList & list, 
-        const CIMInstance & instance)
-    {
-        pcl = new ProviderClassList (list);
-        cni = new CIMInstance (instance);
-    }
-
-    ~enableProviderList () 
-    {
-        delete pcl;
-        delete cni;
-    }
-};
-
 PEGASUS_NAMESPACE_END
 
 #endif  /* Pegasus_ProviderClassList_h */

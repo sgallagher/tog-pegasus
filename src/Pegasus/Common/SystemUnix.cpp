@@ -614,8 +614,11 @@ String System::getEffectiveUserName()
     String userName = String::EMPTY;
     struct passwd*   pwd = NULL;
 
-#ifdef PEGASUS_OS_SOLARIS
-#define PWD_BUFF_SIZE	1024
+#if defined(PEGASUS_OS_SOLARIS) || \
+    defined(PEGASUS_OS_HPUX) || \
+    defined(PEGASUS_OS_LINUX)
+
+    const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd	local_pwd;
     char		buf[PWD_BUFF_SIZE];
     if(getpwuid_r(geteuid(), &local_pwd, buf, PWD_BUFF_SIZE, &pwd)) {
@@ -662,12 +665,16 @@ Boolean System::isSystemUser(const char* userName)
     AtoE((char *)userName);
 #endif
 
-#ifdef PEGASUS_OS_SOLARIS
+#if defined(PEGASUS_OS_SOLARIS) || \
+    defined(PEGASUS_OS_HPUX) || \
+    defined(PEGASUS_OS_LINUX)
+
+    const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd   pwd;
     struct passwd   *result;
-    char            pwdBuffer[1024];
+    char            pwdBuffer[PWD_BUFF_SIZE];
 
-    if (getpwnam_r(userName, &pwd, pwdBuffer, 1024, &result) != 0)
+    if (getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
 #else
     //
     //  get the password entry for the user
@@ -719,7 +726,10 @@ String System::getPrivilegedUserName()
     if (userName == String::EMPTY)
     {
         struct passwd*   pwd = NULL;
-#ifdef PEGASUS_OS_SOLARIS
+#if defined(PEGASUS_OS_SOLARIS) || \
+    defined(PEGASUS_OS_HPUX) || \
+    defined(PEGASUS_OS_LINUX)
+        const unsigned int PWD_BUFF_SIZE = 1024;
 	struct passwd	local_pwd;
 	char		buf[PWD_BUFF_SIZE];
 	if(getpwuid_r(0, &local_pwd, buf, PWD_BUFF_SIZE, &pwd)) {

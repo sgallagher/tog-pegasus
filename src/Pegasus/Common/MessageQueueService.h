@@ -120,10 +120,6 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL polling_routine(void *);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL kill_idle_threads(void *);
-      static int pooled_threads(void) 
-      {
-	 return _thread_pool->running_count() + _thread_pool->dead_count() + _thread_pool->pool_count();
-      }
       static ThreadPool *get_thread_pool(void);
       static void force_shutdown(Boolean destroy_flag = false);
       

@@ -340,7 +340,7 @@ ThreadPool::ThreadPool(Sint16 initial_size,
    : _max_threads(max), _min_threads(min),
      _current_threads(0),
      _pool(true), _running(true),
-     _dead(true), _dying(0)
+     _dying(0)
 {
    _allocate_wait.tv_sec = alloc_wait.tv_sec;
    _allocate_wait.tv_usec = alloc_wait.tv_usec;
@@ -414,32 +414,6 @@ ThreadPool::~ThreadPool(void)
       while(_idle_control.value())
 	 pegasus_yield();
       
-      th = _dead.remove_first();
-      while(th != 0)
-      {
-	 sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-         PEGASUS_ASSERT(sleep_sem != 0);
-	 
-	 if(sleep_sem == 0)
-	 {
-	    th->dereference_tsd();
-	 }
-         else
-         {
-            //ATTN-DME-P3-20030322: _dead queue processing in
-            //ThreadPool::~ThreadPool is inconsistent with the
-            //processing in kill_dead_threads.  Is this correct?
-	    
-	    // signal the thread's sleep semaphore
-	    sleep_sem->signal();
-	    sleep_sem->signal();
-	    th->dereference_tsd();	 
-	    th->join();
-	    delete th;
-         }
-	 th = _dead.remove_first();
-      }
-
       {
 	 th = _running.remove_first();
 	 while(th != 0)
@@ -571,11 +545,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       }
       
       // when we awaken we reside on the running queue, not the pool queue
-      /* Hence no need to move the thread to the _dead queue, as the _running
-       * queue is only dused by kill_dead_threads which makes sure that the
-       * the threads are cleaned up (unlocking any locked lists in the TSD, etc)
-       * before killing it.
-       */
       
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *) = 0;
       void *parm = 0;
@@ -758,8 +727,8 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
 
         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
            "ThreadPool::allocate_and_awaken: Insufficient resources: "
-           " pool = %s, running threads = %d, idle threads = %d, dead threads = %d ",
-           _key, _running.count(), _pool.count(), _dead.count());
+           " pool = %s, running threads = %d, idle threads = %d",
+           _key, _running.count(), _pool.count());
          return false;
       }
 
@@ -826,35 +795,10 @@ Uint32 ThreadPool::kill_dead_threads(void)
    
    try
    {
-      if (_dying.value())
-      {
-         return 0;
-      }
-      
       struct timeval now;
       gettimeofday(&now, NULL);
       Uint32 bodies = 0;
       AtomicInt needed(0);
-   
-      // first go thread the dead q and clean it up as much as possible
-      try 
-      {
-         while(_dying.value() == 0 && _dead.count() > 0)
-         {
-	    Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "ThreadPool:: removing and joining dead thread");
-            Thread *dead = _dead.remove_first();
-	    
-	    if(dead )
-	    {
-	       dead->join();
-	       delete dead;
-	    }
-         }
-      }
-      catch(...)
-      {
-	    Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Exception when deleting dead");
-      }
    
       if (_dying.value())
       {
@@ -936,8 +880,8 @@ Uint32 ThreadPool::kill_dead_threads(void)
          bodies++;
          th->dereference_tsd();
          sleep_sem->signal();
-         th->join();  // Note: Clean up the thread here rather than
-         delete th;   // leave it sitting unused on the _dead queue
+         th->join();  // Clean up the thread
+         delete th;
          th = (Thread*)idq.remove_last();
       }
 
@@ -1028,7 +972,7 @@ PEGASUS_THREAD_RETURN ThreadPool::_graveyard(Thread *t)
 			"Thread %p is on _running queue. Letting kill_dead_threads take care of the problem.", t);
 	  return (PEGASUS_THREAD_RETURN)1;
     }
-  if (!pool->_dead.exists(t)) 
+  else
     {
       Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
 		    "Thread is not on any queue! Moving it to the running queue.");

@@ -570,11 +570,6 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
 	{
 	  return _pool.count();
 	}
-      inline Uint32 dead_count(void)
-	{
-	  return _dead.count();
-	}
-      
       
       static Boolean check_time(struct timeval *start, struct timeval *interval);
 
@@ -603,7 +598,6 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       char _key[17];
       DQueue<Thread> _pool;
       DQueue<Thread> _running;
-      DQueue<Thread> _dead;
       AtomicInt _dying;
       
       static void _sleep_sem_del(void *p);

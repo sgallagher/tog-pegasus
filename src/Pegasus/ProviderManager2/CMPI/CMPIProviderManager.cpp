@@ -1981,13 +1981,6 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
 
         DDD(cerr<<"--- CMPIProviderManager::enableIndicationRequest"<<endl);
 
-        const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
-
         CMPIProvider::pm_service_op_lock op_lock(&pr);
         ph.GetProvider().protect();
 
@@ -2058,13 +2051,6 @@ Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * m
             "Calling provider.DisableIndicationRequest: " + pr.getName());
 
         DDD(cerr<<"--- CMPIProviderManager::disableIndicationRequest"<<endl);
-
-        const IdentityContainer container =
-           request->operationContext.get(IdentityContainer::NAME);
-        eCtx.ft->addEntry(&eCtx,
-                          CMPIPrincipal,
-                          (CMPIValue*)(const char*)container.getUserName().getCString(),
-                          CMPI_chars);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 

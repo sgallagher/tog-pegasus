@@ -54,6 +54,8 @@ class PEGASUS_CQL_LINKAGE CQLFunction
    
 
     //##ModelId=40FD653E0390
+    CQLFunction() {};
+   CQLFunction(const CQLFunction& inFunc);
     CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> inParms);
 
     /** 
@@ -65,6 +67,8 @@ class PEGASUS_CQL_LINKAGE CQLFunction
       */
     //##ModelId=40FC3BEA01F9
     CQLValue getValue(CIMInstance CI, QueryContext& queryCtx);
+
+   String toString();
 
   private:
 

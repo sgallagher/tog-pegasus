@@ -35,6 +35,7 @@ class PEGASUS_CQL_LINKAGE CQLExpression
       */
     //##ModelId=40FD308002EE
     CQLExpression(CQLTerm& theTerm);
+   CQLExpression(const CQLExpression& inExpress);
     CQLExpression(CIMInstance& CI, QueryContext& QueryCtx);
     /**  the getValue method evaluates the expression and returns the value.
           Any property that need to be resolved into a value is taken from the
@@ -52,6 +53,8 @@ class PEGASUS_CQL_LINKAGE CQLExpression
       */
     //##ModelId=40FD30BB03C3
     void appendOperation(TermOpType theTermOpType, CQLTerm& theTerm);
+
+   String toString();
 
   private:
    

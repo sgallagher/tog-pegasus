@@ -20,7 +20,7 @@ class CQLScope{
 
     private:
 	CIMName _name;	
-	CQLChainedIdentifier _chainedIdentifier;
+	CQLChainedIdentifier* _chainedIdentifier;
 };
 
 #ifndef PEGASUS_ARRAY_T

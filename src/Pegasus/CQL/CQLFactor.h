@@ -3,8 +3,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/CQLValue.h>
-//#include <Pegasus/CQL/CQLExpression.h>
-//#include <Pegasus/CQL/CQLFunction.h>
+#include <Pegasus/CQL/CQLScope.h>
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -21,14 +20,13 @@ class PEGASUS_CQL_LINKAGE CQLFactor
 {
   public:
    CQLFactor(){}
-    //##ModelId=40FC34920351
+
     CQLFactor(CQLValue inCQLVal);
 
-    //##ModelId=40FC34BC0061
     CQLFactor(CQLExpression& inCQLExp);
 
-    //##ModelId=40FC34E30391
     CQLFactor(CQLFunction inCQLFunc);
+    CQLFactor(const CQLFactor& inCQLFact);
 
     ~CQLFactor(){}
 
@@ -48,22 +46,27 @@ class PEGASUS_CQL_LINKAGE CQLFactor
            CQLExpression, and the returned value will already be resolved.
     
       */
-    //##ModelId=40FC33B70262
+
     CQLValue getValue(CIMInstance CI, QueryContext& QueryCtx);
+   CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
+   Boolean isSimpleValue();
+   CQLValue getValue();
+   CQLFunction getCQLFunction();
+   CQLExpression getCQLExpression();
+   String toString();
+   void applyScopes(Array<CQLScope> inScopes);
 
   private:
-    //##ModelId=40FC33B7024F
+
     CQLExpression* _CQLExp;
 
-    //##ModelId=40FC33B70258
     CQLValue _CQLVal;
 
-    //##ModelId=40FC34150214
     CQLFunction* _CQLFunct;
 
     /** if _invert is TRUE, multiply by -1 to invert the value.
       */
-    //##ModelId=410516920084
+
     Boolean _invert;
 
 };

@@ -16,7 +16,7 @@ CIMName CQLScope::getScope(){
 }
 
 CQLChainedIdentifier CQLScope::getTarget(){
-	return _chainedIdentifier;
+	return* _chainedIdentifier;
 }
 
 Boolean CQLScope::isDefault(){

@@ -7,10 +7,20 @@ CQLFunction::CQLFunction(FunctionOpType inFunctionOpType, Array<CQLExpression> i
 {
 }
 
+CQLFunction::CQLFunction(const CQLFunction& inFunc)
+{
+
+}
+
 //##ModelId=40FC3BEA01F9
 CQLValue CQLFunction::getValue(CIMInstance CI, QueryContext& queryCtx)
 {
    return CQLValue(Uint64(0));
+}
+
+String CQLFunction::toString()
+{
+   return String();
 }
 
 PEGASUS_NAMESPACE_END

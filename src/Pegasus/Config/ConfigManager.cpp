@@ -174,7 +174,7 @@ struct FixedValueEntry
 
 static struct FixedValueEntry _fixedValues[] =
 {
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+#include "FixedPropertyTable.h"
 };
 
 const Uint32 NUM_FIXED_PROPERTIES = 

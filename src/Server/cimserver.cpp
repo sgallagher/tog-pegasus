@@ -631,10 +631,38 @@ int main(int argc, char** argv)
             useSLP =  true;
         }
 
+#if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) 
+        Boolean enableHttpConnection = String::equal(
+            configManager->getCurrentValue("enableHttpConnection"), "true");
+        Boolean enableHttpsConnection = String::equal(
+            configManager->getCurrentValue("enableHttpsConnection"), "true");
+
+        if (enableHttpConnection && enableHttpsConnection)
+        {
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+                "Enabling both HTTP and HTTPS connections is unsupported.  "
+                "Only the HTTPS connection is enabled.");
+            cerr << "Enabling both HTTP and HTTPS connections is unsupported.  "
+                "Only the HTTPS connection is enabled." << endl;
+        }
+        else if (!enableHttpConnection && !enableHttpsConnection)
+        {
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
+                "Neither HTTP nor HTTPS connection is enabled.  "
+                "CIMServer will not be started.");
+            cerr << "Neither HTTP nor HTTPS connection is enabled.  "
+                "CIMServer will not be started." << endl;
+            exit(1);
+        }
+
+        useSSL = enableHttpsConnection;
+
+#else
         if (String::equal(configManager->getCurrentValue("SSL"), "true"))
         {
             useSSL =  true;
         }
+#endif
     }
     catch (UnrecognizedConfigProperty e)
     {

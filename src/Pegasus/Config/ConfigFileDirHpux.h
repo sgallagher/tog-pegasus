@@ -21,34 +21,35 @@
 //
 //==============================================================================
 //
-// Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
+// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_DefaultPropertyTable_h
-#define Pegasus_DefaultPropertyTable_h
+#ifndef Pegasus_ConfigFileDirHpux_h
+#define Pegasus_ConfigFileDirHpux_h
 
-#ifdef PEGASUS_PLATFORM_LINUX_IA64_GNU
-#include "DefaultPropertyTableLinuxIA64.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "DefaultPropertyTableHpux.h"
+#ifdef PEGASUS_USE_RELEASE_DIRS
+/**
+    Default file name for the current configuration.
+*/
+static char CURRENT_CONFIG_FILE [] = "/var/opt/wbem/cimserver_current.conf";
+
+/**
+    Default file name for the planned configuration.
+*/
+static char PLANNED_CONFIG_FILE [] = "/var/opt/wbem/cimserver_planned.conf";
 #else
-    {"httpPort", "5988", 0, 0, 0},
-    {"httpsPort", "5989", 0, 0, 0},
-    {"enableHttpConnection", "true", 0, 0, 0},
-    {"enableHttpsConnection", "false", 0, 0, 0},
-    {"home", "./", 0, 0, 0},
-    {"daemon", "true", 0, 0, 0},
-    {"install", "false", 0, 0, 0},
-    {"remove", "false", 0, 0, 0},
-    {"slp", "false", 0, 0, 0},
-    {"SSL", "false", 0, 0, 0},
-    {"enableAssociationTraversal", "true", 0, 0, 0},
-    {"enableIndicationService", "true", 0, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
-    {"enableClientCertification", "false", 0, 0, 0}
+/**
+    Default file name for the current configuration.
+*/
+static char CURRENT_CONFIG_FILE [] = "cimserver_current.conf";
+
+/**
+    Default file name for the planned configuration.
+*/
+static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
 #endif
 
-#endif /* Pegasus_DefaultPropertyTable_h */
+#endif /* Pegasus_ConfigFileDirHpux_h */

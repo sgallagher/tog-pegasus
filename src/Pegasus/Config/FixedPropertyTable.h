@@ -23,12 +23,19 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:
+// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_FixedPropertyTable_h
+#define Pegasus_FixedPropertyTable_h
+
 #ifdef PEGASUS_PLATFORM_LINUX_IA64_GNU
 #include "FixedPropertyTableLinuxIA64.h"
+#elif PEGASUS_PLATFORM_HPUX_ACC
+#include "FixedPropertyTableHpux.h"
 #else
     {"bogus", "MyBogusValue"} // Remove this line if others are added
 #endif
+
+#endif /* Pegasus_FixedPropertyTable_h */

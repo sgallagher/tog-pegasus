@@ -23,12 +23,17 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:
+// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef Pegasus_ConfigFileDir_h
+#define Pegasus_ConfigFileDir_h
+
 #ifdef PEGASUS_PLATFORM_LINUX_IA64_GNU
 #include "ConfigFileDirLinuxIA64.h"
+#elif PEGASUS_PLATFORM_HPUX_ACC
+#include "ConfigFileDirHpux.h"
 #else
 /**
     Default file name for the current configuration.
@@ -41,3 +46,5 @@ static char CURRENT_CONFIG_FILE [] = "cimserver_current.conf";
 static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
 
 #endif
+
+#endif /* Pegasus_ConfigFileDir_h */

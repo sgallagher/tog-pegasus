@@ -17,7 +17,7 @@ endif
 # 4) Add the .query.res file to the clean target  
 
 Like.query.res: Like.query
-	@ cqlcli Like.query -test 1 -className CQL_TestPropertyTypes > $(TMP_DIR)/Like.query.res | cd .
+	@ cqlcli Like.query -test 1 -className CIM_ComputerSystem > $(TMP_DIR)/Like.query.res | cd .
 	@ $(DIFF) Like.query.resgood $(TMP_DIR)/Like.query.res
 	@ $(RM) $(TMP_DIR)/Like.query.res
 	@ $(ECHO) +++ Like.query passed successfully +++

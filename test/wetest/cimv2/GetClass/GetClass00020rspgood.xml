@@ -1,4 +1,10 @@
-HTTP/1.1 400 Bad Request
-CIMError: request-not-valid
-PGErrorDetail: Semantic%20error%3A%20on%20line%2011%3A%20Illegal%20value%20for%20CLASSNAME.NAME%20attribute
-
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+<MESSAGE ID="00020" PROTOCOLVERSION="1.0">
+<SIMPLERSP>
+<IMETHODRESPONSE NAME="GetClass">
+<ERROR CODE="6" DESCRIPTION="CIM_ERR_NOT_FOUND: The requested object could not be found: &quot;BADNAMESUBSTITUTEDBYPEGASUSCLIENT&quot;"/>
+</IMETHODRESPONSE>
+</SIMPLERSP>
+</MESSAGE>
+</CIM>

@@ -1,12 +1,13 @@
 # Wbemexec test associated w/GetClass
 #
 
-ROOT = ../../../..
+ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = \
 	   GetClass00001 \
+	   GetClass00002 \
 	   GetClass00010 \
 	   GetClass00011 \
 	   GetClass00012 \

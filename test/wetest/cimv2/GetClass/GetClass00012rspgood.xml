@@ -15,7 +15,7 @@ TRUE
 The InstalledProductImage association identifies the InstalledProduct instance representing the collection of installed features and elements for a particular product&apos;s installed instance.
 </VALUE>
 </QUALIFIER>
-<PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product" CLASSORIGIN="CIM_InstalledProductImage">
+<PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product">
 <QUALIFIER NAME="Min" TYPE="uint32">
 <VALUE>
 1
@@ -37,7 +37,7 @@ The product that has been installed and created the software features and softwa
 </VALUE>
 </QUALIFIER>
 </PROPERTY.REFERENCE>
-<PROPERTY.REFERENCE NAME="Collection" REFERENCECLASS="CIM_InstalledProduct" CLASSORIGIN="CIM_InstalledProductImage">
+<PROPERTY.REFERENCE NAME="Collection" REFERENCECLASS="CIM_InstalledProduct">
 <QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
 <VALUE>
 TRUE

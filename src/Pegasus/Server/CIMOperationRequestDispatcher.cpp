@@ -107,7 +107,7 @@ String CIMOperationRequestDispatcher::_lookupProviderForClass(
    {
       enumInstances = _repository->enumerateInstances(nameSpace, "CIM_ProviderCapabilities");
    }
-   catch(CIMException& e)
+   catch(CIMException&)
    {
       // ATTN: Fail silently for now
    }
@@ -658,7 +658,55 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
     CIMInstance cimInstance(request->newInstance);
 
-    try
+	// ATTN: SPECIAL CASE
+	{
+		// CreateInstance requests for classes of type CIM_ObjectManager and CIM_Provider
+		// go to the ConfigurationManager.
+		// ATTN: should check class inheritance, not just the name
+		String className = request->newInstance.getClassName();
+	
+		if(String::equalNoCase(className, "CIM_ObjectManager") ||
+           String::equalNoCase(className, "CIM_Provider"))
+		{
+			// ATTN: function under construction
+			
+			//_configurationManager->handleEnqueue(request);
+	
+			CIMResponseMessage * response = new CIMCreateInstanceResponseMessage(
+				request->messageId,
+				CIM_ERR_FAILED,
+				"function under construction",
+				request->queueIds.copyAndPop(),
+				CIMReference());
+	
+			_enqueueResponse(request, response);
+	
+			return;
+		}
+		
+		// CreateInstance requests for classes of type CIM_IndicationSubscription
+		// go to the Subscription Processor
+		// ATTN: should check class inheritance, not just the name
+		if(String::equalNoCase(className, "CIM_IndicationSubscription"))
+		{
+			// ATTN: function under construction
+			
+			//_subscriptionProcessor->handleEnqueue(request);
+	
+			CIMResponseMessage * response = new CIMCreateInstanceResponseMessage(
+				request->messageId,
+				CIM_ERR_FAILED,
+				"function under construction",
+				request->queueIds.copyAndPop(),
+				CIMReference());
+	
+			_enqueueResponse(request, response);
+	
+			return;
+		}
+	}
+	
+	try
     {
 	// get provider for class
 	String className = request->newInstance.getClassName();
@@ -775,6 +823,54 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
+	// ATTN: SPECIAL CASE
+	{
+		// ModifyInstance requests for classes of type CIM_ObjectManager and CIM_Provider
+		// go to the ConfigurationManager.
+		// ATTN: should check class inheritance, not just the name
+		String className = request->modifiedInstance.getInstance().getClassName();
+	
+		if(String::equalNoCase(className, "CIM_ObjectManager") ||
+           String::equalNoCase(className, "CIM_Provider"))
+		{
+			// ATTN: function under construction
+			
+			//_configurationManager->handleEnqueue(request);
+	
+			CIMResponseMessage * response = new CIMCreateInstanceResponseMessage(
+				request->messageId,
+				CIM_ERR_FAILED,
+				"function under construction",
+				request->queueIds.copyAndPop(),
+				CIMReference());
+	
+			_enqueueResponse(request, response);
+	
+			return;
+		}
+		
+		// ModifyInstance requests for classes of type CIM_IndicationSubscription
+		// go to the Subscription Processor
+		// ATTN: should check class inheritance, not just the name
+		if(String::equalNoCase(className, "CIM_IndicationSubscription"))
+		{
+			// ATTN: function under construction
+			
+			//_subscriptionProcessor->handleEnqueue(request);
+	
+			CIMResponseMessage * response = new CIMCreateInstanceResponseMessage(
+				request->messageId,
+				CIM_ERR_FAILED,
+				"function under construction",
+				request->queueIds.copyAndPop(),
+				CIMReference());
+	
+			_enqueueResponse(request, response);
+	
+			return;
+		}
+	}
+	
     try
     {
         // ATTN: Who makes sure the instance name and the instance match?

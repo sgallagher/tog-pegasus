@@ -54,7 +54,12 @@
 //      disabled.
 ///////////////////////////////////////////////////////////////////////////////
 
-/* STATUS: In process but running 12 August 2003 KS */
+/* STATUS: In process but running 12 feburary 2004 KS */
+/* TODO: 12 Feb 2004
+    Add the association functions
+    Add a new class to pickup the communicationlink encryption functions and the
+    TCP address.
+*/
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -97,6 +102,7 @@ PEGASUS_NAMESPACE_BEGIN
 //#define CDEBUG(X) {std::stringstream ss; std::string r;ss << X;ss>>r; PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, r)}
  
 static const String PegasusInstanceIDGlobalPrefix = "PEG";
+
 //    Constants representing the class names processed
 
 /**
@@ -182,6 +188,25 @@ enum targetClass{
 // Provider Utility Functions
 //***************************************************************
 
+/*  get the prefix that will be part of the cimom identification
+    This can be either the default PEG or if the environment
+    variable PEGASUS_TRADEMARK_PREFIX is defined this is used.
+    @return String containing the unique name for the CIMOM ID
+
+*/
+
+String getTrademarkCIMOMIDPrefix()
+{
+
+    char * trademark;
+    trademark = getenv("PEGASUS_TRADEMARK_PREFIX");
+    if (!trademark)
+    {
+    return(String(PegasusInstanceIDGlobalPrefix));    
+    }
+    else
+        return(String(trademark));
+}
 /** Builds the UUID string for this CIMOM.
 **/
 String getUUIDString()
@@ -733,11 +758,17 @@ CIMInstance _buildInstancCIMXMLCommunicationMechanism(const String& name)
    2. It must be unique. We cannot create duplicate CIMOM names
    3. It is based on the DMTF description of how unique InstanceIds
    are defined (Trademark/etc followed by unique identification.
-
+   Use the Global constant PegasusInstanceIDGlobalPrefix as the
+   prefix allowing this to be changed.
 */
 String buildObjectManagerName()
 {
-    return(getUUIDString());
+    //String getUUIDString();
+    String rtn = getTrademarkCIMOMIDPrefix();
+    rtn.append(":");
+    rtn.append(getUUIDString());
+    CDEBUG("ObjectmanagerName= " << rtn);
+    return(rtn);
 }
 
 CIMInstance InteropProvider::_buildInstanceCIMObjectManager()

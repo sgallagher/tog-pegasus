@@ -1301,7 +1301,7 @@ void CIMProviderCommand::_ListProviders
 CIMInstance CIMProviderCommand::_getModuleInstance()
 {
 
-    CIMKeyBinding kb(CIMName(_PROPERTY_PROVIDERMODULE_NAME),
+    CIMKeyBinding kb(_PROPERTY_PROVIDERMODULE_NAME,
                      _moduleName, CIMKeyBinding::STRING);
 
     Array<CIMKeyBinding> kbArray;
@@ -1338,10 +1338,10 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
 CIMInstance CIMProviderCommand::_getProviderInstance()
 {
 
-    CIMKeyBinding kb(CIMName(_PROPERTY_PROVIDERMODULENAME),
+    CIMKeyBinding kb(_PROPERTY_PROVIDERMODULENAME,
                      _moduleName, CIMKeyBinding::STRING);
 
-    CIMKeyBinding kb2(CIMName(_PROPERTY_PROVIDER_NAME),
+    CIMKeyBinding kb2(_PROPERTY_PROVIDER_NAME,
                      _providerName, CIMKeyBinding::STRING);
 
     Array<CIMKeyBinding> kbArray;

@@ -10,27 +10,21 @@ ifndef ROOT
 endif
 
 ifdef PEGASUS_ENVVAR_FILE
-  include $(PEGASUS_ENVVAR_FILE)
+    include $(PEGASUS_ENVVAR_FILE)
 else
-  include $(ROOT)/env_var.status
+    include $(ROOT)/env_var.status
 endif
 
 ifdef PEGASUS_HOME
-  HOME_DIR = $(subst \,/,$(PEGASUS_HOME))
+    HOME_DIR = $(subst \,/,$(PEGASUS_HOME))
 else
-  ERROR = pegasus_home_undefined
-pegasus_home_undefined:
-	@ echo PEGASUS_HOME environment variable undefined
-	@ exit 1
+    $(error PEGASUS_HOME environment variable undefined)
 endif
 
 ifdef PEGASUS_ROOT
     ROOT =  $(subst \,/,$(PEGASUS_ROOT))
 else
-    ERROR = pegasus_root_undefined
-pegasus_root_undefined:
-	@ echo PEGASUS_ROOT environment variable undefined
-	@ exit 1
+    $(error PEGASUS_ROOT environment variable undefined)
 endif
 
 # l10n
@@ -39,15 +33,15 @@ ifdef ICU_ROOT
 endif
 
 ifdef PEGASUS_TMP
-  TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
+    TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
 else
-  TMP_DIR = .
+    TMP_DIR = .
 endif
 
 ifdef PEGASUS_DISPLAYCONSUMER_DIR
-  DISPLAYCONSUMER_DIR = $(subst \,/,$(PEGASUS_DISPLAYCONSUMER_DIR))
+    DISPLAYCONSUMER_DIR = $(subst \,/,$(PEGASUS_DISPLAYCONSUMER_DIR))
 else
-  DISPLAYCONSUMER_DIR = $(subst \,/,$(PEGASUS_HOME))
+    DISPLAYCONSUMER_DIR = $(subst \,/,$(PEGASUS_HOME))
 endif
 
 VALID_PLATFORMS = \
@@ -64,14 +58,11 @@ VALID_PLATFORMS = \
     SOLARIS_SPARC_CC \
     ZOS_ZSERIES_IBM \
     NSK_NONSTOP_NMCPLUS \
-    DARWIN_PPC_GNU 
+    DARWIN_PPC_GNU
 
 ifndef PEGASUS_PLATFORM
-  ERROR = pegasus_platform_undefined
-pegasus_platform_undefined:
-	@ echo PEGASUS_PLATFORM environment variable undefined. Please set to\
-	    one of the following: $(VALID_PLATFORMS)
-	@ exit 1
+    $(error PEGASUS_PLATFORM environment variable undefined.  Please set to\
+        one of the following: $(VALID_PLATFORMS))
 endif
 
 ################################################################################
@@ -135,21 +126,21 @@ REPOSITORY_ROOT = $(REPOSITORY_DIR)/repository
 # *****
 
 ifdef PEGASUS_CIM_SCHEMA
-  CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
-  ifeq ($(findstring $(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA))),1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 271 28),)  
-     CIM_SCHEMA_VER=
-  else
-     CIM_SCHEMA_VER=$(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA)))
-  endif
+    CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
+    ifeq ($(findstring $(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA))),1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 271 28),)  
+       CIM_SCHEMA_VER=
+    else
+       CIM_SCHEMA_VER=$(patsubst CIM%,%,$(patsubst CIMPrelim%,%,$(PEGASUS_CIM_SCHEMA)))
+    endif
 else
-  CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM28
-  CIM_SCHEMA_VER=28
+    CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM28
+    CIM_SCHEMA_VER=28
 endif
 
 ifneq (, $(findstring Prelim, $(CIM_SCHEMA_DIR)))
-   ALLOW_EXPERIMENTAL = -aE
+    ALLOW_EXPERIMENTAL = -aE
 else
-   ALLOW_EXPERIMENTAL =
+    ALLOW_EXPERIMENTAL =
 endif
 
 LEX = flex
@@ -163,39 +154,39 @@ LEX = flex
 ## Default values to install files when 'make install' is invoked.
 
 ifndef PREFIX
-PREFIX=$(HOME_DIR)/install
+    PREFIX=$(HOME_DIR)/install
 endif
 
 ifndef SYSCONF_PREFIX
-SYSCONF_PREFIX=$(PREFIX)/etc
+    SYSCONF_PREFIX=$(PREFIX)/etc
 endif
 
 ifndef LOCAL_STATE_PREFIX
-LOCAL_STATE_PREFIX=$(PREFIX)/var/
+    LOCAL_STATE_PREFIX=$(PREFIX)/var/
 endif
 
 ifndef DEST_LIB_DIR
-DEST_LIB_DIR = $(PREFIX)/lib
+    DEST_LIB_DIR = $(PREFIX)/lib
 endif
 
 ifndef DEST_BIN_DIR
-DEST_BIN_DIR = $(PREFIX)/bin
+    DEST_BIN_DIR = $(PREFIX)/bin
 endif
 
 ifndef DEST_SBIN_DIR
-DEST_SBIN_DIR = $(PREFIX)/sbin
+    DEST_SBIN_DIR = $(PREFIX)/sbin
 endif
 
 ifndef DEST_ETC_DIR
-DEST_ETC_DIR = $(SYSCONF_PREFIX)/pegasus
+    DEST_ETC_DIR = $(SYSCONF_PREFIX)/pegasus
 endif
 
 ifndef DEST_MAN_DIR
-DEST_MAN_DIR = $(PREFIX)/man
+    DEST_MAN_DIR = $(PREFIX)/man
 endif
 
 ifndef DEST_VAR_DIR
-DEST_VAR_DIR = $(LOCAL_STATE_PREFIX)
+    DEST_VAR_DIR = $(LOCAL_STATE_PREFIX)
 endif
 
 ################################################################################
@@ -205,81 +196,78 @@ endif
 ################################################################################
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_PPC_GNU)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),TRU64_ALPHA_DECCXX)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_GNU)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-  FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-   include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-   FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),NSK_NONSTOP_NMCPLUS)
-   include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-   FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifeq ($(PEGASUS_PLATFORM),DARWIN_PPC_GNU)
-   include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-   FOUND = true
+    include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+    FOUND = true
 endif
 
 ifneq ($(FOUND),true)
-  ERROR = pegasus_unknown_platform
-pegasus_unknown_platform:
-	@ echo PEGASUS_PLATFORM environment variable must be set to one of\
-	    the following: $(VALID_PLATFORMS)
-	@ exit 1
+  $(error  PEGASUS_PLATFORM environment variable must be set to one of\
+        the following: $(VALID_PLATFORMS))
 endif
 
 ################################################################################
@@ -292,19 +280,19 @@ endif
 ## copies the library and generates the symbolic link.
 
 ifndef INSTALL_LIBRARY
-## These macros are also defined in the Platform_<*>.mak files. 
-INSTALL_LIBRARY =  $(MKDIRHIER) $(DEST_LIB_DIR); $(COPY) $(FULL_LIB) $(DEST_LIB_DIR)
+    ## These macros are also defined in the Platform_<*>.mak files. 
+    INSTALL_LIBRARY =  $(MKDIRHIER) $(DEST_LIB_DIR); $(COPY) $(FULL_LIB) $(DEST_LIB_DIR)
 endif
 
 ## INSTALL_PROGRAM creates the destination directory if missing and
 ## copies the file.
 ifndef INSTALL_PROGRAM
-INSTALL_PROGRAM = $(MKDIRHIER) $(DEST_BIN_DIR); $(COPY) $(FULL_PROGRAM) $(DEST_BIN_DIR)
+    INSTALL_PROGRAM = $(MKDIRHIER) $(DEST_BIN_DIR); $(COPY) $(FULL_PROGRAM) $(DEST_BIN_DIR)
 endif
 ## INSTALL_PROGRAM creates the destination directory if missing and
 ## copies the file.
 ifndef INSTALL_SBIN_PROGRAM
-INSTALL_SBIN_PROGRAM = $(MKDIRHIER) $(DEST_SBIN_DIR);  $(COPY) $(FULL_PROGRAM) $(DEST_SBIN_DIR)
+    INSTALL_SBIN_PROGRAM = $(MKDIRHIER) $(DEST_SBIN_DIR);  $(COPY) $(FULL_PROGRAM) $(DEST_SBIN_DIR)
 endif
 ## The rest of the macros for DEST_MAN_DIR, DEST_VAR_DIR, etc. are not provided in this file.
 
@@ -320,33 +308,33 @@ endif
 # Setup the conditional compile for client displays.
 # 
 ifdef PEGASUS_CLIENT_TRACE_ENABLE
-  DEFINES+= -DPEGASUS_CLIENT_TRACE_ENABLE
+    DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
 endif
 
 # do not compile trace code. sometimes it causes problems debugging
 ifdef PEGASUS_REMOVE_TRACE
-	DEFINES+= -DPEGASUS_REMOVE_TRACE
+    DEFINES += -DPEGASUS_REMOVE_TRACE
 endif
 
 # PEP 123 use monitor2 (the default) or not
 #ifdef PEGASUS_USE_23HTTPMONITOR_SERVER
-DEFINES+= -DPEGASUS_USE_23HTTPMONITOR_SERVER
+    DEFINES += -DPEGASUS_USE_23HTTPMONITOR_SERVER
 #endif
 
 #BUG 1170 Monitor2 Client Workaround
 #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-DEFINES+= -DPEGASUS_USE_23HTTPMONITOR_CLIENT
+    DEFINES += -DPEGASUS_USE_23HTTPMONITOR_CLIENT
 #endif
 
 # PEP 161
 # Control whether utf-8 filenames are supported by the repository
 ifdef PEGASUS_SUPPORT_UTF8_FILENAME
-	DEFINES+= -DPEGASUS_SUPPORT_UTF8_FILENAME
+    DEFINES += -DPEGASUS_SUPPORT_UTF8_FILENAME
 
-	# Control whether utf-8 filenames in the repository are escaped
-	ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
-	DEFINES+= -DPEGASUS_REPOSITORY_ESCAPE_UTF8
-	endif
+    # Control whether utf-8 filenames in the repository are escaped
+    ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
+        DEFINES += -DPEGASUS_REPOSITORY_ESCAPE_UTF8
+    endif
 endif
 
 #
@@ -355,14 +343,14 @@ endif
 # user group authorization functionality.
 #
 ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
- DEFINES += -DPEGASUS_ENABLE_USERGROUP_AUTHORIZATION
+    DEFINES += -DPEGASUS_ENABLE_USERGROUP_AUTHORIZATION
 endif
 
 
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.  
 ifdef PEGASUS_ENABLE_SLP
-  DEFINES+= -DPEGASUS_ENABLE_SLP
+    DEFINES += -DPEGASUS_ENABLE_SLP
 endif
 
 # set PEGASUS_DEBUG into the DEFINES if it exists.
@@ -372,15 +360,15 @@ endif
 # and general debug support that we want to be turned on in
 # debug mode. 
 ifdef PEGASUS_DEBUG
-  DEFINES+= -DPEGASUS_DEBUG
+    DEFINES += -DPEGASUS_DEBUG
 endif
 
 # compile in the experimental APIs
-DEFINES+= -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
+DEFINES += -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 # Set compile flag to control compilation of CIMOM statistics
 ifdef PEGASUS_HAS_PERFINST
-  FLAGS += -DPEGASUS_HAS_PERFINST
+    FLAGS += -DPEGASUS_HAS_PERFINST
 endif
 
 ############################################################
@@ -390,7 +378,7 @@ endif
 ############################################################
 
 ifdef PEGASUS_VENDOR_HP
-  DEFINES+= -DPEGASUS_VENDOR_HP
+    DEFINES+= -DPEGASUS_VENDOR_HP
 endif
 
  
@@ -408,16 +396,16 @@ endif
 RMREPOSITORY = $(RMDIRHIER)
 
 ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-  FLAGS += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    FLAGS += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
 endif
 
 ifdef PEGASUS_USE_RELEASE_DIRS
-  FLAGS += -DPEGASUS_USE_RELEASE_DIRS
+    FLAGS += -DPEGASUS_USE_RELEASE_DIRS
 endif
 
 # Unless otherwise specified, Pegasus libraries go in $(PEGASUS_HOME)/lib
 ifndef PEGASUS_DEST_LIB_DIR
-  PEGASUS_DEST_LIB_DIR = lib
+    PEGASUS_DEST_LIB_DIR = lib
 endif
 
 DEFINES += -DPEGASUS_DEST_LIB_DIR=\"$(PEGASUS_DEST_LIB_DIR)\"

@@ -1,0 +1,119 @@
+<html>
+  <body bgcolor="#CCCCCC">
+    <table width="100%">
+      <tr>
+	<td width="50%" align="bottom"><h1>Create NameSpace CIM Operation</h1><td>
+	<td width="50%" align="right">
+	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
+        </td>
+      </tr>
+    </table>
+    <hr>
+    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+      <INPUT TYPE="hidden" NAME="Operation" VALUE="CreateNameSpace">
+      <p>The <tt>CreateNameSpace</tt> method creates a new namespace in the Pegasus repository.
+      <p><b>NameSpace Name</b> <INPUT TYPE="text" NAME="NameSpace" SIZE=30>
+      String that defines the namespace to be created. See <a href="getnamespaces.html">NameSpace
+      Operations</a> for more information
+      
+      <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="reset" VALUE="Reset Form">
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>RETURN - </b>If successful, the return value is a single CIM Class.If unsuccessful, one of the
+      CIM status codes show below MUST be returned by this method,
+	where the first applicable error in the list (starting with the first element of the list,
+	and working down) is the error returned. Any additional method-specific interpretation of
+	the error in is given in parentheses.&nbsp;
+	<UL>
+	<LI>CIM_ERR_INVALID_NAMESPACE
+	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+	    unrecognized or otherwise incorrect parameters)
+	<LI>CIM_ERR_ACCESS_DENIED
+	<LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the
+	    specified namespace)
+	<LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the
+	requested 	CIM Instance does not exist in the specified namespace)
+	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
+	</LI>
+    </UL>
+
+      <p>&nbsp;ADDDITIONAL Description of Fields
+	</form>
+	-------------------------------------------------------
+	
+	0;
+
+    /** The <TT>createInstance</TT> method creates a single CIM
+    Instance in the target Namespace. The Instance MUST NOT already exist.
+
+    In processing the creation of the new Instance, the following rules MUST be
+    conformed to by the CIM Server:
+
+    Any CLASSORIGIN and PROPAGATED attributes in the NewInstance MUST be ignored
+    by the Server.
+
+    The Server MUST ensure that:
+
+    <UL>
+        <LI>Any Qualifiers in the Instance not defined in the Class are created
+        as new elements of the Instance.
+        <LI>All Properties of the Instance preserve their CLASSORIGIN attribute
+        value from that defined in the Class.
+        <LI>If a CIMProperty is specified in the ModifiedInstance parameter, the
+        value assigned to that property in the Instance (including NULL) becomes
+        the value of the property for the Instance. Note that it is a Client
+        error to specify a CIMProperty that does not belong to the Class.
+        <LI>If a CIMProperty of the Class is not specified in the Instance, then
+        that CIMProperty is inherited without modification by the Instance.
+        <LI>Any Qualifiers defined in the Class with a TOINSTANCE attribute
+        value of true appear in the Instance. Qualifiers in the
+        Class with a TOINSTANCE attribute value of false MUST NOT be propagated
+        to the Instance.
+        <LI>Any CIMQualifier propagated from the Class cannot be modified in the
+        Instance if the OVERRIDABLE attribute of that CIMQualifier was set to false
+        in the Class. It is a Client error to specify such a CIMQualifier in the
+        NewInstance with a different definition to that in the Class (where
+        definition encompasses the name, type and flavor attribute settings of
+        the <QUALIFIER> element, and the value of the CIMQualifier).
+    </UL>
+
+    @param NameSpace The NameSpace parameter is a string that defines the target
+    namespace \Ref{NAMESPACE}&nbsp;
+    <p>@param newInstance The <TT>newInstance</TT> input parameter defines the new
+    Instance. The proposed definition MUST be a correct Instance definition for
+    the underlying CIM Class according to the CIM specification.&nbsp;</p>
+    <p>
+
+    @return If successful, the return value defines the object path of the new
+    CIM Instance relative to the target Namespace (i.e. the Model Path as
+    defined by the CIM specification), created by the CIM Server.  It is
+    returned in case one or more of the new keys of the Instance are allocated
+    dynamically during the creation process rather than specified in the
+    request.
+
+    If unsuccessful, one of the following status codes MUST be returned by this
+    method, where the first applicable error in the list (starting with the
+    first element of the list, and working down) is the error returned. Any
+    additional method-specific interpretation of the error in is given in
+    parentheses.</p>
+
+    <UL>
+        <LI>CIM_ERR_ACCESS_DENIED
+        <LI>CIM_ERR_NOT_SUPPORTED
+        <LI>CIM_ERR_INVALID_NAMESPACE
+        <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+        	unrecognized or otherwise incorrect parameters)
+        <LI>CIM_ERR_INVALID_CLASS (the CIM Class of which this is to be a new
+        	Instance does not exist)
+        <LI>CIM_ERR_ALREADY_EXISTS (the CIM Instance already exists)
+        <LI>CIM_ERR_FAILED (some other unspecified error occurred)
+    </UL>
+    */
+    virtual void createInstance(
+	const String& nameSpace,
+	CIMInstance& newInstance) = 
+	-------------------------------------------------------
+	
+	
+  </body>
+</html>
+

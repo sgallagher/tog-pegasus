@@ -1,0 +1,61 @@
+<html>
+  <body bgcolor="#CCCCCC">
+    <table width="100%">
+      <tr>
+	<td width="50%" align="bottom"><h1>enumerateNameSpaces</h1><td>
+	<td width="50%" align="right">
+	    <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
+	</td>
+      </tr>
+    </table>
+    <hr>
+  <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateInstances">
+       <p>
+
+     <a name="TOP"></a>
+
+         This request enumerates the namespaces defined in the repository. This is not a CIM intrinsic method.<p><b><a href="#NameSpace">NameSpace</a></b>
+	         <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root">&nbsp;
+       Defined the root namespace where the __Namespace class is defined.<p><b><a href="#ClassName">ClassName</a></b> <INPUT TYPE="text" NAME="ClassName" SIZE=30 VALUE="__Namespace">&nbsp;&nbsp;
+       Defined the __Namespace class within the repository
+	       <p><b>LocalOnly</b> <INPUT TYPE="checkbox" NAME="LocalOnly" VALUE="true" checked>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	       If true only CIM Elements overridden within definition of class are
+	       returned.
+	       <p><b>IncludeQualifiers</b> <INPUT TYPE="checkbox" NAME="IncludeQualifiers" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	       If checked, show Qualifiers for class and returned Properties, Methods,
+	       and Method Parameters.
+	       <p><b>IncludeClassOrigins</b> <INPUT TYPE="checkbox" NAME="IncludeClassOrigins" VALUE="true">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	       If checked (TRUE), CLASSORIGIN attribute will be returned for all
+	       appropriate elements<p><b>PropertyList </b> <INPUT TYPE="text" NAME="PropertyList" SIZE=30 VALUE="NULL">
+	       NOTE: <b> NOT IMPLEMENTED </b>Null or array of property names to filter
+	       request. <a href="#PropertyList">See below</a>.
+	       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	       <INPUT TYPE="reset" VALUE="Reset">
+
+       <hr>
+      <p>Today the namespace manipulation defined in CIM Operations over HTTP is
+      proprietary in nature.&nbsp; It is based on a class named __Namespace
+      which creates an instance for each namespace defined for the CIMOM. The
+      only property in the __namespace class is the name.</p>
+       <p>Within Pegasus, the namespace manipulation based on the __namespace
+      class can be executed through this HTML page or through the <a href="EnumerateInstanceNames.html">enumerateInstanceNames</a>
+       operation with the classname = __namespace and the namespace
+      parameter =&nbsp; root.&nbsp; While it has not been formally defined
+       within the specification,
+      Pegasus today maintains the __namespace class in the root namespace.</p>
+       <p style="line-height: 100%; margin-top: 0; margin-bottom: 0">Operations
+       on the __NameSpace class are handled within Pegasus by a special provider
+       that manipulates the instances of the class and also creates and deletes
+       namespaces.</p>
+       <hr>
+       <p style="line-height: 100%; margin-top: 0; margin-bottom: 0"><font size="1">Last
+       Modified <!--webbot bot="Timestamp" startspan S-Type="EDITED"
+       S-Format="%A, %B %d, %Y %I:%M:%S %p" -->Sunday, February 18, 2001 04:27:08 AM<!--webbot
+       bot="Timestamp" I-CheckSum="5960" endspan -->
+       &nbsp;&nbsp;&nbsp;&nbsp; Copyright @ The Open Group 2001&nbsp;</font>
+      <p>&nbsp;
+    </form>
+    <p>
+  </body>
+</html>

@@ -43,13 +43,18 @@ static const char * verbose = 0;
 // test null object checks
 void Test1(void)
 {
+    if(verbose)
+    {
+        cout << "Test1()" << endl;
+    }
+
     try
     {
         // create dummy request and response messages
         CIMGetInstanceRequestMessage request(
             String::EMPTY,
             CIMNamespaceName(),
-            CIMObjectPath(),
+            CIMObjectPath("dummy"),
             false,
             false,
             false,
@@ -74,7 +79,7 @@ void Test1(void)
 
         throw Exception("Failed to detect null object in CIMGetInstanceResponseHandler::deliver().");
     }
-    catch(Exception &)
+    catch(CIMException &)
     {
         // do nothing expected
     }
@@ -85,7 +90,7 @@ void Test1(void)
         CIMEnumerateInstancesRequestMessage request(
             String::EMPTY,
             CIMNamespaceName(),
-            CIMName(),
+            CIMName("dummy"),
             false,
             false,
             false,
@@ -111,7 +116,7 @@ void Test1(void)
 
         throw Exception("Failed to detect null object in CIMEnumerateInstancesResponseHandler::deliver().");
     }
-    catch(Exception &)
+    catch(CIMException &)
     {
         // do nothing expected
     }
@@ -122,7 +127,7 @@ void Test1(void)
         CIMEnumerateInstanceNamesRequestMessage request(
             String::EMPTY,
             CIMNamespaceName(),
-            CIMName(),
+            CIMName("dummy"),
             QueueIdStack());
 
         CIMEnumerateInstanceNamesResponseMessage response(
@@ -143,7 +148,7 @@ void Test1(void)
 
         throw Exception("Failed to detect null object in CIMEnumerateInstanceNamesResponseHandler::deliver().");
     }
-    catch(Exception &)
+    catch(CIMException &)
     {
         // do nothing expected
     }
@@ -154,7 +159,7 @@ void Test1(void)
         CIMCreateInstanceRequestMessage request(
             String::EMPTY,
             CIMNamespaceName(),
-            CIMInstance(),
+            CIMInstance("dummy"),
             QueueIdStack());
 
         CIMCreateInstanceResponseMessage response(
@@ -175,7 +180,7 @@ void Test1(void)
 
         throw Exception("Failed to detect null object in CIMCreateInstanceResponseHandler::deliver().");
     }
-    catch(Exception &)
+    catch(CIMException &)
     {
     }
 }
@@ -183,13 +188,18 @@ void Test1(void)
 // test too many or too few objects delivered
 void Test2(void)
 {
+    if(verbose)
+    {
+        cout << "Test2()" << endl;
+    }
+
     try
     {
         // create dummy request and response messages
         CIMGetInstanceRequestMessage request(
             String::EMPTY,
             CIMNamespaceName(),
-            CIMObjectPath(),
+            CIMObjectPath("dummy"),
             false,
             false,
             false,
@@ -210,7 +220,7 @@ void Test2(void)
 
         throw Exception("Failed to detect too few objects in CIMGetInstanceResponseHandler::complete().");
     }
-    catch(Exception &)
+    catch(CIMException &)
     {
         // do nothing expected
     }
@@ -221,7 +231,7 @@ void Test2(void)
         CIMGetInstanceRequestMessage request(
             String::EMPTY,
             CIMNamespaceName(),
-            CIMObjectPath(),
+            CIMObjectPath("dummy"),
             false,
             false,
             false,
@@ -238,11 +248,11 @@ void Test2(void)
 
         handler.processing();
 
-        CIMInstance cimInstance1("CIM_ManagedElement");
+        CIMInstance cimInstance1("dummy");
 
         handler.deliver(cimInstance1);
 
-        CIMInstance cimInstance2("CIM_ManagedElement");
+        CIMInstance cimInstance2("dummy");
 
         handler.deliver(cimInstance2);
 
@@ -250,7 +260,7 @@ void Test2(void)
 
         throw Exception("Failed to detect too many objects in CIMGetInstanceResponseHandler::deliver().");
     }
-    catch(Exception &)
+    catch(CIMException &)
     {
         // do nothing expected
     }
@@ -261,7 +271,7 @@ void Test2(void)
         CIMCreateInstanceRequestMessage request(
             String::EMPTY,
             CIMNamespaceName(),
-            CIMInstance(),
+            CIMInstance("dummy"),
             QueueIdStack());
 
         CIMCreateInstanceResponseMessage response(
@@ -276,9 +286,9 @@ void Test2(void)
 
         handler.complete();
 
-        throw Exception("Failed to detect too few objects in CIMGetInstanceResponseHandler::complete().");
+        throw Exception("Failed to detect too few objects in CIMCreateInstanceResponseHandler::complete().");
     }
-    catch(Exception &)
+    catch(CIMException &)
     {
     }
 
@@ -288,7 +298,7 @@ void Test2(void)
         CIMCreateInstanceRequestMessage request(
             String::EMPTY,
             CIMNamespaceName(),
-            CIMInstance(),
+            CIMInstance("dummy"),
             QueueIdStack());
 
         CIMCreateInstanceResponseMessage response(
@@ -301,11 +311,11 @@ void Test2(void)
 
         handler.processing();
 
-        CIMObjectPath cimObjectPath1;
+        CIMObjectPath cimObjectPath1("dummy");
 
         handler.deliver(cimObjectPath1);
 
-        CIMObjectPath cimObjectPath2;
+        CIMObjectPath cimObjectPath2("dummy");
 
         handler.deliver(cimObjectPath2);
 
@@ -313,8 +323,9 @@ void Test2(void)
 
         throw Exception("Failed to detect too many objects in CIMGetInstanceResponseHandler::deliver().");
     }
-    catch(Exception &)
+    catch(CIMException &)
     {
+        // do nothing expected
     }
 }
 

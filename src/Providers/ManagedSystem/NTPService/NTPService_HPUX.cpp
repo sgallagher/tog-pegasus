@@ -54,6 +54,10 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+// File configurations
+static const String NTP_FILE_CONFIG("/etc/ntp.conf");
+
+
 //==============================================================================
 //
 // Class [NTPService] methods

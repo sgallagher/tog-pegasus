@@ -40,15 +40,10 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMName.h>
 
-//used by gethostname function
-#include <unistd.h>
 
 //------------------------------------------------------------------------------
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-
-// File configurations
-static const String NTP_FILE_CONFIG("/etc/ntp.conf");
 
 // Role definitions
 static const String NTP_ROLE_CLIENT("server");

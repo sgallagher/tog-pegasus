@@ -37,6 +37,7 @@
 #include <Pegasus/Common/XmlStreamer.h>
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -69,7 +70,7 @@ void CompareClasses(
     Array<CIMName> classNames2 = r2.enumerateClassNames(namespaceName);
     BubbleSort(classNames1);
     BubbleSort(classNames2);
-    char *peg_platform_strg;
+
 
     assert(classNames1 == classNames2);
 
@@ -89,13 +90,25 @@ void CompareClasses(
 	    PutClass("file1", class1);
 	    PutClass("file2", class2);
 
-	    fprintf(stderr, "ERROR: not identical!\n");
-	    // PEGASUS_PLATFORM=WIN32_IX86_MSVC 
-	    peg_platform_strg = getenv("PEGASUS_PLATFORM");
-	    if (strcmp (peg_platform_strg, "WIN32_IX86_MSVC") == 0)
-	      system("FC file1 file2");
-	    else
-	      system("diff file1 file2");
+	    cout << "========================================================="; 
+	    cout << "========================================================="; 
+	    cout << endl;
+	    cout << "ERROR: not identical! - ";
+
+
+	    cout << "ERROR FOUND testing class: " << namespaceName.getString();
+	    cout << "/";
+	    cout << classNames1[i].getString();
+
+	    cout << " .... differences follow:" << endl << endl;
+
+	    system("diff file1 file2");
+
+	    if (verbose) 
+	      {
+		XmlWriter::printClassElement(class1, cout);
+		XmlWriter::printClassElement(class2, cout);
+	      }
 	    failures++;
 	}
     }
@@ -196,7 +209,7 @@ int main(int argc, char** argv)
 {
 
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
-    cout << argv[0] << ":" << endl;
+    if (verbose) cout << argv[0] << ":" << endl;
 
     //
     // Usage:
@@ -227,7 +240,7 @@ int main(int argc, char** argv)
     if (!failures)
       cout << argv[0] << ": +++++ passed all tests" << endl;
     else
-      cerr << argv[0] << ": There were " << failures << " failures" << endl;
+      cerr << argv[0] << ": +++++ There were " << failures << " failures" << endl;
 
     return 0;
 }

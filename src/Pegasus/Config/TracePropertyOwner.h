@@ -40,6 +40,7 @@
 #define Pegasus_TracePropertyOwner_h
 
 #include <Pegasus/Config/ConfigPropertyOwner.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -58,9 +59,6 @@ public:
 
     /** Constructors  */
     TracePropertyOwner();
-
-    /** Destructor  */
-    ~TracePropertyOwner();
 
     /**
     Initialize the config properties.
@@ -193,11 +191,11 @@ private:
     /**
     The trace properties owned by this class
     */
-    struct ConfigProperty*      _traceLevel;
+    AutoPtr<struct ConfigProperty>      _traceLevel; //PEP101
 
-    struct ConfigProperty*      _traceComponents;
+    AutoPtr<struct ConfigProperty>      _traceComponents; //PEP101
 
-    struct ConfigProperty*      _traceFilePath;
+    AutoPtr<struct ConfigProperty>      _traceFilePath; //PEP101
 
 };
 

@@ -67,15 +67,8 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 /** Constructors  */
 LogPropertyOwner::LogPropertyOwner()
 {
-    _logdir      = new ConfigProperty;
-    _logLevel    = new ConfigProperty;
-}
-
-/** Destructor  */
-LogPropertyOwner::~LogPropertyOwner()
-{
-    delete _logdir;
-    delete _logLevel;
+    _logdir.reset(new ConfigProperty);
+    _logLevel.reset(new ConfigProperty);
 }
 
 
@@ -121,11 +114,11 @@ struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
 {
     if (String::equalNoCase(_logdir->propertyName, name))
     {
-        return _logdir;
+        return _logdir.get();
     }
     else if (String::equalNoCase(_logLevel->propertyName, name))
     {
-        return _logLevel;
+        return _logLevel.get();
     }
     else
     {

@@ -40,6 +40,7 @@
 #define Pegasus_FileSystemPropertyOwner_h
 
 #include <Pegasus/Config/ConfigPropertyOwner.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -58,9 +59,6 @@ public:
 
     /** Constructors  */
     FileSystemPropertyOwner();
-
-    /** Destructor  */
-    ~FileSystemPropertyOwner();
 
     /**
     Initialize the config properties.
@@ -193,9 +191,9 @@ private:
     /**
     The file system properties owned by this class
     */
-    struct ConfigProperty*      _repositoryDir;
+    AutoPtr<struct ConfigProperty>      _repositoryDir; //PEP101
 
-    struct ConfigProperty*      _messageDir;
+    AutoPtr<struct ConfigProperty>      _messageDir; //PEP101
 
 };
 

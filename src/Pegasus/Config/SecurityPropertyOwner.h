@@ -44,6 +44,7 @@
 #define Pegasus_SecurityPropertyOwner_h
 
 #include <Pegasus/Config/ConfigPropertyOwner.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -62,10 +63,6 @@ public:
 
     /** Constructors  */
     SecurityPropertyOwner();
-
-
-    /** Destructor  */
-    ~SecurityPropertyOwner();
 
     /**
     Initialize the config properties.
@@ -208,40 +205,40 @@ private:
     /**
     The security properties owned by this class
     */
-    struct ConfigProperty*      _enableAuthentication;
+    AutoPtr<struct ConfigProperty>      _enableAuthentication; //PEP101
 
-    struct ConfigProperty*      _enableNamespaceAuthorization;
+    AutoPtr<struct ConfigProperty>      _enableNamespaceAuthorization; //PEP101
 
-    struct ConfigProperty*      _httpAuthType;
+    AutoPtr<struct ConfigProperty>      _httpAuthType; //PEP101
 
-    struct ConfigProperty*      _passwordFilePath;
+    AutoPtr<struct ConfigProperty>      _passwordFilePath; //PEP101
 
-    struct ConfigProperty*      _enableRemotePrivilegedUserAccess;
+    AutoPtr<struct ConfigProperty>      _enableRemotePrivilegedUserAccess; //PEP101
 
-    struct ConfigProperty*      _certificateFilePath;
+    AutoPtr<struct ConfigProperty>      _certificateFilePath; //PEP101
 
-    struct ConfigProperty*      _keyFilePath;
+    AutoPtr<struct ConfigProperty>      _keyFilePath; //PEP101
 
-    struct ConfigProperty*      _trustStore;
+    AutoPtr<struct ConfigProperty>      _trustStore; //PEP101
 
-    struct ConfigProperty*      _exportSSLTrustStore;
+    AutoPtr<struct ConfigProperty>      _exportSSLTrustStore; //PEP101
 
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    struct ConfigProperty*      _sslClientVerificationMode;
-    struct ConfigProperty*      _enableSSLTrustStoreAutoUpdate;
-    struct ConfigProperty*      _sslTrustStoreUserName;
+    AutoPtr<struct ConfigProperty>      _sslClientVerificationMode; //PEP101
+    AutoPtr<struct ConfigProperty>      _enableSSLTrustStoreAutoUpdate; //PEP101
+    AutoPtr<struct ConfigProperty>      _sslTrustStoreUserName; //PEP101
 #endif
 
-    struct ConfigProperty*      _enableSubscriptionsForNonprivilegedUsers;
+    AutoPtr<struct ConfigProperty>      _enableSubscriptionsForNonprivilegedUsers; //PEP101
 
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    struct ConfigProperty*      _authorizedUserGroups;
+    AutoPtr<struct ConfigProperty>      _authorizedUserGroups; //PEP101
 #endif
 
-    struct ConfigProperty*      _enableSSLExportClientVerification;
+    AutoPtr<struct ConfigProperty>      _enableSSLExportClientVerification; //PEP101
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    struct ConfigProperty*      _kerberosServiceName;
+    AutoPtr<struct ConfigProperty>      _kerberosServiceName; //PEP101
 #endif
 };
 

@@ -103,54 +103,27 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 /** Constructors  */
 SecurityPropertyOwner::SecurityPropertyOwner()
 {
-    _enableAuthentication = new ConfigProperty();
-    _enableNamespaceAuthorization = new ConfigProperty();
-    _httpAuthType = new ConfigProperty();
-    _passwordFilePath = new ConfigProperty();
-    _certificateFilePath = new ConfigProperty();
-    _keyFilePath = new ConfigProperty();
-    _trustStore = new ConfigProperty();
-    _exportSSLTrustStore = new ConfigProperty();
+    _enableAuthentication.reset(new ConfigProperty());
+    _enableNamespaceAuthorization.reset(new ConfigProperty());
+    _httpAuthType.reset(new ConfigProperty());
+    _passwordFilePath.reset(new ConfigProperty());
+    _certificateFilePath.reset(new ConfigProperty());
+    _keyFilePath.reset(new ConfigProperty());
+    _trustStore.reset(new ConfigProperty());
+    _exportSSLTrustStore.reset(new ConfigProperty());
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    _sslClientVerificationMode = new ConfigProperty();
-    _enableSSLTrustStoreAutoUpdate = new ConfigProperty();
-    _sslTrustStoreUserName = new ConfigProperty();
+    _sslClientVerificationMode.reset(new ConfigProperty());
+    _enableSSLTrustStoreAutoUpdate.reset(new ConfigProperty());
+    _sslTrustStoreUserName.reset(new ConfigProperty());
 #endif
-    _enableRemotePrivilegedUserAccess = new ConfigProperty();
-    _enableSubscriptionsForNonprivilegedUsers = new ConfigProperty();
+    _enableRemotePrivilegedUserAccess.reset(new ConfigProperty());
+    _enableSubscriptionsForNonprivilegedUsers.reset(new ConfigProperty());
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    _authorizedUserGroups = new ConfigProperty();
+    _authorizedUserGroups.reset(new ConfigProperty());
 #endif
-    _enableSSLExportClientVerification = new ConfigProperty();
+    _enableSSLExportClientVerification.reset(new ConfigProperty());
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-        _kerberosServiceName = new ConfigProperty();
-#endif
-}
-
-/** Destructor  */
-SecurityPropertyOwner::~SecurityPropertyOwner()
-{
-    delete _enableAuthentication;
-    delete _enableNamespaceAuthorization;
-    delete _httpAuthType;
-    delete _passwordFilePath;
-    delete _certificateFilePath;
-    delete _keyFilePath;
-    delete _trustStore;
-    delete _exportSSLTrustStore;
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    delete _sslClientVerificationMode;
-    delete _enableSSLTrustStoreAutoUpdate;
-    delete _sslTrustStoreUserName;
-#endif
-    delete _enableRemotePrivilegedUserAccess;
-    delete _enableSubscriptionsForNonprivilegedUsers;
-#ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    delete _authorizedUserGroups;
-#endif
-    delete _enableSSLExportClientVerification;
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-     delete _kerberosServiceName;
+        _kerberosServiceName.reset(new ConfigProperty());
 #endif
 }
 
@@ -412,78 +385,78 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
 {
     if (String::equalNoCase(_enableAuthentication->propertyName, name))
     {
-        return _enableAuthentication;
+        return _enableAuthentication.get();
     }
     else if (String::equalNoCase(_enableNamespaceAuthorization->propertyName, name))
     {
-        return _enableNamespaceAuthorization;
+        return _enableNamespaceAuthorization.get();
     }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
-        return _httpAuthType;
+        return _httpAuthType.get();
     }
     else if (String::equalNoCase(_passwordFilePath->propertyName, name))
     {
-        return _passwordFilePath;
+        return _passwordFilePath.get();
     }
     else if (String::equalNoCase(_certificateFilePath->propertyName, name))
     {  
-        return _certificateFilePath;
+        return _certificateFilePath.get();
     }
     else if (String::equalNoCase(_keyFilePath->propertyName, name))
     {  
-        return _keyFilePath;
+        return _keyFilePath.get();
     }
     else if (String::equalNoCase(_trustStore->propertyName, name))
     {  
-        return _trustStore;
+        return _trustStore.get();
     }
     else if (String::equalNoCase(_exportSSLTrustStore->propertyName, name))
     {
-        return _exportSSLTrustStore;
+        return _exportSSLTrustStore.get();
     }
 #ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     else if (String::equalNoCase(
                  _sslClientVerificationMode->propertyName, name))
     {
-        return _sslClientVerificationMode;
+        return _sslClientVerificationMode.get();
     }
     else if (String::equalNoCase(
                  _enableSSLTrustStoreAutoUpdate->propertyName, name))
     {
-        return _enableSSLTrustStoreAutoUpdate;
+        return _enableSSLTrustStoreAutoUpdate.get();
     }
     else if (String::equalNoCase(
                  _sslTrustStoreUserName->propertyName, name))
     {
-        return _sslTrustStoreUserName;
+        return _sslTrustStoreUserName.get();
     }
 #endif
     else if (String::equalNoCase(
                  _enableRemotePrivilegedUserAccess->propertyName, name))
     {
-        return _enableRemotePrivilegedUserAccess;
+        return _enableRemotePrivilegedUserAccess.get();
     }
     else if (String::equalNoCase(
                  _enableSubscriptionsForNonprivilegedUsers->propertyName, name))
     {
-        return _enableSubscriptionsForNonprivilegedUsers;
+        return _enableSubscriptionsForNonprivilegedUsers.get();
     }
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     else if (String::equalNoCase(_authorizedUserGroups->propertyName, name))
     {
-        return _authorizedUserGroups;
+        return _authorizedUserGroups.get();
     }
 #endif
     else if (String::equalNoCase(
                  _enableSSLExportClientVerification->propertyName, name))
     {
-        return _enableSSLExportClientVerification;
+        return _enableSSLExportClientVerification.get();
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
     {
-        return _kerberosServiceName;
+        return _kerberosServiceName.get();
     }
 #endif
     else

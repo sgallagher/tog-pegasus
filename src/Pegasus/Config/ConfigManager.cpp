@@ -217,26 +217,12 @@ ConfigManager::ConfigManager ()
     //
     // Initialize the instance variables
     //
-    _propertyTable = new PropertyTable;
+    _propertyTable.reset(new PropertyTable);
 
     //
     // Initialize the property owners
     //
     _initPropertyTable();
-}
-
-/** Destructor. */
-ConfigManager::~ConfigManager()
-{
-    if (_propertyTable)
-    {
-        delete _propertyTable;
-    }
-
-    if (_configFileHandler)
-    {
-        delete _configFileHandler;
-    }
 }
 
 
@@ -565,7 +551,7 @@ void ConfigManager::mergeConfigFiles(
 {
     try
     {
-        _configFileHandler = new ConfigFileHandler(currentFile, plannedFile);
+        _configFileHandler.reset(new ConfigFileHandler(currentFile, plannedFile));
 
         _loadConfigProperties();
     }
@@ -600,7 +586,7 @@ void ConfigManager::mergeConfigFiles()
 {
     try
     {
-        _configFileHandler = new ConfigFileHandler();
+        _configFileHandler.reset(new ConfigFileHandler());
 
         _loadConfigProperties();
     }

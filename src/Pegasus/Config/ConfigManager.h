@@ -48,6 +48,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 
@@ -81,10 +82,6 @@ private:
 
     /** Constructor. */
     ConfigManager();
-
-
-    /** Destructor. */
-    ~ConfigManager();
 
 
     /** 
@@ -123,12 +120,12 @@ private:
     HashTable to store the config property names and 
     property owners 
     */
-    PropertyTable* _propertyTable;
+    AutoPtr<PropertyTable> _propertyTable; //PEP101
 
     /**
     Handler to access the config files.
     */
-    ConfigFileHandler*    _configFileHandler;
+    AutoPtr<ConfigFileHandler>    _configFileHandler; //PEP101
 
     /**
     Pegasus home variable

@@ -121,17 +121,9 @@ Uint32 getTraceLevel(const String& traceLevel)
 /** Constructors  */
 TracePropertyOwner::TracePropertyOwner()
 {
-    _traceLevel = new ConfigProperty;
-    _traceFilePath = new ConfigProperty;
-    _traceComponents = new ConfigProperty;
-}
-
-/** Destructor  */
-TracePropertyOwner::~TracePropertyOwner()
-{
-    delete _traceLevel;
-    delete _traceFilePath;
-    delete _traceComponents;
+    _traceLevel.reset(new ConfigProperty);
+    _traceFilePath.reset(new ConfigProperty);
+    _traceComponents.reset(new ConfigProperty);
 }
 
 /**
@@ -215,15 +207,15 @@ struct ConfigProperty* TracePropertyOwner::_lookupConfigProperty(
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        return _traceComponents;
+        return _traceComponents.get();
     }
     else if (String::equalNoCase(_traceLevel->propertyName, name))
     {
-        return _traceLevel;
+        return _traceLevel.get();
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
-        return _traceFilePath;
+        return _traceFilePath.get();
     }
     else
     {

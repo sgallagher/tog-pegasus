@@ -66,16 +66,10 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 /** Constructors  */
 FileSystemPropertyOwner::FileSystemPropertyOwner()
 {
-    _repositoryDir = new ConfigProperty;
-    _messageDir = new ConfigProperty;
+    _repositoryDir.reset(new ConfigProperty);
+    _messageDir.reset(new ConfigProperty);
 }
 
-/** Destructor  */
-FileSystemPropertyOwner::~FileSystemPropertyOwner()
-{
-    delete _repositoryDir;
-    delete _messageDir;
-}
 
 /**
 Checks if the given directory is existing and writable
@@ -129,11 +123,11 @@ struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
 {
     if (String::equalNoCase(_repositoryDir->propertyName, name))
     {
-        return _repositoryDir;
+        return _repositoryDir.get();
     }
     if (String::equalNoCase(_messageDir->propertyName, name))
     {
-        return _messageDir;
+        return _messageDir.get();
     }
     else
     {

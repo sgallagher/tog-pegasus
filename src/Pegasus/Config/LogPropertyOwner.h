@@ -40,6 +40,7 @@
 #define Pegasus_LogPropertyOwner_h
 
 #include <Pegasus/Config/ConfigPropertyOwner.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -58,10 +59,6 @@ public:
 
     /** Constructors  */
     LogPropertyOwner();
-
-
-    /** Destructor  */
-    ~LogPropertyOwner();
 
     /**
     Initialize the config properties.
@@ -204,8 +201,8 @@ private:
     /**
     The log properties owned by this class
     */
-    struct ConfigProperty*      _logdir;
-    struct ConfigProperty*      _logLevel;
+    AutoPtr<struct ConfigProperty>      _logdir; //PEP101
+    AutoPtr<struct ConfigProperty>      _logLevel; //PEP101
 
 };
 

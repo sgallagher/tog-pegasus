@@ -440,6 +440,9 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     String providerName;
     String providerModuleName;
 
+    provider.clear();
+    providerModule.clear();
+
     ProviderRegistrationTable* providerCapability = 0;
     ProviderRegistrationTable* _provider = 0;
     ProviderRegistrationTable* _providerModule = 0;
@@ -627,7 +630,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
     try 
     {
 	instance = _repository->getInstance(
- 	    instanceReference.getNameSpace(), localReference);
+ 	    			INTEROPNAMESPACE, localReference);
     }
 
     catch (CIMException & exception)
@@ -659,7 +662,7 @@ Array<CIMNamedInstance> ProviderRegistrationManager::enumerateInstances(
     try
     {
 	enumInstances = _repository->enumerateInstances(
-	    ref.getNameSpace(),
+	    INTEROPNAMESPACE,
 	    ref.getClassName());
     }
     catch (CIMException & exception)
@@ -694,7 +697,7 @@ Array<CIMReference> ProviderRegistrationManager::enumerateInstanceNames(
     {
         // get all instance names from repository
         enumInstanceNames = _repository->enumerateInstanceNames(
-	    ref.getNameSpace(),
+	    INTEROPNAMESPACE,
 	    ref.getClassName());
     }
 
@@ -728,7 +731,6 @@ CIMReference ProviderRegistrationManager::createInstance(
     String _providerName;
 
     String className = ref.getClassName();
-    String nameSpace = ref.getNameSpace();
 
     try
     {
@@ -739,7 +741,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 	{
     	    Array<CIMInstance> instances;
 
-	    cimRef = _repository->createInstance(nameSpace, instance); 
+	    cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
 
 	    //
 	    // get provider module name
@@ -778,7 +780,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 		//
 		// the provider module class was registered
 		//
-	        cimRef = _repository->createInstance(nameSpace, instance); 
+	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
 	        //
 	        // Use provider name to be a key, add the instance to
 	        // the hash table 
@@ -1002,7 +1004,7 @@ CIMReference ProviderRegistrationManager::createInstance(
 		    }
 		}
 
-	        cimRef = _repository->createInstance(nameSpace, instance); 
+	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
     		return (cimRef);
 	    }
 	    else
@@ -1038,7 +1040,6 @@ void ProviderRegistrationManager::deleteInstance(
     CIMReference cimRef;
 
     String className = instanceReference.getClassName();
-    String nameSpace = instanceReference.getNameSpace();
     String providerName;
 
     CIMReference newInstancereference("", "",
@@ -1046,7 +1047,7 @@ void ProviderRegistrationManager::deleteInstance(
 	instanceReference.getKeyBindings());
 
     CIMInstance instance = _repository->getInstance(
-	nameSpace, newInstancereference);
+	INTEROPNAMESPACE, newInstancereference);
 	    
 
     try
@@ -1064,7 +1065,7 @@ void ProviderRegistrationManager::deleteInstance(
 	    //
 	    // delete the instance from repository
 	    //
-	    _repository->deleteInstance(nameSpace, newInstancereference);
+	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
 
 	    //
 	    // get the key capabilityID
@@ -1076,8 +1077,11 @@ void ProviderRegistrationManager::deleteInstance(
 	    // table; if the entry only has one instance, remove the entry;
    	    // otherwise, remove the instance. 
 	    //
-	    for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+	    Table::Iterator k=_registrationTable->table.start();
+
+	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
 	    {
+		k++;
 		instances = i.value()->getInstances();
 		instancesCount = instances.size();
 
@@ -1162,7 +1166,7 @@ void ProviderRegistrationManager::deleteInstance(
 	    //
 	    // delete instance of PG_Provider from repository
 	    //
-	    _repository->deleteInstance(nameSpace, newInstancereference);
+	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
 
 	    //
 	    // delete associated instances of PG_ProviderCapability
@@ -1170,7 +1174,7 @@ void ProviderRegistrationManager::deleteInstance(
 	    Array<CIMNamedInstance> enumCapInstances;
 	
 	    enumCapInstances = _repository->enumerateInstances(
-				nameSpace, _CLASS_PROVIDER_CAPABILITIES); 	
+			INTEROPNAMESPACE, _CLASS_PROVIDER_CAPABILITIES); 	
 
 	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
 	    {
@@ -1199,7 +1203,7 @@ void ProviderRegistrationManager::deleteInstance(
 			capReference.getClassName(),
 			capReference.getKeyBindings());
 
-	    	    _repository->deleteInstance(nameSpace, newCapReference);
+	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
 		    
 		}
 
@@ -1210,8 +1214,11 @@ void ProviderRegistrationManager::deleteInstance(
 	    // table; if the entry only has one instance, remove the entry;
    	    // otherwise, remove the instance. 
 	    //
-	    for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+	    Table::Iterator k=_registrationTable->table.start();
+
+	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
 	    {
+		k++;
 		Array<CIMInstance> instances;
 		Uint32 instancesCount;
 
@@ -1272,7 +1279,7 @@ void ProviderRegistrationManager::deleteInstance(
 	    //
 	    // delete instance of PG_ProviderModule from repository
 	    //
-	    _repository->deleteInstance(nameSpace, newInstancereference);
+	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
 
 	    //
 	    // delete associated instances of PG_Provider
@@ -1280,7 +1287,7 @@ void ProviderRegistrationManager::deleteInstance(
 	    Array<CIMNamedInstance> enumProviderInstances;
 	
 	    enumProviderInstances = _repository->enumerateInstances(
-				nameSpace, _CLASS_PG_PROVIDER); 	
+				INTEROPNAMESPACE, _CLASS_PG_PROVIDER); 	
 
 	    for (Uint32 i = 0, n = enumProviderInstances.size(); i < n; i++)
 	    {
@@ -1309,7 +1316,7 @@ void ProviderRegistrationManager::deleteInstance(
 			providerReference.getClassName(),
 			providerReference.getKeyBindings());
 
-	    	    _repository->deleteInstance(nameSpace, newProviderReference);
+	    	    _repository->deleteInstance(INTEROPNAMESPACE, newProviderReference);
 		    
 		}
 
@@ -1321,7 +1328,7 @@ void ProviderRegistrationManager::deleteInstance(
 	    Array<CIMNamedInstance> enumCapInstances;
 	
 	    enumCapInstances = _repository->enumerateInstances(
-				nameSpace, _CLASS_PROVIDER_CAPABILITIES); 	
+				INTEROPNAMESPACE, _CLASS_PROVIDER_CAPABILITIES); 	
 
 	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
 	    {
@@ -1350,7 +1357,7 @@ void ProviderRegistrationManager::deleteInstance(
 			capReference.getClassName(),
 			capReference.getKeyBindings());
 
-	    	    _repository->deleteInstance(nameSpace, newCapReference);
+	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
 		    
 		}
 
@@ -1361,8 +1368,10 @@ void ProviderRegistrationManager::deleteInstance(
 	    // table; if the entry only has one instance, remove the entry;
    	    // otherwise, remove the instance. 
 	    //
-	    for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+	    Table::Iterator k=_registrationTable->table.start();
+	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
 	    {
+		k++;
 		Array<CIMInstance> instances;
 		Uint32 instancesCount;
 
@@ -1426,18 +1435,108 @@ void ProviderRegistrationManager::deleteInstance(
 
 }
 
-// ATTN-YZ-P1-20020301:Implement this interface
-Uint16 ProviderRegistrationManager::getProviderStatus(
-    const String & providerName)
+Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
+    const String & providerModuleName)
 {
-    return(2);
+    Array<Uint16> _providerModuleStatus;
+    Array<CIMInstance> instances;
+
+    //
+    // Find the entry whose key's value is same as providerModuleName
+    // get provider module status from the value
+    //
+    for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+    {
+	if (String::equal(i.key(), providerModuleName))
+	{
+	    instances = i.value()->getInstances();
+
+	    instances[0].getProperty(instances[0].findProperty
+	    (_PROPERTY_OPERATIONALSTATUS)).getValue().get(_providerModuleStatus);
+	    return (_providerModuleStatus);
+	}
+    }
+
+    throw (CIMException(CIM_ERR_FAILED, "Can not find the provider module."));
 }
 
-// ATTN-YZ-P1-20020301:Implement this interface
-void ProviderRegistrationManager::setProviderStatus(
-    const String & providerName,
-    Uint16 status)
+Boolean ProviderRegistrationManager::setProviderModuleStatus(
+    const String & providerModuleName,
+    Array<Uint16> status)
 {
+    CIMInstance instance;
+    CIMReference reference;
+    Array<CIMNamedInstance> cimNamedInstances;
+    String _providerModuleName;
+
+    //
+    // find the instance from repository
+    //
+    try
+    {
+	cimNamedInstances = _repository->enumerateInstances(
+		INTEROPNAMESPACE,
+		_CLASS_PROVIDER_MODULE);
+
+	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
+	{
+	    instance = cimNamedInstances[i].getInstance();
+
+	    //
+	    // get provider module name
+  	    // 
+	    instance.getProperty(instance.findProperty
+	    (_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(_providerModuleName);
+	    if (String::equal(providerModuleName, _providerModuleName))
+	    {
+		//
+		// get CIMReference
+		//
+		reference = cimNamedInstances[i].getInstanceName();	
+
+		CIMReference newInstancereference("", "",
+		    reference.getClassName(),
+		    reference.getKeyBindings());
+
+		//
+		// update repository
+		//
+		_repository->setProperty(INTEROPNAMESPACE, 
+					 newInstancereference,
+		    			 _PROPERTY_OPERATIONALSTATUS,
+					 status);
+
+		//
+		// update the table
+		//
+		CIMInstance _instance = _repository->getInstance(
+					  INTEROPNAMESPACE,
+					  newInstancereference);
+
+		//
+		// remove old entry from table
+		//
+		_registrationTable->table.remove(providerModuleName);
+
+		//
+		// add the updated instance to the table
+		//
+		Array<CIMInstance> instances;
+		instances.append(_instance);
+		_addInstancesToTable(providerModuleName, instances);
+		
+		return (true);
+	    }
+	}
+    }
+    catch (CIMException& exception)
+    {
+	return (false);
+    }
+    catch (Exception& exception)
+    {
+	return (false);
+    }
 }
 
 void ProviderRegistrationManager::_initialRegistrationTable()

@@ -95,9 +95,9 @@ public:
 
 	void deleteInstance(const CIMReference & ref);
 
-	Uint16 getProviderStatus(const String & providerName);
+	Array<Uint16> getProviderModuleStatus(const String & providerModuleName);
 
-	void setProviderStatus(const String & providerName, Uint16 status);
+	Boolean setProviderModuleStatus(const String & providerModuleName, Array<Uint16> status);
 
 protected:
 

@@ -9,8 +9,8 @@ ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 
 REPOSITORYDIR = ..
-NAMESPACENAME = root/test
-NAMESPACEDIR = $(REPOSITORYDIR)/repository/root\#test
+NAMESPACENAME = root/cimv2
+NAMESPACEDIR = $(REPOSITORYDIR)/repository/root\#cimv2
 
 # Update the following two environment variables to change the version
 # of the CIM_Schema to be loaded in the namespace.

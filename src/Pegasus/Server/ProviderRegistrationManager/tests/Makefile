@@ -4,12 +4,9 @@ ROOT = ../../../../..
 
 DIRS = \
    createInstances \
+   deleteInstances \
    lookupInstanceProvider \
    lookupIndicationProvider \
    lookupMethodProvider
-
-FAILINGDIRS = \
-   deleteInstances
-
 
 include $(ROOT)/mak/recurse.mak

@@ -266,7 +266,7 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
     Char16 ch_one = uOffSet[0];
     if (ch_one != ':' && ch_one != '+' && ch_one != '-') {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-        "The UTC off set must begin with a ':' or '+' or '-'. The value of the first character of UTC offset is %u", ch_one);
+        "The UTC off set must begin with a ':' or '+' or '-'. The value of the first character of UTC offset is %u", static_cast<Uint16>(ch_one));
         return false;
     }
 

@@ -64,6 +64,7 @@ endif
 ## 
 ## 
 
+## PEGASUS_COMPRESS_REPOSITORY = 1
 
 ifdef PEGASUS_COMPRESS_REPOSITORY
   LOCAL_DEFINES += -DPEGASUS_COMPRESS_REPOSITORY
@@ -74,7 +75,7 @@ ifdef PEGASUS_COMPRESS_REPOSITORY
   endif
 
   ifeq ($(PEGASUS_PLATFORM), LINUX_IX86_GNU)
-     EXTRA_LINK_ARGUMENTS += -lz
+     EXTRA_LINK_FLAGS += -lz
   endif
 
 endif
@@ -105,3 +106,8 @@ SOURCES = \
 
 include $(ROOT)/mak/library.mak
 include $(ROOT)/mak/install.mak
+
+compress:
+	make clean
+	make depend PEGASUS_COMPRESS_REPOSITORY=1
+	make PEGASUS_COMPRESS_REPOSITORY=1

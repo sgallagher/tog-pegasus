@@ -55,16 +55,35 @@ REPO_CMP = repository_compressed
 
 FORCE: 
 
-
+##
+## if PEGASUS_COMPRESS_REPOSITORY then
+##   its built for compression - run the test
+## else
+##   its not built for compression - see if test should be run anyway
+##    if PEGASUS_COMPRESS_REPOSITORY_TEST then run the test
+##        recompile the repository for compression 
+##	  run test
+##        recompile the repository for no compression	
+## else
+##   don't run the tests
+##
+##
+##
 ifdef PEGASUS_COMPRESS_REPOSITORY
 
 tests:  repo_build run_test clean
 	@ $(ECHO) $(TESTNAME) +++++ FINISHED with test
 else
 
+ifdef PEGASUS_COMPRESS_REPOSITORY_TEST
+
 tests: repo_compress_compile repo_build run_test clean repo_regular_compile
 	@ $(ECHO) $(TESTNAME) +++++ FINISHED with test
+else
 
+tests:
+
+endif
 endif
 
 #

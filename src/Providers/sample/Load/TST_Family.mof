@@ -124,13 +124,13 @@ instance of TST_Person { name = "Sofi"; };
 
 instance of TST_Person { name = "Gabi"; };
 
-instance of TST_PersonS { name = "Mikes"; secondProperty = "one" ; counter = 1 };
+instance of TST_PersonS { name = "Mikes"; secondProperty = "one" ; counter = 1; };
 
-instance of TST_PersonS { name = "Saaras"; secondProperty = "two" ; counter = 2};
+instance of TST_PersonS { name = "Saaras"; secondProperty = "two" ; counter = 2; };
 
-instance of TST_PersonS { name = "Sofis"; secondProperty = "three" ; counter = 3  };
+instance of TST_PersonS { name = "Sofis"; secondProperty = "three" ; counter = 3; };
 
-instance of TST_PersonS { name = "Gabis"; secondProperty = "four" ; counter = 4};
+instance of TST_PersonS { name = "Gabis"; secondProperty = "four" ; counter = 4; };
   
 instance of TST_Lineage
 {

@@ -30,6 +30,7 @@
 #define PEGASUS_SUBALLOC_INCLUDE 1
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/suballoc/Linkage.h>
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #include <windows.h>
@@ -106,6 +107,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class guardian;
 
+PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t);
 PEGASUS_SUBALLOC_LINKAGE void * pegasus_alloc(size_t, Sint8 *classname, Sint8 *file, int line );
 PEGASUS_SUBALLOC_LINKAGE void pegasus_free(void *);
 

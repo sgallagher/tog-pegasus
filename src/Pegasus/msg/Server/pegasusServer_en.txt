@@ -2185,9 +2185,9 @@ en:table {
         Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED:string {"PGS06413: Too many objects delivered."}
 
         /**
-        * @note  PGS06413:
+        * @note  PGS06414:
         */
-        Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED:string {"PGS06413: Too few objects delivered."}
+        Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED:string {"PGS06414: Too few objects delivered."}
 
         // ==========================================================
         // Messages for OptionManager

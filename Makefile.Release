@@ -63,6 +63,11 @@ PEGASUS_LIBRARIES = \
    libcmpiCppImpl \
    libDefaultProviderManager
 
+ifeq ($(OS),HPUX)
+PEGASUS_LIBRARIES += \
+   libNTPProviderSecurity
+endif
+
 PEGASUS_LIBRARY_LINKS = \
    libpegclient \
    libpegcommon \
@@ -74,6 +79,14 @@ PEGASUS_PROVIDERS = \
    libComputerSystemProvider \
    libOSProvider \
    libProcessProvider
+
+ifeq ($(OS),HPUX)
+PEGASUS_PROVIDERS += \
+   libNTPProvider \
+   libNISProvider \
+   libDNSProvider \
+   libIPProviderModule
+endif
 
 PEGASUS_ADMIN_CMDS = \
    cimauth \

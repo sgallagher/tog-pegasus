@@ -127,7 +127,6 @@ ProviderIdContainer::~ProviderIdContainer(void)
 ProviderIdContainer & ProviderIdContainer::operator=(
     const ProviderIdContainer & container)
 {
-memcpy((void*)this, (void *)&container
     if (this == &container)
     {
         return (*this);

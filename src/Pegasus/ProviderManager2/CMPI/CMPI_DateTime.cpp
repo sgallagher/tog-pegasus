@@ -126,6 +126,10 @@ extern "C" {
 
    static CMPIDateTime* dtClone(CMPIDateTime* eDt, CMPIStatus* rc) {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      if (!dt) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+      }
       CIMDateTime* cDt=new CIMDateTime(dt->toString());
       CMPI_Object* obj=new CMPI_Object(cDt);
       obj->unlink();
@@ -136,12 +140,21 @@ extern "C" {
 
    static CMPIBoolean dtIsInterval(CMPIDateTime* eDt, CMPIStatus* rc) {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      if (!dt) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return false;
+      }
+		
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return dt->isInterval();
    }
 
    static CMPIString *dtGetStringFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      if (!dt) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+      }
       CMPIString *str=(CMPIString*)new CMPI_Object(dt->toString());
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return str;
@@ -149,6 +162,10 @@ extern "C" {
 
    static CMPIUint64 dtGetBinaryFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
+      if (!dt) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return 0;
+      }
       CMPIUint64 days,hours,mins,secs,usecs,utc,lTime;
       struct tm tm,tmt;
       CString tStr=dt->toString().getCString();

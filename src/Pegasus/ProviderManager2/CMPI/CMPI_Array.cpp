@@ -53,6 +53,11 @@ extern "C" {
 
    static CMPIArray* arrayClone(CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData* dta=(CMPIData*)eArray->hdl;
+
+	  if (!dta) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return NULL;
+      }
       CMPIData* nDta=new CMPIData[dta->value.uint32+1];
       CMPI_Object* obj=new CMPI_Object(nDta);
       obj->unlink();
@@ -121,10 +126,14 @@ extern "C" {
 
    static CMPIData arrayGetElementAt(CMPIArray* eArray, CMPICount pos, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
+      CMPIData data={0,CMPI_nullValue,{0}};
+	  if (!dta) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return data;
+      }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       if (pos<dta->value.uint32) return dta[pos+1];
 
-      CMPIData data={0,0,{0}};
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
       return data;
    }
@@ -132,6 +141,8 @@ extern "C" {
    CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
                                        CMPIValue *val, CMPIType type) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
+	  if (!dta) 
+		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
 
       if (pos<dta->value.uint32) {
          if ((dta->type&~CMPI_ARRAY)==type) {
@@ -152,12 +163,21 @@ extern "C" {
 
    static CMPICount arrayGetSize(CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
+	  if (!dta) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return 0;
+      }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return dta->value.uint32;
    }
 
    static CMPIType arrayGetType(CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
+	  if (!dta) {
+		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+	    return CMPI_null;
+      }
+      if (rc) CMSetStatus(rc,CMPI_RC_OK);
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return dta->type;
    }

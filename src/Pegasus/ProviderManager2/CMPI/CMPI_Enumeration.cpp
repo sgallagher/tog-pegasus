@@ -66,7 +66,7 @@ extern "C" {
    }
 
    static CMPIData enumGetNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
-      CMPIData data={0,0,{0}};
+      CMPIData data={0,CMPI_nullValue,{0}};
       if (!eEnum->hdl)
         {
             if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);

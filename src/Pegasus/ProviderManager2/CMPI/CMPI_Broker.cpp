@@ -421,7 +421,7 @@ extern "C" {
    static CMPIData mbInvokeMethod(CMPIBroker *mb, CMPIContext *ctx,
                   CMPIObjectPath *cop, const char *method, CMPIArgs *in, CMPIArgs *out,
          CMPIStatus *rc) {
-      CMPIData data={0,0,{0}};
+      CMPIData data={0,CMPI_nullValue,{0}};
       mb=CM_BROKER;
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
       return data;
@@ -457,7 +457,7 @@ extern "C" {
                   CMPIObjectPath *cop, const char *name, CMPIStatus *rc) {
       DDD(cout<<"--- mbGetProperty()"<<endl);
       mb=CM_BROKER;
-      CMPIData data={0,0,{0}};
+      CMPIData data={0,CMPI_nullValue,{0}};
 
       AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
       try {

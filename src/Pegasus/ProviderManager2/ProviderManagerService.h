@@ -45,23 +45,27 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/ProviderManager2/SafeQueue.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class ProviderRegistrationManager;
 class ProviderManager;
 
-class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
+class PEGASUS_PPM_LINKAGE ProviderManagerService : public MessageQueueService
 {
+   friend class CMPIProviderManager;
 public:
     static ProviderManagerService* providerManagerService;
+
     ProviderManagerService(void);
-  // temp
-    ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager);
+    ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager,
+                           CIMRepository * repository);
+
 
     virtual ~ProviderManagerService(void);
 
@@ -74,6 +78,8 @@ protected:
     virtual void handleEnqueue(Message * message);
 
     virtual void _handle_async_request(AsyncRequest * request);
+
+    static CIMRepository* _repository;
 
 private:
     //static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();

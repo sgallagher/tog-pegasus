@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -23,60 +23,37 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Adrain Schuur (schuur@de-ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "ProviderType.h"
 
-#include "CMPI_Version.h"
-
-#include "CMPI_String.h"
-#include "CMPI_Ftabs.h"
-
-#include <string.h>
-
-PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
+/*
+const Uint32 ProviderType::INSTANCE = 0x00000002;
+const Uint32 ProviderType::CLASS = 0x00000003;
+const Uint32 ProviderType::METHOD = 0x00000004;
+const Uint32 ProviderType::ASSOCIATION = 0x00000005;
+const Uint32 ProviderType::QUERY = 0x00000006;
+const Uint32 ProviderType::INDICATION = 0x00000007;
+const Uint32 ProviderType::CONSUMER = 0x00000008;
+*/
 
-CMPI_String* string2CMPIString(const String &s) {
-  const CString st=s.getCString();
-  char *cp=strdup((const char*)st);
-  CMPI_Object *obj= new CMPI_Object((void*)cp,CMPI_String_Ftab);
-//  CMPIRefs::localRefs().addRef(obj,CMPIRefs::TypeString);
-  return (CMPI_String*)obj;
-}
+const Uint32 ProviderType::CLASS = ProviderType_CLASS;
 
-static CMPIStatus stringRelease(CMPIString *eStr) {
-//   cout<<"--- stringRelease()"<<endl;
-   CMReturn(CMPI_RC_OK);
-}
+const Uint32 ProviderType::INSTANCE = ProviderType_INSTANCE;
 
-static CMPIString* stringClone(CMPIString *eStr, CMPIStatus* rc) {
-   char* str=(char*)eStr->hdl;
-   char* newstr=::strdup(str);
-   CMPI_Object * obj=new CMPI_Object(newstr,CMPI_String_Ftab);
-//   CMPIRefs::localRefs().addRef(obj,CMPIRefs::TypeString);
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return (CMPIString*)obj;
-}
+const Uint32 ProviderType::ASSOCIATION = ProviderType_ASSOCIATION;
 
-static char * stringGetCharPtr(CMPIString *eStr, CMPIStatus* rc) {
-   char* ptr=(char*)eStr->hdl;
-   if (rc) CMSetStatus(rc,CMPI_RC_OK);
-   return ptr;
-}
+const Uint32 ProviderType::INDICATION = ProviderType_INDICATION;
 
-static CMPIStringFT string_FT={
-     CMPICurrentVersion,
-     stringRelease,
-     stringClone,
-     stringGetCharPtr,
-};
+const Uint32 ProviderType::METHOD = ProviderType_METHOD;
 
-CMPIStringFT *CMPI_String_Ftab=&string_FT;
+const Uint32 ProviderType::CONSUMER = ProviderType_CONSUMER;
 
+const Uint32 ProviderType::QUERY = ProviderType_QUERY;
 
 PEGASUS_NAMESPACE_END
-

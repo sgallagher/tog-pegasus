@@ -196,7 +196,11 @@ void CIMServer::_init(void)
     _providerRegistrationManager = new ProviderRegistrationManager(_repository);
 
     // -- Create queue inter-connections:
+#ifdef ENABLE_PROVIDER_MANAGER2
+    _providerManager = new ProviderManagerService(_providerRegistrationManager,_repository);
+#else
     _providerManager = new ProviderManagerService(_providerRegistrationManager);
+#endif
     _handlerService = new IndicationHandlerService(_repository);
 
     // Create the control service

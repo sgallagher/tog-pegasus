@@ -179,7 +179,6 @@ static ProviderName _lookupProvider(const CIMObjectPath & cimObjectPath)
     const char * p2 = s2;
 
     ProviderName temp(
-        cimObjectPath.toString(),
         providerName,
         moduleLocation,
         interfaceType,
@@ -194,6 +193,25 @@ ProviderRegistrar::ProviderRegistrar(void)
 
 ProviderRegistrar::~ProviderRegistrar(void)
 {
+}
+
+ProviderName ProviderRegistrar::findConsumerProvider(const String & destinationPath)
+{
+   CIMInstance provider;
+   CIMInstance providerModule;
+   ProviderName temp;
+
+   if (_prm->lookupIndicationConsumer(destinationPath,provider,providerModule))
+      return ProviderName(
+               provider.getProperty(providerModule.findProperty
+                   ("Name")).getValue ().toString (),
+               providerModule.getProperty(providerModule.findProperty
+                    ("Location")).getValue().toString(),
+               providerModule.getProperty(providerModule.findProperty
+                    ("InterfaceType")).getValue().toString(),
+               0);
+
+   return temp;
 }
 
 static const Uint16 _MODULE_STOPPING = 9;
@@ -244,25 +262,26 @@ static void checkBlocked(CIMInstance &pm)
 
 ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName, Boolean test)
 {
-    CIMObjectPath objectName = providerName.getObjectName();
+ //   CIMObjectPath objectName = providerName.getObjectName();
     Uint32 flags = providerName.getCapabilitiesMask();
 
     // validate arguments
-    if(objectName.getNameSpace().isNull() || objectName.getClassName().isNull())
+/*    if(objectName.getNameSpace().isNull() || objectName.getClassName().isNull())
     {
         throw Exception("Invalid argument.");
     }
-    
+*/    
     CIMInstance provider;
     CIMInstance providerModule;
     ProviderName temp;
+    Boolean hasNoQuery;
    
    switch (flags) {
-       case 2: //ProviderType::INSTANCE
-          if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
+       case ProviderType_INSTANCE:
+          if (_prm->lookupInstanceProvider(providerName.getNameSpace(),providerName.getClassName(),
                 provider,providerModule,0)) {
               if (test) checkBlocked(providerModule);
-	      return ProviderName(providerName.getObjectName(),
+	          return ProviderName(
 	            provider.getProperty(provider.findProperty
                        ("Name")).getValue ().toString (),
 		    providerModule.getProperty(providerModule.findProperty
@@ -272,11 +291,11 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName, 
 		    ProviderType::INSTANCE);
           }
           break;
-       case 5: //ProviderType::ASSOCIATION
-          if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
+       case ProviderType_ASSOCIATION:
+          if (_prm->lookupInstanceProvider(providerName.getNameSpace(),providerName.getClassName(),
                 provider,providerModule,1)) {
               if (test) checkBlocked(providerModule);
-	      return ProviderName(providerName.getObjectName(),
+	          return ProviderName(
 	            provider.getProperty(provider.findProperty
                        ("Name")).getValue ().toString (),
 		    providerModule.getProperty(providerModule.findProperty
@@ -286,7 +305,37 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName, 
 		    ProviderType::ASSOCIATION);
           }
           break;
+  /*     case ProviderType_QUERY:
+          if (_prm->lookupInstanceProvider(providerName.getNameSpace(),providerName.getClassName(),
+                provider,providerModule,0,&hasNoQuery)) {
+             if (test) checkBlocked(providerModule);
+	          return ProviderName(
+	             provider.getProperty(provider.findProperty
+                       ("Name")).getValue ().toString (),
+		          providerModule.getProperty(providerModule.findProperty
+                       ("Location")).getValue().toString(),
+	             providerModule.getProperty(providerModule.findProperty
+                       ("InterfaceType")).getValue().toString(),
+		          ProviderType::INSTANCE);
+          }
+          break;
+   */     case ProviderType_METHOD:
+          if (_prm->lookupMethodProvider(providerName.getNameSpace(),providerName.getClassName(),
+                providerName.getMethodName(),provider,providerModule)) {
+             if (test) checkBlocked(providerModule);
+	          return ProviderName(
+	             provider.getProperty(provider.findProperty
+                       ("Name")).getValue ().toString (),
+		          providerModule.getProperty(providerModule.findProperty
+                       ("Location")).getValue().toString(),
+	             providerModule.getProperty(providerModule.findProperty
+                       ("InterfaceType")).getValue().toString(),
+		          ProviderType::METHOD);
+          }
+          break;
        default:
+          CIMObjectPath objectName(String::EMPTY,
+              providerName.getNameSpace(),providerName.getClassName());
           temp = _lookupProvider(objectName);
     }
     

@@ -66,20 +66,7 @@ public:
 
     ProviderManagerContainer(const String & physicalName, const String & logicalName, const String & interfaceName) : _manager(0)
     {
-        #if defined(PEGASUS_OS_TYPE_WINDOWS)
-        _physicalName = physicalName + String(".dll");
-        #elif defined(PEGASUS_OS_HPUX) && defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-        _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        _physicalName.append(String("/lib") + physicalName + String(".sl"));
-        #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-        _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        _physicalName.append(String("/lib") + physicalName + String(".so"));
-        #elif defined(PEGASUS_OS_OS400)
-        _physicalName = physicalName;
-        #else
-        _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-        _physicalName.append(String("/lib") + physicalName + String(".so"));
-        #endif
+        _physicalName=ProviderManager::_resolvePhysicalName(physicalName);
 
         _logicalName = logicalName;
 
@@ -168,6 +155,7 @@ inline Boolean _isSupportedResponseType(const Message * message)
 }
 
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
+CIMRepository* ProviderManagerService::_repository=NULL;
 
 ProviderManagerService::ProviderManagerService(void)
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
@@ -175,10 +163,14 @@ ProviderManagerService::ProviderManagerService(void)
     providerManagerService=this;
 }
 
-ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager)
+ProviderManagerService::ProviderManagerService(
+        ProviderRegistrationManager * providerRegistrationManager,
+        CIMRepository * repository)
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
 {
     providerManagerService=this;
+    _repository=repository;
+    
     SetProviderRegistrationManager(providerRegistrationManager);
 
     // ATTN: this section is a temporary solution to populate the list of enabled
@@ -454,22 +446,26 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 {
     CIMNamespaceName nameSpace;
     CIMName className;
+    CIMName method;
 
     const CIMOperationRequestMessage * p =
        dynamic_cast<const CIMOperationRequestMessage *>(message);
 
     if (p) {
        nameSpace=p->nameSpace;
+       
        if (p->providerType==ProviderType::ASSOCIATION)
           className=((CIMAssociatorsRequestMessage*)p)->assocClass;
        else className=p->className;
 
-       ProviderName name(
-           CIMObjectPath(String::EMPTY, nameSpace, className).toString(),
-           String::EMPTY,
-           String::EMPTY,
-           String::EMPTY,
-           p->providerType);
+       if (p->providerType==ProviderType::METHOD)
+          method=((CIMInvokeMethodRequestMessage*)p)->methodName;
+       
+       ProviderName name(nameSpace, 
+           className,
+           p->providerType,
+           method);
+           
        // find provider manager
        name = ProviderRegistrar().findProvider(name,false);
        it=name.getInterfaceName();

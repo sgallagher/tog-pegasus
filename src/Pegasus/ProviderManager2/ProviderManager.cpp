@@ -1,84 +1,100 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ProviderManager.h"
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Common/PegasusVersion.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderManager::ProviderManager()
+ProviderManager::ProviderManager(void)
 {
 }
 
-ProviderManager::~ProviderManager()
+ProviderManager::~ProviderManager(void)
 {
+}
+
+Message * ProviderManager::processMessage(Message * message)
+{
+    // subclasses should implement this method. if not implented, the base
+    // classes generates a generic failure.
+
+    return(message);
+}
+
+ProviderName ProviderManager::findProvider(const ProviderName & providerName)
+{
+    return(_registrar.findProvider(providerName));
+}
+
+ProviderName ProviderManager::findProvider(const String & destinationPath)
+{
+    return(_registrar.findConsumerProvider(destinationPath));
+}
+
+Boolean ProviderManager::insertProvider(const ProviderName & providerName)
+{
+    return(_registrar.insertProvider(providerName));
+}
+
+Boolean ProviderManager::removeProvider(const ProviderName & providerName)
+{
+    return(_registrar.removeProvider(providerName));
 }
 
 String ProviderManager::_resolvePhysicalName(String physicalName)
 {
-
-#ifdef PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
-    if ( System::is_absolute_path(physicalName.getCString()) )
-    {
-         return physicalName;
-    }
-#endif
-
-    String fileName = FileSystem::buildLibraryFileName(physicalName);
-    fileName = FileSystem::getAbsoluteFileName(
-        ConfigManager::getHomedPath(
-            ConfigManager::getInstance()->getCurrentValue("providerDir")),
-        fileName);
-
-    return fileName;
+    String temp;
+    
+    // fully qualify physical provider name (module), if not already done so.
+    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    temp = physicalName + String(".dll");
+    #elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_IA86_GNU)
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    temp = root + String("/lib") + physicalName + String(".so");
+    #elif defined(PEGASUS_OS_HPUX)
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    temp = root + String("/lib") + physicalName + String(".sl");
+    # else
+    temp = root + String("/lib") + physicalName + String(".so");
+    # endif
+    #elif defined(PEGASUS_OS_OS400)
+    // do nothing
+    #else
+    String root = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    temp = root + String("/lib") + physicalName + String(".so");
+    #endif
+    
+    return temp;
 }
 
-void ProviderManager::setIndicationCallback(
-        PEGASUS_INDICATION_CALLBACK_T indicationCallback)
-{
-    _indicationCallback = indicationCallback;
-}
-
-void ProviderManager::setResponseChunkCallback(
-        PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
-{
-    _responseChunkCallback = responseChunkCallback;
-}
-
-void ProviderManager::setSubscriptionInitComplete
-    (Boolean subscriptionInitComplete)
-{
-    _subscriptionInitComplete = subscriptionInitComplete;
-}
 
 PEGASUS_NAMESPACE_END

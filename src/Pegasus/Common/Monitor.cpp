@@ -171,12 +171,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     Boolean handled_events = false;
     int i = 0;
 
-#ifndef PEGASUS_OS_OS400    
-    struct timeval tv = {0,1};
-#else
-    // 1 us select timeout on OS/400 takes up too much CPU.
-    struct timeval tv = {0 , milliseconds * 1000}; 
-#endif
+    struct timeval tv = {milliseconds/1000, milliseconds%1000*1000};
     fd_set fdread;
     FD_ZERO(&fdread);
 

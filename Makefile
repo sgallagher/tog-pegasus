@@ -32,7 +32,7 @@ world: depend all repository config
 # The repository Target removes and rebuilds the CIM repository
 
 repository:
-	@ $(MAKE) -SC src/Pegasus/Compiler/load repository
+	@ $(MAKE) -SC Schemas repository
 
 config:
 	@ $(MAKE) -SC src/Providers/generic/ConfigSettingProvider/load config

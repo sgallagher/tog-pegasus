@@ -502,10 +502,10 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
           if (verboseTest)
               cout << "Checking the returned string in each instance" << endl;
 
-          for (Uint32 i = 0; i < cimNInstances.size(); i++)
+          for (Uint32 k = 0; k < cimNInstances.size(); k++)
           {
               String enumString;
-              cimNInstances[i].getProperty (cimNInstances[i].findProperty(RBPROP)).
+              cimNInstances[k].getProperty (cimNInstances[k].findProperty(RBPROP)).
                       getValue().
                       get(enumString);
 

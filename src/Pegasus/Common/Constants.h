@@ -288,13 +288,13 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
-#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/pegasus/ssl.rnd"
+#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/etc/pegasus/ssl.rnd"
 #  undef PEGASUS_SSLSERVER_RANDOMFILE
-#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/pegasus/cimserver.rnd"
+#  define PEGASUS_SSLSERVER_RANDOMFILE      "/etc/pegasus/cimserver.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/cache/pegasus/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
-#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/pegasus/socket/cimxml.socket"
+#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/run/cimxml.socket"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/usr/sbin/cimservera"
 # endif

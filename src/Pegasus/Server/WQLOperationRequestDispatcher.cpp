@@ -86,7 +86,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 	CIMExecQueryResponseMessage *toResponse = 0;
 	Uint32 startIndex = 0;
 	Uint32 endIndex = numberResponses - 1;
-
+	Boolean manyResponses = true;
 	if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
 	{
 		CIMRequestMessage &request = *poA->getRequest();
@@ -100,13 +100,14 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 	else
 	{
 		toResponse = (CIMExecQueryResponseMessage *)response;
-		startIndex = 1;
+		manyResponses = false;
 	}
 
 	// Work backward and delete each response off the end of the array
 	for(Uint32 i = endIndex; i >= startIndex; i--)
 	{
-		response = poA->getResponse(i);
+		if (manyResponses)
+			response = poA->getResponse(i);
 
 		if (response->getType() == CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE)
 		{
@@ -136,6 +137,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 	      op.setNameSpace(poA->_nameSpace);
 	      op.setHost(System::getHostName());
 	      co.setPath(op);
+		  if (manyResponses)
 				toResponse->cimObjects.append(co);
 			}
 		}
@@ -164,17 +166,18 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 	      op.setNameSpace(poA->_nameSpace);
 	      op.setHost(System::getHostName());
 	      co.setPath(op);
+		  if (manyResponses)
 				toResponse->cimObjects.append(co);
 			}
 		}
-
-		poA->deleteResponse(i);
+		if (manyResponses)
+			poA->deleteResponse(i);
 		if (i == 0)
 			break;
 	} // for all responses in response list
 
 	// if we started with an enumerateInstances repsonse, then add it to overall
-	if (startIndex == 0)
+	if ((startIndex == 0) && manyResponses)
 		poA->appendResponse(toResponse);
 
 	PEG_METHOD_EXIT();
@@ -457,15 +460,15 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 				const IdentityContainer &identityContainer =
 					dynamic_cast<const IdentityContainer &>(*container);
 
-				CIMEnumerateInstancesRequestMessage *enumReq = new
-					CIMEnumerateInstancesRequestMessage(request->messageId,
+				AutoPtr<CIMEnumerateInstancesRequestMessage> enumReq 
+					(new CIMEnumerateInstancesRequestMessage(request->messageId,
 																							request->nameSpace,
 																							providerInfo.className,
 																							false,false,false,false,
 																							CIMPropertyList(),
 																							request->queueIds,
 																							request->authType,
-																							identityContainer.getUserName());
+																							identityContainer.getUserName()));
 
 				context = &enumReq->operationContext;
 				if (providerIdContainer)
@@ -473,15 +476,20 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 				context->insert(identityContainer);
 				_forwardRequestForAggregation(providerInfo.serviceName,
 																			providerInfo.controlProviderName,
-																			enumReq, poA);
+																			enumReq.release(), poA);
 	    }
 	    else
 			{
 				AutoPtr<CIMExecQueryRequestMessage> requestCopy
 					(new CIMExecQueryRequestMessage(*request));
 
-				requestCopy->className = providerInfo.className;
+				OperationContext *context = &request->operationContext;
+				if (providerIdContainer)
+					context->insert(*providerIdContainer);
 
+				requestCopy->operationContext = *context;
+				requestCopy->className = providerInfo.className;
+				
 				_forwardRequestForAggregation(providerInfo.serviceName,
 																			providerInfo.controlProviderName,
 																			requestCopy.release(), poA);

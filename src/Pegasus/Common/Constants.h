@@ -233,6 +233,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/cache/pegasus/ssl.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/cache/pegasus/localauth"
+#  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
+#  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/cache/pegasus/cimxml.socket"
 # endif
 #endif
 

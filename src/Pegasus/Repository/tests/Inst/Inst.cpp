@@ -22,17 +22,11 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <fstream>
+#include <iostream>
 #include <cassert>
-#include <Pegasus/Repository/CIMRepository.h>
-//#include <Pegasus/Common/Destroyer.h>
-#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Repository/InstanceIndexFile.h>
 
 PEGASUS_USING_PEGASUS;
@@ -40,106 +34,99 @@ PEGASUS_USING_STD;
 
 const char PATH[] = "X.idx";
 
-void _RenameTempFile()
-{
-    Boolean result;
-
-    //
-    // Remove the original instance index file
-    //
-    String realFilePath;
-    if (FileSystem::existsNoCase(PATH, realFilePath))
-    {
-        result = FileSystem::removeFileNoCase(realFilePath);
-        assert(result);
-    }
-
-    //
-    // Rename the temporary instance index file
-    //
-    String tmpFilePath = PATH;
-    result = FileSystem::renameFile(tmpFilePath + ".tmp", PATH);
-    assert(result);
-}
-
-void _CreateIndexFile()
+void _Test01()
 {
     Uint32 index;
     Uint32 size;
 
     size = 1427;
     index = 0;
-    Boolean result = InstanceIndexFile::insert(PATH, 
-	CIMReference("X.key1=1001,key2=\"Hello World 1\""), size, index);
+    Boolean result = InstanceIndexFile::createEntry(PATH, 
+	CIMReference("X.key1=1001,key2=\"Hello World 1\""), index, size);
     assert(result);
-    _RenameTempFile();
 
     size = 1433;
     index = 1427;
-    result = InstanceIndexFile::insert(PATH, 
-	CIMReference("X.key1=1002,key2=\"Hello World 2\""), size, index);
+    result = InstanceIndexFile::createEntry(PATH, 
+	CIMReference("X.key1=1002,key2=\"Hello World 2\""), index, size);
     assert(result);
-    _RenameTempFile();
 
     size = 1428;
     index = 2860;
-    result = InstanceIndexFile::insert(PATH, 
-	CIMReference("X.key1=1003,key2=\"Hello World 3\""), size, index);
+    result = InstanceIndexFile::createEntry(PATH, 
+	CIMReference("X.key1=1003,key2=\"Hello World 3\""), index, size);
     assert(result);
-    _RenameTempFile();
 
     size = 1433;
     index = 4288;
-    result = InstanceIndexFile::insert(PATH, 
-	CIMReference("X.key1=1004,key2=\"Hello World 4\""), size, index);
+    result = InstanceIndexFile::createEntry(PATH, 
+	CIMReference("X.key1=1004,key2=\"Hello World 4\""), index, size);
     assert(result);
-    _RenameTempFile();
 
     size = 1431;
     index = 5721;
-    result = InstanceIndexFile::insert(PATH, 
-	CIMReference("X.key1=1005,key2=\"Hello World 5\""), size, index);
+    result = InstanceIndexFile::createEntry(PATH, 
+	CIMReference("X.key1=1005,key2=\"Hello World 5\""), index, size);
     assert(result);
-    _RenameTempFile();
 
-    result = InstanceIndexFile::remove(PATH, 
+    result = InstanceIndexFile::deleteEntry(PATH, 
           CIMReference("X.key2=\"Hello World 3\",key1=1003"));
     assert(result);
-    _RenameTempFile();
+
+    size = 1428;
+    index = 2860;
+    result = InstanceIndexFile::createEntry(PATH, 
+	CIMReference("X.key1=1003,key2=\"Hello World 3\""), index, size);
+    assert(result);
+
+    result = InstanceIndexFile::deleteEntry(PATH, 
+          CIMReference("X.key2=\"Hello World 3\",key1=1003"));
+    assert(result);
+
+    result = InstanceIndexFile::deleteEntry(PATH, 
+	CIMReference("X.key1=1001,key2=\"Hello World 1\""));
+    assert(result);
+
+    size = 9999;
+    index = 8888;
+    result = InstanceIndexFile::modifyEntry(PATH, 
+	CIMReference("X.key1=1005,key2=\"Hello World 5\""), index, size);
+    assert(result);
+
+    //
+    // Iterate the entries in the file:
+    //
+
+    {
+	Array<Uint32> freeFlags;
+	Array<Uint32> indices;
+	Array<Uint32> sizes;
+	Array<CIMReference> instanceNames;
+
+	Boolean flag = InstanceIndexFile::enumerateEntries(
+	    PATH, freeFlags, indices, sizes, instanceNames);
+
+	assert(flag);
+
+	assert(freeFlags.size() == indices.size());
+	assert(indices.size() == sizes.size());
+	assert(sizes.size() == instanceNames.size());
+
+	for (Uint32 i = 0; i < freeFlags.size(); i++)
+	{
+	    cout << freeFlags[i] << ' ';
+	    cout << indices[i] << ' ';
+	    cout << sizes[i] << ' ';
+	    cout << instanceNames[i] << endl;
+	}
+    }
 }
 
 int main(int argc, char** argv)
 {
     try
     {
-	_CreateIndexFile();
-
-	Uint32 sizeIn;
-	Uint32 indexIn;
-	Uint32 sizeOut;
-	Uint32 indexOut;
-	
-	CIMReference ref = "X.key1=1666,key2=\"Hello World N\"";
-
-        sizeIn = 1431;
-        indexIn = 7152;
-	assert(InstanceIndexFile::insert(PATH, ref, sizeIn, indexIn));
-        _RenameTempFile();
-
-	assert(InstanceIndexFile::lookup(PATH, ref, sizeOut, indexOut));
-	assert(sizeIn == sizeOut);
-	assert(indexIn == indexOut);
-
-        sizeIn = 1427;
-        indexIn = 8583;
-	assert(InstanceIndexFile::modify(PATH, ref, sizeIn, indexIn));
-        _RenameTempFile();
-
-        //
-        // lookup a non-existent instance
-        //
-	ref = "X.key1=8888,key2=\"Hello World N\"";
-	assert(!InstanceIndexFile::lookup(PATH, ref, sizeOut, indexOut));
+	_Test01();
     }
 
     catch (Exception& e)

@@ -13,7 +13,8 @@ LIBRARIES = pegcommon pegconfig
 LIBRARY = pegrepository
 
 SOURCES = \
-    InstanceIndexFile.cpp
+    InstanceIndexFile.cpp \
+    InstanceDataFile.cpp
 
 SOURCESX = \
     AssocClassTable.cpp \

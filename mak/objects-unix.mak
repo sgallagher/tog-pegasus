@@ -15,6 +15,10 @@ ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
   _NO_TMP_O = yes
 endif
 
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
+  _NO_TMP_O = yes
+endif
+
 _TMP_O = $(PEGASUS_PLATFORM).o
 
 ifeq ($(_NO_TMP_O), yes)

@@ -1,64 +1,23 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-// Authors: David Rosckes (rosckes@us.ibm.com)
-//          Bert Rivero (hurivero@us.ibm.com)
-//          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3589
-//
-//%/////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_CQLIdentifier_h
 #define Pegasus_CQLIdentifier_h
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>
-//#include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Query/QueryCommon/QueryIdentifier.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/CQL/SubRange.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CQLIdentifierRep;
 
-/**
+/** 
   The CQLIdentifier class encapsulates
   the different formats of the CQL property portion
-  of a CQLChainedIdentifier.
+  of a CQLChainedIdentifier. 
 
   For example, a CQLChainedIdentifier can have these parts:
-
+ 
     Class.EmbeddedObject.Property
     Class.Property
 
@@ -72,86 +31,112 @@ in any of these 3 formats:
 
 In the future, there may be support added for a set of indices (ranges).
   */
-class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
+class PEGASUS_CQL_LINKAGE CQLIdentifier
 {
+
+/*
+Exceptions:
+        CQLIdentifierException - for example: "missing matching brackets"
+				       - general case if logic falls through all previous cases
+                                                                                                                           
+*/
+
+
   public:
-    /**
-        Default constructor
-
-        @param  -  None.
-        @return - None.
-        @throws - None.
-        <I><B>Experimental Interface</B></I><BR>
-    */
     CQLIdentifier();
-
     /**  The constructor for a CQLIdentifier object
           takes a string as input.  The string should contain the
           property portion of a CQLChainedIdentifier.
-
-         The constructor parses the input string into the components of
-         the property identifier.
-
-         @param - identifier.  The raw string to be parsed into a CQLIdentifier
-        @return - None.
-         @throws - CQLIdentifierParseException
-         <I><B>Experimental Interface</B></I><BR>
+    
+         The constructor parses the input string into the components of 
+         the property identifier. 
+    
+         Throws parsing errors.
       */
-    CQLIdentifier(const String& identifier);
+    CQLIdentifier(String identifier);
 
     /**
-        Copy constructor
-
-        @param - id.  The CQLIdentifier to copy construct from
-        @return - None.
-        @throws - None.
-        <I><B>Experimental Interface</B></I><BR>
-    */
-    CQLIdentifier(const CQLIdentifier& id);
-
-    /**
-        Constructs a CQLIdentifier from its base class
-
-        @param - identifier.  The raw string to be parsed into a CQLIdentifier
-        @return - None.
-        @throws - None.
-        <I><B>Experimental Interface</B></I><BR>
-    */
-    CQLIdentifier(const QueryIdentifier& id);
+      The getPropertyName method returns the property name portion of 
+      a property.   For example, of the property string contained myProperty#'OK',
+      the property name is the "myProperty" portion.  In that case, "myProperty"
+    would
+      be returned in the CIMName reference.
+      */
+    const CIMName& getName()const;
 
     /**
-        Destructor
+      The getSymbolicConstantName method returns the symbolic name portion of 
+      a property.   For example, of the property string contained property#'OK',
+      the symbolic constant is the "OK" portion.  In that case, "OK" would
+      be returned in the String reference.
+      */
+    const String& getSymbolicConstantName()const;
 
-        @param  - None.
-        @return - None.
-        @throws - None.
-        <I><B>Experimental Interface</B></I><BR>
-    */
-    ~CQLIdentifier();
+    /**  The getSubRanges method returns an array of SubRanges 
+           which contain all the array index ranges from the property
+           portion of a CQLChainedIdentifier.
+           If the property is not an array (e.g. the property is just
+           a property name or a symbolic constant), an empty 
+           array is returned.
+      */
+    const  Array<SubRange>& getSubRanges()const;
 
-    /**
-        Assignment operator
+    /** The isArray method returns TRUE if the 
+         CQL property identifier is an array (e.g. the
+         property is of the format "property[index]).
+         Otherwise FALSE is returned.
+      */
+    Boolean isArray()const;
 
-        @param  - rhs.  The right hand side of the assignment operator
-        @return - None.
-        @throws - None.
-        <I><B>Experimental Interface</B></I><BR>
-    */
-    CQLIdentifier& operator=(const CQLIdentifier& rhs);
+    /** The isSymbolicConstant method returns TRUE if the 
+         CQL property identifier is a symbolic constant (e.g. the
+         property is of the format property#'CONSTANT'.
+         Otherwise FALSE is returned.
+      */
+    Boolean isSymbolicConstant()const;
+
+    /** The isWildcard method returns TRUE if the 
+         CQL property identifier is a wildcard (e.g. the
+         property is of the format "*").
+         Otherwise FALSE is returned.
+      */
+    Boolean isWildcard()const;
+
+    const String& getScope()const;
+
+    Boolean isScoped()const;
+
+    Boolean operator==(const CIMName &rhs)const;
+                                                                                                                                       
+    Boolean operator!=(const CIMName &rhs)const;
+
+    Boolean operator==(const CQLIdentifier &rhs)const;
+
+    Boolean operator!=(const CQLIdentifier &rhs)const;
+
+    String toString()const;
 
   private:
+    void parse(String indentifier);
 
+    String _symbolicConstant;
+    String _scope;
+
+    Array<SubRange> _indices;
+
+    CIMName _name;
+
+    Boolean _isWildcard;
+    Boolean _isSymbolicConstant;
 };
 
 
-/*
 #ifndef PEGASUS_ARRAY_T
 #define PEGASUS_ARRAY_T CQLIdentifier
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
-*/
 
 PEGASUS_NAMESPACE_END
-//#endif
+
 #endif
 #endif /* Pegasus_CQLIdentifier_h */

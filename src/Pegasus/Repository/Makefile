@@ -72,9 +72,7 @@ ifdef PEGASUS_COMPRESS_REPOSITORY
   ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
     EXTRA_LINK_FLAGS += -defaultlib:libz -libpath:/"Program Files"/GnuWin32/lib
     EXTRA_INCLUDES += -I/"Program Files"/GnuWin32/include
-  endif
-
-  ifeq ($(PEGASUS_PLATFORM), LINUX_IX86_GNU)
+  else
      EXTRA_LINK_FLAGS += -lz
   endif
 

@@ -244,12 +244,12 @@ void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
       }
    }
    else 
-      throw(Permission(pthread_self()));
+      throw(Permission(pegasus_thread_self()));
     
    if (errorcode == EDEADLK)
       throw(Deadlock(_rwlock.owner));
    else
-      throw(WaitFailed(pthread_self()));
+      throw(WaitFailed(pegasus_thread_self()));
 }
 
 void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
@@ -274,14 +274,14 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
       }
    }
    else 
-      throw(Permission(pthread_self()));
+      throw(Permission(pegasus_thread_self()));
 
    if (errorcode == EBUSY)
       throw(AlreadyLocked(_rwlock.owner));
    else if (errorcode == EDEADLK)
       throw(Deadlock(_rwlock.owner));
    else
-      throw(WaitFailed(pthread_self()));
+      throw(WaitFailed(pegasus_thread_self()));
 }
 
 
@@ -331,13 +331,13 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       }
    }
    else
-      throw(Permission(pthread_self()));
+      throw(Permission(pegasus_thread_self()));
    if (errorcode == ETIMEDOUT)
       throw(TimeOut(_rwlock.owner));
    else if (errorcode == EDEADLK)
       throw(Deadlock(_rwlock.owner));
    else
-      throw(WaitFailed(pthread_self()));
+      throw(WaitFailed(pegasus_thread_self()));
 }
 
 void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permission)
@@ -352,7 +352,7 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permiss
    if(0 != pthread_rwlock_unlock(&_rwlock.rwlock))
    {
       _rwlock.owner = owner;
-      throw(Permission(pthread_self()));
+      throw(Permission(pegasus_thread_self()));
    }
    if(mode == PEG_SEM_READ && _readers.value() != 0 )
       _readers--;

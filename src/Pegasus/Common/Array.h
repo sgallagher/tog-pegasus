@@ -29,12 +29,12 @@
 #ifndef Pegasus_Array_h
 #define Pegasus_Array_h
 
+#include <Pegasus/Common/Config.h>
 #include <new>
 #include <cstring>
 #ifdef PEGASUS_HAS_EBCDIC
 #include <unistd.h>
 #endif
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Memory.h>
@@ -83,21 +83,21 @@ struct ArrayRep
 	the caller.
     */
 
-    static ArrayRep<T>* create(Uint32 size);
+    static ArrayRep<T>* PEGASUS_STATIC_CDECL create(Uint32 size);
 
     // Increments the reference count of this object.
-    static void inc(const ArrayRep<T>* rep_);
+    static void PEGASUS_STATIC_CDECL inc(const ArrayRep<T>* rep_);
 
 
     /* Decrements the reference count of this object. If the reference count
 	falls to zero, the object is disposed of.
     */
-    static void dec(const ArrayRep<T>* rep_);
+    static void PEGASUS_STATIC_CDECL dec(const ArrayRep<T>* rep_);
 
     /* Gets a pointer to a single instance which is created for each class
 	to represent an empty array (zero-size).
     */
-    static ArrayRep<T>* getNullRep();
+    static ArrayRep<T>* PEGASUS_STATIC_CDECL getNullRep();
 };
 
 template<class T>
@@ -110,7 +110,7 @@ ArrayRep<T>* ArrayRep<T>::clone() const
 }
 
 template<class T>
-ArrayRep<T>* ArrayRep<T>::create(Uint32 size)
+ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
 {
     // Calcultate capacity (size rounded to the next power of two).
 
@@ -132,7 +132,7 @@ ArrayRep<T>* ArrayRep<T>::create(Uint32 size)
 }
 
 template<class T>
-void ArrayRep<T>::inc(const ArrayRep<T>* rep)
+void PEGASUS_STATIC_CDECL ArrayRep<T>::inc(const ArrayRep<T>* rep)
 {
     // REVIEW: Need locked increment here so we can shared among threads.
 
@@ -141,7 +141,7 @@ void ArrayRep<T>::inc(const ArrayRep<T>* rep)
 }
 
 template<class T>
-void ArrayRep<T>::dec(const ArrayRep<T>* rep_)
+void PEGASUS_STATIC_CDECL ArrayRep<T>::dec(const ArrayRep<T>* rep_)
 {
     // REVIEW: Need locked decrement here so we can shared among threads.
 
@@ -159,7 +159,7 @@ void ArrayRep<T>::dec(const ArrayRep<T>* rep_)
 }
 
 template<class T>
-ArrayRep<T>* ArrayRep<T>::getNullRep()
+ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::getNullRep()
 {
     static ArrayRep<T>* nullRep = 0;
 

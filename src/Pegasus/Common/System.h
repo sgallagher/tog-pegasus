@@ -49,7 +49,12 @@ typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
 /** This is an opaque type which is returned by System::loadDynamicSymbol().
     Values of this type may be casted to the appropriate target type.
 */
-typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM                  
+typedef struct DynamicSymbolHandle_* DynamicSymbolHandle; 
+#else                                                     
+extern "C" {typedef int (* DynamicSymbolHandle)(void);}   
+#endif                                                    
+
 
 /** The System class defines wrappers for operating system related calls.
     These are only placed here if they are extremely light. These are

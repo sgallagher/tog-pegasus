@@ -37,6 +37,7 @@
 // REVIEW: Spend time getting to know this.
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 class PEGASUS_COMMON_LINKAGE cleanup_handler
 {
@@ -112,7 +113,9 @@ class  PEGASUS_COMMON_LINKAGE thread_data
       { 
 	 if( _data != NULL) 
 	    if(_delete_func != NULL)
+            {
 	       _delete_func( _data ); 
+            }
 	 if( _key != NULL )
 	    delete [] _key;
       }  

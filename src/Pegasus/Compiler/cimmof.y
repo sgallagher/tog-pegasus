@@ -37,7 +37,9 @@
 #define YYSTACKSIZE 2000
 
 #include <cstdlib>
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <malloc.h>
+#endif
 #include <cstdio>
 #include <cstring>
 #include <Pegasus/Common/String.h>

@@ -3,18 +3,18 @@
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to 
-// deal in the Software without restriction, including without limitation the 
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
-// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN 
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
-// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR 
-// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN 
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
@@ -26,8 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef IPC_UNIX_include
-#define IPC_UNIX_include
+#ifndef IPC_ZOS_include
+#define IPC_ZOS_include
 
 //#include <sched.h>
 //#include <semaphore.h>
@@ -41,16 +41,12 @@
 
 #define SEM_VALUE_MAX 0xffffffff
 
-#undef PEGASUS_NEED_CRITICAL_TYPE
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_NEED_CRITICAL_TYPE
-typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
-#endif
-
 //typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 //typedef pthread_t PEGASUS_THREAD_TYPE;
+
 typedef PEGASUS_UINT64 PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
 
@@ -67,6 +63,9 @@ typedef struct {
     PEGASUS_THREAD_TYPE owner;
 } PEGASUS_MUTEX_HANDLE ;
 
+typedef PEGASUS_MUTEX_HANDLE PEGASUS_CRIT_TYPE;
+
+
 struct _pthread_cleanup_buffer {
     void (*__routine) (void *);             /* Function to call.  */
     void *__arg;                            /* Its argument.  */
@@ -75,9 +74,10 @@ struct _pthread_cleanup_buffer {
 };
 typedef struct _pthread_cleanup_buffer  PEGASUS_CLEANUP_HANDLE;
 
-typedef void *PEGASUS_THREAD_RETURN;
-
+//#define PEGASUS_THREAD_CDECL __cdecl
 #define PEGASUS_THREAD_CDECL
+
+typedef void *PEGASUS_THREAD_RETURN;
 
 typedef struct {
     PEGASUS_THREAD_TYPE thid;
@@ -106,17 +106,12 @@ typedef struct {
 /// Conditionals to support native or generic read/write semaphores
 //-----------------------------------------------------------------
 
+#define PEGASUS_READWRITE_NATIVE = 1
 
-//#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
-// #define PEGASUS_READWRITE_NATIVE = 1
-
-// typedef struct {
-//     pthread_rwlock_t rwlock;
-//     pthread_t owner;
-// } PEGASUS_RWLOCK_HANDLE;
-
-//#endif // linux platform read/write type
-
+typedef struct {
+     pthread_rwlock_t rwlock;
+     PEGASUS_THREAD_TYPE owner;
+} PEGASUS_RWLOCK_HANDLE;
 
 
 inline void pegasus_yield(void)
@@ -124,7 +119,7 @@ inline void pegasus_yield(void)
       pthread_yield(NULL);
 }
 
-// pthreads cancellation calls 
+// pthreads cancellation calls
 inline void disable_cancel(void)
 {
    pthread_setintr(PTHREAD_INTR_DISABLE);
@@ -137,75 +132,56 @@ inline void enable_cancel(void)
 
 inline void pegasus_sleep(int msec)
 {
-#if 0
    struct timespec wait;
+   pthread_mutex_t sleep_mut = PTHREAD_MUTEX_INITIALIZER;
+   pthread_cond_t sleep_cond;
+   pthread_cond_init (&sleep_cond, NULL);
+   pthread_mutex_lock(&sleep_mut);
    wait.tv_sec = msec / 1000;
    msec -= wait.tv_sec * 1000;
    wait.tv_nsec =  (msec & 1000) * 1000000;
-   nanosleep(&wait, NULL);
-#endif
-   usleep(1000*msec);
+   pthread_cond_timedwait(&sleep_cond,&sleep_mut,&wait);
+   pthread_mutex_unlock(&sleep_mut);
+   pthread_cond_destroy(&sleep_cond);
 }
-
-#ifdef PEGASUS_NEED_CRITICAL_TYPE
 
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   pthread_spin_init(crit, 0);
+   pthread_mutex_init(&(crit->mut), NULL);
 }
 
 inline void enter_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   pthread_spin_lock(crit);
+   pthread_mutex_lock(&(crit->mut));
 }
 
 inline void try_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   pthread_spin_trylock(crit);
+   pthread_mutex_trylock(&(crit->mut));
 }
 
 inline void exit_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   pthread_spin_unlock(crit);
+   pthread_mutex_unlock(&(crit->mut));
 }
 
 inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   pthread_spin_destroy(crit);
+   pthread_mutexattr_destroy(&(crit->mutatt));
 }
 
-#endif /* PEGASUS_NEED_CRITICAL_TYPE */
-
-//-----------------------------------------------------------------
-/// accurate version of gettimeofday for unix systems
-//  posix glibc implementation does not return microseconds.
-//  mdday Wed Aug  1 16:05:26 2001
-//-----------------------------------------------------------------
-#if 0
-inline static int pegasus_gettimeofday(struct timeval *tv)
-{
-   struct ntptimeval ntp;
-   int err;
-   if(tv == NULL)
-      return(EINVAL);
-   err = ntp_gettime(&ntp);
-   tv->tv_sec = ntp.time.tv_sec;
-   tv->tv_usec = ntp.time.tv_usec;
-   return(err);
-}
-#endif
 inline static int pegasus_gettimeofday(struct timeval *tv)
 {
    return gettimeofday(tv,NULL);
 }
-   
+
 inline void exit_thread(PEGASUS_THREAD_RETURN rc)
 {
   pthread_exit(rc);
 }
 
-inline PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
-{ 
+inline PEGASUS_THREAD_TYPE pegasus_thread_self(void)
+{
    pthread_t pt = pthread_self();
    return (* ((PEGASUS_THREAD_TYPE *) &pt));
 }

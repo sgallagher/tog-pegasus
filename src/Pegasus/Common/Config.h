@@ -161,4 +161,9 @@ PEGASUS_NAMESPACE_END
 # define PEGASUS_UNREACHABLE(CODE) CODE
 #endif
 
+// used for zOS only
+#ifndef PEGASUS_STATIC_CDECL
+#define PEGASUS_STATIC_CDECL
+#endif
+
 #endif  /* Pegasus_Config_h */

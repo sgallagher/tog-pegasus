@@ -377,6 +377,9 @@ Boolean System::isPrivilegedUser(const String userName)
         }
         return true;
     }
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    return false; // keep the compiler happy
+#endif
 }
 
 String System::getPrivilegedUserName()

@@ -62,6 +62,20 @@ static sigset_t *block_signal_mask(sigset_t *sig)
     return sig;
 }
 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+extern "C" {
+    void * _linkage(void * zosParm)
+    {
+        zosParmDef * zos;
+        void * retval;
+
+        zos = (zosParmDef *)zosParm;
+        retval = (*(zos->_start))(zos->realParm);
+        free(zosParm);
+        return retval;
+    }
+};
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -86,11 +100,14 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 Thread::~Thread()
 {
    if( (! _is_detached) && (_handle.thid != 0))
+   {
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
         pthread_join(_handle.thid,NULL);
 #else
 	pthread_join(*(pthread_t *)&_handle.thid,NULL);
 #endif
+	pthread_attr_destroy(&_handle.thatt);
+   }
 }
 
 

@@ -32,16 +32,26 @@
 #ifndef ThreadzOS_inline_h
 #define ThreadzOS_inline_h
 
+typedef struct {                                   
+    void * (PEGASUS_THREAD_CDECL * _start)(void *);
+    void * realParm;                               
+} zosParmDef;                                      
+
+extern "C" { void * _linkage(void * zosParm); };
+                                                   
 inline void Thread::run()
 {
+    zosParmDef * zosParm = (zosParmDef *)malloc(sizeof(zosParmDef));
+    zosParm->_start = _start;
+    zosParm->realParm = (void *) this;
     if (_is_detached)
     {
         int ds = 1;
         pthread_attr_setdetachstate(&_handle.thatt, &ds);
     }
-    pthread_create((pthread_t *)&_handle.thid, &_handle.thatt, _start, this);
+    pthread_create((pthread_t *)&_handle.thid,
+                    &_handle.thatt, &_linkage, zosParm);
 }
-
 
 inline void Thread::cancel()
 {
@@ -61,7 +71,6 @@ inline Boolean Thread::is_cancelled(void)
 
 inline void Thread::thread_switch()
 {
-  //sched_yield();
   pthread_yield(NULL);
 }
 

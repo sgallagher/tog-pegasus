@@ -190,7 +190,7 @@ void Monitor::initializeTickler(){
 
     // bind server side to socket
     if((::bind(_tickle_server_socket,
-	       (struct sockaddr *)&_tickle_server_addr,
+               reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
 	       sizeof(_tickle_server_addr))) < 0){
 	// handle error
 #ifdef PEGASUS_OS_ZOS
@@ -223,8 +223,8 @@ void Monitor::initializeTickler(){
 
     // make sure we have the correct socket for our server
     int sock = ::getsockname(_tickle_server_socket,
-			     (struct sockaddr*)&_tickle_server_addr,
-			     &_addr_size);
+                   reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
+                   &_addr_size);
     if(sock < 0){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_SOCKNAME",
@@ -270,7 +270,7 @@ void Monitor::initializeTickler(){
 
     // bind socket to client side
     if((::bind(_tickle_client_socket,
-	       (struct sockaddr*)&_tickle_client_addr,
+               reinterpret_cast<struct sockaddr*>(&_tickle_client_addr),
 	       sizeof(_tickle_client_addr))) < 0){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_BIND",
@@ -285,7 +285,7 @@ void Monitor::initializeTickler(){
 
     // connect to server side
     if((::connect(_tickle_client_socket,
-		  (struct sockaddr*)&_tickle_server_addr,
+                  reinterpret_cast<struct sockaddr*>(&_tickle_server_addr),
 		  sizeof(_tickle_server_addr))) < 0){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CONNECT",
@@ -305,8 +305,8 @@ void Monitor::initializeTickler(){
 
     // this call may fail, we will try a max of 20 times to establish this peer connection
     if((_tickle_peer_socket = ::accept(_tickle_server_socket,
-				       (struct sockaddr*)&_tickle_peer_addr,
-				       &peer_size)) < 0){
+            reinterpret_cast<struct sockaddr*>(&_tickle_peer_addr),
+            &peer_size)) < 0){
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
         // Only retry on non-windows platforms.
         if(_tickle_peer_socket == -1 && errno == EAGAIN)
@@ -316,8 +316,8 @@ void Monitor::initializeTickler(){
           {
             pegasus_sleep(1);
             _tickle_peer_socket = ::accept(_tickle_server_socket,
-					   (struct sockaddr*)&_tickle_peer_addr,
-					   &peer_size);
+                reinterpret_cast<struct sockaddr*>(&_tickle_peer_addr),
+                &peer_size);
             retries++;
           } while(_tickle_peer_socket == -1 && errno == EAGAIN && retries < 20);
         }

@@ -42,6 +42,7 @@ ifeq ($(OS),HPUX)
   ECHO = echo
   COPY = cp
   TOUCH = touch
+  CAT = cat
 
   GENERATE_RANDSEED = randseed
   OPENSSL_COMMAND = openssl
@@ -108,6 +109,7 @@ ifeq ($(OS),linux)
   ECHO = echo
   COPY = cp
   TOUCH = touch
+  CAT = cat
 
   OPENSSL_COMMAND = openssl
   GET_HOSTNAME = `hostname`

@@ -10,5 +10,5 @@ $(OUTPUT): $(OBJECTS)
 	$(PROGRAM_LINK_COMMAND) $(PROGRAM_LINK_OPTIONS) $(LINK_OUT)$@ $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
 
 clean:
-	rm -f $(OBJECTS)
-	rm -f $(PROGRAM)
+	@$(foreach i, $(OBJECTS), $(RM) $(i);)
+	@$(foreach i, $(PROGRAM), $(RM) $(i);)

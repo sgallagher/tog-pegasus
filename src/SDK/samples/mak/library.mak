@@ -1,3 +1,5 @@
+RM = rm -f
+
 include $(ROOT)/mak/common.mak
 
 .SUFFIXES: .xml .rsp
@@ -26,20 +28,20 @@ LIB = lib$(LIBRARY).$(PLATFORM_SUFFIX)
 $(LIB): $(OBJECTS) Makefile $(ROOT)/mak/library.mak
 	$(LIBRARY_LINK_COMMAND) $(LIBRARY_LINK_OPTIONS) $(DEFINES) $(LINK_OUT)$@ $(OBJECTS) $(SYS_LIBS) $(DYNAMICLIBRARIES)
 	$(MAKE) -i unlink
-	ln -f -s $(SAMPLES_DIR)/$(SOURCE_DIR)/$(LIB) $(SYM_LINK_LIB).$(PLATFORM_SUFFIX)
+	ln -f -s $(PEGASUS_SAMPLES_DIR)/$(SOURCE_DIR)/$(LIB) $(SYM_LINK_LIB).$(PLATFORM_SUFFIX)
 
 rebuild:
 	$(MAKE) clean
 	$(MAKE)
 
 clean:
-	rm -f $(OBJECTS)
+	@$(foreach i, $(OBJECTS), $(RM) $(i);)
 	$(MAKE) -i unlink
-	rm -f $(LIB)
-	rm -f $(XMLRESPONSES)
+	@$(foreach i, $(LIB), $(RM) $(i);)
+	@$(foreach i, $(XMLRESPONSES), $(RM) $(i);)
 
 XMLRESPONSES = $(XMLSCRIPTS:.xml=.rsp)
 tests: $(XMLRESPONSES)
 
 unlink:
-	rm -f $(SYM_LINK_LIB).$(PLATFORM_SUFFIX)
+	$(RM) $(SYM_LINK_LIB).$(PLATFORM_SUFFIX)

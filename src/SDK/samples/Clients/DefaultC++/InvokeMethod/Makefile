@@ -13,4 +13,4 @@ LIBRARIES = \
 include $(ROOT)/mak/program.mak
 
 tests:
-	@$(SAMPLES_DIR)/$(SOURCE_DIR)/$(PROGRAM)
+	@$(PEGASUS_SAMPLES_DIR)/$(SOURCE_DIR)/$(PROGRAM)

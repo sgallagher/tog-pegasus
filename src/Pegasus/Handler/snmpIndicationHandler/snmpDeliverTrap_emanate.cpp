@@ -165,11 +165,7 @@ void snmpDeliverTrap_emanate::deliverTrap(
     agent_addr->octet_ptr[2] = (unsigned char)s3;
     agent_addr->octet_ptr[3] = (unsigned char)s4;
 
-    // ATTN-NU-20020312 : Write code to get enterprise, genTrap and 
     // specTrap from trapOid. 
-
-    //NU_SNMP
-
     SR_INT32 genTrap = 0;
     SR_INT32 specTrap = 0;
     

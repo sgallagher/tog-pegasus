@@ -4,6 +4,7 @@ DIRS = \
 	InstanceProvider \
 	MethodProvider \
 	IndicationProvider \
+	SNMPIndicationProvider \
 	ProcessIndicationProvider \
 	AlertIndicationProvider
 

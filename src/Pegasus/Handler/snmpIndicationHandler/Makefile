@@ -6,23 +6,21 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_HANDLER_INTERNAL
 
-#EXTRA_LIB = /opt/snmp15.3/sadk/hpux11.lib
-
-LIBRARIES = \
-    pegcommon \
-    pegconfig \
-    peggetoopt \
-    pegclient
+#LIBRARIES = \
+#    pegcommon \
+#    pegconfig \
+#    peggetoopt \
+#    pegclient
 
 SOURCES = snmpIndicationHandler.cpp
 
 ifdef PEGASUS_AGENT
  LIBRARIES += 	subagent \
-			pack \
-			agent \
-			emanate \
-			mibtable \
-			snmp
+		pack \
+		agent \
+		emanate \
+		mibtable \
+		snmp
 
  EXTRA_INCLUDES = -g  -I/opt/snmp15.3/sadk/include \
         -I/opt/snmp15.3/sadk/include/snmpd \

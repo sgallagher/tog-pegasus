@@ -1268,6 +1268,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
 
 void XmlWriter::appendEMethodRequestHeader(
     Array<Sint8>& out,
+    const char* requestUri,
     const char* host,
     const char* cimMethod,
     const String& authenticationHeader,
@@ -1275,7 +1276,7 @@ void XmlWriter::appendEMethodRequestHeader(
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
-    out << "M-POST /cimom HTTP/1.1\r\n";
+    out << "M-POST " << requestUri << " HTTP/1.1\r\n";
     out << "HOST: " << host << "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
@@ -1409,6 +1410,7 @@ void XmlWriter::_appendEMethodResponseElementEnd(
 //------------------------------------------------------------------------------
 
 Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
+    const char* requestUri,
     const char* host,
     const char* eMethodName,
     const String& messageId,
@@ -1428,13 +1430,14 @@ Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
 
     appendEMethodRequestHeader(
         tmp,
+        requestUri,
         host,
         eMethodName,
         authenticationHeader,
 	out.size());
     tmp << out;
 
-    return out;
+    return tmp;
 }
 
 //------------------------------------------------------------------------------

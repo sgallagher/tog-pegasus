@@ -99,7 +99,7 @@ public:
 	    CIMExportClient exportclient(monitor, httpConnector);
 	    exportclient.connect(dest.subString(0, dest.find("/")));
 	    exportclient.exportIndication(
-                dest.subString(dest.find("/")+1), indicationInstance);
+                dest.subString(dest.find("/")), indicationInstance);
 	}
 	catch(Exception& e)
         {

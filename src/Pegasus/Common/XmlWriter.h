@@ -247,6 +247,7 @@ public:
 
     static void appendEMethodRequestHeader(
     	Array<Sint8>& out,
+        const char* requestUri,
     	const char* host,
     	const char* cimMethod,
         const String& authenticationHeader,
@@ -257,6 +258,7 @@ public:
 	Uint32 contentLength);
 
     static Array<Sint8> formatSimpleEMethodReqMessage(
+        const char* requestUri,
 	const char* host,
 	const char* eMethodName,
 	const String& messageId,

@@ -93,17 +93,26 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
 {
    Array<Sint8> params;
 
+   String temphostName = System::getHostName();
+   char* hostName = temphostName.allocateCString();
+
+   char *requestUri = message->url.allocateCString();
+
    XmlWriter::appendInstanceIParameter(
       params, "NewIndication", message->indicationInstance);
 	
    Array<Sint8> buffer = XmlWriter::formatSimpleEMethodReqMessage(
-      message->url.allocateCString(), 
+      requestUri,
+      hostName,
       "ExportIndication", 
       message->messageId, 
       _authenticator->buildRequestAuthHeader(), 
       params);
 
    _outputQueue->enqueue(new HTTPMessage(buffer));
+
+   delete [] requestUri;
+   delete [] hostName; 
 }
 
 PEGASUS_NAMESPACE_END

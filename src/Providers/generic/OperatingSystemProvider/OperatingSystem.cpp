@@ -31,4 +31,6 @@
  #include "OperatingSystem_Windows.cpp"
 #elif defined PEGASUS_PLATFORM_LINUX_IX86_GNU
  #include "OperatingSystem_Linux.cpp"
+#elif defined PEGASUS_PLATFORM_AIX_RS_IBMCXX
+ #include "OperatingSystem_AIX.cpp"
 #endif

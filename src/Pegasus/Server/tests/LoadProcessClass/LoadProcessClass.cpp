@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
+// Revision 1.4  2001/02/16 13:23:45  karl
+// Add providers Directory
+//
 // Revision 1.3  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
 //
@@ -47,8 +50,17 @@
 
 using namespace Pegasus;
 using namespace std;
+/* This program is a temporary solution to installing classes into
+the repository until the compiler is installed.
+
+The current version creates
+1. The process class for the Process provider in the root/cimv20 namespace
+2. The __Namespace class for the Namespace Provider - in the root namespace
+*/
 
 const char NAMESPACE[] = "root/cimv20";
+const char ROOTNAMESPACE[] = "root";
+
 
 int main(int argc, char** argv)
 {
@@ -82,6 +94,50 @@ int main(int argc, char** argv)
 	c.addProperty(CIMProperty("age", Uint32(0)));
 
 	r.createClass(NAMESPACE, c);
+
+	cout << "Creating Process class with MyProvider Qualifier" <<endl;
+
+       // delete the __Namespace class if it exists
+       try
+       {
+	   r.deleteClass(NAMESPACE, "__Namespace");
+       }
+       catch (Exception&)
+       {
+	   // Ignore no such class error
+       }
+
+       // create the __Namespace class
+       CIMClass cl("__Namespace");
+       cl.addQualifier(Qualifier("provider", "__NamespaceProvider"));
+       cl.addProperty(Property("name", String())
+	   .addQualifier(Qualifier("key", true)));
+       r.createClass(NAMESPACE, cl);
+       cout << "Creating __Namespace class with __NamespaceProviderQualfier" 
+	   << endl;
+       }
+
+       // Now create the _-Namespace class in the root directory also
+        // delete the __Namespace class if it exists
+       try
+       {
+	   r.deleteClass(ROOTNAMESPACE, "__Namespace");
+       }
+       catch (Exception&)
+       {
+	   // Ignore no such class error
+       }
+
+       // create the __Namespace class
+       CIMClass cl("__Namespace");
+       cl.addQualifier(Qualifier("provider", "__NamespaceProvider"));
+       cl.addProperty(Property("name", String())
+	   .addQualifier(Qualifier("key", true)));
+       r.createClass(ROOTNAMESPACE, cl);
+       cout << "Creating __Namespace class with __NamespaceProviderQualfier" 
+	   << endl;
+       }
+
     }
     catch(Exception& e)
     {

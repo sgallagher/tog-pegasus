@@ -403,6 +403,9 @@ int DependCmdMain(int argc, char** argv)
 	const char* start = fileName.c_str();
 	const char* dot = strrchr(start, '.');
 
+	if( dot == NULL )
+		ErrorExit("bad extension: must be \".c\" or \".cpp\": " + fileName);
+
 	if ((strcmp(dot, ".cpp") != 0) && (strcmp(dot, ".c") != 0))
 	    ErrorExit("bad extension: must be \".c\" or \".cpp\": " + fileName);
 

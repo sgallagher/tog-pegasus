@@ -427,7 +427,7 @@ int main(int argc, char** argv)
       CIMDateTime vgD3 = CIMDateTime("20040520041400.000000+120");
       CIMDateTime vgDsub3 = CIMDateTime("20040520041400.000***+000");
       Sint64 diff3 = CIMDateTime::getDifference(vgDsub3,vgD3);
-      Sint64 vcom3 = PEGASUS_SINT64_LITERAL(-7200000000);
+      Sint64 vcom3 = -PEGASUS_SINT64_LITERAL(7200000000);
       Sint32 vdiv3 = diff3/1000000;
       Sint32 rvdiv3 = diff3%1000000;
       if (diff3 != vcom3) {
@@ -613,8 +613,9 @@ int main(int argc, char** argv)
             cout << "differenceInMicroseconds : " << buffer << endl;
         }
     
-        //assert (differenceInMicroseconds == 
-        //    PEGASUS_SINT64_LITERAL(86400000000));
+        
+
+        /**************** this test is no longer valid
     
         //
         // Test for Out of Range dates on HP-UX, since mktime on HP-UX only
@@ -639,6 +640,7 @@ int main(int argc, char** argv)
         {
             bad = true;
         }
+        
 
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
         assert(bad);
@@ -649,7 +651,9 @@ int main(int argc, char** argv)
             cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
-        }
+        }  */
+
+
     
         //
         // Set the start and finish times
@@ -672,6 +676,9 @@ int main(int argc, char** argv)
     
         assert (differenceInMicroseconds == 
             PEGASUS_SINT64_LITERAL(86400000000));
+
+
+        /*   *************  these tests are no longer valid - mktime is not used
     
         //
         // Test for Out of Range dates on HP-UX, since mktime on HP-UX only 
@@ -748,7 +755,9 @@ int main(int argc, char** argv)
             cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
-        }
+        }        */
+
+
     
         // Check for interval
         CIMDateTime 	 startInterval;
@@ -1262,8 +1271,8 @@ if (dulc != r_c2) {
     }
     catch (Exception & e)
     {
-        cout << "Exception: " << e.getMessage () << endl;
-        cout << "in exception at the end" << endl;
+        cout << "Exception: " << e.getMessage() << endl;
+        cout << "Exception caught at the end of test file" << endl;
         exit (1);
     }
 

@@ -20,16 +20,6 @@ pegasus_home_undefined:
 	@ exit 1
 endif
 
-ifdef PEGASUS_ACE_ROOT
-  ACE_ROOT = $(subst \,/,$(PEGASUS_ACE_ROOT))
-else
-  ERROR = pegasus_ace_root_undefined
-pegasus_ace_root_undefined:
-	@ echo PEGASUS_ACE_ROOT environment variable undefined
-	@ exit 1
-endif
-
-
 ################################################################################
 
 OBJ_DIR = $(HOME_DIR)/obj/$(DIR)

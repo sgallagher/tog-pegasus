@@ -23,8 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.cpp,v $
-// Revision 1.7  2001/04/08 01:13:23  mike
-// Changed "ConstCIM" to "CIMConst"
+// Revision 1.8  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.5  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
@@ -58,17 +59,17 @@
 //END_HISTORY
 
 #include <cassert>
-#include <ace/SOCK_Acceptor.h>
-#include <ace/Acceptor.h>
-#include <ace/INET_Addr.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/TCPChannel.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Server/Dispatcher.h>
+
+using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -97,8 +98,15 @@ class ServerHandler : public Handler
 {
 public:
 
-    ServerHandler() : _dispatcher(0)
+    ServerHandler(Dispatcher* dispatcher) : _dispatcher(dispatcher), _channel(0)
     {
+
+    }
+
+    virtual Boolean handleOpen(Channel* channel)
+    {
+	_channel = channel;
+	return Handler::handleOpen(channel);
     }
 
     virtual int handleMessage();
@@ -180,14 +188,10 @@ public:
 	Uint32 messageId,
 	const String& nameSpace);
 
-    void setDispatcher(Dispatcher* dispatcher)
-    {
-	_dispatcher = dispatcher;
-    }
-
 private:
 
     Dispatcher* _dispatcher;
+    Channel* _channel;
 };
 
 //------------------------------------------------------------------------------
@@ -265,8 +269,8 @@ int ServerHandler::handleGetRequest()
 	char header[sizeof(HEADER) + 20];
 	sprintf(header, HEADER, strlen(CONTENT));
 
-	peer().send_n(header, strlen(header));
-	peer().send_n(CONTENT, strlen(CONTENT));
+	_channel->writeN(header, strlen(header));
+	_channel->writeN(CONTENT, strlen(CONTENT));
     }
     else
     {
@@ -291,8 +295,8 @@ int ServerHandler::handleGetRequest()
 	char header[sizeof(HEADER) + 20];
 	sprintf(header, HEADER, strlen(CONTENT));
 
-	peer().send_n(header, strlen(header));
-	peer().send_n(CONTENT, strlen(CONTENT));
+	_channel->writeN(header, strlen(header));
+	_channel->writeN(CONTENT, strlen(CONTENT));
 
 	return -1;
     }
@@ -470,7 +474,7 @@ void ServerHandler::sendError(
 		    methodName,
 		    XmlWriter::formatErrorElement(code, description)))));
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -540,7 +544,7 @@ void ServerHandler::handleGetClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetClass", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -618,7 +622,7 @@ std::cout << e.getMessage() << std::endl;
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetInstance", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //STUB{
@@ -683,7 +687,7 @@ void ServerHandler::handleEnumerateClassNames(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClassNames", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 //STUB}
 
@@ -741,7 +745,7 @@ void ServerHandler::handleCreateInstance(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"CreateInstance", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -801,7 +805,7 @@ void ServerHandler::handleEnumerateInstanceNames(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateInstanceNames", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -847,7 +851,7 @@ void ServerHandler::handleDeleteQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"DeleteQualifier", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -897,7 +901,7 @@ void ServerHandler::handleGetQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetQualifier", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -945,7 +949,7 @@ void ServerHandler::handleSetQualifier(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"SetQualifier", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -989,7 +993,7 @@ void ServerHandler::handleEnumerateQualifiers(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateQualifiers", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -1065,7 +1069,7 @@ void ServerHandler::handleEnumerateClasses(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"EnumerateClasses", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -1118,7 +1122,7 @@ void ServerHandler::handleCreateClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"CreateClass", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -1171,7 +1175,7 @@ void ServerHandler::handleModifyClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"ModifyClass", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 //------------------------------------------------------------------------------
@@ -1224,66 +1228,28 @@ void ServerHandler::handleDeleteClass(
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"DeleteClass", body);
 
-    sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Acceptor
-//
-//	This is a one-per-process class.
+// ServerHandlerFactory
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef ACE_Acceptor<ServerHandler, ACE_SOCK_ACCEPTOR> AcceptorBase;
-
-class Acceptor : public AcceptorBase
+class ServerHandlerFactory : public ChannelHandlerFactory
 {
 public:
 
-    Acceptor(const ACE_INET_Addr& addr, const String& repositoryRoot) :
-	AcceptorBase(addr, ACE_Reactor::instance()),
-	_repository(repositoryRoot), _dispatcher(0)
-    {
+    ServerHandlerFactory(Dispatcher* dispatcher) : _dispatcher(dispatcher) { }
 
-    }
+    virtual ~ServerHandlerFactory() { }
 
-    virtual ~Acceptor()
-    {
-	if (_dispatcher)
-	    delete _dispatcher;
-    }
+    virtual ChannelHandler* create() { return new ServerHandler(_dispatcher); }
 
-    virtual int make_svc_handler(ServerHandler*& handler)
-    {
-	handler = new ServerHandler;
+private:
 
-	_dispatcher = new Dispatcher(&_repository);
-	handler->setDispatcher(_dispatcher);
-
-	if (reactor())
-	    handler->reactor(reactor());
-
-	return 0;
-    }
-
-    CIMRepository _repository;
     Dispatcher* _dispatcher;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// ServerRep
-//
-////////////////////////////////////////////////////////////////////////////////
-
-struct ServerRep
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    ACE_OS_Object_Manager ace_os_object_manager;
-    ACE_Object_Manager ace_object_manager;
-#endif
-    Acceptor* _acceptor;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1300,10 +1266,16 @@ const char REPOSITORY[] = "/repository";
 //
 //------------------------------------------------------------------------------
 
-CIMServer::CIMServer(const String& rootPath) : _rootPath(rootPath)
+CIMServer::CIMServer(
+    Selector* selector,
+    const String& rootPath)
+    : _rootPath(rootPath)
 {
-    _rep = new ServerRep;
-    _rep->_acceptor = 0;
+    // -- Save the selector or create a new one:
+
+    _selector = selector;
+
+    // -- Create a repository:
 
     if (!FileSystem::isDirectory(_rootPath))
 	throw NoSuchDirectory(_rootPath);
@@ -1313,6 +1285,20 @@ CIMServer::CIMServer(const String& rootPath) : _rootPath(rootPath)
 
     if (!FileSystem::isDirectory(_repositoryRootPath))
 	throw NoSuchDirectory(_repositoryRootPath);
+
+    CIMRepository* repository = new CIMRepository(rootPath);
+
+    // -- Create a dispatcher object:
+
+    Dispatcher* dispatcher = new Dispatcher(repository);
+
+    // -- Create a channel factory:
+
+    ServerHandlerFactory* factory = new ServerHandlerFactory(dispatcher);
+
+    // Create an acceptor:
+
+    _acceptor = new TCPChannelAcceptor(factory, _selector);
 }
 
 //------------------------------------------------------------------------------
@@ -1323,8 +1309,8 @@ CIMServer::CIMServer(const String& rootPath) : _rootPath(rootPath)
 
 CIMServer::~CIMServer()
 {
-    delete _rep->_acceptor;
-    delete _rep;
+    // Note: do not delete the acceptor because it belongs to the Selector
+    // which takes care of disposing of it.
 }
 
 //------------------------------------------------------------------------------
@@ -1333,10 +1319,9 @@ CIMServer::~CIMServer()
 //
 //------------------------------------------------------------------------------
 
-void CIMServer::bind(Protocol protocol, Uint32 port)
+void CIMServer::bind(const char* address)
 {
-    ACE_INET_Addr addr(port);
-    _rep->_acceptor = new Acceptor(addr, _rootPath);
+    _acceptor->bind(address);
 }
 
 //------------------------------------------------------------------------------
@@ -1348,7 +1333,7 @@ void CIMServer::bind(Protocol protocol, Uint32 port)
 void CIMServer::runForever()
 {
     for (;;)
-	ACE_Reactor::instance()->handle_events();
+	_selector->select(5000);
 }
 
 PEGASUS_NAMESPACE_END

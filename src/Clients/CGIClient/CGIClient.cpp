@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
-// Revision 1.24  2001/04/08 17:50:23  karl
-// fix elapsed time
+// Revision 1.25  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.23  2001/04/07 12:01:18  karl
 // remove namespace support
@@ -96,6 +97,7 @@ Pegasus.
 #include <Pegasus/Common/CGIQueryString.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/Selector.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -595,9 +597,14 @@ static void GetClass(const CGIQueryString& qs)
 
     try
     {
-	CIMClient client;
+	Selector selector;
+	CIMClient client(&selector);
 	HostInfo hostinfo;
-	client.connect(hostinfo.getHostName(), hostinfo.getHostPort());
+
+	char address[128];
+	sprintf(address, "%s:%d", 
+	    hostinfo.getHostName(), hostinfo.getHostPort());
+	client.connect(address);
 
 	CIMClass cimClass = client.getClass(nameSpace, className,
 	    localOnly, includeQualifiers, includeClassOrigin);
@@ -648,8 +655,9 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 
     try
     {
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 	// get the class
 	CIMClass cimClass = client.getClass(
 	    nameSpace, className, false, true, true);
@@ -753,8 +761,9 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	// Make the Connection
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	Array<String> classNames = client.enumerateClassNames(
 	    nameSpace, className, deepInheritance);
@@ -792,8 +801,9 @@ static void DeleteClass(const CGIQueryString& qs)
 
     try
     {
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	client.deleteClass(nameSpace, className);
 
@@ -914,8 +924,9 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
 
     try
     {
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	Array<CIMQualifierDecl> qualifierDecls =
 	    client.enumerateQualifiers(nameSpace);
@@ -950,8 +961,9 @@ static void GetQualifier(const CGIQueryString& qs)
 
     try
     {
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	CIMQualifierDecl qd = client.getQualifier(nameSpace, qualifierName);
 
@@ -1054,8 +1066,9 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	// Call enumerate Instances CIM Method
 	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
@@ -1124,8 +1137,9 @@ static void GetInstance(const CGIQueryString& qs)
 
     try
     {
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	CIMInstance cimInstance = client.getInstance(nameSpace,
 	    referenceName, localOnly, includeClassOrigin, includeClassOrigin);
@@ -1160,7 +1174,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
     //try
     //{
     //    CIMClient client;
-    //    client.connect("localhost", 8888);
+    //    client.connect("localhost:8888");
     //
     //    Array<String> classNames = client.enumerateInstancs(
     //        nameSpace, className);
@@ -1211,8 +1225,9 @@ const char* tmp;
 
     try
 	{
-	    CIMClient client;
-	    client.connect("localhost", 8888);
+	    Selector selector;
+	    CIMClient client(&selector);
+	    client.connect("localhost:8888");
 	    cout << "DEBUG GetProperty " << __LINE__ << endl;
 
 	    CIMValue value = client.getProperty(nameSpace,
@@ -1304,8 +1319,9 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	// Call create Instances CIM Method for class __Namespace
 	cout << "Creating " << nameSpaceName;
@@ -1362,8 +1378,9 @@ static void DeleteNameSpace(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	// Call delete Instances CIM Method for class __Namespace
 	client.deleteInstance(nameSpace, referenceName);
@@ -1402,8 +1419,9 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	// Call enumerate Instances CIM Method
 	Array<CIMReference> instanceNames = client.enumerateInstanceNames(
@@ -1617,8 +1635,9 @@ static void ClassInheritance(const CGIQueryString& qs)
 	Boolean includeClassOrigin = true;
 
 
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 	client.setTimeOut(timeOut);
 
 
@@ -1702,8 +1721,9 @@ static void ClassTree(const CGIQueryString& qs)
 	Boolean deepInheritance = true;
 	String className = "";
 
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 
 	Array<String> classNames = client.enumerateClassNames(

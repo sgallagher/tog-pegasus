@@ -2,7 +2,7 @@ ROOT=../../..
 
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) $(ACE_INCLUDES)
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LIBRARIES = $(ACE_LIB)
 

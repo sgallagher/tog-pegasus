@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: GetInstance.cpp,v $
-// Revision 1.3  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Revision 1.4  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.2  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -43,6 +44,7 @@
 
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Selector.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -53,8 +55,9 @@ int main(int argc, char** argv)
 {
     try
     {
-	CIMClient client;
-	client.connect("localhost", 8888);
+	Selector selector;
+	CIMClient client(&selector);
+	client.connect("localhost:8888");
 
 	String instanceName = "Process.pid=123456";
 

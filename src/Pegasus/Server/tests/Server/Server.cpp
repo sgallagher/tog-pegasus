@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: Server.cpp,v $
-// Revision 1.5  2001/03/11 23:35:33  mike
-// Ports to Linux
+// Revision 1.6  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.3  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
@@ -41,6 +42,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <Pegasus/Server/CIMServer.h>
+#include <Pegasus/Common/Selector.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -72,13 +74,14 @@ int main(int argc, char** argv)
 
     try
     {
-	CIMServer server(pegasusHome);
+	Selector selector;
+	CIMServer server(&selector, pegasusHome);
 
-	const Uint32 PORT = 8888;
-	server.bind(CIMServer::PROPRIETARY, PORT);
+	const char ADDRESS[] = "8888";
+	server.bind(ADDRESS);
         std::cout << PEGASUSSERVERNAME << " Version " << PEGASUSVERSION << endl;
 	std::cout << LICENSE << endl;
-	std::cout << "Listening on port " << PORT << std::endl;
+	std::cout << "Listening on port " << ADDRESS << std::endl;
 	server.runForever();
     }
     catch(Exception& e)

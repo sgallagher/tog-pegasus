@@ -3,7 +3,7 @@ DIR = Pegasus/Provider/tests/ProviderTable
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) $(ACE_INCLUDES)
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = ProviderTable
 

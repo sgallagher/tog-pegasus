@@ -6,10 +6,6 @@ OS_TYPE=unix
 
 DEPEND_INCLUDES = -I/usr/include/g++-3
 
-ACE_INCLUDES = -I$(ACE_ROOT)
-
-ACE_LIB = $(ACE_ROOT)/ace/libACE.so
-
 DEFINES =
 
 FLAGS = -DPEGASUS_OS_TYPE_UNIX -O2 -W -Wall -pipe -Wno-unused -fcheck-new

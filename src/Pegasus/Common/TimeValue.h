@@ -23,8 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: TimeValue.h,v $
-// Revision 1.2  2001/04/11 00:23:44  mike
-// new files
+// Revision 1.3  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.1  2001/04/10 23:01:52  mike
 // Added new TimeValue class and regression tests for it.
@@ -74,6 +75,12 @@ public:
     void setMicroseconds(Uint32 microseconds)
     {
 	_microseconds = microseconds;
+    }
+
+    void fromMilliseconds(Uint32 milliseconds)
+    {
+	_seconds = 0;
+	_microseconds = milliseconds * 1000;
     }
 
     Uint32 toMilliseconds() const 

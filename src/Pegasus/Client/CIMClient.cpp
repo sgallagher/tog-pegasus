@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: CIMClient.cpp,v $
-// Revision 1.5  2001/03/05 19:54:49  mike
-// Fixed earlier boo boo (renamed CimException to CIMException).
+// Revision 1.6  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.4  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
@@ -57,15 +58,17 @@
 //
 //END_HISTORY
 
-#include <ace/SOCK_Connector.h>
-#include <ace/INET_Addr.h>
-#include <ace/Reactor.h>
-#include <ace/WFMO_Reactor.h>
-#include <Pegasus/Protocol/Handler.h>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/TCPChannel.h>
+#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/TimeValue.h>
+#include <Pegasus/Protocol/Handler.h>
 #include "CIMClient.h"
+
+using namespace std;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -231,14 +234,8 @@ class ClientHandler : public Handler
 {
 public:
 
-    ClientHandler()
-    {
-	cerr << __FILE__ << "(" << __LINE__ << "): internal error" << endl;
-	exit(1);
-    }
-
-    ClientHandler(const ACE_INET_Addr& addr_) 
-	: addr(addr_), _getClassResult(0), _blocked(false)
+    ClientHandler(Selector* selector) 
+	: _getClassResult(0), _blocked(false), _selector(selector)
     {
 
     }
@@ -282,8 +279,6 @@ public:
 
     Boolean waitForResponse(Uint32 timeOutMilliseconds);
 
-    ACE_INET_Addr addr;
-
     union
     {
 	GetClassResult* _getClassResult;
@@ -306,20 +301,8 @@ public:
 private:
     Boolean _blocked;
     char _hostNameTmp[256];
+    Selector* _selector;
 };
-
-//------------------------------------------------------------------------------
-//
-// ClientHandler::ClientHandler()
-//
-//------------------------------------------------------------------------------
-
-const char* ClientHandler::getHostName() const 
-{
-    ((char*)_hostNameTmp)[0] = '\0';
-    addr.get_host_name((char*)_hostNameTmp, sizeof(_hostNameTmp)); 
-    return _hostNameTmp;
-}
 
 //------------------------------------------------------------------------------
 //
@@ -1079,16 +1062,16 @@ Boolean ClientHandler::waitForResponse(Uint32 timeOutMilliseconds)
 
     while (_blocked)
     {
-	ACE_Time_Value start = ACE_OS::gettimeofday();
+	TimeValue start = TimeValue::getCurrentTime();
 
-	ACE_Time_Value tv;
-	tv.msec(rem);
+	TimeValue tv;
+	tv.fromMilliseconds(rem);
 
-	ACE_Reactor::instance()->handle_events(&tv);
+	_selector->select(tv.toMilliseconds());
 
-	ACE_Time_Value stop = ACE_OS::gettimeofday();
+	TimeValue stop = TimeValue::getCurrentTime();
 
-	long diff = stop.msec() - start.msec();
+	long diff = stop.toMilliseconds() - start.toMilliseconds();
 
 	if (diff >= rem)
 	    break;
@@ -1103,41 +1086,23 @@ Boolean ClientHandler::waitForResponse(Uint32 timeOutMilliseconds)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Connector
+// ClientHandlerFactory
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef ACE_Connector<ClientHandler, ACE_SOCK_CONNECTOR> Connector;
-
-#if 0
-class Connector : public BaseConnector
+class ClientHandlerFactory : public ChannelHandlerFactory
 {
 public:
 
-    virtual int make_svc_handler(ClientHandler*& handler)
-    {
-	handler = new ClientHandler;
+    ClientHandlerFactory(Selector* selector) : _selector(selector) { }
 
-	if (reactor())
-	    handler->reactor(reactor());
+    virtual ~ClientHandlerFactory() { }
 
-	return 0;
-    }
-};
-#endif
+    virtual ChannelHandler* create() { return new ClientHandler(_selector); }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// ClientRep
-//
-////////////////////////////////////////////////////////////////////////////////
+private:
 
-struct ClientRep
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    ACE_OS_Object_Manager ace_os_object_manager;
-    ACE_Object_Manager ace_object_manager;
-#endif
+    Selector* _selector;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1147,62 +1112,62 @@ struct ClientRep
 ////////////////////////////////////////////////////////////////////////////////
 
 
-CIMClient::CIMClient(Uint32 timeOutMilliseconds) 
-    : _handler(0), _timeOutMilliseconds(timeOutMilliseconds)
+CIMClient::CIMClient(
+    Selector* selector,
+    Uint32 timeOutMilliseconds)
+    : _channel(0), _timeOutMilliseconds(timeOutMilliseconds)
 {
-    _rep = new ClientRep;
+    _selector = selector;
 }
 
 CIMClient::~CIMClient()
 {
-    delete _rep;
+    // Do not delete the selector here. It is owned by the application
+    // and is passed into the constructor.
 }
 
-void CIMClient::connect(const char* hostName, Uint32 port)
+// ATTN-A: rework this to expose connector so that it may be used to
+// make more than one client connetion. Also, expose the selector.
+
+void CIMClient::connect(const char* address)
 {
-    if (_handler)
+    if (_channel)
 	throw AlreadyConnected();
 
-    ACE_INET_Addr addr(port, hostName);
-    ClientHandler* handler = new ClientHandler(addr);
+    ChannelHandlerFactory* factory = new ClientHandlerFactory(_selector);
 
-    // ATTN: Perform a blocking connect:
+    TCPChannelConnector* connector 
+	= new TCPChannelConnector(factory, _selector);
 
-    Uint32 seconds = 5;
-    ACE_Synch_Options options(
-	ACE_Synch_Options::USE_TIMEOUT, 
-	ACE_Time_Value(seconds));
+    // ATTN-A: need connection timeout here:
 
-    Connector connector;
+    _channel = connector->connect(address);
 
-    if (connector.connect(handler, addr, options) == -1)
+    if (!_channel)
 	throw FailedToConnect();
-
-    _handler = handler;
 }
 
 void CIMClient::get(const char* document) const
 {
-    if (!_handler)
+    if (!_channel)
 	throw NotConnected();
 
     Array<Sint8> message = XmlWriter::formatGetHeader(document);
 
-    ((ClientHandler*)_handler)->peer().send_n(
+    _channel->writeN(
 	message.getData(), message.getSize());
 }
 
 void CIMClient::runOnce()
 {
-    ACE_Reactor::instance()->handle_events();
+    const Uint32 MILLISECONDS_TIMEOUT = 5000;
+    _selector->select(MILLISECONDS_TIMEOUT);
 }
 
 void CIMClient::runForever()
 {
     for (;;)
-    {
-	ACE_Reactor::instance()->handle_events();
-    }
+	runOnce();
 }
 
 //------------------------------------------------------------------------------
@@ -1254,21 +1219,21 @@ CIMClass CIMClient::getClass(
 	XmlWriter::appendBooleanParameter(
 	    parameters, "IncludeClassOrigin", true);
 
+    // ATTN-A: inject the real hostname here!
+
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
-	nameSpace, "GetClass", parameters);
+	_getHostName(), nameSpace, "GetClass", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    GetClassResult* result = handler->_getClassResult;
+    GetClassResult* result = _getHandler()->_getClassResult;
     CIMClass cimClass = result->cimClass;
     CIMException::Code code = result->code;
     delete result;
-    handler->_getClassResult = 0;
+    _getHandler()->_getClassResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1307,20 +1272,18 @@ CIMInstance CIMClient::getInstance(
 	    parameters, "IncludeClassOrigin", true);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
-	nameSpace, "GetInstance", parameters);
+	_getHostName(), nameSpace, "GetInstance", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    GetInstanceResult* result = handler->_getInstanceResult;
+    GetInstanceResult* result = _getHandler()->_getInstanceResult;
     CIMInstance cimInstance = result->cimInstance;
     CIMException::Code code = result->code;
     delete result;
-    handler->_getInstanceResult = 0;
+    _getHandler()->_getInstanceResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1340,19 +1303,18 @@ void CIMClient::deleteClass(
 	XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "DeleteClass", parameters);
 	
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    DeleteClassResult* result = handler->_deleteClassResult;
+    DeleteClassResult* result = _getHandler()->_deleteClassResult;
     CIMException::Code code = result->code;
     delete result;
-    handler->_deleteClassResult = 0;
+    _getHandler()->_deleteClassResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1376,19 +1338,18 @@ void CIMClient::createClass(
     XmlWriter::appendClassParameter(parameters, "NewClass", newClass);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "CreateClass", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    CreateClassResult* result = handler->_createClassResult;
+    CreateClassResult* result = _getHandler()->_createClassResult;
     CIMException::Code code = result->code;
     delete result;
-    handler->_createClassResult = 0;
+    _getHandler()->_createClassResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1406,19 +1367,18 @@ void CIMClient::createInstance(
 	parameters, "NewInstance", newInstance);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "CreateInstance", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    CreateInstanceResult* result = handler->_createInstanceResult;
+    CreateInstanceResult* result = _getHandler()->_createInstanceResult;
     CIMException::Code code = result->code;
     delete result;
-    handler->_createInstanceResult = 0;
+    _getHandler()->_createInstanceResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1434,19 +1394,18 @@ void CIMClient::modifyClass(
     XmlWriter::appendClassParameter(parameters, "ModifiedClass", modifiedClass);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "ModifyClass", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    ModifyClassResult* result = handler->_modifyClassResult;
+    ModifyClassResult* result = _getHandler()->_modifyClassResult;
     CIMException::Code code = result->code;
     delete result;
-    handler->_modifyClassResult = 0;
+    _getHandler()->_modifyClassResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1490,20 +1449,19 @@ Array<CIMClass> CIMClient::enumerateClasses(
 	    parameters, "IncludeClassOrigin", true);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "EnumerateClasses", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    EnumerateClassesResult* result = handler->_enumerateClassesResult;
+    EnumerateClassesResult* result = _getHandler()->_enumerateClassesResult;
     Array<CIMClass> classDecls = result->classDecls;
     CIMException::Code code = result->code;
     delete result;
-    handler->_enumerateClassesResult = 0;
+    _getHandler()->_enumerateClassesResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1534,20 +1492,19 @@ Array<String> CIMClient::enumerateClassNames(
 	XmlWriter::appendBooleanParameter(parameters, "DeepInheritance", true);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "EnumerateClassNames", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    EnumerateClassNamesResult* result = handler->_enumerateClassNamesResult;
+    EnumerateClassNamesResult* result = _getHandler()->_enumerateClassNamesResult;
     Array<String> classNames = result->classNames;
     CIMException::Code code = result->code;
     delete result;
-    handler->_enumerateClassNamesResult = 0;
+    _getHandler()->_enumerateClassNamesResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1581,21 +1538,20 @@ Array<CIMReference> CIMClient::enumerateInstanceNames(
     XmlWriter::appendClassNameParameter(parameters, "ClassName", className);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "EnumerateInstanceNames", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
     EnumerateInstanceNamesResult* result 
-	= handler->_enumerateInstanceNamesResult;
+	= _getHandler()->_enumerateInstanceNamesResult;
     Array<CIMReference> instanceNames = result->instanceNames;
     CIMException::Code code = result->code;
     delete result;
-    handler->_enumerateInstanceNamesResult = 0;
+    _getHandler()->_enumerateInstanceNamesResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1702,20 +1658,19 @@ CIMQualifierDecl CIMClient::getQualifier(
 	    parameters, "QualifierName", qualifierName);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "GetQualifier", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    GetQualifierResult* result = handler->_getQualifierResult;
+    GetQualifierResult* result = _getHandler()->_getQualifierResult;
     CIMQualifierDecl qualifierDecl = result->qualifierDecl;
     CIMException::Code code = result->code;
     delete result;
-    handler->_getQualifierResult = 0;
+    _getHandler()->_getQualifierResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1734,19 +1689,18 @@ void CIMClient::setQualifier(
 	parameters, "QualifierDeclaration", qualifierDeclaration);
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "SetQualifier", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    SetQualifierResult* result = handler->_setQualifierResult;
+    SetQualifierResult* result = _getHandler()->_setQualifierResult;
     CIMException::Code code = result->code;
     delete result;
-    handler->_setQualifierResult = 0;
+    _getHandler()->_setQualifierResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1768,19 +1722,18 @@ void CIMClient::deleteQualifier(
 	    parameters, "QualifierName", qualifierName);
 	
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "DeleteQualifier", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    DeleteQualifierResult* result = handler->_deleteQualifierResult;
+    DeleteQualifierResult* result = _getHandler()->_deleteQualifierResult;
     CIMException::Code code = result->code;
     delete result;
-    handler->_deleteQualifierResult = 0;
+    _getHandler()->_deleteQualifierResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1794,20 +1747,19 @@ Array<CIMQualifierDecl> CIMClient::enumerateQualifiers(
     Array<Sint8> parameters;
 
     Array<Sint8> message = XmlWriter::formatSimpleReqMessage(
-	((ClientHandler*)_handler)->getHostName(),
+	_getHostName(),
 	nameSpace, "EnumerateQualifiers", parameters);
 
-    ClientHandler* handler = (ClientHandler*)_handler;
-    handler->sendMessage(message);
+    _channel->writeN(message.getData(), message.getSize());
 
-    if (!handler->waitForResponse(_timeOutMilliseconds))
+    if (!_getHandler()->waitForResponse(_timeOutMilliseconds))
 	throw TimedOut();
 
-    EnumerateQualifiersResult* result = handler->_enumerateQualifiersResult;
+    EnumerateQualifiersResult* result = _getHandler()->_enumerateQualifiersResult;
     Array<CIMQualifierDecl> qualifierDecls = result->qualifierDecls;
     CIMException::Code code = result->code;
     delete result;
-    handler->_enumerateQualifiersResult = 0;
+    _getHandler()->_enumerateQualifiersResult = 0;
 
     if (code != CIMException::SUCCESS)
 	throw CIMException(code);
@@ -1824,6 +1776,11 @@ CIMValue CIMClient::invokeMethod(
 {
     throw CIMException(CIMException::NOT_SUPPORTED);
     return CIMValue();
+}
+
+ClientHandler* CIMClient::_getHandler()
+{
+    return (ClientHandler*)_channel->getChannelHandler();
 }
 
 PEGASUS_NAMESPACE_END

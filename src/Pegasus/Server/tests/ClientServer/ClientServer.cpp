@@ -22,8 +22,8 @@
 //
 // Author:
 //
-// $Log: Client.cpp,v $
-// Revision 1.12  2001/04/12 07:25:20  mike
+// $Log: ClientServer.cpp,v $
+// Revision 1.1  2001/04/12 07:25:20  mike
 // Replaced ACE with new Channel implementation.
 // Removed all ACE dependencies.
 //
@@ -56,13 +56,18 @@
 //END_HISTORY
 
 #include <cassert>
+#include <cstdlib>
 #include <Pegasus/Common/Selector.h>
+#include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Client/CIMClient.h>
 
 using namespace Pegasus;
 using namespace std;
 
 const String NAMESPACE = "root/cimv20";
+const char PEGASUSVERSION[]  = "0.7";
+const char PEGASUSSERVERNAME[] = "Pegasus CIM Server";
+const char LICENSE[] = "License Statement";
 
 static void TestGetClass(CIMClient& client)
 {
@@ -227,10 +232,26 @@ static void TestInstanceOperations(CIMClient& client)
 
 int main(int argc, char** argv)
 {
+    // Get the PEGASUS_HOME environment variable:
+
+    const char* pegasusHome = getenv("PEGASUS_HOME");
+
+    if (!pegasusHome)
+    {
+	cerr << argv[0] << ": PEGASUS_HOME environment variable not set";
+	cerr << endl;
+	exit(1);
+    }
+
     try
     {
 	Selector selector;
-	CIMClient client(&selector);
+	CIMServer server(&selector, pegasusHome);
+
+	const char ADDRESS[] = "8888";
+	server.bind(ADDRESS);
+
+	CIMClient client(&selector, CIMClient::DEFAULT_TIMEOUT_MILLISECONDS);
 	client.connect("localhost:8888");
 	TestQualifierOperations(client);
 	TestClassOperations(client);

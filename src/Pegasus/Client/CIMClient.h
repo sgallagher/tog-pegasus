@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: CIMClient.h,v $
-// Revision 1.2  2001/02/18 02:49:00  mike
-// Removed ugly workarounds for MSVC++ 5.0 (using SP3 now)
+// Revision 1.3  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.1  2001/02/16 02:08:26  mike
 // Renamed several classes
@@ -61,40 +62,54 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct ClientRep;
+class ClientHandler;
+class Selector;
+class Channel;
+
 /** Class CIMClient - This class defines the client interfaces for Pegasus.
-These are the interfaces that could be used by a CIM CIMClient written in C++.
-These interfaces are based completely on the operations interfaces defined in
-the Pegasus CIMOperations.h file with some extensions for the client interface.
-@see "The CIMOperations Class"
+    These are the interfaces that could be used by a CIM CIMClient written in 
+    C++. These interfaces are based completely on the operations interfaces 
+    defined in the Pegasus CIMOperations.h file with some extensions for the 
+    client interface. @see "The CIMOperations Class"
 */
 class PEGASUS_CLIENT_LINKAGE CIMClient : public CIMOperations
 {
 public:
 
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 20000 };
+
     ///
-    CIMClient(Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+    CIMClient(
+	Selector* selector,
+	Uint32 timeOutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+
     ///
     ~CIMClient();
+
     ///
     Uint32 getTimeOut() const
     {
 	return _timeOutMilliseconds;
     }
+
     ///
     void setTimeOut(Uint32 timeOutMilliseconds)
     {
 	_timeOutMilliseconds = timeOutMilliseconds;
     }
-     ///
-    void connect(const char* hostName, Uint32 port);
+
+    ///
+    void connect(const char* address);
+
     ///
     void get(const char* document) const;
+
     ///
     void runOnce();
+
     ///
     void runForever();
+
     ///
     virtual CIMClass getClass(
 	const String& nameSpace,
@@ -103,6 +118,7 @@ public:
 	Boolean includeQualifiers = true,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = StringArray());
+
     ///
     virtual CIMInstance getInstance(
 	const String& nameSpace,
@@ -111,30 +127,37 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = StringArray());
+
     ///
     virtual void deleteClass(
 	const String& nameSpace,
 	const String& className);
+
     ///
     virtual void deleteInstance(
 	const String& nameSpace,
 	const CIMReference& instanceName);
+
     ///
     virtual void createClass(
 	const String& nameSpace,
 	CIMClass& newClass);
+
     ///
     virtual void createInstance(
 	const String& nameSpace,
 	CIMInstance& newInstance) ;
+
     ///
     virtual void modifyClass(
 	const String& nameSpace,
 	CIMClass& modifiedClass);
+
     ///
     virtual void modifyInstance(
 	const String& nameSpace,
 	const CIMInstance& modifiedInstance);
+
     ///
     virtual Array<CIMClass> enumerateClasses(
 	const String& nameSpace,
@@ -143,11 +166,13 @@ public:
 	Boolean localOnly = true,
 	Boolean includeQualifiers  = true,
 	Boolean includeClassOrigin = false);
+
     ///
     virtual Array<String> enumerateClassNames(
 	const String& nameSpace,
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false);
+
     ///
     virtual Array<CIMInstance> enumerateInstances(
 	const String& nameSpace,
@@ -157,14 +182,17 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = StringArray());
+
     ///
     virtual Array<CIMReference> enumerateInstanceNames(
 	const String& nameSpace,
 	const String& className);
+
     ///
     virtual Array<CIMInstance> execQuery(
 	const String& queryLanguage,
 	const String& query) ;
+
     ///
     virtual Array<CIMInstance> associators(
 	const String& nameSpace,
@@ -176,6 +204,7 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = StringArray());
+
     ///
     virtual Array<CIMReference> associatorNames(
 	const String& nameSpace,
@@ -193,38 +222,46 @@ public:
 	Boolean includeQualifiers = false,
 	Boolean includeClassOrigin = false,
 	const Array<String>& propertyList = StringArray());
+
     ///
     virtual Array<CIMReference> referenceNames(
 	const String& nameSpace,
 	const CIMReference& objectName,
 	const String& resultClass = String::EMPTY,
 	const String& role = String::EMPTY);
+
     ///
     virtual CIMValue getProperty(
 	const String& nameSpace,
 	const CIMReference& instanceName,
 	const String& propertyName);
+
     ////
     virtual void setProperty(
 	const String& nameSpace,
 	const CIMReference& instanceName,
 	const String& propertyName,
 	const CIMValue& newValue = CIMValue());
+
     ///
     virtual CIMQualifierDecl getQualifier(
 	const String& nameSpace,
 	const String& qualifierName);
+
     ///
     virtual void setQualifier(
 	const String& nameSpace,
 	const CIMQualifierDecl& qualifierDeclaration);
+
     ///
     virtual void deleteQualifier(
 	const String& nameSpace,
 	const String& qualifierName);
+
     ///
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
 	const String& nameSpace);
+
     ///
     virtual CIMValue invokeMethod(
 	const String& nameSpace,
@@ -235,10 +272,16 @@ public:
 
 private:
 
+    ClientHandler* _getHandler();
+
     void _sendMessage(const Array<Sint8>& message);
 
-    ClientRep* _rep;
-    void* _handler;
+    // ATTN-A: supply the real hostname here!
+
+    const char* _getHostName() const { return "localhost"; }
+
+    Selector* _selector;
+    Channel* _channel;
     Uint32 _timeOutMilliseconds;
 };
 

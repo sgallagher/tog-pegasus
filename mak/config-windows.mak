@@ -6,17 +6,10 @@ OS_TYPE = windows
 
 DEPEND_INCLUDES =
 
-ACE_INCLUDES = -I$(ACE_ROOT)
-
-ifeq ($(PEGASUS_DEBUG),1)
-ACE_LIB = $(ACE_ROOT)/ace/aced.lib
-else
-ACE_LIB = $(ACE_ROOT)/ace/ace.lib
-endif
-
 DEFINES = -DWIN32
 
-FLAGS = -DPEGASUS_OS_TYPE_WINDOWS -GX -W3 -MDd -O2
+FLAGS = -DPEGASUS_OS_TYPE_WINDOWS -GX -W3 -O2
+# FLAGS = -DPEGASUS_OS_TYPE_WINDOWS -W3 -Ze -Zi -Od -GR -Gi- -GX -GF -MDd
 
 RM = mu rm
 

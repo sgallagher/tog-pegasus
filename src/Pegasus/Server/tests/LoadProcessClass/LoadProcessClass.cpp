@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
-// Revision 1.11  2001/03/30 01:59:14  karl
-// clean up get property
+// Revision 1.12  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.10  2001/02/18 20:01:45  karl
 // clean up conflict in cout that meant nothing
@@ -78,6 +79,8 @@ int main(int argc, char** argv)
 	try
 	{
 	    r.deleteClass(NAMESPACE, "Process");
+	    r.deleteClass(NAMESPACE, "__Namespace");
+	    r.deleteClass(NAMESPACE, "PEG_Instance");
 	}
 	catch (Exception&)
 	{
@@ -139,7 +142,7 @@ int main(int argc, char** argv)
 
 	// Put it into the normal namespace
 	r.createClass(NAMESPACE, cn);
-        cout << "Created __Namespace class with Provider Qualfier" << endl;
+        // cout << "Created __Namespace class with Provider Qualfier" << endl;
 
 
 

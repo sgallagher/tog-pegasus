@@ -23,8 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.h,v $
-// Revision 1.1  2001/02/16 02:08:26  mike
-// Renamed several classes
+// Revision 1.2  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.2  2001/01/29 02:19:18  mike
 // added primitive provider dispatching
@@ -52,6 +53,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct ServerRep;
+class ChannelAcceptor;
+class Selector;
 
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
@@ -59,22 +62,22 @@ public:
 
     enum Protocol { PROPRIETARY, STANDARD };
 
-    CIMServer(const String& rootPath);
+    CIMServer(
+	Selector* selector,
+	const String& rootPath);
 
     ~CIMServer();
     
-    void bind(Protocol protocol, Uint32 port);
+    void bind(const char* address);
 
     void runForever();
 
 private:
 
-    /// This object was created to hide the ACE headers
-
-    ServerRep* _rep;
-
     String _rootPath;
     String _repositoryRootPath;
+    Selector* _selector;
+    ChannelAcceptor* _acceptor;
 };
 
 PEGASUS_NAMESPACE_END

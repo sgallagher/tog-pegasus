@@ -2,6 +2,9 @@
 				TO-DO List
 				==========
 
+    - Should ChannelHandler::handleOpen() do the registration with the
+      selector?
+
     - Figure out how to handle getProperty() return type.
 
     - Having problems with reference on Repository::createInstance() and

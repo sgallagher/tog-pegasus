@@ -4,8 +4,6 @@ DIR = CommExample/Comm
 
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = $(ACE_INCLUDES)
-
 LOCAL_DEFINES = -DPEGASUS_COMM_INTERNAL 
 
 LIBRARIES = $(ACE_LIB)

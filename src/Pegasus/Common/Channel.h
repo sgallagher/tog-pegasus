@@ -23,8 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Channel.h,v $
-// Revision 1.4  2001/04/11 05:19:09  mike
-// more docs
+// Revision 1.5  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 //
 //END_HISTORY
@@ -40,6 +41,8 @@ PEGASUS_NAMESPACE_BEGIN
     For a quicker understanding, look first at the ChannelConnector class.
     Then look at the ChannelAcceptor class.
 */
+
+class ChannelHandler;
 
 /** The Channel class defines the interface used for exchanging raw messages
     between two communication end-points (ordinarily in separate processes).
@@ -116,6 +119,10 @@ public:
     /** Returns true if the last error was a would block error:
     */
     virtual Boolean wouldBlock() const = 0;
+
+    /** Get the ChannelHandler for this channel.
+    */
+    virtual ChannelHandler* getChannelHandler() = 0;
 };
 
 /** The user of the channel module derives from the ChannelHandler class
@@ -348,6 +355,7 @@ public:
 	connection object. The caller MUST NOT dispose of the object.
 	@param address - specifies the address to connect to.
 	@return - Pointer to the new created channel.
+	ATTN-A: need connection timeout here!
     */
     virtual Channel* connect(const char* address) = 0;
 

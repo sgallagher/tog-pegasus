@@ -23,8 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: System.h,v $
-// Revision 1.2  2001/04/11 19:53:22  mike
-// More porting
+// Revision 1.3  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.1  2001/04/11 00:23:44  mike
 // new files
@@ -38,6 +39,18 @@
 #include <Pegasus/Common/Config.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+/** This is an opaque type which is used to represent dynamic library
+    handles returned by the System::loadDynamicLibrary() method and
+    accepted by the System::loadDynamicProcedure() method.
+*/
+typedef struct DynamicLibraryHandle_* DynamicLibraryHandle;
+
+/** This is an opaque type which is returned by System::loadDynamicSymbol().
+    Values of this type may be casted to the appropriate target type.
+*/
+typedef struct DynamicSymbolHandle_* DynamicSymbolHandle;
+    
 
 /** The System class defines wrappers for operating system related calls.
     These are only placed here if they are extremely light. These are
@@ -73,6 +86,12 @@ public:
     static Boolean removeFile(const char* path);
 
     static Boolean renameFile(const char* oldPath, const char* newPath);
+
+    static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
+
+    static DynamicSymbolHandle loadDynamicSymbol(
+	DynamicLibraryHandle libraryHandle,
+	const char* symbolName);
 };
 
 PEGASUS_NAMESPACE_END

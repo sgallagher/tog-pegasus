@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: Handler.h,v $
-// Revision 1.1  2001/01/14 19:53:52  mike
-// Initial revision
+// Revision 1.2  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 //
 //END_HISTORY
@@ -48,27 +49,25 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
-#include <ace/Service_Config.h>
-#include <ace/Connector.h>
-#include <ace/SOCK_Stream.h>
-#include <ace/OS.h>
+#include <Pegasus/Common/Channel.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_PROTOCOL_LINKAGE Handler 
-    : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH>
+class PEGASUS_PROTOCOL_LINKAGE Handler : public ChannelHandler
 {
 public:
 
-    Handler(ACE_Reactor* reactor = 0);
+    Handler();
 
     virtual ~Handler();
 
-    virtual int open(void* = 0);
+    virtual Boolean handleOpen(Channel* channel);
 
-    virtual int handle_input(ACE_HANDLE);
+    virtual Boolean handleInput(Channel* channel);
 
-    virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask mask);
+    virtual Boolean handleOutput(Channel* channel);
+
+    virtual void handleClose(Channel* channel);
 
     void clear();
 
@@ -86,15 +85,12 @@ public:
 
     virtual int handleMessage();
 
-    void sendMessage(const Array<Sint8>& message);
-
     static void printMessage(std::ostream& os, const Array<Sint8>& message);
 
 private:
 
     enum State { WAITING, LINES, CONTENT, DONE };
     State _state;
-    typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> BaseClass;
 
 protected:
 

@@ -23,8 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: TCPChannel.h,v $
-// Revision 1.1  2001/04/11 04:30:34  mike
-// More porting
+// Revision 1.2  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.2  2001/04/08 19:20:04  mike
 // more TCP work
@@ -71,6 +72,8 @@ public:
     Boolean getBlocking() const { return _blocking; }
 
     virtual Boolean handle(Sint32 desc, Uint32 reasons);
+
+    virtual ChannelHandler* getChannelHandler() { return _handler; }
 
 private:
     Sint32 _desc;

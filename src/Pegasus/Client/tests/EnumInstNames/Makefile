@@ -3,7 +3,7 @@ DIR = Pegasus/EnumInstNames/tests/EnumInstNames
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) $(ACE_INCLUDES)
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = EnumInstNames
 

@@ -4,7 +4,7 @@ DIR = Pegasus/getoopt
 
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = $(SYS_INCLUDES) $(ACE_INCLUDES)
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 ifeq ($(OS_TYPE),windows)
 EXTRA_INCLUDES += -I./nt_includes

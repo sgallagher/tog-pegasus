@@ -23,8 +23,9 @@
 // Author:
 //
 // $Log: Handler.cpp,v $
-// Revision 1.2  2001/02/01 17:42:01  mike
-// qualifier env var with PEGASUS_
+// Revision 1.3  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.1.1.1  2001/01/14 19:53:51  mike
 // Pegasus import
@@ -32,53 +33,38 @@
 //
 //END_HISTORY
 
-#include <Pegasus/Common/Config.h>
 #include <iostream>
 #include <cctype>
+#include <cassert>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include "Handler.h"
 
+using namespace std;
+
 PEGASUS_NAMESPACE_BEGIN
 
-// #define DEBUG_IO
+#define D(X) // X
 
-#ifdef DEBUG_IO
-# define D(X) X
-#else
-# define D(X) /* empty */
-#endif
-
-Handler::Handler(ACE_Reactor *reactor)
+Handler::Handler()
 {
-    D( std::cout << "=== Handler::Handler()" << std::endl; )
-    this->reactor(reactor);
+    D( cout << "Handler::Handler()" << endl; )
 }
 
 Handler::~Handler()
 {
-    D( std::cout << "=== Handler::~Handler()" << std::endl; )
+    D( cout << "Handler::~Handler()" << endl; )
 }
 
-int Handler::open(void* argument)
+Boolean Handler::handleOpen(Channel* channel)
 {
-    D( std::cout << "=== Handler::open()" << std::endl; )
+    D( cout << "Handler::handleOpen()" << endl; )
 
-    _state = WAITING;
+    channel->disableBlocking();
     clear();
-
-    // Enable non-blocking I/O:
-
-    peer().enable(ACE_NONBLOCK);
-
-    // Invoke open() in base class; the object will be registered
-    // to receive read events. This could be done here like this:
-    //
-    //     ACE_Reactor::instance()->register_handler(
-    //     	this, ACE_Event_Handler::READ_MASK);
-
-    return BaseClass::open(argument);
+    return true;
 }
 
 void Handler::clear()
@@ -170,10 +156,10 @@ void Handler::print() const
 
     for (Uint32 i = 0; i < _lines.getSize(); i++)
     {
-	std::cout << &message[_lines[i]] << "\r\n";
+	cout << &message[_lines[i]] << "\r\n";
     }
 
-    std::cout << "\r\n";
+    cout << "\r\n";
 
     // Print out the content:
 
@@ -181,7 +167,7 @@ void Handler::print() const
     const char* end = content + _contentLength;
 
     ((Array<Sint8>&)_message).append('\0');
-    XmlWriter::indentedPrint(std::cout, content);
+    XmlWriter::indentedPrint(cout, content);
     ((Array<Sint8>&)_message).remove(_message.getSize() - 1);
 }
 
@@ -206,9 +192,9 @@ static char* _FindTerminator(const char* data, Uint32 size)
     return 0;
 }
 
-int Handler::handle_input(ACE_HANDLE)
+Boolean Handler::handleInput(Channel* channel)
 {
-    D( std::cout << "=== Handler::handle_input()" << std::endl; )
+    D( cout << "Handler::handleInput()" << endl; )
 
     //--------------------------------------------------------------------------
     // If in the waiting state, set start state to header state.
@@ -225,7 +211,7 @@ int Handler::handle_input(ACE_HANDLE)
     Uint32 totalBytesRead = 0;
     int bytesRead;
 
-    while ((bytesRead = peer().recv(buffer, sizeof(buffer))) > 0)
+    while ((bytesRead = channel->read(buffer, sizeof(buffer))) > 0)
     {
 	_message.append(buffer, bytesRead);
 	totalBytesRead += bytesRead;
@@ -244,16 +230,16 @@ int Handler::handle_input(ACE_HANDLE)
 	{
 	    _state = DONE;
 	    _contentLength = _message.getSize() - _contentOffset;
-	    D( std::cout << "=== handleMessage(); closed connection" << std::endl; )
+	    D( cout << "handleMessage(); closed connection" << endl; )
 
 	    if (handleMessage() != 0)
-		return -1;
+		return false;
 
 	    clear();
 	    _state = WAITING;
 	}
 
-	return -1;
+	return false;
     }
 
     //--------------------------------------------------------------------------
@@ -284,10 +270,10 @@ int Handler::handle_input(ACE_HANDLE)
 		if (strncmp(m, "GET", 3) == 0 && isspace(m[3]))
 		{
 		    _state = DONE;
-		    D( std::cout << "=== handleMessage(); GET" << std::endl; )
+		    D( cout << "handleMessage(); GET" << endl; )
 
 		    if (handleMessage() != 0)
-			return -1;
+			return false;
 
 		    clear();
 		    _state = WAITING;
@@ -316,14 +302,15 @@ int Handler::handle_input(ACE_HANDLE)
 		&& currentContentLength == _contentLength)
 	    {
 		_state = DONE;
-		D( std::cout << "=== handleMessage(); content-length" << std::endl; )
+
+		D(cout << "handleMessage(); content-length" << endl;)
 
 		// Null terminate the content:
 
 		_message.append('\0');
 
 		if (handleMessage() != 0)
-		    return -1;
+		    return false;
 
 		clear();
 		_state = WAITING;
@@ -337,35 +324,35 @@ int Handler::handle_input(ACE_HANDLE)
 	    break;
     }
 
-    return 0;
+    return true;
 }
 
-int Handler::handle_close(ACE_HANDLE handle, ACE_Reactor_Mask mask)
+Boolean Handler::handleOutput(Channel* channel)
 {
-    D( std::cout << "=== Handler::handle_close()" << std::endl; )
+    return true;
+}
 
-    // Invoke handle_close() in base class; this object will be
-    // destructed.
-
-    return BaseClass::handle_close(handle, mask);
+void Handler::handleClose(Channel* channel)
+{
+    D( cout << "Handler::handleClose()" << endl; )
 }
 
 int Handler::handleMessage()
 {
-    D( std::cout << "=== Handler::handleMessage()" << std::endl; )
+    D( cout << "Handler::handleMessage()" << endl; )
 
     if (getenv("PEGASUS_TRACE_PROTOCOL"))
     {
-	std::cout << "========== RECEIVED ==========" << std::endl; 
+	cout << "========== RECEIVED ==========" << endl; 
 	print();
     }
 
-    // printMessage(std::cout, _message);
+    // printMessage(cout, _message);
 
     return 0;
 }
 
-void Handler::printMessage(std::ostream& os, const Array<Sint8>& message)
+void Handler::printMessage(ostream& os, const Array<Sint8>& message)
 {
     // Find separator between HTTP headers and content:
 
@@ -389,7 +376,7 @@ void Handler::printMessage(std::ostream& os, const Array<Sint8>& message)
 
     // Print HTTP Headers:
 
-    os << message.getData() << std::endl;
+    os << message.getData() << endl;
 
     // Print the body:
 
@@ -399,16 +386,6 @@ void Handler::printMessage(std::ostream& os, const Array<Sint8>& message)
 
     *((char*)separator) = '\n';
     ((Array<Sint8>&)message).remove(message.getSize() - 1);
-}
-
-void Handler::sendMessage(const Array<Sint8>& message)
-{
-    if (getenv("PEGASUS_TRACE_PROTOCOL"))
-    {
-	std::cout << "========== SENT ==========" << std::endl;
-	printMessage(std::cout, message); 
-    }
-    peer().send_n(message.getData(), message.getSize());
 }
 
 PEGASUS_NAMESPACE_END

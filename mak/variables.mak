@@ -3,7 +3,6 @@ variables:
 	@ $(ECHO) "ROOT=$(ROOT)"
 	@ $(ECHO) "DIR=$(DIR)"
 	@ $(ECHO) "HOME_DIR=$(HOME_DIR)"
-	@ $(ECHO) "ACE_ROOT=$(ACE_ROOT)"
 	@ $(ECHO) "OS_TYPE=$(OS_TYPE)"
 	@ $(ECHO) "OBJ_DIR=$(OBJ_DIR)"
 	@ $(ECHO) "BIN_DIR=$(BIN_DIR)"

@@ -23,9 +23,9 @@
 // Author:
 //
 // $Log: ProviderTable.cpp,v $
-// Revision 1.5  2001/02/26 04:33:30  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
+// Revision 1.6  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.4  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
@@ -42,8 +42,8 @@
 //
 //END_HISTORY
 
-#include <ace/OS.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/System.h>
 #include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -77,7 +77,8 @@ CIMProvider* ProviderTable::loadProvider(const String& providerId)
     ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
 #endif
 
-    ACE_SHLIB_HANDLE libraryHandle = ACE_OS::dlopen(libraryName.getPointer());
+    DynamicLibraryHandle libraryHandle = 
+	System::loadDynamicLibrary(libraryName.getPointer());
 
     if (!libraryHandle)
 	throw DynamicLoadFailed(libraryName.getPointer());
@@ -87,7 +88,8 @@ CIMProvider* ProviderTable::loadProvider(const String& providerId)
     String tmp = "PegasusCreateProvider_";
     tmp.append(providerId);
     ArrayDestroyer<char> functionName = tmp.allocateCString();
-    CreateProviderFunc func = (CreateProviderFunc)ACE_OS::dlsym(
+
+    CreateProviderFunc func = (CreateProviderFunc)System::loadDynamicSymbol(
 	libraryHandle, functionName.getPointer());
 
     if (!func)

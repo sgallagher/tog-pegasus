@@ -23,8 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: SystemWindows.cpp,v $
-// Revision 1.2  2001/04/11 19:53:22  mike
-// More porting
+// Revision 1.3  2001/04/12 07:25:20  mike
+// Replaced ACE with new Channel implementation.
+// Removed all ACE dependencies.
 //
 // Revision 1.1  2001/04/11 00:23:44  mike
 // new files
@@ -128,6 +129,18 @@ Boolean System::removeFile(const char* path)
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
     return rename(oldPath, newPath) == 0;
+}
+
+DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
+{
+    return DynamicLibraryHandle(LoadLibrary(fileName));
+}
+
+DynamicSymbolHandle System::loadDynamicSymbol(
+    DynamicLibraryHandle libraryHandle,
+    const char* symbolName)
+{
+    return DynamicSymbolHandle(GetProcAddress(libraryHandle, symbolName));
 }
 
 PEGASUS_NAMESPACE_END

@@ -145,6 +145,12 @@ public:
     void handleReferenceNamesRequest(
 	CIMReferenceNamesRequestMessage* request);
 
+    void handleGetPropertyRequest(
+	CIMGetPropertyRequestMessage* request);
+
+    void handleSetPropertyRequest(
+	CIMSetPropertyRequestMessage* request);
+
     void handleGetQualifierRequest(
 	CIMGetQualifierRequestMessage* request);
 

@@ -653,8 +653,6 @@ void CIMRepository::modifyClass(
     _SaveObject(classFilePath, cimClass);
 }
 
-// ATTN: It is critical that the propertyList and includeQualifiers
-// parameters are respected
 void CIMRepository::modifyInstance(
     const String& nameSpace,
     const CIMNamedInstance& modifiedInstance,
@@ -662,9 +660,130 @@ void CIMRepository::modifyInstance(
     const CIMPropertyList& propertyList)
 {
     String errMessage;
+    CIMInstance cimInstance;
+
+    if (propertyList.isNull())
+    {
+        //
+        // Use the given instance as is
+        //
+        cimInstance = modifiedInstance.getInstance();
+    }
+    else
+    {
+        //
+        // Use only the specified parts from the given instance
+        //
+
+        cimInstance = getInstance(nameSpace,
+            modifiedInstance.getInstanceName(), false, true);
+        CIMInstance givenInstance = modifiedInstance.getInstance();
+
+        if (includeQualifiers)
+        {
+            // ATTN: What to do with instance qualifiers?
+            // Need to remove the qualifiers from the original instance and
+            // copy over those from the given instance.  CIMInstance does
+            // not currently have a way to remove qualifiers from an instance.
+        }
+
+        //
+        // Loop through the propertyList replacing each property in the original
+        //
+        for (Uint32 i=0; i<propertyList.getNumProperties(); i++)
+        {
+            Uint32 origPropPos =
+                cimInstance.findProperty(propertyList.getPropertyName(i));
+            if (origPropPos != PEG_NOT_FOUND)
+            {
+                // Case: Property set in original
+                CIMProperty origProperty =
+                    cimInstance.getProperty(origPropPos);
+
+                // Get the given property value
+                Uint32 givenPropPos =
+                    givenInstance.findProperty(propertyList.getPropertyName(i));
+                if (givenPropPos != PEG_NOT_FOUND)
+                {
+                    // Case: Property set in original and given
+                    CIMProperty givenProperty =
+                        givenInstance.getProperty(givenPropPos);
+
+                    // Copy over the property from the given to the original
+                    if (includeQualifiers)
+                    {
+                        // Case: Total property replacement
+                        cimInstance.removeProperty(origPropPos);
+                        cimInstance.addProperty(givenProperty);
+                    }
+                    else
+                    {
+                        // Case: Replace only the property value (not quals)
+                        origProperty.setValue(givenProperty.getValue());
+                        cimInstance.removeProperty(origPropPos);
+                        cimInstance.addProperty(origProperty);
+                    }
+                }
+                else
+                {
+                    // Case: Property set in original and not in given
+                    // Just remove the property (set to null)
+                    cimInstance.removeProperty(origPropPos);
+                }
+            }
+            else
+            {
+                // Case: Property not set in original
+
+                // Get the given property value
+                Uint32 givenPropPos =
+                    givenInstance.findProperty(propertyList.getPropertyName(i));
+                if (givenPropPos != PEG_NOT_FOUND)
+                {
+                    // Case: Property set in given and not in original
+                    CIMProperty givenProperty =
+                        givenInstance.getProperty(givenPropPos);
+
+                    // Copy over the property from the given to the original
+                    if (includeQualifiers)
+                    {
+                        // Case: Total property copy
+                        cimInstance.addProperty(givenProperty);
+                    }
+                    else
+                    {
+                        // Case: Copy only the property value (not qualifiers)
+                        CIMProperty newProperty(
+                            givenProperty.getName(),
+                            givenProperty.getValue(),
+                            givenProperty.getArraySize(),
+                            givenProperty.getReferenceClassName(),
+                            givenProperty.getClassOrigin(),
+                            givenProperty.getPropagated());
+                        cimInstance.addProperty(newProperty);
+                    }
+                }
+                else
+                {
+                    // Case: Property not set in original or in given
+
+                    // Nothing to do; just make sure the property name is valid
+                    // ATTN: This is not the most efficient solution
+                    CIMClass cimClass = getClass(
+                        nameSpace, cimInstance.getClassName(), false);
+                    if (!cimClass.existsProperty(
+                        propertyList.getPropertyName(i)))
+                    {
+                        // ATTN: This exception may be returned by setProperty
+                        throw PEGASUS_CIM_EXCEPTION(
+                            CIM_ERR_NO_SUCH_PROPERTY, "modifyInstance()");
+                    }
+                }
+            }
+        }
+    }
 
     // -- Resolve the instance (looks up the class):
-        CIMInstance cimInstance(modifiedInstance.getInstance());
 
     CIMConstClass cimClass;
     cimInstance.resolve(_context, nameSpace, cimClass);
@@ -1109,6 +1228,7 @@ CIMValue CIMRepository::getProperty(
 
     Uint32 pos = cimInstance.findProperty(propertyName);
 
+    // ATTN: This breaks if the property is simply null
     if (pos == PEGASUS_NOT_FOUND)
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY, "getProperty()");
 
@@ -1125,29 +1245,24 @@ void CIMRepository::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 {
-    // -- Load the instance:
+    //
+    // Create the instance to pass to modifyInstance()
+    //
+    CIMInstance instance(instanceName.getClassName());
+    // ATTN: Is this the correct construction for this property?
+    instance.addProperty(CIMProperty(propertyName, newValue));
+    CIMNamedInstance namedInstance(instanceName, instance);
 
-    // ATTN: This may not be necessary when modifyInstance works properly
-    CIMInstance instance = getInstance(
-        nameSpace, instanceName, false, true);
-
-    Uint32 pos = instance.findProperty(propertyName);
-
-    if (pos == PEGASUS_NOT_FOUND)
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY, "setProperty()");
-
-    CIMProperty prop = instance.getProperty(pos);
-
-    prop.setValue(newValue);
-
+    //
+    // Create the propertyList to pass to modifyInstance()
+    //
     Array<String> propertyListArray;
     propertyListArray.append(propertyName);
-
     CIMPropertyList propertyList(propertyListArray);
 
-    CIMNamedInstance namedInstance;
-    namedInstance.set(instanceName, instance);
-
+    //
+    // Modify the instance to set the value of the given property
+    //
     modifyInstance(nameSpace, namedInstance, false, propertyList);
 }
 

@@ -431,6 +431,20 @@ repository implementation.
     pass to providers that act as services.  This handle provides
     service providers with access to the CIMServer data structures.
 
+52. (Roger Kumpf - HP) 28 Nov 2001 - Implemented ModifyInstance in
+    the repository so that it respects the IncludeQualifiers and
+    PropertyList parameters.  Updated SetProperty in the repository
+    so that it uses ModifyInstance correctly.  The repository now
+    supports GetProperty and SetProperty in addition to ModifyInstance.
+
+    Implemented GetProperty and SetProperty in the Dispatcher and
+    Provider2 so that they get translated to GetInstance and
+    ModifyInstance calls (respectively) in the provider.  Providers
+    written to the Provider2 API that correctly process the new
+    ModifyInstance parameters will automatically support SetProperty
+    operations.  Note that GetProperty and SetProperty currently only
+    work for String properties because of an XML encoding limitation.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

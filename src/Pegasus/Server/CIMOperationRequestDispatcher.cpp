@@ -304,12 +304,14 @@ void CIMOperationRequestDispatcher::handleEnqueue()
 		(CIMReferenceNamesRequestMessage*)request);
 	    break;
 
-	// ATTN: implement this!
 	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+	    handleGetPropertyRequest(
+		(CIMGetPropertyRequestMessage*)request);
 	    break;
 
-	// ATTN: implement this!
 	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+	    handleSetPropertyRequest(
+		(CIMSetPropertyRequestMessage*)request);
 	    break;
 
 	case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
@@ -1224,6 +1226,128 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	    errorDescription,
 	    request->queueIds.copyAndPop(),
 	    objectNames);
+
+    _enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleGetPropertyRequest(
+    CIMGetPropertyRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    CIMValue value;
+
+    try
+    {
+	// get provider for class
+	String className = request->instanceName.getClassName();
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
+        {
+            value = _repository->getProperty(
+                request->nameSpace,
+                request->instanceName,
+                request->propertyName);
+        }
+        else
+	{
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
+	    value = provider->getProperty(
+		OperationContext(),
+                request->nameSpace,
+                request->instanceName,
+                request->propertyName);
+        }
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMGetPropertyResponseMessage* response =
+	new CIMGetPropertyResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop(),
+	    value);
+
+    _enqueueResponse(request, response);
+}
+
+void CIMOperationRequestDispatcher::handleSetPropertyRequest(
+    CIMSetPropertyRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    try
+    {
+	// get provider for class
+	String className = request->instanceName.getClassName();
+	String providerName = _lookupProviderForClass(request->nameSpace, className);
+
+        if ( (providerName.size() == 0) &&
+                 !_repository->isDefaultInstanceProvider() )
+        {
+            // ATTN: Is this the right exception?
+            throw CIMException(CIM_ERR_NOT_SUPPORTED);
+        }
+        else if ( (providerName.size() == 0) ||
+                  (providerName == _repository->getProviderName()) )
+        {
+            _repository->setProperty(
+                request->nameSpace,
+                request->instanceName,
+                request->propertyName,
+                request->newValue);
+        }
+        else
+	{
+	    // attempt to load provider
+	    ProviderHandle * provider = _providerManager.getProvider(providerName, className);
+
+	    provider->setProperty(
+		OperationContext(),
+                request->nameSpace,
+                request->instanceName,
+                request->propertyName,
+                request->newValue);
+        }
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMSetPropertyResponseMessage* response =
+	new CIMSetPropertyResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    request->queueIds.copyAndPop());
 
     _enqueueResponse(request, response);
 }

@@ -1343,7 +1343,7 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
 	    XmlReader::getInstanceNameElement(parser, instanceName);
 	else if (CompareNoCase(name, "PropertyName") == 0)
 	    XmlReader::getStringValueElement(parser, propertyName, true);
-	else if (CompareNoCase(name, "PropertyValue") == 0)
+	else if (CompareNoCase(name, "NewValue") == 0)
 	    XmlReader::getPropertyValue(parser, propertyValue);
 	else
 	{

@@ -174,7 +174,13 @@ String System::getHostIP(const String &hostName)
 #ifndef PEGASUS_OS_OS400
     if ((phostent = ::gethostbyname(ccName)) != NULL)
 #else
-    if ((phostent = ::gethostbyname((const char *)hostName.getCString())) != NULL)
+    char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
+    if (strlen(ccName) < PEGASUS_MAXHOSTNAMELEN)
+        strcpy(ebcdicHost, ccName);
+    else
+        return ipAddress;
+    AtoE(ebcdicHost);
+    if ((phostent = ::gethostbyname(ebcdicHost)) != NULL)
 #endif
     {
         ::memcpy( &inaddr, phostent->h_addr,4);
@@ -283,7 +289,7 @@ Uint32 System::_acquireIP(const char* hostname)
 #ifndef PEGASUS_OS_OS400
         entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 #else
-		entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
+		entry = gethostbyaddr((char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 #endif
 		if (entry == 0)
 		{

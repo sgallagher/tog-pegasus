@@ -54,7 +54,7 @@ void sig_act(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
     if (s_n == PEGASUS_SIGABRT)
     {
         printf("Received an abort signal\n");
-#ifdef PEGASUS_HAS_SIGNALS
+#if defined(PEGASUS_HAS_SIGNALS) && !defined(PEGASUS_OS_OS400)
         printf(" in address %p\n", s_info->si_addr);
 #endif
 

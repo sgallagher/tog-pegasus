@@ -127,6 +127,11 @@
 #include <Pegasus/Server/CIMServer.h>
 #include <Service/ServerProcess.h>
 
+#if defined(PEGASUS_OS_OS400)
+#  include "vfyptrs.cinc"
+#  include "OS400ConvertChar.h"
+#endif
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 

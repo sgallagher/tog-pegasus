@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CIM CIMVERSION="2.0" DTDVERSION="2.0">
-  <MESSAGE ID="180002" PROTOCOLVERSION="1.0">
+  <MESSAGE ID="220002" PROTOCOLVERSION="1.0">
     <SIMPLEREQ>
       <IMETHODCALL NAME="DeleteInstance">
         <LOCALNAMESPACEPATH>
@@ -8,20 +8,10 @@
           <NAMESPACE NAME="PG_InterOp"/>
         </LOCALNAMESPACEPATH>
         <IPARAMVALUE NAME="InstanceName">
-          <INSTANCENAME CLASSNAME="PG_ProviderCapabilities">
-            <KEYBINDING NAME="CapabilityID">
-              <KEYVALUE VALUETYPE="string">
-              capability02
-              </KEYVALUE>
-            </KEYBINDING>
-            <KEYBINDING NAME="ProviderModuleName">
+          <INSTANCENAME CLASSNAME="PG_ProviderModule">
+            <KEYBINDING NAME="Name">
               <KEYVALUE VALUETYPE="string">
               Module02
-              </KEYVALUE>
-            </KEYBINDING>
-            <KEYBINDING NAME="ProviderName">
-              <KEYVALUE VALUETYPE="string">
-              MyAlertProvider
               </KEYVALUE>
             </KEYBINDING>
           </INSTANCENAME>

@@ -152,9 +152,9 @@ private:
     void _handleNotifyProviderRegistrationRequest(const Message * message);
 
     /**
-        Notifies the Indication Subscription Service that a provider has
-        terminated (either intentionally or abnormally).  The Indication
-        Subscription Service retrieves the subscriptions affected by the
+        Notifies the Indication Service that a provider has
+        terminated (either intentionally or abnormally).  The 
+        Indication Service retrieves the subscriptions affected by the
         termination, and sends an alert to handler instances of
         subscriptions that are no longer served by the provider.
      */
@@ -214,7 +214,7 @@ private:
 
     /**
         Determines if the user is authorized to delete the instance, and if it 
-        is legal to delete an instance.  If authorized, Subscription instances 
+        is legal to delete the instance.  If authorized, Subscription instances 
         may always be deleted.  Filter and non-transient Handler instances may 
         only be deleted if they are not being referenced by any Subscription 
         instances. If the instance to be deleted is a transient Handler, any 
@@ -423,7 +423,9 @@ private:
                  statement
      */
     CIMPropertyList _getPropertyList (
-        const WQLSelectStatement & selectStatement) const;
+        const WQLSelectStatement & selectStatement,
+        const String & nameSpaceName,
+        const String & indicationClassName) const;
 
     /**
         Extracts the condition (WHERE Clause) from the specified filter query
@@ -774,31 +776,6 @@ private:
     //
 
     /**
-        The name of the indication subscription class
-     */
-    static const char   _CLASS_SUBSCRIPTION [];
-
-    /**
-        The name of the indication filter class
-     */
-    static const char   _CLASS_FILTER [];
-
-    /**
-        The name of the indication handler class
-     */
-    static const char   _CLASS_HANDLER [];
-
-    /**
-        The name of the CIMXML Indication Handler class
-     */
-    static const char   _CLASS_HANDLERCIMXML [];
-
-    /**
-        The name of the SNMP Indication Handler class
-     */
-    static const char   _CLASS_HANDLERSNMP [];
-
-    /**
         The name of the CIMOM Shutdown alert indication class
      */
     static const char   _CLASS_CIMOM_SHUTDOWN_ALERT [];
@@ -1020,24 +997,6 @@ private:
      */
     static const char   _QUALIFIER_INDICATION [];
 
-    //
-    //  Service names
-    //
-
-    /**
-        The string identifying the service name of the Provider Manager Service
-     */
-    static const char _SERVICE_PROVIDERMANAGER [];
-
-    /**
-        The string identifying the service name of the Handler Manager Service
-     */
-    static const char _SERVICE_HANDLERMANAGER [];
-
-    /**
-        The string identifying the service name of the Repository Service
-     */
-    static const char _SERVICE_REPOSITORY [];
 
     //
     //  Other literal values

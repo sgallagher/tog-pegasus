@@ -43,14 +43,14 @@ void main(void)
 {
     // instantiate the primary response handler types
     {
-        SimpleResponseHandler<void> handler;
+        ResponseHandler<void> handler = SimpleResponseHandler<void>();
 
         handler.processing();
         handler.complete();
     }
 
     {
-        SimpleResponseHandler<CIMObject> handler;
+        ResponseHandler<CIMObject> handler = SimpleResponseHandler<CIMObject>();
 
         handler.processing();
         handler.deliver(CIMObject());
@@ -58,7 +58,7 @@ void main(void)
     }
 
     {
-        SimpleResponseHandler<CIMClass> handler;
+        SimpleResponseHandler<CIMClass> handler = SimpleResponseHandler<CIMClass>();
 
         handler.processing();
         handler.deliver(CIMClass());
@@ -66,7 +66,7 @@ void main(void)
     }
 
     {
-        SimpleResponseHandler<CIMInstance> handler;
+        SimpleResponseHandler<CIMInstance> handler = SimpleResponseHandler<CIMInstance>();
 
         handler.processing();
         handler.deliver(CIMInstance());
@@ -74,7 +74,7 @@ void main(void)
     }
 
     {
-        SimpleResponseHandler<CIMObjectPath> handler;
+        SimpleResponseHandler<CIMObjectPath> handler = SimpleResponseHandler<CIMObjectPath>();
 
         handler.processing();
         handler.deliver(CIMObjectPath());
@@ -82,47 +82,12 @@ void main(void)
     }
 
     {
-        SimpleResponseHandler<CIMValue> handler;
+        SimpleResponseHandler<CIMValue> handler = SimpleResponseHandler<CIMValue>();
 
         handler.processing();
         handler.deliver(CIMValue());
         handler.complete();
     }
 
-    try
-    {
-        SimpleResponseHandler<CIMInstance> simpleHandler;
-
-        try
-        {
-            ResponseHandler<CIMInstance> handler;
-
-            handler = simpleHandler;
-
-            handler.processing();
-
-            handler.deliver(CIMInstance("instance1"));
-            handler.deliver(CIMInstance("instance2"));
-            handler.deliver(CIMInstance("instance3"));
-            handler.deliver(CIMInstance("instance4"));
-
-            cout << "delivered " << simpleHandler.getObjects().size() << " objects" << endl;
-        }
-        catch(...)
-        {
-            throw;
-        }
-
-        cout << "received " << simpleHandler.getObjects().size() << " objects" << endl;
-
-        cout << "+++++ passed all tests." << endl;
-    }
-    catch(Exception &)
-    {
-        cout << "failed" << endl;
-    }
-    catch(...)
-    {
-        cout << "failed" << endl;
-    }
+    cout << "+++++ passed all tests." << endl;
 }

@@ -23,75 +23,74 @@
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
 // Modified By: 
+//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Security_h
-#define Pegasus_Security_h
+#ifndef Pegasus_DNSService_h
+#define Pegasus_DNSService_h
 
-//------------------------------------------------------------------------------
-// INCLUDES
-//------------------------------------------------------------------------------
-//Pegasus includes
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/Provider/ProviderException.h>    
-#include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/Pair.h>
 
-//------------------------------------------------------------------------------ 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-// Options operation to verify access
-static const String SEC_OPT_READ("r");
-static const String SEC_OPT_WRITE("w");
-static const String SEC_OPT_READ_WRITE("rw");
-static const String SEC_OPT_EXECUTE("x");
-static const String SEC_OPT_ALL("rwx");
+// Role definitions
+static const String DNS_ROLE_DOMAIN("domain");
+static const String DNS_ROLE_NAMESERVER("nameserver");
+static const String DNS_ROLE_SEARCH("search");
 
-// Parameter option to Operation context
-static const Uint32 CONTEXT_ID = 1;
+// Defines
+#define CLASS_NAME CIMName ("PG_DNSService")
+#define SYSTEM_CREATION_CLASS_NAME CIMName ("CIM_UnitaryComputerSystem")
+#define CREATION_CLASS_NAME CIMName ("PG_DNSService")
+static const String DNS_CAPTION("DNS Service");
+static const String DNS_DESCRIPTION
+			  ("Describes the Domain Name System (DNS) Service");
 
-//------------------------------------------------------------------------------
-// Class [Security] Definition
-//------------------------------------------------------------------------------
-class SecurityProvider
+class DNSService
 {
     
 public:
-    SecurityProvider(const OperationContext & context);
-    virtual ~SecurityProvider(void);
+    DNSService(void);
+    virtual ~DNSService(void);
 
 public:
-    //
-    // Public Functions - Interface
-    //
+    // Verify and return Caption property
+    Boolean getCaption(String & capt);
 
-	// This function retrieves the permissions of file by username
-	Boolean checkAccess(const String username, 
-    					const String filename,
-    					const String chkoper);
-    
-	// This function retrieves the context user name
-	String getUserContext(void);
+    // Verify and return Description property
+    Boolean getDescription(String & desc);
+
+    // This function retrieves the local host name
+    Boolean getSystemName(String & hostName);
+
+    // Verify and return Name property
+    Boolean getDNSName(String & name);
+
+    // Return SearchList parameter, if exists.
+    Boolean getSearchList(Array<String> & srclst);
+
+    // Verify and return Addresses parameter
+    Boolean getAddresses(Array<String> & addrlst);
+
+    // See if user has access to the configuration information
+    Boolean AccessOk(const OperationContext & context);
 
 private:
-    //
-    // Private Functions
-    //
+    String dnsName;
+    Array<String> dnsSearchList;
+    Array<String> dnsAddresses;
 
-private:
-    //
-    // Class attributes 
-    //
-    String secUsername;
+    // Retrieve DNS information from file /etc/resolv.conf
+    Boolean getDNSInfo(void);
+
+    // Verify if found string in array
+    Boolean FindInArray(Array<String> src, String text);
 };
-
-// Global pointer to access SecurityProvider class
-SecurityProvider *sec;
 
 #endif

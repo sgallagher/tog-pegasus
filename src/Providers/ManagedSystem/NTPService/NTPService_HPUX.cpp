@@ -142,8 +142,7 @@ Boolean NTPService::getSystemName(String& systemName)
 //
 // RETURN: TRUE if valid host IP, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getHostName(String serverAddress, String & hostName) 
+Boolean NTPService::getHostName(String serverAddress, String & hostName) 
 {
     Boolean ok = false;
     int ps, value = 0;
@@ -176,8 +175,7 @@ NTPService::getHostName(String serverAddress, String & hostName)
 //
 // RETURN: TRUE if valid host name, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getHostAddress(String serverName, String & serverAddress) 
+Boolean NTPService::getHostAddress(String serverName, String & serverAddress) 
 {
     Boolean ok = false;
     int ps, value = 0;
@@ -205,8 +203,7 @@ NTPService::getHostAddress(String serverName, String & serverAddress)
 //
 // RETURN: TRUE if host address, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-NTPService::isHostAddress(String host) {
+Boolean NTPService::isHostAddress(String host) {
     int ps;
     String strValue;
     Boolean ok = false;
@@ -228,8 +225,7 @@ NTPService::isHostAddress(String host) {
 //
 // RETURN: TRUE if local hostname is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getLocalHostName(String & hostName) 
+Boolean NTPService::getLocalHostName(String & hostName) 
 {
     char host[30];
     if(gethostname(host, sizeof(host)))
@@ -248,8 +244,7 @@ NTPService::getLocalHostName(String & hostName)
 //
 // RETURN: TRUE, if user have privileges, otherwise FALSE
 //------------------------------------------------------------------------------
-Boolean
-NTPService::AccessOk(const OperationContext & context)
+Boolean NTPService::AccessOk(const OperationContext & context)
 {
     sec = new SecurityProvider(context);  // Pointer defined into System.h file
     Boolean ok = sec->checkAccess(sec->getUserContext(),
@@ -268,8 +263,7 @@ NTPService::AccessOk(const OperationContext & context)
 //
 // RETURN: TRUE if Ok, otherwise FALSE.
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getKeyValue(String strLine, String & strValue) {
+Boolean NTPService::getKeyValue(String strLine, String & strValue) {
     int ps;
     Boolean ok = false;
     String strTmp;
@@ -319,8 +313,7 @@ NTPService::getKeyValue(String strLine, String & strValue) {
 //
 // RETURN: 
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getNTPInfo() 
+Boolean NTPService::getNTPInfo() 
 {
     FILE *fp;
     int i, ps = 0;
@@ -391,8 +384,7 @@ NTPService::getNTPInfo()
 //
 // RETURN: TRUE (hard-coded property value)
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getNTPName(String & strValue) 
+Boolean NTPService::getNTPName(String & strValue) 
 {
     strValue.assign(NTP_NAME);
     return true;
@@ -408,8 +400,7 @@ NTPService::getNTPName(String & strValue)
 //
 // RETURN: TRUE (hard-coded property value)
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getCaption(String & strValue) 
+Boolean NTPService::getCaption(String & strValue) 
 {
     strValue.assign(NTP_CAPTION);
     return true;
@@ -425,8 +416,7 @@ NTPService::getCaption(String & strValue)
 //
 // RETURN: TRUE (hard-coded property value)
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getDescription(String & strValue) 
+Boolean NTPService::getDescription(String & strValue) 
 {
     strValue.assign(NTP_DESCRIPTION);
     return true;
@@ -442,8 +432,7 @@ NTPService::getDescription(String & strValue)
 //
 // RETURN: TRUE if 'ServerAddress' was successfully obtained, FALSE otherwise.
 //------------------------------------------------------------------------------
-Boolean
-NTPService::getServerAddress(Array<String> & strValue) 
+Boolean NTPService::getServerAddress(Array<String> & strValue) 
 {
     strValue.clear();
     for(int i=0; i < ntpServerAddress.size(); i++) 

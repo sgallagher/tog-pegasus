@@ -1,7 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -9,7 +8,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -22,154 +21,152 @@
 //==============================================================================
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
-//         
 //
-// Modified By: Jair Francisco T. dos Santos (t.dos.santos.francisco@non.hp.com)
-//==============================================================================
-// Based on DNSService_Stub.cpp file
-//%////////////////////////////////////////////////////////////////////////////
+// Modified By: 
+//         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
-//------------------------------------------------------------------------------
-// INCLUDES
-//------------------------------------------------------------------------------
-#include "NTPService.h"
-
-//------------------------------------------------------------------------------
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-//==============================================================================
+
+//------------------------------------------------------------------------------
+// FUNCTION:   DNSFileOk
 //
-// Class [NTPService] methods
+// REMARKS:    Verify DNS File exists and has appropriate contents
 //
-//==============================================================================
+// PARAMETERS: none
+//
+// RETURN:     true, file okay, otherwise false
+//------------------------------------------------------------------------------
+Boolean DNSFileOk()
+{
+  return false;
+}
 
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-NTPService::NTPService(void)
+DNSService::DNSService(void)
 {
 }
 
 //------------------------------------------------------------------------------
 // Destructor
 //------------------------------------------------------------------------------
-NTPService::~NTPService(void)
+DNSService::~DNSService(void)
 {
 }
 
 //------------------------------------------------------------------------------
-// FUNCTION: getSystemName
+// FUNCTION:   AccessOk
 //
-// REMARKS:
+// REMARKS:    Verify if client can access file /etc/resolv.conf
 //
-// PARAMETERS:  [OUT] systemName -> string that will contain the system name
+// PARAMETERS: [IN] context -> pointer to Operation context
 //
-// RETURN: TRUE if successful , FALSE otherwise
+// RETURN:     true, if user has privileges, otherwise false
 //------------------------------------------------------------------------------
-Boolean NTPService::getSystemName(String& systemName)
-{
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// FUNCTION: getNTPName
-//
-// REMARKS: returns the Name property
-//
-// PARAMETERS: [OUT] strValue -> string that will receive the NTP_Name property 
-//                                 value
-//
-// RETURN: TRUE (hard-coded property value)
-//------------------------------------------------------------------------------
-Boolean NTPService::getNTPName(String & strValue) 
+Boolean DNSService::AccessOk(const OperationContext & context) 
 {
     return false;
 }
 
 //------------------------------------------------------------------------------
-// FUNCTION: AccessOk
+// FUNCTION:   getCaption
 //
-// REMARKS: Status of context user
+// REMARKS:    Function to retrieve a Caption
 //
-// PARAMETERS:    [IN]  context  -> pointer to Operation Context
+// PARAMETERS: [OUT] capt -> string that will contain the Caption
 //
-// RETURN: TRUE, if user have privileges, otherwise FALSE
+// RETURN:     true, hardcoded
 //------------------------------------------------------------------------------
-Boolean NTPService::AccessOk(const OperationContext & context)
+Boolean DNSService::getCaption(String & capt)
 {
+    capt.assign(DNS_CAPTION);
     return true;
 }
 
 //------------------------------------------------------------------------------
-// FUNCTION: getNTPInfo
+// FUNCTION:   getDescription
 //
-// REMARKS: Retrieves the NTP information from the "/etc/ntp.conf" file, 
-//            and sets private variables to hold the data read.
+// REMARKS:    Function to retrieve local host name
 //
-// RETURN: 
+// PARAMETERS: [OUT] desc -> string that will contain the Description
+//
+// RETURN:     true, hardcoded
 //------------------------------------------------------------------------------
-Boolean NTPService::getNTPInfo() 
+Boolean DNSService::getDescription(String & desc)
 {
+    desc.assign(DNS_DESCRIPTION);
     return true;
 }
 
 //------------------------------------------------------------------------------
-// FUNCTION: getLocalHostName
+// FUNCTION:   getSystemName
 //
-// REMARKS: Retrieves the local host name
+// REMARKS:    Function to retrieve local host name
 //
-// PARAMETERS:  [OUT] hostName -> string that will contain the local host name
+// PARAMETERS: [OUT] systemName -> string that will contain the system name
 //
-// RETURN: TRUE if local hostname is valid, FALSE otherwise
+// RETURN:     true, if successful, false otherwise
 //------------------------------------------------------------------------------
-Boolean NTPService::getLocalHostName(String & hostName) 
+Boolean DNSService::getSystemName(String & systemName)
 {
-    return true;
+    return false;
+}
+
+
+//------------------------------------------------------------------------------
+// FUNCTION:   getDNSName
+//
+// REMARKS:    Function to get instance name
+//
+// PARAMETERS: [OUT] string -> string that contains the name property value
+//
+// RETURN:     true, if successful, false otherwise
+//------------------------------------------------------------------------------
+Boolean DNSService::getDNSName(String &) {
+    return false;
 }
 
 //------------------------------------------------------------------------------
-// FUNCTION: getCaption
+// FUNCTION:   getSearchList
 //
-// REMARKS: returns the Caption property
+// REMARKS:    Function to retrieve the search list, if it exists
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the Caption property 
-//                                 value
+// PARAMETERS: [OUT] string -> string that contains the SearchList property
 //
-// RETURN: TRUE
+// RETURN:     true, if successful, false otherwise
 //------------------------------------------------------------------------------
-Boolean NTPService::getCaption(String & strValue) 
-{
-    return true;
+Boolean DNSService::getSearchList(Array<String> &) {
+    return false;
 }
 
 //------------------------------------------------------------------------------
-// FUNCTION: getDescription
+// FUNCTION:   getAddresses
 //
-// REMARKS: returns the Description property
+// REMARKS:    Function to retrieve the addresses, if any exists
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the Description 
-//                                 property value
+// PARAMETERS: [OUT] string -> string that contains the Addresses property
 //
-// RETURN: TRUE
+// RETURN:     true, if successful, false otherwise
 //------------------------------------------------------------------------------
-Boolean NTPService::getDescription(String & strValue) 
-{
-    return true;
+Boolean DNSService::getAddresses(Array<String> &) {
+    return false;
 }
 
 //------------------------------------------------------------------------------
-// FUNCTION: getServerAddress
+// FUNCTION:   getDNSInfo
 //
-// REMARKS: returns the ServerAddress property
+// REMARKS:    Read domain name, addresses, and search list from resolv.conf
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the ServerAddress 
-//                                 property value
+// PARAMETERS: none.
 //
-// RETURN: TRUE
+// RETURN:     true, if successful, false otherwise
 //------------------------------------------------------------------------------
-Boolean NTPService::getServerAddress(Array<String> & strValue) 
+Boolean DNSService::getDNSInfo(void) 
 {
-    return true;
-}
-
+    return false;
+}    

@@ -32,6 +32,14 @@
 //Pegasus includes
 #include "NTPProviderSecurity.h"
 
+// Security includes
+#include <sys/getaccess.h>
+#include <grp.h>
+#include <pwd.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 //------------------------------------------------------------------------------ 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

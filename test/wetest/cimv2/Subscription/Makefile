@@ -22,7 +22,6 @@ XMLSCRIPTS = \
     CreateProvider03 CreateCapability03 \
     ModifyCapability01 ModifyCapability02 \
     DeleteCapability03 DeleteProvider03 \
-    CreateSubscription26 ModifySubscription06 \
     CreateFilter13 CreateSubscription27 \
     DeleteSubscription27 DeleteFilter13 \
     DeleteFilter07 DeleteHandler04 \

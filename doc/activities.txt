@@ -1,12 +1,18 @@
 
 Broker:
 
-    + Implement instances.
+    + Rename classes.
+    + Associations
+    + Property List
+    + Service Configuration (config file and daemonization).
+    + MOF Compiler
+    + Refine a freeze client and provider interfaces.
+    + Instance repository.
+    + Interoperability testing.
+    + Providers: __Namespace, TestProvider, Logging
     + Provider registration.
-    + Daemonization.
-    + MOF parser integration.
-    + MOF command line tool (mofcomp).
-    + Basic associations.
+    * Authentication module.
+
     * Tcl client (sits atop C++ client).
     * Port to other platforms.
     * Threading framework.

@@ -369,6 +369,11 @@ String System::getHostName()
     if (!*hostname)
         gethostname(hostname, sizeof(hostname));
 
+#ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+    char *dot = strchr(hostname, '.');
+    if (dot != NULL) *dot = '\0';
+#endif
+
     return hostname;
 }
 

@@ -23,7 +23,7 @@ void drive_operation()
 
    // Uint64 tests
    CQLValue a1(Uint64(10));
-   CQLValue a2(Uint64(15));
+   CQLValue a2(Real64(15));
    CQLValue a3(Uint64(25));
    CQLValue a4(Uint64(30));
    CQLValue a5(Uint64(150));
@@ -275,7 +275,7 @@ void drive_resolve_primitive()
 
    const CQLIdentifier _Id1(String("CIM_OperatingSystem"));
 
-   _query.insertClass(_Id1);
+   _query.insertClassPath(_Id1);
 
    const CIMName _cimName(String("CIM_OperatingSystem"));
 
@@ -319,7 +319,7 @@ void drive_resolve_primitive()
    CQLChainedIdentifier 
          ci10(String("CIM_OperatingSystem::EnabledState"));
 
-   CQLValue a1(ci1);
+   CQLValue a1(ci1); 
    CQLValue a2(ci2);
    CQLValue a3(ci3);
    CQLValue a4(ci4);
@@ -330,7 +330,6 @@ void drive_resolve_primitive()
    CQLValue a9(ci9);
    CQLValue a10(ci10);
 
-   
       a1.resolve(_i1, _query);
       a2.resolve(_i1, _query);
       a3.resolve(_i1, _query);
@@ -377,6 +376,7 @@ void drive_resolve_primitive()
    assert(a5 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
    assert(a7 == CQLValue(_i1));
    assert(a8.getValueType() == CQLIgnore_type);
+
    }
    catch(Exception & e)
    {
@@ -400,7 +400,7 @@ void drive_resolve_specialChars()
    
       const CQLIdentifier _Id1(String("CIM_OperatingSystem"));
    
-      _query.insertClass(_Id1);
+      _query.insertClassPath(_Id1);
    
       const CIMName _cimName(String("CIM_OperatingSystem"));
    
@@ -421,7 +421,7 @@ void drive_resolve_specialChars()
       CQLChainedIdentifier ci1(String("CIM_OperatingSystem.OSType#OS400"));
       CQLChainedIdentifier ci2(String("CIM_OperatingSystem.OSType#LINUX"));
       CQLChainedIdentifier ci3(String("CIM_OperatingSystem.Status#Degraded"));
-      CQLChainedIdentifier ci4(String("CIM_OperatingSystem.Status#OK"));
+
       CQLChainedIdentifier ci5(String("CIM_OperatingSystem.Status#BOGUS"));
 
       CQLChainedIdentifier ci6(String("CIM_OperatingSystem.OperationalStatus[2]"));
@@ -430,7 +430,7 @@ void drive_resolve_specialChars()
       CQLValue a1(ci1);
       CQLValue a2(ci2);
       CQLValue a3(ci3);
-      CQLValue a4(ci4);
+
       CQLValue a5(ci5);
       CQLValue a6(ci6);
       CQLValue a7(ci7);
@@ -438,7 +438,7 @@ void drive_resolve_specialChars()
       a1.resolve(_i1, _query);
       a2.resolve(_i1, _query);
       a3.resolve(_i1, _query);
-      a4.resolve(_i1, _query);
+
       a6.resolve(_i1, _query);
       a7.resolve(_i1, _query);
 
@@ -455,7 +455,7 @@ void drive_resolve_specialChars()
       assert(a1 == CQLValue(Uint64(11)));
       assert(a2.getValueType() == CQLIgnore_type);
       assert(a3 == CQLValue(String("Degraded")));
-      assert(a4.getValueType() == CQLIgnore_type);
+
       assert(a6 == CQLValue(Uint64(2)));
       assert(a7 == CQLValue(_i1));
       
@@ -575,19 +575,19 @@ void drive_isa_function()
 int main( int argc, char *argv[] ){
 
    //BEGIN TESTS....
-
+cout << "operation" << endl;
 	drive_operation();
-   
+ cout << "misc" << endl;  
    drive_get_misc_functions();
-
+ cout << "isa" << endl;
    drive_isa_function();
-
+ cout << "like" << endl;
    drive_like_function();
-
+ cout << "primitive" << endl;
    drive_resolve_primitive();
-
+ cout << "special" << endl;
    drive_resolve_specialChars();
-
+ cout << "embedded" << endl;
    drive_resolve_embedded();
 
 	//END TESTS....

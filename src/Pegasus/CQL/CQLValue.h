@@ -32,6 +32,7 @@
 
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/CQL/CQLValueRep.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/QueryContext.h>
@@ -42,11 +43,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
-    enum NumericType { Hex, Binary,  Decimal, Real};
-    enum CQLValueType { Null_type, Sint64_type, Uint64_type, Real_type, String_type,
-                        CIMDateTime_type,  CIMReference_type, CQLIdentifier_type,
-                        CIMInstance_type, CQLIgnore_type, Boolean_type, 
-                        CIMClass_type};
 
 /** The CQLValue class encapulates a value
      that is a CQL value.  The possible CQLValue
@@ -111,6 +107,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
    CQLValue(CIMInstance inInstance);
    CQLValue(Boolean inBool);
    CQLValue(CIMClass inClass);
+   CQLValue(CQLValueRep rhs);
 
     /**  This method is used to ask an identifier to resolve itself to 
            a number or string (primitive value).
@@ -299,36 +296,11 @@ class PEGASUS_CQL_LINKAGE CQLValue
    String toString()const;
    void applyScopes(Array<CQLScope> inScopes);
    friend class CQLFactory; 
+
   private:
-    Boolean _areClassesInline(CIMClass c1,CIMClass c2, QueryContext& in);
-   Boolean _validate(const CQLValue& x);
-   
-   void _setValue(CIMValue cv, Uint64 Index = 0);
-
-   union TheValue
-    {
-      Boolean _B;
-      Sint64 _S64;
-      Uint64 _U64;
-      Real64 _R64;
-      String* _S;
-      CIMDateTime* _DT;
-      CIMObjectPath* _OP;
-      CIMInstance* _IN;
-      CIMClass* _CL;
-    } _theValue;
 
 
-    CQLChainedIdentifier _CQLChainId;
-
-    Boolean _isResolved;
-
-    NumericType Num_Type;
-
-   CQLValueType _valueType;
-
-
-
+   CQLValueRep *_rep;
 };
 
 #ifndef PEGASUS_ARRAY_T

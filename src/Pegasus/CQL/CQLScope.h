@@ -40,6 +40,8 @@
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/Common/CIMName.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 class QueryContext;
@@ -71,4 +73,5 @@ class CQLScope{
 
 
 PEGASUS_NAMESPACE_END
+#endif
 #endif

@@ -41,6 +41,8 @@
 #include <Pegasus/CQL/Linkage.h>
 
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
     enum BooleanOpType { AND, OR } ;
@@ -185,5 +187,5 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 #endif
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif 

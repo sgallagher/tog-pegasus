@@ -48,6 +48,8 @@
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/Common/String.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 typedef HashTable<String, CQLIdentifier, EqualNoCaseFunc, HashLowerCaseFunc> HT_Alias_Class;
@@ -121,4 +123,5 @@ class PEGASUS_CQL_LINKAGE QueryContext
 };
 
 PEGASUS_NAMESPACE_END
+#endif
 #endif

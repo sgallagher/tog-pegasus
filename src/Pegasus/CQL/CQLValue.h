@@ -44,6 +44,8 @@
 
 #include <Pegasus/CQL/Linkage.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLValueRep;
@@ -320,5 +322,5 @@ class PEGASUS_CQL_LINKAGE CQLValue
 #endif
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif /* CQLVALUE_H */

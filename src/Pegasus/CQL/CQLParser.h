@@ -37,6 +37,8 @@
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class is the main interface to the CQL parser used for parsing CQL1
@@ -204,5 +206,5 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif /* Pegasus_WQLParser_h */

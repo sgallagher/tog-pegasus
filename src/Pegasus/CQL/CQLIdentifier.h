@@ -42,6 +42,8 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/CQL/SubRange.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLIdentifierRep;
@@ -173,6 +175,6 @@ Exceptions:
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif
 #endif /* Pegasus_CQLIdentifier_h */

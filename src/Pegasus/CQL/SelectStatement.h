@@ -42,6 +42,7 @@
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/Linkage.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -167,5 +168,5 @@ class PEGASUS_CQL_LINKAGE SelectStatement
 };
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif 

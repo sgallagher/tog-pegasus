@@ -42,6 +42,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN 
 class PEGASUS_CQL_LINKAGE CQLScope;
 class PEGASUS_CQL_LINKAGE CQLFactory;
@@ -130,5 +132,5 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 #endif
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif /* Pegasus_CQLChainedIdentifier_h */

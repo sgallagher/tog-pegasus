@@ -39,8 +39,10 @@
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
-                                                                                                                                       
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES                                                                                                                                       
 PEGASUS_NAMESPACE_BEGIN
+
                                                                                                                                        
 #define SUBRANGE_END_OF_ARRAY -1;  // signifies the array range ends with the last element in the array
 #define SUBRANGE_NO_INDEX -2; // signifies the array range is empty                                                                                                                                      
@@ -73,7 +75,7 @@ Exceptions:
 #undef PEGASUS_ARRAY_T
                                                                                                                                        
 PEGASUS_NAMESPACE_END
- 
+#endif 
 #endif
 #endif /* Pegasus_CQLIdentifier_h */
 

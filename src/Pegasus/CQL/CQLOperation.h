@@ -34,6 +34,8 @@
 
 #include <Pegasus/Common/Config.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 enum CQLOperation
@@ -56,5 +58,5 @@ enum CQLOperation
                        
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif /* Pegasus_CQLOperation_h */

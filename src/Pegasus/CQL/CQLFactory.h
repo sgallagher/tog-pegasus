@@ -59,6 +59,8 @@
 #include <Pegasus/CQL/CQLFunction.h>
 #include <Pegasus/CQL/CQLFunctionRep.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 struct CQLObjectPtr;
@@ -122,4 +124,5 @@ private:
 
 };                                                                          
 PEGASUS_NAMESPACE_END
+#endif
 #endif

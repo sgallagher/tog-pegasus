@@ -36,6 +36,8 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 /** This is an internal structure used for holding parser state information
@@ -103,5 +105,5 @@ struct CQLParserState
 };
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif /* Pegasus_CQLParserState_h */

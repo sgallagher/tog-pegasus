@@ -37,6 +37,8 @@
 #include <Pegasus/Common/Exception.h>
 //#include <Pegasus/Common/MessageLoader.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN                                                                                                                                                             
 class PEGASUS_CQL_LINKAGE QueryException : public Exception
 {
@@ -126,5 +128,5 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdParseException : public CQLParseException
 #define PEGASUS_QUERY_EXCEPTION_LANG(LANGS, PARMS) QueryException( LANGS, PARMS )
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif

@@ -40,6 +40,7 @@
 #include <Pegasus/Common/String.h>
 #include <iostream>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
              
 PEGASUS_NAMESPACE_BEGIN
 
@@ -60,6 +61,6 @@ private:
 
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif 
 

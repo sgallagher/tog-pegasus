@@ -39,6 +39,8 @@
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/CIMInstance.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLExpression;
@@ -122,5 +124,5 @@ class CQLSimplePredicate
 
 };
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif 

@@ -38,6 +38,8 @@
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/Linkage.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLExpression;
@@ -119,5 +121,5 @@ class PEGASUS_CQL_LINKAGE CQLFactor
 #endif
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif /* CQLFACTOR_H_HEADER */

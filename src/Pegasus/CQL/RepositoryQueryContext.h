@@ -42,6 +42,8 @@
 #include <Pegasus/CQL/QueryContext.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE RepositoryQueryContext: public QueryContext
@@ -80,4 +82,5 @@ class PEGASUS_CQL_LINKAGE RepositoryQueryContext: public QueryContext
 };
 
 PEGASUS_NAMESPACE_END
+#endif
 #endif

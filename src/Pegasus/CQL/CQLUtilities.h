@@ -40,6 +40,8 @@
 #include <Pegasus/Common/String.h>
 
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 PEGASUS_NAMESPACE_BEGIN
 
 // Forward declares
@@ -55,5 +57,5 @@ public:
 };
 
 PEGASUS_NAMESPACE_END
-
+#endif
 #endif 

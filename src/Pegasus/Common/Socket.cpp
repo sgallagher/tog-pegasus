@@ -70,7 +70,7 @@ void Socket::close(Sint32 socket)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     closesocket(socket);
 #else
-    close(socket);
+    ::close(socket);
 #endif
 }
 

@@ -6,10 +6,9 @@
 #include "cimmof_tab.h"
 
 /* ATTN-DME-DEFERRED-20020516 - MOF COMPILER ALIASING DISABLED           */
-/* To enable aliasing replace the line                                   */
-/* ALIASING_NOT_SUPPORTED              { return(TOK_ALIAS_IDENTIFIER); } */
-/* with the line                                                         */
+/* To enable aliasing add the following two lines                        */
 /* $[_$0-9a-zA-Z]+                     { return(TOK_ALIAS_IDENTIFIER); } */
+/* [Aa][Ss]                            { return(TOK_AS); }               */
 
 /*---------------------------------------------------------------*/
 /* These routines wrap certain flex functions, keeping down the  */
@@ -77,7 +76,6 @@ class                                 { return(TOK_CLASS); }
 \"                                  { return(TOK_DQUOTE); }
 \.                                  { return(TOK_PERIOD); }
 \#[Pp][Rr][Aa][Gg][Mm][Aa]          { return(TOK_PRAGMA); }
-[Aa][Ss]                            { return(TOK_AS); }
 [Ii][Nn][Ss][Tt][Aa][Nn][Cc][Ee]    {
                                       return(TOK_INSTANCE); }
 [Oo][Ff]                            {
@@ -121,7 +119,6 @@ class                                 { return(TOK_CLASS); }
 [Rr][Ee][Aa][Ll]64                  { return(TOK_DT_REAL64); }
 [Cc][Hh][Aa][Rr]8                   { return(TOK_DT_CHAR8); }
 [Cc][Hh][Aa][Rr]16                  { return(TOK_DT_CHAR16); }
-ALIASING_NOT_SUPPORTED              { return(TOK_ALIAS_IDENTIFIER); }
 [_a-zA-Z][_$0-9a-zA-Z]*             { cimmof_lval.strval = new String(yytext);
                                       return(TOK_SIMPLE_IDENTIFIER); }
 .                                   { cimmof_lval.strval = new String(yytext);

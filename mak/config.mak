@@ -16,7 +16,7 @@ ifdef PEGASUS_HOME
 else
   ERROR = pegasus_home_undefined
 pegasus_home_undefined:
-	@ $(ECHO) PEGASUS_HOME environment variable undefined
+	@ echo PEGASUS_HOME environment variable undefined
 	@ exit 1
 endif
 
@@ -25,7 +25,7 @@ ifdef PEGASUS_ACE_ROOT
 else
   ERROR = pegasus_ace_root_undefined
 pegasus_ace_root_undefined:
-	@ $(ECHO) PEGASUS_ACE_ROOT environment variable undefined
+	@ echo PEGASUS_ACE_ROOT environment variable undefined
 	@ exit 1
 endif
 

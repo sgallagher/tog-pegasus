@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: ProviderTable.cpp,v $
+// Revision 1.2  2001/02/11 05:45:33  mike
+// Added case insensitive logic for files in Repository
+//
 // Revision 1.1  2001/01/29 02:24:15  mike
 // Added support for GetInstance.
 //
@@ -55,7 +58,15 @@ Provider* ProviderTable::loadProvider(const String& providerId)
 {
     // Load the dynamic library:
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
     ArrayDestroyer<char> libraryName = providerId.allocateCString();
+#else
+    String unixLibName = "lib";
+    unixLibName += providerId;
+    unixLibName += ".so";
+    ArrayDestroyer<char> libraryName = unixLibName.allocateCString();
+#endif
+
     ACE_SHLIB_HANDLE libraryHandle = ACE_OS::dlopen(libraryName.getPointer());
 
     if (!libraryHandle)

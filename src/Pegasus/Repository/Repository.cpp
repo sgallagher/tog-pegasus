@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
+// Revision 1.5  2001/02/11 05:45:33  mike
+// Added case insensitive logic for files in Repository
+//
 // Revision 1.4  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -92,9 +95,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 Array<String> _GlobClassesDir(
     const String& path, 
-    const String& className,
-    const String& superClassName)
+    const String& className_,
+    const String& superClassName_)
 {
+    String className = className_;
+    String superClassName = superClassName_;
     Array<String> fileNames;
 
     if (!FileSystem::getDirectoryContents(path, fileNames))
@@ -249,18 +254,17 @@ void _LoadObject(
     const String& path,
     Object& object)
 {
-    // Open the file:
+    // Get the real path of the file:
 
-    Destroyer<char> destroyer(path.allocateCString());
-    std::ifstream is(destroyer.getPointer());
+    String realPath;
 
-    if (!is)
+    if (!FileSystem::existsIgnoreCase(path, realPath))
 	throw CannotOpenFile(path);
 
     // Load file into memory:
 
     Array<Sint8> data;
-    FileSystem::loadFileToMemory(data, path);
+    FileSystem::loadFileToMemory(data, realPath);
     data.append('\0');
 
     XmlParser parser((char*)data.getData());
@@ -558,10 +562,15 @@ void Repository::createClass(
     String path;
     const String& className = newClass.getClassName();
     const String& superClassName = newClass.getSuperClassName();
-    _MakeNewClassPath(_root, nameSpace, className, superClassName, path);
+    _MakeNewClassPath(
+	_root, nameSpace, className, superClassName, path);
 
-    if (FileSystem::exists(path))
+    String realPath;
+
+    if (FileSystem::existsIgnoreCase(path, realPath))
 	throw CimException(CimException::ALREADY_EXISTS);
+    else
+	realPath = path;
 
     // Validate the new class:
 
@@ -569,7 +578,7 @@ void Repository::createClass(
 
     // Save the class:
 
-    _SaveObject(path, newClass);
+    _SaveObject(realPath, newClass);
 }
 
 void Repository::createInstance(
@@ -791,13 +800,17 @@ QualifierDecl Repository::getQualifier(
 
     // If it does not exist:
 
-    if (!FileSystem::exists(path))
+    String realPath;
+
+    if (!FileSystem::existsIgnoreCase(path, realPath))
 	throw CimException(CimException::NOT_FOUND);
 
     // Load the qualifier:
 
     QualifierDecl qualifierDecl;
-    _LoadObject(path, qualifierDecl);
+    _LoadObject(realPath, qualifierDecl);
+
+    // Return the qualifier:
 
     return QualifierDecl(qualifierDecl);
 }
@@ -813,15 +826,19 @@ void Repository::setQualifier(
 
     // If the qualifier already exists, delete it:
 
-    if (FileSystem::exists(path))
+    String realPath;
+
+    if (FileSystem::existsIgnoreCase(path, realPath))
     {
-	if (!FileSystem::removeFile(path))
+	if (!FileSystem::removeFile(realPath))
 	    throw FailedToRemoveDirectory(path);
     }
+    else
+	realPath = path;
 
     // Write the qualifier to file:
 
-    _SaveObject(path, qualifierDecl);
+    _SaveObject(realPath, qualifierDecl);
 }
 
 void Repository::deleteQualifier(
@@ -831,10 +848,12 @@ void Repository::deleteQualifier(
     String path;
     _MakeQualfierPath(_root, nameSpace, qualifierName, path);
 
-    if (!FileSystem::exists(path))
+    String realPath;
+
+    if (!FileSystem::existsIgnoreCase(path, realPath))
 	throw CimException(CimException::NOT_FOUND);
 
-    if (!FileSystem::removeFile(path))
+    if (!FileSystem::removeFile(realPath))
 	throw FailedToRemoveFile(path);
 }
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.10  2001/02/11 05:45:33  mike
+// Added case insensitive logic for files in Repository
+//
 // Revision 1.9  2001/02/06 15:47:56  karl
 // add propety functions
 //
@@ -490,7 +493,7 @@ static void GetClass(const CGIQueryString& qs)
 	localOnly = false;
     if (!(tmp = qs.findValue("IncludeQualifiers")))
 	includeQualifiers = false;
-    if (tmp = qs.findValue("IncludeClassOrigin"))
+    if ((tmp = qs.findValue("IncludeClassOrigin")))
 	includeClassOrigin = true;
 
     try

@@ -1,8 +1,5 @@
-
 ifeq ($(OS_TYPE),windows)
-$(OBJ_DIR)/%.obj: %.cpp $(ERROR)
+include $(ROOT)/mak/objects-windows.mak
 else
-$(OBJ_DIR)/%.o: %.cpp $(ERROR)
+include $(ROOT)/mak/objects-unix.mak
 endif
-	$(CXX) -c $(OBJ_OUT)$@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
-	@ $(ECHO)

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Client.cpp,v $
+// Revision 1.4  2001/02/11 05:45:33  mike
+// Added case insensitive logic for files in Repository
+//
 // Revision 1.3  2001/01/31 08:20:51  mike
 // Added dispatcher framework.
 // Added enumerateInstanceNames.
@@ -617,8 +620,12 @@ int ClientHandler::handleEnumerateInstanceNamesResponse(
 	while (XmlReader::getInstanceNameElement(
 	    parser, className, keyBindings))
 	{
-	    Reference reference(String(), String(), className, keyBindings);
-	    instanceNames.append(reference);
+	    Reference r(
+		String::EMPTY,
+		String::EMPTY,
+		className, 
+		keyBindings);
+	    instanceNames.append(r);
 	}
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");

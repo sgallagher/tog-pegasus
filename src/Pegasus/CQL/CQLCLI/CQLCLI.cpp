@@ -669,6 +669,34 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
 {
   String embSubName("CQL_EmbeddedSubClass");
   String embBaseName("CQL_EmbeddedBase");
+
+  // IF the class is CIM_RunningOS, then we will setup some references to CIM_ComputerSystem
+  if (className == "CIM_RunningOS")
+  {
+    Array<CIMInstance> cSystems;
+    const CIMName CSClass(String("CIM_ComputerSystem"));
+
+    try
+    {
+      // Deep inh = false to only get the CIM_ComputerSystem
+      cSystems.appendArray(_rep->enumerateInstances( _ns, CSClass, false));
+    }
+    catch(Exception& e)
+    {
+      cout << endl << endl << "Exception: Invalid namespace/class: " << e.getMessage() << endl << endl;
+      return false;
+    }
+
+    // For every computer system instance, make a runningOS that has a reference to it.  The RunningOS will be the instance that is stored.
+    for (Uint32 i=0; i < cSystems.size(); i++)
+    {
+      CIMInstance runOS("CIM_RunningOS");
+      runOS.addProperty(CIMProperty("Dependent", CIMValue(cSystems[i].getPath())));
+      
+      _instances.append(runOS);
+    }
+    return true;
+  }
   
   if(className != String::EMPTY && className != embSubName && className != embBaseName)
   {

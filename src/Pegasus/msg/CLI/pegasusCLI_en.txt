@@ -464,7 +464,7 @@ pegasusCLI_en:table {
 
         Clients.cimprovider.CIMProviderCommand.ERR_PROVIDER_NOT_REGISTERED:string {"CIMPRVCMD_ERR_PROVIDER_NOT_REGISTERED: Specified provider is not registered."}
 
-        Clients.cimprovider.CIMProviderCommand.PG_PROVIDER_SCHEMA_NOT_LOADED:string {"CIMPRVCMD_PG_PROVIDER_SCHEMA_NOT_LOADED: The provider registration schema may not be loaded in the CIM repository."}
+        Clients.cimprovider.CIMProviderCommand.PG_PROVIDER_SCHEMA_NOT_LOADED:string {"CIMPRVCMD_PG_PROVIDER_SCHEMA_NOT_LOADED: The provider registration schema might not have been loaded in the CIM repository."}
 
         Clients.cimprovider.CIMProviderCommand.REQUIRED_ARGS_MISSING:string {"CIMPRVCMD_REQUIRED_ARGS_MISSING: Required arguments are missing."}
 

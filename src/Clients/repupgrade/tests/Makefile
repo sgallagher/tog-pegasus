@@ -26,7 +26,6 @@ include $(ROOT)/mak/test.mak
 
 tests:
 ifndef PEGASUS_USE_RELEASE_DIRS
-  ifndef PEGASUS_OS_HPUX	
 	@$(RMREPOSITORY) $(OLD_REPOSITORY_PATH)repository/test#repupgrade
 	@$(RMREPOSITORY) ./newRepository
 	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTNAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
@@ -39,7 +38,6 @@ ifndef PEGASUS_USE_RELEASE_DIRS
 	@$(STRIPCRS)
 	@$(COMPARERESULTS)
 	@$(ECHO) +++ Test passed +++
-  endif
 endif
 
 tests_ignoreerror:

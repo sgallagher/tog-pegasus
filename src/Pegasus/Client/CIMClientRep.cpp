@@ -1452,13 +1452,9 @@ Uint32 CIMClientRep::_acquireIP(const char* hostname)
 			// error, given ip does not follow format requirements
 			return 0xFFFFFFFF;
 		}		
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined(PEGASUS_OS_HPUX)
 		// resolve hostaddr to a real host entry
-		entry = gethostbyaddr((char *) &tmp_addr,sizeof(tmp_addr),AF_INET);
-#else
-		// resolve hostaddr to a real host entry
-		entry = gethostbyaddr(&tmp_addr,sizeof(tmp_addr),AF_INET);
-#endif
+		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
+		entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 
 		if (entry == 0)
 		{

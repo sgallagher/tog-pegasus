@@ -13,7 +13,7 @@
 // ===================================================================
 // PG_User
 // ===================================================================
-[Description (
+[Version ("2.2.0"), Description (
    "PG_User is a representation of CIMOM user")
    , provider("UserManagerProvider")]
 

@@ -30,10 +30,12 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
+[Version ("2.2.0")]
 class Linux_NetworkAdapter : CIM_NetworkAdapter
 {
 };
 
+[Version ("2.2.0")]
 class Linux_EthernetAdapter : CIM_EthernetAdapter
 {
 };

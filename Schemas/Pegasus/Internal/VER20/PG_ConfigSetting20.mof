@@ -13,7 +13,7 @@
 // ===================================================================
 // PG_ConfigSetting
 // ===================================================================
-[Description (
+[Version ("2.2.0"), Description (
    "PG_ConfigSetting is a representation of CIMOM specific"
    " configuration properties."), provider("ConfigSettingProvider")]
 

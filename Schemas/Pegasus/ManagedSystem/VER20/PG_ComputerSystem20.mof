@@ -370,7 +370,7 @@ class CIM_UnitaryComputerSystem : CIM_ComputerSystem {
 // PG_ComputerSystem
 // =============================================================================
 [
-    Description ("PG_ComputerSystem contains extension to "
+    Version ("2.2.0"), Description ("PG_ComputerSystem contains extension to "
                  "CIM_UnitaryComputerSystem.")
 ]
 

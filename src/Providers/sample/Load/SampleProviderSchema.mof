@@ -1,4 +1,4 @@
-[abstract]
+[abstract, Version ("2.2.0")]
 class Sample_ProviderClass
 {
 	[key,
@@ -6,17 +6,20 @@ class Sample_ProviderClass
 	Uint8 Identifier;
 };
 
+[Version ("2.2.0")]
 class Sample_InstanceProviderClass : Sample_ProviderClass
 {
 	[read, write]
 	string Message;
 };
 
+[Version ("2.2.0")]
 class Sample_MethodProviderClass : Sample_ProviderClass
 {
 	string SayHello( [IN] string Name, [OUT] string place);
 };
 
+[Version ("2.2.0")]
 class Sample_IndicationProviderClass : CIM_Indication
 {
 	[read]
@@ -29,7 +32,7 @@ class Sample_IndicationProviderClass : CIM_Indication
 // A simple association that associates father and
 // child in the Sample_InstanceProviderClass
 
-[association] 
+[association, Version ("2.2.0")] 
 class Sample_AssociationProviderClass
 {
     [key] Sample_InstanceProviderClass ref parent;

@@ -1,56 +1,61 @@
+[Version ("2.2.0")]
 class TST_ClassA
 {
     [key]
     string name;
 };
 
+[Version ("2.2.0")]
 class TST_ClassB : TST_ClassA
 {
 };
+
+[Version ("2.2.0")]
 class TST_ClassC : TST_ClassA
 {
 };
 
+[Version ("2.2.0")]
 class TST_ClassD : TST_ClassB
 {
 };
 
-[association]
+[association, Version ("2.2.0")]
 class TST_Assoc1
 {
 	[key]TST_ClassA ref from;
 	[key]TST_ClassA ref to;
 };
 
-[association]
+[association, Version ("2.2.0")]
 class TST_Assoc2 : TST_Assoc1
 {
 	[key]TST_ClassB ref from;
 	[key]TST_ClassC ref to;
 };
 
-[association]
+[association, Version ("2.2.0")]
 class TST_Assoc3 : TST_Assoc1
 {
 	[key]TST_ClassA ref from;
 	[key]TST_ClassC ref to;
 };
 
-[association]
+[association, Version ("2.2.0")]
 class TST_Assoc4 : TST_Assoc1
 {
 	[key]TST_ClassC ref from;
 	[key]TST_ClassD ref to;
 };
 
-[association]
+[association, Version ("2.2.0")]
 class TST_Assoc5 : TST_Assoc1
 {
 	[key]TST_ClassB ref from;
 	[key]TST_ClassB ref to;
 };
 
-[association]
+[association, Version ("2.2.0")]
 class TST_Assoc6 : TST_Assoc1
 {
 	[key]TST_ClassD ref from;

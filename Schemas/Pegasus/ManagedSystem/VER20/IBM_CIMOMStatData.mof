@@ -1,7 +1,7 @@
 // ==================================================================
 //    StatisticalData
 // ==================================================================
-    [Abstract, Description (
+    [Abstract, Version ("2.2.0"), Description (
      "CIM_StatisticalData is a root class for any arbitrary "
      "collection of statistical data and/or metrics applicable to "
      "one or more ManagedElements.  These statistics MUST "
@@ -62,7 +62,7 @@ class IBM_StatisticalData : CIM_ManagedElement {
 
 
 
-[Description (
+[Version ("2.2.0"), Description (
     "Performance statistics for the CIMOM itself. Each object "
     "provides basic performance statistics for a particular "
     "CIM client request type. The statistics data reflects the most "

@@ -1,4 +1,4 @@
-[Indication]
+[Indication, Version ("2.2.0")]
 class RT_TestIndication : CIM_Indication
 {
     string MethodName;

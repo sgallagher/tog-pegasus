@@ -1,5 +1,6 @@
 #pragma locale ("en_US")
 
+[Version ("2.2.0")]
 class Pegasus_OperatingSystem : CIM_OperatingSystem
 {
 };

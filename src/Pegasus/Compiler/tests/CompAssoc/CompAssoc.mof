@@ -1,17 +1,18 @@
-
+[Version ("2.2.0")]
 class X
 {
     [key]
     string key;
 };
 
+[Version ("2.2.0")]
 class Y
 {
     [key]
     string key;
 };
 
-[association]
+[association, Version ("2.2.0")]
 class A
 {
     [Key] X ref left;

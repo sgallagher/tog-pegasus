@@ -4,7 +4,7 @@
 //        [Description ("TestSoftwarePkg MIB Information in MOF") , provider (
 //        "TestSoftwarePkg") ] 
 
-        [Description ("TestSoftwarePkg MIB Information in MOF") 
+        [Version ("2.2.0"), Description ("TestSoftwarePkg MIB Information in MOF") 
         ] 
 class TestSoftwarePkg
 {

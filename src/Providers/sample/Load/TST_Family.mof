@@ -76,7 +76,7 @@ class TST_LabeledLineage
 
 // Dynamic equivalent classes for the associations
 // Make these subclasses in the future.
-[Association, Description(" Lineage defines the "
+[Association, Version("1.0.0"), Description(" Lineage defines the "
 "relationship between parents and children.") ]
 class TST_LineageDynamic
 {
@@ -84,14 +84,14 @@ class TST_LineageDynamic
     [key] TST_Person ref child;
 };
 
-[Association, Description(" Lineage defines the "
+[Association, Version("1.0.0"), Description(" Lineage defines the "
 "relationship between parents and children.") ]
 class TST_LineageDynamicSubClass
 {
     [key] TST_PersonDynamic ref parent;
     [key] TST_PersonDynamic ref child;
 };
-[association]
+[association, Version("1.0.0")]
 class TST_LabeledLineageDynamic
 {
     string label;

@@ -336,7 +336,7 @@ class CIM_OperatingSystem : CIM_LogicalElement {
 // ===================================================================
 // PG_OperatingSystem
 // ===================================================================
-   [Description (
+   [Version ("2.2.0"), Description (
      "An extension of CIM_OperatingSystem which adds information "
      "not contained in the superclass.")] 
 class PG_OperatingSystem	: CIM_OperatingSystem

@@ -30,10 +30,12 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
+[Version ("2.2.0")]
 class Linux_PortResource : CIM_PortResource
 {
 };
 
+[Version ("2.2.0")]
 class Linux_MemoryResource : CIM_MemoryResource
 {
 };

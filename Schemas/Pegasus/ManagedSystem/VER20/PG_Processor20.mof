@@ -585,7 +585,7 @@ class CIM_Processor : CIM_LogicalDevice {
 // ===================================================================
 // PG_Processor
 // ===================================================================
-   [Description (
+   [Version ("2.2.0"), Description (
      "Adds additional properties meaningful on HP-UX.") ] 
 class PG_Processor : CIM_Processor {
       [Description (

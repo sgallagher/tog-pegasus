@@ -1,17 +1,18 @@
+[Version ("2.2.0")]
 class Person
 {
     [key]
     string name;
 };
 
-[association]
+[association, Version ("2.2.0")]
 class Lineage
 {
     [key] Person ref parent;
     [key] Person ref child;
 };
 
-[association]
+[association, Version ("2.2.0")]
 class LabeledLineage
 {
     string label;

@@ -264,7 +264,7 @@ class CIM_Process : CIM_LogicalElement {
 // ===================================================================
 //  PG_UnixProcess
 // ===================================================================
-   [Description (
+   [Version ("2.2.0"), Description (
      "Each instance of the PG_UnixProcess class represents a single "
      "instance of a running program. A user of the Operating System "
      "will typically see a Process as an application or task. Within "
@@ -341,7 +341,9 @@ class CIM_StatisticalInformation : CIM_ManagedElement {
 // ===================================================================
 //  PG_UnixProcessStatisticalInformation
 // ===================================================================
-[Description ("The statistics associated with a Unix process. ") ]
+[Version ("2.2.0"), 
+      Description (
+       "The statistics associated with a Unix process. ") ]
 class PG_UnixProcessStatisticalInformation : CIM_StatisticalInformation {
       [Propagated("CIM_Process.CSCreationClassName"),
        Key, MaxLen (256),
@@ -464,7 +466,7 @@ class CIM_Statistics {
 // ==================================================================
 //    PG_UnixProcessStatistics
 // ================================================================== 
-    [Association, Description ( 
+    [Association, Version ("2.2.0"), Description ( 
      "PG_UnixProcessStatistics is an association that relates a " 
      "PG_UnixProcess to its StatisticalInformation. ") ]
 class PG_UnixProcessStatistics : CIM_Statistics { 
@@ -569,7 +571,7 @@ class CIM_ProcessThread : CIM_Component {
 // ===================================================================
 // PG_UnixThread
 // ===================================================================
-   [Description (
+   [Version ("2.2.0"), Description (
      "Threads represent the ability to execute units of a Process "
      "or task in parallel. A UnixThread inherits from the "
      "superclass, CIM_Thread, which is weak to the Process. The "

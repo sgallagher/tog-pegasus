@@ -1,7 +1,7 @@
 // ==================================================================
 // PG_TestElement
 // ================================================================== 
-   [Abstract, Description (
+   [Abstract, Version ("2.2.0"), Description (
    "PG_TestElement is an abstract class that provides a common "  
         "superclass (or top of the inheritance tree) for the "
         "non-association classes in the test Schema.")]
@@ -29,7 +29,7 @@
 // PG_TestPropertyTypes
 // ===================================================================
    
-   [Description (
+   [Version ("2.2.0"), Description (
    "PG_TestPropertyTypes is a concrete class derived from PG_TestElement"),
     provider("PG_TestPropertyTypes")
    ] 

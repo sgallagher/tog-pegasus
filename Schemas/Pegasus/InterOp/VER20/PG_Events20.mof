@@ -8,7 +8,7 @@
 // ===================================================================
 // PG_IndicationHandlerSNMPMapper
 // ===================================================================
-   [Description (
+   [Version ("2.2.0"), Description (
      "PG_IndicationHandlerSNMP describes the destination for "
      "Indications to be delivered via SNMP Trap") ]
 

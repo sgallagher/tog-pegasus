@@ -6,7 +6,7 @@ Author: Mike Brasher, Karl Schopmeyer
 Tagline: OpenPegasus is an object manager for DMTF CIM objects written in C++
          and supported by The Open Group
 
-STATUS: Revised October 2003 to match Pegasus release 2.3
+STATUS: Revised March 10 to match Pegasus release 2.3
 
 NOTE: Obsolete. See readme.html
 Contents:
@@ -29,9 +29,10 @@ Contents:
 15. Commands
 16. Creating SSL certifications.
 17. Configuring Pegasus to use SSL
-18. Testing with ICU enabled
-19. Documentation
-20. Participate
+18. Configuring Pegasus to use PAM
+19. Testing with ICU enabled
+20. Documentation
+21. Participate
 
 
 
@@ -581,7 +582,36 @@ to include:
 
 	enableHttpConnection=false
 
-18. Testing with ICU enabled:
+18.PAM Authentication
+===================
+
+In order to use PAM Authentication you have to compile Pegasus
+with one extra enviroment flags:
+
+	PEGASUS_PAM_AUTHENTICATION=1
+
+You can also set the PEGASUS_ALWAYS_USE_PAM=1 flag to disable
+Pegasus password authentication using a flag text-file (recommended).
+
+After compiling (refer to section 17 for details), follow these two
+important steps:
+
+ a).  Copy the rpm/wbem file in-to /etc/pam.d directory.
+      This notifies PAM what kind of libraries to use when authenticating
+      Pegasus.
+ b).  Edit  cimserver_planned.conf to include:
+
+	usePAMAuthentication=true
+	enableAuthentication=true
+
+      And if you want to allow 'root' (*not recommended*)
+	enableRemotePrivilegedUserAccess=true
+
+The user is authenticated using HTTP Basic method, thererfore it is
+strongly suggested you use SSL connection instead of normal HTTP connection.
+Refer to section 16 for more details on creating and using SSL keys.
+
+19. Testing with ICU enabled:
 ==============================
 
 ICU (International Compoments for Unicode) refers to the set of libraries that
@@ -608,7 +638,7 @@ complete, you should stop the cimserver and then undefine PEGASUS_USE_DEFAULT_ME
 If this variable is left defined, Pegasus will not be able to load messages
 using ICU resource bundles. 
 
-19. Documentation:
+20. Documentation:
 ===================
 
 The documentation is currently in preperation. The preliminary documentation
@@ -622,7 +652,7 @@ documentation in the future and today is the source of most discussion and
 design documentation.
 
 
-20. Participate!
+21. Participate!
 =================
 
 We are looking for people who want to join the Pegasus work group and

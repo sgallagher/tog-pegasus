@@ -226,6 +226,7 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                         (CIMCreateSubscriptionRequestMessage *) getRequest (i);
                     provider.provider = request->provider;
                     provider.providerModule = request->providerModule;
+                    provider.classList = request->classNames;
                     break;
                 }
         
@@ -244,6 +245,7 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                         (CIMModifySubscriptionRequestMessage *) getRequest (i);
                     provider.provider = request->provider;
                     provider.providerModule = request->providerModule;
+                    provider.classList = request->classNames;
                     break;
                 }
         
@@ -253,6 +255,7 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                         (CIMDeleteSubscriptionRequestMessage *) getRequest (i);
                     provider.provider = request->provider;
                     provider.providerModule = request->providerModule;
+                    provider.classList = request->classNames;
                     break;
                 }
         

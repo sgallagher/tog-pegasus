@@ -354,6 +354,16 @@ inline void _toString(Array<Sint8>& out, const CIMDateTime& x)
 inline void _toXml(Array<Sint8>& out, const CIMDateTime& x) { _toString(out, x); }
 inline void _toMof(Array<Sint8>& out, const CIMDateTime& x) { _toString(out, x); }
 
+inline void _toString(Array<Sint8>& out, const CIMReference& x)
+{
+    out << x.toString();
+}
+inline void _toXml(Array<Sint8>& out, const CIMReference& x)
+{
+    x.toXml(out);
+}
+// ATTN-RK-P2-20020220: What does toMof look like for an array of references?
+
 template<class T>
 void _toString(Array<Sint8>& out, const T* p, Uint32 size)
 {
@@ -496,6 +506,10 @@ void CIMValue::assign(const CIMValue& x)
 
 	    case CIMType::DATETIME:
 		_Inc(_u._dateTimeArray = x._u._dateTimeArray);
+		break;
+
+	    case CIMType::REFERENCE:
+		_Inc(_u._referenceArray = x._u._referenceArray);
 		break;
             default:
                 throw CIMValueInvalidType();
@@ -642,7 +656,9 @@ Uint32 CIMValue::getArraySize() const
 	    break;
 
 	case CIMType::REFERENCE:
-	    return 0;
+	    return _u._referenceArray->size;
+	    break;
+
         default:
             throw CIMValueInvalidType();
     }
@@ -720,6 +736,11 @@ void CIMValue::clear()
 	    case CIMType::DATETIME:
 		_Dec(_u._dateTimeArray);
 		break;
+
+	    case CIMType::REFERENCE:
+		_Dec(_u._referenceArray);
+		break;
+
             //default:
                 //throw CIMValueInvalidType();
 	}
@@ -765,14 +786,27 @@ void CIMValue::toXml(Array<Sint8>& out) const
 {
     // If the CIMValue is Null, no element is returned.
     //ATTNCH: Feb 12 added the isNull test KS
-    // Note that I ouptut absolutly nothing
+    // Note that I output absolutely nothing
 
     if (_isNull)
     {
         // out << "\n";
         return;
     }
-    if (_isArray)
+    if (_type == CIMType::REFERENCE)
+    {
+        if (_isArray)
+        {
+	    out << "<VALUE.REFARRAY>\n";
+	    _toXml(out, _u._referenceArray->data(), _u._referenceArray->size);
+	    out << "</VALUE.REFARRAY>\n";
+        }
+        else
+        {
+	    _u._referenceValue->toXml(out);
+        }
+    }
+    else if (_isArray)
     {
 	out << "<VALUE.ARRAY>\n";
 
@@ -845,10 +879,6 @@ void CIMValue::toXml(Array<Sint8>& out) const
 	}
 
 	out << "</VALUE.ARRAY>\n";
-    }
-    else if (_type == CIMType::REFERENCE)
-    {
-	_u._referenceValue->toXml(out);
     }
     else
     {
@@ -933,7 +963,18 @@ void CIMValue::toMof(Array<Sint8>& out) const
     if (_isNull)
         return;
 
-    if (_isArray)
+    if (_type == CIMType::REFERENCE)
+    {
+        if (_isArray)
+        {
+            // ATTN-RK-P2-20020220: How to output an array of references in MOF?
+        }
+        else
+        {
+	    _u._referenceValue->toMof(out);
+        }
+    }
+    else if (_isArray)
     {
 	switch (_type)
 	{
@@ -997,10 +1038,6 @@ void CIMValue::toMof(Array<Sint8>& out) const
             default:
                 throw CIMValueInvalidType();
 	}
-    }
-    else if (_type == CIMType::REFERENCE)
-    {
-	_u._referenceValue->toMof(out);
     }
     else
     {
@@ -1329,6 +1366,15 @@ void CIMValue::set(const Array<CIMDateTime>& x)
     _isNull = false;
 }
 
+void CIMValue::set(const Array<CIMReference>& x)
+{
+    clear();
+    _Inc(_u._referenceArray = x._rep);
+    _type = CIMType::REFERENCE;
+    _isArray = true;
+    _isNull = false;
+}
+
 void CIMValue::get(Boolean& x) const
 {
     if (_type != CIMType::BOOLEAN || _isArray)
@@ -1566,6 +1612,14 @@ void CIMValue::get(Array<CIMDateTime>& x) const
     x.set(_u._dateTimeArray);
 }
 
+void CIMValue::get(Array<CIMReference>& x) const
+{
+    if (_type != CIMType::REFERENCE || !_isArray)
+	throw TypeMismatch();
+
+    x.set(_u._referenceArray);
+}
+
 void CIMValue::_init()
 {
     _type = CIMType::NONE;
@@ -1641,6 +1695,10 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
 	    case CIMType::DATETIME:
 		return Array<CIMDateTime>(x._u._dateTimeArray) ==
 		    Array<CIMDateTime>(y._u._dateTimeArray);
+
+	    case CIMType::REFERENCE:
+		return Array<CIMReference>(x._u._referenceArray) ==
+		    Array<CIMReference>(y._u._referenceArray);
             default:
                 throw CIMValueInvalidType();
 	}
@@ -1767,6 +1825,10 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
 
 	    case CIMType::DATETIME:
 		set(Array<CIMDateTime>(arraySize));
+		break;
+
+	    case CIMType::REFERENCE:
+		set(Array<CIMReference>(arraySize));
 		break;
             default:
                 throw CIMValueInvalidType();
@@ -1920,13 +1982,14 @@ String CIMValue::toString() const
 	    case CIMType::DATETIME:
 		_toString(out, _u._dateTimeArray->data(), _u._dateTimeArray->size);
 		break;
+
+	    case CIMType::REFERENCE:
+		_toString(out, _u._referenceArray->data(), _u._referenceArray->size);
+		break;
+
             default:
                 throw CIMValueInvalidType();
 	}
-    }
-    else if (_type == CIMType::REFERENCE)
-    {
-	return _u._referenceValue->toString();
     }
     else
     {
@@ -1987,6 +2050,11 @@ String CIMValue::toString() const
 	    case CIMType::DATETIME:
 		_toString(out, *_u._dateTimeValue);
 		break;
+
+	    case CIMType::REFERENCE:
+		_toString(out, *_u._referenceValue);
+		break;
+
             default:
                 throw CIMValueInvalidType();
 	}

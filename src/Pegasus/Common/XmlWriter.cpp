@@ -1120,13 +1120,6 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
     const String& messageId,
     const Array<Sint8>& body)
 {
-    /*return XmlWriter::formatMethodResponseHeader(
-        XmlWriter::formatMessageElement(
-	    messageId,
-            XmlWriter::formatSimpleRspElement(
-                XmlWriter::formatMethodResponseElement(
-                    iMethodName,
-                    XmlWriter::formatReturnValueElement(body)))));*/
     return XmlWriter::formatMethodResponseHeader(
         XmlWriter::formatMessageElement(
 	    messageId,
@@ -1158,21 +1151,30 @@ Array<Sint8> XmlWriter::formatMethodResponseElement(
 
 //------------------------------------------------------------------------------
 //
-// formatReturnValueElement()
+// appendReturnValueElement()
 //
-// ATTN-RK-P2-20020219: This spec snippet reflects an update that has not yet
-// been implemented
-// <!ELEMENT RETURNVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE|VALUE.REFARRAY)>
+// <!ELEMENT RETURNVALUE (VALUE|VALUE.REFERENCE)>
 // <!ATTLIST RETURNVALUE
 //     %ParamType;>
 //
 //------------------------------------------------------------------------------
 
-Array<Sint8> XmlWriter::formatReturnValueElement(
-    const Array<Sint8>& body)
+Array<Sint8>& XmlWriter::appendReturnValueElement(
+    Array<Sint8>& out,
+    const CIMValue& value)
 {
-    Array<Sint8> out;
-    return out << "<RETURNVALUE>\n" << body << "</RETURNVALUE>\n";
+    out << "<RETURNVALUE";
+
+    CIMType type = value.getType();
+    if (type != CIMType::NONE)
+    {
+        out << " PARAMTYPE=\"" << TypeToString(type) << "\"";
+    }
+
+    out << ">\n";
+    value.toXml(out);
+    out << "</RETURNVALUE>\n";
+    return out;
 }
 
 //------------------------------------------------------------------------------

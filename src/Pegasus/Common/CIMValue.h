@@ -23,6 +23,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Karl schopmeyer (k.schopmeyer@opengroup.org)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -141,9 +142,12 @@ public:
     CIMValue(const Array<CIMDateTime>& x) { _init(); set(x); }
 
     ///	Constructor
+    CIMValue(const Array<CIMReference>& x) { _init(); set(x); }
+
+    ///	Constructor
     CIMValue(const CIMValue& x);
 
-    ///	Destrustructor
+    ///	Destructor
     ~CIMValue();
 
     /// Operator =
@@ -294,6 +298,8 @@ public:
     void set(const Array<String>& x);
     ///
     void set(const Array<CIMDateTime>& x);
+    ///
+    void set(const Array<CIMReference>& x);
 
     /** get - Gets the value of a CIMValue
         @param ATTNDOC:
@@ -356,11 +362,14 @@ public:
     void get(Array<String>& x) const;
     ///
     void get(Array<CIMDateTime>& x) const; 
+    ///
+    void get(Array<CIMReference>& x) const; 
 
     /** toXML - Converts a CIMValue object to XML. The XML is appended
-        to the Array provided with the call.Returns the result as an
-        XML elemet wrapped in the <VALUE> or <ARRAYVALUE> tags. If the
-        CIMValue is Null, no element is returned.
+        to the Array provided with the call.  Returns the result as an
+        XML element wrapped in the <VALUE>, <VALUE.ARRAY>, <VALUE.REFERENCE>,
+        or <VALUE.REFARRAY> tags. If the CIMValue is Null, no element is
+        returned.
 	@paramout Sint8 Array to hold the XML representation
 	@return Returns the XML representation of the CIMValue
 	object in the input parameter out. 
@@ -370,7 +379,8 @@ public:
     /** toXML - Converts a CIMValue object to XML. There is no input
         parameter and the result is returned as a String rather
         than appended to an 8-bit array as above.  Returns the
-        element as value wrapped in the <VALUE> or ARRAYVALUE tags. If the
+        element as value wrapped in the <VALUE>, <VALUE.ARRAY>,
+        <VALUE.REFERENCE>, or <VALUE.REFARRAY> tags. If the
         CIMValue is Null, no element is returned.
 	@return Returns the XML representation of the CIMValue
 	object in String form.

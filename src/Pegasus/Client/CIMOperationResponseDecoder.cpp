@@ -1167,7 +1167,7 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 
     CIMParamValue paramValue;
     Array<CIMParamValue> outParameters;
-    CIMValue value;
+    CIMValue returnValue;
     const char* paramName;
     String inValue;
 
@@ -1178,7 +1178,7 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 	    code,
 	    description,
 	    QueueIdStack(),
-	    value,
+	    returnValue,
 	    outParameters,
 	    methodName));
     }
@@ -1189,16 +1189,12 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
         Boolean gotReturnValue = false;
 
         while ((isReturnValue =
-                    XmlReader::testStartTag(parser, entry, "RETURNVALUE")) ||
+                    XmlReader::getReturnValueElement(parser, returnValue)) ||
                (isParamValue =
 		    XmlReader::getParamValueElement(parser, paramValue)))
         {
             if (isReturnValue)
             {
-                // ATTN: Need to determine the correct type
-	        XmlReader::getValueElement(parser, CIMType::STRING, value);
-        	XmlReader::testEndTag(parser, "RETURNVALUE");
-
                 if (gotReturnValue)
                 {
 	            throw XmlValidationError(parser.getLine(),
@@ -1226,7 +1222,7 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 	    CIM_ERR_SUCCESS,
 	    String(),
 	    QueueIdStack(),
-	    value,
+	    returnValue,
 	    outParameters,
 	    methodName));
     }

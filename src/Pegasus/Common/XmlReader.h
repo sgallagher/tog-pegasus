@@ -388,6 +388,10 @@ public:
 	XmlParser& parser, 
 	CIMParamValue& paramValue);
 
+    static Boolean getReturnValueElement(
+	XmlParser& parser, 
+	CIMValue& returnValue);
+
 private:
 
     XmlReader() 

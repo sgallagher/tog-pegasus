@@ -3261,6 +3261,7 @@ Boolean XmlReader::getParamValueElement(
 	    //{
 	    //    type = CIMType::REFERENCE;
 	    //}
+            // If type==reference but no VALUE.REFERENCE found, use null value
         }
 
         // Parse non-reference value
@@ -3284,6 +3285,70 @@ Boolean XmlReader::getParamValueElement(
     }
 
     paramValue = CIMParamValue(CIMParameter(name, type), value);
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
+// getReturnValueElement()
+//
+// <!ELEMENT RETURNVALUE (VALUE|VALUE.REFERENCE)>
+// <!ATTLIST RETURNVALUE
+//      %ParamType;>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getReturnValueElement(
+    XmlParser& parser, 
+    CIMValue& returnValue)
+{
+    XmlEntry entry;
+    CIMType type;
+    CIMValue value;
+
+    if (!testStartTag(parser, entry, "RETURNVALUE"))
+	return false;
+
+    // Get RETURNVALUE.PARAMTYPE attribute:
+    // NOTE: Array type return values are not allowed (2/20/02)
+
+    type = getCimTypeAttribute(parser.getLine(), entry, "RETURNVALUE",
+			       "PARAMTYPE", false);
+
+    // Parse VALUE.REFERENCE type
+    if ( (type == CIMType::REFERENCE) || (type == CIMType::NONE) )
+    {
+        CIMReference reference;
+        if (XmlReader::getValueReferenceElement(parser, reference))
+        {
+            returnValue.set(reference);
+            type = CIMType::REFERENCE;
+        }
+        else if (type == CIMType::REFERENCE)
+        {
+            throw XmlValidationError(parser.getLine(),
+                "expected VALUE.REFERENCE element");
+        }
+    }
+
+    // Parse non-reference return value
+    if ( type != CIMType::REFERENCE )
+    {
+        // If we don't know what type the value is, read it as a String
+        if ( type == CIMType::NONE)
+        {
+            type = CIMType::STRING;
+        }
+
+        if ( !XmlReader::getValueElement(parser, type, returnValue) )
+        {
+            throw XmlValidationError(parser.getLine(),
+                "expected VALUE element");
+        }
+    }
+
+    expectEndTag(parser, "RETURNVALUE");
 
     return true;
 }

@@ -872,9 +872,10 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
     }
 
     Array<Sint8> body;
-    response->retValue.toXml(body);
 
-    body = XmlWriter::formatReturnValueElement(body);
+    // ATTN-RK-P3-20020219: Who's job is it to make sure the return value is
+    // not an array?
+    XmlWriter::appendReturnValueElement(body, response->retValue);
 
     for (Uint32 i=0; i < response->outParameters.size(); i++)
     {

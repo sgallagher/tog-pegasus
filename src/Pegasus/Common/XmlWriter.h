@@ -281,8 +281,9 @@ public:
 	const char* name,
 	const Array<Sint8>& iParamValues);
 
-    static Array<Sint8> formatReturnValueElement(
-	const Array<Sint8>& body);
+    static Array<Sint8>& appendReturnValueElement(
+	Array<Sint8>& out,
+	const CIMValue& value);
 
     static Array<Sint8> formatUnauthorizedResponseHeader(
         const String& content);

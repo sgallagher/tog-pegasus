@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +75,7 @@ union Union
     ArrayRep<Char16>* _char16Array;
     ArrayRep<String>* _stringArray;
     ArrayRep<CIMDateTime>* _dateTimeArray;
+    ArrayRep<CIMReference>* _referenceArray;
 
     void* _voidPtr;
 };

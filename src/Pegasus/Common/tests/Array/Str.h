@@ -1,11 +1,6 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//BEGIN_LICENSE
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -14,29 +9,33 @@
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//END_LICENSE
+//BEGIN_HISTORY
 //
-//////////////////////////////////////////////////////////////////////////
+// Author:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+// $Log: Str.h,v $
+// Revision 1.1.1.1  2001/01/14 19:53:44  mike
+// Pegasus import
+//
+//
+//END_HISTORY
 
 #ifndef X_h
 #define X_h
 
-#include <cstring>
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 
-PEGASUS_USING_PEGASUS;
+using namespace Pegasus;
 
 class Str
 {
@@ -47,42 +46,39 @@ public:
 
     static char* _clone(const char* str)
     {
-        return strcpy(new char[strlen(str) + 1], str);
+	return strcpy(new char[strlen(str) + 1], str);
     }
 
-    Str()
-    {
-        _constructions++;
-        _str = _clone("");
+    Str() 
+    { 
+	_constructions++; 
+	_str = _clone(""); 
     }
 
-    Str(const Str& x)
-    {
-        _constructions++;
-        _str = _clone(x._str);
+    Str(const Str& x) 
+    { 
+	_constructions++; 
+	_str = _clone(x._str); 
     }
 
-    Str(const char* str)
-    {
-        _constructions++;
-        _str = _clone(str);
+    Str(const char* str) 
+    { 
+	_constructions++; 
+	_str = _clone(str); 
     }
 
-    Str& operator=(const Str& x)
-    {
-        if (&x != this)
-        {
-            _constructions++;
-            delete [] _str;
-            _str = _clone(x._str);
-        }
-        return *this;
+    Str& operator=(const Str& x) 
+    { 
+	_constructions++; 
+	delete [] _str; 
+	_str = _clone(x._str); 
+	return *this; 
     }
 
-    ~Str()
+    ~Str() 
     {
-        _destructions++;
-        delete [] _str;
+	_destructions++;
+	delete [] _str; 
     }
 
     const char* getStr() const { return _str; }
@@ -91,7 +87,7 @@ private:
     char* _str;
 };
 
-inline PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Str& x)
+inline std::ostream& operator<<(std::ostream& os, const Str& x)
 {
     os << x.getStr();
     return os;

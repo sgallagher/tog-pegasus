@@ -1,11 +1,7 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//BEGIN_LICENSE
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+//
+// Copyright (c) 2000 The Open Group, BMC Software
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -14,43 +10,51 @@
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//END_LICENSE
+//BEGIN_HISTORY
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Mike Brasher
 //
-//%/////////////////////////////////////////////////////////////////////////////
+// $Log: XmlPrint.cpp,v $
+// Revision 1.1.1.1  2001/01/14 19:53:50  mike
+// Pegasus import
+//
+//
+//END_HISTORY
 
+#include <iostream>
+#include <fstream>
 #include <cstdio>
-#include <Pegasus/Common/PegasusAssert.h>
+#include <cassert>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/FileSystem.h>
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+using namespace Pegasus;
+using namespace std;
 
 static void _processFile(const char* fileName)
 {
-    Buffer text;
+    Array<char> text;
     FileSystem::loadFileToMemory(text, fileName);
+    text.append('\0');
 
     try
     {
-    XmlWriter::indentedPrint(cout, text.getData());
+	XmlWriter::indentedPrint(cout, text.getData());
     }
     catch (Exception& e)
     {
-    cout << fileName << ": " << e.getMessage() << endl;
+	cout << fileName << ": " << e.getMessage() << endl;
     }
 }
 
@@ -58,23 +62,22 @@ int main(int argc, char** argv)
 {
     if (argc < 2)
     {
-    cerr << "Usage: " << argv[0] << " xml-filename ..." << endl;
-    exit(1);
+	cerr << "Usage: " << argv[0] << " xml-filename ..." << endl;
+	exit(1);
     }
 
     for (Uint32 i = 1; i < Uint32(argc); i++)
     {
-    try
-    {
-        _processFile(argv[i]);
+	try 
+	{ 
+	    _processFile(argv[i]); 
+	}
+	catch(Exception& e)
+	{
+	    cerr << "Error: " << e.getMessage() << endl;	
+	    exit(1);
+	}
     }
-    catch(Exception& e)
-    {
-        cerr << "Error: " << e.getMessage() << endl;
-        exit(1);
-    }
-    }
-    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

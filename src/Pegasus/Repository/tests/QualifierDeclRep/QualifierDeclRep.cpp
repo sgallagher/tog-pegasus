@@ -1,11 +1,6 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//BEGIN_LICENSE
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -14,37 +9,35 @@
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//END_LICENSE
+//BEGIN_HISTORY
 //
-//////////////////////////////////////////////////////////////////////////
+// Author:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+// $Log: QualifierDeclRep.cpp,v $
+// Revision 1.1.1.1  2001/01/14 19:53:59  mike
+// Pegasus import
+//
+//
+//END_HISTORY
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Repository/CIMRepository.h>
+#include <cassert>
+#include <Pegasus/Repository/Repository.h>
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+using namespace Pegasus;
+using namespace std;
 
-static const char* tmpDir;
-static Boolean verbose;
-String repositoryRoot;
-
-void test(Uint32 mode)
+void test()
 {
-
-  CIMRepository r (repositoryRoot, mode);
+    Repository r(".");
 
     // Create a namespace:
 
@@ -54,14 +47,14 @@ void test(Uint32 mode)
 
     // Create a qualifier declaration:
 
-    CIMQualifierDecl q1(ABSTRACT, Boolean(true), CIMScope::CLASS);
+    QualifierDecl q1(ABSTRACT, Boolean(true), Scope::CLASS);
     r.setQualifier(NAMESPACE, q1);
 
     // Get it back and check to see if it is identical:
 
-    CIMConstQualifierDecl q2 = r.getQualifier(NAMESPACE, ABSTRACT);
+    ConstQualifierDecl q2 = r.getQualifier(NAMESPACE, ABSTRACT);
 
-    PEGASUS_TEST_ASSERT(q1.identical(q2));
+    assert(q1.identical(q2));
 
     // Remove it now:
 
@@ -71,87 +64,48 @@ void test(Uint32 mode)
 
     try
     {
-    q2 = r.getQualifier(NAMESPACE, ABSTRACT);
+	q2 = r.getQualifier(NAMESPACE, ABSTRACT);
     }
-    catch (CIMException& e)
+    catch (CimException& e)
     {
-    PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+	assert(e.getCode() == CimException::NOT_FOUND);
     }
 
     // Create two qualifiers:
 
-    CIMQualifierDecl q3(CIMName ("q3"), Uint32(66), CIMScope::CLASS);
-    CIMQualifierDecl q4(CIMName ("q4"), String("Hello World"), CIMScope::CLASS);
+    QualifierDecl q3("q3", Uint32(66), Scope::CLASS);
+    QualifierDecl q4("q4", String("Hello World"), Scope::CLASS);
 
     r.setQualifier(NAMESPACE, q3);
     r.setQualifier(NAMESPACE, q4);
 
     // Enumerate the qualifier names:
 
-    Array<CIMQualifierDecl> qualifiers = r.enumerateQualifiers(NAMESPACE);
-    PEGASUS_TEST_ASSERT(qualifiers.size() == 2);
+    Array<QualifierDecl> qualifiers = r.enumerateQualifiers(NAMESPACE);
 
-    for (Uint32 i = 0, n = qualifiers.size(); i < n; i++)
+    assert(qualifiers.getSize() == 2);
+
+    for (Uint32 i = 0, n = qualifiers.getSize(); i < n; i++)
     {
-    // qualifiers[i].print();
-    PEGASUS_TEST_ASSERT(
-        qualifiers[i].identical(q3) || qualifiers[i].identical(q4));
+	// qualifiers[i].print();
+
+	assert(qualifiers[i].identical(q3) || qualifiers[i].identical(q4));
     }
 }
 
-int main(int argc, char** argv)
+int main()
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE");
-
-    if (argc != 2)
+    try 
     {
-        cout << "Usage: " << argv[0] << " XML | BIN" << endl;
-        return 1;
-    }
-
-    tmpDir = getenv ("PEGASUS_TMP");
-    if (tmpDir == NULL)
-    {
-        repositoryRoot = ".";
-    }
-    else
-    {
-        repositoryRoot = tmpDir;
-    }
-    repositoryRoot.append("/repository");
-
-    FileSystem::removeDirectoryHier(repositoryRoot);
-
-    try
-    {
-      Uint32 mode;
-      if (!strcmp(argv[1],"XML") )
-    {
-      mode = CIMRepository::MODE_XML;
-      if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
-    }
-      else if (!strcmp(argv[1],"BIN") )
-    {
-      mode = CIMRepository::MODE_BIN;
-      if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
-    }
-      else
-    {
-      cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-      return 1;
-    }
-
-      test(mode);
+	test();
     }
     catch (Exception& e)
     {
-    cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
-    exit(1);
+	cout << e.getMessage() << endl;
+	exit(1);
     }
 
-    FileSystem::removeDirectoryHier(repositoryRoot);
-
-    cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
+    cout << "+++++ passed all tests" << endl;
 
     return 0;
 }

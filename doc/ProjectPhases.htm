@@ -1,0 +1,229 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Pegasus Project Phase Defintions</title>
+</head>
+
+<body>
+
+<h1>Project Phasing for Pegasus Development Project</h1>
+<p>The Pegasus project is broken into multiple phases, each phase producing:</p>
+<ol>
+  <li>A working implementation with the capabilities defined</li>
+  <li>Documentation on the implementation</li>
+  <li>Specification of architecture, components and interfaces completed in that
+    phase</li>
+</ol>
+<p>This page defines the phases for the Pegasus project including the objectives
+of each phase and the capabilities and functions that will be required to meet
+these objectives</p>
+<h2>Phase 0 -&nbsp; Core Facilities</h2>
+<p><b>Objective:</b> Make the MSB core functionality and interfaces available to an
+extended team of developers, users, and testers.&nbsp; We want to make the basic
+capabilities of the MSB including the capability to load classes and attach
+consumers to be available so that work can continue on the provider and services
+capabilities.&nbsp; This will be only an internal release, and not available
+outside the Pegasus project team. This version will not be able to register, or
+call providers.</p>
+<p><b>Capabilities Expected:</b></p>
+<ol>
+  <li>Compile and install classes in the MSB</li>
+  <li>Access the classes through a standard CIM/XML/HTTP client. We are not
+    certain what level of Pegasus test client will be available at this time.</li>
+</ol>
+<p><b>Functions Implemented</b></p>
+<ol>
+  <li>MOF Compiler</li>
+  <li>Class Repository and Class repository interface - The class repository we be a very simplistic and low performance implementation probably based on
+    directories and files.</li>
+  <li> MSB with semantic checking ( The MSB is used by the compiler to install
+    classes</li>
+  <li>Consumer Direct (Native) Interface</li>
+  <li>Consumer CIM/XML/HTTP consumer adapter and CIM/XML/HTTP protocol between
+    CIM Server and CIM client.</li>
+</ol>
+<p>Components Produced - At least the following components will be part of this
+release</p>
+<ol>
+  <li>Source code for base level 0 MSB that can be installed in either Linux or
+    Windows for compilarion</li>
+  <li>Commandline MOF compiler (source code)</li>
+  <li>Extensive test examples for the client interface</li>
+  <li>Note that we do not intend to provide binary versions in this phase nor
+    will we provide copies of external tools used for the implementation (ex.
+    AICE Wrappers). Instucitons on the acquisition and installation of these
+    tools will be provided with the release</li>
+  <li>Preliminary user manual defining the interfaces, installation procedures,
+    etc.</li>
+</ol>
+<p><b>Documentation Required </b>- Utilization, installation, and interface
+definitions so that other members of the project team can work with the
+code.&nbsp; We do not expect to have a specification available at this time.</p>
+<p><b>Minimum Platforms Supported </b>- Linux, Windows NT</p>
+<p><b>Time Frame: </b>Available&nbsp; on the TOG WEB distribution before 1 December
+2000</p>
+<p><b>COMMENTS:&nbsp;</b> To accomplish this phase, we expect to use client
+tools from other projects such as the SNIA client rather than have a working
+client built for ourselves.</p>
+<p><b>Utilization of the output of Phase 0</b> - The primary use of this base
+will be to develop the phase one capabilities including:</p>
+<ol>
+  <li>Develop the Provider interfaces and provider dispatching</li>
+  <li>Develop and test Sample providers</li>
+  <li>Develop and test sample clients</li>
+  <li>Define, develop and test the services interface</li>
+  <li>Implement Instance repository</li>
+  <li>Develop and test dynamic loading of providers</li>
+  <li>Threading framework ????</li>
+  <li>Implement user Authentication and Service interface for Authentication</li>
+</ol>
+<p><b>Interim Activities between Phase 0 and Phase 1 delivery </b>-</p>
+<ol>
+  <li>Development listed above.</li>
+  <li>Face to face design and planning meetings 1) December 2000, 2) January
+    2001.</li>
+</ol>
+<h2>Phase 1 - Working Basic MSB with Providers, Clients, Services</h2>
+<p><b>Objective:</b>  Extend phase 0 to produce an implementation that can load and access
+providers and services from standard WBEM consumers and from local (native interface)
+consumers. In addition, it is important the the services concepts and interfaces
+be clarified as part of the Phase one project because the services concept is
+key to our implementation. To demonstrate that this environment we propose the
+implement at least one additional language binding from the both the consumer
+and provider interface.</p>
+<p>The results of this phase and all resulting phases will be made publicly
+available. This phase must include both code, documentation and the first
+version of the specification.</p>
+<p><b>Capabilities Expected</b></p>
+<ol>
+  <li>Simple Authentication of clients - Since the authentication is expected to
+    be an attachable internal services, the internal service interface must be
+    defined.</li>
+  <li>Implement all CIM HTTP Version 1 defined operations</li>
+  <li>Delegation of operations to repository or providers&nbsp;</li>
+  <li>Collation of provider results for operation response</li>
+  <li>Simple external manageability test service to show concepts of the service
+    extensibility</li>
+</ol>
+<p><b>Functions Implemented - </b>The following list defines the primary functions
+to be defined and implemented in Phase 1</p>
+<ol>
+  <li>Provider registration - Today this is based on a proprietary class
+    (provider) and registration is the creation of an instance of this classs.&nbsp;
+    However, the Interop WG is working today on the implementaiton of a standard
+    registration mechanism ( a provider class that defines the registration and
+    capabilities information for a provider) and if possible we will implement
+    based on the preliminary version of this class.</li>
+  <li>Provider loading - Dynamic loading of providers. using the direct&nbsp;
+    C++ api as the MSB/provider interface. To do this, first the interfaces for
+    the provider must be defined and a basic SDK for the provider defined (see
+    the items below)</li>
+  <li>C++ Provider APIs - Definition of the provider APIs.&nbsp; These APIs will
+    be based on the C++ cleint APIs with possible additional parameters to
+    improve efficiency of operations between the provider and MSB.&nbsp;</li>
+  <li>Direct Client APIs - The C++ client APIs have been defined and documented
+    as part of Phase 0.&nbsp; However, we expect that the experience of
+    implementation and use in developing clients and the client role for
+    providers will lead to some changes to these APIs. Since the release of the
+    draft specification of these APIs will not be made until the end of phase 1
+    we do not have to worrry about compatibility problems between clients and
+    the MSB except for clients that are being developed within the group.</li>
+  <li>Direct C++ services API - We must completely define and implement the
+    services extensions concepts and interfaces. We believe today that there
+    will be several level of service extensions including Internal MSB service
+    extensions (ex. authentication) and manageability services that can be made
+    available to the&nbsp;</li>
+  <li>IPC and possibly remote system provider and service APIs - We want to be
+    certain that providers and services can be connected to the MSB from other
+    processes and possibly from other systems.&nbsp; We must define the
+    interfaces for this (initially we are looking at keeping the current
+    synchronous interfaces and using threading) and what ever protocol and
+    serialization will be required to accomplish this extension.</li>
+  <li>Test providers - TBD</li>
+  <li>Scripting Client and Provider - We want to develop at least one very high
+    level scripting client and provider and are looking at TCL as the basis for
+    this today.&nbsp; This will be used both for our testing and as an example
+    of a working script based client and provider.</li>
+  <li>Authentication service</li>
+  <li>Test Clients</li>
+  <li>Provider SDK - We will define an SDK for providers as a tool to simplify
+    provider development.</li>
+  <li>Services SDK - Define and implement an SDK for the services interface to
+    simplify the development of services</li>
+  <li>Client SDK (Possibly) - TBD</li>
+</ol>
+<p><b>Documentation Required</b> - 1) Draft version 1 specificaiton for the MSB,
+user documentation for the implementation, and 3) programmer documentation
+(integrated with the code)</p>
+<p><b>Minimum Platforms Supported </b>- Linux, Windows NT</p>
+<ol>
+  <li>Deliverables for Phase 1 -</li>
+  <li>Source code for MSB</li>
+  <li>Source code for sample clients, providers, services</li>
+  <li>Documentation</li>
+  <li>Initial Pegasus specification</li>
+  <li>Binary distribution of the broker for at least Linux and Windows platforms
+    for testing</li>
+</ol>
+<p><b>Expected Utilization of the Output of Phase 1</b> -</p>
+<p><b>Time Frame: </b>Completed so that a complete demonstration of
+functionality can be made at the TOG February 2001 meeting.</p>
+<h2>Phase 2 - Extension for Events and Java Interfaces</h2>
+<p><b>Objective:</b> Extend Phase one to include the DMTF model for events and
+to incorporate JAVA interfaces into the architecture. This will require
+implementation of the query language as well as event processing and forwarding
+mechanisms in the MSB.&nbsp;</p>
+<p><b>Capabilities Expected</b></p>
+<ol>
+  <li>Ability to create clients that can process events</li>
+  <li>Event process and forwarding in the MSB</li>
+  <li>Ability to attach Java based services and providers</li>
+</ol>
+<p><b>Functions Implemented</b></p>
+<ol>
+  <li>Query language implementation - We assume that this has to exist as an MSB
+    service.&nbsp; Our objective is to implementa at least the Level one Query
+    language</li>
+  <li>Event Processing in the MSB</li>
+  <li>Event forwarding</li>
+  <li>Provider negotiation of services with MSB</li>
+  <li>Events based services extensions</li>
+  <li>Java extensions to JVM</li>
+  <li>Test Java services</li>
+  <li>Test Java Providers</li>
+</ol>
+<p>Minimum Platforms Supported - Linux, Windows NT</p>
+<p><b>Time Frame: </b>We expect this phase to be finished by the June 2001 DMTF
+Sysdev.&nbsp; We would hope to be able to conduct interoperability testing at
+that event.</p>
+<p>COMMENTS: There is a demonstration event planned by SNIA for some time in
+April 2000. We need to investigate whether we will have enough of Phase 2
+operational to attend this event.&nbsp; At least, we should consider taking
+whatever stable version of the platform we have to the SNIA event.</p>
+<h2>Phase 3</h2>
+<p><b>Objective:</b> Extend the manageability model to networks including
+CIMOM-CIMOM operations, discover of CIMOMs, a more transparent naming concept,
+etc.</p>
+<p><b>Capabilities Expected</b></p>
+<ol>
+  <li>Undefined</li>
+</ol>
+<p><b>Functions Implemented</b></p>
+<ol>
+  <li>Undefined</li>
+</ol>
+<p><b>Time Frame: </b>Undefined</p>
+<hr>
+<p>Last Update <!--webbot bot="Timestamp" S-Type="EDITED"
+S-Format="%A, %B %d, %Y %I:%M %p" startspan -->Wednesday, November 22, 2000 08:39 AM<!--webbot bot="Timestamp" endspan i-checksum="13221" -->
+.&nbsp; For further information or to make comments email <a href="mailto:k.schopmeyer@opengroup.org">k.schopmeyer@opengroup.org</a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+</body>
+
+</html>

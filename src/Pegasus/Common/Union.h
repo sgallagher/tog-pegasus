@@ -1,11 +1,6 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//BEGIN_LICENSE
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -14,38 +9,52 @@
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//END_LICENSE
+//BEGIN_HISTORY
 //
-//////////////////////////////////////////////////////////////////////////
+// Author:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+// $Log: Union.h,v $
+// Revision 1.1.1.1  2001/01/14 19:53:16  mike
+// Pegasus import
+//
+//
+//END_HISTORY
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Union
+//
+//	This union is used to represent the values of properties, qualifiers,
+//	method return values, and method arguments. All of the types
+//	defined in Type.h are represented by a Union. The 
+//	Union is used as the the basis for the Value implementation.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Union_h
 #define Pegasus_Union_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Type.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/DateTime.h>
+#include <Pegasus/Common/Reference.h>
+#include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct StringRep;
-
-/** This union is used to represent the values of properties, qualifiers,
-    method return values, and method arguments. All of the types
-    defined in CIMType.h are represented by a Union. The
-    Union is used as the the basis for the CIMValue implementation.
-*/
 union Union
 {
-    Boolean _booleanValue;
+    Uint8 _booleanValue;
     Uint8 _uint8Value;
     Sint8 _sint8Value;
     Uint16 _uint16Value;
@@ -57,29 +66,25 @@ union Union
     Real32 _real32Value;
     Real64 _real64Value;
     Uint16 _char16Value;
-    char _stringValue[sizeof(void*)];
-    char _dateTimeValue[sizeof(void*)];
-    char _referenceValue[sizeof(void*)];
-    char _objectValue[sizeof(void*)];
-    char _instanceValue[sizeof(void*)];
+    String* _stringValue;
+    DateTime* _dateTimeValue;
+    Reference* _referenceValue;
 
-    char _booleanArray[sizeof(void*)];
-    char _uint8Array[sizeof(void*)];
-    char _sint8Array[sizeof(void*)];
-    char _uint16Array[sizeof(void*)];
-    char _sint16Array[sizeof(void*)];
-    char _uint32Array[sizeof(void*)];
-    char _sint32Array[sizeof(void*)];
-    char _uint64Array[sizeof(void*)];
-    char _sint64Array[sizeof(void*)];
-    char _real32Array[sizeof(void*)];
-    char _real64Array[sizeof(void*)];
-    char _char16Array[sizeof(void*)];
-    char _stringArray[sizeof(void*)];
-    char _dateTimeArray[sizeof(void*)];
-    char _referenceArray[sizeof(void*)];
-    char _objectArray[sizeof(void*)];
-    char _instanceArray[sizeof(void*)];
+    ArrayRep<Boolean>* _booleanArray;
+    ArrayRep<Uint8>* _uint8Array;
+    ArrayRep<Sint8>* _sint8Array;
+    ArrayRep<Uint16>* _uint16Array;
+    ArrayRep<Sint16>* _sint16Array;
+    ArrayRep<Uint32>* _uint32Array;
+    ArrayRep<Sint32>* _sint32Array;
+    ArrayRep<Uint64>* _uint64Array;
+    ArrayRep<Sint64>* _sint64Array;
+    ArrayRep<Real32>* _real32Array;
+    ArrayRep<Real64>* _real64Array;
+    ArrayRep<Char16>* _char16Array;
+    ArrayRep<String>* _stringArray;
+    ArrayRep<DateTime>* _dateTimeArray;
+
     void* _voidPtr;
 };
 

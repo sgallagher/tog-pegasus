@@ -1,11 +1,6 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//BEGIN_LICENSE
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -14,30 +9,39 @@
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//END_LICENSE
+//BEGIN_HISTORY
 //
-//////////////////////////////////////////////////////////////////////////
+// Author:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+// $Log: XmlParser.h,v $
+// Revision 1.1.1.1  2001/01/14 19:53:24  mike
+// Pegasus import
+//
+//
+//END_HISTORY
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// XmlParser.h
+//
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_XmlParser_h
 #define Pegasus_XmlParser_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Stack.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -47,37 +51,29 @@ public:
 
     enum Code
     {
-        BAD_START_TAG = 1,
-        BAD_END_TAG,
-        BAD_ATTRIBUTE_NAME,
-        EXPECTED_EQUAL_SIGN,
-        BAD_ATTRIBUTE_VALUE,
-        MINUS_MINUS_IN_COMMENT,
-        UNTERMINATED_COMMENT,
-        UNTERMINATED_CDATA,
-        UNTERMINATED_DOCTYPE,
-        MALFORMED_REFERENCE,
-        EXPECTED_COMMENT_OR_CDATA,
-        START_END_MISMATCH,
-        UNCLOSED_TAGS,
-        MULTIPLE_ROOTS,
-        VALIDATION_ERROR,
-        SEMANTIC_ERROR,
-        UNDECLARED_NAMESPACE
+	BAD_START_TAG = 1,
+	BAD_END_TAG,
+	BAD_ATTRIBUTE_NAME,
+	EXPECTED_EQUAL_SIGN,
+	BAD_ATTRIBUTE_VALUE,
+	MINUS_MINUS_IN_COMMENT,
+	UNTERMINATED_COMMENT,
+	UNTERMINATED_CDATA,
+	UNTERMINATED_DOCTYPE,
+	TOO_MANY_ATTRIBUTES,
+	MALFORMED_REFERENCE,
+	EXPECTED_COMMENT_OR_CDATA,
+	START_END_MISMATCH,
+	UNCLOSED_TAGS,
+	MULTIPLE_ROOTS,
+	VALIDATION_ERROR,
+	SEMANTIC_ERROR
     };
 
-
     XmlException(
-        Code code,
-        Uint32 lineNumber,
-        const String& message = String());
-
-
-    XmlException(
-        Code code,
-        Uint32 lineNumber,
-        MessageLoaderParms& msgParms);
-
+	Code code, 
+	Uint32 lineNumber,
+	const String& message = String());
 
     XmlException::Code getCode() const { return _code; }
 
@@ -91,7 +87,6 @@ class PEGASUS_COMMON_LINKAGE XmlValidationError : public XmlException
 public:
 
     XmlValidationError(Uint32 lineNumber, const String& message);
-    XmlValidationError(Uint32 lineNumber, MessageLoaderParms& msgParms);
 };
 
 class PEGASUS_COMMON_LINKAGE XmlSemanticError : public XmlException
@@ -99,52 +94,38 @@ class PEGASUS_COMMON_LINKAGE XmlSemanticError : public XmlException
 public:
 
     XmlSemanticError(Uint32 lineNumber, const String& message);
-    XmlSemanticError(Uint32 lineNumber, MessageLoaderParms& msgParms);
-};
-
-struct XmlNamespace
-{
-    const char* localName;
-    const char* extendedName;
-    int type;
-    Uint32 scopeLevel;
 };
 
 struct XmlAttribute
 {
-    int nsType;
     const char* name;
-    const char* localName;
     const char* value;
 };
 
 struct PEGASUS_COMMON_LINKAGE XmlEntry
 {
-    enum XmlEntryType
+    enum Type
     {
-        XML_DECLARATION,
-        START_TAG,
-        EMPTY_TAG,
-        END_TAG,
-        COMMENT,
-        CDATA,
-        DOCTYPE,
-        CONTENT
+	XML_DECLARATION,
+	START_TAG, 
+	EMPTY_TAG, 
+	END_TAG, 
+	COMMENT,
+	CDATA,
+	DOCTYPE,
+	CONTENT
     };
 
-    XmlEntryType type;
-    const char* text;
-    int nsType;            // Only applies to START_TAG, EMPTY_TAG, and END_TAG
-    const char* localName; // Only applies to START_TAG, EMPTY_TAG, and END_TAG
-    Uint32 textLen; // Only applies to CDATA and CONTENT
+    enum { MAX_ATTRIBUTES = 10 };
 
-    Array<XmlAttribute> attributes;
+    Type type;
+    const char* text;
+    XmlAttribute attributes[MAX_ATTRIBUTES];
+    Uint32 attributeCount;
 
     void print() const;
 
     const XmlAttribute* findAttribute(const char* name) const;
-
-    const XmlAttribute* findAttribute(int attrNsType, const char* name) const;
 
     Boolean getAttributeValue(const char* name, Uint32& value) const;
 
@@ -155,55 +136,35 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
     Boolean getAttributeValue(const char* name, String& value) const;
 };
 
-inline int operator==(const XmlEntry&, const XmlEntry&)
-{
-    return 0;
-}
-
 class PEGASUS_COMMON_LINKAGE XmlParser
 {
 public:
 
     // Warning: this constructor modifies the text.
 
-    /** If hideEmptyTags if true, next() hides empty tags from the caller.
-        Instead, next() returns a fake start tag. The subsequent next() call
-        returns a fake end tag. This relieves the caller from having to do
-        special processing of empty tags, which can be tricky and error-prone.
-    */
-    XmlParser(char* text, XmlNamespace* ns = 0, Boolean hideEmptyTags = false);
+    XmlParser(char* text);
 
-    /** Comments are returned with entry if includeComment is true else
-        XmlParser ignores comments. Default is false.
-    */
-    Boolean next(XmlEntry& entry, Boolean includeComment = false);
+    Boolean next(XmlEntry& entry);
 
     void putBack(XmlEntry& entry);
 
     ~XmlParser();
 
-    Uint32 getStackSize() const { return _stack.size(); }
+    Uint32 getStackSize() const { return _stack.getSize(); }
 
     Uint32 getLine() const { return _line; }
 
-    XmlNamespace* getNamespace(int nsType);
-
-    void setHideEmptyTags(bool flag) { _hideEmptyTags = flag; }
-
-    bool getHideEmptyTags() const { return _hideEmptyTags; }
-
 private:
 
-    Boolean _next(XmlEntry& entry, Boolean includeComment = false);
+    void _skipWhitespace(char*& p);
 
-    Boolean _getElementName(char*& p, const char*& localName);
+    Boolean _getElementName(char*& p);
 
-    Boolean _getOpenElementName(
-        char*& p,
-        const char*& localName,
-        Boolean& openCloseElement);
+    Boolean _getOpenElementName(char*& p, Boolean& openCloseElement);
 
-    void _getAttributeNameAndEqual(char*& p, const char*& localName);
+    void _getAttributeNameAndEqual(char*& p);
+
+    void _getAttributeValue(char*& p);
 
     void _getComment(char*& p);
 
@@ -211,28 +172,29 @@ private:
 
     void _getDocType(char*& p);
 
+    void _getContent(char*& p);
+
+    void _substituteReferences(char* text);
+
     void _getElement(char*& p, XmlEntry& entry);
 
-    int _getNamespaceType(const char* tag);
-
-    int _getSupportedNamespaceType(const char* extendedName);
-
     Uint32 _line;
+    char* _text;
     char* _current;
     char _restoreChar;
     Stack<char*> _stack;
     Boolean _foundRoot;
     Stack<XmlEntry> _putBackStack;
-
-    XmlNamespace* _supportedNamespaces;
-    Stack<XmlNamespace> _nameSpaces;
-    int _currentUnsupportedNSType;
-    Boolean _hideEmptyTags;
 };
 
-PEGASUS_COMMON_LINKAGE void XmlAppendCString(
-    Buffer& out,
-    const char* str);
+inline void XmlAppendCString(Array<Sint8>& out, const char* str)
+{
+    out.append(str, strlen(str));
+}
+
+PEGASUS_COMMON_LINKAGE void XmlAppendString(
+    Array<Sint8>& out, 
+    const String& str);
 
 PEGASUS_NAMESPACE_END
 

@@ -1,11 +1,6 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//BEGIN_LICENSE
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -14,259 +9,202 @@
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//END_LICENSE
+//BEGIN_HISTORY
 //
-//////////////////////////////////////////////////////////////////////////
+// Author:
 //
-//%/////////////////////////////////////////////////////////////////////////////
+// $Log: EnumerateClassNames.cpp,v $
+// Revision 1.1.1.1  2001/01/14 19:53:57  mike
+// Pegasus import
+//
+//
+//END_HISTORY
 
 ////////////////////////////////////////////////////////////////////////////////
+//
+// The repository contains empty class files (don't try to read them in).
 //
 // The inheritance structure for this test is:
 //
-//  Class1
-//  Class2
-//  A
-//    X
-//      M
-//        Q
-//        R
-//      N
-//        S
-//        T
-//    Y
-//    Z
+//	Class1
+//	Class2
+//	A
+//	  X
+//	    M
+//	      Q
+//	      R
+//	    N
+//	      S
+//	      T
+//	  Y
+//	  Z
 //
 ////////////////////////////////////////////////////////////////////////////////
+#include <cassert>
+#include <Pegasus/Repository/Repository.h>
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Repository/CIMRepository.h>
+using namespace Pegasus;
+using namespace std;
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+const String NAMESPACE = "/zzz";
 
-static Boolean verbose;
-
-const CIMNamespaceName NAMESPACE = CIMNamespaceName ("test/zzz");
-String repositoryRoot;
-
-void print(const Array<CIMName>& array)
+void print(const Array<String>& array)
 {
-    if (verbose)
-    {
-        for (Uint32 i = 0, n = array.size(); i < n; i++)
-        cout << "array[" << i << "]: " << array[i].getString() << endl;
-    }
+#if 0
+    for (Uint32 i = 0, n = array.getSize(); i < n; i++)
+	cout << "array[" << i << "]: " << array[i] << endl;
+#endif
 }
 
 void TestCase1()
 {
-    if (verbose)
-    {
-        cout << "TestCase1" << endl;
-    }
-    CIMRepository r (repositoryRoot);
+    Repository r(".");
 
     // Enumerate the class names:
 
-    Array<CIMName> classNames = r.enumerateClassNames(
-            NAMESPACE, CIMName(), false);
+    Array<String> classNames = r.enumerateClassNames(
+	NAMESPACE, String::EMPTY, false);
 
     print(classNames);
 
-    Array<CIMName> tmp;
-    tmp.append(CIMName ("TST_A"));
-    tmp.append(CIMName ("TST_Class1"));
-    tmp.append(CIMName ("TST_Class2"));
+    Array<String> tmp;
+    tmp.append("A");
+    tmp.append("Class1");
+    tmp.append("Class2");
 
     BubbleSort(tmp);
     BubbleSort(classNames);
-    PEGASUS_TEST_ASSERT(tmp.size() == 3);
-    PEGASUS_TEST_ASSERT(tmp.size() == classNames.size());
-
-    PEGASUS_TEST_ASSERT(tmp == classNames);
+    assert(tmp == classNames);
 }
 
 void TestCase2()
 {
-    if (verbose)
-    {
-        cout << "TestCase2" << endl;
-    }
-    CIMRepository r (repositoryRoot);
+    Repository r(".");
 
     // Enumerate the class names:
 
-    Array<CIMName> classNames = r.enumerateClassNames(
-    NAMESPACE, CIMName(), true);
+    const String NAMESPACE = "/zzz";
+
+    Array<String> classNames = r.enumerateClassNames(
+	NAMESPACE, String::EMPTY, true);
 
     print(classNames);
 
-    Array<CIMName> tmp;
-    tmp.append(CIMName ("TST_A"));
-    tmp.append(CIMName ("TST_Class1"));
-    tmp.append(CIMName ("TST_Class2"));
-    tmp.append(CIMName ("TST_X"));
-    tmp.append(CIMName ("TST_Y"));
-    tmp.append(CIMName ("TST_Z"));
-    tmp.append(CIMName ("TST_M"));
-    tmp.append(CIMName ("TST_N"));
-    tmp.append(CIMName ("TST_Q"));
-    tmp.append(CIMName ("TST_R"));
-    tmp.append(CIMName ("TST_S"));
-    tmp.append(CIMName ("TST_T"));
+    Array<String> tmp;
+    tmp.append("A");
+    tmp.append("Class1");
+    tmp.append("Class2");
+    tmp.append("X");
+    tmp.append("Y");
+    tmp.append("Z");
+    tmp.append("M");
+    tmp.append("N");
+    tmp.append("Q");
+    tmp.append("R");
+    tmp.append("S");
+    tmp.append("T");
 
     BubbleSort(tmp);
     BubbleSort(classNames);
-    PEGASUS_TEST_ASSERT(tmp == classNames);
+    assert(tmp == classNames);
 }
 
 void TestCase3()
 {
-    if (verbose)
-    {
-        cout << "TestCase3" << endl;
-    }
-    CIMRepository r (repositoryRoot);
+    Repository r(".");
 
     // Enumerate the class names:
 
-    Array<CIMName> classNames = r.enumerateClassNames(
-    NAMESPACE, CIMName ("TST_X"), false);
+    const String NAMESPACE = "/zzz";
+
+    Array<String> classNames = r.enumerateClassNames(
+	NAMESPACE, "X", false);
 
     print(classNames);
 
-    Array<CIMName> tmp;
-    tmp.append(CIMName ("TST_M"));
-    tmp.append(CIMName ("TST_N"));
+    Array<String> tmp;
+    tmp.append("M");
+    tmp.append("N");
 
     BubbleSort(tmp);
     BubbleSort(classNames);
-    PEGASUS_TEST_ASSERT(tmp == classNames);
+    assert(tmp == classNames);
 }
 
 void TestCase4()
 {
-    if (verbose)
-    {
-        cout << "TestCase4" << endl;
-    }
-    CIMRepository r (repositoryRoot);
+    Repository r(".");
 
     // Enumerate the class names:
 
-    Array<CIMName> classNames = r.enumerateClassNames(
-    NAMESPACE, CIMName ("TST_X"), true);
+    const String NAMESPACE = "/zzz";
+
+    Array<String> classNames = r.enumerateClassNames(
+	NAMESPACE, "X", true);
 
     print(classNames);
 
-    Array<CIMName> tmp;
-    tmp.append(CIMName ("TST_M"));
-    tmp.append(CIMName ("TST_N"));
-    tmp.append(CIMName ("TST_Q"));
-    tmp.append(CIMName ("TST_R"));
-    tmp.append(CIMName ("TST_S"));
-    tmp.append(CIMName ("TST_T"));
+    Array<String> tmp;
+    tmp.append("M");
+    tmp.append("N");
+    tmp.append("Q");
+    tmp.append("R");
+    tmp.append("S");
+    tmp.append("T");
 
     BubbleSort(tmp);
     BubbleSort(classNames);
-    PEGASUS_TEST_ASSERT(tmp == classNames);
+    assert(tmp == classNames);
 }
 
 static void CreateClass(
-    CIMRepository& r,
-    const CIMName& className,
-    const CIMName superClassName = CIMName())
+    Repository& r,
+    const String& className, 
+    const String superClassName = String())
 {
-    CIMClass c(className, superClassName);
+    ClassDecl c(className, superClassName);
     r.createClass(NAMESPACE, c);
 }
 
-int main(int argc, char** argv)
+int main()
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+    Repository r(".");
 
-    const char* tmpDir;
-    tmpDir = getenv ("PEGASUS_TMP");
-    if (tmpDir == NULL)
+    try 
     {
-        repositoryRoot = ".";
-    }
-    else
-    {
-        repositoryRoot = tmpDir;
-    }
-    repositoryRoot.append("/repository");
-
-    Uint32 mode;
-    if(argc==1)
-    {
-      cout << argv[0] << ": No argument provided: " << endl;
-          cout <<"Usage: EnumerateClassNames [XML | BIN]" << endl;
-      return 1;
-    }
-
-    if (!strcmp(argv[1], "XML"))
-    {
-        mode = CIMRepository::MODE_XML;
-        if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
-    }
-    else if (!strcmp(argv[1], "BIN"))
-    {
-        mode = CIMRepository::MODE_BIN;
-        if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
-    }
-    else
-    {
-        cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-        cout <<"Usage: EnumerateClassNames [XML | BIN]" << endl;
-        return 1;
-    }
-
-    FileSystem::removeDirectoryHier(repositoryRoot);
-
-    CIMRepository r (repositoryRoot, mode);
-
-    try
-    {
-        r.createNameSpace(NAMESPACE);
-        CreateClass(r, CIMName ("TST_Class1"));
-        CreateClass(r, CIMName ("TST_Class2"));
-        CreateClass(r, CIMName ("TST_A"));
-        CreateClass(r, CIMName ("TST_X"), CIMName ("TST_A"));
-        CreateClass(r, CIMName ("TST_Y"), CIMName ("TST_A"));
-        CreateClass(r, CIMName ("TST_Z"), CIMName ("TST_A"));
-        CreateClass(r, CIMName ("TST_M"), CIMName ("TST_X"));
-        CreateClass(r, CIMName ("TST_N"), CIMName ("TST_X"));
-        CreateClass(r, CIMName ("TST_Q"), CIMName ("TST_M"));
-        CreateClass(r, CIMName ("TST_R"), CIMName ("TST_M"));
-        CreateClass(r, CIMName ("TST_S"), CIMName ("TST_N"));
-        CreateClass(r, CIMName ("TST_T"), CIMName ("TST_N"));
-        TestCase1();
-        TestCase2();
-        TestCase3();
-        TestCase4();
+	r.createNameSpace(NAMESPACE);
+	CreateClass(r, "Class1");
+	CreateClass(r, "Class2");
+	CreateClass(r, "A");
+	CreateClass(r, "X", "A");
+	CreateClass(r, "Y", "A");
+	CreateClass(r, "Z", "A");
+	CreateClass(r, "M", "X");
+	CreateClass(r, "N", "X");
+	CreateClass(r, "Q", "M");
+	CreateClass(r, "R", "M");
+	CreateClass(r, "S", "N");
+	CreateClass(r, "T", "N");
+	TestCase1();
+	TestCase2();
+	TestCase3();
+	TestCase4();
     }
     catch (Exception& e)
     {
-        cout << "Exception " << e.getMessage() << endl;
-        PEGASUS_TEST_ASSERT(false);
+	cout << e.getMessage() << endl;
     }
 
-    FileSystem::removeDirectoryHier(repositoryRoot);
-
-    cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
+    cout << "+++++ passed all tests" << endl;
 
     return 0;
 }

@@ -1,43 +1,63 @@
 Display usage - error
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: Required arguments missing.
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Display usage - error
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: the "-m" option is required
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Display Usage - error
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: Missing required value for flag m
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Display Usage - error
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: the "-m" option is required
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Display Usage - error
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: Missing required value for flag m
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Display Usage - error
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: the "-m" option is required
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Display Usage - error
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: Missing required value for flag m
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Duplicate -d parameter
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: duplicate "-d" option
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Duplicate -e parameter
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: duplicate "-e" option
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Duplicate -r parameter
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: duplicate "-r" option
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Duplicate -l parameter
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: duplicate "-l" option
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Duplicate -s parameter
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: duplicate "-s" option
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Unexpected option
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: option "-l" was unexpected
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Unexpected option
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: option "-l" was unexpected
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Unexpected option
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: option "-l" was unexpected
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Unexpected option
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: option "-r" was unexpected
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Unexpected option
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: Unexpected Option.
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Unexpected option
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: Unexpected Option.
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 argument was unexpected
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: argument "test" was unexpected
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 argument was unexpected
-cimprovider: Invalid option. Use '-h' or '--help' to obtain command syntax
+cimprovider: argument "test" was unexpected
+cimprovider: Incorrect usage. Use '--help' to obtain command syntax
 Disable provider module
 Disabling provider module...
 Provider module disabled successfully.

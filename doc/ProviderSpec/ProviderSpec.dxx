@@ -104,7 +104,6 @@ This version of the Pegasus Provider Interface Specification was created at \tod
        //@{
     	   //@Include: ProviderInterfaces.dxx
     	   	//@{
-		    //@Include: ..\..\src\Pegasus\Provider2\AsyncResponseHandler.h
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMAssociationProvider.h
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMBaseProvider.h
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMClassProvider.h
@@ -117,10 +116,14 @@ This version of the Pegasus Provider Interface Specification was created at \tod
 		    //@Include: ..\..\src\Pegasus\Provider2\CIMQueryProvider.h
 		    //@Include: ..\..\src\Pegasus\Provider2\OperationContext.h
 		    //@Include: ..\..\src\Pegasus\Provider2\OperationFlag.h
-		    //@Include: ..\..\src\Pegasus\Provider2\ResponseHandler.h
+		//@}
+		
+	   //@Include: ProviderAsyncResponses.dxx
+    	   	//@{
+    	   	    //@Include: ..\..\src\Pegasus\Provider2\ResponseHandler.h
 		    //@Include: ..\..\src\Pegasus\Provider2\SimpleResponseHandler.h
-		//@}  	 
-
+		    //@Include: ..\..\src\Pegasus\Provider2\AsyncResponseHandler.h
+		//@}
        //@}
     
     //@Include: ExamplesChapter.dxx

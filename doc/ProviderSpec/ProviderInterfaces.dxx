@@ -1,9 +1,10 @@
 /*
-
 	
 	$Author: karl $
 */
 /** @name Pegasus CIM Provider Interfaces
+
+NOTE: need to add the basic definition of what flows between provider and cimom.
 
 The C++ Provider interfaces are organized by provider type where each provider
 representes a catagory of CIM objects served.

@@ -69,7 +69,7 @@ cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
     connectString = hostname + ":" + portno;
   else
     connectString = location;
-  _client->connect(connectString);
+  _client->connect(connectString, String::EMPTY, String::EMPTY);
 
 }
 

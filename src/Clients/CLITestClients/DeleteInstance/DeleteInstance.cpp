@@ -330,7 +330,7 @@ int main(int argc, char** argv)
     // try the connect
     try
     {
-       	client.connect(location);
+       	client.connect(location, String::EMPTY, String::EMPTY);
     } 
     catch(Exception& e)
     {

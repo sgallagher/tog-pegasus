@@ -95,15 +95,15 @@ public:
 
     void connect(
         const String& address,
-        const String& userName = String::EMPTY,
-        const String& password = String::EMPTY
+        const String& userName,
+        const String& password
     );
 
     void connect(
         const String& address,
         const SSLContext& sslContext,
-        const String& userName = String::EMPTY,
-        const String& password = String::EMPTY
+        const String& userName,
+        const String& password
     );
 
     void connectLocal();

@@ -48,7 +48,7 @@ int main()
     HTTPConnector* httpConnector = new HTTPConnector(monitor);
     CIMClient r(monitor, httpConnector);
 
-    r.connect("localhost:5988");
+    r.connect("localhost:5988", String::EMPTY, String::EMPTY);
 
     //Consumer
     CIMClass cClass = r.getClass(NAMESPACE, "PG_ConsumerRegistration", false);

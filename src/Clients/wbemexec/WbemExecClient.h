@@ -107,8 +107,8 @@ public:
     */
     inline void connect(
         const String& address,
-        const String& userName = String::EMPTY,
-        const String& password = String::EMPTY
+        const String& userName,
+        const String& password
     ) throw(AlreadyConnectedException, InvalidLocatorException,
             CannotCreateSocketException, CannotConnectException,
             UnexpectedFailureException)
@@ -143,8 +143,8 @@ public:
     void connect(
         const String& address,
         SSLContext* sslContext,
-        const String& userName = String::EMPTY,
-        const String& password = String::EMPTY
+        const String& userName,
+        const String& password
     ) throw(AlreadyConnectedException, InvalidLocatorException,
             CannotCreateSocketException, CannotConnectException,
             UnexpectedFailureException);

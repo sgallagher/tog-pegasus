@@ -814,7 +814,7 @@ int main()
   // Connect
   try
   {
-    c.connect(HOST);
+    c.connect(HOST, String::EMPTY, String::EMPTY);
   }
   catch (Exception& e)
   {

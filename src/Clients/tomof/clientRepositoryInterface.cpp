@@ -69,7 +69,7 @@ clientRepositoryInterface::init(_repositoryType type,
     try
     {
 		_client = new CIMClient();
-		_client->connect(location);
+		_client->connect(location, String::EMPTY, String::EMPTY);
     } 
     
     catch(Exception &e) 

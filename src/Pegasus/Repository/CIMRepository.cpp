@@ -2872,7 +2872,7 @@ void CIMRepository::_setQualifier(
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_ALREADY_EXISTS, qualifierDecl.getName().getString());
+            CIM_ERR_NOT_SUPPORTED, qualifierDecl.getName().getString());
     }
 
     // -- Save qualifier:

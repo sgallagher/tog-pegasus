@@ -31,6 +31,7 @@
 //                (carolann_graves@hp.com)
 //              Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43 changes
+//				Seema gupta (gseema@in.ibm.com) Bug 281
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -781,7 +782,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
   try {
     _repository.addQualifier(getNamespacePath(), *qualifier);
   } catch(CIMException& e) {
-    if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
+    if (e.getCode() == CIM_ERR_NOT_SUPPORTED) {
       // OK, just skip it for now.
       // In a later implementation we will overwrite if the compiler
       // switches say to do so.

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.10  2001/04/08 20:28:27  karl
+// test
+//
 // Revision 1.9  2001/04/08 19:56:38  karl
 // Test version
 //
@@ -265,43 +268,36 @@ Boolean FileSystem::removeDirectory(const String& path)
 
 Boolean FileSystem::removeDirectoryHier(const String& path)
 {
-    // Get list of files in the Directory
-    ArrayDestroyer<char> p(_clonePath(path));
-
-    cout << "DEBUG RMDIR Enter " << p.getPointer() << endl;
-
+    String saveCwd;
+    FileSystem::getCurrentDirectory(saveCwd);
 
     Array<String> fileList;
 
     if (!FileSystem::getDirectoryContents(path,fileList))
 	return false;
 
-    // ATTN: Since not tested.  Following is bypass
-    // return true;
+    FileSystem::changeDirectory(path);
 
     // for files-in-directory, delete or recall removedir
     // Do not yet test for boolean returns on the removes
-    // ATTN Diagnostics still installed ks.
     for (Uint32 i = 0, n = fileList.getSize(); i < n; i++)
-    {
+    {   
+	// ATTN: Debug code here
 	ArrayDestroyer<char> q(_clonePath(fileList[i]));
-
-	// DEBUG Display of the isDirectory Call
-	cout << "DEBUG DIR? " << i << " " << 
-	    FileSystem::isDirectory(fileList[i]) << endl;
-
+	
 	if (FileSystem::isDirectory(fileList[i])){
-	    cout << "DEBUG RMDIR Next " << q.getPointer()  << endl;
 	    FileSystem::removeDirectoryHier(fileList[i]);
 	}
 
 	else{
+	    // ATTN: Mike the second is the problem.
 	    cout << "DEBUG RMFIL " << q.getPointer() <<endl;
-	     removeFile(fileList[i]);
+	    cout << "DEBUG RMFIL " << fileList[i] <<endl;
+	    removeFile(fileList[i]);
 	}
-
     }
 
+    FileSystem::changeDirectory(saveCwd);
     return removeDirectory(path);	
 }
 
@@ -412,11 +408,8 @@ Boolean FileSystem::getDirectoryContents(
 	for (Dir dir(path); dir.more(); dir.next())
 	{
 	    String name = dir.getName();
-    	    cout << "DEBUG gD " << dir.getName() << " "	<<
-		FileSystem::isDirectory(name) << endl;
 	    if (String::equal(name, ".") || String::equal(name, ".."))
 		continue;
-    	    // cout << "DEBUG DIR = " << dir.getName() << endl;
 	    paths.append(name);
 	}
 	return true;

@@ -116,17 +116,15 @@ void SignalHandler::activate(unsigned signum)
         return; // throw exception
     }
 
-    struct sigaction * sig_acts = new struct sigaction;
+    struct sigaction sig_acts;
 
-    sig_acts->sa_sigaction = rh.sh;
-    sigfillset(&(sig_acts->sa_mask));
-    sig_acts->sa_flags = SA_SIGINFO;
+    sig_acts.sa_sigaction = rh.sh;
+    sigfillset(&(sig_acts.sa_mask));
+    sig_acts.sa_flags = SA_SIGINFO;
 
-    sigaction(signum, sig_acts, &rh.oldsa);
+    sigaction(signum, &sig_acts, &rh.oldsa);
 
     rh.active = -1;
-
-    delete sig_acts;
 }
 
 void SignalHandler::deactivate(unsigned signum)
@@ -166,15 +164,13 @@ void SignalHandler::ignore(unsigned signum)
 #if !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
     sigignore(signum);
 #else
-    struct sigaction * sig_acts = new struct sigaction;
+    struct sigaction sig_acts;
 
-    sig_acts->sa_handler = SIG_IGN;
-    sigfillset(&(sig_acts->sa_mask));
-    sig_acts->sa_flags = 0;
+    sig_acts.sa_handler = SIG_IGN;
+    sigfillset(&(sig_acts.sa_mask));
+    sig_acts.sa_flags = 0;
 
-    sigaction(signum, sig_acts, NULL);
-
-    delete sig_acts;	
+    sigaction(signum, &sig_acts, NULL);
 #endif
 }
 

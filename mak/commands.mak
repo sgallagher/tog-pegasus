@@ -47,9 +47,11 @@ ifeq ($(OS),HPUX)
   OPENSSL_COMMAND = openssl
   GET_HOSTNAME = `hostname`
 
-  LIB_SUFFIX = .1
-  LIB_LINK_SUFFIX = .sl
-  EXE_SUFFIX =
+  ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
+    LIB_LINK_SUFFIX = .sl
+  else
+    LIB_LINK_SUFFIX = .so
+  endif
 
   Pdr_xr_xr_x = 555
   P_rwxr_xr_x = 755
@@ -102,12 +104,36 @@ ifeq ($(OS),linux)
   MUEXE = mu
   MKDIRHIER = mkdir -p
   RMDIRHIER = rm -rf
+  CPDIRHIER = cp -R
   ECHO = echo
   COPY = cp
+  TOUCH = touch
+
+  OPENSSL_COMMAND = openssl
+  GET_HOSTNAME = `hostname`
+
+  LIB_LINK_SUFFIX = .so
+
+  Pdr_xr_xr_x = 555
+  P_rwxr_xr_x = 755
+  P_r_xr__r__ = 744
+  P_r__r__r__ = 444
+  P_r________ = 400
+  P_r_xr_xr_x = 555
+  P_rw_r__r__ = 644
+  CHMODDIRHIER = chmod -R
+
+  INSTALL_USR = root
+  INSTALL_GRP = root
+  CIMSERVER_USR = root
+  CIMSERVER_GRP = root
   CHMOD = chmod
   CHOWN = chown
   CHGRP = chgrp
-  SYMBOLIC_LINK_CMD = ln
+  CHOWNDIRHIER = chown -R
+  CHGRPDIRHIER = chgrp -R
+
+  SYMBOLIC_LINK_CMD = ln -f -s
 endif
 
 ifeq ($(OS),zos)

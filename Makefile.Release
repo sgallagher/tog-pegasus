@@ -28,6 +28,7 @@ install: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release preinstall_cleanup
 	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusDirectories 
 	$(MAKE) -f $(ROOT)/Makefile.Release copyPegasusFiles 
+	$(MAKE) -f $(ROOT)/Makefile.Release createPegasusFiles 
 
 PEGASUS_LICENSE = \
    license.txt
@@ -160,12 +161,12 @@ createPegasusProviderLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_PROVIDERS), $(MAKE) -f $(ROOT)/mak/commands.mak createlink OBJECT=$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX);)
 
 createPegasusAdminCmdsDirectoryFiles: FORCE
-	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE_SUFFIX); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE_SUFFIX);)
+	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
 
 createPegasusUserCmdsDirectoryFiles: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
 	$(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(Pdr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
-	$(foreach i, $(PEGASUS_USER_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE_SUFFIX); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE_SUFFIX);)
+	$(foreach i, $(PEGASUS_USER_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE); $(MAKE) -f $(ROOT)/mak/commands.mak setpermissions PERMISSIONS="$(P_r_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE);)
 
 copyRepositoryNamespaceDirectory: FORCE
 	$(CPDIRHIER) $(NAMESPACE_DIR_NAME) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)

@@ -416,7 +416,6 @@ Boolean LocalProviderManager::hasActiveProviders()
         // Iterate through the _providers table looking for an active provider
         for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
         {
-            AutoMutex pr_lock(i.value()->_statusMutex);
             if (i.value()->getStatus() == Provider::INITIALIZED)
             {
                 PEG_METHOD_EXIT();

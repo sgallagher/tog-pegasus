@@ -3968,6 +3968,11 @@ CIM server listening on HTTPS port {0}."}
         */
         Pegasus.Server.SSLContextManager.CONFIGURED_TRUST_OR_CRL_STORE_NOT_FOUND:string {"PGS13310: Could not reload the trust or crl store, configured store not found."}
 
+        /*
+        * @note  PGS13311:
+        * @version 2.5
+        */
+        Pegasus.Server.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: The \"sslClientVerification\" property cannot be set to \"required\" if HTTP is disabled, as the cimserver will be unable to properly shutdown.  The recommended course of action is to change the property value to \"optional\".  cimserver not started."
 
         // ==========================================================
         // Messages for AnonymousPipe

@@ -29,11 +29,14 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
+#include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
+#if defined(Pegasus_Platform_LINUX_IX86_GNU_h)
+#include <errno.h>
+#endif
 #include "CIMName.h"
 #include "XmlReader.h"
 #include "XmlWriter.h"

@@ -6,39 +6,45 @@ define NL
 
 endef
 
+#
+# In VMS, arguments that must be in uppercase,
+#  need to be surrounded by double quotes.
+#
+
 all: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) $(NL) )
 
 depend: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) depend $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) depend $(NL) )
 
 tests: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) tests $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) tests $(NL) )
 
 poststarttests: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) poststarttests $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) poststarttests $(NL) )
 
 clean: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) clean $(NL))
+	@ $(foreach i, $(CLEAN_DIRS), $(MAKESH) $(MAKE) "-SC" $(i) clean $(NL))
 
 misc: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) misc $(NL))
+	@ $(foreach i, $(CLEAN_DIRS), $(MAKESH) $(MAKE) "-SC" $(i) misc $(NL))
 
 docxx: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) docxx $(NL))
+	@ $(foreach i, $(CLEAN_DIRS), $(MAKESH) $(MAKE) "-SC" $(i) docxx $(NL))
 
 sub: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i,$(CLEAN_DIRS),$(MAKESH) $(MAKE) -SC $(i) sub $(NL))
+	@ $(foreach i, $(CLEAN_DIRS), $(MAKESH) $(MAKE) "-SC" $(i) sub $(NL))
 
 general: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i,$(DIRS),$(MAKESH) $(MAKE) -SC $(i) general OPTION=$(OPTION) $(NL))
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) general OPTION=$(OPTION) $(NL))
 
 strip-license: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) strip-license $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) strip-license $(NL) )
 
 prepend-license: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) prepend-license $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) prepend-license $(NL) )
 
 #l10n
 messages: $(RECURSE_DEPENDS) $(ERROR)
-	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) -SC $(i) messages $(NL) )
+	@ $(foreach i, $(DIRS), $(MAKESH) $(MAKE) "-SC" $(i) messages $(NL) )
+

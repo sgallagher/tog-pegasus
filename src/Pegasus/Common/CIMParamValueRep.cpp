@@ -89,7 +89,9 @@ void CIMParamValueRep::toXml(Array<Sint8>& out) const
 
 	out << " PARAMETER_TYPE=\"" << TypeToString(_parameter.getType()) << "\"";
 
-	out << " VALUE=\"" << _value.toString() << "\"";
+	out << " VALUE=\"";
+	_value.toXml(out);
+	out << "\"";
 
 	if (_arraySize)
 	{
@@ -109,7 +111,9 @@ void CIMParamValueRep::toXml(Array<Sint8>& out) const
 	out << " ARGUMENT";
 	out << " PARAMETER.NAME=\"" << _parameter.getName() << "\"";
 	out << " PARAMETER.TYPE=\"" << TypeToString(_parameter.getType()) << "\"";
-	out << " PARAMETER.VALUE=\"" << _value.toString() << "\"";
+	out << " PARAMETER.VALUE=\"";
+	_value.toXml(out);
+	out << "\"";
 	out << ">\n";
 	_qualifiers.toXml(out);
 	out << "</ARGUMENT>\n";
@@ -141,7 +145,8 @@ void CIMParamValueRep::toMof(Array<Sint8>& out) const
     // Output the data parameter and value
     out << _parameter.getName() 
 	<< " " << TypeToString(_parameter.getType())
-	<< " " << _value.toString();
+	<< " ";
+    _value.toXml(out);
 
     if (_isArray)
     {

@@ -690,7 +690,7 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
 	XmlWriter::appendStringParameter(
 	    body, 
 	    response->outParameters[i].getParameter().getName().allocateCString(),
-	    response->outParameters[i].getValue().toString());
+	    response->outParameters[i].getValue().toXml());
     }
 
     Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(

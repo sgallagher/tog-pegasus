@@ -87,8 +87,22 @@ void sendmailIndicationHandler::handleIndication(
 #ifdef PEGASUS_OS_HPUX
     //get destination for the indication
     Uint32 pos = indicationHandlerInstance.findProperty("destination");
+    if (pos == PEG_NOT_FOUND)
+    {
+        // ATTN: Deal with a malformed handler instance
+    }
+
     CIMProperty prop = indicationHandlerInstance.getProperty(pos);
-    CIMValue dest = prop.getValue();
+
+    String dest;
+    try
+    {
+        prop.getValue().get(dest);
+    }
+    catch (TypeMismatch& e)
+    {
+        // ATTN: Deal with a malformed handler instance
+    }
 
     FILE* sendmailFile;
     sendmailFile = fopen(_MAIL_FILE_NAME, "a");
@@ -112,7 +126,7 @@ void sendmailIndicationHandler::handleIndication(
     sprintf(sendcmd,
             "%s %s %s %s",
             "/usr/sbin/sendmail",
-            dest.toString().allocateCString(),
+            dest.allocateCString(),
             "<",
             _MAIL_FILE_NAME);
 

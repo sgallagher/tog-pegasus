@@ -1,5 +1,5 @@
 ROOT = ../../..
-DIR = Pegasus/ExportClient
+DIR = Pegasus/ExportServer
 include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

@@ -890,6 +890,15 @@ void CIMValue::toXml(Array<Sint8>& out) const
 	out << "</VALUE>\n";
     }
 }
+
+String CIMValue::toXml() const
+{
+    Array<Sint8> out;
+    toXml(out);
+    out.append('\0');
+    return String(out.getData());
+}
+
 void CIMValue::toMof(Array<Sint8>& out) const	 //ATTNKS:
 {
     if (_isArray)

@@ -80,7 +80,8 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
         if (qualifierPos != PEG_NOT_FOUND)
         {
             CIMQualifier trapQualifier = trapProp.getQualifier(qualifierPos);
-            enterprise = trapQualifier.getValue().toString();
+            // ATTN: Catch TypeMismatch exception on the next line
+            trapQualifier.getValue().get(enterprise);
 
             for (int i=0; i<indicationInstance.getPropertyCount();i++)
             {
@@ -100,14 +101,17 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
                     {
                         if (propName == "trapOid")
 		        {
-		            trapOid = prop.getValue().toString();
+                            // ATTN: Catch TypeMismatch exception on the next line
+		            prop.getValue().get(trapOid);
 		        }
 		        else
 		        {
 		            Uint32 qualifierPos = trapProp.findQualifier("MappingStrings");
 			    CIMQualifier trapQualifier = trapProp.getQualifier(qualifierPos);
 			
-			    String mapstr1 = trapQualifier.getValue().toString();
+			    String mapstr1;
+                            // ATTN: Catch TypeMismatch exception on the next line
+			    trapQualifier.getValue().get(mapstr1);
 			    String mapstr2 = "";
 
 			    if ((mapstr1.find("OID") != PEG_NOT_FOUND) &&
@@ -121,7 +125,10 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
 				        mapstr2 = mapstr1.subString(0, mapstr1.find("|"));
 			    
 				        propOIDs.append(mapstr2);
-				        propVALUEs.append(prop.getValue().toString());
+                                        String propValue;
+                                        // ATTN: Catch TypeMismatch exception on the next line
+                                        prop.getValue().get(propValue);
+				        propVALUEs.append(propValue);
 				        propTYPEs.append(mapstr1.subString(mapstr1.find("|")+1));
                                     }
 			        }
@@ -145,12 +152,23 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handlerInstance,
         if ((handlerInstance.findProperty("Destination") != PEG_NOT_FOUND) &&
             (handlerInstance.findProperty("trapType") != PEG_NOT_FOUND))
         {
+            String destination;
+            String trapType;
+            // ATTN: Add error checking
+            // ATTN: Catch TypeMismatch exception on the next line
+            handlerInstance.getProperty(
+                handlerInstance.findProperty("Destination"))
+                .getValue().get(destination);
+            // ATTN: Add error checking
+            // ATTN: Catch TypeMismatch exception on the next line
+            handlerInstance.getProperty(
+                handlerInstance.findProperty("trapType"))
+                .getValue().get(trapType);
+
             emanateTrap.deliverTrap(trapOid, 
                 enterprise,
-                handlerInstance.getProperty(handlerInstance.findProperty("Destination"))
-                    .getValue().toString(),
-                handlerInstance.getProperty(handlerInstance.findProperty("trapType"))
-                    .getValue().toString(), 
+                destination,
+                trapType,
                 propOIDs,  
                 propTYPEs, 
                 propVALUEs);

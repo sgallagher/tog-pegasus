@@ -74,16 +74,30 @@ public:
     {
 	//get destination for the indication
 	Uint32 pos = indicationHandlerInstance.findProperty("destination");
+        if (pos == PEG_NOT_FOUND)
+        {
+            // ATTN: Deal with a malformed handler instance
+        }
+
 	CIMProperty prop = indicationHandlerInstance.getProperty(pos);
-	CIMValue dest = prop.getValue();
+
+        String dest;
+        try
+        {
+            prop.getValue().get(dest);
+        }
+        catch (TypeMismatch& e)
+        {
+            // ATTN: Deal with a malformed handler instance
+        }
 	
 	try
         {
 	    Monitor* monitor = new Monitor;
 	    HTTPConnector* httpConnector = new HTTPConnector(monitor);
 	    CIMExportClient exportclient(monitor, httpConnector);
-	    exportclient.connect(dest.toString().allocateCString());
-	    exportclient.exportIndication(dest.toString().allocateCString(), 
+	    exportclient.connect(dest.allocateCString());
+	    exportclient.exportIndication(dest.allocateCString(), 
 		indicationInstance);
 	}
 	catch(Exception& e)

@@ -187,22 +187,58 @@ CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(const String&
     String NAMESPACE = "root/cimv2";
 
     Array<CIMInstance> cInst;
-    cInst = _repository->enumerateInstances(NAMESPACE, "PG_ConsumerRegistration");
+    cInst = _repository->enumerateInstances(NAMESPACE,
+        "PG_ConsumerRegistration");
 
-    CIMInstance cInstance = cInst[0];
+    String consumerName;
 
-    String lib_name;
-
-    if (cInstance.getProperty(cInstance.findProperty("url")).getValue().toString() == url)
+    for (int i=0; (i < cInst.size()) && (consumerName.size() == 0); i++)
     {
-	lib_name = cInstance.getProperty(cInstance.findProperty("consumerName")).getValue().toString();
-    }   
+        int urlPropertyPos;
+        int consumerPropertyPos;
+        String consumerUrl;
 
-    CIMIndicationConsumer* consumer = _consumerTable.lookupConsumer(lib_name);
+        urlPropertyPos = cInst[i].findProperty("url");
+
+        // Ignore malformed consumer registration
+        if (urlPropertyPos != PEG_NOT_FOUND)
+        {
+            try
+            {
+                cInst[i].getProperty(urlPropertyPos).getValue()
+                    .get(consumerUrl);
+                if (consumerUrl == url)
+                {
+                    consumerPropertyPos = cInst[i].findProperty("consumerName");
+
+                    // Ignore malformed consumer registration
+                    if (consumerPropertyPos != PEG_NOT_FOUND)
+                    {
+                        // TypeMismatch exception is caught in outer block
+                        cInst[i].getProperty(consumerPropertyPos).getValue()
+                            .get(consumerName);
+                    }
+                }
+            }
+            catch (TypeMismatch& e)
+            {
+                // Ignore malformed consumer registration
+            }
+        }
+    }
+
+    if (consumerName.size() == 0)
+    {
+        // ATTN: What to do if no consumers are registered for this URL?
+        throw CIMException(CIM_ERR_FAILED);
+    }
+
+    CIMIndicationConsumer* consumer =
+        _consumerTable.lookupConsumer(consumerName);
 
     if (!consumer)
     {
-	consumer = _consumerTable.loadConsumer(lib_name);
+	consumer = _consumerTable.loadConsumer(consumerName);
 
 	if (!consumer)
 	    throw CIMException(CIM_ERR_FAILED);

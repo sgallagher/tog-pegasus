@@ -314,12 +314,18 @@ public:
 
     void get(Array<CIMDateTime>& x) const; 
 
-    /** toXML - Converts a CIMValueObject to XML.
+    /** toXML - Converts a CIMValue object to XML.
 	@out Sint8 Array to hold the XML representation
 	@return Returns the XML representation of the CIMValue
 	object in the input parameter out. 
     */
     void toXml(Array<Sint8>& out) const;
+
+    /** toXML - Converts a CIMValue object to XML.
+	@return Returns the XML representation of the CIMValue
+	object in String form.
+    */
+    String toXml() const;
 
     /** CIMMethod print - Format and print the Value to std output
     	stream
@@ -340,13 +346,15 @@ public:
     void toMof(Array<Sint8>& out) const;
 
 
-    /** toString - Converts the CIMvalue to a string
+    /** toString - Converts the CIMvalue to a string.  Should only be
+            used for output purposes.  To get an actual String value, use
+            get(String &).
 	@return - String output for CIMValue.
 	<PRE>
 	Example:
 	    String test;
 	    CIMValue value(Boolean(true));
-	    test = value.toString();	  // puts "true" into test
+	    test = value.toString();	  // puts "TRUE" into test
 	</PRE>
 	*/
     String toString() const;

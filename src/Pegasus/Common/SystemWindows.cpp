@@ -31,6 +31,7 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1428
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -190,10 +191,22 @@ String System::getHostName()
 
 String System::getFullyQualifiedHostName ()
 {
-    //
-    //  ATTN: Implement this method to return the fully qualified host name
-    //
-    return String::EMPTY;
+    static char FQHostName[PEGASUS_MAXHOSTNAMELEN];
+
+    if (!*FQHostName)
+    {
+        String hostname = getHostName();
+        struct hostent* hostEnt;
+
+        hostEnt = gethostbyname((const char *)hostname.getCString());
+        if (hostEnt == NULL)
+        {
+            return String::EMPTY;
+        }
+        strcpy(FQHostName, hostEnt->h_name);
+    }
+   
+    return FQHostName;
 }
 
 String System::getSystemCreationClassName ()

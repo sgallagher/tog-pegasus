@@ -97,7 +97,12 @@ struct MonitorRep
 
 #define MAX_NUMBER_OF_MONITOR_ENTRIES  32
 Monitor::Monitor()
-   : _module_handle(0), _controller(0), _async(false), _stopConnections(0), _solicitSocketCount(0)
+   : _module_handle(0), 
+     _controller(0),
+     _async(false),
+     _stopConnections(0),
+     _stopConnectionsSem(0),
+     _solicitSocketCount(0)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
@@ -118,7 +123,12 @@ Monitor::Monitor()
 }
 
 Monitor::Monitor(Boolean async)
-   : _module_handle(0), _controller(0), _async(async), _stopConnections(0), _solicitSocketCount(0)
+   : _module_handle(0),
+     _controller(0),
+     _async(async),
+     _stopConnections(0),
+     _stopConnectionsSem(0),
+     _solicitSocketCount(0)
 {
     int numberOfMonitorEntriesToAllocate = MAX_NUMBER_OF_MONITOR_ENTRIES;
     Socket::initializeInterface();
@@ -324,6 +334,7 @@ Boolean Monitor::run(Uint32 milliseconds)
            }
         }
         _stopConnections = 0;
+	_stopConnectionsSem.signal();
     }
 
     for( int indx = 0; indx < (int)_entries.size(); indx++)
@@ -492,9 +503,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 		
 		   	_entries[indx]._status == _MonitorEntry::BUSY;
 			static char buffer[2];
-      			Socket::disableBlocking(_tickle_server_socket);
-      			Socket::read(_tickle_server_socket,&buffer, 2);
-      			Socket::enableBlocking(_tickle_server_socket);
+      			Socket::disableBlocking(_entries[indx].socket);
+      			Sint32 amt = Socket::read(_entries[indx].socket,&buffer, 2);
+      			Socket::enableBlocking(_entries[indx].socket);
 			_entries[indx]._status == _MonitorEntry::IDLE;
 		}
 		else
@@ -529,6 +540,20 @@ void Monitor::stopListeningForConnections()
     // set boolean then tickle the server to recognize _stopConnections 
     _stopConnections = 1;
     tickle();
+
+    // Wait for the monitor to notice _stopConnections.  Otherwise the
+    // caller of this function may unbind the ports while the monitor
+    // is still accepting connections on them.
+    try
+    {
+      _stopConnectionsSem.time_wait(10000);
+    }
+    catch (TimeOut &)
+    {
+      // The monitor is probably busy processng a very long request, and is
+      // not accepting connections.  Let the caller unbind the ports.
+    }
+    
     PEG_METHOD_EXIT();
 }
 

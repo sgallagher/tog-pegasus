@@ -241,6 +241,7 @@ private:
   Boolean _async;
   Mutex _entry_mut;
   AtomicInt _stopConnections;
+  Semaphore _stopConnectionsSem;
   Uint32 _solicitSocketCount;  // tracks how many times solicitSocketCount() has been called
   friend class HTTPConnection;
   struct sockaddr_in _tickle_server_addr;

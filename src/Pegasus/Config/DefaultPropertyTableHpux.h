@@ -25,7 +25,8 @@
 //
 // Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,8 +45,7 @@
     {"enableIndicationService", "true", 0, 0, 0, 1},
     // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableClientCertification", "false", 0, 0, 0, 1},
-    {"enableSubscriptionsForNonprivilegedUsers", "false", 0, 0, 0, 1}
+    {"enableClientCertification", "false", 0, 0, 0, 1}
 #else
     {"httpPort", "5988", 0, 0, 0, 1},
     {"httpsPort", "5989", 0, 0, 0, 1},
@@ -58,8 +58,7 @@
     {"enableIndicationService", "true", 0, 0, 0, 1},
     {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableClientCertification", "false", 0, 0, 0, 1},
-    {"enableSubscriptionsForNonprivilegedUsers", "true", 0, 0, 0, 1}
+    {"enableClientCertification", "false", 0, 0, 0, 1}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTableHpux_h */

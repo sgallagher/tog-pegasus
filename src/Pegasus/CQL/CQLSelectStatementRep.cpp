@@ -69,8 +69,14 @@ struct PropertyNode
   AutoPtr<PropertyNode> sibling;
   AutoPtr<PropertyNode> firstChild;
 
-  PropertyNode() {/*PEGASUS_STD(cout) << "new " << this << PEGASUS_STD(endl);*/}
-  ~PropertyNode() {/*PEGASUS_STD(cout) << "delete " << this << PEGASUS_STD(endl);*/}
+  PropertyNode()
+    : wildcard(false),
+      endpoint(false),
+      sibling(NULL),
+      firstChild(NULL)
+  {}
+
+  ~PropertyNode() {}
 };
 
 
@@ -80,6 +86,7 @@ CQLSelectStatementRep::CQLSelectStatementRep()
    _contextApplied(false)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep()");
+  PEG_METHOD_EXIT();
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
@@ -90,6 +97,7 @@ CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
    _contextApplied(false)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep(inQlang,inQuery,inCtx)");
+  PEG_METHOD_EXIT();
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
@@ -100,6 +108,7 @@ CQLSelectStatementRep::CQLSelectStatementRep(String& inQlang,
    _contextApplied(false)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep(inQlang,inQuery)");
+  PEG_METHOD_EXIT();
 }
 
 CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
@@ -110,11 +119,13 @@ CQLSelectStatementRep::CQLSelectStatementRep(const CQLSelectStatementRep& rep)
    _contextApplied(rep._contextApplied)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep(rep)");
+  PEG_METHOD_EXIT();
 }
 
 CQLSelectStatementRep::~CQLSelectStatementRep()
 {
   PEG_METHOD_ENTER (TRC_CQL, "~CQLSelectStatementRep()");
+  PEG_METHOD_EXIT();
 }
 
 CQLSelectStatementRep& CQLSelectStatementRep::operator=(const CQLSelectStatementRep& rhs)
@@ -160,6 +171,7 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
   // or a subclass of the FROM class.
   if (!isFromChild(inCI.getClassName()))
   {
+    PEG_METHOD_EXIT();
     return false;
   }
 
@@ -395,10 +407,9 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
       }
     }
 
-    // If the node is not wildcarded, and the instance passed in
-    // is filterable, then add the current child to the list
-    // if it is still required.
-    if (!allPropsRequired && filterable && childRequired)
+    // If the instance passed in is filterable, 
+    // then add the current child to the list if it is still required.
+    if (filterable && childRequired)
     {
       PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"add req prop: " + childNode->name.getString());
       requiredProps.append(childNode->name);
@@ -552,10 +563,9 @@ Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
       }
     }
 
-    // If the node is not wildcarded, and the embedded instance
-    // is filterable, then add the current child to the list
-    // if it is still required.
-    if (!allPropsRequired && filterable && childRequired)
+    // If the embedded instance is filterable, 
+    // then add the current child to the list if it is still required.
+    if (filterable && childRequired)
     {
       // The instance is filterable, add the property to the required list. 
       PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"add req prop: " + curChild->name.getString());
@@ -681,18 +691,20 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
   //  to be on the instance being projected, not including any
   //  properties on a subclass of fromclass)
 
-  // If all properties are required (ie. wildcarded), then rebuild the 
-  // required property list from all the properties on the classname passed in  
-  // This is either the FROM class or the class of an embedded instance.
+  // If all properties are required (ie. wildcarded), then add  
+  // all the properties of allPropsClass to the required list.
+  // The allPropsClass is either the FROM class or the class of an embedded instance.
   if (allPropsRequired)
   {
     PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"all props required"); 
-    requiredProps.clear();
     CIMClass cls = _ctx->getClass(allPropsClass);
     Array<CIMName> clsProps;
     for (Uint32 i = 0; i < cls.getPropertyCount(); i++)
     {
-      requiredProps.append(cls.getProperty(i).getName());
+      if (!containsProperty(cls.getProperty(i).getName(), requiredProps))
+      {
+        requiredProps.append(cls.getProperty(i).getName());
+      }
     }
   }
 
@@ -1375,9 +1387,12 @@ Boolean CQLSelectStatementRep::containsProperty(const CIMName& name,
 //
 Boolean CQLSelectStatementRep::isFromChild(const CIMName& className)
 {
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::isFromChild");
+
   QueryContext::ClassRelation rel = 
     _ctx->getClassRelation(_ctx->getFromList()[0].getName(), className);
 
+  PEG_METHOD_EXIT();
   return (rel == QueryContext::SAMECLASS || rel == QueryContext::SUBCLASS) ? true : false;
 }
 

@@ -39,12 +39,13 @@ PEGASUS_USING_STD;
 
 #if defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_OS_LINUX)
-  #define SENDMAIL_CMD "/usr/sbin/sendmail"
-  #define SENDMAIL_CMD_OPTS "-t -i <"
-  #define TEMP_MAIL_FILE "tmpMailFile"
-  #define MAX_SENDMAIL_CMD_LEN 100
-  #define SH_EXECUTE_FAILED 127
-  #define TEMP_NAME_LEN L_tmpnam
+# define SENDMAIL_CMD "/usr/sbin/sendmail"
+# define SENDMAIL_CMD_OPTS "-t -i <"
+# define TEMP_MAIL_FILE "tmpMailFile"
+# define MAX_SENDMAIL_CMD_LEN 100
+# define SH_EXECUTE_FAILED 127
+# define TEMP_NAME_LEN L_tmpnam
+# include <unistd.h>
 #endif
 
 class PEGASUS_HANDLER_LINKAGE EmailListenerDestination: public CIMHandler

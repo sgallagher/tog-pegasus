@@ -47,6 +47,10 @@
 #include <Pegasus/Common/IndicationFormatter.h>
 #include <Pegasus/IndicationService/IndicationConstants.h>
 
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_OS_LINUX)
+# error "Unsupported Platform" 
+#endif
+
 #include "EmailListenerDestination.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -77,7 +81,7 @@ void EmailListenerDestination::handleIndication(
 	    subscription, indication, contentLanguages);
 
 	// get MailTo from handler instance
-	Array<String> mailTo = NULL;
+	Array<String> mailTo;
 	handler.getProperty(handler.findProperty(
 	    PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO)).getValue().get(mailTo);    
 
@@ -89,7 +93,7 @@ void EmailListenerDestination::handleIndication(
 
 	// get MailCc from handler instance
 	CIMValue mailCcValue;
-	Array<String> mailCc = NULL;
+	Array<String> mailCc;
 
         Uint32 posMailCc = handler.findProperty(
 	    PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC);  
@@ -340,7 +344,7 @@ void EmailListenerDestination::_writeStrToFile(
     {
         Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to write the %s to the file: %s.",
-	    mailHdrStr.getCString(),
+	    (const char *)mailHdrStr.getCString(),
 	    strerror(errno));
 
 	MessageLoaderParms parms(

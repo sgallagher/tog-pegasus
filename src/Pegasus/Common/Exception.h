@@ -680,23 +680,43 @@ public:
     TimedOut() : Exception(MSG) { }
 };
 
+// ATTN: this exception should derive from the Exception class to define
+// the standard message interface. Try blocks which catch the class
+// Exception will miss this one.
+
 class PEGASUS_COMMON_LINKAGE BufferTooSmall
 {
- public:
-  BufferTooSmall(Uint32 needed)  
+public:
+
+    BufferTooSmall(Uint32 needed)  
     {
-      required_size = needed;
+	required_size = needed;
     }
-  Uint32 required_size;
+
+    Uint32 required_size;
       
- private:
-  BufferTooSmall(void);
+private:
+
+    BufferTooSmall(void);
 };
 
+class PEGASUS_COMMON_LINKAGE ParseError : public Exception
+{
+public:
 
+    static const char MSG[];
 
+    ParseError(const String& message) : Exception(MSG + message) { }
+};
 
+class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
+{
+public:
 
+    static const char MSG[];
+
+    MissingNullTerminator() : Exception(MSG) { }
+};
 
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
 

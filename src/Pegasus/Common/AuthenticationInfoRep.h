@@ -115,7 +115,7 @@ public:
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     CIMKerberosSecurityAssociation* getSecurityAssociation() const 
     { 
-        return _securityAssoc;
+        return _securityAssoc.get();
     }
  
     void setSecurityAssociation();
@@ -138,7 +138,7 @@ private:
     String  _authType;
     AuthStatus _authStatus;
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    CIMKerberosSecurityAssociation * _securityAssoc;
+    AutoPtr<CIMKerberosSecurityAssociation> _securityAssoc;//PEP101
 #endif
 };
 

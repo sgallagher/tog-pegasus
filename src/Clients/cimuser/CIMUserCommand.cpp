@@ -28,20 +28,16 @@
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//
+//               Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-
 #include <iostream>
-
 #include <Clients/cliutils/Command.h>
 #include <Clients/cliutils/CommandException.h>
-
 #include <Pegasus/getoopt/getoopt.h>
-
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -49,6 +45,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_USING_STD;
 
@@ -306,11 +303,7 @@ public:
     */
     CIMUserCommand ();
 
-    /**    
-        Destructs a CIMUserCommand.
-    */
-    ~CIMUserCommand ();
-
+   
     //
     // Overrides the virtual function setCommand from Command class
     // This is defined as an empty function. 
@@ -414,7 +407,8 @@ private:
     //
     // The CIM Client reference
     //
-    CIMClient*    _client;
+
+    AutoPtr<CIMClient> _client;//PEP101
 
     //
     // The host name. 
@@ -466,8 +460,7 @@ CIMUserCommand::CIMUserCommand ()
     _passwordSet         = false;
     _newpasswordSet      = false;
     _userNameSet         = false;
-    _client              = NULL;
-
+    
     /**
         Build the usage string for the config command.  
     */
@@ -494,15 +487,6 @@ CIMUserCommand::CIMUserCommand ()
     usage.append("               -").append(OPTION_LIST).append(" \n");
 
     setUsage (usage);
-}
-
-/**
-    Destructs a CIMUserCommand
-*/
-CIMUserCommand::~CIMUserCommand ()
-{
-    if (_client != NULL)
-        delete _client;
 }
 
 /**
@@ -954,7 +938,7 @@ Uint32 CIMUserCommand::execute (
     {
         // Construct the CIMClient and set to request server messages
         // in the default language of this client process.
-        _client = new CIMClient;
+        _client = AutoPtr<CIMClient>(new CIMClient);
         _client->setRequestDefaultLanguages(); //l10n
     }
     catch (Exception & e)
@@ -1408,7 +1392,7 @@ PEGASUS_USING_STD;
 
 int main (int argc, char* argv []) 
 {
-    CIMUserCommand*      command;
+    AutoPtr<CIMUserCommand>  command;
     Uint32               retCode;
 
 	MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
@@ -1422,7 +1406,7 @@ int main (int argc, char* argv [])
 	return 1;
     }
 	 
-    command  = new CIMUserCommand ();
+    command  = AutoPtr<CIMUserCommand>(new CIMUserCommand ());
 
     try 
     {
@@ -1440,8 +1424,7 @@ int main (int argc, char* argv [])
 
     retCode = command->execute (cout, cerr);
 
-    delete command;   // Needed to destruct the CIMClient used by the command
-
+    
     return (retCode);
 }
 

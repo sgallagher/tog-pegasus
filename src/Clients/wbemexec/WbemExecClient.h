@@ -29,6 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
+//              Amit K Arora (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -118,7 +120,8 @@ public:
     ) throw(AlreadyConnectedException, InvalidLocatorException,
             CannotCreateSocketException, CannotConnectException)
     {
-        connect(host, portNumber, NULL, userName, password);
+        AutoPtr<SSLContext> sslContext;
+        connect(host, portNumber, sslContext, userName, password);
     }
 
     /** connect - Creates an HTTP connection with the server
@@ -148,7 +151,7 @@ public:
     void connect(
         const String& host,
         const Uint32 portNumber,
-        SSLContext* sslContext,
+        AutoPtr<SSLContext>& sslContext,
         const String& userName,
         const String& password
     ) throw(AlreadyConnectedException, InvalidLocatorException,
@@ -187,7 +190,7 @@ private:
     void _connect(
         const String& host,
         const Uint32 portNumber,
-        SSLContext* sslContext)
+        AutoPtr<SSLContext>& sslContext)
       throw(CannotCreateSocketException, CannotConnectException,
             InvalidLocatorException);
 
@@ -201,13 +204,13 @@ private:
     String _promptForPassword();
 
     #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
-    Monitor* _monitor;
-    HTTPConnector* _httpConnector;
-    HTTPConnection* _httpConnection;
+    AutoPtr<Monitor> _monitor;//PEP101
+    AutoPtr<HTTPConnector> _httpConnector;//PEP101
+    AutoPtr<HTTPConnection> _httpConnection;//PEP101
     #else
-    monitor_2* _monitor;
-    HTTPConnector2* _httpConnector;
-    HTTPConnection2* _httpConnection;
+    AutoPtr<monitor_2> _monitor;//PEP101
+    AutoPtr<HTTPConnector2> _httpConnector;//PEP101
+    AutoPtr<HTTPConnection2> _httpConnection;//PEP101
     #endif
     
     Uint32 _timeoutMilliseconds;

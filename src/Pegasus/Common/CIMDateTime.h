@@ -31,6 +31,7 @@
 //              Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -116,9 +118,7 @@ public:
     */
     CIMDateTime(const CIMDateTime& x);
 
-    /** CIMDateTime destructor. */
-    ~CIMDateTime();
-
+      
     /** Assigns one instance of the CIMDateTime object to another.
         @param x  The CIMDateTime Object to assign to the CIMDateTime object.
         For example, you can assign the d1 CIMDateTime instance to the d2
@@ -207,7 +207,7 @@ public:
 
 private:
 
-    CIMDateTimeRep* _rep;
+    AutoPtr<CIMDateTimeRep> _rep;//PEP101
     Boolean _set(const String & dateTimeStr);
 };
 /**

@@ -26,6 +26,7 @@
 // Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,10 +52,6 @@ AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::AuthenticationInfoRep");
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    _securityAssoc = NULL;
-#endif
-
     PEG_METHOD_EXIT();
 }
 
@@ -63,14 +60,6 @@ AuthenticationInfoRep::~AuthenticationInfoRep()
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::~AuthenticationInfoRep");
-
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    if (_securityAssoc)
-    {
-        delete _securityAssoc;
-        _securityAssoc = 0;
-    }
-#endif
 
     PEG_METHOD_EXIT();
 }
@@ -151,9 +140,10 @@ void   AuthenticationInfoRep::setSecurityAssociation()
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setSecurityAssociation");
 
-    if ( !_securityAssoc )
+    if ( !_securityAssoc.get() )
     {
-        _securityAssoc = new CIMKerberosSecurityAssociation;
+        _securityAssoc = AutoPtr<CIMKerberosSecurityAssociation>(new 
+                                 CIMKerberosSecurityAssociation);
     }
 
     PEG_METHOD_EXIT();

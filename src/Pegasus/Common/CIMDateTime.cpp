@@ -30,6 +30,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,25 +96,26 @@ public:
 };
 
 
-CIMDateTime::CIMDateTime()
+CIMDateTime::CIMDateTime() :
+       _rep(new CIMDateTimeRep())
 {
-    _rep = new CIMDateTimeRep();
     clear();
 }
 
-CIMDateTime::CIMDateTime(const String & str)
+CIMDateTime::CIMDateTime(const String & str) :
+       _rep(new CIMDateTimeRep())
 {
-    _rep = new CIMDateTimeRep();
     if (!_set(str))
     {
-        delete _rep;
+        _rep.reset();
         throw InvalidDateTimeFormatException();
     }
 }
 
-CIMDateTime::CIMDateTime(const CIMDateTime& x)
+
+CIMDateTime::CIMDateTime(const CIMDateTime& x) :
+       _rep(new CIMDateTimeRep())
 {
-    _rep = new CIMDateTimeRep();
     memcpy(_rep->data, x._rep->data, sizeof(_rep->data));
 }
 
@@ -123,11 +125,6 @@ CIMDateTime& CIMDateTime::operator=(const CIMDateTime& x)
         memcpy(_rep->data, x._rep->data, sizeof(_rep->data));
 
     return *this;
-}
-
-CIMDateTime::~CIMDateTime()
-{
-    delete _rep;
 }
 
 String CIMDateTime::toString () const

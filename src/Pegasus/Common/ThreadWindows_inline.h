@@ -25,15 +25,16 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
-//              Steve Hills (steve.hills@ncr.com)
+// Modified By: Steve Hills (steve.hills@ncr.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef ThreadWindows_inline_h
 #define ThreadWindows_inline_h
 
-inline void Thread::run(void)
+inline Boolean Thread::run(void)
 {
 	// Note: A Win32 thread ID is not the same thing as a pthread ID.
 	// Win32 threads have both a thread ID and a handle.  The handle
@@ -42,10 +43,13 @@ inline void Thread::run(void)
 
 	unsigned threadid = 0;
 	_handle.thid = (PEGASUS_THREAD_TYPE)_beginthreadex( NULL, 0, _start, this, 0, &threadid );
+	// ATTN: Return false if "temporary" failure (for resource reasons)
 	if( _handle.thid == 0 )
 	{
-		// Throw?
+	    // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
+	    return true;
 	}
+	return true;
 }
 
 inline void Thread::cancel(void)

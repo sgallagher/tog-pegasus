@@ -162,7 +162,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       {
 	 _check_idle_flag = 0;
 	 Thread th(kill_idle_threads, 0, true);
-	 th.run();
+         while (!th.run())
+         {
+            pegasus_yield();
+         }
       }
    }
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
@@ -214,7 +217,10 @@ MessageQueueService::MessageQueueService(const char *name,
       _polling_thread = new Thread(polling_routine, 
 			           reinterpret_cast<void *>(&_polling_list), 
 			           false);
-      _polling_thread->run();
+      while (!_polling_thread->run())
+      {
+         pegasus_yield();
+      }
    }
    _service_count++;
 

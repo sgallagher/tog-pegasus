@@ -26,6 +26,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By: Markus Mueller
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -195,7 +196,14 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       ~Thread();
 
-      void run(void);
+      /**
+          Start the thread.
+          @return true if the thread is started successfully, false if the
+                  resources necessary to start the thread are not currently
+                  available.  ATTN: The result is undefined for any other
+                  type of failure.  (See Bugzilla 972)
+       */
+      Boolean run(void);
 
       // get the user parameter 
       inline void *get_parm(void) { return _thread_parm; }
@@ -439,9 +447,22 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       
       ~ThreadPool(void);
 
-      void allocate_and_awaken(void *parm, 
-			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *), 
-			       Semaphore *blocking = 0)
+      /**
+          Allocate and start a thread to do a unit of work.
+          @param parm A generic parameter to pass to the thread
+          @param work A pointer to the function that is to be executed by
+                      the thread
+          @param blocking A pointer to an optional semaphore which, if
+                          specified, is signaled after the thread finishes
+                          executing the work function
+          @return true if the thread is started successfully, false if the
+                  resources necessary to start the thread are not currently
+                  available.  ATTN: The result is undefined for any other
+                  type of thread creation failure.
+       */
+      Boolean allocate_and_awaken(void *parm, 
+			          PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *), 
+			          Semaphore *blocking = 0)
 	 throw(IPCException);
       
 

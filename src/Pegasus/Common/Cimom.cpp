@@ -279,7 +279,10 @@ cimom::cimom(void)
    pegasus_gettimeofday(&_last_module_change);
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
-   _routing_thread.run();
+   while (!_routing_thread.run())
+   {
+      pegasus_yield();
+   }
 
 }
 

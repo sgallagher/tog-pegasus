@@ -30,6 +30,7 @@
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -532,7 +533,11 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
         request->op->processing();
         _incomingQueue.enqueue(request->op);
 
-        _thread_pool->allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
+        while (!_thread_pool->allocate_and_awaken(
+                    (void *)this, ProviderManagerService::handleCimOperation))
+        {
+            pegasus_yield();
+        }
     }
     else
     {
@@ -565,9 +570,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleService
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOperation(void * arg) throw()
 {
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCimOperation");
+    PEGASUS_ASSERT(arg != 0);
+
     // get the service from argument
     ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
-
     PEGASUS_ASSERT(service != 0);
 
     if(service->_incomingQueue.size() == 0)
@@ -578,14 +584,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
         return(PEGASUS_THREAD_RETURN(1));
     }
 
+    // dequeue() throws a QueueUnderflow exception when the queue is empty
     AsyncOpNode * op = service->_incomingQueue.dequeue();
-
     PEGASUS_ASSERT(op != 0 );
 
     if(op->_request.count() == 0)
     {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                         "No request in op node!" );
         MessageQueue * queue = MessageQueue::lookup(op->_source_queue);
-
         PEGASUS_ASSERT(queue != 0);
         // no request in op node
         return(PEGASUS_THREAD_RETURN(1));

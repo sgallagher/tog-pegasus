@@ -27,6 +27,7 @@
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
 //              added nsk platform support
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -601,6 +602,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
          {
 	    _work(parm);
          }
+         catch(Exception & e)
+         {
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+               String("Exception from _work in ThreadPool::_loop: ") +
+                  e.getMessage());
+            PEG_METHOD_EXIT();
+            return((PEGASUS_THREAD_RETURN)0);
+         }
          catch(...)
          {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
@@ -657,11 +666,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    return((PEGASUS_THREAD_RETURN)0);
 }
 
-void ThreadPool::allocate_and_awaken(void *parm,
-				     PEGASUS_THREAD_RETURN \
-				     (PEGASUS_THREAD_CDECL *work)(void *), 
-				     Semaphore *blocking)
-
+Boolean ThreadPool::allocate_and_awaken(void *parm,
+				        PEGASUS_THREAD_RETURN \
+				        (PEGASUS_THREAD_CDECL *work)(void *), 
+				        Semaphore *blocking)
    throw(IPCException)
 {
    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::allocate_and_awaken");
@@ -676,7 +684,8 @@ void ThreadPool::allocate_and_awaken(void *parm,
       {
          Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
           "ThreadPool::allocate_and_awaken: ThreadPool is dying(1).");
-         return;
+         // ATTN: Error result has not yet been defined
+         return true;
       }
       struct timeval now;
       struct timeval start;
@@ -685,8 +694,7 @@ void ThreadPool::allocate_and_awaken(void *parm,
    
       th = _pool.remove_first();
    
-      // wait for the right interval and try again
-      while (th == 0)
+      if (th == 0)
       {
          // will throw an IPCException& 
          _check_deadlock(&start) ;
@@ -694,10 +702,12 @@ void ThreadPool::allocate_and_awaken(void *parm,
          if(_max_threads == 0 || _current_threads < _max_threads)
          {
 	    th = _init_thread();
-	    continue;
          }
-         pegasus_yield();
-         th = _pool.remove_first();
+      }
+
+      if (th == 0)
+      {
+         return false;
       }
 
       // initialize the thread data with the work function and parameters
@@ -738,9 +748,11 @@ void ThreadPool::allocate_and_awaken(void *parm,
       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
           "ThreadPool::allocate_and_awaken: Operation Failed.");
       PEG_METHOD_EXIT();
-      return;
+      // ATTN: Error result has not yet been defined
+      return true;
    }
    PEG_METHOD_EXIT();
+   return true;
 }
 
 // caller is responsible for only calling this routine during slack periods
@@ -923,8 +935,11 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	       
 	       bodies++;
 	       th->dereference_tsd();
-	       _dead.insert_first(th);
+	       // Putting thread on _dead queue delays availability to others
+	       //_dead.insert_first(th);
 	       sleep_sem->signal();
+	       th->join();  // Note: Clean up the thread here rather than
+	       delete th;   // leave it sitting unused on the _dead queue
 	       th = 0;
 	    }
 	    else 
@@ -1025,7 +1040,11 @@ PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
    th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
    // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
   
-   th->run();
+   if (!th->run())
+   {
+      delete th;
+      return 0;
+   }
    _current_threads++;
    pegasus_yield();
    

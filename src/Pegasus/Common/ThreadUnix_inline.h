@@ -25,7 +25,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ typedef struct {
 
 extern "C" { void * _linkage(void * zosParm); }
                                                    
-inline void Thread::run()
+inline Boolean Thread::run()
 {
     zosParmDef * zosParm = (zosParmDef *)malloc(sizeof(zosParmDef));
     zosParm->_start = _start;
@@ -58,19 +58,51 @@ inline void Thread::run()
         pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
     }
     pthread_attr_setschedpolicy(&_handle.thatt, SCHED_RR);
-    pthread_create((pthread_t *)&_handle.thid,
-                    &_handle.thatt, &_linkage, zosParm);
+
+    int rc;
+    rc = pthread_create((pthread_t *)&_handle.thid,
+                        &_handle.thatt, &_linkage, zosParm);
+    if (rc == EAGAIN)
+    {
+        _handle.thid = 0;
+        return false;
+    }
+    else if (rc != 0)
+    {
+        // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
+        _handle.thid = 0;
+        return true;
+    }
+    return true;
 }
 #else // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-inline void Thread::run()
+inline Boolean Thread::run()
 {
     if (_is_detached)
+    {
         pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
+    }
+
 #ifdef PEGASUS_OS_OS400
     // Initialize the pegasusValue to 1, see IPCOs400.h.
     _handle.thid.pegasusValue = 1;  
 #endif
-    pthread_create((pthread_t *)&_handle.thid, &_handle.thatt, _start, this);
+
+    int rc;
+    rc = pthread_create((pthread_t *)&_handle.thid,
+                        &_handle.thatt, _start, this);
+    if (rc == EAGAIN)
+    {
+        _handle.thid = 0;
+        return false;
+    }
+    else if (rc != 0)
+    {
+        // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
+        _handle.thid = 0;
+        return true;
+    }
+    return true;
 }
 #endif // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 

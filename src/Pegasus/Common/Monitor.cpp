@@ -298,6 +298,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 		      return true;
 		   }
 		   _entries[indx]._status = _MonitorEntry::BUSY;
+                   // If allocate_and_awaken failure, retry on next iteration
 		   _thread_pool->allocate_and_awaken((void *)q, _dispatch);
 		}
 		else

@@ -25,7 +25,7 @@
 //
 // Author: Markus Mueller (markus_mueller@de.ibm.com)
 //
-// Modified By: 
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ typedef struct {
 
 extern "C" { void * _linkage(void * zosParm); };
                                                    
-inline void Thread::run()
+inline Boolean Thread::run()
 {
     zosParmDef * zosParm = (zosParmDef *)malloc(sizeof(zosParmDef));
     zosParm->_start = _start;
@@ -52,8 +52,22 @@ inline void Thread::run()
         int ds = 1;
         pthread_attr_setdetachstate(&_handle.thatt, &ds);
     }
-    pthread_create((pthread_t *)&_handle.thid,
-                    &_handle.thatt, &_linkage, zosParm);
+
+    int rc;
+    rc = pthread_create((pthread_t *)&_handle.thid,
+                        &_handle.thatt, &_linkage, zosParm);
+    if (rc == EAGAIN)
+    {
+        _handle.thid = 0;
+        return false;
+    }
+    else if (rc != 0)
+    {
+        // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
+        _handle.thid = 0;
+        return true;
+    }
+    return true;
 }
 
 inline void Thread::cancel()

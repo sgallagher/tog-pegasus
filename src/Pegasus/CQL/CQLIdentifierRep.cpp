@@ -47,7 +47,7 @@ Char16 STAR = '*';
 Char16 HASH = '#';
 Char16 RBRKT = ']';
 Char16 LBRKT = '[';
-char* SCOPE = "::";
+const char SCOPE[] = "::";
 
 CQLIdentifierRep::CQLIdentifierRep(): 
   QueryIdentifierRep()

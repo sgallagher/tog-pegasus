@@ -48,7 +48,10 @@
 #   include <string.h> 
 # include <cstdlib>
 # include <errno.h>
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#else
 # include <fcntl.h>
+#endif
 # include <netdb.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
@@ -469,11 +472,14 @@ Boolean bsd_socket_rep::is_secure(void)
 void bsd_socket_rep::set_close_on_exec(void)
 {
    int sock_flags;
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#else
    if( (sock_flags = fcntl(_socket, F_GETFD, 0)) >= 0)
    {
       sock_flags |= FD_CLOEXEC;
       fcntl(_socket, F_SETFD, sock_flags);
    }
+#endif
 }
 
 

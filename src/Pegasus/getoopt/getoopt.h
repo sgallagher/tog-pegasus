@@ -47,6 +47,7 @@
 #ifndef _GETOOPT_H_
 #define _GETOOPT_H_
 
+#include <stdio.h>
 #include <iostream>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>

@@ -87,7 +87,7 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
                     tmval->tm_min,
                     tmval->tm_sec,
                     0,
-                    tz.tz_minuteswest);
+                    abs(tz.tz_minuteswest)); // take care of the sign later on
 
     // Set the UTC Sign
     if (tz.tz_minuteswest > 0)

@@ -30,8 +30,7 @@ test2:
 	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE OR w = FALSE"
 
 test2a:
-	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND w != FALSE"
-	
+	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND w != FALSE"	
 
 test3:
 	@ ParserCLI "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\"" 
@@ -49,5 +48,4 @@ test6:
 	@ ParserCLI "SELECT * FROM ClassName WHERE v IS NULL"
 
 test7:
-	@ ParserCLI "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem
-
+	@ ParserCLI "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem"

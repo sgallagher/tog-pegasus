@@ -33,7 +33,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMMessage.h>
 
+#ifdef ENABLE_PROVIDER_MANAGER2
 #include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
+#else
+#include <Pegasus/ProviderManager/ProviderFacade.h>
+#endif
 
 #include <Pegasus/Server/Linkage.h>
 

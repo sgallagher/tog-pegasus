@@ -37,7 +37,11 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
+#ifdef ENABLE_PROVIDER_MANAGER2
 #include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
+#else
+#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
+#endif
 
 PEGASUS_USING_STD;
 

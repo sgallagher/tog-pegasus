@@ -367,18 +367,18 @@ int main(int argc, char** argv)
     om.lookupValue("user name", userN);
 
     if (userN == String::EMPTY) {
-        cout << "user name eqauls String::EMPTY" << endl;
+        cout << "connection made with no user name" << endl;
     }
     else
         cout << "user name equals " << userN << endl;
 
     om.lookupValue("pass word", passW);
-    if (passW == String::EMPTY) {
-        cout << "pass wrod eqauls String::EMPTY" << endl;
+   /* if (passW == String::EMPTY) {
+        cout << "no pass word given" << endl;
     }
     else
         cout << "pass word equals equals " << passW << endl;
-    
+    */
 
  /****************************************************
  The next sectoin of code connects to the server and enumerates all the instances of the 
@@ -403,7 +403,7 @@ int main(int argc, char** argv)
 	  cerr << e.getMessage() << endl;
       exit(1);
     }
-	CIMClass performanceClass;
+   /* CIMClass performanceClass;
 	try
 	{
 		performanceClass = client.getClass(nameSpace,
@@ -418,7 +418,7 @@ int main(int argc, char** argv)
 	  cerr << argv[0] << "Exception getClass : " << className
 		   << e.getMessage() << endl;
 	  exit(1);
-    }
+    }   this getClass call does not appear to be needed as per BUG#2124  */ 
     try
     {
 	//	printf("right befoe enumerateInstances\n");

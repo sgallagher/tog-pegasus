@@ -43,12 +43,161 @@ SampleFamilyProvider::~SampleFamilyProvider(void)
 {
 }
 
+/** _filterInstancesToTargetPaths - Takes as input a list of associations along with the
+    filters and returns the CIMObjectpaths that pass the filters.  This function is intended
+    to operate on the list returned from the references and filter on the result class information.
+    @param assocInstance - The association instance being processed.
+    @param targetObjectPath - The original target. This is required since this is the one reference
+    we don't want.
+    @resultClass - The resultClass we want to filter on
+    @resultRole  - The result role we want to filter on
+    @return - returns the CIMObjectPaths that represent the other side of associations that pass the
+    filters.
+ */
+Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(CIMInstance & assocInstance, CIMObjectPath & targetObjectPath,
+            CIMName resultClass, String resultRole)
+{
+    Array<CIMObjectPath> returnPaths;
+    // get all reference properties except for target.
+    for (Uint32 i = 0 ; i < assocInstance.getPropertyCount() ; i++)
+    {
+        CIMProperty p = assocInstance.getProperty(i);
+        CDEBUG("_FilterAssocInstance. property name = " << p.getName().getString());
+        if (p.getType() == CIMTYPE_REFERENCE)
+        {
+            CIMValue v = p.getValue();
+            CIMObjectPath path;
+            v.get(path);
+            
+            if (!targetObjectPath.identical(path))
+            {
+               CDEBUG("Test resultClass. resultClass= " << resultClass << " Path = " << path.toString());
+               CDEBUG("Test resultClass. resultClass= " << resultClass << " Path Class= " << path.getClassName().getString());
+                if (resultClass.isNull() || resultClass == path.getClassName())
+                {
+                    CDEBUG("Test resultRole. resultRole= " << resultRole << " property Name= " << p.getName().getString());
+                    if (resultRole == String::EMPTY || p.getName().getString() == resultRole)
+                    {
+                        CDEBUG("Append path " << path.toString());
+                        returnPaths.append(path);
+                    }
+                }
+            }
+        }
+    }
+    return( returnPaths );
+}
+
+
+/** Filter the valid CIMReferences from an association instance. If there is a role 
+    property, gets all but the role property.
+     @param target - The target class for the association
+     @param instance - The association class instance we are searching for references
+     @param role - The role we require. I there is no role, this is String::EMPTY
+    @return - Objectpath from the instances reference properties that
+            match the target and role.
+ * 
+*/
+Boolean _isInstanceValidReference(const CIMObjectPath& target, CIMInstance& instance, const String& role)
+{
+
+    // Test if role parameter is valid property.
+    Uint32 pos;
+    CDEBUG("_FilterReferenceProperties. role= " << role);
+    if (role != String::EMPTY)
+    {
+        // Test if property exists.
+        if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
+        {
+            CDEBUG("Invalid Param Exception");
+            throw CIMException(CIM_ERR_INVALID_PARAMETER);
+        }
+     
+         //Now check to be sure this is a reference property
+         // This test may not be necessary. Combine it into the loop.
+         //const CIMProperty p = instance.getProperty(pos);
+         if (instance.getProperty(pos).getType() != CIMTYPE_REFERENCE)
+         {
+             throw CIMException(CIM_ERR_INVALID_PARAMETER);
+         }
+    }
+
+    //Now search instance for all reference properties
+    for (Uint32 j = 0; j < instance.getPropertyCount() ; j++)
+    {
+        const CIMProperty p = instance.getProperty(j);
+        CDEBUG("Search for Reference type properties " << j);
+        if (p.getType() == CIMTYPE_REFERENCE)
+        {
+            // If there is no role or the role is the same as this property name
+            CDEBUG("Test for valid role. role= " << role << " property= " << p.getName());
+            CIMValue v = p.getValue();
+            CIMObjectPath path;
+            v.get(path);
+            // NOTE WE must be namespace and host free here.
+            if (role == String::EMPTY || role == p.getName())
+            {
+                CDEBUG("_FilterReferenceProperties. target= " << target.toString() << " path= " << path.toString());
+                if (target.identical(path))
+                    return(true);
+            }
+        }
+    }
+    return( false );
+}
+
+Boolean _isValidObjectClass(CIMObjectPath)
+{
+    return true;
+}
+
+
+// filterReferenceNames is a common filter that is used to
+// filter the set of possible instances to return against the
+// possible filters provided with the reference and reference
+// names operations.  It returns the index to object that pass
+// the set of filter tests.
+Array<CIMInstance> _filterReferenceNames(
+    const Array<CIMInstance>& targetAssociationInstanceList,
+    const CIMObjectPath & objectName,
+    const CIMName & resultClass,
+    const String & role)
+{
+    // Build a host and namespace independent reference to the target objectname
+    CDEBUG("_filterReferenceNames. objName= " << objectName.toString() << " resultClass= " << resultClass << " role= " << role);
+    CIMObjectPath targetReference = CIMObjectPath(
+    String(),
+    String(),
+    objectName.getClassName(),
+    objectName.getKeyBindings());
+
+    Array<CIMInstance> foundList;
+
+    // Note with the new rules, the associaiton class should never be NULL.
+    // We get the association class to determine what we deliver.
+    if (resultClass.isNull())
+    {
+       return (foundList);
+    }
+    for (Uint32 i = 0 ; i < targetAssociationInstanceList.size() ; i++)
+    {
+        CIMInstance instance = targetAssociationInstanceList[i];
+        if (_isInstanceValidReference(targetReference, instance, role))
+        {
+            // DELETE THISCDEBUG("_FilterReferenceNames Moving Object named " << tmp[j].toString());
+            foundList.append(instance);
+        }
+    }
+    return( foundList );
+}
+
 CIMInstance _buildPersonDynamicInstance(String& data)
 {
     CIMInstance instance("TST_PersonDynamic");
     instance.addProperty(CIMProperty("Name", data));   // key
     return(instance);
 }
+
 CIMInstance _buildInstanceLineageDynamic(CIMObjectPath parent, CIMObjectPath child)
 {
     // Note that this is a nasty assumption. May be a different namespace. Need
@@ -153,8 +302,8 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
 
         _assocLabeledClass = c2;
         CDEBUG ("Initialize - Association Class built");
-		XmlWriter::printClassElement(_assocLabeledClass);
-		MofWriter::printClassElement(_assocLabeledClass);
+		//XmlWriter::printClassElement(_assocLabeledClass);
+		//MofWriter::printClassElement(_assocLabeledClass);
 
     }
     // Build instances of the referenced class
@@ -323,23 +472,6 @@ void SampleFamilyProvider::enumerateInstances(
 	InstanceResponseHandler & handler)
 {
     CDEBUG("enumerateInstances");
-	/*CIMClass cimClass;
-	try
-    {
-    cimClass = _cimom.getClass(
-		OperationContext(),
-		classReference.getNameSpace(),
-		classReference.getClassName(),
-		false,
-		false,
-		false,
-		CIMPropertyList());
-    }
-    catch(CIMException& e)
-    {
-        CDEBUG("Exception hit " << e.getMessage());
-        // ATTN: KS 20030303 - Add an exception return here.
-    }*/
     CIMNamespaceName nameSpace = classReference.getNameSpace();
 
     //XmlWriter::printClassElement(cimClass);
@@ -660,6 +792,38 @@ void SampleFamilyProvider::deleteInstance(
 	handler.complete();
 }
 
+CIMInstance SampleFamilyProvider::findInstanceForPath(CIMObjectPath & path, String & host, CIMNamespaceName & nameSpace)
+{
+	CIMObjectPath localReference = CIMObjectPath(
+		String(),
+		String(),
+		path.getClassName(),
+		path.getKeyBindings());
+
+    CIMName myClass = path.getClassName();
+
+    if (myClass == CIMName("tst_persondynamic"))
+    {
+    	// instance index corresponds to reference index
+    	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
+    	{
+            CIMObjectPath newPath = _instances[i].buildPath(_referencedClass);
+    		CDEBUG("findInstanceForpath \n    newPath= " << newPath.toString() << " count " << i << "\n    localReference= " << localReference.toString() << "\n    orig path= " << path.toString() );
+            if(localReference.identical(newPath))
+    		{
+    			// deliver requested instance
+                CDEBUG("FindInstanceForPath returns Instance = " << i << " newPath= " << newPath.toString());
+                newPath.setHost(host);
+                newPath.setNameSpace(nameSpace);
+                _instances[i].setPath(newPath);
+                return(_instances[i]);
+    		}
+    	}
+    }
+    return(CIMInstance());
+
+}
+
 void SampleFamilyProvider::associators(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
@@ -679,7 +843,42 @@ void SampleFamilyProvider::associators(
     String host = System::getHostName();
     CIMNamespaceName nameSpace = objectName.getNameSpace();
     CIMName myClass = objectName.getClassName();
+	CIMObjectPath localObjectName = CIMObjectPath(
+		String(),
+		String(),
+		objectName.getClassName(),
+		objectName.getKeyBindings());
 
+    if (associationClass == CIMName("TST_LineageDynamic"))
+    {
+        // Filter out the required objectpaths from the association list.
+        CDEBUG("AssocNames for TST_LineageDynamic");
+        Array<CIMInstance> assocInstances;
+        assocInstances = _filterReferenceNames(_instancesLineageDynamic,
+                                                   objectName,
+                                                   associationClass,
+                                                   role);
+    
+        for (Uint32 i = 0 ; i < assocInstances.size() ; i++)
+        {
+            CDEBUG("Search assocInstances. " << i);
+            Array<CIMObjectPath> resultPaths;
+            resultPaths = _filterAssocInstanceToTargetPaths(assocInstances[i], localObjectName, resultClass, resultRole);
+
+            CDEBUG("rtn from _FilterAssocInst. count = " << resultPaths.size());
+            for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
+            {
+                CDEBUG("resultPath found. = " << resultPaths[i].toString());
+                CIMInstance instance;
+                instance = SampleFamilyProvider::findInstanceForPath(resultPaths[i], host, nameSpace);
+                CDEBUG("Delivering Instance.");
+                handler.deliver(instance);
+            }
+        }
+    }
+
+
+    /********************************************************
     if (!(myClass == CIMName("tst_persondynamic")))
 		throw CIMException(CIM_ERR_NOT_FOUND);
         
@@ -799,7 +998,9 @@ void SampleFamilyProvider::associators(
     
 	// complete processing the request
 	handler.complete();
+    ***************************************************/
 }
+
 
 void SampleFamilyProvider::associatorNames(
 	const OperationContext & context,
@@ -814,102 +1015,80 @@ void SampleFamilyProvider::associatorNames(
     String host = System::getHostName();
     CIMNamespaceName nameSpace = objectName.getNameSpace();
 
-    CIMObjectPath localReference = CIMObjectPath(
+    CIMObjectPath localObjectName = CIMObjectPath(
         String(),
         String(),
         objectName.getClassName(),
         objectName.getKeyBindings());
 
-    CDEBUG("Assoc Class = " << resultClass.getString() << " AssocRole = " << role);
-
-    // Get the references list and isolate those interesting. 
-    for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
-	{
-        
-        CIMInstance instance = _instancesLineageDynamic[i];
-        
-        CDEBUG("AssocNames Assoc Class = " << associationClass.getString() << " Role = " << role);
-        if (associationClass.isNull() || instance.getClassName().equal(associationClass))
+	CDEBUG("AssociationNames Operation. objectName= " << objectName.toString() << " assocClass= " << associationClass  << " resultClass= " << resultClass << " role= " << role);
+    
+    Array<CIMInstance> assocInstances;
+    
+    if (associationClass == CIMName("TST_LineageDynamic"))
+    {
+        // Filter out the required objectpaths from the association list.
+        CDEBUG("AssocNames for TST_LineageDynamic"); 
+        assocInstances = _filterReferenceNames(_instancesLineageDynamic,
+                                                   objectName,
+                                                   associationClass,
+                                                   role);
+    
+        for (Uint32 i = 0 ; i < assocInstances.size() ; i++)
         {
-            if (role != String::EMPTY)
+            CDEBUG("Search assocInstances. " << i);
+            Array<CIMObjectPath> resultPaths;
+            resultPaths = _filterAssocInstanceToTargetPaths(assocInstances[i], localObjectName, resultClass, resultRole);
+
+            CDEBUG("rtn from _FilterAssocInst. count = " << resultPaths.size());
+            for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
             {
-                Uint32 pos;
-                if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
-                {
-                    CDEBUG("Invalid Param Exception");
-                    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                }
-                else     // pos represents property
-                {
-                    // Does the reference point back to our instance path
-                    CDEBUG("Getting Property from pos = " << pos);
-                    CIMProperty p = instance.getProperty(pos);
-                    if (p.getType() != CIMTYPE_REFERENCE)
-                    {
-                        throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                    }
-                    CIMValue v = p.getValue();
-                    CIMObjectPath path;
-                    v.get(path);
-                    // Note that this may be hack to set host names.  Not sure
-                    // what is general solution to compare these objects.
-                    //path.setHost(host);
-                    //path.setNameSpace(nameSpace);
+                CDEBUG("resultPath found. = " << resultPaths[i].toString());
+                if (resultPaths[i].getHost().size() == 0)
+                    resultPaths[i].setHost(host);
 
-                    CDEBUG("Path found in property is " << path.toString() << " compare to " << localReference.toString());
-                    
-                    if (path.identical(localReference))
-                    {
-                        // Get other reference properties and deliver them
-                        for (Uint32 j = 0; j < instance.getPropertyCount() ; j++)
-                        {
-                            CIMProperty p = instance.getProperty(j);
-                            CDEBUG("Search for Reference types " << j);
-                            if (p.getType() == CIMTYPE_REFERENCE && j != pos)
-                            {
-                                CIMValue v = p.getValue();
-                                CIMObjectPath path;
-                                v.get(path);
-                                if (path.getHost().size() == 0)
-                                    path.setHost(host);
+                if (resultPaths[i].getNameSpace().isNull())
+                    resultPaths[i].setNameSpace(nameSpace);
 
-                                if (path.getNameSpace().isNull())
-                                    path.setNameSpace(nameSpace);
-                                handler.deliver(path);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (Uint32 j = 0; j < instance.getPropertyCount() ; j++)
-                {
-                    CDEBUG("No role Search for Reference types " << j);
-                    CIMProperty p = instance.getProperty(j);
-                    if (p.getType() == CIMTYPE_REFERENCE)
-                    {
-                        CIMValue v = p.getValue();
-                        CIMObjectPath path;
-                        v.get(path);
-                        CDEBUG(" AN path output = " << path.toString() << " localReference " << localReference.toString());
-                        if (!path.identical(localReference))
-                        {
-                            CDEBUG("AN path - Deliver");
-                            if (path.getHost().size() == 0)
-                                path.setHost(host);
-
-                            if (path.getNameSpace().isNull())
-                                path.setNameSpace(nameSpace);
-                            handler.deliver(path);
-                        }
-                    }
-                }
+                handler.deliver(resultPaths[i]);
             }
         }
     }
+
+    if (resultClass == CIMName("TST_LabeledLineageDynamic"))
+    {
+        // Filter out the required objectpaths from the association list.
+        assocInstances = _filterReferenceNames(_instancesLineageDynamic,
+                                                   objectName,
+                                                   resultClass,
+                                                   role);
+
+        for (Uint32 i = 0 ; i < assocInstances.size() ; i++)
+        {
+            CDEBUG("Search assocInstances. " << i);
+            Array<CIMObjectPath> resultPaths;
+            resultPaths = _filterAssocInstanceToTargetPaths(assocInstances[i], localObjectName, resultClass, resultRole);
+
+            CDEBUG("rtn from _FilterAssocInst. count = " << resultPaths.size());
+            for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
+            {
+                CDEBUG("resultPath found. = " << resultPaths[i].toString());
+                if (resultPaths[i].getHost().size() == 0)
+                    resultPaths[i].setHost(host);
+
+                if (resultPaths[i].getNameSpace().isNull())
+                    resultPaths[i].setNameSpace(nameSpace);
+
+                handler.deliver(resultPaths[i]);
+            }
+        }
+    }
+
 	// complete processing the request
 	handler.complete();
+
+
+
 }
 
 void SampleFamilyProvider::references(
@@ -929,88 +1108,62 @@ void SampleFamilyProvider::references(
 
     CIMNamespaceName nameSpace = objectName.getNameSpace();
 
-    CIMObjectPath localReference = CIMObjectPath(
-        String(),
-        String(),
-        objectName.getClassName(),
-        objectName.getKeyBindings());
-
     handler.processing();
 
-    // Here make the decision between Lineage and LabeledLineage
-    CIMName objectClassName = objectName.getClassName();
-
-	// For all of the corresponding association objects.
-    for(Uint32 i = 0, n = _instanceNamesLineageDynamic.size(); i < n; i++)
-	{
-        // Get the other side of the association. How do we know which is other side?
-
-        CIMInstance instance = _instancesLineageDynamic[i];
-        CIMObjectPath objectPath =  instance.buildPath(_assocClass);
-
-        CDEBUG("References Result Class = " << resultClass.getString() << " Role = " << role);
-        if (resultClass.isNull() || instance.getClassName().equal(resultClass))
-        {
-            CDEBUG("Passed resultClassTest");
-            if (role != String::EMPTY)
-            {
-                CDEBUG("Role not empty");
-                Uint32 pos;
-                if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
-                {
-                    CDEBUG("Role exception");
-                    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                }
-                else     // pos represents property
-                {
-                    CDEBUG("Has role");
-                    // Does the reference point back to our instance path
-                    CIMProperty p = instance.getProperty(pos);
-                    if (p.getType() != CIMTYPE_REFERENCE)
-                    {
-                        CDEBUG("p.getType Exception");
-                        throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                    }
-                    CIMValue v = p.getValue();
-                    CIMObjectPath path;
-                    v.get(path);
-                    // Note that this may be hack to set host names.  Not sure
-                    // what is general solution to compare these objects.
-                    path.setHost(host);
-                    path.setNameSpace(nameSpace);
-                    CDEBUG("path test path= " << path.toString() << " ObjectName " << objectName.toString());
-                    if (path.identical(objectName))
-                    {
-                        if (objectPath.getHost().size() == 0)
-                            objectPath.setHost(host);
-
-                        if (objectPath.getNameSpace().isNull())
-                            objectPath.setNameSpace(nameSpace);
-                        instance.setPath(objectPath);
-                        handler.deliver(instance);
-                    }
-                }
-            }
-            else
-            {
-                if (objectPath.getHost().size() == 0)
-                    objectPath.setHost(host);
-
-                if (objectPath.getNameSpace().isNull())
-                    objectPath.setNameSpace(nameSpace);
-                instance.setPath(objectPath);
-                handler.deliver(instance);
-
-            }
-        }
-	}
+    Array<CIMInstance> returnInstances;
     
+    if (resultClass == CIMName("TST_LineageDynamic"))
+    {
+        // Filter out the required objectpaths from the association list.
+        returnInstances = _filterReferenceNames(_instancesLineageDynamic,
+                                                   objectName,
+                                                   resultClass,
+                                                   role);
+    
+
+        for (Uint32 i = 0 ; i < returnInstances.size() ; i++)
+        {
+            CIMObjectPath objectPath =  returnInstances[i].buildPath(_assocClass);
+            if (objectPath.getHost().size() == 0)
+                objectPath.setHost(host);
+    
+            if (objectPath.getNameSpace().isNull())
+                objectPath.setNameSpace(nameSpace);
+            returnInstances[i].setPath(objectPath);
+            handler.deliver(returnInstances[i]);
+        }
+    }
+
+
+    if (resultClass == CIMName("TST_LabeledLineageDynamic"))
+    {
+        // Filter out the required objectpaths from the association list.
+        returnInstances = _filterReferenceNames(_instancesLineageDynamic,
+                                                   objectName,
+                                                   resultClass,
+                                                   role);
+    
+
+        for (Uint32 i = 0 ; i < returnInstances.size() ; i++)
+        {
+            CIMObjectPath objectPath =  returnInstances[i].buildPath(_assocLabeledClass);
+            if (objectPath.getHost().size() == 0)
+                objectPath.setHost(host);
+    
+            if (objectPath.getNameSpace().isNull())
+                objectPath.setNameSpace(nameSpace);
+            returnInstances[i].setPath(objectPath);
+            handler.deliver(returnInstances[i]);
+        }
+    }
+
 	// complete processing the request
 	handler.complete();
 }
 
+
 // Return all references(association instance names) in which the give
-// objecdt is involved.
+// object is involved.
 
 void SampleFamilyProvider::referenceNames(
 	const OperationContext & context,
@@ -1019,83 +1172,58 @@ void SampleFamilyProvider::referenceNames(
 	const String & role,
 	ObjectPathResponseHandler & handler)
 {
-	CDEBUG("ReferenceNames Operation");
-    
-    // Get the namespace and host names to create the CIMObjectPath
+	CDEBUG("ReferenceNames Operation. objectName= " << objectName.toString() << " resultClass= " << resultClass << " role= " << role);
     CIMNamespaceName nameSpace = objectName.getNameSpace().getString();
     String host = System::getHostName();
     
-    CIMObjectPath localReference = CIMObjectPath(
-        String(),
-        String(),
-        objectName.getClassName(),
-        objectName.getKeyBindings());
-
-
-	// For all of the association objects.
-    // CDEBUG("resultClass= " << ((resultClass.isNull()) ? "NULL" : resultClass) << " Role = " << ((role == String.EMPTY)? "EMPTY" : role));
-    for(Uint32 i = 0, n = _instancesLineageDynamic.size(); i < n; i++)
-	{
-        CIMInstance instance = _instancesLineageDynamic[i];
-        CIMObjectPath objectPath =  instance.buildPath(_assocClass);
-
-        if (resultClass.isNull() || objectPath.getClassName().equal(resultClass))
-        {
-            CDEBUG("Passed result Class Test");
-            if (role != String::EMPTY)
-            {
-                Uint32 pos;
-                if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
-                {
-                    CDEBUG("Invalid role parameter");
-                    throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                }
-                else     // pos represents property
-                {
-                    // Does the reference point back to our instance path
-                    CDEBUG("Get Property");
-                    CIMProperty p = instance.getProperty(pos);
-                    if (p.getType() != CIMTYPE_REFERENCE)
-                    {
-                        throw CIMException(CIM_ERR_INVALID_PARAMETER);
-                    }
-                    CIMValue v = p.getValue();
-                    CIMObjectPath path;
-                    v.get(path);
-                    CDEBUG("Get Property path" << path.toString());
-                    // Note that this may be hack to set host names.  Not sure
-                    // what is general solution to compare these objects.
-                    //path.setHost(host);
-                    //path.setNameSpace(nameSpace);
-                    CDEBUG("Path Compare path= " << path.toString() << " objectName " << objectName.toString());
-                    if (path.identical(localReference))
-                    {
-                        if (objectPath.getHost().size() == 0)
-                            objectPath.setHost(host);
-
-                        if (objectPath.getNameSpace().isNull())
-                            objectPath.setNameSpace(nameSpace);
-
-                        handler.deliver(objectPath);
-                    }
-                }
-            }
-            else
-            {
-                CDEBUG("Deliver object path " << objectPath.toString());
-                if (objectPath.getHost().size() == 0)
-                    objectPath.setHost(host);
-
-                if (objectPath.getNameSpace().isNull())
-                    objectPath.setNameSpace(nameSpace);
-                handler.deliver(objectPath);
-
-            }
-        }
-	}
+    Array<CIMInstance> returnInstances;
     
+    if (resultClass == CIMName("TST_LineageDynamic"))
+    {
+        // Filter out the required objectpaths from the association list.
+        returnInstances = _filterReferenceNames(_instancesLineageDynamic,
+                                                   objectName,
+                                                   resultClass,
+                                                   role);
+    
+
+        for (Uint32 i = 0 ; i < returnInstances.size() ; i++)
+        {
+            CIMObjectPath objectPath =  returnInstances[i].buildPath(_assocClass);
+            if (objectPath.getHost().size() == 0)
+                objectPath.setHost(host);
+    
+            if (objectPath.getNameSpace().isNull())
+                objectPath.setNameSpace(nameSpace);
+    
+            handler.deliver(objectPath);
+        }
+    }
+
+    if (resultClass == CIMName("TST_LabeledLineageDynamic"))
+    {
+        // Filter out the required objectpaths from the association list.
+        returnInstances = _filterReferenceNames(_instancesLineageDynamic,
+                                                   objectName,
+                                                   resultClass,
+                                                   role);
+
+        for (Uint32 i = 0 ; i < returnInstances.size() ; i++)
+        {
+            CIMObjectPath objectPath =  returnInstances[i].buildPath(_assocLabeledClass);
+            if (objectPath.getHost().size() == 0)
+                objectPath.setHost(host);
+    
+            if (objectPath.getNameSpace().isNull())
+                objectPath.setNameSpace(nameSpace);
+    
+            handler.deliver(objectPath);
+        }
+    }
+
 	// complete processing the request
 	handler.complete();
+
 }
 
 

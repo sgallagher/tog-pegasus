@@ -36,8 +36,8 @@
 
 // Debug Tools
 
-//#define CDEBUG(X) PEGASUS_STD(cout) << "SampleFamilyProvider " << X << PEGASUS_STD(endl)
-#define CDEBUG(X)
+#define CDEBUG(X) PEGASUS_STD(cout) << "SampleFamilyProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X)
 //#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "Linux_ProcessorProvider", Logger::INFORMATION, "$0", X)
 
 PEGASUS_NAMESPACE_BEGIN
@@ -93,7 +93,12 @@ public:
 		const OperationContext & context,
 		const CIMObjectPath & ref,
 		ResponseHandler & handler);
-    
+
+    CIMInstance findInstanceForPath(
+        CIMObjectPath & path,
+        String & host,
+        CIMNamespaceName & nameSpace);
+
 	// CIMAssociationProvider interface
 	virtual void associators(
 		const OperationContext & context,

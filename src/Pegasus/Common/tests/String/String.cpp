@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 	const char EXPECTED[] = "Hello\\x0000\\x1234\\x5678\\x9CDE\\xFFFF";
 	char* tmp = os.str();
 	assert(strcmp(EXPECTED, tmp) == 0);
-	delete [] tmp;
+	delete tmp;
     }
 
     {

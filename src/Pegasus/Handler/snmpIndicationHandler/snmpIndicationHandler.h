@@ -61,7 +61,7 @@ public:
 	CIMInstance& handler, 
 	CIMInstance& indication, 
 	String nameSpace,
-	ContentLanguages& contentLanguauges);  // l10n
+	ContentLanguages& contentLanguages);  // l10n
 };
 
 PEGASUS_NAMESPACE_END

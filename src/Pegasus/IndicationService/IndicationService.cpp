@@ -1176,8 +1176,9 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 
     try
     {
-		_checkNonprivilegedAuthorization(request->userName);
-
+		String userName = ((IdentityContainer)request->operationContext.
+			                                             get(IdentityContainer :: NAME)).getUserName();
+        _checkNonprivilegedAuthorization(userName);
         enumInstanceNames = 
             _subscriptionRepository->enumerateInstanceNamesForClass
             (request->nameSpace, request->className, false);
@@ -5200,11 +5201,15 @@ void IndicationService::_sendCreateRequests
             new CIMCreateSubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-        requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
+        request->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 			                                                           indicationProviders [i].provider)); 
-		requestCopy->operationContext.insert(SubscriptionInstanceContainer(subscription));
-        requestCopy->operationContext.insert(SubscriptionFilterConditionContainer(condition,queryLanguage));
-        requestCopy->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
+		request->operationContext.insert(SubscriptionInstanceContainer(subscription));
+        request->operationContext.insert(SubscriptionFilterConditionContainer(condition,queryLanguage));
+        request->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
+		request->operationContext.insert(IdentityContainer(userName));
+		request->operationContext.insert(ContentLanguageListContainer(contentLangs));
+		request->operationContext.insert(AcceptLanguageListContainer(acceptLangs));
+
         AsyncOpNode * op = this->get_op (); 
 
         AsyncLegacyOperationStart * async_req =
@@ -5331,12 +5336,16 @@ void IndicationService::_sendModifyRequests
             new CIMModifySubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-		requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
+		request->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 																	   indicationProviders [i].provider));
-		requestCopy->operationContext.insert(SubscriptionInstanceContainer(subscription));
-        requestCopy->operationContext.insert(SubscriptionFilterConditionContainer(condition,queryLanguage));
+		request->operationContext.insert(SubscriptionInstanceContainer(subscription));
+        request->operationContext.insert(SubscriptionFilterConditionContainer(condition,queryLanguage));
 		
-        requestCopy->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
+        request->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
+		request->operationContext.insert(IdentityContainer(userName));
+		request->operationContext.insert(ContentLanguageListContainer(contentLangs));
+		request->operationContext.insert(AcceptLanguageListContainer(acceptLangs));
+
 		AsyncOpNode * op = this->get_op ();
 
         AsyncLegacyOperationStart * async_req =
@@ -5471,10 +5480,13 @@ void IndicationService::_sendDeleteRequests
             new CIMDeleteSubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-		requestCopy->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
+		request->operationContext.insert(ProviderIdContainer (indicationProviders [i].providerModule,
 																		indicationProviders [i].provider)); 
-		requestCopy->operationContext.insert(SubscriptionInstanceContainer(subscription));
-        requestCopy->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
+		request->operationContext.insert(SubscriptionInstanceContainer(subscription));
+        request->operationContext.insert(SubscriptionLanguageListContainer(acceptLangs));
+		request->operationContext.insert(IdentityContainer(userName));
+		request->operationContext.insert(ContentLanguageListContainer(contentLangs));
+		request->operationContext.insert(AcceptLanguageListContainer(acceptLangs));
 
 
         AsyncOpNode * op = this->get_op ();
@@ -6484,7 +6496,7 @@ void IndicationService::_sendEnable (
             new CIMEnableIndicationsRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-		requestCopy->operationContext.insert(ProviderIdContainer(enableProviders [i].providerModule,
+		request->operationContext.insert(ProviderIdContainer(enableProviders [i].providerModule,
 																	   enableProviders [i].provider));
         AsyncOpNode* op = this->get_op (); 
 
@@ -6608,7 +6620,7 @@ void IndicationService::_sendDisable (
             new CIMDisableIndicationsRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-		requestCopy->operationContext.insert(ProviderIdContainer(disableProviders [i].providerModule,
+		request->operationContext.insert(ProviderIdContainer(disableProviders [i].providerModule,
 																	 disableProviders [i].provider)); 
 
         AsyncOpNode* op = this->get_op (); 

@@ -35,7 +35,7 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_ACC)
 #include "IP_HPUX.cpp"
 #else
 #include "IP_Stub.cpp"

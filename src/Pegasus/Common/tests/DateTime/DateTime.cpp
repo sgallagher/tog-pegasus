@@ -292,7 +292,7 @@ int main(int argc, char** argv)
             bad = true;
         }
 
-#ifdef PEGASUS_PLATFORM_HPUX_ACC 
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
         assert(bad);
 #endif
 
@@ -348,7 +348,7 @@ int main(int argc, char** argv)
         {
             bad = true;
         }
-#ifdef PEGASUS_PLATFORM_HPUX_ACC 
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
         assert(bad);
 #endif
     
@@ -384,7 +384,7 @@ int main(int argc, char** argv)
         {
             bad = true;
         }
-#ifdef PEGASUS_PLATFORM_HPUX_ACC 
+#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
         assert(bad);
 #endif
     

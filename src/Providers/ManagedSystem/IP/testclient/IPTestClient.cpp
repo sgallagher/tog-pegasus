@@ -36,7 +36,7 @@
 #include "IPTestClient.h"
 
 // include the appropriate IPProvider-specific file for checking results
-#if defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined (PEGASUS_PLATFORM_HPUX_ACC)
 # include "IPTestClient_HPUX.cpp"
 #else
 # include "IPTestClient_Stub.cpp"

@@ -30,7 +30,7 @@
 
 #include "DNSService.h"
 
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "DNSService_HPUX.cpp"
 #else
 # include "DNSService_Stub.cpp"

@@ -36,7 +36,7 @@
 #include "DNSTestClient.h"
 
 // include the appropriate DNS-specific file for checking results
-#if defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "DNSTestClient_HPUX.cpp"
 #else
 # include "DNSTestClient_Stub.cpp"

@@ -36,7 +36,7 @@
 #include "NTPTestClient.h"
 
 // include the appropriate NTPProvider-specific file for checking results
-#if defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined (PEGASUS_PLATFORM_HPUX_ACC)
 # include "NTPTestClient_HPUX.cpp"
 #else
 # include "NTPTestClient_Stub.cpp"

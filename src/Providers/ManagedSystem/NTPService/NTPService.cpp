@@ -31,7 +31,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 #include "NTPService.h"
 
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "NTPService_HPUX.cpp"
 #else
 # include "NTPService_Stub.cpp"

@@ -38,7 +38,7 @@
 #ifndef PG_IPPEP_PLATFORM_H
 #define PG_IPPEP_PLATFORM_H
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+#if defined(PEGASUS_PLATFORM_HPUX_ACC)
 #include "IP_HPUX.h"
 #else
 #include "IP_Stub.h"

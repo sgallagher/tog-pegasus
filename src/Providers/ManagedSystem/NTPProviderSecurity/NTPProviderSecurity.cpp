@@ -26,7 +26,7 @@
 // Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "NTPProviderSecurity_HPUX.cpp"    
 #else
 # include "NTPProviderSecurity_Stub.cpp"    

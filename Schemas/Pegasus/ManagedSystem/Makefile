@@ -33,6 +33,13 @@ MS_EXTPATH = $(ROOT)/Schemas/Pegasus/ManagedSystem/$MS_SCHEMA_DIR)
 LOADEXTSCHEMA = 
 endif
 
+ifeq ($(PEGASUS_PLATFORM), HPUX_IA64_ACC)
+MS_EXTSCHEMA_VER =
+MS_EXTSCHEMA_DIR = HPUX$(CIM_SCHEMA_VER)
+MS_EXTPATH = $(ROOT)/Schemas/Pegasus/ManagedSystem/$MS_SCHEMA_DIR)
+LOADEXTSCHEMA =
+endif
+
 ifeq ($(MANAGEDSYSTEM_NS_SUPPORTED),true)
 repository:
 	@ echo +++++ Removing existing repository named $(MANAGEDSYSTEMNS)
@@ -41,6 +48,9 @@ repository:
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(CIM_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(CIM_MOF_PATH)/CIM_Schema$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+ifeq ($(OS),HPUX)
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/$(OS)_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+endif
 	@ echo +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
 	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
 ifeq ($(OS),HPUX)
@@ -52,8 +62,14 @@ repositoryServer:
 	@ cimmof -I$(CIM_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(CIM_MOF_PATH)/CIM_Schema$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
 	@ cimmof  -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+ifeq ($(OS),HPUX)
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(MANAGEDSYSTEMNS) $(PG_MOF_PATH)/$(OS)_ManagedSystemSchema$(PG_SCHEMA_VER).mof
+endif
 	@ echo +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
 	@ cimmof -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+ifeq ($(OS),HPUX)
+	@ $(CIMMOFCLI) -R$(REPOSITORY_DIR) -I$(PG_MOF_PATH) -n$(INTEROPNS) $(PG_MOF_PATH)/$(OS)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof
+endif
 	$(LOADEXTSCHEMA)
 
 clean:

@@ -18,18 +18,16 @@ SOURCES = \
     CIMClassRep.cpp \
     CIMDateTime.cpp \
     CIMFlavor.cpp \
-    CIMHandle.cpp \
     CIMIndication.cpp \
     CIMInstance.cpp \
     CIMInstanceRep.cpp \
+    CIMNamedInstance.cpp \
     CIMMessage.cpp \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \
-    CIMNamedInstance.cpp \
     CIMObject.cpp \
     CIMObjectRep.cpp \
-    CIMOMHandle.cpp \
     CIMParameter.cpp \
     CIMParameterRep.cpp \
     CIMParamValue.cpp \

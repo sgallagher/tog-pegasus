@@ -7,10 +7,10 @@ DIRS = src
 
 include $(ROOT)/mak/recurse.mak
 
-rebuild: clean depend all
+rebuild: clean depend all repository
 	$(MAKE) -s tests
 
-world: depend all
+world: depend all repository
 	$(MAKE) -s tests
 
 repository:

@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -63,27 +63,27 @@ public:
     /** ATTN:
     */
     virtual void createSubscription(
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array<CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & subscriptionName,
+        const Array<CIMObjectPath> & classNames,
+        const CIMPropertyList & propertyList,
+        const Uint16 repeatNotificationPolicy) = 0;
 
     /** ATTN:
     */
     virtual void modifySubscription(
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array<CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & subscriptionName,
+        const Array<CIMObjectPath> & classNames,
+        const CIMPropertyList & propertyList,
+        const Uint16 repeatNotificationPolicy) = 0;
 
     /** ATTN:
     */
     virtual void deleteSubscription(
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array<CIMObjectPath> & classNames) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & subscriptionName,
+        const Array<CIMObjectPath> & classNames) = 0;
 };
 
 PEGASUS_NAMESPACE_END

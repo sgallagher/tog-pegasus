@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMIndication.h>
 #include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 #include <Pegasus/Provider/ResponseHandlerRep.h>
 
@@ -141,6 +142,65 @@ protected:
     ResponseHandlerRep<T> * _rep;
 
 };
+
+template<class T>
+inline ResponseHandler<T>::ResponseHandler(void) : _rep(0)
+{
+}
+
+template<class T>
+inline ResponseHandler<T>::ResponseHandler(const ResponseHandler<T> & handler)
+{
+    Inc(_rep = handler._rep);
+}
+
+template<class T>
+inline ResponseHandler<T>::ResponseHandler(ResponseHandlerRep<T> * rep) : _rep(rep)
+{
+}
+
+template<class T>
+inline ResponseHandler<T>::~ResponseHandler(void)
+{
+    Dec(_rep);
+}
+
+template<class T>
+inline ResponseHandler<T> & ResponseHandler<T>::operator=(const ResponseHandler<T> & handler)
+{
+    if(this == &handler)
+    {
+        return(*this);
+    }
+
+    Dec(_rep);
+    Inc(_rep = handler._rep);
+
+    return(*this);
+}
+
+template<class T>
+inline void ResponseHandler<T>::processing(void)
+{
+    getRep()->processing();
+}
+
+template<class T>
+inline void ResponseHandler<T>::complete(void)
+{
+    getRep()->complete();
+}
+
+template<class T>
+inline ResponseHandlerRep<T> * ResponseHandler<T>::getRep(void) const
+{
+    if(_rep == 0)
+    {
+        throw UninitializedHandle();
+    }
+
+    return(_rep);
+}
 
 //
 // template specialization for ResponseHandler<CIMClass>
@@ -522,32 +582,58 @@ inline void ResponseHandler<CIMValue>::deliver(const Array<CIMValue> & objects)
 }
 
 //
-// inline code
+// template specialization for ResponseHandler<CIMObjectPath>
 //
-template<class T>
-inline ResponseHandler<T>::ResponseHandler(void) : _rep(0)
+PEGASUS_TEMPLATE_SPECIALIZATION
+class ResponseHandler<CIMObjectPath>
+{
+public:
+    ResponseHandler(void);
+    ResponseHandler(const ResponseHandler & handler);
+    virtual ~ResponseHandler(void);
+
+    ResponseHandler & operator=(const ResponseHandler & handler);
+
+    void processing(void);
+    void complete(void);
+
+    void deliver(const CIMObjectPath & object);
+    void deliver(const Array<CIMObjectPath> & objects);
+
+protected:
+    ResponseHandler(ResponseHandlerRep<CIMObjectPath> * rep);
+
+    ResponseHandlerRep<CIMObjectPath> * getRep(void) const;
+
+protected:
+    ResponseHandlerRep<CIMObjectPath> * _rep;
+
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandler<CIMObjectPath>::ResponseHandler(void) : _rep(0)
 {
 }
 
-template<class T>
-inline ResponseHandler<T>::ResponseHandler(const ResponseHandler<T> & handler)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandler<CIMObjectPath>::ResponseHandler(const ResponseHandler<CIMObjectPath> & handler) : _rep(0)
 {
     Inc(_rep = handler._rep);
 }
 
-template<class T>
-inline ResponseHandler<T>::ResponseHandler(ResponseHandlerRep<T> * rep) : _rep(rep)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandler<CIMObjectPath>::ResponseHandler(ResponseHandlerRep<CIMObjectPath> * rep) : _rep(rep)
 {
 }
 
-template<class T>
-inline ResponseHandler<T>::~ResponseHandler(void)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandler<CIMObjectPath>::~ResponseHandler(void)
 {
     Dec(_rep);
 }
 
-template<class T>
-inline ResponseHandler<T> & ResponseHandler<T>::operator=(const ResponseHandler<T> & handler)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandler<CIMObjectPath> & ResponseHandler<CIMObjectPath>::operator=(const ResponseHandler<CIMObjectPath> & handler)
 {
     if(this == &handler)
     {
@@ -560,29 +646,33 @@ inline ResponseHandler<T> & ResponseHandler<T>::operator=(const ResponseHandler<
     return(*this);
 }
 
-template<class T>
-inline ResponseHandlerRep<T> * ResponseHandler<T>::getRep(void) const
-{
-    if(_rep == 0)
-    {
-        throw UninitializedHandle();
-    }
-
-    return(_rep);
-}
-
-
-template<class T>
-inline void ResponseHandler<T>::processing(void)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void ResponseHandler<CIMObjectPath>::processing(void)
 {
     getRep()->processing();
 }
 
-template<class T>
-inline void ResponseHandler<T>::complete(void)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void ResponseHandler<CIMObjectPath>::complete(void)
 {
     getRep()->complete();
 }
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void ResponseHandler<CIMObjectPath>::deliver(const CIMObjectPath & object)
+{
+    getRep()->deliver(object);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void ResponseHandler<CIMObjectPath>::deliver(const Array<CIMObjectPath> & objects)
+{
+    for(Uint32 i = 0, n = objects.size(); i < n; i++)
+    {
+        getRep()->deliver(objects[i]);
+    }
+}
+
 
 PEGASUS_NAMESPACE_END
 

@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -46,7 +46,7 @@ This class defines the set of methods implemented by an class provider. A provid
 from this class must implement all methods. The minimal method implementation simply throw the
 NotSupported exception.
 */
-class PEGASUS_PROVIDER_LINKAGE CIMClassProvider : public virtual CIMBaseProvider
+    class PEGASUS_PROVIDER_LINKAGE CIMClassProvider : public virtual CIMBaseProvider
 {
 public:
     CIMClassProvider(void);
@@ -67,11 +67,11 @@ public:
     @exception InvalidParameter
     */
     virtual void getClass(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Uint32 flags,
-	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMClass> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        const Uint32 flags,
+        const CIMPropertyList & propertyList,
+        ResponseHandler<CIMClass> & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -86,10 +86,10 @@ public:
     @exception InvalidParameter
     */
     virtual void enumerateClasses(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Uint32 flags,
-	ResponseHandler<CIMClass> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        const Uint32 flags,
+        ResponseHandler<CIMClass> & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -104,10 +104,10 @@ public:
     @exception InvalidParameter
     */
     virtual void enumerateClassNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Uint32 flags,
-	ResponseHandler<CIMObjectPath> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        const Uint32 flags,
+        ResponseHandler<CIMObjectPath> & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -122,10 +122,10 @@ public:
     @exception InvalidParameter
     */
     virtual void modifyClass(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const CIMClass & classObject,
-	ResponseHandler<CIMClass> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        const CIMClass & classObject,
+        ResponseHandler<void> & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -140,10 +140,10 @@ public:
     @exception InvalidParameter
     */
     virtual void createClass(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const CIMClass & classObject,
-	ResponseHandler<CIMClass> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        const CIMClass & classObject,
+        ResponseHandler<void> & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -156,11 +156,12 @@ public:
     @exception InvalidArgument
     */
     virtual void deleteClass(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ResponseHandler<CIMClass> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        ResponseHandler<void> & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
+

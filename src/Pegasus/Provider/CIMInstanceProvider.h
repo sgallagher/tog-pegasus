@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -53,7 +53,7 @@ may be implemented for any CIM class, including <i>Association</i>
 classes.</p>
 
 <p>In addition to
-functions inherited from the 
+functions inherited from the
 {@link CIMBaseProvider CIMBaseProvider} interface,
 the functions in the Instance Provider interface are:</p>
 
@@ -103,7 +103,7 @@ public:
     callback. If the specified instance does not exist, this
     function should throw an {@link ObjectNotFound ObjectNotFound}
     exception.</p>
-    
+
     <p>A provider can be implemented and registered to perform
     operations for
     several levels of the same line of descent (e.g.,
@@ -122,9 +122,9 @@ public:
     A provider is not required to support these flags. Valid values
     for <tt>getInstance</tt> are:
     <UL>
-	<LI>LOCAL_ONLY</li>
-	<LI>INCLUDE_QUALIFIERS</li>
-	<LI>INCLUDE_CLASS_ORIGIN</LI>
+    <LI>LOCAL_ONLY</li>
+    <LI>INCLUDE_QUALIFIERS</li>
+    <LI>INCLUDE_CLASS_ORIGIN</LI>
     </UL>
 
     @param propertyList if not null, this parameter
@@ -143,11 +143,11 @@ public:
     @exception OperationFailure
     */
     virtual void getInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const Uint32 flags,
-	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & instanceReference,
+        const Uint32 flags,
+        const CIMPropertyList & propertyList,
+        ResponseHandler<CIMInstance> & handler) = 0;
 
     /**
     \Label{enumerateInstances}
@@ -181,10 +181,10 @@ public:
     @param flags specifies additional details regarding the operation.
 
     <UL>
-	<LI>LOCAL_ONLY</li>
-	<LI>DEEP_INHERITANCE</li>
-	<LI>INCLUDE_QUALIFIERS</li>
-	<LI>INCLUDE_CLASS_ORIGIN</li>
+    <LI>LOCAL_ONLY</li>
+    <LI>DEEP_INHERITANCE</li>
+    <LI>INCLUDE_QUALIFIERS</li>
+    <LI>INCLUDE_CLASS_ORIGIN</li>
     </UL>
 
     @param propertyList If not null, this parameter
@@ -204,16 +204,16 @@ public:
     handler's <tt>{@link processing processing} </tt> and
     <tt>{@link complete complete}</tt> functions without calling
     <tt>{@link deliver deliver}</tt>.
-    
+
     @exception AccessDenied
     @exception OperationFailure
     */
     virtual void enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	const Uint32 flags,
-	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        const Uint32 flags,
+        const CIMPropertyList & propertyList,
+        ResponseHandler<CIMInstance> & handler) = 0;
 
     /**
     \Label{enumerateInstanceNames}
@@ -228,7 +228,7 @@ public:
     each iteration. It must call {@link deliver deliver} with an
     argument of type <tt>{@link CIMObjectPath CIMObjectPath}</tt>
     containing the information that uniquely identifies each
-    instance. 
+    instance.
     Finally, it will call <tt>{@link complete complete}</tt> to
     inform the CIMOM that it has delivered all known instances.</p>
 
@@ -250,10 +250,10 @@ public:
     @param flags specifies additional details regarding the operation.
 
     <UL>
-	<LI>LOCAL_ONLY</li>
-	<LI>INCLUDE_QUALIFIERS</li>
-	<LI>INCLUDE_CLASS_ORIGIN</li>
-	<LI>DEEP_INHERITANCE</li>
+    <LI>LOCAL_ONLY</li>
+    <LI>INCLUDE_QUALIFIERS</li>
+    <LI>INCLUDE_CLASS_ORIGIN</li>
+    <LI>DEEP_INHERITANCE</li>
     </UL>
 
     @param handler {@link ResponseHandler ResponseHandler} object for
@@ -266,15 +266,15 @@ public:
     @exception OperationFailure
     */
     virtual void enumerateInstanceNames(
-	const OperationContext & context,
-	const CIMObjectPath & classReference,
-	ResponseHandler<CIMObjectPath> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & classReference,
+        ResponseHandler<CIMObjectPath> & handler) = 0;
 
     /**
     \Label{modifyInstance}
     Replace the current instance specified in the
     instanceReference parameter.
-    
+
     <p><tt>modifyInstance</tt> sets the values of properties of
     the instance specified by the <tt>instanceReference</tt> parameter
     to those specified in the <tt>instanceObject</tt> parameter, as
@@ -285,7 +285,7 @@ public:
     Properties specified in the <tt>propertyList</tt> but not present in
     the <tt>instanceObject</tt> are replaced by
     the class default values or left null.</p>
-    
+
     <p>Ideally, <tt>modifyInstance</tt> is intended to be
     an <i>atomic</i> operation on values of the instance. That is,
     concurrent accesses to the instance by other threads should be
@@ -298,7 +298,7 @@ public:
     <p>If the specified instance does not exist, the provider
     should throw an {@link ObjectNotFound ObjectNotFound}
     exception.
-    
+
     @param context specifies the client user's context for this operation,
     including the User ID.
 
@@ -310,7 +310,7 @@ public:
     @param flags specifies additional details regarding the operation.
 
     <UL>
-	<LI>INCLUDE_QUALIFIERS</LI>
+    <LI>INCLUDE_QUALIFIERS</LI>
     </UL>
 
     @param propertyList If not null, this parameter
@@ -328,12 +328,12 @@ public:
     @exception OperationFailure
     */
     virtual void modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	const Uint32 flags,
-	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & instanceReference,
+        const CIMInstance & instanceObject,
+        const Uint32 flags,
+        const CIMPropertyList & propertyList,
+        ResponseHandler<void> & handler) = 0;
 
     /**
     \Label{createInstance}
@@ -372,10 +372,10 @@ public:
     @exception OperationFailure
     */
     virtual void createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	const CIMInstance & instanceObject,
-	ResponseHandler<CIMObjectPath> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & instanceReference,
+        const CIMInstance & instanceObject,
+        ResponseHandler<CIMObjectPath> & handler) = 0;
 
     /**
     \Label{deleteInstance}
@@ -399,9 +399,9 @@ public:
     @exception OperationFailure
     */
     virtual void deleteInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
-	ResponseHandler<CIMInstance> & handler) = 0;
+        const OperationContext & context,
+        const CIMObjectPath & instanceReference,
+        ResponseHandler<void> & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

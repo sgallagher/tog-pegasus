@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -106,7 +106,7 @@ necessary to perform the requested operation.</li>
 the properties on which this operation should be performed.
 The exact use of this parameter depends on the specific
 operation, and is described in the respective section.</li>
-    
+
 <li><b>{@link OperationFlag OperationFlag}</b> - flags that
 modify the behavior of the operation. A provider
 is not required to support these flags. Values can include:
@@ -193,7 +193,7 @@ public:
     It is called only once during the lifetime of the provider. This
     function must complete before the CIMOM invokes any other function of
     the provider, other than terminate.</p>
-    
+
     @param cimom Reserved for future use.
 
     @exception None
@@ -221,13 +221,13 @@ public:
     <p>If the provider instance was created on the heap with
     <i>new</i> in <tt>PegasusCreateProvider</tt>, then it must
     be deleted in <tt>terminate</tt>:
-<pre>void MyProvider::terminate()
-{
-  ...
-  delete this;
-  ...
-  return;
-}</pre>
+    <pre>void MyProvider::terminate()
+    {
+    ...
+    delete this;
+    ...
+    return;
+    }</pre>
 
     @exception None
     */

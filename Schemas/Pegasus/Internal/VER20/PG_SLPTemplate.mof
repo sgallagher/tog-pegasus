@@ -2,9 +2,12 @@
 
 
 // ==================================================================
-// WBEM SLP Template
+// WBEMSLPTemplate
 // ==================================================================
-
+[ Version ("2.0.0"), Description (
+    "Defines the attributes in a Pegasus SLP template. This template is "
+    "based on the DMTF WBEM SLP Template.  Each property in the class "
+    "represents one object in the template registration." ) ]
 class PG_WBEMSLPTemplate {
    string template_type="wbem";
    string template_version="1.0";
@@ -12,11 +15,12 @@ class PG_WBEMSLPTemplate {
    string template_url_syntax;
    string service_hi_name;
       [Description ("This string is used as a description of the CIM service "
-      "for human interfaces.This attribute MUST be the "
-      "CIM_ObjectManager.Description property value.")]
+      "for human interfaces. This attribute MUST be the "
+      "CIM_ObjectManager.Description property value.") ]
    string service_hi_description;
    [Key]
    string service_id;
+   [key]
    string service_location_tcp;
    string CommunicationMechanism;
    string OtherCommunicationMechanismDescription;

@@ -36,6 +36,8 @@
 #include <cstdlib>
 #include <cstddef>
 
+#include <sys/param.h>
+
 #define PEGASUS_OS_TYPE_UNIX
 
 #define PEGASUS_OS_AIX
@@ -56,5 +58,7 @@
 #define PEGASUS_HAVE_FOR_SCOPE
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define AIX_RELEASE_PEGASUS_HOME "/opt/freeware/cimom/pegasus/etc"
 
 #endif /* Pegasus_Platform_AIX_RS_IBMCXX_h */

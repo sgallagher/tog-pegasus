@@ -132,7 +132,7 @@ public:
         const String& className = String::EMPTY,
         Boolean deepInheritance = false);
 
-    /// enumerateInstances
+    
     virtual Array<CIMNamedInstance> enumerateInstances(
         const String& nameSpace,
         const String& className,
@@ -142,10 +142,38 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
+    /** enumerateInstances for a single Class. This and the forClass
+    // in enumerate instancenames are a temp hack to get a version
+    // that only gets for a single class until we can go through all
+    // code and put them back together again.
+    // This simply adds the includeInheritance property
+    */
+    virtual Array<CIMNamedInstance> enumerateInstancesForClass(
+        const String& nameSpace,
+        const String& className,
+        Boolean deepInheritance = true,
+        Boolean localOnly = true,
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false,
+	Boolean includeInheritance = false,
+        const CIMPropertyList& propertyList = CIMPropertyList());
+
+
     /// enumerateInstanceNames
     virtual Array<CIMObjectPath> enumerateInstanceNames(
         const String& nameSpace,
         const String& className);
+
+    /** enumerateInstanceNames for a single Class. This is a temporary
+    	hack and should eventually be merged with enumerateInstanceNames
+	This function allows you to either include the inheritance tree
+	or not with teh boolean includeInheritance.
+    */
+    virtual Array<CIMObjectPath> enumerateInstanceNamesForClass(
+        const String& nameSpace,
+        const String& className,
+	Boolean includeInheritance);
+
 
     /// execQuery
     virtual Array<CIMInstance> execQuery(

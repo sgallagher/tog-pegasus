@@ -262,8 +262,6 @@ CIMClass CIMRepository::getClass(
     // ATTN: localOnly, includeQualifiers, and includeClassOrigin are ignored
     // for now.
 
-   
-
     String classFilePath;
     classFilePath = _nameSpaceManager.getClassFilePath(nameSpace, className);
 
@@ -1512,27 +1510,12 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateInstances");
-#if defined GETSINGLECLASS
-    // Get the single Class
-
-    Array<CIMNamedInstance> namedInstances;
-
-    if (!_loadAllInstances(nameSpace, className, namedInstances))
-    {
-	String errMessage = "Failed to load instances in class ";
-	errMessage.append(classNames[i]);
-	PEG_METHOD_EXIT();
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-    }
-    PEG_METHOD_EXIT();
-    return namedInstances;
-
-#else
     //
     // Get all descendent classes of this class:
     //
 
     Array<String> classNames;
+    //ATTN: Should this be protected with a try block KS 15 May 2002 P0
     _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     classNames.prepend(className);
 
@@ -1541,7 +1524,7 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
     //
 
     Array<CIMNamedInstance> namedInstances;
-
+    
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
         if (!_loadAllInstances(nameSpace, classNames[i], namedInstances))
@@ -1552,67 +1535,88 @@ Array<CIMNamedInstance> CIMRepository::enumerateInstances(
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
         }
     }
-
+    
     PEG_METHOD_EXIT();
     return namedInstances;
 }
-#endif
+
+Array<CIMNamedInstance> CIMRepository::enumerateInstancesForClass(
+    const String& nameSpace,
+    const String& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    Boolean includeInheritance,
+    const CIMPropertyList& propertyList)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateInstances");
+    //
+    // Get all descendent classes of this class:
+    //
+
+    Array<String> classNames;
+    // If includeInheritance is true, get all subclasses.
+    // ATTN: P3 KS Look at whether the subclassNames requires an empty array.
+    if(includeInheritance)
+    {
+	try
+	{
+	    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+	}
+	catch(CIMException& e)
+	{
+	    PEG_METHOD_EXIT();
+	    throw e;
+	}
+    }
+    classNames.prepend(className);
+
+    //
+    // Get all instances for this class and all its descendent classes
+    //
+
+    Array<CIMNamedInstance> namedInstances;
+    
+    for (Uint32 i = 0; i < classNames.size(); i++)
+    {
+        if (!_loadAllInstances(nameSpace, classNames[i], namedInstances))
+        {
+            String errMessage = "Failed to load instances in class ";
+            errMessage.append(classNames[i]);
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
+        }
+    }
+    
+    PEG_METHOD_EXIT();
+    return namedInstances;
+}
 Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateInstanceNames");
 
-// ATTN: P1 22 Apr 2002 KS - Conditional code to change the repository
-// getinstance name to only get a single instance.  Part of overall move
-// of this code to the dispatcher.
-//#define GETSINGLECLASS
-#if defined GETSINGLECLASS
-    Array<CIMObjectPath> instanceNames;
-    Array<Uint32> indices;
-    Array<Uint32> sizes;
-    //
-    // Form the name of the class index file:
-    //
-    String indexFilePath = _getInstanceIndexFilePath(
-        nameSpace, className);
-
-    //
-    // Get all instances for defined class:
-    //
-
-    Array<Uint32> freeFlags;
-
-    if (!InstanceIndexFile::enumerateEntries(
-        indexFilePath, freeFlags, indices, sizes, instanceNames, false))
-    {
-        String errMessage = "Failed to load instance names in class ";
-        errMessage.append(className);
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
-    }
-
-#else
     //
     // Get names of descendent classes:
     //
     Array<String> classNames;
+
     try
     {
-        _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+	_nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     }
     catch(CIMException& e)
     {
-        PEG_METHOD_EXIT();
-        throw e;
+	PEG_METHOD_EXIT();
+	throw e;
     }
-
     classNames.prepend(className);
 
     //
     // Get instance names from each qualifying instance file for the class:
     //
-
     Array<CIMObjectPath> instanceNames;
     Array<Uint32> indices;
     Array<Uint32> sizes;
@@ -1642,10 +1646,73 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
         }
     }
 
-#endif
     PEG_METHOD_EXIT();
     return instanceNames;
 }
+
+Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
+    const String& nameSpace,
+    const String& className,
+    Boolean includeInheritance)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateInstanceNames");
+
+    //
+    // Get names of descendent classes:
+    //
+    Array<String> classNames;
+
+    // If includeInheritance is true, get all subclasses.
+    if(includeInheritance)
+    {
+	try
+	{
+	    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+	}
+	catch(CIMException& e)
+	{
+	    PEG_METHOD_EXIT();
+	    throw e;
+	}
+    }
+    classNames.prepend(className);
+
+    //
+    // Get instance names from each qualifying instance file for the class:
+    //
+    Array<CIMObjectPath> instanceNames;
+    Array<Uint32> indices;
+    Array<Uint32> sizes;
+
+    for (Uint32 i = 0; i < classNames.size(); i++)
+    {
+	//
+        // Form the name of the class index file:
+	//
+
+        String indexFilePath = _getInstanceIndexFilePath(
+	    nameSpace, classNames[i]);
+
+	//
+        // Get all instances for that class:
+	//
+
+	Array<Uint32> freeFlags;
+
+	if (!InstanceIndexFile::enumerateEntries(
+	    indexFilePath, freeFlags, indices, sizes, instanceNames, false))
+        {
+            String errMessage = "Failed to load instance names in class ";
+	    errMessage.append(classNames[i]);
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return instanceNames;
+}
+
 
 Array<CIMInstance> CIMRepository::execQuery(
     const String& queryLanguage,

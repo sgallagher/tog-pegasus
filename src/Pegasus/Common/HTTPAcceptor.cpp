@@ -628,8 +628,8 @@ void pegasus_acceptor::bind()
     _listener = temp;
     
     memset(&addr_un, 0, sizeof(addr_un));
-    addr.sun_family = AF_UNIX;
-    strcpy(addr.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+    addr_un.sun_family = AF_UNIX;
+    strcpy(addr_un.sun_path, PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
     addr = (struct sockaddr*) &addr_un;
     addr_size = sizeof(addr_un);
     _listener.socket(AF_UNIX, SOCK_STREAM, 0);

@@ -1038,4 +1038,12 @@ Boolean HTTPConnection2::operator ==(void* h2)
 }
 
 
+void HTTPConnection2::connection_dispatch(monitor_2_entry* entry)
+{
+  HTTPConnection2* myself = (HTTPConnection2*) entry->get_dispatch();
+  myself->_socket = entry->get_sock();
+  myself->_handleReadEvent();
+}
+
+
 PEGASUS_NAMESPACE_END

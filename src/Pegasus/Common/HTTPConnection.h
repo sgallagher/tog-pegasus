@@ -232,6 +232,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection2 : public MessageQueue
 
       Boolean operator ==(const HTTPConnection2& );
       Boolean operator ==(void*);
+      static void connection_dispatch(monitor_2_entry*);
       
    private:
 

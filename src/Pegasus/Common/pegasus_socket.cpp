@@ -922,7 +922,7 @@ unix_socket_rep::~unix_socket_rep(void)
 int unix_socket_rep::close(void)
 {
    int ccode = Base::close();
-   ::unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+   unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
    return ccode;
 }
 
@@ -947,7 +947,7 @@ int unix_socket_rep::bind (struct sockaddr *addr, PEGASUS_SOCKLEN_SIZE length)
 {
 
    // first unlink the local domain file if it exists
-   ::unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
+   unlink(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);
    return Base::bind(addr, length);
 }
 

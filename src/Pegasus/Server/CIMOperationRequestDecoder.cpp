@@ -168,8 +168,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	if (!HTTPMessage::lookupHeader(
 	    headers, "*CIMOperation", cimOperation, true))
 	{
-	    // ATTN: no error can be sent back to the client yet since
-	    // errors require a message-id (which comes later).
+	    // ATTN: error discarded at this time!
 	    return;
 	}
 
@@ -179,8 +178,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
 	// If it is a method call, then dispatch it to be handled:
 
-	if (String::equalNoCase(cimOperation, "MethodCall"))
-	    handleMethodCall(queueId, content);
+	if (!String::equalNoCase(cimOperation, "MethodCall"))
+	{
+	    // ATTN: error discarded at this time!
+	    return;
+	}
+
+	handleMethodCall(queueId, content);
     }
 }
 

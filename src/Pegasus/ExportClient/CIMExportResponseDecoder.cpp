@@ -489,7 +489,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
             // Handle end tag:
             //
 
-            if (isEmptyTag)
+            if (!isEmptyTag)
             {
                 XmlReader::expectEndTag(parser, "EXPMETHODRESPONSE");
             }

@@ -1,4 +1,6 @@
 
+    -	Get rid of message keys? They don't seem to be used.
+
     -	Fix bug in src/Pegasus/Client/tests/Client in which associators()
 	fails and says class does not exist (seems to happen in debug mode
 	only). Disappears when I/O is enabled.

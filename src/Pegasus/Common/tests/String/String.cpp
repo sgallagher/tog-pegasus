@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.4  2001/04/09 20:18:47  karl
+// add find substring function
+//
 // Revision 1.3  2001/02/26 04:33:30  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
@@ -43,6 +46,7 @@
 
 using namespace Pegasus;
 using namespace std;
+#include <Pegasus/Common/Exception.h>
 
 int main()
 {
@@ -52,6 +56,7 @@ int main()
 
     assert(String::equal(s1, s3));
 
+    // Test append characters to String
     String s4 = "Hello";
     s4.append(Char16(0x0000));
     s4.append(Char16(0x1234));
@@ -70,6 +75,7 @@ int main()
     }
 
     {
+	// Test allocateCString
 	const char STR0[] = "one two three four";
 	String s = STR0;
 	char* tmp = s.allocateCString();
@@ -79,6 +85,7 @@ int main()
     }
 
     {
+	// Test appendToCString 
 	const char STR0[] = "one two three four";
 	String s = STR0;
 	const char STR1[] = "zero ";
@@ -90,6 +97,7 @@ int main()
     }
 
     {
+	// Test appendToCString	with length parameter
 	const char STR0[] = "one two three four";
 	String s = STR0;
 	const char STR1[] = "zero ";
@@ -101,6 +109,7 @@ int main()
     }
 
     {
+	// Test remove
 	String s = "abcdefg";
 	s.remove(3, 3);
 	assert(String::equal(s, "abcg"));
@@ -136,6 +145,139 @@ int main()
 	assert(String::equal(t1, "HELLO"));
 	assert(String::equal(t2, "hello"));
     }
+
+    // Test of the different overload operators
+    {
+	// test the append  overload operator +=;
+	String t1 = "one";
+	t1 += " two";
+    	assert(String::equal(t1, "one two"));
+	t1 += ' ';
+	t1 += 't';
+	t1 += 'h';
+	t1 += 'r';
+	t1 += "ee";
+	assert(String::equal(t1,"one two three"));
+	
+	// used as example in Doc.
+	String test = "abc";
+	test += "def";
+	assert(test == "abcdef");
+    }
+
+    {
+	// Test the == overload operator
+	String t1 = "one";
+	String t2 = "one";
+	assert(t1 == "one");
+	assert("one" == t1);
+	assert(t1 == t2);
+	assert(t2 == t1);
+	assert("one" == "one");
+
+	const char STR0[] = "one two three four";
+	String s = STR0;
+	char* tmp = s.allocateCString();
+	assert(tmp == s);
+	assert(s == tmp);
+	delete [] tmp;
+    }
+
+    {
+	// Tests of the + Overload operator
+	String t1 = "abc";
+	String t2 = t1 + t1;
+	assert(t2 == "abcabc");
+	t1 = "abc";
+	t2 = t1 + "def";
+	assert(t2 == "abcdef");
+
+	t1 = "ghi";
+	assert(t1 == "ghi");
+
+	// ATTN: the following fails because there
+	// is no single character overload operator
+	// KS: Apr 2001
+	// t2 = t1 + 'k' + 'l' + 'm' + "nop";
+	t2 = t1 + "k" + "l" + "m" + "nop";
+	assert(t2 == "ghiklmnop");
+	assert(String::equal(t2,"ghiklmnop"));
+
+	// add tests for != operator.
+
+	t1 = "abc";
+	assert(t1 != "ghi");
+	assert(t1 != t2);
+
+	// add tests for other compare operators
+
+	// Operater <
+	t1 = "ab";
+	t2 = "cde";
+	assert(t1 < t2);
+	assert(t1 <= t2);
+	assert(t2 > t1);
+	assert(t2 >=t1);
+	t2 = t1;
+	assert(t1 <= t2);
+	assert(t1 >= t2);
+
+	// comparison and equals
+	// the compare is for null term strings.
+	// Therefore following does not work
+	// the compare operators cover the problem
+	// for String objects.
+	// assert(String::compare(t1,t2) == -1);
+
+
+	// Tests for compare with same length
+	t1 = "abc";
+	t2 = "def";
+	assert(t1 < t2);
+
+	// comparison and equals
+	// compare is for null term strings
+	// therefore following does not work.
+	//assert(String::compare(t1,t2) == -1); 
+    }
+
+    {
+	// Test of the [] operator
+	String t1 = "abc";
+	Char16 c = t1[1];
+	// note c is Char16
+	assert(c == 'b');
+
+	//ATTN: test for outofbounds exception
+	try
+	{
+	    c = t1[200];
+	}
+	catch (OutOfBounds&)
+	{
+	assert(true);
+	}
+    }
+
+    {
+	// Test the find function
+	String t1 = "abcdef";
+	String t2 = "cde";
+	String t3 = "xyz";
+	String t4 = "abc";
+	String t5 = "abd";
+	String t6 = "defg";
+	assert(t1.find('c') == 2);
+	assert(t1.find(t2)==2);
+	assert(t1.find(t3)==-1);
+	assert(t1.find(t4)==0);
+	assert(t1.find(t5)==-1);
+	assert(t1.find(t6)==-1);
+	assert(t1.find("cde")==2);
+	assert(t1.find("xyz")==-1);
+	assert(t1.find("a") ==0);
+    }
+
 
     cout << "+++++ passed all tests" << endl;
 

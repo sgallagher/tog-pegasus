@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.cpp,v $
+// Revision 1.6  2001/04/09 20:18:47  karl
+// add find substring function
+//
 // Revision 1.5  2001/03/09 19:49:32  karl
 // long lines
 //
@@ -42,10 +45,16 @@
 //
 //END_HISTORY
 
+
 #include <cctype>
 #include "String.h"
 #include "Exception.h"
 #include "String.h"
+
+// For debugging
+// #include <iostream>
+//using namespace std;
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -314,6 +323,39 @@ Uint32 String::find(Char16 c) const
     }
 
     return Uint32(-1);
+}
+
+Uint32 String::find(String& s) const
+{
+    // const Char16* first = getData();
+    const Char16* ps = s.getData();
+
+    // If find first substr char
+    Uint32 loc;
+    if ((loc = find(*ps)) != -1)
+    {
+        // Set p = Point to next char.
+	// Note we retest first char.
+	const Char16* p = getData() + loc;
+
+	// Get length of substring
+	Uint32 n = s.getLength();
+
+	// No match if substr longer than remaining string
+	if ((loc + n) > getLength())
+	    return Uint32(-1);
+
+	// Test remaining char for equal
+	for (Uint32 i = 0; n > i; i++)
+	    if (*p++ != *ps++ )
+		return Uint32(-1);
+    } 
+    return loc;
+}
+// ATTN:KS 5 apr 2000 Need to add the Char16* version.
+Uint32 String::find(const char* s) const
+{
+    return find(String(s));
 }
 
 Uint32 String::reverseFind(Char16 c) const

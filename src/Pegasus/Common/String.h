@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: String.h,v $
+// Revision 1.12  2001/04/09 20:18:47  karl
+// add find substring function
+//
 // Revision 1.11  2001/04/04 20:02:27  karl
 // documentation update
 //
@@ -72,13 +75,23 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    The Pegasus String C++ Class implements the CIM string type
-*/
+    The Pegasus String C++ Class implements the CIM string type.
+    This class is based on the general handle/representation pattern
+    defined for all the Pegasus objects.  However, it differes from
+    most in that it implements "copy on assign" all of the others implement 
+    "no copy on assign" semantics.	The string class uses the Array class and
+    implements an array of characters.
+ */
 class PEGASUS_COMMON_LINKAGE String
 {
 public:
 
-    /// Default constructor.
+    /** Default constructor without parameters. This constructor creates a 
+	null string
+	<pre>
+	    String test;
+	</pre> 
+    */
     String();
 
     /// Copy constructor.
@@ -99,12 +112,17 @@ public:
     /// Initialize from the first n characters of a plain old C-String:
     String(const char* x, Uint32 n);
 
-    /// String destructor.
+    /// String destructor. Used by the representation of the String object
     ~String() 
     {
     }
 
-    /// Assign this string with x.
+    /** Assign this string with x.
+	<pre>
+	    String t1 = "abc";
+	    String t2 = t1;
+	</pre>
+    */
     String& operator=(const String& x) { _rep = x._rep; return *this; }
 
     /// Assign this string with x.
@@ -125,7 +143,12 @@ public:
     /// Assign this string with first n characters of the plain old C-String x.
     String& assign(const char* x, Uint32 n);
 
-    /// Clear this string. After calling clear(), getLength() will return 0.
+    /** Clear this string. After calling clear(), getLength() will return 0.
+	<pre>
+	    String test = "abc";
+	    test.clear();	// String test is now NULL (length == 0)
+	</pre>
+    */
     void clear() { _rep.clear(); _rep.append('\0'); }
 
     /** Reserves memory for capacity characters. Notice that this does not
@@ -134,13 +157,28 @@ public:
 	capacity argument, this method has no effect. After calling reserve(),
 	getCapicty() returns a value which is greater or equal to the 
 	capacity argument.
+	@param capacity defines the capacity in characters to reserve.
     */
     void reserve(Uint32 capacity) { _rep.reserve(capacity + 1); }
 
-    /// Returns the length of the string.
+    /** Returns the length of the String object.
+	@return Length of the string in characters.
+	<pre>
+	    String s = "abcd";
+	    assert(s.getLength() == 4);
+	</pre>
+    */
     Uint32 getLength() const { return _rep.getSize() - 1; }
 
-    /// Returns a pointer to the first character in the string string.
+    /** Returns a pointer to the first character in the null-terminated string 
+	string.
+	@param
+	@return	Pointer to the first character of the String object
+    	<pre>
+	    String t1 = "abc";
+	    const Char16* q = t1.getData();
+	</pre>
+    */
     const Char16* getData() const { return _rep.getData(); }
 
     /** Allocates an 8 bit representation of this string. The user is 
@@ -149,6 +187,17 @@ public:
 	be suppressed by passing true as the noThrow argument. Extra
 	characters may be allocated at the end of the new string by
 	passing a non-zero value to the extraBytes argument.
+	@param extraBytes -  Defines the number of extra characters to be 
+	allocated at the end of the new string. Default is zero.
+	@param	noThrow - If true, no exception will be thrown if characters
+	are truncated
+	@return pointer to the new representation of the string
+	@exception Throws TruncatedCharacter exception if any characters are
+	truncated
+	<pre>
+	    String test = "abc";
+	    char* p = test.allocateCString();
+	</pre>
     */
     char* allocateCString(Uint32 extraBytes = 0, Boolean noThrow = false) const;
 
@@ -171,10 +220,21 @@ public:
 	Uint32 length = Uint32(-1),
 	Boolean noThrow = false) const;
 
-    /// Returns the Ith character of the string.
+    /** Returns the Ith character of the String object.
+    @exception - Throws exception "OutofBounds" if the index
+    is outside the length of the string
+    <pre>
+	String t1 = "abc;
+	Char16 c = t1[1];	// character b
+    </pre>
+    */
     Char16& operator[](Uint32 i);
 
-    /// Returns the Ith character of the string (const version).
+    /** Returns the Ith character of the String (const version).
+    @exception - Throws exception "OutofBounds" if the index
+    is outside the length of the string
+    
+    */
     const Char16 operator[](Uint32 i) const;
 
     /** Append the given character to the string.
@@ -189,28 +249,44 @@ public:
 	return *this;
     }
 
-    /// Append n characters from str to this string.
+    /// Append n characters from str to this String object.
     String& append(const Char16* str, Uint32 n);
 
-    /// Append the characters of str to this string.
+    /// Append the characters of str to this String object.
     String& append(const String& str)
     {
 	return append(str.getData(), str.getLength());
     }
 
-    /// Append the characters of str to this string.
+    /** Overload operator += appends the parameter String to this String.
+    @parm String to append.
+    @return This String
+    <pre>
+    String test = "abc";
+    test += "def";
+    assert(test == "abcdef");
+    </pre>
+    */
     String& operator+=(const String& x)
     {
 	return append(x);
     }
 
-    /// Append the character given by c to this string.
+    /** Append the character given by c to this String object.
+	@param c - Single character
+    */
     String& operator+=(Char16 c)
     {
 	return append(c);
     }
 
-    /// Append the character given by c to this string.
+    /** Append the character given by c to this string.
+    <pre>
+	String t1 = "abc";
+	t1 += 'd'
+	assert(t1 == "abcd");
+    </pre>
+    */
     String& operator+=(char c)
     {
 	return append(Char16(c));
@@ -218,6 +294,21 @@ public:
 
     /** Remove size characters from the string starting at the given
 	position. If size is -1, then all characters after pos are removed.
+	@param pos - Position in string to start remove
+	@param size - Number of characters to remove. Default is -1 which 
+	causes all characters after pos to be removed
+	<pre>
+	    String s;
+	    s = "abc";
+	    s.remove(0, 1);
+	    assert(String::equal(s, "bc"));
+	    assert(s.getLength() == 2);
+	    s.remove(0);
+	    assert(String::equal(s, ""));
+	    assert(s.getLength() == 0);
+	</pre>
+	@exception throws "OutOfBounds" exception if size is greater than
+	length of String plus starting position for remove.
     */
     void remove(Uint32 pos, Uint32 size = Uint32(-1));
 
@@ -238,25 +329,63 @@ public:
 
     /** Find the position of the first occurence of the character c.
 	If the character is not found, -1 is returned.
+	@param c -  Char to be found in the String
+	@return Position of the character in the string or -1 if not found.
     */
     Uint32 find(Char16 c) const;
 
+    /** Find the position of the first occurence of the string object. 
+	This function finds one string inside another
+	If the matching substring is not found, -1 is returned.
+	@param s -  String object to be found in the String
+	@return Position of the substring in the String or -1 if not 
+	found. */
+    Uint32 find(String& s) const;
+
+    /** Find substring
+	@ param - 16 bit character pointer
+	@seealso find
+    */
+    Uint32 find(const Char16* s) const;
+    /** find substring
+	@param char* to substring
+    */
+    Uint32 find(const char* s) const;
+ 
     /** Same as find() but start looking in reverse (last character first).
+	@Seealso find
+	@return Position of the character in the string or -1 if not found.
+	
+	NOTE: This function is defined only for char* input, not for 
+	String. 
     */
     Uint32 reverseFind(Char16 c) const;
 
-    /** Compare the first n characters of the two strings. Return -1 if s1
-	is lexographically less than s2. If they are equavalent return 0.
-	Otherwise return 1.
+    /** Compare the first n characters of the two strings. 
+    	@param s1 - First null-terminated string for the comparison
+	@param s2 - Second null-terminated string for the comparison
+	@param n - Number of characters to compare
+	@return Return -1 if s1 is lexographically less than s2. If they
+	are equavalent return 0. Otherwise return 1.
     */
     static int compare(const Char16* s1, const Char16* s2, Uint32 n);
 
-    /** Compare the two null-terminated strings. If s1 is less than s2,
-	return -1; if equal return 0; otherwise, return 1.
+    /** Compare two null-terminated strings. 
+    	@param s1 - First null-terminated string for the comparison
+	@param s2 - Second null-terminated string for the comparison
+	@return If s1 is less than s2, return -1; if equal return 0;
+	otherwise, return 1.
+	
+	NOTE: Use the comparison operators <,<= > >= to compare
+	String objects.
     */
     static int compare(const Char16* s1, const Char16* s2);
 
-    /** Return true if the two strins are equal.
+    /** Compare two String objects for equality.
+	@param s1 - First <TT>String</TT> for comparison.
+	@param s2 - Second <TT>String</TT> for comparison.
+	
+	@return Boolean true if the two strings are equal.
 	<pre>
 	    String s1 = "Hello World";
 	    String s2 = s1;
@@ -266,13 +395,13 @@ public:
     */
     static Boolean equal(const String& x, const String& y);
 
-    /// Return true if the two strins are equal.
+    /// Return true if the two strings are equal.
     static Boolean equal(const String& x, const Char16* y);
 
-    /// Return true if the two strins are equal.
+    /// Return true if the two strings are equal.
     static Boolean equal(const Char16* x, const String& y);
 
-    /// Return true if the two strins are equal.
+    /// Return true if the two strings are equal.
     static Boolean equal(const String& x, const char* y);
 
     /// Return true if the two strings are equal.
@@ -294,21 +423,35 @@ private:
     Array<Char16> _rep;
 };
 
+/** String operator ==. Test for equality between two strings of any of the 
+    types String or char*.
+    @return Boolean - True if the strings are equal
+    
+*/
 inline Boolean operator==(const String& x, const String& y)
 {
     return String::equal(x, y);
 }
 
+/** String operator ==. Test for equality between two strings
+    
+*/ 
 inline Boolean operator==(const String& x, const char* y)
 {
     return String::equal(x, y);
 }
 
+/** String operator ==. Test for equality between two strings
+    
+*/
 inline Boolean operator==(const char* x, const String& y)
 {
     return String::equal(x, y);
 }
 
+/** String operator ==. Test for equality between two strings
+    
+*/  
 inline Boolean operator!=(const String& x, const String& y)
 {
     return !String::equal(x, y);
@@ -318,26 +461,45 @@ PEGASUS_COMMON_LINKAGE std::ostream& operator<<(
     std::ostream& os, 
     const String& x);
 
+/** overload operator +	 - Concatenates String objects.
+    
+    <pre>
+	String t1 = "abc";
+	String t2;
+	t2 = t1 + "def"
+	assert(t2 == "abcdef");
+    </pre>
+*/
 inline String operator+(const String& x, const String& y)
 {
     return String(x).append(y);
 }
-
+/** overload operator < - Compares String obects.
+    <pre>
+	String t1 = "def";
+	String t2 = "a";
+	assert (t2 < t1);
+    </pre>
+*/
 inline Boolean operator<(const String& x, const String& y)
 {
     return String::compare(x.getData(), y.getData()) < 0;
 }
+/**  overload operator <= compares String objects.
 
+*/
 inline Boolean operator<=(const String& x, const String& y)
 {
     return String::compare(x.getData(), y.getData()) <= 0;
 }
-
+/** Overload operator > compares String objects
+*/
 inline Boolean operator>(const String& x, const String& y)
 {
     return String::compare(x.getData(), y.getData()) > 0;
 }
-
+/** overload operator >= - Compares String objects
+*/
 inline Boolean operator>=(const String& x, const String& y)
 {
     return String::compare(x.getData(), y.getData()) >= 0;

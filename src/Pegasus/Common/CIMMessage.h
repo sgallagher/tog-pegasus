@@ -75,7 +75,6 @@
    #define TYPE_QUERY       7
 
 
-PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 // l10n - added AcceptLanguages and ContentLanguages below
@@ -105,7 +104,7 @@ public:
 
 	Message::print(os, false);
 
-	os << "    messageId=" << messageId << endl;
+	os << "    messageId=" << messageId << PEGASUS_STD(endl);
 
 	if (printHeader)
 	{
@@ -147,7 +146,7 @@ public:
 
 	CIMMessage::print(os, false);
 
-	os << "    queueIds=" << "<not shown for now>" << endl;
+	os << "    queueIds=" << "<not shown for now>" << PEGASUS_STD(endl);
 
 	if (printHeader)
 	{
@@ -676,10 +675,10 @@ public:
 
 	CIMRequestMessage::print(os, false);
 
-	os << "    nameSpace=" << nameSpace << endl;
-	os << "    className=" << className << endl;
-	os << "    authType=" << authType << endl;
-	os << "    userName=" << userName << endl;
+	os << "    nameSpace=" << nameSpace << PEGASUS_STD(endl);
+	os << "    className=" << className << PEGASUS_STD(endl);
+	os << "    authType=" << authType << PEGASUS_STD(endl);
+	os << "    userName=" << userName << PEGASUS_STD(endl);
 
 	if (printHeader)
 	{

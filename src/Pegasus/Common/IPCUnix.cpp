@@ -839,9 +839,6 @@ Semaphore::~Semaphore()
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 // cleanup function 
-#ifndef PEGASUS_PLATFORM_AIX_RS_IBMCXX
-extern "C"
-#endif
 static void semaphore_cleanup(void *arg)
 {
    //cast back to proper type and unlock mutex

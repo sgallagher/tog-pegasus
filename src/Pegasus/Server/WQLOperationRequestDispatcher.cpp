@@ -449,7 +449,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 			ProviderIdContainer *providerIdContainer =
 				providerInfo.providerIdContainer.get();
 
-			if (providerInfo.hasNoQuery && providerIdContainer)
+			if (providerInfo.hasNoQuery)
 			{
 				OperationContext *context = &request->operationContext;
 				const OperationContext::Container *container = 0;
@@ -468,7 +468,8 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
 																							identityContainer.getUserName());
 
 				context = &enumReq->operationContext;
-				context->insert(*providerIdContainer);
+				if (providerIdContainer)
+					context->insert(*providerIdContainer);
 				context->insert(identityContainer);
 				_forwardRequestForAggregation(providerInfo.serviceName,
 																			providerInfo.controlProviderName,

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.9  2001/02/06 15:47:56  karl
+// add propety functions
+//
 // Revision 1.8  2001/02/05 14:14:58  karl
 // instance test
 //
@@ -60,6 +63,45 @@
 
 using namespace Pegasus;
 using namespace std;
+
+/** Class to hold, get, put, etc. the host info.
+This info must be maintained between calls to CGI client
+so is maintained in a configuration file for the client.
+These are set initially to localhost and 8888.
+HostInfo is defined as those parameters associated with a particular
+CIMOM Server and user of that server
+*/
+class HostInfo
+{
+public:
+    void setHostName(const char* str);
+    const char* getHostName();
+    void setHostPort(const char* str);
+    int getHostPort();
+    const char* getHostPortString();
+};
+	
+void HostInfo::setHostName( const char* str)
+{
+  ///ATTN: to be done.
+}
+
+const char* HostInfo::getHostName()
+{
+    return("localhost");
+}
+void HostInfo::setHostPort(const char* str)
+{
+  /// ATTN: To be done
+}
+int HostInfo::getHostPort()
+{
+   return 8888;
+}
+const char* HostInfo::getHostPortString()
+{
+   return "8888";
+}
 
 void PrintRule()
 {
@@ -329,6 +371,7 @@ void PrintQualifiers(OBJECT& object)
 void PrintClassMethods(ClassDecl& classDecl)
 {
     cout << "<h2>Methods:</h2>\n";
+    // Create the table
     cout << "<table border=1 width=\"50%\">\n";
     cout << "<tr>\n";
     cout << "<th>Name</th>\n";
@@ -376,9 +419,9 @@ void PrintClass(
 	PrintQualifiers(classDecl);
     PrintObjectProperties(nameSpace, classDecl,includeClassOrigin);
     PrintClassMethods(classDecl);
-// ATTN: Remove this after test
-//    cout << "</body>\n";
-//    cout << "</html>\n";
+
+    cout << "</body>\n";
+    cout << "</html>\n";
 }
 
 /** PrintInstance - Print an HTML page with the characteristics
@@ -453,15 +496,14 @@ static void GetClass(const CGIQueryString& qs)
     try
     {
 	Client client;
-	client.connect("localhost", 8888);
+	HostInfo hostinfo;
+	client.connect(hostinfo.getHostName(), hostinfo.getHostPort());
 
 	ClassDecl classDecl = client.getClass(nameSpace, className,
 	    localOnly, includeQualifiers, includeClassOrigin);
 
 	PrintClass(nameSpace, classDecl,localOnly, includeQualifiers, 
 	    includeClassOrigin);
-	cout << "</body>\n";
-        cout << "</html>\n";
     }
      catch(Exception& e)
     {
@@ -565,11 +607,10 @@ static void PrintClassNames(
 
 	cout << "</tr></td>\n";
     }
-
+    // Close the page
     cout << "</table>\n";
-//ATTN:
-//    cout << "</body>\n";
-//    cout << "</html>\n";
+    cout << "</body>\n";
+    cout << "</html>\n";
 }
 
 static void EnumerateClassNames(const CGIQueryString& qs)
@@ -605,8 +646,6 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 
 	PrintClassNames(nameSpace, classNames);
 
-        cout << "</body>\n";
-        cout << "</html>\n";
     }
     catch(Exception& e)
     {
@@ -833,7 +872,7 @@ static void PrintInstanceNames(
 	href.append(EncodeQueryStringValue(nameSpace));
 	href.append("&");
 
-	href.append("ClassName=");
+	href.append("InstanceName=");
 	href.append(InstanceNames[i]);
 	href.append("&");
 
@@ -989,6 +1028,88 @@ static void EnumerateInstances(const CGIQueryString& qs)
    
 }
 
+static void GetProperty(const CGIQueryString& qs)
+{
+  // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String className;
+
+    const char* tmp;
+
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+    String message = "operation getProperty Under Construction: ";
+    ErrorExit(message);
+
+}
+
+static void SetProperty(const CGIQueryString& qs)
+{
+  // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String className;
+
+    const char* tmp;
+
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+    String message = "operation setProperty Under Construction: ";
+    ErrorExit(message);
+
+}
+
+
+static void DeleteInstance(const CGIQueryString& qs)
+{
+  // Get NameSpace:
+    String nameSpace = GetNameSpaceQueryField(qs);
+
+    // Get ClassName:
+    String className;
+
+    const char* tmp;
+
+    if ((tmp = qs.findValue("ClassName")))
+	className = tmp;
+    String message = "operation DeleteInstance Under Construction: ";
+    ErrorExit(message);
+
+}
+
+
+/** DefineHostParameters - Function to make the changes
+to the basic host parameters if the input parameters are 
+set.
+*/
+static void DefineHostParameters(const CGIQueryString& qs)
+{
+    const char* tmp;
+    HostInfo hostInfo;
+
+    if ((tmp = qs.findValue("HostURL")))
+	hostInfo.setHostName(tmp);
+
+    if ((tmp = qs.findValue("HostPort")))
+	hostInfo.setHostPort("8888");
+
+    /// Respond with the new parameters
+    PrintHTMLHead("GetInstanceNames", "EnumerateInstanceNames Result");
+
+    cout << "<B>Host Name</B>  ";
+    cout << hostInfo.getHostName();
+    cout << "\n";
+    cout << "<P><B>Host Port</B>  ";
+    cout << hostInfo.getHostPortString();
+    cout << "\n";
+    cout << "</body>\n";
+    cout << "</html>\n";
+
+
+}
 
 int main(int argc, char** argv)
 {
@@ -1025,14 +1146,18 @@ int main(int argc, char** argv)
 	    GetQualifier(qs);
         else if (strcmp(operation, "GetInstance") == 0)
 	    GetInstance(qs);
+        else if (strcmp(operation, "DeleteInstance") == 0)
+	    DeleteInstance(qs);
         else if (strcmp(operation, "EnumerateInstanceNames") == 0)
 	    EnumerateInstanceNames(qs);
         else if (strcmp(operation, "EnumerateInstances") == 0)
 	    EnumerateInstances(qs);
-	//else if (strcmp(operation, "GetProperty") == 0)
-	//    GetProperty(qs);
-	//else if (strcmp(operation, "SetProperty") == 0)
-	//    SetProperty(qs);
+	else if (strcmp(operation, "DefineHostParameters") == 0)
+	    DefineHostParameters(qs);
+        else if (strcmp(operation, "GetProperty") == 0)
+	    GetProperty(qs);
+	else if (strcmp(operation, "SetProperty") == 0)
+	    SetProperty(qs);
 
 
 

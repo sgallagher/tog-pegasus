@@ -45,10 +45,24 @@ void Test1(void)
 {
     try
     {
-        CIMGetInstanceRequestMessage * request = 0;
-        CIMGetInstanceResponseMessage * response = 0;
+        // create dummy request and response messages
+        CIMGetInstanceRequestMessage request(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CIMObjectPath(),
+            false,
+            false,
+            false,
+            CIMPropertyList(),
+            QueueIdStack());
 
-        GetInstanceResponseHandler handler(request, response);
+        CIMGetInstanceResponseMessage response(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack(),
+            CIMInstance());
+
+        GetInstanceResponseHandler handler(&request, &response);
 
         handler.processing();
 
@@ -67,10 +81,25 @@ void Test1(void)
 
     try
     {
-        CIMEnumerateInstancesRequestMessage * request = 0;
-        CIMEnumerateInstancesResponseMessage * response = 0;
+        // create dummy request and response messages
+        CIMEnumerateInstancesRequestMessage request(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CIMName(),
+            false,
+            false,
+            false,
+            false,
+            CIMPropertyList(),
+            QueueIdStack());
 
-        EnumerateInstancesResponseHandler handler(request, response);
+        CIMEnumerateInstancesResponseMessage response(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack(),
+            Array<CIMInstance>());
+
+        EnumerateInstancesResponseHandler handler(&request, &response);
 
         handler.processing();
 
@@ -89,10 +118,20 @@ void Test1(void)
 
     try
     {
-        CIMEnumerateInstanceNamesRequestMessage * request = 0;
-        CIMEnumerateInstanceNamesResponseMessage * response = 0;
+        // create dummy request and response messages
+        CIMEnumerateInstanceNamesRequestMessage request(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CIMName(),
+            QueueIdStack());
 
-        EnumerateInstanceNamesResponseHandler handler(request, response);
+        CIMEnumerateInstanceNamesResponseMessage response(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack(),
+            Array<CIMObjectPath>());
+
+        EnumerateInstanceNamesResponseHandler handler(&request, &response);
 
         handler.processing();
 
@@ -111,10 +150,20 @@ void Test1(void)
 
     try
     {
-        CIMCreateInstanceRequestMessage * request = 0;
-        CIMCreateInstanceResponseMessage * response = 0;
+        // create dummy request and response messages
+        CIMCreateInstanceRequestMessage request(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CIMInstance(),
+            QueueIdStack());
 
-        CreateInstanceResponseHandler handler(request, response);
+        CIMCreateInstanceResponseMessage response(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack(),
+            CIMObjectPath());
+
+        CreateInstanceResponseHandler handler(&request, &response);
 
         handler.processing();
 
@@ -136,10 +185,24 @@ void Test2(void)
 {
     try
     {
-        CIMGetInstanceRequestMessage * request = 0;
-        CIMGetInstanceResponseMessage * response = 0;
+        // create dummy request and response messages
+        CIMGetInstanceRequestMessage request(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CIMObjectPath(),
+            false,
+            false,
+            false,
+            CIMPropertyList(),
+            QueueIdStack());
 
-        GetInstanceResponseHandler handler(request, response);
+        CIMGetInstanceResponseMessage response(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack(),
+            CIMInstance());
+
+        GetInstanceResponseHandler handler(&request, &response);
 
         handler.processing();
 
@@ -154,10 +217,24 @@ void Test2(void)
 
     try
     {
-        CIMGetInstanceRequestMessage * request = 0;
-        CIMGetInstanceResponseMessage * response = 0;
+        // create dummy request and response messages
+        CIMGetInstanceRequestMessage request(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CIMObjectPath(),
+            false,
+            false,
+            false,
+            CIMPropertyList(),
+            QueueIdStack());
 
-        GetInstanceResponseHandler handler(request, response);
+        CIMGetInstanceResponseMessage response(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack(),
+            CIMInstance());
+
+        GetInstanceResponseHandler handler(&request, &response);
 
         handler.processing();
 
@@ -180,10 +257,20 @@ void Test2(void)
 
     try
     {
-        CIMCreateInstanceRequestMessage * request = 0;
-        CIMCreateInstanceResponseMessage * response = 0;
+        // create dummy request and response messages
+        CIMCreateInstanceRequestMessage request(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CIMInstance(),
+            QueueIdStack());
 
-        CreateInstanceResponseHandler handler(request, response);
+        CIMCreateInstanceResponseMessage response(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack(),
+            CIMObjectPath());
+
+        CreateInstanceResponseHandler handler(&request, &response);
 
         handler.processing();
 
@@ -197,10 +284,20 @@ void Test2(void)
 
     try
     {
-        CIMCreateInstanceRequestMessage * request = 0;
-        CIMCreateInstanceResponseMessage * response = 0;
+        // create dummy request and response messages
+        CIMCreateInstanceRequestMessage request(
+            String::EMPTY,
+            CIMNamespaceName(),
+            CIMInstance(),
+            QueueIdStack());
 
-        CreateInstanceResponseHandler handler(request, response);
+        CIMCreateInstanceResponseMessage response(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack(),
+            CIMObjectPath());
+
+        CreateInstanceResponseHandler handler(&request, &response);
 
         handler.processing();
 

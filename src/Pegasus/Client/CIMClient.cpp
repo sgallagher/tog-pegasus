@@ -543,7 +543,11 @@ void CIMClientRep::disconnect()
         //
         // Close the connection
         //
-        _httpConnector->disconnect(_httpConnection);
+       if (_httpConnector)
+       {
+	   _httpConnector->disconnect(_httpConnection);
+	   _httpConnector = 0;
+	}
 
         //
         // destroy request encoder

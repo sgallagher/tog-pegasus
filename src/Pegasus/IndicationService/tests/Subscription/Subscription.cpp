@@ -1080,6 +1080,60 @@ void _valid (CIMClient & client, String& qlang)
     _checkStringProperty (instances [0], "SNMPEngineID", "an ID");
 
     //
+    //  Create persistent CIMXML listener destination
+    //
+    CIMInstance listenerdestination01 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
+    _addStringProperty (listenerdestination01, "SystemCreationClassName", 
+         System::getSystemCreationClassName ());
+    _addStringProperty (listenerdestination01, "SystemName", 
+         System::getFullyQualifiedHostName ());
+    _addStringProperty (listenerdestination01, "CreationClassName", 
+         PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString ());
+    _addStringProperty (listenerdestination01, "Name", 
+        "ListenerDestination01");
+    _addUint16Property (listenerdestination01, "PersistenceType", 2);
+    _addStringProperty (listenerdestination01, "OtherPersistenceType", 
+        String::EMPTY, true);
+    _addStringProperty (listenerdestination01, "Destination", 
+        "localhost/CIMListener/test3");
+    path = client.createInstance (NAMESPACE, listenerdestination01);
+
+    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        "ListenerDestination01");
+    retrievedInstance = client.getInstance (NAMESPACE, path);
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+        System::getSystemCreationClassName ());
+    _checkStringProperty (retrievedInstance, "SystemName", 
+        System::getFullyQualifiedHostName ());
+    _checkStringProperty (retrievedInstance, "CreationClassName", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString ());
+    _checkStringProperty (retrievedInstance, "Name", "ListenerDestination01");
+    _checkUint16Property (retrievedInstance, "PersistenceType", 2);
+    _checkStringProperty (retrievedInstance, "OtherPersistenceType", 
+        String::EMPTY, true);
+    _checkStringProperty (retrievedInstance, "Destination", 
+        "localhost/CIMListener/test3");
+
+    //
+    //  Enumerate listener destinations
+    //
+    instances = client.enumerateInstances 
+        (NAMESPACE, PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
+    PEGASUS_ASSERT (instances.size () == 1);
+    _checkStringProperty (instances [0], "SystemCreationClassName", 
+        System::getSystemCreationClassName ());
+    _checkStringProperty (instances [0], "SystemName", 
+        System::getFullyQualifiedHostName ());
+    _checkStringProperty (instances [0], "CreationClassName", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString ());
+    _checkStringProperty (instances [0], "Name", "ListenerDestination01");
+    _checkUint16Property (instances [0], "PersistenceType", 2);
+    _checkStringProperty (instances [0], "OtherPersistenceType", 
+        String::EMPTY, true);
+    _checkStringProperty (instances [0], "Destination", 
+        "localhost/CIMListener/test3");
+
+    //
     //  Create subscriptions
     //
     CIMInstance subscription01 = _buildSubscriptionInstance
@@ -1270,6 +1324,23 @@ void _valid (CIMClient & client, String& qlang)
     _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 2);
 
     //
+    //  Create subscription with CIMXML Listener Destination
+    //
+    CIMInstance subscription09 = _buildSubscriptionInstance
+        (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, "Filter01"),
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
+        _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
+            "ListenerDestination01"));
+    path = client.createInstance (NAMESPACE, subscription09);
+
+    _checkSubscriptionPath (path, "Filter01", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination01");
+    retrievedInstance = client.getInstance (NAMESPACE, path);
+    _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
+    _checkUint16Property (retrievedInstance, "SubscriptionState", 2);
+    _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 2);
+
+    //
     //  Enumerate filters
     //
     instances = client.enumerateInstances (NAMESPACE, 
@@ -1290,11 +1361,15 @@ void _valid (CIMClient & client, String& qlang)
 #endif
 
     //
-    //  Enumerate handlers
+    //  Enumerate handlers and listener destinations
     //
     Array <CIMInstance> handlers = client.enumerateInstances 
         (NAMESPACE, PEGASUS_CLASSNAME_INDHANDLER);
     PEGASUS_ASSERT (handlers.size () == 2);
+
+    Array <CIMInstance> listDests = client.enumerateInstances 
+        (NAMESPACE, PEGASUS_CLASSNAME_LSTNRDST);
+    PEGASUS_ASSERT (listDests.size () == 3);
 
     Array <CIMObjectPath> cimxmlHandlerPaths = client.enumerateInstanceNames
         (NAMESPACE, PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
@@ -1312,16 +1387,26 @@ void _valid (CIMClient & client, String& qlang)
         (NAMESPACE, PEGASUS_CLASSNAME_INDHANDLER);
     PEGASUS_ASSERT (handlerPaths.size () == 2);
 
+    Array <CIMObjectPath> listDestPaths = client.enumerateInstanceNames
+        (NAMESPACE, PEGASUS_CLASSNAME_LSTNRDST);
+    PEGASUS_ASSERT (listDestPaths.size () == 3);
+
+    Array <CIMObjectPath> cimxmlListDestPaths = client.enumerateInstanceNames
+        (NAMESPACE, PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
+    PEGASUS_ASSERT (cimxmlListDestPaths.size () == 1);
+    _checkFilterOrHandlerPath (cimxmlListDestPaths [0], 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination01");
+
     //
     //  Enumerate subscriptions
     //
     Array <CIMInstance> subscriptions = client.enumerateInstances 
         (NAMESPACE, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-    PEGASUS_ASSERT (subscriptions.size () == 7);
+    PEGASUS_ASSERT (subscriptions.size () == 8);
 
     Array <CIMObjectPath> subscriptionPaths = client.enumerateInstanceNames
         (NAMESPACE, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
-    PEGASUS_ASSERT (subscriptionPaths.size () == 7);
+    PEGASUS_ASSERT (subscriptionPaths.size () == 8);
 
     //
     //  Modify subscription: set state to disabled
@@ -2745,6 +2830,23 @@ void _error (CIMClient & client)
         _checkExceptionCode (e, CIM_ERR_FAILED);
     }
 
+    //          
+    //  Listener Destination: Attempt to delete a listener destination
+    //      referenced by a subscription
+    //      A Listener Destination referenced by a subscription may not be
+    //          deleted
+    //
+    try
+    {
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+            "ListenerDestination01");
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_FAILED);
+    }
+
     //
     //  Create filter and handler for subscription testing
     //
@@ -3360,10 +3462,10 @@ void _delete (CIMClient & client)
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     _deleteSubscriptionInstance (client, "Filter06", 
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
-    //_deleteSubscriptionInstance (client, "Filter01", 
-        //PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02");
     _deleteSubscriptionInstance (client, "Filter01", 
         PEGASUS_CLASSNAME_INDHANDLER_SNMP, "Handler03");
+    _deleteSubscriptionInstance (client, "Filter01", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination01");
 
     //
     //  Delete handler instances
@@ -3372,6 +3474,8 @@ void _delete (CIMClient & client)
         "Handler01");
     _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_SNMP, 
         "Handler03");
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        "ListenerDestination01");
 
     //
     //  Delete filter instances
@@ -3418,6 +3522,16 @@ void _test (CIMClient & client)
     cout << "+++++ test completed successfully" << endl;
 }
 
+//
+//  NOTE: the cleanup command line option is provided to clean up the
+//  repository in case the test fails and not all objects created by 
+//  the test were deleted
+//  This method attempts to delete each object that could have been created by
+//  this test and that still exists in the repository
+//  Since the repository could contain none, any or all of the objects, any 
+//  exceptions thrown are ignored and this method continues to attempt to 
+//  delete the objects
+//
 void _cleanup (CIMClient & client)
 {
     //
@@ -3495,6 +3609,15 @@ void _cleanup (CIMClient & client)
     {
     }
 
+    try
+    {
+        _deleteSubscriptionInstance (client, "Filter01", 
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination01");
+    }
+    catch (...)
+    {
+    }
+
     //
     //  Delete handler instances
     //
@@ -3529,6 +3652,15 @@ void _cleanup (CIMClient & client)
     {
         _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_SNMP, 
             "Handler03");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+            "ListenerDestination01");
     }
     catch (...)
     {
@@ -3743,6 +3875,11 @@ int main (int argc, char** argv)
         {
             _test (client);
         }
+        //
+        //  NOTE: the cleanup command line option is provided to clean up the
+        //  repository in case the test fails and not all objects created by 
+        //  the test were deleted
+        //
         else if (String::equalNoCase (opt, "cleanup"))
         {
             _cleanup (client);

@@ -231,6 +231,11 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)
   FOUND = true
 endif
 
+ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES64_GNU)
+  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+  FOUND = true
+endif
+
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
   include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
   FOUND = true

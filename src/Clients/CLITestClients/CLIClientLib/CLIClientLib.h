@@ -76,7 +76,7 @@ const CommandID ID_Unknown                      = 25;
 struct  OUTPUT_STRUCT
 {
     OutputType OutputType;
-    char* OutputName;
+    const char* OutputName;
 };
 
 OUTPUT_STRUCT OutputTable[] =
@@ -91,7 +91,7 @@ const Uint32 NUM_OUTPUTS = sizeof(OutputTable) / sizeof(OutputTable[0]);
 struct  CMD_STRUCT
 {
     CommandID ID_Command;
-    char* CommandName;
+    const char* CommandName;
 };
 
 // ******** CIM Client Commands

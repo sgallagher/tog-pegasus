@@ -207,10 +207,13 @@ public:
     */
     Boolean isInterval();
 
-//#ifdef PEGASUS_INTERNALONLY
 private:
+
     enum { FORMAT_LENGTH = 25 };
 
+    char _rep[FORMAT_LENGTH + 1];
+
+#ifdef PEGASUS_INTERNALONLY
     //
     // Length of the string required to store only the date and time without
     // the UTC sign and UTC offset.
@@ -227,8 +230,6 @@ private:
 
     Boolean _set(const char* str);
 
-    char _rep[FORMAT_LENGTH + 1];
-
     /**
        This function extracts the different components of the date and time
        from the string passed and assigns it to the tm structure.
@@ -238,7 +239,7 @@ private:
        @param tm           Contains the tm structure to be updated.
     */
     static void formatDateTime(char* dateTime, tm* tm);
-//#endif
+#endif
 
     /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 
 	equality

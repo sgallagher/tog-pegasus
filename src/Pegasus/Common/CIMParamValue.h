@@ -31,13 +31,12 @@
 #define Pegasus_ParamValue_h
 
 #include <Pegasus/Common/Config.h>
-#ifdef PEGASUS_INTERNALONLY
-#include <Pegasus/Common/CIMParamValueRep.h>
-#else
-class CIMParamValueRep;
-#endif
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class CIMParamValueRep;
 
 ////////////////////////////////////////////////////////////////////////////////
 //

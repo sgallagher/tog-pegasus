@@ -30,12 +30,9 @@
 #define Pegasus_Property_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMQualifier.h>
-#ifdef PEGASUS_INTERNALONLY
-#include <Pegasus/Common/CIMPropertyRep.h>
-#else
-class CIMPropertyRep;
-#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -46,9 +43,11 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 class CIMConstProperty;
+class CIMPropertyRep;
 #ifdef PEGASUS_INTERNALONLY
 class CIMClassRep;
 class CIMInstanceRep;
+class DeclContext;
 #endif
 
 /** CIMProperty Class - This C++ class implements the CIM Property 

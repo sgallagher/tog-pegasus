@@ -37,6 +37,26 @@ FILES_TO_CLEAN = $(MSG_BUNDLES)
 
 include $(ROOT)/mak/clean.mak
 
+################################################################################
+##
+## Build list of object names:
+##
+################################################################################
+
+include $(ROOT)/mak/objects.mak
+
+include $(ROOT)/mak/depend.mak
+
+include $(ROOT)/mak/build.mak
+
+include $(ROOT)/mak/docxx.mak
+
+include $(ROOT)/mak/sub.mak
+
+-include $(OBJ_DIR)/depend.mak
+
+include $(ROOT)/mak/misc.mak
+
 
 tests: $(ERROR)
 

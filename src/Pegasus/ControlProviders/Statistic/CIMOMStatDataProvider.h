@@ -25,6 +25,7 @@
 //
 // Author: Arthur Pichlkostner
 //             (checked in: Markus Mueller sedgewick_de@yahoo.de)
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1939
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,13 +96,15 @@ public:
 		const CIMObjectPath & ref,
 		ResponseHandler & handler);
 
-   CIMInstance getInstance(Uint16 type);
+   CIMInstance getInstance(Uint16 type, CIMObjectPath cimRef);
    Uint16 getOpType(Uint16 type);
 
    protected:
       CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
 	  CIMDateTime toDateTime(Sint64 date);
 	  void checkObjectManager();
+    
+      CIMOMHandle _cimom;
 
 };
 

@@ -26,7 +26,7 @@
 // Author: Arthur Pichlkostner
 //             (checked in: Markus Mueller sedgewick_de@yahoo.de)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1939
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +53,7 @@ CIMOMStatDataProvider::~CIMOMStatDataProvider()
 
 void CIMOMStatDataProvider::initialize(CIMOMHandle & cimom)
 {
+   _cimom = cimom;
    for (Uint32 i=0; i<StatisticalData::length; i++){
       char buffer[32];
       sprintf(buffer, "%d", i);
@@ -90,7 +91,7 @@ void CIMOMStatDataProvider::getInstance(
 		if(localReference == _references[i])
 		{
 			// deliver requested instance
-			handler.deliver(getInstance(i));
+			handler.deliver(getInstance(i, instanceReference));
 			break;
 		}
 	}
@@ -114,7 +115,7 @@ void CIMOMStatDataProvider::enumerateInstances(
 	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
 	{
 	   // deliver instance
-		handler.deliver(getInstance(i));
+		handler.deliver(getInstance(i, classReference));
 		
 	}
 
@@ -169,7 +170,7 @@ void CIMOMStatDataProvider::deleteInstance(
 throw CIMNotSupportedException("StatisticalData::deleteInstance");
 }
 
-CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
+CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type, CIMObjectPath cimRef)
 {
 //cout << "we are in getinstance of CIMOMStatData" << endl;
 
@@ -208,6 +209,19 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
       CIMValue(String("CIMOM performance statistics for CIM request "))));
    requestedInstance.addProperty(CIMProperty("Caption",
       CIMValue(String("CIMOM performance statistics for CIM request"))));
+
+   CIMClass cimclass = _cimom.getClass(
+                                     OperationContext(),
+                                     cimRef.getNameSpace(),
+                                     cimRef.getClassName(),
+                                     false, true, false,
+                                     CIMPropertyList());
+
+  CIMObjectPath instanceName = requestedInstance.buildPath(cimclass);
+
+  instanceName.setNameSpace(cimRef.getNameSpace());
+  requestedInstance.setPath(instanceName);
+
    
 
 //cout << "at the end of getinstance of CIMOMStat" << endl;

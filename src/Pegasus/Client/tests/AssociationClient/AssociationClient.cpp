@@ -203,7 +203,7 @@ int main(int argc, char** argv)
             return -1;
 
         // display result
-        cout << "Number of associator objects = " << numObjects << endl;
+        // cout << "Number of associator objects = " << numObjects << endl;
         _displayResult(resultObjects, verbose);
 
         // ===================================================================
@@ -229,7 +229,7 @@ int main(int argc, char** argv)
             return -1;
      
         // display result
-        cout << "Number of associator name objects = " << numObjects << endl;
+        // cout << "Number of associator name objects = " << numObjects << endl;
         _displayResult(resultObjectPaths, verbose);
 
         // ===================================================================
@@ -252,7 +252,7 @@ int main(int argc, char** argv)
             return -1;
      
         // display result
-        cout << "Number of reference objects = " << numObjects << endl;
+        // cout << "Number of reference objects = " << numObjects << endl;
         _displayResult(resultObjects, verbose);
 
         // ===================================================================
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
             return -1;
      
         // display result
-        cout << "Number of reference name objects = " << numObjects << endl;
+        // cout << "Number of reference name objects = " << numObjects << endl;
         _displayResult(resultObjectPaths, verbose);
 
         // ===================================================================
@@ -304,7 +304,7 @@ int main(int argc, char** argv)
             return -1;
 
         // display result
-        cout << "Number of associator objects = " << numObjects << endl;
+        // cout << "Number of associator objects = " << numObjects << endl;
         _displayResult(resultObjects, verbose);
 
         //
@@ -329,7 +329,7 @@ int main(int argc, char** argv)
             return -1;
 
         // display result
-        cout << "Number of associator name objects = " << numObjects << endl;
+        // cout << "Number of associator name objects = " << numObjects << endl;
         _displayResult(resultObjectPaths, verbose);
 
         //
@@ -351,7 +351,7 @@ int main(int argc, char** argv)
             return -1;
      
         // display result
-        cout << "Number of reference objects = " << numObjects << endl;
+        // cout << "Number of reference objects = " << numObjects << endl;
         _displayResult(resultObjects, verbose);
 
         //
@@ -373,7 +373,7 @@ int main(int argc, char** argv)
             return -1;
      
         // display result
-        cout << "Number of reference objects = " << numObjects << endl;
+        // cout << "Number of reference objects = " << numObjects << endl;
         _displayResult(resultObjectPaths, verbose);
 
         // ===================================================================
@@ -403,7 +403,7 @@ int main(int argc, char** argv)
             return -1;
 
         // display result
-        cout << "Number of associated class objects = " << numObjects << endl;
+        // cout << "Number of associated class objects = " << numObjects << endl;
         _displayResult(resultObjects, verbose);
 
         //
@@ -421,7 +421,7 @@ int main(int argc, char** argv)
             return -1;
 
         // display result
-        cout << "Number of association class objects = " << numObjects << endl;
+        // cout << "Number of association class objects = " << numObjects << endl;
         _displayResult(resultObjects, verbose);
     }
     catch(Exception& e)
@@ -429,6 +429,8 @@ int main(int argc, char** argv)
         cerr << "Error: " << e.getMessage() << endl;
         return -1;
     }
+
+    cout << "AssociationClient +++++ passed all tests" << endl;
 
     return 0;
 }

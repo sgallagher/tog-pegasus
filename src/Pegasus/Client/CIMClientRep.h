@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,12 +29,14 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By:  Dan Gorey (djgorey@us.ibm.com)
-//				 Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
-//               Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
-//               Amit K Arora, IBM (amita@in.ibm.com) for Bug#2040
-//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//               Willis White, IBM (whiwill@us.ibm.com
+// Modified By: Dan Gorey (djgorey@us.ibm.com)
+//              Marek Szermutzky (MSzermutzky@de.ibm.com) for PEP#139 Stage1
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#2040
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Willis White, IBM (whiwill@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +132,7 @@ public:
 
     void disconnect();
 
-	Boolean isConnected();
+    Boolean isConnected() const throw();
 
     virtual CIMClass getClass(
         const CIMNamespaceName& nameSpace,
@@ -298,7 +300,7 @@ public:
 
     void registerClientOpPerformanceDataHandler(
         ClientOpPerformanceDataHandler & handler);
-    
+
     void deregisterClientOpPerformanceDataHandler();
 
 private:
@@ -333,9 +335,8 @@ private:
     ContentLanguages requestContentLanguages;
     ContentLanguages responseContentLanguages;
 
-	// mszer : Additions Stage1 PEP#139
-
-	void compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw(TypeMismatchException);
+    // mszer : Additions Stage1 PEP#139
+    void compareObjectPathtoCurrentConnection(const CIMObjectPath& obj);
 };
 
 PEGASUS_NAMESPACE_END

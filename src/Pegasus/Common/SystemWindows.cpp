@@ -36,7 +36,7 @@
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1428
-//				Seema Gupta (gseema@in.ibm.com) for Bug#1617
+//              Seema Gupta (gseema@in.ibm.com) for Bug#1617
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //
@@ -123,7 +123,7 @@ Boolean System::isDirectory(const char* path)
     struct stat st;
 
     if (stat(path, &st) != 0)
-	return false;
+    return false;
 
     return (st.st_mode & _S_IFDIR) != 0;
 }
@@ -143,7 +143,7 @@ Boolean System::getFileSize(const char* path, Uint32& size)
     struct stat st;
 
     if (stat(path, &st) != 0)
-	return false;
+    return false;
 
     size = st.st_size;
     return true;
@@ -151,12 +151,12 @@ Boolean System::getFileSize(const char* path, Uint32& size)
 
 Boolean System::removeDirectory(const char* path)
 {
-    return rmdir(path) == 0;	
+    return rmdir(path) == 0;    
 }
 
 Boolean System::removeFile(const char* path)
 {
-    return unlink(path) == 0;	
+    return unlink(path) == 0;   
 }
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
@@ -171,7 +171,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
-	FreeLibrary(HINSTANCE(libraryHandle));
+    FreeLibrary(HINSTANCE(libraryHandle));
 }
 
 String System::dynamicLoadError(void) {
@@ -183,7 +183,7 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     const char* symbolName)
 {
     return DynamicSymbolHandle(GetProcAddress(
-	(HINSTANCE)libraryHandle, symbolName));
+    (HINSTANCE)libraryHandle, symbolName));
 }
 
 String System::getHostName()
@@ -357,19 +357,235 @@ String System::encryptPassword(const char* password, const char* salt)
 
 Boolean System::isSystemUser(const char* userName)
 {
-    //ATTN: Implement this method to verify if user is vaild on the local system
-    //      This is used in User Manager
-    return true;
+    Boolean isSystemUser = false;
+
+    char mUserName[UNLEN+1];
+    char mDomainName[UNLEN+1];
+    wchar_t wUserName[UNLEN+1];
+    wchar_t wDomainName[UNLEN+1];
+    char* pbs;
+    bool usingDomain = false;
+    
+    LPBYTE pComputerName=NULL;
+    DWORD dwLevel = 1;
+    LPUSER_INFO_1 pUserInfo = NULL;
+    NET_API_STATUS nStatus = NULL;
+
+    //separate the domain and user name if both are present.    
+    if (NULL != (pbs = strchr(userName, '\\')))
+    {
+        *pbs = '\0';
+        strcpy(mDomainName, userName);
+        strcpy(mUserName, pbs+1);
+        usingDomain = true;
+
+    } else if ((NULL != (pbs = (strchr(userName, '@')))) ||
+               (NULL != (pbs = (strchr(userName, '.')))))
+    {
+        *pbs = '\0';
+        strcpy(mDomainName, pbs+1);
+        strcpy(mUserName, userName);
+        usingDomain = true;
+        
+    } else
+    {
+        strcpy(mDomainName, ".");
+        strcpy(mUserName, userName);
+    }
+
+    //convert domain name to unicode
+    if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
+    {
+        return false;
+    }
+
+    //convert username to unicode
+    if (!MultiByteToWideChar(CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName)+1))
+    {
+        return false;
+    }
+ 
+    if (usingDomain)
+    {
+        //get domain controller
+        DWORD rc = NetGetDCName(NULL, wDomainName, &pComputerName);
+        if (rc == NERR_Success) 
+        {
+            wcscpy(wDomainName, (LPWSTR) pComputerName); //this is automatically prefixed with "\\"
+        } 
+        /*
+        else
+        {
+            // failover
+            // ATTN: This is commented out until there is resolution on Bugzilla 2236. -hns 2/2005
+            // This needs to be more thoroughly tested when we uncomment it out.
+            
+            PDOMAIN_CONTROLLER_INFO DomainControllerInfo = NULL;
+
+            //this function does not take wide strings
+            rc = DsGetDcName(NULL,
+                             mDomainName,
+                             NULL,
+                             NULL,
+                             DS_DIRECTORY_SERVICE_REQUIRED,  //not sure what flags we want here
+                             &DomainControllerInfo);
+
+            if (rc == ERROR_SUCCESS && DomainControllerInfo)
+            {
+                strcpy(mDomainName, DomainControllerInfo->DomainName);
+                NetApiBufferFree(DomainControllerInfo);
+
+                if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
+                {
+                    return false;
+                }
+            }
+        }
+        */
+    }
+
+    //get user info
+    nStatus = NetUserGetInfo(wDomainName,
+                             wUserName,
+                             dwLevel,
+                             (LPBYTE *)&pUserInfo);
+
+    if (nStatus == NERR_Success)
+    {
+        isSystemUser = true;
+    }
+    
+    if (pComputerName != NULL) 
+    {
+        NetApiBufferFree(pComputerName);
+    }
+
+    if (pUserInfo != NULL)
+    {
+        NetApiBufferFree(pUserInfo);
+    }
+
+    return isSystemUser;
 }
+
 
 Boolean System::isPrivilegedUser(const String& userName)
 {
-    // ATTN: Implement this method to verify if user executing the current
-    //       command is a priviliged user, when user name is not passed as
-    //       as argument. If user name is passed the function checks 
-    //       whether the given user is a priviliged user.
-    //       This is used in cimuser CLI and CIMOperationRequestAuthorizer
-    return true;
+    Boolean isPrivileged = false;
+
+    char mUserName[UNLEN+1];
+    char mDomainName[UNLEN+1];
+    wchar_t wUserName[UNLEN+1];
+    wchar_t wDomainName[UNLEN+1];
+    char* pbs;
+    char userStr[UNLEN+1];
+    bool usingDomain = false;
+
+    LPBYTE pComputerName=NULL;
+    DWORD dwLevel = 1;
+    LPUSER_INFO_1 pUserInfo = NULL;
+    NET_API_STATUS nStatus = NULL;
+
+    //get the username in the correct format
+    strcpy(userStr, (const char*)userName.getCString());
+
+    //separate the domain and user name if both are present.    
+    if (NULL != (pbs = strchr(userStr, '\\')))
+    {
+        *pbs = '\0';
+        strcpy(mDomainName, userStr);
+        strcpy(mUserName, pbs+1);
+        usingDomain = true;
+
+    } else if ((NULL != (pbs = (strchr(userStr, '@')))) ||
+               (NULL != (pbs = (strchr(userStr, '.')))))
+    {
+        *pbs = '\0';
+        strcpy(mDomainName, pbs+1);
+        strcpy(mUserName, userStr);
+        usingDomain = true;
+        
+    } else
+    {
+        strcpy(mDomainName, ".");
+        strcpy(mUserName, userStr);
+    }
+
+    //convert domain name to unicode
+    if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
+    {
+        return false;
+    }
+
+    //convert username to unicode
+    if (!MultiByteToWideChar(CP_ACP, 0, mUserName, -1, wUserName, strlen(mUserName)+1))
+    {
+        return false;
+    }
+
+    if (usingDomain)
+    {
+        //get domain controller
+        DWORD rc = NetGetDCName(NULL, wDomainName, &pComputerName);
+        if (rc == NERR_Success) 
+        {
+            wcscpy(wDomainName, (LPWSTR) pComputerName); //this is automatically prefixed with "\\"
+        } 
+        /*
+        else
+        {
+            // failover
+            // ATTN: This is commented out until there is resolution on Bugzilla 2236. -hns 2/2005
+            // This needs to be more thoroughly tested when we uncomment it out.
+            
+            PDOMAIN_CONTROLLER_INFO DomainControllerInfo = NULL;
+
+            //this function does not take wide strings
+            rc = DsGetDcName(NULL,
+                             mDomainName,
+                             NULL,
+                             NULL,
+                             DS_DIRECTORY_SERVICE_REQUIRED,  //not sure what flags we want here
+                             &DomainControllerInfo);
+
+            if (rc == ERROR_SUCCESS && DomainControllerInfo)
+            {
+                strcpy(mDomainName, DomainControllerInfo->DomainName);
+                NetApiBufferFree(DomainControllerInfo);
+
+                if (!MultiByteToWideChar(CP_ACP, 0, mDomainName, -1, wDomainName, strlen(mDomainName)+1))
+                {
+                    return false;
+                }
+            }
+        }
+        */
+    }
+
+    //get privileges
+    nStatus = NetUserGetInfo(wDomainName,
+                             wUserName,
+                             dwLevel,
+                             (LPBYTE *)&pUserInfo);
+
+    if ((nStatus == NERR_Success) && 
+        (pUserInfo != NULL) &&
+        (pUserInfo->usri1_priv == USER_PRIV_ADMIN))
+    {
+        isPrivileged = true;
+    }
+
+    if (pComputerName != NULL) 
+    {
+        NetApiBufferFree(pComputerName);
+    }
+
+    if (pUserInfo != NULL)
+    {
+        NetApiBufferFree(pUserInfo);
+    }
+
+    return isPrivileged;
 }
 
 String System::getPrivilegedUserName()
@@ -536,7 +752,7 @@ Boolean System::truncateFile(
         return false;
 
     if (chsize(fd, newSize) != 0)
-	return false;
+    return false;
 
     close(fd);
     return true;

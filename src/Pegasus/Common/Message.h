@@ -41,7 +41,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/StatisticalData.h>
-#include <Pegasus/Common/Socket.h>
+#include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN

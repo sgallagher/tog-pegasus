@@ -402,18 +402,38 @@ void ProviderRegistrationProvider::createInstance(
 		"Missing Version which is required property in PG_ProviderModule class.");
 	}
 
-	if (instanceObject.findProperty(_PROPERTY_INTERFACETYPE) == 
-            PEG_NOT_FOUND)
+        Uint32 ifcTypeIndex =
+            instanceObject.findProperty(_PROPERTY_INTERFACETYPE);
+	if (ifcTypeIndex == PEG_NOT_FOUND)
 	{
 	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing InterfaceType which is required property in PG_ProviderModule class.");
 	}
+        String ifcTypeString;
+        instanceObject.getProperty(ifcTypeIndex).getValue().
+            get(ifcTypeString);
+        if (ifcTypeString != "C++Default")
+	{
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+		"Unsupported InterfaceType value: \"" + ifcTypeString + "\"");
+	}
 
-	if (instanceObject.findProperty(_PROPERTY_INTERFACEVERSION) == 
-            PEG_NOT_FOUND)
+        Uint32 ifcVersionIndex =
+            instanceObject.findProperty(_PROPERTY_INTERFACEVERSION);
+	if (ifcVersionIndex == PEG_NOT_FOUND)
 	{
 	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
 		"Missing InterfaceVersion which is required property in PG_ProviderModule class.");
+	}
+        String ifcVersionString;
+        instanceObject.getProperty(ifcVersionIndex).getValue().
+            get(ifcVersionString);
+        if ((ifcVersionString != "2.1.0") &&
+            (ifcVersionString != "2.2.0"))
+	{
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+		"Unsupported InterfaceVersion value: \"" + ifcVersionString +
+                    "\"");
 	}
 
 	if (instanceObject.findProperty(_PROPERTY_LOCATION) == PEG_NOT_FOUND)

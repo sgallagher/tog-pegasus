@@ -19,10 +19,10 @@
               <VALUE> 2.0 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="InterfaceType" TYPE="string"> 
-              <VALUE> PG_DefaultC++ </VALUE>
+              <VALUE> C++Default </VALUE>
             </PROPERTY>
             <PROPERTY NAME="InterfaceVersion" TYPE="string"> 
-              <VALUE> 2.0 </VALUE>
+              <VALUE> 2.2.0 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="Location" TYPE="string"> 
               <VALUE> ProcessIndicationProvider </VALUE>

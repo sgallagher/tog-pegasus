@@ -32,7 +32,7 @@
 PEGASUS_NAMESPACE_BEGIN
 peg_suballocator internal_allocator;
 
-void * PEGASUS_SUBALLOC_LINKAGE pegasus_alloc(size_t size)
+void * (PEGASUS_SUBALLOC_LINKAGE) pegasus_alloc(size_t size)
 {
    return internal_allocator.vs_malloc(size, 
  				       &(internal_allocator.get_handle())) ;

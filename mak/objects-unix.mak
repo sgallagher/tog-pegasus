@@ -1,25 +1,24 @@
 ################################################################################
 ##
-## An ugly trick is used here to overcome a bug in g++ 2.9.5. G++ failes to
+## An ugly trick is used here to overcome a bug in g++ v2.9.5. G++ fails to
 ## cleanup object files that are placed in directories other than the
 ## current one (using the -o option). To overcome this bug, we use -o.tmp.o 
-## and then move the file to the object directory.
+## and then move the file to the object directory.  Note, this is only done for
+## v2.9.5 of g++.
 ##
 ################################################################################
 
-ifeq ($(OS),HPUX)
-  _NO_TMP_O = yes
+ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
+GCC_VERSION=$(word 3, $(shell $(CXX) --version))
+ifneq ($(GCC_VERSION), 2.9.5)
+    _NO_TMP_O=yes
 endif
-
-ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
-  _NO_TMP_O = yes
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-  _NO_TMP_O = yes
+else
+    _NO_TMP_O=yes
 endif
 
 _TMP_O = $(PEGASUS_PLATFORM).o
+
 
 ifeq ($(_NO_TMP_O), yes)
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)

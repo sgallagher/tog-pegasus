@@ -203,9 +203,9 @@ private:
     /**
     The security properties owned by this class
     */
-    struct ConfigProperty*      _requireAuthentication;
+    struct ConfigProperty*      _enableAuthentication;
 
-    struct ConfigProperty*      _requireAuthorization;
+    struct ConfigProperty*      _enableNamespaceAuthorization;
 
     struct ConfigProperty*      _httpAuthType;
 

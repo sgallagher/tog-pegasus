@@ -121,7 +121,7 @@ Boolean AuthenticationManager::performHttpAuthentication
     {
         authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
-    // ATTN-NB-03-20000318: Add code to check for "Digest" when digest 
+    // FUTURE: Add code to check for "Digest" when digest 
     // authentication is implemented.
 
     if ( authenticated )
@@ -421,7 +421,7 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     {
         handler = (Authenticator* ) new BasicAuthenticationHandler( );
     }
-    // ATTN-NB-03-20000318: uncomment these line when Digest authentication 
+    // FUTURE: uncomment these line when Digest authentication 
     // is implemented.
     //
     //else if (String::equalNoCase(_httpAuthType, "Digest"))

@@ -51,8 +51,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"requireAuthentication", "false", 0, 0, 0},
-    {"requireAuthorization", "false", 0, 0, 0},
+    {"enableAuthentication", "false", 0, 0, 0},
+    {"enableNamespaceAuthorization", "false", 0, 0, 0},
     {"httpAuthType", "Basic", 0, 0, 0},
     {"passwordFilePath", "cimserver.passwd", 0, 0, 0},
     {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0},
@@ -64,8 +64,8 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 /** Constructors  */
 SecurityPropertyOwner::SecurityPropertyOwner()
 {
-    _requireAuthentication = new ConfigProperty;
-    _requireAuthorization = new ConfigProperty;
+    _enableAuthentication = new ConfigProperty;
+    _enableNamespaceAuthorization = new ConfigProperty;
     _httpAuthType = new ConfigProperty;
     _passwordFilePath = new ConfigProperty();
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
@@ -74,8 +74,8 @@ SecurityPropertyOwner::SecurityPropertyOwner()
 /** Destructor  */
 SecurityPropertyOwner::~SecurityPropertyOwner()
 {
-    delete _requireAuthentication;
-    delete _requireAuthorization;
+    delete _enableAuthentication;
+    delete _enableNamespaceAuthorization;
     delete _httpAuthType;
     delete _passwordFilePath;
     delete _enableRemotePrivilegedUserAccess;
@@ -93,26 +93,26 @@ void SecurityPropertyOwner::initialize()
         // Initialize the properties with default values
         //
         if (String::equalNoCase(
-            properties[i].propertyName, "requireAuthentication"))
+            properties[i].propertyName, "enableAuthentication"))
         {
-            _requireAuthentication->propertyName = properties[i].propertyName;
-            _requireAuthentication->defaultValue = properties[i].defaultValue;
-            _requireAuthentication->currentValue = properties[i].defaultValue;
-            _requireAuthentication->plannedValue = properties[i].defaultValue;
-            _requireAuthentication->dynamic = properties[i].dynamic;
-            _requireAuthentication->domain = properties[i].domain;
-            _requireAuthentication->domainSize = properties[i].domainSize;
+            _enableAuthentication->propertyName = properties[i].propertyName;
+            _enableAuthentication->defaultValue = properties[i].defaultValue;
+            _enableAuthentication->currentValue = properties[i].defaultValue;
+            _enableAuthentication->plannedValue = properties[i].defaultValue;
+            _enableAuthentication->dynamic = properties[i].dynamic;
+            _enableAuthentication->domain = properties[i].domain;
+            _enableAuthentication->domainSize = properties[i].domainSize;
         }
         else if (String::equalNoCase(
-            properties[i].propertyName, "requireAuthorization"))
+            properties[i].propertyName, "enableNamespaceAuthorization"))
         {
-            _requireAuthorization->propertyName = properties[i].propertyName;
-            _requireAuthorization->defaultValue = properties[i].defaultValue;
-            _requireAuthorization->currentValue = properties[i].defaultValue;
-            _requireAuthorization->plannedValue = properties[i].defaultValue;
-            _requireAuthorization->dynamic = properties[i].dynamic;
-            _requireAuthorization->domain = properties[i].domain;
-            _requireAuthorization->domainSize = properties[i].domainSize;
+            _enableNamespaceAuthorization->propertyName = properties[i].propertyName;
+            _enableNamespaceAuthorization->defaultValue = properties[i].defaultValue;
+            _enableNamespaceAuthorization->currentValue = properties[i].defaultValue;
+            _enableNamespaceAuthorization->plannedValue = properties[i].defaultValue;
+            _enableNamespaceAuthorization->dynamic = properties[i].dynamic;
+            _enableNamespaceAuthorization->domain = properties[i].domain;
+            _enableNamespaceAuthorization->domainSize = properties[i].domainSize;
         }
         else if (String::equalNoCase(properties[i].propertyName, "httpAuthType"))
         {
@@ -163,13 +163,13 @@ void SecurityPropertyOwner::initialize()
 struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     const String& name)
 {
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
+    if (String::equalNoCase(_enableAuthentication->propertyName, name))
     {
-        return _requireAuthentication;
+        return _enableAuthentication;
     }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    else if (String::equalNoCase(_enableNamespaceAuthorization->propertyName, name))
     {
-        return _requireAuthorization;
+        return _enableNamespaceAuthorization;
     }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
@@ -307,14 +307,14 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     //
     // Validate the specified value
     //
-    if (String::equalNoCase(_requireAuthentication->propertyName, name))
+    if (String::equalNoCase(_enableAuthentication->propertyName, name))
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {
             retVal = true;
         }
     }
-    else if (String::equalNoCase(_requireAuthorization->propertyName, name))
+    else if (String::equalNoCase(_enableNamespaceAuthorization->propertyName, name))
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {

@@ -209,25 +209,25 @@ CIMServer::CIMServer(
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
-    Boolean requireAuthentication = false;
-    Boolean requireAuthorization = false;
+    Boolean enableAuthentication = false;
+    Boolean enableNamespaceAuthorization = false;
 
     if (String::equal(
-        configManager->getCurrentValue("requireAuthentication"), "true"))
+        configManager->getCurrentValue("enableAuthentication"), "true"))
     {
-        requireAuthentication = true;
+        enableAuthentication = true;
     }
 
     if (String::equal(
-        configManager->getCurrentValue("requireAuthorization"), "true"))
+        configManager->getCurrentValue("enableNamespaceAuthorization"), "true"))
     {
-        requireAuthorization = true;
+        enableNamespaceAuthorization = true;
     }
 
     //
     // check if authentication and authorization are enabled
     //
-    if ( requireAuthentication && requireAuthorization )
+    if ( enableAuthentication && enableNamespaceAuthorization )
     {
         //
         // Create Authorization queue only if authorization and
@@ -371,19 +371,19 @@ void CIMServer::setState(Uint32 state)
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
-    Boolean requireAuthentication = false;
-    Boolean requireAuthorization = false;
+    Boolean enableAuthentication = false;
+    Boolean enableNamespaceAuthorization = false;
 
     if (String::equal(
-        configManager->getCurrentValue("requireAuthentication"), "true"))
+        configManager->getCurrentValue("enableAuthentication"), "true"))
     {
-        requireAuthentication = true;
+        enableAuthentication = true;
     }
 
     if (String::equal(
-        configManager->getCurrentValue("requireAuthorization"), "true"))
+        configManager->getCurrentValue("enableNamespaceAuthorization"), "true"))
     {
-        requireAuthorization = true;
+        enableNamespaceAuthorization = true;
     }
 
     if (state == CIMServerState::TERMINATING)
@@ -395,7 +395,7 @@ void CIMServer::setState(Uint32 state)
         // tell authorizer that CIMServer is terminating ONLY if
         // authentication and authorization are enabled
         //
-        if ( requireAuthentication && requireAuthorization )
+        if ( enableAuthentication && enableNamespaceAuthorization )
         {
             _cimOperationRequestAuthorizer->setServerTerminating(true);
         }
@@ -409,7 +409,7 @@ void CIMServer::setState(Uint32 state)
         // tell authorizer that CIMServer is terminating ONLY if
         // authentication and authorization are enabled
         //
-        if ( requireAuthentication && requireAuthorization )
+        if ( enableAuthentication && enableNamespaceAuthorization )
         {
             _cimOperationRequestAuthorizer->setServerTerminating(false);
         }

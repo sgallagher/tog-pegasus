@@ -259,7 +259,7 @@ TAG: Version_1_09.
     a new MofWriter class as MofWriter::append*Element().  Moved
     CIM*::printMof() methods to MofWriter::print*Element().
 
-43. (Nag Boranna - HP) 16 May 2002 - HP-Nag: Implemented SSL handling in 
+43. (Nag Boranna - HP) 16 May 2002 - Implemented SSL handling in 
     CIMClient.cpp for local connection and modified the CLIs to not to pass 
     SSLContext to the client api. 
 
@@ -267,7 +267,7 @@ TAG: Version_1_09.
     each array has its own ArrayRep copy rather than Arrays sharing
     ArrayReps and reference counting.
 
-45. (Nag Boranna - HP) 17 May 2002 - HP-Nag: Moved SSLContext class out of
+45. (Nag Boranna - HP) 17 May 2002 - Moved SSLContext class out of
     TLS files, created SSLContextRep to hide members from the users of 
     SSLContext. Also included CertificateInfo in SSLContext files and 
     removed the CertificateInfo files, so that the client SDK can only
@@ -277,7 +277,7 @@ TAG: Version_1_09.
     method to return the correct class origin. Fixed SecurityPropertyOwner to 
     disallow passwordFilePath="". 
 
-47. (Nag Boranna - HP) 20 May 2002 - HP-Nag: Modified CIM Server and Client
+47. (Nag Boranna - HP) 20 May 2002 - Modified CIM Server and Client
     API to lookup port number from services. CIM Server uses default port
     number (5988 for HTTP or 5989 for HTTPS) if no port number is configured 
     and no port is specified in the configuration file. CIMClient's connectLocal()
@@ -295,6 +295,12 @@ TAG: Version_1_09.
     src/Providers/generic/CMPIAdapter/
 
 50. (MM) 23 May 2002 - New AtomicInt implementation using pthread_spinlocks.
+
+51. (Nag Boranna - HP) 23 May 2002 -  Added config properties 
+    'enableHttpConnection' and 'enableHttpsConnection'. Renamed 
+    'requireAuthentication' to 'enableAuthentication' and 'requireAuthorization' 
+    to 'enableNamespaceAut horization'. Removed few ATTN's in Authentication code.
+
 
 ========================================================================
 

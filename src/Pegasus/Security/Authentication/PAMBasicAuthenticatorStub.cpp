@@ -91,7 +91,7 @@ Boolean PAMBasicAuthenticator::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::authenticate()");
 
-    //ATTN-NB-04-20000412: PAM authentication is not implemented on non Unix platforms,
+    //FUTURE: PAM authentication is not implemented on non Unix platforms,
     //hence this function return false as default indicating authentication failure.
 
     Boolean authenticated = false;
@@ -131,7 +131,7 @@ Sint32 PAMBasicAuthenticator::PAMCallback(Sint32 num_msg, struct pam_message **m
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::PAMCallback()");
 
-    //ATTN-NB-04-20000412: No implementation on non Unix platforms
+    //FUTURE: No implementation on non Unix platforms
 
     PEG_METHOD_EXIT();
 

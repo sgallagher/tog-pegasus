@@ -195,12 +195,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
-    Boolean requireAuthentication = false;
+    Boolean enableAuthentication = false;
 
     if (String::equal(
-        configManager->getCurrentValue("requireAuthentication"), "true"))
+        configManager->getCurrentValue("enableAuthentication"), "true"))
     {
-        requireAuthentication = true;
+        enableAuthentication = true;
     }
 
     //
@@ -250,7 +250,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
         if ( HTTPMessage::lookupHeader(
              headers, "PegasusAuthorization", authorization, false) &&
-             requireAuthentication
+             enableAuthentication
            )
         {
             //
@@ -286,7 +286,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
         if ( HTTPMessage::lookupHeader(
              headers, "Authorization", authorization, false) &&
-             requireAuthentication
+             enableAuthentication
            )
         {
             //
@@ -322,7 +322,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
         }
 
-        if ( authenticated || !requireAuthentication )
+        if ( authenticated || !enableAuthentication )
         {
             //
             // Search for "CIMOperation" header:

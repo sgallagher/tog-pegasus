@@ -102,6 +102,8 @@ Exceptions:
       */
     const CIMName& getName()const;
 
+    void setName(CIMName inName);
+
     /**
       The getSymbolicConstantName method returns the symbolic name portion of 
       a property.   For example, of the property string contained property#'OK',

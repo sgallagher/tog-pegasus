@@ -76,6 +76,11 @@ const CIMName& CQLIdentifier::getName()const
 	return _rep->getName();
 }
 
+void CQLIdentifier::setName(CIMName inName)
+{
+   _rep->setName(inName);
+}
+
 const String& CQLIdentifier::getSymbolicConstantName()const
 {
 	return _rep->getSymbolicConstantName();

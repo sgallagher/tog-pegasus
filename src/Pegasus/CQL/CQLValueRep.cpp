@@ -2170,9 +2170,22 @@ void CQLValueRep::_setValue(CIMValue cv,Uint64 index)
    return;
 }
 
-void CQLValueRep::applyContext(QueryContext& _ctx)
+void CQLValueRep::applyContext(QueryContext& _ctx,
+                              CQLChainedIdentifier& inCid)
 {
-   _CQLChainId.applyContext(_ctx);        
+   if(inCid.size() != 0 && _CQLChainId.size() == 1)
+   {
+      _CQLChainId[0].setName(inCid[inCid.size()-1].getName());
+      for(Sint32 i = inCid.size()-2; i >= 0; --i)
+      {
+         _CQLChainId.prepend(inCid[i]); 
+      }
+      resolve(CIMInstance(),_ctx);
+   }
+   else
+   {
+      _CQLChainId.applyContext(_ctx);        
+   }
 }
 
 PEGASUS_NAMESPACE_END

@@ -296,7 +296,8 @@ class PEGASUS_CQL_LINKAGE CQLValue
    CIMInstance getInstance()const;
    CIMClass getClass()const;
    String toString()const;
-   void applyContext(QueryContext& _ctx);
+   void applyContext(QueryContext& _ctx,
+                     CQLChainedIdentifier& inCid);
    friend class CQLFactory; 
 
   private:

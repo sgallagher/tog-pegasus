@@ -96,7 +96,8 @@ class PEGASUS_CQL_LINKAGE CQLFactorRep
 
    String toString();
 
-   void applyContext(QueryContext& inContext);
+   void applyContext(QueryContext& inContext,
+                     CQLChainedIdentifier& inCid);
 
    Boolean operator==(const CQLFactorRep& rep);
 

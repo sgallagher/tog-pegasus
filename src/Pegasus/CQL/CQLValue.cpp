@@ -297,9 +297,10 @@ String CQLValue::toString()const
    return _rep->toString();
 }
 
-void CQLValue::applyContext(Pegasus::QueryContext& _ctx)
+void CQLValue::applyContext(Pegasus::QueryContext& _ctx,
+                           CQLChainedIdentifier& inCid)
 {
-	_rep->applyContext(_ctx);
+	_rep->applyContext(_ctx,inCid);
 }
 
 

@@ -122,11 +122,12 @@ Array<TermOpType> CQLExpressionRep::getOperators()
    return _TermOperators;
 }
 
-void CQLExpressionRep::applyContext(QueryContext& inContext)
+void CQLExpressionRep::applyContext(QueryContext& inContext,
+                                    CQLChainedIdentifier& inCid)
 {
   for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
   {
-    _CQLTerms[i].applyContext(inContext);
+    _CQLTerms[i].applyContext(inContext, inCid);
   }
 }
 

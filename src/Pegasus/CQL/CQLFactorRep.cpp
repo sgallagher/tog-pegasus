@@ -136,7 +136,8 @@ String CQLFactorRep::toString()
    }
 }
 
-void CQLFactorRep::applyContext(QueryContext& inContext)
+void CQLFactorRep::applyContext(QueryContext& inContext,
+                                CQLChainedIdentifier& inCid)
 {
    
    if(_containedType == FUNCTION)
@@ -149,7 +150,7 @@ void CQLFactorRep::applyContext(QueryContext& inContext)
    }
    else 
    {
-     _CQLVal.applyContext(inContext);
+     _CQLVal.applyContext(inContext,inCid);
    }
    return;
 }

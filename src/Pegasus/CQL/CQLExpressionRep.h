@@ -89,7 +89,8 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
 
    Array<TermOpType> getOperators();
 
-   void applyContext(QueryContext& inContext);
+   void applyContext(QueryContext& inContext,
+                     CQLChainedIdentifier& inCid);
 
    Boolean operator==(const CQLExpressionRep& rep);
 

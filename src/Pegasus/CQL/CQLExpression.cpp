@@ -97,9 +97,10 @@ Array<TermOpType> CQLExpression::getOperators()
    return _rep->getOperators();
 }
 
-void CQLExpression::applyContext(QueryContext& inContext)
+void CQLExpression::applyContext(QueryContext& inContext,
+                                 CQLChainedIdentifier inCid)
 {
-  _rep->applyContext(inContext);
+  _rep->applyContext(inContext, inCid);
 }
 
 CQLExpression& CQLExpression::operator=(const CQLExpression& rhs){

@@ -108,9 +108,10 @@ String CQLFactor::toString()
 	return _rep->toString();
 }
 
-void CQLFactor::applyContext(QueryContext& inContext)
+void CQLFactor::applyContext(QueryContext& inContext,
+                              CQLChainedIdentifier& inCid)
 {
-  _rep->applyContext(inContext);   
+  _rep->applyContext(inContext,inCid);   
 }
 
 CQLFactor& CQLFactor::operator=(const CQLFactor& rhs){

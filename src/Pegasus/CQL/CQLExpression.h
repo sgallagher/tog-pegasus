@@ -100,7 +100,8 @@ class PEGASUS_CQL_LINKAGE CQLExpression
 
    Array<TermOpType> getOperators();
 
-   void applyContext(QueryContext& inContext);
+   void applyContext(QueryContext& inContext, 
+                     CQLChainedIdentifier inCid = CQLChainedIdentifier());
 
    CQLExpression& operator=(const CQLExpression& rhs);
 

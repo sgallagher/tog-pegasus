@@ -126,11 +126,12 @@ Array<FactorOpType> CQLTermRep::getOperators()
    return _FactorOperators;
 }
 
-void CQLTermRep::applyContext(QueryContext& inContext)
+void CQLTermRep::applyContext(QueryContext& inContext,
+                              CQLChainedIdentifier& inCid)
 {
    for(Uint32 i = 0; i < _Factors.size(); ++i)
    {
-      _Factors[i].applyContext(inContext);
+      _Factors[i].applyContext(inContext, inCid);
    }
 }
 

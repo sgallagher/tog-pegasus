@@ -102,6 +102,8 @@ Exceptions:
       be returned in the CIMName reference.
       */
     const CIMName& getName()const;
+    
+    void setName(CIMName);
 
     /**
       The getSymbolicConstantName method returns the symbolic name portion of 

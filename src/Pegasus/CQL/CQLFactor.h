@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMInstance.h>
 //#include <Pegasus/CQL/CQLScope.h>
+#include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -96,7 +97,8 @@ class PEGASUS_CQL_LINKAGE CQLFactor
 
    String toString();
 
-   void applyContext(QueryContext& inContext);
+   void applyContext(QueryContext& inContext,
+                     CQLChainedIdentifier& inCid);
 
    CQLFactor& operator=(const CQLFactor& rhs);
 

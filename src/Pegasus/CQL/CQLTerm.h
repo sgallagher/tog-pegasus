@@ -107,7 +107,8 @@ class PEGASUS_CQL_LINKAGE CQLTerm
 
    Array<FactorOpType> getOperators();
 
-   void applyContext(QueryContext& inContext); 
+   void applyContext(QueryContext& inContext,
+                     CQLChainedIdentifier& inCid); 
 
    CQLTerm& operator=(const CQLTerm& rhs);
 

@@ -100,9 +100,10 @@ Array<FactorOpType> CQLTerm::getOperators()
    return _rep->getOperators();
 }
 
-void CQLTerm::applyContext(QueryContext& inContext)
+void CQLTerm::applyContext(QueryContext& inContext,
+                           CQLChainedIdentifier& inCid)
 {
-  _rep->applyContext(inContext);
+  _rep->applyContext(inContext,inCid);
 }
 
 CQLTerm& CQLTerm::operator=(const CQLTerm& rhs){

@@ -198,6 +198,11 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
        }
        if( caught_exception == false) 
        {
+// l10n - this code will change with PEP67 to go through the 
+// provider manager, so no need to change it now.  Also, watch what
+// happens with PEP76.  This request message
+// has the content language.  Need to make sure that provider manager
+// service puts the content-language into the OperationContext       	
 	  if (consumer)
 	  {
 	     consumer->handleIndication(

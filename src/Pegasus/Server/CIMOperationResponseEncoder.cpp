@@ -341,6 +341,8 @@ void CIMOperationResponseEncoder::handleEnqueue()
       handleEnqueue(message);
 }
 
+// l10n - added content language support below
+
 void CIMOperationResponseEncoder::encodeCreateClassResponse(
    CIMCreateClassResponseMessage* response)
 {
@@ -360,7 +362,9 @@ void CIMOperationResponseEncoder::encodeCreateClassResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("CreateClass"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(), 
+      response->contentLanguages,
+      body);
 
    STAT_SERVEREND
 
@@ -389,7 +393,9 @@ void CIMOperationResponseEncoder::encodeGetClassResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("GetClass"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(), 
+      response->contentLanguages,      
+      body);
 
    STAT_SERVEREND
 
@@ -417,7 +423,9 @@ void CIMOperationResponseEncoder::encodeModifyClassResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ModifyClass"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(), 
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -448,7 +456,9 @@ void CIMOperationResponseEncoder::encodeEnumerateClassNamesResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("EnumerateClassNames"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(), 
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -482,7 +492,9 @@ void CIMOperationResponseEncoder::encodeEnumerateClassesResponse(
 
        message = XmlWriter::formatSimpleIMethodRspMessage(
           CIMName ("EnumerateClasses"), response->messageId, 
-          response->getHttpMethod(), body);
+          response->getHttpMethod(), 
+		  response->contentLanguages,           
+          body);
 
        STAT_SERVEREND
    }
@@ -528,7 +540,9 @@ void CIMOperationResponseEncoder::encodeDeleteClassResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteClass"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(), 
+	  response->contentLanguages,       
+      body);
 
    STAT_SERVEREND
 
@@ -557,7 +571,9 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("CreateInstance"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(), 
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -585,7 +601,9 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("GetInstance"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -612,7 +630,9 @@ void CIMOperationResponseEncoder::encodeModifyInstanceResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ModifyInstance"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(), 
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -646,7 +666,9 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
 
        message = XmlWriter::formatSimpleIMethodRspMessage(
           CIMName ("EnumerateInstances"), response->messageId, 
-          response->getHttpMethod(), body);
+          response->getHttpMethod(),
+          response->contentLanguages, 
+          body);
 
    STAT_SERVEREND
    }
@@ -695,7 +717,9 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("EnumerateInstanceNames"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -722,7 +746,9 @@ void CIMOperationResponseEncoder::encodeDeleteInstanceResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteInstance"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -750,7 +776,9 @@ void CIMOperationResponseEncoder::encodeGetPropertyResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("GetProperty"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -777,7 +805,9 @@ void CIMOperationResponseEncoder::encodeSetPropertyResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("SetProperty"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -804,7 +834,9 @@ void CIMOperationResponseEncoder::encodeSetQualifierResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("SetQualifier"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+	  response->contentLanguages,       
+      body);
 
    STAT_SERVEREND
 
@@ -832,7 +864,9 @@ void CIMOperationResponseEncoder::encodeGetQualifierResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("GetQualifier"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -862,7 +896,9 @@ void CIMOperationResponseEncoder::encodeEnumerateQualifiersResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("EnumerateQualifiers"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -889,7 +925,9 @@ void CIMOperationResponseEncoder::encodeDeleteQualifierResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("DeleteQualifier"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -923,7 +961,9 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ReferenceNames"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -953,7 +993,9 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("References"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -987,7 +1029,9 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("AssociatorNames"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -1017,7 +1061,9 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("Associators"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -1047,7 +1093,9 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleIMethodRspMessage(
       CIMName ("ExecQuery"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      response->contentLanguages, 
+      body);
 
    STAT_SERVEREND
 
@@ -1087,7 +1135,9 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
 
    Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(
        response->methodName, response->messageId, 
-       response->getHttpMethod(), body);
+       response->getHttpMethod(), 
+       response->contentLanguages,
+       body);
 
    STAT_SERVEREND
 

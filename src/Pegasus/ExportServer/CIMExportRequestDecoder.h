@@ -38,6 +38,8 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/ExportServer/Linkage.h>
+#include <Pegasus/Common/AcceptLanguages.h>  //l10n
+#include <Pegasus/Common/ContentLanguages.h>  //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -81,6 +83,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 
       void handleHTTPMessage(HTTPMessage* httpMessage);
 
+// l10n
       void handleMethodRequest(
 	 Uint32 queueId,
          HttpMethod httpMethod,
@@ -88,7 +91,9 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 	 const String& requestUri,
 	 const String& cimProtocolVersionInHeader,
 	 const String& cimExportMethodInHeader,
-	 const String& userName);
+	 const String& userName,
+	 const AcceptLanguages& httpAcceptLanguages,
+	 const ContentLanguages& httpContentLanguages);	 
 
       CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
 	 Uint32 queueId,

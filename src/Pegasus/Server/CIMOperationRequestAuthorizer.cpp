@@ -149,6 +149,22 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
 
    Uint32 queueId = qis.top();
 
+// l10n
+   // Set the client's requested language into this service thread.
+   // This will allow functions in this service to return messages
+   // in the correct language.
+   CIMMessage * req = dynamic_cast<CIMMessage *>(request);
+   if (req != NULL)
+   {
+	   AcceptLanguages *langs = 
+   			new AcceptLanguages(req->acceptLanguages);	
+	   Thread::setLanguages(langs);   		
+   }
+   else
+   {
+   		Thread::clearLanguages();
+   }
+
    //
    // If CIMOM is shutting down, return "Service Unavailable" response
    //

@@ -39,6 +39,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/AcceptLanguages.h>  // l10n
+#include <Pegasus/Common/ContentLanguages.h>  // l10n
 #include "CIMExportRequestEncoder.h"
 
 PEGASUS_USING_STD;
@@ -92,13 +94,18 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
    XmlWriter::appendInstanceEParameter(
       params, "NewIndication", message->indicationInstance);
 	
+// l10n
+   // Note:  Accept-Language will not be set in the request	
+   // We will accept the default language of the export server.
    Array<Sint8> buffer = XmlWriter::formatSimpleEMethodReqMessage(
       message->url.getCString(),
       _hostName,
       CIMName ("ExportIndication"), 
       message->messageId, 
       message->getHttpMethod(),
-      _authenticator->buildRequestAuthHeader(), 
+      _authenticator->buildRequestAuthHeader(),
+      AcceptLanguages::EMPTY,
+      message->contentLanguages, 
       params);
 
    _outputQueue->enqueue(new HTTPMessage(buffer));

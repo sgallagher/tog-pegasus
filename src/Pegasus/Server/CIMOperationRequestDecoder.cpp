@@ -351,6 +351,43 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       }
    }
 
+// l10n start
+   AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;
+   ContentLanguages contentLanguages = ContentLanguages::EMPTY;
+   try 
+   { 
+		// Get and validate the Accept-Language header, if set 	   	  
+		String acceptLanguageHeader;		
+		if (HTTPMessage::lookupHeader(
+		      headers, 
+	    	  "Accept-Language", 
+		      acceptLanguageHeader,
+	    	  false) == true)
+	    {
+			acceptLanguages = AcceptLanguages(acceptLanguageHeader);
+	    }
+
+		// Get and validate the Content-Language header, if set 	
+		String contentLanguageHeader;
+		if (HTTPMessage::lookupHeader(
+		      headers, 
+	    	  "Content-Language", 
+		      contentLanguageHeader,
+	    	  false) == true)
+	    {						
+			contentLanguages = ContentLanguages(contentLanguageHeader);      
+	    }
+   }			
+   catch (Exception &e)
+   {
+		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 
+					"request-not-valid",
+                    e.getMessage());		         	
+       	PEG_METHOD_EXIT();
+       	return;
+   }        
+// l10n end   
+
    // Zero-terminate the message:
 
    httpMessage->message.append('\0');
@@ -364,9 +401,11 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // If it is a method call, then dispatch it to be handled:
 
+// l10n
    handleMethodCall(queueId, httpMethod, content, contentLength, 
                     cimProtocolVersion, cimMethod,
-                    cimObject, authType, userName);
+                    cimObject, authType, userName,
+                    acceptLanguages, contentLanguages);
     
    PEG_METHOD_EXIT();
 }
@@ -381,10 +420,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
    const String& cimMethodInHeader,
    const String& cimObjectInHeader,
    String authType,
-   String userName)
+   String userName,
+   const AcceptLanguages& httpAcceptLanguages,  // l10n
+   const ContentLanguages& httpContentLanguages)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::handleMethodCall()");
+
+// l10n
+	// Set the Accept-Language into the thread for this service.
+	// This will allow all code in this thread to get
+	// the languages for the messages returned to the client.
+	Thread::setLanguages(new AcceptLanguages(httpAcceptLanguages));		
 
    //
    // If CIMOM is shutting down, return "Service Unavailable" response
@@ -976,7 +1023,24 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
    request->setHttpMethod (httpMethod);
 
+//l10n start
+// l10n TODO - might want to move A-L and C-L to Message
+// to make this more maintainable
+	// Add the language headers to the request
+	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
+	if (cimmsg != NULL)
+	{
+		cimmsg->acceptLanguages = httpAcceptLanguages;
+		cimmsg->contentLanguages = httpContentLanguages;			
+	}
+	else
+	{
+		;	// l10n TODO - error back to client here	
+	}
+// l10n end	
+
    _outputQueue->enqueue(request);
+   
    PEG_METHOD_EXIT();
 }
 

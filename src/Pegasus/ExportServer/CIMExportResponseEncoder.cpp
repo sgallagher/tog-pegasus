@@ -39,6 +39,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/ContentLanguages.h>  // l10n
 #include "CIMExportResponseEncoder.h"
 
 PEGASUS_USING_STD;
@@ -136,9 +137,15 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
 
    Array<Sint8> body;
     
+// l10n
+   // Note: Content-Language will not be set in the response. 
+   // Export responses are sent in the default language of the
+   // ExportServer.
    Array<Sint8> message = XmlWriter::formatSimpleEMethodRspMessage(
       CIMName ("ExportIndication"), response->messageId, 
-      response->getHttpMethod(), body);
+      response->getHttpMethod(),
+      ContentLanguages::EMPTY,
+      body);
 
    sendResponse(response->queueIds.top(), message);
 }

@@ -41,6 +41,7 @@
 #include "CIMOperationRequestDispatcher.h"
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
+#include <Pegasus/Common/ContentLanguages.h> // l10n
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Formatter.h>
@@ -1546,8 +1547,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
    aggregation including:
    1. checking for good responses and eliminating any error responses
    2. issuing an error if all responses are bad.
-   3. calling the proper function for merging
-   4. Issuing the single merged response.
+   3. determining the language for the aggregated response  l10n
+   4. calling the proper function for merging
+   5. Issuing the single merged response.
 */
 void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
    OperationAggregate* poA)
@@ -1644,11 +1646,53 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
            }
        }
    }
+
+    // Used to determine if all the languages in the responses match
+    Boolean langMismatch = false;   // l10n
+
    // Merge the responses into a single CIMEnumerateInstanceNamesResponse
     // If more than one response, go to proper aggregation function
     if(poA->numberResponses() > 1)
     {
     // Multiple responses. Merge them by appending the response components to the first entry
+	// l10n start
+    	// Aggregate the content langs.  If the language of all the responses are the
+        // same, then use that language as the language of the aggregated response.
+        // Otherwise, don't set any language in the aggregated response.
+
+	// Get the language of the first response  
+    	ContentLanguages firstLang = poA->getResponse(0)->contentLanguages;
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                Formatter::format("Aggregation Processor First Lang = $0"
+                                  , firstLang.toString()));    	
+  	
+	// Loop through the rest of the langs, checking for a mismatch
+        // to the lang of the first response
+	if (firstLang.size() > 0)
+	{
+	    // The first language is set.  Scan the rest of the langs.
+	    for(Uint32 j = 1; j < poA->numberResponses(); j++)
+       	    {
+    	        CIMResponseMessage* response = poA->getResponse(j);
+    	    
+    	        if (response->contentLanguages != firstLang)
+    	        {
+	           // Found a mismatch.  Set the flag and end the loop	
+                   PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                        Formatter::format("Aggregation Processor Lang Mismatch.  Mismatching lang is: $0"
+                                          , response->contentLanguages.toString()));
+	           langMismatch = true;                                     
+                   break;				    
+                }
+            }
+        }
+        else
+        {   
+             // The first lang is empty.  That guarantees a mismatch.
+             langMismatch = true;
+        }    
+        // l10n -end
+
         switch( poA->getRequestType())
         {
             case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE :
@@ -1679,6 +1723,12 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
     // Send the remaining response and delete the aggregator.
     response = poA->getResponse(0);
     response->dest = poA->_dest;
+    // l10n
+    // If all the langs didn't match, then send no language in the aggregated response.
+    if (langMismatch == true)
+    {
+    	response->contentLanguages.clear(); 
+    }
     SendForget(response);
     delete poA;
 
@@ -1730,6 +1780,20 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
    "CIMOperationRequestDispatcher::handleEnqueue - Case: $0",
 	       request->getType());
+
+// l10n
+   // Set the client's requested language into this service thread.
+   // This will allow functions in this service to return messages
+   // in the correct language.
+   CIMMessage * req = dynamic_cast<CIMMessage *>(request);
+   if (req != NULL)
+   {
+	   Thread::setLanguages(new AcceptLanguages(req->acceptLanguages));   		
+   } 
+   else
+   {
+	Thread::clearLanguages();
+   }     
 
    switch(request->getType())
    {

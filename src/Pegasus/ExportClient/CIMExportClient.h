@@ -44,6 +44,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/ContentLanguages.h>  //l10n
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/ExportClient/Linkage.h>
 
@@ -116,16 +117,19 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       */
       void disconnect();
 
+// l10n
       /** Send indication message to the destination where the url input
 	parameter defines the destination.
 
 	@param url String defining the destination of the indication to be sent.
    	@param instance CIMInstance is the indication instance which needs to 
         be sent to the destination.
+    @param contentLanguages The language of the indication    
       */
       virtual void exportIndication(
 	 const String& url,
-	 const CIMInstance& instance);
+	 const CIMInstance& instance,
+	 const ContentLanguages& contentLanguages = ContentLanguages::EMPTY);
 
    private:
 

@@ -108,6 +108,22 @@ Array<Sint8>& operator<<(Array<Sint8>& out, const CIMName& name)
     return out;
 }
 
+ 
+// l10n  
+Array<Sint8>& operator<<(Array<Sint8>& out, const AcceptLanguages& al)
+{
+    XmlWriter::append(out, al.toString ());
+    return out;
+}
+
+// l10n  
+Array<Sint8>& operator<<(Array<Sint8>& out, const ContentLanguages& cl)
+{
+    XmlWriter::append(out, cl.toString ());
+    return out;
+}
+
+
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
 {
     return os << x.toString();
@@ -1460,6 +1476,9 @@ void XmlWriter::appendScopeElement(
     }
 }
 
+// l10n - added content language and accept language support to 
+// the header methods below
+
 //------------------------------------------------------------------------------
 //
 // appendMethodCallHeader()
@@ -1475,6 +1494,8 @@ void XmlWriter::appendMethodCallHeader(
     const String& cimObject,
     const String& authenticationHeader,
     HttpMethod httpMethod,
+    const AcceptLanguages & acceptLanguages,    
+    const ContentLanguages & contentLanguages,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -1500,6 +1521,14 @@ void XmlWriter::appendMethodCallHeader(
     out << "HOST: " << host << "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
+    if (acceptLanguages.size() > 0)
+    {
+    	out << "Accept-Language: " << acceptLanguages << "\r\n";
+    }
+    if (contentLanguages.size() > 0)
+    {
+    	out << "Content-Language: " << contentLanguages << "\r\n";
+    }        
     if (httpMethod == HTTP_METHOD_M_POST)
     {
         out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
@@ -1524,6 +1553,7 @@ void XmlWriter::appendMethodCallHeader(
     out << "\r\n";
 }
 
+
 //------------------------------------------------------------------------------
 //
 // appendMethodResponseHeader()
@@ -1535,6 +1565,7 @@ void XmlWriter::appendMethodCallHeader(
 void XmlWriter::appendMethodResponseHeader(
     Array<Sint8>& out,
     HttpMethod httpMethod,
+    const ContentLanguages & contentLanguages,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -1543,6 +1574,10 @@ void XmlWriter::appendMethodResponseHeader(
     STAT_SERVERTIME
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
+    if (contentLanguages.size() > 0)
+    {
+    	out << "Content-Language: " << contentLanguages << "\r\n";
+    }
     if (httpMethod == HTTP_METHOD_M_POST)
     {
         out << "Ext:\r\n";
@@ -2160,6 +2195,8 @@ Array<Sint8> XmlWriter::formatHttpErrorRspMessage(
     return out;
 }
 
+// l10n - add content language support to the format methods below
+
 //------------------------------------------------------------------------------
 //
 // XmlWriter::formatSimpleMethodReqMessage()
@@ -2175,7 +2212,9 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     const Array<CIMParamValue>& parameters,
     const String& messageId,
     HttpMethod httpMethod,
-    const String& authenticationHeader)
+    const String& authenticationHeader,
+    const AcceptLanguages& httpAcceptLanguages,
+    const ContentLanguages& httpContentLanguages)
 {
     Array<Sint8> out;
     Array<Sint8> tmp;
@@ -2202,6 +2241,8 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
 	localObjectPath.toString(),
         authenticationHeader,
         httpMethod,
+        httpAcceptLanguages,
+        httpContentLanguages,
 	out.size());
     tmp << out;
 
@@ -2212,6 +2253,7 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
     const CIMName& methodName,
     const String& messageId,
     HttpMethod httpMethod,
+    const ContentLanguages & httpContentLanguages,
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -2225,7 +2267,10 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp, httpMethod, out.size());
+    appendMethodResponseHeader(tmp, 
+    	httpMethod, 
+    	httpContentLanguages,
+    	out.size());
     tmp << out;
 
     return tmp;
@@ -2254,7 +2299,11 @@ Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp, httpMethod, out.size());
+// l10n 
+    appendMethodResponseHeader(tmp, 
+    	httpMethod, 
+    	cimException.getContentLanguages(),  
+    	out.size());
     tmp << out;
 
     return tmp;
@@ -2273,6 +2322,8 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const String& authenticationHeader,
+    const AcceptLanguages& httpAcceptLanguages,
+    const ContentLanguages& httpContentLanguages,    
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -2294,6 +2345,8 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
 	nameSpace.getString(),
         authenticationHeader,
         httpMethod,
+        httpAcceptLanguages,
+        httpContentLanguages,
 	out.size());
     tmp << out;
 
@@ -2310,6 +2363,7 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
     const CIMName& iMethodName,
     const String& messageId,
     HttpMethod httpMethod,
+    const ContentLanguages & httpContentLanguages,    
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -2328,7 +2382,10 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp, httpMethod, out.size());
+    appendMethodResponseHeader(tmp,
+	   	 httpMethod,
+	   	 httpContentLanguages,
+    	 out.size());
     tmp << out;
 
     return tmp;
@@ -2357,7 +2414,11 @@ Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
     _appendSimpleRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendMethodResponseHeader(tmp, httpMethod, out.size());
+// l10n 
+    appendMethodResponseHeader(tmp,
+    	 httpMethod, 
+    	 cimException.getContentLanguages(),	
+    	 out.size());
     tmp << out;
 
     return tmp;
@@ -2384,6 +2445,8 @@ void XmlWriter::appendEMethodRequestHeader(
     const CIMName& cimMethod,
     HttpMethod httpMethod,
     const String& authenticationHeader,
+    const AcceptLanguages& acceptLanguages,      
+    const ContentLanguages& contentLanguages,      
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -2399,6 +2462,14 @@ void XmlWriter::appendEMethodRequestHeader(
     out << "HOST: " << host << "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
+    if (acceptLanguages.size() > 0)
+    {
+    	out << "Accept-Language: " << acceptLanguages << "\r\n";
+    }
+    if (contentLanguages.size() > 0)
+    {
+    	out << "Content-Language: " << contentLanguages << "\r\n";
+    }         
     if (httpMethod == HTTP_METHOD_M_POST)
     {
         out << "Man: http://www.hp.com; ns=";
@@ -2430,6 +2501,7 @@ void XmlWriter::appendEMethodRequestHeader(
 void XmlWriter::appendEMethodResponseHeader(
     Array<Sint8>& out,
     HttpMethod httpMethod,
+    const ContentLanguages& contentLanguages,     
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -2437,6 +2509,10 @@ void XmlWriter::appendEMethodResponseHeader(
     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
     out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
+    if (contentLanguages.size() > 0)
+    {
+    	out << "Content-Language: " << contentLanguages << "\r\n";
+    }         
     if (httpMethod == HTTP_METHOD_M_POST)
     {
         out << "Ext:\r\n";
@@ -2592,6 +2668,8 @@ Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const String& authenticationHeader,
+    const AcceptLanguages& httpAcceptLanguages,
+    const ContentLanguages& httpContentLanguages,       
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -2612,6 +2690,8 @@ Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
         eMethodName,
         httpMethod,
         authenticationHeader,
+        httpAcceptLanguages,
+        httpContentLanguages,
 	out.size());
     tmp << out;
 
@@ -2628,6 +2708,7 @@ Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
     const CIMName& eMethodName,
     const String& messageId,
     HttpMethod httpMethod,
+    const ContentLanguages& httpContentLanguages,
     const Array<Sint8>& body)
 {
     Array<Sint8> out;
@@ -2641,7 +2722,10 @@ Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
     _appendSimpleExportRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendEMethodResponseHeader(tmp, httpMethod, out.size());
+    appendEMethodResponseHeader(tmp, 
+    	httpMethod, 
+    	httpContentLanguages,
+    	out.size());
     tmp << out;
 
     return tmp;
@@ -2670,7 +2754,11 @@ Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
     _appendSimpleExportRspElementEnd(out);
     _appendMessageElementEnd(out);
 
-    appendEMethodResponseHeader(tmp, httpMethod, out.size());
+// l10n 
+    appendEMethodResponseHeader(tmp,
+    	 httpMethod,
+    	 cimException.getContentLanguages(),	
+	   	 out.size());
     tmp << out;
 
     return tmp;

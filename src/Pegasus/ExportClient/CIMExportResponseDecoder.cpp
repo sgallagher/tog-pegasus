@@ -401,6 +401,9 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
             new Exception(x.getMessage()));
     }
 
+// l10n
+// 	Note: Ignore any ContentLanguage set in the export response
+
     _outputQueue->enqueue(response);
 }
 

@@ -187,14 +187,19 @@ void CIMExportClient::disconnect()
 
 void CIMExportClient::exportIndication(
    const String& url,
-   const CIMInstance& instanceName)
+   const CIMInstance& instanceName,
+   const ContentLanguages& contentLanguages)
 {
    // encode request
+// l10n  
    CIMRequestMessage* request = new CIMExportIndicationRequestMessage(
       String::EMPTY,
       url,
       instanceName,
-      QueueIdStack());
+      QueueIdStack(),
+      String::EMPTY,
+      String::EMPTY,
+      contentLanguages);
 
    Message* message = _doRequest(request,
       CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);

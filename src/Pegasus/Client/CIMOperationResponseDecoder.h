@@ -37,6 +37,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/ContentLanguages.h> // l10n
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
@@ -93,7 +94,8 @@ private:
 	HTTPMessage* message);
 
     void _handleMethodResponse(
-	char* content);
+	char* content,
+	const ContentLanguages& contentLanguages);
 
     CIMCreateClassResponseMessage* _decodeCreateClassResponse(
 	XmlParser& parser, const String& messageId);

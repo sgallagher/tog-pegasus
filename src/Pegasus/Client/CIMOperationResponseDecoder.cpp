@@ -245,6 +245,34 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
+
+// l10n start
+   ContentLanguages contentLanguages  = ContentLanguages::EMPTY;
+   try 
+   { 
+		// Get and validate the Content-Language header, if set 	
+		String contentLanguageHeader;
+		if (HTTPMessage::lookupHeader(
+		      headers, 
+	    	  "Content-Language", 
+		      contentLanguageHeader,
+	    	  false) == true)
+	    {						
+			contentLanguages = ContentLanguages(contentLanguageHeader);      
+	    }   	
+   }			
+   catch (Exception &e)
+   {
+		CIMClientMalformedHTTPException* malformedHTTPException = new
+	   		CIMClientMalformedHTTPException("Malformed Content-Language header.");
+    	ClientExceptionMessage * response =
+       		new ClientExceptionMessage(malformedHTTPException);
+       		
+	    _outputQueue->enqueue(response);
+	    return;    	
+   }        
+// l10n end   
+
     //
     // Zero-terminate the message:
     //
@@ -275,10 +303,12 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
-    _handleMethodResponse(content);
+    _handleMethodResponse(content,
+   						contentLanguages);  // l10n
 }
 
-void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
+void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
+								const ContentLanguages& contentLanguages) //l10n
 {
     Message* response = 0;
 
@@ -463,6 +493,22 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
         response = new ClientExceptionMessage(
             new Exception(x.getMessage()));
     }
+
+//l10n start
+// l10n TODO - might want to move A-L and C-L to Message
+// to make this more maintainable
+	// Add the language header to the request
+	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(response);
+	if (cimmsg != NULL)
+	{
+		cimmsg->contentLanguages = contentLanguages;			
+	}
+	else
+	{
+		;	// l10n TODO - error back to client here	
+	}
+// l10n end	
+
 
     _outputQueue->enqueue(response);
 }

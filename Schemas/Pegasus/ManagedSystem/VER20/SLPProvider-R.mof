@@ -8,7 +8,7 @@ instance of PG_ProviderModule
     Version = "1.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.1.0";
-//    Location = "SLPProvider";
+    Location = "SLPProvider";
 };
 
 instance of PG_Provider

@@ -30,6 +30,7 @@
 
 #include <fstream>
 #include <unistd.h>
+#include <errno.h>
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -151,8 +152,8 @@ String LocalAuthFile::create()
     if (!outfs)
     {
         // unable to create file
-        PEG_TRACE_STRING(
-            TRC_AUTHENTICATION, 4, "Failed to create file: " + filePath);
+        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
+            "Failed to create file: " + filePath + ", " + strerror(errno));
         PEG_METHOD_EXIT();
         return(_filePathName);
     }

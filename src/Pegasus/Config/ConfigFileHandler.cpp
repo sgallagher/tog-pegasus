@@ -32,6 +32,7 @@
 
 
 #include <fstream>
+#include <errno.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Destroyer.h>
@@ -136,6 +137,9 @@ ConfigFileHandler::ConfigFileHandler (
 #endif
         if (!ofs)
         {
+            // unable to create file
+            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL4,
+                "Failed to create config file: " + cFile + ", " + strerror(errno));
             throw NoSuchFile(cFile);
         }
         ofs.close();
@@ -330,6 +334,8 @@ Boolean ConfigFileHandler::updatePlannedValue (
 #endif
             if (!ofs)
             {
+                PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL4,
+                    "Failed to create config file: " + pFile + ", " + strerror(errno));
                 throw NoSuchFile(pFile);
             }
             ofs.close();

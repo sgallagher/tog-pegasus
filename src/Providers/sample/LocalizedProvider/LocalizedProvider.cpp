@@ -350,7 +350,6 @@ void LocalizedProvider::enumerateInstances(
                 }
 	
                 // deliver instance
-cout << "delivering " << i << endl;
                 handler.deliver(_instances[i]);
             }  // end for
         }      // end try

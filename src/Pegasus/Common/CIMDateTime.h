@@ -45,7 +45,28 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMDateTimeRep;
+class CIMDateTimeRep
+{
+public:
+    enum { FORMAT_LENGTH = 25 };
+
+    //
+    // Length of the string required to store only the date and time without
+    // the UTC sign and UTC offset.
+    // Format is yyyymmddhhmmss.
+    // Note : The size does not include the null byte.
+    //
+    enum { DATE_TIME_LENGTH = 14 };
+
+    //
+    // Length of the string required to store the  formatted date and time
+    // Format is yyyy:mm:dd:hh:mm:ss.
+    //
+    enum { FORMATTED_DATE_TIME = 20 };
+
+    char data[FORMAT_LENGTH + 1];
+};
+
 
 /**
     The CIMDateTime class represents the CIM datetime data type as a C++ class

@@ -54,8 +54,10 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
+#include <Pegasus/Client/CIMClientInterface.h>
 #include <Pegasus/Common/AcceptLanguages.h> //l10n
 #include <Pegasus/Common/AutoPtr.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 

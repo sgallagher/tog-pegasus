@@ -73,28 +73,6 @@ PEGASUS_NAMESPACE_BEGIN
 static const char _NULL_INTERVAL_TYPE_STRING[] = "00000000000000.000000:000";
 static const char _NULL_DATE_TYPE_STRING[] = "00000000000000.000000-000";
 
-class CIMDateTimeRep
-{
-public:
-    enum { FORMAT_LENGTH = 25 };
-
-    //
-    // Length of the string required to store only the date and time without
-    // the UTC sign and UTC offset.
-    // Format is yyyymmddhhmmss.
-    // Note : The size does not include the null byte.
-    //
-    enum { DATE_TIME_LENGTH = 14 };
-
-    //
-    // Length of the string required to store the  formatted date and time
-    // Format is yyyy:mm:dd:hh:mm:ss.
-    //
-    enum { FORMATTED_DATE_TIME = 20 };
-
-    char data[FORMAT_LENGTH + 1];
-};
-
 
 CIMDateTime::CIMDateTime() :
        _rep(new CIMDateTimeRep())

@@ -33,8 +33,12 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main()
+int main(int argc, char** argv)
 {
+    // ATTN-P2-KS 20 Mar 2002 - Needs expansion of tests.
+    // get the output display flag.
+    Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+    
     CIMDateTime dt;
     dt.set("19991224120000.000000+360");
 
@@ -71,13 +75,13 @@ int main()
 
 	assert(bad);
     }
-
-    cout << dt << endl;
+    if (verbose)
+	cout << dt << endl;
 
     CIMDateTime dt1;
     dt1 = dt;
  
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -73,10 +73,9 @@ cp -a $RPM_BUILD_ROOT/usr/pegasus-1.0/lib/* $RPM_BUILD_ROOT/usr/lib
 
 # Copy the schema
 
-mkdir -p $RPM_BUILD_ROOT/var/lib/pegasus/mof
+mkdir -p $RPM_BUILD_ROOT/var/lib/pegasus/Schemas
 mkdir -p $RPM_BUILD_ROOT/var/lib/pegasus/repository
-cp -a $PEGASUS_ROOT/Schemas/CIM25/*.mof $RPM_BUILD_ROOT/var/lib/pegasus/mof
-
+cp -a $PEGASUS_ROOT/Schemas  $RPM_BUILD_ROOT/var/lib/pegasus
 #
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/
 cp $PEGASUS_ROOT/rpm/pegasus $RPM_BUILD_ROOT/etc/rc.d/
@@ -96,8 +95,14 @@ make clean
 
 %post
 ldconfig
-cimmof -R/var/lib/pegasus -I/var/lib/pegasus/mof -nroot /var/lib/pegasus/mof/CIM_Core25.mof
-cimmof -R/var/lib/pegasus -I/var/lib/pegasus/mof -nroot/cimv2 /var/lib/pegasus/mof/CIM_Schema25.mof
+#cimmof -R/var/lib/pegasus -I/var/lib/pegasus/mof -nroot /var/lib/pegasus/mof/CIM_Core25.mof
+#cimmof -R/var/lib/pegasus -I/var/lib/pegasus/mof -nroot/cimv2 /var/lib/pegasus/mof/CIM_Schema25.mof
+
+# Create the repository
+pushd /var/lib/pegasus/Schemas/Pegasus
+PEGASUS_HOME=/var/lib/pegasus make repository
+popd
+
 sbin/insserv etc/init.d/pegasus
 echo "please add the path /usr/lib/pegasus to the ld.so.conf"
 %postun
@@ -113,7 +118,7 @@ sbin/insserv etc/init.d
 
 #%dir %attr(-,root,root) /usr/bin
 #%dir %attr(-,root,root) /usr/lib
-#%dir %attr(-,root,root) /var/lib/pegasus/mof
+#%dir %attr(-,root,root) /var/lib/pegasus/Schemas
 
 %dir %attr(-,root,root) /usr/include
 %dir %attr(-,root,root) /var/pegasus/log
@@ -127,4 +132,4 @@ sbin/insserv etc/init.d
 
 %attr(-,root,root) /usr/bin/
 
-%attr(-,root,root) /var/lib/pegasus/mof/
+%attr(-,root,root) /var/lib/pegasus/Schemas/

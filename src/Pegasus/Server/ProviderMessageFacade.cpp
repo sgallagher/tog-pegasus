@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -458,7 +458,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 
 	CIMPropertyList propertyList(request->propertyList);
 
-	SimpleResponseHandler<CIMInstance> handler;
+	SimpleResponseHandler<void> handler;
 
 	// forward request
 	modifyInstance(
@@ -518,7 +518,7 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 
 	context.insert(IdentityContainer(request->userName));
 
-	SimpleResponseHandler<CIMInstance> handler;
+	SimpleResponseHandler<void> handler;
 
 	// forward request
 	deleteInstance(

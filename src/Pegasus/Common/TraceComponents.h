@@ -1,11 +1,9 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2003////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
-// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
-// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
 // IBM Corp.; EMC Corporation, The Open Group.
-// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
-// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -114,6 +112,7 @@ static char const* TRACE_COMPONENT_LIST[] =
     "ProviderManager",
     "ObjectResolution",
     "WQL",
+    "CQL",
     "Thread",
     "MetaDispatcher",
     "IPC",
@@ -175,6 +174,7 @@ enum TRACE_COMPONENT_ID
     TRC_PROVIDERMANAGER,
     TRC_OBJECTRESOLUTION,
     TRC_WQL,
+    TRC_CQL,
     TRC_THREAD,
     TRC_META_DISPATCH,
     TRC_IPC,

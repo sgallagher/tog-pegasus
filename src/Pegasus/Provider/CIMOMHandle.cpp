@@ -80,7 +80,19 @@ struct CIMOMHandle::_cimom_handle_rep
       {
 	 if(rq == 0)
 	    throw UninitializedObjectException();
-	 
+	    
+
+	 // prevent recursive entry into the cimom handle !
+	 try 
+	 {
+	    _recursion.try_lock(pegasus_thread_self());
+	 }
+	 catch(...)
+	 {
+	    PEGASUS_STD(cout) << " recursive use of CIMOMHandle " << PEGASUS_STD(endl);
+	    return 0;
+	 }
+
 	 callback_data *cb_data = new callback_data(_container);
 	 
 	 // create request envelope
@@ -101,6 +113,8 @@ struct CIMOMHandle::_cimom_handle_rep
 	 {
 	    delete asyncRequest;
 	    delete cb_data;
+	    // unlock the recursion mutex
+	    _recursion.unlock();
 	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
 	 }
 	 cb_data->client_sem.wait();
@@ -111,6 +125,9 @@ struct CIMOMHandle::_cimom_handle_rep
 	 delete asyncRequest;
 	 delete asyncReply;
 	 delete cb_data;
+	    
+	 // unlock the recursion mutex
+	 _recursion.unlock();
 	 return(response);
       }
       
@@ -225,6 +242,7 @@ struct CIMOMHandle::_cimom_handle_rep
       Uint32 _dispatcher_qid;
       Uint32 _provider_manager_qid;
       Boolean _initialized;
+      Mutex _recursion;
 
 };
 
@@ -263,8 +281,11 @@ CIMClass CIMOMHandle::getClass(
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList)
 {
-   _rep->init(this);
 
+   cout << " initializing cimom handle " << endl;
+   
+   _rep->init(this);
+   cout << " encoding request  " << endl;
     // encode request
     CIMGetClassRequestMessage * request =
         new CIMGetClassRequestMessage(
@@ -280,14 +301,15 @@ CIMClass CIMOMHandle::getClass(
     CIMGetClassResponseMessage * response =
        static_cast<CIMGetClassResponseMessage *>(_rep->_controller_async(request));
     CIMClass cimClass;
-
+   cout << " request complete  " << endl;
 
     if(response != 0)
     {
+       cout << " response received " << endl;
+       
        cimClass = response->cimClass;
     }
 
-    delete request;
     delete response;
 
     return cimClass;
@@ -323,9 +345,7 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
     {
        cimClasses = reply->cimClasses;
     }
-    delete request;
     delete reply;
-
     return cimClasses;
 }
 
@@ -356,7 +376,6 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
        classNames = reply->classNames;
     }
 
-    delete request;
     delete reply;
 
     return(classNames);
@@ -379,7 +398,6 @@ void CIMOMHandle::createClass(
 
     CIMCreateClassResponseMessage *reply =
        static_cast<CIMCreateClassResponseMessage *>(_rep->_controller_async(request));
-    delete request;
 
     if(reply == 0)
     {
@@ -387,7 +405,6 @@ void CIMOMHandle::createClass(
     }
 
     delete reply;
-
     return;
 }
 
@@ -409,7 +426,6 @@ void CIMOMHandle::modifyClass(
     CIMModifyClassResponseMessage *reply =
        static_cast<CIMModifyClassResponseMessage *>(_rep->_controller_async(request));
 
-    delete request;
     if(reply == 0)
     {
        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
@@ -438,7 +454,7 @@ void CIMOMHandle::deleteClass(
 
     CIMDeleteClassResponseMessage * reply =
        static_cast<CIMDeleteClassResponseMessage * >(_rep->_controller_async(request));
-    delete request;
+
     if(reply == 0)
     {
        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
@@ -484,7 +500,6 @@ CIMInstance CIMOMHandle::getInstance(
        cimInstance = reply->cimInstance;
     }
 
-    delete request;
     delete reply;
 
     return(cimInstance);
@@ -524,7 +539,6 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     {
        cimInstances = reply->cimNamedInstances;
     }
-    delete request;
     delete reply;
 
     return(cimInstances);
@@ -555,7 +569,6 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     {
        cimReferences = reply->instanceNames;
     }
-    delete request;
     delete reply;
 
     return(cimReferences);
@@ -587,7 +600,6 @@ CIMObjectPath CIMOMHandle::createInstance(
     {
        cimReference = reply->instanceName;
     }
-    delete request;
     delete reply;
 
     return(cimReference);
@@ -615,7 +627,6 @@ void CIMOMHandle::modifyInstance(
     CIMModifyInstanceResponseMessage *reply =
        static_cast<CIMModifyInstanceResponseMessage *>(_rep->_controller_async(request));
 
-    delete request;
     if(reply == 0)
     {
        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
@@ -642,7 +653,6 @@ void CIMOMHandle::deleteInstance(
     CIMDeleteInstanceResponseMessage *reply =
        static_cast<CIMDeleteInstanceResponseMessage *>(_rep->_controller_async(request));
 
-    delete request;
     if(reply == 0)
     {
        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
@@ -679,7 +689,6 @@ Array<CIMObject> CIMOMHandle::execQuery(
        cimObjects = reply->cimObjects;
     }
 
-    delete request;
     delete reply;
 
     return(cimObjects);
@@ -722,7 +731,6 @@ Array<CIMObject> CIMOMHandle::associators(
     {
        cimObjects = reply->cimObjects;
     }
-    delete request;
     delete reply;
 
     return(cimObjects);
@@ -759,7 +767,6 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
     {
        cimObjectPaths = reply->objectNames;
     }
-    delete request;
     delete reply;
 
     return(cimObjectPaths);
@@ -798,7 +805,6 @@ Array<CIMObject> CIMOMHandle::references(
     {
        cimObjects = reply->cimObjects;
     }
-    delete request;
     delete reply;
 
     return(cimObjects);
@@ -830,7 +836,6 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
     {
        cimObjectPaths = reply->objectNames;
     }
-    delete request;
     delete reply;
 
     return(cimObjectPaths);
@@ -861,7 +866,6 @@ CIMValue CIMOMHandle::getProperty(
        cimValue = reply->value;
     }
 
-    delete request;
     delete reply;
 
     return(cimValue);
@@ -887,7 +891,6 @@ void CIMOMHandle::setProperty(
 
     CIMSetPropertyResponseMessage *reply  =
        static_cast<CIMSetPropertyResponseMessage *>(_rep->_controller_async(request));
-    delete request;
     if(reply == 0)
     {
        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
@@ -917,7 +920,6 @@ CIMValue CIMOMHandle::invokeMethod(
     
     CIMInvokeMethodResponseMessage *reply  =
        static_cast<CIMInvokeMethodResponseMessage *>(_rep->_controller_async(request));
-    delete request;
 
     CIMValue cimValue;
     if(reply != 0)

@@ -111,7 +111,7 @@ inline void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPC
 }
 
 
-inline void Thread::cleanup_pop(Boolean execute) throw(IPCException)
+inline void Thread::cleanup_pop(Boolean execute = true) throw(IPCException)
 {
    cleanup_handler *cu ;
    try { cu = static_cast<cleanup_handler *>(_cleanup.remove_first()) ;}

@@ -113,7 +113,6 @@ Monitor::Monitor(Boolean async)
     }
 
     if( _async == true )
-
     {
        _thread_pool = new ThreadPool(0, 
 				     "Monitor", 

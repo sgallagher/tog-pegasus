@@ -591,7 +591,6 @@ Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
       return false;
 }
 
-
 PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
 {
    exit_thread((PEGASUS_THREAD_RETURN)1);

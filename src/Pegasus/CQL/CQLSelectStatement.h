@@ -1,3 +1,37 @@
+//%2004////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Authors: David Rosckes (rosckes@us.ibm.com)
+//          Bert Rivero (hurivero@us.ibm.com)
+//          Chuck Carmack (carmack@us.ibm.com)
+//          Brian Lucier (lucier@us.ibm.com)
+//
+// Modified By: 
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #ifndef Pegasus_CQLSelectStatement_h
 #define Pegasus_CQLSelectStatement_h
 
@@ -5,7 +39,6 @@
 #include <Pegasus/CQL/SelectStatement.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
-
 #include <Pegasus/CQL/Linkage.h>
 
 
@@ -44,16 +77,18 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
               is stored is located in the base SelectStatement
               class.
            */
-        String inQlang, 
+        String& inQlang, 
         /**  input parameter containing the query string.
            */
-        String inQuery, 
+        String& inQuery, 
         
-        QueryContext& inCtx);
+        QueryContext* inCtx);
 
-	CQLSelectStatement(const CQLSelectStatement& statement);
+    CQLSelectStatement(const CQLSelectStatement& statement);
 
-	~CQLSelectStatement();
+    ~CQLSelectStatement();
+
+    CQLSelectStatement& operator=(const CQLSelectStatement& rhs);
 
     /**  Implements the evaluate method from the
           base SelectStatement class.
@@ -63,25 +98,16 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
         /**  The CIM instance that will be evaluated.
                The CIMInstance object is not modified by this method.
            */
-        CIMInstance const inCI);
-
-    /**  Implements the executeQuery method from the
-          base SelectStatement class.
-       */
-    Array<CIMInstance> executeQuery(
-        /** Input parameter that is an array of CIM Instance objects on which
-             to execute the query.
-           */
-        Array<CIMInstance> inCIMInstanceArray) throw(Exception);
+        const CIMInstance& inCI);
 
     /**  Implements the applyProjection method from the
           base SelectStatement class.
        */
-    CIMInstance applyProjection(
+    void applyProjection(
         /**  Input the CIMInstance object in which to apply the
               projection.
            */
-        CIMInstance inCI) throw(Exception);
+        CIMInstance& inCI) throw(Exception);
 
     /**  Implements the validatedClass method from the
           base SelectStatement class.
@@ -96,7 +122,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /** Returns an array of CIMObjectPath objects that are the 
           class paths from the select statement in the FROM list.
      */
-    Array<CIMObjectPath> const getClassPathList();
+    Array<CIMObjectPath> getClassPathList();
 
     /** Returns the required properties from the combined SELECT and WHERE
          clauses for the classname passed in.
@@ -182,8 +208,6 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
         /**  Input the chained CQL identifiers to append. 
            */
         const CQLChainedIdentifier& x);
-
-    CQLSelectStatement& operator=(const CQLSelectStatement& rhs);
 
   private:
 	CQLSelectStatementRep* _rep;

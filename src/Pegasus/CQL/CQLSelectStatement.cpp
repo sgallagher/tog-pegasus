@@ -1,94 +1,155 @@
+//%2004////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
+// Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L. P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Authors: David Rosckes (rosckes@us.ibm.com)
+//          Bert Rivero (hurivero@us.ibm.com)
+//          Chuck Carmack (carmack@us.ibm.com)
+//          Brian Lucier (lucier@us.ibm.com)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
 #include "CQLSelectStatement.h"
 #include "CQLSelectStatementRep.h"
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-CQLSelectStatement::CQLSelectStatement():SelectStatement(){
-//	printf("CQLSelectStatement()\n");
-	_rep = new CQLSelectStatementRep();
-}
-
-CQLSelectStatement::CQLSelectStatement(String inQlang, String inQuery, QueryContext& inCtx)
+CQLSelectStatement::CQLSelectStatement()
+  :SelectStatement()
 {
-	_rep = new CQLSelectStatementRep(inQlang,inQuery,inCtx);
+  _rep = new CQLSelectStatementRep();
 }
 
-CQLSelectStatement::CQLSelectStatement(const CQLSelectStatement& statement):SelectStatement(statement){
-	_rep = new CQLSelectStatementRep(statement._rep);
-}
-
-CQLSelectStatement::~CQLSelectStatement(){
-	if(_rep)
-		delete _rep;
-}
-
-Boolean CQLSelectStatement::evaluate(CIMInstance const inCI)
+CQLSelectStatement::CQLSelectStatement(String& inQlang, String& inQuery, QueryContext* inCtx)
+  :SelectStatement()
 {
+  _rep = new CQLSelectStatementRep(inQlang,inQuery,inCtx);
+}
+
+CQLSelectStatement::CQLSelectStatement(const CQLSelectStatement& statement)
+  :SelectStatement()
+{
+  _rep = new CQLSelectStatementRep(*statement._rep);
+}
+
+CQLSelectStatement::~CQLSelectStatement()
+{
+  if(_rep)
+    delete _rep;
+}
+
+CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs)
+{
+  if(&rhs != this)
+  {
+    if(_rep) delete _rep;	
+    _rep = new CQLSelectStatementRep(*rhs._rep);
+  }
+
+  return *this;
+}
+
+Boolean CQLSelectStatement::evaluate(const CIMInstance& inCI)
+{
+  PEGASUS_ASSERT(_rep != NULL);
+
    return _rep->evaluate(inCI);
 }
 
-Array<CIMInstance> CQLSelectStatement::executeQuery(Array<CIMInstance> inCIMInstanceArray) throw(Exception)
+void CQLSelectStatement::applyProjection(CIMInstance& inCI) throw(Exception)
 {
-   return _rep->executeQuery(inCIMInstanceArray);
-}
+  PEGASUS_ASSERT(_rep != NULL);
 
-CIMInstance CQLSelectStatement::applyProjection(CIMInstance inCI) throw(Exception)
-{
    return _rep->applyProjection(inCI);
 }
 
 void CQLSelectStatement::validateClass(const CIMObjectPath& inClassName) throw(Exception)
 {
-	_rep->validateClass(inClassName);
+
+  PEGASUS_ASSERT(_rep != NULL);
+
+  _rep->validateClass(inClassName);
 }
 
 void CQLSelectStatement::validateProperties() throw(Exception)
 {
-	_rep->validateProperties();
+  PEGASUS_ASSERT(_rep != NULL);
+
+  _rep->validateProperties();
 }
 
-Array<CIMObjectPath> const CQLSelectStatement::getClassPathList()
+Array<CIMObjectPath> CQLSelectStatement::getClassPathList()
 {
- 	return _rep->getClassPathList();
+  PEGASUS_ASSERT(_rep != NULL);
+
+  return _rep->getClassPathList();
 }
 
 CIMPropertyList CQLSelectStatement::getPropertyList(const CIMObjectPath& inClassName)
 {
+  // Should be set by the concrete sub-classes
+  PEGASUS_ASSERT(_rep != NULL);
+
    return _rep->getPropertyList(inClassName);
 }
 
 void CQLSelectStatement::appendClassPath(const CQLIdentifier& inIdentifier)
 {
-	_rep->appendClassPath(inIdentifier);
+  PEGASUS_ASSERT(_rep != NULL);
+
+  _rep->appendClassPath(inIdentifier);
 }
 
 void CQLSelectStatement::setPredicate(CQLPredicate inPredicate)
 {
-	_rep->setPredicate(inPredicate);
+  PEGASUS_ASSERT(_rep != NULL);
+
+  _rep->setPredicate(inPredicate);
 }
 
 void CQLSelectStatement::insertClassPathAlias(const CQLIdentifier& inIdentifier, String inAlias)
 {
-	_rep->insertClassPathAlias(inIdentifier,inAlias);
+  PEGASUS_ASSERT(_rep != NULL);
+
+  _rep->insertClassPathAlias(inIdentifier,inAlias);
 }
 
 void CQLSelectStatement::appendSelectIdentifier(const CQLChainedIdentifier& x)
 {
-	printf("CQLSelectStatement::appendSelectIdentifier\n");
-	_rep->appendSelectIdentifier(x);
+  PEGASUS_ASSERT(_rep != NULL);
+
+  _rep->appendSelectIdentifier(x);
 }
 
 Boolean CQLSelectStatement::appendWhereIdentifier(const CQLChainedIdentifier& x)
 {
-   return _rep->appendWhereIdentifier(x);
-}
+  PEGASUS_ASSERT(_rep != NULL);
 
-CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs){
-	if(&rhs != this){
-		if(_rep) delete _rep;	
-		_rep = new CQLSelectStatementRep(rhs._rep);
-	}
-	return *this;
+   return _rep->appendWhereIdentifier(x);
 }
 
 PEGASUS_NAMESPACE_END

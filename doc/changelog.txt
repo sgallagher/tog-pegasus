@@ -265,6 +265,9 @@ repository implementation.
     init and update methods. Submitted the pegasus/mak/Buildmakefile with 
     cleanbuild, rebuild and trace configuration options.
 
+37. (Yi Zhou - HP) 05 Nov 2001 Fixed createInstance to return a CIMReference 
+    (instanceName).
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -183,7 +183,7 @@ static void TestInstanceOperations(CIMClient& client)
     cimInstance.addProperty(CIMProperty("first", "John"));
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
     CIMReference instanceName = cimInstance.getInstanceName(cimClass);
-    client.createInstance(NAMESPACE, cimInstance);
+    CIMReference createdinstanceName = client.createInstance(NAMESPACE, cimInstance);
 
     // Get the instance and compare with created one:
 

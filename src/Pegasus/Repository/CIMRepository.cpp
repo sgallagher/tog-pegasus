@@ -25,6 +25,8 @@
 // Modified By: 
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
+// Modified By: Yi Zhou (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cctype>
@@ -528,7 +530,7 @@ void CIMRepository::_createAssocInstEntries(
     }
 }
 
-void CIMRepository::createInstance(
+CIMReference CIMRepository::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
@@ -608,6 +610,7 @@ void CIMRepository::createInstance(
         errMessage.append(instanceName.toString());
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, errMessage);
     }
+    return (instanceName);
 }
 
 void CIMRepository::modifyClass(

@@ -24,6 +24,8 @@
 //
 // Modified By: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By: Yi Zhou (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/XmlWriter.h>
@@ -482,7 +484,7 @@ void CIMOMHandle::enumerateInstanceNamesAsync(
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-void CIMOMHandle::createInstance(
+CIMReference CIMOMHandle::createInstance(
 	const OperationContext & context,
 	const String& nameSpace,
 	const CIMInstance& newInstance)
@@ -508,6 +510,8 @@ void CIMOMHandle::createInstance(
 	Destroyer<CIMCreateInstanceResponseMessage> destroyer(response);
 
 	_checkError(response);
+
+	return(response->instanceName);
 }
 
 void CIMOMHandle::createInstanceAsync(

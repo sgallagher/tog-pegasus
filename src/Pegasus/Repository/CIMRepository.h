@@ -25,6 +25,8 @@
 // Modified By:
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
+// Modified By: Yi Zhou (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef PegasusRepository_Repository_h
@@ -87,7 +89,7 @@ public:
         const CIMClass& newClass);
 
     /// createInstance
-    virtual void createInstance(
+    virtual CIMReference createInstance(
         const String& nameSpace,
         const CIMInstance& newInstance);
 

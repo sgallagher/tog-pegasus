@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -273,14 +273,16 @@ void CIMProviderHandle::enumerateInstanceNamesAsync(
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-void CIMProviderHandle::createInstance(
+CIMReference CIMProviderHandle::createInstance(
 	const OperationContext & context,
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
-	_provider->createInstance(
+	CIMReference cimReference = _provider->createInstance(
 		nameSpace,
 		newInstance);
+
+	return(cimReference);
 }
 
 void CIMProviderHandle::createInstanceAsync(

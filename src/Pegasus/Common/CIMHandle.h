@@ -22,7 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -182,7 +182,7 @@ public:
 		const String& className,
 		ResponseHandler<CIMReference> & handler) = 0;
 
-	virtual void createInstance(
+	virtual CIMReference createInstance(
 		const OperationContext & context,
 		const String& nameSpace,
 		const CIMInstance& newInstance) = 0;

@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -252,7 +254,7 @@ void CIMClient::createClass(
     _checkError(response);
 }
 
-void CIMClient::createInstance(
+CIMReference CIMClient::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
@@ -275,6 +277,8 @@ void CIMClient::createInstance(
     Destroyer<CIMCreateInstanceResponseMessage> destroyer(response);
     
     _checkError(response);
+    
+    return(response->instanceName);
 }
 
 void CIMClient::modifyClass(

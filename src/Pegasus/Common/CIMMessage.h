@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMMessage_h
@@ -254,7 +256,7 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const CIMInstance& newInstance_,
-	QueueIdStack queueIds_) 
+	QueueIdStack queueIds_)
 	:
 	CIMRequestMessage(
 	    CIM_CREATE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -868,12 +870,16 @@ public:
 	const String& messageId_,
 	CIMStatusCode errorCode_,
 	const String& errorDescription_,
-	const QueueIdStack& queueIds_)
+	const QueueIdStack& queueIds_,
+	const CIMReference& instanceName_)
 	: 
 	CIMResponseMessage(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, 
-	    messageId_, errorCode_, errorDescription_, queueIds_)
+	    messageId_, errorCode_, errorDescription_, queueIds_),
+	instanceName(instanceName_)
     {
     }
+
+    CIMReference instanceName;	
 };
 
 class CIMModifyClassResponseMessage : public CIMResponseMessage

@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -85,11 +85,12 @@ void CIMProvider::createClass(
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-void CIMProvider::createInstance(
+CIMReference CIMProvider::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    return CIMReference();
 }
 
 void CIMProvider::modifyClass(

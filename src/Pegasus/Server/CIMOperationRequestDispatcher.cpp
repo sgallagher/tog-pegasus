@@ -25,6 +25,8 @@
 //
 // Modified By:  Chip Vincent (cvincent@us.ibm.com)
 //
+// Modified By:  Yi Zhou (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMOperationRequestDispatcher.h"
@@ -469,11 +471,15 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 {
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
+    CIMReference instanceName;
+
+    CIMInstance cimInstance(request->newInstance);
 
     try
     {
 	// get provider for class
 	String className = request->newInstance.getClassName();
+        CIMClass cimClass = className;
 	String providerName = _lookupProviderForClass(request->nameSpace, className);
 
 	if(providerName.size() != 0)
@@ -481,14 +487,14 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 		// attempt to load provider
 		ProviderHandle * provider = _providerManager.getProvider(providerName, className);
 
-	    provider->createInstance(
+	    instanceName = provider->createInstance(
 		OperationContext(),
 		request->nameSpace,
 		request->newInstance);
 	}
 	else
 	{
-	    _repository->createInstance(
+	     instanceName = _repository->createInstance(
 		request->nameSpace,
 		request->newInstance);
 	}
@@ -509,7 +515,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 	    request->messageId,
 	    errorCode,
 	    errorDescription,
-	    request->queueIds.copyAndPop());
+	    request->queueIds.copyAndPop(),
+	    instanceName);
 
     _enqueueResponse(request, response);
 }

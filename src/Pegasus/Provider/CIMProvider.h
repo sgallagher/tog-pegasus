@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Yi Zhou (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +72,7 @@ public:
 	const String& nameSpace,
 	const CIMClass& newClass);
 
-    virtual void createInstance(
+    virtual CIMReference createInstance(
 	const String& nameSpace,
 	const CIMInstance& newInstance);
 

@@ -24,6 +24,8 @@
 //
 // Modified By: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By: Yi Zhou (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMOMHandle_h
@@ -191,7 +193,7 @@ public:
 		const String& className,
 		ResponseHandler<CIMReference> & handler);
 
-	virtual void createInstance(
+	virtual CIMReference createInstance(
 		const OperationContext & context,
 		const String& nameSpace,
 		const CIMInstance& newInstance);

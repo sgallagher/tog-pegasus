@@ -370,6 +370,8 @@ void CIMOperationResponseEncoder::encodeCreateInstanceResponse(
 
     Array<Sint8> body;
 
+    XmlWriter::appendInstanceNameElement(body, response->instanceName);
+
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"CreateInstance", response->messageId, body);
 

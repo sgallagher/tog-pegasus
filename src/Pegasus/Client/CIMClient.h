@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Client_h
@@ -128,8 +130,7 @@ public:
 	const String& nameSpace,
 	const CIMClass& newClass);
 
-    /// ATTN: should return an <instanceName>!
-    virtual void createInstance(
+    virtual CIMReference createInstance(
 	const String& nameSpace,
 	const CIMInstance& newInstance);
 

@@ -25,6 +25,8 @@
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
@@ -499,17 +501,22 @@ CIMCreateInstanceResponseMessage* CIMOperationResponseDecoder::_decodeCreateInst
 	    messageId,
 	    code,
 	    description,
-	    QueueIdStack()));
+	    QueueIdStack(),
+	    CIMReference()));
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
+	CIMReference instanceName;
+	XmlReader::getInstanceNameElement(parser, instanceName);
+
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	return(new CIMCreateInstanceResponseMessage(
 	    messageId,
 	    CIM_ERR_SUCCESS,
 	    String(),
-	    QueueIdStack()));
+	    QueueIdStack(),
+	    instanceName));
     }
     else
     {

@@ -212,6 +212,10 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode *operation,
             
       Message *rq = operation->_request.next(0);
      
+// optimization <<< Thu Mar  7 21:04:05 2002 mdd >>>
+// move this to the bottom of the loop when the majority of 
+// messages become async messages. 
+
       // divert legacy messages to handleEnqueue
       if ((rq != 0) && (!(rq->getMask() & message_mask::ha_async)))
       {

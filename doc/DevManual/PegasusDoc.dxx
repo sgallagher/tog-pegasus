@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.6  2001/02/02 19:38:23  karl
+	add graphic
+	
 	Revision 1.5  2001/02/02 18:48:20  karl
 	Doc++ expansion
 	
@@ -23,6 +26,9 @@ This file defines the document strucuture and provides the introduction
 
 <STRONG><B>Welcome to PEGASUS</B></STRONG>
 
+<P><B>DRAFT FOR REVIEW</B>
+<P>Version 1.5, 2001/02/02
+
 An open source implementation of the manageability environment defined by the DMTF WBEM standards.
 
 <B>This Document</B>
@@ -40,15 +46,13 @@ Within this manual you should find:
 available to interface with Pegasus as providers, consumers, and services.
 </UL>
 
-ATTN: Give a description of the sections and what they accomplish with hotlinks to each.
+<B>ATTN:</B> I need to give a description of the sections and what they accomplish with hotlinks to each.
 
 This is not an internals manual for Pegasus.  The Internals for Pegasus developers will be defined in a separate manual that is also available from The Open Group (\URL{http://www.opengroup.org/Management}.
 
 NOTE: This a working document today.  It is revised frequently as we learn more about the documentation system and stabilize the Pegasus interfaces.  We apologize for the existing insonsistencies and errors in this working version of the document.
 
 This version of the Pegasus User Manual was created at \today
-
-
 */
 /* Change list to mvoe this into repository
     Datetime - Done Comments need more work
@@ -91,14 +95,12 @@ This version of the Pegasus User Manual was created at \today
        //@{
 	    //@Include: ClientInterfaces.dxx   
 		//@{    
-		    //@Include: ..\..\src\Pegasus\Common\operations
+		    //@Include: ..\..\src\Pegasus\Common\operations.h
 		//@}
     	   //@Include: ProviderInterfaces.dxx
     	 
     	   //@Include: ServiceInterfaces.dxx
        //@}
-
-
     //@Include: references.dxx
     //@Include: ProviderWriting.dxx
     //@Include: definitions.dxx

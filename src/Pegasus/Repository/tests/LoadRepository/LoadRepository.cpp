@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadRepository.cpp,v $
+// Revision 1.4  2001/02/15 21:35:02  mike
+// new
+//
 // Revision 1.3  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -46,7 +49,8 @@
 using namespace Pegasus;
 using namespace std;
 
-static const String NAMESPACE = "root/cimv20";
+static const String CIMV20_NAMESPACE = "root/cimv20";
+static const String ROOT_NAMESPACE = "root";
 
 //------------------------------------------------------------------------------
 // ProcessValueObjectElement()
@@ -70,7 +74,7 @@ Boolean ProcessValueObjectElement(Repository& repository, XmlParser& parser)
 
     cout << "Creating " << classDecl.getClassName() << "..." << endl;
 
-    repository.createClass(NAMESPACE, classDecl);
+    repository.createClass(CIMV20_NAMESPACE, classDecl);
 
     XmlReader::expectEndTag(parser, "VALUE.OBJECT");
 
@@ -192,11 +196,12 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
     XmlParser parser((char*)text.getData());
 
     Repository repository(repositoryRoot);
-    repository.createNameSpace(NAMESPACE);
+    repository.createNameSpace(CIMV20_NAMESPACE);
+    repository.createNameSpace(ROOT_NAMESPACE);
 
     // Create the qualifiers:
 
-    repository.createMetaQualifiers(NAMESPACE);
+    repository.createMetaQualifiers(CIMV20_NAMESPACE);
 
     if (!ProcessCimElement(repository, parser))
     {

@@ -327,6 +327,12 @@ will be deleted.
     the ModuleController as a control provider.  Moved the UserAuthProvider
     from the Providers tree to the Pegasus tree.
 
+37. (Roger Kumpf - HP) 27 Mar 2002 - Integrated the
+    ProviderRegistrationProvider with the ModuleController as a control
+    provider.  Moved the ProviderRegistrationProvider to the Pegasus
+    ControlProviders directory.  Obsoleted and removed the
+    Server/ConfigurationManager class and files.
+
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.11  2001/04/08 20:29:41  mike
+// Added std:: before cout and endl
+//
 // Revision 1.10  2001/04/08 20:28:27  karl
 // test
 //
@@ -291,8 +294,8 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
 
 	else{
 	    // ATTN: Mike the second is the problem.
-	    cout << "DEBUG RMFIL " << q.getPointer() <<endl;
-	    cout << "DEBUG RMFIL " << fileList[i] <<endl;
+	    std::cout << "DEBUG RMFIL " << q.getPointer() <<std::endl;
+	    std::cout << "DEBUG RMFIL " << fileList[i] <<std::endl;
 	    removeFile(fileList[i]);
 	}
     }

@@ -41,7 +41,13 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <pwd.h>
+
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <crypt.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "System.h"
 #include <sys/stat.h>
 #include <sys/types.h>

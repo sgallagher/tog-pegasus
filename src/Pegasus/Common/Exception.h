@@ -38,6 +38,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// REVIEW: these classes need a major restructuring. This has become the
+// REVIEW: dumping ground for exception classes.
+
 /** Class Exception  - This 
 */
 class PEGASUS_COMMON_LINKAGE Exception

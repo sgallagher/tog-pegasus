@@ -48,11 +48,7 @@ FILES:
     ConfigNsk.h
     ConfigUnix.h
     ConfigWindows.h
-
     DQueue.h
-    DeclContext.h
-    Destroyer.h
-    Dir.h
     Exception.h
     FileSystem.h
     Formatter.h
@@ -63,6 +59,7 @@ FILES:
     HTTPMessage.h
     HTTPOptions.h
     HashTable.h
+
     HttpConstants.h
     IPC.h
     IPCHpux.h
@@ -126,3 +123,7 @@ NOTES/QUESTIONS:
 	in mak system (not in individual makefiles; see Client/Makefile).
 
     4.	Use Linkage.h style everywhere.
+
+    5.	Rename Provider2 to Provider
+
+    6.	WBEMEXEC relies on old obsolete libraries (which have been removed).

@@ -88,7 +88,7 @@ DefaultProviderManager::~DefaultProviderManager(void)
 {
 }
 
-Message * DefaultProviderManager::processMessage(Message * request)
+Message * DefaultProviderManager::processMessage(Message * request) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "DefaultProviderManager::processMessage()");

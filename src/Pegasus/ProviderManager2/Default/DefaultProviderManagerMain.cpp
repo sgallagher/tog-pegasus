@@ -32,7 +32,7 @@
 
 #include "DefaultProviderManager.h"
 
-using namespace Pegasus;
+PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(const String & providerManagerName)
 {

@@ -39,7 +39,7 @@ CMPIProviderManager::~CMPIProviderManager(void)
 {
 }
 
-Message * CMPIProviderManager::processMessage(Message * request)
+Message * CMPIProviderManager::processMessage(Message * request) throw()
 {
     return(0);
 }

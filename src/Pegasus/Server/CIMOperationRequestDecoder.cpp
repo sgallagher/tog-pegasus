@@ -420,6 +420,16 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
 	XmlReader::expectEndTag(parser, "CIM");
     }
+    catch (CIMException& e)
+    {
+    	sendError(
+	    queueId, 
+	    messageId,
+	    cimMethodName,
+	    e.getCode(),
+	    e.getMessage());
+	return;
+    }
     catch (Exception& e)
     {
     	sendError(
@@ -446,6 +456,10 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
     {
 	if (CompareNoCase(name, "NewClass") == 0)
 	    XmlReader::getClassElement(parser, newClass);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -487,6 +501,10 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
 	    pl.get(propertyList);
 	}
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -516,6 +534,10 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
     {
 	if (CompareNoCase(name, "ModifiedClass") == 0)
 	    XmlReader::getClassElement(parser, modifiedClass);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -545,6 +567,10 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 	    XmlReader::getClassNameElement(parser, className, true);
 	else if (CompareNoCase(name, "DeepInheritance") == 0)
 	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -584,6 +610,10 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
 	    XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
 	    XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -614,6 +644,10 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
     {
 	if (CompareNoCase(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -639,6 +673,10 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
     {
 	if (CompareNoCase(name, "NewInstance") == 0)
 	    XmlReader::getInstanceElement(parser, newInstance);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -681,6 +719,10 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
 	    pl.get(propertyList);
 	}
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -710,6 +752,10 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
     {
 	if (CompareNoCase(name, "ModifiedInstance") == 0)
 	    XmlReader::getInstanceElement(parser, modifiedInstance);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -755,6 +801,10 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
 	    pl.get(propertyList);
 	}
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -786,6 +836,10 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
     {
 	if (CompareNoCase(name, "ClassName") == 0)
 	    XmlReader::getClassNameElement(parser, className, true);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -812,6 +866,10 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
     {
 	if (CompareNoCase(name, "InstanceName") == 0)
 	    XmlReader::getInstanceNameElement(parser, instanceName);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -837,6 +895,10 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
     {
 	if (CompareNoCase(name, "QualifierDeclaration") == 0)
 	    XmlReader::getQualifierDeclElement(parser, qualifierDeclaration);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -863,6 +925,10 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
     {
 	if (CompareNoCase(name, "QualifierName") == 0)
 	    XmlReader::getClassNameElement(parser, qualifierName, true);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -884,7 +950,10 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
     const String& nameSpace)
 {
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+    {
+        // No IPARAMVALUEs are defined for this operation
+	throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    }
 
     CIMEnumerateQualifiersRequestMessage* request = 
 	new CIMEnumerateQualifiersRequestMessage(
@@ -907,6 +976,10 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
     {
 	if (CompareNoCase(name, "QualifierName") == 0)
 	    XmlReader::getClassNameElement(parser, qualifierName, true);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -944,6 +1017,10 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
 	else if (CompareNoCase(name, "Role") == 0)
 	{
 	    XmlReader::getStringValueElement(parser, role, true);
+	}
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
@@ -1002,6 +1079,10 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
 	    pl.get(propertyList);
 	}
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -1045,6 +1126,10 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
 	    XmlReader::getStringValueElement(parser, role, true);
 	else if (CompareNoCase(name, "ResultRole") == 0)
 	    XmlReader::getStringValueElement(parser, resultRole, true);
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
@@ -1113,6 +1198,10 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 	    CIMValue pl;
 	    XmlReader::getValueArrayElement(parser, CIMType::STRING, pl);
 	    pl.get(propertyList);
+	}
+	else
+	{
+	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 	}
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");

@@ -6,6 +6,7 @@ Broker:
     + MOF Compiler (bob).
     + Namespaces (karl).
     + Documents (karl/mike).
+    + Write up how handles work.
 
     ---------------------------------------
 

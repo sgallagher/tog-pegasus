@@ -5386,7 +5386,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 	 // Need to build an Array<const char*> to send to the conversion
 	 // routine, but also need to keep track of them pointers as char*
 	 // because Windows won't let me delete a const char*.
-	 char* charPtr = strdup(stringArray[k].getCString());
+	 char* charPtr = strdup(stringArray[k].getCStringUTF8());
 	 charPtrArray.append(charPtr);
 	 constCharPtrArray.append(charPtr);
       }
@@ -5443,7 +5443,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 
       try
       {
-	 newValue = XmlReader::stringToValue(0, stringValue.getCString(), type);
+	 newValue = XmlReader::stringToValue(0, stringValue.getCStringUTF8(), type);
       }
       catch (XmlSemanticError&)
       {

@@ -30,6 +30,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
+//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -199,6 +200,8 @@ private:
     The type of operation specified on the command line. 
     */
     Uint32        _operationType;
+
+    String usage;
 
 };
 

@@ -31,6 +31,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //               Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
+//              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +80,7 @@ static const CIMName PROPERTY_NAME_PASSWORD             = CIMName ("Password");
     The usage string for this command.  This string is displayed
     when an error occurs in parsing or validating the command line.
 */
-static const char USAGE []                     = "usage: ";
+static const char USAGE []                     = "Usage: ";
 
 /**
     This constant represents the getoopt argument designator
@@ -116,6 +117,15 @@ static const Uint32 OPERATION_TYPE_REMOVE         = 3;
 */
 static const Uint32 OPERATION_TYPE_LIST           = 4;
 
+/**
+    This constant represents a help operation
+*/
+static const Uint32 OPERATION_TYPE_HELP           = 5;
+
+/**
+    This constant represents a version display operation
+*/
+static const Uint32 OPERATION_TYPE_VERSION        = 6;
 
 /**
     The constants representing the messages.
@@ -244,6 +254,16 @@ static const char   OPTION_REMOVE              = 'r';
 static const char   OPTION_LIST                = 'l';
 
 /**
+    The option character used to display help info.
+*/
+static const char   OPTION_HELP                = 'h';
+
+/**
+    The option character used to display version info.
+*/
+static const char   OPTION_VERSION             = 'v';
+
+/**
     The name of the Method that implements modify password
 */
 static const CIMName   MODIFY_METHOD            = CIMName ("modifyPassword");
@@ -288,6 +308,10 @@ static const char   PASSWORD_SAME_ERROR []  =
                         "Error, new and old passwords cannot be same.";
                         
 static const char   PASSWORD_SAME_ERROR_KEY []  = "Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR";
+
+static const char   LONG_HELP []  = "help";
+
+static const char   LONG_VERSION []  = "version";
 /**
 This is a CLI used to manage users of the CIM Server.  This command supports 
 operations to add, modify, list and remove users.  
@@ -444,6 +468,8 @@ private:
     Boolean       _passwordSet;
     Boolean       _newpasswordSet;
 
+    String usage;
+
 };
 
 /**
@@ -466,28 +492,44 @@ CIMUserCommand::CIMUserCommand ()
     /**
         Build the usage string for the config command.  
     */
-    String usage;
     usage.reserveCapacity(200);
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
-    usage.append(" -").append(OPTION_ADD);
+    //PEP#167 - new usage format
+    usage.append(" [ -").append(OPTION_ADD);
     usage.append(" -").append(OPTION_USER_NAME).append(" username");
     usage.append(" [ -").append(OPTION_PASSWORD).append(" password")
-         .append(" ] \n");
+         .append(" ]] \n");
 
-    usage.append("               -").append(OPTION_MODIFY);
+    usage.append("               [ -").append(OPTION_MODIFY);
     usage.append(" -").append(OPTION_USER_NAME).append(" username");
-    usage.append(" [ -").append(OPTION_PASSWORD).append(" old password")
+    usage.append(" [ -").append(OPTION_PASSWORD).append(" old_password")
          .append(" ]");
-    usage.append(" [ -").append(OPTION_NEW_PASSWORD).append(" new password")
-         .append(" ] \n");
+    usage.append(" [ -").append(OPTION_NEW_PASSWORD).append(" new_password")
+         .append(" ]] \n");
 
-    usage.append("               -").append(OPTION_REMOVE);
-    usage.append(" -").append(OPTION_USER_NAME).append(" username \n");
+    usage.append("               [ -").append(OPTION_REMOVE);
+    usage.append(" -").append(OPTION_USER_NAME).append(" username ] ");
 
-    usage.append("               -").append(OPTION_LIST).append(" \n");
+    usage.append("[ -").append(OPTION_LIST).append(" ] ");
+    usage.append("[ -").append(OPTION_HELP).append(" ] [ --")
+         .append(LONG_HELP).append(" ] ");
 
+    usage.append("[ --").append(LONG_VERSION).append(" ] \n");
+
+    usage.append("Options : \n");
+    usage.append("    -a         - Add a new CIM user\n");
+    usage.append("    -h, --help - Display this help message\n");
+    usage.append("    -l         - List the names of CIM users\n");
+    usage.append("    -m         - Modify a CIM user's password\n");
+    usage.append("    -n         - Supply a new password for the specified user name\n");
+    usage.append("    -r         - Remove the specified CIM user\n");
+    usage.append("    -u         - Specify a CIM user name\n");
+    usage.append("    --version  - Display CIM Server version number\n");
+    usage.append("    -w         - Supply a password for the specified user name\n");
+    
+    usage.append("\nUsage note: The cimuser command requires that the CIM Server is running.\n");
     setUsage (usage);
 }
 
@@ -525,6 +567,7 @@ void CIMUserCommand::setCommand (
     optString.append(OPTION_USER_NAME);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_LIST);
+    optString.append(OPTION_HELP);
 
     //
     //  Initialize and parse options
@@ -532,8 +575,12 @@ void CIMUserCommand::setCommand (
     getoopt options ("");
     options.addFlagspec(optString);
 
-    options.parse (argc, argv);
+    //PEP#167 - adding long flag for options : 'help' and 'version'
+    options.addLongFlagspec(LONG_HELP,getoopt::NOARG);
+    options.addLongFlagspec(LONG_VERSION,getoopt::NOARG);
 
+
+    options.parse (argc, argv);
     if (options.hasErrors ())
     {
         CommandFormatException e (options.getErrorStrings () [0]);
@@ -548,14 +595,21 @@ void CIMUserCommand::setCommand (
     {
         if (options [i].getType () == Optarg::LONGFLAG)
         {
-            //
-            //  This path should not be hit
-            //  The cimuser command has no LONGFLAG options
-            //
+  
+            //PEP 167 : long flags newly added to this command
+
+            if(options [i].getopt () == LONG_HELP)
+               _operationType = OPERATION_TYPE_HELP;
+            else if (options [i].getopt () == LONG_VERSION)
+               _operationType = OPERATION_TYPE_VERSION;
+
+
             c = options [i].getopt () [0];
 
-            UnexpectedOptionException e (c);
-            throw e;
+
+            //PEP 167 change
+            //UnexpectedOptionException e (c);
+            //throw e;
         } 
         else if (options [i].getType () == Optarg::REGULAR)
         {
@@ -718,6 +772,51 @@ void CIMUserCommand::setCommand (
                         throw e;
                     }
                     _operationType = OPERATION_TYPE_LIST;
+                    break;
+                }
+                //PEP#167 - 2 new cases added below for HELP and VERSION
+                case OPTION_HELP: 
+                {
+                    if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                    {
+                        //
+                        // More than one operation option was found
+                        //
+                        UnexpectedOptionException e (OPTION_HELP);
+                        throw e;
+                    }
+
+                    if (options.isSet (OPTION_HELP) > 1)
+                    {
+                        //
+                        // More than one list option was found
+                        //
+                        DuplicateOptionException e (OPTION_HELP); 
+                        throw e;
+                    }
+                    _operationType = OPERATION_TYPE_HELP;
+                    break;
+                }
+                case OPTION_VERSION: 
+                {
+                    if (_operationType != OPERATION_TYPE_UNINITIALIZED)
+                    {
+                        //
+                        // More than one operation option was found
+                        //
+                        UnexpectedOptionException e (OPTION_VERSION);
+                        throw e;
+                    }
+
+                    if (options.isSet (OPTION_VERSION) > 1)
+                    {
+                        //
+                        // More than one list option was found
+                        //
+                        DuplicateOptionException e (OPTION_VERSION); 
+                        throw e;
+                    }
+                    _operationType = OPERATION_TYPE_VERSION;
                     break;
                 }
 
@@ -929,6 +1028,18 @@ Uint32 CIMUserCommand::execute (
         // The command was not initialized
         //
         return 1;
+    }
+    //PEP#167 - Added Options HELP and VERSION
+    //PEP#167 - CIMServer need not be running for these to work
+    else if (_operationType == OPERATION_TYPE_HELP)
+    {
+        cerr << usage << endl;
+        return (RC_SUCCESS);
+    }
+    else if(_operationType == OPERATION_TYPE_VERSION)
+    {
+        cerr << "Version " << PEGASUS_VERSION << endl;
+        return (RC_SUCCESS);
     }
 
     // 
@@ -1418,9 +1529,10 @@ int main (int argc, char* argv [])
     {
         if (!String::equal(cfe.getMessage (), ""))
         {
-            cerr << COMMAND_NAME << ": " << cfe.getMessage () << endl;
+            cerr << COMMAND_NAME << ": " <<  "Invalid option. Use '-h' " 
+                 << "or '--help' to obtain command syntax" << endl;
+
         }
-        cerr << command->getUsage () << endl;
         return 1;
     }
 

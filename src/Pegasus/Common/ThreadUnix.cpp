@@ -63,7 +63,7 @@ static sigset_t *block_signal_mask(sigset_t *sig)
     return sig;
 }
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM || defined PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 extern "C" {
     void * _linkage(void * zosParm)
     {
@@ -75,7 +75,7 @@ extern "C" {
         free(zosParm);
         return retval;
     }
-};
+}
 #endif
 
 
@@ -111,8 +111,8 @@ Thread::~Thread()
 #else
             pthread_join(*(pthread_t *)&_handle.thid,NULL);
 #endif
-	 pthread_attr_destroy(&_handle.thatt);
       }
+      pthread_attr_destroy(&_handle.thatt);
    }
    catch(...)
    {

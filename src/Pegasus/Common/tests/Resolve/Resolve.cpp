@@ -208,6 +208,8 @@ void test01()
 	assert(class1.existsQualifier("q3"));
 	assert(class1.existsQualifier("q4"));
 	assert(class1.existsQualifier("q5"));
+
+    delete context;
 }
 /* Test for qualifier and properties resolved to subclass from superclass
 	This is a major test of resolution of attributes from a superclass to
@@ -635,6 +637,8 @@ void test02()
 		}
 
 	}
+
+    delete context;
 }
 
 // Test to confirm that invalid qualifier is caught
@@ -718,6 +722,7 @@ void test04()
     }
 	assert(!resolved);
 
+    delete context;
 }
 // Test05 - Determine if we correctly detect a property qualifier on a class and 
 // reject
@@ -867,6 +872,8 @@ void test05()
 				<< e.getMessage() << endl;
 	}
 	assert(resolved);
+
+    delete context;
     if(verbose) cout << "End Test05" << endl;
 }
 
@@ -912,6 +919,8 @@ void test06()
 	}
 
 	assert(!resolved);
+
+    delete context;
 }
 
 // Test to confirm that nonoverridable qualifiers cannot be propagated.

@@ -88,7 +88,7 @@
 
 #define PEGASUS_LOCAL_DOMAIN_SOCKET
 
-#define PEGASUS_HAS_PERFINST
+//#define PEGASUS_HAS_PERFINST  remove this until the stat provider works
 
 #define PEGASUS_USE_SYSLOGS
 

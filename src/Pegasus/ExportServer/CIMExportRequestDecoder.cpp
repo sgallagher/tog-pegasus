@@ -315,9 +315,14 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
    try
    {
-      // Expect <?xml ...>
+      //
+      // Process <?xml ... >
+      //
 
-      XmlReader::expectXmlDeclaration(parser, entry);
+      const char* xmlVersion = 0;
+      const char* xmlEncoding = 0;
+
+      XmlReader::getXmlDeclaration(parser, xmlVersion, xmlEncoding);
 
       // Expect <CIM ...>
 

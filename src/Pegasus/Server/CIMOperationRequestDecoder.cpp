@@ -348,9 +348,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
    try
    {
-      // Expect <?xml ...>
+      //
+      // Process <?xml ... >
+      //
 
-      XmlReader::expectXmlDeclaration(parser, entry);
+      const char* xmlVersion = 0;
+      const char* xmlEncoding = 0;
+
+      XmlReader::getXmlDeclaration(parser, xmlVersion, xmlEncoding);
 
       // Expect <CIM ...>
 
@@ -403,12 +408,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
          return;
       }
    }
-   catch (XmlException&)
-   {
-      sendBadRequestError(queueId, "request-not-well-formed");
-      PEG_METHOD_EXIT();
-      return;
-   }
    catch (XmlValidationError&)
    {
       sendBadRequestError(queueId, "request-not-valid");
@@ -418,6 +417,12 @@ void CIMOperationRequestDecoder::handleMethodCall(
    catch (XmlSemanticError&)
    {
       sendBadRequestError(queueId, "request-not-valid");
+      PEG_METHOD_EXIT();
+      return;
+   }
+   catch (XmlException&)
+   {
+      sendBadRequestError(queueId, "request-not-well-formed");
       PEG_METHOD_EXIT();
       return;
    }

@@ -55,20 +55,34 @@ static const Uint32 MESSAGE_SIZE = 128;
 
 //------------------------------------------------------------------------------
 //
-// expectXmlDeclaration()
+// getXmlDeclaration()
+//
+//     <?xml version="1.0" encoding="utf-8"?>
 //
 //------------------------------------------------------------------------------
 
-void XmlReader::expectXmlDeclaration(
+void XmlReader::getXmlDeclaration(
     XmlParser& parser, 
-    XmlEntry& entry)
+    const char*& xmlVersion,
+    const char*& xmlEncoding)
 {
+    XmlEntry entry;
+
     if (!parser.next(entry) ||
 	entry.type != XmlEntry::XML_DECLARATION ||
 	strcmp(entry.text, "xml") != 0)
     {
 	throw XmlValidationError(parser.getLine(),
 	    "Expected <?xml ... ?> style declaration");
+    }
+
+    if (!entry.getAttributeValue("version", xmlVersion))
+	throw XmlValidationError(
+	    parser.getLine(), "missing xml.version attribute");
+
+    if (!entry.getAttributeValue("encoding", xmlEncoding))
+    {
+        // ATTN-RK-P3-20020403:  Is there a default encoding?
     }
 }
 

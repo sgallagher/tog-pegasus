@@ -57,8 +57,13 @@ class PEGASUS_COMMON_LINKAGE XmlReader
 {
 public:
 
-    static void expectXmlDeclaration(
+    static void getXmlDeclaration(
 	XmlParser& parser, 
+	const char*& xmlVersion,
+	const char*& xmlEncoding);
+
+    static Boolean testXmlDeclaration (
+	XmlParser& parser,
 	XmlEntry& entry);
 
     static void expectStartTag(
@@ -78,10 +83,6 @@ public:
     static Boolean expectContentOrCData(
 	XmlParser& parser, 
 	XmlEntry& entry);
-
-    static Boolean testXmlDeclaration (
-      XmlParser& parser,
-      XmlEntry& entry);
 
     static Boolean testStartTag(
 	XmlParser& parser, 

@@ -196,7 +196,10 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
       // Process <?xml ... >
       //
 
-      XmlReader::expectXmlDeclaration(parser, entry);
+      const char* xmlVersion = 0;
+      const char* xmlEncoding = 0;
+
+      XmlReader::getXmlDeclaration(parser, xmlVersion, xmlEncoding);
 
       //
       // Process <CIM ... >

@@ -528,7 +528,7 @@ void GetOptions(
 		 		      "If set allows test that modify the repository" },
 		 
 		 {"repeat", "1", false, Option::WHOLE_NUMBER, 0, 0, "r",
-		 		       "specifies port number to listen on" },
+		 		       "Specifies a Repeat Count Entire test repeated this many times" },
 		 
 		 {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
 		 		 		 "specifies namespace to use for test" },
@@ -637,6 +637,7 @@ int main(int argc, char** argv)
     {
        cout << "Username = " << userName << endl;
     }
+    Boolean verboseTest = om.isTrue("verbose");
 
     String password;
     om.lookupValue("password", password);
@@ -645,8 +646,18 @@ int main(int argc, char** argv)
        cout << "password = " << password << endl;
     }
 
-    Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
+	// Set up number of test repetitions.  Will repeat entire test this number of times
+	// Default is zero
+	String repeats;
+	Uint32 repeatTestCount;
+	if (om.lookupValue("repeat", repeats))
+		repeatTestCount = atol(_CString(repeats));
+	else
+		repeatTestCount = 1;
+	if(verboseTest)
+		cout << "Test repeat count " << repeatTestCount << endl;
 
+	// Setup the active test flag.  Determines if we change repository.
     Boolean activeTest = false;
     if (om.valueEquals("active", "true"))
 		 activeTest = true;
@@ -655,7 +666,7 @@ int main(int argc, char** argv)
     // All arguments remaining in argv go into list.
     // if SLP option set, SLP list goes into set.
     // if SLP false and no args, use default localhost:5988
-    Boolean useSLP =  (om.valueEquals("slp", "true"))? true: false;
+    Boolean useSLP =  om.isTrue("slp");
     cout << "SLP " << (useSLP ? "true" : "false") << endl;
 
     Boolean localConnection = (om.valueEquals("local", "true"))? true: false;
@@ -691,96 +702,100 @@ int main(int argc, char** argv)
 		 }
     }
 #endif
-    Boolean useSSL =  (om.valueEquals("ssl", "true"))? true: false;
+    Boolean useSSL =  om.isTrue("ssl");
 
+	// Show the connectionlist
     cout << "Connection List size " << connectionList.size() << endl;
     for (Uint32 i = 0; i < connectionList.size(); i++)
 		 cout << "Connection " << i << " address " << connectionList[i] << 
 		 		 		 		 		 		     endl; 
 
-    
-    for (Uint32 i = 0; i < connectionList.size(); i++)
-    {
-
-      try
-      {
-	   Stopwatch elapsedTime;
-
-	   CIMClient client(60 * 1000);
-
-	   char * connection = connectionList[i].allocateCString();
-           if (useSSL)
-           {
-               String certpath("/home/markus/src/pegasus/server.pem");
-               SSLContext * sslcontext = new SSLContext(certpath);
-	       cout << "connecting to " << connection << endl;
-	       client.connect(connection, sslcontext);
-           }
-           else
-           {
-               if (om.valueEquals("local", "true"))
-               {
-	           cout << "Using local connection mechanism " << endl;
-                   client.connectLocal();
-               }
-               else 
-               {
-	           cout << "connecting to " << connection << endl;
-                   client.connect(connection, userName, password);
-               }
-           }
-	   delete [] connection;
-
-	   testStart("Test NameSpace Operations");
-
-	   TestNameSpaceOperations(client, activeTest, verboseTest);
-           testEnd(elapsedTime.getElapsed());
-		   
-	   testStart("Test Qualifier Operations");
-	   elapsedTime.reset();
-	   TestQualifierOperations(client,activeTest,verboseTest);
-           testEnd(elapsedTime.getElapsed());
-
-	   testStart("Test EnumerateClassNames");
-	   elapsedTime.reset();
-	   TestEnumerateClassNames(client,activeTest,verboseTest);
-           testEnd(elapsedTime.getElapsed());
-
-
-	   testStart("Test Class Operations");
-	   elapsedTime.reset();
-	   TestClassOperations(client,activeTest,verboseTest);
-           testEnd(elapsedTime.getElapsed());
-
-
-	   testStart("Test Instance Get Operations");
-	   elapsedTime.reset();
-	   TestInstanceGetOperations(client,activeTest,verboseTest);
-           testEnd(elapsedTime.getElapsed());
-
-	   testStart("Test Instance Modification Operations");
-	   elapsedTime.reset();
-	   TestInstanceModifyOperations(client, activeTest, verboseTest);
-           testEnd(elapsedTime.getElapsed());
-
-	   testStart("Test Associations");
-           TestAssociationOperations(client, activeTest, verboseTest);
-           testEnd(elapsedTime.getElapsed());
-           /* Turn this one off until we get valid method to execute
-
-	   testStart("Test Method Execution");
-           TestMethodOperations(client, activeTest, verboseTest);
-           testEnd(elapsedTime.getElapsed());
-           */
-		   
-      }
-      catch(Exception& e)
-		 {
-		   PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-		   exit(1);
-		 }
-    }
-      
+    for(Uint32 numTests = 1; numTests <= repeatTestCount; numTests++)
+	{
+		cout << "Test Repetition # " << numTests << endl;
+		for (Uint32 i = 0; i < connectionList.size(); i++)
+		{
+			cout << "Start Try Block" << endl;
+		  try
+		  {
+			  cout << "Set Stopwatch" << endl;
+			   Stopwatch elapsedTime;
+			   cout << "Create client" << endl;
+			   CIMClient client(60 * 1000);
+			   cout << "Client created" << endl;
+				   if (useSSL)
+				   {
+						String certpath("/home/markus/src/pegasus/server.pem");
+						SSLContext * sslcontext = new SSLContext(certpath);
+						cout << "connecting to " << connectionList[i] << endl;
+						client.connect(connectionList[i], sslcontext);
+				   }
+				   else
+				   {
+					   if (om.isTrue("local"))
+					   {
+						   cout << "Using local connection mechanism " << endl;
+						   client.connectLocal();
+					   }
+					   else 
+					   {
+						   cout << "connecting to " << connectionList[i] << endl;
+						   client.connect(connectionList[i], userName, password);
+					   }
+				   }
+			   cout << "Client Connected" << endl;
+		
+			   testStart("Test NameSpace Operations");
+		
+			   TestNameSpaceOperations(client, activeTest, verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+				   
+			   testStart("Test Qualifier Operations");
+			   elapsedTime.reset();
+			   TestQualifierOperations(client,activeTest,verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+		
+			   testStart("Test EnumerateClassNames");
+			   elapsedTime.reset();
+			   TestEnumerateClassNames(client,activeTest,verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+		
+		
+			   testStart("Test Class Operations");
+			   elapsedTime.reset();
+			   TestClassOperations(client,activeTest,verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+		
+		
+			   testStart("Test Instance Get Operations");
+			   elapsedTime.reset();
+			   TestInstanceGetOperations(client,activeTest,verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+		
+			   testStart("Test Instance Modification Operations");
+			   elapsedTime.reset();
+			   TestInstanceModifyOperations(client, activeTest, verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+		
+			   testStart("Test Associations");
+				   TestAssociationOperations(client, activeTest, verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+				   /* Turn this one off until we get valid method to execute
+		
+			   testStart("Test Method Execution");
+				   TestMethodOperations(client, activeTest, verboseTest);
+				   testEnd(elapsedTime.getElapsed());
+				   */
+				   
+			  client.disconnect();
+		  }
+		  catch(Exception& e)
+		  {
+			   PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+			   exit(1);
+		  }
+		}
+	}
     PEGASUS_STD(cout) << "+++++ "<< argv[0] << " Terminated Normally" << PEGASUS_STD(endl);
     return 0;
 }

@@ -35,7 +35,9 @@
 #ifdef PEGASUS_OS_OS400
 // OS400 is EBCDIC so it needs to convert string and characters to ASCII
 // prior to decode and encode.  The encoding and decoding are done in ASCII.
-#include <Pegasus/Common/OS400ConvertChar.h>  
+#include <Pegasus/Common/OS400ConvertChar.h>
+// This converts all string literal to ccsid 819
+#pragma convert(819) 
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
@@ -92,23 +94,13 @@ Array<Sint8> Base64::encode(const Array<Uint8>& vby)
         if (i+1<vby.size())
             retArray.append( _Encode(by6));
         else
-// NOTE:  If this code changes the OS400 code below may also need applicable changes
-#ifdef PEGASUS_OS_OS400
-            retArray.append(0x3D); /* ascii '=' */
-#else
             retArray.append('='); 
-#endif
 
 
         if (i+2<vby.size())
             retArray.append( _Encode(by7));
         else
-// NOTE:  If this code changes the OS400 code below may also need applicable changes
-#ifdef PEGASUS_OS_OS400
-            retArray.append(0x3D); /* ascii '=' */
-#else
             retArray.append('=');
-#endif
 
         /* ATTN: Need to fix this. It adds unwanted cr-lf after 4 chars.
 
@@ -158,12 +150,7 @@ Array<Uint8> Base64::decode(const Array<Sint8> strInput)
     //  comment
     for (size_t i=0; i < str.length();i+=4)
     {
-// NOTE:  If this code changes the OS400 code below may also need applicable changes
-#ifdef PEGASUS_OS_OS400
-        char c1=0x41,c2=0x41,c3=0x41,c4=0x41;  /* ascii 'A' */
-#else
         char c1='A',c2='A',c3='A',c4='A';
-#endif
 
         c1 = str[i];
         if (i+1<str.length())
@@ -188,20 +175,10 @@ Array<Uint8> Base64::decode(const Array<Sint8> strInput)
         retArray.append( (by1<<2)|(by2>>4) );
 
         // append second byte if not padding
-// NOTE:  If this code changes the OS400 code below may also need applicable changes
-#ifdef PEGASUS_OS_OS400
-        if (c3 != 0x3d)  /* ascii '=' */
-#else
         if (c3 != '=')
-#endif
             retArray.append( ((by2&0xf)<<4)|(by3>>2) );
 
-// NOTE:  If this code changes the OS400 code below may also need applicable changes
-#ifdef PEGASUS_OS_OS400
-        if (c4 != 0x3d)  /* ascii '=' */
-#else
         if (c4 != '=')
-#endif
             retArray.append( ((by3&0x3)<<6)|by4 );
     }
 
@@ -220,8 +197,6 @@ Array<Uint8> Base64::decode(const Array<Sint8> strInput)
 */
 inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
 {
-// NOTE:  If this code changes the OS400 code below may also need applicable changes
-#if !defined(PEGASUS_OS_OS400)
     if (uc < 26)
         return 'A'+uc;
 
@@ -235,21 +210,6 @@ inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
         return '+';
 
     return '/';
-#else
-    if (uc < 26)
-        return 0x41+uc;	/* ascii 'A' */
-
-    if (uc < 52)
-        return 0x61+(uc-26);  /* ascii 'a' */
-
-    if (uc < 62)
-        return 0x30+(uc-52);  /* ascii '0' */
-
-    if (uc == 62)
-        return 0x2B;  /* ascii '+' */
-
-    return 0x2F;  /* ascii '/' */
-#endif
 };
 
  //Helper function returns true is a character is a valid base-64 character and false otherwise.
@@ -257,8 +217,6 @@ inline PEGASUS_COMMON_LINKAGE char Base64::_Encode(Uint8 uc)
 inline Boolean Base64::_IsBase64(char c)
 {
 
-// NOTE:  If this code changes the OS400 code below may also need applicable changes
-#if !defined(PEGASUS_OS_OS400)
     if (c >= 'A' && c <= 'Z')
         return true;
 
@@ -276,25 +234,6 @@ inline Boolean Base64::_IsBase64(char c)
 
     if (c == '=')
         return true;
-#else
-    if (c >= 0x41 && c <= 0x5A)  /* ascii 'A' & 'Z' */
-        return true;
-
-    if (c >= 0x61 && c <= 0x7A)  /* ascii 'a' & 'z' */
-        return true;
-
-    if (c >= 0x30 && c <= 0x39) /* ascii '0' & '9' */
-        return true;
-
-    if (c == 0x2B) /* ascii '+' */
-        return true;
-
-    if (c == 0x2F) /* ascii '/' */
-        return true;
-
-    if (c == 0x3D) /* ascii '=' */
-        return true;
-#endif
 
     return false;
 };
@@ -302,8 +241,6 @@ inline Boolean Base64::_IsBase64(char c)
  // Translate one base-64 character into a six bit pattern
 inline Uint8 Base64::_Decode(char c)
 {
-// NOTE:  If this code changes the OS400 code below may also need applicable changes
-#if !defined(PEGASUS_OS_OS400)
     if (c >= 'A' && c <= 'Z')
         return c - 'A';
     if (c >= 'a' && c <= 'z')
@@ -314,18 +251,6 @@ inline Uint8 Base64::_Decode(char c)
 
     if (c == '+')
         return 62;
-#else
-    if (c >= 0x41 && c <= 0x5A)  /* ascii 'A' & 'Z' */
-        return c - 0x41;	/* ascii 'A' */
-    if (c >= 0x61 && c <= 0x7A)  /* ascii 'a' & 'z' */
-	return c - 0x61 + 26;    /* ascii 'a' */
-
-    if (c >= 0x30 && c <= 0x39) /* ascii '0' & '9' */
-        return c - 0x30 + 52;  /* ascii '0' */
-
-    if (c == 0x2B)  /* ascii '+' */
-        return 62;
-#endif
 
     return 63;
 };

@@ -63,7 +63,7 @@ protected:
     virtual void _handle_async_request(AsyncRequest * request);
 
 protected:
-    Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
+    virtual Pair<String, String> _lookupProviderForClass(const CIMObjectPath & objectPath);
 
 protected:
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();
@@ -101,22 +101,18 @@ protected:
 
     void handleInvokeMethodRequest(const Message * message) throw();
 
-    void handleEnableIndicationRequest(const Message * message) throw();
-    void handleModifyIndicationRequest(const Message * message) throw();
-    void handleDisableIndicationRequest(const Message * message) throw();
-
     void handleCreateSubscriptionRequest(const Message * message) throw();
     void handleModifySubscriptionRequest(const Message * message) throw();
     void handleDeleteSubscriptionRequest(const Message * message) throw();
 
 protected:
     ThreadPool _threadPool;
-    Semaphore _threadSemaphore;
 
     SafeQueue<Message *> _incomingQueue;
     //SafeQueue<Message *> _outgoingQueue;
 
     ProviderRegistrationManager * _providerRegistrationManager;
+
 };
 
 PEGASUS_NAMESPACE_END

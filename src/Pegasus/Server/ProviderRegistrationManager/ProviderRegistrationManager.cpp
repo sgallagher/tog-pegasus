@@ -36,6 +36,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Provider/OperationFlag.h>
 
 #include "ProviderRegistrationTable.h"
 
@@ -803,389 +805,23 @@ CIMReference ProviderRegistrationManager::createInstance(
     String errorDescription;
     CIMReference cimRef;
 
-    String _providerModule;
-    String _providerName;
-
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-		     "ProviderRegistrationManager::createInstance");
-
-    String className = ref.getClassName();
-
     try
     {
-	// 
-	// register PG_ProviderModule class
-	//
-	if (String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
-	{
-    	    Array<CIMInstance> instances;
-
-	    cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
-
-	    //
-	    // get provider module name
-	    //
-	    instance.getProperty(instance.findProperty
-		(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(_providerModule);
-	    //
-	    // Use provider module name to be a key, add the instance to
-	    // the hash table 
-	    //
-	    instances.append(instance);
-	    String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
-            _addInstancesToTable(_moduleKey, instances);
-
-	    PEG_METHOD_EXIT();
-	    return (cimRef);
-	}	
-
-	// 
-	// register PG_Provider class
-	//
-	if (String::equalNoCase(className, _CLASS_PG_PROVIDER))
-	{
-    	    Array<CIMInstance> instances;
-
-	    // get provider module name
-	    instance.getProperty(instance.findProperty
-		(_PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
-	    // get provider name
-	    instance.getProperty(instance.findProperty
-		(_PROPERTY_PROVIDER_NAME)).getValue().get(_providerName);
-
-	    //
-            // create the key by using _providerName and PROVIDER_KEY
-            //
-            String _providerKey = _generateKey(_providerName, PROVIDER_KEY);
-
-	    //
-            // create the key by using _providerModule and MODULE_KEY
-            //
-            String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
-
-	    //
-	    // check if the PG_ProviderModule class was registered
-	    //
-	    if (_registrationTable->table.contains(_moduleKey))
-	    {   
-		//
-		// the provider module class was registered
-		//
-	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
-	        //
-	        // add the instance to the hash table 
-	        //
-		instances.append(instance);
-
-	        _addInstancesToTable(_providerKey, instances);
-
-		PEG_METHOD_EXIT();
-	        return (cimRef);
-	    }
-	    else
-	    {
-		//
-		// the provider module class is not registered
-		//
-		throw CIMException(CIM_ERR_FAILED, "PG_ProviderModule class"
-			" needs to be registered before register the PG_Provider class");
-	    }
-	}	
-
-	//
-	// register CIM_Capabilities class
-	//
-	if (String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
-	{
-	    Array<Uint16> _providerType;
-	    Array<String> _namespaces;
-	    Array<String> _supportedMethods;
-	    Array<String> _supportedProperties;
-	    String _className;
-	    String _capabilityKey;
-
-	    //
-	    // get provider module name
-	    //
-	    instance.getProperty(instance.findProperty
-		(_PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
-	    //
-	    // get provider name
-	    //
-	    instance.getProperty(instance.findProperty
-		(_PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
-
-	    //
-            // create the key by using _providerName and PROVIDER_KEY
-            //
-            String _providerKey = _generateKey(_providerName, PROVIDER_KEY);
-
-	    //
-            // create the key by using _providerModule and MODULE_KEY
-            //
-            String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
-
-	    //
-	    // check if the PG_Provider class was registered
-	    //
-	    if (_registrationTable->table.contains(_providerKey))
-	    {
-		//
-		// the PG_Provider class was registered
-		// get provider types
-		//
-	    	instance.getProperty(instance.findProperty
-		    (_PROPERTY_PROVIDERTYPE)).getValue().get(_providerType);
-		
-		//
-		// get namespaces
-		//
-	    	instance.getProperty(instance.findProperty
-		    (_PROPERTY_NAMESPACES)).getValue().get(_namespaces);
-		
-		//
-		// get classname
-		//
-	    	instance.getProperty(instance.findProperty
-		    (_PROPERTY_CLASSNAME)).getValue().get(_className);
-		
-		for (Uint32 i=0; i < _providerType.size(); i++)
-		{
-		    switch (_providerType[i])
-		    {
-			case _INSTANCE_PROVIDER:
-			{
-			    for (Uint32 j=0; j < _namespaces.size(); j++)
-			    {
-    	    			Array<CIMInstance> instances;
-
-				//
-				// create a key by using namespace, className
-				// and providerType
-				//
-			        _capabilityKey = _generateKey(_namespaces[j],
-				     _className, INS_PROVIDER);
-				if (_registrationTable->table.contains(_capabilityKey))
-				{
-				    // the instance was already registered
-				    throw CIMException(CIM_ERR_ALREADY_EXISTS);
-				}
-				else
-				{
-				    // add the instance to the table
-				    instances.append(instance);
-				    _addInstancesToTable(_capabilityKey, instances);
-				}
-			    }
-
-			    break;
-			}
-
-			case _ASSOCIATION_PROVIDER:
-			{
-			    // ATTN-YZ-P1-20020301: Need implement 
-			    break;
-			}
-
-			case _INDICATION_PROVIDER:
-			{
-			    for (Uint32 j=0; j < _namespaces.size(); j++)
-			    {
-    	    			Array<CIMInstance> instances;
-
-				ProviderRegistrationTable* providerCapabilities;
-				//
-				// create a key by using namespace, className
-				// and providerType, store the instance to 
-				// the table
-				//
-			        _capabilityKey = _generateKey(_namespaces[j],
-				     _className, IND_PROVIDER);
-
-				if (_registrationTable->table.lookup(_capabilityKey, providerCapabilities))
-				{
-				    //
-				    // the class is already in the table
-				    //
-				    instances = providerCapabilities->getInstances();
-				    instances.append(instance);
-				    
-				    //
-	 			    // remove the entry from the table
-				    //
-				    _registrationTable->table.remove(_capabilityKey);
-				}
-				else
-				{
-				    instances.append(instance);
-				}
-
-				// update the entry
-				_addInstancesToTable(_capabilityKey, instances);
-			    }
-			    
-			    //
-			    // Create CIMNotifyProviderRegistrationRequestMessage
-			    // send the message to the subscription service
-			    //
-			    CIMInstance _providerInstance;
-			    CIMInstance _moduleInstance;
-
-			    // 
-			    // get provider instance and module instance from the
-			    // registration table
-			    //
-			    _getInstances(_providerName, _providerModule, 
-					  _providerInstance, _moduleInstance);
-
-			    CIMPropertyList _oldPropertyNames(EmptyStringArray());
-			    CIMPropertyList _newPropertyNames;
-
-			    //
-			    // get new property list from supported properties in the
-			    // providerCapability instance
-			    //
-			    _getPropertyNames(instance, _newPropertyNames);
-
-			    CIMNotifyProviderRegistrationRequestMessage * notify_req =
-			        new CIMNotifyProviderRegistrationRequestMessage(
-				    XmlWriter::getNextMessageId (),
-				    CIMNotifyProviderRegistrationRequestMessage::Operation(OP_CREATE),
-				    _providerInstance,
-				    _moduleInstance,	
-				    _className,
-				    _namespaces,
-				    _newPropertyNames,
-				    _oldPropertyNames,
-				    QueueIdStack());
-
-			    // 
-			    // ATTN-YZ-P1-20020315: waiting for implementation of
-			    // control service to send message to subscription service 
-			    // 
-
-			    break;
-			}
-
-			case _METHOD_PROVIDER:
-			{
-			    //
-			    // get supportedMethods
-			    //
-			    Uint32 pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
-			    CIMValue value;
-			    Uint32 methodsCount;
-
-			    if (pos != PEG_NOT_FOUND)
-			    {
-				value = instance.getProperty(pos).getValue();
-				if (!value.isNull())
-				{
-				    value.get(_supportedMethods);	
-			    	    methodsCount = _supportedMethods.size();
-				}
-			    }
-			    else
-			    {
-				throw CIMException(CIM_ERR_INVALID_PARAMETER);
-			    }
-
-			    for (Uint32 j=0; j < _namespaces.size(); j++)
-			    {
-				//
-				// create a key by using namespace, className,
-				// method name and providerType, store the 
-				// instance to the table 
-				//
-
-				if ( value.isNull() )
-				{
-				    //
-				    // null value means all methods
-				    //
-    	    			    Array<CIMInstance> instances;
-
-				    // Provider supports all methods
-			            _capabilityKey = _generateKey(_namespaces[j],
-				    _className, "{}", MET_PROVIDER);
-
-				    if (_registrationTable->table.contains(_capabilityKey))
-			            {
-				        // the instance was already registered
-				        throw CIMException(CIM_ERR_ALREADY_EXISTS);
-			            }
-
-				    // add the instance to the table
-				    instances.append(instance);
-				    _addInstancesToTable(_capabilityKey, instances);
-				}
-				else
-				{
-				    //
-				    // there is a list for supported methods
-				    //
-				    for (Uint32 k = 0; k < methodsCount; k++)
-				    {
-    	    			        Array<CIMInstance> instances;
-
-			                _capabilityKey = _generateKey(_namespaces[j],
-				            _className, _supportedMethods[k], MET_PROVIDER);
-					if (_registrationTable->table.contains(_capabilityKey))
-					{
-					    // the instance already registered
-                                    	    throw CIMException(CIM_ERR_ALREADY_EXISTS);
-
-					}
-					else
-					{
-				    	    instances.append(instance);
-				    	    _addInstancesToTable(_capabilityKey, instances);
-					}
-				    }
-				}
-			    }
-
-			    break;
-			}
-
-			default:
-            		    //
-            		    //  Error condition: provider type not supported
-            		    //
-            		    throw CIMException (CIM_ERR_NOT_SUPPORTED);
-            		    break;
-		    }
-		}
-
-	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
-		PEG_METHOD_EXIT();
-    		return (cimRef);
-	    }
-	    else
-	    {
-                // the provider class was not registered
-                throw CIMException(CIM_ERR_FAILED, "PG_Provider class needs "
-                   "to be registered before register the Provider capabilities class");
-	    }
-	}
-
+	cimRef = _createInstance(ref, instance, OP_CREATE);
+	return (cimRef);
     }
     catch (CIMException & exception)
     {
-	errorCode = exception.getCode ();
- 	errorDescription = exception.getMessage ();
-	PEG_METHOD_EXIT();
+        errorCode = exception.getCode ();
+        errorDescription = exception.getMessage ();
 	throw (exception);
     }
     catch (Exception & exception)
     {
 	errorCode = CIM_ERR_FAILED;
 	errorDescription = exception.getMessage ();
-	PEG_METHOD_EXIT();
 	throw (exception);
     }
-
-    PEG_METHOD_EXIT();
 }
 
 // Unregister a provider
@@ -1194,411 +830,11 @@ void ProviderRegistrationManager::deleteInstance(
 {
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
-    CIMReference cimRef;
-
-    String className = instanceReference.getClassName();
-    String providerName;
-
-    CIMReference newInstancereference("", "",
-	instanceReference.getClassName(),
-	instanceReference.getKeyBindings());
-
-    CIMInstance instance = _repository->getInstance(
-	INTEROPNAMESPACE, newInstancereference);
-	    
 
     try
     {
-	//
-	// unregister PG_ProviderCapability class
-	//
-        if(String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
-        {
-	    String deletedCapabilityID;
-	    Array<CIMInstance> instances;
-	    Uint32 instancesCount;
-	    Array<Uint16> providerType;
-
-	    //
-	    // delete the instance from repository
-	    //
-	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
-
-	    //
-	    // get the key capabilityID
-	    //
-	    instance.getProperty(instance.findProperty(
-		_PROPERTY_CAPABILITIESID)).getValue().get(deletedCapabilityID);
-	    //
-	    // remove all entries which have same capabilityID from the 
-	    // table; if the entry only has one instance, remove the entry;
-   	    // otherwise, remove the instance. 
-	    //
-	    Table::Iterator k=_registrationTable->table.start();
-
-	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
-	    {
-		k++;
-		instances = i.value()->getInstances();
-		instancesCount = instances.size();
-
-		for (Uint32 j = 0; j < instancesCount; j++)
-		{
-	    	    String capabilityID;
-		    
-		    Uint32 pos = instances[j].findProperty(_PROPERTY_CAPABILITIESID);
-		    if ( pos != PEG_NOT_FOUND)
-		    {
-	    	    	instances[j].getProperty(pos).getValue().get(capabilityID);
-		    	if (String::equal(deletedCapabilityID, capabilityID))
-		    	{
-			    if (instancesCount == 1)
-			    {
-			        _registrationTable->table.remove(i.key());
-			    }
-			    else
-			    {
-			        instances.remove(j);
-			    }
-		        }
-		    }
-
-		}
-
-	    }
-
-	    //
-	    // get provider types
-	    // if the provider is indication provider, send notification
-	    // to subscription service
-	    //
-	    instance.getProperty(instance.findProperty(
-		_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
-
-	    for (Uint32 i=0; i < providerType.size(); i++)
-	    {
-		if (providerType[i] == _INDICATION_PROVIDER)
-		{
-		    _sendDeleteNotifyMessage(instance);
-		}
-	    }
-        }
-
-	//
-	// Unregister PG_Provider class
-	// Note: Deleteting an instance of PG_Provider will cause the 
-	// associated instances of PG_ProviderCapability to be deleted 
-	//
-        if(String::equalNoCase(className, _CLASS_PG_PROVIDER))
-        {
-	    CIMInstance capInstance;
-	    CIMReference capReference;
-	    String _providerName;
-  	    Array<Uint16> providerType;
-
-	    String deletedProviderName;
-
-	    //
-	    // get the provider name
-	    //
-	    instance.getProperty(instance.findProperty(
-		_PROPERTY_PROVIDER_NAME)).getValue().get(deletedProviderName);
-
-	    //
-	    // create the key by using deletedProviderName and PROVIDER_KEY
-            //
-            String _deletedProviderKey = _generateKey(deletedProviderName, PROVIDER_KEY);
-
-	    //
-	    // delete instance of PG_Provider from repository
-	    //
-	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
-
-	    //
-	    // delete associated instances of PG_ProviderCapability
-	    //
-	    Array<CIMNamedInstance> enumCapInstances;
-	
-	    enumCapInstances = _repository->enumerateInstances(
-			INTEROPNAMESPACE, _CLASS_PROVIDER_CAPABILITIES); 	
-
-	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
-	    {
-		capInstance = enumCapInstances[i].getInstance();
-
-		// 
-		// get provider name in the instance of provider capability
-		//
-		capInstance.getProperty(capInstance.findProperty(
-		    _PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
-
-		if (String::equalNoCase(deletedProviderName, _providerName))
-		{
-		    //
-		    // if provider name of instance of provider capability is
-		    // same as deleted provider name, delete the instance of
-		    // provider capability from repository
-		    //
-		    capReference = enumCapInstances[i].getInstanceName(); 
-
-    		    CIMReference newCapReference("", "",
-			capReference.getClassName(),
-			capReference.getKeyBindings());
-
-	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
-
-		    //
-                    // get provider types
-                    // if the provider is indication provider, send notification
-                    // to subscription service
-                    //
-		    capInstance.getProperty(capInstance.findProperty(
-			_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
-
-		    for (Uint32 k=0; k < providerType.size(); k++)
-		    {
-			if (providerType[k] == _INDICATION_PROVIDER)
-			{
-			    _sendDeleteNotifyMessage(capInstance);
-			}
-		    }
- 
-		}
-
-	    }
-
-	    //
-	    // remove all entries which have same provider name from the 
-	    // table; if the entry only has one instance, remove the entry;
-   	    // otherwise, remove the instance. 
-	    //
-	    Table::Iterator k=_registrationTable->table.start();
-
-	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
-	    {
-		k++;
-		Array<CIMInstance> instances;
-		Uint32 instancesCount;
-
-		// 
-		// remove all entries which their key's value is same as _deletedProviderKey 
-		// from the table
-		//
-		if (String::equal(_deletedProviderKey, i.key()))
-		{
-		    _registrationTable->table.remove(i.key());
-		}
-
-		instances = i.value()->getInstances();
-		instancesCount = instances.size();
-
-		for (Uint32 j = 0; j < instancesCount; j++)
-		{
-	    	    String _providerName;
-		    
-		    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
-		    if ( pos != PEG_NOT_FOUND)
-		    {
-	    	    	instances[j].getProperty(pos).getValue().get(_providerName);
-			if (String::equal(deletedProviderName, _providerName))
-		    	{
-			    if (instancesCount == 1)
-			    {
-			        _registrationTable->table.remove(i.key());
-			    }
-			    else
-			    {
-			        instances.remove(j);
-			    }
-		        }
-		    }
-
-		}
-	    }
-	
-	}
-
-	//
-	// unregister PG_ProviderModule class
-	// Note: Deleteting an instance of PG_ProviderModule will cause the 
-	// associated instances of PG_Provider, instances of PG_ProviderCapability 
-	// to be deleted 
-	//
-        if(String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
-        {
-	    String deletedProviderModuleName;
-
-	    //
-	    // get the key provider module name
-	    //
-	    instance.getProperty(instance.findProperty(
-		 _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(deletedProviderModuleName);
-	    //
-            // create the key by using deletedProviderModuleName and MODULE_KEY
-            //
-            String _deletedModuleKey = _generateKey(deletedProviderModuleName, MODULE_KEY);
-
-
-	    //
-	    // delete instance of PG_ProviderModule from repository
-	    //
-	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
-
-	    //
-	    // delete associated instances of PG_Provider
-	    //
-	    Array<CIMNamedInstance> enumProviderInstances;
-	
-	    enumProviderInstances = _repository->enumerateInstances(
-				INTEROPNAMESPACE, _CLASS_PG_PROVIDER); 	
-
-	    for (Uint32 i = 0, n = enumProviderInstances.size(); i < n; i++)
-	    {
-		CIMInstance providerInstance;
-		CIMReference providerReference;
-		String _providerModuleName;
-
-		providerInstance = enumProviderInstances[i].getInstance();
-
-		// 
-		// get provider module name in the instance of PG_Provider 
-		//
-		providerInstance.getProperty(providerInstance.findProperty(
-		    _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModuleName);
-
-		if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
-		{
-		    //
-		    // if provider module name of instance of PG_Provider is
-		    // same as deleted provider module name, delete the instance of
-		    // PG_Provider from repository
-		    //
-		    providerReference = enumProviderInstances[i].getInstanceName(); 
-
-    		    CIMReference newProviderReference("", "",
-			providerReference.getClassName(),
-			providerReference.getKeyBindings());
-
-	    	    _repository->deleteInstance(INTEROPNAMESPACE, newProviderReference);
-		    
-		}
-
-	    }
-
-	    //
-	    // delete associated instances of PG_ProviderCapability
-	    //
-	    Array<CIMNamedInstance> enumCapInstances;
-	
-	    enumCapInstances = _repository->enumerateInstances(
-				INTEROPNAMESPACE, _CLASS_PROVIDER_CAPABILITIES); 	
-
-	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
-	    {
-		CIMInstance capInstance;
-		CIMReference capReference;
-		String _providerModuleName;
-		Array<Uint16> providerType;
-
-		capInstance = enumCapInstances[i].getInstance();
-
-		// 
-		// get provider module name in the instance of provider capability
-		//
-		capInstance.getProperty(capInstance.findProperty(
-		    _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModuleName);
-
-		if (String::equal(deletedProviderModuleName, _providerModuleName))
-		{
-		    //
-		    // if provider module name of instance of provider capability is
-		    // same as deleted provider module name, delete the instance of
-		    // provider capability from repository
-		    //
-		    capReference = enumCapInstances[i].getInstanceName(); 
-
-    		    CIMReference newCapReference("", "",
-			capReference.getClassName(),
-			capReference.getKeyBindings());
-
-	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
-		    
-		    //
-                    // get provider types
-                    // if the provider is indication provider, send notification
-                    // to subscription service
-                    //
-		    capInstance.getProperty(capInstance.findProperty(
-                        _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
-
-                    for (Uint32 k=0; k < providerType.size(); k++)
-                    {
-                        if (providerType[k] == _INDICATION_PROVIDER)
-                        {
-                            _sendDeleteNotifyMessage(capInstance);
-                        }
-                    }
-		    
-		}
-
-	    }
-
-	    //
-	    // remove all entries which have same provider module name from the 
-	    // table; if the entry only has one instance, remove the entry;
-   	    // otherwise, remove the instance. 
-	    //
-	    Table::Iterator k=_registrationTable->table.start();
-	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
-	    {
-		k++;
-		Array<CIMInstance> instances;
-		Uint32 instancesCount;
-
-		// 
-		// remove all entries which key's value is same as _deletedModuleKey 
-		// from the table
-		//
-		if (String::equal(_deletedModuleKey, i.key()))
-		{
-		    _registrationTable->table.remove(i.key());
-		}
-
-		//
-		// if the entry only has one instance and provider module name of 
-		// the instance is same as deleted provider module name, remove the
-		// entry; 
-		// if the entry has more than one instance and provider module name
-		// of the instance is same as deleted provider module name, remove
-		// the instance;
-		//
-		instances = i.value()->getInstances();
-		instancesCount = instances.size();
-
-		for (Uint32 j = 0; j < instancesCount; j++)
-		{
-	    	    String _providerModuleName;
-		    
-		    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
-		    if ( pos != PEG_NOT_FOUND)
-		    {
-	    	    	instances[j].getProperty(pos).getValue().get(_providerModuleName);
-			if (String::equal(deletedProviderModuleName, _providerModuleName))
-		    	{
-			    if (instancesCount == 1)
-			    {
-			        _registrationTable->table.remove(i.key());
-			    }
-			    else
-			    {
-			        instances.remove(j);
-			    }
-		        }
-		    }
-		}
-	    }
-	}
-     }
+	_deleteInstance(instanceReference, OP_DELETE);
+    }
 
     catch (CIMException & exception)
     {
@@ -1613,6 +849,179 @@ void ProviderRegistrationManager::deleteInstance(
 	throw (exception);
     }
 
+}
+
+// modify a registered provider
+void ProviderRegistrationManager::modifyInstance(
+    const CIMReference & ref,
+    const CIMInstance & cimInstance,
+    const Uint32 flags,
+    const Array<String> & propertyList)
+{
+
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+                     "ProviderRegistrationManager::modifyInstance");
+
+    CIMReference newInstanceRef("", "", ref.getClassName(), ref.getKeyBindings());
+
+    CIMInstance givenInstance = cimInstance;
+	
+    try
+    {
+	//
+	// get the original instance 
+	//
+	CIMInstance origInstance = _repository->getInstance(
+	    INTEROPNAMESPACE, newInstanceRef);
+
+	//
+	// creates the instance which replaces the original
+	//
+	CIMInstance instance = origInstance;
+
+	//
+	// loop through the propertyList replacing each property in the original
+	// with the properties specified in the given instance
+	//
+	for (Uint32 i=0; i<propertyList.size(); i++)
+	{
+	    Uint32 origPos = instance.findProperty(propertyList[i]);
+	    if (origPos != PEG_NOT_FOUND)
+	    {
+		//
+		// Property set in the original
+		//
+		CIMProperty OrigProperty = instance.getProperty(origPos);
+
+		//
+		// get the given property value
+		//
+		Uint32 givenPos = givenInstance.findProperty(propertyList[i]);
+		
+		if (givenPos != PEG_NOT_FOUND)
+		{
+		    //
+		    // Property set in both original and given
+		    //
+		    CIMProperty givenProperty;
+		    givenProperty = givenInstance.getProperty(givenPos);
+
+		    //
+		    // copy over the property from the given to the original
+		    //
+		    if (flags & OperationFlag::INCLUDE_QUALIFIERS)
+		    {
+			//
+			// Total property replacement
+			//
+			instance.removeProperty(origPos);
+			instance.addProperty(givenProperty);
+		    }
+		    else
+		    {
+			//
+			// Replace only the property value
+			//
+			OrigProperty.setValue(givenProperty.getValue());
+			instance.removeProperty(origPos);
+			instance.addProperty(OrigProperty);
+		    }
+		}
+		else
+		{
+		    //
+		    // Property set in original and not in given
+		    // just remove the property (set to null)
+		    //
+		    instance.removeProperty(origPos);
+		}
+	    }
+	    else
+	    {
+		//
+		// Property not set in the original
+		//
+
+		//
+		// Get the given property value
+		//
+		Uint32 givenPos = givenInstance.findProperty(propertyList[i]);
+
+		if (givenPos != PEG_NOT_FOUND)
+		{
+		    //
+		    // property set in given and not in original
+		    //
+		    CIMProperty givenProperty;
+		    givenProperty = givenInstance.getProperty(givenPos);
+		
+		    //
+		    // copy over the property from the given to the original
+		    //
+		    if (flags & OperationFlag::INCLUDE_QUALIFIERS)
+		    {
+			// Total property copy
+			instance.addProperty(givenProperty);
+		    }
+		    else
+		    {
+			// copy only the property value
+			CIMProperty newProperty(givenProperty.getName(),
+						givenProperty.getValue(),
+						givenProperty.getArraySize(),
+						givenProperty.getReferenceClassName(),
+						givenProperty.getClassOrigin(),
+						givenProperty.getPropagated());
+			instance.addProperty(newProperty);
+		    }
+		}
+	    }
+	}
+	//
+	// delete old instance
+	// 
+	_deleteInstance(ref, OP_MODIFY);
+
+	//
+	// create the new instance
+	//
+	CIMReference cimRef = _createInstance(ref, instance, OP_MODIFY);
+
+	//
+	// get provider types
+	// if the provider is indication provider, send notification
+	// to subscription service
+	Array<Uint16> providerTypes;
+	instance.getProperty(instance.findProperty(
+	    _PROPERTY_PROVIDERTYPE)).getValue().get(providerTypes);
+
+	for (Uint32 k=0; k < providerTypes.size(); k++)
+	{
+	    if (providerTypes[k] == _INDICATION_PROVIDER)
+	    {
+		_sendModifyNotifyMessage(instance, origInstance);	
+	    }
+	}
+    }
+    catch (CIMException & exception)
+    {
+        errorCode = exception.getCode ();
+        errorDescription = exception.getMessage ();
+	PEG_METHOD_EXIT();
+        throw (exception);
+    }
+    catch (Exception & exception)
+    {
+        errorCode = CIM_ERR_FAILED;
+        errorDescription = exception.getMessage ();
+	PEG_METHOD_EXIT();
+        throw (exception);
+    }
+
+	PEG_METHOD_EXIT();
 }
 
 Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
@@ -1984,6 +1393,839 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     PEG_METHOD_EXIT();
 }
 
+// register a provider
+CIMReference ProviderRegistrationManager::_createInstance(
+    const CIMReference & ref,
+    const CIMInstance & instance,
+    Operation flag)
+{
+
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    CIMReference cimRef;
+
+    String _providerModule;
+    String _providerName;
+
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+		     "ProviderRegistrationManager::_createInstance");
+
+    String className = ref.getClassName();
+
+    try
+    {
+	// 
+	// register PG_ProviderModule class
+	//
+	if (String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+	{
+    	    Array<CIMInstance> instances;
+
+	    cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
+
+	    //
+	    // get provider module name
+	    //
+	    instance.getProperty(instance.findProperty
+		(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(_providerModule);
+	    //
+	    // Use provider module name to be a key, add the instance to
+	    // the hash table 
+	    //
+	    instances.append(instance);
+	    String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
+            _addInstancesToTable(_moduleKey, instances);
+
+	    PEG_METHOD_EXIT();
+	    return (cimRef);
+	}	
+
+	// 
+	// register PG_Provider class
+	//
+	if (String::equalNoCase(className, _CLASS_PG_PROVIDER))
+	{
+    	    Array<CIMInstance> instances;
+
+	    // get provider module name
+	    instance.getProperty(instance.findProperty
+		(_PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
+	    // get provider name
+	    instance.getProperty(instance.findProperty
+		(_PROPERTY_PROVIDER_NAME)).getValue().get(_providerName);
+
+	    //
+            // create the key by using _providerName and PROVIDER_KEY
+            //
+            String _providerKey = _generateKey(_providerName, PROVIDER_KEY);
+
+	    //
+            // create the key by using _providerModule and MODULE_KEY
+            //
+            String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
+
+	    //
+	    // check if the PG_ProviderModule class was registered
+	    //
+	    if (_registrationTable->table.contains(_moduleKey))
+	    {   
+		//
+		// the provider module class was registered
+		//
+	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
+	        //
+	        // add the instance to the hash table 
+	        //
+		instances.append(instance);
+
+	        _addInstancesToTable(_providerKey, instances);
+
+		PEG_METHOD_EXIT();
+	        return (cimRef);
+	    }
+	    else
+	    {
+		//
+		// the provider module class is not registered
+		//
+		throw CIMException(CIM_ERR_FAILED, "PG_ProviderModule class"
+			" needs to be registered before register the PG_Provider class");
+	    }
+	}	
+
+	//
+	// register CIM_Capabilities class
+	//
+	if (String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
+	{
+	    Array<Uint16> _providerType;
+	    Array<String> _namespaces;
+	    Array<String> _supportedMethods;
+	    Array<String> _supportedProperties;
+	    String _className;
+	    String _capabilityKey;
+
+	    //
+	    // get provider module name
+	    //
+	    instance.getProperty(instance.findProperty
+		(_PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
+	    //
+	    // get provider name
+	    //
+	    instance.getProperty(instance.findProperty
+		(_PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
+
+	    //
+            // create the key by using _providerName and PROVIDER_KEY
+            //
+            String _providerKey = _generateKey(_providerName, PROVIDER_KEY);
+
+	    //
+            // create the key by using _providerModule and MODULE_KEY
+            //
+            String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
+
+	    //
+	    // check if the PG_Provider class was registered
+	    //
+	    if (_registrationTable->table.contains(_providerKey))
+	    {
+		//
+		// the PG_Provider class was registered
+		// get provider types
+		//
+	    	instance.getProperty(instance.findProperty
+		    (_PROPERTY_PROVIDERTYPE)).getValue().get(_providerType);
+		
+		//
+		// get namespaces
+		//
+	    	instance.getProperty(instance.findProperty
+		    (_PROPERTY_NAMESPACES)).getValue().get(_namespaces);
+		
+		//
+		// get classname
+		//
+	    	instance.getProperty(instance.findProperty
+		    (_PROPERTY_CLASSNAME)).getValue().get(_className);
+		
+		for (Uint32 i=0; i < _providerType.size(); i++)
+		{
+		    switch (_providerType[i])
+		    {
+			case _INSTANCE_PROVIDER:
+			{
+			    for (Uint32 j=0; j < _namespaces.size(); j++)
+			    {
+    	    			Array<CIMInstance> instances;
+
+				//
+				// create a key by using namespace, className
+				// and providerType
+				//
+			        _capabilityKey = _generateKey(_namespaces[j],
+				     _className, INS_PROVIDER);
+				if (_registrationTable->table.contains(_capabilityKey))
+				{
+				    // the instance was already registered
+				    throw CIMException(CIM_ERR_ALREADY_EXISTS);
+				}
+				else
+				{
+				    // add the instance to the table
+				    instances.append(instance);
+				    _addInstancesToTable(_capabilityKey, instances);
+				}
+			    }
+
+			    break;
+			}
+
+			case _ASSOCIATION_PROVIDER:
+			{
+			    // ATTN-YZ-P1-20020301: Need implement 
+			    break;
+			}
+
+			case _INDICATION_PROVIDER:
+			{
+			    for (Uint32 j=0; j < _namespaces.size(); j++)
+			    {
+    	    			Array<CIMInstance> instances;
+
+				ProviderRegistrationTable* providerCapabilities;
+				//
+				// create a key by using namespace, className
+				// and providerType, store the instance to 
+				// the table
+				//
+			        _capabilityKey = _generateKey(_namespaces[j],
+				     _className, IND_PROVIDER);
+
+				if (_registrationTable->table.lookup(_capabilityKey, providerCapabilities))
+				{
+				    //
+				    // the class is already in the table
+				    //
+				    instances = providerCapabilities->getInstances();
+				    instances.append(instance);
+				    
+				    //
+	 			    // remove the entry from the table
+				    //
+				    _registrationTable->table.remove(_capabilityKey);
+				}
+				else
+				{
+				    instances.append(instance);
+				}
+
+				// update the entry
+				_addInstancesToTable(_capabilityKey, instances);
+			    }
+			    
+			    //
+			    // Create CIMNotifyProviderRegistrationRequestMessage
+			    // send the message to the subscription service
+			    // if this function is called by createInstance
+			    //
+			    if (flag == OP_CREATE)
+			    {
+			        CIMInstance _providerInstance;
+			    	CIMInstance _moduleInstance;
+
+			      	Array<String> _oldNamespaces = EmptyStringArray();
+			    	// 
+			    	// get provider instance and module instance from the
+			    	// registration table
+			    	//
+			    	_getInstances(_providerName, _providerModule, 
+					  _providerInstance, _moduleInstance);
+
+			    	CIMPropertyList _oldPropertyNames(EmptyStringArray());
+			    	CIMPropertyList _newPropertyNames;
+
+			    	//
+			    	// get new property list from supported properties in the
+			    	// providerCapability instance
+			    	//
+			    	_getPropertyNames(instance, _newPropertyNames);
+
+			    	CIMNotifyProviderRegistrationRequestMessage * notify_req =
+			        new CIMNotifyProviderRegistrationRequestMessage(
+				    XmlWriter::getNextMessageId (),
+				    CIMNotifyProviderRegistrationRequestMessage::Operation(OP_CREATE),
+				    _providerInstance,
+				    _moduleInstance,	
+				    _className,
+				    _namespaces,
+				    _oldNamespaces,
+				    _newPropertyNames,
+				    _oldPropertyNames,
+				    QueueIdStack());
+
+			    	// 
+			    	// ATTN-YZ-P1-20020315: waiting for implementation of
+			    	// control service to send message to subscription service 
+			    	// 
+			    }
+
+			    break;
+			}
+
+			case _METHOD_PROVIDER:
+			{
+			    //
+			    // get supportedMethods
+			    //
+			    Uint32 pos = instance.findProperty(_PROPERTY_SUPPORTEDMETHODS);
+			    CIMValue value;
+			    Uint32 methodsCount;
+
+			    if (pos != PEG_NOT_FOUND)
+			    {
+				value = instance.getProperty(pos).getValue();
+				if (!value.isNull())
+				{
+				    value.get(_supportedMethods);	
+			    	    methodsCount = _supportedMethods.size();
+				}
+			    }
+			    else
+			    {
+				throw CIMException(CIM_ERR_INVALID_PARAMETER);
+			    }
+
+			    for (Uint32 j=0; j < _namespaces.size(); j++)
+			    {
+				//
+				// create a key by using namespace, className,
+				// method name and providerType, store the 
+				// instance to the table 
+				//
+
+				if ( value.isNull() )
+				{
+				    //
+				    // null value means all methods
+				    //
+    	    			    Array<CIMInstance> instances;
+
+				    // Provider supports all methods
+			            _capabilityKey = _generateKey(_namespaces[j],
+				    _className, "{}", MET_PROVIDER);
+
+				    if (_registrationTable->table.contains(_capabilityKey))
+			            {
+				        // the instance was already registered
+				        throw CIMException(CIM_ERR_ALREADY_EXISTS);
+			            }
+
+				    // add the instance to the table
+				    instances.append(instance);
+				    _addInstancesToTable(_capabilityKey, instances);
+				}
+				else
+				{
+				    //
+				    // there is a list for supported methods
+				    //
+				    for (Uint32 k = 0; k < methodsCount; k++)
+				    {
+    	    			        Array<CIMInstance> instances;
+
+			                _capabilityKey = _generateKey(_namespaces[j],
+				            _className, _supportedMethods[k], MET_PROVIDER);
+					if (_registrationTable->table.contains(_capabilityKey))
+					{
+					    // the instance already registered
+                                    	    throw CIMException(CIM_ERR_ALREADY_EXISTS);
+
+					}
+					else
+					{
+				    	    instances.append(instance);
+				    	    _addInstancesToTable(_capabilityKey, instances);
+					}
+				    }
+				}
+			    }
+
+			    break;
+			}
+
+			default:
+            		    //
+            		    //  Error condition: provider type not supported
+            		    //
+            		    throw CIMException (CIM_ERR_NOT_SUPPORTED);
+            		    break;
+		    }
+		}
+
+	        cimRef = _repository->createInstance(INTEROPNAMESPACE, instance); 
+		PEG_METHOD_EXIT();
+    		return (cimRef);
+	    }
+	    else
+	    {
+                // the provider class was not registered
+                throw CIMException(CIM_ERR_FAILED, "PG_Provider class needs "
+                   "to be registered before register the Provider capabilities class");
+	    }
+	}
+
+    }
+    catch (CIMException & exception)
+    {
+	errorCode = exception.getCode ();
+ 	errorDescription = exception.getMessage ();
+	PEG_METHOD_EXIT();
+	throw (exception);
+    }
+    catch (Exception & exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage ();
+	PEG_METHOD_EXIT();
+	throw (exception);
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+// Unregister a provider
+void ProviderRegistrationManager::_deleteInstance(
+    const CIMReference & instanceReference,
+    Operation flag)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    CIMReference cimRef;
+
+    String className = instanceReference.getClassName();
+    String providerName;
+
+    CIMReference newInstancereference("", "",
+	instanceReference.getClassName(),
+	instanceReference.getKeyBindings());
+
+    CIMInstance instance = _repository->getInstance(
+	INTEROPNAMESPACE, newInstancereference);
+	    
+
+    try
+    {
+	//
+	// unregister PG_ProviderCapability class
+	//
+        if(String::equalNoCase(className, _CLASS_PROVIDER_CAPABILITIES))
+        {
+	    String deletedCapabilityID;
+	    Array<CIMInstance> instances;
+	    Uint32 instancesCount;
+	    Array<Uint16> providerType;
+
+	    //
+	    // delete the instance from repository
+	    //
+	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
+
+	    //
+	    // get the key capabilityID
+	    //
+	    instance.getProperty(instance.findProperty(
+		_PROPERTY_CAPABILITIESID)).getValue().get(deletedCapabilityID);
+	    //
+	    // remove all entries which have same capabilityID from the 
+	    // table; if the entry only has one instance, remove the entry;
+   	    // otherwise, remove the instance. 
+	    //
+	    Table::Iterator k=_registrationTable->table.start();
+
+	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
+	    {
+		k++;
+		instances = i.value()->getInstances();
+		instancesCount = instances.size();
+
+		for (Uint32 j = 0; j < instancesCount; j++)
+		{
+	    	    String capabilityID;
+		    
+		    Uint32 pos = instances[j].findProperty(_PROPERTY_CAPABILITIESID);
+		    if ( pos != PEG_NOT_FOUND)
+		    {
+	    	    	instances[j].getProperty(pos).getValue().get(capabilityID);
+		    	if (String::equal(deletedCapabilityID, capabilityID))
+		    	{
+			    if (instancesCount == 1)
+			    {
+			        _registrationTable->table.remove(i.key());
+			    }
+			    else
+			    {
+			        instances.remove(j);
+			    }
+		        }
+		    }
+
+		}
+
+	    }
+
+	    //
+	    // get provider types
+	    // if the provider is indication provider, send notification
+	    // to subscription service
+	    //
+	    instance.getProperty(instance.findProperty(
+		_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+
+	    for (Uint32 i=0; i < providerType.size(); i++)
+	    {
+		if (providerType[i] == _INDICATION_PROVIDER &&
+		    flag == OP_DELETE)
+		{
+		    _sendDeleteNotifyMessage(instance);
+		}
+	    }
+        }
+
+	//
+	// Unregister PG_Provider class
+	// Note: Deleteting an instance of PG_Provider will cause the 
+	// associated instances of PG_ProviderCapability to be deleted 
+	//
+        if(String::equalNoCase(className, _CLASS_PG_PROVIDER))
+        {
+	    CIMInstance capInstance;
+	    CIMReference capReference;
+	    String _providerName;
+  	    Array<Uint16> providerType;
+
+	    String deletedProviderName;
+
+	    //
+	    // get the provider name
+	    //
+	    instance.getProperty(instance.findProperty(
+		_PROPERTY_PROVIDER_NAME)).getValue().get(deletedProviderName);
+
+	    //
+	    // create the key by using deletedProviderName and PROVIDER_KEY
+            //
+            String _deletedProviderKey = _generateKey(deletedProviderName, PROVIDER_KEY);
+
+	    //
+	    // delete instance of PG_Provider from repository
+	    //
+	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
+
+	    //
+	    // delete associated instances of PG_ProviderCapability
+	    //
+	    Array<CIMNamedInstance> enumCapInstances;
+	
+	    enumCapInstances = _repository->enumerateInstances(
+			INTEROPNAMESPACE, _CLASS_PROVIDER_CAPABILITIES); 	
+
+	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
+	    {
+		capInstance = enumCapInstances[i].getInstance();
+
+		// 
+		// get provider name in the instance of provider capability
+		//
+		capInstance.getProperty(capInstance.findProperty(
+		    _PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
+
+		if (String::equalNoCase(deletedProviderName, _providerName))
+		{
+		    //
+		    // if provider name of instance of provider capability is
+		    // same as deleted provider name, delete the instance of
+		    // provider capability from repository
+		    //
+		    capReference = enumCapInstances[i].getInstanceName(); 
+
+    		    CIMReference newCapReference("", "",
+			capReference.getClassName(),
+			capReference.getKeyBindings());
+
+	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
+
+		    //
+                    // get provider types
+                    // if the provider is indication provider, send notification
+                    // to subscription service
+                    //
+		    capInstance.getProperty(capInstance.findProperty(
+			_PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+
+		    for (Uint32 k=0; k < providerType.size(); k++)
+		    {
+			if (providerType[k] == _INDICATION_PROVIDER &&
+			    flag == OP_DELETE)
+			{
+			    _sendDeleteNotifyMessage(capInstance);
+			}
+		    }
+ 
+		}
+
+	    }
+
+	    //
+	    // remove all entries which have same provider name from the 
+	    // table; if the entry only has one instance, remove the entry;
+   	    // otherwise, remove the instance. 
+	    //
+	    Table::Iterator k=_registrationTable->table.start();
+
+	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
+	    {
+		k++;
+		Array<CIMInstance> instances;
+		Uint32 instancesCount;
+
+		// 
+		// remove all entries which their key's value is same as _deletedProviderKey 
+		// from the table
+		//
+		if (String::equal(_deletedProviderKey, i.key()))
+		{
+		    _registrationTable->table.remove(i.key());
+		}
+
+		instances = i.value()->getInstances();
+		instancesCount = instances.size();
+
+		for (Uint32 j = 0; j < instancesCount; j++)
+		{
+	    	    String _providerName;
+		    
+		    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERNAME);
+		    if ( pos != PEG_NOT_FOUND)
+		    {
+	    	    	instances[j].getProperty(pos).getValue().get(_providerName);
+			if (String::equal(deletedProviderName, _providerName))
+		    	{
+			    if (instancesCount == 1)
+			    {
+			        _registrationTable->table.remove(i.key());
+			    }
+			    else
+			    {
+			        instances.remove(j);
+			    }
+		        }
+		    }
+
+		}
+	    }
+	
+	}
+
+	//
+	// unregister PG_ProviderModule class
+	// Note: Deleteting an instance of PG_ProviderModule will cause the 
+	// associated instances of PG_Provider, instances of PG_ProviderCapability 
+	// to be deleted 
+	//
+        if(String::equalNoCase(className, _CLASS_PROVIDER_MODULE))
+        {
+	    String deletedProviderModuleName;
+
+	    //
+	    // get the key provider module name
+	    //
+	    instance.getProperty(instance.findProperty(
+		 _PROPERTY_PROVIDERMODULE_NAME)).getValue().get(deletedProviderModuleName);
+	    //
+            // create the key by using deletedProviderModuleName and MODULE_KEY
+            //
+            String _deletedModuleKey = _generateKey(deletedProviderModuleName, MODULE_KEY);
+
+
+	    //
+	    // delete instance of PG_ProviderModule from repository
+	    //
+	    _repository->deleteInstance(INTEROPNAMESPACE, newInstancereference);
+
+	    //
+	    // delete associated instances of PG_Provider
+	    //
+	    Array<CIMNamedInstance> enumProviderInstances;
+	
+	    enumProviderInstances = _repository->enumerateInstances(
+				INTEROPNAMESPACE, _CLASS_PG_PROVIDER); 	
+
+	    for (Uint32 i = 0, n = enumProviderInstances.size(); i < n; i++)
+	    {
+		CIMInstance providerInstance;
+		CIMReference providerReference;
+		String _providerModuleName;
+
+		providerInstance = enumProviderInstances[i].getInstance();
+
+		// 
+		// get provider module name in the instance of PG_Provider 
+		//
+		providerInstance.getProperty(providerInstance.findProperty(
+		    _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModuleName);
+
+		if (String::equalNoCase(deletedProviderModuleName, _providerModuleName))
+		{
+		    //
+		    // if provider module name of instance of PG_Provider is
+		    // same as deleted provider module name, delete the instance of
+		    // PG_Provider from repository
+		    //
+		    providerReference = enumProviderInstances[i].getInstanceName(); 
+
+    		    CIMReference newProviderReference("", "",
+			providerReference.getClassName(),
+			providerReference.getKeyBindings());
+
+	    	    _repository->deleteInstance(INTEROPNAMESPACE, newProviderReference);
+		    
+		}
+
+	    }
+
+	    //
+	    // delete associated instances of PG_ProviderCapability
+	    //
+	    Array<CIMNamedInstance> enumCapInstances;
+	
+	    enumCapInstances = _repository->enumerateInstances(
+				INTEROPNAMESPACE, _CLASS_PROVIDER_CAPABILITIES); 	
+
+	    for (Uint32 i = 0, n = enumCapInstances.size(); i < n; i++)
+	    {
+		CIMInstance capInstance;
+		CIMReference capReference;
+		String _providerModuleName;
+		Array<Uint16> providerType;
+
+		capInstance = enumCapInstances[i].getInstance();
+
+		// 
+		// get provider module name in the instance of provider capability
+		//
+		capInstance.getProperty(capInstance.findProperty(
+		    _PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModuleName);
+
+		if (String::equal(deletedProviderModuleName, _providerModuleName))
+		{
+		    //
+		    // if provider module name of instance of provider capability is
+		    // same as deleted provider module name, delete the instance of
+		    // provider capability from repository
+		    //
+		    capReference = enumCapInstances[i].getInstanceName(); 
+
+    		    CIMReference newCapReference("", "",
+			capReference.getClassName(),
+			capReference.getKeyBindings());
+
+	    	    _repository->deleteInstance(INTEROPNAMESPACE, newCapReference);
+		    
+		    //
+                    // get provider types
+                    // if the provider is indication provider, send notification
+                    // to subscription service
+                    //
+		    capInstance.getProperty(capInstance.findProperty(
+                        _PROPERTY_PROVIDERTYPE)).getValue().get(providerType);
+
+                    for (Uint32 k=0; k < providerType.size(); k++)
+                    {
+                        if (providerType[k] == _INDICATION_PROVIDER &&
+			    flag == OP_DELETE)
+                        {
+                            _sendDeleteNotifyMessage(capInstance);
+                        }
+                    }
+		    
+		}
+
+	    }
+
+	    //
+	    // remove all entries which have same provider module name from the 
+	    // table; if the entry only has one instance, remove the entry;
+   	    // otherwise, remove the instance. 
+	    //
+	    Table::Iterator k=_registrationTable->table.start();
+	    for (Table::Iterator i=_registrationTable->table.start(); i; i=k)
+	    {
+		k++;
+		Array<CIMInstance> instances;
+		Uint32 instancesCount;
+
+		// 
+		// remove all entries which key's value is same as _deletedModuleKey 
+		// from the table
+		//
+		if (String::equal(_deletedModuleKey, i.key()))
+		{
+		    _registrationTable->table.remove(i.key());
+		}
+
+		//
+		// if the entry only has one instance and provider module name of 
+		// the instance is same as deleted provider module name, remove the
+		// entry; 
+		// if the entry has more than one instance and provider module name
+		// of the instance is same as deleted provider module name, remove
+		// the instance;
+		//
+		instances = i.value()->getInstances();
+		instancesCount = instances.size();
+
+		for (Uint32 j = 0; j < instancesCount; j++)
+		{
+	    	    String _providerModuleName;
+		    
+		    Uint32 pos = instances[j].findProperty(_PROPERTY_PROVIDERMODULENAME);
+		    if ( pos != PEG_NOT_FOUND)
+		    {
+	    	    	instances[j].getProperty(pos).getValue().get(_providerModuleName);
+			if (String::equal(deletedProviderModuleName, _providerModuleName))
+		    	{
+			    if (instancesCount == 1)
+			    {
+			        _registrationTable->table.remove(i.key());
+			    }
+			    else
+			    {
+			        instances.remove(j);
+			    }
+		        }
+		    }
+		}
+	    }
+	}
+     }
+
+    catch (CIMException & exception)
+    {
+	errorCode = exception.getCode ();
+ 	errorDescription = exception.getMessage ();
+	throw (exception);
+    }
+    catch (Exception & exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage ();
+	throw (exception);
+    }
+
+}
+
 void ProviderRegistrationManager::_addInstancesToTable(
     const String & key,
     const Array<CIMInstance> & instances)
@@ -2209,7 +2451,96 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
 	    _providerInstance,
 	    _moduleInstance,
 	    _className,
+	    EmptyStringArray(),
 	    _namespaces,
+	    _newPropertyNames,
+	    _oldPropertyNames,
+	    QueueIdStack());
+
+    //
+    // ATTN-YZ-P1-20020315: waiting for implementation of
+    // control service to send message to subscription service
+    //
+
+}
+
+//
+// send modify notify message to the subscription service when  
+// the provider capability instance was modified
+//
+void ProviderRegistrationManager::_sendModifyNotifyMessage(
+    const CIMInstance & instance,
+    const CIMInstance & origInstance)
+{
+    String _providerName;
+    String _providerModule;
+    String _className;
+    Array<String> _newNamespaces;
+    Array<String> _oldNamespaces;
+    CIMInstance _providerInstance;
+    CIMInstance _moduleInstance;
+    
+    //
+    // get provider module name
+    //
+    instance.getProperty(instance.findProperty
+        (_PROPERTY_PROVIDERMODULENAME)).getValue().get(_providerModule);
+
+    //
+    // get provider name
+    //
+    instance.getProperty(instance.findProperty
+        (_PROPERTY_PROVIDERNAME)).getValue().get(_providerName);
+
+    //
+    // get new namespaces
+    //
+    instance.getProperty(instance.findProperty
+        (_PROPERTY_NAMESPACES)).getValue().get(_newNamespaces);
+
+    //
+    // get old namespaces
+    //
+    origInstance.getProperty(origInstance.findProperty
+        (_PROPERTY_NAMESPACES)).getValue().get(_oldNamespaces);
+
+    //
+    // get classname
+    //
+    instance.getProperty(instance.findProperty
+        (_PROPERTY_CLASSNAME)).getValue().get(_className); 
+
+    //
+    // get provider instance and module instance from the
+    // registration table
+    //  
+    _getInstances(_providerName, _providerModule,
+		  _providerInstance, _moduleInstance);
+
+    CIMPropertyList _newPropertyNames;
+    CIMPropertyList _oldPropertyNames;
+
+    //
+    // get old property list from supported properties in the
+    // providerCapability instance
+    //
+    _getPropertyNames(origInstance, _oldPropertyNames);
+
+    //
+    // get new property list from supported properties in the
+    // providerCapability instance
+    //
+    _getPropertyNames(instance, _newPropertyNames);
+
+    CIMNotifyProviderRegistrationRequestMessage * notify_req =
+	new CIMNotifyProviderRegistrationRequestMessage(
+	    XmlWriter::getNextMessageId (),
+	    CIMNotifyProviderRegistrationRequestMessage::Operation(OP_MODIFY),
+	    _providerInstance,
+	    _moduleInstance,
+	    _className,
+	    _newNamespaces,
+	    _oldNamespaces,
 	    _newPropertyNames,
 	    _oldPropertyNames,
 	    QueueIdStack());

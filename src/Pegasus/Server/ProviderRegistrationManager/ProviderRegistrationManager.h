@@ -148,6 +148,14 @@ private:
 
 	void _sendDeleteNotifyMessage(const CIMInstance & instance);
 
+	void _sendModifyNotifyMessage(const CIMInstance & instance,
+				      const CIMInstance & origInstance);
+
+	CIMReference _createInstance(const CIMReference & ref, 
+		const CIMInstance & instance, Operation flag);
+
+	void _deleteInstance(const CIMReference & ref, Operation flag);
+
 };
 
 PEGASUS_NAMESPACE_END

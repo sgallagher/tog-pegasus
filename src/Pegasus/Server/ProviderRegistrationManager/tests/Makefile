@@ -5,6 +5,7 @@ ROOT = ../../../../..
 DIRS = \
    createInstances \
    deleteInstances \
+   modifyInstances \
    lookupInstanceProvider \
    lookupIndicationProvider \
    lookupMethodProvider

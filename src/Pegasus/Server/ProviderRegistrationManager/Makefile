@@ -12,6 +12,7 @@ LIBRARY = pegprm
 
 LIBRARIES = \
     pegcommon \
+    pegprovider \
     pegrepository
 
 SOURCES = \

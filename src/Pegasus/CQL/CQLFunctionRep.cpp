@@ -963,8 +963,9 @@ CQLValue CQLFunctionRep::classPath(const CIMInstance& CI, const QueryContext& qu
 CQLValue CQLFunctionRep::buildClassPath(const CIMObjectPath& objPath, const CIMNamespaceName& ns) const
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::buildClassPath()");
-  // This method will take the object path pass in and pick out the class name and the namespace.  The 2 parts are then combined together into a new object path which will be used as the class path and returned.
+  // This method will take the object path pass in and pick out the host, the class name and the namespace.  The 2 parts are then combined together into a new object path which will be used as the class path and returned.
   CIMObjectPath newPath;
+  newPath.setHost(objPath.getHost());
   newPath.setClassName(objPath.getClassName());  
   newPath.setNameSpace(ns);
   printf("ClassPath --> %s\n", (const char *)newPath.toString().getCString());
@@ -1047,8 +1048,9 @@ CQLValue CQLFunctionRep::objectPath(const CIMInstance& CI, const QueryContext& q
 CQLValue CQLFunctionRep::buildObjectPath(const CIMObjectPath& objPath, const CIMNamespaceName& ns) const
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::buildObjectPath()");
-  // This method will take the object path pass in and pick out the class name, the namespace, and the key bindings.  The parts are then combined together into a new object path which will be used as the object path and returned.
+  // This method will take the object path passed in and pick out the host, the class name, the namespace, and the key bindings.  The parts are then combined together into a new object path which will be used as the object path and returned.
   CIMObjectPath newPath;
+  newPath.setHost(objPath.getHost());
   newPath.setClassName(objPath.getClassName());  
   newPath.setNameSpace(ns);
   newPath.setKeyBindings(objPath.getKeyBindings());

@@ -470,8 +470,8 @@ String System::dynamicLoadError() {
     // ATTN: Is this safe in a multi-threaded process?  Should this string
     // be returned from loadDynamicLibrary?
 #ifdef PEGASUS_OS_HPUX
-    // ATTN: If shl_load() returns NULL, this value should be strerror(errno)
-    return String();
+    // If shl_load() returns NULL, errno is set to indicate the error
+    return strerror(errno);
 #elif defined(PEGASUS_OS_ZOS)
     return String();
 #elif defined(PEGASUS_OS_OS400)

@@ -59,6 +59,8 @@
     Add the association functions
     Add a new class to pickup the communicationlink encryption functions and the
     TCP address.
+    UUID generation should become a system function since it will be used
+    by many providers, etc. as part of id generation.
 */
 
 #include <Pegasus/Common/Config.h>
@@ -101,9 +103,15 @@ PEGASUS_NAMESPACE_BEGIN
 //#define CDEBUG(X) Logger::put (Logger::DEBUG_LOG, "Linux_ProcessorProvider", Logger::INFORMATION, "$0", X)
 //#define CDEBUG(X) {std::stringstream ss; std::string r;ss << X;ss>>r; PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, r)}
  
-static const String PegasusInstanceIDGlobalPrefix = "PEG";
 
+//**************************************************************************
+//
 //    Constants representing the class names processed
+//
+//**************************************************************************
+
+// The following should be moved to somewhere like constants.
+static const String PegasusInstanceIDGlobalPrefix = "PEG";
 
 /**
     The constants representing the class names we process
@@ -191,8 +199,9 @@ enum targetClass{
 /*  get the prefix that will be part of the cimom identification
     This can be either the default PEG or if the environment
     variable PEGASUS_TRADEMARK_PREFIX is defined this is used.
+    NOTE: getting from the environment variable is a hack until
+    we can come up with a better source.
     @return String containing the unique name for the CIMOM ID
-
 */
 
 String getTrademarkCIMOMIDPrefix()
@@ -200,19 +209,15 @@ String getTrademarkCIMOMIDPrefix()
 
     char * trademark;
     trademark = getenv("PEGASUS_TRADEMARK_PREFIX");
-    if (!trademark)
-    {
-    return(String(PegasusInstanceIDGlobalPrefix));    
-    }
-    else
-        return(String(trademark));
+    return((trademark)? trademark : PegasusInstanceIDGlobalPrefix);
 }
 /** Builds the UUID string for this CIMOM.
 **/
 String getUUIDString()
 {
     
-   //UUID Generation code starts 
+   // ATTN: KS Jan 2004 Leave this dead code in until we complete the UNIX/LINUX uuid generator.
+    //UUID Generation code starts 
    //Uses "libuuid.a" in /usr/lib directory. Make sure it's there. Also Makefile has "-luuid" added to $EXTRA_LIBRARIES
    /*
    uuid_t outUUID;

@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,55 +54,67 @@ public:
     */
     static void append(
 	PEGASUS_STD(ofstream)& os,
-	const CIMName& assocClassName,
-	const CIMName& fromClassName,
-	const CIMName& fromPropertyName,
-	const CIMName& toClassName,
-	const CIMName& toPropertyName);
+    	const CIMName& assocClassName,
+    	const CIMName& fromClassName,
+    	const CIMName& fromPropertyName,
+    	const CIMName& toClassName,
+    	const CIMName& toPropertyName);
 
     /** Appends a row into the association class table. There is no checking
 	for duplicate entries (the caller ensures this). The case of the
 	arguments doesn't matter. Case is ignored during comparison.
     */
     static void append(
-	const String& path,
-	const CIMName& assocClassName,
-	const CIMName& fromClassName,
-	const CIMName& fromPropertyName,
-	const CIMName& toClassName,
-	const CIMName& toPropertyName);
+    	const String& path,
+    	const CIMName& assocClassName,
+    	const CIMName& fromClassName,
+    	const CIMName& fromPropertyName,
+    	const CIMName& toClassName,
+    	const CIMName& toPropertyName);
 
     /** Deletes the given association from the table by removing every entry
 	with the given assocClassName.
 	@returns true if such an association was found.
     */
     static Boolean deleteAssociation(
-	const String& path,
-	const CIMName& assocClassName);
+    	const String& path,
+    	const CIMName& assocClassName);
 
     /** Finds all associators of the given class. See 
 	CIMOperations::associators() for a full description.
     */
     static Boolean getAssociatorNames(
-	const String& path,
-	const CIMName& className,
+    	const String& path,
+    	const CIMName& className,
         const CIMName& assocClass,
         const CIMName& resultClass,
         const String& role,
         const String& resultRole,
-	Array<String>& associatorNames);
+    	Array<String>& associatorNames);
 
-    /** Obtain all references (association instance names) in which the
-	given class involved. See CIMOperations::associators() for a 
+    /** Get all references (association instance names) in which the
+	given class involved. See CIMOperations::referenceNames() for a 
 	full description.
     */
     static Boolean getReferenceNames(
-	const String& path,
-	const CIMName& className,
- 	const CIMName& resultClass,
- 	const String& role,
-	Array<String>& referenceNames);
+    	const String& path,
+    	const Array<CIMName>& classNameList,
+     	const CIMName& resultClass,
+     	const String& role,
+    	Array<String>& referenceNames);
 
+    /** Get all classes for which the input class has references (association class names)
+     *  in which the
+	given class involved. See CIMOperations::referenceNames() for a 
+	full description.
+    @return - Returns the subset of classNameList that has valid references.
+    */
+    static Boolean getReferencedClassNames(
+    	const String& path,
+    	const Array<CIMName>& classNameList,
+     	const CIMName& resultClass,
+     	const String& role,
+    	Array<CIMName>& referencedNames);
 private:
 
     AssocClassTable() { /* private */ }

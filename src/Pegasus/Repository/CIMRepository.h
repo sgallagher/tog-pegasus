@@ -158,11 +158,19 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-	Boolean includeInheritance = false,
+        Boolean includeInheritance = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
 
-    /// enumerateInstanceNames
+    /** enumerateInstanceNames returns names of instances that
+        meet the critera.  This is an extension of the CIM
+        enumerate instances client call
+        @nameSpace - target namespace
+        @param className - Name of the target class
+        @param Boolean that defines whether to search inheritance or not
+        @return CIMObjectPath defining the names of the found instances.
+        @exception - Yes
+    */
     virtual Array<CIMObjectPath> enumerateInstanceNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
@@ -175,7 +183,7 @@ public:
     virtual Array<CIMObjectPath> enumerateInstanceNamesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-	Boolean includeInheritance);
+        const Boolean includeInheritance = true);
 
 
     /// execQuery
@@ -218,6 +226,21 @@ public:
     virtual Array<CIMObjectPath> referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY);
+
+    /** Get the names of the Referenced Classes for the Target
+        Class.  Note that this is really a subfunction of the
+        ReferenceNames function except that it operates on class
+     * input and returns only class names. It is a toolto get
+     * information for the distribution of CIM associator operations
+     * to providers.
+     * This funciton returns the list of referenced class names, not
+     * the references.
+    */
+    virtual Array<CIMName> referencedClassNames(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
         const CIMName& resultClass = CIMName(),
         const String& role = String::EMPTY);
 

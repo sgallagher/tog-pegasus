@@ -51,6 +51,20 @@ static inline Boolean _MatchNoCase(const String& x, const String& pattern)
     return pattern.size() == 0 || String::equalNoCase(x, pattern);
 }
 
+static inline Boolean _ContainsClass(const Array<CIMName>& classNames, const String& match ) 
+{
+    Uint32 n = classNames.size();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+	if (_MatchNoCase(classNames[i].getString(), match))
+	    return true;
+    }
+
+    return false;
+}
+
+
 static String _Escape(const String& str)
 {
     String result;
@@ -302,7 +316,7 @@ Boolean AssocClassTable::getAssociatorNames(
 
 Boolean AssocClassTable::getReferenceNames(
     const String& path,
-    const CIMName& className,
+    const Array<CIMName>& classList,
     const CIMName& resultClass,
     const String& role,
     Array<String>& referenceNames)
@@ -314,22 +328,70 @@ Boolean AssocClassTable::getReferenceNames(
     if (!Open(is, path))
 	return false;
 
-    // For each line:
-
     Array<String> fields;
     Boolean found = false;
+    //for (Uint32 i = 0 ; i < classList.size() ; i++)
+    //{
+    //    cout << " KSTest ReferenceNames assoc Classname " << classList[i].getString() << endl;
+    //}
+    // For each line i n the table:
+
 
     while (_GetRecord(is, fields))
     {
-	if (_MatchNoCase(className.getString(), fields[FROM_CLASS_NAME_INDEX]) &&
-	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
-                resultClass.getString()) &&
-	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
-	{
-	    if (!Contains(referenceNames, fields[ASSOC_CLASS_NAME_INDEX]))
-		referenceNames.append(fields[ASSOC_CLASS_NAME_INDEX]);
-	    found = true;
-	}
+        //if (_MatchNoCase(className.getString(), fields[FROM_CLASS_NAME_INDEX]) &&
+    	if (_ContainsClass(classList, fields[FROM_CLASS_NAME_INDEX]) &&
+    	    _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
+                    resultClass.getString()) &&
+    	    _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
+    	{
+    	    if (!Contains(referenceNames, fields[ASSOC_CLASS_NAME_INDEX]))
+    		referenceNames.append(fields[ASSOC_CLASS_NAME_INDEX]);
+    	    found = true;
+    	}
+    }
+
+    return found;
+}
+Boolean AssocClassTable::getReferencedClassNames(
+    const String& path,
+    const Array<CIMName>& classNameList,
+    const CIMName& resultClass,
+    const String& role,
+    Array<CIMName>& referencedNames)
+{
+    // Open input file:
+    
+    ifstream is;
+
+    if (!Open(is, path))
+	return false;
+
+
+    Array<String> fields;
+    Boolean found = false;
+    //for (Uint32 i = 0 ; i < classNameList.size() ; i++)
+    //{
+    //    cout << " KSTest ReferencedNames assoc Classname " << classNameList[i].getString() << endl;
+    //}
+    // For each line in the table:
+
+    while (_GetRecord(is, fields))
+    {
+        CIMName className;
+        for (Uint32 i = 0; i < classNameList.size(); i++)
+        {
+            if (_MatchNoCase(classNameList[i].getString(), fields[FROM_CLASS_NAME_INDEX]) &&
+            //if (_ContainsClass(classList, fields[FROM_CLASS_NAME_INDEX]) &&
+                _MatchNoCase(fields[ASSOC_CLASS_NAME_INDEX], 
+                        resultClass.getString()) &&
+                _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role))
+            {
+                if (!Contains(referencedNames, className))
+                referencedNames.append(className);
+                found = true;
+            }
+        }
     }
 
     return found;

@@ -327,7 +327,7 @@ Boolean AssocInstTable::getReferenceNames(
 
     if (!Open(is, path))
 	return false;
-
+    
     // For each line:
 
     Array<String> fields;

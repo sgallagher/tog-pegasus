@@ -230,17 +230,16 @@ void ProviderManagerService::_lookupProviderForAssocClass(
     Array<CIMInstance> pmInstances;
 
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupProviderForAssocClass");
-    cout << "KSTEST _LookupProviderForAssocClass " << assocClassName.getString() << endl;
     
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "nameSpace = " + objectPath.getNameSpace().getString() + 
         "; className = " + assocClassName.getString());
-    // KS Modification"; className = " + objectPath.getClassName().getString());
+        // KS Modification for assoc reg"; className = " + objectPath.getClassName().getString());
 
     // get the provider and provider module instance from the registration manager
     if(_providerRegistrationManager->lookupAssociationProvider(
         objectPath.getNameSpace(), assocClassName.getString(),
-        // KS Modification objectPath.getNameSpace(), objectPath.getClassName(),
+        // KS Modification for Assoc Reg objectPath.getNameSpace(), objectPath.getClassName(),
         assocClassName, resultClassName,
         pInstances, pmInstances) == false)
     {

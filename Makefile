@@ -23,6 +23,8 @@ include $(ROOT)/mak/recurse.mak
 # rebuild target cleans, setup dependencies, compiles all and builds 
 # repository
 
+FORCE:
+
 rebuild: clean depend all repository
 	@ $(MAKE) -s tests
 
@@ -31,21 +33,21 @@ world: depend all repository
 
 # The repository Target removes and rebuilds the CIM repository
 
-repository:
+repository: FORCE
 	@ $(MAKE) -SC Schemas/Pegasus repository
 
-repositoryServer:
+repositoryServer: FORCE
 	@ $(MAKE) -SC Schemas/Pegasus repositoryServer
 
-testrepository:
+testrepository: FORCE
 	@ $(MAKE) -SC src/Providers/sample/Load repository
 	@ $(MAKE) -SC test/wetest repository
 
-testrepositoryServer:
+testrepositoryServer: FORCE
 	@ $(MAKE) -SC src/Providers/sample/Load repositoryServer
 	@ $(MAKE) -SC test/wetest repositoryServer
 
-removetestrepository:
+removetestrepository: FORCE
 	@ $(MAKE) -SC src/Providers/sample/Load removerepository
 	@ $(MAKE) -SC test/wetest removerepository
 
@@ -53,7 +55,7 @@ removetestrepository:
 # For now, these are centralized and do not include startup
 # and shutdown of the server.
 
-activetests:
+activetests: FORCE
 	$(MAKE) --directory=pegasus/test -f Makefile clean
 	TestClient
 	Client

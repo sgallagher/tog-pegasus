@@ -327,25 +327,38 @@ void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
 
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+
    CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
       ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
-   CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
-      ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-   PEGASUS_ASSERT(response != 0);
-   // ensure that the destination queue is in response->dest
+   if( asyncReply->getType() == async_messages::ASYNC_OP_RESULT ||
+       asyncReply->getType() == async_messages::ASYNC_LEGACY_OP_RESULT || 
+       asyncReply->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
+   {
+      
+      CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
+	 ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+      PEGASUS_ASSERT(response != 0);
+      // ensure that the destination queue is in response->dest
 #ifdef PEGASUS_ARCHITECTURE_IA64
-   response->dest = (Uint64)parm;
+      response->dest = (Uint64)parm;
 #else
-   response->dest = (Uint32)parm;
+      response->dest = (Uint32)parm;
 #endif
-
-// statisticals
-   //STAT_COPYDISPATCHER
-//
-   service->SendForget(response);
+      PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+		       "Forwarding " + String(MessageTypeToString(response->getType())) + 
+		       " via Service Callback to " + 
+		     ((MessageQueue::lookup(response->dest)) ? 
+		      String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
+		      String("BAD queue name")));
+      if(parm != 0 )
+	 service->SendForget(response);
+      else 
+	 delete response;
+   }
    delete asyncRequest;
    delete asyncReply;
-
+    op->release();
+    service->return_op(op);
    PEG_METHOD_EXIT();
 }
 
@@ -372,20 +385,19 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 	    serviceIds[0],
 	    request,
 	    this->getQueueId());
-
-    SendAsync(op,
+    asyncRequest->dest = serviceIds[0];
+    
+    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+		     "Forwarding " + String(MessageTypeToString(request->getType())) + 
+		     "to " + serviceName + "response should go to queue " + 
+		     ((MessageQueue::lookup(request->queueIds.top())) ? 
+		      String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
+		      String("BAD queue name")));
+    SendAsync(op, 
 	      serviceIds[0],
 	      CIMOperationRequestDispatcher::_forwardToServiceCallBack,
 	      this,
 	      (void *)request->queueIds.top());
-
-
-//    AsyncReply * asyncReply = SendWait(asyncRequest);
-//    PEGASUS_ASSERT(asyncReply != 0);
-
-
-//    delete asyncReply;
-//    delete asyncRequest;
 
       PEG_METHOD_EXIT();
 }
@@ -401,21 +413,39 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
       static_cast<CIMOperationRequestDispatcher *>(q);
    AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
    AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
-   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
-      ((static_cast<AsyncModuleOperationStart *>(asyncRequest))->get_action());
-// ATTN P1 KS 30 Apr 2002 - When there was no internal provider defined, died here.
-// Ihave not had time to create a test to cover this.
-  CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
-      ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
-   PEGASUS_ASSERT(response != 0);
+    CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+       ((static_cast<AsyncModuleOperationStart *>(asyncRequest))->get_action());
+
+   if( asyncReply->getType() == async_messages::ASYNC_OP_RESULT ||
+       asyncReply->getType() == async_messages::ASYNC_LEGACY_OP_RESULT || 
+       asyncReply->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
+   {
+      CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
+	 ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
+      PEGASUS_ASSERT(response != 0);
+
 #ifdef PEGASUS_ARCHITECTURE_IA64
-   response->dest = (Uint64)parm;
+      response->dest = (Uint64)parm;
 #else
-   response->dest = (Uint32)parm;
+      response->dest = (Uint32)parm;
 #endif
-   service->SendForget(response);
+      PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+		       "Forwarding " + String(MessageTypeToString(response->getType())) + 
+		       " via ModuleController Callback to " + 
+		       ((MessageQueue::lookup(response->dest)) ? 
+			String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
+			String("BAD queue name")));
+      
+      if(parm != 0 )
+	 service->SendForget(response);
+      else
+	 delete response;
+   }
+   
    delete asyncRequest;
-   delete asyncReply;
+   delete asyncReply ;
+   op->release();
+   service->return_op(op);
 
    PEG_METHOD_EXIT();
 }
@@ -444,24 +474,19 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
 	    true,
 	    controlProviderName,
 	    request);
+    
+    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+		     "Forwarding " + String(MessageTypeToString(request->getType())) + 
+		     "to " + serviceName + "::" + controlProviderName + " response should go to queue " + 
+		     ((MessageQueue::lookup(request->queueIds.top())) ? 
+		      String( ((MessageQueue::lookup(response->dest))->getQueueName()) ) : 
+		      String("BAD queue name")));
+    SendAsync(op, 
+ 	      serviceIds[0],
+ 	      CIMOperationRequestDispatcher::_forwardToModuleCallBack,
+ 	      this,
+ 	      (void *)request->queueIds.top());
 
-
-    SendAsync(op,
-	      serviceIds[0],
-	      CIMOperationRequestDispatcher::_forwardToModuleCallBack,
-	      this,
-	      (void *)request->queueIds.top());
-
-//    AsyncReply * moduleControllerReply = SendWait(moduleControllerRequest);
-//    PEGASUS_ASSERT(moduleControllerReply != 0);
-
-//     response = reinterpret_cast<CIMResponseMessage *>
-//         ((static_cast<AsyncModuleOperationResult *>(moduleControllerReply))->
-//             get_result());
-//     PEGASUS_ASSERT(response != 0);
-
-//     delete moduleControllerReply;
-//     delete moduleControllerRequest;
     PEG_METHOD_EXIT();
 }
 
@@ -872,7 +897,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
    // get the class name
    String className = request->instanceName.getClassName();
    CIMResponseMessage * response;
-
+   
    String serviceName = String::EMPTY;
    String controlProviderName = String::EMPTY;
 
@@ -885,10 +910,18 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
       if (controlProviderName == String::EMPTY)
       {
-         _forwardRequestToService(serviceName, requestCopy, response);
+	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+			  "Forwarding Delete Instance  Operation (" + className + 
+			  ") to Service " + serviceName );
+	 
+         _forwardRequestToService(serviceName, requestCopy , response);
       }
       else
       {
+	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+			  "Forwarding Delete Instance Operation (" + className + 
+			  ") to Module " + serviceName + "::" + controlProviderName );
+	 
          _forwardRequestToControlProvider(
             serviceName, controlProviderName, requestCopy, response);
       }
@@ -1041,14 +1074,19 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
       if (controlProviderName == String::EMPTY)
       {
+	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+			  "Forwarding Create Instance Operation (" + className + 
+			  ") to Service " + serviceName );
          _forwardRequestToService(serviceName, requestCopy, response);
       }
       else
       {
+	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+			  "Forwarding Create Instance Operation (" + className + 
+			  ") to Module " + serviceName + "::" + controlProviderName );
          _forwardRequestToControlProvider(
             serviceName, controlProviderName, requestCopy, response);
       }
-
 
       PEG_METHOD_EXIT();
       return;
@@ -1249,10 +1287,17 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
       if (controlProviderName == String::EMPTY)
       {
+	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+			  "Forwarding Modify Instance Operation (" + className + 
+			  ") to Service " + serviceName );
          _forwardRequestToService(serviceName, requestCopy, response);
       }
       else
       {
+	 PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3, 
+			  "Forwarding Modify Instance Operation (" + className + 
+			  ") to Module " + serviceName + "::" + controlProviderName );
+	 
          _forwardRequestToControlProvider(
             serviceName, controlProviderName, requestCopy, response);
       }

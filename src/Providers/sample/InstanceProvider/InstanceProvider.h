@@ -31,7 +31,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/Common/Pair.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -86,7 +85,8 @@ public:
 		ResponseHandler<CIMInstance> & handler);
 
 protected:
-	Array<Pair<CIMObjectPath, CIMInstance> > _instances;
+	Array<CIMObjectPath> _instanceNames;
+	Array<CIMInstance> _instances;
 
 };
 

@@ -59,7 +59,8 @@ public:
 		ResponseHandler<CIMValue> & handler);
 
 protected:
-	Array<Pair<CIMObjectPath, CIMProperty> > _properties;
+	Array<CIMObjectPath> _instanceNames;
+	Array<CIMProperty> _properties;
 
 };
 

@@ -43,12 +43,14 @@ void PropertyProvider::initialize(CIMOMHandle & cimom)
 	CIMObjectPath reference1("Sample_PropertyProviderClass.Identifier=1");
 	CIMProperty property1("Message", CIMValue("Hello World"));
 	
-	_properties.append(Pair<CIMObjectPath, CIMProperty>(reference1, property1));
+	_properties.append(property1);
+	_instanceNames.append(reference1);
 	
 	CIMObjectPath reference2("Sample_PropertyProviderClass.Identifier=2");
 	CIMProperty property2("Message", CIMValue("Yo Planet"));
 	
-	_properties.append(Pair<CIMObjectPath, CIMProperty>(reference1, property1));
+	_properties.append(property2);
+	_instanceNames.append(reference2);
 }
 
 void PropertyProvider::terminate(void)
@@ -74,10 +76,10 @@ void PropertyProvider::getProperty(
 	
 	for(Uint32 i = 0, n = _properties.size(); i < n; i++)
 	{
-		if(localReference == _properties[i].first)
+		if(localReference == _instanceNames[i])
 		{
 			// deliver the property value associated with the specified instance
-			handler.deliver(_properties[i].second.getValue());
+			handler.deliver(_properties[i].getValue());
 
 			// exit loop
 			break;
@@ -108,13 +110,13 @@ void PropertyProvider::setProperty(
 	
 	for(Uint32 i = 0, n = _properties.size(); i < n; i++)
 	{
-		if(localReference == _properties[i].first)
+		if(localReference == _instanceNames[i])
 		{
 			// update the property value associated with the specified instance
-			_properties[i].second.setValue(newValue);
+			_properties[i].setValue(newValue);
 
 			// deliver the property value associated with the specified instance
-			handler.deliver(_properties[i].second.getValue());
+			handler.deliver(_properties[i].getValue());
 
 			// exit loop
 			break;

@@ -12,3 +12,6 @@ tests:
 	$(RM) X.idx
 	Inst
 	$(RM) X.idx
+
+poststarttests:
+

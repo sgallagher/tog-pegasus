@@ -12,3 +12,6 @@ tests:
 	$(RMREPOSITORY) repository
 	$(PROGRAM)
 	$(RMREPOSITORY) repository
+
+poststarttests:
+

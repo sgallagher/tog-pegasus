@@ -12,3 +12,6 @@ tests:
 	$(RMDIRHIER) repository
 	$(PROGRAM)
 	$(RMDIRHIER) repository
+
+poststarttests:
+

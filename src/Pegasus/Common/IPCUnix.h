@@ -42,14 +42,6 @@
 #include <sys/timex.h>
 //#include <unistd.h>
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-
-#if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-#include <asm/atomic.h>
-#endif 
-
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 int timeval_subtract (struct timeval *result, 
@@ -120,21 +112,16 @@ typedef struct {
 /// Conditionals to support native or generic atomic variables
 //-----------------------------------------------------------------
 
-// linux offers a built-in integer type for atomic access
-// other unix platforms HPUX, AIX, may have different types
+// Linux IA32 offers a built-in integer type for atomic access.
+// Linux IA64 does not allow for built-in atomic access.
+// Spinlock on some Linux IA64 distributions does not work.
+// Other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #define PEGASUS_ATOMIC_INT_NATIVE
-#if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-  #define PEGASUS_OLD_ATOMIC_INT
-  typedef atomic_t PEGASUS_ATOMIC_TYPE ;
-
-#else
   typedef pthread_spinlock_t PEGASUS_ATOMIC_TYPE ;
 #endif
-
-#endif // linux platform atomic type
 
 //-----------------------------------------------------------------
 /// Conditionals to support native or generic read/write semaphores

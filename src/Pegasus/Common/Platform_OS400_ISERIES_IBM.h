@@ -109,7 +109,7 @@
 // See ProviderManagerService.cpp
 #define ENABLE_DEFAULT_PROVIDER_MANAGER
 
-#define PEGASUS_MONITOR2
+//#define PEGASUS_MONITOR2
 
 #define PEGASUS_USE_RELEASE_CONFIG_OPTIONS
 

@@ -240,8 +240,7 @@ endif
 
 # PEP 123 use monitor2 (the default) or not
 ifdef PEGASUS_USE_23HTTPMONITOR
-else
-DEFINES+= -DPEGASUS_MONITOR2
+DEFINES+= -DPEGASUS_USE_23HTTPMONITOR
 endif
 
 # is the pegasus slp classes

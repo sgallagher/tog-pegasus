@@ -1058,12 +1058,11 @@ MessageLoader::_useProcessLocale = false;
 
 
 
-#if defined(PEGASUS_MONITOR2) 
-	monitor_2 monitor;
+#if defined(PEGASUS_USE_23HTTPMONITOR) 
+	Monitor monitor(true);
 	CIMServer server(&monitor);
 #else
-
-	Monitor monitor(true);
+	monitor_2 monitor;
 	CIMServer server(&monitor);
 #endif
 

@@ -668,15 +668,13 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 {
     Array<Sint8> params;
 
-    message->instanceName.localObjectPathtoXml(params);
-
     for (Uint32 i=0; i < message->inParameters.size(); i++)
     {
         message->inParameters[i].toXml(params);
     }
 
     Array<Sint8> buffer = XmlWriter::formatSimpleMethodReqMessage(_hostName,
-	message->nameSpace, _CString(message->methodName),
+	message->instanceName, _CString(message->methodName),
 	message->messageId, _authenticator->buildRequestAuthHeader(), params);
     
     _outputQueue->enqueue(new HTTPMessage(buffer));

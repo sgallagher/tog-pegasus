@@ -209,14 +209,23 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 	_appendSpecialChar(out, *tmp++);
 }
 
-void XmlWriter::appendLocalNameSpaceElement(
-    Array<Sint8>& out, 
+//------------------------------------------------------------------------------
+//
+// appendLocalNameSpacePathElement()
+//
+//     <!ELEMENT LOCALNAMESPACEPATH (NAMESPACE+)>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendLocalNameSpacePathElement(
+    Array<Sint8>& out,
     const String& nameSpace)
 {
     out << "<LOCALNAMESPACEPATH>\n";
 
     char* tmp = nameSpace.allocateCString();
 
+    // ATTN-RK-P3-20020301: Is it necessary/helpful to break this into parts?
     for (char* p = strtok(tmp, "/"); p; p = strtok(NULL, "/"))
     {
 	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
@@ -225,6 +234,159 @@ void XmlWriter::appendLocalNameSpaceElement(
     delete [] tmp;
 
     out << "</LOCALNAMESPACEPATH>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendNameSpacePathElement()
+//
+//     <!ELEMENT NAMESPACEPATH (HOST,LOCALNAMESPACEPATH)>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendNameSpacePathElement(
+    Array<Sint8>& out,
+    const String& host,
+    const String& nameSpace)
+{
+    out << "<NAMESPACEPATH>\n";
+    out << "<HOST>" << host << "</HOST>\n";
+    appendLocalNameSpacePathElement(out, nameSpace);
+    out << "</NAMESPACEPATH>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendClassNameElement()
+//
+//     <!ELEMENT CLASSNAME EMPTY>
+//     <!ATTLIST CLASSNAME
+//              %CIMName;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendClassNameElement(
+    Array<Sint8>& out,
+    const String& className)
+{
+    out << "<CLASSNAME NAME=\"" << className << "\"/>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendInstanceNameElement()
+//
+//    <!ELEMENT INSTANCENAME (KEYBINDING*|KEYVALUE?|VALUE.REFERENCE?)>
+//    <!ATTLIST INSTANCENAME
+//              %ClassName;>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendInstanceNameElement(
+    Array<Sint8>& out,
+    const CIMReference& instanceName)
+{
+    out << "<INSTANCENAME CLASSNAME=\"" << instanceName.getClassName() << "\">\n";
+
+    Array<KeyBinding> keyBindings = instanceName.getKeyBindings();
+    for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
+    {
+        out << "<KEYBINDING NAME=\"" << keyBindings[i].getName() << "\">\n";
+
+        if (keyBindings[i].getType() == KeyBinding::REFERENCE)
+        {
+            CIMReference ref = keyBindings[i].getValue();
+            ref.toXml(out, true);
+        }
+        else {
+            out << "<KEYVALUE VALUETYPE=\"";
+            out << KeyBinding::typeToString(keyBindings[i].getType());
+            out << "\">";
+
+            // fixed the special character problem - Markus
+
+            appendSpecial(out, keyBindings[i].getValue());
+            out << "</KEYVALUE>\n";
+        }
+        out << "</KEYBINDING>\n";
+    }
+    out << "</INSTANCENAME>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendClassPathElement()
+//
+//     <!ELEMENT CLASSPATH (NAMESPACEPATH,CLASSNAME)>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendClassPathElement(
+    Array<Sint8>& out, 
+    const CIMReference& classPath)
+{
+    out << "<CLASSPATH>\n";
+    appendNameSpacePathElement(out,
+                               classPath.getHost(),
+                               classPath.getNameSpace());
+    appendClassNameElement(out, classPath.getClassName());
+    out << "</CLASSPATH>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendInstancePathElement()
+//
+//     <!ELEMENT INSTANCEPATH (NAMESPACEPATH,INSTANCENAME)>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendInstancePathElement(
+    Array<Sint8>& out, 
+    const CIMReference& instancePath)
+{
+    out << "<INSTANCEPATH>\n";
+    appendNameSpacePathElement(out,
+                               instancePath.getHost(),
+                               instancePath.getNameSpace());
+    appendInstanceNameElement(out, instancePath);
+    out << "</INSTANCEPATH>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendLocalClassPathElement()
+//
+//     <!ELEMENT LOCALCLASSPATH (LOCALNAMESPACEPATH, CLASSNAME)>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendLocalClassPathElement(
+    Array<Sint8>& out, 
+    const CIMReference& classPath)
+{
+    out << "<LOCALCLASSPATH>\n";
+    appendLocalNameSpacePathElement(out, classPath.getNameSpace());
+    appendClassNameElement(out, classPath.getClassName());
+    out << "</LOCALCLASSPATH>\n";
+}
+
+//------------------------------------------------------------------------------
+//
+// appendLocalInstancePathElement()
+//
+//     <!ELEMENT LOCALINSTANCEPATH (LOCALNAMESPACEPATH, INSTANCENAME)>
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendLocalInstancePathElement(
+    Array<Sint8>& out, 
+    const CIMReference& instancePath)
+{
+    out << "<LOCALINSTANCEPATH>\n";
+    appendLocalNameSpacePathElement(out, instancePath.getNameSpace());
+    appendInstanceNameElement(out, instancePath);
+    out << "</LOCALINSTANCEPATH>\n";
 }
 
 //------------------------------------------------------------------------------
@@ -324,8 +486,8 @@ void XmlWriter::appendUnauthorizedResponseHeader(
 
 //------------------------------------------------------------------------------
 //
-// appendMessageElementBegin()
-// appendMessageElementEnd()
+// _appendMessageElementBegin()
+// _appendMessageElementEnd()
 //
 //     <!ELEMENT MESSAGE (SIMPLEREQ|MULTIREQ|SIMPLERSP|MULTIRSP)>
 //     <!ATTLIST MESSAGE
@@ -334,7 +496,7 @@ void XmlWriter::appendUnauthorizedResponseHeader(
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendMessageElementBegin(
+void XmlWriter::_appendMessageElementBegin(
     Array<Sint8>& out,
     const String& messageId)
 {
@@ -343,7 +505,7 @@ void XmlWriter::appendMessageElementBegin(
     out << "<MESSAGE ID=\"" << messageId << "\" PROTOCOLVERSION=\"1.0\">\n";
 }
 
-void XmlWriter::appendMessageElementEnd(
+void XmlWriter::_appendMessageElementEnd(
     Array<Sint8>& out)
 {
     out << "</MESSAGE>\n";
@@ -352,20 +514,20 @@ void XmlWriter::appendMessageElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendSimpleReqElementBegin()
-// appendSimpleReqElementEnd()
+// _appendSimpleReqElementBegin()
+// _appendSimpleReqElementEnd()
 //
 //     <!ELEMENT SIMPLEREQ (IMETHODCALL|METHODCALL)>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendSimpleReqElementBegin(
+void XmlWriter::_appendSimpleReqElementBegin(
     Array<Sint8>& out)
 {
     out << "<SIMPLEREQ>\n";
 }
 
-void XmlWriter::appendSimpleReqElementEnd(
+void XmlWriter::_appendSimpleReqElementEnd(
     Array<Sint8>& out)
 {
     out << "</SIMPLEREQ>\n";
@@ -373,22 +535,22 @@ void XmlWriter::appendSimpleReqElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendMethodCallElementBegin()
-// appendMethodCallElementEnd()
+// _appendMethodCallElementBegin()
+// _appendMethodCallElementEnd()
 //
 //     <!ELEMENT METHODCALL ((LOCALCLASSPATH|LOCALINSTANCEPATH),PARAMVALUE*)>
 //     <!ATTLIST METHODCALL %CIMName;>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendMethodCallElementBegin(
+void XmlWriter::_appendMethodCallElementBegin(
     Array<Sint8>& out,
     const char* name)
 {
     out << "<METHODCALL NAME=\"" << name << "\">\n";
 }
 
-void XmlWriter::appendMethodCallElementEnd(
+void XmlWriter::_appendMethodCallElementEnd(
     Array<Sint8>& out)
 {
     out << "</METHODCALL>\n";
@@ -396,22 +558,22 @@ void XmlWriter::appendMethodCallElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendIMethodCallElementBegin()
-// appendIMethodCallElementEnd()
+// _appendIMethodCallElementBegin()
+// _appendIMethodCallElementEnd()
 //
 //     <!ELEMENT IMETHODCALL (LOCALNAMESPACEPATH,IPARAMVALUE*)>
 //     <!ATTLIST IMETHODCALL %CIMName;>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendIMethodCallElementBegin(
+void XmlWriter::_appendIMethodCallElementBegin(
     Array<Sint8>& out,
     const char* name)
 {
     out << "<IMETHODCALL NAME=\"" << name << "\">\n";
 }
 
-void XmlWriter::appendIMethodCallElementEnd(
+void XmlWriter::_appendIMethodCallElementEnd(
     Array<Sint8>& out)
 {
     out << "</IMETHODCALL>\n";
@@ -419,8 +581,8 @@ void XmlWriter::appendIMethodCallElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendIParamValueElementBegin()
-// appendIParamValueElementEnd()
+// _appendIParamValueElementBegin()
+// _appendIParamValueElementEnd()
 //
 //     <!ELEMENT IPARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
 //         |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
@@ -429,14 +591,14 @@ void XmlWriter::appendIMethodCallElementEnd(
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendIParamValueElementBegin(
+void XmlWriter::_appendIParamValueElementBegin(
     Array<Sint8>& out,
     const char* name)
 {
     out << "<IPARAMVALUE NAME=\"" << name << "\">\n";
 }
 
-void XmlWriter::appendIParamValueElementEnd(
+void XmlWriter::_appendIParamValueElementEnd(
     Array<Sint8>& out)
 {
     out << "</IPARAMVALUE>\n";
@@ -444,20 +606,20 @@ void XmlWriter::appendIParamValueElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendSimpleRspElementBegin()
-// appendSimpleRspElementEnd()
+// _appendSimpleRspElementBegin()
+// _appendSimpleRspElementEnd()
 //
 //     <!ELEMENT SIMPLERSP (METHODRESPONSE|IMETHODRESPONSE)>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendSimpleRspElementBegin(
+void XmlWriter::_appendSimpleRspElementBegin(
     Array<Sint8>& out)
 {
     out << "<SIMPLERSP>\n";
 }
 
-void XmlWriter::appendSimpleRspElementEnd(
+void XmlWriter::_appendSimpleRspElementEnd(
     Array<Sint8>& out)
 {
     out << "</SIMPLERSP>\n";
@@ -465,22 +627,22 @@ void XmlWriter::appendSimpleRspElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendMethodResponseElementBegin()
-// appendMethodResponseElementEnd()
+// _appendMethodResponseElementBegin()
+// _appendMethodResponseElementEnd()
 //
 //     <!ELEMENT METHODRESPONSE (ERROR|IRETURNVALUE?)>
 //     <!ATTLIST METHODRESPONSE %CIMName;>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendMethodResponseElementBegin(
+void XmlWriter::_appendMethodResponseElementBegin(
     Array<Sint8>& out,
     const char* name)
 {
     out << "<METHODRESPONSE NAME=\"" << name << "\">\n";
 }
 
-void XmlWriter::appendMethodResponseElementEnd(
+void XmlWriter::_appendMethodResponseElementEnd(
     Array<Sint8>& out)
 {
     out << "</METHODRESPONSE>\n";
@@ -488,22 +650,22 @@ void XmlWriter::appendMethodResponseElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendIMethodResponseElementBegin()
-// appendIMethodResponseElementEnd()
+// _appendIMethodResponseElementBegin()
+// _appendIMethodResponseElementEnd()
 //
 //     <!ELEMENT IMETHODRESPONSE (ERROR|IRETURNVALUE?)>
 //     <!ATTLIST IMETHODRESPONSE %CIMName;>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendIMethodResponseElementBegin(
+void XmlWriter::_appendIMethodResponseElementBegin(
     Array<Sint8>& out,
     const char* name)
 {
     out << "<IMETHODRESPONSE NAME=\"" << name << "\">\n";
 }
 
-void XmlWriter::appendIMethodResponseElementEnd(
+void XmlWriter::_appendIMethodResponseElementEnd(
     Array<Sint8>& out)
 {
     out << "</IMETHODRESPONSE>\n";
@@ -511,11 +673,11 @@ void XmlWriter::appendIMethodResponseElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendErrorElement()
+// _appendErrorElement()
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendErrorElement(
+void XmlWriter::_appendErrorElement(
     Array<Sint8>& out,
     CIMStatusCode code,
     const char* description)
@@ -556,8 +718,8 @@ void XmlWriter::appendReturnValueElement(
 
 //------------------------------------------------------------------------------
 //
-// appendIReturnValueElementBegin()
-// appendIReturnValueElementEnd()
+// _appendIReturnValueElementBegin()
+// _appendIReturnValueElementEnd()
 //
 //      <!ELEMENT IRETURNVALUE (CLASSNAME*|INSTANCENAME*|VALUE*|
 //          VALUE.OBJECTWITHPATH*|VALUE.OBJECTWITHLOCALPATH*|VALUE.OBJECT*|
@@ -566,13 +728,13 @@ void XmlWriter::appendReturnValueElement(
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendIReturnValueElementBegin(
+void XmlWriter::_appendIReturnValueElementBegin(
     Array<Sint8>& out)
 {
     out << "<IRETURNVALUE>\n";
 }
 
-void XmlWriter::appendIReturnValueElementEnd(
+void XmlWriter::_appendIReturnValueElementEnd(
     Array<Sint8>& out)
 {
     out << "</IRETURNVALUE>\n";
@@ -589,9 +751,9 @@ void XmlWriter::appendBooleanIParameter(
     const char* name,
     Boolean flag)
 {
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     out << "<VALUE>" << (flag ? "TRUE" : "FALSE") << "</VALUE>\n";
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -605,11 +767,11 @@ void XmlWriter::appendStringIParameter(
     const char* name,
     const String& str)
 {
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     out << "<VALUE>";
     appendSpecial(out, str);
     out << "</VALUE>\n";
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -631,9 +793,9 @@ void XmlWriter::appendQualifierNameIParameter(
     // as an IPARAMVALUE element according to the spec (look above). So we
     // just pass it as a class name. An answer must be obtained later.
     
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     appendClassNameElement(out, qualifierName);
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -647,9 +809,9 @@ void XmlWriter::appendClassNameIParameter(
     const char* name,
     const String& className)
 {
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     appendClassNameElement(out, className);
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -663,9 +825,9 @@ void XmlWriter::appendInstanceNameIParameter(
     const char* name,
     const CIMReference& instanceName)
 {
-    appendIParamValueElementBegin(out, name);
-    instanceName.instanceNameToXml(out);
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementBegin(out, name);
+    appendInstanceNameElement(out, instanceName);
+    _appendIParamValueElementEnd(out);
 }
 
 void XmlWriter::appendObjectNameIParameter(
@@ -696,9 +858,9 @@ void XmlWriter::appendClassIParameter(
     const char* name,
     const CIMConstClass& cimClass)
 {
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     cimClass.toXml(out);
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -712,9 +874,9 @@ void XmlWriter::appendInstanceIParameter(
     const char* name,
     const CIMConstInstance& instance)
 {
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     instance.toXml(out);
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -728,9 +890,9 @@ void XmlWriter::appendNamedInstanceIParameter(
     const char* name,
     const CIMNamedInstance& namedInstance)
 {
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     namedInstance.toXml(out);
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //----------------------------------------------------------
@@ -746,9 +908,9 @@ void XmlWriter::appendPropertyNameIParameter(
     Array<Sint8>& out,
     const String& propertyName)
 {
-    appendIParamValueElementBegin(out, "PropertyName");
+    _appendIParamValueElementBegin(out, "PropertyName");
     out << "<VALUE>" << propertyName << "</VALUE>\n"; 
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -762,9 +924,9 @@ void XmlWriter::appendPropertyValueIParameter(
     const char* name,
     const CIMValue& value)
 {
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     value.toXml(out);
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -777,7 +939,7 @@ void XmlWriter::appendPropertyListIParameter(
     Array<Sint8>& out,
     const CIMPropertyList& propertyList)
 {
-    appendIParamValueElementBegin(out, "PropertyList");
+    _appendIParamValueElementBegin(out, "PropertyList");
 
     out << "<VALUE.ARRAY>\n";
     for (Uint32 i = 0; i < propertyList.getNumProperties(); i++)
@@ -786,7 +948,7 @@ void XmlWriter::appendPropertyListIParameter(
     }
     out << "</VALUE.ARRAY>\n";
 
-    appendIParamValueElementEnd(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -800,35 +962,9 @@ void XmlWriter::appendQualifierDeclarationIParameter(
     const char* name,
     const CIMConstQualifierDecl& qualifierDecl)
 {
-    appendIParamValueElementBegin(out, name);
+    _appendIParamValueElementBegin(out, name);
     qualifierDecl.toXml(out);
-    appendIParamValueElementEnd(out);
-}
-
-//------------------------------------------------------------------------------
-//
-// appendClassNameElement()
-//
-//------------------------------------------------------------------------------
-
-void XmlWriter::appendClassNameElement(
-    Array<Sint8>& out,
-    const String& className)
-{
-    out << "<CLASSNAME NAME=\"" << className << "\"/>\n";
-}
-
-//------------------------------------------------------------------------------
-//
-// appendInstanceNameElement()
-//
-//------------------------------------------------------------------------------
-
-void XmlWriter::appendInstanceNameElement(
-    Array<Sint8>& out,
-    const CIMReference& instanceName)
-{
-    instanceName.instanceNameToXml(out);
+    _appendIParamValueElementEnd(out);
 }
 
 //------------------------------------------------------------------------------
@@ -840,7 +976,7 @@ void XmlWriter::appendInstanceNameElement(
 // ATTN-RK-P1-20020228: Need to complete copy elimination optimization
 Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     const char* host,
-    const String& nameSpace,
+    const CIMReference& path,
     const char* methodName,
     const String& messageId,
     const String& authenticationHeader,
@@ -849,20 +985,31 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleReqElementBegin(out);
-    appendMethodCallElementBegin(out, methodName);
-//    appendLocalPathElement(out, nameSpace); // ATTN-RK-P1-20020228:  Need this
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleReqElementBegin(out);
+    _appendMethodCallElementBegin(out, methodName);
+
+    // See if it is a class or instance reference (instance references have
+    // key-bindings; class references do not).
+    if (path.getKeyBindings().size() > 0)
+    {
+        appendLocalInstancePathElement(out, path);
+    }
+    else
+    {
+        appendLocalClassPathElement(out, path);
+    }
+
     out << body;
-    appendMethodCallElementEnd(out);
-    appendSimpleReqElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendMethodCallElementEnd(out);
+    _appendSimpleReqElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendMethodCallHeader(
 	tmp,
 	host,
 	methodName,
-	nameSpace,  // ATTN-RK: Is this right?
+	path.getNameSpace(),  // ATTN-RK-P3-20020301: Need more in header?
         authenticationHeader,
 	out.size());
     tmp << out;
@@ -878,13 +1025,13 @@ Array<Sint8> XmlWriter::formatSimpleMethodRspMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleRspElementBegin(out);
-    appendMethodResponseElementBegin(out, methodName);
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleRspElementBegin(out);
+    _appendMethodResponseElementBegin(out, methodName);
     out << body;
-    appendMethodResponseElementEnd(out);
-    appendSimpleRspElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendMethodResponseElementEnd(out);
+    _appendSimpleRspElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendMethodResponseHeader(tmp, out.size());
     tmp << out;
@@ -909,13 +1056,13 @@ Array<Sint8> XmlWriter::formatSimpleMethodErrorRspMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleRspElementBegin(out);
-    appendMethodResponseElementBegin(out, tmp1.getPointer());
-    appendErrorElement(out, code, tmp2.getPointer());
-    appendMethodResponseElementEnd(out);
-    appendSimpleRspElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleRspElementBegin(out);
+    _appendMethodResponseElementBegin(out, tmp1.getPointer());
+    _appendErrorElement(out, code, tmp2.getPointer());
+    _appendMethodResponseElementEnd(out);
+    _appendSimpleRspElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendMethodResponseHeader(tmp, out.size());
     tmp << out;
@@ -940,14 +1087,14 @@ Array<Sint8> XmlWriter::formatSimpleIMethodReqMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleReqElementBegin(out);
-    appendIMethodCallElementBegin(out, iMethodName);
-    appendLocalNameSpaceElement(out, nameSpace);
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleReqElementBegin(out);
+    _appendIMethodCallElementBegin(out, iMethodName);
+    appendLocalNameSpacePathElement(out, nameSpace);
     out << body;
-    appendIMethodCallElementEnd(out);
-    appendSimpleReqElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendIMethodCallElementEnd(out);
+    _appendSimpleReqElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendMethodCallHeader(
 	tmp,
@@ -975,15 +1122,15 @@ Array<Sint8> XmlWriter::formatSimpleIMethodRspMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleRspElementBegin(out);
-    appendIMethodResponseElementBegin(out, iMethodName);
-    appendIReturnValueElementBegin(out);
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleRspElementBegin(out);
+    _appendIMethodResponseElementBegin(out, iMethodName);
+    _appendIReturnValueElementBegin(out);
     out << body;
-    appendIReturnValueElementEnd(out);
-    appendIMethodResponseElementEnd(out);
-    appendSimpleRspElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendIReturnValueElementEnd(out);
+    _appendIMethodResponseElementEnd(out);
+    _appendSimpleRspElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendMethodResponseHeader(tmp, out.size());
     tmp << out;
@@ -1008,13 +1155,13 @@ Array<Sint8> XmlWriter::formatSimpleIMethodErrorRspMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleRspElementBegin(out);
-    appendIMethodResponseElementBegin(out, tmp1.getPointer());
-    appendErrorElement(out, code, tmp2.getPointer());
-    appendIMethodResponseElementEnd(out);
-    appendSimpleRspElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleRspElementBegin(out);
+    _appendIMethodResponseElementBegin(out, tmp1.getPointer());
+    _appendErrorElement(out, code, tmp2.getPointer());
+    _appendIMethodResponseElementEnd(out);
+    _appendSimpleRspElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendMethodResponseHeader(tmp, out.size());
     tmp << out;
@@ -1086,20 +1233,20 @@ void XmlWriter::appendEMethodResponseHeader(
 
 //------------------------------------------------------------------------------
 //
-// appendSimpleExportReqElementBegin()
-// appendSimpleExportReqElementEnd()
+// _appendSimpleExportReqElementBegin()
+// _appendSimpleExportReqElementEnd()
 //
 //     <!ELEMENT SIMPLEEXPREQ (EXPMETHODCALL)>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendSimpleExportReqElementBegin(
+void XmlWriter::_appendSimpleExportReqElementBegin(
     Array<Sint8>& out)
 {
     out << "<SIMPLEEXPREQ>\n";
 }
 
-void XmlWriter::appendSimpleExportReqElementEnd(
+void XmlWriter::_appendSimpleExportReqElementEnd(
     Array<Sint8>& out)
 {
     out << "</SIMPLEEXPREQ>\n";
@@ -1107,22 +1254,22 @@ void XmlWriter::appendSimpleExportReqElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendEMethodCallElementBegin()
-// appendEMethodCallElementEnd()
+// _appendEMethodCallElementBegin()
+// _appendEMethodCallElementEnd()
 //
 //     <!ELEMENT EXPMETHODCALL (IPARAMVALUE*)>
 //     <!ATTLIST EXPMETHODCALL %CIMName;>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendEMethodCallElementBegin(
+void XmlWriter::_appendEMethodCallElementBegin(
     Array<Sint8>& out,
     const char* name)
 {
     out << "<EXPMETHODCALL NAME=\"" << name << "\">\n";
 }
 
-void XmlWriter::appendEMethodCallElementEnd(
+void XmlWriter::_appendEMethodCallElementEnd(
     Array<Sint8>& out)
 {
     out << "</EXPMETHODCALL>\n";
@@ -1130,20 +1277,20 @@ void XmlWriter::appendEMethodCallElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// appendSimpleExportRspElementBegin()
-// appendSimpleExportRspElementEnd()
+// _appendSimpleExportRspElementBegin()
+// _appendSimpleExportRspElementEnd()
 //
 //     <!ELEMENT SIMPLEEXPRSP (EXPMETHODRESPONSE)>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendSimpleExportRspElementBegin(
+void XmlWriter::_appendSimpleExportRspElementBegin(
     Array<Sint8>& out)
 {
     out << "<SIMPLEEXPRSP>\n";
 }
 
-void XmlWriter::appendSimpleExportRspElementEnd(
+void XmlWriter::_appendSimpleExportRspElementEnd(
     Array<Sint8>& out)
 {
     out << "</SIMPLEEXPRSP>\n";
@@ -1151,21 +1298,22 @@ void XmlWriter::appendSimpleExportRspElementEnd(
 
 //------------------------------------------------------------------------------
 //
-// formatEMethodResponseElement()
+// _appendEMethodResponseElementBegin()
+// _appendEMethodResponseElementEnd()
 //
 //     <!ELEMENT EXPMETHODRESPONSE (ERROR|IRETURNVALUE?)>
 //     <!ATTLIST EXPMETHODRESPONSE %CIMName;>
 //
 //------------------------------------------------------------------------------
 
-void XmlWriter::appendEMethodResponseElementBegin(
+void XmlWriter::_appendEMethodResponseElementBegin(
     Array<Sint8>& out,
     const char* name)
 {
     out << "<EXPMETHODRESPONSE NAME=\"" << name << "\">\n";
 }
 
-void XmlWriter::appendEMethodResponseElementEnd(
+void XmlWriter::_appendEMethodResponseElementEnd(
     Array<Sint8>& out)
 {
     out << "</EXPMETHODRESPONSE>\n";
@@ -1187,13 +1335,13 @@ Array<Sint8> XmlWriter::formatSimpleEMethodReqMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleExportReqElementBegin(out);
-    appendEMethodCallElementBegin(out, eMethodName);
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleExportReqElementBegin(out);
+    _appendEMethodCallElementBegin(out, eMethodName);
     out << body;
-    appendEMethodCallElementEnd(out);
-    appendSimpleExportReqElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendEMethodCallElementEnd(out);
+    _appendSimpleExportReqElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendEMethodRequestHeader(
         tmp,
@@ -1220,13 +1368,13 @@ Array<Sint8> XmlWriter::formatSimpleEMethodRspMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleExportRspElementBegin(out);
-    appendEMethodResponseElementBegin(out, eMethodName);
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleExportRspElementBegin(out);
+    _appendEMethodResponseElementBegin(out, eMethodName);
     out << body;
-    appendEMethodResponseElementEnd(out);
-    appendSimpleExportRspElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendEMethodResponseElementEnd(out);
+    _appendSimpleExportRspElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendEMethodResponseHeader(tmp, out.size());
     tmp << out;
@@ -1251,13 +1399,13 @@ Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
     Array<Sint8> out;
     Array<Sint8> tmp;
 
-    appendMessageElementBegin(out, messageId);
-    appendSimpleExportRspElementBegin(out);
-    appendEMethodResponseElementBegin(out, tmp1.getPointer());
-    appendErrorElement(out, code, tmp2.getPointer());
-    appendEMethodResponseElementEnd(out);
-    appendSimpleExportRspElementEnd(out);
-    appendMessageElementEnd(out);
+    _appendMessageElementBegin(out, messageId);
+    _appendSimpleExportRspElementBegin(out);
+    _appendEMethodResponseElementBegin(out, tmp1.getPointer());
+    _appendErrorElement(out, code, tmp2.getPointer());
+    _appendEMethodResponseElementEnd(out);
+    _appendSimpleExportRspElementEnd(out);
+    _appendMessageElementEnd(out);
 
     appendEMethodResponseHeader(tmp, out.size());
     tmp << out;

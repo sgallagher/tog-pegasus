@@ -95,7 +95,7 @@ void CIMNamedInstance::toXml(Array<Sint8>& out) const
 {
     out << "<VALUE.NAMEDINSTANCE>\n";
 
-    _instanceName.instanceNameToXml(out);
+    XmlWriter::appendInstanceNameElement(out, _instanceName);
     _instance.toXml(out);
 
     out << "</VALUE.NAMEDINSTANCE>\n";

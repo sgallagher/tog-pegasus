@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -565,17 +565,6 @@ public:
     */
     void toXml(Array<Sint8>& out, Boolean putValueWrapper = true) const;
 
-    /** Encodes this CIMReference object as XML.  Ignores the host and
-        namespace.
-	@param out argument in which to place results
-    */
-    void instanceNameToXml(Array<Sint8>& out) const;
-
-    /** Encodes this CIMReference object as XML. Ignores the host.
-	@param out argument in which to place results
-    */
-    void localObjectPathtoXml(Array<Sint8>& out) const;
-
     /** Encodes this CIMreference object as MOF.
 	@param out argument in which to place results
     */
@@ -611,10 +600,6 @@ public:
 private:
 
     void nameSpaceToXml(Array<Sint8>& out) const;
-
-    void localNameSpaceToXml(Array<Sint8>& out) const;
-
-    void classNameToXml(Array<Sint8>& out) const;
 
     //
     // Contains port as well (e.g., myhost:1234).

@@ -76,16 +76,45 @@ public:
 
     static void appendSpecial(Array<Sint8>& out, const String& str);
 
-    static void appendLocalNameSpaceElement(
+    static void appendLocalNameSpacePathElement(
 	Array<Sint8>& out, 
 	const String& nameSpace);
+
+    static void appendNameSpacePathElement(
+	Array<Sint8>& out, 
+	const String& host,
+	const String& nameSpace);
+
+    static void appendClassNameElement(
+	Array<Sint8>& out,
+	const String& className);
+
+    static void appendInstanceNameElement(
+	Array<Sint8>& out,
+	const CIMReference& instanceName);
+
+    static void appendClassPathElement(
+	Array<Sint8>& out,
+	const CIMReference& classPath);
+
+    static void appendInstancePathElement(
+	Array<Sint8>& out,
+	const CIMReference& instancePath);
+
+    static void appendLocalClassPathElement(
+	Array<Sint8>& out,
+	const CIMReference& classPath);
+
+    static void appendLocalInstancePathElement(
+	Array<Sint8>& out,
+	const CIMReference& instancePath);
 
     static void appendMethodCallHeader(
 	Array<Sint8>& out,
 	const char* host,
 	const char* cimMethod,
 	const String& cimObject,
-        const String& authenticationHeader,
+	const String& authenticationHeader,
 	Uint32 contentLength);
 
     static void appendMethodResponseHeader(
@@ -96,59 +125,9 @@ public:
 	Array<Sint8>& out,
         const String& content);
 
-    static void appendMessageElementBegin(
-	Array<Sint8>& out,
-	const String& messageId);
-    static void appendMessageElementEnd(
-	Array<Sint8>& out);
-
-    static void appendSimpleReqElementBegin(Array<Sint8>& out);
-    static void appendSimpleReqElementEnd(Array<Sint8>& out);
-
-    static void appendMethodCallElementBegin(
-	Array<Sint8>& out,
-	const char* name);
-    static void appendMethodCallElementEnd(
-	Array<Sint8>& out);
-
-    static void appendIMethodCallElementBegin(
-	Array<Sint8>& out,
-	const char* name);
-    static void appendIMethodCallElementEnd(
-	Array<Sint8>& out);
-
-    static void appendIParamValueElementBegin(
-	Array<Sint8>& out,
-	const char* name);
-    static void appendIParamValueElementEnd(
-	Array<Sint8>& out);
-
-    static void appendSimpleRspElementBegin(Array<Sint8>& out);
-    static void appendSimpleRspElementEnd(Array<Sint8>& out);
-
-    static void appendMethodResponseElementBegin(
-	Array<Sint8>& out,
-	const char* name);
-    static void appendMethodResponseElementEnd(
-	Array<Sint8>& out);
-
-    static void appendIMethodResponseElementBegin(
-	Array<Sint8>& out,
-	const char* name);
-    static void appendIMethodResponseElementEnd(
-	Array<Sint8>& out);
-
-    static void appendErrorElement(
-	Array<Sint8>& out,
-	CIMStatusCode code,
-	const char* description);
-
     static void appendReturnValueElement(
 	Array<Sint8>& out,
 	const CIMValue& value);
-
-    static void appendIReturnValueElementBegin(Array<Sint8>& out);
-    static void appendIReturnValueElementEnd(Array<Sint8>& out);
 
     static void appendBooleanIParameter(
 	Array<Sint8>& out,
@@ -213,17 +192,9 @@ public:
 	const char* name,
 	const CIMConstQualifierDecl& qualifierDecl);
 
-    static void appendClassNameElement(
-	Array<Sint8>& out,
-	const String& className);
-
-    static void appendInstanceNameElement(
-	Array<Sint8>& out,
-	const CIMReference& instanceName);
-
     static Array<Sint8> formatSimpleMethodReqMessage(
 	const char* host,
-	const String& nameSpace,
+	const CIMReference& path,
 	const char* methodName,
 	const String& messageId,
         const String& authenticationHeader,
@@ -270,24 +241,6 @@ public:
 	Array<Sint8>& out,
 	Uint32 contentLength);
 
-    static void appendSimpleExportReqElementBegin(Array<Sint8>& out);
-    static void appendSimpleExportReqElementEnd(Array<Sint8>& out);
-
-    static void appendEMethodCallElementBegin(
-    	Array<Sint8>& out,
-    	const char* name);
-    static void appendEMethodCallElementEnd(
-    	Array<Sint8>& out);
-
-    static void appendSimpleExportRspElementBegin(Array<Sint8>& out);
-    static void appendSimpleExportRspElementEnd(Array<Sint8>& out);
-
-    static void appendEMethodResponseElementBegin(
-    	Array<Sint8>& out,
-    	const char* name);
-    static void appendEMethodResponseElementEnd(
-    	Array<Sint8>& out);
-
     static Array<Sint8> formatSimpleEMethodReqMessage(
 	const char* host,
 	const char* eMethodName,
@@ -314,6 +267,74 @@ public:
     static String getNextMessageId();
 
 private:
+
+    static void _appendMessageElementBegin(
+	Array<Sint8>& out,
+	const String& messageId);
+    static void _appendMessageElementEnd(
+	Array<Sint8>& out);
+
+    static void _appendSimpleReqElementBegin(Array<Sint8>& out);
+    static void _appendSimpleReqElementEnd(Array<Sint8>& out);
+
+    static void _appendMethodCallElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void _appendMethodCallElementEnd(
+	Array<Sint8>& out);
+
+    static void _appendIMethodCallElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void _appendIMethodCallElementEnd(
+	Array<Sint8>& out);
+
+    static void _appendIParamValueElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void _appendIParamValueElementEnd(
+	Array<Sint8>& out);
+
+    static void _appendSimpleRspElementBegin(Array<Sint8>& out);
+    static void _appendSimpleRspElementEnd(Array<Sint8>& out);
+
+    static void _appendMethodResponseElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void _appendMethodResponseElementEnd(
+	Array<Sint8>& out);
+
+    static void _appendIMethodResponseElementBegin(
+	Array<Sint8>& out,
+	const char* name);
+    static void _appendIMethodResponseElementEnd(
+	Array<Sint8>& out);
+
+    static void _appendErrorElement(
+	Array<Sint8>& out,
+	CIMStatusCode code,
+	const char* description);
+
+    static void _appendIReturnValueElementBegin(Array<Sint8>& out);
+    static void _appendIReturnValueElementEnd(Array<Sint8>& out);
+
+    static void _appendSimpleExportReqElementBegin(Array<Sint8>& out);
+    static void _appendSimpleExportReqElementEnd(Array<Sint8>& out);
+
+    static void _appendEMethodCallElementBegin(
+    	Array<Sint8>& out,
+    	const char* name);
+    static void _appendEMethodCallElementEnd(
+    	Array<Sint8>& out);
+
+    static void _appendSimpleExportRspElementBegin(Array<Sint8>& out);
+    static void _appendSimpleExportRspElementEnd(Array<Sint8>& out);
+
+    static void _appendEMethodResponseElementBegin(
+    	Array<Sint8>& out,
+    	const char* name);
+    static void _appendEMethodResponseElementEnd(
+    	Array<Sint8>& out);
 
     XmlWriter() { }
 };

@@ -258,7 +258,7 @@ void CIMReference::set(
     KEYVALUEs of string type rather than VALUE.REFERENCEs.
 
     I've modified the XmlReader::getKeyBindingElement() and
-    CIMReference::instanceNameToXml() methods to read and write
+    XmlWriter::appendInstanceNameElement() methods to read and write
     the XML in the proper format.  However, making that change
     required that a CIMReference object be able to distinguish
     between a key of String type and a key of reference type.
@@ -707,71 +707,6 @@ Boolean CIMReference::identical(const CIMReference& x) const
 	_keyBindings == x._keyBindings;
 }
 
-void CIMReference::nameSpaceToXml(Array<Sint8>& out) const
-{
-    if (_host.size())
-    {
-	out << "<NAMESPACEPATH>\n";
-	out << "<HOST>" << _host << "</HOST>\n";
-    }
-
-    XmlWriter::appendLocalNameSpaceElement(out, _nameSpace);
-
-    if (_host.size())
-	out << "</NAMESPACEPATH>\n";
-}
-
-void CIMReference::localNameSpaceToXml(Array<Sint8>& out) const
-{
-    out << "<LOCALNAMESPACEPATH>\n";
-
-    char* tmp = _nameSpace.allocateCString();
-
-    for (char* p = strtok(tmp, "/"); p; p = strtok(NULL, "/"))
-    {
-	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
-    }
-
-    delete [] tmp;
-
-    out << "</LOCALNAMESPACEPATH>\n";
-}
-
-void CIMReference::classNameToXml(Array<Sint8>& out) const
-{
-    out << "<CLASSNAME NAME=\"" << _className << "\"/>\n";
-}
-
-void CIMReference::instanceNameToXml(Array<Sint8>& out) const
-{
-    out << "<INSTANCENAME CLASSNAME=\"" << _className << "\">\n";
-
-    for (Uint32 i = 0, n = _keyBindings.size(); i < n; i++)
-    {
-	out << "<KEYBINDING NAME=\"" << _keyBindings[i].getName() << "\">\n";
-
-        if (_keyBindings[i].getType() == KeyBinding::REFERENCE)
-        {
-            CIMReference ref = _keyBindings[i].getValue();
-            ref.toXml(out, true);
-        }
-        else {
-	    out << "<KEYVALUE VALUETYPE=\"";
-	    out << KeyBinding::typeToString(_keyBindings[i].getType());
-	    out << "\">";
-
-	    // fixed the special character problem - Markus
-
-            XmlWriter::appendSpecial(out, _keyBindings[i].getValue());
-	    out << "</KEYVALUE>\n";
-        }
-
-	out << "</KEYBINDING>\n";
-    }
-
-    out << "</INSTANCENAME>\n";
-}
-
 void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
 {
     if (putValueWrapper)
@@ -784,68 +719,31 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
     {
 	if (_host.size())
 	{
-	    out << "<INSTANCEPATH>\n";
-	    nameSpaceToXml(out);
-	    instanceNameToXml(out);
-	    out << "</INSTANCEPATH>\n";
+	    XmlWriter::appendInstancePathElement(out, *this);
 	}
 	else if (_nameSpace.size())
 	{
-	    out << "<LOCALINSTANCEPATH>\n";
-	    localNameSpaceToXml(out);
-	    instanceNameToXml(out);
-	    out << "</LOCALINSTANCEPATH>\n";
+	    XmlWriter::appendLocalInstancePathElement(out, *this);
 	}
 	else
-	    instanceNameToXml(out);
+	    XmlWriter::appendInstanceNameElement(out, *this);
     }
     else
     {
 	if (_host.size())
 	{
-	    out << "<CLASSPATH>\n";
-	    nameSpaceToXml(out);
-	    classNameToXml(out);
-	    out << "</CLASSPATH>";
+	    XmlWriter::appendClassPathElement(out, *this);
 	}
 	else if (_nameSpace.size())
 	{
-	    out << "<LOCALCLASSPATH>\n";
-	    localNameSpaceToXml(out);
-	    classNameToXml(out);
-	    out << "</LOCALCLASSPATH>";
+	    XmlWriter::appendLocalClassPathElement(out, *this);
 	}
 	else
-	    classNameToXml(out);
+	    XmlWriter::appendClassNameElement(out, _className);
     }
 
     if (putValueWrapper)
 	out << "</VALUE.REFERENCE>\n";
-}
-
-
-//
-// InvokeMethod requires that the hostname be ignored
-//
-void CIMReference::localObjectPathtoXml(Array<Sint8>& out) const
-{
-    // See if it is a class or instance reference (instance references have
-    // key-bindings; class references do not).
-
-    if (_keyBindings.size())
-    {
-        out << "<LOCALINSTANCEPATH>\n";
-        localNameSpaceToXml(out);
-        instanceNameToXml(out);
-        out << "</LOCALINSTANCEPATH>\n";
-    }
-    else
-    {
-        out << "<LOCALCLASSPATH>\n";
-        localNameSpaceToXml(out);
-        classNameToXml(out);
-        out << "</LOCALCLASSPATH>";
-    }
 }
 
 //ATTNKS: At this point, I simply created the function
@@ -861,39 +759,27 @@ void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
     {
 	if (_host.size())
 	{
-	    out << "<INSTANCEPATHMof>\n";
-	    nameSpaceToXml(out);
-	    instanceNameToXml(out);
-	    out << "</INSTANCEPATHMof>\n";
+	    XmlWriter::appendInstancePathElement(out, *this);
 	}
 	else if (_nameSpace.size())
 	{
-	    out << "<LOCALINSTANCEPATHMof>\n";
-	    localNameSpaceToXml(out);
-	    instanceNameToXml(out);
-	    out << "</LOCALINSTANCEPATHMof>\n";
+	    XmlWriter::appendLocalInstancePathElement(out, *this);
 	}
 	else
-	    instanceNameToXml(out);
+	    XmlWriter::appendInstanceNameElement(out, *this);
     }
     else
     {
 	if (_host.size())
 	{
-	    out << "<CLASSPATHMof>\n";
-	    nameSpaceToXml(out);
-	    classNameToXml(out);
-	    out << "</CLASSPATHMof>";
+	    XmlWriter::appendClassPathElement(out, *this);
 	}
 	else if (_nameSpace.size())
 	{
-	    out << "<LOCALCLASSPATHMof>\n";
-	    nameSpaceToXml(out);
-	    classNameToXml(out);
-	    out << "</LOCALCLASSPATHMof>";
+	    XmlWriter::appendLocalClassPathElement(out, *this);
 	}
 	else
-	    classNameToXml(out);
+	    XmlWriter::appendClassNameElement(out, _className);
     }
 
     if (putValueWrapper)

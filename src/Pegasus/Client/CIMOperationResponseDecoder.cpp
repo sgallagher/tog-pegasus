@@ -77,6 +77,7 @@ void CIMOperationResponseDecoder::handleEnqueue()
     {
 	case HTTP_MESSAGE:
 	{
+
 	    HTTPMessage* httpMessage = (HTTPMessage*)message;
 	    _handleHTTPMessage(httpMessage);
 	    break;
@@ -114,7 +115,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         // Get the original request, put that in the encoder's queue for
         // re-sending with authentication challenge response.
         //
-
         Message* reqMessage = _authenticator->getRequestMessage();
         _encoderQueue->enqueue(reqMessage);
 
@@ -129,6 +129,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         // the request message by getting the handle from the ClientAuthenticator.
         //
         Message* reqMessage = _authenticator->getRequestMessage();
+	_authenticator->clearRequest();
         if (reqMessage)
         {
             delete reqMessage;

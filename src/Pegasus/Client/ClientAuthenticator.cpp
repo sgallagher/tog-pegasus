@@ -224,7 +224,8 @@ void ClientAuthenticator::setRequestMessage(Message* message)
 
 Message* ClientAuthenticator::getRequestMessage()
 {
-    return (_requestMessage);
+   return _requestMessage;
+   
 }
 
 void ClientAuthenticator::setUserName(const String& userName)

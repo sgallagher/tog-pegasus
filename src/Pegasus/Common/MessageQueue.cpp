@@ -108,9 +108,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 
 	while(true)
 	{
+	   thread->sleep(1);
+	   continue;
+	   
 		// wait for work
-		queue->_workSemaphore.wait();
-		
+//		queue->_workSemaphore.wait();
+
 		// stop the thread when the message queue has been destroyed.
 		// ATTN: should check the thread cancel flag that is not yet exposed!
 		if(MessageQueue::lookup(queue->_queueId) == 0)
@@ -123,6 +126,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 		{
 			queue->handleEnqueue();
 		}
+		else 
+		{
+		   thread->sleep(0);
+		}
+		
 	}
 
 	thread->exit_self(PEGASUS_THREAD_RETURN(0));
@@ -133,35 +141,39 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueue::workThread(void * arg)
 void MessageQueue::enqueue(Message* message) throw(IPCException)
 {
     if (!message)
-	throw NullPointer();
+       throw NullPointer();
+    
 
-    _mut.lock(pegasus_thread_self());
 
     if (getenv("PEGASUS_TRACE"))
     {
-	cout << "===== " << getQueueName() << ": ";
-	message->print(cout);
+       cout << "===== " << getQueueName() << ": ";
+       message->print(cout);
     }
 
+    _mut.lock(pegasus_thread_self());
     if (_back)
     {
-	_back->_next = message;
-	message->_prev = _back;
-	message->_next = 0;
-	_back = message;
+       _back->_next = message;
+       message->_prev = _back;
+       message->_next = 0;
+       _back = message;
     }
     else
     {
-	_front = message;
-	_back = message;
-	message->_prev = 0;
-	message->_next = 0;
+       _front = message;
+       _back = message;
+       message->_prev = 0;
+       message->_next = 0;
     }
     message->_owner = this;
     _count++;
     _mut.unlock();
+    
+//    _workSemaphore.signal();
 
-	_workSemaphore.signal();
+    handleEnqueue();
+    
 }
 
 Message* MessageQueue::dequeue() throw(IPCException)

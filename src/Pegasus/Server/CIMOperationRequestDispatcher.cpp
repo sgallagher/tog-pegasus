@@ -136,6 +136,13 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher()
    
 }
 
+
+
+// ATTN
+// this needs to return an array of names. i.e., there could be 
+// more than one provider per class
+// 
+
 String CIMOperationRequestDispatcher::_lookupProviderForClass(
     const String& nameSpace,
     const String& className)

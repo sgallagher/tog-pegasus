@@ -81,7 +81,7 @@ const char* CIMStatusCodeToString(CIMStatusCode code)
     if (Uint32(code) < CIM_ERR_METHOD_NOT_FOUND)
 	return _cimMessages[Uint32(code)];
 
-    return "Bad CIM status code";
+    return "Unrecognized CIM status code";
 }
 
 PEGASUS_NAMESPACE_END

@@ -22,9 +22,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Mike Brasher (mbrasher@bmc.com)
-//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,402 +32,368 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/CIMReference.h>
 //#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMHandle::CIMOMHandle(void) 
-   : Base("CIMOMHandle", MessageQueue::getNextQueueId()), 
-     _outputQueue(0), _inputQueue(0)
+CIMOMHandle::CIMOMHandle(MessageQueueService * service)
+    : _service(service), _cimom(0)
 {
+    MessageQueue * queue = MessageQueue::lookup("CIMOpRequestDispatcher");
 
-	_outputQueue = MessageQueue::lookup("CIMOpRequestDispatcher");
-	
-	PEGASUS_ASSERT(_outputQueue != 0);
+    _cimom = dynamic_cast<MessageQueueService *>(queue);
 
-	_inputQueue = new MessageQueue;
-
-	PEGASUS_ASSERT(_inputQueue != 0);
+    if((_service == 0) || (_cimom == 0))
+    {
+	throw NullPointer();
+    }
 }
 
 CIMOMHandle::~CIMOMHandle(void)
 {
-	delete _inputQueue;
 }
 
-CIMOMHandle& CIMOMHandle::operator=(const CIMOMHandle& handle)
+CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
 {
-	if(this == &handle)
-	{
-		return(*this);
-	}
-
-	_outputQueue = handle._outputQueue;
-	
-	// do not assign a new input queue. each instance has its own
-	//_inputQueue = handle._inputQueue;
-
+    if(this == &handle)
+    {
 	return(*this);
+    }
+
+    _service = handle._service;
+
+    return(*this);
 }
 
 CIMClass CIMOMHandle::getClass(
-	const OperationContext & context,
-	const String& nameSpace,
-	const String& className,
-	Boolean localOnly,
-	Boolean includeQualifiers,
-	Boolean includeClassOrigin,
-	const CIMPropertyList& propertyList)
+    const OperationContext & context,
+    const String& nameSpace,
+    const String& className,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
-	// encode request
-	Message* request = new CIMGetClassRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		className,
-		localOnly,
-		includeQualifiers,
-		includeClassOrigin,
-		propertyList,
-		QueueIdStack(_inputQueue->getQueueId()));
+    // encode request
+    CIMGetClassRequestMessage * request =
+	new CIMGetClassRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    className,
+	    localOnly,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-	
-	// send request
-	_outputQueue->enqueue(request);
+    // create an op node
+    AsyncOpNode * op = _service->get_op();
 
-	// wait for response
-	Message* message = _waitForResponse(CIM_GET_CLASS_RESPONSE_MESSAGE, messageKey);
+    // create request envelope
+    AsyncLegacyOperationStart * asyncRequest =
+	new AsyncLegacyOperationStart (
+	    _service->get_next_xid(),
+	    op,
+	    _cimom->getQueueId(),
+	    request,
+	    _cimom->getQueueId());
 
-	// decode response
-	CIMGetClassResponseMessage* response = (CIMGetClassResponseMessage*)message;
+    // send request and wait for response
+    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
 
-	Destroyer<CIMGetClassResponseMessage> destroyer(response);
-	
-	_checkError(response);
+    CIMGetClassResponseMessage * response =
+	reinterpret_cast<CIMGetClassResponseMessage *>(
+	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
-	return(response->cimClass);
+    //_service->return_op(op);
+
+    delete asyncRequest;
+    delete asyncReply;
+
+    CIMClass cimClass = response->cimClass;
+
+    return(cimClass);
 }
 
 void CIMOMHandle::getClassAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const String& className,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
-	ResponseHandler<CIMClass> & handler)
+    ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMClass> CIMOMHandle::enumerateClasses(
-	const OperationContext & context,
-	const String& nameSpace,
-	const String& className,
-	Boolean deepInheritance,
-	Boolean localOnly,
-	Boolean includeQualifiers,
-	Boolean includeClassOrigin)
+    const OperationContext & context,
+    const String& nameSpace,
+    const String& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
 {
-	Message* request = new CIMEnumerateClassesRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		className,
-		deepInheritance,
-		localOnly,
-		includeQualifiers,
-		includeClassOrigin,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMEnumerateClassesRequestMessage * request =
+	new CIMEnumerateClassesRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    className,
+	    deepInheritance,
+	    localOnly,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    Array<CIMClass> cimClasses;
 
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMEnumerateClassesResponseMessage* response = (CIMEnumerateClassesResponseMessage*)message;
-
-	Destroyer<CIMEnumerateClassesResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	return(response->cimClasses);
+    return(cimClasses);
 }
 
 void CIMOMHandle::enumerateClassesAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-	ResponseHandler<CIMClass> & handler)
+    ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<String> CIMOMHandle::enumerateClassNames(
-	const OperationContext & context,
-	const String& nameSpace,
-	const String& className,
-	Boolean deepInheritance)
+    const OperationContext & context,
+    const String& nameSpace,
+    const String& className,
+    Boolean deepInheritance)
 {
-	Message* request = new CIMEnumerateClassNamesRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		className,
-		deepInheritance,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMEnumerateClassNamesRequestMessage * request =
+	new CIMEnumerateClassNamesRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    className,
+	    deepInheritance,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    Array<String> classNames;
 
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMEnumerateClassNamesResponseMessage* response = (CIMEnumerateClassNamesResponseMessage*)message;
-
-	Destroyer<CIMEnumerateClassNamesResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	return(response->classNames);
+    return(classNames);
 }
 
 void CIMOMHandle::enumerateClassNamesAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
-	ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMReference> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::createClass(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMClass& newClass)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMClass& newClass)
 {
-	Message* request = new CIMCreateClassRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		newClass,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMCreateClassRequestMessage * request =
+	new CIMCreateClassRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    newClass,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_CREATE_CLASS_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMCreateClassResponseMessage* response = (CIMCreateClassResponseMessage*)message;
-
-	Destroyer<CIMCreateClassResponseMessage> destroyer(response);
-
-	_checkError(response);
+    return;
 }
 
 void CIMOMHandle::createClassAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMClass& newClass,
-	ResponseHandler<CIMClass> & handler)
+    ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::modifyClass(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMClass& modifiedClass)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMClass& modifiedClass)
 {
-	Message* request = new CIMModifyClassRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		modifiedClass,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMModifyClassRequestMessage * request =
+	new CIMModifyClassRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    modifiedClass,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_MODIFY_CLASS_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMModifyClassResponseMessage* response = (CIMModifyClassResponseMessage*)message;
-
-	Destroyer<CIMModifyClassResponseMessage> destroyer(response);
-
-	_checkError(response);
+    return;
 }
 
 void CIMOMHandle::modifyClassAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMClass& modifiedClass,
-	ResponseHandler<CIMClass> & handler)
+    ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::deleteClass(
-	const OperationContext & context,
-	const String& nameSpace,
-	const String& className)
+    const OperationContext & context,
+    const String& nameSpace,
+    const String& className)
 {
-	// encode request
-	Message* request = new CIMDeleteClassRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		className,
-		QueueIdStack(_inputQueue->getQueueId()));
+    // encode request
+    CIMDeleteClassRequestMessage * request =
+	new CIMDeleteClassRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    className,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_DELETE_CLASS_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMDeleteClassResponseMessage* response = (CIMDeleteClassResponseMessage*)message;
-
-	Destroyer<CIMDeleteClassResponseMessage> destroyer(response);
-	
-	_checkError(response);
+    return;
 }
 
 void CIMOMHandle::deleteClassAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const String& className,
-	ResponseHandler<CIMClass> & handler)
+    ResponseHandler<CIMClass> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 CIMInstance CIMOMHandle::getInstance(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& instanceName,
-	Boolean localOnly,
-	Boolean includeQualifiers,
-	Boolean includeClassOrigin,
-	const CIMPropertyList& propertyList)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
-	// encode request
-	Message* request = new CIMGetInstanceRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		instanceName,
-		localOnly,
-		includeQualifiers,
-		includeClassOrigin,
-		propertyList,
-		QueueIdStack(_inputQueue->getQueueId()));
+    // encode request
+    CIMGetInstanceRequestMessage * request =
+	new CIMGetInstanceRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    instanceName,
+	    localOnly,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-	
-	// send request
-	_outputQueue->enqueue(request);
+    // create an op node
+    AsyncOpNode * op = _service->get_op();
 
-	// wait for response
-	Message* message = _waitForResponse(CIM_GET_INSTANCE_RESPONSE_MESSAGE, messageKey);
+    // create request envelope
+    AsyncLegacyOperationStart * asyncRequest =
+	new AsyncLegacyOperationStart (
+	    _service->get_next_xid(),
+	    op,
+	    _cimom->getQueueId(),
+	    request,
+	    _cimom->getQueueId());
 
-	// decode response
-	CIMGetInstanceResponseMessage* response = (CIMGetInstanceResponseMessage*)message;
+    // send request and wait for response
+    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
 
-	Destroyer<CIMGetInstanceResponseMessage> destroyer(response);
-	
-	_checkError(response);
+    // decode response
+    CIMGetInstanceResponseMessage * response =
+	reinterpret_cast<CIMGetInstanceResponseMessage *>(
+	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
-	return(response->cimInstance);
+    CIMInstance cimInstance = response->cimInstance;
+
+    delete asyncRequest;
+    delete asyncReply;
+    //delete op;
+
+    return(cimInstance);
 }
 
 void CIMOMHandle::getInstanceAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& instanceName,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMInstance> CIMOMHandle::enumerateInstances(
-	const OperationContext & context,
-	const String& nameSpace,
-	const String& className,
-	Boolean deepInheritance,
-	Boolean localOnly,
-	Boolean includeQualifiers,
-	Boolean includeClassOrigin,
-	const CIMPropertyList& propertyList)
+    const OperationContext & context,
+    const String& nameSpace,
+    const String& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
-	Message* request = new CIMEnumerateInstancesRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		className,
-		deepInheritance,
-		localOnly,
-		includeQualifiers,
-		includeClassOrigin,
-		propertyList,
-		QueueIdStack(_inputQueue->getQueueId()));
+    // encode request
+    CIMEnumerateInstancesRequestMessage * request =
+	new CIMEnumerateInstancesRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    className,
+	    deepInheritance,
+	    localOnly,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    // obtain an op node
+    AsyncOpNode * op = _service->get_op();
 
-	// send request
-	_outputQueue->enqueue(request);
+    // create request envelope
+    AsyncLegacyOperationStart * asyncRequest =
+	new AsyncLegacyOperationStart (
+	    _service->get_next_xid(),
+	    op,
+	    _cimom->getQueueId(),
+	    request,
+	    _cimom->getQueueId());
 
-	// wait for response
-	Message* message = _waitForResponse(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE, messageKey);
+    // send request and wait for response
+    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
 
-	// decode response
-	CIMEnumerateInstancesResponseMessage* response = (CIMEnumerateInstancesResponseMessage*)message;
+    // decode response
+    CIMEnumerateInstancesResponseMessage * response =
+	reinterpret_cast<CIMEnumerateInstancesResponseMessage *>(
+	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
-	Destroyer<CIMEnumerateInstancesResponseMessage> destroyer(response);
+    Array<CIMInstance> cimInstances;
 
-	_checkError(response);
+    for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
+    {
+	cimInstances.append(response->cimNamedInstances[i].getInstance());
+    }
 
-	Array<CIMInstance> cimInstances;
+    // release the op node
+    //_service->return_op(op);
 
-	for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
-	{
-		cimInstances.append(response->cimNamedInstances[i].getInstance());
-	}
+    // release the request objects
+    delete asyncRequest;
+    delete asyncReply;
 
-	return(cimInstances);
+    return(cimInstances);
 }
 
 void CIMOMHandle::enumerateInstancesAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const String& className,
     Boolean deepInheritance,
@@ -437,262 +401,202 @@ void CIMOMHandle::enumerateInstancesAsync(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
-	const OperationContext & context,
-	const String& nameSpace,
-	const String& className)
+    const OperationContext & context,
+    const String& nameSpace,
+    const String& className)
 {
-	Message* request = new CIMEnumerateInstanceNamesRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		className,
-		QueueIdStack(_inputQueue->getQueueId()));
+    // encode request
+    CIMEnumerateInstanceNamesRequestMessage * request =
+	new CIMEnumerateInstanceNamesRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    className,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    // create an op node
+    AsyncOpNode * op = _service->get_op();
 
-	// send request
-	_outputQueue->enqueue(request);
+    // create request envelope
+    AsyncLegacyOperationStart * asyncRequest =
+	new AsyncLegacyOperationStart (
+	    _service->get_next_xid(),
+	    op,
+	    _cimom->getQueueId(),
+	    request,
+	    _cimom->getQueueId());
 
-	// wait for response
-	Message* message = _waitForResponse(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE, messageKey);
+    // send request and wait for response
+    AsyncReply * asyncReply = _service->SendWait(asyncRequest);
 
-	// decode response
-	CIMEnumerateInstanceNamesResponseMessage* response = (CIMEnumerateInstanceNamesResponseMessage*)message;
+    // decode response
+    CIMEnumerateInstanceNamesResponseMessage * response =
+	reinterpret_cast<CIMEnumerateInstanceNamesResponseMessage *>(
+	    (static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
-	Destroyer<CIMEnumerateInstanceNamesResponseMessage> destroyer(response);
+    Array<CIMReference> cimReferences = response->instanceNames;
 
-	_checkError(response);
+    //_service->return_op(op);
 
-	return(response->instanceNames);
+    delete asyncRequest;
+    delete asyncReply;
+
+    return(cimReferences);
 }
 
 void CIMOMHandle::enumerateInstanceNamesAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const String& className,
-	ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMReference> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 CIMReference CIMOMHandle::createInstance(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMInstance& newInstance)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMInstance& newInstance)
 {
-	Message* request = new CIMCreateInstanceRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		newInstance,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMCreateInstanceRequestMessage * request =
+	new CIMCreateInstanceRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    newInstance,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    CIMReference cimReference;
 
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_CREATE_INSTANCE_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMCreateInstanceResponseMessage* response = (CIMCreateInstanceResponseMessage*)message;
-
-	Destroyer<CIMCreateInstanceResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	return(response->instanceName);
+    return(cimReference);
 }
 
 void CIMOMHandle::createInstanceAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMInstance& newInstance,
-	ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::modifyInstance(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMInstance& modifiedInstance,
-	Boolean includeQualifiers,
-	const CIMPropertyList& propertyList)
-{
-	Message* request = new CIMModifyInstanceRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		//modifiedInstance,
-		CIMNamedInstance(),
-		includeQualifiers,
-		propertyList,
-		QueueIdStack(_inputQueue->getQueueId()));
-
-	// save message key
-	Uint32 messageKey = request->getKey();
-
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMModifyInstanceResponseMessage* response = (CIMModifyInstanceResponseMessage*)message;
-
-	Destroyer<CIMModifyInstanceResponseMessage> destroyer(response);
-
-	_checkError(response);
-}
-
-void CIMOMHandle::modifyInstanceAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-	const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+    const CIMPropertyList& propertyList)
+{
+    CIMModifyInstanceRequestMessage * request =
+	new CIMModifyInstanceRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    CIMNamedInstance(),
+	    includeQualifiers,
+	    propertyList,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
+
+    return;
+}
+
+void CIMOMHandle::modifyInstanceAsync(
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMInstance& modifiedInstance,
+    Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::deleteInstance(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& instanceName)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& instanceName)
 {
-	Message* request = new CIMDeleteInstanceRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		instanceName,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMDeleteInstanceRequestMessage * request =
+	new CIMDeleteInstanceRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    instanceName,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_DELETE_INSTANCE_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMDeleteInstanceResponseMessage* response = (CIMDeleteInstanceResponseMessage*)message;
-
-	Destroyer<CIMDeleteInstanceResponseMessage> destroyer(response);
-
-	_checkError(response);
+    return;
 }
 
 void CIMOMHandle::deleteInstanceAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& instanceName,
-	ResponseHandler<CIMInstance> & handler)
+    ResponseHandler<CIMInstance> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMInstance> CIMOMHandle::execQuery(
-	const OperationContext & context,
-	const String& queryLanguage,
-	const String& query)
+    const OperationContext & context,
+    const String& queryLanguage,
+    const String& query)
 {
-	Message* request = new CIMExecQueryRequestMessage(
-		XmlWriter::getNextMessageId(),
-		queryLanguage,
-		query,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMExecQueryRequestMessage * request =
+	new CIMExecQueryRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    queryLanguage,
+	    query,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    Array<CIMInstance> cimInstances;
 
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_EXEC_QUERY_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMExecQueryResponseMessage* response = (CIMExecQueryResponseMessage*)message;
-
-	Destroyer<CIMExecQueryResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	return(response->cimInstances);
+    return(cimInstances);
 }
 
 void CIMOMHandle::execQueryAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& queryLanguage,
     const String& query,
-	ResponseHandler<CIMObject> & handler)
+    ResponseHandler<CIMObject> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMObject> CIMOMHandle::associators(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& objectName,
-	const String& assocClass,
-	const String& resultClass,
-	const String& role,
-	const String& resultRole,
-	Boolean includeQualifiers,
-	Boolean includeClassOrigin,
-	const CIMPropertyList& propertyList)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& objectName,
+    const String& assocClass,
+    const String& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
-	Message* request = new CIMAssociatorsRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		objectName,
-		assocClass,
-		resultClass,
-		role,
-		resultRole,
-		includeQualifiers,
-		includeClassOrigin,
-		propertyList,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMAssociatorsRequestMessage * request =
+	new CIMAssociatorsRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    objectName,
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    Array<CIMObject> cimObjects;
 
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_ASSOCIATORS_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMAssociatorsResponseMessage* response = (CIMAssociatorsResponseMessage*)message;
-
-	Destroyer<CIMAssociatorsResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	Array<CIMObject> cimObjects;
-
-	for(Uint32 i = 0, n = response->cimObjects.size(); i < n; i++)
-	{
-		cimObjects.append(response->cimObjects[i].getObject());
-	}
-
-	return(cimObjects);
+    return(cimObjects);
 }
 
 void CIMOMHandle::associatorsAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& objectName,
     const String& assocClass,
@@ -702,111 +606,78 @@ void CIMOMHandle::associatorsAsync(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
-	ResponseHandler<CIMObject> & handler)
+    ResponseHandler<CIMObject> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMReference> CIMOMHandle::associatorNames(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& objectName,
-	const String& assocClass,
-	const String& resultClass,
-	const String& role,
-	const String& resultRole)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& objectName,
+    const String& assocClass,
+    const String& resultClass,
+    const String& role,
+    const String& resultRole)
 {
-	Message* request = new CIMAssociatorNamesRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		objectName,
-		assocClass,
-		resultClass,
-		role,
-		resultRole,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMAssociatorNamesRequestMessage * request =
+	new CIMAssociatorNamesRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    objectName,
+	    assocClass,
+	    resultClass,
+	    role,
+	    resultRole,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    Array<CIMObjectPath> cimObjectPaths;
 
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMAssociatorNamesResponseMessage* response = (CIMAssociatorNamesResponseMessage*)message;
-
-	Destroyer<CIMAssociatorNamesResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	return(response->objectNames);
+    return(cimObjectPaths);
 }
 
 void CIMOMHandle::associatorNamesAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& objectName,
     const String& assocClass,
     const String& resultClass,
     const String& role,
     const String& resultRole,
-	ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMReference> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMObject> CIMOMHandle::references(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& objectName,
-	const String& resultClass,
-	const String& role,
-	Boolean includeQualifiers,
-	Boolean includeClassOrigin,
-	const CIMPropertyList& propertyList)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& objectName,
+    const String& resultClass,
+    const String& role,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
-	Message* request = new CIMReferencesRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		objectName,
-		resultClass,
-		role,
-		includeQualifiers,
-		includeClassOrigin,
-		propertyList,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMReferencesRequestMessage * request =
+	new CIMReferencesRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    objectName,
+	    resultClass,
+	    role,
+	    includeQualifiers,
+	    includeClassOrigin,
+	    propertyList,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
+    Array<CIMObject> cimObjects;
 
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_REFERENCES_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMReferencesResponseMessage* response = (CIMReferencesResponseMessage*)message;
-
-	Destroyer<CIMReferencesResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	Array<CIMObject> cimObjects;
-
-	for(Uint32 i = 0, n = response->cimObjects.size(); i < n; i++)
-	{
-		cimObjects.append(response->cimObjects[i].getObject());
-	}
-
-	return(cimObjects);
+    return(cimObjects);
 }
 
 void CIMOMHandle::referencesAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& objectName,
     const String& resultClass,
@@ -820,225 +691,127 @@ void CIMOMHandle::referencesAsync(
 }
 
 Array<CIMReference> CIMOMHandle::referenceNames(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& objectName,
-	const String& resultClass,
-	const String& role)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& objectName,
+    const String& resultClass,
+    const String& role)
 {
-	Message* request = new CIMReferenceNamesRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		objectName,
-		resultClass,
-		role,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMReferenceNamesRequestMessage * request =
+	new CIMReferenceNamesRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    objectName,
+	    resultClass,
+	    role,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-	
-	// send request
-	_outputQueue->enqueue(request);
+    Array<CIMObjectPath> cimObjectPaths;
 
-	// wait for response
-	Message* message = _waitForResponse(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMReferenceNamesResponseMessage* response = (CIMReferenceNamesResponseMessage*)message;
-
-	Destroyer<CIMReferenceNamesResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	return(response->objectNames);
+    return(cimObjectPaths);
 }
 
 void CIMOMHandle::referenceNamesAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& objectName,
     const String& resultClass,
     const String& role,
-	ResponseHandler<CIMReference> & handler)
+    ResponseHandler<CIMReference> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 CIMValue CIMOMHandle::getProperty(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& instanceName,
-	const String& propertyName)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    const String& propertyName)
 {
-	Message* request = new CIMGetPropertyRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		instanceName,
-		propertyName,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMGetPropertyRequestMessage * request =
+	new CIMGetPropertyRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    instanceName,
+	    propertyName,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-	
-	// send request
-	_outputQueue->enqueue(request);
+    CIMValue cimValue;
 
-	// wait for response
-	Message* message = _waitForResponse(CIM_GET_PROPERTY_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMGetPropertyResponseMessage* response = (CIMGetPropertyResponseMessage*)message;
-
-	Destroyer<CIMGetPropertyResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	return(response->value);
+    return(cimValue);
 }
 
 void CIMOMHandle::getPropertyAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName,
-	ResponseHandler<CIMValue> & handler)
+    ResponseHandler<CIMValue> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::setProperty(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& instanceName,
-	const String& propertyName,
-	const CIMValue& newValue)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    const String& propertyName,
+    const CIMValue& newValue)
 {
-	Message* request = new CIMSetPropertyRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		instanceName,
-		propertyName,
-		newValue,
-		QueueIdStack(_inputQueue->getQueueId()));
+    CIMSetPropertyRequestMessage * request =
+	new CIMSetPropertyRequestMessage(
+	    XmlWriter::getNextMessageId(),
+	    nameSpace,
+	    instanceName,
+	    propertyName,
+	    newValue,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-	
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_SET_PROPERTY_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMSetPropertyResponseMessage* response = (CIMSetPropertyResponseMessage*)message;
-
-	Destroyer<CIMSetPropertyResponseMessage> destroyer(response);
-
-	_checkError(response);
+    return;
 }
 
 void CIMOMHandle::setPropertyAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& propertyName,
     const CIMValue& newValue,
-	ResponseHandler<CIMValue> & handler)
+    ResponseHandler<CIMValue> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 /*
 CIMValue CIMOMHandle::invokeMethod(
-	const OperationContext & context,
-	const String& nameSpace,
-	const CIMReference& instanceName,
-	const String& methodName,
-	const Array<CIMParamValue>& inParameters,
-	Array<CIMParamValue>& outParameters)
+    const OperationContext & context,
+    const String& nameSpace,
+    const CIMReference& instanceName,
+    const String& methodName,
+    const Array<CIMParamValue>& inParameters,
+    Array<CIMParamValue>& outParameters)
 {
-	Message* request = new CIMInvokeMethodRequestMessage(
-		XmlWriter::getNextMessageId(),
-		nameSpace,
-		instanceName,
-		methodName,
-		inParameters,
-		QueueIdStack(_inputQueue->getQueueId()));
+    Message* request = new CIMInvokeMethodRequestMessage(
+	XmlWriter::getNextMessageId(),
+	nameSpace,
+	instanceName,
+	methodName,
+	inParameters,
+	    QueueIdStack(_cimom->getQueueId(), _service->getQueueId()));
 
-	// save message key
-	Uint32 messageKey = request->getKey();
-	
-	// send request
-	_outputQueue->enqueue(request);
-
-	// wait for response
-	Message* message = _waitForResponse(CIM_INVOKE_METHOD_RESPONSE_MESSAGE, messageKey);
-
-	// decode response
-	CIMInvokeMethodResponseMessage* response = (CIMInvokeMethodResponseMessage*)message;
-
-	Destroyer<CIMInvokeMethodResponseMessage> destroyer(response);
-
-	_checkError(response);
-
-	outParameters = response->outParameters;
-	
-	return(response->retValue);
+    return(response->retValue);
 }
 
 void CIMOMHandle::invokeMethodAsync(
-	const OperationContext & context,
+    const OperationContext & context,
     const String& nameSpace,
     const CIMReference& instanceName,
     const String& methodName,
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters,
-	ResponseHandler<CIMValue> & handler)
+    ResponseHandler<CIMValue> & handler)
 {
     throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 */
-
-Message * CIMOMHandle::_waitForResponse(
-	const Uint32 messageType,
-	const Uint32 messageKey,
-	const Uint32 timeout)
-{
-	if(_inputQueue == 0) {
-		throw UnitializedHandle();
-	}
-	
-	// immediately attempt to locate a message of the requested type
-	Message * message = _inputQueue->find(messageType, messageKey);
-
-	// if the message is null and the timeout is greater than 0, go into
-	// a sleep retry mode until the
-	// timeout expires or a message of the requested type arrives. a timeout value of 0xffffffff represents
-	// infinity.
-	for(Uint32 i = 0; ((i < timeout) || (timeout == 0xffffffff)) && (message == 0); i++)
-	{
-		System::sleep(1);
-		
-		message = _inputQueue->find(messageType, messageKey);
-	}
-
-	if(message == 0) {
-		throw CIMException(CIM_ERR_FAILED, __FILE__, __LINE__, "queue underflow");
-	}
-
-	_inputQueue->remove(message);
-
-	return(message);
-}
-
-void CIMOMHandle::_checkError(const CIMResponseMessage* responseMessage)
-{
-    if (responseMessage && (responseMessage->errorCode != CIM_ERR_SUCCESS))
-    {
-	throw CIMException(responseMessage->errorCode,
-	    __FILE__, __LINE__, responseMessage->errorDescription);
-    }
-}
 
 PEGASUS_NAMESPACE_END

@@ -22,6 +22,7 @@
 //==============================================================================
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
 //                   (carolann_graves@hp.com)
+//               Karl Schopmeyer - Add reference object tests.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +33,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -97,8 +99,11 @@ void test01()
 	    kbArray = r3.getKeyBindings();
 	    for (Uint32 i = 0; i < kbArray.size(); i++)
 	    {
-			cout << "keyName= " <<  kbArray[i].getName() << " Value= " 
-				 << kbArray[i].getValue() << endl;
+			if (verbose)
+            {
+                cout << "keyName= " <<  kbArray[i].getName() << " Value= " 
+    				 << kbArray[i].getValue() << endl;
+            }
 		if ( kbArray[i].getName() == CIMName ("B") )
 		{
 		    keyValue = kbArray[i].getValue();
@@ -160,18 +165,31 @@ void test01()
      CIMObjectPath h0
       ("//usoPen-9.ustA-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
-     // Now, try some bad ones
+     // try IPAddress as hostname which should be good
      Boolean errorDetected = false;
+     try
+     {
+        CIMObjectPath h5 
+         ("//192.168.1.80:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     } catch (Exception& e)
+     {
+        errorDetected = true;
+     }
+     ASSERTTEMP(errorDetected);
+
+     // Now, try some bad object paths.
+     errorDetected = false;
      try
      {
         // Leading numeric (the second 1) 
         CIMObjectPath h1
          ("//usopen-9.usta-1-a.1org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     ASSERTTEMP(errorDetected);
+
 
      errorDetected = false;
      try
@@ -179,7 +197,7 @@ void test01()
         // Non-alphanum char (?)
         CIMObjectPath h11 
          ("//usopen-9.usta?-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
@@ -191,11 +209,13 @@ void test01()
         // Leading dot
         CIMObjectPath h2 
          ("//.usopen-9.usta-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
+// #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
+// #endif
 
      errorDetected = false;
      try
@@ -203,11 +223,13 @@ void test01()
         // Dot in the wrong spot (before a -)
         CIMObjectPath h3 
          ("//usopen.-9.usta-1-a.org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
+// #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
+// #endif
 
      errorDetected = false;
      try
@@ -215,11 +237,13 @@ void test01()
         // Two dots in a row
         CIMObjectPath h4 
          ("//usopen-9.usta-1-a..org:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
+// #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
+// #endif
 
      errorDetected = false;
      try
@@ -227,12 +251,13 @@ void test01()
         // Trailing dot
         CIMObjectPath h5 
          ("//usopen-9.usta-1-a.org.:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (Exception&)
      {
         errorDetected = true;
      }
+// #ifndef PEGASUS_SNIA_INTEROP_TEST
      assert(errorDetected);
-
+// #endif
 }
 
 void test02()
@@ -276,7 +301,7 @@ void test02()
        CIMObjectPath testerr1 = CIMObjectPath 
            ("myclass.X=\"Hello World\"Z=trueY=1234");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         errorDetected = true;
     }
@@ -287,7 +312,7 @@ void test02()
     {
        CIMObjectPath testerr2 = CIMObjectPath ("myclass.XYZ");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         errorDetected = true;
     }
@@ -299,7 +324,7 @@ void test02()
        CIMObjectPath testerr3 = CIMObjectPath 
            ("MyClass.z=true,y=1234abc,x=\"Hello World\"");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         errorDetected = true;
     }
@@ -311,7 +336,7 @@ void test02()
        CIMObjectPath testerr4 = CIMObjectPath 
            ("MyClass.z=nottrue,y=1234,x=\"Hello World\"");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
         errorDetected = true;
     }
@@ -409,7 +434,7 @@ void test03()
 void test04()
 {
     //
-    // Create classes 
+    // Create classes A and B referenced classes, C - Association
     //
     CIMClass classA (CIMName ("A"), CIMName ());
     CIMProperty propertyX ("x", String ());
@@ -421,6 +446,7 @@ void test04()
     classA.addProperty (propertyX);
     classA.addProperty (propertyY);
     classA.addProperty (propertyZ);
+
     CIMClass classB ("B");
     CIMProperty propertyQ ("q", String ());
     propertyQ.addQualifier (CIMQualifier (CIMName ("Key"), true));
@@ -431,6 +457,7 @@ void test04()
     classB.addProperty (propertyQ);
     classB.addProperty (propertyR);
     classB.addProperty (propertyS);
+
     CIMClass classC ("C");
     CIMProperty propertyA ("a", CIMValue ());
     propertyA.addQualifier (CIMQualifier (CIMName ("Key"), true));
@@ -440,7 +467,7 @@ void test04()
     classC.addProperty (propertyB);
 
     //
-    //  Create instances
+    //  Create instances of each classa
     //
     CIMInstance instanceA (CIMName ("A"));
     instanceA.addProperty (CIMProperty (CIMName ("x"), String ("rose")));
@@ -454,10 +481,13 @@ void test04()
     instanceB.addProperty (CIMProperty (CIMName ("q"), String ("pelargonium")));
     instanceB.addProperty (CIMProperty (CIMName ("r"), String ("thyme")));
     instanceB.addProperty (CIMProperty (CIMName ("s"), String ("sage")));
+    
+    // Test to assure that the buildpath function works.
     CIMObjectPath bPath = instanceB.buildPath (classB);
     CIMObjectPath bPath2 ("B.s=\"sage\",q=\"pelargonium\",r=\"thyme\"");
     assert (bPath.identical (bPath2));
 
+    // Build instance of C and build path from buildPath function.
     CIMInstance instanceC (CIMName ("C"));
     instanceC.addProperty (CIMProperty (CIMName ("a"), aPath, 0, 
         CIMName ("A")));
@@ -465,6 +495,7 @@ void test04()
         CIMName ("B")));
     CIMObjectPath cPath = instanceC.buildPath (classC);
 
+    // Build CIMObjectPath from keybindings.
     Array <CIMKeyBinding> keyBindings;
     CIMKeyBinding aBinding ("a", "A.y=\"lavender\",x=\"rose\",z=\"rosemary\"", 
         CIMKeyBinding::REFERENCE);
@@ -476,7 +507,11 @@ void test04()
     CIMObjectPath cPath2 ("", CIMNamespaceName (),
         cPath.getClassName (), keyBindings);
 
+    // Assert that the CIMObjectPaths for C from build path and direct from keybindings are equal.
     assert (cPath.identical (cPath2));
+
+    // ATTN: KS 25 Feb 2003 P3 - Think we can extend these tests since this is creation of classes and
+    // instnaces for associations and referenced classes.
 }
 
 int main(int argc, char** argv)

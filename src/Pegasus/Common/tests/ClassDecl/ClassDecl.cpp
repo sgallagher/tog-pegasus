@@ -48,7 +48,25 @@ void test01()
     // {
     //     string message = "Hello";
     // }
+    try
+    {
+        String a = "A_class1";
+        String b = "A_class2";
+        CIMClass c0(CIMName(a), CIMName(b));
+        //Bugzilla 217, The following line generates a compile error on Some Linux platforms.
+        // ATTN: KS P3 20030305 - Reinclude the following line when bug fixed.
+        //CIMClass c1(CIMName(a), CIMName("A_class2"));
+        CIMClass c2(CIMName("A_class1"), CIMName(b));
+        CIMClass c3(CIMName(b), CIMName(a));
 
+    }
+    catch (InvalidNameException & ine)
+    {
+        if (verbose)
+        {
+	    cout << "Caught unexpected exception: " << ine.getMessage() << endl;
+        }
+    }
     try
     {
         //

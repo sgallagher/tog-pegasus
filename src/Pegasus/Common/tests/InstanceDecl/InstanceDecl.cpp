@@ -27,6 +27,7 @@
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Karl Schopmeyer
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /* This program tests the generation and resolution of instances.  It creates
@@ -238,11 +239,7 @@ void test02()
     assert(cimInstance.getPropertyCount() == 3);
 
 
-
-
     // ATTN: Should we be doing an instance qualifier add and test
-
-
 
 
     CIMObjectPath instanceName
@@ -253,6 +250,74 @@ void test02()
     assert(tmp.makeHashCode() == instanceName.makeHashCode());
 }
 
+// Build the instance of an association class and test the build path functions.
+void test03()
+{
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/zzz");
+
+    CIMClass myPersonClass(CIMName ("MY_PersonClass"));
+
+	myPersonClass
+        .addProperty(CIMProperty(CIMName ("name"), String())
+	        .addQualifier(CIMQualifier(CIMName ("Key"), true)));
+
+    CIMClass myAssocClass(CIMName ("MY_AssocClass"));
+
+    myAssocClass
+    .addQualifier(CIMQualifier(CIMName ("association"), true))
+	.addProperty(CIMProperty(CIMName ("parent"), CIMObjectPath(),0, CIMName ("MY_PersonClass"))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("child"), CIMObjectPath(), 0, CIMName ("MY_PersonClass"))
+	    .addQualifier(CIMQualifier(CIMName ("key"), true)))
+	.addProperty(CIMProperty(CIMName ("Age"), String()));
+
+    CIMInstance fatherInstance(CIMName ("MY_PersonClass"));
+
+    fatherInstance
+        .addProperty(CIMProperty(CIMName ("name"), String("father")));
+
+    CIMInstance daughterInstance(CIMName ("My_PersonClass"));
+    daughterInstance
+       .addProperty(CIMProperty(CIMName ("name"), String("daughter")));
+     
+    CIMObjectPath fatherInstancePath = fatherInstance.buildPath(CIMConstClass(myPersonClass));
+
+    CIMObjectPath daughterInstancePath = daughterInstance.buildPath(CIMConstClass(myPersonClass));
+
+    CIMInstance assocInstance(CIMName ("MY_AssocClass"));
+
+    assocInstance.addProperty(CIMProperty(CIMName ("parent"),
+        CIMObjectPath(fatherInstancePath),0,CIMName("MY_PersonClass")));
+
+    assocInstance.addProperty(CIMProperty(CIMName ("child"),
+        CIMObjectPath(daughterInstancePath),0, CIMName("MY_PersonClass")));
+
+    CIMObjectPath assocInstancePath = assocInstance.buildPath(CIMConstClass(myAssocClass));
+
+    // Now do the asserts, etc.   See if the pathing works on Associations and association instances
+	
+    if(verbose)
+    {
+		XmlWriter::printClassElement(myPersonClass);
+		XmlWriter::printClassElement(myAssocClass);
+        XmlWriter::printInstanceElement(fatherInstance);
+		XmlWriter::printInstanceElement(daughterInstance);
+		XmlWriter::printInstanceElement(assocInstance);
+    }
+    if (verbose)
+    {
+        cout << "Paths " << endl;
+        cout << "FatherInstancePath = " << fatherInstancePath.toString()<< endl;
+        cout << "DaughterInstancePath = " << daughterInstancePath.toString()<< endl;
+        cout << "AssocInstancePath = " << assocInstancePath.toString()<< endl;
+    }
+    String x ="MY_AssocClass.child=R\"My_PersonClass.name=\\\"daughter\\\"\",parent=R\"MY_PersonClass.name=\\\"father\\\"\"";
+    assert(x == assocInstancePath.toString());
+    CIMObjectPath px = x;
+    assert(px.identical(assocInstancePath));
+
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -260,6 +325,7 @@ int main(int argc, char** argv)
     {
 	test01();
 	test02();
+    test03();
     }
     catch (Exception& e)
     {

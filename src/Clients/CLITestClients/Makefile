@@ -3,7 +3,9 @@ ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    EnumerateInstances \
+    CLIClientLib \
+	CLI \
+	EnumerateInstances \
     EnumerateInstanceNames \
     GetInstance \
     DeleteInstance \

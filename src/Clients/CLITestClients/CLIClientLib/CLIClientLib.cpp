@@ -320,8 +320,6 @@ int enumerateQualifiers(CIMClient& client, Options& opts)
 }
 
 
-
-
 void GetOptions(
     OptionManager& om,
     int& argc,
@@ -338,19 +336,21 @@ void GetOptions(
         {"User", "unknown", false, Option::STRING, 0, 0, "u",
                                         "Defines User Name for authentication" },
         
-        {"Password", "unknown", false, Option::STRING, 0, 0, "u",
+        {"Password", "unknown", false, Option::STRING, 0, 0, "p",
                                         "Defines password for authentication" },
+        {"authenticate", "unknown", false, Option::BOOLEAN, 0, 0, "a",
+                                        "Defines whether user authentication is used" },
         
         {"cimCmd", "unknown", false, Option::STRING, 0, 0, "-c",
                                         "specifies CIM Command to use" },
         
-        {"className", "", false, Option::STRING, 0, 0, "-s",
+        {"className", "", false, Option::STRING, 0, 0, "c",
                                         "ClassName to use" },
 
         {"cimObjectPath", "", false, Option::STRING, 0, 0, "-p",
                                         "CIMObjectPath to use" },
         
-        {"location", "localhost:5988", false, Option::STRING, 0, 0, "-l",
+        {"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
                                         "specifies system and port" },
         
         {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "-n",
@@ -359,9 +359,22 @@ void GetOptions(
         {"outputformats", "mof", false, Option::STRING, 0,
                                          NUM_OUTPUTFORMATS, "-o",
                                         "Output in xml, mof, txt"},
+        
         {"deepinheritance", "false", false, Option::BOOLEAN, 0, 0, "d",
                                         "If set does deep enum "},
+        
+        {"localOnly", "false", false, Option::BOOLEAN, 0, 0, "l",
+                                        "If set does deep enum "},
+        
+        {"includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "iq",
+                                        "If set sets includeQualifiers option "},
+        
+        {"includeClassOrigin", "false", false, Option::BOOLEAN, 0, 0, "ic",
+                                        "If set includeClassOriginOption True"},
 
+        {"propertyName", "unknown", false, Option::STRING, 0, 0, "-l",
+                                        "If set does deep enum "},
+        
         {"version", "false", false, Option::BOOLEAN, 0, 0, "v",
                                         "Displays software Version "},
 
@@ -419,7 +432,9 @@ void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
 int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts) 
 {
     // Check to see if user asked for help (-h otpion):
-    if (om.valueEquals("verbose", "true"))
+    Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
+    
+    if (om.isTrue("help"))
     {
                 printHelpMsg(argv[0], usage, extra, om);
                 exit(0);
@@ -429,34 +444,36 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     //String nameSpace;
     if(om.lookupValue("namespace", opts.nameSpace))
     {
-       cout << "Namespace = " << opts.nameSpace << endl;
-
+        if (verboseTest)
+            cout << "Namespace = " << opts.nameSpace << endl;
     }
 
     if(om.lookupValue("cimCmd", opts.cimCmd))
     {
        cout << "CIM command = " << opts.cimCmd << endl;
-
     }
     if(om.lookupValue("className", opts.className))
     {
        cout << "Class Name = " << opts.className << endl;
-
     }
 
    if(om.lookupValue("outputformats", opts.outputFormat))
     {
        cout << "Output Format = " << opts.outputFormat << endl;
-
     }
 
     if(om.lookupValue("cimObjectPath", opts.cimObjectPath))
     {
        cout << "CIM ObjectPath = " << opts.cimObjectPath << endl;
-
     }
+    opts.deepInheritance = om.isTrue("deepInheritance");
+    
+    opts.localOnly = om.isTrue("localOnly");
+    
+    opts.includeQualifiers = om.isTrue("includeQualifiers");
+    
+    opts.includeClassOrigin = om.isTrue("includeClassOrigin");
 
-    Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
     /*
     Boolean activeTest = false;
     if (om->valueEquals("active", "true"))

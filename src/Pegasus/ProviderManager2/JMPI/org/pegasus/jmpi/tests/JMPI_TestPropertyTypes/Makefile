@@ -1,7 +1,8 @@
 JAVAROOT = ../../../../..
 ROOT = ../../../../../../../../..
 
-include $(ROOT)/mak/commands.mak
+include $(ROOT)/mak/config.mak
+
 .SUFFIXES: .java .class .jar
 
 .java.class:
@@ -23,4 +24,3 @@ clean:
 $(PEGASUS_HOME)/lib/JMPI_TestPropertyTypes.jar: $(CLASSES)
 	jar -cf $@ $(PFXCLASSES)
 
-include $(ROOT)/mak/config.mak

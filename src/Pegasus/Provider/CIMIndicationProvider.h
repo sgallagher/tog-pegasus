@@ -68,6 +68,24 @@ public:
         the provider knows about all outstanding subscriptions before it
         begins generating indications.)
 
+        The provider must set the namespace and class name in the object path
+        of the generated indication instance (to allow the Indication Processor
+        to filter generated indications based on the Filter SourceNamespace and
+        Query indication class name), as in the following example:
+
+        <pre>
+         CIMObjectPath path(String::EMPTY,
+                           CIMNamespaceName("root/IndicationSource"),
+                           CIMName("IndicationClassName"),
+                           Array<CIMKeyBinding>());
+        indicationInstance.setPath(path);
+        </pre>
+
+        where "root/IndicationSource" is the namespace from which the
+        indication was generated, and "IndicationClassName" is the class name
+        of the generated indication.  Note that indication instance paths never
+        have key bindings.
+
         An exception thrown by this method is considered a provider error
         and does not affect CIM Server behavior.
 

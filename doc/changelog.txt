@@ -33,6 +33,7 @@ TAG: Version_1_09.
 4. (DME) 7 April 2002 Added support for HPUX running on IA64 hardware. 
 
 5. (DME) 7 April 2002 Update master result file for MOF Compiler CLI tests.
+                      Update master result file of wbemexec CLI tests.
 
 ========================================================================
 

@@ -71,12 +71,6 @@ poststarttests:
 	@wbemexec -v 1.1 -m M-POST ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTEDERROR)
 	@$(ECHO) "  " >> $(RESULTFILE)
 	@$(ECHO) "Test cases for timeout option:" >> $(RESULTFILE)
-	@$(ECHO) "minimum valid timeout value (milliseconds)" >> $(RESULTFILE)
-	@$(ECHO) "wbemexec -t 1 ./cimrequest.xml" >> $(RESULTFILE)
-	@$(ECHO) " " >> $(RESULTFILE)
-	@wbemexec -t 1 ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTEDERROR)
-	@$(ECHO) "  " >> $(RESULTFILE)
-	@$(ECHO) "Test cases for timeout option:" >> $(RESULTFILE)
 	@$(ECHO) "maximum valid timeout value (milliseconds)" >> $(RESULTFILE)
 	@$(ECHO) "wbemexec -t 4294967295 ./cimrequest.xml" >> $(RESULTFILE)
 	@$(ECHO) " " >> $(RESULTFILE)
@@ -637,6 +631,11 @@ defect:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@wbemexec -t 1 ./cimrequest04.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "  " >> $(RESULTFILE)
+	@$(ECHO) "Test cases for timeout option:" >> $(RESULTFILE)
+	@$(ECHO) "minimum valid timeout value (milliseconds)" >> $(RESULTFILE)
+	@$(ECHO) "wbemexec -t 1 ./cimrequest.xml" >> $(RESULTFILE)
+	@$(ECHO) " " >> $(RESULTFILE)
+	@wbemexec -t 1 ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTEDERROR)
 
 depend:
 	

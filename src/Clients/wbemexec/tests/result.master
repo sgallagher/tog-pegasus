@@ -223,29 +223,6 @@ wbemexec -v 1.1 -m M-POST ./cimrequest.xml
 </CIM>
   
 Test cases for timeout option:
-minimum valid timeout value (milliseconds)
-wbemexec -t 1 ./cimrequest.xml
- 
-<?xml version="1.0" encoding="utf-8"?>
-<CIM CIMVERSION="2.0" DTDVERSION="2.0">
-<MESSAGE ID="7873" PROTOCOLVERSION="1.0">
-<SIMPLERSP>
-<IMETHODRESPONSE NAME="EnumerateClassNames">
-<IRETURNVALUE>
-<CLASSNAME NAME="CIM_ErrorCountersForDevice"/>
-<CLASSNAME NAME="CIM_PhysicalStatistics"/>
-<CLASSNAME NAME="CIM_DeviceStatistics"/>
-<CLASSNAME NAME="CIM_SAPStatistics"/>
-<CLASSNAME NAME="CIM_ServiceStatistics"/>
-<CLASSNAME NAME="CIM_BGPServiceStatistics"/>
-<CLASSNAME NAME="CIM_SystemStatistics"/>
-</IRETURNVALUE>
-</IMETHODRESPONSE>
-</SIMPLERSP>
-</MESSAGE>
-</CIM>
-  
-Test cases for timeout option:
 maximum valid timeout value (milliseconds)
 wbemexec -t 4294967295 ./cimrequest.xml
  

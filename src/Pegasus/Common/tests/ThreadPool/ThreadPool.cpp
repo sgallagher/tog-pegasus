@@ -76,10 +76,10 @@ int main(int argc, char **argv)
 { 
    
    struct timeval await = { 0, 40000 };
-   struct timeval dwait = { 10, 0 };
+   struct timeval dwait = { 1, 0 };
    struct timeval deadwait = { 0, 80000 }; 
 
-   ThreadPool tp(1, "test pool ",  1, 6, await, dwait, deadwait);   
+   ThreadPool tp(0, "test pool ",  0, 6, await, dwait, deadwait);   
   
    int i ;
    
@@ -181,6 +181,7 @@ int main(int argc, char **argv)
 
    while(tp.running_count() )
    {  
+      tp.kill_dead_threads();
       pegasus_sleep(1);
    }
    

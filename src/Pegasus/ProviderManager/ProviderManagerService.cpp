@@ -58,10 +58,6 @@ static const Uint16 _MODULE_OK       = 2;
 static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
 
-// thread pool parameters
-static struct timeval await = { 0, 40 };
-static struct timeval dwait = { 10, 0 };
-static struct timeval deadwait = { 1, 0 };
 
 // provider manager
 static ProviderManager providerManager;
@@ -69,7 +65,6 @@ static ProviderManager providerManager;
 ProviderManagerService::ProviderManagerService(
     ProviderRegistrationManager * providerRegistrationManager)
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP),
-    _threadPool(10, "ProviderManagerService", 2, 7, await, dwait, deadwait),
     _providerRegistrationManager(providerRegistrationManager)
 {
 }
@@ -426,7 +421,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
         request->op->processing();
         _incomingQueue.enqueue(request->op);
 
-        _threadPool.allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
+        _thread_pool.allocate_and_awaken((void *)this, ProviderManagerService::handleCimOperation);
     }
     else
     {

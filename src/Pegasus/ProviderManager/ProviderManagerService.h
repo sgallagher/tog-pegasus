@@ -52,7 +52,7 @@ class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 public:
     ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager);
     virtual ~ProviderManagerService(void);
-
+    
 protected:
     virtual Boolean messageOK(const Message * message);
     virtual void handleEnqueue(void);
@@ -122,7 +122,6 @@ protected:
     void handleStopAllProvidersRequest(AsyncOpNode *op, const Message *message) throw();
 
 protected:
-    ThreadPool _threadPool;
 
     SafeQueue<AsyncOpNode *> _incomingQueue;
     //SafeQueue<Message *> _outgoingQueue;

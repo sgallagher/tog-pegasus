@@ -2014,11 +2014,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
            serviceNames.append(serviceName);
            controlProviderNames.append(controlProviderName);
 
-           /*cout << "KSTEST class list Output. Class = " << subClassNames[i] 
-           << " servicename = " << serviceName
-           << " controlProviderName = " 
-           << ((controlProviderName != String::EMPTY)  ? controlProviderName : "None") 
-           << " i = " << i << endl;*/
+          //  cout << "KSTEST class list Output. Class = " << subClassNames[i] 
+//            << " servicename = " << serviceName
+//            << " controlProviderName = " 
+//            << ((controlProviderName != String::EMPTY)  ? controlProviderName : "None") 
+//            << " i = " << i << endl;
 
            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                "Provider found for Class = " + subClassNames[i] 

@@ -183,7 +183,7 @@ void HTTPConnector::handleEnqueue(Message *message)
 	       //printf("closing socket\n");
 	       _monitor->unsolicitSocketMessages(socket);
 	       _rep->connections.remove(i);
-
+	       
 	       delete connection;
 	       break;
 	    }

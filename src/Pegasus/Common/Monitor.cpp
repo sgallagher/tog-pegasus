@@ -61,6 +61,14 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+static struct timeval create_time = {0, 50};
+static struct timeval destroy_time = {2, 0};
+static struct timeval deadlock_time = {10, 0};
+
+ThreadPool Monitor::_thread_pool(0, "Monitor", 0, 20,
+				 create_time, destroy_time, deadlock_time);
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // MonitorRep
@@ -96,6 +104,18 @@ Monitor::Monitor()
     FD_ZERO(&_rep->active_ex_fd_set);
 }
 
+Monitor::Monitor(Boolean async)
+   : _module_handle(0), _controller(0), _async(async)
+{
+    Socket::initializeInterface();
+    _rep = new MonitorRep;
+    FD_ZERO(&_rep->rd_fd_set);
+    FD_ZERO(&_rep->wr_fd_set);
+    FD_ZERO(&_rep->ex_fd_set);
+    FD_ZERO(&_rep->active_rd_fd_set);
+    FD_ZERO(&_rep->active_wr_fd_set);
+    FD_ZERO(&_rep->active_ex_fd_set);
+}
 Monitor::~Monitor()
 {
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
@@ -117,6 +137,19 @@ Monitor::~Monitor()
 }
 
 
+int Monitor::kill_idle_threads()
+{
+   static struct timeval now, last;
+   gettimeofday(&now, NULL);
+   
+   if( now.tv_sec - last.tv_sec > 0 )
+   {
+      gettimeofday(&last, NULL);
+      return _thread_pool.kill_dead_threads();
+   }
+   return 0;
+}
+
 
 //<<< Tue May 14 20:38:26 2002 mdd >>>
 //  register with module controller
@@ -127,31 +160,8 @@ Monitor::~Monitor()
 
 Boolean Monitor::run(Uint32 milliseconds)
 {
-   // register the monitor as a module to gain access to the cimserver's thread pool 
-   // <<< Wed May 15 09:52:16 2002 mdd >>>
-   while( _module_handle == NULL)
-   {
-      try 
-      {
-	 _controller = &(ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE, 
-							   PEGASUS_MODULENAME_MONITOR,
-							   (void *)this, 
-							   0, 
-							   0,
-							   0,
-							   &_module_handle));
-	 
-      }
-      catch(IncompatibleTypes &)
-      {
-	 ModuleController* controlService =
-	    new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
-      }
-      catch( AlreadyExists & )
-      {
-	 break;
-      }
-   }
+
+   static struct timeval now, last;
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 
@@ -161,14 +171,14 @@ Boolean Monitor::run(Uint32 milliseconds)
 
     if (_entries.size() == 0)
 	Sleep(milliseconds);
-
+    
 #endif
-
+    
     // Check for events on the selected file descriptors. Only do this if
     // there were no undispatched events from last time.
 
     int count = 0;
-
+    pegasus_gettimeofday(&now);
 
     memcpy(&_rep->active_rd_fd_set, &_rep->rd_fd_set, sizeof(fd_set));
 //    memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
@@ -185,11 +195,16 @@ Boolean Monitor::run(Uint32 milliseconds)
        NULL,
        &_rep->active_ex_fd_set,
        &tv);
-    if (count == 0)
+    if(count == 0)
     {
+       if( now.tv_sec - last.tv_sec > 2)
+       {
+	  kill_idle_threads();
+	  MessageQueueService::kill_idle_threads();
+	  pegasus_gettimeofday(&last);
+       }
        return false;
     }
-    
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     else if (count == SOCKET_ERROR)
 #else
@@ -266,14 +281,14 @@ Boolean Monitor::run(Uint32 milliseconds)
 	       break;
 	    }
 	    
-	    if(_entries[i]._type == Monitor::CONNECTION)
+	    if(_async == true && _entries[i]._type == Monitor::CONNECTION)
 	    {
 	       if( static_cast<HTTPConnection *>(queue)->refcount.value() == 0 )
 	       {
 		  
 		  static_cast<HTTPConnection *>(queue)->refcount++;
 		  if( false == static_cast<HTTPConnection *>(queue)->is_dying())
-		     _controller->async_thread_exec(*_module_handle, _dispatch, (void *)queue);
+		     _thread_pool.allocate_and_awaken((void *)queue, _dispatch);
 		  else
 		     static_cast<HTTPConnection *>(queue)->refcount--;
 	       }
@@ -346,6 +361,7 @@ Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
 	    FD_CLR(socket, &_rep->ex_fd_set);
 	    _entries.remove(i);
             // ATTN-RK-P3-20020521: Need "Socket::close(socket);" here?
+	    Socket::close(socket);
             PEG_METHOD_EXIT();
 	    return true;
 	}

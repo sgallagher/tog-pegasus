@@ -377,7 +377,6 @@ Uint32 ThreadPool::kill_dead_threads(void)
    gettimeofday(&now, NULL);
    Uint32 bodies = 0;
    
-
    // first go thread the dead q and clean it up as much as possible
    while(_dead.count() > 0)
    {
@@ -417,10 +416,9 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	 {
 	    q->try_lock();
 	 }
-	 catch(AlreadyLocked &)
+	 catch(...)
 	 {
-	    q++;
-	    continue;
+	    return bodies;
 	 }
 
 	 struct timeval dt = { 0, 0 };
@@ -433,25 +431,33 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	    {
 	       dtp = (struct timeval *)th->try_reference_tsd("deadlock timer");
 	    }
-	    catch(AlreadyLocked &)
+	    catch(...)
 	    {
-	       th = q->next(th);
-	       continue;
+	       return bodies;
 	    }
 	
 	    if(dtp != 0)
 	    {
 	       memcpy(&dt, dtp, sizeof(struct timeval));
-	
 	    }
 	    th->dereference_tsd();
 	    struct timeval deadlock_timeout;
-	    if( true == check_time(&dt, get_deadlock_detect(&deadlock_timeout) ))
+	    Boolean too_long;
+	    if( i == 0)
+	    {
+	       too_long = check_time(&dt, get_deallocate_wait(&deadlock_timeout));
+	    }
+	    else 
+	    {
+	       check_time(&dt, get_deadlock_detect(&deadlock_timeout));
+	    }
+	    
+	    if( true == too_long)
 	    {
 	       // if we are deallocating from the pool, escape if we are
 	       // down to the minimum thread count
 	       _current_threads--;
-	       if( _current_threads.value() <= (Uint32)_min_threads )
+	       if( _current_threads.value() < (Uint32)_min_threads )
 	       {
 		  if( i == 0)
 		  {
@@ -472,6 +478,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	
 	       if(th != 0)
 	       {
+		  
 		  th->delete_tsd("work func");
 		  th->put_tsd("work func", NULL,
 			      sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
@@ -487,6 +494,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 		     th->dereference_tsd();
 		     throw NullPointer();
 		  }
+		  
 		  // put the thread on the dead  list
 		  _dead.insert_first(th);
 		  bodies++;
@@ -506,9 +514,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 	 }
       }
    }
-
-
-   return bodies; 
+    return bodies; 
 }
 
 

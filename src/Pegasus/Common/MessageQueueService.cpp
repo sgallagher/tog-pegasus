@@ -1,7 +1,6 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -9,7 +8,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -38,6 +37,64 @@ AtomicInt MessageQueueService::_service_count = 0;
 AtomicInt MessageQueueService::_xid(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
+static struct timeval create_time = {0, 100};
+static struct timeval destroy_time = {1, 0};
+static struct timeval deadlock_time = {10, 0};
+
+ThreadPool MessageQueueService::_thread_pool(2, "MessageQueueService", 2, 20,
+					     create_time, destroy_time, deadlock_time);  
+
+DQueue<MessageQueueService> MessageQueueService::_polling_list(true);
+
+int MessageQueueService::kill_idle_threads(void)
+{
+   static struct timeval now, last;
+   gettimeofday(&now, NULL);
+   
+   if( now.tv_sec - last.tv_sec > 0 )
+   {
+      gettimeofday(&last, NULL);
+      return _thread_pool.kill_dead_threads();
+   }
+   return 0;
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(void *parm)
+{
+   Thread *myself = reinterpret_cast<Thread *>(parm);
+   
+   DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
+   
+   while ( _stop_polling.value()  == 0 ) 
+   {
+      _polling_sem.wait();
+      list->lock();
+      MessageQueueService *service = list->next(0);
+      while(service != NULL)
+      {
+	 if(service->_incoming.count() > 0 )
+	 {
+	    _thread_pool.allocate_and_awaken(service, _req_proc);
+	    
+//	    service->_req_proc(service);
+	 }
+	 
+	 service = list->next(service);
+      }
+      list->unlock();
+   }
+   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+   return(0);
+}
+
+Thread MessageQueueService::_polling_thread(polling_routine, 
+					    reinterpret_cast<void *>(&_polling_list), 
+					    false);
+
+
+Semaphore MessageQueueService::_polling_sem(0);
+AtomicInt MessageQueueService::_stop_polling(0);
+
 
 MessageQueueService::MessageQueueService(const char *name, 
 					 Uint32 queueID, 
@@ -53,6 +110,7 @@ MessageQueueService::MessageQueueService(const char *name,
      _callback_ready(0),
      _req_thread(_req_proc, this, false),
      _callback_thread(_callback_proc, this, false)
+
 { 
    _capabilities = (capabilities | module_capabilities::async);
    
@@ -68,10 +126,9 @@ MessageQueueService::MessageQueueService(const char *name,
       if (_meta_dispatcher == NULL )
       {
 	 _meta_dispatcher_mutex.unlock();
-	 
 	 throw NullPointer();
       }
-      
+      _polling_thread.run();
    }
    _service_count++;
 
@@ -81,10 +138,12 @@ MessageQueueService::MessageQueueService(const char *name,
       throw BindFailed("MessageQueueService Base Unable to register with  Meta Dispatcher");
    }
    
+   _polling_list.insert_last(this);
+   
    _meta_dispatcher_mutex.unlock();
 //   _callback_thread.run();
    
-   _req_thread.run();
+//   _req_thread.run();
 }
 
 
@@ -96,21 +155,23 @@ MessageQueueService::~MessageQueueService(void)
       _shutdown_incoming_queue();
    }
    _callback_ready.signal();
-   _callback_thread.join();
+//   _callback_thread.join();
    
    _meta_dispatcher_mutex.lock(pegasus_thread_self());
    _service_count--;
    if (_service_count.value() == 0 )
    {
+      _stop_polling++;
+      _polling_sem.signal();
+      _polling_thread.join();
       _meta_dispatcher->_shutdown_routed_queue();
       delete _meta_dispatcher;
       _meta_dispatcher = 0;
+
    }
    _meta_dispatcher_mutex.unlock();
-   
-}
-
-
+   _polling_list.remove(this);
+} 
 
 void MessageQueueService::_shutdown_incoming_queue(void)
 {
@@ -137,7 +198,7 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    
    _incoming.insert_last_wait(msg->op);
 
-   _req_thread.join();
+//   _req_thread.join();
    
 }
 
@@ -187,32 +248,32 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_callback_proc(v
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
 {
-   Thread *myself = reinterpret_cast<Thread *>(parm);
-   MessageQueueService *service = reinterpret_cast<MessageQueueService *>(myself->get_parm());
-
+//   Thread *myself = reinterpret_cast<Thread *>(parm);
+//   MessageQueueService *service = reinterpret_cast<MessageQueueService *>(myself->get_parm());
+   MessageQueueService *service = reinterpret_cast<MessageQueueService *>(parm);
    // pull messages off the incoming queue and dispatch them. then 
    // check pending messages that are non-blocking
    AsyncOpNode *operation = 0;
    
-   while ( service->_die.value() == 0 ) 
-   {
+//    while ( service->_die.value() == 0 ) 
+//    {
 	 try 
 	 {
-	    operation = service->_incoming.remove_first_wait();
+	    operation = service->_incoming.remove_first();
 	 }
 	 catch(ListClosed & )
 	 {
-	    break;
+//	    break;
 	 }
 	 if( operation )
 	 {
-	    operation->_thread_ptr = myself;
+//	    operation->_thread_ptr = pegasus_thread_self();
 	    operation->_service_ptr = service;
 	    service->_handle_incoming_operation(operation);
 	 }
-   }
+//    }
 
-   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+//    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
 }
 
@@ -481,6 +542,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 	_die.value() == 0  )
    {
       _incoming.insert_last_wait(op);
+      _polling_sem.signal();
       return true;
    }
 //    else
@@ -551,7 +613,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
       case AsyncIoctl::IO_CLOSE:
       {
 	 // save my bearings 
-	 Thread *myself = req->op->_thread_ptr;
+//	 Thread *myself = req->op->_thread_ptr;
 	 MessageQueueService *service = static_cast<MessageQueueService *>(req->op->_service_ptr);
 	 
 	 // respond to this message.
@@ -578,7 +640,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 	    }
 	    if( operation )
 	    {
-	       operation->_thread_ptr = myself;
+//	       operation->_thread_ptr = myself;
 	       operation->_service_ptr = service;
 	       service->_handle_incoming_operation(operation);
 	    }
@@ -589,7 +651,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
 	 // shutdown the AsyncDQueue
 	 service->_incoming.shutdown_queue();
 	 // exit the thread ! 
-	 myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+//	 myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
 	 return;
       }
 
@@ -682,7 +744,6 @@ AsyncOpNode *MessageQueueService::get_op(void)
    
    op->_state = ASYNC_OPSTATE_UNKNOWN;
    op->_flags = ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
-   op->_source_queue = _queueId;
    
    return op;
 }

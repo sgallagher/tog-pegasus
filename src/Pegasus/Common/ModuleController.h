@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%///////////-*-c++-*-/////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -269,12 +269,12 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       
 
       ModuleController(const char *name);
-      ModuleController(const char *name, 
-		       Sint16 min_threads, 
-		       Sint16 max_threads,
-		       struct timeval & create_thread,
-		       struct timeval & destroy_thread,
-		       struct timeval & deadlock);
+/*       ModuleController(const char *name,  */
+/* 		       Sint16 min_threads,  */
+/* 		       Sint16 max_threads, */
+/* 		       struct timeval & create_thread, */
+/* 		       struct timeval & destroy_thread, */
+/* 		       struct timeval & deadlock); */
       
 
       ~ModuleController(void);
@@ -424,13 +424,9 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       virtual void _handle_async_request(AsyncRequest *rq);
       virtual void _handle_async_callback(AsyncOpNode *op);
 
-
-      
-
    private:
       static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
       DQueue<pegasus_module> _modules;
-      ThreadPool _thread_pool;
       pegasus_module _internal_module;
       AsyncReply *_send_wait(Uint32, AsyncRequest *);
       AsyncReply *_send_wait(Uint32, const String &, AsyncRequest *);

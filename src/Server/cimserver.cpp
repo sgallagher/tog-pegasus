@@ -646,7 +646,7 @@ int main(int argc, char** argv)
 	//	free(host_name);
 #endif
 
-	Monitor monitor;
+	Monitor monitor(true);
 	CIMServer server(&monitor, useSSL);
 
 	// bind throws an exception if the bind fails

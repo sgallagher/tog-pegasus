@@ -1,7 +1,6 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -9,7 +8,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -96,9 +95,27 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 			 Array<Uint32> *results);
       void enumerate_service(Uint32 queue, message_module *result);
       Uint32 get_next_xid(void);
-      AsyncOpNode *get_op(void);
+      static AsyncOpNode *get_op(void);
       void return_op(AsyncOpNode *op);
 
+      Boolean operator ==(const MessageQueueService & svce)
+      {
+	 return operator==((const void *)&svce);
+      }
+      Boolean operator ==(const void *svce)
+      {
+	 if((void *)this == svce)
+	    return true;
+	 return false;
+      }
+
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL polling_routine(void *);
+      static int kill_idle_threads(void);
+      static int pooled_threads(void) 
+      {
+	 return _thread_pool.running_count() + _thread_pool.dead_count() + _thread_pool.pool_count();
+      }
+      
       Uint32 _mask;
       AtomicInt _die;
    protected:
@@ -144,6 +161,11 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       
       AsyncDQueue<AsyncOpNode> _incoming;
       DQueue<AsyncOpNode> _callback;
+      static Thread _polling_thread;
+      static Semaphore _polling_sem;
+      static AtomicInt _stop_polling;
+      
+      static DQueue<MessageQueueService> _polling_list;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callback_proc(void *);
@@ -154,7 +176,9 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
             
       Thread _req_thread;
       Thread _callback_thread;
-      
+   protected:
+      static ThreadPool _thread_pool;
+   private:
       struct timeval _default_op_timeout;
       static AtomicInt _xid;
       friend class cimom;

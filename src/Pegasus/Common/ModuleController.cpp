@@ -121,7 +121,6 @@ Message * pegasus_module::module_rep::module_receive_message(Message *msg)
    try {  ret = _receive_message(msg, _module_address); }
    catch(...)
    {
-      // cout << " caught exception in module_receive_message " << endl;
       _thread_safety.unlock();
       throw;
    }
@@ -349,32 +348,30 @@ ModuleController::ModuleController(const char *name )
 	 module_capabilities::module_controller |
 	 module_capabilities::async),
     _modules(true),
-   _thread_pool(2, "Module Controller",  1, 10,
-                createTime, destroyTime, deadlockTime),
     _internal_module(this, String("INTERNAL"), this, NULL, NULL, NULL)
 { 
 
 }
 
-ModuleController::ModuleController(const char *name ,
-				   Sint16 min_threads, 
-				   Sint16 max_threads,
-				   struct timeval & create_thread,
-				   struct timeval & destroy_thread,
-				   struct timeval & deadlock)
-   :Base(name, MessageQueue::getNextQueueId(),
-	 module_capabilities::module_controller |
-	 module_capabilities::async),
-   _modules(true),
-    _thread_pool(min_threads + 1,  
-		 name, min_threads, 
-		 max_threads, 
-		 create_thread, 
-		 destroy_thread, 
-		 deadlock)   
-{ 
+// ModuleController::ModuleController(const char *name ,
+// 				   Sint16 min_threads, 
+// 				   Sint16 max_threads,
+// 				   struct timeval & create_thread,
+// 				   struct timeval & destroy_thread,
+// 				   struct timeval & deadlock)
+//    :Base(name, MessageQueue::getNextQueueId(),
+// 	 module_capabilities::module_controller |
+// 	 module_capabilities::async),
+//    _modules(true),
+//     _thread_pool(min_threads + 1,  
+// 		 name, min_threads, 
+// 		 max_threads, 
+// 		 create_thread, 
+// 		 destroy_thread, 
+// 		 deadlock)   
+// { 
 
-}
+// }
 
 ModuleController::~ModuleController()
 {
@@ -681,7 +678,6 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
 					    MessageQueue *q, 
 					    void *parm)
 {
-   //cout << "entering _async_handleEnqueue " << endl;
    
    ModuleController *myself = static_cast<ModuleController *>(q);
    Message *request = op->get_request();
@@ -719,7 +715,6 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
    }
    
    callback_handle *cb = reinterpret_cast<callback_handle *>(parm);
-   //cout << "calling the second-level callback" << endl;
    
    cb->_module->_send_async_callback(routing, response, cb->_parm); 
    delete cb;

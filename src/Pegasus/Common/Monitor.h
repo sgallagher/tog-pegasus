@@ -135,6 +135,8 @@ enum Type
       
     /** Default constructor. */
     Monitor();
+    Monitor(Boolean async);
+    
 
     /** This destruct deletes all handlers which were installed. */
     ~Monitor();
@@ -174,7 +176,8 @@ enum Type
       /** dispatch a message to the cimom on an independent thread 
        */
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
-
+      static int kill_idle_threads(void);
+      
 private:
       
       Uint32  _findEntry(Sint32 socket) ;
@@ -185,6 +188,8 @@ private:
       ModuleController * _controller;
       Boolean _async;
       Mutex _connection_mutex;
+      static ThreadPool _thread_pool;
+      
       friend class HTTPConnection;
       
 };

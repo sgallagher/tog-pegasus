@@ -346,7 +346,7 @@ void test_service::_handle_incoming_operation(AsyncOpNode *operation)
       Message *rq = operation->get_request();
 
       PEGASUS_ASSERT(rq != 0 );
-      if ( rq->getMask() & message_mask::ha_async)
+      if ( rq && (rq->getMask() & message_mask::ha_async))
       {
 	 _handle_async_request(static_cast<AsyncRequest *>(rq));
       }
@@ -452,7 +452,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    
    test_request *req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       svc_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -470,7 +470,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -488,7 +488,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       svc_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -505,7 +505,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
    pegasus_sleep(1);
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -526,7 +526,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -544,7 +544,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -566,7 +566,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -582,7 +582,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -601,7 +601,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
+		       MessageQueueService::get_op(), 
 		       peer_qid,
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
@@ -617,8 +617,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
 
    req = 
       new test_request(my_module->get_controller()->get_next_xid(),
-		       0, 
-		       peer_qid,
+		       MessageQueueService::get_op(), 
+		       peer_qid, 
 		       my_module->get_controller()->getQueueId(),
 		       "hello");
    
@@ -631,8 +631,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL module_func(void *parm)
       cout << "ClientSendForget to module successful" << endl;
 
    pegasus_sleep(1000);
-   
    delete my_module;
+   cout << "module deleted" << endl;
    
    return 0;
    
@@ -661,7 +661,7 @@ int main(int argc, char **argv)
    
    one.join();
    two.join(); 
-
+   cout << " joined" << endl;
    return(0);
 }
 

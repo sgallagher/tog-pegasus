@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%/-*-c++-*-////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -470,6 +470,16 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       {
 	 return _running.count();
       }
+      
+      inline Uint32 pool_count(void)
+	{
+	  return _pool.count();
+	}
+      inline Uint32 dead_count(void)
+	{
+	  return _dead.count();
+	}
+      
       
       static Boolean check_time(struct timeval *start, struct timeval *interval);
 

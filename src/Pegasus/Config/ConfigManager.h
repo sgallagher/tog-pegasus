@@ -25,6 +25,7 @@
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                 (sushma_fernandes@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -58,15 +59,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** PropertyList. */
-struct PropertyList
-{
-    const char* propertyName;
-    ConfigPropertyOwner* propertyOwner;
-};
-
-
-struct OwnerTable;
+struct OwnerEntry;
+struct PropertyTable;
 
 /**
   This class reads configuration properties from the config file, maps the 
@@ -119,14 +113,14 @@ private:
     /**
     Initialize config property owners and add them to the property owner table
     */
-    void _initPropertyOwners();
+    void _initPropertyTable();
 
 
     /** 
     HashTable to store the config property names and 
     property owners 
     */
-    OwnerTable* _propertyOwnerTable;
+    PropertyTable* _propertyTable;
 
     /**
     Handler to access the config files.
@@ -178,7 +172,12 @@ public:
     /**
     Property list
     */
-    static struct PropertyList properties[];
+    static struct OwnerEntry properties[];
+
+    /**
+    Fixed value list
+    */
+    static struct FixedValueEntry fixedValues[];
 
     /** 
     Construct the singleton instance of the ConfigManager and return a 

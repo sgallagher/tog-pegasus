@@ -25,6 +25,7 @@
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                  (sushma_fernandes@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -59,15 +60,18 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /////////////////////////////////////////////////////////////////////////////
-//  PropertyOwnerTable 
+//  PropertyTable 
 /////////////////////////////////////////////////////////////////////////////
 
 typedef HashTable<String,
-    ConfigPropertyOwner*,EqualFunc<String>,HashFunc<String> > Table;
+    ConfigPropertyOwner*,EqualFunc<String>,HashFunc<String> > OwnerTable;
+typedef HashTable<String,
+    const char*,EqualFunc<String>,HashFunc<String> > FixedValueTable;
 
-struct OwnerTable
+struct PropertyTable
 {
-    Table table;
+    OwnerTable ownerTable;
+    FixedValueTable fixedValueTable;
 };
 
 
@@ -84,16 +88,22 @@ DefaultPropertyOwner*    ConfigManager::defaultOwner = new DefaultPropertyOwner;
 SecurityPropertyOwner*   ConfigManager::securityOwner= new SecurityPropertyOwner;
 RepositoryPropertyOwner* ConfigManager::repositoryOwner= new RepositoryPropertyOwner;
 ShutdownPropertyOwner*   ConfigManager::shutdownOwner= new ShutdownPropertyOwner;
-FileSystemPropertyOwner*   ConfigManager::fileSystemOwner= new FileSystemPropertyOwner;
+FileSystemPropertyOwner* ConfigManager::fileSystemOwner= new FileSystemPropertyOwner;
 
 /////////////////////////////////////////////////////////////////////////////
 //
 //   When a new property is created be sure to add the new property name 
-//   and the owner object to the PropertyList below.
+//   and the owner object to the OwnerEntry table below.
 //
 /////////////////////////////////////////////////////////////////////////////
 
-struct PropertyList ConfigManager::properties[] =
+struct OwnerEntry
+{
+    const char* propertyName;
+    ConfigPropertyOwner* propertyOwner;
+};
+
+struct OwnerEntry ConfigManager::properties[] =
 {
     {"traceLevel",          (ConfigPropertyOwner* )ConfigManager::traceOwner},
     {"traceComponents",     (ConfigPropertyOwner* )ConfigManager::traceOwner},
@@ -126,7 +136,37 @@ struct PropertyList ConfigManager::properties[] =
 };
 
 const Uint32 NUM_PROPERTIES = 
-    sizeof(ConfigManager::properties) / sizeof(ConfigManager::properties[0]);
+    sizeof(ConfigManager::properties) / sizeof(struct OwnerEntry);
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+//   To use a fixed value for a property rather than delegating to a property
+//   owner, add the property to the FixedValueEntry table below.  An entry in
+//   the OwnerEntry table above for this same property will be initialized
+//   and given the (fixed) initial current value, but will thereafter be
+//   ignored.
+//
+//   Fixed values are only returned by getDefaultValue(), getCurrentValue(),
+//   and getPlannedValue().  All other methods will treat fixed properties as
+//   unrecognized properties.
+//
+/////////////////////////////////////////////////////////////////////////////
+
+struct FixedValueEntry
+{
+    const char* propertyName;
+    const char* fixedValue;
+};
+
+struct FixedValueEntry ConfigManager::fixedValues[] =
+{
+    {"bogus", "MyBogusValue"} // Remove this line if others are added
+};
+
+const Uint32 NUM_FIXED_PROPERTIES = 
+    sizeof(ConfigManager::fixedValues) / sizeof(struct FixedValueEntry);
+
 
 /**
 Initialize the default PEGASUS_HOME location, the default is set to the current directory.
@@ -157,20 +197,20 @@ ConfigManager::ConfigManager ()
     //
     // Initialize the instance variables
     //
-    _propertyOwnerTable = new OwnerTable;
+    _propertyTable = new PropertyTable;
 
     //
     // Initialize the property owners
     //
-    _initPropertyOwners();
+    _initPropertyTable();
 }
 
 /** Destructor. */
 ConfigManager::~ConfigManager()
 {
-    if (_propertyOwnerTable)
+    if (_propertyTable)
     {
-        delete _propertyOwnerTable;
+        delete _propertyTable;
     }
 
     if (_configFileHandler)
@@ -208,7 +248,7 @@ Boolean ConfigManager::updateCurrentValue(
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
+    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
     {
         throw UnrecognizedConfigProperty(name); 
     }
@@ -265,7 +305,7 @@ Boolean ConfigManager::updatePlannedValue(
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
+    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
     {
         throw UnrecognizedConfigProperty(name); 
     }
@@ -320,7 +360,7 @@ Boolean ConfigManager::validatePropertyValue(
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
+    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
     {
         throw UnrecognizedConfigProperty(name); 
     }
@@ -334,11 +374,21 @@ Get default value of the specified property.
 String ConfigManager::getDefaultValue(const String& name)
 {
     //
+    // Check for a property with a fixed value
+    //
+    const char* fixedValue;
+
+    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+    {
+        return fixedValue;
+    }
+
+    //
     // get property owner object from config table
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
+    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
     {
         throw UnrecognizedConfigProperty(name);
     }
@@ -352,11 +402,21 @@ Get current value of the specified property.
 String ConfigManager::getCurrentValue(const String& name)
 {
     //
+    // Check for a property with a fixed value
+    //
+    const char* fixedValue;
+
+    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+    {
+        return fixedValue;
+    }
+
+    //
     // get property owner object from config table
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
+    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
     {
         throw UnrecognizedConfigProperty(name); 
     }
@@ -371,11 +431,21 @@ Get planned value of the specified property.
 String ConfigManager::getPlannedValue(const String& name)
 {
     //
+    // Check for a property with a fixed value
+    //
+    const char* fixedValue;
+
+    if (_propertyTable->fixedValueTable.lookup(name, fixedValue))
+    {
+        return fixedValue;
+    }
+
+    //
     // get property owner object from config table
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
+    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
     {
         throw UnrecognizedConfigProperty(name); 
     }
@@ -396,7 +466,7 @@ void ConfigManager::getPropertyInfo(
     //
     ConfigPropertyOwner* propertyOwner;
 
-    if (!_propertyOwnerTable->table.lookup(name, propertyOwner))
+    if (!_propertyTable->ownerTable.lookup(name, propertyOwner))
     {
         throw UnrecognizedConfigProperty(name); 
     }
@@ -412,7 +482,7 @@ void ConfigManager::getAllPropertyNames(Array<String>& propertyNames)
 {
     propertyNames.clear();
 
-    for (Table::Iterator i = _propertyOwnerTable->table.start(); i; i++)
+    for (OwnerTable::Iterator i = _propertyTable->ownerTable.start(); i; i++)
     {
         propertyNames.append(i.key());
     }
@@ -580,6 +650,8 @@ void ConfigManager::_loadConfigProperties()
         // initialize the current value of the property owner
         // with the value from the config file handler
         //
+        // ATTN-RK-P2-20020417: This check is insufficient.  The configuration
+        // file may specifically set the property value to "".
         if (value != String::EMPTY)
         {
             try
@@ -589,7 +661,7 @@ void ConfigManager::_loadConfigProperties()
                 //
                 ConfigPropertyOwner* propertyOwner;
 
-                if (_propertyOwnerTable->table.lookup(
+                if (_propertyTable->ownerTable.lookup(
                     properties[i].propertyName, propertyOwner))
                 {
                     propertyOwner->initCurrentValue(
@@ -649,7 +721,7 @@ Boolean ConfigManager::_initPropertyWithCommandLineOption(
     //
     // get property owner object from the config table.
     //
-    if (!_propertyOwnerTable->table.lookup(propertyName, propertyOwner))
+    if (!_propertyTable->ownerTable.lookup(propertyName, propertyOwner))
     {
         throw UnrecognizedConfigProperty(propertyName); 
     }
@@ -678,17 +750,33 @@ Boolean ConfigManager::_initPropertyWithCommandLineOption(
 /** 
 Initialize config property owners and add them to the property owner table
 */
-void ConfigManager::_initPropertyOwners()
+void ConfigManager::_initPropertyTable()
 {
     //
-    // add config property and its owner object to config table
+    // add config property and its fixed value to fixed value table
+    //
+    for (Uint32 i = 0; i < NUM_FIXED_PROPERTIES; i++)
+    {
+        _propertyTable->fixedValueTable.insert(fixedValues[i].propertyName,
+            fixedValues[i].fixedValue);
+    }
+
+    //
+    // add config property and its owner object to owners table (but only if
+    // the property is not also listed in the fixed value table.
     //
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        properties[i].propertyOwner->initialize();
+        const char* fixedValue;
 
-        _propertyOwnerTable->table.insert(properties[i].propertyName,
-            properties[i].propertyOwner);
+        if (!_propertyTable->fixedValueTable.lookup(
+                properties[i].propertyName, fixedValue))
+        {
+            properties[i].propertyOwner->initialize();
+
+            _propertyTable->ownerTable.insert(properties[i].propertyName,
+                properties[i].propertyOwner);
+        }
     }
 }
 

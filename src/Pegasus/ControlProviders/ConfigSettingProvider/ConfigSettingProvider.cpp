@@ -126,8 +126,8 @@ void ConfigSettingProvider::getInstance(
             {
                 PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NO_SUCH_PROPERTY,
-                    "specified property name was not found");
+                    CIM_ERR_NOT_FOUND,
+                    String("Configuration property \"") + keyValue + "\"");
             }
 
             if (propertyInfo.size() >= 5)
@@ -298,8 +298,8 @@ void ConfigSettingProvider::modifyInstance(
             //
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_NO_SUCH_PROPERTY,
-                "Unrecongnized property name was specified");
+                CIM_ERR_NOT_FOUND,
+                String("Configuration property \"") + propertyName + "\"");
         }
 
         try
@@ -360,7 +360,8 @@ void ConfigSettingProvider::modifyInstance(
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(
-                CIM_ERR_NO_SUCH_PROPERTY, ucp.getMessage());
+                CIM_ERR_NOT_FOUND,
+                String("Configuration property \"") + propertyName + "\"");
         }
 
 

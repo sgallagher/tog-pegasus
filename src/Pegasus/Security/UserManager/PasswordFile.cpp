@@ -108,6 +108,7 @@ PasswordFile::PasswordFile (const String& fileName)
         Logger::put(Logger::ERROR_LOG, "UserManager", Logger::INFORMATION,
             "Creating blank password file.");
         PasswordTable pt;
+        // ATTN-RK-P2-20020417: This dumps core if _passwordFile == "".
         save(pt);
     }
     catch ( Exception& e)

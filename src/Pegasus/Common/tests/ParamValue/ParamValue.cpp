@@ -47,6 +47,25 @@ void test01()
     CIMValue v1(String("argument_Test"));
     CIMParamValue a1(p1, v1);
 
+//  Test call to CIMParamValue::setValue(CIMValue& value)
+//  this test uses the above values for a1, p1 and v1.
+    CIMParamValue a7(p1, v1);
+    CIMValue v7(String("argument_Test7"));
+    a7.setValue( v7);
+    assert(a1.getValue().toString() != a7.getValue().toString());
+    assert(a1.getParameterName() == a7.getParameterName());
+
+//  Test call to CIMParamValue::setParameterName(String& parameterName)
+//  this test uses the above values for a1, p1 and v1.
+    CIMParamValue a8(p1, v1);
+    String p8("message8");
+    a8.setParameterName( p8);
+    assert(a1.getValue().toString() == a8.getValue().toString());
+    assert(a1.getParameterName() != a8.getParameterName());
+    assert(a8.isTyped());
+    a8.setIsTyped(false);
+    assert(!a8.isTyped());
+
     String p2("message2");
     CIMValue v2(String("argument_Test2"));
     CIMParamValue a2(p2, v2);

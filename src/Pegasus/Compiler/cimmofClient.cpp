@@ -181,10 +181,16 @@ cimmofClient::createNameSpace(const String &nameSpace) const
 {
   try
   {
+    // The new namespace name will be computed by
+    // concatenating the target Namespace name with the
+    // value of the Name property. By setting the
+    // value of the Name property to String::EMPTY,
+    // the name of the created namespace will be the 
+    // target namespace.
     CIMInstance newInstance(NAMESPACE_CLASS);
     newInstance.addProperty(
-              CIMProperty(NAMESPACE_PROPERTY_NAME, nameSpace));
-    _client->createInstance(__NAMESPACE_NAMESPACE, newInstance);
+              CIMProperty(NAMESPACE_PROPERTY_NAME, String::EMPTY));
+    _client->createInstance(nameSpace, newInstance);
   }
   catch (CIMClientCIMException &eCIMClient)
   {

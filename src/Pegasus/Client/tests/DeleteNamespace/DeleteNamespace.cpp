@@ -50,8 +50,6 @@ static const char CERTIFICATE[] = "server.pem";
 static const char RANDOMFILE[]  = "ssl.rnd";
 static const char CLASSNAME[]   = "__Namespace";
 
-Array<String> namespaces;
-
 /** ErrorExit - Print out the error message as an
     and get out.
     @param - Text for error message
@@ -82,15 +80,51 @@ static void testEnd(const double elapsedTime)
     cout << "In " << elapsedTime << " Seconds\n\n";
 }
 /*****************************************************************
-//    Create Namespaces
+//   Test Namespaces Hierarchy - Relative Path Name
 ******************************************************************/
 
-static void CreateNameSpaces( CIMClient& client, 
-			      Boolean activeTest, 
-			      Boolean verboseTest) 
+static void TestNamespaceHierarchy1 ( CIMClient& client, 
+			            Boolean activeTest, 
+			            Boolean verboseTest) 
 {
-	if(verboseTest)
-	    cout << "Conducting Create test " << endl;
+    Array<String> namespaces;
+    String instanceName;
+
+    namespaces.append( "test1" );
+    namespaces.append( "test2" );
+    namespaces.append( "test3" );
+    namespaces.append( "test4" );
+    namespaces.append( "test5" );
+    namespaces.append( "test6" );
+    namespaces.append( "test1/test2" );
+    namespaces.append( "test1/test2/test3" );
+    namespaces.append( "test1/test2/test3/test4" );
+    namespaces.append( "test1/test2/test3/test4/test5" );
+    namespaces.append( "test1/test2/test3/test4/test5/test6" );
+    if(verboseTest)
+      cout << "Conducting Create test " << endl;
+    for (Sint32 i = namespaces.size()-1; i > -1; i--)
+    {
+      // Build the instance name for __namespace
+      String testNamespaceName = namespaces[i];
+      instanceName.clear();
+      instanceName.append( CLASSNAME );
+      instanceName.append( ".Name=\"");
+      instanceName.append(testNamespaceName);
+      instanceName.append("\"");
+      
+      try
+	{
+	  CIMObjectPath myReference(instanceName);
+	  if(verboseTest)
+	    cout << "Deleting " << testNamespaceName << endl;
+	  client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
+	}
+      catch(...)
+      {
+	  //Ignore errors we are just trying to cleanup
+      }
+    }
 
     for (Uint32 i = 0; i < namespaces.size(); i++)
       {
@@ -124,15 +158,37 @@ static void CreateNameSpaces( CIMClient& client,
 	    exit(1);
 	}
       }
-}
-/*****************************************************************
-//    Testing Delete Namespace
-******************************************************************/
 
-static void TestDeleteNameSpaces(CIMClient& client, Boolean activeTest, 
-		 		 Boolean verboseTest) 
-{
-  String instanceName = String();
+    for (Sint32 i = namespaces.size()-1; i > -1; i--)
+    {
+      // Build the instance name for __namespace
+      String testNamespaceName = namespaces[i];
+      instanceName.clear();
+      instanceName.append( CLASSNAME );
+      instanceName.append( ".Name=\"");
+      instanceName.append(testNamespaceName);
+      instanceName.append("\"");
+      
+      try
+	{
+	  CIMObjectPath myReference(instanceName);
+	  if(verboseTest)
+	    cout << "getInstance " << testNamespaceName << endl;
+	  CIMInstance namespaceInstance = client.getInstance(__NAMESPACE_NAMESPACE, myReference);
+	}
+      catch(CIMClientException& e)
+	{
+	  PEGASUS_STD(cerr) << "CIMClientException NameSpace Deletion1: "
+			    << e.getMessage() << " Deleting " << instanceName
+			    << PEGASUS_STD(endl);
+	  exit(1);
+	}
+      catch(Exception& e)
+	{
+	  PEGASUS_STD(cerr) << "Exception NameSpace Deletion2: " << e.getMessage() << PEGASUS_STD(endl);
+	  exit(1);
+	}
+    }
 
   if(verboseTest)
     cout << "Conducting Delete namespace test " << endl;
@@ -168,6 +224,106 @@ static void TestDeleteNameSpaces(CIMClient& client, Boolean activeTest,
 	}
     }
 }
+
+/*****************************************************************
+//   Test Namespaces Hierarchy - Full Path Name
+******************************************************************/
+
+static void TestNamespaceHierarchy2 ( CIMClient& client, 
+			              Boolean activeTest, 
+			              Boolean verboseTest) 
+{
+    Array<String> namespaces;
+    String instanceName;
+
+    namespaces.append( "test1" );
+    namespaces.append( "test2" );
+    namespaces.append( "test3" );
+    namespaces.append( "test4" );
+    namespaces.append( "test5" );
+    namespaces.append( "test6" );
+    namespaces.append( "test1/test2" );
+    namespaces.append( "test1/test2/test3" );
+    namespaces.append( "test1/test2/test3/test4" );
+    namespaces.append( "test1/test2/test3/test4/test5" );
+    namespaces.append( "test1/test2/test3/test4/test5/test6" );
+    if(verboseTest)
+      cout << "Conducting Create test " << endl;
+    for (Sint32 i = namespaces.size()-1; i > -1; i--)
+    {
+      // Build the instance name for __namespace
+      instanceName.clear();
+      instanceName.append( CLASSNAME );
+      instanceName.append( ".Name=\"\"");
+      
+      try
+	{
+	  CIMObjectPath myReference(instanceName);
+	  if(verboseTest)
+	    cout << "Deleting " << namespaces[i] << endl;
+	  client.deleteInstance(namespaces[i], myReference);
+	}
+      catch(...)
+      {
+	  //Ignore errors we are just trying to cleanup
+      }
+    }
+
+    for (Uint32 i = 0; i < namespaces.size(); i++)
+      {
+	try
+	{
+	    // Build the new instance
+	    CIMInstance newInstance(instanceName);
+	    newInstance.addProperty(CIMProperty("name",String::EMPTY));
+	    client.createInstance(namespaces[i], newInstance);
+	}
+	catch(CIMClientException& e)
+	{
+	     PEGASUS_STD(cerr) << "CIMClientException NameSpace Creation: "
+			<< e.getMessage() << " Creating " << namespaces[i]
+		        << PEGASUS_STD(endl);
+	     exit(1);
+	}
+	catch(Exception& e)
+	{
+	    PEGASUS_STD(cerr) << "Exception NameSpace Creation: " << e.getMessage() << PEGASUS_STD(endl);
+	    exit(1);
+	}
+      }
+
+  if(verboseTest)
+    cout << "Conducting Delete namespace test " << endl;
+  
+  for (Sint32 i = namespaces.size()-1; i > -1; i--)
+    {
+      // Build the instance name for __namespace
+      String testNamespaceName = namespaces[i];
+      instanceName.clear();
+      instanceName.append( CLASSNAME );
+      instanceName.append( ".Name=\"\"");
+      
+      try
+	{
+	  CIMObjectPath myReference(instanceName);
+	  if(verboseTest)
+	    cout << "Deleting " << testNamespaceName << endl;
+	  client.deleteInstance(namespaces[i], myReference);
+	}
+      catch(CIMClientException& e)
+	{
+	  PEGASUS_STD(cerr) << "CIMClientException NameSpace Deletion1: "
+			    << e.getMessage() << " Deleting " << instanceName
+			    << PEGASUS_STD(endl);
+	  exit(1);
+	}
+      catch(Exception& e)
+	{
+	  PEGASUS_STD(cerr) << "Exception NameSpace Deletion2: " << e.getMessage() << PEGASUS_STD(endl);
+	  exit(1);
+	}
+    }
+ }
 
 ///////////////////////////////////////////////////////////////
 //    OPTION MANAGEMENT
@@ -394,17 +550,6 @@ int main(int argc, char** argv)
     cout << "Connection List size " << connectionList.size() << endl;
     for (Uint32 i = 0; i < connectionList.size(); i++)
 	cout << "Connection " << i << " address " << connectionList[i] << endl; 
-    namespaces.append( "root/test1" );
-    namespaces.append( "root/test2" );
-    namespaces.append( "root/test3" );
-    namespaces.append( "root/test4" );
-    namespaces.append( "root/test5" );
-    namespaces.append( "root/test6" );
-    namespaces.append( "root/test1/test2" );
-    namespaces.append( "root/test1/test2/test3" );
-    namespaces.append( "root/test1/test2/test3/test4" );
-    namespaces.append( "root/test1/test2/test3/test4/test5" );
-    namespaces.append( "root/test1/test2/test3/test4/test5/test6" );
     
     for(Uint32 numTests = 1; numTests <= repeatTestCount; numTests++)
 	{
@@ -474,14 +619,16 @@ int main(int argc, char** argv)
 			}
 		      }
 		      cout << "Client Connected" << endl;
-		
-			   CreateNameSpaces(client, activeTest, verboseTest);
-	
-			   TestDeleteNameSpaces(client, activeTest, verboseTest);
-			       testEnd(elapsedTime.getElapsed());
-				   
 
-			  client.disconnect();
+		      testStart("Test NameSpace Operations - Relative Name");
+                      elapsedTime.reset();		
+    		      TestNamespaceHierarchy1(client, activeTest, verboseTest);
+	              testEnd(elapsedTime.getElapsed());
+		      testStart("Test NameSpace Operations - Absolute Name");
+                      elapsedTime.reset();		
+		      TestNamespaceHierarchy2(client, activeTest, verboseTest);
+		      testEnd(elapsedTime.getElapsed());
+		      client.disconnect();
 		  }
 		  catch(CIMClientException& e)
 		  {

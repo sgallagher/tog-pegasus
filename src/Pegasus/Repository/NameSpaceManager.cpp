@@ -275,6 +275,21 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
     {
 	if (!FileSystem::makeDirectory(_repositoryRoot))
 	    throw CannotCreateDirectory(_repositoryRoot);
+
+	// Create a root namespace per ...
+	// Specification for CIM Operations over HTTP
+	// Version 1.0
+	// 2.5 Namespace Manipulation
+	//
+	// There are no intrinsic methods defined specifically for the
+	// purpose of manipulating CIM Namespaces.  However, the
+	// modelling of the a CIM Namespace using the class
+	// __Namespace, together with the requirement that that
+	// root Namespace MUST be supported by all CIM Servers,
+	// implies that all Namespace operations can be supported.
+	//
+	
+        _CreateNameSpaceDirectories(_repositoryRoot + "/root");
     }
 
     _rep = new NameSpaceManagerRep;

@@ -45,21 +45,25 @@ void TestNameSpaces()
     nameSpaces = r.enumerateNameSpaces();
     BubbleSort(nameSpaces);
 
-    assert(nameSpaces.size() == 3);
+    assert(nameSpaces.size() == 4);
     assert(nameSpaces[0] == "namespace0");
     assert(nameSpaces[1] == "namespace1");
     assert(nameSpaces[2] == "namespace2");
+    assert(nameSpaces[3] == "root");
 
     r.deleteNameSpace("namespace0");
     r.deleteNameSpace("namespace1");
 
     nameSpaces = r.enumerateNameSpaces();
-    assert(nameSpaces.size() == 1);
+    assert(nameSpaces.size() == 2);
+    BubbleSort(nameSpaces);
     assert(nameSpaces[0] == "namespace2");
+    assert(nameSpaces[1] == "root");
 
     r.deleteNameSpace("namespace2");
     nameSpaces = r.enumerateNameSpaces();
-    assert(nameSpaces.size() == 0);
+    assert(nameSpaces.size() == 1);
+    assert(nameSpaces[0] == "root");
 }
 
 void TestCreateClass()
@@ -270,6 +274,7 @@ int main()
 	TestNameSpaces();
 	TestCreateClass();
 	TestQualifiers();
+
     }
     catch (Exception& e)
     {

@@ -160,12 +160,19 @@ static void TestNameSpaceOperations(CIMClient& client, Boolean activeTest,
 	    newInstance.addProperty(CIMProperty("name", testNamespaceName));
 	    newInstanceName = client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
 	}
-	catch(CIMClientException& e)
+	catch(CIMClientCIMException& e)
 	{
-	     PEGASUS_STD(cerr) << "CIMClientException NameSpace Creation: "
+	     if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
+             {
+	           newInstanceName = CIMObjectPath(instanceName);
+	     }
+	     else
+             {
+	           PEGASUS_STD(cerr) << "CIMClientException NameSpace Creation: "
 			<< e.getMessage() << " Creating " << instanceName
 		        << PEGASUS_STD(endl);
-	     return;
+	           return;
+	     }
 	}
 	catch(Exception& e)
 	{

@@ -74,7 +74,10 @@ void test()
 
 	//confirm that the input and return are equal
 	assert(arr1.size() == 3);
-	assert(arr2.size() == 3);
+	assert(arr2.size() == 4);
+
+	arr1.append("root");
+	BubbleSort(arr1);
 	assert(arr1 == arr2);
 
         NameSpaceManager nsm("./repository");
@@ -107,7 +110,9 @@ int main()
     }
     catch (Exception& e)
     {
+	cout << "Exception" << endl;
 	cout << e.getMessage() << endl;
+	return 1;
     }
 
     cout << "+++++ passed all tests" << endl;

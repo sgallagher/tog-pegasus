@@ -34,7 +34,7 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/IPC.h>
 
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include "ProviderAdapter.h"
 #include <Pegasus/Config/ConfigManager.h>
@@ -67,7 +67,7 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapter::~ProviderAdapter\n"; )
 
 const String & ProviderAdapter::getAdapterName() const {return _adapterName;}
 const String & ProviderAdapter::getProviderName() const {return _providerName;}
-CIMBaseProvider * ProviderAdapter::getBaseProvider(void) const {return _adapter;}
+CIMProvider * ProviderAdapter::getProvider(void) const {return _adapter;}
 
 //
 //
@@ -325,10 +325,10 @@ PROVIDERADAPTER_DEBUG( cerr << "ProviderAdapterManager::_load()\n"; )
         }
 
         // test secondary interface
-        if (dynamic_cast<CIMBaseProvider *>(pa) == 0)
+        if (dynamic_cast<CIMProvider *>(pa) == 0)
         {
             System::unloadDynamicLibrary(library);
-            String errorString = "adapter is not a CIMBaseProvider.";
+            String errorString = "adapter is not a CIMProvider.";
             throw Exception("AdapterLoadFailure (" +
                    adapterName + "):" + errorString);
         }

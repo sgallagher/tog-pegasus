@@ -46,7 +46,7 @@ public:
 	HelloWorldProvider(void);
 	virtual ~HelloWorldProvider(void);
 
-	// CIMBaseProvider interface
+	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 

@@ -42,7 +42,7 @@ public:
 	PG_TestPropertyTypes(void);
 	virtual ~PG_TestPropertyTypes(void);
 
-	// CIMBaseProvider interface
+	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 

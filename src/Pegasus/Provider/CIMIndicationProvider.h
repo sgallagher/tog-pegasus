@@ -31,7 +31,7 @@
 #define Pegasus_CIMIndicationProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -46,7 +46,7 @@ This class defines the set of methods implemented by an indication provider. A p
 from this class must implement all methods. The minimal method implementation simply throw the
 NotSupported exception.
 */
-class PEGASUS_PROVIDER_LINKAGE CIMIndicationProvider : public virtual CIMBaseProvider
+class PEGASUS_PROVIDER_LINKAGE CIMIndicationProvider : public virtual CIMProvider
 {
 public:
     CIMIndicationProvider(void);

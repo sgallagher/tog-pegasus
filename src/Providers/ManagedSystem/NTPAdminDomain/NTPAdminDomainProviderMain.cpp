@@ -38,7 +38,7 @@
 #include "NTPAdminDomainProvider.h"
 
 extern "C" 
-PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String& providerName)
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
     if (String::equalNoCase(providerName, "NTPProvider"))
        {

@@ -47,7 +47,7 @@ class PEGASUS_SERVER_LINKAGE ProviderMessageFacade : public ProviderFacade
 {
 public:
 
-    ProviderMessageFacade(CIMBaseProvider * provider);
+    ProviderMessageFacade(CIMProvider * provider);
     virtual ~ProviderMessageFacade(void);
 
     Message * handleRequestMessage(Message * message) throw();

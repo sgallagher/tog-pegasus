@@ -30,7 +30,7 @@
 #include <Pegasus/Provider/ProviderException.h>    
 #include "DNSAdminDomainProvider.h"
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider(const String & name)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
 {
     if(String::equalNoCase(name, "DNSProvider"))
     {

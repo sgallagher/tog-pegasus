@@ -41,7 +41,7 @@ public:
 	QueryProvider(void);
 	virtual ~QueryProvider(void);
 
-	// CIMBaseProvider interface
+	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 

@@ -39,7 +39,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderMessageFacade::ProviderMessageFacade(CIMBaseProvider* provider)
+ProviderMessageFacade::ProviderMessageFacade(CIMProvider* provider)
     : ProviderFacade(provider)
 {
 }

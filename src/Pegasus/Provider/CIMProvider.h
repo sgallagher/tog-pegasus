@@ -27,8 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMBaseProvider_h
-#define Pegasus_CIMBaseProvider_h
+#ifndef Pegasus_CIMProvider_h
+#define Pegasus_CIMProvider_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/OperationContext.h>
@@ -42,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
 Parent class for all provider interfaces.
 
-<p>The <i>CIMBaseProvider</i> is the parent class for all provider
+<p>The <i>CIMProvider</i> is the parent class for all provider
 interface types. The currently supported interfaces are:</p>
 
 <ul>
@@ -148,7 +148,7 @@ for a provider to perform operations on several levels
 of the same line of descent.</p>
 -->
 
-<p>The CIMBaseProvider interface contains two functions that are
+<p>The CIMProvider interface contains two functions that are
 inherited by all provider interfaces:</p>
 
 <p><ul>
@@ -164,11 +164,11 @@ final processing that may be required.</li>
 <p>Providers <i>must</i> implement these functions. A minimal
 implementation may simply return to the caller.</p>
 */
-class PEGASUS_PROVIDER_LINKAGE CIMBaseProvider
+class PEGASUS_PROVIDER_LINKAGE CIMProvider
 {
 public:
-    CIMBaseProvider(void);
-    virtual ~CIMBaseProvider(void);
+    CIMProvider(void);
+    virtual ~CIMProvider(void);
 
     /**
     Perform any setup required before normal operation.
@@ -218,6 +218,10 @@ public:
     virtual void terminate(void) = 0;
 
 };
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
+typedef CIMProvider CIMBaseProvider;
+#endif
 
 PEGASUS_NAMESPACE_END
 

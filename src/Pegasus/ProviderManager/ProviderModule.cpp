@@ -111,11 +111,11 @@ void ProviderModule::load(void)
                                           _interfaceName, _interfaceFilename,
                                           _providerName);
 
-        _provider = dynamic_cast<CIMBaseProvider *>(_adapter);
+        _provider = dynamic_cast<CIMProvider *>(_adapter);
 
         if (_provider == NULL)
         {
-            String errorString = "ProviderAdapter is no BaseProvider";
+            String errorString = "ProviderAdapter is no CIMProvider";
             throw Exception("ProviderLoadFailure (" + _providerName + "):" +
                 errorString);
         }
@@ -135,9 +135,9 @@ void ProviderModule::load(void)
     }
 
     // find library entry point
-    CIMBaseProvider * (*createProvider)(const String &) = 0;
+    CIMProvider * (*createProvider)(const String &) = 0;
 
-    createProvider = (CIMBaseProvider * (*)(const String &))System::loadDynamicSymbol(
+    createProvider = (CIMProvider * (*)(const String &))System::loadDynamicSymbol(
         _library, "PegasusCreateProvider");
 
     if(createProvider == 0)
@@ -149,7 +149,7 @@ void ProviderModule::load(void)
     }
 
     // invoke the provider entry point
-    CIMBaseProvider * provider = createProvider(_providerName);
+    CIMProvider * provider = createProvider(_providerName);
 
     if(provider == 0)
     {
@@ -160,11 +160,11 @@ void ProviderModule::load(void)
     }
 
     // test for the appropriate interface
-    if(dynamic_cast<CIMBaseProvider *>(provider) == 0)
+    if(dynamic_cast<CIMProvider *>(provider) == 0)
     {
         unload();
 
-        String errorString = "provider is not a CIMBaseProvider.";
+        String errorString = "provider is not a CIMProvider.";
         throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
     }
 
@@ -185,7 +185,7 @@ void ProviderModule::unload(void)
 
     /*
     // ATTN: cannot determine if provider is stack or heap based allocated.
-    // the provider should delete, if necessary, during CIMBaseProvider::terminate()
+    // the provider should delete, if necessary, during CIMProvider::terminate()
 
     if(_provider != 0)
     {

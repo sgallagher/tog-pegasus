@@ -28,15 +28,15 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusVersion.h>
-#include "CIMBaseProvider.h"
+#include "CIMProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMBaseProvider::CIMBaseProvider(void)
+CIMProvider::CIMProvider(void)
 {
 }
 
-CIMBaseProvider::~CIMBaseProvider(void)
+CIMProvider::~CIMProvider(void)
 {
 }
 

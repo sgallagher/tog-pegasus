@@ -42,7 +42,7 @@ public:
 	OperatingSystemProvider(void);
 	virtual ~OperatingSystemProvider(void);
 
-	// CIMBaseProvider interface
+	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 

@@ -41,7 +41,7 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(String &name)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(String &name)
 {
   if (name == "ProcessProvider") return new ProcessProvider;
   else if (name == "ProcessStatProvider") return new ProcessStatProvider;

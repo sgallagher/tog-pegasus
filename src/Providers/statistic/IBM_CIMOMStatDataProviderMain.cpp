@@ -34,7 +34,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider(const String & providerName)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & providerName)
 {
 	if(String::equalNoCase(providerName, "IBM_CIMOMStatDataProvider"))
 	{

@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMClassProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
@@ -61,10 +61,10 @@ class PEGASUS_SERVER_LINKAGE ProviderFacade :
     public CIMIndicationConsumer
 {
 public:
-    ProviderFacade(CIMBaseProvider * provider);
+    ProviderFacade(CIMProvider * provider);
     virtual ~ProviderFacade(void);
 
-    // CIMBaseProvider interface
+    // CIMProvider interface
     virtual void initialize(CIMOMHandle & cimom);
     virtual void terminate(void);
 
@@ -261,7 +261,7 @@ public:
     }
 
 protected:
-    CIMBaseProvider * _provider;
+    CIMProvider * _provider;
 
 };
 

@@ -40,7 +40,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 extern "C" PEGASUS_EXPORT 
-CIMBaseProvider* PegasusCreateProvider(const String & providerName)
+CIMProvider* PegasusCreateProvider(const String & providerName)
 {
    if(String::equalNoCase(providerName, IOPORTPROVIDERNAME))
    {

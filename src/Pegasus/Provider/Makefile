@@ -14,7 +14,7 @@ LIBRARY = pegprovider
 SOURCES = \
     ProviderException.cpp \
     CIMOMHandle.cpp \
-    CIMBaseProvider.cpp \
+    CIMProvider.cpp \
     CIMInstanceProvider.cpp \
     CIMClassProvider.cpp \
     CIMMethodProvider.cpp \

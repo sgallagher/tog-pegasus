@@ -42,7 +42,7 @@ public:
 	InstanceProvider(void);
 	virtual ~InstanceProvider(void);
 
-	// CIMBaseProvider interface
+	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 

@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define DEBUG(X) Logger::put(Logger::DEBUG_LOG, "Linux_PCIControllerProvider", Logger::INFORMATION, "$0", X)
 
 extern "C"
-PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(String const &providerName)
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(String const &providerName)
 {
    if (String::equalNoCase(providerName, "LinuxPCIControllerProvider"))
    {

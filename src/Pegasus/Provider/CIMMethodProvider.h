@@ -31,7 +31,7 @@
 #define Pegasus_CIMMethodProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMName.h>
@@ -49,7 +49,7 @@ for a CIM class.
 <p>The <i>Method Provider</i> supports the client InvokeMethod
 operation, which is used to invoke any method(s)
 defined on a CIM class of object. In addition to the
-functions inherited from the {@link CIMBaseProvider CIMBaseProvider}
+functions inherited from the {@link CIMProvider CIMProvider}
 interface, the Method Provider interface defines one function:</p>
 
 <ul>
@@ -75,7 +75,7 @@ the CIMOM through provider registration in the
 <tt>SupportedMethods</tt> property of an instance of the
 <tt>PG_ProviderCapabilities</tt> class.</p>
 */
-class PEGASUS_PROVIDER_LINKAGE CIMMethodProvider : public virtual CIMBaseProvider
+class PEGASUS_PROVIDER_LINKAGE CIMMethodProvider : public virtual CIMProvider
 {
 public:
     CIMMethodProvider(void);

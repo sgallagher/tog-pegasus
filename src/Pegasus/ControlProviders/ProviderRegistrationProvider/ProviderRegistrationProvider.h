@@ -79,7 +79,7 @@ public:
 
 ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & handle);
 
-    // CIMBaseProvider interface
+    // CIMProvider interface
     virtual void initialize(CIMOMHandle& cimom);
     virtual void terminate(void);
 

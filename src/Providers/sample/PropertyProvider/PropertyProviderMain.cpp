@@ -34,7 +34,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider(const String & className)
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & className)
 {
 	if(String::equalNoCase(className, "sample_propertyproviderclass"))
 	{

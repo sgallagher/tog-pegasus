@@ -25,8 +25,8 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CMPIBaseAdapter_h 
-#define Pegasus_CMPIBaseAdapter_h 
+#ifndef Pegasus_CMPIAdapter_h 
+#define Pegasus_CMPIAdapter_h 
 
 #include <Pegasus/Common/Config.h>
 
@@ -47,7 +47,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Config/ConfigManager.h>
 
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
@@ -64,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
     The constants representing the string literals.
 */
 
-class CMPIAdapter:     public virtual CIMBaseProvider,
+class CMPIAdapter:     public virtual CIMProvider,
                        public virtual CIMInstanceProvider,
                        public virtual CIMAssociationProvider,
                        public virtual CIMMethodProvider,
@@ -86,7 +86,7 @@ public:
        terminate();
     }
 
-    //CIMBaseProvider Interface
+    //CIMProvider Interface
     virtual void initialize(CIMOMHandle & cimom);
     virtual void terminate();
 
@@ -196,4 +196,4 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_CMPIBaseAdapter_h */
+#endif /* Pegasus_CMPIAdapter_h */

@@ -42,7 +42,7 @@ public:
 	IBM_CIMOMStatDataProvider(void);
 	virtual ~IBM_CIMOMStatDataProvider(void);
 
-	// CIMBaseProvider interface
+	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 

@@ -34,7 +34,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/ProviderManager/ProviderAdapter.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Server/Linkage.h>
@@ -65,7 +65,7 @@ public:
     void unload(void);
     void unloadModule(void);
 
-    virtual CIMBaseProvider * getProvider(void) const;
+    virtual CIMProvider * getProvider(void) const;
 
 protected:
     String _fileName;
@@ -76,7 +76,7 @@ protected:
     ProviderAdapter * _adapter;
 
     DynamicLibraryHandle _library;
-    CIMBaseProvider * _provider;
+    CIMProvider * _provider;
 
     Uint32 _refCount;
 
@@ -102,7 +102,7 @@ inline const String & ProviderModule::getProviderName(void) const
     return(_providerName);
 }
 
-inline CIMBaseProvider * ProviderModule::getProvider(void) const
+inline CIMProvider * ProviderModule::getProvider(void) const
 {
     return(_provider);
 }

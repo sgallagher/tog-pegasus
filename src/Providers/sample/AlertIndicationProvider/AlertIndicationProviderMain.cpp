@@ -35,7 +35,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider
+extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider
     (const String & providerName)
 {
     if (String::equalNoCase (providerName, "AlertIndicationProvider"))

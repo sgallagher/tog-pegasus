@@ -36,14 +36,14 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/IPC.h>
 
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Server/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 // 
 // the ProviderAdapter serves as a coupling between a
-// CIMBaseProvider and an arbitrary file
+// CIMProvider and an arbitrary file
 
 class PEGASUS_SERVER_LINKAGE ProviderAdapter
 {
@@ -61,13 +61,13 @@ public:
 	//void load(void);
 	//void unload(void);
 
-	virtual CIMBaseProvider * getBaseProvider(void) const;
+	virtual CIMProvider * getProvider(void) const;
 
 protected:
 	String _adapterName;
 	String _providerName;
 	String _className;
-	CIMBaseProvider * _adapter;
+	CIMProvider * _adapter;
 };
 
 //
@@ -90,7 +90,7 @@ public:
 	//void load(void);
 	//void unload(void);
 
-	//virtual CIMBaseProvider * getProvider(void) const;
+	//virtual CIMProvider * getProvider(void) const;
         static ProviderAdapterManager * get_pamgr();
         void list(void);
 

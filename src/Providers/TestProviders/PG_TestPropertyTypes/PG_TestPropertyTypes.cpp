@@ -42,7 +42,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String & providerName)
+extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String & providerName)
 {
     const String PROVIDER_NAME = "PG_TestPropertyTypes";
     if (String::equalNoCase(providerName, "PG_TestPropertyTypes"))

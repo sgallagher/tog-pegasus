@@ -38,7 +38,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 template<class T>
-inline T * getInterface(CIMBaseProvider * provider)
+inline T * getInterface(CIMProvider * provider)
 {
     T * p = dynamic_cast<T *>(provider);
 
@@ -50,7 +50,7 @@ inline T * getInterface(CIMBaseProvider * provider)
     return(p);
 }
 
-ProviderFacade::ProviderFacade(CIMBaseProvider * provider) : _provider(provider)
+ProviderFacade::ProviderFacade(CIMProvider * provider) : _provider(provider)
 {
 }
 

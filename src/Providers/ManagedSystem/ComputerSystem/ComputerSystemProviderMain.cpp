@@ -37,7 +37,7 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 extern "C" 
-PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String& providerName)
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
   return new ComputerSystemProvider;
 }

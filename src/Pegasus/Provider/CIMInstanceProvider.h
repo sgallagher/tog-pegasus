@@ -31,7 +31,7 @@
 #define Pegasus_CIMInstanceProvider_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/CIMBaseProvider.h>
+#include <Pegasus/Provider/CIMProvider.h>
 
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMPropertyList.h>
@@ -54,7 +54,7 @@ classes.</p>
 
 <p>In addition to
 functions inherited from the
-{@link CIMBaseProvider CIMBaseProvider} interface,
+{@link CIMProvider CIMProvider} interface,
 the functions in the Instance Provider interface are:</p>
 
 <p><ul>
@@ -74,7 +74,7 @@ behavior is required to perform the operation modeled by
 the request. The specific requirements for each of the interface
 functions are discussed in their respective sections.</p>
 */
-class PEGASUS_PROVIDER_LINKAGE CIMInstanceProvider : public virtual CIMBaseProvider
+class PEGASUS_PROVIDER_LINKAGE CIMInstanceProvider : public virtual CIMProvider
 {
 public:
     /**

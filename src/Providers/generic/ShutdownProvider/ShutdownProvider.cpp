@@ -160,7 +160,7 @@ public:
 //
 // NOTE: The name of the provider must be correct to be loadable.
 
-extern "C" PEGASUS_EXPORT CIMBaseProvider *
+extern "C" PEGASUS_EXPORT CIMProvider *
 PegasusCreateProvider(const String &providerName)
 {
     const String PROVIDER_NAME = "ShutdownProvider";

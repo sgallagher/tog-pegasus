@@ -41,7 +41,7 @@ public:
 	AssociationProvider(void);
 	virtual ~AssociationProvider(void);
 
-	// CIMBaseProvider interface
+	// CIMProvider interface
 	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 

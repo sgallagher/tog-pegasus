@@ -42,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define DEBUG(X) Logger::put(Logger::DEBUG_LOG, "Linux_IPRoute", Logger::INFORMATION, "$0", X)
 
 extern "C"
-PEGASUS_EXPORT CIMBaseProvider* PegasusCreateProvider(const String& providerName)
+PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
    if (String::equalNoCase(providerName, IPROUTEPROVIDERNAME))
    {

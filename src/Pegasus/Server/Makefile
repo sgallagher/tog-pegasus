@@ -48,6 +48,10 @@ LIBRARIES += \
 	DefaultProviderManager
 endif
 
+ifdef PEGASUS_KERBEROS_AUTHENTICATION
+  LIBRARIES += pegkrb
+endif
+
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \

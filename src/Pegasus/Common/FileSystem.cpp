@@ -76,7 +76,7 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 
     const char* dirPath;
     const char* fileName;
-    char* slash = strrchr(p, '/');
+    char* slash = (char *) strrchr(p, '/');
 
     if (slash)
     {

@@ -9,7 +9,7 @@ endif
 
 ifeq ($(COMPILER),acc)
   LINK_COMMAND = $(CXX) -b -Wl,+hlib$(LIBRARY)$(LIB_SUFFIX)
-  ifeq ($(HPUX_IA64_VERSION), yes)
+  ifeq ($(PEGASUS_PLATFORM), HPUX_IA64_ACC)
     LINK_COMMAND += +DD64 -mt
   endif
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)

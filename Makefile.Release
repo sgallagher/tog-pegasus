@@ -59,9 +59,13 @@ PEGASUS_LIBRARIES = \
    libpegserver \
    libpeguser \
    libpegwql \
-   libCMPIProviderManager \
-   libcmpiCppImpl \
    libDefaultProviderManager
+
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+PEGASUS_LIBRARIES += \
+   libCMPIProviderManager \
+   libcmpiCppImpl
+endif
 
 ifeq ($(OS),HPUX)
 PEGASUS_LIBRARIES += \
@@ -72,8 +76,12 @@ PEGASUS_LIBRARY_LINKS = \
    libpegclient \
    libpegcommon \
    libpegprovider \
-   libCMPIProviderManager \
    libDefaultProviderManager
+
+ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+PEGASUS_LIBRARY_LINKS += \
+   libCMPIProviderManager
+endif
 
 PEGASUS_PROVIDERS = \
    libComputerSystemProvider \

@@ -151,36 +151,6 @@ void SimpleThread::sleep(Uint32 msec)
 
 PEGASUS_THREAD_TYPE SimpleThread::self(void) { return(_handle.thid); }
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-
-int pthread_mutex_timedlock(
-        pthread_mutex_t *mutex,
-        const struct timespec *abstime)
-{
-        return pthread_mutex_lock (mutex);
-}
-
-int pthread_rwlock_timedrdlock(
-        pthread_rwlock_t *rwlock,
-        const struct timespec *abstime)
-{
-        return pthread_rwlock_rdlock(rwlock);
-}
-
-int pthread_rwlock_timedwrlock(
-        pthread_rwlock_t *rwlock,
-        const struct timespec *abstime)
-{
-        return pthread_rwlock_wrlock(rwlock);
-}
-
-int sem_timedwait(sem_t *sem,
-        const struct timespec *abstime)
-{
-        return sem_wait(sem);
-}
-
-#endif
 
 Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 		void *parameter, Boolean detached ) : _is_detached(detached), 

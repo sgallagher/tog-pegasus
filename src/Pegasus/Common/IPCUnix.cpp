@@ -27,7 +27,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 #include <sys/timex.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,6 +65,9 @@ inline void enable_cancel(void)
 #define native_cleanup_pop(execute) \
    pthread_cleanup_pop_restore_np(execute)
 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+// ATTN: RK - Need to determine HP-UX equivalents
+
 inline void init_crit(PEGASUS_CRIT_TYPE *crit)
 {
    pthread_spin_init(crit, 0);
@@ -87,7 +92,9 @@ inline void destroy_crit(PEGASUS_CRIT_TYPE *crit)
 {
    pthread_spin_destroy(crit);
 }
+#endif
    
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 //-----------------------------------------------------------------
 /// accurate version of gettimeofday for unix systems
 //  posix glibc implementation does not return microseconds.
@@ -105,9 +112,14 @@ static int pegasus_gettimeofday(struct timeval *tv)
    return(err);
 }
 
-// If  pegasus_gettimeofday() does not compile, comment it 
-// out and uncomment the following line
-//static inline int pegasus_gettimeofday(struct timeval *tv) { return(gettimeofday(tv, NULL)); }
+#else
+// ATTN: RK - It seems HP-UX doesn't support the NTP calls; I hope
+// gettimeofday() returns milliseconds...
+
+// If the pegasus_gettimeofday() defined above does not compile, use this
+// version instead
+static inline int pegasus_gettimeofday(struct timeval *tv) { return(gettimeofday(tv, NULL)); }
+#endif
 
 
 PEGASUS_THREAD_TYPE pegasus_thread_self(void) 
@@ -323,7 +335,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
    int errorcode = 0;
 
    gettimeofday(&start, NULL);
-   start.tv_usec += (milliseconds * 1000)
+   start.tv_usec += (milliseconds * 1000);
    
    if (mode == PEG_SEM_READ)
    {
@@ -348,7 +360,9 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 gettimeofday(&now, NULL);
       }
       while(errorcode == EBUSY && 
-	    ((now.tv_usec < start.tv_usec) || (now.tv_sec <= start.tv_sec ))
+	    ((now.tv_usec < start.tv_usec) || (now.tv_sec <= start.tv_sec )));
+      // ATTN: RK - Added ');' to the end of the preceding line.  Is this
+      // "while" condition correct?
 
       if(0 == errorcode)
       {

@@ -45,35 +45,22 @@
 
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 # include <sched.h>
-extern int pthread_mutex_timedlock(
-    pthread_mutex_t *mutex,
-    const struct timespec *abstime);
-
-extern int pthread_rwlock_timedrdlock(
-    pthread_rwlock_t *rwlock,
-    const struct timespec *abstime);
-
-extern int pthread_rwlock_timedwrlock(
-    pthread_rwlock_t *rwlock,
-    const struct timespec *abstime);
-
-extern int sem_timedwait(
-    sem_t *sem,
-    const struct timespec *abstime);
-
-
 #endif
 
 #include <pthread.h>
 #include <semaphore.h>
-#include <signal.h>
 #include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
 
 
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+// ATTN: RK - Need to determine HP-UX equivalent
+typedef int PEGASUS_CRIT_TYPE;
+#else
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
+#endif
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
 typedef pthread_t PEGASUS_THREAD_TYPE;
 typedef pthread_mutex_t PEGASUS_MUTEX_TYPE;
@@ -140,7 +127,13 @@ typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
 //-----------------------------------------------------------------
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+// ATTN: RK - Need this definition to compile on HP-UX (or else
+// PEGASUS_RWLOCK_HANDLE is undefined)
+#define PEGASUS_READWRITE_NATIVE = 1
+#else
 // #define PEGASUS_READWRITE_NATIVE = 1
+#endif
 
 typedef struct {
     pthread_rwlock_t rwlock;

@@ -89,9 +89,17 @@ void CIMOperationResponseEncoder::sendResponse
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
    if (queue)
-
    {
-      AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message, 0, cimException));
+		  CIMException cimExceptionDescription;
+			if (cimException && cimException->getCode() != CIM_ERR_SUCCESS)
+			{
+				String msg = XmlWriter::encodeURICharacters
+					(TraceableCIMException(*cimException).getDescription());
+				cerr << msg.getCString();
+				cimExceptionDescription = CIMException(cimException->getCode(), msg);
+			}
+      AutoPtr<HTTPMessage> httpMessage(new HTTPMessage
+																			 (message, 0, &cimExceptionDescription));
 			httpMessage->setComplete(isLast);
 			httpMessage->setIndex(messageIndex);
       Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 

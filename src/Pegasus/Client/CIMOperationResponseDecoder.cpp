@@ -266,41 +266,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
-		// look for any cim status codes. The HTTPConnection level would have
-		// added them here.
-
-		String cimStatusCodeValue;
-		Boolean found = HTTPMessage::lookupHeader(headers, "CIMStatusCode", 
-																							cimStatusCodeValue, true);
-		CIMStatusCode cimStatusCodeNumber = CIM_ERR_SUCCESS;
-
-		if (found == true && 
-				(cimStatusCodeNumber = (CIMStatusCode)
-				 atoi(cimStatusCodeValue.getCString())) != CIM_ERR_SUCCESS)
-		{
-			String cimStatusCodeDescription;
-			found = HTTPMessage::lookupHeader(headers, "CIMStatusCodeDescription", 
-																				cimStatusCodeDescription, true);
-			if (found == true && cimStatusCodeDescription.size() > 0)
-			{
-				try
-				{
-					cimStatusCodeDescription = 
-						XmlReader::decodeURICharacters(cimStatusCodeDescription);
-				}
-				catch (ParseError&)
-        {
-				}
-			} // if there is a description with the code
-			
-			CIMException* cimStatusException =
-				new CIMException(cimStatusCodeNumber,cimStatusCodeDescription);
-			ClientExceptionMessage * response =
-				new ClientExceptionMessage(cimStatusException);
-			_outputQueue->enqueue(response);
-			return;
-		}
-
     //
     // Search for "CIMOperation" header:
     //
@@ -415,6 +380,42 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    }
 #endif
    
+		// look for any cim status codes. The HTTPConnection level would have
+		// added them here.
+
+		String cimStatusCodeValue;
+		Boolean found = HTTPMessage::lookupHeader(headers, "CIMStatusCode", 
+																							cimStatusCodeValue, true);
+		CIMStatusCode cimStatusCodeNumber = CIM_ERR_SUCCESS;
+
+		if (found == true && 
+				(cimStatusCodeNumber = (CIMStatusCode)
+				 atoi(cimStatusCodeValue.getCString())) != CIM_ERR_SUCCESS)
+		{
+			String cimStatusCodeDescription;
+			found = HTTPMessage::lookupHeader(headers, "CIMStatusCodeDescription", 
+																				cimStatusCodeDescription, true);
+			if (found == true && cimStatusCodeDescription.size() > 0)
+			{
+				try
+				{
+					cimStatusCodeDescription = 
+						XmlReader::decodeURICharacters(cimStatusCodeDescription);
+				}
+				catch (ParseError&)
+        {
+				}
+			} // if there is a description with the code
+			
+			CIMException* cimStatusException =
+				new CIMException(cimStatusCodeNumber,cimStatusCodeDescription);
+			cimStatusException->setContentLanguages(contentLanguages);
+			ClientExceptionMessage * response =
+				new ClientExceptionMessage(cimStatusException);
+			_outputQueue->enqueue(response);
+			return;
+		}
+
     //
     // Zero-terminate the message:
     //

@@ -37,6 +37,7 @@
 #include "CIMScope.h"
 #include "XmlWriter.h"
 #include "MofWriter.h"
+#include "DeclContext.h"
 
 PEGASUS_USING_STD;
 
@@ -108,10 +109,21 @@ void CIMPropertyRep::resolve(
     if (_value.getType() == CIMTYPE_REFERENCE)
 	scope = CIMScope::REFERENCE;
 
-    // Get the reference class name from the inherited property
+    // Test the reference class name against the inherited property
     if (_value.getType() == CIMTYPE_REFERENCE)
     {
-        _referenceClassName = inheritedProperty.getReferenceClassName();
+		CIMName inheritedReferenceClassName = inheritedProperty.getReferenceClassName();
+        CIMName referenceClassName = _referenceClassName;
+		bool found = inheritedReferenceClassName.equal(referenceClassName);
+		while(!found)
+		{
+			CIMClass referenceClass = declContext->lookupClass(nameSpace, referenceClassName);
+			referenceClassName = referenceClass.getSuperClassName();
+			if(referenceClassName.isNull())
+				throw TypeMismatchException();
+
+			found = inheritedReferenceClassName.equal(referenceClassName);
+		}
     }
 
     _qualifiers.resolve(

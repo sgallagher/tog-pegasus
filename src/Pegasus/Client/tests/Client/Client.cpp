@@ -197,7 +197,7 @@ static void TestInstanceOperations(CIMClient& client)
 #endif
 }
 
-static void TestAssoc1(CIMClient& client)
+static void TestAssociators(CIMClient& client)
 {
     CIMReference instanceName = "Person.name=\"Mike\"";
 
@@ -211,17 +211,17 @@ static void TestAssoc1(CIMClient& client)
 	true, 
 	true);
 
-    cout << "size: " << result.size() << endl;
-
     for (Uint32 i = 0; i < result.size(); i++)
     {
 	CIMObjectWithPath current = result[i];
 	CIMReference ref = current.getReference();
-	cout << "ref: " << ref << endl;
+	cout << "[" << ref << "]" << endl;
     }
+
+    cout << endl;
 }
 
-static void TestAssoc2(CIMClient& client)
+static void TestAssociatorNames(CIMClient& client)
 {
     CIMReference instanceName = "Person.name=\"Mike\"";
 
@@ -233,11 +233,48 @@ static void TestAssoc2(CIMClient& client)
 	"parent", 
 	"child");
 
-    cout << "size: " << result.size() << endl;
+    for (Uint32 i = 0; i < result.size(); i++)
+	cout << "[" << result[i] << "]" << endl;
+
+    cout << endl;
+}
+
+static void TestReferenceNames(CIMClient& client)
+{
+    CIMReference instanceName = "Person.name=\"Mike\"";
+
+    Array<CIMReference> result = client.referenceNames(
+	NAMESPACE, 
+	instanceName, 
+	"Lineage", 
+	"parent");
 
     for (Uint32 i = 0; i < result.size(); i++)
-	cout << "result[i]: " << result[i] << endl;
+	cout << "[" << result[i] << "]" << endl;
+
+    cout << endl;
 }
+
+static void TestReferences(CIMClient& client)
+{
+    CIMReference instanceName = "Person.name=\"Mike\"";
+
+    Array<CIMObjectWithPath> result = client.references(
+	NAMESPACE, 
+	instanceName, 
+	"Lineage", 
+	"parent");
+
+    for (Uint32 i = 0; i < result.size(); i++)
+    {
+	CIMObjectWithPath current = result[i];
+	CIMReference ref = current.getReference();
+	cout << "[" << ref << "]" << endl;
+    }
+
+    cout << endl;
+}
+
 
 int main(int argc, char** argv)
 {
@@ -250,15 +287,15 @@ int main(int argc, char** argv)
 
 	// To run the following test, first compile "test.mof" into the
 	// repository!
-	// TestAssoc1(client);
-	// TestAssoc2(client);
+	TestAssociatorNames(client);
+	TestAssociators(client);
+	TestReferenceNames(client);
+	TestReferences(client);
 
 	// TestGetClass(client);
 	TestQualifierOperations(client);
 	TestClassOperations(client);
 	TestInstanceOperations(client);
-
-
     }
     catch(Exception& e)
     {

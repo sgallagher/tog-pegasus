@@ -27,6 +27,8 @@ code.  The committed files are generated from flex 2.5.4 and bison 1,28.
 This change paves the way for upcoming changes that will allow the compiler
 to work indepently of the repository. (grb)
 7. Extend testclient (clients/testclient) tests and functions. ks 19 June 2001
+8. CV added const to CIMOperations modifyInstance, createInstance, modifyClass,
+createClass to protect caller's object.
 ---------------------------------------------------------------
 Version 0.97.3 - Released 5 June 2001
 

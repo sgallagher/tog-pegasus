@@ -132,7 +132,7 @@ void MCCATestClient::createInstance(const String& _host, const String& _port, co
 		// the real call ...
 		returnRef = client.createInstance(cimInstance);
 
-		CLDEBUG("MCCA::createInstances - Successfully created Instance.");
+		CLDEBUG("Successfully created Instance.");
 	} catch (Exception e)
 	{
 		CLDEBUG("Create Instance " << i << " failed.");
@@ -154,7 +154,7 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host, const String& _
 		fullHost.append(":");
 		fullHost.append(_port);
 	}
-	CLDEBUG("Host in object path of associatorsTest()=" << fullHost);
+	// CLDEBUG("Host in object path of associatorsTest()=" << fullHost);
 	// preparing object path first
 	targetObjectPath.setHost(fullHost);
 	targetObjectPath.setNameSpace(fromNS);
@@ -165,7 +165,8 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host, const String& _
 	keyBindings.append(testClassKey);
 	targetObjectPath.setKeyBindings(keyBindings);
 
-	CLDEBUG("Preparation of object path for associators() call ready.");
+	// CLDEBUG("Preparation of object path for associators() call ready.");
+	CLDEBUG("Association call for host=" << fullHost << ",Namespace=" << fromNS << ",key=" << key);
 	
 	// Time to do the call
 	try
@@ -199,9 +200,12 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host, const String& _
 			CLDEBUG("Key of returned instance wrong.");
 			exit(6);
 		}
+		CLDEBUG("Association call successful.");
 		return (CIMInstance) cimInstance[0];
 	} catch (Exception e)
 	{
+		CLDEBUG("Association call failed with exception.");
+		CLDEBUG("Exception=" << e.getMessage());
 		exit(7);
 	}
 	// gets never called, but compilers will ask for it anyway
@@ -229,12 +233,13 @@ CIMInstance MCCATestClient::getInstance(const String& _host, const String& _port
 	Array<CIMKeyBinding> keyBindings = Array<CIMKeyBinding>();
 	keyBindings.append(testClassKey);
 	targetObjectPath.setKeyBindings(keyBindings);
-	CLDEBUG("Preparation of object path for getInstance() call ready.");
-	
+	// CLDEBUG("Preparation of object path for getInstance() call ready.");
+	CLDEBUG("getInstance call for host=" << fullHost << ",Namespace=" << nameSpace << ",key=" << key);
 	// Time to do the call
 	try
 	{
 		CIMInstance cimInstance = client.getInstance(targetObjectPath);
+		CLDEBUG("getInstance call successful.");
 		return cimInstance;
 	} catch (Exception e)
 	{
@@ -247,12 +252,14 @@ CIMInstance MCCATestClient::getInstance(const String& _host, const String& _port
 
 void MCCATestClient::deleteInstance(const CIMInstance& toDelete)
 {
+	CLDEBUG("deleteInstance called with");
 	try
 	{
 		CLDEBUG("Host=" << toDelete.getPath().getHost());
 		CLDEBUG("NS=" << toDelete.getPath().getNameSpace());
 		CLDEBUG("Key=" << toDelete.getPath().getKeyBindings()[0].getValue() );
 		client.deleteInstance(toDelete.getPath());
+		CLDEBUG("deleteInstance call successful.");
 	} catch (Exception e)
 	{
 		CLDEBUG("Exception" << e.getMessage());
@@ -279,14 +286,14 @@ int main (int argc, char* argv [])
 	// parsing for host/port and key of instances information
 	if (argc != 2)
 	{
-	   cout << "Usage: cca <num>" << endl;
+	   cout << "Usage: MCCATestClient <num>" << endl;
 	   return 99;
 	}
 	else
 	{
 	   usedHost=String("localhost");
 	   usedPort=String("5988");
-	   instanceKEY = atoi(argv[0]);
+	   instanceKEY = atoi(argv[1]);
 	}
 
 	// Preparing MCCA Test Client Object
@@ -312,6 +319,12 @@ int main (int argc, char* argv [])
 
 	String host1 = String(assocInstance.getPath().getHost());
 	String host2 = String(gotInstance.getPath().getHost());
+
+	if (!String::equal(host1,host2))
+	{
+		CLDEBUG("host(" << host1 << ")of associators call not equal host(" << host2 << ") of getInstance call.");
+		exit(11);
+	}
 
 
 	// deleting the two created instances A' and B'

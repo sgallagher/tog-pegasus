@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMQualifierList.h,v $
-// Revision 1.5  2001/03/05 16:18:34  mike
-// fixed possible memory leak
+// Revision 1.6  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.4  2001/03/04 21:57:34  bob
 // Changed print methods to take a stream instead of hardcoded cout
@@ -33,13 +33,13 @@
 // Implemented CIMInstance::getInstanceName()
 //
 // Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:07:06  mike
 // Renamed many classes and headers (using new CIM prefixes).

@@ -23,9 +23,8 @@
 // Author:
 //
 // $Log: InstanceDecl.cpp,v $
-// Revision 1.4  2001/02/26 04:33:30  mike
-// Fixed many places where cim names were be compared with operator==(String,String).
-// Changed all of these to use CIMName::equal()
+// Revision 1.5  2001/04/08 01:13:22  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
@@ -107,7 +106,7 @@ void test02()
     cimInstance.addProperty(CIMProperty("age", Uint8(101)));
 
     // ATTN-1: ugly! Should we get rid of Const types?
-    String instanceName = cimInstance.getInstanceName(ConstCIMClass(cimClass));
+    String instanceName = cimInstance.getInstanceName(CIMConstClass(cimClass));
 
     const char EXPECT[] = "myclass.age=101,first=\"John\",last=\"Smith\"";
 

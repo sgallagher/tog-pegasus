@@ -23,17 +23,17 @@
 // Author:
 //
 // $Log: CIMInstance.cpp,v $
-// Revision 1.3  2001/02/20 07:25:57  mike
-// Added basic create-instance in repository and in client.
+// Revision 1.4  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -52,7 +52,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean CIMInstance::identical(const ConstCIMInstance& x) const
+Boolean CIMInstance::identical(const CIMConstInstance& x) const
 {
     x._checkRep();
     _checkRep();

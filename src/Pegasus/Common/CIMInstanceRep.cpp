@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMInstanceRep.cpp,v $
-// Revision 1.5  2001/03/04 21:57:34  bob
-// Changed print methods to take a stream instead of hardcoded cout
+// Revision 1.6  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.4  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
@@ -33,13 +33,13 @@
 // Implemented CIMInstance::getInstanceName()
 //
 // Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -141,7 +141,7 @@ void CIMInstanceRep::resolve(
     // First obtain the class:
     //----------------------------------------------------------------------
 
-    ConstCIMClass cimClass = 
+    CIMConstClass cimClass = 
 	context->lookupClassDecl(nameSpace, _className);
 
     if (!cimClass)
@@ -199,7 +199,7 @@ void CIMInstanceRep::resolve(
 
     for (Uint32 i = 0, m = 0, n = cimClass.getPropertyCount(); i < n; i++)
     {
-	ConstCIMProperty property = cimClass.getProperty(i);
+	CIMConstProperty property = cimClass.getProperty(i);
 	const String& name = property.getName();
 
 	// See if this instance already contains a property with this name:
@@ -311,7 +311,7 @@ void CIMInstanceRep::print(std::ostream &os) const
     os << tmp.getData() << std::endl;
 }
 
-String CIMInstanceRep::getInstanceName(const ConstCIMClass& cimClass) const
+String CIMInstanceRep::getInstanceName(const CIMConstClass& cimClass) const
 {
     // ATTN-A: should we disallow keys on arrays and reals?
     // ATTN-A: shift the case of each identifier to lower case:
@@ -342,7 +342,7 @@ String CIMInstanceRep::getInstanceName(const ConstCIMClass& cimClass) const
 	Uint32 pos = findProperty(keyName);
 	PEGASUS_ASSERT(pos != Uint32(-1));
 
-	ConstCIMProperty tmp = getProperty(pos);
+	CIMConstProperty tmp = getProperty(pos);
 
 	if (CIMName::equal(tmp.getName(), keyName))
 	{

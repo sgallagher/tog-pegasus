@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMInstance.h,v $
-// Revision 1.7  2001/03/04 21:57:34  bob
-// Changed print methods to take a stream instead of hardcoded cout
+// Revision 1.8  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.6  2001/02/27 09:32:35  karl
 // Document cleanup
@@ -39,13 +39,13 @@
 // Implemented CIMInstance::getInstanceName()
 //
 // Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -85,7 +85,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class ConstCIMInstance;
+class CIMConstInstance;
 
 /** Class CIMInstance	- The CIMInstance class represents the instance of 
     a CIM class in Pegasus. It is used manipulate instances and the 
@@ -302,7 +302,7 @@ public:
  
 	ATTN: What is the effect of out of range?
     */
-    ConstCIMProperty getProperty(Uint32 pos) const
+    CIMConstProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);
@@ -363,7 +363,7 @@ public:
 	@return Boolean true if they are identical
     
     */
-    Boolean identical(const ConstCIMInstance& x) const;
+    Boolean identical(const CIMConstInstance& x) const;
 
     /**	CIMMethod
     
@@ -385,7 +385,7 @@ public:
 	is all lowercase; the keys-value pairs appear in sorted order by
 	key name).
     */
-    String getInstanceName(const ConstCIMClass& cimClass) const
+    String getInstanceName(const CIMConstClass& cimClass) const
     {
 	_checkRep();
 	return _rep->getInstanceName(cimClass);
@@ -404,35 +404,35 @@ private:
     }
 
     CIMInstanceRep* _rep;
-    friend class ConstCIMInstance;
+    friend class CIMConstInstance;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ConstCIMInstance
+// CIMConstInstance
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_COMMON_LINKAGE ConstCIMInstance
+class PEGASUS_COMMON_LINKAGE CIMConstInstance
 {
 public:
 
-    ConstCIMInstance() : _rep(0)
+    CIMConstInstance() : _rep(0)
     {
 
     }
 
-    ConstCIMInstance(const ConstCIMInstance& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    ConstCIMInstance(const CIMInstance& x)
+    CIMConstInstance(const CIMConstInstance& x)
     {
 	Inc(_rep = x._rep);
     }
 
-    ConstCIMInstance& operator=(const ConstCIMInstance& x)
+    CIMConstInstance(const CIMInstance& x)
+    {
+	Inc(_rep = x._rep);
+    }
+
+    CIMConstInstance& operator=(const CIMConstInstance& x)
     {
 	if (x._rep != _rep)
 	{
@@ -442,7 +442,7 @@ public:
 	return *this;
     }
 
-    ConstCIMInstance& operator=(const CIMInstance& x)
+    CIMConstInstance& operator=(const CIMInstance& x)
     {
 	if (x._rep != _rep)
 	{
@@ -454,12 +454,12 @@ public:
 
     // Throws IllegalName if className argument not legal CIM identifier.
 
-    ConstCIMInstance(const String& className)
+    CIMConstInstance(const String& className)
     {
 	_rep = new CIMInstanceRep(className);
     }
 
-    ~ConstCIMInstance()
+    ~CIMConstInstance()
     {
 	Dec(_rep);
     }
@@ -494,7 +494,7 @@ public:
 	return _rep->findProperty(name);
     }
 
-    ConstCIMProperty getProperty(Uint32 pos) const
+    CIMConstProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);
@@ -520,7 +520,7 @@ public:
 	_rep->print(o);
     }
 
-    Boolean identical(const ConstCIMInstance& x) const
+    Boolean identical(const CIMConstInstance& x) const
     {
 	x._checkRep();
 	_checkRep();
@@ -532,7 +532,7 @@ public:
 	return CIMInstance(_rep->clone());
     }
 
-    String getInstanceName(const ConstCIMClass& cimClass) const
+    String getInstanceName(const CIMConstClass& cimClass) const
     {
 	_checkRep();
 	return _rep->getInstanceName(cimClass);

@@ -23,20 +23,20 @@
 // Author:
 //
 // $Log: CIMProperty.h,v $
-// Revision 1.4  2001/03/04 21:57:34  bob
-// Changed print methods to take a stream instead of hardcoded cout
+// Revision 1.5  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
 //
 // Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:07:06  mike
 // Renamed many classes and headers (using new CIM prefixes).
@@ -67,8 +67,9 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class ConstCIMProperty;
+class CIMConstProperty;
 class CIMInstanceRep;
+
 /** CIMProperty Class - ATTN:
 */
 class PEGASUS_COMMON_LINKAGE CIMProperty
@@ -88,9 +89,8 @@ public:
     }
 
     /** CIMMethod CIMProperty
-
-    @return
-    // Throws IllegalName if name argument not legal CIM identifier.
+	@return
+	Throws IllegalName if name argument not legal CIM identifier.
     */
     CIMProperty(
 	const String& name,
@@ -242,7 +242,7 @@ public:
 	DeclContext* declContext,
 	const String& nameSpace,
 	Boolean isInstancePart,
-	const ConstCIMProperty& property)
+	const CIMConstProperty& property)
     {
 	_checkRep();
 	_rep->resolve(declContext, nameSpace, isInstancePart, property);
@@ -276,7 +276,7 @@ public:
     }
 
     /// CIMMethod identical - ATTN
-    Boolean identical(const ConstCIMProperty& x) const;
+    Boolean identical(const CIMConstProperty& x) const;
 
     Boolean isKey() const
     {
@@ -299,7 +299,7 @@ private:
     // This constructor allows the CIMClassRep friend class to cast
     // away constness.
 
-    explicit CIMProperty(const ConstCIMProperty& x);
+    explicit CIMProperty(const CIMConstProperty& x);
 
     void _checkRep() const
     {
@@ -308,39 +308,39 @@ private:
     }
 
     CIMPropertyRep* _rep;
-    friend class ConstCIMProperty;
+    friend class CIMConstProperty;
     friend class CIMClassRep;
     friend class CIMInstanceRep;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// ConstCIMProperty
+// CIMConstProperty
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_COMMON_LINKAGE ConstCIMProperty
+class PEGASUS_COMMON_LINKAGE CIMConstProperty
 {
 public:
 
-    ConstCIMProperty() : _rep(0)
+    CIMConstProperty() : _rep(0)
     {
 
     }
 
-    ConstCIMProperty(const ConstCIMProperty& x)
+    CIMConstProperty(const CIMConstProperty& x)
     {
 	Inc(_rep = x._rep);
     }
 
-    ConstCIMProperty(const CIMProperty& x)
+    CIMConstProperty(const CIMProperty& x)
     {
 	Inc(_rep = x._rep);
     }
 
     // Throws IllegalName if name argument not legal CIM identifier.
 
-    ConstCIMProperty(
+    CIMConstProperty(
 	const String& name,
 	const CIMValue& value,
 	Uint32 arraySize = 0,
@@ -352,12 +352,12 @@ public:
 	    arraySize, referenceClassName, classOrigin, propagated);
     }
 
-    ~ConstCIMProperty()
+    ~CIMConstProperty()
     {
 	Dec(_rep);
     }
 
-    ConstCIMProperty& operator=(const ConstCIMProperty& x)
+    CIMConstProperty& operator=(const CIMConstProperty& x)
     {
 	if (x._rep != _rep)
 	{
@@ -367,7 +367,7 @@ public:
 	return *this;
     }
 
-    ConstCIMProperty& operator=(const CIMProperty& x)
+    CIMConstProperty& operator=(const CIMProperty& x)
     {
 	if (x._rep != _rep)
 	{
@@ -445,7 +445,7 @@ public:
 	_rep->print(o);
     }
 
-    Boolean identical(const ConstCIMProperty& x) const
+    Boolean identical(const CIMConstProperty& x) const
     {
 	x._checkRep();
 	_checkRep();

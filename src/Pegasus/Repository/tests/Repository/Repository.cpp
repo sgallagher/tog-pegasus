@@ -23,17 +23,17 @@
 // Author:
 //
 // $Log: Repository.cpp,v $
-// Revision 1.8  2001/03/11 23:35:33  mike
-// Ports to Linux
+// Revision 1.9  2001/04/08 01:13:23  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.6  2001/02/19 01:47:17  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.5  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
 //
 // Revision 1.4  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.3  2001/02/16 02:06:09  mike
 // Renamed many classes and headers.
@@ -80,7 +80,7 @@ void test01()
 
     r.createClass(NAMESPACE, c);
 
-    ConstCIMClass cc;
+    CIMConstClass cc;
     cc = r.getClass("aa/bb", "MyClass");
 
     assert(c.identical(cc));

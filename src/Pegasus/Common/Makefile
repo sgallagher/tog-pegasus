@@ -1,5 +1,6 @@
 ROOT = ../../..
 
+
 DIR = Pegasus/Common
 
 include $(ROOT)/mak/config.mak

@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
-// Revision 1.9  2001/04/07 12:01:19  karl
-// remove namespace support
+// Revision 1.10  2001/04/08 01:13:22  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.8  2001/03/11 23:35:33  mike
 // Ports to Linux
@@ -40,7 +40,7 @@
 // Added basic create-instance in repository and in client.
 //
 // Revision 1.3  2001/02/19 01:47:17  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.2  2001/02/18 19:02:17  mike
 // Fixed CIM debacle

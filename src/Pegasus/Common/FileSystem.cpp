@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
-// Revision 1.6  2001/04/07 12:01:18  karl
-// remove namespace support
+// Revision 1.7  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.5  2001/03/11 23:35:32  mike
 // Ports to Linux
@@ -259,18 +259,10 @@ Boolean FileSystem::removeDirectory(const String& path)
 
 Boolean FileSystem::removeDirectoryHier(const String& path)
 {
-    // ATTN: Mike - remove following cmts and compile
-    cout << "DEBUG RMDIR " << path << endl;
-
-// Even the following does not compile
-    // the ostream operator does not work
-    // ATTN: Mike: remove following cmts and compile
-    // String teststring;
-    // teststring.append("abc");
-    // cout << teststring;
-
     // Get list of files in the Directory
+
     Array<String> fileList;
+
     if (!FileSystem::getDirectoryContents(path,fileList))
 	return false;
 

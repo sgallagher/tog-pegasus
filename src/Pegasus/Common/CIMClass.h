@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: CIMClass.h,v $
-// Revision 1.7  2001/04/04 20:02:27  karl
-// documentation update
+// Revision 1.8  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.6  2001/03/29 16:40:31  karl
 // add doc
@@ -39,13 +39,13 @@
 // Implemented CIMInstance::getInstanceName()
 //
 // Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.1  2001/02/18 18:39:05  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -76,7 +76,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ConstCIMClass;
+class CIMConstClass;
 
 /** The CIMClass class is used to represent CIM classes in Pegasus.  In CIM,
     a class object may be a class or an associator.  A CIM class must contain a
@@ -321,7 +321,7 @@ public:
     }
 
     /// CIMMethod getProperty - ATTN
-    ConstCIMProperty getProperty(Uint32 pos) const
+    CIMConstProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);
@@ -432,7 +432,7 @@ public:
 	@parm Class object for the class to be compared
 	@return True if the classes are identical
     */
-    Boolean identical(const ConstCIMClass& x) const;
+    Boolean identical(const CIMConstClass& x) const;
 
     /// CIMMethod clone - ATTN:
     CIMClass clone() const
@@ -459,33 +459,33 @@ private:
     }
 
     CIMClassRep* _rep;
-    friend class ConstCIMClass;
+    friend class CIMConstClass;
 };
 
-/** ConstCIMClass - ATTN: define this.
+/** CIMConstClass - ATTN: define this.
 
 */
 
-class PEGASUS_COMMON_LINKAGE ConstCIMClass
+class PEGASUS_COMMON_LINKAGE CIMConstClass
 {
 public:
 
-    ConstCIMClass() : _rep(0)
+    CIMConstClass() : _rep(0)
     {
 
     }
 
-    ConstCIMClass(const ConstCIMClass& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    ConstCIMClass(const CIMClass& x)
+    CIMConstClass(const CIMConstClass& x)
     {
 	Inc(_rep = x._rep);
     }
 
-    ConstCIMClass& operator=(const ConstCIMClass& x)
+    CIMConstClass(const CIMClass& x)
+    {
+	Inc(_rep = x._rep);
+    }
+
+    CIMConstClass& operator=(const CIMConstClass& x)
     {
 	if (x._rep != _rep)
 	{
@@ -495,7 +495,7 @@ public:
 	return *this;
     }
 
-    ConstCIMClass& operator=(const CIMClass& x)
+    CIMConstClass& operator=(const CIMClass& x)
     {
 	if (x._rep != _rep)
 	{
@@ -507,14 +507,14 @@ public:
 
     // Throws IllegalName if className argument not legal CIM identifier.
 
-    ConstCIMClass(
+    CIMConstClass(
 	const String& className,
 	const String& superClassName = String())
     {
 	_rep = new CIMClassRep(className, superClassName);
     }
 
-    ~ConstCIMClass()
+    ~CIMConstClass()
     {
 	Dec(_rep);
     }
@@ -567,7 +567,7 @@ public:
 	return _rep->findProperty(name);
     }
 
-    ConstCIMProperty getProperty(Uint32 pos) const
+    CIMConstProperty getProperty(Uint32 pos) const
     {
 	_checkRep();
 	return _rep->getProperty(pos);
@@ -611,7 +611,7 @@ public:
 	_rep->print(o);
     }
 
-    Boolean identical(const ConstCIMClass& x) const
+    Boolean identical(const CIMConstClass& x) const
     {
 	x._checkRep();
 	_checkRep();

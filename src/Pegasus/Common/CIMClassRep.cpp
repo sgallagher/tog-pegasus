@@ -23,21 +23,21 @@
 // Author:
 //
 // $Log: CIMClassRep.cpp,v $
-// Revision 1.4  2001/03/04 21:57:34  bob
-// Changed print methods to take a stream instead of hardcoded cout
+// Revision 1.5  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
 //
 // Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.1  2001/02/18 18:39:05  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -245,7 +245,7 @@ void CIMClassRep::resolve(
 	// First check to see if the super-class really exists:
 	//----------------------------------------------------------------------
 
-	ConstCIMClass superClass 
+	CIMConstClass superClass 
 	    = context->lookupClassDecl(nameSpace, _superClassName);
 
 	if (!superClass)
@@ -272,7 +272,7 @@ void CIMClassRep::resolve(
 	    }
 	    else
 	    {
-		ConstCIMProperty superClassProperty = superClass.getProperty(pos);
+		CIMConstProperty superClassProperty = superClass.getProperty(pos);
 		property.resolve(context, nameSpace, false, superClassProperty);
 	    }
 	}
@@ -286,7 +286,7 @@ void CIMClassRep::resolve(
 
 	for (Uint32 i = 0, m = 0, n = superClass.getPropertyCount(); i < n; i++)
 	{
-	    ConstCIMProperty superClassProperty = superClass.getProperty(i);
+	    CIMConstProperty superClassProperty = superClass.getProperty(i);
 
 	    // Find the property in *this* class; if not found, then clone and
 	    // insert it (setting the propagated flag). Otherwise, change 
@@ -550,7 +550,7 @@ void CIMClassRep::getKeyNames(Array<String>& keyNames) const
 
     for (Uint32 i = 0, n = getPropertyCount(); i < n; i++)
     {
-	ConstCIMProperty property = getProperty(i);
+	CIMConstProperty property = getProperty(i);
 
 	if (property.isKey())
 	    keyNames.append(property.getName());

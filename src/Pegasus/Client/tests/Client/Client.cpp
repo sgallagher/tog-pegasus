@@ -23,8 +23,8 @@
 // Author:
 //
 // $Log: Client.cpp,v $
-// Revision 1.10  2001/03/11 23:35:32  mike
-// Ports to Linux
+// Revision 1.11  2001/04/08 01:13:20  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.8  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
@@ -184,7 +184,7 @@ static void TestInstanceOperations(CIMClient& client)
     {
 	client.deleteClass(NAMESPACE, "myclass");
     }
-    catch (Exception& e)
+    catch (Exception&)
     {
 	// Ignore delete class!
     }

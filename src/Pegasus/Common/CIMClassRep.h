@@ -23,20 +23,20 @@
 // Author:
 //
 // $Log: CIMClassRep.h,v $
-// Revision 1.4  2001/03/04 21:57:34  bob
-// Changed print methods to take a stream instead of hardcoded cout
+// Revision 1.5  2001/04/08 01:13:21  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.3  2001/02/20 05:16:57  mike
 // Implemented CIMInstance::getInstanceName()
 //
 // Revision 1.2  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.1  2001/02/18 18:39:05  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -65,7 +65,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class DeclContext;
 class CIMClass;
-class ConstCIMClass;
+class CIMConstClass;
 class CIMInstanceRep;
 
 class PEGASUS_COMMON_LINKAGE CIMClassRep : public Sharable
@@ -126,7 +126,7 @@ public:
 
     CIMProperty getProperty(Uint32 pos);
 
-    ConstCIMProperty getProperty(Uint32 pos) const
+    CIMConstProperty getProperty(Uint32 pos) const
     {
 	return ((CIMClassRep*)this)->getProperty(pos);
     }

@@ -23,17 +23,17 @@
 // Author:
 //
 // $Log: XmlWriter.h,v $
-// Revision 1.8  2001/03/05 04:29:02  mike
-// renamed CimException to CIMException
+// Revision 1.9  2001/04/08 01:13:22  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.7  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
 //
 // Revision 1.6  2001/02/19 01:47:17  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.5  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.4  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
@@ -71,8 +71,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifierDecl;
-class ConstCIMClass;
-class ConstCIMInstance;
+class CIMConstClass;
+class CIMConstInstance;
 
 class PEGASUS_COMMON_LINKAGE XmlWriter
 {
@@ -171,7 +171,7 @@ public:
     static Array<Sint8>& appendClassParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
-	const ConstCIMClass& cimClass);
+	const CIMConstClass& cimClass);
 
     static Array<Sint8>& appendInstanceNameParameter(
 	Array<Sint8>& out,
@@ -181,7 +181,7 @@ public:
     static Array<Sint8>& appendInstanceParameter(
 	Array<Sint8>& out,
 	const char* parameterName,
-	const ConstCIMInstance& instance);
+	const CIMConstInstance& instance);
 
     static Array<Sint8>& appendQualifierDeclarationParameter(
 	Array<Sint8>& out,

@@ -23,20 +23,20 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.cpp,v $
-// Revision 1.6  2001/03/05 19:54:50  mike
-// Fixed earlier boo boo (renamed CimException to CIMException).
+// Revision 1.7  2001/04/08 01:13:23  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.5  2001/02/20 07:25:57  mike
 // Added basic create-instance in repository and in client.
 //
 // Revision 1.4  2001/02/19 01:47:17  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.3  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
 //
 // Revision 1.2  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
+// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
 //
 // Revision 1.1  2001/02/16 02:08:26  mike
 // Renamed several classes
@@ -510,7 +510,7 @@ void ServerHandler::handleGetClass(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    ConstCIMClass cimClass;
+    CIMConstClass cimClass;
     
     try
     {
@@ -588,7 +588,7 @@ void ServerHandler::handleGetInstance(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    ConstCIMInstance cimInstance;
+    CIMConstInstance cimInstance;
     
     try
     {

@@ -23,15 +23,15 @@
 // Author:
 //
 // $Log: XmlReader.cpp,v $
-// Revision 1.5  2001/03/05 04:29:02  mike
-// renamed CimException to CIMException
+// Revision 1.6  2001/04/08 01:13:22  mike
+// Changed "ConstCIM" to "CIMConst"
 //
 // Revision 1.4  2001/02/26 04:33:28  mike
 // Fixed many places where cim names were be compared with operator==(String,String).
 // Changed all of these to use CIMName::equal()
 //
 // Revision 1.3  2001/02/19 01:47:16  mike
-// Renamed names of the form CIMConst to ConstCIM.
+// Renamed names of the form CIMConst to CIMConst.
 //
 // Revision 1.2  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.

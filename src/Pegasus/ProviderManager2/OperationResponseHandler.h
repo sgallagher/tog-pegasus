@@ -439,6 +439,9 @@ public:
 };
 
 
+typedef void (*PEGASUS_INDICATION_CALLBACK)(
+    CIMProcessIndicationRequestMessage*);
+
 class EnableIndicationsResponseHandler : public OperationResponseHandler, public SimpleIndicationResponseHandler
 {
 public:
@@ -446,31 +449,13 @@ public:
         CIMEnableIndicationsRequestMessage * request,
         CIMEnableIndicationsResponseMessage * response,
         CIMInstance & provider,
-        MessageQueueService * source,
-        MessageQueueService * target = 0)
+        PEGASUS_INDICATION_CALLBACK indicationCallback)
     : OperationResponseHandler(request, response),
-        _source(source),
-        _target(target),
-	_request_copy(*request),
-	_response_copy(*response)
+        _request_copy(*request),
+        _response_copy(*response),
+        _indicationCallback(indicationCallback)
     {
-        PEGASUS_ASSERT(_source != 0);
-
         _provider = provider;
-
-        // get indication service
-        if(_target == 0)
-        {
-            Array<Uint32> serviceIds;
-
-            _source->find_services(PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
-
-            PEGASUS_ASSERT(serviceIds.size() != 0);
-
-            _target = dynamic_cast<MessageQueueService *>(MessageQueue::lookup(serviceIds[0]));
-
-            PEGASUS_ASSERT(_target != 0);
-        }
     }
 
     virtual void deliver(const CIMIndication & cimIndication)
@@ -504,28 +489,29 @@ public:
             subscriptionInstanceNames =
                 container.getInstanceNames();
         }
-        catch (Exception& e)
+        catch (Exception&)
         {
             subscriptionInstanceNames.clear();
         }
 
 // l10n
-		ContentLanguages contentLangs;
-		try
-		{
-			// Get the Content-Language for this indication.  The provider
-			// does not have to add specify a language for the indication.
-			ContentLanguageListContainer langContainer = context.get
-				(ContentLanguageListContainer::NAME);
-						
-			contentLangs = langContainer.getLanguages();		
-		} catch (Exception & e)
-		{
-			// The provider did not explicitly set a Content-Language for
-			// the indication.  Fall back to the lang set in this object.
-			contentLangs = getLanguages();		
-		}
-// l10n -end		
+        ContentLanguages contentLangs;
+        try
+        {
+            // Get the Content-Language for this indication.  The provider
+            // does not have to add specify a language for the indication.
+            ContentLanguageListContainer langContainer = context.get
+                (ContentLanguageListContainer::NAME);
+
+            contentLangs = langContainer.getLanguages();
+        }
+        catch (Exception&)
+        {
+            // The provider did not explicitly set a Content-Language for
+            // the indication.  Fall back to the lang set in this object.
+            contentLangs = getLanguages();
+        }
+// l10n -end
 
         // create message
 // l10n
@@ -536,32 +522,11 @@ public:
             cimInstance,
 	    subscriptionInstanceNames,
             _provider,
-            QueueIdStack(_target->getQueueId(), _source->getQueueId()),
+            QueueIdStack(),  // Must be filled in by the callback function
             contentLangs);
         request->operationContext = context;
 
-        // send message
-        // <<< Wed Apr 10 21:04:00 2002 mdd >>>
-        // AsyncOpNode * op = _source->get_op();
-
-        AsyncLegacyOperationStart * asyncRequest =
-            new AsyncLegacyOperationStart(
-            _source->get_next_xid(),
-            0,
-            _target->getQueueId(),
-            request,
-            _target->getQueueId());
-
-        PEGASUS_ASSERT(asyncRequest != 0);
-
-        //AsyncReply * asyncReply = _source->SendWait(asyncRequest);
-        // <<< Wed Apr 10 21:04:50 2002 mdd >>>
-        _source->SendForget(asyncRequest);
-        //PEGASUS_ASSERT(asyncReply != 0);
-
-        //  Chip - receiver of the request should delete it
-        //delete asyncRequest;
-        // <<< Wed Apr 10 21:05:10 2002 mdd >>>
+        _indicationCallback(request);
     }
 
     virtual void deliver(const Array<CIMIndication> & cimIndications)
@@ -579,13 +544,10 @@ public:
         }
     }
 
-protected:
-    MessageQueueService * _source;
-    MessageQueueService * _target;
-
 private:
     CIMEnableIndicationsRequestMessage _request_copy;
     CIMEnableIndicationsResponseMessage _response_copy;
+    PEGASUS_INDICATION_CALLBACK _indicationCallback;
 };
 
 PEGASUS_NAMESPACE_END

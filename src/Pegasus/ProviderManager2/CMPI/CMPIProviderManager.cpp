@@ -1690,8 +1690,8 @@ Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * me
         indProvRecord *provRec;
         if (provTab.lookup(providerName,provRec)) {
            provRec->enabled=true;
-           provRec->handler=new EnableIndicationsResponseHandler(request, response,
-              request->provider, ProviderManagerService::providerManagerService);
+           provRec->handler=new EnableIndicationsResponseHandler(
+               request, response, request->provider, _indicationCallback);
         }
 
         String fileName = _resolvePhysicalName(providerLocation);

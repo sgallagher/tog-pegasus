@@ -23,59 +23,52 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ProviderManager.h"
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Config/ConfigManager.h>
+#ifndef Pegasus_BasicProviderManagerRouter_h
+#define Pegasus_BasicProviderManagerRouter_h
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/IPC.h>
+
+#include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
+#include <Pegasus/ProviderManager2/ProviderManager.h>
+#include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderManager::ProviderManager(void)
+class ProviderManagerContainer;
+
+class PEGASUS_PPM_LINKAGE BasicProviderManagerRouter
+    : public ProviderManagerRouter
 {
-}
+public:
+    BasicProviderManagerRouter(PEGASUS_INDICATION_CALLBACK indicationCallback);
+    virtual ~BasicProviderManagerRouter();
 
-ProviderManager::~ProviderManager(void)
-{
-}
+    virtual Message* processMessage(Message* message);
 
-String ProviderManager::_resolvePhysicalName(String physicalName)
-{
-    String temp;
-    String root = ".";
+    // temp
+    virtual void unload_idle_providers();
 
-    // fully qualify physical provider name (module), if not already done so.
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    temp = physicalName + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    temp =  String("lib") + physicalName + String(".so");
-    #elif defined(PEGASUS_OS_HPUX)
-    # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    temp =  String("lib") + physicalName + String(".sl");
-    # else
-    temp =  String("lib") + physicalName + String(".so");
-    # endif
-    #elif defined(PEGASUS_OS_OS400)
-    // do nothing
-    #elif defined(PEGASUS_OS_DARWIN)
-    temp =  String("lib") + physicalName + String(".dylib");
-    #else
-    temp =  String("lib") + physicalName + String(".so");
-    #endif
+private:
+    BasicProviderManagerRouter();    // Unimplemented
 
-    temp =  FileSystem::getAbsoluteFileName(
-                ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), temp);
-    return temp;
-}
+    ProviderManager* _lookupProviderManager(const String& interfaceType);
 
-void ProviderManager::setIndicationCallback(
-        PEGASUS_INDICATION_CALLBACK indicationCallback)
-{
-    _indicationCallback = indicationCallback;
-}
+    Array<ProviderManagerContainer*> _providerManagerTable;
+    ReadWriteSem _providerManagerTableLock;
+
+    static PEGASUS_INDICATION_CALLBACK _indicationCallback;
+};
 
 PEGASUS_NAMESPACE_END
+
+#endif

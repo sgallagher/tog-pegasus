@@ -32,6 +32,7 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
 //              Amit K Arora (amita@in.ibm.com) for PEP-101
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,108 +41,20 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
-#include <Pegasus/ProviderManager2/ProviderManagerModule.h>
-#include <Pegasus/ProviderManager2/ProviderManager.h>
-#include <Pegasus/ProviderManager2/ProviderType.h>
-#include <Pegasus/ProviderManager2/ProviderName.h>
+#include <Pegasus/ProviderManager2/BasicProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 static const Uint16 _MODULE_OK       = 2;
 static const Uint16 _MODULE_STOPPING = 9;
 static const Uint16 _MODULE_STOPPED  = 10;
-
-// BEGIN TEMP SECTION
-class ProviderManagerContainer
-{
-public:
-    ProviderManagerContainer(void) : _manager(0)
-    {
-    }
-
-    ProviderManagerContainer(const ProviderManagerContainer & container) : _manager(0)
-    {
-        *this = container;
-    }
-
-    ProviderManagerContainer(const String & physicalName, const String & logicalName, const String & interfaceName) : _manager(0)
-    {
-        _physicalName=ProviderManager::_resolvePhysicalName(physicalName);
-
-        _logicalName = logicalName;
-
-        _interfaceName = interfaceName;
-
-        _module = ProviderManagerModule(_physicalName);
-
-        _module.load();
-
-        _manager = _module.getProviderManager(_logicalName);
-
-        PEGASUS_ASSERT(_manager != 0);
-    }
-
-    ~ProviderManagerContainer(void)
-    {
-        _module.unload();
-    }
-
-    ProviderManagerContainer & operator=(const ProviderManagerContainer & container)
-    {
-        if(this == &container)
-        {
-            return(*this);
-        }
-
-        _logicalName = container._logicalName;
-        _physicalName = container._physicalName;
-        _interfaceName = container._interfaceName;
-
-        _module = container._module;
-        _manager = container._manager;
-
-        return(*this);
-    }
-
-    ProviderManager *getProviderManager(void)
-    {
-        return _manager;
-    }
-
-    const String & getPhysicalName(void) const
-    {
-        return(_physicalName);
-    }
-
-    const String & getLogicalName(void) const
-    {
-        return(_logicalName);
-    }
-
-    const String & getInterfaceName(void) const
-    {
-        return(_interfaceName);
-    }
-
-private:
-    String _physicalName;
-    String _logicalName;
-    String _interfaceName;
-
-    ProviderManagerModule _module;
-    ProviderManager * _manager;
-
-};
-
-static Array<ProviderManagerContainer*> _providerManagers;
-// END TEMP SECTION
 
 inline Boolean _isSupportedRequestType(const Message * message)
 {
@@ -163,6 +76,7 @@ inline Boolean _isSupportedResponseType(const Message * message)
 
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
 CIMRepository* ProviderManagerService::_repository=NULL;
+Uint32 ProviderManagerService::_indicationServiceQueueId = PEG_NOT_FOUND;
 
 ProviderManagerService::ProviderManagerService(void)
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
@@ -179,54 +93,13 @@ ProviderManagerService::ProviderManagerService(
     _repository=repository;
 
     _providerRegistrationManager = providerRegistrationManager;
-
-    // ATTN: this section is a temporary solution to populate the list of enabled
-    // provider managers for a given distribution. it includes another temporary
-    // solution for converting a generic file name into a file name useable by
-    // each platform.
-
-    // BEGIN TEMP SECTION
-    //#if defined(PEGASUS_OS_OS400)
-    //_providerManagers.append(ProviderManagerContainer("QSYS/??????????", "INTERNAL", "INTERNAL"));
-    //#else
-    //_providerManager.append(ProviderManagerContainer("InternalProviderManager", "DEFAULT", "INTERNAL"));
-    //#endif
-
-    #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
-    #if defined(PEGASUS_OS_OS400)
-    _providerManagers.append(
-       new ProviderManagerContainer("QSYS/QYCMDFTPVM", "DEFAULT", "C++Default"));
-    #else
-    _providerManagers.append(
-       new ProviderManagerContainer("DefaultProviderManager", "DEFAULT", "C++Default"));
-    #endif
-    #endif
-
-    #if defined(ENABLE_CMPI_PROVIDER_MANAGER)
-    #if defined(PEGASUS_OS_OS400)
-    _providerManagers.append(
-       new ProviderManagerContainer("QSYS/QYCMCMPIPM", "CMPI", "CMPI"));
-    #else
-    _providerManagers.append(
-       new ProviderManagerContainer("CMPIProviderManager", "CMPI", "CMPI"));
-    #endif
-    #endif
-
-    #if defined(ENABLE_JMPI_PROVIDER_MANAGER)
-    #if defined(PEGASUS_OS_OS400)
-    _providerManagers.append(
-       new ProviderManagerContainer("QSYS/QYCMJMPIPM", "JMPI", "JMPI"));
-    #else
-    _providerManagers.append(
-       new ProviderManagerContainer("JMPIProviderManager", "JMPI", "JMPI"));
-    #endif
-    #endif
-    
-    // END TEMP SECTION
+    _providerManagerRouter =
+        new BasicProviderManagerRouter(indicationCallback);
 }
 
 ProviderManagerService::~ProviderManagerService(void)
 {
+    delete _providerManagerRouter;
     providerManagerService=NULL;
 }
 
@@ -302,10 +175,11 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
     return;
 }
 
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOperation(void * arg) throw()
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
+ProviderManagerService::handleCimOperation(void * arg) throw()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCimOperation");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::handleCimOperation");
 
     if(arg == 0)
     {
@@ -314,12 +188,14 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
     }
 
     // get the service from argument
-    ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
+    ProviderManagerService * service =
+        reinterpret_cast<ProviderManagerService *>(arg);
 
     if(service->_incomingQueue.size() == 0)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "ProviderManagerService::handleCimOperation() called with no op node in queue" );
+            "ProviderManagerService::handleCimOperation() called with no "
+                "op node in queue");
 
         PEG_METHOD_EXIT();
 
@@ -331,6 +207,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     if((op == 0) || (op->_request.count() == 0))
     {
+        // ATTN: This may dereference a null pointer!
         MessageQueue * queue = MessageQueue::lookup(op->_source_queue);
 
         PEGASUS_ASSERT(queue != 0);
@@ -343,18 +220,18 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     AsyncRequest * request = static_cast<AsyncRequest *>(op->_request.next(0));
 
-    if((request == 0) || (request->getType() != async_messages::ASYNC_LEGACY_OP_START))
+    if ((request == 0) ||
+        (request->getType() != async_messages::ASYNC_LEGACY_OP_START))
     {
         // reply with NAK
-
         PEG_METHOD_EXIT();
-
         return(PEGASUS_THREAD_RETURN(0));
     }
 
     try
     {
-        Message * legacy = static_cast<AsyncLegacyOperationStart *>(request)->get_action();
+        Message* legacy =
+            static_cast<AsyncLegacyOperationStart *>(request)->get_action();
 
         if(_isSupportedRequestType(legacy))
         {
@@ -363,12 +240,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
             // Set the client's requested language into this service thread.
             // This will allow functions in this service to return messages
             // in the correct language.
-            CIMMessage * msg = dynamic_cast<CIMMessage *>(legacy);
+            CIMMessage* msg = dynamic_cast<CIMMessage *>(legacy);
 
-            if(msg != 0)
+            if (msg != 0)
             {
-                AcceptLanguages * langs = new AcceptLanguages(msg->acceptLanguages);
-
+                AcceptLanguages* langs =
+                    new AcceptLanguages(msg->acceptLanguages);
                 Thread::setLanguages(langs);
             }
             else
@@ -389,9 +266,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
     return(PEGASUS_THREAD_RETURN(0));
 }
 
-void ProviderManagerService::handleCimRequest(AsyncOpNode * op, Message * message)
+void ProviderManagerService::handleCimRequest(
+    AsyncOpNode * op,
+    Message * message)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCimRequest");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderManagerService::handleCimRequest");
 
     CIMRequestMessage * request = dynamic_cast<CIMRequestMessage *>(message);
     PEGASUS_ASSERT(request != 0);
@@ -412,31 +292,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, Message * messag
         ProviderIdContainer pidc = _getProviderIdContainer(request);
         request->operationContext.insert(pidc);
 
-        // Retrieve the provider interface type
-        String interfaceType;
-        CIMValue itValue = pidc.getModule().getProperty(
-            pidc.getModule().findProperty("InterfaceType")).getValue();
-        itValue.get(interfaceType);
-
-        // Forward the request to the appropriate ProviderManager
-        ProviderManager* pm = _lookupProviderManager(interfaceType);
-        response = pm->processMessage(request);
-    }
-    else if (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0)
-    {
-        // Handle CIMIndicationRequestMessage
-        CIMIndicationRequestMessage* indReq =
-            dynamic_cast<CIMIndicationRequestMessage*>(request);
-
-        // Get the InterfaceType property from the provider module instance
-        String interfaceType;
-        CIMValue itValue = indReq->providerModule.getProperty(
-            indReq->providerModule.findProperty("InterfaceType")).getValue();
-        itValue.get(interfaceType);
-
-        // Forward the request to the appropriate ProviderManager
-        ProviderManager* pm = _lookupProviderManager(interfaceType);
-        response = pm->processMessage(request);
+        response = _providerManagerRouter->processMessage(request);
     }
     else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
     {
@@ -448,16 +304,8 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, Message * messag
 
         try
         {
-            // Get the InterfaceType property from the provider module instance
-            String interfaceType;
-            CIMValue itValue = emReq->providerModule.getProperty(
-                emReq->providerModule.findProperty("InterfaceType")).getValue();
-            itValue.get(interfaceType);
-
-            // Forward the request to the appropriate ProviderManager
-            // ATTN: Why is this sent to a provider manager at all?
-            ProviderManager* pm = _lookupProviderManager(interfaceType);
-            response = pm->processMessage(request);
+            // Forward the request to the ProviderManager
+            response = _providerManagerRouter->processMessage(request);
 
             // If successful, update provider module status to OK
             // ATTN: Use CIMEnableModuleResponseMessage operationalStatus?
@@ -501,12 +349,6 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, Message * messag
 
         try
         {
-            // Get the InterfaceType property from the provider module instance
-            String interfaceType;
-            CIMValue itValue = dmReq->providerModule.getProperty(
-                dmReq->providerModule.findProperty("InterfaceType")).getValue();
-            itValue.get(interfaceType);
-
             // Change module status from OK to STOPPING
             if (updateModuleStatus)
             {
@@ -514,10 +356,8 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, Message * messag
                     providerModule, _MODULE_OK, _MODULE_STOPPING);
             }
 
-            // Forward the request to the appropriate ProviderManager
-            // ATTN: Why is this sent to a provider manager at all?
-            ProviderManager* pm = _lookupProviderManager(interfaceType);
-            response = pm->processMessage(request);
+            // Forward the request to the ProviderManager
+            response = _providerManagerRouter->processMessage(request);
 
             // Update provider module status based on success or failure
             if (updateModuleStatus)
@@ -563,38 +403,10 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, Message * messag
                 operationalStatus);
         }
     }
-    else if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
-    {
-        // Handle CIMStopAllProvidersRequestMessage
-        // Send CIMStopAllProvidersRequestMessage to all ProviderManagers
-        for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
-        {
-            ProviderManagerContainer* pmc=_providerManagers[i];
-            Message* resp = pmc->getProviderManager()->processMessage(request);
-            if (resp)
-            {
-                response = resp;
-            }
-        }
-    }
     else
     {
-        // ERROR: Unrecognized message type.
-        PEGASUS_ASSERT(0);
-        CIMResponseMessage* resp = new CIMResponseMessage(
-            0, request->messageId, CIMException(),
-            request->queueIds.copyAndPop());
-        resp->synch_response(request);
-        OperationResponseHandler handler(request, resp);
-        handler.setStatus(CIM_ERR_FAILED, "Unknown message type.");
-        response = resp;
+        response = _providerManagerRouter->processMessage(request);
     }
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    // set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
 
     AsyncLegacyOperationResult * async_result =
         new AsyncLegacyOperationResult(
@@ -608,39 +420,9 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, Message * messag
     PEG_METHOD_EXIT();
 }
 
-// ATTN: May need to add interfaceVersion parameter to further constrain lookup
-ProviderManager* ProviderManagerService::_lookupProviderManager(
-    const String& interfaceType)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderManagerService::_lookupProviderManager");
-
-    // find provider manager for specified provider interface type
-    for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
-    {
-        if (interfaceType == _providerManagers[i]->getInterfaceName())
-        {
-            ProviderManagerContainer* pmc=_providerManagers[i];
-            PEG_METHOD_EXIT();
-            return pmc->getProviderManager();
-        }
-    }
-
-    // ProviderManager not found for the specified interface type
-    PEGASUS_ASSERT(0);
-    PEG_METHOD_EXIT();
-    return 0;
-    //ProviderManagerContainer *pmc=_providerManagers[0];
-    //return pmc->getProviderManager();
-}
-
 void ProviderManagerService::unload_idle_providers(void)
 {
-    for(Uint32 i = 0, n = _providerManagers.size(); i < n; i++)
-    {
-      ProviderManagerContainer *pmc=_providerManagers[i];
-           pmc->getProviderManager()->unload_idle_providers();
-    }
+    _providerManagerRouter->unload_idle_providers();
 }
 
 ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
@@ -707,7 +489,8 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
         Array<CIMInstance> providerModules;
         Array<CIMInstance> providers;
         _providerRegistrationManager->lookupAssociationProvider(
-            request->nameSpace, request->assocClass, providers, providerModules);
+            request->nameSpace, request->assocClass,
+            providers, providerModules);
         providerModule = providerModules[0];
         provider = providers[0];
         break;
@@ -721,7 +504,8 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
         Array<CIMInstance> providerModules;
         Array<CIMInstance> providers;
         _providerRegistrationManager->lookupAssociationProvider(
-            request->nameSpace, request->assocClass, providers, providerModules);
+            request->nameSpace, request->assocClass,
+            providers, providerModules);
         providerModule = providerModules[0];
         provider = providers[0];
         break;
@@ -735,7 +519,8 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
         Array<CIMInstance> providerModules;
         Array<CIMInstance> providers;
         _providerRegistrationManager->lookupAssociationProvider(
-            request->nameSpace, request->resultClass, providers, providerModules);
+            request->nameSpace, request->resultClass,
+            providers, providerModules);
         providerModule = providerModules[0];
         provider = providers[0];
         break;
@@ -749,7 +534,8 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
         Array<CIMInstance> providerModules;
         Array<CIMInstance> providers;
         _providerRegistrationManager->lookupAssociationProvider(
-            request->nameSpace, request->resultClass, providers, providerModules);
+            request->nameSpace, request->resultClass,
+            providers, providerModules);
         providerModule = providerModules[0];
         provider = providers[0];
         break;
@@ -871,6 +657,34 @@ void ProviderManagerService::_updateProviderModuleStatus(
     operationalStatusProperty.setValue(CIMValue(operationalStatus));
 
     PEG_METHOD_EXIT();
+}
+
+void ProviderManagerService::indicationCallback(
+    CIMProcessIndicationRequestMessage* request)
+{
+    if (_indicationServiceQueueId == PEG_NOT_FOUND)
+    {
+        Array<Uint32> serviceIds;
+
+        providerManagerService->find_services(
+            PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
+        PEGASUS_ASSERT(serviceIds.size() != 0);
+
+        _indicationServiceQueueId = serviceIds[0];
+    }
+
+    request->queueIds = QueueIdStack(
+        _indicationServiceQueueId, providerManagerService->getQueueId());
+
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart(
+        providerManagerService->get_next_xid(),
+        0,
+        _indicationServiceQueueId,
+        request,
+        _indicationServiceQueueId);
+
+    providerManagerService->SendForget(asyncRequest);
 }
 
 PEGASUS_NAMESPACE_END

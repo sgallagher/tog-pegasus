@@ -23,59 +23,22 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ProviderManager.h"
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Config/ConfigManager.h>
+#include "ProviderManagerRouter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderManager::ProviderManager(void)
+ProviderManagerRouter::ProviderManagerRouter()
 {
 }
 
-ProviderManager::~ProviderManager(void)
+ProviderManagerRouter::~ProviderManagerRouter()
 {
-}
-
-String ProviderManager::_resolvePhysicalName(String physicalName)
-{
-    String temp;
-    String root = ".";
-
-    // fully qualify physical provider name (module), if not already done so.
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-    temp = physicalName + String(".dll");
-    #elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    temp =  String("lib") + physicalName + String(".so");
-    #elif defined(PEGASUS_OS_HPUX)
-    # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    temp =  String("lib") + physicalName + String(".sl");
-    # else
-    temp =  String("lib") + physicalName + String(".so");
-    # endif
-    #elif defined(PEGASUS_OS_OS400)
-    // do nothing
-    #elif defined(PEGASUS_OS_DARWIN)
-    temp =  String("lib") + physicalName + String(".dylib");
-    #else
-    temp =  String("lib") + physicalName + String(".so");
-    #endif
-
-    temp =  FileSystem::getAbsoluteFileName(
-                ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), temp);
-    return temp;
-}
-
-void ProviderManager::setIndicationCallback(
-        PEGASUS_INDICATION_CALLBACK indicationCallback)
-{
-    _indicationCallback = indicationCallback;
 }
 
 PEGASUS_NAMESPACE_END

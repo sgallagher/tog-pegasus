@@ -22,6 +22,8 @@ LIBRARIES = \
 
 SOURCES = \
 	ProviderManagerService.cpp \
+	ProviderManagerRouter.cpp \
+	BasicProviderManagerRouter.cpp \
 	ProviderManagerModule.cpp \
 	\
 	ProviderManager.cpp \

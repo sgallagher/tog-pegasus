@@ -34,6 +34,7 @@
 //                (carolann_graves@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,26 +42,21 @@
 #define Pegasus_ProviderManagerService_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContextInternal.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
 #include <Pegasus/ProviderManager2/SafeQueue.h>
-#include <Pegasus/ProviderManager2/ProviderManager.h>
+#include <Pegasus/ProviderManager2/ProviderManagerRouter.h>
 
 #include <Pegasus/ProviderManager2/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 #define IDLE_LIMIT 300
-
-class ProviderRegistrationManager;
-class ProviderManager;
 
 class PEGASUS_PPM_LINKAGE ProviderManagerService : public MessageQueueService
 {
@@ -77,6 +73,9 @@ public:
 
     // temp
     void unload_idle_providers(void);
+
+    static void indicationCallback(
+        CIMProcessIndicationRequestMessage* request);
 
 protected:
     virtual Boolean messageOK(const Message * message);
@@ -100,8 +99,6 @@ private:
 
     void handleCimRequest(AsyncOpNode *op, Message* message);
 
-    ProviderManager* _lookupProviderManager(const String& interfaceType);
-
     ProviderIdContainer _getProviderIdContainer(
         const CIMRequestMessage* message);
 
@@ -114,9 +111,11 @@ private:
     SafeQueue<AsyncOpNode *> _incomingQueue;
     SafeQueue<AsyncOpNode *> _outgoingQueue;
 
-    //Array<Pair<ProviderManager *, ProviderManagerModule> > _providerManagers;
+    ProviderManagerRouter* _providerManagerRouter;
 
     ProviderRegistrationManager* _providerRegistrationManager;
+
+    static Uint32 _indicationServiceQueueId;
 };
 
 PEGASUS_NAMESPACE_END

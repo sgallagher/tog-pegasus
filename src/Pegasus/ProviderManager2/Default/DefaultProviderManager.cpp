@@ -2105,10 +2105,9 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
 
     response->dest = request->queueIds.top();
 
-    // ATTN: need pointer to Provider Manager Server!
     EnableIndicationsResponseHandler *handler =
-        new EnableIndicationsResponseHandler(request, response,
-              request->provider, ProviderManagerService::providerManagerService);
+        new EnableIndicationsResponseHandler(
+            request, response, request->provider, _indicationCallback);
 
     try
     {

@@ -55,7 +55,7 @@
 #include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 #include <Pegasus/ProviderManager2/Default/Provider.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -64,7 +64,7 @@ typedef HashTable<String,
 	EqualFunc<String>,
 	HashFunc<String> > IndicationResponseTable;
 
-class PEGASUS_SERVER_LINKAGE DefaultProviderManager : public ProviderManager
+class PEGASUS_DEFPM_LINKAGE DefaultProviderManager : public ProviderManager
 {
 public:
     DefaultProviderManager(void);

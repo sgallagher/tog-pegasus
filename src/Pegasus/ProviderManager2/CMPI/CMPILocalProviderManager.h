@@ -48,11 +48,11 @@
 
 #include <Pegasus/ProviderManager2/Lockable.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE CMPILocalProviderManager
+class PEGASUS_CMPIPM_LINKAGE CMPILocalProviderManager
 {
 
 public:

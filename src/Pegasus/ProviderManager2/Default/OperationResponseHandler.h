@@ -37,7 +37,6 @@
 #define Pegasus_OperationResponseHandler_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Constants.h>
@@ -53,9 +52,11 @@
 
 #include <Pegasus/ProviderManager2/Default/SimpleResponseHandler.h>
 
+#include <Pegasus/ProviderManager2/Default/Linkage.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE OperationResponseHandler
+class PEGASUS_DEFPM_LINKAGE OperationResponseHandler
 {
 public:
     OperationResponseHandler(CIMRequestMessage * request, CIMResponseMessage * response)
@@ -521,7 +522,7 @@ public:
 		{
 			// The provider did not explicitly set a Content-Language for
 			// the indication.  Fall back to the lang set in this object.
-			contentLangs = getLanguages();		
+			contentLangs = getLanguages();
 		}
 // l10n -end		
 

@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -23,23 +23,48 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company
-//           (carolann_graves@hp.com)
+// Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Adrian Schuur (schuur@de.ibm.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
+#ifndef Pegasus_ProviderManagerModule_h
+#define Pegasus_ProviderManagerModule_h
 
-#ifndef PEGASUS_DEFPM_LINKAGE
-#  ifdef PEGASUS_OS_TYPE_WINDOWS
-#    ifdef PEGASUS_DEFPM_INTERNAL
-#      define PEGASUS_DEFPM_LINKAGE PEGASUS_EXPORT
-#    else
-#      define PEGASUS_DEFPM_LINKAGE PEGASUS_IMPORT
-#    endif
-#  else
-#    define PEGASUS_DEFPM_LINKAGE /* empty */
-#  endif
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/DynamicLibrary.h>
+
+#include <Pegasus/ProviderManager2/ProviderManager.h>
+
+#include <Pegasus/ProviderManager2/Linkage.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+class PEGASUS_PPM_LINKAGE ProviderManagerModule : public DynamicLibrary
+{
+public:
+    typedef ProviderManager * (*CREATE_PROVIDER_MANAGER_FUNCTION)(const String &);
+
+public:
+    ProviderManagerModule(void);
+    ProviderManagerModule(const ProviderManagerModule & module);
+    explicit ProviderManagerModule(const String & fileName);
+    virtual ~ProviderManagerModule(void);
+
+    ProviderManagerModule & operator=(const ProviderManagerModule & module);
+
+    virtual Boolean load(void);
+    virtual Boolean unload(void);
+
+    ProviderManager * getProviderManager(const String & s) const;
+
+private:
+    CREATE_PROVIDER_MANAGER_FUNCTION _createProviderManager;
+
+};
+
+PEGASUS_NAMESPACE_END
+
 #endif

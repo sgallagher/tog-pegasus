@@ -45,7 +45,7 @@
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
 
-#include <Pegasus/Server/Linkage.h>
+#include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -95,7 +95,7 @@ struct ProviderVector {
 // provider module. It is wrapped in a facade to stabalize the interface
 // and is directly tied to a module.
 
-class PEGASUS_SERVER_LINKAGE CMPIProvider :
+class PEGASUS_CMPIPM_LINKAGE CMPIProvider :
                        public virtual CIMProvider
 {
 public:

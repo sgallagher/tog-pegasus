@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: Stopwatch.h,v $
+// Revision 1.6  2001/04/11 00:23:44  mike
+// new files
+//
 // Revision 1.5  2001/04/10 23:01:52  mike
 // Added new TimeValue class and regression tests for it.
 // Modified Stopwatch class to use TimeValue class.
@@ -47,6 +50,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/TimeValue.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -81,10 +85,6 @@ public:
     sends it to standardout as a string with the word seconds attached
     */
     void printElapsed();
-
-    /** sleep
-    */
-    static void sleep(double seconds);
 };
 
 PEGASUS_NAMESPACE_END

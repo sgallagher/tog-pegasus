@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: TimeValue.h,v $
+// Revision 1.2  2001/04/11 00:23:44  mike
+// new files
+//
 // Revision 1.1  2001/04/10 23:01:52  mike
 // Added new TimeValue class and regression tests for it.
 // Modified Stopwatch class to use TimeValue class.
@@ -34,6 +37,7 @@
 #define Pegasus_TimeValue_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -77,7 +81,13 @@ public:
 	return _seconds * 1000 + _microseconds / 1000; 
     }
 
-    static TimeValue getCurrentTime();
+    static TimeValue getCurrentTime()
+    {
+	Uint32 seconds;
+	Uint32 milliseconds;
+	System::getCurrentTime(seconds, milliseconds);
+	return TimeValue(seconds, milliseconds);
+    }
 
 private:
     Uint32 _seconds;

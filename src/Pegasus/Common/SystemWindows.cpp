@@ -22,20 +22,34 @@
 //
 // Author: Michael E. Brasher
 //
-// $Log: TimeValue.cpp,v $
-// Revision 1.2  2001/04/11 00:23:44  mike
+// $Log: SystemWindows.cpp,v $
+// Revision 1.1  2001/04/11 00:23:44  mike
 // new files
-//
-// Revision 1.1  2001/04/10 23:01:52  mike
-// Added new TimeValue class and regression tests for it.
-// Modified Stopwatch class to use TimeValue class.
 //
 //
 //END_HISTORY
 
-#include <Pegasus/Common/Config.h>
-#include "TimeValue.h"
+#include "System.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+#include <windows.h>
+#include <sys/types.h>
+#include <sys/timeb.h>
+
+void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
+{
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    ULARGE_INTEGER largeInt = { ft.dwLowDateTime, ft.dwHighDateTime };
+    largeInt.QuadPart -= 0x19db1ded53e8000;
+    seconds = long(largeInt.QuadPart / (10000 * 1000));
+    milliseconds = long((largeInt.QuadPart % (10000 * 1000)) / 10);
+}
+
+void System::sleep(Uint32 seconds)
+{
+    Sleep(seconds * 1000);
+}
 
 PEGASUS_NAMESPACE_END

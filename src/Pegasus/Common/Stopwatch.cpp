@@ -4,13 +4,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-#   include <windows.h>
-#elif PEGASUS_OS_TYPE_UNIX
-#   include <unistd.h>
-#else
-#   error "Unsupported platform"
-#endif
+#include <Pegasus/Common/System.h>
 
 Stopwatch::Stopwatch() 
 {
@@ -32,17 +26,6 @@ double Stopwatch::getElapsed() const
 void Stopwatch::printElapsed()
 {
     std::cout << getElapsed() << " seconds" << std::endl;
-}
-
-void Stopwatch::sleep(double seconds)
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    Sleep(seconds * 1000);
-#elif PEGASUS_OS_TYPE_UNIX
-    sleep(seconds);
-#else
-#   error "Unsupported platform"
-#endif
 }
 
 PEGASUS_NAMESPACE_END

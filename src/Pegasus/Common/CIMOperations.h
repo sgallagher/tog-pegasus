@@ -23,6 +23,9 @@
 // Author: Mike Brasher
 //
 // $Log: CIMOperations.h,v $
+// Revision 1.6  2001/04/11 00:23:43  mike
+// new files
+//
 // Revision 1.5  2001/04/04 20:02:27  karl
 // documentation update
 //
@@ -1341,9 +1344,9 @@ public:
     </UL>
     */
     virtual CIMValue getProperty(
-    const String& nameSpace,
-    const CIMReference& instanceName,
-    const String& propertyName) = 0;
+	const String& nameSpace,
+	const CIMReference& instanceName,
+	const String& propertyName) = 0;
 
     /** The <TT>setProperty</TT> operation sets a single property value in a CIM
     Instance in the target Namespace.
@@ -1488,18 +1491,17 @@ public:
     additional method-specific interpretation of the error in is given in
     parentheses.
 
-    <UL>
+	<UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
       <LI>CIM_ERR_INVALID_NAMESPACE
       <LI>CIM_ERR_INVALID_PARAMETER (including missing,
       duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
-  </UL>
+      </UL>
 
     */
     virtual void deleteQualifier(
-
         const String& nameSpace,
         const String& qualifierName) = 0;
 

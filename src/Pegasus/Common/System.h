@@ -22,20 +22,34 @@
 //
 // Author: Michael E. Brasher
 //
-// $Log: TimeValue.cpp,v $
-// Revision 1.2  2001/04/11 00:23:44  mike
+// $Log: System.h,v $
+// Revision 1.1  2001/04/11 00:23:44  mike
 // new files
-//
-// Revision 1.1  2001/04/10 23:01:52  mike
-// Added new TimeValue class and regression tests for it.
-// Modified Stopwatch class to use TimeValue class.
 //
 //
 //END_HISTORY
 
+#ifndef Pegasus_System_h
+#define Pegasus_System_h
+
 #include <Pegasus/Common/Config.h>
-#include "TimeValue.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** The System class defines wrappers for operating system related calls.
+    These are only placed here if they are extremely light. These are
+    usually just direct wrappers which map more or less one to one to the
+    underlying function.
+*/
+class PEGASUS_COMMON_LINKAGE System
+{
+public:
+
+    static void getCurrentTime(Uint32& seconds, Uint32& milliseconds);
+
+    static void sleep(Uint32 seconds);
+};
+
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_System_h */

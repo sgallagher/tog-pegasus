@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Stopwatch.cpp,v $
+// Revision 1.3  2001/04/11 00:23:44  mike
+// new files
+//
 // Revision 1.2  2001/04/10 23:01:53  mike
 // Added new TimeValue class and regression tests for it.
 // Modified Stopwatch class to use TimeValue class.
@@ -44,7 +47,7 @@ using namespace std;
 int main()
 {
     Stopwatch sw;
-    sw.sleep(5);
+    System::sleep(5);
     // sw.printElapsed();
     double elapsed = sw.getElapsed();
     assert(elapsed >= 4.5 && elapsed <= 5.5);

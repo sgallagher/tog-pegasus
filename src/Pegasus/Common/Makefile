@@ -9,16 +9,21 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 ifeq ($(OS_TYPE),windows)
-WINDOWS_SOURCES = \
+OS_SPECIFIC_SOURCES = \
     Channel.cpp \
     Selector.cpp \
     WindowsSelector.cpp \
-    WindowsChannel.cpp
+    WindowsChannel.cpp \
+    SystemWindows.cpp
+endif
+
+ifeq ($(OS_TYPE),unix)
+OS_SPECIFIC_SOURCES = \
+    SystemUnix.cpp
 endif
 
 SOURCES = \
-    TimeValue.cpp \
-    $(WINDOWS_SOURCES) \
+    $(OS_SPECIFIC_SOURCES) \
     Logger.cpp \
     Formatter.cpp \
     CIMInstanceRep.cpp \
@@ -64,6 +69,8 @@ SOURCES = \
     XmlParser.cpp \
     XmlReader.cpp \
     XmlWriter.cpp \
-    Stopwatch.cpp
+    Stopwatch.cpp \
+    TimeValue.cpp \
+    System.cpp
 
 include $(ROOT)/mak/library.mak

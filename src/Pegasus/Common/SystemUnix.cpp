@@ -22,20 +22,30 @@
 //
 // Author: Michael E. Brasher
 //
-// $Log: TimeValue.cpp,v $
-// Revision 1.2  2001/04/11 00:23:44  mike
+// $Log: SystemUnix.cpp,v $
+// Revision 1.1  2001/04/11 00:23:44  mike
 // new files
-//
-// Revision 1.1  2001/04/10 23:01:52  mike
-// Added new TimeValue class and regression tests for it.
-// Modified Stopwatch class to use TimeValue class.
 //
 //
 //END_HISTORY
 
-#include <Pegasus/Common/Config.h>
-#include "TimeValue.h"
+#include "System.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+#include <time.h>
+
+void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
+{
+    timeval tv;
+    gettimeofday(&tv, 0);
+    seconds = int(tv.tv_sec);
+    milliseconds = int(tv.tvusec);
+}
+
+void System::sleep(Uint32 seconds)
+{
+    sleep(seconds);
+}
 
 PEGASUS_NAMESPACE_END

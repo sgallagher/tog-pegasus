@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Destroyer.h>

@@ -36,6 +36,7 @@
 //#include <dlfcn.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/FileSystem.h>
 #include "HandlerTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -64,24 +65,20 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     libraryName = handlerId + String(".dll");
 #elif defined(PEGASUS_OS_HPUX)
-    libraryName = 
-              ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
 # ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    libraryName.append(String("/lib") + handlerId + String(".sl"));
+    libraryName = String("lib") + handlerId + String(".sl");
 # else
-    libraryName.append(String("/lib") + handlerId + String(".so"));
+    libraryName = String("lib") + handlerId + String(".so");
 # endif
 #elif defined(PEGASUS_OS_OS400)
     libraryName = handlerId;
 #elif defined(PEGASUS_OS_DARWIN)
-    libraryName =
-              ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    libraryName.append(String("/lib") + handlerId + String(".dylib"));
+    libraryName = String("/lib") + handlerId + String(".dylib");
 #else
-    libraryName = 
-              ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    libraryName.append(String("/lib") + handlerId + String(".so"));
+    libraryName = String("/lib") + handlerId + String(".so");
 #endif
+    libraryName = FileSystem::getAbsoluteFileName(
+	ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir")), libraryName);
 
     DynamicLibraryHandle libraryHandle = 
 	System::loadDynamicLibrary(libraryName.getCString());

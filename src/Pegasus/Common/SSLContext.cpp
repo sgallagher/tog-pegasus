@@ -51,6 +51,17 @@
 #include "SSLContext.h"
 #include "SSLContextRep.h"
 
+
+//
+// Typedef's for OpenSSL callback functions.
+//
+extern "C"
+{
+    typedef void (* CRYPTO_SET_LOCKING_CALLBACK)(int, int, const char *, int);
+    typedef unsigned long (* CRYPTO_SET_ID_CALLBACK)(void);
+};
+
+
 typedef struct Timestamp 
 {
     char year[4];
@@ -167,13 +178,23 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
 }
 
 //
+// Static class used to define C++ callback function.
+//
+class SSLCallback
+{
+
+public:
+	static int callback(int preVerifyOk, X509_STORE_CTX *ctx);
+};
+
+//
 // Callback function that is called by the OpenSSL library. This function
 // extracts X509 certficate information and pass that on to client application
 // callback function.
 //
-extern "C" int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
+int SSLCallback::callback(int preVerifyOk, X509_STORE_CTX *ctx)
 {
-    PEG_METHOD_ENTER(TRC_SSL, "prepareForCallback()");
+    PEG_METHOD_ENTER(TRC_SSL, "SSLCallback::callback()");
 
     char   buf[256];
     X509   *currentCert;
@@ -292,6 +313,16 @@ extern "C" int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 }
 
 //
+// Callback function called by OpenSSL.  This request is merely forwarded to the static
+// function SSLCallback::callback().  The SSLCallback class is a friend class of the
+// Pegasus SSL related classes needed to complete the callback.
+//
+extern "C" int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
+{
+    return SSLCallback::callback(preVerifyOk, ctx);
+}
+
+//
 // Implement OpenSSL locking callback.
 //
 void pegasus_locking_callback( int 		mode, 
@@ -329,11 +360,11 @@ void SSLContextRep::init_ssl()
 
      // Set the ID callback. The ID callback returns a thread ID.
 
-     CRYPTO_set_id_callback((unsigned long (*)())pegasus_thread_self);
+     CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pegasus_thread_self);
 
      // Set the locking callback to pegasus_locking_callback.
 
-     CRYPTO_set_locking_callback((void (*)(int,int,const char *,int))pegasus_locking_callback);
+     CRYPTO_set_locking_callback((CRYPTO_SET_LOCKING_CALLBACK) pegasus_locking_callback);
 
 }
 

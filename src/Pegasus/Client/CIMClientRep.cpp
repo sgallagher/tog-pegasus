@@ -1301,7 +1301,8 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw
 	{
 		return;
 	}
-	MessageLoaderParms typeMismatchMessage;
+	
+    MessageLoaderParms typeMismatchMessage;
 	// splitting the port from hostname as we have to compare both separate
 	int i = ObjHost.find(":");
 	String ObjPort = String::EMPTY;
@@ -1311,16 +1312,12 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw
 		ObjPort = ObjHost.subString(i+1);
 		ObjHost.remove(i);
 
-
 		// lets see who we are really connected to
 		// should stand in UInt32 _connectPortNumber and String _connectHost;
 
-
-		// comparing the evil stuff
-
+		// comparing the stuff
 		// first the easy part, comparing the ports
 		Uint32 objectport = strtoul((const char*) ObjPort.getCString(), NULL, 0);
-
 
 		// if port in object path does not equal port of connection throw a TypeMismatch Exception
 		if (objectport != _connectPortNumber)
@@ -1351,8 +1348,20 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(CIMObjectPath obj) throw
 												 ObjHost);
 		throw TypeMismatchException(typeMismatchMessage);
 	}
-	
+#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+	// a local domain socket connection is represented as empty _connectHost
+	if (_connectHost == String::EMPTY)
+	{
+		// ok, it is the localhost, so lets compare with that given
+		ipConnection = 0x7F000001;
+		// return;
+	} else
+	{
+		ipConnection = _acquireIP((const char *) _connectHost.getCString());
+	}
+#else	
 	ipConnection = _acquireIP((const char *) _connectHost.getCString());
+#endif
 	if (ipConnection == 0x7F000001)
 	{
 		// localhost or ip address of 127.0.0.1

@@ -12,12 +12,13 @@ DOC_HEAD = PegasusDoc.dxx
 all:
 	$(RM) $(DOC_OUTPUT)/*
 	$(RM) PegasusDocTOC.htm
-	gawk --file=PegasusDocTOC.awk $(DOC_HEAD) >PegasusDocTOC.htm
+	gawk --file=PegasusDocTOC.awk $(DOC_HEAD) >pegdocsidebarleft.shtml
 	docxx --dir $(DOC_OUTPUT)  --verbose -H $(DOC_HEAD)
 	$(COPY) $(DOC_DIR)/*.gif $(DOC_OUTPUT)
 	$(COPY) $(DOC_DIR)/*.htm $(DOC_OUTPUT)
-	$(COPY) $(DOC_DIR)/*.css $(DOC_OUTPUT)
-
+	$(COPY) $(DOC_DIR)/*.html $(DOC_OUTPUT)
+	$(COPY) $(DOC_DIR)/*.shtml $(DOC_OUTPUT)	
+	$(RM) pegdocsidebarleft.shtml
 clean:
 	$(RM) $(DOC_OUTPUT)/*
 

@@ -27,6 +27,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
@@ -250,9 +251,9 @@ static Boolean _NameSpaceDirHierIsEmpty(const String& nameSpacePath)
 
 	if (strcmp(name, ".") != 0 &&
 	    strcmp(name, "..") != 0 &&
-	    CompareNoCase(name, _CLASSES_DIR) != 0 &&
-	    CompareNoCase(name, _INSTANCES_DIR) != 0 &&
-	    CompareNoCase(name, _QUALIFIERS_DIR) != 0)
+	    System::strcasecmp(name, _CLASSES_DIR) != 0 &&
+	    System::strcasecmp(name, _INSTANCES_DIR) != 0 &&
+	    System::strcasecmp(name, _QUALIFIERS_DIR) != 0)
 	{
 	    return true;
 	}

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include "CIMExportRequestDecoder.h"
@@ -440,7 +441,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
       {
          // Delegate to appropriate method to handle:
 
-         if (CompareNoCase(cimExportMethodName, "ExportIndication") == 0)
+         if (System::strcasecmp(cimExportMethodName, "ExportIndication") == 0)
          {
             request = decodeExportIndicationRequest(queueId, parser, messageId, requestUri);
          }
@@ -527,7 +528,7 @@ CIMExportIndicationRequestMessage* CIMExportRequestDecoder::decodeExportIndicati
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "NewIndication") == 0)
+      if (System::strcasecmp(name, "NewIndication") == 0)
 	 XmlReader::getInstanceElement(parser, instanceName);
 
       XmlReader::expectEndTag(parser, "IPARAMVALUE");

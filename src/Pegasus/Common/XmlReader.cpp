@@ -45,6 +45,7 @@
 #include "CIMInstance.h"
 #include "CIMObject.h"
 #include "CIMParamValue.h"
+#include "System.h"
 
 //#define PEGASUS_SINT64_MIN (-PEGASUS_SINT64_LITERAL(9223372036854775808))
 //#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(18446744073709551615)
@@ -941,9 +942,9 @@ CIMValue XmlReader::stringToValue(
     {
 	case CIMTYPE_BOOLEAN:
 	{
-	    if (CompareNoCase(valueString, "TRUE") == 0)
+	    if (System::strcasecmp(valueString, "TRUE") == 0)
 		return CIMValue(true);
-	    else if (CompareNoCase(valueString, "FALSE") == 0)
+	    else if (System::strcasecmp(valueString, "FALSE") == 0)
 		return CIMValue(false);
 	    else
 		throw XmlSemanticError(
@@ -3178,9 +3179,9 @@ Boolean XmlReader::getBooleanValueElement(
 
     expectContentOrCData(parser, entry);
 
-    if (CompareNoCase(entry.text, "TRUE") == 0)
+    if (System::strcasecmp(entry.text, "TRUE") == 0)
 	result = true;
-    else if (CompareNoCase(entry.text, "FALSE") == 0)
+    else if (System::strcasecmp(entry.text, "FALSE") == 0)
 	result = false;
     else
 	throw XmlSemanticError(parser.getLine(), 

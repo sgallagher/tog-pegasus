@@ -33,6 +33,9 @@
 #include "Array.h"
 #include "InternalException.h"
 #include <iostream>
+#ifdef PEGASUS_LEGACY_API
+#include "System.h"  // for strcasecmp
+#endif
 
 PEGASUS_USING_STD;
 
@@ -745,22 +748,11 @@ Boolean operator>=(const String& str1, const String& str2)
     return String::compare(str1, str2) >= 0;
 }
 
+#ifdef PEGASUS_LEGACY_API
 int CompareNoCase(const char* s1, const char* s2)
 {
-    while (*s1 && *s2)
-    {
-	int r = tolower(*s1++) - tolower(*s2++);
-
-	if (r)
-	    return r;
-    }
-
-    if (*s2)
-	return -1;
-    else if (*s1)
-	return 1;
-
-    return 0;
+    return System::strcasecmp(s1, s2);
 }
+#endif
 
 PEGASUS_NAMESPACE_END

@@ -37,6 +37,7 @@
 
 
 #include <fstream>
+#include <cctype>  // for tolower()
 #include "System.h"
 
 #include <Pegasus/Common/PegasusVersion.h>
@@ -69,6 +70,26 @@ Boolean System::copyFile(const char* fromPath, const char* toPath)
     }
 
     return true;
+}
+
+// ATTN: Move to platform-specific System implementation files and call
+// strcasecmp where it is available.
+Sint32 System::strcasecmp(const char* s1, const char* s2)
+{
+    while (*s1 && *s2)
+    {
+        int r = tolower(*s1++) - tolower(*s2++);
+
+        if (r)
+            return r;
+    }
+
+    if (*s2)
+        return -1;
+    else if (*s1)
+        return 1;
+
+    return 0;
 }
 
 PEGASUS_NAMESPACE_END

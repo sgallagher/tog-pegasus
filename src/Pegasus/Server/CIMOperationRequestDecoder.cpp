@@ -45,6 +45,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlConstants.h>
+#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
@@ -574,73 +575,73 @@ void CIMOperationRequestDecoder::handleMethodCall(
          {
 	    // Delegate to appropriate method to handle:
 
-            if (CompareNoCase(cimMethodName, "GetClass") == 0)
+            if (System::strcasecmp(cimMethodName, "GetClass") == 0)
                request = decodeGetClassRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "GetInstance") == 0)
+            else if (System::strcasecmp(cimMethodName, "GetInstance") == 0)
                request = decodeGetInstanceRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
+            else if (System::strcasecmp(cimMethodName, "EnumerateClassNames") == 0)
                request = decodeEnumerateClassNamesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "References") == 0)
+            else if (System::strcasecmp(cimMethodName, "References") == 0)
                request = decodeReferencesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "ReferenceNames") == 0)
+            else if (System::strcasecmp(cimMethodName, "ReferenceNames") == 0)
                request = decodeReferenceNamesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "AssociatorNames") == 0)
+            else if (System::strcasecmp(cimMethodName, "AssociatorNames") == 0)
                request = decodeAssociatorNamesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "Associators") == 0)
+            else if (System::strcasecmp(cimMethodName, "Associators") == 0)
                request = decodeAssociatorsRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "CreateInstance") == 0)
+            else if (System::strcasecmp(cimMethodName, "CreateInstance") == 0)
                request = decodeCreateInstanceRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "EnumerateInstanceNames")==0)
+            else if (System::strcasecmp(cimMethodName, "EnumerateInstanceNames")==0)
                request = decodeEnumerateInstanceNamesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "DeleteQualifier") == 0)
+            else if (System::strcasecmp(cimMethodName, "DeleteQualifier") == 0)
                request = decodeDeleteQualifierRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "GetQualifier") == 0)
+            else if (System::strcasecmp(cimMethodName, "GetQualifier") == 0)
                request = decodeGetQualifierRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "SetQualifier") == 0)
+            else if (System::strcasecmp(cimMethodName, "SetQualifier") == 0)
                request = decodeSetQualifierRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "EnumerateQualifiers") == 0)
+            else if (System::strcasecmp(cimMethodName, "EnumerateQualifiers") == 0)
                request = decodeEnumerateQualifiersRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
+            else if (System::strcasecmp(cimMethodName, "EnumerateClasses") == 0)
                request = decodeEnumerateClassesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
+            else if (System::strcasecmp(cimMethodName, "EnumerateInstances") == 0)
                request = decodeEnumerateInstancesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "CreateClass") == 0)
+            else if (System::strcasecmp(cimMethodName, "CreateClass") == 0)
                request = decodeCreateClassRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "ModifyClass") == 0)
+            else if (System::strcasecmp(cimMethodName, "ModifyClass") == 0)
                request = decodeModifyClassRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "ModifyInstance") == 0)
+            else if (System::strcasecmp(cimMethodName, "ModifyInstance") == 0)
                request = decodeModifyInstanceRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "DeleteClass") == 0)
+            else if (System::strcasecmp(cimMethodName, "DeleteClass") == 0)
                request = decodeDeleteClassRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "DeleteInstance") == 0)
+            else if (System::strcasecmp(cimMethodName, "DeleteInstance") == 0)
                request = decodeDeleteInstanceRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "GetProperty") == 0)
+            else if (System::strcasecmp(cimMethodName, "GetProperty") == 0)
                request = decodeGetPropertyRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
+            else if (System::strcasecmp(cimMethodName, "SetProperty") == 0)
                request = decodeSetPropertyRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "ExecQuery") == 0)
+            else if (System::strcasecmp(cimMethodName, "ExecQuery") == 0)
                request = decodeExecQueryRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
             else
@@ -935,7 +936,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "NewClass") == 0)
+      if (System::strcasecmp(name, "NewClass") == 0)
       {
 	 XmlReader::getClassElement(parser, newClass);
 	 duplicateParameter = gotClass;
@@ -1003,31 +1004,31 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ClassName") == 0)
+      if (System::strcasecmp(name, "ClassName") == 0)
       {
 	 XmlReader::getClassNameElement(parser, className, true);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
-      else if (CompareNoCase(name, "LocalOnly") == 0)
+      else if (System::strcasecmp(name, "LocalOnly") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, localOnly, true);
 	 duplicateParameter = gotLocalOnly;
 	 gotLocalOnly = true;
       }
-      else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+      else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
-      else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+      else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
-      else if (CompareNoCase(name, "PropertyList") == 0)
+      else if (System::strcasecmp(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
 	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
@@ -1099,7 +1100,7 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ModifiedClass") == 0)
+      if (System::strcasecmp(name, "ModifiedClass") == 0)
       {
 	 XmlReader::getClassElement(parser, modifiedClass);
 	 duplicateParameter = gotClass;
@@ -1155,13 +1156,13 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ClassName") == 0)
+      if (System::strcasecmp(name, "ClassName") == 0)
       {
 	 XmlReader::getClassNameElement(parser, className, true);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
-      else if (CompareNoCase(name, "DeepInheritance") == 0)
+      else if (System::strcasecmp(name, "DeepInheritance") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 	 duplicateParameter = gotDeepInheritance;
@@ -1219,31 +1220,31 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ClassName") == 0)
+      if (System::strcasecmp(name, "ClassName") == 0)
       {
 	 XmlReader::getClassNameElement(parser, className, true);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
-      else if (CompareNoCase(name, "DeepInheritance") == 0)
+      else if (System::strcasecmp(name, "DeepInheritance") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 	 duplicateParameter = gotDeepInheritance;
 	 gotDeepInheritance = true;
       }
-      else if (CompareNoCase(name, "LocalOnly") == 0)
+      else if (System::strcasecmp(name, "LocalOnly") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, localOnly, true);
 	 duplicateParameter = gotLocalOnly;
 	 gotLocalOnly = true;
       }
-      else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+      else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
-      else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+      else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
@@ -1296,7 +1297,7 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ClassName") == 0)
+      if (System::strcasecmp(name, "ClassName") == 0)
       {
 	 XmlReader::getClassNameElement(parser, className);
 	 duplicateParameter = gotClassName;
@@ -1349,7 +1350,7 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "NewInstance") == 0)
+      if (System::strcasecmp(name, "NewInstance") == 0)
       {
 	 XmlReader::getInstanceElement(parser, newInstance);
 	 duplicateParameter = gotInstance;
@@ -1411,31 +1412,31 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "InstanceName") == 0)
+      if (System::strcasecmp(name, "InstanceName") == 0)
       {
 	 XmlReader::getInstanceNameElement(parser, instanceName);
 	 duplicateParameter = gotInstanceName;
 	 gotInstanceName = true;
       }
-      else if (CompareNoCase(name, "LocalOnly") == 0)
+      else if (System::strcasecmp(name, "LocalOnly") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, localOnly, true);
 	 duplicateParameter = gotLocalOnly;
 	 gotLocalOnly = true;
       }
-      else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+      else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
-      else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+      else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
-      else if (CompareNoCase(name, "PropertyList") == 0)
+      else if (System::strcasecmp(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
 	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
@@ -1507,19 +1508,19 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ModifiedInstance") == 0)
+      if (System::strcasecmp(name, "ModifiedInstance") == 0)
       {
 	 XmlReader::getNamedInstanceElement(parser, modifiedInstance);
 	 duplicateParameter = gotInstance;
 	 gotInstance = true;
       }
-      else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+      else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
-      else if (CompareNoCase(name, "PropertyList") == 0)
+      else if (System::strcasecmp(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
 	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
@@ -1596,37 +1597,37 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ClassName") == 0)
+      if (System::strcasecmp(name, "ClassName") == 0)
       {
 	 XmlReader::getClassNameElement(parser, className, true);
 	 duplicateParameter = gotClassName;
 	 gotClassName = true;
       }
-      else if (CompareNoCase(name, "DeepInheritance") == 0)
+      else if (System::strcasecmp(name, "DeepInheritance") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, deepInheritance, true);
 	 duplicateParameter = gotDeepInheritance;
 	 gotDeepInheritance = true;
       }
-      else if (CompareNoCase(name, "LocalOnly") == 0)
+      else if (System::strcasecmp(name, "LocalOnly") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, localOnly, true);
 	 duplicateParameter = gotLocalOnly;
 	 gotLocalOnly = true;
       }
-      else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+      else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
-      else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+      else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
-      else if (CompareNoCase(name, "PropertyList") == 0)
+      else if (System::strcasecmp(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
 	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
@@ -1696,7 +1697,7 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ClassName") == 0)
+      if (System::strcasecmp(name, "ClassName") == 0)
       {
 	 XmlReader::getClassNameElement(parser, className, true);
 	 duplicateParameter = gotClassName;
@@ -1750,7 +1751,7 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "InstanceName") == 0)
+      if (System::strcasecmp(name, "InstanceName") == 0)
       {
 	 XmlReader::getInstanceNameElement(parser, instanceName);
 	 duplicateParameter = gotInstanceName;
@@ -1803,7 +1804,7 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "QualifierDeclaration") == 0)
+      if (System::strcasecmp(name, "QualifierDeclaration") == 0)
       {
 	 XmlReader::getQualifierDeclElement(parser, qualifierDeclaration);
 	 duplicateParameter = gotQualifierDeclaration;
@@ -1857,7 +1858,7 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "QualifierName") == 0)
+      if (System::strcasecmp(name, "QualifierName") == 0)
       {
 	 XmlReader::getClassNameElement(parser, qualifierName, true);
 	 duplicateParameter = gotQualifierName;
@@ -1940,7 +1941,7 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "QualifierName") == 0)
+      if (System::strcasecmp(name, "QualifierName") == 0)
       {
 	 XmlReader::getClassNameElement(parser, qualifierName, true);
 	 duplicateParameter = gotQualifierName;
@@ -1998,19 +1999,19 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ObjectName") == 0)
+      if (System::strcasecmp(name, "ObjectName") == 0)
       {
 	 XmlReader::getObjectNameElement(parser, objectName);
 	 duplicateParameter = gotObjectName;
 	 gotObjectName = true;
       }
-      else if (CompareNoCase(name, "ResultClass") == 0)
+      else if (System::strcasecmp(name, "ResultClass") == 0)
       {
 	 XmlReader::getClassNameElement(parser, resultClass, true);
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
-      else if (CompareNoCase(name, "Role") == 0)
+      else if (System::strcasecmp(name, "Role") == 0)
       {
 	 XmlReader::getStringValueElement(parser, role, true);
 	 duplicateParameter = gotRole;
@@ -2076,37 +2077,37 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ObjectName") == 0)
+      if (System::strcasecmp(name, "ObjectName") == 0)
       {
 	 XmlReader::getObjectNameElement(parser, objectName);
 	 duplicateParameter = gotObjectName;
 	 gotObjectName = true;
       }
-      else if (CompareNoCase(name, "ResultClass") == 0)
+      else if (System::strcasecmp(name, "ResultClass") == 0)
       {
 	 XmlReader::getClassNameElement(parser, resultClass, true);
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
-      else if (CompareNoCase(name, "Role") == 0)
+      else if (System::strcasecmp(name, "Role") == 0)
       {
 	 XmlReader::getStringValueElement(parser, role, true);
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
-      else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+      else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
-      else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+      else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
-      else if (CompareNoCase(name, "PropertyList") == 0)
+      else if (System::strcasecmp(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
 	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
@@ -2184,31 +2185,31 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ObjectName") == 0)
+      if (System::strcasecmp(name, "ObjectName") == 0)
       {
 	 XmlReader::getObjectNameElement(parser, objectName);
 	 duplicateParameter = gotObjectName;
 	 gotObjectName = true;
       }
-      else if (CompareNoCase(name, "AssocClass") == 0)
+      else if (System::strcasecmp(name, "AssocClass") == 0)
       {
 	 XmlReader::getClassNameElement(parser, assocClass, true);
 	 duplicateParameter = gotAssocClass;
 	 gotAssocClass = true;
       }
-      else if (CompareNoCase(name, "ResultClass") == 0)
+      else if (System::strcasecmp(name, "ResultClass") == 0)
       {
 	 XmlReader::getClassNameElement(parser, resultClass, true);
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
-      else if (CompareNoCase(name, "Role") == 0)
+      else if (System::strcasecmp(name, "Role") == 0)
       {
 	 XmlReader::getStringValueElement(parser, role, true);
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
-      else if (CompareNoCase(name, "ResultRole") == 0)
+      else if (System::strcasecmp(name, "ResultRole") == 0)
       {
 	 XmlReader::getStringValueElement(parser, resultRole, true);
 	 duplicateParameter = gotResultRole;
@@ -2280,49 +2281,49 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "ObjectName") == 0)
+      if (System::strcasecmp(name, "ObjectName") == 0)
       {
 	 XmlReader::getObjectNameElement(parser, objectName);
 	 duplicateParameter = gotObjectName;
 	 gotObjectName = true;
       }
-      else if (CompareNoCase(name, "AssocClass") == 0)
+      else if (System::strcasecmp(name, "AssocClass") == 0)
       {
 	 XmlReader::getClassNameElement(parser, assocClass, true);
 	 duplicateParameter = gotAssocClass;
 	 gotAssocClass = true;
       }
-      else if (CompareNoCase(name, "ResultClass") == 0)
+      else if (System::strcasecmp(name, "ResultClass") == 0)
       {
 	 XmlReader::getClassNameElement(parser, resultClass, true);
 	 duplicateParameter = gotResultClass;
 	 gotResultClass = true;
       }
-      else if (CompareNoCase(name, "Role") == 0)
+      else if (System::strcasecmp(name, "Role") == 0)
       {
 	 XmlReader::getStringValueElement(parser, role, true);
 	 duplicateParameter = gotRole;
 	 gotRole = true;
       }
-      else if (CompareNoCase(name, "ResultRole") == 0)
+      else if (System::strcasecmp(name, "ResultRole") == 0)
       {
 	 XmlReader::getStringValueElement(parser, resultRole, true);
 	 duplicateParameter = gotResultRole;
 	 gotResultRole = true;
       }
-      else if (CompareNoCase(name, "IncludeQualifiers") == 0)
+      else if (System::strcasecmp(name, "IncludeQualifiers") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeQualifiers, true);
 	 duplicateParameter = gotIncludeQualifiers;
 	 gotIncludeQualifiers = true;
       }
-      else if (CompareNoCase(name, "IncludeClassOrigin") == 0)
+      else if (System::strcasecmp(name, "IncludeClassOrigin") == 0)
       {
 	 XmlReader::getBooleanValueElement(parser, includeClassOrigin, true);
 	 duplicateParameter = gotIncludeClassOrigin;
 	 gotIncludeClassOrigin = true;
       }
-      else if (CompareNoCase(name, "PropertyList") == 0)
+      else if (System::strcasecmp(name, "PropertyList") == 0)
       {
 	 CIMValue pl;
 	 if (XmlReader::getValueArrayElement(parser, CIMTYPE_STRING, pl))
@@ -2396,13 +2397,13 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "InstanceName") == 0)
+      if (System::strcasecmp(name, "InstanceName") == 0)
       {
 	 XmlReader::getInstanceNameElement(parser, instanceName);
 	 duplicateParameter = gotInstanceName;
 	 gotInstanceName = true;
       }
-      else if (CompareNoCase(name, "PropertyName") == 0)
+      else if (System::strcasecmp(name, "PropertyName") == 0)
       {
 	 XmlReader::getStringValueElement(parser, propertyName, true);
 	 duplicateParameter = gotPropertyName;
@@ -2460,19 +2461,19 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "InstanceName") == 0)
+      if (System::strcasecmp(name, "InstanceName") == 0)
       {
 	 XmlReader::getInstanceNameElement(parser, instanceName);
 	 duplicateParameter = gotInstanceName;
 	 gotInstanceName = true;
       }
-      else if (CompareNoCase(name, "PropertyName") == 0)
+      else if (System::strcasecmp(name, "PropertyName") == 0)
       {
 	 XmlReader::getStringValueElement(parser, propertyName, true);
 	 duplicateParameter = gotPropertyName;
 	 gotPropertyName = true;
       }
-      else if (CompareNoCase(name, "NewValue") == 0)
+      else if (System::strcasecmp(name, "NewValue") == 0)
       {
 	 if (!XmlReader::getPropertyValue(parser, propertyValue))
 	 {
@@ -2532,13 +2533,13 @@ CIMExecQueryRequestMessage* CIMOperationRequestDecoder::decodeExecQueryRequest(
 
    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
    {
-      if (CompareNoCase(name, "QueryLanguage") == 0)
+      if (System::strcasecmp(name, "QueryLanguage") == 0)
       {
 	 XmlReader::getStringValueElement(parser, queryLanguage, true);
 	 duplicateParameter = gotQueryLanguage;
 	 gotQueryLanguage = true;
       }
-      else if (CompareNoCase(name, "Query") == 0)
+      else if (System::strcasecmp(name, "Query") == 0)
       {
 	 XmlReader::getStringValueElement(parser, query, true);
 	 duplicateParameter = gotQuery;

@@ -247,7 +247,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
       // Dispatch the method:
       //
 
-      if (CompareNoCase(iMethodResponseName, "ExportIndication") == 0)
+      if (System::strcasecmp(iMethodResponseName, "ExportIndication") == 0)
 	 response = _decodeExportIndicationResponse(parser, messageId);
       else
       {

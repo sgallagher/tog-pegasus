@@ -336,52 +336,52 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	    // Dispatch the method:
 	    //
 
-	    if (CompareNoCase(iMethodResponseName, "GetClass") == 0)
+	    if (System::strcasecmp(iMethodResponseName, "GetClass") == 0)
 		response = _decodeGetClassResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "GetInstance") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "GetInstance") == 0)
 		response = _decodeGetInstanceResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "EnumerateClassNames") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "EnumerateClassNames") == 0)
 		response = _decodeEnumerateClassNamesResponse(parser,messageId);
-	    else if (CompareNoCase(iMethodResponseName, "References") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "References") == 0)
 		response = _decodeReferencesResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "ReferenceNames") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "ReferenceNames") == 0)
 		response = _decodeReferenceNamesResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "AssociatorNames") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "AssociatorNames") == 0)
 		response = _decodeAssociatorNamesResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "Associators") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "Associators") == 0)
 		response = _decodeAssociatorsResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "CreateInstance") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "CreateInstance") == 0)
 		response = _decodeCreateInstanceResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName,"EnumerateInstanceNames") == 0)
+	    else if (System::strcasecmp(iMethodResponseName,"EnumerateInstanceNames") == 0)
 		response = _decodeEnumerateInstanceNamesResponse(
                   parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName,"EnumerateInstances") == 0)
+	    else if (System::strcasecmp(iMethodResponseName,"EnumerateInstances") == 0)
 		response = _decodeEnumerateInstancesResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "GetProperty") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "GetProperty") == 0)
 		response = _decodeGetPropertyResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "SetProperty") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "SetProperty") == 0)
 		response = _decodeSetPropertyResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "DeleteQualifier") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "DeleteQualifier") == 0)
 		response = _decodeDeleteQualifierResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "GetQualifier") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "GetQualifier") == 0)
 		response = _decodeGetQualifierResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "SetQualifier") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "SetQualifier") == 0)
 		response = _decodeSetQualifierResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "EnumerateQualifiers") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "EnumerateQualifiers") == 0)
 		response = _decodeEnumerateQualifiersResponse(parser,messageId);
-	    else if (CompareNoCase(iMethodResponseName, "EnumerateClasses") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "EnumerateClasses") == 0)
 		response = _decodeEnumerateClassesResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "CreateClass") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "CreateClass") == 0)
 		response = _decodeCreateClassResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "ModifyClass") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "ModifyClass") == 0)
 		response = _decodeModifyClassResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "ModifyInstance") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "ModifyInstance") == 0)
 		response = _decodeModifyInstanceResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "DeleteClass") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "DeleteClass") == 0)
 		response = _decodeDeleteClassResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "DeleteInstance") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "DeleteInstance") == 0)
 		response = _decodeDeleteInstanceResponse(parser, messageId);
-	    else if (CompareNoCase(iMethodResponseName, "ExecQuery") == 0)
+	    else if (System::strcasecmp(iMethodResponseName, "ExecQuery") == 0)
 		response = _decodeExecQueryResponse(parser, messageId);
 	    else
 	    {

@@ -186,6 +186,12 @@ public:
 
     static Boolean truncateFile(const char* path, size_t newSize);
 
+    /** Compare two strings but ignore any case differences.
+        This method is provided only because some platforms lack a strcasecmp
+        function in the standard library.
+    */
+    static Sint32 strcasecmp(const char* s1, const char* s2);
+
 #if defined(PEGASUS_OS_HPUX)
     static Boolean bindVerbose;
 #endif

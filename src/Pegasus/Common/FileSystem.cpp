@@ -34,7 +34,6 @@
 #include <Pegasus/Common/System.h>
 #include "Destroyer.h"
 #include "FileSystem.h"
-#include "System.h"
 #include "Dir.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -96,7 +95,7 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 
     for (Dir dir(dirPath); dir.more(); dir.next())
     {
-	if (CompareNoCase(fileName, dir.getName()) == 0)
+	if (System::strcasecmp(fileName, dir.getName()) == 0)
 	{
 	    if (strcmp(dirPath, ".") == 0)
 		realPath = dir.getName();

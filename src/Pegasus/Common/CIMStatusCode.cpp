@@ -77,7 +77,10 @@ static const char* _cimMessages[] =
 
     "CIM_ERR_METHOD_NOT_AVAILABLE: The extrinsic method could not be executed",
 
-    "CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist"
+    "CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist",
+    
+    // NOTE - the message below must always be last
+    "The CIM status code associated with this error is not recognized" 
 };
 
 // l10n - keys for cimstatus messages
@@ -117,14 +120,17 @@ static const char* _cimMessageKeys[] =
 
     "Common.CIMStatusCode.CIM_ERR_METHOD_NOT_AVAILABLE",
 
-    "Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND"
+    "Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND",
+
+    // NOTE: the message key below must always be last
+    "Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE",
 };
 
 // l10n TOD0 - the first func should go away when all Pegasus is globalized
 
 const char* cimStatusCodeToString(CIMStatusCode code)
 {
-    if (Uint32(code) < CIM_ERR_METHOD_NOT_FOUND)
+    if (Uint32(code) <= CIM_ERR_METHOD_NOT_FOUND)
 	return _cimMessages[Uint32(code)];
 
     return "Unrecognized CIM status code";
@@ -132,29 +138,52 @@ const char* cimStatusCodeToString(CIMStatusCode code)
 
 
 String cimStatusCodeToString(CIMStatusCode code,
-							const ContentLanguages& contentLanguages)
+			     const ContentLanguages& contentLanguages)
 {
-	AcceptLanguages acceptLanguages; 
-	MessageLoaderParms parms(_cimMessageKeys[Uint32(code)], _cimMessages[Uint32(code)]);
-	if (contentLanguages.size() == 0) //use AcceptLanguages::EMPTY
-	{
-		return MessageLoader::getMessage(parms);
-	} 
-	else
-	{
-		//build AcceptLanguages from contentLanguages, use in getMessage
-		parms.acceptlanguages = AcceptLanguages(contentLanguages.getLanguageElement(0).getTag());
-		return MessageLoader::getMessage(parms);
-	}
+  AcceptLanguages acceptLanguages;
+
+  Uint32 tempCode;
+
+  if (Uint32(code) <= CIM_ERR_METHOD_NOT_FOUND) 
+  {
+    tempCode = (Uint32)code;
+  }
+  else
+  {
+    tempCode = CIM_ERR_METHOD_NOT_FOUND + 1;
+  }
+
+  MessageLoaderParms parms(_cimMessageKeys[tempCode], _cimMessages[tempCode]);
+  if (contentLanguages.size() == 0) //use AcceptLanguages::EMPTY
+  {
+    return MessageLoader::getMessage(parms);
+  } 
+  else
+  {
+    //build AcceptLanguages from contentLanguages, use in getMessage
+    parms.acceptlanguages = AcceptLanguages(contentLanguages.getLanguageElement(0).getTag());
+    return MessageLoader::getMessage(parms);
+  }
 }
 
 // l10n 
 ContentLanguages cimStatusCodeToString_Thread(String & message, CIMStatusCode code)
 {
-	MessageLoaderParms parms(_cimMessageKeys[Uint32(code)], _cimMessages[Uint32(code)]); 
-	//parms.useThreadLocale = true;
-	message = MessageLoader::getMessage(parms);
-	return parms.contentlanguages;
+  Uint32 tempCode;
+
+  if (Uint32(code) <= CIM_ERR_METHOD_NOT_FOUND) 
+  {
+    tempCode = (Uint32)code;
+  }
+  else
+  {
+    tempCode = CIM_ERR_METHOD_NOT_FOUND + 1;
+  }
+
+  MessageLoaderParms parms(_cimMessageKeys[tempCode], _cimMessages[tempCode]); 
+  //parms.useThreadLocale = true;
+  message = MessageLoader::getMessage(parms);
+  return parms.contentlanguages;
 }
 
 PEGASUS_NAMESPACE_END

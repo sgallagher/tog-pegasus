@@ -76,7 +76,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - None.
       @return - None.
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */
   CQLTerm();
 
@@ -86,7 +86,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - theFactor is a CQLFactor object.
       @return - None.
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */
   CQLTerm(const CQLFactor& theFactor);
 
@@ -96,7 +96,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - rep is a CQLTermRep object.
       @return - None.
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */
   CQLTerm(const CQLTerm& inTerm);
 
@@ -106,7 +106,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - None.
       @return - None.
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */  
   ~CQLTerm();
   
@@ -118,7 +118,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - QueryCtx - Reference to the Querycontext object.
       @return - CQLValue - The value of the object being resolved.
       @throw  - CQLRuntimeException 
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */
   CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
   
@@ -131,7 +131,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - inFactor - next CQLFactor to be operated on.
       @return - None.
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */
   void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
 
@@ -141,7 +141,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - None.
       @return - A string version of the object.
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */  
   String toString()const;
 
@@ -152,7 +152,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - None.
       @return - true or false
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */
   Boolean isSimple()const;
 
@@ -164,7 +164,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - None.
       @return - true or false
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */
   Boolean isSimpleValue()const;
 
@@ -174,7 +174,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - None.
       @return - An array of CQLFactor
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */
   Array<CQLFactor> getFactors()const;
 
@@ -184,7 +184,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - None.
       @return - an array of FactorOpType
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */  
   Array<FactorOpType> getOperators()const;
 
@@ -196,7 +196,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - inCid - Chained Identifier used for standalone symbolic constants.
       @return - None.
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */  
   void applyContext(QueryContext& inContext,
 		    CQLChainedIdentifier& inCid); 
@@ -207,7 +207,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @param  - rhs - a CQLTerm to be assined.
       @return - a reference of a CQLTerm.
       @throw  - None.
-      @experimental
+      <I><B>Experimental Interface</B></I><BR>
   */ 
   CQLTerm& operator=(const CQLTerm& rhs);
 

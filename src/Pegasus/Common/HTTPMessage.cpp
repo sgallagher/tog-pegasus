@@ -240,7 +240,14 @@ Boolean HTTPMessage::lookupHeader(
 {
     for (Uint32 i = 0, n = headers.size(); i < n; i++)
     {
-	if (String::equalNoCase(headers[i].first, fieldName))
+	Boolean equal = false;
+
+	if (wildCardMatch && String::matchNoCase(headers[i].first, fieldName))
+	    equal = true;
+	else if (String::equalNoCase(headers[i].first, fieldName))
+	    equal = true;
+
+	if (equal)
 	{
 	    fieldValue = headers[i].second;
 	    return true;

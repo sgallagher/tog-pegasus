@@ -37,6 +37,7 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
 	cout << cimClass.getClassName() << endl;
 
 	repository.createClass(CIMV2_NAMESPACE, cimClass);
+	repository.createClass(ROOT_NAMESPACE, cimClass);
     }
     else if (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
     {
@@ -44,6 +45,7 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
 	cout << qualifierDecl.getName() << endl;
 
 	repository.setQualifier(CIMV2_NAMESPACE, qualifierDecl);
+	repository.setQualifier(ROOT_NAMESPACE, qualifierDecl);
     }
 
     XmlReader::expectEndTag(parser, "VALUE.OBJECT");
@@ -172,9 +174,6 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
     repository.createNameSpace(ROOT_NAMESPACE);
 
     // Create the qualifiers:
-
-    // repository.createMetaQualifiers(CIMV2_NAMESPACE);
-    // repository.createMetaQualifiers(ROOT_NAMESPACE);
 
     if (!ProcessCimElement(repository, parser))
     {

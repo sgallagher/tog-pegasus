@@ -91,8 +91,8 @@ class PEGASUS_CQL_LINKAGE CQLSyntaxErrorException : public CQLParseException
 	public:
 		static const char MSG[];
                 static const char KEY[];
-                CQLSyntaxErrorException(const String& msg, Uint32 position):
-			CQLParseException(MessageLoaderParms(KEY,MSG,msg,position)){}
+                CQLSyntaxErrorException(const String& msg, Uint32 position, const String& rule):
+			CQLParseException(MessageLoaderParms(KEY,MSG,msg,position,rule)){}
 		CQLSyntaxErrorException(MessageLoaderParms parms):
                         CQLParseException(parms){}
 };

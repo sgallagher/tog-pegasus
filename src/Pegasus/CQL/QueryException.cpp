@@ -45,7 +45,7 @@ const char CQLValidationException::KEY[] = "CQL.QueryException.CQL_VALIDATION_EX
 const char CQLRuntimeException::MSG[] = "Default Message: CQLRuntimeException";
 const char CQLRuntimeException::KEY[] = "CQL.QueryException.CQL_RUNTIME_EXCEPTION";
 
-const char CQLSyntaxErrorException::MSG[] = "Default Message: CQLSyntaxErrorException: $0 in position $1";
+const char CQLSyntaxErrorException::MSG[] = "Default Message: CQLSyntaxErrorException: $0 in position $1 while processing rule $2";
 const char CQLSyntaxErrorException::KEY[] = "CQL.QueryException.CQL_SYNTAX_ERROR_EXCEPTION";
 
 const char CQLParseException::MSG[] = "Default Message: CQLParseException";

@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/CQL/QueryException.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -68,16 +69,21 @@ void CQLParser::parse(
     globalParserState->text = text;
     globalParserState->textSize = strlen(text) + 1;
     globalParserState->offset = 0;
+    globalParserState->currentTokenPos = 0;
+    globalParserState->currentRule = String::EMPTY;
     globalParserState->statement = &statement;
+
     	CQL_parse();
 
     if (globalParserState->error)
     {
 	String errorMessage = globalParserState->errorMessage;
 	cleanup();
+	Uint32 position = globalParserState->currentTokenPos;
+	String rule = globalParserState->currentRule;
 	delete globalParserState;
         PEG_METHOD_EXIT();
-	throw ParseError(errorMessage);
+	throw CQLSyntaxErrorException(errorMessage,position,rule);
     }
 
     cleanup();
@@ -116,12 +122,11 @@ void CQLParser::cleanup()
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLParser::cleanup");
 
+
     Array<char*>& arr = globalParserState->outstandingStrings;
 
-    for (Uint32 i = 0, n = arr.size(); i < n; i++){
-	printf("%s\n",arr[i]);
+    for (Uint32 i = 0, n = arr.size(); i < n; i++)
 	delete [] arr[i];
-	}
 
     arr.clear();
 
@@ -152,9 +157,8 @@ int CQLInput(char* buffer, int& numRead, int numRequested)
     PEG_METHOD_ENTER(TRC_CQL,"CQLInput");
     //
     // Be sure to account for the null terminator (the size of the text will
-    // be one or more; this is fixed checked beforehand by WQLParser::parse()).
+    // be one or more; this is fixed checked beforehand by CQLParser::parse()).
     //
-
     int remaining = 
 	globalParserState->textSize - globalParserState->offset - 1;
 
@@ -174,6 +178,7 @@ int CQLInput(char* buffer, int& numRead, int numRequested)
 
     globalParserState->offset += numRequested;
     numRead = numRequested;
+
 
     PEG_METHOD_EXIT();
     return numRead;

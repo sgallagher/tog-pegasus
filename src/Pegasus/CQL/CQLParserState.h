@@ -93,6 +93,10 @@ struct CQLParserState
     //
 
     Array<char*> outstandingStrings;
+
+    Uint32 currentTokenPos;
+
+    String currentRule;
 };
 
 PEGASUS_NAMESPACE_END

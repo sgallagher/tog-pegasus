@@ -45,6 +45,8 @@ DIRS = \
     ControlProviders/ProviderRegistrationProvider/tests \
     Listener/tests \
     Consumer/tests \
-	ProviderManager/tests
+	ProviderManager/tests \
+    msg/Server \
+    msg/CLI 
 
 include $(ROOT)/mak/recurse.mak

@@ -48,9 +48,10 @@ class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLExpressionRep;
 class PEGASUS_CQL_LINKAGE QueryContext;
 
-/**  The enum is private, but the definition is public.
-      */
-    enum TermOpType {plus,minus};
+/**  
+    The enum is private, but the definition is public.
+*/
+enum TermOpType {plus,minus};
 
 #ifndef PEGASUS_ARRAY_T
 #define PEGASUS_ARRAY_T TermOpType
@@ -59,63 +60,175 @@ class PEGASUS_CQL_LINKAGE QueryContext;
 #endif
 
 /**
-  The CQLExpression class encapsulates a generic CQL expression to make it
-easier to break into components and process the expression.  
-
-   A CQL expression is made up of terms and operators. 
-   For example,  'A + B' is a CQLExpression, where 'A' and 'B' are terms, and
-'+' is an operator.
-
-   There must be exactly one more term than there are operators.
-  */
+    The CQLExpression class encapsulates a generic CQL expression to make it
+    easier to break into components and process the expression.  
+*/
 
 class PEGASUS_CQL_LINKAGE CQLExpression
 {
-  public:
-   CQLExpression();
-    /** constructor takes one CQLTerm object.
-      */
-    CQLExpression(const CQLTerm& theTerm);
-   CQLExpression(const CQLExpression& inExpress);
-    /**  the getValue method evaluates the expression and returns the value.
-          Any property that need to be resolved into a value is taken from the
-    CIMInstance.
-      */
-    ~CQLExpression();
+ public:
+  
+  /** 
+      Contructs CQLExpression default object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLExpression();
 
-    CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
+  /** 
+      Contructs CQLExpression with a CQLTerm.
+      
+      @param  - theTerm - A CQLTerm used to create CQLExpression.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLExpression(const CQLTerm& theTerm);
+  
+  /** 
+      Contructs CQLExpression with a CQLExpression object. (copy-constructor)
+      
+      @param  - inExpress - Object to be copied.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLExpression(const CQLExpression& inExpress);
+  
+  /** 
+      Destructs the CQLExpression object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  ~CQLExpression();
 
-    /** The appendOperation is used by Bison.
-          It is invoked 0 or more times for the CQLExpression, and
-          when invoked will always pass in an integer that is the Term operation
-          type and a CQLTerm object.
-      */
-    void appendOperation(const TermOpType theTermOpType, const CQLTerm& theTerm);
-
-   String toString()const;
-
-   Boolean isSimple()const;
-
-   Boolean isSimpleValue()const;
-
-   Array<CQLTerm> getTerms()const;
-
-   Array<TermOpType> getOperators()const;
-
-   void applyContext(QueryContext& inContext, 
-                     CQLChainedIdentifier inCid = CQLChainedIdentifier());
-
-   CQLExpression& operator=(const CQLExpression& rhs);
-
-   Boolean operator==(const CQLExpression& expr)const;
-
-   Boolean operator!=(const CQLExpression& expr)const;
-
-   friend class CQLFactory;
-
-  private:
-
-	CQLExpressionRep *_rep;   
+  /** the resolveValue method evaluates the expression and returns the value.
+      Any property that need to be resolved into a value is taken from the
+      CIMInstance.
+      
+      @param  - CI - the CIMInstance to be evaluated.
+      @param  - QueryCtx - The QueryContext used to access the repository.
+      @return - CQLSyntaxErrorException
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
+  
+  /** The appendOperation is used by Bison.
+      It is invoked 0 or more times for the CQLExpression, and
+      when invoked will always pass in an integer that is the Term operation
+      type and a CQLTerm object.
+      
+      @param  - theTermOpType - the type of operation being appended.
+      @param  - theTerm - the term to be operated on.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  void appendOperation(const TermOpType theTermOpType, const CQLTerm& theTerm);
+  
+  /** 
+      Returns a string representation of the object.
+      
+      @param  - None.
+      @return - A string
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  String toString()const;
+  
+  /** 
+      Will return true if the object has only one CQLTerm object within it.
+      
+      @param  - None.
+      @return - true or false
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean isSimple()const;
+  
+  /** 
+      Will return true if the CQLExpression resolves to a simple value.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean isSimpleValue()const;
+  
+  /** 
+      Retrieve an array of all the CQLTerms for this expression.
+      
+      @param  - None.
+      @return - An array of CQLTerm.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Array<CQLTerm> getTerms()const;
+  
+  /** 
+      Retrieve an array of all the TermOpType for this expression.
+            
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Array<TermOpType> getOperators()const;
+  
+  /** 
+      
+            
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  void applyContext(QueryContext& inContext, 
+		    CQLChainedIdentifier inCid = CQLChainedIdentifier());
+  
+  /** 
+      Contructs CQLTermRep default object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLExpression& operator=(const CQLExpression& rhs);
+  
+  /** 
+      Contructs CQLTermRep default object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean operator==(const CQLExpression& expr)const;
+   
+  /** 
+      Contructs CQLTermRep default object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean operator!=(const CQLExpression& expr)const;
+  
+  friend class CQLFactory;
+  
+ private:
+  
+  CQLExpressionRep *_rep;   
 };
 
 #ifndef PEGASUS_ARRAY_T
@@ -126,5 +239,4 @@ class PEGASUS_CQL_LINKAGE CQLExpression
 
 PEGASUS_NAMESPACE_END
 
-#endif
 #endif 

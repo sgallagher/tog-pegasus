@@ -165,9 +165,16 @@ void TestInstanceProvider::getInstance(
 {
     handler.processing();
 
+    // create relative object path for comparison
+    CIMObjectPath cimObjectPath(
+        String(),
+        CIMNamespaceName(),
+        instanceReference.getClassName(),
+        instanceReference.getKeyBindings());
+
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
-        if(instanceReference == _instances[i].getPath())
+        if(cimObjectPath == _instances[i].getPath())
         {
             try
             {

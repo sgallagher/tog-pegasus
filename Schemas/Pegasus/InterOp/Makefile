@@ -34,11 +34,11 @@ repository:
 	@ echo +++++ Removing existing repository named $(PG_INTEROPNS)
 	@ $(RMREPOSITORY) $(PG_INTEROPNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(PG_INTEROPNS) namespace ...
-	@ cimmof -I$(CIM_MOF_PATH) -n$(PG_INTEROPNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmofl -I$(CIM_MOF_PATH) -n$(PG_INTEROPNS) $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_Events$(PG_SCHEMA_VER).mof into $(PG_INTEROPNS) namespace...
-	@ cimmof -I$(PG_MOF_PATH) -n$(PG_INTEROPNS) $(PG_MOF_PATH)/PG_Events$(PG_SCHEMA_VER).mof
+	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTEROPNS) $(PG_MOF_PATH)/PG_Events$(PG_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_ProviderModule$(PG_SCHEMA_VER).mof into $(PG_INTEROPNS) namespace...
-	@ cimmof -I$(PG_MOF_PATH) -n$(PG_INTEROPNS) $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
+	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTEROPNS) $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
 
 
 clean:

@@ -34,13 +34,13 @@ repository:
 	@ echo +++++ Removing existing repository named $(PG_INTERNALNS)
 	@ $(RMREPOSITORY) $(PG_INTERNALNSDIRECTORY)
 	@ echo +++++ Loading CIM_Qualifiers$(CIM_SCHEMA_VER) into $(PG_INTERNALNS) namespace ...
-	@ cimmof  -n$(PG_INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
+	@ cimmofl  -n$(PG_INTERNALNS) ../CIM_Qualifiers$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_User$(PG_SCHEMA_VER).mof into $(PG_INTERNALNS) namespace...
-	@ cimmof -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_User$(PG_SCHEMA_VER).mof
+	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_User$(PG_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_Authorization$(PG_SCHEMA_VER).mof into $(PG_INTERNALNS) namespace...
-	@ cimmof -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_Authorization$(PG_SCHEMA_VER).mof
+	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_Authorization$(PG_SCHEMA_VER).mof
 	@ echo +++++ Loading PG_ConfigSetting$(PG_SCHEMA_VER).mof into $(PG_INTERNALNS) namespace...
-	@ cimmof -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_ConfigSetting$(PG_SCHEMA_VER).mof
+	@ cimmofl -I$(PG_MOF_PATH) -n$(PG_INTERNALNS) $(PG_MOF_PATH)/PG_ConfigSetting$(PG_SCHEMA_VER).mof
 
 clean:
 	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)

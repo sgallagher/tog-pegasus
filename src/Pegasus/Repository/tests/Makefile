@@ -4,7 +4,6 @@ include $(ROOT)/mak/config.mak
 
 XDIRS = \
     TestClasses \
-    LoadRepository \
 
 DIRS = \
     Repository \
@@ -12,5 +11,7 @@ DIRS = \
     NameSpace \
     ClassDeclRep \
     EnumerateClassNames \
+    Inst \
+    LoadRepository \
 
 include ../../../../mak/recurse.mak

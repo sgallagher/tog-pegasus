@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Inst.cpp,v $
+// Revision 1.4  2001/02/13 07:07:08  mike
+// new things
+//
 // Revision 1.3  2001/02/13 02:12:47  mike
 // new
 //
@@ -39,7 +42,7 @@
 #include <cassert>
 #include <Pegasus/Repository/Repository.h>
 #include <Pegasus/Common/Destroyer.h>
-#include "InstanceIndexFile.h"
+#include <Pegasus/Repository/InstanceIndexFile.h>
 
 using namespace Pegasus;
 using namespace std;
@@ -51,8 +54,11 @@ int main(int argc, char** argv)
 	const char PATH[] = "X.idx";
 	const char INSTANCE_NAME[] = "X.key=1666";
 
-	Uint32 i = InstanceIndexFile::insert(PATH, INSTANCE_NAME);
-	Uint32 j = InstanceIndexFile::lookup(PATH, INSTANCE_NAME);
+	Uint32 i;
+	Uint32 j;
+	
+	assert(InstanceIndexFile::insert(PATH, INSTANCE_NAME, i));
+	assert(InstanceIndexFile::lookup(PATH, INSTANCE_NAME, j));
 	assert(i == j);
 
 	assert(InstanceIndexFile::remove(PATH, INSTANCE_NAME));

@@ -4,7 +4,7 @@ include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 PROGRAM = Inst
-SOURCES = Inst.cpp InstanceIndexFile.cpp
+SOURCES = Inst.cpp
 
 include $(ROOT)/mak/program.mak
 

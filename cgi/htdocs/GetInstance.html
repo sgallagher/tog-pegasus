@@ -2,10 +2,12 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="50%" align="bottom"><h1>Get Instance CIM Operation</h1><td>
-	<td width="50%" align="right">
+	<td width="435" align="bottom"><h1>Get Instance CIM Operation</h1><td width="2">
+	<td width="317" align="right">
+      <p align="right">
 	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif
-	  ">
+	  " align="right">
+      </p>
         </td>
       </tr>
     </table>
@@ -44,7 +46,12 @@
 
       <hr>
 
-      <p><b>REQUEST RETURN - </b>If successful, the return value is a single CIM
+      <p>
+	</form>
+
+      <h2>REQUEST RETURN</h2>
+
+      <p><b>&nbsp;</b>If successful, the return value is a single CIM
       Class.If unsuccessful, one of the following status codes MUST be returned by this
 	  method, where the first applicable error in the list (starting with the first element of
 	  the list, and working down) is the error returned. Any additional method- specific
@@ -105,9 +112,27 @@
       the duplicates but otherwise process the request normally. If the PropertyList contains
       elements which are invalid Property names for the target Class, the Server MUST ignore
       such entries but otherwise process the request normally.
+    <hr>
+      <h2>C++ Pegasus API</h2>
 
-      <p>
-	</form>
+    <pre>
+    virtual CIMInstance getInstance(
+	    const String&amp; nameSpace,
+	    const CIMReference&amp; instanceName,
+	    Boolean localOnly = true,
+	    Boolean includeQualifiers = false,
+	    Boolean includeClassOrigin = false,
+	    const Array<String>&amp; propertyList = StringArray()) = 0;
+    </pre>
+  <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:01:31 PM<!--webbot bot="Timestamp" i-CheckSum="50193" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     Copyright @ The Open Group 2001&nbsp;</font>
 
   </body>
 </html>

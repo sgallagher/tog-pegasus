@@ -1,0 +1,69 @@
+<html>
+  <body bgcolor="#CCCCCC">
+    <table width="100%">
+      <tr>
+	<td width="50%" align="bottom"><h1>Display a Class Tree</h1><td>
+	<td width="50%" align="right">
+	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
+        </td>
+      </tr>
+    </table>
+    <hr>
+    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+      <INPUT TYPE="hidden" NAME="Operation" VALUE="ClassTree">
+      <p>Show the Class Tree for a Namespace or a part of a namespace starting
+      at a particular class.
+      <p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p><b><a href="http://www.opengroup.org/management#className">ClassName</a></b>&nbsp;&nbsp;
+      <INPUT TYPE="text" NAME="ClassName" SIZE=30>&nbsp;
+      Defines the name of the Class that is the basis for the enumeration.. Null (no entry) lists all
+      class names in the Namespace<p><b><a href="#DeepInheritance">DeepInheritance</a></b>
+        <INPUT TYPE="checkbox" NAME="DeepInheritance" VALUE="false">&nbsp;
+      If true return names of all subclasses of specified class. If false, only
+      immediate subclasses are returned.
+      <p>I<INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="reset" VALUE="Reset">
+      <p>
+    </form>
+    
+    <hr>
+    Background
+    <p>The Class Tree Display ...</p>
+    <hr>
+    <h2>Return Request</h2>
+ If unsuccessful, one of the following status codes MUST be returned
+    by this method, where the first applicable error in the list (starting with
+    the first element of the list, and working down) is the error returned. Any
+    additional method-specific interpretation of the error in is given in
+    parentheses.
+    <UL>
+      <LI>CIM_ERR_ACCESS_DENIED
+      <LI>CIM_ERR_INVALID_NAMESPACE
+
+      <LI>CIM_ERR_INVALID_PARAMETER (including
+      missing,duplicate, unrecognized or otherwise incorrect parameters)
+
+      <LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified
+      namespace)
+      <LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested
+      CIM Instance does not exist in the specified namespace)
+      <LI>CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the
+      requested CIMProperty does not)
+      <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
+    </UL>
+    <hr>
+    <pre>&nbsp;</pre>
+  <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:34:50 PM<!--webbot bot="Timestamp" i-CheckSum="50229" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     Copyright @ The Open Group 2001&nbsp;</font>
+
+  </body>
+</html>
+
+

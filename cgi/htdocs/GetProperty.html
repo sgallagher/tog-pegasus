@@ -2,20 +2,88 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="50%" align="bottom"><h1>GetClassProperty</h1><td>
-	<td width="50%" align="right">
-	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
+	<td width="412" align="bottom"><h1>Get Property CIM Operation</h1><td width="2">
+	<td width="340" align="right">
+      <p align="right">
+	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif" align="right">
+      </p>
         </td>
       </tr>
     </table>
-    <hr></hr>
+    <hr>
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="GetProperty">
-      <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
-      <p>ClassName <INPUT TYPE="text" NAME="ClassName" SIZE=30>
+      <p>The <tt>getProperty</tt>  CIM operation retrieves a single property value from a CIM Instance.
+      <p>NameSpace&nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p>ClassName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="ClassName" SIZE=30>
       <p>PropertyName <INPUT TYPE="text" NAME="PropertyName" SIZE=30>
-      <p><INPUT TYPE="submit" VALUE="GetProperty">
-      <p><INPUT TYPE="reset" VALUE="Reset">
+      <p><INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="reset" VALUE="Reset">
+      <p>
     </form>
+    
+    <hr>
+    <h2>
+
+    Return Results</h2>
+    <p>
+
+ If successful, the return value specifies the value of the requested
+    CIMProperty. If the value is NULL then no element is returned.
+
+    If unsuccessful, one of the following status codes MUST be returned by this
+    method, where the first applicable error in the list (starting with the
+    first element of the list, and working down) is the error returned. Any
+    additional method-specific interpretation of the error in is given in
+    parentheses.
+    <UL>
+	<LI>CIM_ERR_ACCESS_DENIED
+	<LI>CIM_ERR_INVALID_NAMESPACE
+	<LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate,
+	unrecognized or otherwise incorrect parameters)
+	<LI>CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified
+	namespace)
+	<LI>CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM
+	Instance does not exist in the specified namespace)
+	<LI><LI>CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the
+	requested CIMProperty does not)
+	<LI>CIM_ERR_FAILED (some other unspecified error occurred)
+    </UL>
+    
+    <hr>
+    <h2>Additional Description of the Operation</h2>
+    
+    This operation is used to retrieve a single property value from a CIM
+    Instance in the target Namespace.&nbsp;
+    <p>@param NameSpace The NameSpace parameter is a string that defines the target
+    namespace \Ref{NAMESPACE}&nbsp;
+    <p>@param The InstanceName input parameter specifies the name of the Instance
+    (model path) from which the CIMProperty value is
+    requested. <a href="file://Ref{INSTANCENAME">\\Ref{INSTANCENAME</a>}&nbsp;
+    <p>@param The PropertyName input parameter specifies the name of the
+    CIMProperty whose value is to be returned.&nbsp;
+    <hr>
+    <h2>Pegasus API in Operations.h</h2>
+    
+    <pre>
+    virtual CIMValue getProperty(
+    const String&amp; nameSpace,
+    const CIMReference&amp; instanceName,
+    const String&amp; propertyName) = 0;
+    </pre>
+
+     <p> &nbsp;
+  <hr>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus </font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:00:02 PM<!--webbot bot="Timestamp" i-CheckSum="50153" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     Copyright @ The Open Group 2001&nbsp;</font>
+
   </body>
 </html>

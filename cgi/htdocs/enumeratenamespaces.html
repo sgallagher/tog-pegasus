@@ -25,6 +25,28 @@
 
        <hr>
       <hr>
+    </form>
+    <h2>Return Results</h2>
+    If successful, the method returns zero or more&nbsp;named
+    Instances that meet the required criteria.
+
+    If unsuccessful, one of the following status codes&nbsp;MUST be returned
+    by this method, where the first applicable error in the list (starting
+    with the first element of the list, and working down) is&nbsp;the error
+    returned. Any additional method-specific interpretation of the error in
+    is given in parentheses.
+
+	<UL>
+	  <LI>CIM_ERR_ACCESS_DENIED
+	  <LI>CIM_ERR_NOT_SUPPORTED
+	  <LI>CIM_ERR_INVALID_NAMESPACE&nbsp;
+	  <LI>CIM_ERR_INVALID_PARAMETER (including missing,
+		duplicate,&nbsp;unrecognized or otherwise incorrect parameters)
+	  <LI>CIM_ERR_INVALID_CLASS (the CIM Class that is the
+		basis for this enumeration does not exist)
+	  <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
+	</UL>
+    <p>&nbsp;</p>
     <h2>Additional Information on the Fields</h2>
     <p><a name="NameSpace"><b>NameSpace</b></a> - The NameSpace parameter is a string that defines the
     target namespace
@@ -63,13 +85,16 @@
     on the __NameSpace class are handled within Pegasus by a special provider
     that manipulates the instances of the class and also creates and deletes
     namespaces.</p>
-    <hr>
+  <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus</font>
+
     <p style="line-height: 100%; margin-top: 0; margin-bottom: 0"><font size="1">Last
     Modified <!--webbot bot="Timestamp" S-Type="EDITED"
-    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, February 19, 2001 02:21:08 PM<!--webbot bot="Timestamp" i-CheckSum="5666" endspan -->
-    &nbsp;&nbsp;&nbsp;&nbsp; Copyright @ The Open Group 2001&nbsp;</font>
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 02:37:32 PM<!--webbot bot="Timestamp" i-CheckSum="50314" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Copyright @ The Open Group 2001&nbsp;</font>
       <p>
-    </form>
-    <p>
   </body>
 </html>

@@ -31,7 +31,12 @@
       request. <a href="#PropertyList">See below</a>.
       <p><INPUT TYPE="submit" VALUE="Submit Request">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <INPUT TYPE="reset" VALUE="Reset Form">
-      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>RETURN - </b>If successful, the return value is a single CIM Class.If unsuccessful, one of the
+      <p>&nbsp;
+      <p>
+	</form>
+    <hr>
+      <h2>RETURN Results</h2>
+      <p>If successful, the return value is a single CIM Class.If unsuccessful, one of the
       CIM status codes show below MUST be returned by this method,
 	where the first applicable error in the list (starting with the first element of the list,
 	and working down) is the error returned. Any additional method-specific interpretation of
@@ -49,7 +54,9 @@
 	</LI>
     </UL>
 
-      <p>&nbsp;ADDDITIONAL Description of Fields
+    <hr>
+
+      <h2>ADDITIONAL Description of Fields</h2>
       <p><a name="LocalOnly"><b>LocalOnly</b></a> -
       If the <TT>LocalOnly</TT> input parameter is true, this specifies that only CIM
       Elements (properties, methods and qualifiers) overriden within the definition of
@@ -81,7 +88,29 @@
       the duplicates but otherwise process the request normally. If the PropertyList contains
       elements which are invalid Property names for the target Class, the Server MUST ignore
       such entries but otherwise process the request normally.
-      <p>
-	</form>
+    <hr>
+      <h2>C++ Pegasus API
+    </h2>
+      <pre>
+          virtual CIMClass getClass(
+	    const String&amp; nameSpace,
+	    const String&amp; className,
+	    Boolean localOnly = true,
+	    Boolean includeQualifiers = true,
+	    Boolean includeClassOrigin = false,
+	    const Array<String>&amp; propertyList = StringArray()) = 0;
+	    </pre>
+  <hr>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 03:05:36 PM<!--webbot bot="Timestamp" i-CheckSum="50543" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     Copyright @ The Open Group 2001&nbsp;</font>
+
   </body>
 </html>

@@ -2,8 +2,8 @@
   <body bgcolor="#CCCCCC">
     <table width="100%">
       <tr>
-	<td width="50%" align="bottom"><h1>Get Instance CIM Operation</h1><td>
-	<td width="50%" align="right">
+	<td width="431" align="bottom"><h1>Delete Instance CIM Operation</h1><td width="2">
+	<td width="321" align="right">
 	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif
 	  ">
         </td>
@@ -33,8 +33,9 @@
       &nbsp;&nbsp;&nbsp;&nbsp; <INPUT TYPE="reset" VALUE="Reset Form">
 
       <hr>
+      	</form>
 
-      <p><b>REQUEST RETURN - </b>
+      <h2>REQUEST RETURN&nbsp;</h2>
 
     <P>If successful, the specified Instance MUST have been removed by the CIM Server.
 
@@ -61,25 +62,40 @@
 	  </UL>
       <hr>
 
+    <h2>
+
+      Additional Field Information</h2>
+      <p>
+
           The <TT>DeleteInstance</TT> operation deletes a single CIM Instance
           from
-          the target Namespace.
+          the target Namespace.&nbsp;</p>
+      <p>
 
           NameSpace The NameSpace parameter is a string that defines the
-          target namespace
+          target namespace&nbsp;</p>
+      <p>
 
           param InstanceName The InstanceName input parameter defines the name
-          (model path) of the Instance to be deleted.
+          (model path) of the Instance to be deleted.&nbsp;</p>
+      <hr>
+      <h2>C++ Pegasus API as defined in Operations.h</h2>
+      <pre>
+      virtual void deleteInstance(
+          const String&amp; nameSpace,
+          const Reference&amp; instanceName) = 0;
+        </pre>
 
 
-          */
-          virtual void deleteInstance(
+  <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
 
-              const String& nameSpace,
-        const Reference& instanceName) = 0;
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus</font>
 
-      <p>
-	</form>
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:16:25 PM<!--webbot bot="Timestamp" i-CheckSum="50461" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     Copyright @ The Open Group 2001&nbsp;</font>
 
   </body>
 </html>

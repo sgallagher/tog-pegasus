@@ -8,12 +8,60 @@
         </td>
       </tr>
     </table>
-    <hr></hr>
+    <hr>
     <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
       <INPUT TYPE="hidden" NAME="Operation" VALUE="EnumerateQualifiers">
+      <p>
+The <TT>enumerateQualifiers</TT> operation is used to enumerate
+    CIMQualifier declarations from the target Namespace.&nbsp;
       <p>NameSpace <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
-      <p><INPUT TYPE="submit" VALUE="EnumerateQualifiers">
-      <p><INPUT TYPE="reset" VALUE="Reset">
+      <p><INPUT TYPE="submit" VALUE="EnumerateQualifiers">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="reset" VALUE="Reset">
+      <p>&nbsp;
     </form>
+    <hr>
+    <h2>Return Results</h2>
+    If successful, the method returns zero or more CIMQualifier
+    declarations.
+
+    If unsuccessful, one of the following status codes MUST be returned by this
+    method, where the first applicable error in the list (starting with the
+    first element of the list, and working down) is the error returned. Any
+    additional method-specific interpretation of the error in is given in
+    parentheses.
+
+    <UL>
+      <LI>CIM_ERR_ACCESS_DENIED
+      <LI>CIM_ERR_NOT_SUPPORTED
+      <LI>CIM_ERR_INVALID_NAMESPACE
+      <LI>CIM_ERR_INVALID_PARAMETER (including missing,
+      	duplicate, unrecognized or otherwise incorrect parameters)
+      <LI>CIM_ERR_NOT_FOUND (the requested CIMQualifier declaration did not
+      exist)
+      <LI>CIM_ERR_FAILED (some other unspecified error occurred)
+      </LI>
+     </UL>
+    <hr>
+    <h2>Additional Fields Description</h2>
+The <TT>enumerateQualifiers</TT> operation is used to enumerate
+    CIMQualifier declarations from the target Namespace.&nbsp;
+    <p>NameSpace The NameSpace parameter is a string that defines the target
+	namespace \Ref{NAMESPACE}&nbsp;
+    <hr>
+    <h2>C++ Pegasus API</h2>
+    <pre>
+    virtual Array<CIMQualifierDecl> enumerateQualifiers(
+		const String&amp; nameSpace) = 0;
+   </pre>
+  <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 02:57:40 PM<!--webbot bot="Timestamp" i-CheckSum="50226" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     Copyright @ The Open Group 2001&nbsp;</font>
+
   </body>
 </html>

@@ -1,0 +1,70 @@
+<html>
+  <body bgcolor="#CCCCCC">
+    <table width="100%">
+      <tr>
+	<td width="50%" align="bottom"><h1>Invoke an Extrinsic Method</h1><td>
+	<td width="50%" align="right">
+	  <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
+        </td>
+      </tr>
+    </table>
+    <hr>
+    <form METHOD=GET ACTION="/pegasus/cgi-bin/CGIClient">
+      <INPUT TYPE="hidden" NAME="Operation" VALUE="InvokeMethod">
+      <p>Show the Class Tree for a Namespace.
+      <p>NameSpace&nbsp;&nbsp;&nbsp; <INPUT TYPE="text" NAME="NameSpace" SIZE=30 VALUE="root/cimv20">
+      <p>&nbsp;
+      <p>I<INPUT TYPE="submit" VALUE="Submit" name="Submit">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <INPUT TYPE="reset" VALUE="Reset">
+      <p>
+    </form>
+    
+    <hr>
+    &nbsp;
+    <hr>
+    <h2>Return Request</h2>
+If the Cim Server is unable to perform the extrinsic method invocation, one of the following status codes MUST be returned by the CimServer, where the first applicable error in the list
+(starting with the first element of the list, and working down) is the error returned. Any additional specific interpretation of the error is given in parentheses. 
+<UL>
+     <LI>CIM_ERR_ACCESS_DENIED 
+     <LI>CIM_ERR_NOT_SUPPORTED (the CimServer does not support extrinsic method invocations) 
+     <LI>CIM_ERR_INVALID_NAMESPACE 
+     <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or otherwise incorrect parameters) 
+     <LI>CIM_ERR_NOT_FOUND (the target CIM Class or instance does not exist in the specified namespace) 
+     <LI>CIM_ERR_METHOD_NOT_FOUND 
+     <LI>CIM_ERR_METHOD_NOT_AVAILABLE (the CimServer is unable to honor the invocation request) 
+     <LI>CIM_ERR_FAILED (some other unspecified error occurred)
+
+    </UL>
+    <hr>
+    <h2>Additional Description</h2>
+    <p>
+    Any CIM Server is assumed to support extrinsic methods. Extrinsic methods are defined by the Schema supported by the Cim Server. If a Cim Server does not support extrinsic method
+invocations, it MUST (subject to the considerations described in the rest of this section) return the error code CIM_ERR_NOT_SUPPORTED to any request to execute an extrinsic
+method. This allows a CIM client to determine that all attempts to execute extrinsic methods will fail.</p>
+
+    <hr>
+    <h2>C++ API</h2>
+    <pre>
+    virtual CIMValue invokeMethod(
+		const String&amp; nameSpace,
+		const CIMReference&amp; instanceName,
+		const String&amp; methodName,
+		const Array<CIMValue>&amp; inParameters,
+		Array<CIMValue>&amp; outParameters) = 0;
+    </pre>
+  <hr><p style="margin-top: 0; margin-bottom: 0"> <font size="2">Demonstration
+     Prepared by the OpenGroup Manageability Work Group Pegasus Development Team</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="2">See (<a href="http://www.opengroup.org/management">http://www.opengroup.org/management</a>)
+     for more information on Pegasus</font>
+
+     <p style="margin-top: 0; margin-bottom: 0"> <font size="1">Last Modified <!--webbot bot="Timestamp" S-Type="EDITED"
+    S-Format="%A, %B %d, %Y %I:%M:%S %p" startspan -->Monday, March 26, 2001 05:51:53 PM<!--webbot bot="Timestamp" i-CheckSum="50405" endspan -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     Copyright @ The Open Group 2001&nbsp;</font>
+
+  </body>
+</html>
+
+
+

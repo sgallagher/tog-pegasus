@@ -296,7 +296,7 @@ void ThreadPool::_kill_dead_threads(DQueue<Thread> *q, Boolean (*check)(struct t
    struct timeval now;
    gettimeofday(&now, NULL);
    
-   DQueue<Thread> dead ;
+   DQueue<Thread> dead(true) ;
    
    if(q->count() > 0 )
    {

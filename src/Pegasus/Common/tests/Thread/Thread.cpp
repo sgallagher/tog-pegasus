@@ -26,7 +26,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <sys/types.h>
@@ -86,11 +85,9 @@ int main(int argc, char **argv)
       delete writers[i];
    }
 
-   delete rw; 
-   
+   delete rw;
    cout << endl << "read operations: " << read_count.value() << endl;
    cout << "write operations: " << write_count.value() << endl;
-
    return(0);
 }
 

@@ -29,7 +29,7 @@
 
 // Ensure Unix 98
 // and use built-in platform dependent atomic operation on Linux
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
    #ifndef _GNU_SOURCE
       #define _GNU_SOURCE
    #endif
@@ -49,6 +49,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
+
 
 typedef pthread_spinlock_t PEGASUS_CRIT_TYPE;
 typedef sem_t PEGASUS_SEMAPHORE_TYPE;
@@ -111,11 +112,10 @@ typedef struct {
 // other unix platforms HPUX, AIX, may have different types
 // implementors should use the native type for faster operations
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 #define PEGASUS_ATOMIC_INT_NATIVE = 1
 
-//typedef sig_atomic_t PEGASUS_ATOMIC_TYPE ;
-#define PEGASUS_ATOMIC_TYPE atomic_t
+typedef atomic_t PEGASUS_ATOMIC_TYPE ;
 
 #endif // linux platform atomic type
 
@@ -164,7 +164,7 @@ typedef struct {
 //-----------------------------------------------------------------
 
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
+//#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) 
 // #define PEGASUS_READWRITE_NATIVE = 1
 
 // typedef struct {
@@ -172,6 +172,6 @@ typedef struct {
 //     pthread_t owner;
 // } PEGASUS_RWLOCK_HANDLE;
 
-#endif // linux platform read/write type
+//#endif // linux platform read/write type
 
 

@@ -822,6 +822,7 @@ int Semaphore::count()
 // done atomically.
 //
 //#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+
 #if defined(PEGASUS_ATOMIC_INT_NATIVE)
 
 AtomicInt::AtomicInt() { _rep.counter = 0;}
@@ -835,56 +836,67 @@ AtomicInt::AtomicInt(const AtomicInt& original)
    _rep.counter = atomic_read(&original._rep);
 }
 
-AtomicInt& AtomicInt::operator=( const AtomicInt& original)
+
+ AtomicInt& AtomicInt::operator=(Uint32 i) 
 {
-   // don't worry about self-assignment in this implementation
+   atomic_set(&_rep, i );
+   return *this;
+}
+
+ AtomicInt& AtomicInt::operator=( const AtomicInt& original)
+{
    if(this != &original)
       atomic_set(&_rep,atomic_read(&original._rep));
    return *this;
 }
-
 
 Uint32 AtomicInt::value(void)
 {
    return((Uint32)atomic_read(&_rep));
 }
 
-void AtomicInt::operator++(void) { atomic_inc(&_rep); }
-void AtomicInt::operator--(void) { atomic_dec(&_rep); }
+ void AtomicInt::operator++(void) { atomic_inc(&_rep); }
+ void AtomicInt::operator--(void) { atomic_dec(&_rep); }
 
-Uint32 AtomicInt::operator+(const AtomicInt& val)
+ Uint32 AtomicInt::operator+(const AtomicInt& val)
 {
      return((Uint32)(atomic_read(&_rep) + atomic_read(&val._rep) ));
 }
-Uint32 AtomicInt::operator+(Uint32 val)
+
+ Uint32 AtomicInt::operator+(Uint32 val)
 { 
     return( (Uint32)(atomic_read(&_rep) + val));
 }
-Uint32 AtomicInt::operator-(const AtomicInt& val)
+
+ Uint32 AtomicInt::operator-(const AtomicInt& val)
 {
      return((Uint32)(atomic_read(&_rep) - atomic_read(&val._rep) ));
 }
-Uint32 AtomicInt::operator-(Uint32 val)
+
+ Uint32 AtomicInt::operator-(Uint32 val)
 { 
     return( (Uint32)(atomic_read(&_rep) - val));
 }
 
-AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
+ AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
 {
     atomic_add(atomic_read(&val._rep),&_rep);
     return *this;
 }
-AtomicInt& AtomicInt::operator+=(Uint32 val)
+
+ AtomicInt& AtomicInt::operator+=(Uint32 val)
 {
     atomic_add(val,&_rep);
     return *this;
 }
-AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
+
+ AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
 {
     atomic_sub(atomic_read(&val._rep),&_rep);
     return *this;
 }
-AtomicInt& AtomicInt::operator-=(Uint32 val)
+
+ AtomicInt& AtomicInt::operator-=(Uint32 val)
 {
     atomic_sub(val,&_rep);
     return *this;

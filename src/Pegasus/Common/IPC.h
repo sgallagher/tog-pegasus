@@ -38,8 +38,7 @@
 #else
 # error "Unsupported platform"
 #endif
-#include <Pegasus/Common/internal_dq.h>
-#include <Pegasus/Common/Config.h>
+//#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 
 #define PEG_SEM_READ 1
@@ -128,6 +127,200 @@ class PEGASUS_EXPORT TooManyReaders: public IPCException
       TooManyReaders();
 };
 
+
+class PEGASUS_EXPORT ListFull: public IPCException
+{
+   public:
+      ListFull(Uint32 count) : IPCException(pegasus_thread_self())
+      {
+	 _capacity = count;
+      }
+      Uint32 get_capacity(void) 
+      {
+	 return _capacity;
+      }
+   private:
+      ListFull(void *);
+      Uint32 _capacity;
+};
+
+#define PEG_DQUEUE_FIRST 0
+#define PEG_DQUEUE_LAST 1
+
+class PEGASUS_EXPORT internal_dq {
+   private:
+      void *_rep;
+      internal_dq *_next;
+      internal_dq  *_prev;
+      internal_dq *_cur;
+      Boolean _isHead ;
+      int _count;
+
+      // unlink this node from whichever list it is on
+      inline void unlink( void  ) 
+      { 
+	 _prev->_next = _next; 
+	 _next->_prev = _prev; 
+      }
+    
+      inline void insert_first(internal_dq & head)
+      { 
+	 _prev = &head; 
+	 _next = head._next; 
+	 head._next->_prev = this; 
+	 head._next = this;   
+	 head._count++; 
+      }
+
+      inline void insert_last(internal_dq & head) 
+      {
+	 _next = &head;
+	 _prev = head._prev;
+	 head._prev->_next = this;
+	 head._prev = this;
+	 head._count++;
+      }
+
+      inline void *remove( int code )
+      {
+	 void *ret = NULL;
+	
+	 if( _count > 0 ) {
+	    internal_dq *temp = NULL;
+	    if(code == PEG_DQUEUE_FIRST )
+	       temp = _next;
+	    else
+	       temp = _prev;
+	    
+	    temp->unlink();
+	    ret = temp->_rep;
+	    // unhinge ret from temp so it doesn't get destroyed 
+	    temp->_rep = NULL ;
+	    delete temp;
+	    _count--;
+	 }
+	 return(ret);
+      }
+
+   public:
+    
+      internal_dq(Boolean head = true) :  _rep(NULL), _isHead(head), _count(0)
+      { 
+	 _next = this; 
+	 _prev = this; 
+	 _cur = this;
+      }
+
+      virtual ~internal_dq() 
+      {  
+	 empty_list(); 
+      }
+
+      void insert_first(void *element)
+      {
+	 internal_dq *ins = new internal_dq(false);
+	 ins->_rep = element;
+	 ins->insert_first(*this); 
+      }
+
+      void insert_last(void *element)
+      {
+	 internal_dq *ins = new internal_dq(false);
+	 ins->_rep = element;
+	 ins->insert_last(*this);
+      }
+      
+      virtual void empty_list( void )
+      {
+	 while( _count > 0 ) {
+	    internal_dq *temp = _next;
+	    temp->unlink();
+	    if(temp->_rep != NULL)
+	       ::operator delete(temp->_rep);
+	    delete temp;
+	    _count--;
+	 }
+	 return;
+      }
+
+      inline void *remove_first ( void ) { return(remove(PEG_DQUEUE_FIRST) );}
+      inline void *remove_last ( void ) { return(remove(PEG_DQUEUE_LAST) );}
+
+      void *remove(void *key)
+      {
+	 void *ret = NULL;
+	 if(_count > 0)
+	 {
+	    internal_dq *temp = _next;
+	    while ( temp->_isHead == false ) {
+	       if( temp->_rep == key ) {
+		  temp->unlink();
+		  ret = temp->_rep;
+		  temp->_rep = NULL;
+		  delete temp;
+		  _count--;
+		  break;
+	       }
+	       temp = temp->_next;
+	    }
+	 }
+	 return(ret); 
+      }
+
+      void *reference(void *key)
+      {
+	 if( _count > 0 ) {
+	    internal_dq *temp = _next;
+	    while(temp->_isHead == false ) {
+	       if(key == temp->_rep)
+		  return(temp->_rep);
+	       temp = temp->_next;
+	    }
+	 }
+	 return(NULL);
+      }
+
+      inline void *next( void * ref)
+      {
+	 if( ref == NULL)
+	    _cur = _next;
+	 else {
+	    _cur = _cur->_next;
+	 }
+	 return(_cur->_rep);
+      }
+
+      inline void *prev( void * ref)
+      {
+	 if( ref == NULL)
+	    _cur = _prev;
+	 else {
+	    _cur = _cur->_prev;
+	 }
+	 return(_cur->_rep);
+      }
+
+      Boolean exists(void *key) 
+      {
+	 Boolean ret = false;
+	 if( _count > 0) {
+	    internal_dq *temp = _next;
+	    while(temp->_isHead == false ) 
+	    {
+	       if( temp->_rep == key ) 
+	       {
+		  ret = true;
+		  break;
+	       }
+	       temp = temp->_next;
+	    }
+	 }
+	 return(ret);
+      }
+      inline virtual int count(void) { return _count ; }
+} ;
+
+
 //%////////////////////////////////////////////////////////////////////////////
 class PEGASUS_EXPORT Mutex
 {
@@ -212,11 +405,14 @@ class PEGASUS_EXPORT Semaphore
 };
 
 
-#ifndef PEGASUS_ATOMIC_INT_NATIVE
+#if defined(PEGASUS_ATOMIC_INT_NATIVE)
+
+#else
 //-----------------------------------------------------------------
 /// Generic definition of Atomic integer
 //-----------------------------------------------------------------
 
+#undef PEGASUS_ATOMIC_INT_NATIVE
 #undef PEGASUS_ATOMIC_TYPE
 typedef struct {
       Uint32 _value;
@@ -274,7 +470,7 @@ class PEGASUS_EXPORT AtomicInt
       // without native atomic types 
 
    private:
-      PEGASUS_ATOMIC_TYPE _rep; //    sig_atomic_t on POSIX systems with glibc
+      PEGASUS_ATOMIC_TYPE _rep; //    atomic_t on POSIX systems with glibc
       PEGASUS_CRIT_TYPE _crit;
 };
     

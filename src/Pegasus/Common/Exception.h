@@ -694,21 +694,7 @@ class PEGASUS_COMMON_LINKAGE BufferTooSmall
 };
 
 
-class PEGASUS_COMMON_LINKAGE ListFull
-{
-   public:
-      ListFull(Uint32 count)
-      {
-	 _capacity = count;
-      }
-      Uint32 get_capacity(void) 
-      {
-	 return _capacity;
-      }
-   private:
-      ListFull(void *);
-      Uint32 _capacity;
-};
+
 
 
 

@@ -154,7 +154,7 @@ public:
         @param sizes an array to hold the sizes of the instance records.
         @return true on success.
     */
-    static Boolean appendInstanceNamesTo(
+    static Boolean enumerateEntries(
 	const String& path,
 	Array<CIMReference>& instanceNames,
 	Array<Uint32>& indices,
@@ -166,18 +166,18 @@ public:
 	The current implementation simply copies the index file to a a file
 	with the same name but with ".rollback" appended to it.
     */
-    void beginTransacation();
+    static Boolean beginTransacation(const String& path);
 
     /** Roll back any changes to the file since the last time 
         beginTransacation() was called. The current implementation deletes
 	the current file and renames the rollback file to the same name.
     */
-    void rollbackTransaction();
+    static Boolean rollbackTransaction(const String& path);
 
     /** Commit changes made after beginTransacation() was called. The curent
 	implementation simply removes the .rollback file.
     */
-    void commitTransaction();
+    static Boolean commitTransaction(const String& path);
 
 private:
 
@@ -224,7 +224,7 @@ private:
 
     /** Compact the file by removing entries which are marked as free.
     */
-    static void _compact(
+    static Boolean _compact(
         const String& path);
 
 };

@@ -1072,7 +1072,7 @@ Array<CIMReference> CIMRepository::enumerateInstanceNames(
 
         // Get all instances for that class:
 
-        if (!InstanceIndexFile::appendInstanceNamesTo(path, instanceNames, 
+        if (!InstanceIndexFile::enumerateEntries(path, instanceNames, 
             indices, sizes))
         {
             String errMessage = "Failed to load instance names in class ";
@@ -1649,11 +1649,12 @@ Boolean CIMRepository::_loadAllInstances(
     //
     // Get all instance names and record information from the index file
     //
-    if (!InstanceIndexFile::appendInstanceNamesTo(
+    if (!InstanceIndexFile::enumerateEntries(
         indexFilePath, instanceNames, indices, sizes))
     {
         return false;
     }
+
     PEGASUS_ASSERT(instanceNames.size() == indices.size());
     PEGASUS_ASSERT(instanceNames.size() == sizes.size());
    

@@ -117,7 +117,7 @@ static Boolean _GetNextRecord(
     Uint32& hashCode,
     Uint32& index,
     Uint32& size,
-    const char*& objectName,
+    const char*& instanceName,
     Boolean& error)
 {
     error = false;
@@ -169,7 +169,7 @@ static Boolean _GetNextRecord(
     // Get instance name:
     //
 
-    objectName = end;
+    instanceName = end;
 
     return true;
 }
@@ -341,52 +341,49 @@ Boolean InstanceIndexFile::modifyEntry(
     return true;
 }
 
-#if 0
-
-Boolean InstanceIndexFile::appendInstanceNamesTo(
+Boolean InstanceIndexFile::enumerateEntries(
     const String& path,
     Array<CIMReference>& instanceNames,
     Array<Uint32>& indices,
     Array<Uint32>& sizes)
 {
-    // -- Open index file and load the instance names
+    //
+    // Open input file:
+    //
 
-    String realPath;
+    fstream fs;
 
-    if (FileSystem::existsNoCase(path, realPath))
+    if (!_openFile(path, fs))
+	return false;
+
+    //
+    // Iterate over all instances to build output arrays:
+    //
+
+    Array<char> line;
+    Uint32 freeFlag;
+    Uint32 hashCode;
+    const char* instanceName;
+    Uint32 index;
+    Uint32 size;
+    Boolean error;
+
+    while (_GetNextRecord(
+	fs, line, freeFlag, hashCode, index, size, instanceName, error))
     {
-        ArrayDestroyer<char> p(realPath.allocateCString());
-
-        ifstream fs(p.getPointer(), ios::binary);
-
-        if (!fs)
-            return false;
-
-        // -- Build instance-names array:
-
-        Array<char> line;
-        Uint32 hashCode;
-        const char* objectName;
-        Uint32 index;
-        Uint32 size;
-        Boolean error;
-
-        while (_GetNextRecord(fs, line, hashCode, objectName, index, size, 
-            error))
-        {
-            instanceNames.append(objectName);
-            indices.append(index);
-            sizes.append(size);
-        }
-
-        if (error)
-            return false;
+	if (!freeFlag)
+	{
+	    instanceNames.append(instanceName);
+	    indices.append(index); 
+	    sizes.append(size);
+	}
     }
+
+    if (error)
+	return false;
 
     return true;
 }
-
-#endif
 
 Boolean InstanceIndexFile::_incrementFreeCount(
     PEGASUS_STD(fstream)& fs,
@@ -547,7 +544,7 @@ Boolean InstanceIndexFile::_lookupEntry(
     Array<char> line;
     Uint32 freeFlag;
     Uint32 hashCode;
-    const char* objectName;
+    const char* instanceNameTmp;
     Uint32 size;
     Uint32 index;
     Boolean error;
@@ -555,11 +552,11 @@ Boolean InstanceIndexFile::_lookupEntry(
     entryOffset = fs.tellp();
 
     while (_GetNextRecord(
-	fs, line, freeFlag, hashCode, index, size, objectName, error))
+	fs, line, freeFlag, hashCode, index, size, instanceNameTmp, error))
     {
 	if (freeFlag == 0 &&
 	    hashCode == targetHashCode &&
-	    CIMReference(objectName) == instanceName)
+	    CIMReference(instanceNameTmp) == instanceName)
 	{
 	    indexOut = index;
 	    sizeOut = size;
@@ -572,10 +569,142 @@ Boolean InstanceIndexFile::_lookupEntry(
     return false;
 }
 
-void InstanceIndexFile::_compact(
+Boolean InstanceIndexFile::_compact(
     const String& path)
 {
+    //
+    // Open input file:
+    //
 
+    fstream fs;
+
+    if (!_openFile(path, fs))
+	return false;
+
+    //
+    // Open temporary file:
+    //
+
+    fstream tmpFs;
+    String tmpPath = path;
+    tmpPath += ".tmp";
+
+    if (!_openFile(tmpPath, tmpFs))
+	return false;
+
+    //
+    // Iterate over all instances to build output arrays:
+    //
+
+    Array<char> line;
+    Uint32 freeFlag;
+    Uint32 hashCode;
+    const char* instanceName;
+    Uint32 index;
+    Uint32 size;
+    Boolean error;
+    Uint32 adjust = 0;
+
+    while (_GetNextRecord(
+	fs, line, freeFlag, hashCode, index, size, instanceName, error))
+    {
+	//
+	// Copy the entry over to the temporary file if it is not free.
+	// Otherwise, discard the entry and update subsequent indices to
+	// compensate for removal of this block.
+	//
+
+	if (freeFlag)
+	{
+	    adjust += size;
+	}
+	else
+	{
+	    if (!_appendEntry(tmpFs, instanceName, size, index - adjust))
+	    {
+		error = true;
+		break;
+	    }
+	}
+    }
+
+    //
+    // If an error occurred, remove the temporary file and
+    // return false.
+    //
+
+    if (error)
+    {
+	FileSystem::removeFile(tmpPath);
+	return false;
+    }
+
+    //
+    // Replace index file with temporary file:
+    //
+
+    if (!FileSystem::removeFile(path))
+	return false;
+
+    if (!FileSystem::renameFile(tmpPath, path))
+	return false;
+
+    return true;
 }
+
+Boolean InstanceIndexFile::beginTransacation(const String& path)
+{
+    //
+    // Create a rollback file which is a copy of the index file. The
+    // new filename is formed by appending ".rollback" to the name of
+    // the index file.
+    //
+
+    String rollbackPath = path;
+    rollbackPath += ".rollback";
+
+    if (!FileSystem::copyFile(path, rollbackPath))
+	return false;
+
+    return true;
+}
+
+Boolean InstanceIndexFile::rollbackTransaction(const String& path)
+{
+    //
+    // To roll back, simply delete the index file and rename
+    // the rollback file over it.
+    //
+
+    if (!FileSystem::removeFile(path))
+	return false;
+
+    String rollbackPath = path;
+    rollbackPath += ".rollback";
+
+    return FileSystem::renameFile(rollbackPath, path);
+}
+
+Boolean InstanceIndexFile::commitTransaction(const String& path)
+{
+    //
+    // To commit, simply remove the rollback file:
+    //
+
+    String rollbackPath = path;
+    rollbackPath += ".rollback";
+
+    return FileSystem::removeFile(rollbackPath);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// TODO:
+//
+//	- Implement compact.
+//	- Implement rollback scheme.
+//	- Code review.
+//
+////////////////////////////////////////////////////////////////////////////////
 
 PEGASUS_NAMESPACE_END

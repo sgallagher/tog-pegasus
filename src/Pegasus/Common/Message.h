@@ -41,7 +41,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/StatisticalData.h>
-#include <Pegasus/Common/pegasus_socket.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -148,7 +147,6 @@ class PEGASUS_COMMON_LINKAGE Message
 	    _next = _prev = _async = 0;
 	    dest = msg.dest;
             _httpMethod = msg._httpMethod;
-	    _socket = msg._socket;
 	    
 	 }
 	 return *this;
@@ -283,7 +281,6 @@ class PEGASUS_COMMON_LINKAGE Message
       {
 	 _key = req->_key;
 	 _routing_code = req->_routing_code;
-	 _socket = req->_socket;
       }
       
 
@@ -318,7 +315,6 @@ class PEGASUS_COMMON_LINKAGE Message
       static Mutex _mut;
 
 
-      pegasus_socket _socket;
 
       friend class cimom;
       friend class MessageQueue;

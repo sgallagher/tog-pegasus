@@ -39,7 +39,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Server/ShutdownService.h>
-#include <Pegasus/Common/PegasusVersion.h>
 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>

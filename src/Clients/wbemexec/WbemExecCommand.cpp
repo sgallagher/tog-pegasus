@@ -46,7 +46,6 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/SSLContext.h>
 
 #include <Pegasus/getoopt/getoopt.h>

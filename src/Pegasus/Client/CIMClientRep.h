@@ -52,7 +52,6 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
-#include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Client/CIMClientInterface.h>

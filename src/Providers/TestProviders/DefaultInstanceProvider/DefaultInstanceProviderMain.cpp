@@ -29,6 +29,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 #include "DefaultInstanceProvider.h"
 

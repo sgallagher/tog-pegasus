@@ -33,6 +33,7 @@
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>

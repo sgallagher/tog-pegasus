@@ -30,6 +30,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 #include "SimpleDisplayConsumer.h"
 

@@ -35,6 +35,7 @@
 
 #include "CIMClient.h"
 #include <Pegasus/Client/CIMClientRep.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 #include <iostream>
 #include <fstream>

@@ -26,6 +26,9 @@
 // Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
+#include <Pegasus/Common/PegasusVersion.h>
+
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "NTPProviderSecurity_HPUX.cpp"    
 #else

@@ -67,7 +67,7 @@ poststarttests:
 	CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r parent -s -count 2
 	
 	CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 4
-	CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS) " -r child -s -count 4
+	CLI r "TST_Person" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 4
 	CLI rn "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 0
 	CLI r  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -r child -s -count 0
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.8  2001/04/08 19:56:38  karl
+// Test version
+//
 // Revision 1.7  2001/04/07 12:01:18  karl
 // remove namespace support
 //
@@ -80,6 +83,7 @@ int main()
     assert(FileSystem::isDirectory(".."));
     assert(FileSystem::isDirectory("."));
     assert(!FileSystem::isDirectory("FileSystem.cpp"));
+    assert(FileSystem::isDirectory("./testdir"));
 
     Array<String> paths;
     assert( FileSystem::getDirectoryContents("./testdir", paths) );
@@ -132,7 +136,7 @@ int main()
 	assert(!FileSystem::isDirectory(t));
 
 	// Tests for remove hiearchy command
-	/* ATTN: Removed following until next test ks
+	// ATTN: Removed following until next test ks
 	// because remove hiearchy does not work yet.
 	FileSystem::makeDirectory(t);
 
@@ -174,11 +178,11 @@ int main()
 
 	FileSystem::changeDirectory(save_cwd);
         assert(FileSystem::isDirectory(t));
-
+	cout << "Before Remove " << t << endl;
 	FileSystem::removeDirectoryHier(t);
 	// ATTN: Removed until above fixed.
 	assert(!FileSystem::isDirectory(t));
-	end-of-temp-removal*/
+	 //end-of-temp-removal*/
         
     }
     // Test renameFile:

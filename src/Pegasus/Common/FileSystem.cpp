@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.9  2001/04/08 19:56:38  karl
+// Test version
+//
 // Revision 1.8  2001/04/08 19:20:04  mike
 // more TCP work
 //
@@ -263,6 +266,10 @@ Boolean FileSystem::removeDirectory(const String& path)
 Boolean FileSystem::removeDirectoryHier(const String& path)
 {
     // Get list of files in the Directory
+    ArrayDestroyer<char> p(_clonePath(path));
+
+    cout << "DEBUG RMDIR Enter " << p.getPointer() << endl;
+
 
     Array<String> fileList;
 
@@ -270,23 +277,27 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
 	return false;
 
     // ATTN: Since not tested.  Following is bypass
-    return true;
+    // return true;
 
     // for files-in-directory, delete or recall removedir
     // Do not yet test for boolean returns on the removes
     // ATTN Diagnostics still installed ks.
     for (Uint32 i = 0, n = fileList.getSize(); i < n; i++)
     {
-	if (FileSystem::isDirectory(fileList[i]))
-	{
-	    // std::cout << "DEBUG RMDIR Next " << fileList[i] <<  std::endl;
+	ArrayDestroyer<char> q(_clonePath(fileList[i]));
+
+	// DEBUG Display of the isDirectory Call
+	cout << "DEBUG DIR? " << i << " " << 
+	    FileSystem::isDirectory(fileList[i]) << endl;
+
+	if (FileSystem::isDirectory(fileList[i])){
+	    cout << "DEBUG RMDIR Next " << q.getPointer()  << endl;
 	    FileSystem::removeDirectoryHier(fileList[i]);
 	}
 
-	else
-	{
-	    // std::cout << "DEBUG RMFIL " << fileList[i] << std::endl;
-	    removeFile(fileList[i]);
+	else{
+	    cout << "DEBUG RMFIL " << q.getPointer() <<endl;
+	     removeFile(fileList[i]);
 	}
 
     }
@@ -401,7 +412,8 @@ Boolean FileSystem::getDirectoryContents(
 	for (Dir dir(path); dir.more(); dir.next())
 	{
 	    String name = dir.getName();
-    
+    	    cout << "DEBUG gD " << dir.getName() << " "	<<
+		FileSystem::isDirectory(name) << endl;
 	    if (String::equal(name, ".") || String::equal(name, ".."))
 		continue;
     	    // cout << "DEBUG DIR = " << dir.getName() << endl;

@@ -460,23 +460,41 @@ String XmlReader::getSuperClassAttribute(
 //
 // getCimTypeAttribute()
 //
+// This method can be used to get a TYPE attribute or a PARAMTYPE attribute.
+// The only significant difference is that PARAMTYPE may specify a value of
+// "reference" type.  This method recognizes these attributes by name, and
+// does not allow a "TYPE" attribute to be of "reference" type.
+//
 //     <!ENTITY % CIMType "TYPE (boolean|string|char16|uint8|sint8|uint16
 //         |sint16|uint32|sint32|uint64|sint64|datetime|real32|real64)">
+//
+//     <!ENTITY % ParamType "PARAMTYPE (boolean|string|char16|uint8|sint8
+//         |uint16|sint16|uint32|sint32|uint64|sint64|datetime|real32|real64
+//         |reference)">
 //
 //------------------------------------------------------------------------------
 
 CIMType XmlReader::getCimTypeAttribute(
     Uint32 lineNumber, 
     const XmlEntry& entry, 
-    const char* tagName)
+    const char* tagName,
+    const char* attributeName,
+    Boolean required)
 {
     const char* typeName;
 
-    if (!entry.getAttributeValue("TYPE", typeName))
+    if (!entry.getAttributeValue(attributeName, typeName))
     {
-	char message[MESSAGE_SIZE];
-	sprintf(message, "missing %s.TYPE attribute", tagName);
-	throw XmlValidationError(lineNumber, message);
+        if (required)
+	{
+	    char message[MESSAGE_SIZE];
+	    sprintf(message, "missing %s.%s attribute", tagName, attributeName);
+	    throw XmlValidationError(lineNumber, message);
+	}
+	else
+	{
+	    return CIMType::NONE;
+	}
     }
 
     CIMType type = CIMType::NONE;
@@ -509,11 +527,16 @@ CIMType XmlReader::getCimTypeAttribute(
 	type = CIMType::REAL32;
     else if (strcmp(typeName, "real64") == 0)
 	type = CIMType::REAL64;
+    else if (strcmp(typeName, "reference") == 0)
+	type = CIMType::REFERENCE;
 
-    if (type == CIMType::NONE)
+    if ((type == CIMType::NONE) ||
+        ((type == CIMType::REFERENCE) &&
+         (strcmp(attributeName, "PARAMTYPE") != 0)))
     {
 	char message[MESSAGE_SIZE];
-	sprintf(message, "Illegal value for %s.TYPE attribute", tagName);
+	sprintf(message, "Illegal value for %s.%s attribute", tagName,
+	        attributeName);
 	throw XmlSemanticError(lineNumber, message);
     }
 
@@ -2373,6 +2396,59 @@ Boolean XmlReader::getParameterReferenceElement(
 
 //------------------------------------------------------------------------------
 //
+// getParameterReferenceArrayElement()
+//
+//     <!ELEMENT PARAMETER.REFARRAY (QUALIFIER*)>
+//     <!ATTLIST PARAMETER.REFARRAY
+//         %CIMName;
+//         %ReferenceClass;
+//         %ArraySize;>
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::getParameterReferenceArrayElement(
+    XmlParser& parser, 
+    CIMParameter& parameter)
+{
+    XmlEntry entry;
+
+    if (!testStartTagOrEmptyTag(parser, entry, "PARAMETER.REFARRAY"))
+	return false;
+
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
+
+    // Get PARAMETER.NAME attribute:
+
+    String name = getCimNameAttribute(
+	parser.getLine(), entry, "PARAMETER.REFARRAY");
+
+    // Get PARAMETER.REFERENCECLASS attribute:
+
+    String referenceClass = getReferenceClassAttribute(
+	parser.getLine(), entry, "PARAMETER.REFARRAY");
+
+    // Get PARAMETER.ARRAYSIZE attribute:
+
+    Uint32 arraySize = 0;
+    getArraySizeAttribute(parser.getLine(), entry, "PARAMETER.REFARRAY",
+			  arraySize);
+
+    // Create parameter:
+
+    parameter = CIMParameter(name, CIMType::REFERENCE, true, arraySize,
+			     referenceClass);
+
+    if (!empty)
+    {
+	getQualifierElements(parser, parameter);
+	expectEndTag(parser, "PARAMETER.REFARRAY");
+    }
+
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//
 // GetParameterElements()
 //
 //------------------------------------------------------------------------------
@@ -2384,7 +2460,8 @@ void GetParameterElements(XmlParser& parser, CONTAINER& container)
 
     while (XmlReader::getParameterElement(parser, parameter) ||
 	XmlReader::getParameterArrayElement(parser, parameter) ||
-	XmlReader::getParameterReferenceElement(parser, parameter))
+	XmlReader::getParameterReferenceElement(parser, parameter) ||
+	XmlReader::getParameterReferenceArrayElement(parser, parameter))
     {
 	try
 	{
@@ -2540,6 +2617,8 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, CIMMethod& method)
 
     if (!empty)
     {
+        // ATTN-RK-P2-20020219: Decoding algorithm must not depend on the
+        // ordering of qualifiers and parameters.
 	getQualifierElements(parser, method);
 
 	GetParameterElements(parser, method);
@@ -3131,24 +3210,80 @@ Boolean XmlReader::getMethodResponseStartTag(
 
 //------------------------------------------------------------------------------
 //
-// getParamValueTag()
+// getParamValueElement()
+//
+// <!ELEMENT PARAMVALUE (VALUE|VALUE.REFERENCE|VALUE.ARRAY|VALUE.REFARRAY)?>
+// <!ATTLIST PARAMVALUE
+//      %CIMName;
+//      %ParamType;>
 //
 //------------------------------------------------------------------------------
 
-Boolean XmlReader::getParamValueTag(
+Boolean XmlReader::getParamValueElement(
     XmlParser& parser, 
-    const char*& name)
+    CIMParamValue& paramValue)
 {
     XmlEntry entry;
+    const char* name;
+    CIMType type;
+    CIMValue value;
 
-    if (!testStartTag(parser, entry, "PARAMVALUE"))
+    if (!testStartTagOrEmptyTag(parser, entry, "PARAMVALUE"))
 	return false;
 
-    // Get IPARAMVALUE.NAME attribute:
+    Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
+
+    // Get PARAMVALUE.NAME attribute:
 
     if (!entry.getAttributeValue("NAME", name))
 	throw XmlValidationError(parser.getLine(),
 	    "Missing PARAMVALUE.NAME attribute");
+
+    // Get PARAMVALUE.PARAMTYPE attribute:
+
+    type = getCimTypeAttribute(parser.getLine(), entry, "PARAMVALUE",
+			       "PARAMTYPE", false);
+
+    if (!empty)
+    {
+        // Parse VALUE.REFERENCE and VALUE.REFARRAY type
+        if ( (type == CIMType::REFERENCE) || (type == CIMType::NONE) )
+        {
+	    CIMReference reference;
+	    if (XmlReader::getValueReferenceElement(parser, reference))
+	    {
+	        value.set(reference);
+	        type = CIMType::REFERENCE;
+	    }
+	    // ATTN-RK-P2-20010219: This method does not exist.  CIMValue does
+	    // not currently allow for an array of CIMReferences.
+            //else if (XmlReader::getValueReferenceArrayElement(parser, value))
+	    //{
+	    //    type = CIMType::REFERENCE;
+	    //}
+        }
+
+        // Parse non-reference value
+        if ( type != CIMType::REFERENCE )
+        {
+	    // If we don't know what type the value is, read it as a String
+            CIMType effectiveType = type;
+            if ( effectiveType == CIMType::NONE)
+	    {
+		effectiveType = CIMType::STRING;
+	    }
+
+            if ( !XmlReader::getValueArrayElement(parser, effectiveType, value) &&
+	         !XmlReader::getValueElement(parser, effectiveType, value) )
+	    {
+	        value.clear();    // Isn't necessary; should already be cleared
+	    }
+        }
+
+        expectEndTag(parser, "PARAMVALUE");
+    }
+
+    paramValue = CIMParamValue(CIMParameter(name, type), value);
 
     return true;
 }

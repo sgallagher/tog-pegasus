@@ -1165,8 +1165,9 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
     CIMStatusCode code;
     const char* description = 0;
 
-    CIMValue value;
+    CIMParamValue paramValue;
     Array<CIMParamValue> outParameters;
+    CIMValue value;
     const char* paramName;
     String inValue;
 
@@ -1189,7 +1190,8 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
 
         while ((isReturnValue =
                     XmlReader::testStartTag(parser, entry, "RETURNVALUE")) ||
-               (isParamValue = XmlReader::getParamValueTag(parser, paramName)))
+               (isParamValue =
+		    XmlReader::getParamValueElement(parser, paramValue)))
         {
             if (isReturnValue)
             {
@@ -1206,15 +1208,7 @@ CIMInvokeMethodResponseMessage* CIMOperationResponseDecoder::_decodeInvokeMethod
             }
             else    // isParamValue == true
             {
-                // ATTN: Need to determine the correct type
-	        //XmlReader::getValueElement(parser, CIMType::NONE, inValue);
-	        XmlReader::getStringValueElement(parser, inValue, true);
-
-	        outParameters.append(CIMParamValue(
-		    CIMParameter(paramName, CIMType::STRING),
-		    CIMValue(inValue)));
-	
-	        XmlReader::expectEndTag(parser, "PARAMVALUE");
+	        outParameters.append(paramValue);
             }
 
             isReturnValue = false;

@@ -672,11 +672,7 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 
     for (Uint32 i=0; i < message->inParameters.size(); i++)
     {
-        // ATTN: Need to support non-String parameter values
-	XmlWriter::appendStringParameter(
-	    params, 
-	    _CString(message->inParameters[i].getParameter().getName()),
-	    message->inParameters[i].getValue().toString());
+        message->inParameters[i].toXml(params);
     }
 
     Array<Sint8> buffer = XmlWriter::formatSimpleMethodReqMessage(_hostName,

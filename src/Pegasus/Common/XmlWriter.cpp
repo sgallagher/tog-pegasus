@@ -1158,52 +1158,13 @@ Array<Sint8> XmlWriter::formatMethodResponseElement(
 
 //------------------------------------------------------------------------------
 //
-// appendStringParameter()
-//
-//------------------------------------------------------------------------------
-
-Array<Sint8>& XmlWriter::appendStringParameter(
-    Array<Sint8>& out,
-    const char* name,
-    const String& str)
-{
-    Array<Sint8> tmp;
-    tmp << "<VALUE>";
-    appendSpecial(tmp, str);
-    tmp << "</VALUE>\n";
-    return formatParamValueElement(out, name, tmp);
-}
-
-//------------------------------------------------------------------------------
-//
-// formatParamValueElement()
-//
-//     <!ELEMENT PARAMVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE
-//         |INSTANCENAME|CLASSNAME|QUALIFIER.DECLARATION
-//         |CLASS|INSTANCE|VALUE.NAMEDINSTANCE)?>
-//     <!ATTLIST PARAMVALUE %CIMName;>
-//
-//------------------------------------------------------------------------------
-
-Array<Sint8>& XmlWriter::formatParamValueElement(
-    Array<Sint8>& out,
-    const char* name,
-    const Array<Sint8>& body)
-{
-    out << "<PARAMVALUE NAME=\"" << name << "\">\n";
-    out << body;
-    out << "</PARAMVALUE>\n";
-    return out;
-}
-
-//------------------------------------------------------------------------------
-//
 // formatReturnValueElement()
 //
-//      <!ELEMENT RETURNVALUE (CLASSNAME*|INSTANCENAME*|VALUE*|
-//          VALUE.OBJECTWITHPATH*|VALUE.OBJECTWITHLOCALPATH*|VALUE.OBJECT*|
-//          OBJECTPATH*|QUALIFIER.DECLARATION*|VALUE.ARRAY?|VALUE.REFERENCE?|
-//          CLASS*|INSTANCE*|VALUE.NAMEDINSTANCE*)>
+// ATTN-RK-P2-20020219: This spec snippet reflects an update that has not yet
+// been implemented
+// <!ELEMENT RETURNVALUE (VALUE|VALUE.ARRAY|VALUE.REFERENCE|VALUE.REFARRAY)>
+// <!ATTLIST RETURNVALUE
+//     %ParamType;>
 //
 //------------------------------------------------------------------------------
 

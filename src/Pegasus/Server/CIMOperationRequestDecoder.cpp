@@ -1973,21 +1973,12 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
     const String& cimMethodName,
     const String& userName)
 {
+    CIMParamValue paramValue;
     Array<CIMParamValue> inParameters;
     
-    const char* paramName;
-    String inValue;
-    
-    while (XmlReader::getParamValueTag(parser, paramName))
+    while (XmlReader::getParamValueElement(parser, paramValue))
     {
-        //XmlReader::getValueElement(parser, CIMType::NONE, inValue);
-        XmlReader::getStringValueElement(parser, inValue, true);
-
-        inParameters.append(CIMParamValue(
-            CIMParameter(paramName, CIMType::STRING),
-            CIMValue(inValue)));
-        
-        XmlReader::expectEndTag(parser, "PARAMVALUE");
+        inParameters.append(paramValue);
     }
 
     CIMInvokeMethodRequestMessage* request =     

@@ -24,6 +24,7 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +63,7 @@ void test01()
     CIMParameter p6("message6", CIMType::STRING);
     p6.addQualifier(CIMQualifier("in", true));
     CIMValue v6("argument_Test6");
-    CIMParamValue a6(p6, v6, false, 0, "myClass");
+    CIMParamValue a6(p6, v6);
 
     Array<CIMParamValue> aa;
     aa.append(a1);
@@ -86,12 +87,6 @@ void test01()
     }
 
     //
-    // toMof
-    //
-    Array<Sint8> mofOut;
-    a4clone.toMof(mofOut);
-
-    //
     // toXml
     //
     Array<Sint8> xmlOut;
@@ -111,40 +106,6 @@ void test01()
     assert(!same);
  
     //
-    // add qualifiers
-    //
-    a1.addQualifier(CIMQualifier("q1", true));
-    a1.addQualifier(CIMQualifier("q2", true));
-
-    //
-    // get qualifier count
-    //
-    assert(a1.getQualifierCount() == 2);
-
-    //
-    // get qualifiers
-    //
-    CIMQualifier q1 = a1.getQualifier(0);
-    CIMQualifier q2 = a1.getQualifier(1);
-    assert(q1);
-    assert(q2);
-
-    CIMConstQualifier q1const = a1.getQualifier(0);
-    CIMConstQualifier q2const = a1.getQualifier(1);
-    assert(q1const);
-    assert(q2const);
-
-    //
-    // isArray
-    //
-    assert(a1.isArray() == false);
-
-    //
-    // getAraySize
-    //
-    assert(a1.getAraySize() == 0);
-
-    //
     // test CIMConstParamValue methods
     //
     CIMConstParamValue ca1 = a1;
@@ -162,17 +123,6 @@ void test01()
 
     assert(ca3clone.identical(ca3) == true);
  
-    assert(ca1.getQualifierCount() == 2);
-
-    const CIMConstQualifier cq1 = ca1.getQualifier(0);
-    assert(cq1);
-    CIMConstQualifier cq2 = ca1.getQualifier(0);
-    assert(cq2);
-
-    assert(ca1.isArray() == false);
-
-    assert(ca1.getAraySize() == 0);
-
 }
 
 

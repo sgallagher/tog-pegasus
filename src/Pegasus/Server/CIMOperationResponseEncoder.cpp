@@ -876,17 +876,13 @@ void CIMOperationResponseEncoder::encodeInvokeMethodResponse(
 
     body = XmlWriter::formatReturnValueElement(body);
 
-    for (Uint8 i = 0; i < response->outParameters.size(); i++)
+    for (Uint32 i=0; i < response->outParameters.size(); i++)
     {
-        // ATTN: Need to support non-String parameter values
-	XmlWriter::appendStringParameter(
-	    body, 
-	    response->outParameters[i].getParameter().getName().allocateCString(),
-	    response->outParameters[i].getValue().toString());
+        response->outParameters[i].toXml(body);
     }
 
     Array<Sint8> message = XmlWriter::formatSimpleMethodRspMessage(
-	response->methodName.allocateCString(), response->messageId, body);
+	_CString(response->methodName), response->messageId, body);
 
     sendResponse(response->queueIds.top(), message);
     PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationResponseEncoder::"

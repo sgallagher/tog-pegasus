@@ -132,7 +132,9 @@ public:
     static CIMType getCimTypeAttribute(
 	Uint32 lineNumber, 
 	const XmlEntry& entry, 
-	const char* tagName);
+	const char* tagName,
+	const char* attributeName = "TYPE",
+	Boolean required = true);
 
     static Boolean getCimBooleanAttribute(
 	Uint32 lineNumber,
@@ -292,6 +294,10 @@ public:
 	XmlParser& parser, 
 	CIMParameter& parameter);
 
+    static Boolean getParameterReferenceArrayElement(
+	XmlParser& parser, 
+	CIMParameter& parameter);
+
     static Boolean getQualifierDeclElement(
 	XmlParser& parser, 
 	CIMQualifierDecl& qualifierDecl);
@@ -378,9 +384,9 @@ public:
 	XmlParser& parser, 
 	const char*& name);
 
-    static Boolean getParamValueTag(
+    static Boolean getParamValueElement(
 	XmlParser& parser, 
-	const char*& name);
+	CIMParamValue& paramValue);
 
 private:
 

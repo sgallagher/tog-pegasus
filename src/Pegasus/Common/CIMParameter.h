@@ -104,10 +104,10 @@ public:
 	return _rep->isArray();
     }
 
-    Uint32 getAraySize() const
+    Uint32 getArraySize() const
     {
 	_checkRep();
-	return _rep->getAraySize();
+	return _rep->getArraySize();
     }
 
     const String& getReferenceClassName() const 
@@ -288,10 +288,10 @@ public:
 	return _rep->isArray();
     }
 
-    Uint32 getAraySize() const
+    Uint32 getArraySize() const
     {
 	_checkRep();
-	return _rep->getAraySize();
+	return _rep->getArraySize();
     }
 
     const String& getReferenceClassName() const 

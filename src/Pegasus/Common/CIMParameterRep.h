@@ -67,7 +67,7 @@ public:
 	return _isArray;
     }
 
-    Uint32 getAraySize() const
+    Uint32 getArraySize() const
     {
 	return _arraySize;
     }

@@ -281,16 +281,6 @@ public:
 	const char* name,
 	const Array<Sint8>& iParamValues);
 
-    static Array<Sint8>& appendStringParameter(
-	Array<Sint8>& out,
-	const char* parameterName,
-	const String& str);
-
-    static Array<Sint8>& formatParamValueElement(
-	Array<Sint8>& out,
-	const char* name,
-	const Array<Sint8>& body);
-    
     static Array<Sint8> formatReturnValueElement(
 	const Array<Sint8>& body);
 

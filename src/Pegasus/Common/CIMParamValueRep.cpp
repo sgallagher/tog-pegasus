@@ -23,38 +23,22 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <cstdio>
-#include "CIMParamValue.h"
-#include "Indentor.h"
-#include "CIMName.h"
-#include "CIMScope.h"
 #include "XmlWriter.h"
+#include "CIMParamValue.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
 CIMParamValueRep::CIMParamValueRep(
     CIMParameter parameter,
-    CIMValue value,
-    Boolean isArray,
-    Uint32 arraySize,
-    const String& referenceClassName) 
-    : _parameter(parameter), _value(value),
-    _isArray(isArray), _arraySize(arraySize), 
-    _referenceClassName(referenceClassName)
+    CIMValue value)
+    : _parameter(parameter), _value(value)
 {
-    if (_arraySize && !_isArray)
-	throw IncompatibleTypes();
-
-    if (referenceClassName.size())
-    {
-	if (!CIMName::legal(referenceClassName))
-	    throw IllegalName();
-    }
 }
 
 CIMParamValueRep::~CIMParamValueRep()
@@ -62,105 +46,31 @@ CIMParamValueRep::~CIMParamValueRep()
 
 }
 
-void CIMParamValueRep::resolve(
-    DeclContext* declContext,
-    const String& nameSpace)
-{
-    // Validate the qualifiers of the method (according to
-    // superClass's method with the same name). This method
-    // will throw an exception if the validation fails.
-
-    CIMQualifierList dummy;
-
-    _qualifiers.resolve(
-	declContext,
-	nameSpace,
-	CIMScope::PARAMETER,
-	false,
-	dummy);
-}
-
+//------------------------------------------------------------------------------
+//
+//     <!ELEMENT PARAMVALUE (VALUE|VALUE.REFERENCE|VALUE.ARRAY|VALUE.REFARRAY)?>
+//     <!ATTLIST PARAMVALUE
+//         %CIMName;
+//         %ParamType;>
+//
+//------------------------------------------------------------------------------
 void CIMParamValueRep::toXml(Array<Sint8>& out) const
 {
-    if (_isArray)
+    out << "<PARAMVALUE NAME=\"" << _parameter.getName() << "\"";
+
+    // ATTN-RK-P2-20010219: Should this type come from the Parameter or Value?
+    CIMType type = _value.getType();
+
+    if (type != CIMType::NONE)
     {
-	out << " ARGUMENT.ARRAY";
-
-	out << " PARAMETER_NAME=\"" << _parameter.getName() << "\"";
-
-	out << " PARAMETER_TYPE=\"" << TypeToString(_parameter.getType()) << "\"";
-
-	out << " VALUE=\"";
-	_value.toXml(out);
-	out << "\"";
-
-	if (_arraySize)
-	{
-	    char buffer[32];
-	    sprintf(buffer, "%d", _arraySize);
-	    out << " ARRAYSIZE=\"" << buffer << "\"";
-	}
-
-	out << ">\n";
-
-	_qualifiers.toXml(out);
-
-	out << "</PARAMETER.ARRAY>\n";
+        out << " PARAMTYPE=\"" << TypeToString(type) << "\"";
     }
-    else
-    {
-	out << " ARGUMENT";
-	out << " PARAMETER.NAME=\"" << _parameter.getName() << "\"";
-	out << " PARAMETER.TYPE=\"" << TypeToString(_parameter.getType()) << "\"";
-	out << " PARAMETER.VALUE=\"";
-	_value.toXml(out);
-	out << "\"";
-	out << ">\n";
-	_qualifiers.toXml(out);
-	out << "</ARGUMENT>\n";
-    }
-}
 
-/** toMof - puts the Mof representation of the ParamValue object to
-    the output parameter array
-    The BNF for this conversion is:
-    parameterList    = 	parameter *( "," parameter )
+    out << ">\n";
 
-	parameter    = 	[ qualifierList ] (dataType|objectRef) parameterName
-				[ array ]
-
-	parameterName= 	IDENTIFIER
-	
-	array 	     = 	"[" [positiveDecimalValue] "]"
-	
-    Format on a single line.
-    */
-void CIMParamValueRep::toMof(Array<Sint8>& out) const
-{
-    // Output the qualifiers for the parameter
-    _qualifiers.toMof(out);
-
-    if (_qualifiers.getCount())
-	out << " ";
-
-    // Output the data parameter and value
-    out << _parameter.getName() 
-	<< " " << TypeToString(_parameter.getType())
-	<< " ";
     _value.toXml(out);
 
-    if (_isArray)
-    {
-	//Output the array indicator "[ [arraysize] ]"
-	if (_arraySize)
-	{
-	    char buffer[32];
-	    sprintf(buffer, "[%d]", _arraySize);
-	    out << buffer;
-	}
-	else
-	    out << "[]";
-    }
+    out << "</PARAMVALUE>\n";
 }
 
 void CIMParamValueRep::print(PEGASUS_STD(ostream) &os) const 
@@ -179,12 +89,6 @@ Boolean CIMParamValueRep::identical(const CIMParamValueRep* x) const
     if (_value != x->_value)
 	return false;
 
-    if (_referenceClassName != x->_referenceClassName)
-	return false;
-
-    if (!_qualifiers.identical(x->_qualifiers))
-	return false;
-
     return true;
 }
 
@@ -196,14 +100,13 @@ CIMParamValueRep::CIMParamValueRep()
 CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :
     Sharable(),
     _parameter(x._parameter),
-    _value(x._value),
-    _isArray(x._isArray),
-    _arraySize(x._arraySize),
-    _referenceClassName(x._referenceClassName)
+    _value(x._value)
 {
-    x._qualifiers.cloneTo(_qualifiers);
 }
 
+// ATTN-RK-P3-20010219: Is this correct?  (See also CIMMethodRep.cpp,
+// CIMParameterRep.cpp, CIMPropertyRep.cpp, CIMQualifierDeclRep.cpp,
+// CIMQualifierRep.cpp)
 CIMParamValueRep& CIMParamValueRep::operator=(const CIMParamValueRep& x) 
 { 
     return *this; 
@@ -212,21 +115,11 @@ CIMParamValueRep& CIMParamValueRep::operator=(const CIMParamValueRep& x)
 void CIMParamValueRep::setParameter(CIMParameter parameter)
 { 
     _parameter = parameter;
-
-    if (_referenceClassName.size() == 0)
-    {
-	throw MissingReferenceClassName();
-    }
 }
 
 void CIMParamValueRep::setValue(CIMValue value)
 { 
     _value = value;
-
-    if (_referenceClassName.size() == 0)
-    {
-	throw MissingReferenceClassName();
-    }
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,7 +23,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,13 +69,9 @@ public:
 
     CIMParamValue(
 	CIMParameter parameter,
-	CIMValue value,
-	Boolean isArray = false,
-	Uint32 arraySize = 0,
-	const String& referenceClassName = String::EMPTY)
+	CIMValue value)
     {
-	_rep = new CIMParamValueRep(
-	    parameter, value, isArray, arraySize, referenceClassName);
+	_rep = new CIMParamValueRep(parameter, value);
     }
 
     ~CIMParamValue()
@@ -83,67 +79,18 @@ public:
 	Dec(_rep);
     }
 
-    Boolean isArray() const
-    {
-	_checkRep();
-	return _rep->isArray();
-    }
-
-    Uint32 getAraySize() const
-    {
-	_checkRep();
-	return _rep->getAraySize();
-    }
-
-    const String& getReferenceClassName() const 
-    {
-	_checkRep();
-	return _rep->getReferenceClassName(); 
-    }
-
+    // ATTN-RK-P3-20010219: Shouldn't have to clone this object on retrieval
     CIMParameter getParameter() const 
     { 
 	_checkRep();
 	return _rep->getParameter();
     }
 
+    // ATTN-RK-P3-20010219: Shouldn't have to clone this object on retrieval
     CIMValue getValue() const 
     { 
 	_checkRep();
 	return _rep->getValue();
-    }
-
-    // Throws AlreadyExists.
-
-    CIMParamValue& addQualifier(const CIMQualifier& x)
-    {
-	_checkRep();
-	_rep->addQualifier(x);
-	return *this;
-    }
-
-    CIMQualifier getQualifier(Uint32 pos)
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
-
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
-
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
-    }
-
-    void resolve(DeclContext* declContext, const String& nameSpace)
-    {
-	_checkRep();
-	_rep->resolve(declContext, nameSpace);
     }
 
     operator int() const { return _rep != 0; }
@@ -153,13 +100,6 @@ public:
 	_checkRep();
 	_rep->toXml(out);
     }
-
-    void toMof(Array<Sint8>& out) const
-    {
-	_checkRep();
-	_rep->toMof(out);
-    }
-
 
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
@@ -239,13 +179,9 @@ public:
 
     CIMConstParamValue(
 	CIMParameter parameter,
-	CIMValue value,
-	Boolean isArray = false,
-	Uint32 arraySize = 0,
-	const String& referenceClassName = String::EMPTY)
+	CIMValue value)
     {
-	_rep = new CIMParamValueRep(
-	    parameter, value, isArray, arraySize, referenceClassName);
+	_rep = new CIMParamValueRep(parameter, value);
     }
 
     ~CIMConstParamValue()
@@ -253,40 +189,11 @@ public:
 	Dec(_rep);
     }
 
-    Boolean isArray() const
-    {
-	_checkRep();
-	return _rep->isArray();
-    }
-
-    Uint32 getAraySize() const
-    {
-	_checkRep();
-	return _rep->getAraySize();
-    }
-
-    const String& getReferenceClassName() const 
-    {
-	_checkRep();
-	return _rep->getReferenceClassName(); 
-    }
-
+    // ATTN-RK-P3-20010219: Shouldn't have to clone this object on retrieval
     CIMParameter getParameter() const 
     { 
 	_checkRep();
 	return _rep->getParameter();
-    }
-
-    CIMConstQualifier getQualifier(Uint32 pos) const
-    {
-	_checkRep();
-	return _rep->getQualifier(pos);
-    }
-
-    Uint32 getQualifierCount() const
-    {
-	_checkRep();
-	return _rep->getQualifierCount();
     }
 
     operator int() const { return _rep != 0; }

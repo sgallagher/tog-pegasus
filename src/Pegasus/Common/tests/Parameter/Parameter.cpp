@@ -111,9 +111,9 @@ void test01()
     assert(p1.isArray() == false);
 
     //
-    // getAraySize
+    // getArraySize
     //
-    assert(p1.getAraySize() == 0);
+    assert(p1.getArraySize() == 0);
 
     //
     // test CIMConstParameter methods
@@ -136,7 +136,7 @@ void test01()
     assert(cp1.identical(cp1) == true);
     assert(cp1.identical(cp2) == false);
     assert(cp1.isArray() == false);
-    assert(cp1.getAraySize() == 0);
+    assert(cp1.getArraySize() == 0);
     assert(cp1.getQualifierCount() == 1);
     assert(cp1.findQualifier("in") != PEG_NOT_FOUND);
     CIMConstQualifier cq1 = cp1.getQualifier(0);

@@ -226,7 +226,7 @@ CIMListenerIndicationDispatcher::CIMListenerIndicationDispatcher()
 CIMListenerIndicationDispatcher::~CIMListenerIndicationDispatcher()
 {
 	if(_rep!=NULL)
-		delete _rep;
+		delete static_cast<CIMListenerIndicationDispatcherRep*>(_rep);
 
 	_rep=NULL;
 }

@@ -407,7 +407,7 @@ CIMListener::CIMListener(Uint32 portNumber, SSLContext* sslContext)
 CIMListener::~CIMListener()
 {
 	if(_rep!=NULL)
-		delete _rep;
+		delete static_cast<CIMListenerRep*>(_rep);
 	_rep=NULL;
 }
 	

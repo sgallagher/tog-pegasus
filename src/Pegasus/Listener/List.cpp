@@ -222,7 +222,7 @@ PtrList::PtrList()
 PtrList::~PtrList()
 {
 	if(_rep!=NULL)
-		delete _rep;
+		delete static_cast<PtrListRep*>(_rep);
 	_rep=NULL;
 }
 	

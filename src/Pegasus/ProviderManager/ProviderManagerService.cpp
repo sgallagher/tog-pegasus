@@ -1561,7 +1561,7 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     CIMSetPropertyResponseMessage * response =
         new CIMSetPropertyResponseMessage(
         request->messageId,
-        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        CIMException(),
         request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);

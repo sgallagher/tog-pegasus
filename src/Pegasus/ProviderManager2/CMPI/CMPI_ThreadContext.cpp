@@ -92,7 +92,11 @@ CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext() {
 }
 
 CMPIBroker* CMPI_ThreadContext::getBroker() {
-   return getThreadContext()->broker;
+   //return getThreadContext()->broker;
+    CMPI_ThreadContext *ctx = getThreadContext();
+    if (ctx)
+	return ctx->broker;
+    return 0;
 }
 
 CMPIContext* CMPI_ThreadContext::getContext() {

@@ -408,8 +408,14 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 
 	_checkError(response);
 
-//	return(response->cimNamedInstances);
-	return Array<CIMInstance>() ;
+	Array<CIMInstance> cimInstances;
+
+	for(Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
+	{
+		cimInstances.append(response->cimNamedInstances[i].getInstance());
+	}
+
+	return(cimInstances);
 }
 
 void CIMOMHandle::enumerateInstancesAsync(
@@ -665,8 +671,14 @@ Array<CIMObject> CIMOMHandle::associators(
 
 	_checkError(response);
 
-	//return(response->cimObjects);
-	return Array<CIMObject>();
+	Array<CIMObject> cimObjects;
+
+	for(Uint32 i = 0, n = response->cimObjects.size(); i < n; i++)
+	{
+		cimObjects.append(response->cimObjects[i].getObject());
+	}
+
+	return(cimObjects);
 }
 
 void CIMOMHandle::associatorsAsync(
@@ -773,8 +785,14 @@ Array<CIMObject> CIMOMHandle::references(
 
 	_checkError(response);
 
-	//return(response->cimObjects);
-	return Array<CIMObject>();
+	Array<CIMObject> cimObjects;
+
+	for(Uint32 i = 0, n = response->cimObjects.size(); i < n; i++)
+	{
+		cimObjects.append(response->cimObjects[i].getObject());
+	}
+
+	return(cimObjects);
 }
 
 void CIMOMHandle::referencesAsync(

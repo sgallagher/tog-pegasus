@@ -228,7 +228,7 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       // thread routine needs to call this function when
       // it is ready to exit
-      static void exit_self(PEGASUS_THREAD_RETURN return_code) ;
+      void exit_self(PEGASUS_THREAD_RETURN return_code) ;
 
       // stack of functions to be called when thread terminates
       // will be called last in first out (LIFO)

@@ -193,7 +193,7 @@ inline void PEGASUS_EXPORT sleep(int ms)
   Sleep(ms);
 }
 
-inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
+inline void PEGASUS_EXPORT destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
 {
    TerminateThread(th, rc);
 }

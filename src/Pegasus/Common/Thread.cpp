@@ -1,4 +1,3 @@
-
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM,
@@ -95,7 +94,7 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
 void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code) 
 { 
     // execute the cleanup stack and then return 
-   while( _cleanup.count() )
+   while( _cleanup.count()  )
    {
        try 
        { 

@@ -1230,18 +1230,12 @@ Message* CIMClientRep::_doRequest(
 
                 if (re_check && !perfDataStore->getStatError() && perfDataStore->isClassRegistered()) 
                 {  
-                   ClientOpPerformanceData item;
-
-                   try{
-                      item = perfDataStore->createPerfDataStruct();
-                      perfDataStore->handler_prt->handleClientOpPerformanceData(item);
-                   }
-                   catch(...){
-                       Exception excep (
-                           "Problem whlie trying to exicute the client statistical callback");
-                       throw excep;
-                   }
-                  
+                   //if callback method throws an exception it will be seen by the client
+                   //no try/catch block is used here intentionaly - becasue exceptions
+                   //come from the client application so client app. should handle them                     
+                   ClientOpPerformanceData item = perfDataStore->createPerfDataStruct();
+                   perfDataStore->handler_prt->handleClientOpPerformanceData(item);
+                                   
                 }//end of if statmet that call the callback method
                 return response;
             }

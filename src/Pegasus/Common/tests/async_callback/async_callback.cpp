@@ -138,18 +138,6 @@ void test_async_queue::_handle_async_callback(AsyncOpNode *op)
    Base::_handle_async_callback(op);
 }
 
-handleEnqueue(AsyncOpNode *op)
-{
-   if( ha_asycn)
-   {
-      AsyncRequest rq = op->_request.get_next(0);
-      handle rq->getType();
-      
-      
-   }
-   
-}
-
 void test_async_queue::async_handleEnqueue(AsyncOpNode *op, 
 					   MessageQueue *q, 
 					   void *parm)

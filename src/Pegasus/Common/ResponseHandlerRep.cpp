@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000, 2001, 2002, 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,36 +21,39 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
+// Author: Chuck Carmack (carmack@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ResponseHandler.h"
 #include "ResponseHandlerRep.h"
+
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-ResponseHandler::ResponseHandler()
+ResponseHandlerRep::ResponseHandlerRep()
 {
-    _rep = new ResponseHandlerRep();
 }
 
-ResponseHandler::~ResponseHandler()
+ResponseHandlerRep::~ResponseHandlerRep()
 {
-    if (_rep != NULL)
-        delete _rep;
+
 }
 
-OperationContext ResponseHandler::getContext(void) const
+ResponseHandlerRep::ResponseHandlerRep(const ResponseHandlerRep& x) : 
+    _context(x._context)
 {
-    return(_rep->getContext());
+
 }
 
-void ResponseHandler::setContext(const OperationContext & context)
+OperationContext ResponseHandlerRep::getContext() const
 {
-    _rep->setContext(context);
+    return _context;
+}
+
+void ResponseHandlerRep::setContext (const OperationContext & context)
+{
+    _context = context;
 }
 
 PEGASUS_NAMESPACE_END

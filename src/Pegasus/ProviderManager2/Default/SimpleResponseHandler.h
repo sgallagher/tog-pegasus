@@ -34,7 +34,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/ContentLanguages.h>  //l10n
 
 #include <Pegasus/Server/Linkage.h>
 
@@ -58,22 +57,6 @@ public:
         // do nothing
     }
 
-// l10n
-    virtual void setLanguages(const ContentLanguages & languages)
-    {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: setLanguages()");
-        _languages = languages;
-    }
-
-    virtual const ContentLanguages& getLanguages(void)
-    {
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		    "SimpleResponseHandler: getLanguages()");
-        return _languages;
-    }
-// l10n
-
     virtual void complete(void)
     {
 	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -83,8 +66,29 @@ public:
     }
 
 // l10n
-private:
-    ContentLanguages _languages;
+    ContentLanguages getLanguages(void)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "SimpleResponseHandler: getLanguages()");
+
+        ContentLanguages langs;
+        try
+        {
+            // Try to get the ContentLanguages out of the OperationContext
+            // in the base ResponseHandler.
+            OperationContext context = getContext();
+            ContentLanguageListContainer cntr = context.get
+                           (ContentLanguageListContainer::NAME);
+            langs = cntr.getLanguages();
+        }
+        catch (Exception & e)
+        {
+            // The content language container must not exist.
+            // Return the empty ContentLanguages.
+        }
+
+        return langs;
+    }
 };
 
 class PEGASUS_SERVER_LINKAGE SimpleInstanceResponseHandler : public SimpleResponseHandler, public InstanceResponseHandler
@@ -96,8 +100,6 @@ public:
 
     void processing(void) { SimpleResponseHandler::processing(); }
     void complete(void) { SimpleResponseHandler::complete(); }
-    void setLanguages(const ContentLanguages & languages) //l10n
-    	{ SimpleResponseHandler::setLanguages(languages); }
 
     virtual void deliver(const CIMInstance & instance)
     {
@@ -135,9 +137,6 @@ public:
 
     void processing(void) { SimpleResponseHandler::processing(); }
     void complete(void) { SimpleResponseHandler::complete(); }
-    void setLanguages(const ContentLanguages & languages) //l10n
-    	{ SimpleResponseHandler::setLanguages(languages); }
-
 
     virtual void deliver(const CIMObjectPath & objectPath)
     {
@@ -174,8 +173,6 @@ public:
 
     void processing(void) { SimpleResponseHandler::processing(); }
     void complete(void) { SimpleResponseHandler::complete(); }
-    void setLanguages(const ContentLanguages & languages) //l10n
-    	{ SimpleResponseHandler::setLanguages(languages); }
 
     virtual void deliverParamValue(const CIMParamValue & outParamValue)
     {
@@ -224,8 +221,6 @@ public:
 
     void processing(void) { SimpleResponseHandler::processing(); }
     void complete(void) { SimpleResponseHandler::complete(); }
-    void setLanguages(const ContentLanguages & languages) //l10n
-    	{ SimpleResponseHandler::setLanguages(languages); }
 
     virtual void deliver(const CIMIndication & indication)
     {
@@ -284,8 +279,6 @@ public:
 
     void processing(void) { SimpleResponseHandler::processing(); }
     void complete(void) { SimpleResponseHandler::complete(); }
-    void setLanguages(const ContentLanguages & languages) //l10n
-    	{ SimpleResponseHandler::setLanguages(languages); }
 
     virtual void deliver(const CIMObject & object)
     {
@@ -323,8 +316,6 @@ public:
 
     void processing(void) { SimpleResponseHandler::processing(); }
     void complete(void) { SimpleResponseHandler::complete(); }
-    void setLanguages(const ContentLanguages & languages) //l10n
-    	{ SimpleResponseHandler::setLanguages(languages); }
 
     virtual void deliver(const CIMValue & value)
     {
@@ -362,8 +353,6 @@ public:
 
     void processing(void) { SimpleResponseHandler::processing(); }
     void complete(void) { SimpleResponseHandler::complete(); }
-    void setLanguages(const ContentLanguages & languages) //l10n
-    	{ SimpleResponseHandler::setLanguages(languages); }
 
     virtual void deliver(const CIMClass & classObj)
     {

@@ -42,11 +42,11 @@
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/ContentLanguages.h>  //l10n
-
 
 
 PEGASUS_NAMESPACE_BEGIN
+
+class ResponseHandlerRep;
 
 /**
 <p>The <tt>ResponseHandler</tt> class allows a provider
@@ -96,14 +96,6 @@ public:
     */
     virtual void processing(void) = 0;
 
-// l10n
-    /**
-    Inform the CIM Server of the language(s) of the results.
-    <p>The provider may call, but is not required to call, 
-    <tt>setLanguages</tt> before attempting to call <tt>deliver</tt>.
-    */
-    virtual void setLanguages(const ContentLanguages & languages) = 0;
-
     /**
     Inform the CIM Server that delivery of results is complete.
     <p>The provider must call <tt>complete</tt> when all
@@ -111,6 +103,38 @@ public:
     after calling <tt>complete</tt>.</p>
     */
     virtual void complete(void) = 0;
+
+    /**
+    Set the context for the results delivered to the CIM Server.
+    <p>The <tt>setContext</tt> function is used by providers to
+    set a context for the response, in the form of an OperationContext
+    object.  The context of the response contains the settings that
+    apply to all the results delivered to the CIM Server.  An example
+    context is the language of the response, in the form of a 
+    ContentLanguageListContainer in the OperationContext.</p>
+    <p>This method may be called at any point in the response
+    processing before <tt>complete</tt> is called.</p>
+    <p>Currently supported OperationContext containers:
+    <li>
+    ContentLanguageListContainer: used to set the ContentLanguages of the
+    results.
+    </li>
+    </p>
+    <p>Implementation Note:  This method is concrete to preserve 
+    binary compatibility with previous releases of the CIMServer</p> 
+    */
+    void setContext(const OperationContext & context);
+
+protected:
+    
+    ResponseHandler();
+
+    //
+    // Gets the context for the results delivered to the CIM Server.
+    //
+    OperationContext getContext(void) const;
+
+    ResponseHandlerRep* _rep;
 };
 
 

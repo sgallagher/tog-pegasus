@@ -1,6 +1,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// Copyright (c) 2000, 2001, 2002, 2003 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,36 +21,59 @@
 //
 //==============================================================================
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:
+// Author: Chuck Carmack (carmack@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ResponseHandler.h"
-#include "ResponseHandlerRep.h"
+#ifndef Pegasus_ResponseHandlerRep_h
+#define Pegasus_ResponseHandlerRep_h
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/OperationContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-ResponseHandler::ResponseHandler()
+/** This class defines the internal representation of the ResponseHandler class.
+*/
+class PEGASUS_COMMON_LINKAGE ResponseHandlerRep  
 {
-    _rep = new ResponseHandlerRep();
-}
+public:
 
-ResponseHandler::~ResponseHandler()
-{
-    if (_rep != NULL)
-        delete _rep;
-}
+    ResponseHandlerRep();
 
-OperationContext ResponseHandler::getContext(void) const
-{
-    return(_rep->getContext());
-}
+    virtual ~ResponseHandlerRep();
 
-void ResponseHandler::setContext(const OperationContext & context)
-{
-    _rep->setContext(context);
-}
+    /**
+      Gets the operation context for the object
+      @return  The operation context
+     */
+    OperationContext getContext() const;
+
+    /**
+      Sets the operation context for the object
+      @param  context The operation context
+     */
+    void setContext (const OperationContext & context);
+
+protected:
+
+    ResponseHandlerRep(const ResponseHandlerRep& x);
+
+    OperationContext _context;
+
+private:
+
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default operator =.
+    ResponseHandlerRep& operator=(const ResponseHandlerRep& x)
+    {
+	//PEGASUS_ASSERT(0);
+	return *this;
+    }
+
+};
 
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_ResponseHandlerRep_h */

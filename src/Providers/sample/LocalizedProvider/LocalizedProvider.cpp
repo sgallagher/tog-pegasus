@@ -276,7 +276,7 @@ void LocalizedProvider::getInstance(
 
 			// We need to tag the instance we are returning with the
 			// the content language.
-			handler.setLanguages(rtnLangs);		
+			_setHandlerLanguages(handler, rtnLangs);		
 						
 			// deliver requested instance
 			handler.deliver(_instances[i]);
@@ -362,7 +362,7 @@ void LocalizedProvider::enumerateInstances(
         mutex.unlock();
 
 	// Set the aggregated content language into the response
-	handler.setLanguages(aggregatedLangs);
+	_setHandlerLanguages(handler, aggregatedLangs);
 
 	// complete processing the request
 	handler.complete();
@@ -636,7 +636,7 @@ void LocalizedProvider::invokeMethod(
 
     // Set the ContentLanguages in the response.  This is just to test
     // that the language tag is passed to the client.
-    handler.setLanguages(CL_DE);	
+    _setHandlerLanguages(handler, CL_DE);	
 
     if (objectReference.getClassName().equal (CLASSNAME))
     {	
@@ -1002,6 +1002,14 @@ ContentLanguages LocalizedProvider::_addContentLanguagesProp(CIMInstance & insta
 	// The MessageLoader set the contentlanguages member
 	// of msgParms to the language that it found for the message.
 	return contentLangParms.contentlanguages;
+}
+
+void LocalizedProvider::_setHandlerLanguages(ResponseHandler & handler,
+                                            ContentLanguages & langs)
+{
+    OperationContext context;
+    context.insert(ContentLanguageListContainer(langs));	
+    handler.setContext(context); 
 }
 
 PEGASUS_NAMESPACE_END

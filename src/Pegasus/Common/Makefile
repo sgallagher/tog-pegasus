@@ -94,6 +94,7 @@ SOURCES = \
     Queue.cpp \
     Resolver.cpp \
     ResponseHandler.cpp \
+    ResponseHandlerRep.cpp \
     Service.cpp \
     Sharable.cpp \
     Signal.cpp \

@@ -513,6 +513,17 @@ public:
     {
     }
 
+    CIMEnumerateInstanceNamesRequestMessage(
+	const CIMEnumerateInstanceNamesRequestMessage& x)
+    : CIMRequestMessage(
+        CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, x.messageId, x.queueIds),
+        nameSpace(x.nameSpace),
+        className(x.className),
+        authType(x.authType),
+        userName(x.userName)
+    {
+    }
+
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
 	if (printHeader)

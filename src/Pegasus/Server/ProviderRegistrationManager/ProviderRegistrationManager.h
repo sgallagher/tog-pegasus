@@ -59,7 +59,8 @@ public:
 		const String & nameSpace, 
 		const String & className,
 	        CIMInstance & provider, 
-		CIMInstance & providerModule); 
+		CIMInstance & providerModule,
+                Boolean is_assoc = false); 
 
 	Boolean lookupMethodProvider(
 		const String & nameSpace, 
@@ -71,9 +72,10 @@ public:
 	Boolean lookupAssociationProvider(
 		const String & nameSpace, 
 		const String & className,
-		String& providerName, 
-		String& location, 
-		Uint16& status);
+                const String & assocClassName,
+                const String & resultClassName,
+                Array<CIMInstance>& provider, 
+                Array<CIMInstance>& providerModule);
 
 	Boolean getIndicationProviders(
 		const String & nameSpace, 

@@ -140,6 +140,8 @@ TAG: Version_1_09.
  21.(KS) 18 Apr 2002 - Changed all FIXME, etc. in compiler to ATTN with
     priorities.
 
+ 22.(MM) 18 Apr 2002 - Associator provider handling
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

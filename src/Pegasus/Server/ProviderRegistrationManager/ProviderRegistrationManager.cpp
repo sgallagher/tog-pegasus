@@ -195,7 +195,8 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     const String & nameSpace, 
     const String & className,
     CIMInstance & provider,
-    CIMInstance & providerModule)
+    CIMInstance & providerModule,
+    Boolean is_assoc)
 {
     String providerName;
     String providerModuleName;
@@ -210,7 +211,11 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     //
     // create the key by using nameSpace, className, and providerType
     //
-    String capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
+    String capabilityKey;
+    if (!is_assoc)
+        capabilityKey = _generateKey(nameSpace, className, INS_PROVIDER);
+    else
+        capabilityKey = _generateKey(nameSpace, className, ASSO_PROVIDER);
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 		     "\nnameSpace = " + nameSpace + "; className = " +
 			className +  "; capabilityKey = " + capabilityKey);
@@ -220,7 +225,8 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         // 
         // get provider capability instance from the table
         //
-        if (!_registrationTable->table.lookup(capabilityKey, providerCapability))
+        if (!_registrationTable->table.lookup(
+                  capabilityKey, providerCapability))
         {
             PEG_METHOD_EXIT();
             throw CIMException(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
@@ -450,11 +456,51 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
 Boolean ProviderRegistrationManager::lookupAssociationProvider(
     const String & nameSpace, 
     const String & className,
-    String& providerName, 
-    String& location, 
-    Uint16& status)
+    const String & assocClassName,
+    const String & resultClassName,
+    Array<CIMInstance>& providers,
+    Array<CIMInstance>& providerModules)
 {
-    return(1);
+    // assume assocClassName is empty
+    // algorithm: enumerateClassnames, find all association providers
+    // registered for classes and give back this list
+
+        Array<String> classNames;
+    _repository->read_lock();
+    try
+    {
+         classNames = _repository->enumerateClassNames(
+             nameSpace, String::EMPTY, true);
+    }
+    catch(CIMException& exception) {}
+    catch(Exception& exception) {}
+    catch(...) {}
+    _repository->read_unlock();
+
+    CIMInstance pInstance;
+    CIMInstance pmInstance;
+    String providerName;
+
+    for(Uint32 i=0,n=classNames.size(); i<n; i++)
+    {
+        if (lookupInstanceProvider(
+            nameSpace, classNames[i], pInstance, pmInstance, true))
+        {
+            // get the provider name
+            Uint32 pos = pInstance.findProperty("Name");
+
+            if ( pos != PEG_NOT_FOUND )
+            {
+                pInstance.getProperty(pos).getValue().get(providerName);
+
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                             "providerName = " + providerName + " found.");
+                providers.append(pInstance);
+                providerModules.append(pmInstance);
+            }
+        }
+    }
+    return (providers.size() > 0);
 }
 
 Boolean ProviderRegistrationManager::getIndicationProviders(
@@ -1319,6 +1365,20 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 		    // ATTN-YZ-P1-20020301: Implement this provider
 		    case _ASSOCIATION_PROVIDER:
 		    {
+                        for (Uint32 k=0; k < namespaces.size(); k++)
+                        {
+                            Array<CIMInstance> instances;
+
+                            //
+                            // create a key by using namespace, className
+                            // and providerType. Use this key to store the
+                            // instance to the hash table
+                            //
+                            capabilityKey = _generateKey(namespaces[k], 
+                                                className, ASSO_PROVIDER); 
+                            instances.append(instance);
+                            _addInstancesToTable(capabilityKey, instances);
+                        }
 			break;
 		    }
 
@@ -1643,6 +1703,28 @@ CIMReference ProviderRegistrationManager::_createInstance(
 			case _ASSOCIATION_PROVIDER:
 			{
 			    // ATTN-YZ-P1-20020301: Need implement 
+                            for (Uint32 j=0; j < _namespaces.size(); j++)
+                            {
+                                Array<CIMInstance> instances;
+
+                                //
+                                // create a key by using namespace, className
+                                // and providerType
+                                //
+                                _capabilityKey = _generateKey(_namespaces[j],
+                                     _className, ASSO_PROVIDER);
+                                if (_registrationTable->table.contains(_capabilityKey))
+                                {
+                                    // the instance was already registered
+                                    throw CIMException(CIM_ERR_ALREADY_EXISTS);
+                                }
+                                else
+                                {
+                                    // add the instance to the table
+                                    instances.append(instance);
+                                    _addInstancesToTable(_capabilityKey, instances);
+                                }
+                            }
 			    break;
 			}
 

@@ -1,4 +1,4 @@
-ROOT = ../../../../../pegasus
+ROOT = ../../../..
 
 DIR = cimservera
 

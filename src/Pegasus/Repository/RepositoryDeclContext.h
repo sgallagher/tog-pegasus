@@ -31,8 +31,6 @@
 
 #include <Pegasus/Common/DeclContext.h>
 
-PEGASUS_USING_STD;
-
 PEGASUS_NAMESPACE_BEGIN
 
 class CIMRepository;  // forward declaration for repository member

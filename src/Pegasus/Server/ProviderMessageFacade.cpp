@@ -33,6 +33,8 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Tracer.h>
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderMessageFacade::ProviderMessageFacade(CIMBaseProvider* provider)

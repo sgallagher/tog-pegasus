@@ -559,8 +559,8 @@ void ProviderRegistrationProvider::deleteInstance(
     }
     catch(CIMException& e)
     {
-       cout << " caught exception in ProviderRegistrationProvider" << endl;
-       cout << " rethrowing " << endl;
+        PEGASUS_STD(cout) << " caught exception in ProviderRegistrationProvider" << PEGASUS_STD(endl);
+        PEGASUS_STD(cout) << " rethrowing " << PEGASUS_STD(endl);
 
         throw (e);
     }

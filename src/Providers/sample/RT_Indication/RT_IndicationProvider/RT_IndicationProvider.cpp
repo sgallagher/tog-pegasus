@@ -32,6 +32,8 @@
 
 #include "RT_IndicationProvider.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 static ResponseHandler<CIMIndication> * _handler = 0; 

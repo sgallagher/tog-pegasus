@@ -165,7 +165,7 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
       void _send_async_callback(Uint32 msg_handle, Message *msg, void *) ;
       void _send_shutdown_notify(void);
       Boolean _shutdown(void);
-      bitset<32> _allowed_operations;
+      PEGASUS_STD(bitset<32>) _allowed_operations;
       
       void reference(void) { _rep->reference(); }
       void dereference(void)  { _rep->dereference(); }
@@ -225,7 +225,6 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 				    CLIENT_BLOCKING_THREAD_EXEC | 
 				    CLIENT_ASYNC_THREAD_EXEC) 
 	    {
-
 	    }
 	    
 	    ~client_handle(void) 
@@ -235,8 +234,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 	    virtual Boolean authorized(Uint32, Uint32);
 	    virtual Boolean authorized(Uint32 operation);
 	    virtual Boolean authorized(void);
-	    bitset<32> allowed_operations;
-	    
+	    PEGASUS_STD(bitset<32>) allowed_operations;
       };
       
       class callback_handle 

@@ -33,9 +33,6 @@
 #include <Pegasus/Common/Config.h>
 
 
-PEGASUS_NAMESPACE_BEGIN
-
-
 /*
   The HTTP Options module processes incoming HTTP Messages OPTIONS Method
   and generates the appropriate responses.
@@ -68,9 +65,6 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/HTTPMessage.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
 
 // REVIEW: What is this class used for? What feeds its queue? What queue
 // REVIEW: does it feed?

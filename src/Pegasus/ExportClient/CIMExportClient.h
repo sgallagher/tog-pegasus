@@ -31,8 +31,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Client_h
-#define Pegasus_Client_h
+#ifndef Pegasus_ExportClient_h
+#define Pegasus_ExportClient_h
 
 #include <fstream>
 #include <Pegasus/Common/Config.h>
@@ -179,4 +179,4 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Client_h */
+#endif /* Pegasus_ExportClient_h */

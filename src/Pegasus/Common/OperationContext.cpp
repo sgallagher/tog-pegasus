@@ -700,12 +700,80 @@ AcceptLanguages AcceptLanguageListContainer::getLanguages(void) const
 // SubscriptionLanguageListContainer
 //
 
+class SubscriptionLanguageListContainerRep
+{
+public:
+    AcceptLanguages languages;
+};
+
 const String SubscriptionLanguageListContainer::NAME =
     "SubscriptionLanguageListContainer";
+
+SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
+    (const OperationContext::Container & container)
+{
+    const SubscriptionLanguageListContainer * p = 
+    	dynamic_cast<const SubscriptionLanguageListContainer *>(&container);
+
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+
+    _rep = new SubscriptionLanguageListContainerRep();
+    _rep->languages = p->_rep->languages;
+}
+
+SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
+    (const SubscriptionLanguageListContainer & container)
+{
+    _rep = new SubscriptionLanguageListContainerRep();
+    _rep->languages = container._rep->languages;
+}
+
+SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
+    (const AcceptLanguages & languages)
+{
+    _rep = new SubscriptionLanguageListContainerRep();
+    _rep->languages = languages;
+}
+
+SubscriptionLanguageListContainer::~SubscriptionLanguageListContainer(void)
+{
+    delete _rep;
+}
+
+SubscriptionLanguageListContainer & SubscriptionLanguageListContainer::operator=(
+    const SubscriptionLanguageListContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->languages = container._rep->languages;
+
+    return (*this);
+}
 
 String SubscriptionLanguageListContainer::getName(void) const
 {
     return(NAME);
+}
+
+OperationContext::Container * SubscriptionLanguageListContainer::clone(void) const
+{
+    return(new SubscriptionLanguageListContainer(_rep->languages));
+}
+
+void SubscriptionLanguageListContainer::destroy(void)
+{
+    delete this;
+}
+
+AcceptLanguages SubscriptionLanguageListContainer::getLanguages(void) const
+{
+    return(_rep->languages);
 }
 
 //

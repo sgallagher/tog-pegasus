@@ -333,7 +333,7 @@ class PEGASUS_COMMON_LINKAGE TimeoutContainer : virtual public OperationContext:
 
 // l10n
 /////////////////////////////////////////////////////////////////////////////
-// Containers used for globalization
+// Start - Containers used for globalization
 /////////////////////////////////////////////////////////////////////////////
 
 class AcceptLanguageListContainerRep;
@@ -365,27 +365,32 @@ protected:
 
 };
 
+class SubscriptionLanguageListContainerRep;
 
 class PEGASUS_COMMON_LINKAGE SubscriptionLanguageListContainer
-    : virtual public AcceptLanguageListContainer
+    : virtual public OperationContext::Container
 {
 public:
     static const String NAME;
     
     SubscriptionLanguageListContainer
-        (const OperationContext::Container & container)
-        : AcceptLanguageListContainer(container)
-        {};
+        (const OperationContext::Container & container);
     SubscriptionLanguageListContainer
-        (const SubscriptionLanguageListContainer & container)
-        : AcceptLanguageListContainer(container)
-        {};
-    SubscriptionLanguageListContainer(const AcceptLanguages & languages)
-        : AcceptLanguageListContainer(languages)
-        {};
-    virtual ~SubscriptionLanguageListContainer(void) {};        
+        (const SubscriptionLanguageListContainer & container);
+    SubscriptionLanguageListContainer(const AcceptLanguages & languages);
+    virtual ~SubscriptionLanguageListContainer(void); 
+     
+    SubscriptionLanguageListContainer & operator=
+        (const SubscriptionLanguageListContainer & container);
 
     virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
+
+    AcceptLanguages getLanguages(void) const;
+
+protected:
+    SubscriptionLanguageListContainerRep* _rep;
 };    
 
 class ContentLanguageListContainerRep;
@@ -416,6 +421,10 @@ protected:
    ContentLanguageListContainerRep* _rep;
 
 };
+
+/////////////////////////////////////////////////////////////////////////////
+// End - Containers used for globalization
+/////////////////////////////////////////////////////////////////////////////
 
 class SnmpTrapOidContainerRep;
 

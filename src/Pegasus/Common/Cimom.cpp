@@ -446,6 +446,18 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
    
    if ( (flags & ASYNC_OPFLAGS_CALLBACK)  && (! (flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)))
    {
+
+      // << Wed Oct  8 12:29:32 2003 mdd >>
+      // check to see if the response queue is stopped or paused
+      if( op->_callback_response_q == 0 || 
+	  op->_callback_response_q->get_capabilities() & module_capabilities::paused ||
+	  op->_callback_response_q->get_capabilities() & module_capabilities::stopped )
+      {
+	 // delete, respondent is paused or stopped
+	 delete op;
+	 return;
+      }
+
       // send this node to the response queue
       op->_op_dest = op->_callback_response_q; 
       _global_this->route_async(op);

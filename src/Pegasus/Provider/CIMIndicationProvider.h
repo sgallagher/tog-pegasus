@@ -301,22 +301,24 @@ public:
 class CIM_IndicationProvider : virtual public CIM_BaseProvider
 {
 public:
-    virtual void enableIndication(
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array<CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy,
-	ResponseHandler<CIMIndication> & handler) = 0;
+    virtual void enableIndications(ResponseHandler<CIMIndication> & handler) = 0;
+    virtual void disbleIndications(void) = 0;
 
-    virtual void modifyIndication(
+    virtual void createSubscription(
 	const OperationContext & context,
 	const CIMObjectPath & subscriptionName,
 	const Array<CIMObjectPath> & classNames,
 	const CIMPropertyList & propertyList,
 	const Uint16 repeatNotificationPolicy) = 0;
 
-    virtual void disableIndication(
+    virtual void modifySubscription(
+	const OperationContext & context,
+	const CIMObjectPath & subscriptionName,
+	const Array<CIMObjectPath> & classNames,
+	const CIMPropertyList & propertyList,
+	const Uint16 repeatNotificationPolicy) = 0;
+
+    virtual void disableSubscription(
 	const OperationContext & context,
 	const CIMObjectPath & subscriptionName,
 	const Array<CIMObjectPath> & classNames) = 0;

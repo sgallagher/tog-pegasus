@@ -26,6 +26,9 @@ TAG: Version_1_09.
 
    The CIMOperationResponseMessage change will allow the redundant
    information to be eliminated from the messages.
+   
+3. (KS) 7 April 2002- Minor really bad hack to systemwindows.cpp getcurrenttime
+   after roger fixed timevalue.
 
 ========================================================================
 

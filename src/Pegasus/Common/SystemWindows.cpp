@@ -46,6 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 #include <time.h>
 #include <sys/timeb.h>
 #include <io.h>
+#include <conio.h>
 #include <direct.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -56,6 +57,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define ACCESS_WRITE 2
 #define ACCESS_READ 4
 #define ACCESS_READ_AND_WRITE 6
+
+#define PW_BUFF_LEN 65
 
 void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
 {
@@ -225,26 +228,113 @@ Uint32 System::lookupPort(
 
 String System::getPassword(const char* prompt)
 {
-    //ATTN: Implement this method to get password from User with no echo
-    //      This is used in cimuser CLI
-    String password("dummy");
+  char password[PW_BUFF_LEN] = {0};
+  int num_chars = 0;
+  int ch;
 
-    return password;
+  fputs(prompt, stderr);
+
+  while ((ch = _getch()) != '\r' &&
+         num_chars < PW_BUFF_LEN)
+    {
+      // EOF
+      if (ch == EOF)
+        {
+           fputs("[EOF]\n", stderr);
+           return String::EMPTY;
+        }
+      // Backspace or Delete
+      else if ((ch == '\b' || ch == 127) &&
+               num_chars > 0) 
+        {
+          password[--num_chars] = '\0';
+          fputs("\b \b", stderr);
+        }
+      // CTRL+C
+      else if (ch == 3)
+        {
+          // _getch() does not catch CTRL+C
+          fputs("^C\n", stderr);
+          exit(-1);
+        }
+      // CTRL+Z
+      else if (ch == 26)
+        {
+          fputs("^Z\n", stderr);
+          return String::EMPTY;
+        }
+      // Esc
+      else if (ch == 27)
+        {
+          fputc('\n', stderr);
+          fputs(prompt, stderr);
+          num_chars = 0;
+        }
+      // Function keys (0 or E0) are a guards for a Function key codes
+      else if (ch == 0 || ch == 0xE0)
+        {
+          ch = (ch << 4) | _getch();
+          // Handle DELETE, left arrow, keypad DEL, and keypad left arrow
+          if ((ch == 0xE53 || ch == 0xE4B || ch == 0x053 || ch == 0x04b) &&
+              num_chars > 0)
+            {
+              password[--num_chars] = '\0';
+              fputs("\b \b", stderr);
+            }
+          else
+            {
+              fputc('\a', stderr);
+            }
+        }
+      else if ((num_chars < sizeof(password) - 1) &&
+               !iscntrl(((unsigned char)(ch))))
+        {
+          password[num_chars++] = ch;
+          fputc('*', stderr);
+        }
+      else
+        {
+          fputc('\a', stderr);
+        }
+    }
+
+  fputc('\n', stderr);
+  password[num_chars] = '\0';
+
+  return String(password);
 }
 
 String System::getEffectiveUserName()
 {
-    //ATTN: Implement this method to get the current login user name
-    //      This is used in local authentication.
+  int retcode = 0;
 
-    return String();
+  // UNLEN (256) is the limit, not including null
+  char pUserName[256+1] = {0};
+  DWORD nSize = sizeof(pUserName);
+
+  retcode = GetUserName(pUserName, &nSize);
+  if (retcode == 0)
+    {
+      // zero is failure
+      return String();
+    }
+  
+  return String(pUserName);
 }
 
 String System::encryptPassword(const char* password, const char* salt)
 {
-    //ATTN: Implement this method to encrypt the password
-    //      This is used in User Manager
-    return (String("dummy"));
+  BYTE pbBuffer[PW_BUFF_LEN] = {0};
+  DWORD dwByteCount;
+  char pcSalt[3] = {0};
+
+  strncpy(pcSalt, salt, 2);
+  dwByteCount = strlen(password);
+  memcpy(pbBuffer, password, dwByteCount);
+  for (DWORD i=0; (i<dwByteCount) || (i>=PW_BUFF_LEN); i++)
+    (i%2 == 0) ? pbBuffer[i] ^= pcSalt[1] : pbBuffer[i] ^= pcSalt[0];
+  
+  return String(pcSalt) + String((char *)pbBuffer);
 }
 
 Boolean System::isSystemUser(const char* userName)

@@ -107,7 +107,11 @@
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "cimserver_windows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
-# include "cimserver_unix.cpp"
+# if defined(PEGASUS_OS_OS400)
+#  include "cimserver_os400.cpp"
+# else
+#  include "cimserver_unix.cpp"
+#endif
 #else
 # error "Unsupported platform"
 #endif
@@ -250,6 +254,11 @@ void shutdownCIMOM(Uint32 timeoutValue)
     {
         PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
         PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
+#ifdef PEGASUS_OS_OS400
+        // The server job may still be active but not responding.
+        // Kill the job if it exists.
+	cimserver_kill();
+#endif
         exit(0);
     }
 
@@ -297,6 +306,10 @@ void shutdownCIMOM(Uint32 timeoutValue)
         {
             PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
         }
+#ifdef PEGASUS_OS_OS400
+        // Kill the server job.
+	cimserver_kill();
+#endif
         exit(1);
     }
     catch(Exception& e)
@@ -360,6 +373,11 @@ int main(int argc, char** argv)
     Boolean daemonOption = false;
     Boolean shutdownOption = false;
     Uint32 timeoutValue  = 0;
+
+#ifdef PEGASUS_OS_OS400
+    // Initialize Pegasus home to the shipped OS/400 directory.
+    pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
+#endif
 
     //
     // Get environment variables:
@@ -670,6 +688,15 @@ int main(int argc, char** argv)
         if(-1 == cimserver_fork())
           exit(-1);
     }
+
+#ifdef PEGASUS_OS_OS400
+    // Special server initialization code for OS/400.
+    if (cimserver_initialize() != 0)
+    {
+       // do some logging here!
+       exit(-1);
+    } 
+#endif
 
 #ifdef PEGASUS_OS_HPUX
     umask(S_IWGRP|S_IWOTH);

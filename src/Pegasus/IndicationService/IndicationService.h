@@ -1394,15 +1394,20 @@ private:
     static const CIMName   _PROPERTY_DESTINATION;
 
     /**
-        The name of the Trap Destination property for SNMP Mapper Indication
+        The name of the TargetHost property for SNMP Mapper Indication
         Handler subclass
      */
-    static const CIMName   _PROPERTY_TRAPDESTINATION;
+    static const CIMName   _PROPERTY_TARGETHOST;
 
     /**
-        The name of the SNMP Type property for SNMP Indication Handler class
+        The name of the TargetHostFormat property for SNMP Indication Handler subclass
      */
-    static const CIMName   _PROPERTY_SNMPTYPE;
+    static const CIMName   _PROPERTY_TARGETHOSTFORMAT;
+
+    /**
+        The name of the SNMP Version property for SNMP Indication Handler subclass
+      */
+    static const CIMName   _PROPERTY_SNMPVERSION;
 
     /**
         The name of the Alert Type property for Alert Indication class

@@ -21,8 +21,11 @@
             <PROPERTY NAME="Name" TYPE="string"> 
               <VALUE> MissingSnmpType </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="TrapDestination" TYPE="string"> 
+            <PROPERTY NAME="TargetHost" TYPE="string"> 
               <VALUE> localhost </VALUE>
+            </PROPERTY>
+	    <PROPERTY NAME="TargetHostFormat" TYPE="uint16">
+	      <VALUE> 2 </VALUE>
             </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>

@@ -21,11 +21,14 @@
             <PROPERTY NAME="Name" TYPE="string"> 
               <VALUE> Handler03 </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="TrapDestination" TYPE="string"> 
+            <PROPERTY NAME="TargetHost" TYPE="string"> 
               <VALUE> localhost </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="SNMPVersion" TYPE="string"> 
-              <VALUE> SNMPv2 </VALUE>
+            <PROPERTY NAME="TargetHostFormat" TYPE="uint16"> 
+              <VALUE> 2 </VALUE>
+            </PROPERTY>
+            <PROPERTY NAME="SNMPVersion" TYPE="uint16"> 
+              <VALUE> 3 </VALUE>
             </PROPERTY>
           </INSTANCE>
         </IPARAMVALUE>

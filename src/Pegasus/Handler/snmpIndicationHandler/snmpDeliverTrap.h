@@ -23,7 +23,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,9 +60,13 @@ public:
 
     virtual void deliverTrap(
         const String& trapOid,
-        const String& community, 
-        const String& destination, 
-        const String& trapType,
+        const String& securityName, 
+        const String& targetHost, 
+        const Uint16& targetHostFormat, 
+        const String& otherTargetHostFormat, 
+        const Uint32& portNumber,
+        const Uint16& snmpVersion, 
+        const String& engineID,
         Array<String>& vbOids,
         Array<String>& vbTypes,
         Array<String>& vbValues) = 0;

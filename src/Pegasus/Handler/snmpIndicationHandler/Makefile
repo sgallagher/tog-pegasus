@@ -15,18 +15,13 @@ LIBRARIES = \
 SOURCES = snmpIndicationHandler.cpp
 
 ifdef PEGASUS_AGENT
- LIBRARIES += 	subagent \
-		pack \
-		agent \
-		emanate \
-		mibtable \
-		snmp
+ EXTRA_LIBRARIES += -lsubagent -lpack -lagent -lemanate -lmibtable -lsnmp
 
- EXTRA_INCLUDES = -g  -I/opt/snmp15.3/sadk/include \
+ EXTRA_INCLUDES = -I/opt/snmp15.3/sadk/include \
         -I/opt/snmp15.3/sadk/include/snmpd \
-        -DSETS -DSR_SNMPv1 -DSR_SNMPv2c -DSR_SNMPv2  -DEMANATE -DSR_ANSI_PROTOTYPES \
-        -DSUBAGENT -DSR_USER_AP_SERVICE -DSR_UDS_IPC -DSR_MIB_TABLE_HASHING -DSR_IP \
         $(SYS_INCLUDES) $(ACE_INCLUDES)
+
+LOCAL_DEFINES += -DSETS -DSR_SNMPv1 -DSR_SNMPv2c -DSR_SNMPv2  -DEMANATE -DSR_ANSI_PROTOTYPES -DSUBAGENT -DSR_USER_AP_SERVICE -DSR_UDS_IPC -DSR_MIB_TABLE_HASHING -DSR_IP
 
  SOURCES += snmpDeliverTrap_emanate.cpp
 else

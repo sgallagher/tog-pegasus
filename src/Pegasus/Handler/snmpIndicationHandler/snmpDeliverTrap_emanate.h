@@ -23,7 +23,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -64,9 +64,43 @@
 
 #include "snmpDeliverTrap.h"
 
-#define  _SNMP_FIFO      "/var/opt/wbem/wbemagent_fifo"
-
 PEGASUS_NAMESPACE_BEGIN
+
+static const char _MSG_INITSUBAGENT_FAILED [] = "InitSubagent Failed to initialize";
+
+static const char _MSG_INVALID_TRAPOID [] = "Invalid trapOid.";
+
+static const char _MSG_DESTINATION_NOT_FOUND [] = "Can not find trap destination.";
+
+static const char _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED [] = 
+    "Host Name and IPV4 Address are the only supported TargetHostFormat values.";
+
+static const char _MSG_INVALID_SECURITY_NAME [] = 
+    "Invalid SNMP SecurityName.";
+
+static const char _MSG_INVALID_OCTET_VALUE [] = 
+    "Invalid octet value in trap destination.";
+
+static const char _MSG_CREATE_OCTET_FAILED [] = 
+    "Creation of empty 4 length OctetString failed.";
+
+static const char _MSG_INVALID_ENTERPRISEOID [] = "Invalid enterpriseOid.";
+
+static const char _MSG_INVALID_PROPERTYOID [] = "Invalid OID of CIM Property.";
+
+static const char _MSG_INVALID_PROPERTYVALUE [] = "Invalid value of CIM Property.";
+
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE [] = 
+    "Failed to MakeVarBindWithValue for type OCTET_PRIM_TYPE.";
+
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE [] = 
+    "Failed to MakeVarBindWithValue for type OBJECT_ID_TYPE.";
+
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE [] = 
+    "Failed to MakeVarBindWithValue for type INTEGER_TYPE.";
+
+static const char _MSG_VERSION_NOT_SUPPORTED [] = 
+    "SNMPv1 Trap and SNMPv2C Trap are the only supported SNMPVersion values.";
 
 class snmpDeliverTrap_emanate : public snmpDeliverTrap
 {
@@ -78,14 +112,46 @@ public:
 
     void initialize();
 
+    /**
+	Send snmp trap to the target.
+	@param  trapOid		snmp trap OID
+	@param  securityName 	either an SNMPv1 or SNMPv2c community 
+				name or an SNMPv3 user name
+	@param 	targetHost	address of the trap/infom destination
+	@param	targetHostFormat targetHost format
+	@param  otherTargetHostFormat other target format type
+	@param  portNumber 	UDP port number to send the trap/inform
+	@param  snmpVersion	snmp version and format to use to send the indication
+	@param 	engineID 	snmp engine ID used to create the SNMPv3 inform
+	@param	vbOids		VarBind OIDs
+	@param 	vbTypes		VarBind types
+	@param 	vbValues	VarBind values
+    */
     void deliverTrap(
-        const String& trapOid, 
-        const String& community, 
-        const String& destination, 
-        const String& trapType,
+        const String& trapOid,
+        const String& securityName, 
+        const String& targetHost, 
+        const Uint16& targetHostFormat, 
+        const String& otherTargetHostFormat, 
+        const Uint32& portNumber,
+        const Uint16& snmpVersion, 
+        const String& engineID,
         Array<String>& vbOids,
         Array<String>& vbTypes,
         Array<String>& vbValues);
+
+private:
+    char * _getIPAddress(const CString& hostName);
+    Boolean _isValidOctet(const Uint32& octetValue);
+
+    /**
+        Values for the TargetHostFormat property of the 
+	PG_IndicationHandlerSNMPMapper class.
+    */
+    enum TargetHostFormat {_OTHER = 1, _HOST_NAME = 2,
+         _IPV4_ADDRESS = 3, _IPV6_ADDRESS = 4};
+    enum SNMPVersion {_SNMPv1_TRAP = 2, _SNMPv2C_TRAP = 3,
+         _SNMPv2C_INFORM = 4, _SNMPv3_TRAP = 5, _SNMPv3_INFORM = 6};
 };
 
 PEGASUS_NAMESPACE_END

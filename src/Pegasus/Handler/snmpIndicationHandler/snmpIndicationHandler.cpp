@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//	      : Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,15 +48,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-//#define DDD(X) X
-#define DDD(X) // X
-
-DDD(static const char* _SNMPINDICATIONHANDLER = "snmpIndicationHandler::";)
-
 void snmpIndicationHandler::initialize(CIMRepository* repository)
 {
     _repository = repository;
-    DDD(cout << _SNMPINDICATIONHANDLER << "initialize()" << endl;)
 }
 
 void snmpIndicationHandler::handleIndication(CIMInstance& handler, 
@@ -78,7 +73,9 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
     CIMClass indicationClass = _repository->getClass(
 	nameSpace, indication.getClassName(), false);
 
-    for (Uint32 i=0; i<indication.getPropertyCount();i++)
+    Uint32 propertyCount = indication.getPropertyCount();
+
+    for (Uint32 i=0; i < propertyCount; i++)
     {
 	prop = indication.getProperty(i);
 
@@ -136,53 +133,81 @@ void snmpIndicationHandler::handleIndication(CIMInstance& handler,
         snmpDeliverTrap_stub emanateTrap;
 #endif
 
-    if ((handler.findProperty(CIMName ("TrapDestination")) != PEG_NOT_FOUND) &&
-        (handler.findProperty(CIMName ("SNMPVersion")) != PEG_NOT_FOUND) && 
+    Uint32 targetHostPos = handler.findProperty(CIMName ("TargetHost"));
+    Uint32 targetHostFormatPos = handler.findProperty(CIMName ("TargetHostFormat"));
+    Uint32 otherTargetHostFormatPos = handler.findProperty(CIMName (
+				      "OtherTargetHostFormat"));
+    Uint32 portNumberPos = handler.findProperty(CIMName ("PortNumber"));
+    Uint32 snmpVersionPos = handler.findProperty(CIMName ("SNMPVersion"));
+    Uint32 securityNamePos =  handler.findProperty(CIMName ("SNMPSecurityName"));
+    Uint32 engineIDPos =  handler.findProperty(CIMName ("SNMPEngineID"));
+
+    if ((targetHostPos != PEG_NOT_FOUND) &&
+        (targetHostFormatPos != PEG_NOT_FOUND) && 
+        (snmpVersionPos != PEG_NOT_FOUND) && 
         (indicationClass.findQualifier(CIMName ("MappingStrings")) != 
             PEG_NOT_FOUND))
     {
-        String community, trapType, destination;   // from handler instance
-	String trapOid;	    // from indication Class
+	// properties from the handler instance
+        String targetHost, otherTargetHostFormat;
+	String securityName, engineID;
+	Uint16 targetHostFormat, snmpVersion;
+	Uint32 portNumber;
 
-	trapOid = indicationClass.getQualifier(
-	    indicationClass.findQualifier
+	// trapOid from indication Class
+
+	String trapOid = indicationClass.getQualifier(
+            indicationClass.findQualifier
                 (CIMName ("MappingStrings"))).getValue().toString();
 
-        trapOid = trapOid.subString(trapOid.find("OID.IETF | SNMP.")+16);
+	Uint32 index = trapOid.find("SNMP.");
 
-	community = handler.getProperty(
-	    handler.findProperty
-                (CIMName ("SNMPCommunityName"))).getValue().toString();
+	if (index != PEG_NOT_FOUND)
+	{
+	    trapOid = trapOid.subString(index+5);
+	    trapOid = trapOid.subString(0, (trapOid.size()-1));
+	}
+	else
+	{
+	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Invalid MappingStrings Value");
+	}
 
-	destination = handler.getProperty(
-	    handler.findProperty
-                (CIMName ("TrapDestination"))).getValue().toString();
-
-	trapType = handler.getProperty(
-	    handler.findProperty
-                (CIMName ("SNMPVersion"))).getValue().toString();
+	handler.getProperty(targetHostPos).getValue().get(targetHost);
+	handler.getProperty(targetHostFormatPos).getValue().get(targetHostFormat);
+	handler.getProperty(otherTargetHostFormatPos).getValue().get
+		(otherTargetHostFormat);
+	handler.getProperty(portNumberPos).getValue().get(portNumber);
+	handler.getProperty(snmpVersionPos).getValue().get(snmpVersion);
+	handler.getProperty(securityNamePos).getValue().get(securityName);
+	handler.getProperty(engineIDPos).getValue().get(engineID);
 
 	emanateTrap.deliverTrap(
             trapOid,
-            community,
-            destination,
-            trapType,
+            securityName,
+            targetHost,
+            targetHostFormat,
+	    otherTargetHostFormat,
+	    portNumber,
+	    snmpVersion,
+	    engineID,
             propOIDs,  
             propTYPEs, 
             propVALUEs);
     }
     else
-        cout << "Invalid Indication" << endl;
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+		"Invalid IndicationHandlerSNMPMapper instance");
+    }
 }
 
 // This is the dynamic entry point into this dynamic module. The name of
-// this handler is "snmpIndicationHandler" which is appened to "PegasusCreateHandler_"
+// this handler is "snmpIndicationHandler" which is appended to "PegasusCreateHandler_"
 // to form a symbol name. This function is called by the HandlerTable
 // to load this handler.
 
 extern "C" PEGASUS_EXPORT CIMHandler* 
     PegasusCreateHandler_snmpIndicationHandler() {
-    DDD(cout << "Called PegasusCreateHandler_snmpIndicationHandler" << endl;)
     return new snmpIndicationHandler;
 }
 

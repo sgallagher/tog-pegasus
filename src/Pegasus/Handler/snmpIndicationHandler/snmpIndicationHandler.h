@@ -23,7 +23,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,11 +37,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-//#define DDD(X) X
-#define DDD(X) // X
-
-DDD(static const char* _SNMPINDICATIONHANDLER = "snmpIndicationHandler::";)
-
 class PEGASUS_HANDLER_LINKAGE snmpIndicationHandler: public CIMHandler
 {
 public:
@@ -50,19 +45,16 @@ public:
 
     snmpIndicationHandler()
     {
-        DDD(cout << _SNMPINDICATIONHANDLER << "snmpIndicationHandler()" << endl;)
     }
 
     virtual ~snmpIndicationHandler()
     {
-        DDD(cout << _SNMPINDICATIONHANDLER << "~snmpIndicationHandler()" << endl;)
     }
 
     void initialize(CIMRepository* repository);
 
     void terminate()
     {
-        DDD(cout << _SNMPINDICATIONHANDLER << "terminate()" << endl;)
     }
 
     void handleIndication(

@@ -2532,17 +2532,24 @@ Boolean IndicationService::_canCreate (
             if (instance.getClassName ().equal 
                 (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
             {
-                //
-                //  Trap Destination property is required for SNMP 
+		//
+                //  TargetHost property is required for SNMP
                 //  Handler subclass
                 //
-                _checkRequiredProperty (instance, _PROPERTY_TRAPDESTINATION, 
+                _checkRequiredProperty (instance, _PROPERTY_TARGETHOST,
                     _MSG_PROPERTY);
 
                 //
-                //  SNMP Type property is required for SNMP Handler
+                //  TargetHostFormat property is required for SNMP
+                //  Handler subclass
                 //
-                _checkRequiredProperty (instance, _PROPERTY_SNMPTYPE, 
+                _checkRequiredProperty (instance, _PROPERTY_TARGETHOSTFORMAT,
+                    _MSG_PROPERTY);
+
+                //
+                //  SNMPVersion property is required for SNMP Handler
+                //
+                _checkRequiredProperty (instance, _PROPERTY_SNMPVERSION,
                     _MSG_PROPERTY);
             }
         }
@@ -5820,16 +5827,22 @@ const CIMName IndicationService::_PROPERTY_DESTINATION =
               CIMName ("Destination");
 
 /**
-    The name of the Trap Destination property for SNMP Mapper Indication 
+    The name of the TargetHost property for SNMP Mapper Indication 
     Handler subclass
  */
-const CIMName IndicationService::_PROPERTY_TRAPDESTINATION = 
-              CIMName ("TrapDestination");
+const CIMName IndicationService::_PROPERTY_TARGETHOST = 
+              CIMName ("TargetHost");
 
 /**
-    The name of the SNMP Type property for SNMP Indication Handler class
+    The name of the TargetHostFormat property for SNMP Indication Handler subclass
  */
-const CIMName IndicationService::_PROPERTY_SNMPTYPE = 
+const CIMName IndicationService::_PROPERTY_TARGETHOSTFORMAT = 
+              CIMName ("TargetHostFormat");
+
+/**
+    The name of the SNMPVersion property for SNMP Indication Handler class
+ */
+const CIMName IndicationService::_PROPERTY_SNMPVERSION =
               CIMName ("SNMPVersion");
 
 /**

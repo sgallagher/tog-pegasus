@@ -25,6 +25,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//	      : Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -150,7 +151,7 @@ void IndicationHandlerService::_handleIndication(const Message* message)
    if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
        pos = handler.findProperty(CIMName ("destination"));
    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
-       pos = handler.findProperty(CIMName ("TrapDestination"));
+       pos = handler.findProperty(CIMName ("TargetHost"));
 
    if (pos == PEG_NOT_FOUND)
    {
@@ -213,10 +214,18 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 
           if (handlerLib)
           {
-	     handlerLib->handleIndication(
-	        handler,
-	        indication,
-	        nameSpace.getString());
+	      try
+	      {
+	     	   handlerLib->handleIndication(
+	        	handler,
+	        	indication,
+	        	nameSpace.getString());
+	      }
+	      catch(CIMException& e)
+    	      {
+                   cimException =
+                	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    	      }
           }
           else
              cimException =

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/CIMIndication.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/OperationContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -162,12 +163,23 @@ public:
 //
 // IndicationResponseHandler
 //
+// NOTE: This class definition should not be considered complete until
+// indication support has been completed in Pegasus.  Implementation of
+// indication support may reveal a need for API changes in this class.
 class PEGASUS_COMMON_LINKAGE IndicationResponseHandler : virtual public ResponseHandler
 {
 public:
     virtual void deliver(const CIMIndication & indication) = 0;
 
     virtual void deliver(const Array<CIMIndication> & indications) = 0;
+
+    virtual void deliver(
+        const OperationContext & context,
+        const CIMIndication & indication) = 0;
+
+    virtual void deliver(
+        const OperationContext & context,
+        const Array<CIMIndication> & indications) = 0;
 };
 
 

@@ -196,6 +196,24 @@ public:
         }
     }
 
+    virtual void deliver(
+        const OperationContext & context,
+        const CIMIndication & indication)
+    {
+        _objects.append(indication);
+    }
+
+    virtual void deliver(
+        const OperationContext & context,
+        const Array<CIMIndication> & indications)
+    {
+        // call deliver for each object in the array
+        for(Uint32 i = 0, n = indications.size(); i < n; i++)
+        {
+            deliver(indications[i]);
+        }
+    }
+
     const Array<CIMIndication> getObjects(void) const
     {
         return _objects;

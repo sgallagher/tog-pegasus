@@ -118,12 +118,12 @@ public:
 	const String& nameSpace,
 	const CIMClass& newClass);
 
-    ///
+    /// ATTN: should return an <instanceName>!
     virtual void createInstance(
 	const String& nameSpace,
 	const CIMInstance& newInstance);
 
-    ///
+    /// ModifiedClass argument should be a <namedInstance>!
     virtual void modifyClass(
 	const String& nameSpace,
 	const CIMClass& modifiedClass);
@@ -148,7 +148,7 @@ public:
 	const String& className = String::EMPTY,
 	Boolean deepInheritance = false);
 
-    ///
+    /// ATTN: should return array of <namedInstance>!
     virtual Array<CIMInstance> enumerateInstances(
 	const String& nameSpace,
 	const String& className,
@@ -163,7 +163,7 @@ public:
 	const String& nameSpace,
 	const String& className);
 
-    /// ATTN-A: this should return Array<CIMObject>
+    /// ATTN: should return Array<CIMObject>
     virtual Array<CIMInstance> execQuery(
 	const String& queryLanguage,
 	const String& query) ;

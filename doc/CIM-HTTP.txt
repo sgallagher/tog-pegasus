@@ -1,0 +1,3150 @@
+Specification for CIM Operations over HTTPDistributed Management Task Force, 
+  Inc.
+  Specification for CIM Operations over HTTP
+  Version 1.0
+  August  11th, 1999
+  Technical inquiries and editorial comments should be directed in writing to:
+  Distributed Management Task Force, Inc. (DMTF)
+  c/o MacKenzie Kesselring, Inc. 
+  200 SW Market Street, Suite 450, 
+  Portland, OR 97201 
+  (503) 225-0725 
+  (503) 225-0765 (fax) 
+  email: dmtf-info@dmtf.org 
+  Participants
+  This list shows the names of the companies and organizations that have 
+  participated in the Distributed Management Task Force - CIM TC XML 
+  Sub-Committee whose contributions made this document possible.
+    Agranat Systems 
+    Hewlett-Packard Company 
+    IBM Corporation 
+    Microsoft Corporation 
+    Tivoli Systems, Inc. 
+    Customer Support Consortium 
+    Sun Microsystems, Inc. 
+    Intel Corporation
+  Change History
+        Version 1.0aMay 1st, 1999First Draft Release
+        Version 1.0bMay 7th, 1999Updates after first Working Group Review
+        Version 1.0cMay 11th, 1999Further updates
+        Version 1.0dMay 25th, 1999Changed LOCAL to PROPAGATED
+        Added VALUETYPE attribute to KEYVALUE
+        Version 1.0eMay 28th, 1999AssociationTraversal dependent on BasicRead. 
+        not BasicWrite
+
+        CIMFunctionalGroups OPTIONS header renamed to 
+        CIMSupportedFunctionalGroups
+
+        501 returned by server if it does not support multiple requests and 
+        receives such a request
+
+        Added some operation parameters and allowed them to take default values
+        Version 1.0June 2nd, 1999Clarified meaning of default intrinsic 
+        parameter value
+        Resolved ambiguity over server response to protocol version that is not 
+        supported
+        Clarified use of property list in Associators and References intrinsic 
+        methods
+        July 6th, 1999Updated examples to reflect DTD changes
+        QueryExecution based on BasicRead, not BasicWrite
+        July 20th, 1999Remove IncludeClassOrigin and IncludeQualifiers 
+        parameters from ExecQuery.
+        Parameters to Associators, AssocitorNames, References and ReferenceNames 
+        which express class names are modelled as <className> rather than 
+string.
+        NewValue parameter to SetProperty is now OPTIONAL
+        Clarified semantics of optional parameters, and the distinction between 
+        a default parameter value and a NULL parameter value.
+        Clarified Create and Modify operational semantics.
+        Clarified validation requirements and introduced CIMValidation header 
+        for OPTIONS response.
+        Introduced CIMError response header to disambiguate fundamental 
+        CIM-specific errors that map to the same HTTP status code.
+
+  Contents
+  Abstract
+  1. Introduction
+
+    1.1. Requirements
+
+    1.2. Terminology
+
+    1.3. Style
+
+  2. CIM Operation Syntax and Semantics
+
+    2.1. Overview 
+      2.1.1. Well-Formed, Valid and Loosely Valid
+    2.2. Operational Semantics 
+    2.3. Method Invocations 
+      2.3.1. Simple Operations 
+      2.3.2. Multiple Operations  
+      2.3.3. Status Codes 
+    2.4. Intrinsic Methods 
+      2.4.1. GetClass 
+      2.4.2. GetInstance 
+      2.4.3. DeleteClass 
+      2.4.4. DeleteInstance 
+      2.4.5. CreateClass 
+      2.4.6. CreateInstance 
+      2.4.7. ModifyClass 
+      2.4.8. ModifyInstance  
+      2.4.9. EnumerateClasses 
+      2.4.10. EnumerateClassNames 
+      2.4.11. EnumerateInstances 
+      2.4.12. EnumerateInstanceNames 
+      2.4.13. ExecQuery  
+      2.4.14. Associators 
+      2.4.15. AssociatorNames 
+      2.4.16. References 
+      2.4.17. ReferenceNames  
+      2.4.18. GetProperty 
+      2.4.19. SetProperty 
+      2.4.20. GetQualifier  
+      2.4.21. SetQualifier 
+      2.4.22. DeleteQualifier 
+      2.4.23. EnumerateQualifiers
+    2.5. Namespace Manipulation 
+    2.6. Functional Profiles 
+    2.7. Extrinsic Method Invocation 
+  3. Encapsulation of CIM Operations
+
+    3.1. CIM Clients and Servers
+
+    3.2. Use of M-POST and POST
+
+      3.2.1. Use of the Ext Header
+
+    3.3. Extension Headers Defined for CIM Operation Requests and Responses
+
+      3.3.1. Naming of Extension Headers
+
+      3.3.2. Encoding of CIM Names within HTTP Headers
+
+      3.3.3. Encoding of CIM Object Paths within HTTP Headers 
+      3.3.4. CIMOperation 
+      3.3.5. CIMProtocolVersion
+
+      3.3.6. CIMMethod
+
+      3.3.7. CIMObject
+
+      3.3.8. CIMBatch 
+      3.3.9. CIMError 
+  4. HTTP Requirements & Usage
+
+    4.1. HTTP Support
+
+    4.2. Use of Standard Headers
+
+      4.2.1. Accept
+
+      4.2.2. Accept-Charset
+
+      4.2.3. Accept-Encoding
+
+      4.2.4. Accept-Language
+
+      4.2.5. Accept-Ranges
+
+      4.2.6. Allow
+
+      4.2.7. Authorization
+
+      4.2.8. Cache-Control
+
+      4.2.9. Connection
+
+      4.2.10. Content-Encoding
+
+      4.2.11. Content-Language
+
+      4.2.12. Content-Range
+
+      4.2.13. Content-Type
+
+      4.2.14. Expires
+
+      4.2.15. If-Range
+
+      4.2.16. Proxy-Authenticate
+
+      4.2.17. Range
+
+      4.2.18. WWW-Authenticate
+
+    4.3. Errors and Status Codes
+
+    4.4. Security Considerations
+
+    4.5. Determining CIM Server Capabilities
+
+      4.5.1. CIMSupportedFunctionalGroups 
+      4.5.2. CIMSupportsMultipleOperations 
+      4.5.3. CIMSupportedQueryLanguages 
+      4.5.4. CIMValidation
+    4.6. Other HTTP Methods
+
+    4.7. Discovery and Addressing
+
+    4.8. Internationalization Considerations
+
+  5. References
+  Appendix A - Examples of Message Exchanges
+
+    A.1. Retrieval of a Single Class Definition 
+    A.2. Retrieval of a Single Instance Definition 
+    A.3. Deletion of a Single Class Definition 
+    A.4. Deletion of a Single Instance Definition 
+    A.5. Creation of a Single Class Definition 
+    A.6. Creation of a Single Instance Definition 
+    A.7. Enumeration of Class Names 
+    A.8. Enumeration of Instances 
+    A.9. Retrieval of a Single Property 
+    A.10. Execution of an Extrinsic Method 
+
+
+Abstract
+The Common Information Model (CIM) [1] is an object-oriented information model 
+defined by the Distributed Management Task Force (DMTF) which provides a 
+conceptual framework for describing management data.
+The Hypertext Transfer Protocol (HTTP) [6,7,10] is an application-level protocol 
+for distributed, collaborative, hypermedia information systems.  It is a generic 
+stateless protocol which can be used for many tasks through extension  of its 
+request methods, error codes and headers.
+The Extensible Markup Language (XML) [3] is a simplified subset of SGML that 
+offers powerful and extensible data modeling capabilities. An XML Document is a 
+collection of data represented in XML. An XML Schema is a grammar that describes 
+the structure of an XML Document. 
+This document defines a mapping of CIM Operations onto HTTP that allows 
+implementations of CIM to interoperate in an open, standardized manner.  It 
+utilizes the CIM XML DTD [2,11] that defines the XML Schema for CIM objects and 
+messages.
+Back to contents
+1. Introduction
+This document defines a mapping of CIM operations onto HTTP that allows 
+implementations of CIM to operate in an open, standardized manner. It also 
+defines the notion of conformance in the context of this mapping, and describes 
+what behavior an implementation of CIM must exhibit in order to be described as 
+a conforming CIM implementation.
+The remainder of this document is structured as follows.
+  Section 2 describes the CIM Operations which form the HTTP payload, using XML. 
+  It specifies the syntax and semantics of the operation requests and their 
+  corresponding responses. 
+  Section 3 describes the encapsulation of these messages in HTTP request and 
+  response messages, with examples of each. It describes the extension headers 
+  used to convey additional CIM-specific semantics in the HTTP Header. 
+  Section 4 describes in more detail other aspects of the encapsulation: 
+    HTTP Version Support 
+    The use of standard HTTP Headers 
+    HTTP Error codes 
+    Security Considerations 
+Back to contents
+1.1. Requirements
+There are potentially many different ways in which CIM operations could be 
+represented within XML, and those operations encapsulated within HTTP messages. 
+In the interests of interoperability between different implementations of CIM 
+there is an obvious requirement for standardization of both the XML 
+representation and the HTTP encapsulation. The XML representation is defined in 
+[2,11].  This document utilizes that representation to defines the HTTP 
+encapsulation. 
+The following criteria have been applied to the representation of CIM Operations 
+in XML [2,11]: 
+  Each CIM Operation is described completely in XML; completeness is favored 
+  over conciseness.  
+  The set of CIM Operations provide sufficient functionality to enable 
+  implementations of CIM to communicate effectively for the purposes of 
+  management. It is not a goal of the first release of this mapping to provide a 
+  complete set of operations. It is a goal to define the mapping so as to admit 
+  straightfoward extension (addition of further features) in future versions. 
+  The set of CIM Operations are classified into functional profiles so that a 
+  range of implementations (varying from complete support of all operations to 
+  support of a minimal subset) is allowed. The number of functional profiles is 
+  kept as small as possible to encourage interoperability, and mechanisms 
+  provided by which CIM implementations can declare their level of support.
+The following criteria have been applied to the HTTP encapsulation of CIM 
+Operations herein: 
+  In recognition of the large installed base of HTTP/1.0 systems, the 
+  encapsulation is designed to support both HTTP/1.0 and HTTP/1.1 
+  The encapsulation does not introduce any requirements which are in conflict 
+  with those stated in HTTP/1.0 or HTTP/1.1 
+  The encapsulation should be straightforwardly usable over the current base 
+  HTTP infrastructures. Some features are intended to anticipate and exploit 
+  enhancements to this base, but no aspects of the encapsulation require any 
+  such enhancements as mandatory. 
+  The encapsulation avoids the use of pure HTTP Tunnelling or URL munging (e.g. 
+  the use of the "?" character) in favor of a mechanism which allows existing 
+  HTTP infrastructures to safely control content. 
+  The encapsulation exposes key CIM operation information in Headers to allow 
+  efficient firewall/proxy handling.  The information is limited to that which 
+  is considered essential, in order not to have significant impact on the size 
+  of the Header. No CIM-specific information appears in a Header that does not 
+  also appear within the CIM Operation. 
+  There is a clear and unambiguous encapsulation of the CIM Operation payload 
+  within the HTTP Message. Conciseness of the encapsulation is of secondary 
+  importance. 
+Back to contents
+1.2. Terminology
+The key phrases and words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, 
+SHOULD NOT, RECOMMENDED, MAY and OPTIONAL in this document are to be interpreted 
+as described in RFC 2119 [8].
+This specification uses the same notational conventions and basic parsing 
+constructs as defined in [7]. 
+Back to contents
+1.3. Style
+This document uses a number of stylistic conventions to highlight examples and 
+definitions.
+Examples are displayed in this fashion:
+      This is an example
+
+Definitions are illustrated thusly:
+      This is a definition
+
+Back to contents
+2. CIM Operation Syntax and Semantics
+2.1. Overview
+This specification defines all interactions between CIM entities as Operations.  
+CIM Operations belong to a larger category known as CIM Messages (currently all 
+Messages are Operations, but in future this may not be true).
+This section describes the syntax and semantics of CIM Operations in a manner 
+independent of the encapsulation of such operations within a particular protocol 
+(such as HTTP).
+XML is used as the basis for this description, and in particular the CIM XML DTD 
+[2,11].
+Back to contents
+2.1.1. Well-Formed, Valid and Loosely Valid
+Where this document makes reference to the concept of a Well-formed or Valid XML 
+documents, the meaning intended is the standard one defined in [3].
+XML DTDs are restricted to these terms to describe XML documents, but this 
+document requires a further classification of an XML document with respect to a 
+DTD. Henceforth the term loosely valid is defined to apply to an XML Document 
+with the following characteristics:
+  If any attributes or elements in the XML document which do not appear in the 
+  CIM XML DTD are removed, then the resulting document is valid with respect to 
+  the CIM XML DTD.
+In effect, a loosely valid document is one which is valid with respect to the 
+CIM XML DTD apart from having additional attributes or elements not defined by 
+that DTD. The concept is very similar to that of an open content model as 
+defined by the working draft on XML Schemas [21], expressed within the more 
+limited scope of DTDs. One corollary of this definition is that any XML document 
+that is valid with respect to the CIM XML DTD is also loosely valid.
+The motivation for introducing this class of XML Documents is to relax the 
+restrictions on a CIM Client or a CIM Server when parsing received XML documents 
+defined within the scope of this mapping. It is recognized that not all Clients 
+(respectively, Servers) should be required to validate each received Operation 
+Response Message (respectively, Operation Request Message) as this would place 
+too great a processing burden on the validating entity at the expense of 
+footprint and performance, most notably in communication between robust and 
+conformant implementations of this mapping.
+Instead the following requirements are made by this specification:
+  A CIM Client (respectively, CIM Server) MAY include a DOCTYPE element in an 
+  Operation Request Message (respectively, Operation Response Message). If so, 
+  an External declaration SHOULD be used (in-lining of the complete DTD within a 
+  message is discouraged). 
+  A CIM Client (respectively, CIM Server) MAY elect to validate a received 
+  Operation Response Message (respectively, Operation Request Message).  
+  If a CIM Client (respectively, CIM Server) elects not to validate a received 
+  Operation Response Message (respectively, Operation Request Message), then 
+  loose validation MUST be enforced.
+The behavior of a CIM Server with respect to a received Operation Request 
+Message is covered in detail in the section on Errors and Status Codes .
+2.2. Operational Semantics 
+The CIM XML DTD [2,11] defines a subelement under the root <CIM> element called 
+<MESSAGE>, which contains one of the following subelements:
+  <SIMPLEREQ> 
+  <SIMPLERSP> 
+  <MULTIREQ> 
+  <MULTIRSP>
+In the remainder of this document:
+  The term Operation Request Message denotes an XML document that is loosely 
+  valid with respect to the CIM XML DTD, which contains under the root <CIM> 
+  node a <MESSAGE> subelement, under which there is a <MULTIREQ> or <SIMPLEREQ> 
+  subelement, and; 
+  The term Operation Response Message denotes an XML document that is loosely 
+  valid with respect to the CIM XML DTD, which contains under the root <CIM> 
+  node a <MESSAGE> subelement, under which there is a <MULTIRSP> or <SIMPLERSP> 
+  subelement.
+An Operation Request Message MUST contain a non-empty value for the ID attribute 
+of the <MESSAGE> element.  The corresponding Operation Response Message MUST 
+supply the same value for that attribute.  Clients SHOULD employ a message ID 
+scheme that minimizes the chance of receiving a stale Operation Response 
+Message.
+Any Operation Request Message or Operation Response Message conforming to this 
+specification MUST specify a value of "1.0" for the PROTOCOLVERSION attribute of 
+the <MESSAGE> element.
+An Operation Response Message sent in response to an Operation Request Message 
+MUST:
+  specify the same value for the ID  attribute of the <MESSAGE> element as 
+  appeared in the Operation Request Message, and 
+    contain a <MULTIRSP> subelement if the Operation Request Message contained a 
+    <MULTIREQ> subelement, or 
+    contain a <SIMPLERSP> subelement if the Operation Request Message contained 
+    a <SIMPLEREQ> subelement.
+A Simple Operation Request is an Operation Request Message that contains a 
+<SIMPLEREQ> subelement.  A Simple Operation Response is an Operation Response 
+Message that contains a <SIMPLERSP> subelement.
+A Multiple Operation Request is an Operation Request Message that contains a 
+<MULTIREQ> subelement.  A Multiple Operation Response is an Operation Response 
+Message that contains a <MULTIRSP> subelement.
+Back to contents
+2.3. Method Invocations
+All CIM Operation requests defined for this mapping are defined as invocations 
+of one or more methods.  A method may be either:
+  Intrinsic, which means that it is defined by this specification for the 
+  purposes of modelling a CIM operation, or; 
+  Extrinsic, which means that it is defined as a method on a CIM Class in some 
+  Schema.
+Intrinsic methods are further characterized by the fact that they are made 
+against a CIM Namespace.  Extrinsic methods are invoked on a CIM Class (if 
+static) or Instance (otherwise). Intrinsic methods are defined in the section 
+Intrinsic Methods
+An extrinsic method call is represented in XML by the <METHODCALL> element, and 
+the response to that call represented by the <METHODRESPONSE> element.  
+An intrinsic method call is represented in XML by the <IMETHODCALL> element, and 
+the response to that call represented by the <IMETHODRESPONSE> element.
+An Input parameter is one with an IN Qualifier (with value true) in the Method 
+definition.  An Output parameter is one with an OUT Qualifier (with value true) 
+in the Method definition.  An Optional parameter is one with an OPTIONAL 
+Qualifier in the Method definition. A parameter may be both an Input and Output 
+parameter.
+The <METHODCALL> or <IMETHODCALL> element serves to name the method to be 
+invoked and supply any Input parameters to the method call. Note that:
+  Each Input parameter MUST be named using the name assigned in the method 
+  definition. 
+  The Input parameters MAY be supplied in any order. 
+  Each Input parameter of the method, and no others, MUST be present in the 
+  call, unless it was defined as Optional.
+The <METHODRESPONSE> or <IMETHODRESPONSE> element defines either an <ERROR> or a 
+(possibly optional) return value and output parameters (i.e. one decorated with 
+the OUT Qualifier in the method definition).  In the latter case:
+  Each Output parameter MUST be named using the name assigned in the method 
+  definition. 
+  The Output parameters MAY be supplied in any order. 
+  Each Output parameter of the method, and no others, MUST be present in the 
+  response, unless it was defined as Optional.
+The method invocation process may be thought of as:
+  The binding of the input parameter values specified as subelements of the 
+  <METHODCALL> or <IMETHODCALL> element to the input parameters of the Method, 
+  followed by; 
+  The attempted execution of the method using the bound input parameters, and; 
+    If attempt to call the method is successful, the binding of the the return 
+    value and output parameters to the subelements of the <METHODRESPONSE> or 
+    <IMETHODRESPONSE> element, or; 
+    If the attempt to call the method is unsuccesful, the binding of an error 
+    code and (optional) human-readable description of that code to the 
+    <METHODRESPONSE> or <IMETHODRESPONSE> element.
+Back to contents
+2.3.1. Simple Operations
+A simple operation is defined as one that requires the invocation of a single 
+method.  A simple operation request is represented by a <SIMPLEREQ> element, and 
+a simple operation response by a <SIMPLERSP> element.
+If the method is intrinsic then the <SIMPLEREQ> MUST contain a <IMETHODCALL> 
+element, which in turn contains a <LOCALNAMESPACEPATH> subelement identifying 
+the local CIM Namespace against which the method is to be executed.  If the 
+method is extrinsic then the <SIMPLEREQ> element MUST contain a <METHODCALL> 
+element which in turn contains either:
+  A <LOCALCLASSPATH> subelement identifying the CIM Class on which the method is 
+  to be invoked, in the case that the method is static, or; 
+  An <LOCALINSTANCEPATH> subelement identifying the CIM Instance on which the 
+  method is to be invoked, otherwise.
+Back to contents
+2.3.2. Multiple Operations
+A multiple operation is defined as one that requires the invocation of more than 
+one method.  A multiple operation request is represented by a <MULTIREQ> 
+element, and a multiple operation response by a <MULTIRSP> element.
+A <MULTIREQ> (respectively, <MULTIRSP>) element is a sequence of two or more 
+<SIMPLEREQ> (respectively, <SIMPLERSP>) elements. 
+A <MULTIRSP> element MUST contain a <SIMPLERSP> element for every <SIMPLEREQ> 
+element in the corresponding Multiple Operation Response, and these <SIMPLERSP> 
+elements MUST be in the same order as their <SIMPLEREQ> counterparts (so the 
+first <SIMPLERSP> in the response corresponds to the first <SIMPLEREQ> in the 
+request, and so forth). 
+Multiple Operations provide a convenient mechanism whereby multiple method 
+invocations may be batched into a single HTTP Message, thereby reducing the 
+number of roundtrips between a CIM Client and a CIM Server and allowing the CIM 
+Server to make certain internal optimizations should it choose so to do.  Note 
+that Multiple Operations do not confer any transactional capabilities in the 
+processing of the request (for example, there is no requirement that the CIM 
+Server guarantee that the constituent method calls either all failed or all 
+succeeded, only that the entity make a "best effort" to process the operation).
+Not all CIM Servers support Multiple Operations; the means by which they declare 
+support for this feature is defined in the section on Determining CIM Server 
+Capabilities.
+Back to contents
+2.3.3. Status Codes
+This section defines the status codes that may be returned by a conforming CIM 
+Server application as the value of the CODE attribute of an <ERROR> subelement 
+within a <METHODRESPONSE> or <IMETHODRESPONSE> element.
+The symbolic names defined in the table below do not appear on the wire.  They 
+are used here solely as a convenient way to refer to an error in other parts of 
+this specification.
+Not all methods would be expected to return all the status codes listed below.  
+For intrinsic methods, the relevant section on each method in this specification 
+defines the expected error codes to be returned.  For extrinsic methods the 
+specification of which of the following codes can be used is described in the 
+section on Extrinsic Method Invocation .
+      Symbolic NameCODEDefinition 
+      CIM_ERR_FAILED1A general error occured that is not covered by a more 
+      specific error code
+      CIM_ERR_ACCESS_DENIED2Access to a CIM resource was not available to the 
+      client
+      CIM_ERR_INVALID_NAMESPACE3The target namespace does not exist
+      CIM_ERR_INVALID_PARAMETER4One or more parameter values passed to the 
+      method were invalid
+      CIM_ERR_INVALID_CLASS5The specified Class does not exist
+      CIM_ERR_NOT_FOUND6The requested object could not be found
+      CIM_ERR_NOT_SUPPORTED7The requested operation is not supported
+      CIM_ERR_CLASS_HAS_CHILDREN8Operation cannot be carried out on this class 
+      since it has subclasses
+      CIM_ERR_CLASS_HAS_INSTANCES9Operation cannot be carried out on this class 
+      since it has instances
+      CIM_ERR_INVALID_SUPERCLASS10Operation cannot be carried out since the 
+      specified superclass does not exist
+      CIM_ERR_ALREADY_EXISTS11Operation cannot be carried out because an object 
+      already exists
+      CIM_ERR_NO_SUCH_PROPERTY12The specified Property does not exist
+      CIM_ERR_TYPE_MISMATCH13The value supplied is incompatible with the type
+      CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED14The query language is not recognized 
+      or supported
+      CIM_ERR_INVALID_QUERY15The query is not valid for the specified query 
+      language
+      CIM_ERR_METHOD_NOT_AVAILABLE16The extrinsic Method could not be executed
+      CIM_ERR_METHOD_NOT_FOUND17The specified extrinsic Method does not exist
+
+Back to contents
+2.4. Intrinsic Methods
+This section describes the Intrinsic methods that are defined outside of schema 
+for the purposes of CIM operations.  These methods can only be called on a CIM 
+Namespace, rather than a CIM Class or CIM Instance.
+The following intrinsic methods are defined by this specification:
+  Get a CIM Class 
+  Get a CIM Instance 
+  Delete a CIM Class 
+  Delete a CIM Instance  
+  Create a CIM Class 
+  Create a CIM Instance 
+  Modify a CIM Class 
+  Modify a CIM Instance  
+  Enumerate subclasses of a CIM Class 
+  Enumerate subclass names of a CIM Class  
+  Enumerate instances of a CIM Class 
+  Enumerate instance names of a CIM Class  
+  Delete a CIM Qualifier definition 
+  Create a CIM Qualifier definition 
+  Enumerate CIM Qualifier definitions 
+  Execute a Query 
+  Enumerate associators of a CIM Object 
+  Enumerate names of associators of a CIM Object 
+  Enumerate references to a CIM Object 
+  Enumerate names of references to a CIM Object  
+  Get a CIM Property value from a CIM Instance 
+  Set a CIM Property value from a CIM Instance 
+  Get a Qualifier declaration 
+  Set a Qualifier declaration 
+  Delete a Qualifier declaration 
+  Enumerate Qualifier declarations
+The convention used in the following subsections to define the signatures of the 
+intrinsic methods is a pseudo-MOF notation that extends the standard MOF BNF [1] 
+for describing CIM Methods with a number of pseudo parameter types (which are 
+indicated by being placed within "<" and ">" characters). 
+This notation admits of the decoration of parameters with a number of 
+pseudo-qualifiers (IN, OPTIONAL and NULL) to define their invocation semantics. 
+It is important to understand that these qualifiers are used for descriptional 
+purposes only within the scope of this specification, and in particular a CIM 
+Client MUST NOT specify them in intrinsic method invocations.
+This notation uses the IN qualifier to denote that the parameter is an input 
+parameter.
+This notation uses the OPTIONAL qualifier to indicate paramaters whose presence 
+is not mandatory, and declares default values for optional method parameters 
+using similar notation employed for default property values in MOF.
+A CIM Client MAY omit an optional parameter in the case that the required value 
+is the specified default, by not specifying an <IPARAMVALUE> element for that 
+parameter. It MUST NOT omit any parameter that is not marked as optional.
+This notation uses the NULL qualifier to indicate parameters whose values may be 
+be specified as NULL in a method call. A NULL (unassigned) value for a parameter 
+is specified by an <IPARAMVALUE> element with no subelement. For parameters 
+which do not possess the NULL qualifier, the CIM Client MUST specify a value for 
+the parameter by including a suitable subelement for the <IPARAMVALUE> element 
+for that parameter.
+All parameters MUST be named uniquely, and MUST correspond to a valid parameter 
+name for that method as described by this specification. The order of the 
+parameters is not significant.
+The non-NULL values of intrinsic method parameters or return values which are 
+modelled as standard CIM types (such as string and boolean, or arrays thereof) 
+are represented as follows:
+  Simple values MUST be represented using the <VALUE> subelement within an 
+  <IPARAMETER> element (for method parameters) or within an <IRETURNVALUE> 
+  element (for method return values). 
+  Array values MUST be represented using the <VALUE.ARRAY> subelement within an 
+  <IPARAMETER> element (for method parameters) or within an <IRETURNVALUE> 
+  element (for method return values).
+The following table describes how each of the pseudo-types used by the intrinsic 
+methods MUST be mapped to an XML element described in [2] in the context of both 
+a parameter value (subelement of <IPARAMVALUE>) and a return value (subelement 
+of <IRETURNVALUE>).
+      TypeXML Element
+      <object>(VALUE.OBJECT|VALUE.OBJECTWITHLOCALPATH|VALUE.OBJECTWITHPATH)
+      <class>CLASS
+      <instance>INSTANCE
+      <className>CLASSNAME
+      <namedInstance>VALUE.NAMEDINSTANCE
+      <instanceName>INSTANCENAME
+      <objectWithPath>VALUE.OBJECTWITHPATH
+      <objectName>(CLASSNAME|INSTANCENAME)
+      <propertyValue>(VALUE|VALUE.ARRAY|VALUE.REFERENCE)
+      <qualifierDecl>QUALIFIER.DECLARATION
+
+Back to contents
+2.4.1. GetClass
+This operation is used to return a single CIM Class from the target Namespace.  
+       GetClass
+       <class>  GetClass (
+               [IN] <className> ClassName,
+               [IN,OPTIONAL] boolean LocalOnly = true,
+               [IN,OPTIONAL] boolean IncludeQualifiers = true,
+               [IN,OPTIONAL] boolean IncludeClassOrigin = false,
+               [IN,OPTIONAL,NULL] string PropertyList [] = NULL
+       )
+
+The ClassName input parameter defines the name of the Class to be retrieved.  
+If the LocalOnly input parameter is true, this specifies that only CIM Elements 
+(properties, methods and qualifiers) overriden within the definition of the 
+Class are returned [1].  If false, all elements are returned.  This parameter 
+therefore effects a CIM Server-side mechanism to filter certain elements of the 
+returned object based on whether or not they have been propagated from the 
+parent Class (as defined by the PROPAGATED attribute).
+If the IncludeQualifiers input parameter is true, this specifies that all 
+Qualifiers for that Class (including Qualifiers on the Class and on any returned 
+Properties, Methods or Method Parameters) MUST be included as <QUALIFIER> 
+elements in the response.  If false no <QUALIFIER> elements are present in the 
+returned Class.
+If the IncludeClassOrigin input parameter is true, this specifies that the 
+CLASSORIGIN attribute MUST be present on all appropriate elements in the 
+returned Class. If false, no CLASSORIGIN attributes are present in the returned 
+Class.
+If the PropertyList input parameter is not NULL, the members of the array define 
+one or more Property names.  The returned Class MUST NOT include elements for 
+any Properties missing from this list.  Note that if LocalOnly is specified as 
+true this acts as an additional filter on the set of Properties returned (for 
+example, if Property A is included in the PropertyList but LocalOnly is set to 
+true and A is not local to the requested Class, then it will not be included in 
+the response). If the PropertyList input parameter is an empty array this 
+signifies that no Properties are included in the response. If the PropertyList 
+input parameter is NULL this specifies that all Properties (subject to the 
+conditions expressed by the other parameters) are included in the response.
+If the PropertyList contains duplicate elements, the Server MUST ignore the 
+duplicates but otherwise process the request normally.  If the PropertyList 
+contains elements which are invalid Property names for the target Class, the 
+Server MUST ignore such entries but otherwise process the request normally.
+If successful, the return value is a single CIM Class.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_NOT_FOUND (the request CIM Class does not exist in the specified 
+  namespace) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.2. GetInstance
+This operation is used to return a single CIM Instance from the target 
+Namespace.  
+       GetInstance
+       <instance> GetInstance (
+               [IN] <instanceName> InstanceName,
+               [IN,OPTIONAL] boolean LocalOnly = true,
+               [IN,OPTIONAL] boolean IncludeQualifiers = false,
+               [IN,OPTIONAL] boolean IncludeClassOrigin = false,
+               [IN,OPTIONAL,NULL] string PropertyList [] = NULL
+       )
+
+The InstanceName input parameter defines the name of the Instance to be 
+retrieved.  
+If the LocalOnly input parameter is true, this specifies that only elements 
+(properties and qualifiers) overriden within the definition of the Instance are 
+returned [1].  If false, all elements are returned.  This parameter therefore 
+effects a CIM Server-side mechanism to filter certain elements of the returned 
+object based on whether or not they have been propagated from the parent Class 
+(as defined by the PROPAGATED attribute).
+If the IncludeQualifiers input parameter is true, this specifies that all 
+Qualifiers for that Instance (including Qualifiers on the Instance and on any 
+returned Properties) MUST be included as <QUALIFIER> elements in the response.  
+If false no <QUALIFIER> elements are present in the returned Instance.
+If the IncludeClassOrigin input parameter is true, this specifies that the 
+CLASSORIGIN attribute MUST be present on all appropriate elements in the 
+returned Instance. If false, no CLASSORIGIN attributes are present in the 
+returned Instance.
+If the PropertyList input parameter is not NULL, the members of the array define 
+one or more Property names.  The returned Instance MUST NOT include elements for 
+any Properties missing from this list.  Note that if LocalOnly is specified as 
+true this acts as an additional filter on the set of Properties returned (for 
+example, if Property A is included in the PropertyList but LocalOnly is set to 
+true and A is not local to the requested Instance, then it will not be included 
+in the response). If the PropertyList input parameter is an empty array this 
+signifies that no Properties are included in the response. If the PropertyList 
+input parameter is NULL this specifies that all Properties (subject to the 
+conditions expressed by the other parameters) are included in the response.
+If the PropertyList contains duplicate elements, the Server MUST ignore the 
+duplicates but otherwise process the request normally.  If the PropertyList 
+contains elements which are invalid Property names for the target Instance, the 
+Server MUST ignore such entries but otherwise process the request normally.
+If successful, the return value is a single CIM Instance.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified 
+  namespace) 
+  CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM Instance 
+  does not exist in the specified namespace) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.3. DeleteClass
+This operation is used to delete a single CIM Class from the target Namespace.
+       DeleteClass
+       void  DeleteClass (
+              [IN] <className> ClassName
+       )
+
+The ClassName input parameter defines the name of the Class to be deleted.    
+If successful, the specified Class (including any subclasses and any instances) 
+MUST have been removed by the CIM Server.  The operation MUST fail if any one of 
+these objects cannot be deleted.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_NOT_FOUND (the CIM Class to be deleted does not exist) 
+  CIM_ERR_CLASS_HAS_CHILDREN (the CIM Class has one or more subclasses which 
+  cannot be deleted) 
+  CIM_ERR_CLASS_HAS_INSTANCES (the CIM Class has one or more instances which 
+  cannot be deleted) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.4. DeleteInstance
+This operation is used to delete a single CIM Instance from the target 
+Namespace.  
+       DeleteInstance
+       void  DeleteInstance (
+               [IN] <instanceName> InstanceName
+       )
+
+The InstanceName input parameter defines the name (model path) of the Instance 
+to be deleted.  
+If successful, the specified Instance MUST have been removed by the CIM Server.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified 
+  namespace) 
+  CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM Instance 
+  does not exist in the specified namespace) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.5. CreateClass
+This operation is used to create a single CIM Class in the target Namespace.  
+The Class MUST NOT already exist.
+       CreateClass
+       void CreateClass (
+              [IN] <class> NewClass
+       )
+
+The NewClass input parameter defines the new Class.  The proposed definition 
+MUST be a correct Class definition according to the CIM specification [1].
+In processing the creation of the new Class, the following rules MUST be 
+conformed to by the CIM Server:
+  Any CLASSORIGIN and PROPAGATED attributes in the NewClass MUST be ignored by 
+  the Server. 
+  If the new Class has no Superclass, the NewClass parameter defines a new base 
+  Class. The Server MUST ensure that all Properties and Methods of the new Class 
+  have a CLASSORIGIN attribute whose value is the name of the new Class. 
+  If the new Class has a Superclass, the NewClass parameter defines a new 
+  Subclass of that Superclass. The Superclass MUST exist. The Server MUST ensure 
+  that: 
+    Any Properties, Methods or Qualifiers in the Subclass not defined in the 
+    Superclass are created as new elements of the Subclass. In particular the 
+    Server MUST set the CLASSORIGIN attribute on the new Properties and Methods 
+    to the name of the Subclass, and ensure that all other Properties and 
+    Methods preserve their CLASSORIGIN attribute value from that defined in the 
+    Superclass. 
+    If a Property is defined in the Superclass and in the Subclass, the value 
+    assigned to that property in the Subclass (including NULL) becomes the 
+    default value of the property for the Subclass. 
+    If a Property or Method of the Superclass is not specified in the Subclass, 
+    then that Property or Method is inherited without modification by the 
+    Subclass. 
+    Any Qualifiers defined in the Superclass with a TOSUBCLASS attribute value 
+    of true MUST appear in the resulting Subclass. Qualifiers in the Superclass 
+    with a TOSUBCLASS attribute value of false MUST NOT be propagated to the 
+    Subclass. 
+    Any Qualifier propagated from the Superclass cannot be modified in the 
+    Subclass if the OVERRIDABLE attribute of that Qualifier was set to false in 
+    the Superclass. It is a Client error to specify such a Qualifier in the 
+    NewClass with a different definition to that in the Superclass (where 
+    definition encompasses the name, type and flavor attribute settings of the 
+    <QUALIFIER> element, and the value of the Qualifier).
+If successful, the specified Class MUST have been created by the CIM Server.  
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_ALREADY_EXISTS (the CIM Class already exists)  
+  CIM_ERR_INVALID_SUPERCLASS (the putative CIM Class declares a non-existent 
+  superclass) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.6. CreateInstance
+This operation is used to create a single CIM Instance in the target Namespace. 
+The Instance MUST NOT already exist.
+       CreateInstance
+       <instanceName>  CreateInstance (
+              [IN] <instance> NewInstance
+       )
+
+The NewInstance input parameter defines the new Instance.  The proposed 
+definition MUST be a correct Instance definition for the underlying CIM Class 
+according to the CIM specification [1].
+In processing the creation of the new Instance, the following rules MUST be 
+conformed to by the CIM Server:
+  Any CLASSORIGIN and PROPAGATED attributes in the NewInstance MUST be ignored 
+  by the Server. 
+  The Server MUST ensure that: 
+    Any Qualifiers in the Instance not defined in the Class are created as new 
+    elements of the Instance. 
+    All Properties of the Instance preserve their CLASSORIGIN attribute value 
+    from that defined in the Class. 
+    If a Property is specified in the ModifiedInstance parameter, the value 
+    assigned to that property in the Instance (including NULL) becomes the value 
+    of the property for the Instance. Note that it is a Client error to specify 
+    a Property that does not belong to the Class. 
+    If a Property of the Class is not specified in the Instance, then that 
+    Property is inherited without modification by the Instance. 
+    Any Qualifiers defined in the Class with a TOINSTANCE attribute value of 
+    true appear in the Instance. Qualifiers in the Class with a TOINSTANCE 
+    attribute value of false MUST NOT be propagated to the Instance. 
+    Any Qualifier propagated from the Class cannot be modified in the Instance 
+    if the OVERRIDABLE attribute of that Qualifier was set to false in the 
+    Class. It is a Client error to specify such a Qualifier in the NewInstance 
+    with a different definition to that in the Class (where definition 
+    encompasses the name, type and flavor attribute settings of the <QUALIFIER> 
+    element, and the value of the Qualifier).
+If successful, the return value defines the object path of the new CIM Instance 
+relative to the target Namespace (i.e. the Model Path as defined by [1]), 
+created by the CIM Server.  It is returned in case one or more of the new keys 
+of the Instance are allocated dynamically during the creation process rather 
+than specified in the request.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class of which this is to be a new Instance 
+  does not exist) 
+  CIM_ERR_ALREADY_EXISTS (the CIM Instance already exists)  
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.7. ModifyClass
+This operation is used to modify an existing CIM Class in the target Namespace.  
+The Class MUST already exist.
+       ModifyClass
+       void ModifyClass (
+              [IN] <class> ModifiedClass
+       )
+
+The ModifiedClass input parameter defines the set of changes (which MUST be 
+correct amendments to the CIM Class as defined by the CIM Specification [1]) to 
+be made to the current class definition.
+In processing the modifcation of the Class, the following rules MUST be 
+conformed to by the CIM Server:
+  Any CLASSORIGIN and PROPAGATED attributes in the ModifiedClass MUST be ignored 
+  by the Server. 
+  If the modified Class has no Superclass, the ModifiedClass parameter defines 
+  modifications to a base Class. The Server MUST ensure that: 
+    All Properties and Methods of the modified Class have a CLASSORIGIN 
+    attribute whose value is the name of this Class. 
+    Any Properties, Methods or Qualifiers in the existing Class definition which 
+    do not appear in the  ModifiedClass parameter are removed from the resulting 
+    modified Class.
+  If the modified Class has a Superclass, the ModifiedClass parameter defines 
+  modifications to a Subclass of that Superclass. The Superclass MUST exist, and 
+  the Client MUST NOT change the name of the Superclass in the modified 
+  Subclass. The Server MUST ensure that: 
+    Any Properties, Methods or Qualifiers in the Subclass not defined in the 
+    Superclass are created as elements of the Subclass. In particular the Server 
+    MUST set the CLASSORIGIN attribute on the new Properties and Methods to the 
+    name of the Subclass, and MUST ensure that all other Properties and Methods 
+    preserve their CLASSORIGIN attribute value from that defined in the 
+    Superclass. 
+    Any Property, Method or Qualifier previously defined in the Subclass but not 
+    defined in the Superclass, and which is not present in the ModifiedClass 
+    parameter, is removed from the Subclass.  
+    If a Property is specified in the ModifiedClass parameter, the value 
+    assigned to that property therein (including NULL) becomes the default value 
+    of the property for the Subclass. 
+    If a Property or Method of the Superclass is not specified in the Subclass, 
+    then that Property or Method is inherited without modification by the 
+    Subclass (so that any previous changes to such an Element in the Subclass 
+    are lost). 
+    If a Qualifier in the Superclass is not specified in the Subclass, and the 
+    Qualifier is defined in the Superclass with a TOSUBCLASS attribute value of 
+    true, then the Qualifier MUST still be present in the resulting modified 
+    Subclass (it is not possible to remove a propagated Qualifier from a 
+    Subclass). 
+    Any Qualifier propagated from the Superclass cannot be modified in the 
+    Subclass if the OVERRIDABLE attribute of that Qualifier was set to false in 
+    the Superclass. It is a Client error to specify such a Qualifier in the 
+    ModifiedClass with a different definition to that in the Superclass (where 
+    definition encompasses the name, type and flavor attribute settings of the 
+    <QUALIFIER> element, and the value of the Qualifier). 
+    Any Qualifiers defined in the Superclass with a TOSUBCLASS attribute value 
+    of  false MUST NOT be propagated to the Subclass.
+If successful, the specified Class MUST have been updated by the CIM Server.  
+The request to modify the Class MUST fail if the Server cannot update any 
+existing Subclasses or Instances of that Class in a consistent manner.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_NOT_FOUND (the CIM Class does not exist)  
+  CIM_ERR_INVALID_SUPERCLASS (the putative CIM Class declares a non-existent or 
+  incorrect superclass) 
+  CIM_ERR_CLASS_HAS_CHILDREN (the modification could not be performed because it 
+  was not possible to update the subclasses of the Class in a consistent 
+  fashion) 
+  CIM_ERR_CLASS_HAS_INSTANCES (the modification could not be performed because 
+  it was not possible to update the instances of the Class in a consistent 
+  fashion)  
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.8. ModifyInstance
+This operation is used to modify an existing CIM Instance in the target 
+Namespace. The Instance MUST already exist.
+       ModifyInstance
+       void ModifyInstance (
+              [IN] <namedInstance> ModifiedInstance
+       )
+
+The ModifiedInstance input parameter identifies the name of the Instance to be 
+modified, and defines the set of changes (which MUST be correct amendments to 
+the Instance as defined by the CIM Specification [1]) to be made to the current 
+Instance definition. 
+In processing the modifcation of the Instance, the following rules MUST be 
+conformed to by the CIM Server:
+  Any CLASSORIGIN and PROPAGATED attributes in the ModifiedInstance MUST be 
+  ignored by the Server. 
+  The Class MUST exist, and the Client MUST NOT change the name of the Class in 
+  the modified Instance. The Server MUST ensure that: 
+    Any Qualifiers in the Instance not defined in the Class are created as new 
+    elements of the Instance. 
+    All Properties of the Instance preserve their CLASSORIGIN attribute value 
+    from that defined in the Class. 
+    Any Qualifier previously defined in the Instance but not defined in the 
+    Class, and which is not present in the ModifiedInstance parameter, is 
+    removed from the Instance.  
+    If a Property is specified in the ModifiedInstance parameter, the value 
+    assigned to that property therein (including NULL) becomes the value of the 
+    property for the Instance. Note that it is a Client error to specify a 
+    Property that does not belong to the Class. 
+    If a Property of the Class is not specified in the Instance, then that 
+    Property is inherited without modification by the Instance (so that any 
+    previous changes to that Property in the Instance are lost). 
+    Any Qualifiers defined in the Class with a TOINSTANCE attribute value of 
+    true appear in the Instance (it is not possible remove a propagated 
+    Qualifier from an Instance. Qualifiers in the Class with a TOINSTANCE 
+    attribute value of false MUST NOT be propagated to the Instance. 
+    Any Qualifier propagated from the Class cannot be modified by the Server if 
+    the OVERRIDABLE attribute of that Qualifier was set to false in the Class. 
+    It is a Client error to specify such a Qualifier in the ModifiedInstance 
+    with a different definition to that in the Class (where definition 
+    encompasses the name, type and flavor attribute settings of the <QUALIFIER> 
+    element, and the value of the Qualifier). 
+    Any Qualifier propagated from the Class cannot be modified in the Instance 
+    if the OVERRIDABLE attribute of that Qualifier was set to false in the 
+    Class. It is a Client error to specify such a Qualifier in the 
+    ModifiedInstance with a different definition to that in the Class (where 
+    definition encompasses the name, type and flavor attribute settings of the 
+    <QUALIFIER> element, and the value of the Qualifier).
+If successful, the specified Instance MUST have been updated by the CIM Server.  
+
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED  
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class of which this is to be a new Instance 
+  does not exist) 
+  CIM_ERR_NOT_FOUND (the CIM Instance does not exist)  
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.9. EnumerateClasses
+This operation is used to enumerate subclasses of a CIM Class in the target 
+Namespace.
+       EnumerateClasses
+       <class>* EnumerateClasses (
+               [IN,OPTIONAL,NULL] <className> ClassName=NULL,
+               [IN,OPTIONAL] boolean DeepInheritance = false,
+               [IN,OPTIONAL] boolean LocalOnly = true,
+               [IN,OPTIONAL] boolean IncludeQualifiers = true,
+               [IN,OPTIONAL] boolean IncludeClassOrigin = false
+       )
+
+The ClassName input parameter defines the Class that is the basis for the 
+enumeration.  
+If the DeepInheritance input parameter is true, this specifies that all 
+subclasses of the specified Class should be returned (if the ClassName input 
+parameter is absent, this implies that all Classes in the target Namespace 
+should be returned).  If false, only immediate child subclasses are returned (if 
+the ClassName input parameter is NULL, this implies that all base Classes in the 
+target Namespace should be returned). 
+If the LocalOnly input parameter is true, it specifies that, for each returned 
+Class, only elements (properties, methods and qualifiers) overriden within the 
+definition of that Class are included [1].  If false, all elements are returned. 
+ This parameter therefore effects a CIM Server-side mechanism to filter certain 
+elements of the returned object based on whether or not they have been 
+propagated from the parent Class (as defined by the PROPAGATED attribute).
+If the IncludeQualifiers input parameter is true, this specifies that all 
+Qualifiers for each Class (including Qualifiers on the Class and on any returned 
+Properties, Methods or Method Parameters) MUST be included as <QUALIFIER> 
+elements in the response.  If false no <QUALIFIER> elements are present in each 
+returned Class.
+If the IncludeClassOrigin input parameter is true, this specifies that the 
+CLASSORIGIN attribute MUST be present on all appropriate elements in each 
+returned Class. If false, no CLASSORIGIN attributes are present in each returned 
+Class.
+If successful, the method returns zero or more Classes that meet the required 
+criteria.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class that is the basis for this enumeration 
+  does not exist) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.10. EnumerateClassNames
+This operation is used to enumerate the names of subclasses of a CIM Class in 
+the target Namespace.
+       EnumerateClassNames
+       <className>*  EnumerateClassNames (
+               [IN,OPTIONAL,NULL] <className> ClassName = NULL,
+               [IN,OPTIONAL] boolean DeepInheritance = false
+       )
+
+The ClassName input parameter defines the Class that is the basis for the 
+enumeration.    
+If the DeepInheritance input parameter is true, this specifies that the names of 
+all subclasses of the specified Class should be returned (if the ClassName input 
+parameter is absent, this implies that the names of all Classes in the target 
+Namespace should be returned).  If false, only the names of immediate child 
+subclasses are returned (if the ClassName input parameter is NULL, this implies 
+that the names of all base Classes in the target Namespace should be returned). 
+If successful, the method returns zero or more names of Classes that meet the 
+requested criteria.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class that is the basis for this enumeration 
+  does not exist) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.11. EnumerateInstances
+This operation is used to enumerate instances of a CIM Class in the target 
+Namespace.
+       EnumerateInstances
+       <namedInstance>* EnumerateInstances (
+               [IN] <className> ClassName,
+               [IN,OPTIONAL] boolean LocalOnly = true,
+               [IN,OPTIONAL] boolean DeepInheritance = true,
+               [IN,OPTIONAL] boolean IncludeQualifiers = false,
+               [IN,OPTIONAL] boolean IncludeClassOrigin = false,
+               [IN,OPTIONAL,NULL] string PropertyList [] = NULL
+       )
+
+The ClassName input parameter defines the Class that is the basis for the 
+enumeration.    
+If the LocalOnly input parameter is true, this specifies that, for each returned 
+Instance, only elements (properties and qualifiers) overriden within the 
+definition of that Instance are included [1].  If false, all elements are 
+returned.  This parameter therefore effects a CIM Server-side mechanism to 
+filter certain elements of the returned object based on whether or not they have 
+been propagated from the parent Class (as defined by the PROPAGATED attribute).
+If the DeepInheritance input parameter is true, this specifies that, for each 
+returned Instance of the Class, all properties of the Instance MUST be present 
+(subject to constraints imposed by the other parameters), including any which 
+were added by subclassing the specified Class. If false, each returned Instance 
+includes only properties defined for the specified Class.
+If the IncludeQualifiers input parameter is true, this specifies that all 
+Qualifiers for each Instance (including Qualifiers on the Instance and on any 
+returned Properties) MUST be included as <QUALIFIER> elements in the response.  
+If false no <QUALIFIER> elements are present in each returned Instance.
+If the IncludeClassOrigin input parameter is true, this specifies that the 
+CLASSORIGIN attribute MUST be present on all appropriate elements in each 
+returned Instance. If false, no CLASSORIGIN attributes are present in each 
+returned Instance.
+If the PropertyList input parameter is not NULL, the members of the array define 
+one or more Property names.  Each returned Instance MUST NOT include elements 
+for any Properties missing from this list.  Note that if LocalOnly is specified 
+as true (or DeepInheritance is specified as false) this acts as an additional 
+filter on the set of Properties returned (for example, if Property A is included 
+in the PropertyList but LocalOnly is set to true and A is not local to a 
+returned Instance, then it will not be included in that Instance). If the 
+PropertyList input parameter is an empty array this signifies that no Properties 
+are included in each returned Instance. If the PropertyList input parameter is 
+NULL this specifies that all Properties (subject to the conditions expressed by 
+the other parameters) are included in each returned Instance.
+If the PropertyList contains duplicate elements, the Server MUST ignore the 
+duplicates but otherwise process the request normally.  If the PropertyList 
+contains elements which are invalid Property names for any target Instance, the 
+Server MUST ignore such entries but otherwise process the request normally.
+If successful, the method returns zero or more named Instances that meet the 
+required criteria.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class that is the basis for this enumeration 
+  does not exist) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.12. EnumerateInstanceNames
+This operation is used to enumerate the names (model paths) of the instances of 
+a CIM Class in the target Namespace.
+       EnumerateInstanceNames
+       <instanceName>* EnumerateInstanceNames (
+               [IN] <className> ClassName
+       )
+
+The ClassName input parameter defines the Class that is the basis for the 
+enumeration.  
+If successful, the method returns zero or more names of Instances (model paths) 
+that meet the requsted criteria.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class that is the basis for this enumeration 
+  does not exist) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.13. ExecQuery
+This operation is used to execute a query against the target Namespace.
+       ExecQuery
+       <object>* ExecQuery (
+               [IN] string QueryLanguage,
+               [IN] string Query
+       )
+
+The QueryLanguage input parameter defines the query language in which the Query 
+parameter is expressed.
+The Query input parameter defines the query to be executed. 
+Neither the Query language nor the format of the Query are defined by this 
+specification.  It is anticipated that Query languages will be submitted to the 
+DMTF as separate proposals.
+A mechanism whereby CIM Servers can declare which query languages they support 
+(if any) is defined in Determining CIM Server Capabilities.
+If successful, the method returns zero or more CIM Classes or Instances that 
+correspond to the results set of the query.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED (the requested query language is not 
+  recognized) 
+  CIM_ERR_INVALID_QUERY (the query is not a valid query in the specified query 
+  language)  
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.14. Associators
+This operation is used to enumerate CIM Objects (Classes or Instances) that are 
+associated to a particular source CIM Object.
+       Associators
+       <objectWithPath>* Associators (
+               [IN] <objectName> ObjectName,
+               [IN,OPTIONAL,NULL] <className> AssocClass = NULL,
+               [IN,OPTIONAL,NULL] <className> ResultClass = NULL,
+               [IN,OPTIONAL,NULL] string Role = NULL,
+               [IN,OPTIONAL,NULL] string ResultRole = NULL,
+               [IN,OPTIONAL] boolean IncludeQualifiers = false,
+               [IN,OPTIONAL] boolean IncludeClassOrigin = false,
+               [IN,OPTIONAL,NULL] string PropertyList [] = NULL
+       )
+
+The ObjectName input parameter defines the source CIM Object whose associated 
+Objects are to be returned.  This may be either a Class name or Instance name 
+(model path).
+The AssocClass input parameter, if not NULL, MUST be a valid CIM Association 
+Class name. It acts as a filter on the returned set of Objects by mandating that 
+each returned Object MUST be associated to the source Object via an Instance of 
+this Class or one of its subclasses. 
+The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name. It 
+acts as a filter on the returned set of Objects by mandating that each returned 
+Object MUST be either an Instance of this Class (or one of its subclasses) or be 
+this Class (or one of its subclasses).
+The Role input parameter, if not NULL, MUST be a valid Property name. It acts as 
+a filter on the returned set of Objects by mandating that each returned Object 
+MUST be associated to the source Object via an Association in which the source 
+Object plays the specified role (i.e. the name of the Property in the 
+Association Class that refers to the source Object MUST match the value of this 
+parameter).
+The ResultRole input parameter, if not NULL, MUST be a valid Property name. It 
+acts as a filter on the returned set of Objects by mandating that each returned 
+Object MUST be associated to the source Object via an Association in which the 
+returned Object plays the specified role (i.e. the name of the Property in the 
+Association Class that refers to the returned Object MUST match the value of 
+this parameter).
+If the IncludeQualifiers input parameter is true, this specifies that all 
+Qualifiers for each Object (including Qualifiers on the Object and on any 
+returned Properties) MUST be included as <QUALIFIER> elements in the response.  
+If false no <QUALIFIER> elements are present in each returned Object.
+If the IncludeClassOrigin input parameter is true, this specifies that the 
+CLASSORIGIN attribute MUST be present on all appropriate elements in each 
+returned Object. If false, no CLASSORIGIN attributes are present in each 
+returned Object.
+If the PropertyList input parameter is not NULL, the members of the array define 
+one or more Property names.  Each returned Object MUST NOT include elements for 
+any Properties missing from this list.  Note that if LocalOnly is specified as 
+true (or DeepInheritance is specified as false) this acts as an additional 
+filter on the set of Properties returned (for example, if Property A is included 
+in the PropertyList but LocalOnly is set to true and A is not local to a 
+returned Instance, then it will not be included in that Instance). If the 
+PropertyList input parameter is an empty array this signifies that no Properties 
+are included in each returned Object. If the PropertyList input parameter is 
+NULL this specifies that all Properties (subject to the conditions expressed by 
+the other parameters) are included in each returned Object.
+If the PropertyList contains duplicate elements, the Server MUST ignore the 
+duplicates but otherwise process the request normally.  If the PropertyList 
+contains elements which are invalid Property names for any target Object, the 
+Server MUST ignore such entries but otherwise process the request normally.
+Clients SHOULD NOT explicitly specify properties in the PropertyList parameter 
+unless they have specified a non-NULL value for the ResultClass parameter.
+If successful, the method returns zero or more CIM Classes or Instances meeting 
+the requested criteria.  Since it is possible for CIM Objects from different 
+hosts or namespaces to be associated, each returned Object includes location 
+information.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.15. AssociatorNames
+This operation is used to enumerate the names of CIM Objects (Classes or 
+Instances) that are associated to a particular source CIM Object.
+       AssociatorNames
+       <objectPath>* AssociatorNames (
+               [IN] <objectName> ObjectName,
+               [IN,OPTIONAL,NULL] <className> AssocClass = NULL,
+               [IN,OPTIONAL,NULL] <className> ResultClass = NULL,
+               [IN,OPTIONAL,NULL] string Role = NULL,
+               [IN,OPTIONAL,NULL] string ResultRole = NULL
+       )
+
+The ObjectName input parameter defines the source CIM Object whose associated 
+names are to be returned. This is either a Class name or Instance name (model 
+path).
+The AssocClass input parameter, if not NULL, MUST be a valid CIM Association 
+Class name. It acts as a filter on the returned set of names by mandating that 
+each returned name identifies an Object that MUST be associated to the source 
+Object via an Instance of this Class or one of its subclasses. 
+The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name. It 
+acts as a filter on the returned set of names by mandating that each returned 
+name identifies an Object that MUST be either an Instance of this Class (or one 
+of its subclasses) or be this Class (or one of its subclasses).
+The Role input parameter, if not NULL, MUST be a valid Property name. It acts as 
+a filter on the returned set of names by mandating that each returned name 
+identifies an Object that MUST be associated to the source Object via an 
+Association in which the source Object plays the specified role (i.e. the name 
+of the Property in the Association Class that refers to the source Object MUST 
+match the value of this parameter).
+The ResultRole input parameter, if not NULL, MUST be a valid Property name. It 
+acts as a filter on the returned set of names by mandating that each returned 
+name identifies an Object that MUST be associated to the source Object via an 
+Association in which the named returned Object plays the specified role (i.e. 
+the name of the Property in the Association Class that refers to the returned 
+Object MUST match the value of this parameter).
+If successful, the method returns zero or more full CIM Class paths or Instance 
+paths of Objects meeting the requested criteria.  Since it is possible for CIM 
+Objects from different hosts or namespaces to be associated, each returned path 
+is an absolute path that includes host and namespace information.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.16. References
+This operation is used to enumerate the association objects that refer to a 
+particular target CIM Object (Class or Instance).
+       References
+       <objectWithPath>* References (
+               [IN] <objectName> ObjectName,
+               [IN,OPTIONAL,NULL] <className> ResultClass = NULL,
+               [IN,OPTIONAL,NULL] string Role = NULL,
+               [IN,OPTIONAL] boolean IncludeQualifiers = false,
+               [IN,OPTIONAL] boolean IncludeClassOrigin = false,
+               [IN,OPTIONAL,NULL] string PropertyList [] = NULL
+       )
+
+The ObjectName input parameter defines the target CIM Object whose referring 
+Objects are to be returned. This is either a Class name or Instance name (model 
+path).  
+The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name. It 
+acts as a filter on the returned set of Objects by mandating that each returned 
+Object MUST be an Instance of this Class (or one of its subclasses), or this 
+Class (or one of its subclasses).
+The Role input parameter, if not NULL, MUST be a valid Property name. It acts as 
+a filter on the returned set of Objects by mandating that each returned Objects 
+MUST refer to the target Object via a Property whose name matches the value of 
+this parameter.
+If the IncludeQualifiers input parameter is true, this specifies that all 
+Qualifiers for each Object (including Qualifiers on the Object and on any 
+returned Properties) MUST be included as <QUALIFIER> elements in the response.  
+If false no <QUALIFIER> elements are present in each returned Object.
+If the IncludeClassOrigin input parameter is true, this specifies that the 
+CLASSORIGIN attribute MUST be present on all appropriate elements in each 
+returned Object. If false, no CLASSORIGIN attributes are present in each 
+returned Object.
+If the PropertyList input parameter is not NULL, the members of the array define 
+one or more Property names.  Each returned Object MUST NOT include elements for 
+any Properties missing from this list.  Note that if LocalOnly is specified as 
+true (or DeepInheritance is specified as false) this acts as an additional 
+filter on the set of Properties returned (for example, if Property A is included 
+in the PropertyList but LocalOnly is set to true and A is not local to a 
+returned Instance, then it will not be included in that Instance). If the 
+PropertyList input parameter is an empty array this signifies that no Properties 
+are included in each returned Object. If the PropertyList input parameter is 
+NULL this specifies that all Properties (subject to the conditions expressed by 
+the other parameters) are included in each returned Object.
+If the PropertyList contains duplicate elements, the Server MUST ignore the 
+duplicates but otherwise process the request normally.  If the PropertyList 
+contains elements which are invalid Property names for any target Object, the 
+Server MUST ignore such entries but otherwise process the request normally.
+Clients SHOULD NOT explicitly specify properties in the PropertyList parameter 
+unless they have specified a non-NULL value for the ResultClass parameter.
+If successful, the method returns zero or more CIM Classes or Instances meeting 
+the requested criteria.  Since it is possible for CIM Objects from different 
+hosts or namespaces to be associated, each returned Object includes location 
+information.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.17. ReferenceNames
+This operation is used to enumerate the association objects that refer to a 
+particular target CIM Object (Class or Instance).
+       ReferenceNames
+       <objectPath>* ReferenceNames (
+               [IN] <objectName> ObjectName,
+               [IN,OPTIONAL,NULL] <className> ResultClass = NULL,
+               [IN,OPTIONAL,NULL] string Role = NULL
+       )
+
+The ObjectName input parameter defines the target CIM Object whose referring 
+object names are to be returned. It may be either a Class name or an Instance 
+name (model path).
+The ResultClass input parameter, if not NULL, MUST be a valid CIM Class name. It 
+acts as a filter on the returned set of Object Names by mandating that each 
+returned Object Name MUST identify an Instance of this Class (or one of its 
+subclasses), or this Class (or one of its subclasses).
+The Role input parameter, if not NULL, MUST be a valid Property name. It acts as 
+a filter on the returned set of Object Names by mandating that each returned 
+Object Name MUST identify an Object that refers to the target Instance via a 
+Property whose name matches the value of this parameter.
+If successful, the method returns the names of zero or more full CIM Class paths 
+or Instance paths of Objects meeting the requested criteria.  Since it is 
+possible for CIM Objects from different hosts or namespaces to be associated, 
+each returned path is an absolute path that includes host and namespace 
+information.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE  
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.18. GetProperty
+This operation is used to retrieve a single property value from a CIM Instance 
+in the target Namespace.
+       GetProperty
+       <propertyValue>? GetProperty (
+               [IN] <instanceName> InstanceName,
+               [IN] string PropertyName
+       )
+
+The InstanceName input parameter specifies the name of the Instance (model path) 
+from which the Property value is requested.
+The PropertyName input parameter specifies the name of the Property whose value 
+is to be returned.
+If successful, the return value specifies the value of the requested Property. 
+If the value is NULL then no element is returned.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified 
+  namespace) 
+  CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM Instance 
+  does not exist in the specified namespace) 
+  CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the requested 
+  Property does not)  
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.19. SetProperty
+This operation is used to set a single property value in a CIM Instance in the 
+target Namespace.
+       SetProperty
+       void SetProperty (
+               [IN] <instanceName> InstanceName,
+               [IN] string PropertyName,
+               [IN,OPTIONAL,NULL] <propertyValue> NewValue = NULL
+       )
+
+The InstanceName input parameter specifies the name of the Instance (model path) 
+for which the Property value is to be updated.
+The PropertyName input parameter specifies the name of the Property whose value 
+is to be updated.
+The NewValue input parameter specifies the new value for the Property (which may 
+be NULL).
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_INVALID_CLASS (the CIM Class does not exist in the specified 
+  namespace) 
+  CIM_ERR_NOT_FOUND (the CIM Class does exist, but the requested CIM Instance 
+  does not exist in the specified namespace) 
+  CIM_ERR_NO_SUCH_PROPERTY (the CIM Instance does exist, but the requested 
+  Property does not)  
+  CIM_ERR_TYPE_MISMATCH (the supplied value is incompatible with the type of the 
+  Property) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.20. GetQualifier
+This operation is used to retrieve a single Qualifier declaration from the 
+target Namespace.  
+       GetQualifier
+       <qualifierDecl> GetQualifier (
+               [IN] string QualifierName
+       )
+
+The QualifierName input parameter identifies the Qualifier whose declaration to 
+be retrieved.
+If successful, the method returns the Qualifier declaration for the named 
+Qualifier.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_NOT_FOUND (the requested Qualifier declaration did not exist) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.21. SetQualifier
+This operation is used to create or update a single Qualifier declaration in the 
+target Namespace.  If the Qualifier declaration already exists it is 
+overwritten.
+       SetQualifier
+       void SetQualifier (
+               [IN] <qualifierDecl> QualifierDeclaration
+       )
+
+The QualifierDeclaration input parameter defines the Qualifier Declaration to be 
+added to the Namespace.
+If successful, the Qualifier declaration MUST have been added to the target 
+Namespace.  If a Qualifier declaration with the same Qualifier name already 
+existed, then it MUST have been replaced by the new declaration.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.22. DeleteQualifier
+This operation is used to delete a single Qualifier declaration from the target 
+Namespace.  
+       DeleteQualifier
+       void DeleteQualifier (
+               [IN] string QualifierName
+       )
+
+The QualifierName input parameter identifies the Qualifier whose declaration to 
+be deleted.
+If successful, the specified Qualifier declaration MUST have been deleted from 
+the Namespace.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_NOT_FOUND (the requested Qualifier declaration did not exist) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.4.23. EnumerateQualifiers
+This operation is used to enumerate Qualifier declarations from the target 
+Namespace.  
+       EnumerateQualifiers
+       <qualifierDecl>* EnumerateQualifiers (
+       )
+
+If successful, the method returns zero or more Qualifier declarations.
+If unsuccessful, one of the following status codes MUST be returned by this 
+method, where the first applicable error in the list (starting with the first 
+element of the list, and working down) is the error returned. Any additional 
+method-specific interpretation of the error in is given in parentheses.
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+2.5. Namespace Manipulation
+There are no intrinsic methods defined specifically for the purpose of 
+manipulating CIM Namespaces. However, the modelling of a CIM Namespace using the 
+class __Namespace, together with the requirement that the root Namespace MUST be 
+supported by all CIM Servers, implies that all Namespace operations can be 
+supported.
+For example:
+  Enumeration of all child Namespaces of a particular Namespace is realized by 
+  calling the intrinsic method EnumerateInstanceNames against the parent 
+  Namespace, specifying a value for the ClassName parameter of __Namespace. 
+  Creation of a child Namespace is realized by calling the intrinsic method 
+  CreateInstance against the parent Namespace, specifying a value for the 
+  NewInstance parameter which defines a valid instance of the class __Namespace 
+  and whose Name property is the desired name of the new Namespace.
+2.6. Functional Profiles
+This section partitions the intrinsic methods into functional groups for the 
+purpose of establishing conformance.
+Support for a particular group does not guarantee that all invocations of any 
+method in that group will succeed.  Rather, the exclusion of a group is a 
+declaration that any attempt to call a method in that group will always return 
+CIM_ERR_NOT_SUPPORTED.
+Mechanisms by which a CIM Server may declare the functional groups that it 
+supports are defined in the section on Determining CIM Server Capabilities.
+In order to limit the number of different profiles that may be supported by a 
+CIM Server, each functional group has a dependency on another group (with the 
+exception of the Basic Read functional group).  If functional group G1 has a 
+dependency on functional group G2, then a CIM Server which supports G1 MUST also 
+support G2.  
+The dependency relation is transitive, so that if G1 depends on G2, and G2 
+depends on G3, then G1 depends on G3. It is also anti-symmetric, so that if G1 
+depends on G2 then G2 cannot depend on G1.
+Using these rules, the table below defines a rooted directed tree of 
+dependencies with the Basic Read dependency representing the root node.  
+For example, a CIM Server which supports the Schema Manipulation functional 
+group MUST also support the Instance Manipulation, Basic Write and Basic Read.
+      Functional Group DependencyMethods
+      Basic ReadnoneGetClass
+      EnumerateClasses
+      EnumerateClassNames
+      GetInstance
+      EnumerateInstances
+      EnumerateInstanceNames
+      GetProperty
+      Basic WriteBasic ReadSetProperty
+      Schema ManipulationInstance ManipulationCreateClass
+      ModifyClass
+      DeleteClass
+      Instance ManipulationBasic WriteCreateInstance
+      ModifyInstance
+      DeleteInstance
+      Association TraversalBasic ReadAssociators
+      AssociatorNames
+      References
+      ReferenceNames
+      Query ExecutionBasic ReadExecQuery
+      Qualifier DeclarationSchema ManipulationGetQualifier
+      SetQualifier
+      DeleteQualifier
+      EnumerateQualifiers
+
+Back to contents
+2.7. Extrinsic Method Invocation
+Any CIM Server is assumed to support extrinsic methods. Extrinsic methods are 
+defined by the Schema supported by the Cim Server. If a Cim Server does not 
+support extrinsic method invocations, it MUST (subject to the considerations 
+described in the rest of this section) return the error code 
+CIM_ERR_NOT_SUPPORTED to any request to execute an extrinsic method. This allows 
+a CIM client to determine that all attempts to execute extrinsic methods will 
+fail.
+If the Cim Server is unable to perform the extrinsic method invocation, one of 
+the following status codes MUST be returned by the CimServer, where the first 
+applicable error in the list (starting with the first element of the list, and 
+working down) is the error returned. Any additional specific interpretation of 
+the error is given in parentheses. 
+  CIM_ERR_ACCESS_DENIED 
+  CIM_ERR_NOT_SUPPORTED (the CimServer does not support extrinsic method 
+  invocations) 
+  CIM_ERR_INVALID_NAMESPACE 
+  CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+  otherwise incorrect parameters) 
+  CIM_ERR_NOT_FOUND (the target CIM Class or instance does not exist in the 
+  specified namespace) 
+  CIM_ERR_METHOD_NOT_FOUND 
+  CIM_ERR_METHOD_NOT_AVAILABLE (the CimServer is unable to honor the invocation 
+  request) 
+  CIM_ERR_FAILED (some other unspecified error occurred)
+Back to contents
+3. Encapsulation of CIM Operations
+All CIM Operation requests MUST be made using either an HTTP M-POST or POST 
+message, with the preferred mechanism being the use of M-POST. The use of other 
+HTTP Methods to invoke CIM Operations is outside the scope of this 
+specification.
+All CIM Operation responses are carried in the corresponding HTTP Response 
+message to the M-POST or POST request.
+In the remainder of this document:
+  the term CIM Operation Request is a convenient shorthand for an HTTP M-POST or 
+  POST request message that includes an XML entity body which defines an 
+  Operation Request Message, and; 
+  the term CIM Operation Response is a convenient shorthand for an HTTP response 
+  message, issued in response to a CIM Operation Request, that includes an 
+  entity body which defines an Operation Response Message.  Note that an HTTP 
+  response to a CIM Operation Request is not always a CIM Operation Response; 
+  for example a "505 HTTP Version Not Supported" response would not be a CIM 
+  Operation Response.
+Where it is necessary to distinguish requirements between the use of M-POST and 
+POST, these will be explicitly defined.
+The extension mechanism used in this document is based on the HTTP Extension 
+Framework [9]. A goal of the framework is to allow a decentralized naming 
+mechanism whereby parties can introduce additional HTTP Headers without fear of 
+conflicting interpretation of a given Header name.
+It is not the intention of this document to replicate information in that 
+document concerning the required behavior of entities that implement this 
+framework; suffice it to say that conforming CIM implementations of this 
+specification protocol MUST abide by all requirements in that document.
+Back to contents
+3.1. CIM Clients and Servers
+The following definitions are used throughout the remainder of this document:
+  A CIM client is an HTTP client that issues CIM Operation Requests and receives 
+  and processes CIM Operation Responses. 
+  A CIM server is an an HTTP server that receives and processes CIM Operation 
+  Requests and issues CIM Operation Responses.
+An HTTP client/server MAY be capable of acting as both a CIM client and a CIM 
+server.
+Back to contents
+3.2. Use of M-POST and POST
+A CIM client attempting a CIM Operation invocation conformant to this 
+specification MUST first try the invocation using the HTTP method "M-POST". 
+  If the M-POST invocation fails with an HTTP status of "501 Not Implemented" or 
+  "510 Not Extended", then the client SHOULD retry the request using the HTTP 
+  method POST with the appropriate modifications (described in Naming of 
+  Extension Headers).  The intention is that POST should only be used as a 
+  fallback mechanism in environments where firewalls or proxies do not yet have 
+  the ability to understand M-POST requests. 
+  If the M-POST invocation fails with an HTTP status of "405 Method Not 
+  Allowed", then the client SHOULD fail the request. 
+  For all other status codes the client MUST act in accordance with standard 
+  HTTP [6,7].
+This extended invocation mechanism allows Internet proxies & firewalls greater 
+filtering control and administrative flexibility over CIM Operation invocations.
+In the case of a client receiving a 501 or 510 status in response to an M-POST 
+request, then in subsequent invocations to the same HTTP server, the client MAY 
+omit the attempt at M-POST invocations for a suitable period, thus avoiding the 
+need for an extra round trip on each and every method invocation.  The details 
+of the caching strategy employed by the client are outside of the scope of this 
+specification.
+Given this algorithm, firewalls can if they wish effectively force the use of 
+M-POST for CIM Operation invocations by prohibiting POST invocations containing 
+the Extension Header CIMOperation. 
+3.2.1. Use of the Ext Header
+If a CIM Server receives a valid M-POST request, and has fulfilled all mandatory 
+extension header declarations in the request, then it MUST include in the 
+response the "Ext" header defined by [9].  This must be protected by the 
+appropriate Cache-Control directive.
+Back to contents
+3.3. Extension Headers Defined for CIM Operation Requests and Responses
+This section describes the extension headers used to specify CIM operational 
+semantics in the HTTP Header of an M-POST or POST message.
+Any CIM Operation Request or CIM Operation Response MUST include the following 
+CIM extension header:
+  CIMOperation 
+Any CIM Operation Request MUST include one and only one of the following CIM 
+extension header sets:
+  CIMMethod and CIMObject, or 
+  CIMBatch
+An HTTP reponse with an error status code to a CIM Operation Request MAY include 
+the following CIM extension header:
+  CIMError 
+All CIM Operation Requests and Responses MAY include the following CIM extension 
+header:
+  CIMProtocolVersion
+Back to contents
+3.3.1. Naming of Extension Headers
+In M-POST request messages (and their responses), CIM extension headers MUST be 
+declared using the name space prefix allotted by the "Man" extension header (in 
+accordance with [9]) that refers to the name space 
+"http://www.dmtf.org/cim/mapping/http/v1.0". 
+The full format of the "Man" header declaration for this specification is:
+      Man              = "Man" ":" "http://www.dmtf.org/cim/mapping/http/v1.0"
+                         ";" "ns" "=" header-prefix
+      header-prefix    = 2*DIGIT
+
+This header-prefix SHOULD be generated at random on a per-HTTP message basis, 
+and SHOULD NOT necessarily be a specific number.
+In accordance with [9], all POST request messages (and their responses) MUST NOT 
+include such a mandatory extension declaration. In POST request messages (and 
+their responses), name space prefixes MUST NOT be used.
+Example 1 
+Using M-POST:
+      M-POST /cimom HTTP/1.1
+      Man: http://www.dmtf.org./cim/mapping/http/v1.0 ; ns=23
+      23-CIMOperation: MethodCall
+      ...
+
+Example 2 
+Using POST:
+      POST /cimom HTTP/1.1
+      CIMOperation: MethodCall
+      ...
+
+Back to contents
+3.3.2. Encoding of CIM Element Names within HTTP Headers
+CIM element (class, property, qualifier, method or method parameter) names are 
+natively Unicode, and may use UCS-2 characters unsuitable for inclusion within 
+an HTTP message header. In order to encode CIM element names represented in 
+Unicode to values within HTTP Headers, the following mapping MUST be used:
+  Encode the full Unicode CIM element name using UTF-8 [15], and then; 
+  Apply the standard URI [16, section 2] escaping mechanism to the resulting 
+  string to escape any characters that are unsafe within an HTTP Header, using 
+  the ""%" HEX HEX" convention).
+The token CIMIdentifier, where used in this document, represents a CIM element 
+name to which this transformation has been applied.
+One characteristic of this mapping is that CIM elements that are named with an 
+ASCII representation will appear in ASCII in the resultant URL.
+Examples 
+      CIM_LogicalElement is unchanged under this transformation
+      The class named using the UCS-2 sequence representing the Hangul 
+      characters for the Korean word "hangugo" (D55C, AD6D, C5B4) becomes 
+            %ED%95%9C%EA%B5%AD%EC%96%B4=10
+      after UTF-8 transformation and escaping all characters with their % HEX 
+      HEX equivalent. 
+
+Back to contents
+3.3.3. Encoding of CIM Object Paths within HTTP Headers
+This section describes the mapping that MUST be applied in order to represent 
+CIM object paths, as described within an Operation Request Message using the 
+<LOCALNAMESPACEPATH>, <LOCALCLASSPATH> or <LOCALINSTANCEPATH> elements, in a 
+format that is safe for representation within an HTTP header. 
+If the element to be transformed is a <LOCALNAMESPACEPATH> element, the 
+algorithm is as follows:
+  For the first NAMESPACE subelement, output the textual content of that 
+  element. 
+  For each subsequent NAMESPACE subelement, output the forward slash character 
+  (/) followed by the textual content of that NAMESPACE element. 
+If the element to be transformed is a <LOCALCLASSPATH> element, the algorithm is 
+as follows:
+  Transform the <LOCALNAMESPACEPATH> subelement using the rules described above, 
+  and output a colon character (:). 
+  Output the value of the NAME attribute of the <CLASSNAME> subelement.
+If the element to be transformed is an <LOCALINSTANCEPATH> element, the 
+algorithm is as follows:
+  Transform the <LOCALNAMESPACEPATH> subelement using the rules described above, 
+  and output a colon character (:). 
+  Output the value of the CLASSNAME attribute of the <INSTANCENAME> subelement. 
+  If there is at least one <KEYBINDING> subelement under the <INSTANCENAME> 
+  subelement, then for each such subelement: 
+    Output a period character (.) if this is the first <KEYBINDING> subelement, 
+    and a comma (,) otherwise. 
+    Output the value of the NAME attribute, followed by an equals character (=). 
+
+    If there is a <KEYVALUE> subelement, output the textual element content of 
+    that element, subject to the following transformation: 
+      If the VALUETYPE attribute is numeric or boolean, the output is identical 
+      to the content of the element. 
+      If the VALUETYPE attribute is string, the output is obtained by enclosing 
+      the content of the element in double quote (") characters, and escaping 
+      any double quote characters within the value with a preceding backslash 
+      (\) character. 
+    If there is a <VALUE.REFERENCE> subelement 
+      output a double quote character ("). 
+      apply the process recursively to the <CLASSPATH> or <INSTANCEPATH> 
+      subelement of the <VALUE.REFERENCE> element, escaping any double quote 
+      character or backslash character thereby generated with a preceding 
+      backslash (\) character. 
+      output a closing double quote character (").
+  If there is no <KEYBINDING> subelement but there is a <KEYVALUE> or 
+  <VALUE.REFERENCE> subelement under the <INSTANCENAME> subelement, then: 
+    Output an equals character (=). 
+    Output the transformed value of the <KEYVALUE> or <VALUE.REFERENCE>, using 
+    the same rules as described above.
+  If there were no <KEYBINDING> subelements, or no <KEYVALUE> or 
+  <VALUE.REFERENCE> subelement, under the <INSTANCENAME> subelement then output 
+  the string "=@" to indicate a singleton instance.
+Finally, after applying the above rules to the <LOCALNAMESPACEPATH>, 
+<LOCALCLASSPATH> or <LOCALINSTANCEPATH> element, transform the entire output 
+string into URI-safe format as follows: 
+  Encode the string using UTF-8 [15] if it is not already in this format, and 
+  then; 
+  Apply the standard URI [16, section 2] escaping mechanism to the resulting 
+  string to escape any characters that are unsafe within an HTTP Header, using 
+  the ""%" HEX HEX" convention).
+The token CIMObjectPath, where used in this document, represents a 
+<LOCALNAMESPACEPATH>, <LOCALCLASSPATH> or <LOCALINSTANCEPATH> element to which 
+the above transformation has been applied.
+Back to contents
+3.3.4. CIMOperation
+This header MUST be present in all CIM Operation Request and CIM Operation 
+Response messages.  It identifies the HTTP message as carrying a CIM Operation 
+request or response.
+      CIMOperation = "CIMOperation" ":" ("MethodCall" | "MethodResponse")
+
+A CIM Client MUST include this header, with the value "MethodCall", in all CIM 
+Operation Requests that it issues.  A CIM Server MUST include this header in all 
+CIM Operation Responses, with the value "MethodResponse", that it issues.
+If a CIM Server receives CIM Operation request with this header, but with a 
+missing value or a value that is not "MethodCall", then it MUST fail the request 
+with status "400 Bad Request". The CIM Server MUST include a CIMError header in 
+the response with a value of unsupported-operation.
+If a CIM Server receives a CIM Operation request without this header, it MUST 
+NOT process it as if it were a CIM Operation Request.  The status code returned 
+by the CIM Server in response to such a request is outside of the scope of this 
+specification.
+If a CIM Client receives a response to a CIM Operation Request without this 
+header (or if this header has a value which is not "MethodResponse"), it SHOULD 
+discard the response, and take appropriate measures to publicize the fact that 
+it has received an incorrect response.  The details as to how this is done are 
+outside of the scope of this specification.
+This header affords a simple mechanism by which firewall or proxy administrators 
+can make global administrative decisions on all CIM Operations.
+Back to contents
+3.3.5. CIMProtocolVersion
+This header MAY be present in any CIM Operation Request or CIM Operation 
+Response message.  The header identifies the version of the CIM mapping onto 
+HTTP being used by the sending entity.
+      CIMProtocolVersion = "CIMProtocolVersion" ":" 1*DIGIT "." 1*DIGIT 
+
+If the header is omitted, then a value of 1.0 MUST be assummed.
+The major and minor numbers MUST be treated as independent integers which MAY be 
+incremented higher than a single digit.  Therefore version x1.y1 is lower than 
+x2.y2 if and only if:
+  x1 is less than x2, or; 
+  x1 equals x2, and y1 is less than y2
+If a CIM Server receives an CIM Operation Request for which the value of this 
+header indicates a version that it does not support, then it MUST respond in the 
+manner defined in the section on Errors. 
+Otherwise, if a CIM Server receives an CIM Operation Request for which the value 
+of this header does not match the value of the PROTOCOLVERSION attribute of the 
+<MESSAGE> element within the Operation Request, then it MUST fail the request 
+and return a status of "400 Bad Request" (and MUST include a CIMError header in 
+the response with a value of unsupported-protocol-version), subject to the 
+considerations specified in Errors.
+Back to contents
+3.3.6. CIMMethod
+This header MUST be present in any CIM Operation Request message that contains a 
+Simple Operation Request.  
+It MUST NOT be present in any CIM Operation Response message, nor in any CIM 
+Operation Request message that is not a Simple Operation Request.
+The header identifies the name of the CIM method to be invoked, encoded in an 
+HTTP-safe representation.  Firewalls and proxies may use this header to carry 
+out routing and forwarding decisions based on the CIM method to be invoked.
+The name of the CIM method within a Simple Operation Request is defined to be 
+the value of the NAME attribute of the <METHODCALL> or <IMETHODCALL> element.
+      CIMMethod  = "CIMMethod" ":" MethodName
+      MethodName = CIMIdentifier 
+
+If a CIM Server receives a CIM Operation Request for which either:
+  The CIMMethod header is present but has an invalid value, or; 
+  The CIMMethod header is not present but the Operation Request Message is a 
+  Simple Operation Request, or; 
+  The CIMMethod header is present but the Operation Request Message is not a 
+  Simple Operation Request, or; 
+  The CIMMethod header is present, the Operation Request Message is a Simple 
+  Operation Request, but the CIMIdentifier value (when unencoded) does not match 
+  the unique method name within the Simple Operation Request,
+then it MUST fail the request and return a status of "400 Bad Request" (and MUST 
+include a CIMError header in the response with a value of header-mismatch), 
+subject to the considerations specified in Errors.
+Note that this verification provides a basic level of assurance that any 
+intermediate firewall or proxy was not acting on misleading information when it 
+decided to forward the request based on the content of the CIMMethod header.  
+Additional securing of HTTP messages against modification in transit (such as 
+the encryption of the payload or appending of a digital signature thereto) would 
+be required to provide a higher degree of integrity.
+Back to contents
+3.3.7. CIMObject
+This header MUST be present in any CIM Operation Request message that contains a 
+Simple Operation Request.  
+It MUST NOT be present in any CIM Operation Response message, nor in any CIM 
+Operation Request message that that is not a Simple Operation Request.
+The header identifies the CIM object (which MUST be a Class or Instance for an 
+extrinsic method, or a Namespace for an intrinsic method) on which the method is 
+to be invoked, using a CIM object path encoded in an HTTP-safe representation.  
+Firewalls and proxies may use this header to carry out routing and forwarding 
+decisions based on the CIM object that is the target of a method invocation.
+      CIMObject  = "CIMObject" ":" ObjectPath
+      ObjectPath = CIMObjectPath
+
+The ObjectPath value is constructed by applying the algorithm defined in 
+Encoding CIM Object Paths to either:
+  The <LOCALNAMESPACEPATH> subelement of the <IMETHODCALL> element, or; 
+  The <LOCALCLASSPATH> or <LOCALINSTANCEPATH> subelement of the <METHODCALL> 
+  element
+within the CIM Operation Request.
+If a CIM Server receives a CIM Operation Request for which either:
+  The CIMObject header is present but has an invalid value, or: 
+  The CIMObject header is not present but the Operation Request Message is a 
+  Simple Operation Request, or; 
+  The CIMObject header is present but the Operation Request Message is not a 
+  Simple Operation Request, or; 
+  The CIMObject header is present, Operation Request Message is a Simple 
+  Operation Request, but the ObjectPath value does not match (where match is 
+  defined in the section on Encoding CIM Object Paths) the Operation Request 
+  Message,
+then it MUST fail the request and return a status of "400 Bad Request" (and MUST 
+include a CIMError header in the response with a value of header-mismatch), 
+subject to the considerations specified in Errors.
+Note that this verification provides a basic level of assurance that any 
+intermediate firewall or proxy was not acting on misleading information when it 
+decided to forward the request based on the content of the CIMObject header.  
+Additional securing of HTTP messages against modification in transit (such as 
+the encryption of the payload or appending of a digital signature thereto) would 
+be required to provide a higher degree of integrity.
+Back to contents
+3.3.8. CIMBatch
+This header MUST be present in any CIM Operation Request message that contains a 
+Multiple Operation Request.  
+It MUST NOT be present in any CIM Operation Response message, nor in any CIM 
+Operation Request message that is not a Multiple Operation Request.
+The header identifies the encapsulated Operation Request Message as containing 
+multiple method invocations.  Firewalls and proxies may use this header to carry 
+out routing and forwarding decisions for batched CIM method invocations.
+      CIMBatch = "CIMBatch" 
+
+If a CIM Server receives a CIM Operation Request for which either:
+  The CIMBatch header is present but has an invalid value, or: 
+  The CIMBatch header is not present but the Operation Request Message is a 
+  Multiple Operation Request, or; 
+  The CIMBatch header is present but the Operation Request Message is not a 
+  Multiple Operation Request,
+then it MUST fail the request and return a status of "400 Bad Request" (and MUST 
+include a CIMError header in the response with a value of header-mismatch), 
+subject to the considerations specified in Errors.
+Note that this verification provides a basic level of assurance that any 
+intermediate firewall or proxy was not acting on misleading information when it 
+decided to forward the request based on the content of the CIMBatch header.  
+Additional securing of HTTP messages against modification in transit (such as 
+the encryption of the payload or appending of a digital signature thereto) would 
+be required to provide a higher degree of integrity.
+If a CIM Server receives a CIM Operation Request for which the CIMBatch header 
+is present, but the Server does not support Multiple Operations, then it MUST 
+fail the request and return a status of "501 Not Implemented".  Firewalls or 
+Proxies MAY also employ this mechanism to compel a CIM Client to use Simple 
+Operation Requests rather than Multiple Operation Requests.
+A CIM Client that receives a response of "501 Not Implemented" to a Multiple 
+Operation Request SHOULD resubmit that request as a series of Simple Operation 
+Requests. 
+Back to contents
+3.3.9. CIMError
+This header MAY be present in any HTTP response to a CIM Operation Request 
+message that is not a CIM Operation Response.  
+It MUST NOT be present in any CIM Operation Response message, nor in any CIM 
+Operation Request.
+The header provides further CIM specific diagnostic information in the case that 
+the CIM Server encountered a fundamental error during processing of the CIM 
+Operation Request, and is intended to assist Clients to further disambiguate 
+errors that have the same HTTP status code.
+      CIMError  = "CIMError" ":" cim-error
+      cim-error = "unsupported-protocol-version" |
+                  "multiple-requests-unsupported" |
+                  "unsupported-cim-version" |
+                  "unsupported-dtd-version" |
+                  "request-not-valid" |
+                  "request-not-well-formed" |
+                  "request-not-loosely-valid" |
+                  "header-mismatch" |
+                  "unsupported-operation"
+
+Back to contents
+4. HTTP Requirements & Usage
+4.1. HTTP Support
+It is RECOMMENDED that CIM clients and CIM servers support HTTP/1.1 [7].  CIM 
+clients and servers MAY support HTTP/1.0 instead.  CIM clients and servers MUST 
+NOT be limited to any version of HTTP earlier than 1.0.
+It should be noted that the current revised draft [10] of RFC 2068 clarifies and 
+corrects ambiguities and errors in that RFC.  
+CIM Clients and Servers that make use of extension headers as defined in this 
+specification MUST conform to the requirements defined in [9] for their use.
+Back to contents
+4.2. Use of Standard Headers
+Unless otherwise stated herein, CIM clients and CIM servers MUST comply with the 
+requirements on the use of headers described in [6,7]. This section defines only 
+any additional requirements on CIM clients and servers with respect to the use 
+of standard HTTP headers [6,7] within a CIM Operation Request or CIM Operation 
+Response.  
+Note that headers defined in RFC 2068 [7] but deprecated from [10] (e.g. Public, 
+Content-Base) SHOULD NOT be used by CIM clients and servers.
+4.2.1. Accept
+If a CIM client includes an Accept header in a request, it MUST specify a value 
+which allows the Server to return an entity body of "text/xml" or 
+"application/xml" in the response.
+A CIM server MUST accept any value for this header which states that "text/xml" 
+or "application/xml" is an acceptable type for an response entity.  A server 
+SHOULD return "406 Not Acceptable" if the Accept header indicates that neither 
+of these content types are acceptable.
+If a CIM server decides to accept a request to return an entity of type other 
+than "text/xml" or "application/xml", the nature of the response is outside of 
+the domain of this specification.
+Back to contents 
+4.2.2. Accept-Charset
+If a CIM client includes an Accept-Charset header in a request, it MUST specify 
+a value which allows the Server to return an entity body using the character set 
+"utf-8".
+A CIM server MUST accept any value for this header which implies that "utf-8" is 
+an acceptable character set for an response entity.  A server SHOULD return "406 
+Not Acceptable" if the Accept-Charset header indicates that this character set 
+is not acceptable.
+If a CIM server decides to accept a request to return an entity using a 
+character set other than "utf-8", the nature of the response is outside of the 
+domain of this specification.
+See Internationalization Considerations for more details.
+Back to contents 
+4.2.3. Accept-Encoding
+If a CIM client includes an Accept-Encoding header in a request, it MUST specify 
+a value which allows the Server to use the "identity" encoding.
+A CIM Server MUST accept any value for this header which implies that "identity" 
+is an acceptable encoding for the response entity.  A server MAY return "406 Not 
+Acceptable" if the Accept-Encoding header indicates that the this encoding is 
+not acceptable.
+Back to contents 
+4.2.4. Accept-Language
+If a CIM Client includes an Accept-Language header in a request, it SHOULD 
+specify a value which allows the Server to return an entity in the language of 
+its' own choosing.   This is accomplished by including in the list of acceptable 
+language ranges the special range "*".
+CIM Servers MAY support multiple languages if they so choose.
+See Internationalization Considerations for more details.
+Back to contents 
+4.2.5. Accept-Ranges
+CIM clients MUST NOT include this header in a request.  A CIM Server MUST reject 
+a request that includes an Accept-Range header with a status of "406 Not 
+Acceptable".
+Back to contents 
+4.2.6. Allow
+If a CIM Server is returning a "405 Method Not Allowed" response to a CIM 
+Operations Request then the Allow header MUST include either M-POST or POST.  
+Whether it includes any other HTTP methods is outside the scope of this 
+specification.
+Back to contents 
+4.2.7. Authorization
+See the section on Security Considerations for more details.  
+Back to contents 
+4.2.8. Cache-Control
+In general a CIM Operation Request may consist of a mixture of CIM method 
+invocations, some of which may be eminently cachable (e.g. the Manufacturer 
+label on a Disk Drive), and some of which may be decidedly uncachable (e.g. 
+format a Disk Drive).  
+Furthermore, the encapsulation of such multiple method invocations within an 
+HTTP POST or M-POST means that if a CIM Operation Request has any effect on an 
+HTTP cache it is likely to be one of invalidating cached responses for the 
+target CIM Server.  Indeed HTTP/1.1[7] stipulates that by default POST responses 
+are not cachable unless the server indicates otherwise using an appropriate 
+Cache-Control or Expires header.
+For these reasons, CIM Operation Responses SHOULD NOT be considered cachable.  A 
+CIM Server SHOULD NOT include a Cache-Control header in a CIM Operation Response 
+which might indicate to a cache that the response could be cached.  
+If the CIM Server is responding to a CIM Operation Request coveyed within an 
+M-POST request, then in accordance with [9] the Server MUST include a no-cache 
+control directive to prevent inadvertant caching of the "Ext" header. For 
+example:
+      HTTP/1.1 200 OK
+      Ext:
+      Cache-Control: no-cache
+      ...
+
+Back to contents
+4.2.9. Connection
+It is RECOMMENDED that 
+  CIM clients should avoid the use of the "Connection: close" header unless it 
+  is known in advance that this is the only request likely to be sent out on 
+  that connection. 
+  CIM servers support persistant connections wherever possible. 
+Timeout mechanisms SHOULD be employed to remove idle connections on both client 
+and server, the details of which are outside the domain of this specification. 
+Clients SHOULD be cautious in retrying requests, especially if they are not 
+idempotent (e.g. method invocation). 
+CIM clients and servers SHOULD support pipelining [7, section 1.1.2.2] if 
+possible, but be aware of the requirements defined in [7].  In particular, 
+attention is drawn to the following requirement from [7]:
+  Clients SHOULD NOT pipeline requests using non-idempotent methods or 
+  non-idempotent sequences of methods...A client wishing to send a 
+  non-idempotent request SHOULD wait to send that request until it has received 
+  the response status for the previous request. 
+Back to contents
+4.2.10. Content-Encoding
+If a CIM client includes a Content-Encoding header in a request, it SHOULD 
+specify a value of "identity", unless it has good reason to believe that the 
+Server can accept another encoding.
+Back to contents 
+4.2.11. Content-Language
+See Internationalization Considerations for more details.
+Back to contents
+4.2.12. Content-Range
+CIM clients and CIM servers MUST NOT use this header.
+Back to contents 
+4.2.13. Content-Type
+CIM clients and CIM servers MUST specify (and accept) a value for this header of 
+either "text/xml" or "application/xml" as defined in [18]. 
+Back to contents 
+4.2.14. Expires
+For the same reasons described in Cache-Control, a CIM Server SHOULD NOT include 
+an Expires header in a CIM Operation Response which might indicate to a cache 
+that the response could be cached.
+Back to contents 
+4.2.15. If-Range
+CIM clients and CIM servers MUST NOT use this header.
+Back to contents 
+4.2.16. Proxy-Authenticate
+See the section on Security Considerations for more details.  
+Back to contents 
+4.2.17. Range
+CIM clients and CIM servers MUST NOT use this header.
+Back to contents 
+4.2.18. WWW-Authenticate
+See the section on Security Considerations for more details.  
+Back to contents
+4.3. Errors and Status Codes
+This section defines how CIM Servers MUST handle errors that occur in the 
+processing of a CIM Operation Request. This specification does not introduce any 
+new HTTP response status codes.
+If there is an error in processing the HTTP Request-Line or standard HTTP 
+Headers then the CIM Server MUST take the appropriate action as dictated by its 
+conformance to the relevant version of HTTP [6,7].
+Otherwise, if there are any mandatory extension declarations which the server 
+does not support it MUST respond with a "510 Not Extended" status according to 
+[9].
+Otherwise, the Server MUST process the request in accordance with the relevant 
+version of HTTP [6,7] and the additional rules defined in this document.
+Assuming that the HTTP request is otherwise correct, the CIM Server MUST use the 
+following status codes when processing the CIM Extension Headers:
+  501 Not Implemented One of the following occured:
+    The CIMProtocolVersion extension header specified in the request specifies a 
+    version of the CIM Mapping onto HTTP which is not supported by this CIM 
+    Server. The CIM Server MUST include a CIMError header in the response with a 
+    value of unsupported-protocol-version. 
+    The Client specified a Multiple Operation Request and the CIM Server does 
+    not support such requests. The CIM Server MUST include a CIMError header in 
+    the response with a value of multiple-requests-unsupported. 
+    The CIMVERSION attribute in the Operation Request was not set to a value of 
+    "2.0". The CIM Server MUST include a CIMError header in the response with a 
+    value of unsupported-cim-version. 
+    The DTDVERSION attribute in the Operation Request was not set to a value of 
+    "2.0". The CIM Server MUST include a CIMError header in the response with a 
+    value of unsupported-dtd-version.
+  401 Unauthorized The CIM Server is configured to require that a client 
+  authenticate itself before it can issue CIM Operation Requests to the Server.
+  403 Forbidden The CIM Server does not allow the client to perform CIM 
+  Operations.  The CIM Server MAY alternatively respond with a "404 Not Found" 
+  if it does not wish to reveal this information to the client.
+  407 Proxy Authentication Required The CIM Server is configured to require that 
+  the proxy authenticate itself before it can issue CIM Operation Requests on 
+  behalf of a CIM Client to the Server.
+Assuming that the CIM Extension Headers are correct, then a validating CIM 
+Server (one which is enforcing validity of the Operation Request Message with 
+respect to the CIM XML DTD) MUST use the following status code when processing 
+the entity body containing the CIM Operation request.
+  400 Bad Request The entity body defining the CIM Operation request was not 
+  well-formed or not valid with respect to the CIM XML DTD. The CIM Server MUST 
+  include a CIMError header in the response with a value of 
+  request-not-well-formed or request-not-valid (as appropriate).
+A loosely-validating CIM Server (one that is only enforcing that the CIM 
+Operation Request be loosely valid) MAY reject an Operation Request Message that 
+is not loosely valid with an HTTP status code of 400 (Bad Request) before 
+further processing, in which case the CIM Server MUST include a CIMError header 
+in the response with a value of request-not-loosely-valid. 
+A loosely-validating CIM Server MUST reject an Operation Request Message that is 
+not well-formed with an HTTP status code of 400 (Bad Request), in which case the 
+CIM Server MUST include a CIMError header in the response with a value of 
+request-not-well-formed. 
+A loosely-validating CIM Server MUST NOT reject an invalid (in the XML sense) 
+Operation Request Message that is loosely valid.
+A loosely-validating CIM Server MUST ultimately signal an error to the CIM 
+Client if the Operation Request Message is not loosely valid (i.e. is missing 
+required content, or for which the required content is incorrect, such as an 
+attribute with an invalid value according to the CIM XML DTD).  It is not 
+mandated to reject an Operation Request before processing, for to do otherwise 
+would compel the Server into checking the complete request before processing 
+could begin and this would be as expensive as requiring that the Server fully 
+validate the request. Therefore a loosely-validating Server MAY elect to begin 
+processing the request and issuing a response (with an HTTP success status code) 
+before checking that the entire request is loosely valid.
+A CIM Client may determine whether a CIM Server is validating or 
+loosely-validating via the CIMValidation header mechanism.
+Assuming that the CIM operation request was correctly formed (in the manner 
+described above), the CIM Server MUST process the request accordingly and return 
+a CIM Operation Response response.  
+The entity body MUST be a correct Operation Response Message for that request.  
+If the CIM Operation Response contains an entity which is a Simple Operation 
+Response then the response status must be 200 OK.  Otherwise the response status 
+MUST be 207 Multistatus . 
+Back to contents
+4.4. Security Considerations
+CIM Clients and CIM Servers MAY elect not to use authentication, but only in 
+environments where lack of security is not an issue.
+Basic Authentication is described in [6,7].  Digest Authentication is defined in 
+[12].  Both authentication schemes are covered in a consolidated document [14] 
+which also makes a number of improvements to the original specification of 
+Digest Authentication.
+Basic Authentication provides a very rudimentary level of authentication, with 
+the major weakness that the client password is sent over the wire in unencrypted 
+form. 
+For this reason CIM Clients and CIM Servers MUST NOT use Basic Authentication 
+other than in the context of a highly secure environment (for example, if used 
+in conjunction with SSL, or in a physically secure private network).  CIM 
+Servers MUST NOT send Basic Authentication credentials in a WWW-Authenticate 
+header other than in the context of a highly secure environment.
+Conforming applications SHOULD support the Digest authentication scheme. Since 
+Digest authentication verifies that both parties share a common secret, without 
+having to send that secret in the clear, it is more secure than Basic 
+authentication.  However, CIM Clients and CIM Servers that require more robust 
+protection SHOULD use encyption mechanisms such as SSL or SHTTP.
+CIM Clients and CIM Servers using Basic or Digest Authentication MUST comply 
+with the requirements set forth in [6,7,12,14].  This specification describes 
+only additional requirements on CIM Clients and CIM Servers when using these 
+authentication schemes.
+CIM Servers SHOULD require that CIM Clients authenticate themselves.  This 
+specification does not mandate this as it is recognized that in some 
+circumstances the CIM Server may not require or wish the overhead of employing 
+authentication.  CIM Servers SHOULD consider carefully the performance/security 
+tradeoffs in determining how often to issue challenges to CIM Clients.
+A CIM Server that returns a "401 Unauthorized" response to a CIM Operation 
+Request SHOULD include in the WWW-Authenticate response-header either the 
+"Basic" or "Digest" authentication values (but not both).  This specification 
+does not mandate use of Basic or Digest Authentication as it is recognized that 
+in some circumstances the CIM Server may use bespoke authentication mechanisms 
+not covered by [14].  Similar considerations apply to the use of the 
+Proxy-Authorization header in  "407 Proxy Authentication Required".
+Back to contents
+4.5. Determining CIM Server Capabilities
+The OPTIONS method MAY be used by a client to determine the CIM capabilities (if 
+any) of the target server.  A CIM Server MAY support the OPTIONS method (for 
+example, CIM Servers supporting only HTTP/1.0 would not support OPTIONS).
+In order to support the ability for a Server to declare its CIM capabilities in 
+a manner independent of HTTP, it is the intention of the DMTF to publish a CIM 
+Schema (in a separate document) describing such capabilities. In particular this 
+mechanism would allow Servers that do not support the OPTIONS method to declare 
+their capabilities to a Client.
+If a CIM Server supports the OPTIONS method, it SHOULD:
+  Return the CIM Extension Header CIMProtocolVersion in the response.  This 
+  provides a way for a client to discover the version of the CIM HTTP mapping 
+  supported by the CIM Server. 
+  Return the CIM Extension Header CIMSupportedFunctionalGroups in the response.  
+  This provides a way for a client to discover the CIM Operations supported by 
+  the CIM Server. 
+  Return the CIM Extension Header CIMSupportsMultipleOperations in the response. 
+   This provides a way for the client to discover whether the CIM Server can 
+  support Multiple Operation Requests.
+In addition, if the CIM Server supports one or more query languages, it SHOULD:
+  Return the CIM Extension Header CIMSupportedQueryLanguages in the response.  
+  This allows the client to discover the query languages supported by the CIM 
+  Server.
+In addition, if the CIM Server runs in a fixed validation mode, it SHOULD:
+  Return the CIM Extension Header CIMValidation in the response.  This allows 
+  the client to determine whether the CIM Server is strictly validating or 
+  loosely validating.
+If the CIMProtocolVersion, CIMSupportedFunctionalGroups, 
+CIMSupportsMultipleOperations, CIMValidation or CIMSupportedQueryLanguages 
+extension headers are included in the response, the CIM Server MUST declare them 
+as Optional extension headers using the "Opt" header defined in [9].
+The full format of the "Opt" header declaration for this specification is:
+      Opt              = "Opt" ":" "http://www.dmtf.org/cim/mapping/http/v1.0"
+                         ";" "ns" "=" header-prefix
+      header-prefix    = 2*DIGIT
+
+This header-prefix SHOULD be generated at random on a per-HTTP message basis, 
+and SHOULD NOT necessarily be a specific number.
+For example the following is a fragment of a legitimate OPTIONS response from a 
+CIM Server:
+      HTTP/1.1 200 OK
+      Opt: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=77
+      77-CIMProtocolVersion: 1.0
+      77-CIMSupportedFunctionalGroups: basic-read
+      77-CIMBatch
+      77-CIMSupportedQueryLanguages: wql
+      ...
+
+Back to contents
+4.5.1. CIMSupportedFunctionalGroups
+The CIMSupportedFunctionalGroups extension header SHOULD be returned by a CIM 
+Server in any OPTIONS response.  It MUST NOT be returned in any other scenario.
+This header is defined as follows:
+      CIMSupportedFunctionalGroups  = "CIMSupportedFunctionalGroups" ":" 
+      1#functional-group
+
+      functional-group     = "basic-read" |
+                             "basic-write" |
+                             "schema-manipulation" |
+                             "instance-manipulation" |
+                             "qualifier-declaration" |
+                             "association-traversal" |
+                             "query-execution"
+
+The functional group definitions correspond directly to those listed in 
+Functional Profiles.  All CIM Servers MUST support the basic-read functional 
+group.  All CIM Clients MAY assume that any CIM Server supports the basic-read 
+functional group.
+The list of functional groups returned by a CIM Server MUST contain the 
+basic-read group, and MUST NOT contain any duplicates.  CIM Clients MUST ignore 
+any duplicate entries in the functional-group list.
+If a functional group is included in the list, then the CIM Client MUST assume 
+that all other groups on which it depends (according to the rules defined in 
+Functional Profiles) are also supported.  A CIM Server SHOULD NOT explicitly 
+include a functional group in the list whose presence may be inferred implicitly 
+by a dependency.
+For example the following HTTP response message indicates that the CIM Server 
+supports instance-manipulation, association-traversal, basic-write and 
+basic-read.
+      HTTP/1.1 200 OK
+      Opt: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=77
+      77-CIMProtocolVersion: 1.0
+      77-CIMSupportedFunctionalGroups: association-traversal, 
+      instance-manipulation
+      ...
+
+Support for a functional group does not imply that any method from that group 
+will always succeed.  Rather, the absence (whether explicit or implied) of the 
+functional group from this header is an indication to the CIM Client that 
+methods in that group will never succeed.
+Back to contents
+4.5.2. CIMSupportsMultipleOperations
+The CIMSupportsMultipleOperations extension header MUST be returned in an 
+OPTIONS response by any CIM Server that supports Multiple Operation Requests.  
+It MUST NOT be returned in any other circumstances.
+This header is defined as follows:
+      CIMSupportsMultipleOperations  = "CIMSupportsMultipleOperations"
+
+The presence of this header indicates that the Server can accept and process 
+Multiple Operation Requests.  The absence of this header indicates that the 
+Server can only accept and process Simple Operation Requests.
+Back to contents
+4.5.3. CIMSupportedQueryLanguages
+The CIMSupportedQueryLanguages extension header SHOULD be returned by a CIM 
+Server that supports at least one query language in any OPTIONS response.  It 
+MUST NOT be returned in any other scenario.
+This header is defined as follows (token has the meaning conferred by [7, 
+section 2.2]:
+      CIMSupportedQueryLanguages  = "CIMSupportedQueryLanguages" ":" 
+      1#query-language
+
+      query-language     = token
+
+The query-language value MUST be treated as case-insensitive. It is anticipated 
+that query languages will be submitted for approval to the DMTF, and each 
+submission will define a value for this token to enable it to be specified in 
+this header.
+Back to contents
+4.5.4. CIMValidation
+The CIMValidation extension header MAY be returned by a CIM Server to provide 
+information concerning the level of validation of CIM Operation Request 
+messages.
+This header is defined as follows:
+      CIMValidation    = "CIMValidation" ":" validation-level
+      validation-level = "validating" |
+                         "loosely-validating"
+
+A validation-level of validating indicates that the CIM Server will always apply 
+strict validation of each CIM Operation Request. A validation-level of 
+loosely-validating indicates that the CIM Server will apply loose validation of 
+each CIM Operation Request.
+In the absence of this header, a CIM Client SHOULD assume that the CIM Server 
+operates in strict validation mode.
+Back to contents
+4.6. Other HTTP Methods
+This specification does not in any way define or constrain the manner in which a 
+CIM Client or Server uses any HTTP Method other than those explicitly referred 
+to herein.
+Back to contents
+4.7. Discovery and Addressing
+The target URI of the CIM Operation Request is defined to be the location of the 
+CIM Server.  This specification does not constrain the format of this URI other 
+than it be a valid URI [13] for the purposes of describing an HTTP-addressable 
+resource.
+An HTTP Server which supports the CIM Mapping defined herein, and which supports 
+the OPTIONS method, SHOULD include the following CIM extension header in an 
+OPTIONS response:
+  CIMOM
+This header is defined as follows:
+      CIMOM        = "CIMOM" ":" (absoluteURI | relativeURI)
+
+The terms absoluteURI and relativeURI are taken from [7]; they indicate the 
+location of the CIM Server for this HTTP Server.
+If the CIMOM extension header is included in the response, the CIM Server MUST 
+declare it an Optional extension header in an analagous fashion to that 
+described in the section on Determining CIM Server Capabilities.
+A CIM Client that wishes to communicate with a CIM Server on an HTTP Server 
+SHOULD try an OPTIONS request to that HTTP Server.  If the OPTIONS request 
+fails, or the response does not include the CIM-CIMOM extension header, then the 
+CIM Client MAY assume that the value of CIM-CIMOM is the relative URI cimom.
+Other discovery mechanisms are outside the scope of this version of the 
+specification.
+Example 1
+This example shows an HTTP Server located at http://www.dmtf.org issuing an 
+OPTIONS response to an HTTP client to indicate that its CIM Server is located at 
+http://www.dmtf.org/access/cimom.
+      HTTP/1.1 200 OK
+      Opt: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=48
+      48-CIMOM: /access/cimom
+      ...
+
+Example 2
+If an HTTP Server located at http://www.dmtf.org responds with a "501 Not 
+Implemented" to an OPTIONS request from a CIM Client, the CIM client may then 
+try to contact the CIM Server at http://www.dmtf.org/cimom.
+Back to contents
+4.8. Internationalization Considerations
+This section defines the capabilities of the CIM HTTP Mapping with respect to 
+IETF policy guidelines on character sets and languages [19].
+In this specification, human-readable fields can be found within a response or 
+request entity body.  In all cases, any human-readable content is encoded using 
+XML (which has explicit provisions for character set tagging and encoding) and 
+requires that XML processors read XML elements encoded, at minimum, using the 
+UTF-8 [15] encoding of the ISO 10646 multilingual plane. 
+XML examples in this specification demonstrate use of the charset parameter of 
+the Content-Type header, as defined in [10], as well as the XML encoding 
+attribute on the <?xml> processing instruction, which together provide charset 
+identification information for MIME and XML processors. This specification 
+mandates that conforming applications MUST support at least the "utf-8" charset 
+encoding [19] in the Content-Type header, and the "utf-8" value for the XML 
+encoding attribute. 
+XML also provides a language tagging capability for specifying the language of 
+the contents of a particular XML element, based on use of IANA registered 
+language tags [20] in the xml:lang attribute of an XML element to identify the 
+language of its content and attributes.  The XML CIM DTD [2,11] does not declare 
+this attribute on any of the XML elements, and therefore conforming applications 
+MUST NOT use this attribute as otherwise the XML document would not be valid 
+with respect to that DTD.
+This specification defines a number of names of HTTP headers and their values.  
+These are constructed using standard encoding practices so as to always have an 
+HTTP-safe ASCII representation.  Since these headers are not in general visible 
+to users they do not need to support encoding in multiple character sets.
+The XML DTD for CIM [2,11] introduces a number of XML element names.  Similarly 
+these are not visible to an end user and do not need to support multiple 
+character set encodings.
+The CIM model [1] defines the subset of the Unicode character set that can be 
+used to name CIM elements (Classes, Instances, Methods, Properties, Qualifiers 
+and Method Parameters).  In general these appear as the value of XML attributes 
+or as element content, and in general would not be displayed to end users.
+Values of CIM Properties and Qualifiers, and error message descriptions MAY be 
+localizable, but there is no mandate on CIM Servers to support this.  
+Negotiation and notification of language settings is effected in this mapping 
+using the standard Accept-Language and Content-Language headers defined in [7].
+5. References
+  "Common Information Model (CIM) Specification", Version 2.2, DMTF, 14th June 
+  1999 (http://dmtf.org/spec/cim_schema_v22.pdf) 
+  "Specification for the Representation of CIM in XML", Version 2.0, DMTF, 20th 
+  July 1999 (http://www.dmtf.org/spec/CIM_XML_Mapping20.htm) 
+  "Extensible Markup Language (XML)", Version 1.0, W3C Recommendation 
+  (http://www.w3.org/TR/REC-xml) 
+  "Namespaces in XML", 14th January 1999, W3C Recommendation 
+  (http://www.w3.org/TR/REC-xml-names) 
+  "XML as a Representation for Management Information - A White Paper", Version 
+  1.0, DMTF, September 15th 1998 (http://www.dmtf.org/spec/xmlw.html) 
+  "Hypertext Transfer Protocol -- HTTP/1.0", IETF RFC 1945, May 1996 
+  (http://www.ietf.org/rfc/rfc1945.txt) 
+  "Hypertext Transfer Protocol -- HTTP/1.1", IETF RFC 2068, January 1997 
+  (http://www.ietf.org/rfc/rfc2068.txt) 
+  "Key words for use in RFCs to Indicate Requirement Levels", IETF RFC 2119, 
+  March 1997 (http://www.ietf.org/rfc/rfc2119.txt) 
+  "HTTP Extension Framework", IETF Internet Draft, March 15th 1999 
+  (http://ietf.org/internet-drafts/draft-frystyk-http-extensions-03.txt) 
+  "Hypertext Transfer Protocol -- HTTP/1.1", IETF Internet Draft, 18th November 
+  1998 (http://ietf.org/internet-drafts/draft-ietf-http-v11-spec-rev-06.txt ) 
+  "CIM XML DTD", Version 2.0, DMTF, 20th July 1999 ( 
+  http://www.dmtf.org/spec/cim_dtd_V20.txt) 
+  "An Extension to HTTP : Digest Access Authentication", IETF RFC 2069, January 
+  1997 (http://www.ietf.org/rfc/rfc1945.txt) 
+  "Uniform Resource Identifiers (URI): Generic Syntax", IETF RFC 2396, 12th 
+  August 1998 (http://www.ietf.org/rfc/rfc2396.txt) 
+  "HTTP Authentication: Basic and Digest Access Authentication", IETF Internet 
+  Draft, September 2nd 1998 
+  (http://ietf.org/internet-drafts/draft-ietf-http-authentication-03.txt) 
+  "UTF-8, a transformation format of Unicode and ISO 10646", RFC 2279, January 
+  1998 (http://www.ietf.org/rfc/rfc2279.txt) 
+  "Uniform Resource Identifiers (URI): Generic Syntax", IETF RFC 2396, 12th 
+  August 1998 (http://www.ietf.org/rfc/rfc2396.txt) 
+  "XSL Transformations (XSLT)", Version 1.0, W3C Working Draft, 21st April 1999 
+  (http://www.w3.org/TR/WD-xslt) 
+  "XML Media Types", IETF Informational RFC 2376, July 1998 
+  (http://www.ietf.org/rfc/rfc2376.txt) 
+  "IETF Policy on Character Sets and Languages", IETF Best Current Practice RFC 
+  2277, January 1998 (http://www.ietf.org/rfc/rfc2277.txt) 
+  "Tags for the Identification of Languages", IETF Standards Track RFC 1766, 
+  March 1995 (http://www.ietf.org/rfc/rfc1766.txt) 
+  "XML Schema Part 1: Structures", W3C Working Draft 6th May 1999 
+  (http://www.w3.org/TR/xmlschema-1/)
+Back to contents
+Appendix A - Examples of Message Exchanges
+This section illustrates the protocol defined in this document by providing 
+examples of valid HTTP request/response exchanges.
+For the purposes of clarity additional white space has been included in the 
+examples, but such white space is not an intrinsic part of such XML documents. 
+A.1. Retrieval of a Single Class Definition
+The following HTTP request illustrates how a client would request the class 
+CIM_VideoBIOSElement.
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: GetClass
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="GetClass">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="cimv20"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="ClassName"><CLASSNAME 
+      NAME="CIM_VideoBIOSElement"/></IPARAMVALUE>
+          <IPARAMVALUE NAME="LocalOnly"><VALUE>FALSE</VALUE></IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating success of the 
+requested operation.  For clarity of exposition the complete definition of the 
+returned <CLASS> element has not been shown.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="GetClass">
+          <IRETURNVALUE>
+            <CLASS NAME="CIM_VideoBIOSElement" SUPERCLASS="CIM_SoftwareElement">
+            ...
+            </CLASS>
+          </IRETURNVALUE>
+         </IMETHODRESPONSE>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.2. Retrieval of a Single Instance Definition
+The following HTTP request illustrates how a client would request the instance 
+MyClass.MyKey="S3".
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: GetInstance
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="1.1">
+       <MESSAGE ID="87855" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="GetInstance">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="myNamespace"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="InstanceName">
+            <INSTANCENAME CLASSNAME="MyClass">
+             <KEYBINDING NAME="MyKey"><KEYVALUE>S3</KEYVALUE></KEYBINDING>
+            </INSTANCENAME>
+          </IPARAMVALUE>
+          <IPARAMVALUE NAME="LocalOnly"><VALUE>FALSE</VALUE></IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating an error due 
+to the specified instance not being found.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87885" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="GetInstance">
+          <ERROR CODE="6" DESCRIPTION="Instance of MyClass not found"/>
+         </IMETHODRESPONSE>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.3. Deletion of a Single Class Definition
+The following HTTP request illustrates how a client would delete the class 
+CIM_VideoBIOSElement.
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: DeleteClass
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="DeleteClass">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="cimv20"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="ClassName"><CLASSNAME 
+      NAME="CIM_VideoBIOSElement"/></IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating failure of the 
+above operation due to the inability to delete instances of the Class.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="DeleteClass">
+          <ERROR CODE="9" DESCRIPTION="Class has non-deletable instances"/>
+         </IMETHODRESPONSE>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.4. Deletion of a Single Instance Definition
+The following HTTP request illustrates how a client would delete the instance 
+MyClass.MyKey="S3".
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: DeleteInstance
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="DeleteInstance">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="myNamespace"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="InstancePath">
+            <INSTANCENAME CLASSNAME="MyClass">
+             <KEYBINDING NAME="MyKey">
+              <KEYVALUE>S3</KEYVALUE>
+             </KEYBINDING>
+            </INSTANCENAME>
+          </IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating success of the 
+above operation.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/operation ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="DeleteInstance"/>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.5. Creation of a Single Class Definition
+The following HTTP request illustrates how a client would create the class 
+MySchema_VideoBIOSElement as a subclass of CIM_VideoBIOSElement.  For clarity of 
+exposition most of the submitted <CLASS> element is omitted from the example.
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: CreateClass
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="CreateClass">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="cimv2"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="NewClass">
+           <CLASS NAME="MySchema_VideoBIOSElement" 
+      SUPERCLASS="CIM_VideoBIOSElement">
+            ...
+           </CLASS>
+          </IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating success of the 
+above operation.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="CreateClass"/>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.6. Creation of a Single Instance Definition
+The following HTTP request illustrates how a client would create an instance of 
+the class MySchema_VideoBIOSElement. For clarity of exposition most of the 
+submitted <INSTANCE> element is omitted from the example.
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: CreateInstance
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="CreateInstance">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="cimv20"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="NewInstance">
+           <INSTANCE CLASSNAME="CIM_VideoBIOSElement">
+            ...
+           </INSTANCE>
+          </IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating success of the 
+above operation.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="CreateInstance">
+          <IRETURNVALUE>
+           <INSTANCENAME CLASSNAME="MySchema_VideoBIOSElement">
+             <KEYBINDING NAME="Name">
+              <KEYVALUE>S4</KEYVALUE>
+             </KEYBINDING>
+           </INSTANCENAME>
+          </IRETURNVALUE>
+         </IRETURNVALUE>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.7. Enumeration of Class Names
+The following HTTP request illustrates how a client would enumerate the names of 
+all subclasses of the class CIM_SoftwareElement. 
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: EnumerateClassNames
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="EnumerateClassNames">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="cimv20"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="ClassName"><CLASSNAME 
+      NAME="CIM_SoftwareElement"/></IPARAMVALUE>
+          <IPARAMVALUE NAME="DeepInheritance"><VALUE>FALSE</VALUE></IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating success of the 
+above operation, and returning the names of the requested subclasses.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="EnumerateClassNames">
+          <IRETURNVALUE>
+           <CLASSNAME NAME="CIM_BIOSElement"/>
+           <CLASSNAME NAME="CIM_VideoBOISElement"/>
+          </IRETURNVALUE>
+         </IMETHODRESPONSE>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.8. Enumeration of Instances
+The following HTTP request illustrates how a client would enumerate all 
+instances of the class CIM_LogicalDisk. For clarity of exposition most of the 
+returned Instances are omitted from the example.
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/operation ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: EnumerateInstances
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="EnumerateInstances">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="cimv20"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="ClassName"><CLASSNAME 
+      NAME="CIM_LogicalDisk"/></IPARAMVALUE>
+          <IPARAMVALUE NAME="LocalOnly"><VALUE>TRUE</VALUE></IPARAMVALUE>
+          <IPARAMVALUE NAME="DeepInheritance"><VALUE>TRUE</VALUE></IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating success of the 
+above operation, returning the requested instances.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="EnumerateInstances">
+          <IRETURNVALUE>
+           <VALUE.NAMEDINSTANCE>
+            <INSTANCENAME CLASSNAME="Erewhon_LogicalDisk">
+             ...
+            </INSTANCENAME>
+            <INSTANCE CLASSNAME="Erewhon_LogicalDisk">
+             ...
+            </INSTANCE>
+           </VALUE.NAMEDINSTANCE>
+           ...
+           <VALUE.NAMEDINSTANCE>
+            <INSTANCENAME CLASSNAME="Foobar_LogicalDisk">
+             ...
+            </INSTANCENAME>
+            <INSTANCE CLASSNAME="Foobar_LogicalDisk">
+             ...
+            </INSTANCE>
+           </VALUE.NAMEINSTANCE>
+          </IRETURNVALUE>
+         </IMETHODRESPONSE>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.9. Retrieval of a Single Property
+The following HTTP request illustrates how a client would retrieve the FreeSpace 
+property from the Instance MyDisk.DeviceID="C:".
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/operation ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: GetProperty
+      73-CIMObject: root/cimv2
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <IMETHODCALL NAME="GetProperty">
+          <LOCALNAMESPACEPATH>
+           <NAMESPACE NAME="root"/>
+           <NAMESPACE NAME="myNamespace"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="InstanceName">
+           <INSTANCENAME CLASSNAME="MyDisk">
+            <KEYBINDING NAME="DeviceID"><KEYVALUE>C:</KEYVALUE></KEYBINDING>
+           </INSTANCENAME>
+          </IPARAMVALUE>
+          <IPARAMVALUE 
+NAME="PropertyName"><VALUE>FreeSpace</VALUE></IPARAMVALUE>
+         </IMETHODCALL>
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating success of the 
+above operation, returning the requested value.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <IMETHODRESPONSE NAME="GetProperty">
+          <IRETURNVALUE>
+           <VALUE>6752332</VALUE>
+          </IRETURNVALUE>
+         </IMETHODRESPONSE>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents
+A.10. Execution of an Extrinsic Method
+The following HTTP request illustrates how a client would execute the 
+SetPowerState method on the Instance MyDisk.DeviceID="C:".
+      M-POST /cimom HTTP/1.1
+      HOST: www.erewhon.com
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodCall
+      73-CIMMethod: SetPowerState
+      73-CIMObject: root/cimv2:Win32_LogicalDisk="C:"
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+         <METHODCALL NAME="SetPowerState">
+          <LOCALINSTANCEPATH>
+           <LOCALNAMESPACEPATH>
+            <NAMESPACE NAME="root"/>
+            <NAMESPACE NAME="myNamespace"/>
+           </LOCALNAMESPACEPATH>
+           <INSTANCENAME CLASSNAME="MyDisk">
+            <KEYBINDING NAME="C:"><KEYVALUE>C:</KEYVALUE></KEYBINDING>
+           </INSTANCENAME>
+          </LOCALINSTANCEPATH>
+          <PARAMVALUE NAME="PowerState"><VALUE>1</VALUE></PARAMVALUE>
+          <PARAMVALUE 
+      NAME="Time"><VALUE>00000001132312.000000:000</VALUE></PARAMVALUE>
+         </METHODCALL>   
+        </SIMPLEREQ>
+       </MESSAGE>
+      </CIM>
+
+The following is an HTTP response to the above request indicating success of the 
+above operation.
+      HTTP/1.1 200 OK
+      Content-Type: application/xml; charset="utf-8"
+      Content-Length: xxxx
+      Ext:
+      Cache-Control: no-cache
+      Man: http://www.dmtf.org/cim/mapping/http/v1.0 ; ns=73
+      73-CIMOperation: MethodResponse
+
+      <?xml version="1.0" encoding="utf-8" ?>
+      <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+       <MESSAGE ID="87872" PROTOCOLVERSION="1.0">
+        <SIMPLERSP>
+         <METHODRESPONSE NAME="SetPowerState">
+          <RETURNVALUE>
+           <VALUE>0</VALUE>
+          </RETURNVALUE>
+         </METHODRESPONSE>
+        </SIMPLERSP>
+       </MESSAGE>
+      </CIM>
+
+Back to contents

@@ -42,7 +42,7 @@ void InstanceProvider::initialize(CIMOMHandle & cimom)
 {
 	// create default instances
 	CIMInstance instance1("Sample_InstanceProviderClass");
-	CIMReference reference1("Sample_InstanceProviderInstance.Identifier=1");
+	CIMReference reference1("Sample_InstanceProviderClass.Identifier=1");
 
 	instance1.addProperty(CIMProperty("Identifier", Uint8(1)));   // key
 	instance1.addProperty(CIMProperty("Message", String("Hello World")));
@@ -63,7 +63,7 @@ void InstanceProvider::initialize(CIMOMHandle & cimom)
 	instance3.addProperty(CIMProperty("Identifier", Uint8(3)));   // key
 	instance3.addProperty(CIMProperty("Message", String("Hey Earth")));
 
-	_instances.append(Pair<CIMReference, CIMInstance>(reference1, instance3));
+	_instances.append(Pair<CIMReference, CIMInstance>(reference3, instance3));
 }
 
 void InstanceProvider::terminate(void)

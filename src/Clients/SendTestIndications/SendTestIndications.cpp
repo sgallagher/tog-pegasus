@@ -262,7 +262,18 @@ int main (int argc, char ** argv)
         //
         //  Connect to CIM Server
         //
-        client.connectLocal ();
+        try
+        {
+            client.connectLocal ();
+        }
+
+        catch(Exception& e)
+        {
+            cerr << "Exception thown by client.connectLocal(): " 
+                << e.getMessage() << endl;
+            return -1;
+        }
+
 
         if (argc > 2)
         {
@@ -272,7 +283,16 @@ int main (int argc, char ** argv)
 
         else if (argc == 1)
         {
-            _subscribe (client);
+            try
+            {
+                _subscribe (client);
+            }
+            catch(Exception& e)
+            {
+                cerr << "Exception thrown by _subscribe method: " 
+                    << e.getMessage() << endl;
+                return -1;
+            }
 
             Sint32 result = _sendTestIndications (client);
 
@@ -285,7 +305,16 @@ int main (int argc, char ** argv)
                 cerr << "Failed to send test indications" << endl;
             }
 
-            _unsubscribe (client);
+            try
+            {
+                _unsubscribe (client);
+            }
+            catch(Exception& e)
+            {
+                cerr << "Exception thrown by _unsubscribe method: " 
+                    << e.getMessage() << endl;
+                return -1;
+            }
         }
 
         else
@@ -294,7 +323,16 @@ int main (int argc, char ** argv)
 
             if (String::equalNoCase (opt, "subscribe"))
             {
-                _subscribe (client);
+                try
+                {
+                    _subscribe (client);
+                }
+                catch(Exception& e)
+                {
+                    cerr << "Exception thrown by _subscribe method: "
+                         << e.getMessage() << endl;
+                    return -1;
+                }
             }
             else if (String::equalNoCase (opt, "sendTestIndications"))
             {
@@ -311,7 +349,16 @@ int main (int argc, char ** argv)
             }
             else if (String::equalNoCase (opt, "unsubscribe"))
             {
-                _unsubscribe (client);
+                try
+                {
+                    _unsubscribe (client);
+                }
+                catch(Exception& e)
+                {
+                    cerr << "Exception thrown by _unsubscribe method: "
+                         << e.getMessage() << endl;
+                    return -1;
+                }
             }
             else
             {

@@ -12,9 +12,11 @@ DIRS = \
 	EnumerateInstances\
 	ModifyInstance\
 	DeleteInstance\
-        Property \
-	ModifyClass\
-	DeleteClass
+        Property
+
+# These tests are not re-runnable
+#	ModifyClass\
+#	DeleteClass
 	
 include $(ROOT)/mak/recurse.mak
 

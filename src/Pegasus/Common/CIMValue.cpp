@@ -246,8 +246,8 @@ inline void _toMof(Array<Sint8>& out, Sint64 x) { _toString(out, x); }
 void _toString(Array<Sint8>& out, Real64 x)
 {
     char buffer[128];
-    // %g gives '[-]m.dddddd[e+/-xx]', which seems compatible with CIM/XML spec
-    sprintf(buffer, "%g", x);
+    // %e gives '[-]m.dddddde+/-xx', which seems compatible with CIM/XML spec
+    sprintf(buffer, "%e", x);
     out << buffer;
 }
 

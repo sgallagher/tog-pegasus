@@ -67,10 +67,10 @@
    #define TYPE_QUERY       ProviderType::QUERY
 */ 
 // using these equations instead      PEP# 99
+   #define TYPE_CLASS       1
    #define TYPE_INSTANCE    2
-   #define TYPE_CLASS       3
-   #define TYPE_METHOD      4
-   #define TYPE_ASSOCIATION 5
+   #define TYPE_ASSOCIATION 3
+   #define TYPE_METHOD      5
    #define TYPE_QUERY       7
 
 

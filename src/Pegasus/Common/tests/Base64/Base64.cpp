@@ -138,7 +138,7 @@ int main(int argc, char** argv)
             Array<Sint8> temp = Base64::encode(in);
             out = Base64::decode(temp);
     
-            assert(Equal(in, out));
+            assert(in == out);
     
             /* Detailed error testing if we need to turn it on
             
@@ -149,7 +149,7 @@ int main(int argc, char** argv)
             for (Uint32 l = 0; l < out.size(); l++)
                 if (in[l] != out[l])
                     cout << "Error in something" << endl;
-            if (!Equal(in, out))
+            if (!(in == out))
                cout << "Problem with Base64 Equal test" << endl; 
             */
         }
@@ -167,7 +167,7 @@ int main(int argc, char** argv)
             in.append(0);   
             Array<Sint8> temp = Base64::encode(in);
             out = Base64::decode(temp);
-            assert(Equal(in, out));
+            assert(in == out);
         }
     }
 
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
             Array<Sint8> temp = Base64::encode(in);
             out = Base64::decode(temp);
 
-            assert(Equal(in, out));
+            assert(in == out);
         }
     }
 
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
             in.append(255);   
             out = Base64::decode(Base64::encode(in));
 
-            assert(Equal(in, out));
+            assert(in == out);
         }
 
     }

@@ -95,7 +95,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 template<class PEGASUS_ARRAY_T>
-Boolean Equal(const Array<PEGASUS_ARRAY_T>& x, const Array<PEGASUS_ARRAY_T>& y)
+Boolean operator==(
+    const Array<PEGASUS_ARRAY_T>& x,
+    const Array<PEGASUS_ARRAY_T>& y)
 {
     if (x.size() != y.size())
         return false;
@@ -107,14 +109,6 @@ Boolean Equal(const Array<PEGASUS_ARRAY_T>& x, const Array<PEGASUS_ARRAY_T>& y)
     }
 
     return true;
-}
-
-template<class PEGASUS_ARRAY_T>
-Boolean operator==(
-    const Array<PEGASUS_ARRAY_T>& x,
-    const Array<PEGASUS_ARRAY_T>& y)
-{
-    return Equal(x, y);
 }
 
 template<class PEGASUS_ARRAY_T>

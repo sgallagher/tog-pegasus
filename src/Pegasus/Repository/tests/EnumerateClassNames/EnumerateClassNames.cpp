@@ -87,7 +87,7 @@ void TestCase1()
     assert(tmp.size() == 3);
     assert(tmp.size() == classNames.size());
 
-    assert(Equal(tmp, classNames));
+    assert(tmp == classNames);
 }
 
 void TestCase2()

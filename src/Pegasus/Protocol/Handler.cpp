@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Handler.cpp,v $
-// Revision 1.1  2001/01/14 19:53:51  mike
-// Initial revision
+// Revision 1.2  2001/02/01 17:42:01  mike
+// qualifier env var with PEGASUS_
+//
+// Revision 1.1.1.1  2001/01/14 19:53:51  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -351,7 +354,7 @@ int Handler::handleMessage()
 {
     D( std::cout << "=== Handler::handleMessage()" << std::endl; )
 
-    if (getenv("TRACE_PROTOCOL"))
+    if (getenv("PEGASUS_TRACE_PROTOCOL"))
     {
 	std::cout << "========== RECEIVED ==========" << std::endl; 
 	print();
@@ -400,7 +403,7 @@ void Handler::printMessage(std::ostream& os, const Array<Sint8>& message)
 
 void Handler::sendMessage(const Array<Sint8>& message)
 {
-    if (getenv("TRACE_PROTOCOL"))
+    if (getenv("PEGASUS_TRACE_PROTOCOL"))
     {
 	std::cout << "========== SENT ==========" << std::endl;
 	printMessage(std::cout, message); 

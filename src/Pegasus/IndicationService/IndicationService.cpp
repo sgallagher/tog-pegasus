@@ -4364,6 +4364,8 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
             PEGASUS_ASSERT (providerInstances.size () == 
                             providerModuleInstances.size ());
             
+            duplicate = false;
+
             //
             //  Merge into list of ProviderClassList structs 
             //

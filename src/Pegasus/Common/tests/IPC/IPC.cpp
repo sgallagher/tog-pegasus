@@ -117,8 +117,6 @@ int main()
 
     // all fired up successfully
 
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-
     for (int i=0; i < 20; i++)
     {
         rn = (int) (4.0*rand()/(RAND_MAX+1.0)); 
@@ -150,7 +148,6 @@ int main()
 //    parm[0]->th->cancel();
 
     cout << "+++++ passed test round 20" << endl; 
-#endif
 
     Message * message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
@@ -171,13 +168,10 @@ int main()
     
     cout << "+++++ passed test round 21" << endl; 
 
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-
     message = new Message(MY_CANCEL_TYPE,0); 
     mq->enqueue(message);
 
     cout << "+++++ passed test round 22" << endl; 
-
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
     parm[2]->th->resume();
 #endif
@@ -187,7 +181,6 @@ int main()
     // Make sure all threads end
     for (int i = 0; i<4; i++) parm[i]->th->cancel();
 
-#endif
     parm[0]->th->join();
     parm[1]->th->join();
     parm[2]->th->join();
@@ -268,7 +261,9 @@ void * deq(void * parm)
         if (ai2 != ai3) cout << "thr deq: someone touched ai" << endl;
 
         message = mq->dequeue();
-        if (!message) break;
+        if (!message) {
+            break;
+        }
 
         key = message->getKey();
         type = message->getType();

@@ -361,7 +361,14 @@ AtomicInt::AtomicInt() {_rep._value = 0; _rep._mutex = Mutex(); }
 
 AtomicInt::AtomicInt(Uint32 initial) {_rep._value = initial;  _rep._mutex = Mutex() ; }
 
-AtomicInt::~AtomicInt() { _rep._mutex.unlock(); }
+AtomicInt::~AtomicInt()
+{
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    // ATTN: Unlocking an unlocked Mutex results in undefined behavior on
+    // HP-UX (core dump)
+    _rep._mutex.unlock();
+#endif
+}
 
 AtomicInt::AtomicInt(const AtomicInt& original)
 {

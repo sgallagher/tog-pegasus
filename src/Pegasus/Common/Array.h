@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.4  2001/02/05 02:49:45  mike
+// Added new line and reformatted some comments.
+//
 // Revision 1.3  2001/01/31 15:57:06  karl
 // comments
 //
@@ -197,14 +200,19 @@ template<class T>
 class Array
 {
 public:
+
     /// Constructor - ATTN:
     Array();
+
     /// Constructor - ATTN:
     Array(const Array<T>& x);
+
     /// Constructor - ATTN:
     Array(Uint32 size);
+
     /// Constructor - ATTN:
     Array(Uint32 size, const T& x);
+
     /// Constructor - ATTN:
     Array(const T* items, Uint32 size);
 
@@ -212,52 +220,63 @@ public:
     {
 	Rep::inc(_rep = rep);
     }
+
     /// Destructor - ATTN:
     ~Array();
 
     Array<T>& operator=(const Array<T>& x);
+
     /** method clear
-    ATTN:
+	ATTN:
     */
     void clear();
+
     /** method reserve
-    ATTN:
+	ATTN:
     */
     void reserve(Uint32 capacity)
     {
 	if (capacity > _rep->capacity)
 	    _reserveAux(capacity);
     }
-	/** method grow
+
+    /** method grow
 	ATTN:
-	*/
+    */
     void grow(Uint32 size, const T& x);
-	/** method swap
+
+    /** method swap
 	ATTN:
-	*/
+    */
     void swap(Array<T>& x);
+
     /// Method getSize - ATTN:
     Uint32 getSize() const { return _rep->size; }
+
     /// Method getData - ATTN
     const T* getData() const { return _rep->data(); }
 
     T& operator[](Uint32 pos);
 
     const T& operator[](Uint32 pos) const;
+
     /** method append
-    ATTN:
+	ATTN:
     */
     void append(const T& x);
+
     /// Method append - ATTN:
     void append(const T* x, Uint32 size);
+
     /// Method appendArray  - ATTN:
     void appendArray(const Array<T>& x)
     {
 	append(x.getData(), x.getSize());
     }
-	/** method prepend -
-	ATTN:
-	*/
+
+    /** method prepend -
+        ATTN:
+    */
     void prepend(const T& x);
 
     void prepend(const T* x, Uint32 size);
@@ -265,13 +284,16 @@ public:
     void insert(Uint32 pos, const T& x);
 
     void insert(Uint32 pos, const T* x, Uint32 size);
-	/** method insert
-	ATTN:
-	*/
+
+    /** method insert
+	ATTN: 
+    */
+
     void remove(Uint32 pos);
-	/** method remove
+
+    /** method remove
 	ATTN:
-	*/
+    */
     void remove(Uint32 pos, Uint32 size);
 
 private:

@@ -389,11 +389,7 @@ void HTTPConnection::_handleReadEvent()
 	       //
                incompleteSecureReadOccurred = !_socket->incompleteReadOccurred(n);
             }
-	    if(n < 0)
-	    {
-		Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-			    "HTTPConnection - _handleReadEvent() failure.");
-	    }
+
 	    break;
 	}
 

@@ -325,7 +325,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 
    #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
    _enableNormalization =
-       String::equalNoCase(configManager->getCurrentValue("enableNormalization"), "false");
+       String::equalNoCase(configManager->getCurrentValue("enableNormalization"), "true");
 
    //_excludeModulesFromNormalization =
    //    configManager->getCurrentValue("excludeModulesFromNormalization");

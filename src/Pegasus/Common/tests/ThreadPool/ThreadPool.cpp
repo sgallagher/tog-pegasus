@@ -154,14 +154,14 @@ int main(int argc, char **argv)
    tp.kill_dead_threads( ) ;
     
    cout << " allocating joinable threads " << endl;
-   Semaphore *blocking = new Semaphore(0);
+   Semaphore blocking(0);
    Boolean success = true;
    
    do 
    {
       try 
       {
-	 tp.allocate_and_awaken((void *)16, work_func , blocking);
+	 tp.allocate_and_awaken((void *)16, work_func , &blocking);
       }
       catch(Deadlock & ) 
       { 
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
    
    
    
-   blocking->wait();
+   blocking.wait();
    cout << " joined " << endl;
    tp.kill_dead_threads( ) ;
 

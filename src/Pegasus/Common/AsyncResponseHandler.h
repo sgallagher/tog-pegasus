@@ -88,7 +88,6 @@ class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
 
 
       virtual Boolean operator == (const void *key) const;
-      virtual Boolean operator == (int type) const;
       virtual Boolean operator == (const AsyncResponseHandler & rh) const;
       
 
@@ -105,7 +104,6 @@ class PEGASUS_EXPORT AsyncResponseHandler : public ResponseHandler<object_type>
       // to gain access to the Thread object's utility routines 
       Thread *_thread;
       Array<object_type> *_objects;
-      int _type;  // ATTN-RK: Had to add this to compile successfully
       struct timeval _key;
       void _clear(void);
       friend class AsyncOpNode;
@@ -254,14 +252,6 @@ template<class object_type>
 inline Boolean AsyncResponseHandler<object_type>::operator == (const void *key) const
 {
    if( ! memcmp(&_key, key, sizeof(struct timeval)))
-      return true;
-   return false;
-}
-
-template<class object_type>
-inline Boolean AsyncResponseHandler<object_type>::operator == (int type) const
-{
-   if(_type == type)
       return true;
    return false;
 }

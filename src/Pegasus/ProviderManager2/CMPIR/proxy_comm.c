@@ -71,6 +71,15 @@ static void * _load_lib ( const char * libname )
 #endif
 }
 
+static void _unload_lib ( void * libhandle )
+{
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+  dllfree( (dllhandle*) libhandle );
+#else
+  dlclose ( libhandle );
+#endif
+}
+
 
 //! Loads a server-side communication layer library.
 /*!
@@ -109,6 +118,7 @@ static provider_comm * load_comm_library ( const char * id,
 		if ( fp != NULL ) {
 			provider_comm * result = fp ( broker, ctx );
 			result->id = strdup ( id );
+			result->handle = hLibrary;
 
 			TRACE_INFO(("comm-layer successfully initialized."));
 			TRACE_VERBOSE(("leaving function."));
@@ -132,8 +142,26 @@ static provider_comm * load_comm_library ( const char * id,
 	return NULL;
 }
 
+//! Unloads a server-side communication layer library.
+/*!
+  The function unloads "lib<id>.so".
+
+  \param id comm the provider_comm structure that can be unloaded
+
+ */
+static void unload_comm_library ( provider_comm * comm )
+{
+	TRACE_VERBOSE(("entered function."));
+	TRACE_NORMAL(("unloading comm-layer library: %s", comm->id));
+
+	_unload_lib ( comm->handle );
+
+	TRACE_VERBOSE(("leaving function."));
+}
 
 
+static provider_comm * __comm_layers = NULL;
+static CMPI_MUTEX_TYPE __mutex=NULL;
 
 //! Looks up a server-side communication layer or loads it, if necessary.
 /*!
@@ -152,8 +180,6 @@ provider_comm * load_provider_comm ( const char * comm_id,
 				     CMPIBroker * broker,
 				     CMPIContext * ctx )
 {
-	static provider_comm * __comm_layers = NULL;
-        static CMPI_MUTEX_TYPE __mutex=NULL;
 	provider_comm * tmp;
 
 	TRACE_VERBOSE(("entered function."));
@@ -186,6 +212,39 @@ provider_comm * load_provider_comm ( const char * comm_id,
   	return tmp;
 }
 
+//! Unloads communication layers (usually after provider terminsation.)
+/*!
+  The function maintains a list of previously loaded comm-layers locally.
+  A mutex is used to ensure proper access to this list. If a comm-layer
+  is found within the list, it is being unloaded.
+
+  \param comm_id the name of the communication layer to be looked up.
+  \param broker broker handle as passed to the init function.
+  \param ctx context as passed to the cleanup function.
+
+ */
+void unload_provider_comms ( void )
+{
+	provider_comm * tmp;
+	provider_comm * next;
+
+	TRACE_VERBOSE(("entered function."));
+	TRACE_NORMAL(("unloading remote communication layers"));
+
+        INIT_LOCK(__mutex);
+        CMPI_BrokerExt_Ftab->lockMutex(__mutex);
+
+	for ( tmp = __comm_layers; tmp != NULL; tmp = next ) {
+		TRACE_INFO(("unloading comm-layer: %s.", tmp->id));
+		next = tmp->next;
+		unload_comm_library(tmp);
+	}
+
+	__comm_layers = NULL;
+        CMPI_BrokerExt_Ftab->unlockMutex(__mutex);
+
+	TRACE_VERBOSE(("leaving function."));
+}
 
 
 /****************************************************************************/

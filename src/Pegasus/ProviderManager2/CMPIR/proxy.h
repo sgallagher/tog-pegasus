@@ -228,6 +228,7 @@ struct provider_comm {
 						 CMPIBoolean );
 
   struct provider_comm * next;
+  void * handle;
 };
 
 
@@ -235,6 +236,8 @@ struct provider_comm {
 provider_comm * load_provider_comm ( const char * comm_id,
 				     CMPIBroker * broker,
 				     CMPIContext * ctx );
+
+void unload_provider_comms ( void );
 
 
 unsigned long int save_context ( CMPIContext * ctx );

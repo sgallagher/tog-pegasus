@@ -104,6 +104,9 @@ static CMPIStatus __InstanceMI_cleanup(CMPIInstanceMI * cThis,
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
 		   rcThis->provider));
+
+    unload_provider_comms();
+
     if (revoke_ticket(&rcThis->ticket)) {
 	TRACE_CRITICAL(("ticket could not be revoked."));
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,

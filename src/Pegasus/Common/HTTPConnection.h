@@ -133,7 +133,6 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       AtomicInt refcount;
 
-      //   private:
 
       void _clearIncoming();
 

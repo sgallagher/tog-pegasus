@@ -21,53 +21,37 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
+//         (carolann_graves@hp.com)
 //
-// Modified By: Mike Day (mdday@us.ibm.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Platform_LINUX_IX86_GNU_h
-#define Pegasus_Platform_LINUX_IX86_GNU_h
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
 
-#include <cstddef>
+#include "ProcessIndicationProvider.h"
 
-#define PEGASUS_OS_TYPE_UNIX
+PEGASUS_NAMESPACE_BEGIN
 
-#define PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-#define PEGASUS_OS_LINUX
+extern "C" PEGASUS_EXPORT CIMBaseProvider * PegasusCreateProvider
+    (const String & providerName)
+{
+   cout << "ProcessIndicationProvider Module::Main : " << providerName << endl;
+   
+    if ((String::equalNoCase (providerName, "ProcessIndicationProvider")) ||
+        (String::equalNoCase (providerName, "ProcessIndicationProvider2")) || 
+	(String::equalNoCase (providerName, "eServer_ProcessIndicationProvider")))
+    {
+	return (new ProcessIndicationProvider ());
+    }
+    if(String::equalNoCase(providerName, "eServer_ProcessIndicationConsumer"))
+    {
+       return new ProcessIndicationConsumer();
+    }
 
-#define PEGASUS_ARCHITECTURE_IX86
+    return (0);
+}
 
-#define PEGASUS_COMPILER_GNU
-
-#define PEGASUS_UINT64 unsigned long long
-
-#define PEGASUS_SINT64 long long
-
-#define PEGASUS_HAVE_NAMESPACES
-
-#define PEGASUS_HAVE_EXPLICIT
-
-#define PEGASUS_HAVE_MUTABLE
-
-#define PEGASUS_HAVE_FOR_SCOPE
-
-//#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#ifndef _REENTRANT
-#define _REENTRANT
-#endif
-#define _THREAD_SAFE
-#include <features.h>
-#include <stdio.h>
-#include <stdlib.h>
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
-#endif
-#endif /* Pegasus_Platform_LINUX_IX86_GNU_h */
+PEGASUS_NAMESPACE_END

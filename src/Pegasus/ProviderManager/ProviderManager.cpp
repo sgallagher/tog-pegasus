@@ -24,13 +24,13 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+//              Mike Day IBM Corporation (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*****
 
 << Fri Oct 11 16:26:12 2002 mdd >>
-
 
 DO NOT delete the provider handle UnloadProvider() 
 
@@ -64,40 +64,69 @@ ProviderManager::ProviderManager(void)
 
 ProviderManager::~ProviderManager(void)
 {
-   // terminate providers
+   Uint32 ccode;
+   
+   _provider_ctrl(UNLOAD_ALL_PROVIDERS, this, &ccode);
+
 }
 
 
 Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 {
-   static Mutex _monitor;
+
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_provider_ctrl");
+   auto_mutex monitor(&_mut);
+
    Sint32 ccode = 0;
    CTRL_STRINGS *parms = reinterpret_cast<CTRL_STRINGS *>(parm);
-   _monitor.lock(pegasus_thread_self());
    try 
    {
+      
       switch(code)
       {
 
 	 case GET_PROVIDER:
 	 {
+
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::GET_PROVIDER");
+	 
 	    Provider *pr;
 	 
 	    if(true == _providers.lookup(*(parms->providerName), *(reinterpret_cast<Provider * *>(ret))))
 	    {
-	       gettimeofday(&(*(reinterpret_cast<Provider * *>(ret)))->_timeout, NULL);
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Found Provider " + *(parms->providerName) + " in Provider Manager Cache");
+	    
+	       (*(reinterpret_cast<Provider * *>(ret)))->update_idle_timer();
 	       break;
 	    }
 	 
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			     "Creating Provider " + *(parms->providerName) );
+	 
+
 	    ProviderModule *module;
 	    if( false  == _modules.lookup(*(parms->fileName), module) )
 	    {
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+				"Creating Provider Module " + *(parms->fileName) );
+	    
 	       module = new ProviderModule(*(parms->fileName));
 	       _modules.insert((*parms->fileName), module);
 	    }
+	    else 
+	    {
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+				"Using Cached  Provider Module " + *(parms->fileName) );
+	    }
 	 
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+			     "Loading/Linking Provider Module " + *(parms->fileName) );
+	    
 	    CIMBaseProvider *base = module->load(*(parms->providerName));
-   
+	    
+
 	    // create provider module
    
 	    MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
@@ -105,16 +134,17 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	    MessageQueueService * service = dynamic_cast<MessageQueueService *>(queue);
 	    PEGASUS_ASSERT(service != 0);
 	    pr = new Provider(*(parms->providerName), module, base);
-	    if(0 == (pr->_cimom_handle =  new CIMOMHandle(service)))
-	    {
-	       ccode = -1;
-	       break;
-	    }
+	    if(pr == 0)
+	       throw NullPointer();
+	    
+	    if(0 == (pr->_cimom_handle =  new CIMOMHandle()))
+	       throw NullPointer();
 
-	    PEGASUS_STD(cout) << "Loading Provider " << pr->_name << PEGASUS_STD(endl);
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "Loading Provider " +  pr->_name);
 	 
 	    pr->initialize(*(pr->_cimom_handle));
-	    gettimeofday(&(pr->_timeout), NULL);
+	    pr->update_idle_timer();
 	    _providers.insert(*(parms->providerName), pr);
 	    *(reinterpret_cast<Provider * *>(ret)) = pr;
 	    break;
@@ -122,46 +152,95 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
       
 	 case UNLOAD_PROVIDER:
 	 {
+
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::UNLOAD_PROVIDER");
 	    CTRL_STRINGS *parms = reinterpret_cast<CTRL_STRINGS *>(parm);
 	    Provider *pr;
 	    if(true == _providers.lookup(*(parms->providerName), pr ))
 	    {
-	       PEGASUS_STD(cout) << "Unloading Provider " << pr->_name << PEGASUS_STD(endl);
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Unloading Provider " + pr->_name );
+	       if( pr->_current_operations.value())
+	       {
+		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				   "Provider cannot be unloaded due to pending operations: " + 
+				   pr->_name );
+		  break;
+	       }
 	       _providers.remove(pr->_name);
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Terminating Provider " + pr->_name );
 	       pr->terminate();
 	       if((pr->_module != 0 ) && pr->_module->_ref_count.value() == 0)
 	       {
 		  pr->_module->unloadModule();
 		  _modules.remove(pr->_module->_fileName);
+		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				   "Destroying Provider " + pr->_name );
 		  delete pr->_module;
 	       }
+	    
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Destroying Provider's CIMOM Handle " + pr->_name );
 	       delete pr->_cimom_handle;
 	       delete pr;
+	    }
+	    else 
+	    {
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+				"Unable to find Provider in cache: " + 
+				*(parms->providerName));
 	    }
 	 }
 
 	 case LOOKUP_PROVIDER:
 	 {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::LOOKUP_PROVIDER");
+	 
 	    if(true == _providers.lookup(*(parms->providerName), 
 					 *(reinterpret_cast<Provider * *>(ret))))
 	    {
-	       gettimeofday(&((*(reinterpret_cast<Provider * *>(ret)))->_timeout), NULL);
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Found Provider in cache: " + 
+				*(parms->providerName));
+	    
+	       (*(reinterpret_cast<Provider * *>(ret)))->update_idle_timer();
 	    }
 	    else
+	    {
+	    
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Could not find  Provider in cache: " + 
+				*(parms->providerName));
 	       ccode = -1;
+	    }
+			  
 	    break;
 	 }
       
 	 case LOOKUP_MODULE:
 	 {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::LOOKUP_MODULE");
+
 	    if(false  == _modules.lookup(*(parms->fileName), 
 					 *(reinterpret_cast<ProviderModule * *>(ret))))
+	    {
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Could not find  Provider Module in cache: " + 
+				*(parms->fileName));
 	       ccode = -1;
+	    }
+	 
 	    break;
 	 }
 
 	 case INSERT_PROVIDER: 
 	 {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::INSERT_PROVIDER");
 	    if( false  == _providers.insert(
 		   *(parms->providerName), 
 		   *reinterpret_cast<Provider * *>(parm)) )
@@ -170,6 +249,8 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 }
 	 case INSERT_MODULE: 
 	 {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::INSERT_MODULE");
 	    if( false  == _modules.insert(
 		   *(parms->fileName), 
 		   *reinterpret_cast<ProviderModule * *>(parm)) )
@@ -178,13 +259,16 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 	 }
 	 case REMOVE_PROVIDER:
 	 {
-
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::REMOVE_PROVIDER");
 	    if(false == _providers.remove(*(parms->providerName)))
 	       ccode = -1;
 	    break;
 	 }
 	 case REMOVE_MODULE:
 	 {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::REMOVE_MODULE");
 	    if(false == _modules.remove(*(parms->fileName)))
 	       ccode = -1;
 	    break;
@@ -192,71 +276,172 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 
 	 case UNLOAD_ALL_PROVIDERS:
 	 {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::UNLOAD_ALL_PROVIDERS");
 	    ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
 	    Provider * provider;
 	    ProviderTable::Iterator i = myself->_providers.start();
-	    for(; i ; i++)
+	    try 
 	    {
-	       provider = i.value();
-	       PEGASUS_STD(cout) << "Removing Provider " << provider->getName() << PEGASUS_STD(endl);
-	       provider->terminate();
-	       if((provider->_module != 0 ) && 
-		  provider->_module->_ref_count.value() == 0)
+	    
+	       for(; i ; i++)
 	       {
-		  if(true == _modules.lookup(provider->_module->_fileName, provider->_module))
+		  provider = i.value();
+		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				   "Terminating Provider " + provider->getName());
+		  try 
 		  {
-		     PEGASUS_STD(cout) << "Removing Module " << provider->_module->_fileName << PEGASUS_STD(endl);
-		     _modules.remove(provider->_module->_fileName);
-		     delete provider->_module;
+		     provider->terminate();
 		  }
+		  catch(ObjectBusyException &)
+		  {
+		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				      "Provider Busy, cannot terminate" + 
+				      provider->getName());
+		     continue;
+		  }
+		  catch(...)
+		  {
+		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				      "Exception terminating " + 
+				      provider->getName());
+		     continue;
+		  }
+		  if((provider->_module != 0 ) &&  
+		     provider->_module->_ref_count.value() == 0)
+		  {
+
+		     if(true == _modules.lookup(provider->_module->_fileName, provider->_module))
+		     {
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 "Removing Provider's Module " + provider->getName());
+			_modules.remove(provider->_module->_fileName);
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 "Destroying Provider's Module " + provider->getName());
+			delete provider->_module;
+		     }
+		  }
+		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				   "Destroying Provider's CIMOM Handle: " + provider->getName());
+		  delete provider->_cimom_handle;
+		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				   "Destroying Provider: " + provider->getName());
+		  delete provider;
 	       }
-	       delete provider->_cimom_handle;
-	       delete provider;
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Clearing Provider Cache" );
+	       myself->_providers.clear();
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Clearing Module Cache");
+	       myself->_modules.clear();
 	    }
-	    myself->_providers.clear();
-	    myself->_modules.clear();
+	    catch(...)
+	    {
+	       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Unexpected Exception in UNLOAD_ALL_PROVIDERS.");
+	    }
 	    break;
-	 
 	 }
 
 	 case UNLOAD_IDLE_PROVIDERS:
 	 {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::UNLOAD_IDLE_PROVIDERS");
 	    ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
 	    Provider * provider;
 	    if(myself->_providers.size())
 	    {
-	       struct timeval now;
-	       gettimeofday(&now, NULL);
-	       ProviderTable::Iterator i = myself->_providers.start();
-	       for(; i ; i++)
+	       try
 	       {
-		  provider = i.value();
-		  if(( now.tv_sec - provider->_timeout.tv_sec) > (Sint32)myself->_idle_timeout )
+	       
+		  struct timeval now;
+		  gettimeofday(&now, NULL);
+		  ProviderTable::Iterator i = myself->_providers.start();
+		  for(; i ; i++)
 		  {
-		     PEGASUS_STD(cout) << "Removing Provider " << provider->getName() << PEGASUS_STD(endl);
-		     provider->terminate();
-		     myself->_providers.remove(provider->_name);
-		     PEGASUS_STD(cout) << "Removed, looking at Module." << PEGASUS_STD(endl);
-		     if(provider->_module != 0 )
-			PEGASUS_STD(cout) << "Module ref: " << provider->_module->_ref_count.value() << PEGASUS_STD(endl);
-		     if((provider->_module != 0 ) && 
-			provider->_module->_ref_count.value() == 0)
+		     provider = i.value();
+		     if( provider->_current_operations.value() ) 
 		     {
-			PEGASUS_STD(cout) << "Removing Module " << provider->_module->_fileName << PEGASUS_STD(endl);
-			_modules.remove(provider->_module->_fileName);
-			delete provider->_module;
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 "Provider has pending operations: " + 
+					 provider->getName());
+			continue;
 		     }
-		     delete provider;
-		     delete provider->_cimom_handle;
-		     i = myself->_providers.start();
+
+		     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				      "Checking timeout data for Provider: " + 
+				      provider->getName());
+		     struct timeval timeout = {0,0};
+		     provider->get_idle_timer(&timeout);
+		     if(( now.tv_sec - timeout.tv_sec) > (Sint32)myself->_idle_timeout )
+		     {
+
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 "Terminating Provider " + provider->getName());
+			try
+			{
+			   provider->terminate();
+			}
+			catch(ObjectBusyException &)
+			{
+			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					    "Provider Busy, cannot terminate" + 
+					    provider->getName());
+			   continue;
+			}
+			catch(...)
+			{
+			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					    "Exception terminating " + 
+					    provider->getName());
+			   continue;
+			}
+		  
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 "Removing Provider " + provider->getName());
+			myself->_providers.remove(provider->_name);
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 provider->_name + " Removed, looking at Module" );
+			if(provider->_module != 0 )
+			{
+			   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					    "Module ref: " + provider->_module->_ref_count.value() );
+			   if( provider->_module->_ref_count.value() == 0)
+			   {
+			      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					       "Removing Module " + provider->_module->_fileName);
+			      _modules.remove(provider->_module->_fileName);
+			      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					       "Destroying Module " + provider->_module->_fileName);
+			      delete provider->_module;
+			   }
+			}
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 "Destroying Provider's CIMOM Handle: " + 
+					 provider->getName());
+			delete provider->_cimom_handle;
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+					 "Destroying Provider: " + 
+					 provider->getName());
+			delete provider;
+			i = myself->_providers.start();
+		     }
 		  }
 	       }
-	    }
+	       catch(...)
+	       {
+		  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				   "Unexpected Exception in UNLOAD_IDLE_PROVIDERS.");
+	       }
+	    } // if there are any providers
 	    break;
 	 }
 
 	 case UNLOAD_IDLE_MODULES:
 	 {
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			     "_provider_ctrl::UNLOAD_IDLE_MODULES");
+	 
 	    ProviderManager *myself = reinterpret_cast<ProviderManager *>(parm);
 	    ProviderModule *module;
 	    ModuleTable::Iterator i = myself->_modules.start();
@@ -281,70 +466,84 @@ Sint32 ProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
    }
    catch(...)
    {
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "_provider_ctrl::Unexpected Exception");
+      throw;
       
    }
-   _monitor.unlock();
+   PEG_METHOD_EXIT();
    return ccode;
 }
-
 
 Provider ProviderManager::getProvider(
     const String & fileName,
     const String & providerName,
-    const String & interfaceName)
+    const String & interfaceName) throw()
 {
 
    Provider *provider = 0;
    CTRL_STRINGS strings;
    Sint32 ccode;
-   
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
    strings.fileName = &fileName;
    strings.providerName = &providerName;
    strings.interfaceName = &interfaceName;
-
-   ccode = _provider_ctrl(GET_PROVIDER, &strings, &provider);
+   try
+   {
+      ccode = _provider_ctrl(GET_PROVIDER, &strings, &provider);
+   }
+   catch(...)
+   {
+      PEG_METHOD_EXIT();
+      throw;
+   }
    
+   
+   PEG_METHOD_EXIT();
    return *provider;
    
 }
 
 void ProviderManager::unloadProvider(
     const String & fileName,
-    const String & providerName)
+    const String & providerName) throw() 
 {
    CTRL_STRINGS strings;
-   
+      PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::unloadProvider");
    strings.fileName = &fileName;
    strings.providerName = &providerName;
-
    _provider_ctrl(UNLOAD_PROVIDER, &strings, (void *)0);
+   PEG_METHOD_EXIT();
 }
 
-void ProviderManager::shutdownAllProviders(void)
+void ProviderManager::shutdownAllProviders(void) throw()
 {
  
-   PEGASUS_STD(cout) << "ProviderManager::shutdownAllProviders" << PEGASUS_STD(endl);
-   
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::shutdownAllProviders");
    _provider_ctrl(UNLOAD_ALL_PROVIDERS, (void *)this, (void *)0);
-   
+   PEG_METHOD_EXIT();
 }
 
-void ProviderManager::unload_idle_providers(void)
+void ProviderManager::unload_idle_providers(void) throw()
 {
    static struct timeval first = {0,0}, now, last = {0,0};
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::unload_idle_providers");
    if(first.tv_sec == 0)
       gettimeofday(&first, NULL);
    gettimeofday(&now, NULL);
-   if(((now.tv_sec - first.tv_sec) > 10 ) && ( (now.tv_sec - last.tv_sec) > 10)) 
+   if(((now.tv_sec - first.tv_sec) > 60 ) && ( (now.tv_sec - last.tv_sec) > 60)) 
    {
       gettimeofday(&last, NULL);
       if(_unload_idle_flag.value() == 1 )
       { 
+	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			  "Unload Idle Flag Set: Starting Provider Monitor Thread");
 	 _unload_idle_flag = 0;
 	 Thread th(provider_monitor, this , true);
 	 th.run();
       }
    }
+   PEG_METHOD_EXIT();
 }
 
 
@@ -352,19 +551,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::provider_monitor(voi
 {
    Thread *th = reinterpret_cast<Thread *>(parm);
    
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::provider_monitor");
    ProviderManager *myself =    my_instance ;
       
-   PEGASUS_STD(cout) << "Checking for Idle providers to unload. (I currently have " << 
-      myself->_providers.size() << " providers loaded)." << PEGASUS_STD(endl);
+   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		    "Checking for Idle providers to unload.");
    try 
    {
       myself->_provider_ctrl(UNLOAD_IDLE_PROVIDERS, myself, (void *)0);
       myself->_unload_idle_flag = 1;
-
    }
    catch(...)
    {
    }
+   PEG_METHOD_EXIT();
    exit_thread((PEGASUS_THREAD_RETURN)1);
    return 0;
 }

@@ -243,7 +243,7 @@ void ShutdownService::_shutdownCimomServices()
     //
     // Shutdown the Indication Service
     //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDICATIONSERVICE);
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_ESERVER_INDICATIONSERVICE);
 
     // Shutdown the Indication Handler Service
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDHANDLERMANAGER);
@@ -278,6 +278,12 @@ void ShutdownService::_shutdownCimomServices()
     //
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
 
+    // 
+    // shutdown binary message handler 
+    //
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_BINARY_HANDLER);
+    
+
     PEG_METHOD_EXIT();
     return;
 }
@@ -307,7 +313,6 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
                 _controller->getQueueId(),   // response
                 true);                       // blocking
 
-// ATTN-JY-P2-05162002: call ClientSendWait, until async_callback is fixed
 
     //
     // Now send Stop request to service

@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////////-*-c++-*- ///////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -34,7 +34,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/ProviderException.h>
-#include <Pegasus/Provider/ResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -235,6 +235,38 @@ public:
     virtual void terminate(void) = 0;
 
 };
+
+class PEGASUS_SERVER_LINKAGE CIMDummyProvider : virtual public CIMBaseProvider
+{
+   public:
+      typedef CIMBaseProvider Base;
+      
+      CIMDummyProvider()
+	 : Base()
+      {
+      }
+
+      ~CIMDummyProvider(void)
+      {
+      }
+
+      void initialize(CIMOMHandle & cimom)
+      {
+	 _cimom = cimom;
+      }
+      
+      void termimate(void)
+      {
+	 delete this;
+      }
+
+   protected:
+      CIMOMHandle _cimom;
+      
+      
+};
+
+
 
 PEGASUS_NAMESPACE_END
 

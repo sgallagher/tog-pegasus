@@ -294,11 +294,14 @@ HTTPConnection* HTTPConnector::connect(
 
    // Solicit events on this new connection's socket:
 
-   _entry_index = _monitor->solicitSocketMessages(
-	              socket,
-	              SocketMessage::READ | SocketMessage::EXCEPTION,
-	              connection->getQueueId(), Monitor::CONNECTOR);
-   PEGASUS_ASSERT(_entry_index != -1);
+   if (-1 == (_entry_index = _monitor->solicitSocketMessages(
+	  socket,
+	  SocketMessage::READ | SocketMessage::EXCEPTION,
+	  connection->getQueueId(), Monitor::CONNECTOR)))
+   {
+      delete connection;
+      Socket::close(socket);
+   }
 
    // Save the socket for cleanup later:
 

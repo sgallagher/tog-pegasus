@@ -60,12 +60,12 @@ class ProviderRegistrationManager;
 
 class PEGASUS_SERVER_LINKAGE ProviderManagerService : public MessageQueueService
 {
-   public:
-      ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager);
-      virtual ~ProviderManagerService(void);
+public:
+    ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager);
+    virtual ~ProviderManagerService(void);
+    static ProviderManager *getProviderManager(void);
     
-      static ProviderManager * getProviderManager(void);
-      
+    
 protected:
     virtual Boolean messageOK(const Message * message);
     virtual void handleEnqueue(void);
@@ -74,7 +74,9 @@ protected:
     virtual void _handle_async_request(AsyncRequest * request);
 
 protected:
-
+    virtual Triad<String, String, String> 
+      _lookupConsumerProvider(const CIMObjectPath & objectPath);
+ 
     virtual Triad<String, String, String>
         _lookupProviderForClass(const CIMObjectPath & objectPath);
 
@@ -133,7 +135,9 @@ protected:
     void handleDisableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleEnableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleStopAllProvidersRequest(AsyncOpNode *op, const Message *message) throw();
-
+    void handleConsumeIndicationRequest(AsyncOpNode *op, 
+					const Message *message) throw();
+    
 
     /**
         Inserts an entry into the enabled indication providers table.

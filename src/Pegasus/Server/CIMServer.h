@@ -55,9 +55,11 @@ class HTTPAcceptor;
 class CIMRepository;
 
 class IndicationHandlerService;
-class IndicationService;
+class eServerIndicationService;
 class ProviderManagerService;
 class ProviderRegistrationManager;
+class BinaryMessageHandler;
+
 
 class PEGASUS_SERVER_LINKAGE CIMServer
 {
@@ -139,9 +141,10 @@ private:
     CIMServerState* _serverState;
 
     IndicationHandlerService* _handlerService;
-    IndicationService* _indicationService;
+    eServerIndicationService* _indicationService;
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
+    BinaryMessageHandler *_binaryMessageHandler;
 };
 
 PEGASUS_NAMESPACE_END

@@ -179,8 +179,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::handleHTTPMessage");
 
-    Boolean authenticated;
-    
+    Boolean authenticated = false;
+    deleteMessage = true;
 
     // ATTN-RK-P3-20020408: This check probably shouldn't be necessary, but
     // we're getting an empty message when the client closes the connection
@@ -197,11 +197,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     Boolean enableAuthentication = false;
 
-    if (String::equal(
-        configManager->getCurrentValue("enableAuthentication"), "true"))
-    {
-        enableAuthentication = true;
-    }
+//     if (String::equal(
+//         configManager->getCurrentValue("enableAuthentication"), "true"))
+//     {
+//         enableAuthentication = true;
+//     }
 
     //
     // Save queueId:
@@ -238,6 +238,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     if (methodName != "M-POST" && methodName != "POST")
     {
+	 PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+			  "Bad HTTP method.");
         // Only POST and M-POST are implemented by this server
         Array<Sint8> message;
         message = XmlWriter::formatHttpErrorRspMessage(
@@ -250,6 +252,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         //  M-POST method is not valid with version 1.0
         //
+	 PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+			  "Bad HTTP method.");
         Array<Sint8> message;
         message = XmlWriter::formatHttpErrorRspMessage(
             HTTP_STATUS_BADREQUEST);
@@ -270,9 +274,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
         if ( HTTPMessage::lookupHeader(
              headers, "PegasusAuthorization", authorization, false) &&
-             enableAuthentication
+             (enableAuthentication == true)
            )
         {
+	 PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
+			  "trying pegasus/local authentication");
             //
             // Do pegasus/local authentication
             //
@@ -306,12 +312,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
         if ( HTTPMessage::lookupHeader(
              headers, "Authorization", authorization, false) &&
-             enableAuthentication
+             (enableAuthentication == true)
            )
         {
             //
             // Do http authentication if not authenticated already
             //
+	 PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+			  "trying http authentication.");
             if (!authenticated)
             {
                 authenticated =
@@ -342,7 +350,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
         }
 
-        if ( authenticated || !enableAuthentication )
+        if ( authenticated || (enableAuthentication == false))
         {
             //
             // Search for "CIMOperation" header:
@@ -403,6 +411,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // without the CIMError header since this request must not be
                 // processed as a CIM request.
 
+	       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
+			  "unrecognized message type.");
                 Array<Sint8> message;
                 message = XmlWriter::formatHttpErrorRspMessage(
                     HTTP_STATUS_BADREQUEST);

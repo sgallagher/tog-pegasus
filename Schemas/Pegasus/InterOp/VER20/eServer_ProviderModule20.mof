@@ -1,0 +1,169 @@
+//=================================================================
+// eServer_ProviderModule
+//
+// This schema is derived from PG_ProviderModule. It adds some 
+// qualifiers to support remote and out-of-proc providers.
+// It also defines some new provider types. 
+//
+//=================================================================
+
+// Named (meta) elements:
+// Class, Property, Method, Association, Reference, Property, Parameter, 
+// Indication, Schema, Trigger
+
+#pragma local ("en_US")
+
+Qualifier Remote : boolean = false , Scope(class, reference, property, method) ;
+Qualifier Out_of_Proc : boolean = false, Scope(class, reference, property, method);
+Qualifier Trusted : boolean = false, Scope(class, reference, property, method);
+Qualifier isURL : boolean = false, Scope(reference, property);
+
+//=================================================================
+// eServer_ProviderModule
+//=================================================================
+
+[Version("2.0.0."), Description("Derived from PG_ProviderModule "
+	"modified to support additional provider types and additional "
+	"provider qualifications. ")]
+class eServer_ProviderModule : PG_ProviderModule {
+	[Key, Override("Name"), Description("A human-readable name that uniquely "
+		"identifies the Provider Module, inherited from PG_ProviderModule.")]	
+	string Name;
+
+	[ Override("Location"), Description("The file path to the module. " 
+		" If the usURL qualifier is present, indicates that the "
+		"path is a URL. Otherwise the path is a string that represents "
+		" the location of the module in the local host's file system.") ]
+	string Location;
+
+	[ Override("InterfaceType"), Description ("The interface definition "
+	  	"supported by this module. Implies both a method signature and "
+		" a binary specification for linking to the module and executing its code. "
+		"In Pegasus 2.01 the InterfaceType also implies a specific "
+		"ProviderManagerService, although this link will be broken in the "
+		"future. "),
+		Values {"C++Default", "CMPI", "Java_Default", "Java_SNIA", 
+			"Java_Wbem_Services", "Perl", "Unix_Domain", 
+			"Named_Pipe", "WSDL_SOAP"}]
+	string InterfaceType;
+	
+	[ Description ("The host of the computer upon which this module resides. "
+	    	"For local providers this will be \"localhost\". For remote "
+		"providers this property should contain the DNS name of the "
+		"remote host. ") ]
+	string host;
+
+	[ Description ("The PGP Signature of the module's file. "
+		"The provider manager or any other module can use this "
+		" signature to determine the authenticity if the module " 
+		" and the integrity of the module's image. ")]
+	string pgp_Signature;
+
+};
+
+
+//=================================================================
+// eServer_Provider
+// 
+// Derived from the PG_Provider class. The operational status 
+// properties from PG_ProviderModule are present in the eServer_Provider
+// class. This is to recognize that providers may have operational 
+// states that are distinct from the states of their modules.
+//
+//=================================================================
+
+[ Version("2.0.0"), Description("eServer_Provider is derived from "
+	"PG_Provider. ") ]
+
+class eServer_Provider : PG_Provider {
+	[Key, Description("The scoping eServer_ProviderModule name. "
+ 		"Inherited as a propagated key from PG_Provider, having "
+		"the syntax PG_ProviderModule.name")]
+	string ProviderModuleName;
+	[Key, Override("Name"), Description("A human-readable name that:
+		"uniquely identifies the provider within the Provider Module." 
+		"Inherited from PG_Provider.")]
+	string Name;
+      [Description ( 
+        "   Indicates the current status(es) of the element. "
+        "Various health and operational statuses are "
+        "defined. Many of the enumeration's values are self-"
+        "explanatory.  However, a few are not and are described "
+        "in more detail. \"Stressed\" indicates that the element "
+        "is functioning, but needs attention. Examples of "
+        "\"Stressed\" states are overload, overheated, etc. "
+        "\"Predictive Failure\" indicates that an element is "
+        "functioning nominally but predicting a failure in the "
+        "near future. \"In Service\" describes an element being "
+        "configured, maintained, cleaned, or otherwise administered. "
+        "\"No Contact\" indicates that the monitoring system "
+        "has knowledge of this element, but has never been able to "
+        "establish communications with it. \"Lost Communication\" "
+        "indicates that the ManagedSystemElement is known to exist "
+        "and has been contacted successfully in the past, but is "
+        "currently unreachable. \"Stopped\" indicates that the "	
+        "element is known to exist, is not operational (e.g., it "
+        "is unable to provide service to users), but it has not "
+        "failed. It has purposely been made non-operational. \n"
+        "  OperationalStatus replaces the Status property on "
+        "ManagedSystemElement to provide a consistent approach to "
+        "enumerations, to address implementation needs for an "
+        "array property, and to provide a migration path from today's "
+        "environment to the future. This change was not made earlier "
+        "since it required the DEPRECATED qualifier. Due to the "
+        "widespread use of the existing Status property in "
+        "management applications, it is strongly recommended that "
+        "providers/instrumentation provide BOTH the Status and "
+        "OperationalStatus properties. As always, Status (since it "
+        "is single-valued) provides the primary status of the "
+        "element."),
+       ValueMap {"0", "1", "2", "3", "4", "5", "6", "7", "8", 
+             "9", "10", "11", "12", "13"}, 
+       Values {"Unknown", "Other", "OK", "Degraded", "Stressed",
+             "Predictive Failure", "Error", "Non-Recoverable Error", 
+             "Starting", "Stopping", "Stopped", "In Service", 
+             "No Contact", "Lost Communication"}, 
+       ModelCorrespondence {
+        "CIM_ManagedSystemElement.OtherStatusDescription"} ] 
+    uint16 OperationalStatus[];
+      [Description (
+        "A string describing the status - used when the "
+        "OperationalStatus property is set to 1 (\"Other\")."), 
+       ModelCorrespondence {
+        "CIM_ManagedSystemElement.OperationalStatus"} ]
+    string OtherStatusDescription;
+};
+
+
+//=================================================================
+// eServer_ProviderCapabilities
+// 
+// Derived from the PG_ProviderCapabilities class
+//
+//=================================================================
+
+	[Version ("2.0.0"), Description("An instance of ProviderCapabilities "
+	"describes a set of abilities for a specific provider.") ]
+class eServer_ProviderCapabilities : PG_ProviderCapabilities {
+	[Key, Description("The scoping eServer_ProviderModuleName. "
+	"Inherited as a Propagated key from PG_ProviderCapabilities, "
+	"having the syntax PG_Provider.ProviderModuleName") ]
+   string ProviderModuleName;
+	[Key, Description("The scoping eServer_Provider Name."
+	"Inherited as a Propagated key from PG_ProviderCapabilities, "
+	"having the syntax PG_Provider.Name") ]
+   string ProviderName;
+
+	[Key, Description("A value that uniquely identifies this "
+		" set of abilities for the designated Providers.") ]
+   string CapabilityID;
+
+	[Override("ProviderType"), Description("ProviderType enumerates " 
+		" the specific method types that the provider supports. "),
+		ArrayType("Indexed"), 
+		ValueMap { "2", "3", "4", "5", "6" },
+		Values{ "Instance", "Association", "Indication", "Method", 
+			"Indication_Consumer" } ]
+     uint16 ProviderType[];
+};
+	

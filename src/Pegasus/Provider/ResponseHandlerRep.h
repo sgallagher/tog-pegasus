@@ -42,6 +42,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+// this class specified the default behavior for a response handler of the
+// supported types. Subclasses of ResponseHandler may insert subclasses of
+// this class to customize ResponseHandler behavior.
 template<class T>
 class PEGASUS_PROVIDER_LINKAGE ResponseHandlerRep : public Sharable
 {
@@ -56,18 +59,22 @@ public:
 
     virtual void processing(void)
     {
+        // do nothing
     }
 
     virtual void complete(void)
     {
+        // do nothing
     }
 
     virtual void deliver(const CIMObject & object)
     {
+        // do nothing
     }
 
     virtual void deliver(const Array<CIMObject> & objects)
     {
+        // call deliver for each object in the array
         for(Uint32 i = 0, n = objects.size(); i < n; i++)
         {
             deliver(objects[i]);
@@ -76,10 +83,12 @@ public:
 
     virtual void deliver(const CIMClass & object)
     {
+        // do nothing
     }
 
     virtual void deliver(const Array<CIMClass> & objects)
     {
+        // call deliver for each object in the array
         for(Uint32 i = 0, n = objects.size(); i < n; i++)
         {
             deliver(objects[i]);
@@ -88,10 +97,12 @@ public:
 
     virtual void deliver(const CIMInstance & object)
     {
+        // do nothing
     }
 
     virtual void deliver(const Array<CIMInstance> & objects)
     {
+        // call deliver for each object in the array
         for(Uint32 i = 0, n = objects.size(); i < n; i++)
         {
             deliver(objects[i]);
@@ -100,10 +111,12 @@ public:
 
     virtual void deliver(const CIMIndication & object)
     {
+        // do nothing
     }
 
     virtual void deliver(const Array<CIMIndication> & objects)
     {
+        // call deliver for each object in the array
         for(Uint32 i = 0, n = objects.size(); i < n; i++)
         {
             deliver(objects[i]);
@@ -112,10 +125,12 @@ public:
 
     virtual void deliver(const CIMValue & object)
     {
+        // do nothing
     }
 
     virtual void deliver(const Array<CIMValue> & objects)
     {
+        // call deliver for each object in the array
         for(Uint32 i = 0, n = objects.size(); i < n; i++)
         {
             deliver(objects[i]);
@@ -124,10 +139,12 @@ public:
 
     virtual void deliver(const CIMObjectPath & object)
     {
+        // do nothing
     }
 
     virtual void deliver(const Array<CIMObjectPath> & objects)
     {
+        // call deliver for each object in the array
         for(Uint32 i = 0, n = objects.size(); i < n; i++)
         {
             deliver(objects[i]);

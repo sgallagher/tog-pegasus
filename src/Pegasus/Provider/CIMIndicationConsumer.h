@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -23,61 +23,56 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ProviderModule_h
-#define Pegasus_ProviderModule_h
+#ifndef Pegasus_CIMIndicationConsumer_h
+#define Pegasus_CIMIndicationConsumer_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/System.h> 
-#include <Pegasus/Common/IPC.h>
-
 #include <Pegasus/Provider/CIMProvider.h>
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/ProviderManager/Linkage.h>
+
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Provider/Linkage.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-// The ProviderModule class represents the physical module, as defined by the
-// operating, that contains a provider. This class effectively encapsulates the
-// "physical" portion of a provider.
-class PEGASUS_SERVER_LINKAGE ProviderModule
+/**
+This class defines the set of methods implemented by an indication consumer provider.
+A providers that derives from this class must implement all methods. The minimal method
+implementation simply throw the NotSupported exception.
+*/
+class PEGASUS_PROVIDER_LINKAGE CIMIndicationConsumer : public virtual CIMProvider
 {
 public:
-    ProviderModule(const String & fileName);
-    virtual ~ProviderModule(void);
+    CIMIndicationConsumer(void);
+    virtual ~CIMIndicationConsumer(void);
 
-    const String & getFileName(void) const;
+    /**
+    @param contex contains security and locale information relevant for the lifetime
+    of this operation.
 
-    CIMBaseProvider *load(const String & providerName);
-    void unloadModule(void);
+    @param indication
 
-    Boolean operator == (const void *key) const;
-    Boolean operator == (const ProviderModule & pmod) const;
+    @param handler asynchronusly processes the results of this operation.
 
-protected:
-    String _fileName;
-    AtomicInt _ref_count;
-    DynamicLibraryHandle _library;
+    @exception NotSupported
+    @exception InvalidParameter
+    */
+    virtual void handleIndication(
+	const OperationContext & context,
+	const CIMInstance & indication,
+	IndicationResponseHandler & handler) = 0;
 
-
-    friend class ProviderManager;
-    friend class Provider;
-
- private:
-    ProviderModule(const String & fileName, const Uint32 & refCount) {};
-    ProviderModule(const String & fileName, const String & providerName){};
-    ProviderModule(const String & fileName, const String & providerName,
-                   const String & interfaceName, const Uint32 & refCount){};
-    ProviderModule(const ProviderModule & pm){};
+    // ATTN: The following method is only for testing purposes.
+    virtual void handleIndication(
+	const OperationContext & context,
+	const String & url,
+	const CIMInstance& indicationInstance)
+    {
+    }
 };
-
-inline const String & ProviderModule::getFileName(void) const
-{
-    return(_fileName);
-}
 
 PEGASUS_NAMESPACE_END
 

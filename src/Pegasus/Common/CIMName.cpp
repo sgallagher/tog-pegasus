@@ -1,39 +1,36 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cctype>
 #include "CIMName.h"
-#include "CIMNameCast.h"
-#include "CommonUTF.h"
-#include "CharSet.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -47,122 +44,104 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-Uint32 CIMNameLegalASCII(const char* str)
+CIMName::CIMName()
+    : cimName(String::EMPTY)
 {
-    const Uint8* p = (const Uint8*)str;
-
-    if (!CharSet::isAlphaUnder(*p++))
-        return 0;
-
-    while (*p)
-    {
-        if (!CharSet::isAlNumUnder(*p++))
-            return 0;
-    }
-
-    return Uint32((char*)p - str);
 }
 
-CIMName::CIMName(const String& name) : cimName(name)
+CIMName::CIMName(const String& name)
+    : cimName(name)
 {
     if (!legal(name))
+    {
+        // ATTN: Does this clean up String memory properly?
         throw InvalidNameException(name);
+    }
 }
 
 CIMName::CIMName(const char* name)
+    : cimName(name)
 {
-    Uint32 size = CIMNameLegalASCII(name);
-
-    if (size == 0)
+    if (!legal(name))
     {
-        cimName.assign(name);
+        // ATTN: Does this clean up String memory properly?
+        throw InvalidNameException(name);
+    }
+}
 
-        if (!legal(cimName))
-            throw InvalidNameException(name);
-    }
-    else
-    {
-        AssignASCII(cimName, name, size);
-    }
+CIMName& CIMName::operator=(const CIMName& name)
+{
+    cimName=name.cimName;
+    return *this;
 }
 
 CIMName& CIMName::operator=(const String& name)
 {
     if (!legal(name))
+    {
         throw InvalidNameException(name);
-
+    }
     cimName=name;
     return *this;
 }
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 CIMName& CIMName::operator=(const char* name)
 {
-    Uint32 size = CIMNameLegalASCII(name);
-
-    if (size == 0)
-    {
-        String tmp(name);
-
-        if (!legal(tmp))
-            throw InvalidNameException(name);
-
-        cimName.assign(tmp);
-    }
-    else
-    {
-        AssignASCII(cimName, name, size);
-    }
+    cimName=name;
     return *this;
+}
+#endif
+
+const String& CIMName::getString() const
+{
+    return cimName;
+}
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
+CIMName::operator String() const
+{
+    return cimName;
+}
+#endif
+
+Boolean CIMName::isNull() const
+{
+    return (cimName.size() == 0);
+}
+
+void CIMName::clear()
+{
+    cimName.clear();
 }
 
 Boolean CIMName::legal(const String& name)
 {
-    // Check first character.
+    Uint32 length = name.size();
 
-    const Uint16* p = (const Uint16*)name.getChar16Data();
-    Uint32 n = name.size();
+    if (length == 0 || !(isalpha(name[0]) || name[0] == '_'))
+        return false;
 
-    if (!(*p < 128 && CharSet::isAlphaUnder(*p)))
+    for (Uint32 i=1; i<length; i++)
     {
-        if (!(*p >= 0x0080 && *p <= 0xFFEF))
+        // ATTN-RK-20020729: Is this check necessary?  Add it to namespace name?
+        if (name[i] > PEGASUS_MAX_PRINTABLE_CHAR)
             return false;
-    }
-
-    p++;
-    n--;
-
-    // Use loop unrolling to skip over good ASCII 7-bit characters.
-
-    while (n >= 4)
-    {
-        if (p[0] < 128 && CharSet::isAlNumUnder(p[0]) &&
-            p[1] < 128 && CharSet::isAlNumUnder(p[1]) &&
-            p[2] < 128 && CharSet::isAlNumUnder(p[2]) &&
-            p[3] < 128 && CharSet::isAlNumUnder(p[3]))
-        {
-            p += 4;
-            n -= 4;
-            continue;
-        }
-
-        break;
-    }
-
-    // Process remaining charcters.
-
-    while (n)
-    {
-        if (!(*p < 128 && CharSet::isAlNumUnder(*p)))
-        {
-            if (!(*p >= 0x0080 && *p <= 0xFFEF))
-                return false;
-        }
-        p++;
-        n--;
     }
 
     return true;
 }
+
+Boolean CIMName::equal(const CIMName& name) const
+{
+    return String::equalNoCase(cimName, name.cimName);
+}
+
+Boolean operator==(const CIMName& name1, const CIMName& name2)
+{
+    return name1.equal(name2);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -174,101 +153,139 @@ Boolean CIMName::legal(const String& name)
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-inline void _check_namespace_name(String& name)
+CIMNamespaceName::CIMNamespaceName()
+    : cimNamespaceName(String::EMPTY)
 {
-    if (!CIMNamespaceName::legal(name))
-        throw InvalidNamespaceNameException(name);
-
-    if (name[0] == '/')
-        name.remove(0, 1);
 }
 
 CIMNamespaceName::CIMNamespaceName(const String& name)
     : cimNamespaceName(name)
 {
-    _check_namespace_name(cimNamespaceName);
+    if (!legal(name))
+    {
+        // ATTN: Does this clean up String memory properly?
+        throw InvalidNamespaceNameException(name);
+    }
 }
 
 CIMNamespaceName::CIMNamespaceName(const char* name)
     : cimNamespaceName(name)
 {
-    _check_namespace_name(cimNamespaceName);
+    if (!legal(name))
+    {
+        // ATTN: Does this clean up String memory properly?
+        throw InvalidNamespaceNameException(name);
+    }
 }
 
 CIMNamespaceName& CIMNamespaceName::operator=(const CIMNamespaceName& name)
 {
-    cimNamespaceName = name.cimNamespaceName;
+    cimNamespaceName=name.cimNamespaceName;
     return *this;
 }
 
 CIMNamespaceName& CIMNamespaceName::operator=(const String& name)
 {
-    cimNamespaceName = name;
-    _check_namespace_name(cimNamespaceName);
+    if (!legal(name))
+    {
+        throw InvalidNamespaceNameException(name);
+    }
+    cimNamespaceName=name;
     return *this;
 }
 
+#ifndef PEGASUS_REMOVE_DEPRECATED
 CIMNamespaceName& CIMNamespaceName::operator=(const char* name)
 {
-    cimNamespaceName = name;
-    _check_namespace_name(cimNamespaceName);
+    cimNamespaceName=name;
     return *this;
+}
+#endif
+
+const String& CIMNamespaceName::getString() const
+{
+    return cimNamespaceName;
+}
+
+#ifndef PEGASUS_REMOVE_DEPRECATED
+CIMNamespaceName::operator String() const
+{
+    return cimNamespaceName;
+}
+#endif
+
+Boolean CIMNamespaceName::isNull() const
+{
+    return (cimNamespaceName.size() == 0);
+}
+
+void CIMNamespaceName::clear()
+{
+    cimNamespaceName.clear();
 }
 
 Boolean CIMNamespaceName::legal(const String& name)
 {
     Uint32 length = name.size();
-    Uint32 index = 0;
+    if (length == 0) return true;    // ATTN: Cheap hack!
 
-    // Skip a leading '/' because the CIM specification is ambiguous
+    // ATTN-RK-20020729: Hack: Skip leading '/' because spec is ambiguous
+    Uint32 start = 0;
     if (name[0] == '/')
     {
-        index++;
+        start++;
     }
 
-    Boolean moreElements = true;
-
-    // Check each namespace element (delimited by '/' characters)
-    while (moreElements)
+    for (Uint32 i=start; i<length; )
     {
-        moreElements = false;
-
-        if (index == length)
+        if (!name[i] || (!isalpha(name[i]) && name[i] != '_'))
         {
             return false;
         }
 
-        Uint16 ch = name[index++];
+        i++;
 
-        // First character must be alphabetic or '_' if ASCII
-
-        if (!(ch < 128 && CharSet::isAlphaUnder(ch)))
+        while (isalnum(name[i]) || name[i] == '_')
         {
-            if (!(ch >= 0x0080 && ch <= 0xFFEF))
-                return false;
+            i++;
         }
 
-        // Remaining characters must be alphanumeric or '_' if ASCII
-        while (index < length)
+        if (name[i] == '/')
         {
-            ch = name[index++];
-
-            // A '/' indicates another namespace element follows
-            if (ch == '/')
-            {
-                moreElements = true;
-                break;
-            }
-
-            if (!(ch < 128 && CharSet::isAlNumUnder(ch)))
-            {
-                if (!(ch >= 0x0080 && ch <= 0xFFEF))
-                    return false;
-            }
+            i++;
         }
     }
 
     return true;
+
+// Alternate implementation
+#if 0
+    String temp;
+
+    // check each namespace segment (delimited by '/') for correctness
+
+    for(Uint32 i = 0; i < name.size(); i += temp.size() + 1)
+    {
+        // isolate the segment beginning at i and ending at the first
+        // ocurrance of '/' after i or eos
+
+        temp = name.subString(i, name.subString(i).find('/'));
+
+        // check segment for correctness
+
+        if (!CIMName::legal(temp))
+        {
+            return false;
+        }
+    }
+
+    return true;
+#endif
+}
+
+Boolean CIMNamespaceName::equal(const CIMNamespaceName& name) const
+{
+    return String::equalNoCase(cimNamespaceName, name.cimNamespaceName);
 }
 
 Boolean operator==(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
@@ -276,45 +293,4 @@ Boolean operator==(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
     return name1.equal(name2);
 }
 
-Boolean operator==(const CIMNamespaceName& name1, const char* name2)
-{
-    return name1.equal(name2);
-}
-
-Boolean operator==(const char* name1, const CIMNamespaceName& name2)
-{
-    return name2.equal(name1);
-}
-
-Boolean operator!=(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
-{
-    return !name1.equal(name2);
-}
-
-Boolean operator!=(const CIMNamespaceName& name1, const char* name2)
-{
-    return !name1.equal(name2);
-}
-
-Boolean operator!=(const char* name1, const CIMNamespaceName& name2)
-{
-    return !name2.equal(name1);
-}
-
 PEGASUS_NAMESPACE_END
-
-/*
-================================================================================
-
-Optimizations:
-
-    1. Optimized legal().
-    2. Implmented "char*" version of operator=().
-    3. Added conditional inlining (for Pegaus internal use).
-    4. Added comparison functions for "char*".
-    5. Implemented "unchecked" version of constructors and assignment operators
-       that take String or "char*".
-    6. Added loop unrolling to CIMName::legal()
-
-================================================================================
-*/

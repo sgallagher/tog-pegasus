@@ -33,12 +33,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+
+// set current operations to 1 to prevent an unload
+// until the provider has had a chance to initialize
 Provider::Provider(const String & name,
 		   ProviderModule *module, 
 		   CIMBaseProvider *pr)
    : Base(pr), _module(module), _cimom_handle(0), _name(name)
 {
-   
+   _current_operations = 1;
 }
 
 
@@ -83,19 +87,33 @@ void Provider::initialize(CIMOMHandle & cimom)
     }
 
     _status = INITIALIZED;
+    _current_operations = 0;
 }
 
 void Provider::terminate(void)
 {
+
+   if(false == unload_ok())
+   {
+      throw ObjectBusyException("Provider cannot unload");
+   }
+   
     _status = TERMINATING;
     
     try
     {
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
-
+       try 
+       {
 	ProviderFacade::terminate();
-
+       }
+       catch(...)
+       {
+	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			       "Exception caught in ProviderFacade::Terminate for " + 
+			       _name);
+       }
 	// yield before a potentially lengthy operation.
 	pegasus_yield();
 
@@ -104,7 +122,7 @@ void Provider::terminate(void)
     catch(...)
     {
 	_status = UNKNOWN;
-
+   
 	throw;
     }
 
@@ -125,6 +143,49 @@ Boolean Provider::operator == (const Provider &prov) const
       return true;
    return false;
 }
+
+void Provider::get_idle_timer(struct timeval *t)
+{
+   if(t && _cimom_handle)
+      _cimom_handle->get_idle_timer(t);
+}
+
+void Provider::update_idle_timer(void)
+{
+   if(_cimom_handle)
+      _cimom_handle->update_idle_timer();
+}
+
+Boolean Provider::pending_operation(void)
+{
+   if(_cimom_handle)
+      return _cimom_handle->pending_operation();
+   return false;
+}
+
+
+Boolean Provider::unload_ok(void)
+{
+   if(_cimom_handle)
+      return _cimom_handle->unload_ok();
+   return true;
+}
+
+//   force provider manager to keep in memory
+void Provider::protect(void)
+{
+   if(_cimom_handle)
+      _cimom_handle->protect();
+}
+
+// allow provider manager to unload when idle 
+void Provider::unprotect(void)
+{
+   if(_cimom_handle)
+      _cimom_handle->unprotect();
+}
+
+
 
 
 PEGASUS_NAMESPACE_END

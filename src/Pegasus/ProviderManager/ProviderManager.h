@@ -51,16 +51,15 @@ public:
 
 public:
     Provider getProvider(const String & fileName, const String & providerName,
-                         const String & interfaceName = String::EMPTY);
+                         const String & interfaceName = String::EMPTY) throw();
 
-    void unloadProvider(const String & fileName, const String & providerName);
+    void unloadProvider(const String & fileName, const String & providerName) throw();
 
-    void shutdownAllProviders(void);
-
+    void shutdownAllProviders(void) throw();
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL provider_monitor(void *);
     
-    void unload_idle_providers(void);
+    void unload_idle_providers(void) throw();
 private:
     enum CTRL 
       {
@@ -100,10 +99,9 @@ private:
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
     AtomicInt _unload_idle_flag;
     
-protected:
-
-
+    Mutex _mut;
     
+protected:
     
 };
 

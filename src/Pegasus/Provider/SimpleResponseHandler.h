@@ -31,7 +31,7 @@
 #define Pegasus_SimpleResponseHandlerRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/ResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

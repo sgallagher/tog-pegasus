@@ -61,7 +61,7 @@
 
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
-
+#include <Pegasus/Common/XmlWriter.h>
 // ==========================================================================
 // defines
 // ==========================================================================
@@ -71,6 +71,148 @@
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
+
+
+
+String globalNamespace = "root/cimv2";
+static const char __NAMESPACE_NAMESPACE [] = "root";
+
+static AtomicInt unload_flag;
+static AtomicInt threads_running;
+
+//#include <Pegasus/Common/XmlWriter.h>
+static void TestNameSpaceOperations(CIMOMHandle & handle)
+{
+   String className = "__Namespace";
+   Array<CIMObjectPath> instanceNames;
+   OperationContext context;
+   Uint32 i, n;
+   if(unload_flag.value())
+      return;
+   
+   PEGASUS_STD(cerr) << "Calling CIMOMHandle::enumerateInstanceNames()" << PEGASUS_STD(endl);
+   try 
+   {
+      instanceNames = handle.enumerateInstanceNames(
+	 context,
+	 __NAMESPACE_NAMESPACE, 
+	 className);
+      
+      for(i = 0, n = instanceNames.size(); i < n; i++)
+      {
+	 PEGASUS_STD(cout) << instanceNames[i].toString() << PEGASUS_STD(endl);
+      }
+      PEGASUS_STD(cout) << instanceNames.size() << " Namespaces" << PEGASUS_STD(endl);
+   }
+   catch(Exception & e)
+   {
+      PEGASUS_STD(cout) << "Exception Namespace Enumeration: " << e.getMessage() 
+			<< PEGASUS_STD(endl);
+   }
+   catch(...)
+   {
+      PEGASUS_STD(cerr) << "Unexpected Exception in Namespace Enumeration" << PEGASUS_STD(endl);
+   }
+}
+
+
+static void TestEnumerateClassNames (CIMOMHandle & handle )
+{
+   OperationContext context;
+   Uint32 i, n;
+   if(unload_flag.value())
+      return;
+   PEGASUS_STD(cout) << "TestEnumerateClassNames(CIMOMHandle)" << PEGASUS_STD(endl);
+    try
+    {
+        CIMName className;
+
+       Array<CIMName> classNames = handle.enumerateClassNames(
+	  context, 
+	  globalNamespace, 
+	  className, true);
+       for (i = 0, n = classNames.size(); i < n; i++)
+       {
+	  PEGASUS_STD(cout) << classNames[i] << PEGASUS_STD(endl);
+       }
+       
+       PEGASUS_STD(cout) << classNames.size() << " ClassNames" << PEGASUS_STD(endl);
+    }
+    catch(Exception &e)
+    {
+       PEGASUS_STD(cout) << "Error Class Name Enumeration: " << PEGASUS_STD(endl);
+       PEGASUS_STD(cout) << e.getMessage() << PEGASUS_STD(endl);
+    }
+   catch(...)
+   {
+      PEGASUS_STD(cerr) << "Unexpected Exception in Class Name Enumeration" << PEGASUS_STD(endl);
+   }
+
+}
+
+static void TestGetClass(CIMOMHandle & handle)
+{
+   OperationContext context;
+   CIMPropertyList list;
+   CIMConstClass  c;
+   if(unload_flag.value())
+      return;
+   try 
+   {
+      c = handle.getClass(
+	 context, 
+	 globalNamespace, 
+	 "CIM_ComputerSystem", 
+	 false, 
+	 false, 
+	 true,
+	 list);
+      try 
+      {
+	 XmlWriter::printClassElement(c, PEGASUS_STD(cout));
+      }
+
+      catch(...)
+      {
+      }
+      
+   }
+   catch(Exception &e)
+   {
+      PEGASUS_STD(cout) << "Error Get Class: " << PEGASUS_STD(endl);
+      PEGASUS_STD(cout) << e.getMessage() << PEGASUS_STD(endl);
+   }
+   catch(...)
+   {
+      PEGASUS_STD(cerr) << "Unexpected Exception in Get Class " << PEGASUS_STD(endl);
+   }
+}
+
+
+PEGASUS_THREAD_CDECL PEGASUS_THREAD_RETURN test_cimom_handle(void *parm)
+{
+   
+   Thread *th = reinterpret_cast<Thread *>(parm);
+   ComputerSystemProvider *myself = 
+      reinterpret_cast<ComputerSystemProvider *>(th->get_parm());
+   pegasus_sleep(1000);
+   if(unload_flag.value() == 0)
+   {      
+      if(unload_flag.value() == 0)   
+	 TestNameSpaceOperations(myself->_ch);
+      pegasus_sleep(1000);
+      if(unload_flag.value() == 0)   
+	 TestEnumerateClassNames(myself->_ch);
+      pegasus_sleep(1000);
+      if(unload_flag.value() == 0)   
+	 TestGetClass(myself->_ch);
+      pegasus_sleep(1000);
+      
+   }
+   exit_thread((PEGASUS_THREAD_RETURN)1);
+   return(PEGASUS_THREAD_RETURN)0;
+}
+
 
 ComputerSystemProvider::ComputerSystemProvider(void)
 {
@@ -234,29 +376,21 @@ void ComputerSystemProvider::initialize(CIMOMHandle& handle)
   // platform-specific routine to initialize protected members
   _cs.initialize();
 
-   cout << "  trying to use cimom handle " << endl;
-   
-   const OperationContext cont;
-   const CIMNamespaceName ns("root/cimv2");
-   const CIMName cn("CIM_ManagedSystemElement");
-   const CIMPropertyList pl;
-   
-   _ch.getClass(cont, ns, cn, true, false, false, pl);
-   
-   cout << " _cimomhandle.getClass() returned " << endl;
+  PEGASUS_STD(cout) << "Initializing Test Thread " << PEGASUS_STD(endl);
 
-   cout << "  trying to use cimom handle again " << endl;
-   
-   _ch.getClass(cont, ns, cn, true, false, false, pl);
-   
-   cout << " _cimomhandle.getClass() returned " << endl;
+  static Thread th(test_cimom_handle, this, true);
+  threads_running++;
+  th.run();
 }
 
 
 void ComputerSystemProvider::terminate(void)
 {
-   delete this;
+   unload_flag = 1;
+   while(true == _ch.pending_operation() || threads_running.value())
+      pegasus_yield();
    
+   delete this;
 }
 
 

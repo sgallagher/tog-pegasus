@@ -171,6 +171,20 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         PEG_METHOD_EXIT();
         return true;
     }
+
+    if (_enableIndicationService &&
+        (className.equal(ESERVER_CLASSNAME_INDSUBSCRIPTION)))
+    {
+        service = PEGASUS_QUEUENAME_INDICATIONSERVICE;
+        provider = String::EMPTY;
+	PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+	    "Internal provider  Service = "
+	     + service + " provider " + provider + " found.");
+        PEG_METHOD_EXIT();
+        return true;
+    }
+
+
     if (_enableIndicationService &&
         (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
          className.equal (PEGASUS_CLASSNAME_INDHANDLER) ||
@@ -3426,8 +3440,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleInvokeMethodRequest");
-   PEGASUS_STD(cout) <<       "CIMOperationRequestDispatcher::handleInvokeMethodRequest" << PEGASUS_STD(endl);
-   
+
    CIMResponseMessage * response;
 
    {
@@ -3501,8 +3514,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       CIMInvokeMethodRequestMessage* requestCopy =
          new CIMInvokeMethodRequestMessage(*request);
 
-      PEGASUS_STD(cout) << " Forwarding invoke method to " << serviceName << " " << controlProviderName << PEGASUS_STD(endl);
-      
       _forwardRequest(className, serviceName, controlProviderName,
           requestCopy);
 

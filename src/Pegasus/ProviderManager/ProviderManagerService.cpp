@@ -317,6 +317,42 @@ Triad<String, String, String> ProviderManagerService::_lookupMethodProviderForCl
     return(triad);
 }
 
+// lookup a consumer provider
+// << Wed Dec  4 12:00:59 2002 mdd >>
+
+Triad<String, String, String> ProviderManagerService::_lookupConsumerProvider(
+   const CIMObjectPath & objectPath)
+{
+   CIMInstance pInstance;
+   CIMInstance pmInstance;
+
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::_lookupConsumerProvider");
+
+   PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		    "nameSpace = " + objectPath.getNameSpace() + "; className = " + objectPath.getClassName());
+
+   // get the provider and provider module instance from the registration manager
+   if(_providerRegistrationManager->lookupConsumerProvider(
+	 objectPath.getNameSpace(), objectPath.getClassName(),
+	 pInstance, pmInstance) == false)
+   {
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+		       "Provider registration not found.");
+
+      PEG_METHOD_EXIT();
+
+      throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+   }
+
+   Triad<String, String, String> triad;
+
+   triad = _getProviderRegPair(pInstance, pmInstance);
+
+   PEG_METHOD_EXIT();
+
+   return(triad);
+}
+
 Triad<String, String, String> ProviderManagerService::_lookupProviderForClass(
     const CIMObjectPath & objectPath)
 {
@@ -467,6 +503,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleService
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOperation(void * arg) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCimOperation");
     // get the service from argument
     ProviderManagerService * service = reinterpret_cast<ProviderManagerService *>(arg);
 
@@ -474,6 +511,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 
     if(service->_incomingQueue.size() == 0)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"ProviderManagerService::handleCimOperation() called with no op node in queue" );
         // thread started with no message in queue.
         return(PEGASUS_THREAD_RETURN(1));
     }
@@ -487,7 +526,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
         MessageQueue * queue = MessageQueue::lookup(op->_source_queue);
 
         PEGASUS_ASSERT(queue != 0);
-
         // no request in op node
         return(PEGASUS_THREAD_RETURN(1));
     }
@@ -602,6 +640,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
                 service->handleStopAllProvidersRequest(op, legacy);
 
                 break;
+	    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
+	       service->handleConsumeIndicationRequest(op, legacy);
+	       break;
+
             default:
                 // unsupported messages are ignored
                 break;
@@ -612,12 +654,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
     {
         // reply with a NAK
     }
-
+    PEG_METHOD_EXIT();
     return(0);
 }
 
 void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Message *message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleGetInstanceRequest");
     CIMGetInstanceRequestMessage * request =
         dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
 
@@ -667,7 +710,12 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
 
         STAT_GETSTARTTIME;
 
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.getInstance: " + 
+			 provider.getName());
+	
         // forward request
+	provider._cimom_handle->protect();
         provider.getInstance(
             context,
             objectPath,
@@ -675,19 +723,26 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
             request->includeClassOrigin,
             propertyList,
             handler);
-
+	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
+       
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -699,10 +754,13 @@ void ProviderManagerService::handleGetInstanceRequest(AsyncOpNode *op, const Mes
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleEnumerateInstanceRequest");
     CIMEnumerateInstancesRequestMessage * request =
         dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
 
@@ -751,6 +809,10 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
 
         STAT_GETSTARTTIME;
 
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.enumerateInstances: " + 
+			 provider.getName());
+	provider._cimom_handle->protect();
         provider.enumerateInstances(
             context,
             objectPath,
@@ -758,19 +820,25 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
             request->includeClassOrigin,
             propertyList,
             handler);
-
+	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -782,10 +850,12 @@ void ProviderManagerService::handleEnumerateInstancesRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleEnumerateInstanceNamesRequest");
     CIMEnumerateInstanceNamesRequestMessage * request =
         dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
 
@@ -832,24 +902,33 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
         context.insert(IdentityContainer(request->userName));
 
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.enumerateInstanceNames: " + 
+			 provider.getName());
+	provider._cimom_handle->protect();
         provider.enumerateInstanceNames(
             context,
             objectPath,
             handler);
-
+	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -861,10 +940,12 @@ void ProviderManagerService::handleEnumerateInstanceNamesRequest(AsyncOpNode *op
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCreateInstanceRequest");
     CIMCreateInstanceRequestMessage * request =
         dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
 
@@ -914,25 +995,34 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
         // forward request
 
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.createInstance: " + 
+			 provider.getName());
+	provider._cimom_handle->protect();
         provider.createInstance(
             context,
             objectPath,
             request->newInstance,
             handler);
-
+	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -944,10 +1034,12 @@ void ProviderManagerService::handleCreateInstanceRequest(AsyncOpNode *op, const 
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleModifyInstanceRequest");
     CIMModifyInstanceRequestMessage * request =
         dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
 
@@ -996,7 +1088,10 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
 
         // forward request
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.modifyInstance: " + 
+			 provider.getName());
+	provider._cimom_handle->protect();
         provider.modifyInstance(
             context,
             objectPath,
@@ -1004,20 +1099,26 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
             request->includeQualifiers,
             propertyList,
             handler);
-
+	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
+       handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
     AsyncLegacyOperationResult *async_result =
@@ -1028,10 +1129,12 @@ void ProviderManagerService::handleModifyInstanceRequest(AsyncOpNode *op, const 
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleDeleteInstanceRequest");
     CIMDeleteInstanceRequestMessage * request =
         dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
 
@@ -1078,24 +1181,34 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
 
         // forward request
         STAT_GETSTARTTIME;
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.deleteInstance: " +
+			 provider.getName());
 
+	provider._cimom_handle->protect();
         provider.deleteInstance(
             context,
             objectPath,
             handler);
-
+	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1107,10 +1220,12 @@ void ProviderManagerService::handleDeleteInstanceRequest(AsyncOpNode *op, const 
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleExecuteQueryRequest");
     CIMExecQueryRequestMessage * request =
         dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
 
@@ -1140,12 +1255,14 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Message * message) throw()
 {
-    CIMAssociatorsRequestMessage * request =
-        dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleAssociatorsRequest");
+   CIMAssociatorsRequestMessage * request =
+      dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
 
     AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
 
@@ -1173,10 +1290,13 @@ void ProviderManagerService::handleAssociatorsRequest(AsyncOpNode *op, const Mes
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
+
 }
 
 void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleAssociatorNamesRequest");
     CIMAssociatorNamesRequestMessage * request =
         dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
 
@@ -1236,8 +1356,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
             // add the user name to the context
             context.insert(IdentityContainer(request->userName));
 
-            STAT_GETSTARTTIME;
-
+	    provider._cimom_handle->protect();
             provider.associatorNames(
                 context,
                 objectPath,
@@ -1246,7 +1365,7 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
                 request->role,
                 request->resultRole,
                 handler);
-
+	    provider._cimom_handle->unprotect();
             STAT_PMS_PROVIDEREND;
 
         } // end for loop
@@ -1261,6 +1380,8 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1272,11 +1393,13 @@ void ProviderManagerService::handleAssociatorNamesRequest(AsyncOpNode *op, const
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Message * message) throw()
 {
-    CIMReferencesRequestMessage * request =
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleReferencesRequest");
+   CIMReferencesRequestMessage * request =
         dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
 
     AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
@@ -1335,7 +1458,10 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
             context.insert(IdentityContainer(request->userName));
 
             STAT_GETSTARTTIME;
-
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			     "Calling provider.references: " + 
+			     provider.getName());
+	    provider._cimom_handle->protect();
             provider.references(
                 context,
                 objectPath,
@@ -1345,21 +1471,27 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
                 request->includeClassOrigin,
                 request->propertyList.getPropertyNameArray(),
                 handler);
-
+	    provider._cimom_handle->unprotect();
             STAT_PMS_PROVIDEREND;
 
         } // end for loop
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1371,10 +1503,12 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleReferenceNamesRequest");
     CIMReferenceNamesRequestMessage * request =
         dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
 
@@ -1433,28 +1567,37 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
             context.insert(IdentityContainer(request->userName));
 
             STAT_GETSTARTTIME;
-
+	    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			     "Calling provider.referenceNames: " + 
+			     provider.getName());
+	    provider._cimom_handle->protect();
             provider.referenceNames(
                 context,
                 objectPath,
                 request->resultClass,
                 request->role,
                 handler);
-
+	    provider._cimom_handle->unprotect();
             STAT_PMS_PROVIDEREND;
 
         } // end for loop
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1466,10 +1609,12 @@ void ProviderManagerService::handleReferenceNamesRequest(AsyncOpNode *op, const 
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleGetPropertyRequest");
     CIMGetPropertyRequestMessage * request =
         dynamic_cast<CIMGetPropertyRequestMessage *>(const_cast<Message *>(message));
 
@@ -1520,26 +1665,36 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
         CIMName propertyName = request->propertyName;
 
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.getProperty: " + 
+			 provider.getName());
+	
         // forward request
+	provider._cimom_handle->protect();
         provider.getProperty(
             context,
             objectPath,
             propertyName,
             handler);
-
+	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1551,10 +1706,12 @@ void ProviderManagerService::handleGetPropertyRequest(AsyncOpNode *op, const Mes
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleSetPropertyRequest");
     CIMSetPropertyRequestMessage * request =
         dynamic_cast<CIMSetPropertyRequestMessage *>(const_cast<Message *>(message));
 
@@ -1566,7 +1723,7 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     CIMSetPropertyResponseMessage * response =
         new CIMSetPropertyResponseMessage(
         request->messageId,
-        CIMException(),
+        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
         request->queueIds.copyAndPop());
 
     PEGASUS_ASSERT(response != 0);
@@ -1604,26 +1761,37 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
 
         STAT_GETSTARTTIME;
 
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.setProperty: " + 
+			 provider.getName());
+	
         // forward request
+	provider._cimom_handle->protect();
         provider.setProperty(
             context,
             objectPath,
             propertyName,
             propertyValue,
             handler);
-
+	provider._cimom_handle->unprotect();
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1635,12 +1803,12 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Message * message) throw()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderManagerService::handleInvokeMethodRequest");
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleInvokeMethodRequest");
 
     CIMInvokeMethodRequestMessage * request =
         dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
@@ -1695,28 +1863,39 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
         // ATTN: propagate namespace
         instanceReference.setNameSpace(request->nameSpace);
 
+
         // forward request
         STAT_GETSTARTTIME;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.invokeMethod: " + 
+			 provider.getName());
+	provider._cimom_handle->protect();
         provider.invokeMethod(
             context,
             instanceReference,
             request->methodName,
             request->inParameters,
             handler);
+	provider._cimom_handle->unprotect();
 
         STAT_PMS_PROVIDEREND;
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
     }
 
@@ -1734,6 +1913,7 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
 
 void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleCreateSubscriptionRequest");
     CIMCreateSubscriptionRequestMessage * request =
         dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
 
@@ -1759,11 +1939,10 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	// get the provider file name and logical name
 	Triad<String, String, String> triad =
 	    _getProviderRegPair(request->provider, request->providerModule);
-
+	
 	// get cached or load new provider module
-	Provider provider =
-            providerManager.getProvider(triad.first, triad.second, triad.third);
-
+	   
+	Provider provider = providerManager.getProvider(triad.first, triad.second, triad.third);
 
 	// convert arguments
 	OperationContext context;
@@ -1783,28 +1962,40 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 
 	    classNames.append(className);
 	}
-
+	
 	CIMPropertyList propertyList = request->propertyList;
 	
 	Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
-	
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.createSubscription: " + 
+			 provider.getName());
+	provider._cimom_handle->protect();
 	provider.createSubscription(
 	    context,
 	    subscriptionName,
 	    classNames,
 	    propertyList,
 	    repeatNotificationPolicy);
+	provider._cimom_handle->unprotect();
+	
+	
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 
@@ -1816,10 +2007,12 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleModifySubscriptionRequest");
     CIMModifySubscriptionRequestMessage * request =
         dynamic_cast<CIMModifySubscriptionRequestMessage *>(const_cast<Message *>(message));
 
@@ -1872,24 +2065,34 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         CIMPropertyList propertyList = request->propertyList;
 
         Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.modifySubscription: " + 
+			 provider.getName());
+	provider._cimom_handle->protect();
         provider.modifySubscription(
             context,
             subscriptionName,
             classNames,
             propertyList,
             repeatNotificationPolicy);
+	provider._cimom_handle->unprotect();
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 
@@ -1901,11 +2104,13 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, const Message * message) throw()
 {
-    CIMDeleteSubscriptionRequestMessage * request =
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleDeleteSubscriptionRequest");
+   CIMDeleteSubscriptionRequestMessage * request =
         dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
 
     AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
@@ -1953,22 +2158,32 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 
             classNames.append(className);
         }
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.deleteSubscription: " + 
+			 provider.getName());
+	provider._cimom_handle->protect();
         provider.deleteSubscription(
             context,
             subscriptionName,
             classNames);
+	provider._cimom_handle->unprotect();
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(e.getCode(), e.getMessage());
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
         handler.setStatus(CIM_ERR_FAILED, e.getMessage());
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
         handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
     }
 
@@ -1980,10 +2195,12 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService:: handleEnableIndicationsRequest");
     CIMEnableIndicationsRequestMessage * request =
         dynamic_cast<CIMEnableIndicationsRequestMessage *>(const_cast<Message *>(message));
 
@@ -1992,6 +2209,12 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
     PEGASUS_ASSERT(request != 0 && async != 0 );
 
     CIMEnableIndicationsResponseMessage * response =
+        new CIMEnableIndicationsResponseMessage(
+        request->messageId,
+        CIMException(),
+        request->queueIds.copyAndPop());
+
+    CIMEnableIndicationsResponseMessage * responseforhandler =
         new CIMEnableIndicationsResponseMessage(
         request->messageId,
         CIMException(),
@@ -2018,23 +2241,36 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
        Provider provider =
 	  providerManager.getProvider(triad.first, triad.second, triad.third);
 
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Calling provider.enableIndications: " + 
+			provider.getName());
+       provider._cimom_handle->protect();
        provider.enableIndications(*handler);
 
 
        // if no exception, store the handler so it is persistent for as 
        // long as the provider has indications enabled. 
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Storing indication handler for " + provider.getName());
+       
        _insertEntry(provider, handler);
     }
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
        response->cimException = CIMException(e);
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
        response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
        response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
     }
        
@@ -2046,10 +2282,12 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleDisableIndicationsRequest");
     CIMDisableIndicationsRequestMessage * request =
         dynamic_cast<CIMDisableIndicationsRequestMessage *>(const_cast<Message *>(message));
 
@@ -2079,21 +2317,35 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 	// get cached or load new provider module
 	Provider provider =
             providerManager.getProvider(triad.first, triad.second, triad.third);
-
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Calling provider.disableIndications: " + 
+			 provider.getName());
+	
         provider.disableIndications();
+	provider._cimom_handle->unprotect();
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			 "Removing and Destroying indication handler for " + 
+			 provider.getName());
+	
 	delete _removeEntry(_generateKey(provider));
     }
 
     catch(CIMException & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
        response->cimException = CIMException(e);
     }
     catch(Exception & e)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: " + e.getMessage());
        response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
     }
     catch(...)
     {
+       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+			"Exception: Unknown");
        response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
     }
 
@@ -2105,10 +2357,12 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleDisableModuleRequest");
     CIMDisableModuleRequestMessage * request =
         dynamic_cast<CIMDisableModuleRequestMessage *>(const_cast<Message *>(message));
 
@@ -2205,10 +2459,12 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleEnableModuleRequest");
     CIMEnableModuleRequestMessage * request =
         dynamic_cast<CIMEnableModuleRequestMessage *>(const_cast<Message *>(message));
 
@@ -2277,11 +2533,13 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
         response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
 }
 
 void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, const
     Message * message) throw()
 {
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handleStopAllProvidersRequest");
     CIMStopAllProvidersRequestMessage * request =
         dynamic_cast<CIMStopAllProvidersRequestMessage *>(const_cast<Message *>(message));
 
@@ -2313,6 +2571,85 @@ void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, cons
           response);
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    PEG_METHOD_EXIT();
+}
+
+void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op, 
+				    const Message *message) throw()
+{
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManagerService::handlConsumeIndicationRequest");
+
+   CIMConsumeIndicationRequestMessage *request = 
+      dynamic_cast<CIMConsumeIndicationRequestMessage *>(const_cast<Message *>(message));
+   
+   AsyncRequest *async = static_cast<AsyncRequest *>(op->_request.next(0));
+   
+   PEGASUS_ASSERT(request != 0 && async != 0);
+   Uint32 type = 3;
+   
+   CIMResponseMessage * response = 
+      new CIMResponseMessage(
+	 CIM_CONSUME_INDICATION_RESPONSE_MESSAGE,
+	 request->messageId,
+	 CIMException(), 
+	 request->queueIds.copyAndPop());
+   
+   PEGASUS_ASSERT(response != 0);
+   
+   response->setKey(request->getKey());
+
+
+   try
+   {
+      // get the provider file name and logical name
+      Triad<String, String, String> triad =
+	 _getProviderRegPair(request->consumer_provider, request->consumer_module);
+      
+      // get cached or load new provider module
+      Provider provider =
+	 providerManager.getProvider(triad.first, triad.second, triad.third);
+
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "Calling provider.: " + 
+		       provider.getName());
+       
+      OperationContext context;
+      CIMInstance indication_copy = request->indicationInstance;
+      HandleIndicationResponseHandler handler;
+      provider.handleIndication(context, 
+				indication_copy,
+				handler);
+
+   }
+   catch(CIMException & e)
+   {
+      
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "Exception: " + e.getMessage());
+      response->cimException = CIMException(e);
+   }
+   catch(Exception & e)
+   {
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "Exception: " + e.getMessage());
+      response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		       "Exception: Unknown");
+      response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+   }
+
+   AsyncLegacyOperationResult *async_result = 
+      new AsyncLegacyOperationResult(
+	 async->getKey(), 
+	 async->getRouting(), 
+	 op, 
+	 response);
+
+   _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);   
+   PEG_METHOD_EXIT();
 }
 
 

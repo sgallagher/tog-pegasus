@@ -1,0 +1,80 @@
+//=================================================================
+// eServer_Events
+//
+// This schema is derived from PG_Events. It adds some 
+// qualifiers to expedite the processing of hardware-related events.
+// It simplifies the definitions of indication filters, subscriptions, 
+// and indication handlers. It defines an additional type of 
+// Indication Handler. 
+//=================================================================
+
+#pragma local ("en_US")
+
+// Use when the indication is an event that must be cleared
+// by user intervention.
+Qualifier Manual_Clear : boolean = false, Scope(class, property);
+
+// Use when the event is auto-clearing. i.e., it does not need 
+// to be cleared by the user AND it does NOT have a return-to-normal
+// indication. 
+Qualifier Auto_clear : boolean = false, Scope(class, property);
+
+// Use when the Indication shoudl be  latched pending clearance 
+// by another Indication instance. 
+Qualifier Event_Clear: boolean = false, Scope(class, property);
+
+// Use when the qualified Indication should clear a previous
+// latched indication. The string should be a reference to the
+// indication to be cleared. 
+Qualifier Return_To_Normal : string, Scope(class, property);
+
+
+//===============================================================
+// eServer_IndicationSubscription
+//
+// The modelling philosophy is to see how minimal the definition 
+// of an indication subscription can be. 
+// 
+// This model makes the following assumptions:
+//
+// (1) Filtering is performed by the indication handler. There is no 
+//     filter per se. Instead, there is a reference to an
+//     indication class. This is equivalent to "Select * from <class>"
+//     note -- I put a filter field in the class for future use
+//  (2) The subscription is valid only for one
+//      indication class. 
+//  (3) The indication handler is an eServer_Provider of type 6. 
+//      Therefore it is an in-process local module. This removes
+//      the need for most of the lifetime and error management 
+//      present in the PG_Subscription class definition. If an
+//      application needs sophisticated error or lifetime management
+//      it is free to build that in to the handler, but these 
+//      characteristics are not modelled. This makes processing
+//      of subscriptions MUCH simpler and more reliable.
+//  (4) The subscription is enabled until disabled or until the 
+//      CIMOM stops, whichever is first. There is no other
+//      lifetime management of the subscription. 
+// 
+//  
+//===============================================================
+
+   [Association,
+    Description (
+	"Simplified Indication Subscription for eServer "
+	"implementations." )]
+
+class eServer_IndicationSubscription
+{
+   [Key, Description (
+	"The class that defines the subscribed indication in the "	
+	"repository.") ]
+    CIM_Indication REF Indication_Class;
+
+   [Description("Placeholder for future use") ]
+   PG_Indication_Filter REF Filter;
+
+    [Key, Description (
+	"The Indication Consumer Provider to which indications of "
+	"the subscribed class will be sent.")]
+    eServer_Provider REF Handler;
+};

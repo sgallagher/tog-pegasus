@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
+// The Open Group, Tivoli Systems
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Christopher Neufeld <neufeld@linuxcare.com>
+// 	   Al Stone <ahs3@fc.hp.com>
+//
+// Modified By: Al Stone <ahs3@fc.hp.com>
+//              Mike Glantz <michael_glantz@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////
 
@@ -55,8 +57,6 @@
 // Name is overridden in CIM_ComputerSystem
 // #define PROPERTY_NAME                     "Name"
 #define PROPERTY_STATUS                      "Status"
-#define PROPERTY_OPERATIONAL_STATUS          "OperationalStatus"
-#define PROPERTY_STATUS_DESCRIPTIONS         "StatusDescriptions"
 
 // CIM_LogicalElement
 // -- none --
@@ -79,8 +79,6 @@
 #define PROPERTY_POWER_MANAGEMENT_CAPABILITIES "PowerManagementCapabilities"
 #define METHOD_SET_POWER_STATE               "SetPowerState"
 #define METHOD_SET_POWER_STATE_WITH_OPTIONS  "SetPowerStateWithOptions"
-#define PROPERTY_ELEMENTNAME                 "ElementName"
-
 
 // CIM_UnitaryComputerSystem
 #define PROPERTY_INITIAL_LOAD_INFO           "InitialLoadInfo"
@@ -103,61 +101,59 @@ PEGASUS_USING_PEGASUS;
 
 class ComputerSystemProvider: public CIMInstanceProvider
 {
-public:
-    ComputerSystemProvider();
-    ~ComputerSystemProvider();
+   public:
+      ComputerSystemProvider(void);
+      ~ComputerSystemProvider(void);
 
-    //-- CIMInstanceProvider methods
+      //-- CIMInstanceProvider methods
 
-    void getInstance(
-        const OperationContext& context,
-        const CIMObjectPath& ref,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        InstanceResponseHandler& handler);
+      void getInstance(const OperationContext& context,
+		       const CIMObjectPath& ref,
+                       const Boolean includeQualifiers,
+                       const Boolean includeClassOrigin,
+		       const CIMPropertyList& propertyList,
+		       InstanceResponseHandler& handler);
 
-    void enumerateInstances(
-        const OperationContext& context,
-        const CIMObjectPath& ref,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList,
-        InstanceResponseHandler& handler);
+      void enumerateInstances(const OperationContext& context,
+			      const CIMObjectPath& ref,
+                              const Boolean includeQualifiers,
+                              const Boolean includeClassOrigin,
+			      const CIMPropertyList& propertyList,
+			      InstanceResponseHandler& handler);
 
-    void enumerateInstanceNames(
-        const OperationContext& context,
-        const CIMObjectPath& ref,
-        ObjectPathResponseHandler& handler);
+      void enumerateInstanceNames(const OperationContext& context,
+			          const CIMObjectPath& ref,
+			          ObjectPathResponseHandler& handler);
 
-    void modifyInstance(
-        const OperationContext& context,
-        const CIMObjectPath& ref,
-        const CIMInstance& instanceObject,
-        const Boolean includeQualifiers,
-        const CIMPropertyList& propertyList,
-        ResponseHandler& handler );
+      void modifyInstance(const OperationContext& context,
+		          const CIMObjectPath& ref,
+		          const CIMInstance& instanceObject,
+                          const Boolean includeQualifiers,
+		          const CIMPropertyList& propertyList,
+		          ResponseHandler& handler );
 
-    void createInstance(
-        const OperationContext& context,
-        const CIMObjectPath& ref,
-        const CIMInstance& instanceObject,
-        ObjectPathResponseHandler& handler);
+      void createInstance(const OperationContext& context,
+		          const CIMObjectPath& ref,
+		          const CIMInstance& instanceObject,
+		          ObjectPathResponseHandler& handler );
 
-    void deleteInstance(
-        const OperationContext& context,
-        const CIMObjectPath& ref,
-        ResponseHandler& handler);
+      void deleteInstance(const OperationContext& context,
+		          const CIMObjectPath& ref,
+		          ResponseHandler& handler );
 
-    void initialize(CIMOMHandle& handle);
-    void terminate();
+      void initialize(CIMOMHandle& handle);
+      void terminate(void);
+      CIMOMHandle _ch;
 
-protected:
+   protected:
 
-    CIMOMHandle _ch;
-    ComputerSystem _cs;
+      ComputerSystem _cs;
 
-    void _checkClass(CIMName& className);
+      /** Builds a filled-in instance. */
+      CIMInstance _buildInstance(const CIMName& className);
+
+      void _checkClass(CIMName& className);
 };
+
 
 #endif

@@ -34,7 +34,6 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderModule::ProviderModule(const String & fileName)
@@ -88,13 +87,14 @@ CIMBaseProvider *ProviderModule::load(const String & providerName)
     
     if(provider == 0)
     {
-        String errorString = "entry point returned null.";
-        throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
+       provider = new CIMDummyProvider();
     }
 
     // test for the appropriate interface
     if(dynamic_cast<CIMBaseProvider *>(provider) == 0)
     {
+       cout << "provider is not a CIMBaseProvider." << endl;
+       
         String errorString = "provider is not a CIMBaseProvider.";
         throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
     }

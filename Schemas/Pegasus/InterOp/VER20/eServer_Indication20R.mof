@@ -1,0 +1,57 @@
+instance of eServer_ProviderModule
+{
+	Name = "ProcessIndicationProvider";
+	Location = "ProcessIndicationProvider";
+	Vendor = "Pegasus Community";
+	Version = "2.0.0";
+	InterfaceType = "C++Default";
+	InterfaceVersion = "2.0.0";
+	host = "localhost";
+	OperationalStatus = {2};
+};
+	
+instance of eServer_Provider
+{
+	ProviderModuleName = "ProcessIndicationProvider";
+	Name = "eServer_ProcessIndicationProvider";
+	OperationalStatus = {2};
+};
+
+instance of eServer_ProviderCapabilities
+{
+	ProviderModuleName = "ProcessIndicationProvider";
+	ProviderName = "eServer_ProcessIndicationProvider";
+	CapabilityID = "1";
+	ClassName = "CIM_ProcessIndication";
+	Namespaces = {"root/PG_InterOp"};
+	ProviderType = { 4 }; // indication
+	SupportedProperties = NULL;
+	SupportedMethods = NULL;
+};
+
+
+instance of eServer_Provider
+{
+	ProviderModuleName = "ProcessIndicationProvider";
+	Name = "eServer_ProcessIndicationConsumer";
+	OperationalStatus = {2};
+};
+
+instance of eServer_ProviderCapabilities
+{
+	ProviderModuleName = "ProcessIndicationProvider";
+	ProviderName = "eServer_ProcessIndicationConsumer";
+	CapabilityID = "2";
+	ClassName = "eServer_ProcessIndicationConsumer";
+	Namespaces = {"root/PG_InterOp"};
+	ProviderType = { 6 }; // consumer
+	SupportedProperties = NULL;
+	SupportedMethods = NULL;
+};
+
+
+instance of eServer_IndicationSubscription
+{
+	Indication_Class  = "CIM_ProcessIndication";
+	Handler = "eServer_ProcessIndicationConsumer";
+};

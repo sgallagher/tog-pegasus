@@ -299,7 +299,10 @@ cimom::~cimom(void)
    if (_routed_queue_shutdown.value() == 0 )
       _routed_ops.shutdown_queue();
    _routing_thread.join();
-   _modules.empty_list();
+   while(_modules.count())
+   {
+      delete _modules.remove_first();
+   }
    
    return;
 }

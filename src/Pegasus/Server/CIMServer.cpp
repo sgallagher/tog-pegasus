@@ -56,11 +56,12 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
-#include <Pegasus/IndicationService/IndicationService.h>
+#include <Pegasus/IndicationService/eServer_IndicationService.h>
 #include <Pegasus/ProviderManager/ProviderManagerService.h>
 #include <Pegasus/ProviderManager/ProviderManager.h>
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
+#include "BinaryMessageHandler.h"
 #include "CIMOperationResponseEncoder.h"
 #include "CIMOperationRequestDecoder.h"
 #include "CIMOperationRequestAuthorizer.h"
@@ -201,8 +202,9 @@ CIMServer::CIMServer(
     _cimOperationRequestDispatcher
 	= new CIMOperationRequestDispatcher(_repository,
                                             _providerRegistrationManager);
-
-    
+    _binaryMessageHandler = 
+       new BinaryMessageHandler(_cimOperationRequestDispatcher);
+        
     _cimOperationResponseEncoder
 	= new CIMOperationResponseEncoder;
 
@@ -247,7 +249,6 @@ CIMServer::CIMServer(
         _cimOperationRequestDecoder = new CIMOperationRequestDecoder(
             _cimOperationRequestDispatcher,
             _cimOperationResponseEncoder->getQueueId());
-
     }
 
     _cimExportRequestDispatcher
@@ -305,8 +306,8 @@ CIMServer::CIMServer(
     if (String::equal(
         configManager->getCurrentValue("enableIndicationService"), "true"))
     {
-        _indicationService = new IndicationService
-            (_repository, _providerRegistrationManager);
+        _indicationService = new eServerIndicationService(
+	   _repository, _providerRegistrationManager);
     }
 
 
@@ -391,7 +392,6 @@ void CIMServer::shutdown()
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdown()");
 
     _dieNow = true;
-
     PEG_METHOD_EXIT();
 }
 

@@ -38,51 +38,14 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+/*****
 
-//////////////////////////////////////////////////////////////////////
-//
-// Notes on deamon operation (Unix) and service operation (Win 32):
-//
-// To run pegasus as a daemon on Unix platforms: 
-//
-// cimserver
-//
-// To NOT run pegasus as a daemon on Unix platforms, set the daemon config
-// property to false:
-//
-// cimserver daemon=false
-//
-// The daemon config property has no effect on windows operation. 
-//
-// To shutdown pegasus, use the -s option:
-// 
-// cimserver -s 
-//
-// To run pegasus as an NT service, there are FOUR  different possibilities:
-//
-// To INSTALL the Pegasus service, 
-//
-// cimserver -install
-//
-// To REMOVE the Pegasus service, 
-//
-// cimserver -remove
-//
-// To START the Pegasus service, 
-//
-// net start cimserver
-//
-// To STOP the Pegasus service, 
-//
-// net stop cimserver
-//
-// Alternatively, you can use the windows service manager. Pegasus shows up 
-// in the service database as "Pegasus CIM Object Manager"
-//
-// Mike Day, mdday@us.ibm.com
-// 
-//////////////////////////////////////////////////////////////////////
+<< Fri Oct 11 15:47:00 2002 mdd >>
 
+changed the shutdown option in lines 247-269 to use the local AF_INET interface 
+instead of unix domain sockets
+
+*****/
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
@@ -148,6 +111,7 @@ static const char OPTION_BINDVERBOSE = 'X';
 
 static const String PROPERTY_TIMEOUT = "shutdownTimeout";
 static const String CIMSERVERSTART_FILE = "/etc/opt/wbem/cimserver_start.conf";
+
 
 ConfigManager*    configManager;
 
@@ -239,13 +203,21 @@ void shutdownCIMOM(Uint32 timeoutValue)
     // Get local host name
     //
     String hostStr = System::getHostName();
+    hostStr.append(":");
 
+    if (String::equal(configManager->getCurrentValue("SSL"), "true"))
+    {
+       hostStr.append(configManager->getCurrentValue("httpsPort"));
+    }
+    else 
+    {
+       hostStr.append(configManager->getCurrentValue("httpPort"));
+    }
     //
     // open connection to CIMOM 
     //
     try
     {
-
        // use the local port only. 
        String addr("127.0.0.1:");
        if (String::equal(configManager->getCurrentValue("SSL"), "true"))
@@ -259,7 +231,13 @@ void shutdownCIMOM(Uint32 timeoutValue)
        
        // use localPrivilegedOnly instead
        client.connect(addr);
-
+       
+        //
+        // set client timeout to 2 seconds more than the shutdown timeout
+        // so that the command client does not timeout before the cimserver 
+        // terminates
+        //
+        client.setTimeout( (timeoutValue+2)*1000 );
     }
     catch(Exception &)
     {
@@ -280,14 +258,13 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	  exit(0);
        }
     }
-    client.setTimeout(2000);
 
     try
     {
         //
         // construct CIMObjectPath
         //
-        String referenceStr;
+        String referenceStr = "//";
         referenceStr.append(hostStr);
         referenceStr.append("/");  
         referenceStr.append(PEGASUS_NAMESPACENAME_SHUTDOWN.getString());
@@ -335,6 +312,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
     }
     catch(Exception& e)
     {
+
         //
         // This may mean the CIM Server has been terminated and returns a 
         // "Empty HTTP response message" HTTP error response.  To be sure
@@ -343,8 +321,8 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         // give CIM Server some time to finish up
         //
-        //System::sleep(1);
-        //cimserver_kill();
+        System::sleep(1);
+        cimserver_kill();
 
         //
         // Check to see if CIMServer is still running.  If CIMServer
@@ -368,13 +346,6 @@ void shutdownCIMOM(Uint32 timeoutValue)
             cimserver_kill();
         }
     }
-    //catch(Exception& e)
-    //{
-    //    PEGASUS_STD(cerr) << "Error occurred while stopping the CIM Server: ";
-    //    PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
-    //    exit(1);
-    //}
-
     return;
 }
 
@@ -840,7 +811,7 @@ int main(int argc, char** argv)
         // Loop to call CIMServer's runForever() method until CIMServer
         // has been shutdown
         //
-	while( !server.terminated() )
+	while( false == server.terminated() )
 	{
 #if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && ! defined(PEGASUS_NO_SLP)
 	  if(useSLP  ) 

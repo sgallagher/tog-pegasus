@@ -29,263 +29,546 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CIMOMHandle.h"
-
-
+#include  "CIMOMHandle.h"
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/AsyncOpNode.h>
+#include <Pegasus/Common/DQueue.h>
+#include <Pegasus/Common/Cimom.h>
+#include <Pegasus/Common/CimomMessage.h>
+#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/peg_authorization.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/TraceComponents.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Sharable.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 
-
-struct CIMOMHandle::_cimom_handle_rep 
+class CIMOMHandle;
+class cimom_handle_op_semaphore;
+class CIMOMHandle::_cimom_handle_rep : public MessageQueue, public Sharable
 {
+   private:
+      Uint32 _output_qid;
+      Uint32 _return_qid;
+      AtomicInt _response_type;
+      Mutex _recursion;
+      Mutex _idle_mutex;
+      Mutex _qid_mutex;
+      
+      AtomicInt _server_terminating;
+      Semaphore _msg_avail;
+      AsyncDQueue<Message> _response;
+      Message *_request;
+      AtomicInt _op_timeout;
+      AtomicInt _pending_operation;
+      AtomicInt _no_unload;
+      struct timeval _idle_timeout;
 
-      class callback_data
+   public: 
+      typedef MessageQueue Base;
+      
+      _cimom_handle_rep(void);
+      _cimom_handle_rep(Uint32 out_qid, Uint32 ret_qid);
+      ~_cimom_handle_rep(void) {  }
+   private:
+      void get_idle_timer(struct timeval *);
+      void update_idle_timer(void);
+      Uint32 get_operation_timeout(void);
+      void set_operation_timeout(Uint32);
+      Boolean pending_operation(void);
+      Boolean unload_ok(void);
+
+      Uint32 get_output_qid(void);
+      void set_output_qid(Uint32);
+      Uint32 get_return_qid(void);
+      void set_return_qid(Uint32);
+      Uint32 get_qid(void);
+
+      void protect(void);
+      void unprotect(void);
+      
+      virtual void handleEnqueue(Message *);
+      virtual void handleEnqueue(void);
+
+      Message *do_request(Message *, Uint32 response_type, Uint32 timeout) 
+	 throw();
+      
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
+      MessageQueue * q_exists(Uint32 qid) const
       {
-	 public:
-	    Message *reply;
-	    Semaphore client_sem;
-	    CIMOMHandle & cimom_handle;
-	    
-	    callback_data(CIMOMHandle *handle)
-	       : reply(0), client_sem(0), cimom_handle(*handle)
-	    {
-	    }
-	    
-	    ~callback_data()
-	    {
-	       delete reply;
-	    }
-
-	    Message *get_reply(void)
-	    {
-	       Message *ret = reply;
-	       reply = NULL;
-	       return(ret);
-	    }
-
-	    callback_data(void);
-      };
-
-
-      static void async_callback(Uint32 user_data, Message *reply, void *parm)
-      {
-	 callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
-	 cb_data->reply = reply;
-	 cb_data->client_sem.signal();
+	 return MessageQueue::lookup(qid);
       }
 
+      _cimom_handle_rep & operator = (const _cimom_handle_rep & );
+      friend class CIMOMHandle;
+      friend class cimom_handle_op_semaphore;
+};
 
-      Message * _controller_async(Message *rq)
+class cimom_handle_op_semaphore
+{
+   private:
+      cimom_handle_op_semaphore(void)
       {
-	 if(rq == 0)
-	    throw UninitializedObjectException();
-	    
-
-	 // prevent recursive entry into the cimom handle !
-	 try 
+      }
+      
+   public:
+      cimom_handle_op_semaphore(CIMOMHandle::_cimom_handle_rep *rep)
+	 :_rep(rep)
+      {
+	 _rep->protect();
+	 _rep->update_idle_timer();
+	 (_rep->_pending_operation)++;
+      }
+      ~cimom_handle_op_semaphore(void)
+      {
+	 if(_rep)
 	 {
-	    _recursion.try_lock(pegasus_thread_self());
+	    (_rep->_pending_operation)--;
+	    _rep->unprotect();
+	 }
+      }
+   private:
+      CIMOMHandle::_cimom_handle_rep *_rep;
+};
+
+
+class cimom_handle_dispatch
+{
+   private:
+      cimom_handle_dispatch(void);
+   public:
+      cimom_handle_dispatch(Message *msg,
+			    Uint32 my_qid,
+			    Uint32 output_qid)
+	 : _msg(msg),
+	   _my_qid(my_qid),
+	   _out_qid(output_qid)
+      {
+      }
+      ~cimom_handle_dispatch(void)
+      {
+      }
+      
+
+      Message *_msg;
+      Uint32 _my_qid;
+      Uint32 _out_qid;
+};
+
+
+
+CIMOMHandle::_cimom_handle_rep::_cimom_handle_rep(void)
+   : Base(PEGASUS_QUEUENAME_INTERNALCLIENT),
+     _server_terminating(0),
+     _msg_avail(0),
+     _response(true,0),
+     _op_timeout(0),
+     _pending_operation(0),
+     _no_unload(0)
+{
+   // initialize the qids
+   // output queue defaults to CIMOPRequestDispatcher
+   MessageQueue *out = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
+   if(out)
+      _output_qid = out->getQueueId();
+   else
+      _output_qid = _queueId;
+   
+   // return queue defaults to myself
+   _return_qid = _queueId;
+   gettimeofday(&_idle_timeout, NULL);
+   
+}
+
+CIMOMHandle::_cimom_handle_rep::_cimom_handle_rep(Uint32 out_qid, Uint32 ret_qid)
+   : Base(PEGASUS_QUEUENAME_INTERNALCLIENT),
+     _output_qid(out_qid), 
+     _return_qid(ret_qid),
+     _server_terminating(0),
+     _msg_avail(0),
+     _response(true,0),
+     _op_timeout(0),
+     _pending_operation(0),
+     _no_unload(0)
+{
+   if(0 == q_exists(_output_qid) )
+      _output_qid = _queueId;
+   if(0 == q_exists(_return_qid) )
+      _return_qid = _queueId;
+   gettimeofday(&_idle_timeout, NULL);
+}
+
+void CIMOMHandle::_cimom_handle_rep::get_idle_timer(struct timeval *tv)
+{
+   if(tv == 0)
+      return;
+   
+   try 
+   {
+      _idle_mutex.lock(pegasus_thread_self());
+      memcpy(tv, &_idle_timeout, sizeof(struct timeval));
+      _idle_mutex.unlock();
+   }
+   catch(...)
+   {
+      gettimeofday(tv, NULL);
+   }
+}
+
+void CIMOMHandle::_cimom_handle_rep::update_idle_timer(void)
+{
+   try
+   {
+      _idle_mutex.lock(pegasus_thread_self());
+      gettimeofday(&_idle_timeout, NULL);
+      _idle_mutex.unlock();
+   }
+   catch(...)
+   {
+   }
+}
+
+Uint32 CIMOMHandle::_cimom_handle_rep::get_operation_timeout(void)
+{
+   return _op_timeout.value();
+}
+
+void CIMOMHandle::_cimom_handle_rep::set_operation_timeout(Uint32 t)
+{
+   _op_timeout = t;
+}
+
+Boolean CIMOMHandle::_cimom_handle_rep::pending_operation(void)
+{
+   if(_pending_operation.value())
+      return true;
+   return false;
+}
+
+Boolean CIMOMHandle::_cimom_handle_rep::unload_ok(void)
+{
+   if( _no_unload.value() || _pending_operation.value())
+      return false;
+   return true;
+}
+
+Uint32 CIMOMHandle::_cimom_handle_rep::get_output_qid(void)
+{
+   try
+   {
+      _qid_mutex.lock(pegasus_thread_self());
+      Uint32 qid = _output_qid;
+      _qid_mutex.unlock();
+      return qid;
+   }
+   catch(...)
+   {
+      return _queueId;
+   }
+}
+
+void CIMOMHandle::_cimom_handle_rep::set_output_qid(Uint32 qid)
+{
+   try
+   {
+      _qid_mutex.lock(pegasus_thread_self());
+      _output_qid = qid;
+      _qid_mutex.unlock();
+   }
+   catch(...)
+   {
+   }
+}
+
+Uint32 CIMOMHandle::_cimom_handle_rep::get_return_qid(void)
+{
+   try
+   {
+      _qid_mutex.lock(pegasus_thread_self());
+      Uint32 qid = _return_qid;
+      _qid_mutex.unlock();
+      return qid;
+   }
+   catch(...)
+   {
+      return _queueId;
+   }
+}
+
+void CIMOMHandle::_cimom_handle_rep::set_return_qid(Uint32 qid)
+{
+   try
+   {
+      _qid_mutex.lock(pegasus_thread_self());
+      _return_qid = qid;
+      _qid_mutex.unlock();
+   }
+   catch(...)
+   {
+   }
+}
+
+Uint32 CIMOMHandle::_cimom_handle_rep::get_qid(void)
+{
+   return _queueId;
+}
+
+void CIMOMHandle::_cimom_handle_rep::protect(void)
+{
+   _no_unload = 1;
+}
+
+void CIMOMHandle::_cimom_handle_rep::unprotect(void)
+{
+   _no_unload = 0;
+}
+
+void CIMOMHandle::_cimom_handle_rep::handleEnqueue(void)
+{
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
+                    "CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *)");
+
+   Message *message = dequeue();
+
+   if (!message)
+   {
+      PEG_METHOD_EXIT();
+      return;
+   }
+   
+   handleEnqueue(message);
+   PEG_METHOD_EXIT();
+}
+
+void CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *message)
+{
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
+                    "CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *)");
+   if (!message)
+   {
+      PEG_METHOD_EXIT();
+      return;
+   }
+
+   switch(message->getType())
+   {
+      case CIM_GET_CLASS_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE:
+      case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
+      case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
+      case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
+      case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
+      case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
+      case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
+      case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
+      case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
+      case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
+      case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
+      case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
+      case CIM_REFERENCES_RESPONSE_MESSAGE:
+      case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
+      case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
+      case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
+	 try
+	 {
+	    _response.insert_last_wait(message);
+	    _msg_avail.signal();
 	 }
 	 catch(...)
 	 {
-	    PEGASUS_STD(cout) << " recursive use of CIMOMHandle " << PEGASUS_STD(endl);
-	    return 0;
+	    PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
+			  "CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *) - IPC Exception");
+	        delete message;
 	 }
-
-	 callback_data *cb_data = new callback_data(_container);
+	 break;
 	 
-	 // create request envelope
-	 AsyncLegacyOperationStart * asyncRequest =
-	    new AsyncLegacyOperationStart (
-	       _provider_manager->get_next_xid(),
-	       NULL,
-	       _dispatcher_qid,
-	       rq,
-	       _dispatcher_qid);
-
-	 if(false  == _controller->ClientSendAsync(*_client_handle,
-						   0,
-						   _dispatcher_qid,
-						   asyncRequest,
-						   async_callback,
-						   (void *)cb_data))
-	 {
-	    delete asyncRequest;
-	    delete cb_data;
-	    // unlock the recursion mutex
-	    _recursion.unlock();
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
-	 }
-	 cb_data->client_sem.wait();
-	 AsyncLegacyOperationResult * asyncReply = 
-	    static_cast<AsyncLegacyOperationResult *>(cb_data->get_reply()) ;
-	 AsyncOpNode *op = asyncRequest->op;
-	 Message * response = asyncReply->get_result();
-	 delete asyncRequest;
-	 delete asyncReply;
-	 delete cb_data;
-	    
-	 // unlock the recursion mutex
-	 _recursion.unlock();
-	 return(response);
-      }
-      
-
-      _cimom_handle_rep(void)
-	 : _id(peg_credential_types::PROVIDER),
-	   _provider_manager(0), 
-	   _dispatcher(0),
-	   _controller(0),
-	   _client_handle(0), 
-	   _dispatcher_qid(0),
-	   _provider_manager_qid(0),
-	   _initialized(false)
+      default:
       {
-
+	 PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
+			  "CIMOMHandle::_cimom_handle_rep::handleEnqueue(Message *) - unexpected message");
+	 delete message;
       }
-      
-      _cimom_handle_rep(MessageQueueService *provider_manager)
-	 : _id(peg_credential_types::PROVIDER),
-	   _provider_manager(provider_manager), 
-	   _dispatcher(0),
-	   _controller(0),
-	   _client_handle(0), 
-	   _dispatcher_qid(0),
-	   _provider_manager_qid(0),
-	   _initialized(false)
-      {
-      }
-      
-      ~_cimom_handle_rep(void)
-      {
-	 if(_initialized == true && _controller != 0 && _client_handle != 0)
-	 {
-	    _controller->return_client_handle(_client_handle); 
-	 }
-      }
+   }
+   PEG_METHOD_EXIT();
+}
 
-      _cimom_handle_rep(const _cimom_handle_rep & rep)
-	 : _id(peg_credential_types::PROVIDER),
-	   _provider_manager(rep._provider_manager), 
-	   _dispatcher(rep._dispatcher),
-	   _controller(rep._controller),
-	   _client_handle(0), 
-	   _dispatcher_qid(rep._dispatcher_qid),
-	   _provider_manager_qid(rep._provider_manager_qid),
-	   _initialized(false)
-      {
-      }
-
-
-      _cimom_handle_rep & _cimom_handle_rep::operator=(const _cimom_handle_rep & rep)
-      {
-	 if(this != &rep)
-	 {
-	    if(_initialized == true && _controller != 0 && _client_handle != 0 )
-	    {
-	       _controller->return_client_handle(_client_handle);
-	    }
-	    
-	    _id = rep._id;
-	    _provider_manager = rep._provider_manager;
-	    _dispatcher = rep._dispatcher;
-	    _controller = rep._controller;
-	    _client_handle = 0;
-	    _dispatcher_qid = rep._dispatcher_qid;
-	    _provider_manager_qid = rep._provider_manager_qid;
-	    _initialized = false;
-	 }
-	 return *this;
-      }
-      
-      void init(CIMOMHandle *container)
-      {
-	 if(_initialized == true && _controller != 0 && _client_handle != 0 )
-	 {
-	    return;
-	 }
-
-	 _container = container;
-	 
-	 if(_provider_manager == 0)
-	 {
-	    MessageQueue * queue =
-	       MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
-	    _provider_manager = dynamic_cast<MessageQueueService *>(queue);
-	 }
-	 MessageQueue * queue =
-	    MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
-	 _dispatcher = dynamic_cast<MessageQueueService *>(queue);
-	 _controller = & ModuleController::get_client_handle(_id, &_client_handle);
-	 
-	 if(_controller && _dispatcher && _provider_manager && _client_handle)
-	 {
-	    _initialized = true;
-	    _provider_manager_qid = _provider_manager->getQueueId();
-	    _dispatcher_qid = _dispatcher->getQueueId();
-	 }
-	 else
-	 {
-	    throw UninitializedObjectException();
-	 }
-      }
-
-
-      pegasus_internal_identity _id;
-      MessageQueueService *_provider_manager;
-      MessageQueueService *_dispatcher;
-
-      ModuleController *_controller;
-      ModuleController::client_handle  * _client_handle;
-      CIMOMHandle *_container;
-      Uint32 _dispatcher_qid;
-      Uint32 _provider_manager_qid;
-      Boolean _initialized;
-      Mutex _recursion;
-
-};
-
-CIMOMHandle::CIMOMHandle(MessageQueueService *provider_manager)
+// run as a detached thread 
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL 
+CIMOMHandle::_cimom_handle_rep::_dispatch(void *parm)
 {
-   _rep = new _cimom_handle_rep(provider_manager);
+   Thread *th_dp = reinterpret_cast<Thread *>(parm);
+   
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
+                    "CIMOMHandle::_cimom_handle_rep::_dispatch(void *)");
+
+   cimom_handle_dispatch *dp  = 
+     reinterpret_cast<cimom_handle_dispatch *>(th_dp->get_parm());
+   if(dp )
+   {
+      try 
+      {
+	 MessageQueue * target = MessageQueue::lookup(dp->_out_qid);
+	 MessageQueue *me = MessageQueue::lookup(dp->_my_qid);
+	 if(me && target && dp->_msg)
+	 {
+	    CIMOMHandle::_cimom_handle_rep *myself = 
+	       static_cast<CIMOMHandle::_cimom_handle_rep *>(me);
+	    target->enqueue(dp->_msg);
+	    (myself->_pending_operation)--;
+	 }
+      }
+      catch(...)
+      {
+      }
+      delete dp;
+   }
+   
+   PEG_METHOD_EXIT();
+   delete th_dp;
+   exit_thread((PEGASUS_THREAD_RETURN)1);
+   return 0;
+}
+
+Message *CIMOMHandle::_cimom_handle_rep::do_request(Message *request, 
+						    Uint32 response_type, 
+						    Uint32 timeout) 
+   throw()
+{
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
+                    "CIMOMHandle::_cimom_handle_rep::do_request(Message *, Uint32, Uint32)");
+
+   try 
+   {
+      _recursion.try_lock(pegasus_thread_self());
+   }
+   catch(AlreadyLocked & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "AlreadyLocked Exception, throwing Deadlock");
+      throw Deadlock(pegasus_thread_self());
+   }
+   catch(Deadlock & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Deadlock Exception");
+      throw;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+			     "Unexpected Exception");
+      throw;
+   }
+   cimom_handle_dispatch *dp = 
+      new cimom_handle_dispatch(request, get_qid(), get_output_qid());
+
+   Thread *th_rq = new Thread(_dispatch, dp, true);
+   _request = request;
+
+   th_rq->run();
+   Message *response = 0;
+   
+   try 
+   {
+      if(timeout)
+	 _msg_avail.time_wait(timeout);
+      else
+	 _msg_avail.wait();
+   }
+   catch(TimeOut)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "timeout waiting for response");
+      _request = 0;
+      PEG_METHOD_EXIT();
+      _recursion.unlock();
+      return 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception");
+      _request = 0;
+      PEG_METHOD_EXIT();
+      _recursion.unlock();
+      return 0;
+   }
+
+   response = _response.remove_first();
+   if(response &&  response->getRouting() != request->getRouting() || (response->getType() != response_type))
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Message Instance");
+      response = 0;
+      try 
+      {
+	 _response.empty_list();
+      }
+      catch(...)
+      {
+      }
+   }
+   _request = 0;
+
+   PEG_METHOD_EXIT();
+   _recursion.unlock();      
+   return response;
 }
 
 CIMOMHandle::CIMOMHandle(void)
 {
    _rep = new _cimom_handle_rep();
+
 }
 
+CIMOMHandle::CIMOMHandle(const CIMOMHandle & h)
+{
+   if(this != &h)
+   {
+      Inc(this->_rep = h._rep);
+   }
+   
+}
 
 CIMOMHandle::~CIMOMHandle(void)
 {
-   delete _rep;
+   Dec(_rep);
 }
 
 CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
 {
    if(this != &handle)
    {
-      *_rep = *handle._rep;
+      Inc(_rep = handle._rep);
    }
    return *this;
 }
 
 
 CIMClass CIMOMHandle::getClass(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList)
+    const OperationContext & context,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
 
-   cout << " initializing cimom handle " << endl;
-   
-   _rep->init(this);
-   cout << " encoding request  " << endl;
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::getClass()");
+   cimom_handle_op_semaphore opsem(_rep);
+
     // encode request
     CIMGetClassRequestMessage * request =
         new CIMGetClassRequestMessage(
@@ -296,35 +579,70 @@ CIMClass CIMOMHandle::getClass(
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+        QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
 
-    CIMGetClassResponseMessage * response =
-       static_cast<CIMGetClassResponseMessage *>(_rep->_controller_async(request));
+    request->dest = _rep->get_output_qid();
+    
+    CIMGetClassResponseMessage * response;
+    try 
+    {
+       response = 
+	  static_cast<CIMGetClassResponseMessage *>(
+	     _rep->do_request(request, 
+			      CIM_GET_CLASS_RESPONSE_MESSAGE,
+			      _rep->get_operation_timeout()));
+    }
+    catch(Exception & )
+    {
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+			"Exception caught in CIMOMHandle");
+       response = 0;
+    }
+    catch(...)
+    {
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+			"Unexpected Exception caught in CIMOMHandle");
+       response = 0;
+    }
+        
     CIMClass cimClass;
-   cout << " request complete  " << endl;
 
     if(response != 0)
     {
-       cout << " response received " << endl;
-       
        cimClass = response->cimClass;
     }
-
+    
     delete response;
-
+    
+    PEG_METHOD_EXIT();
     return cimClass;
 }
 
-Array<CIMClass> CIMOMHandle::enumerateClasses(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean deepInheritance,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin)
+void CIMOMHandle::getClassAsync(
+    const OperationContext & context,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    ClassResponseHandler & handler)
 {
-   _rep->init(this);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+}
+
+
+Array<CIMClass> CIMOMHandle::enumerateClasses(
+    const OperationContext & context,
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin)
+{
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::enumerateClasses()");
+   cimom_handle_op_semaphore opsem(_rep);
 
    CIMEnumerateClassesRequestMessage * request =
         new CIMEnumerateClassesRequestMessage(
@@ -335,28 +653,64 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
         localOnly,
         includeQualifiers,
         includeClassOrigin,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+	QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+   
+   request->dest = _rep->get_output_qid();
 
-    CIMEnumerateClassesResponseMessage *reply =
-       static_cast<CIMEnumerateClassesResponseMessage *>(_rep->_controller_async(request));
+   CIMEnumerateClassesResponseMessage *response;
+   
+   try 
+   {
+      response = 
+	 static_cast<CIMEnumerateClassesResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_ENUMERATE_CLASSES_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    Array<CIMClass> cimClasses;
-    if(reply != 0)
-    {
-       cimClasses = reply->cimClasses;
-    }
-    delete reply;
-    return cimClasses;
+   Array<CIMClass> cimClasses;
+   if(response != 0)
+   {
+      cimClasses = response->cimClasses;
+   }
+   delete response;
+   PEG_METHOD_EXIT();
+   return cimClasses;
+}
+
+void CIMOMHandle::enumerateClassesAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    ClassResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMName> CIMOMHandle::enumerateClassNames(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean deepInheritance)
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance)
 {
-   
-   _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::enumerateClassNames()");
+   cimom_handle_op_semaphore opsem(_rep);
 
     CIMEnumerateClassNamesRequestMessage * request =
         new CIMEnumerateClassNamesRequestMessage(
@@ -364,312 +718,627 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
         nameSpace,
         className,
         deepInheritance,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+	QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+    request->dest = _rep->get_output_qid();
 
-
-    CIMEnumerateClassNamesResponseMessage * reply =
-       static_cast<CIMEnumerateClassNamesResponseMessage *>(_rep->_controller_async(request));
-
-    Array<CIMName> classNames;
-    if(reply != 0 )
+    CIMEnumerateClassNamesResponseMessage * response;
+    try 
     {
-       classNames = reply->classNames;
+       response = 
+	  static_cast<CIMEnumerateClassNamesResponseMessage * >(
+	     _rep->do_request(request, 
+			      CIM_ENUMERATE_CLASS_NAMES_RESPONSE_MESSAGE,
+			      _rep->get_operation_timeout()));
+    }
+    catch(Exception & )
+    {
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+			"Exception caught in CIMOMHandle");
+       response = 0;
+    }
+    catch(...)
+    {
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+			"Unexpected Exception caught in CIMOMHandle");
+       response = 0;
     }
 
-    delete reply;
+    Array<CIMName> classNames;
+    if(response != 0 )
+    {
+       classNames = response->classNames;
+    }
 
+    delete response;
+    PEG_METHOD_EXIT();
     return(classNames);
 }
 
-void CIMOMHandle::createClass(
-   const OperationContext & context,
-   const CIMNamespaceName& nameSpace,
-   const CIMClass& newClass)
+void CIMOMHandle::enumerateClassNamesAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    ObjectPathResponseHandler & handler)
 {
-      _rep->init(this);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+}
 
+void CIMOMHandle::createClass(
+    const OperationContext & context,
+    const CIMNamespaceName& nameSpace,
+    const CIMClass& newClass)
+{
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::createClass()");
+   cimom_handle_op_semaphore opsem(_rep);
+   
+   
+   CIMCreateClassRequestMessage * request =
+      new CIMCreateClassRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 newClass,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
 
-    CIMCreateClassRequestMessage * request =
-        new CIMCreateClassRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        newClass,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   request->dest = _rep->get_output_qid();
+   
+   CIMCreateClassResponseMessage *response;
+   
+   try 
+   {
+      response = 
+	 static_cast<CIMCreateClassResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_CREATE_CLASS_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    CIMCreateClassResponseMessage *reply =
-       static_cast<CIMCreateClassResponseMessage *>(_rep->_controller_async(request));
+   if(response == 0)
+   {
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+   }
+   
+   delete response;
+   PEG_METHOD_EXIT();
+   return;
+}
 
-    if(reply == 0)
-    {
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-    }
-
-    delete reply;
-    return;
+void CIMOMHandle::createClassAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMClass& newClass,
+    ResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::modifyClass(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMClass& modifiedClass)
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMClass& modifiedClass)
 {
-   _rep->init(this);
-
-    CIMModifyClassRequestMessage * request =
-        new CIMModifyClassRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        modifiedClass,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
-
-
-    CIMModifyClassResponseMessage *reply =
-       static_cast<CIMModifyClassResponseMessage *>(_rep->_controller_async(request));
-
-    if(reply == 0)
-    {
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-    }
-    delete reply;
-    return;
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::modifyClass()");
+   cimom_handle_op_semaphore opsem(_rep);
+   
+   CIMModifyClassRequestMessage * request =
+      new CIMModifyClassRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 modifiedClass,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+   
+   request->dest = _rep->get_output_qid();
+   CIMModifyClassResponseMessage *response;
+   try 
+   {
+      response = 
+	 static_cast<CIMModifyClassResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_MODIFY_CLASS_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   
+   if(response == 0)
+   {
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+   }
+   
+   delete response;
+   PEG_METHOD_EXIT();
+   return;
 }
 
+void CIMOMHandle::modifyClassAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMClass& modifiedClass,
+    ResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+}
 
 void CIMOMHandle::deleteClass(
-   const OperationContext & context,
-   const CIMNamespaceName& nameSpace,
-   const CIMName& className)
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMName& className)
 {
+   
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::deleteClass()");
+   cimom_handle_op_semaphore opsem(_rep);
+   
+   // encode request
+   CIMDeleteClassRequestMessage * request =
+      new CIMDeleteClassRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 className,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+   request->dest = _rep->get_output_qid();
 
-   _rep->init(this);
+   CIMDeleteClassResponseMessage * response;
+   
+   try 
+   {
+      response = 
+	 static_cast<CIMDeleteClassResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_DELETE_CLASS_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   
+   if(response == 0)
+   {
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+   }
+   delete response;
+   PEG_METHOD_EXIT();
+   return;
+}
 
-
-    // encode request
-    CIMDeleteClassRequestMessage * request =
-        new CIMDeleteClassRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        className,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
-
-    CIMDeleteClassResponseMessage * reply =
-       static_cast<CIMDeleteClassResponseMessage * >(_rep->_controller_async(request));
-
-    if(reply == 0)
-    {
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-    }
-    delete reply;
-
-    return;
+void CIMOMHandle::deleteClassAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMName& className,
+    ResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 CIMInstance CIMOMHandle::getInstance(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList)
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMObjectPath& instanceName,
+   Boolean localOnly,
+   Boolean includeQualifiers,
+   Boolean includeClassOrigin,
+   const CIMPropertyList& propertyList)
 {
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::getInstance()");
+   cimom_handle_op_semaphore opsem(_rep);
 
-      _rep->init(this);
+   
+   // encode request
+   CIMGetInstanceRequestMessage * request =
+      new CIMGetInstanceRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 instanceName,
+	 localOnly,
+	 includeQualifiers,
+	 includeClassOrigin,
+	 propertyList,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+   
+   request->dest = _rep->get_output_qid();
+   CIMGetInstanceResponseMessage * response;
+   try 
+   {
+      response = 
+	 static_cast<CIMGetInstanceResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_GET_INSTANCE_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
+   CIMInstance cimInstance ;
 
-    // encode request
-    CIMGetInstanceRequestMessage * request =
-        new CIMGetInstanceRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        instanceName,
-        localOnly,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   if(response != 0)
+   {
+      cimInstance = response->cimInstance;
+   }
+    
+   delete response;
+   PEG_METHOD_EXIT();
+   return(cimInstance);
+}
 
-
-    CIMGetInstanceResponseMessage * reply  =
-       static_cast<CIMGetInstanceResponseMessage *>(_rep->_controller_async(request));
-
-    CIMInstance cimInstance ;
-
-    if(reply != 0)
-    {
-       cimInstance = reply->cimInstance;
-    }
-
-    delete reply;
-
-    return(cimInstance);
+void CIMOMHandle::getInstanceAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& instanceName,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMInstance> CIMOMHandle::enumerateInstances(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean deepInheritance,
-        Boolean localOnly,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList)
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMName& className,
+   Boolean deepInheritance,
+   Boolean localOnly,
+   Boolean includeQualifiers,
+   Boolean includeClassOrigin,
+   const CIMPropertyList& propertyList)
 {
-      _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::enumerateInstances()");
+   cimom_handle_op_semaphore opsem(_rep);
 
-    // encode request
-    CIMEnumerateInstancesRequestMessage * request =
-        new CIMEnumerateInstancesRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        className,
-        deepInheritance,
-        localOnly,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   // encode request
+   CIMEnumerateInstancesRequestMessage * request =
+      new CIMEnumerateInstancesRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 className,
+	 deepInheritance,
+	 localOnly,
+	 includeQualifiers,
+	 includeClassOrigin,
+	 propertyList,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
 
-    CIMEnumerateInstancesResponseMessage * reply =
-       static_cast<CIMEnumerateInstancesResponseMessage *>(_rep->_controller_async(request));
+   request->dest = _rep->get_output_qid();
+
+   CIMEnumerateInstancesResponseMessage * response; 
+   try 
+   {
+      response = 
+	 static_cast<CIMEnumerateInstancesResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
+
+   Array<CIMInstance> cimInstances;
+   if(response != 0)
+   {
+      cimInstances = response->cimNamedInstances;
+   }
+   delete response;
+   PEG_METHOD_EXIT();
+   return(cimInstances);
+}
 
 
-    Array<CIMInstance> cimInstances;
-    if(reply != 0)
-    {
-       cimInstances = reply->cimNamedInstances;
-    }
-    delete reply;
 
-    return(cimInstances);
+void CIMOMHandle::enumerateInstancesAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMName& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className)
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMName& className)
 {
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::enumerateInstanceNamess()");
+   cimom_handle_op_semaphore opsem(_rep);
 
-      _rep->init(this);
+   // encode request
+   CIMEnumerateInstanceNamesRequestMessage * request =
+      new CIMEnumerateInstanceNamesRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 className,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
 
-    // encode request
-    CIMEnumerateInstanceNamesRequestMessage * request =
-        new CIMEnumerateInstanceNamesRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        className,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   request->dest = _rep->get_output_qid();
+   
+   CIMEnumerateInstanceNamesResponseMessage * response;
+   try 
+   {
+      response = 
+	 static_cast<CIMEnumerateInstanceNamesResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    CIMEnumerateInstanceNamesResponseMessage * reply =
-       static_cast<CIMEnumerateInstanceNamesResponseMessage *>(_rep->_controller_async(request));
+   Array<CIMObjectPath> cimReferences;
 
-    Array<CIMObjectPath> cimReferences;
-
-    if(reply != 0)
-    {
-       cimReferences = reply->instanceNames;
-    }
-    delete reply;
-
-    return(cimReferences);
+   if(response != 0)
+   {
+      cimReferences = response->instanceNames;
+   }
+   delete response;
+   PEG_METHOD_EXIT();
+   return(cimReferences);
 }
 
+void CIMOMHandle::enumerateInstanceNamesAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMName& className,
+    ObjectPathResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+}
 
 CIMObjectPath CIMOMHandle::createInstance(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMInstance& newInstance)
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMInstance& newInstance)
 {
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::createInstance()");
+   cimom_handle_op_semaphore opsem(_rep);
 
-      _rep->init(this);
+   CIMCreateInstanceRequestMessage * request =
+      new CIMCreateInstanceRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 newInstance,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+   request->dest = _rep->get_output_qid();
 
-    CIMCreateInstanceRequestMessage * request =
-        new CIMCreateInstanceRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        newInstance,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   CIMCreateInstanceResponseMessage *response;
+   try 
+   {
+      response = 
+	 static_cast<CIMCreateInstanceResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_CREATE_INSTANCE_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
 
-    CIMCreateInstanceResponseMessage *reply =
-       static_cast<CIMCreateInstanceResponseMessage *>(_rep->_controller_async(request));
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
+   CIMObjectPath cimReference;
 
-    CIMObjectPath cimReference;
+   if(response != 0)
+   {
+      cimReference = response->instanceName;
+   }
+   delete response;
+   PEG_METHOD_EXIT();
+   return(cimReference);
+}
 
-    if(reply != 0)
-    {
-       cimReference = reply->instanceName;
-    }
-    delete reply;
-
-    return(cimReference);
+void CIMOMHandle::createInstanceAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMInstance& newInstance,
+    ResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::modifyInstance(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMInstance& modifiedInstance,
-        Boolean includeQualifiers,
-        const CIMPropertyList& propertyList)
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMInstance& modifiedInstance,
+   Boolean includeQualifiers,
+   const CIMPropertyList& propertyList)
 {
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::modifyInstance()");
+   cimom_handle_op_semaphore opsem(_rep);
+   
+   CIMModifyInstanceRequestMessage * request =
+      new CIMModifyInstanceRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 CIMInstance(),
+	 includeQualifiers,
+	 propertyList,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+   request->dest = _rep->get_output_qid();
 
-      _rep->init(this);
+   CIMModifyInstanceResponseMessage *response;
+    
+   try 
+   {
+      response = 
+	 static_cast<CIMModifyInstanceResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    CIMModifyInstanceRequestMessage * request =
-        new CIMModifyInstanceRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        CIMInstance(),
-        includeQualifiers,
-        propertyList,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   if(response == 0)
+   {
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+   }
+   delete response;
+   PEG_METHOD_EXIT();
+   return;
+}
 
-    CIMModifyInstanceResponseMessage *reply =
-       static_cast<CIMModifyInstanceResponseMessage *>(_rep->_controller_async(request));
-
-    if(reply == 0)
-    {
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-    }
-    delete reply;
-
-    return;
+void CIMOMHandle::modifyInstanceAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMInstance& modifiedInstance,
+    Boolean includeQualifiers,
+    const CIMPropertyList& propertyList,
+    ResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 void CIMOMHandle::deleteInstance(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName)
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMObjectPath& instanceName)
 {
-      _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::deleteInstance()");
+   cimom_handle_op_semaphore opsem(_rep);
 
-    CIMDeleteInstanceRequestMessage * request =
-        new CIMDeleteInstanceRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        instanceName,
-	QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   CIMDeleteInstanceRequestMessage * request =
+      new CIMDeleteInstanceRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 instanceName,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+   request->dest = _rep->get_output_qid();
+   CIMDeleteInstanceResponseMessage *response;
+    
+   try 
+   {
+      response = 
+	 static_cast<CIMDeleteInstanceResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_DELETE_INSTANCE_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    CIMDeleteInstanceResponseMessage *reply =
-       static_cast<CIMDeleteInstanceResponseMessage *>(_rep->_controller_async(request));
+   if(response == 0)
+   {
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+   }
+   delete response;
+   PEG_METHOD_EXIT();
+   return;
+}
 
-    if(reply == 0)
-    {
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-    }
-    delete reply;
-
-    return;
+void CIMOMHandle::deleteInstanceAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& instanceName,
+    ResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMObject> CIMOMHandle::execQuery(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const String& queryLanguage,
-        const String& query)
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const String& queryLanguage,
+   const String& query)
 {
-
-   _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::exeQuery()");
+   cimom_handle_op_semaphore opsem(_rep);
    
    CIMExecQueryRequestMessage * request =
       new CIMExecQueryRequestMessage(
@@ -677,36 +1346,68 @@ Array<CIMObject> CIMOMHandle::execQuery(
 	 nameSpace,
 	 queryLanguage,
 	 query,
-	 QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
    
-   CIMExecQueryResponseMessage * reply =
-      static_cast<CIMExecQueryResponseMessage *>(_rep->_controller_async(request));
+   request->dest = _rep->get_output_qid();
+   
+   CIMExecQueryResponseMessage * response;
+   
+   try 
+   {
+      response = 
+	 static_cast<CIMExecQueryResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_EXEC_QUERY_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
+   Array<CIMObject> cimObjects;
+   if(response != 0)
+   {
+      cimObjects = response->cimObjects;
+   }
 
-    Array<CIMObject> cimObjects;
-    if(reply != 0)
-    {
-       cimObjects = reply->cimObjects;
-    }
+   delete response;
+   PEG_METHOD_EXIT();
+   return(cimObjects);
+}
 
-    delete reply;
-
-    return(cimObjects);
+void CIMOMHandle::execQueryAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const String& queryLanguage,
+    const String& query,
+    ObjectResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMObject> CIMOMHandle::associators(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& assocClass,
-        const CIMName& resultClass,
-        const String& role,
-        const String& resultRole,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList)
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& objectName,
+    const String& assocClass,
+    const String& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList)
 {
-      _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::associators()");
+   cimom_handle_op_semaphore opsem(_rep);
 
     CIMAssociatorsRequestMessage * request =
         new CIMAssociatorsRequestMessage(
@@ -720,134 +1421,286 @@ Array<CIMObject> CIMOMHandle::associators(
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
-
-    CIMAssociatorsResponseMessage *reply =
-       static_cast<CIMAssociatorsResponseMessage *>(_rep->_controller_async(request));
+	QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+    request->dest = _rep->get_output_qid();
+    CIMAssociatorsResponseMessage *response;
+    
+   try 
+   {
+      response = 
+	 static_cast<CIMAssociatorsResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_ASSOCIATORS_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
     Array<CIMObject> cimObjects;
 
-    if(reply != 0)
+    if(response != 0)
     {
-       cimObjects = reply->cimObjects;
+       cimObjects = response->cimObjects;
     }
-    delete reply;
 
+    delete response;
+    PEG_METHOD_EXIT();
     return(cimObjects);
+}
+
+void CIMOMHandle::associatorsAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& objectName,
+    const String& assocClass,
+    const String& resultClass,
+    const String& role,
+    const String& resultRole,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    ObjectResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMObjectPath> CIMOMHandle::associatorNames(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& assocClass,
-        const CIMName& resultClass,
-        const String& role,
-        const String& resultRole)
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& objectName,
+    const String& assocClass,
+    const String& resultClass,
+    const String& role,
+    const String& resultRole)
 {
-      _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::associatorNames()");
+   cimom_handle_op_semaphore opsem(_rep);
 
-    CIMAssociatorNamesRequestMessage * request =
-        new CIMAssociatorNamesRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        objectName,
-        assocClass,
-        resultClass,
-        role,
-        resultRole,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   CIMAssociatorNamesRequestMessage * request =
+      new CIMAssociatorNamesRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 objectName,
+	 assocClass,
+	 resultClass,
+	 role,
+	 resultRole,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+   request->dest = _rep->get_output_qid();
 
-    CIMAssociatorNamesResponseMessage *reply =
-       static_cast<CIMAssociatorNamesResponseMessage *>(_rep->_controller_async(request));
+   CIMAssociatorNamesResponseMessage *response;
+    
+   try 
+   {
+      response = 
+	 static_cast<CIMAssociatorNamesResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    Array<CIMObjectPath> cimObjectPaths;
+   Array<CIMObjectPath> cimObjectPaths;
 
-    if(reply != 0)
-    {
-       cimObjectPaths = reply->objectNames;
-    }
-    delete reply;
+   if(response != 0)
+   {
+      cimObjectPaths = response->objectNames;
+   }
 
-    return(cimObjectPaths);
+   delete response;
+   PEG_METHOD_EXIT();
+   return(cimObjectPaths);
 }
 
-Array<CIMObject> CIMOMHandle::references(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& resultClass,
-        const String& role,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList)
+void CIMOMHandle::associatorNamesAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& objectName,
+    const String& assocClass,
+    const String& resultClass,
+    const String& role,
+    const String& resultRole,
+    ObjectPathResponseHandler & handler)
 {
-      _rep->init(this);
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+}
 
-    CIMReferencesRequestMessage * request =
-        new CIMReferencesRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        objectName,
-        resultClass,
-        role,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
 
-    CIMReferencesResponseMessage *reply =
-       static_cast<CIMReferencesResponseMessage *>(_rep->_controller_async(request));
+Array<CIMObject> CIMOMHandle::references(
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMObjectPath& objectName,
+   const String& resultClass,
+   const String& role,
+   Boolean includeQualifiers,
+   Boolean includeClassOrigin,
+   const CIMPropertyList& propertyList)
+{
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::references()");
+   cimom_handle_op_semaphore opsem(_rep);
 
-    Array<CIMObject> cimObjects;
+   CIMReferencesRequestMessage * request =
+      new CIMReferencesRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 objectName,
+	 resultClass,
+	 role,
+	 includeQualifiers,
+	 includeClassOrigin,
+	 propertyList,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+   request->dest = _rep->get_output_qid();
 
-    if(reply != 0)
-    {
-       cimObjects = reply->cimObjects;
-    }
-    delete reply;
+   CIMReferencesResponseMessage *response;
+    
+   try 
+   {
+      response = 
+	 static_cast<CIMReferencesResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_REFERENCES_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    return(cimObjects);
+   Array<CIMObject> cimObjects;
+
+   if(response != 0)
+   {
+      cimObjects = response->cimObjects;
+   }
+
+   delete response;
+   PEG_METHOD_EXIT();
+   return(cimObjects);
+}
+
+void CIMOMHandle::referencesAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& objectName,
+    const String& resultClass,
+    const String& role,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    ObjectResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 Array<CIMObjectPath> CIMOMHandle::referenceNames(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& resultClass,
-        const String& role)
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMObjectPath& objectName,
+   const String& resultClass,
+   const String& role)
 {
-      _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::()referenceNames");
+   cimom_handle_op_semaphore opsem(_rep);
 
-    CIMReferenceNamesRequestMessage * request =
-        new CIMReferenceNamesRequestMessage(
-        XmlWriter::getNextMessageId(),
-        nameSpace,
-        objectName,
-        resultClass,
-        role,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   CIMReferenceNamesRequestMessage * request =
+      new CIMReferenceNamesRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 objectName,
+	 resultClass,
+	 role,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+   request->dest = _rep->get_output_qid();
 
-    CIMReferenceNamesResponseMessage * reply =
-       static_cast<CIMReferenceNamesResponseMessage *>(_rep->_controller_async(request));
 
-    Array<CIMObjectPath> cimObjectPaths;
-    if(reply != 0)
-    {
-       cimObjectPaths = reply->objectNames;
-    }
-    delete reply;
+   CIMReferenceNamesResponseMessage * response;
+    
+   try 
+   {
+      response = 
+	 static_cast<CIMReferenceNamesResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    return(cimObjectPaths);
+
+   Array<CIMObjectPath> cimObjectPaths;
+   if(response != 0)
+   {
+      cimObjectPaths = response->objectNames;
+   }
+
+   delete response;
+   PEG_METHOD_EXIT();
+   return(cimObjectPaths);
+}
+
+void CIMOMHandle::referenceNamesAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& objectName,
+    const String& resultClass,
+    const String& role,
+    ObjectPathResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
 CIMValue CIMOMHandle::getProperty(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        const CIMName& propertyName)
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& instanceName,
+    const String& propertyName)
 {
-      _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::getProperty()");
+   cimom_handle_op_semaphore opsem(_rep);
 
     CIMGetPropertyRequestMessage * request =
         new CIMGetPropertyRequestMessage(
@@ -855,84 +1708,228 @@ CIMValue CIMOMHandle::getProperty(
         nameSpace,
         instanceName,
         propertyName,
-        QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+	QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
+    
+    request->dest = _rep->get_output_qid();
 
-    CIMGetPropertyResponseMessage *reply =
-       static_cast<CIMGetPropertyResponseMessage *>(_rep->_controller_async(request));
+    CIMGetPropertyResponseMessage *response;
+    
+    try 
+    {
+       response = 
+	  static_cast<CIMGetPropertyResponseMessage *>(
+	     _rep->do_request(request, 
+			      CIM_GET_PROPERTY_RESPONSE_MESSAGE,
+			      _rep->get_operation_timeout()));
+    }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
     CIMValue cimValue;
-    if(reply != 0)
+    if(response != 0)
     {
-       cimValue = reply->value;
+       cimValue = response->value;
     }
 
-    delete reply;
-
+    delete response;
+    PEG_METHOD_EXIT();
     return(cimValue);
 }
 
-void CIMOMHandle::setProperty(
-        const OperationContext & context,
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        const CIMName& propertyName,
-        const CIMValue& newValue)
+void CIMOMHandle::getPropertyAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& instanceName,
+    const String& propertyName,
+    ValueResponseHandler & handler)
 {
-      _rep->init(this);
-
-    CIMSetPropertyRequestMessage * request =
-       new CIMSetPropertyRequestMessage(
-	  XmlWriter::getNextMessageId(),
-	  nameSpace,
-	  instanceName,
-	  propertyName,
-	  newValue,
-	  QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
-
-    CIMSetPropertyResponseMessage *reply  =
-       static_cast<CIMSetPropertyResponseMessage *>(_rep->_controller_async(request));
-    if(reply == 0)
-    {
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-    }
-    delete reply;
-
-    return;
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
 
-CIMValue CIMOMHandle::invokeMethod(
-    const OperationContext & context,
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    const CIMName& methodName,
-    const Array<CIMParamValue>& inParameters,
-    Array<CIMParamValue>& outParameters)
+void CIMOMHandle::setProperty(
+   const OperationContext & context,
+   const CIMNamespaceName &nameSpace,
+   const CIMObjectPath& instanceName,
+   const String& propertyName,
+   const CIMValue& newValue)
 {
-      _rep->init(this);
+   PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "CIMOMHandle::setProperty()");
+   cimom_handle_op_semaphore opsem(_rep);
 
-    Message* request = new CIMInvokeMethodRequestMessage(
-    XmlWriter::getNextMessageId(),
-    nameSpace,
-    instanceName,
-    methodName,
-    inParameters,
-    QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+   CIMSetPropertyRequestMessage * request =
+      new CIMSetPropertyRequestMessage(
+	 XmlWriter::getNextMessageId(),
+	 nameSpace,
+	 instanceName,
+	 propertyName,
+	 newValue,
+	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));
     
-    CIMInvokeMethodResponseMessage *reply  =
-       static_cast<CIMInvokeMethodResponseMessage *>(_rep->_controller_async(request));
+    
+   request->dest = _rep->get_output_qid();
 
-    CIMValue cimValue;
-    if(reply != 0)
-    {
-       cimValue = reply->retValue;
-    }
-    else
-    {
-       throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-    }
-    delete reply;
+   CIMSetPropertyResponseMessage *response;
+	  
+   try 
+   {
+      response = 
+	 static_cast<CIMSetPropertyResponseMessage *>(
+	    _rep->do_request(request, 
+			     CIM_SET_PROPERTY_RESPONSE_MESSAGE,
+			     _rep->get_operation_timeout()));
+   }
+   catch(Exception & )
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Exception caught in CIMOMHandle");
+      response = 0;
+   }
+   catch(...)
+   {
+      PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+		       "Unexpected Exception caught in CIMOMHandle");
+      response = 0;
+   }
 
-    return cimValue;
+   if(response == 0)
+   {
+      throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+   }
+   delete response;
+   PEG_METHOD_EXIT();
+   return;
+}
+
+void CIMOMHandle::setPropertyAsync(
+    const OperationContext & context,
+    const CIMNamespaceName &nameSpace,
+    const CIMObjectPath& instanceName,
+    const String& propertyName,
+    const CIMValue& newValue,
+    ValueResponseHandler & handler)
+{
+    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+}
+
+
+// CIMValue CIMOMHandle::invokeMethod(
+//     const OperationContext & context,
+//     const CIMNamespaceName &nameSpace,
+//     const CIMObjectPath& instanceName,
+//     const String& methodName,
+//     const Array<CIMParamValue>& inParameters,
+//     Array<CIMParamValue>& outParameters)
+// {
+//     cimom_handle_op_semaphore opsem(_rep);
+
+//     {
+//        throw UninitializedObjectException();
+//     }
+
+//     Message* request = new CIMInvokeMethodRequestMessage(
+//     XmlWriter::getNextMessageId(),
+//     nameSpace,
+//     instanceName,
+//     methodName,
+//     inParameters,
+//         QueueIdStack(_rep->_dispatcher_qid, _rep->_provider_manager_qid));
+
+//     CIMInvokeMethodResponseMessage *reply =
+//        static_cast<CIMInvokeMethodResponseMessage *>(_rep->_controller_async(request));
+//     CIMValue value;
+
+//     if(reply != 0 )
+//     {
+//        outParameters = reply->outParameters;
+//        value = reply->retValue;
+//     }
+//     delete request;
+//     delete reply;
+//     return value;
+// }
+
+// void CIMOMHandle::invokeMethodAsync(
+//     const OperationContext & context,
+//     const CIMNamespaceName &nameSpace,
+//     const CIMObjectPath& instanceName,
+//     const String& methodName,
+//     const Array<CIMParamValue>& inParameters,
+//     Array<CIMParamValue>& outParameters,
+//     ValueResponseHandler & handler)
+// {
+//     throw CIMException(CIM_ERR_NOT_SUPPORTED);
+// }
+
+void CIMOMHandle::get_idle_timer(struct timeval *tv)
+{
+   _rep->get_idle_timer(tv);
+}
+
+void CIMOMHandle::update_idle_timer(void)
+{
+   _rep->update_idle_timer();
+}
+
+Uint32 CIMOMHandle::get_operation_timeout(void)
+{
+   return _rep->get_operation_timeout();
+}
+
+void CIMOMHandle::set_operation_timeout(Uint32 t)
+{
+   _rep->set_operation_timeout(t);
+}
+
+Boolean CIMOMHandle::pending_operation(void)
+{
+   if(_rep->_pending_operation.value())
+      return true;
+   return false;
+}
+
+Boolean CIMOMHandle::unload_ok(void)
+{
+   return _rep->unload_ok();
+}
+
+Uint32 CIMOMHandle::get_output_qid(void)
+{
+   return _rep->get_output_qid();
+}
+
+void CIMOMHandle::set_output_qid(Uint32 q)
+{
+   _rep->set_output_qid(q);
+}
+
+Uint32 CIMOMHandle::get_return_qid(void)
+{
+   return _rep->get_return_qid();
+}
+
+void CIMOMHandle::set_return_qid(Uint32 q)
+{
+   _rep->set_return_qid(q);
+}
+
+void CIMOMHandle::protect(void)
+{
+   _rep->protect();
+}
+
+void CIMOMHandle::unprotect(void)
+{
+   _rep->unprotect();
 }
 
 

@@ -25,6 +25,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//                (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -218,7 +220,7 @@ HTTPConnection* HTTPConnector::connect(
                     reinterpret_cast<sockaddr*>(&address),
                     sizeof(address)) < 0)
       {
-         throw CannotConnectException("local CIM server");
+         throw CannotConnectException("Cannot connect to local CIM server. Connection failed.");
       }
    }
    else
@@ -252,7 +254,7 @@ HTTPConnection* HTTPConnector::connect(
    {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
-      throw CannotConnectException(host + ":" + portStr);
+      throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
    }
 
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
@@ -265,7 +267,7 @@ HTTPConnection* HTTPConnector::connect(
    if (mp_socket->connect() < 0) {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);
-      throw CannotConnectException(host + ":" + portStr);
+      throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
    }
     
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,

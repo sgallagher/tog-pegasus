@@ -129,8 +129,8 @@ CannotCreateSocketException::CannotCreateSocketException()
 {
 }
 
-CannotConnectException::CannotConnectException(const String& locator)
-    : Exception("Cannot connect to: " + locator)
+CannotConnectException::CannotConnectException(const String& message)
+    : Exception(message)
 {
 }
 

@@ -29,6 +29,8 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Sushma Fernandes, Hewlett-Packard Company
+//                  (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -181,8 +183,12 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     }
     catch(UnauthorizedAccess& e)
     {
+         // ATTN-SF-P3-20030115: Need to create a specific exception
+         // to indicate Authentication failure. See JAGae53944.
+
+         const String ERROR_MESSAGE = "Authentication failed.";
          CannotConnectException* cannotConnectException =
-            new CannotConnectException(e.getMessage());
+            new CannotConnectException(ERROR_MESSAGE);
 	 ClientExceptionMessage * response =
             new ClientExceptionMessage(cannotConnectException);
 

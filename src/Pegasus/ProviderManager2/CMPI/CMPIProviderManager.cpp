@@ -185,7 +185,7 @@ Message * CMPIProviderManager::processMessage(Message * request) throw()
 /*    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
         response = handleConsumeIndicationRequest(request);
         break;
-
+*/
     case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
         response = handleDisableModuleRequest(request);
 
@@ -193,7 +193,7 @@ Message * CMPIProviderManager::processMessage(Message * request) throw()
     case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
         response = handleEnableModuleRequest(request);
 
-        break; */
+        break; 
     case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
         response = handleStopAllProvidersRequest(request);
 
@@ -1789,16 +1789,15 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
     // Unload providers
     Array<CIMInstance> _pInstances = request->providers;
+    String physicalName=_resolvePhysicalName(request->providerModule.getProperty(
+	      request->providerModule.findProperty("Location")).getValue().toString());
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
-        /* temp disabled by Chip
-        // get the provider file name and logical name
-        Triad<String, String, String> triad =
-            getProviderRegistrar()->_getProviderRegPair(_pInstances[i], mInstance);
-
-        providerManager.unloadProvider(triad.first, triad.second);
-        */
+        providerManager.unloadProvider(_pInstances[i].getProperty(
+	                                  request->providerModule.findProperty
+                                          ("Name")).getValue ().toString (),
+                                       physicalName);
     }
 
     if(!disableProviderOnly)

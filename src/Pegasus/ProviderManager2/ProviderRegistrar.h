@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Adrian Schuur (schuur@de-ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +56,7 @@ public:
     virtual ~ProviderRegistrar(void);
 
     ProviderName findConsumerProvider(const String & destinationPath);
-    ProviderName findProvider(const ProviderName & providerName);
+    ProviderName findProvider(const ProviderName & providerName, Boolean test=true);
 
     //ProviderName findProvider(const CIMObjectPath & reference);
 

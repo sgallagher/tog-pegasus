@@ -25,7 +25,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Adrian Schuur (schuur@de-ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +34,9 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/ProviderManager2/ProviderType.h>
@@ -212,6 +215,43 @@ ProviderName ProviderRegistrar::findConsumerProvider(const String & destinationP
    return temp;
 }
 
+static const Uint16 _MODULE_STOPPING = 9;
+static const Uint16 _MODULE_STOPPED  = 10;
+
+static void checkBlocked(CIMInstance &pm)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "checkBlocked");
+    
+    Array<Uint16> operationalStatus;
+
+    Uint32 pos = pm.findProperty(CIMName ("OperationalStatus"));
+    if(pos == PEG_NOT_FOUND) {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "OperationalStatus not found.");
+        PEG_METHOD_EXIT();
+	//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
+    }
+
+    pm.getProperty(pos).getValue().get(operationalStatus);
+    for(Uint32 i = 0; i < operationalStatus.size(); i++) {
+        if(operationalStatus[i] == _MODULE_STOPPED ||
+	   operationalStatus[i] == _MODULE_STOPPING) {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Provider blocked.");
+            PEG_METHOD_EXIT();
+			//l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider blocked.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+            			"ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
+            			"provider blocked."));
+        }
+    }
+}
+
 // need at least the object and the one capability.
 // for example,
 //  "//localhost/root/cimv2:CIM_ComputerSystem", INSTANCE
@@ -221,7 +261,7 @@ ProviderName ProviderRegistrar::findConsumerProvider(const String & destinationP
 
 // the method will return the logical and physical provider names associated with the object and capability.
 
-ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
+ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName, Boolean test)
 {
     CIMObjectPath objectName = providerName.getObjectName();
     Uint32 flags = providerName.getCapabilitiesMask();
@@ -241,8 +281,9 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
        case ProviderType_INSTANCE:
           if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
                 provider,providerModule,0)) {
+              if (test) checkBlocked(providerModule);
 	      return ProviderName(providerName.getObjectName(),
-	            provider.getProperty(providerModule.findProperty
+	            provider.getProperty(provider.findProperty
                        ("Name")).getValue ().toString (),
 		    providerModule.getProperty(providerModule.findProperty
                        ("Location")).getValue().toString(),
@@ -254,8 +295,9 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName)
        case ProviderType_ASSOCIATION:
           if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
                 provider,providerModule,1)) {
+              if (test) checkBlocked(providerModule);
 	      return ProviderName(providerName.getObjectName(),
-	            provider.getProperty(providerModule.findProperty
+	            provider.getProperty(provider.findProperty
                        ("Name")).getValue ().toString (),
 		    providerModule.getProperty(providerModule.findProperty
                        ("Location")).getValue().toString(),

@@ -384,30 +384,34 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 
     // get the responsible provider Manager
     ProviderManager * pm = locateProviderManager(message,ifc);
-    if(pm) {
+    if (pm) {
         response = pm->processMessage(request);
     }
-    else
-    {
-       if (request->getType()==CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) {
-          for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++) {
+    
+    else for (Uint32 i = 0, n = _providerManagers.size(); i < n; i++) {
               ProviderManagerContainer *pmc=_providerManagers[i];
-// ---- next instruction is disabled because of a bug
-//             response=pmc->getProviderManager()->processMessage(request);
-// ---- this block is an workaround
-	    CIMStopAllProvidersResponseMessage * resp =
-              new CIMStopAllProvidersResponseMessage(
-                 request->messageId,
-                 CIMException(),
-                 ((CIMStopAllProvidersRequestMessage*)request)->queueIds.copyAndPop());
-             resp->setKey(request->getKey());
-             resp->setHttpMethod (request->getHttpMethod ());
-	     response=resp;
-	     break;
-// ---- end of  workaround
+       switch (message->getType()) {
+       case CIM_ENABLE_MODULE_REQUEST_MESSAGE: {
+             CIMEnableModuleRequestMessage * request =
+                dynamic_cast<CIMEnableModuleRequestMessage*>(const_cast<Message*>(message));
+             if (request->providerModule.getProperty(request->providerModule.findProperty
+                 ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
+             response=pmc->getProviderManager()->processMessage(request); 
            }
+          break;
+       case CIM_DISABLE_MODULE_REQUEST_MESSAGE: {
+             CIMDisableModuleRequestMessage * request =
+                dynamic_cast<CIMDisableModuleRequestMessage*>(const_cast<Message*>(message));
+             if (request->providerModule.getProperty(request->providerModule.findProperty
+                 ("InterfaceType")).getValue().toString()==pmc->getInterfaceName())
+             response=pmc->getProviderManager()->processMessage(request); 
        }
-       else {
+          break;
+       case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE: {
+          Message  *resp=pmc->getProviderManager()->processMessage(request); 
+	  if (resp) response=resp; }
+          break;
+       default:
           CIMRequestMessage * req =
               dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
           CIMResponseMessage  *resp=new CIMResponseMessage(0,req->messageId,CIMException(),
@@ -415,7 +419,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
           response=resp;
           resp->synch_response(req);
           OperationResponseHandler handler(req, resp);
-          handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
+          handler.setStatus(CIM_ERR_FAILED, "Unknown messagetype.");
        }
     }
 
@@ -459,7 +463,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
            String::EMPTY,
            p->providerType);
        // find provider manager
-       name = ProviderRegistrar().findProvider(name);
+       name = ProviderRegistrar().findProvider(name,false);
        it=name.getInterfaceName();
     }
 
@@ -471,21 +475,15 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
           it=m->providerModule.getProperty (m->providerModule.findProperty
                 ("InterfaceType")).getValue ().toString ();
        }
-/*       else {
-          const CIMConsumeIndicationRequestMessage * p =
-            dynamic_cast<const CIMConsumeIndicationRequestMessage *>(message);
-          if (p) {
-             CIMConsumeIndicationRequestMessage *m=(CIMConsumeIndicationRequestMessage*)message;
-             it=m->consumer_module.getProperty (m->consumer_module.findProperty
-                ("InterfaceType")).getValue ().toString ();
-	  } */
-          else {  // remaining functions are sent to default provider
-//	     cout<<"--- ProviderManagerService::locateProviderManager(): unknown message type: "<<
-//	        message->getType()<<endl;
-             it="C++Default";
-//	     return NULL;
+       
+       else switch (message->getType()) {
+       case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
+       case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
+       case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
+	  return NULL;
+       default:
+          it="C++Default";
        }
- //      }
     }
 
     // find provider manager for provider interface

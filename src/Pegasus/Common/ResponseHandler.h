@@ -139,8 +139,6 @@ protected:
     // Gets the context for the results delivered to the CIM Server.
     //
     OperationContext getContext(void) const;
-
-    ResponseHandlerRep* _rep;
 };
 
 

@@ -23,48 +23,110 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ResponseHandler.h"
 #include "ResponseHandlerRep.h"
+#include "InternalException.h"
+#include "HashTable.h"
+#include "IPC.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
+PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<void*>
+{
+    static Uint32 hash(void* x) { return Uint32(x) + 13; }
+};
+
+typedef HashTable<ResponseHandler*, ResponseHandlerRep*,
+                  EqualFunc<void*>,
+                  HashFunc<void*> > RepTable;
+
+static RepTable repTable(512);
+static Mutex repTableMutex;
+
+ResponseHandlerRep* _newRep(
+    ResponseHandler* object)
+{
+    ResponseHandlerRep* newRep = new ResponseHandlerRep();
+
+    auto_mutex lock(&repTableMutex);
+    repTable.insert(object, newRep);
+    return newRep;
+}
+
+ResponseHandlerRep* _newRep(
+    ResponseHandler* object,
+    const ResponseHandlerRep* rep)
+{
+    ResponseHandlerRep* newRep = new ResponseHandlerRep(*rep);
+
+    auto_mutex lock(&repTableMutex);
+    repTable.insert(object, newRep);
+    return newRep;
+}
+
+ResponseHandlerRep* _getRep(
+    const ResponseHandler* object)
+{
+    ResponseHandlerRep* rep;
+    Boolean found;
+
+    auto_mutex lock(&repTableMutex);
+    found = repTable.lookup(const_cast<ResponseHandler*>(object), rep);
+    PEGASUS_ASSERT(found == true);
+    return rep;
+}
+
+void _deleteRep(
+    ResponseHandler* object)
+{
+    ResponseHandlerRep* rep;
+    Boolean found;
+
+    auto_mutex lock(&repTableMutex);
+    found = repTable.lookup(object, rep);
+    PEGASUS_ASSERT(found == true);
+    delete rep;
+    repTable.remove(object);
+}
+
+
 ResponseHandler::ResponseHandler()
 {
-    _rep = new ResponseHandlerRep();
+    _newRep(this);
 }
 
 ResponseHandler::ResponseHandler(const ResponseHandler& handler)
 {
-    _rep = new ResponseHandlerRep(*handler._rep);
+    _newRep(this, _getRep(&handler));
 }
 
 ResponseHandler& ResponseHandler::operator=(const ResponseHandler& handler)
 {
-    if (handler._rep != _rep)
+    if (&handler != this)
     {
-        delete _rep;
-        _rep = new ResponseHandlerRep(*handler._rep);
+        _deleteRep(this);
+        _newRep(this, _getRep(&handler));
     }
     return *this;
 }
 
 ResponseHandler::~ResponseHandler()
 {
-    delete _rep;
+    _deleteRep(this);
 }
 
 OperationContext ResponseHandler::getContext(void) const
 {
-    return(_rep->getContext());
+    return(_getRep(this)->getContext());
 }
 
 void ResponseHandler::setContext(const OperationContext & context)
 {
-    _rep->setContext(context);
+    _getRep(this)->setContext(context);
 }
 
 PEGASUS_NAMESPACE_END

@@ -39,7 +39,6 @@
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
-
 #include <Pegasus/Provider/OperationFlag.h>
 
 #include "ProviderRegistrationTable.h"
@@ -950,7 +949,7 @@ void ProviderRegistrationManager::modifyInstance(
 	//
 	// creates the instance which replaces the original
 	//
-	CIMInstance instance = origInstance;
+	CIMInstance instance = origInstance.clone ();
 
 	//
 	// loop through the propertyList replacing each property in the original
@@ -2569,7 +2568,7 @@ void ProviderRegistrationManager::_getInstances(
 //
 void ProviderRegistrationManager::_getPropertyNames(
     const CIMInstance & instance,
-    CIMPropertyList propertyNames)
+    CIMPropertyList & propertyNames)
 {
     Array<String> _supportedProperties;
     Uint32 pos;

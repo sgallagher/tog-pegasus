@@ -150,7 +150,7 @@ private:
 		CIMInstance & moduleInstance);
 
 	void _getPropertyNames(const CIMInstance & instance,
-		CIMPropertyList propertyNames);
+		CIMPropertyList & propertyNames);
 
 	void _sendDeleteNotifyMessage(const CIMInstance & instance);
 

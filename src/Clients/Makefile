@@ -49,7 +49,7 @@ DIRS_SSLTRUSTMGR = \
 ifdef PEGASUS_HAS_SSL
   DIRS += \
     $(DIRS_SSLTRUSTMGR) \
-    $(DIRS_SSLTRUSTMGR)/tests \
+    ssltrustmgr/tests \
     TestCertClient
 endif
 

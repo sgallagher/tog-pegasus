@@ -118,7 +118,7 @@ void CIMClassRep::setSuperClassName(const String& superClassName)
 void CIMClassRep::addProperty(const CIMProperty& x)
 {
     if (!x)
-	throw UnitializedHandle();
+	throw UninitializedHandle();
 
     // Reject addition of duplicate property name:
 
@@ -144,7 +144,7 @@ void CIMClassRep::addProperty(const CIMProperty& x)
 void CIMClassRep::addMethod(const CIMMethod& x)
 {
     if (!x)
-	throw UnitializedHandle();
+	throw UninitializedHandle();
 
     // Reject duplicate method names:
 

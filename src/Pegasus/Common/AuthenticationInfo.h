@@ -260,7 +260,7 @@ private:
     void _checkRep() const
     {
         if (!_rep)
-            ThrowUnitializedHandle();
+            ThrowUninitializedHandle();
     }
 
     AuthenticationInfoRep* _rep;

@@ -73,7 +73,7 @@ const char AlreadyExists::MSG[] = "already exists: ";
 
 const char NullPointer::MSG[] = "null pointer";
 
-const char UnitializedHandle::MSG[] = "unitialized handle";
+const char UninitializedHandle::MSG[] = "uninitialized handle";
 
 const char IllegalName::MSG[] = "illegal CIM name";
 
@@ -292,9 +292,9 @@ String CIMException::getTraceDescription() const
     return traceDescription;
 }
 
-void ThrowUnitializedHandle()
+void ThrowUninitializedHandle()
 {
-    throw UnitializedHandle();
+    throw UninitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

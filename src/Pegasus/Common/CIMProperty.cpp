@@ -273,7 +273,7 @@ CIMProperty CIMProperty::clone(Boolean propagateQualifiers) const
 void CIMProperty::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -446,7 +446,7 @@ CIMProperty CIMConstProperty::clone(Boolean propagateQualifiers) const
 void CIMConstProperty::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

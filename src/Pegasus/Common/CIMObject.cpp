@@ -233,7 +233,7 @@ CIMObject CIMObject::clone() const
 void CIMObject::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -422,7 +422,7 @@ CIMObject CIMConstObject::clone() const
 void CIMConstObject::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

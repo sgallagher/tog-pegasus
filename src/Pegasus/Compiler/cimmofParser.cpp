@@ -817,7 +817,7 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
   String message;
   try {
     c.addProperty(p);
-  } catch(UnitializedHandle) {
+  } catch(UninitializedHandle) {
     cimmofMessages::getMessage(message,
 			       cimmofMessages::UNINITIALIZED_PROPERTY_ERROR,
 			       arglist);
@@ -946,7 +946,7 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
   arglist.append(c.getClassName());
   try {
     c.addMethod(m);
-  } catch(UnitializedHandle) {
+  } catch(UninitializedHandle) {
     cimmofMessages::getMessage(message, 
 			       cimmofMessages::UNINITIALIZED_PARAMETER_ERROR,
 			       arglist);

@@ -262,7 +262,7 @@ CIMMethod CIMMethod::clone() const
 void CIMMethod::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 
@@ -413,7 +413,7 @@ CIMMethod CIMConstMethod::clone() const
 void CIMConstMethod::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

@@ -50,7 +50,7 @@ CIMQualifierList::~CIMQualifierList()
 CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
 {
     if (!qualifier)
-	throw UnitializedHandle();
+	throw UninitializedHandle();
 
     if (find(qualifier.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();

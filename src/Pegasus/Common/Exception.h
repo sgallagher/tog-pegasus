@@ -164,13 +164,13 @@ public:
 };
 
 /// ATTN: P3  KS documentation Required
-class PEGASUS_COMMON_LINKAGE UnitializedHandle : public Exception
+class PEGASUS_COMMON_LINKAGE UninitializedHandle : public Exception
 {
 public:
 
     static const char MSG[];
 
-    UnitializedHandle() : Exception(MSG) { }
+    UninitializedHandle() : Exception(MSG) { }
 };
 
 /// ATTN: P3  KS documentation Required
@@ -791,7 +791,7 @@ public:
     InvalidAuthHeader() : Exception(MSG) { }
 };
 
-PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
+PEGASUS_COMMON_LINKAGE void ThrowUninitializedHandle();
 
 PEGASUS_NAMESPACE_END
 

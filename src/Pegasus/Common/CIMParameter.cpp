@@ -199,7 +199,7 @@ CIMParameter CIMParameter::clone() const
 void CIMParameter::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 
@@ -340,7 +340,7 @@ CIMParameter CIMConstParameter::clone() const
 void CIMConstParameter::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

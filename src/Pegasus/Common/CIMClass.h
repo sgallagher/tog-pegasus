@@ -268,7 +268,7 @@ public:
 	@param method object representing the method to be added
 	@return Returns the CIMClass object to which the method was added.
 	@exception Throws AlreadyExists if the method already exists and throws
-	UnitializedHandle if the handle is not initialized
+	UninitializedHandle if the handle is not initialized
     */
     CIMClass& addMethod(const CIMMethod& x);
 

@@ -179,7 +179,7 @@ CIMQualifierDecl CIMQualifierDecl::clone() const
 void CIMQualifierDecl::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 
@@ -322,7 +322,7 @@ CIMQualifierDecl CIMConstQualifierDecl::clone() const
 void CIMConstQualifierDecl::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

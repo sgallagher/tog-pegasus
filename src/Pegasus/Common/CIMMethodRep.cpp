@@ -79,7 +79,7 @@ void CIMMethodRep::setClassOrigin(const String& classOrigin)
 void CIMMethodRep::addParameter(const CIMParameter& x)
 {
     if (!x)
-	throw UnitializedHandle();
+	throw UninitializedHandle();
 
     if (findParameter(x.getName()) != PEG_NOT_FOUND)
 	throw AlreadyExists();

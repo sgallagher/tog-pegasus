@@ -202,7 +202,7 @@ CIMQualifier CIMQualifier::clone() const
 void CIMQualifier::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 
@@ -351,7 +351,7 @@ CIMQualifier CIMConstQualifier::clone() const
 void CIMConstQualifier::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

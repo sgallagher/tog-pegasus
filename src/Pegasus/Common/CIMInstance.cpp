@@ -258,7 +258,7 @@ String CIMInstance::toString() const
 void CIMInstance::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -425,7 +425,7 @@ String CIMConstInstance::toString() const
 void CIMConstInstance::_checkRep() const
 {
     if (!_rep)
-        ThrowUnitializedHandle();
+        ThrowUninitializedHandle();
 }
 
 PEGASUS_NAMESPACE_END

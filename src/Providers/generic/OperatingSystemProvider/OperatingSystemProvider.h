@@ -33,7 +33,7 @@ public:
    virtual ~OperatingSystemProvider(void);
 
    // CIMBaseProvider interface
-   virtual void initialize(CIMRepository & repository);
+   virtual void initialize(CIMOMHandle& cimomHandle);
    virtual void terminate(void);
 
    // CIMInstanceProvider interface

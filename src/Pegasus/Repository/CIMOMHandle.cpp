@@ -33,7 +33,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMOMHandle::CIMOMHandle(MessageQueue* outputQueue) : _outputQueue(outputQueue)
+CIMOMHandle::CIMOMHandle(
+    MessageQueue* outputQueue,
+    CIMRepository* repository) 
+    : 
+    _outputQueue(outputQueue),
+    _repository(repository)
 {
     _inputQueue = new MessageQueue;
 }

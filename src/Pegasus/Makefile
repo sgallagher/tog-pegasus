@@ -22,7 +22,4 @@ DIRS = \
     Client/tests \
     Compiler/tests
 
-# Compiler \
-# Compiler/cmdline \
-
 include $(ROOT)/mak/recurse.mak

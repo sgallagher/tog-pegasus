@@ -573,10 +573,7 @@ int main(int argc, char** argv)
 
 		   testStatus("Test NameSpace Operations");
 
-		   //TestNameSpaceOperations(client, activeTest, verboseTest);
-		   cout << "Test Namespace temporarily bypassed while we fix"
-		        << " the _Namespace Provider for new interfaces"
-		        << endl;
+		   TestNameSpaceOperations(client, activeTest, verboseTest);
 		   cout << " in " << elapsedTime.getElapsed() << " Seconds\n";
 		   
 		   testStatus("Test Qualifier Operations");

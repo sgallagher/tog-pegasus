@@ -35,18 +35,23 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE CIMOMHandle
+class PEGASUS_REPOSITORY_LINKAGE CIMOMHandle
 {
 public:
 
     /** */ 
-    CIMOMHandle(MessageQueue* outputQueue);
+    CIMOMHandle(MessageQueue* outputQueue, CIMRepository* repository);
 
     /** */ 
     ~CIMOMHandle();
+
+    CIMRepository* getRepository() { return _repository; }
+
+    const CIMRepository* getRepository() const { return _repository; }
 
     /** */
     virtual CIMClass getClass(
@@ -213,6 +218,7 @@ private:
     void _checkError(CIMResponseMessage* message);
 
     MessageQueue* _outputQueue;
+    CIMRepository* _repository;
     MessageQueue* _inputQueue;
 };
 

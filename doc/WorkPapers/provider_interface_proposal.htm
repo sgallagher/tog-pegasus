@@ -106,7 +106,7 @@ context parameter.&nbsp;&nbsp;</p>
 <h4>Provider Context</h4>
 <p>Today - one parameter, the CIM Repository handle provided with the initialize
 as follows:</p>
-<pre>virtual void initialize(CIMRepository&amp; repository);</pre>
+<pre>virtual void initialize(CIMOMHandle&amp; repository);</pre>
 The provider saves the repository handle for later access using the CIMRepository interface.  We don't want providers to have access to the repository
 but we do want them to have easy access back to the Object Manager with CIM
 Operations.

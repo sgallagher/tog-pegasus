@@ -40,7 +40,7 @@ public:
    virtual ~HelloWorldProvider(void);
 
    // CIMBaseProvider interface
-   virtual void initialize(const CIMOMHandle & cimom);
+   virtual void initialize(CIMOMHandle & cimom);
    virtual void terminate(void);
 
    // CIMInstanceProvider interface

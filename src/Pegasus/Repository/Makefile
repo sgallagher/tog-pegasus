@@ -21,6 +21,7 @@ SOURCES = \
     InheritanceTree.cpp \
     InstanceIndexFile.cpp \
     RepositoryDeclContext.cpp \
-    CIMRepository.cpp 
+    CIMRepository.cpp  \
+    CIMOMHandle.cpp
 
 include $(ROOT)/mak/library.mak

@@ -26,7 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* __Namespace CIMProvider
+/*  __Namespace CIMProvider
     The __Namespace Provider provides responses to the CIM Operations defined in
     the DMTF docuument CIM Operations over HTTP (Section 2.5),
     This provider implements 3 functions:
@@ -166,67 +166,62 @@ public:
 	// _repository->deleteNameSpace();
 
     }
-
-   /** enumerateInstanceNames - Enumerates all of the
-       namespace names in the repository
-   */
-   Array<CIMReference> enumerateInstanceNames(
-       const String& nameSpace,
-       const String& className)
-   {
-       Array<CIMReference> instanceRefs;
-       Array<String> instanceName;
-       Array<String> ns;
-
-       // ATTN: Does this throw an exception?
-       ns = _repository->enumerateNameSpaces();
-
-       // Create an instance name from namespace names
-       // ATTN: Legal to append to String in Array?
-       for (Uint32 i = 0; i < ns.size(); i++)
-       {
-	    instanceName.append("__Namespace.name=\"");
-	    instanceName[i].append(ns[i]);
-	    instanceName[i].append("\"");
-       }
-
-       // Convert to references here so can return references
-       CIMReference ref;
-       try
-       {
-	   for (Uint32 i = 0; i < instanceName.size(); i++)
-	   {
-		// Convert instance names to References
-	       instanceRefs.append(instanceName[i]);
-	   }
-       }
-       catch(Exception& e)
-       {
-           // ATTN: Not sure how to handle this error
-	   cout << "__Namespace Provider Exception ";
-	   cout << e.getMessage() <<  endl;
-       }
-
-       //ATTN: How dow we return error codes from the provider.
-       // In the case of the exception above, we should be returning
-       // some sort of error code.
-       return instanceRefs;
-   }
-
+    
+    /** enumerateInstanceNames - Enumerates all of the
+        namespace names in the repository
+    */
+    Array<CIMReference> enumerateInstanceNames(
+        const String& nameSpace,
+        const String& className)
+    {
+        Array<CIMReference> instanceRefs;
+        Array<String> instanceName;
+        Array<String> ns;
+        
+        // ATTN: Does this throw an exception?
+        ns = _repository->enumerateNameSpaces();
+        
+        // Create an instance name from namespace names
+        // ATTN: Legal to append to String in Array?
+        for (Uint32 i = 0; i < ns.size(); i++)
+        {
+            instanceName.append("__Namespace.name=\"");
+            instanceName[i].append(ns[i]);
+            instanceName[i].append("\"");
+        }
+        
+        // Convert to references here so can return references
+        CIMReference ref;
+        try
+        {
+            for (Uint32 i = 0; i < instanceName.size(); i++)
+            {
+                // Convert instance names to References
+                instanceRefs.append(instanceName[i]);
+            }
+        }
+        catch(Exception& e)
+        {
+            // ATTN: Not sure how to handle this error
+            cout << "__Namespace Provider Exception ";
+            cout << e.getMessage() <<  endl;
+        }
+        
+        //ATTN: How dow we return error codes from the provider.
+        // In the case of the exception above, we should be returning
+        // some sort of error code.
+        return instanceRefs;
+    }
+    
     /** initialize - Standard initialization function for the
-       provider.  This is required for each provider.
-
-       NOTE: For the moment, the pointer to the repository is provided
-       with the call.  This will be changed in the future for the provider
-       interface.  However, this is really a service extension and therefore
-       needs this information.
-   */
-   void initialize(CIMRepository& repository)
-   {
-       // derefence repository pointer and save for later.
-        _repository = &repository;
-       DDD(cout << "__NamespaceProvider::initialize() called" << endl;)
-   }
+        provider. This is required for each provider.
+    */
+    void initialize(CIMOMHandle& cimomHandle)
+    {
+        // derefence repository pointer and save for later.
+        _repository = cimomHandle.getRepository();
+        DDD(cout << "__NamespaceProvider::initialize() called" << endl;)
+    }
 };
 
 // This is the dynamic entry point into this dynamic module. The name of
@@ -237,16 +232,13 @@ public:
 // NOTE: The name of the provider must be correct to be loadable.
 
 extern "C" PEGASUS_EXPORT CIMProvider*
-	PegasusCreateProvider___NamespaceProvider()
+    PegasusCreateProvider___NamespaceProvider()
 {
-   DDD(PEGASUS_STD(cout) <<  \
+    DDD(PEGASUS_STD(cout) <<  \
         "Called PegasusCreateProvider___NamespaceProvider" << \
-	PEGASUS_STD(endl);)
+
+    PEGASUS_STD(endl);)
     return new __NamespaceProvider;
 }
 
 PEGASUS_NAMESPACE_END
-
-
-
-

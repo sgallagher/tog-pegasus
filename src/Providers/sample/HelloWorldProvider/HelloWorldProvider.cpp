@@ -51,7 +51,7 @@ HelloWorldProvider::~HelloWorldProvider(void)
 {
 }
 
-void HelloWorldProvider::initialize(const CIMOMHandle & cimom)
+void HelloWorldProvider::initialize(CIMOMHandle& cimom)
 {
    // save cimom handle
    _cimom = cimom;

@@ -27,7 +27,7 @@
 
 #include "Dispatcher.h"
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Repository/CIMOMHandle.h>
 #include "ProviderTable.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -98,14 +98,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
         if (!provider)
 	    throw CIMException(CIM_ERR_FAILED);
 
-	try 
-	{
-	    provider->initialize(CIMOMHandle(this));
-	}
-	catch(NotImplemented) 
-	{
-	    // provider->initialize(_repository);
-	}
+	provider->initialize(CIMOMHandle(this, _repository));
     }
 
     return provider;

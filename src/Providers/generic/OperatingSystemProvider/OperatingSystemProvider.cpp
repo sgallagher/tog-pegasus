@@ -43,10 +43,10 @@ OperatingSystemProvider::~OperatingSystemProvider()
 {
 }
 
-void OperatingSystemProvider::initialize(CIMRepository & repository)
+void OperatingSystemProvider::initialize(CIMOMHandle& cimomHandle)
 {
    // derefence repository pointer and save for later
-   _pRepository = &repository;
+   _pRepository = cimomHandle.getRepository();
 }
 
 void OperatingSystemProvider::terminate(void)

@@ -33,6 +33,8 @@
 #include "String.h"
 #include <iostream>
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T String
@@ -521,6 +523,11 @@ void String::clear()
     _rep.append('\0');
 }
 
+void String::print() const
+{
+    cout << *this << endl;
+}
+
 void String::reserve(Uint32 capacity)
 {
     _rep.reserve(capacity + 1);
@@ -531,5 +538,6 @@ const Array<String>& EmptyStringArray()
     static Array<String> tmp;
     return tmp;
 }
+
 
 PEGASUS_NAMESPACE_END

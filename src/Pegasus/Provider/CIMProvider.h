@@ -31,7 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMOperations.h>
-#include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Repository/CIMOMHandle.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -188,8 +188,7 @@ public:
        passing the repository.
     */
 
-    virtual void initialize(CIMRepository& repository);
-    virtual void initialize(const CIMOMHandle & cimom);
+    virtual void initialize(CIMOMHandle& cimomHandle);
 };
 
 PEGASUS_NAMESPACE_END

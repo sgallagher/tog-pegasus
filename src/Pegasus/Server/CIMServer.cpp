@@ -33,7 +33,7 @@
 #include <cctype>
 #include <time.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/CIMOMHandle.h>
+#include <Pegasus/Repository/CIMOMHandle.h>
 #include <Pegasus/Common/TCPChannel.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Server/Dispatcher.h>

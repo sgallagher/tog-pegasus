@@ -356,6 +356,10 @@ public:
     */
     void translate(Char16 fromChar, Char16 toChar);
 
+    /** Method for printing a string.
+    */
+    void print() const;
+
     /** Compare the first n characters of the two strings..
     	@param s1 First null-terminated string for the comparison.
 	@param s2 Second null-terminated string for the comparison.

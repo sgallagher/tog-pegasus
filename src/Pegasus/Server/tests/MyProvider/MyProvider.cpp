@@ -139,7 +139,7 @@ public:
 
 
 
-    void initialize(CIMRepository& repository)
+    void initialize(CIMOMHandle& handle)
     {
 	cout << "MyProvider::initialize() called" << endl;
 	CIMValue tmp(Uint32(932));

@@ -303,10 +303,10 @@ public:
    interface.  However, this is really a service extension and therefore
    needs this information.
    */
-   void initialize(CIMRepository& repository)
+   void initialize(CIMOMHandle& cimomHandle)
    {
        // derefence repository pointer and save for later.
-        _repository = &repository;
+        _repository = cimomHandle->getRepository();
        cout << "**NAMEOFPROVIDER**::initialize() called" << endl;
    }
 };

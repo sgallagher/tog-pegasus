@@ -93,9 +93,6 @@ void HTTPAcceptor::handleEnqueue()
     if (!message)
         return;
 
-    if (getenv("PEGASUS_TRACE"))
-        message->print(cout);
-
     switch (message->getType())
     {
 	case SOCKET_MESSAGE:
@@ -143,6 +140,11 @@ void HTTPAcceptor::handleEnqueue()
     };
 
     delete message;
+}
+
+const char* HTTPAcceptor::getQueueName() const
+{
+    return "HTTPAcceptor";
 }
 
 void HTTPAcceptor::bind(Uint32 portNumber)

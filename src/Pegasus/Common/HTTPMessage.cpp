@@ -83,11 +83,11 @@ static char* _FindSeparator(const char* data, Uint32 size)
 
 HTTPMessage::HTTPMessage(
     const Array<Sint8>& message_, 
-    Uint32 returnQueueId_)
+    Uint32 queueId_)
     :
     Message(HTTP_MESSAGE), 
     message(message_), 
-    returnQueueId(returnQueueId_)
+    queueId(queueId_)
 {
 
 }
@@ -177,7 +177,7 @@ void HTTPMessage::parse(
     }
 }
 
-void HTTPMessage::print(ostream& os) const
+void HTTPMessage::printAll(ostream& os) const
 {
     Message::print(os);
 

@@ -78,6 +78,8 @@ public:
     */ 
     virtual void handleEnqueue();
 
+    virtual const char* getQueueName() const;
+
     /** Return socket this connection is using. */
     Sint32 getSocket() const { return _socket; }
 

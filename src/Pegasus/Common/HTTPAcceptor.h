@@ -61,6 +61,8 @@ public:
     */ 
     virtual void handleEnqueue();
 
+    virtual const char* getQueueName() const;
+
     /** Bind to the given port (the port on which this acceptor listens for 
 	connections).
 	@param portNumber the number of the port used to listen for

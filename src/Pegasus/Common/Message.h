@@ -30,7 +30,9 @@
 #define Pegasus_Message_h
 
 #include <iostream>
+#include <cstring>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -157,6 +159,107 @@ enum MessageType
 };
 
 PEGASUS_COMMON_LINKAGE const char* MessageTypeToString(Uint32 messageType);
+
+/** This class implements a stack of queue-ids. Many messages must keep a
+    stack of queue-ids of queues which they must be returned to. This provides
+    a light efficient stack for this purpose.
+*/
+class QueueIdStack
+{
+public:
+
+    QueueIdStack() : _size(0) 
+    { 
+    }
+
+    QueueIdStack(const QueueIdStack& x) : _size(x._size) 
+    {
+	memcpy(_items, x._items, sizeof(_items));
+    }
+
+    PEGASUS_EXPLICIT QueueIdStack(Uint32 x) : _size(0) 
+    { 
+	push(x); 
+    }
+
+    PEGASUS_EXPLICIT QueueIdStack(Uint32 x1, Uint32 x2) : _size(0) 
+    {
+	push(x1); 
+	push(x2); 
+    }
+
+    ~QueueIdStack() 
+    { 
+    }
+
+    QueueIdStack& operator=(const QueueIdStack& x) 
+    {
+	if (this != &x)
+	{
+	    memcpy(_items, x._items, sizeof(_items));
+	    _size = x._size;
+	}
+	return *this;
+    }
+
+    Uint32 size() const 
+    { 
+	return _size; 
+    }
+
+    Boolean isEmpty() const 
+    { 
+	return _size == 0; 
+    }
+
+    void push(Uint32 x) 
+    {
+	if (_size == MAX_SIZE)
+	    throw StackOverflow();
+
+	_items[_size++] = x;
+    }
+
+    Uint32& top()
+    {
+	if (_size == 0)
+	    throw StackUnderflow();
+
+	return _items[_size-1];
+    }
+
+    Uint32 top() const 
+    {
+	return ((QueueIdStack*)this)->top(); 
+    }
+
+    void pop() 
+    {
+	if (_size == 0)
+	    throw StackUnderflow();
+
+	_size--;
+    }
+
+    /** Make a copy of this stack and then pop the top element. */
+    QueueIdStack copyAndPop() const
+    {
+	return QueueIdStack(*this, 0);
+    }
+
+private:
+
+    // Copy the given stack but then pop the top element:
+    QueueIdStack(const QueueIdStack& x, int) : _size(x._size) 
+    {
+	memcpy(_items, x._items, sizeof(_items));
+	pop();
+    }
+
+    enum { MAX_SIZE = 5 };
+    Uint32 _items[MAX_SIZE];
+    Uint32 _size;
+};
 
 PEGASUS_NAMESPACE_END
 

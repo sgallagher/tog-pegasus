@@ -34,6 +34,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// CIMOMHandle:
+//
+////////////////////////////////////////////////////////////////////////////////
+
 CIMOMHandle::CIMOMHandle(void) : _outputQueue(0), _inputQueue(0), _repository(0)
 {
 }
@@ -91,7 +97,7 @@ CIMClass CIMOMHandle::getClass(
 		includeQualifiers,
 		includeClassOrigin,
 		propertyList,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -129,7 +135,7 @@ CIMInstance CIMOMHandle::getInstance(
 		includeQualifiers,
 		includeClassOrigin,
 		propertyList,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -159,7 +165,7 @@ void CIMOMHandle::deleteClass(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		className,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -186,7 +192,7 @@ void CIMOMHandle::deleteInstance(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		instanceName,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -213,7 +219,7 @@ void CIMOMHandle::createClass(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		newClass,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -240,7 +246,7 @@ void CIMOMHandle::createInstance(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		newInstance,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -267,7 +273,7 @@ void CIMOMHandle::modifyClass(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		modifiedClass,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -294,7 +300,7 @@ void CIMOMHandle::modifyInstance(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		modifiedInstance,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -329,7 +335,7 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
 		localOnly,
 		includeQualifiers,
 		includeClassOrigin,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -360,7 +366,7 @@ Array<String> CIMOMHandle::enumerateClassNames(
 		nameSpace,
 		className,
 		deepInheritance,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -399,7 +405,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
 		includeQualifiers,
 		includeClassOrigin,
 		propertyList,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -428,7 +434,7 @@ Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
 		XmlWriter::getNextMessageId(),
 		nameSpace,
 		className,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -457,7 +463,7 @@ Array<CIMInstance> CIMOMHandle::execQuery(
 		XmlWriter::getNextMessageId(),
 		queryLanguage,
 		query,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -500,7 +506,7 @@ Array<CIMObjectWithPath> CIMOMHandle::associators(
 		includeQualifiers,
 		includeClassOrigin,
 		propertyList,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -537,7 +543,7 @@ Array<CIMReference> CIMOMHandle::associatorNames(
 		resultClass,
 		role,
 		resultRole,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -576,7 +582,7 @@ Array<CIMObjectWithPath> CIMOMHandle::references(
 		includeQualifiers,
 		includeClassOrigin,
 		propertyList,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -609,7 +615,7 @@ Array<CIMReference> CIMOMHandle::referenceNames(
 		objectName,
 		resultClass,
 		role,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -640,7 +646,7 @@ CIMValue CIMOMHandle::getProperty(
 		nameSpace,
 		instanceName,
 		propertyName,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -673,7 +679,7 @@ void CIMOMHandle::setProperty(
 		instanceName,
 		propertyName,
 		newValue,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -705,7 +711,7 @@ CIMValue CIMOMHandle::invokeMethod(
 		instanceName,
 		methodName,
 		inParameters,
-		_inputQueue->getQueueId());
+		QueueIdStack(_inputQueue->getQueueId()));
 
 	// save message key
 	Uint32 messageKey = request->getKey();
@@ -739,8 +745,9 @@ Message * CIMOMHandle::_waitForResponse(
 	
 	// immediately attempt to locate a message of the requested type
 	Message * message = _inputQueue->find(messageType, messageKey);
-	
-	// if the message is null and the timeout is greater than 0, go into a sleep retry mode until the
+
+	// if the message is null and the timeout is greater than 0, go into 
+	// a sleep retry mode until the
 	// timeout expires or a message of the requested type arrives. a timeout value of 0xffffffff represents
 	// infinity.
 	for(Uint32 i = 0; ((i < timeout) || (timeout == 0xffffffff)) && (message == 0); i += 100)
@@ -761,10 +768,11 @@ Message * CIMOMHandle::_waitForResponse(
 
 void CIMOMHandle::_checkError(const CIMResponseMessage* responseMessage)
 {
-	if((responseMessage != 0) && (responseMessage->errorCode != CIM_ERR_SUCCESS))
-	{
-		throw CIMException(responseMessage->errorCode, __FILE__, __LINE__, responseMessage->errorDescription);
-	}
+    if (responseMessage && (responseMessage->errorCode != CIM_ERR_SUCCESS))
+    {
+	throw CIMException(responseMessage->errorCode, 
+	    __FILE__, __LINE__, responseMessage->errorDescription);
+    }
 }
 
 PEGASUS_NAMESPACE_END

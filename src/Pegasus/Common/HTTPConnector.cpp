@@ -157,9 +157,6 @@ void HTTPConnector::handleEnqueue()
     if (!message)
         return;
 
-    if (getenv("PEGASUS_TRACE"))
-        message->print(cout);
-
     switch (message->getType())
     {
 	// It might be useful to catch socket messages later to implement
@@ -194,6 +191,11 @@ void HTTPConnector::handleEnqueue()
     };
 
     delete message;
+}
+
+const char* HTTPConnector::getQueueName() const
+{
+    return "HTTPConnector";
 }
 
 HTTPConnection* HTTPConnector::connect(

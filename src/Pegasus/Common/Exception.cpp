@@ -142,7 +142,9 @@ const char CannotRemoveFile::MSG[] = "cannot remove file: ";
 
 const char CannotRenameFile::MSG[] = "cannot rename file: ";
 
-const char StackUnderflow::MSG[] = "stack Underflow";
+const char StackUnderflow::MSG[] = "stack underflow";
+
+const char StackOverflow::MSG[] = "stack overflow";
 
 const char QueueUnderflow::MSG[] = "queue Underflow";
 

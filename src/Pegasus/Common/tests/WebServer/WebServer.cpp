@@ -73,7 +73,7 @@ void WebServerQueue::handleEnqueue()
 	if (responseHTTPMessage)
 	{
 	    MessageQueue* queue = MessageQueue::lookup(
-		requestHTTPMessage->returnQueueId);
+		requestHTTPMessage->queueId);
 
 	    assert(queue != 0);
 

@@ -41,8 +41,7 @@ Message::~Message()
 
 void Message::print(ostream& os) const
 {
-    os << "===== Message[" << "type=" << MessageTypeToString(_type) << ", ";
-    os << "key=" << _key << "]" << endl;
+    os << "[" << MessageTypeToString(_type) << ", " << _key << "]" << endl;
 }
 
 static const char* _MESSAGE_TYPE_STRINGS[] =

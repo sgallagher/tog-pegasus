@@ -102,9 +102,6 @@ void HTTPListener::handleEnqueue()
     if (!message)
         return;
 
-    if (getenv("PEGASUS_TRACE"))
-        message->print(cout);
-
     switch (message->getType())
     {
 	case SOCKET_MESSAGE:

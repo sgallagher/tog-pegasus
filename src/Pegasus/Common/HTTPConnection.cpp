@@ -111,9 +111,6 @@ void HTTPConnection::handleEnqueue()
     if (!message)
         return;
 
-    if (getenv("PEGASUS_TRACE"))
-        message->print(cout);
-
     switch (message->getType())
     {
 	case SOCKET_MESSAGE:
@@ -163,6 +160,11 @@ void HTTPConnection::handleEnqueue()
     };
 
     delete message;
+}
+
+const char* HTTPConnection::getQueueName() const
+{
+    return "HTTPConnection";
 }
 
 Boolean _IsBodylessMessage(const char* line)

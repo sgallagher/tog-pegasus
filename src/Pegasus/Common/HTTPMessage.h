@@ -50,10 +50,10 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 {
 public:
 
-    HTTPMessage(const Array<Sint8>& message_, Uint32 returnQueueId_ = 0);
+    HTTPMessage(const Array<Sint8>& message_, Uint32 queueId_ = 0);
 
     Array<Sint8> message;
-    Uint32 returnQueueId;
+    Uint32 queueId;
 
     void parse(
 	String& startLine,
@@ -61,7 +61,7 @@ public:
 	Sint8*& content,
 	Uint32& contentLength) const;
 
-    void print(PEGASUS_STD(ostream)& os) const;
+    void printAll(PEGASUS_STD(ostream)& os) const;
 
     static Boolean lookupHeader(
 	Array<HTTPHeader>& headers,

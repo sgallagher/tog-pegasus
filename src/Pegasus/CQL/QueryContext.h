@@ -29,7 +29,7 @@ class PEGASUS_CQL_LINKAGE QueryContext
 
         CIMNamespaceName getNamespace()const;
 
-        void insertClass(const CQLIdentifier& inIdentifier, String inAlias = String::EMPTY);
+        void insertClassPath(const CQLIdentifier& inIdentifier, String inAlias = String::EMPTY);
 
         const CQLIdentifier findClass(String inAlias);
 

@@ -15,7 +15,7 @@ CIMNamespaceName QueryContext::getNamespace()const{
 	return _NS;
 }
 
-void QueryContext::insertClass(const CQLIdentifier& inIdentifier, String inAlias){
+void QueryContext::insertClassPath(const CQLIdentifier& inIdentifier, String inAlias){
 	if(inAlias != String::EMPTY){
 		_AliasClassTable.insert(inAlias, inIdentifier);
 	}

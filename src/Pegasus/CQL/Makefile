@@ -30,6 +30,7 @@ SOURCES = \
    CQLPredicate.cpp \
    CQLTerm.cpp \
    CQLFunction.cpp \
+   CQLFunctionRep.cpp \
    CQLExpression.cpp \
    CQLFactor.cpp \
    CQLFactorRep.cpp \

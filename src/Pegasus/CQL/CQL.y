@@ -141,7 +141,8 @@ PEGASUS_NAMESPACE_END
 %start select_statement
 
 %%
-identifier : IDENTIFIER 
+/* CQLIdentifier */
+identifier  : IDENTIFIER 
              { 
                  printf("BISON::identifier\n");
                  $$ = new CQLIdentifier(String(CQL_lval.strValue));
@@ -168,25 +169,38 @@ property_scope : class_path SCOPE
              }
 ;
 
+/* CQLIdentifier */
 scoped_property : SCOPED_PROPERTY
                   {
+			/*
+			   SCOPED_PROPERTY can be:
+			   - "A::prop"
+			   - "A::class.prop"
+			   - "A::class.prop#'OK'
+			   - "A::class.prop[4]"
+			*/
 			printf("BISON::scoped_property = %s\n",CQL_lval.strValue);
 		        String tmp(CQL_lval.strValue);
 		        $$ = new CQLIdentifier(tmp);
                   }
 ;   
 
+/* String */
 literal_string : STRING_LITERAL 
              { 
-                 printf("BISON::literal_string-> %s\n",CQL_lval.strValue); 
-		 if(isUTF8Str(CQL_lval.strValue)){
+		/*
+		   We make sure the literal is valid UTF8, then make a String
+		*/
+                printf("BISON::literal_string-> %s\n",CQL_lval.strValue); 
+		if(isUTF8Str(CQL_lval.strValue)){
 		     $$ = new String(CQL_lval.strValue);
-		 }else{
+		}else{
 		     printf("BISON::literal_string-> BAD UTF\n");
-		 }
+		}
              }
 ;
 
+/* CQLValue */
 binary_value : BINARY 
 	       { 
                    printf("BISON::binary_value-> %s\n",CQL_lval.strValue); 
@@ -199,6 +213,7 @@ binary_value : BINARY
                }
 ;
 
+/* CQLValue */
 hex_value : HEXADECIMAL 
             { 
                 printf("BISON::hex_value-> %s\n",CQL_lval.strValue); 
@@ -211,6 +226,7 @@ hex_value : HEXADECIMAL
             }
 ;
 
+/* CQLValue */
 decimal_value : INTEGER 
                 { 
                     printf("BISON::decimal_value-> %s\n",CQL_lval.strValue); 
@@ -223,6 +239,7 @@ decimal_value : INTEGER
                 }
 ;
 
+/* CQLValue */
 real_value : REAL 
              { 
                  printf("BISON::real_value-> %s\n",CQL_lval.strValue); 
@@ -235,6 +252,7 @@ real_value : REAL
              }
 ;
 
+/* CQLValue */
 literal : literal_string 
           {
               printf("BISON::literal->literal_string\n");
@@ -268,28 +286,40 @@ literal : literal_string
           }
 ;
 
+/* String */
 array_index : expr
               {
                   printf("BISON::array_index->expr\n");
-                  /* drill down expr and check its _value to make sure it is an unsigned int */
-                  /* if yes, then grab the value and toString() and assign $$ to it */
-                  /* else error */
-		  CQLValue tmp = _factory.getValue((CQLPredicate*)$1);
-		  if(tmp.getValueType() == String_type){
-			$$ = new String(tmp.toString());
-		  }else{
-			/* error */
+                  /* 
+		     At this point expr should be a CQLPredicate, if not, the try/catch
+		     will handle any casting errors.  Pull the value out and make sure
+		     its type is a String.
+                   */
+		  try{
+		  	CQLValue tmp = _factory.getValue((CQLPredicate*)$1);
+		  	if(tmp.getValueType() == String_type){
+				$$ = new String(tmp.toString());
+		  	}else{
+				/* error */
+		  	}
+		  }catch(...){
+			/* error: expr is not a CQLPredicate */
 		  }
-		  
               }
 ;
 
+/* String */
 array_index_list : array_index
                    {
                        printf("BISON::array_index_list->array_index\n");
                    }
 ;
 
+/* void* */         /*
+			A chain can be any number of different objects depending on what rule
+			is processed.  Rules that use chain "know" what type of object it is 
+			based on chain_state which is set in each of the following chain rules.
+		    */
 chain : literal
         {
             printf("BISON::chain->literal\n");
@@ -361,13 +391,13 @@ chain : literal
                 $$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
                 String tmp($3->getName().getString());
 		tmp.append("#").append(*$5);
-                CQLIdentifier tmpid(tmp);
-                ((CQLChainedIdentifier*)$$)->append(tmpid);
+                CQLIdentifier *tmpid = new CQLIdentifier(tmp);
+                ((CQLChainedIdentifier*)$$)->append(*tmpid);
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
 		String tmp($3->getName().getString());
                 tmp.append("#").append(*$5);
-                CQLIdentifier tmpid(tmp);
-                ((CQLChainedIdentifier*)$1)->append(tmpid);
+                CQLIdentifier *tmpid = new CQLIdentifier(tmp);
+                ((CQLChainedIdentifier*)$1)->append(*tmpid);
 		$$ = $1;
             }else{
                 /* error */
@@ -399,10 +429,26 @@ chain : literal
 concat : chain
          {
              printf("BISON::concat->chain\n");
-             $$ = new CQLValue(*(CQLChainedIdentifier*)$1);
+	     if(chain_state == CQLVALUE){
+		$$ = ((CQLValue*)$1);
+	     }
+	     else if(chain_state == CQLIDENTIFIER){
+		$$ = new CQLValue(*((CQLIdentifier*)$1));
+             }
+	     else if(chain_state == CQLCHAINEDIDENTIFIER){
+		 $$ = new CQLValue(*((CQLChainedIdentifier*)$1));
+             }
+	     else if(chain_state == CQLPREDICATE){
+
+             }
+	     else if(chain_state == CQLFUNCTION){
+
+             }
          }
        | concat DBL_PIPE chain
          {
+	/* check isSimpleValue() on both predicates, then extract the left factors of each, create a new term with || operator, and then
+	   create up the chain to a predicate and return that predicate */
              printf("BISON::concat||chain\n");
 	     if(chain_state == CQLVALUE){
 		if(((CQLValue*)$3)->getValueType() == String_type){
@@ -417,19 +463,30 @@ concat : chain
 ;
 
 factor : concat
-         {
+         {   /* forward the predicate */
              printf("BISON::factor->concat\n");
              $$ = new CQLFactor(*(CQLValue*)$1);
+	     if(chain_state == CQLPREDICATE){
+                                                                                                                                                             
+             }
+             else if(chain_state == CQLFUNCTION){
+                                                                                                                                                             
+             }else{
+		$$ = new CQLFactor(*(CQLValue*)$1);
+	     }
          }         
        | PLUS concat
          {
+	     /* add enum instead of _invert to CQLFactor,has to be either nothing, + or - */
+             /* get the factor and set the optype appropriately */
              printf("BISON::factor->PLUS concat\n");
-             $$ = new CQLFactor(*(CQLValue*)$1);
+             $$ = new CQLFactor(*(CQLValue*)$2);
          }
        | MINUS concat
          {
+             /* get the factor and set the optype appropriately */
              printf("BISON::factor->MINUS concat\n");
-             CQLValue *tmp = (CQLValue*)$1;
+             CQLValue *tmp = (CQLValue*)$2;
              tmp->invert();
 	     $$ = new CQLFactor(*tmp);
          }
@@ -442,12 +499,14 @@ term : factor
        }
      | term STAR factor
        {
+	   /* get factor out of $1, get factor out of $3, appendoperation, then construct predicate and forward it */
            printf("BISON::term->term STAR factor\n");
            $1->appendOperation(mult, *$3);
            $$ = $1;
        }
      | term DIV factor
        {
+           /* get factor out of $1, get factor out of $3, appendoperation, then construct predicate and forward it */
            printf("BISON::term->term DIV factor\n");
            $1->appendOperation(divide, *$3);
            $$ = $1;
@@ -461,12 +520,14 @@ arith : term
         }
       | arith PLUS term
         {
+	    /* get term out of $1, get term out of $3, appendoperation, then construct predicate and forward it */
             printf("BISON::arith->arith PLUS term\n");
             $1->appendOperation(plus, *$3);
             $$ = $1;
         }
       | arith MINUS term
         {
+	    /* get term out of $1, get term out of $3, appendoperation, then construct predicate and forward it */
             printf("BISON::arith->arith MINUS term\n");
 	    $1->appendOperation(minus, *$3);
             $$ = $1;
@@ -478,8 +539,8 @@ value_symbol : HASH literal_string
                    printf("BISON::value_symbol->#literal_string\n");
 		   String tmp("#");
 		   tmp.append(*$2);
-		   CQLIdentifier tmpid(tmp);
-		   $$ = new CQLValue(tmpid);
+		   CQLIdentifier *tmpid = new CQLIdentifier(tmp);
+		   $$ = new CQLValue(*tmpid);
                }
 ;
 
@@ -489,6 +550,7 @@ arith_or_value_symbol : arith
                         }
                       | value_symbol
                         {
+			    /* make into predicate */
                             printf("BISON::arith_or_value_symbol->value_symbol\n");
 			    $$ = (CQLExpression*)(_factory.makeObject(new CQLFactor(*$1), Expression));
                         }
@@ -523,47 +585,51 @@ comp_op : EQ
 comp : arith
        {
            printf("BISON::comp->arith\n");
-	   CQLSimplePredicate tmp(*$1);
-	   $$ = new CQLPredicate(tmp);
+	   CQLSimplePredicate *tmp = new CQLSimplePredicate(*$1);
+	   $$ = new CQLPredicate(*tmp);
        }
      | arith IS NOT _NULL
        {
            printf("BISON::comp->arith IS NOT _NULL\n");
-	   CQLSimplePredicate tmp(*$1, IS_NOT_NULL);
-           $$ = new CQLPredicate(tmp);
+	   CQLSimplePredicate *tmp = new CQLSimplePredicate(*$1, IS_NOT_NULL);
+           $$ = new CQLPredicate(*tmp);
        }
      | arith IS _NULL
        {
            printf("BISON::comp->arith IS _NULL\n");
-	   CQLSimplePredicate tmp(*$1, IS_NULL);
-           $$ = new CQLPredicate(tmp);
+	   CQLSimplePredicate *tmp = new CQLSimplePredicate(*$1, IS_NULL);
+           $$ = new CQLPredicate(*tmp);
        }
      | arith comp_op arith_or_value_symbol
        {
+	/* check both predicates for isSimple(), pull out both left expressions, make simplepredicate with comp_op, create and forward predicate */
            printf("BISON::comp->arith comp_op arith_or_value_symbol\n");
-	   CQLSimplePredicate tmp(*$1, *$3, $2);
-           $$ = new CQLPredicate(tmp);
+	   CQLSimplePredicate *tmp = new CQLSimplePredicate(*$1, *$3, $2);
+           $$ = new CQLPredicate(*tmp);
        }
      | value_symbol comp_op arith
        {
+	  /* make sure $3 isSimple(), get its expression, make simplepred->predicate */
            printf("BISON::comp->value_symbol comp_op arith\n");
            CQLExpression *tmpexpr = (CQLExpression*)(_factory.makeObject(new CQLFactor(*$1), Expression));
-	   CQLSimplePredicate tmp(*tmpexpr, *$3, $2);
-           $$ = new CQLPredicate(tmp);
+	   CQLSimplePredicate * tmp = new CQLSimplePredicate(*tmpexpr, *$3, $2);
+           $$ = new CQLPredicate(*tmp);
        }
      | arith _ISA identifier
        {
+	   /* make sure $1 isSimple(), get its expression, make simplepred->predicate */
            printf("BISON::comp->arith _ISA identifier\n");
 	   CQLExpression *tmpexpr = (CQLExpression*)(_factory.makeObject(new CQLChainedIdentifier(*$3), Expression));
-           CQLSimplePredicate tmp(*$1, *tmpexpr, ISA);
-           $$ = new CQLPredicate(tmp);
+           CQLSimplePredicate *tmp = new CQLSimplePredicate(*$1, *tmpexpr, ISA);
+           $$ = new CQLPredicate(*tmp);
        }
      | arith _LIKE literal_string
        {
+	    /* make sure $1 isSimple(), get its expression, make simplepred->predicate */
            printf("BISON::comp->arith _LIKE literal_string\n");
            CQLExpression *tmpexpr = (CQLExpression*)(_factory.makeObject(new CQLIdentifier(*$3), Expression));
-           CQLSimplePredicate tmp(*$1, *tmpexpr, LIKE);
-           $$ = new CQLPredicate(tmp);
+           CQLSimplePredicate *tmp = new CQLSimplePredicate(*$1, *tmpexpr, LIKE);
+           $$ = new CQLPredicate(*tmp);
        }
 ;
 /*
@@ -580,6 +646,7 @@ expr_factor : comp
               }
             | NOT comp
               {
+                 /* NOT the predicate then forward */
                   printf("BISON::expr_factor->NOT comp\n");
               }
 ;
@@ -590,6 +657,7 @@ expr_term : expr_factor
             }
           | expr_term AND expr_factor
             {
+		/* $1->appendPredicate($2, AND) */
                 printf("BISON::expr_term->expr_term AND expr_factor\n");
             }
 ;
@@ -597,9 +665,11 @@ expr_term : expr_factor
 expr : expr_term 
        {
            printf("BISON::expr->expr_term\n");
+	   	   
        }
      | expr OR expr_term
        {
+	   /* $1->appendPredicate($2, OR) */
            printf("BISON::expr->expr OR expr_term\n");
        }
 ;

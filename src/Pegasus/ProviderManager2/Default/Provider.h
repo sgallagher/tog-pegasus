@@ -143,6 +143,8 @@ public:
         if(this == &x)
             return(*this);
         SetProvider( x._provider );
+
+        return(*this);
     }
 
     void SetProvider( Provider* p )

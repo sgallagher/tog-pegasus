@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -57,25 +57,25 @@ public:
 
 public:
     typedef ProviderFacade Base;
-    
+
     Provider(const String & name,
 	     ProviderModule *module,
 	     CIMProvider *pr);
-    
+
     virtual ~Provider(void);
 
     virtual void initialize(CIMOMHandle & cimom);
     virtual Boolean tryTerminate(void);
-    
+
     virtual void terminate(void);
 
     Status getStatus(void) const;
     String getName(void) const;
 
     ProviderModule *getModule(void) const;
-    
+
       // << Mon Oct 14 15:42:24 2002 mdd >> for use with DQueue template
-      // to allow conversion from using Array<> 
+      // to allow conversion from using Array<>
       Boolean operator == (const void *key) const;
       Boolean operator == (const Provider & prov) const;
 
@@ -86,7 +86,7 @@ public:
 
 //   force provider manager to keep in memory
       virtual void protect(void);
-// allow provider manager to unload when idle 
+// allow provider manager to unload when idle
       virtual void unprotect(void);
 
    protected:
@@ -137,6 +137,8 @@ public:
 		if( this == &x )
 			return *this;
 		SetProvider( x._provider );
+
+        return(*this);
 	}
 
 	void SetProvider( Provider* p )

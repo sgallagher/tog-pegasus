@@ -195,7 +195,13 @@ public:
 	return _rep->getQualifier(pos);
     }
 
-    /**	getQualifierCount - Gets the numbercount of CIMQualifierobjects
+    void removeQualifier(Uint32 pos)
+	{
+	_checkRep();
+	_rep->removeQualifier(pos);
+	}
+	
+	/**	getQualifierCount - Gets the numbercount of CIMQualifierobjects
 	defined for this CIMObject.
 	@return	Count of the number of CIMQalifier objects in the
 	CIMObject.

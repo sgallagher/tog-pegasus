@@ -186,7 +186,6 @@ Boolean Monitor::run(Uint32 milliseconds)
 
 	if (events)
 	{
-cout << "GOT EVENTS ON SOCKET: " << _entries[i].socket << endl;
 	    MessageQueue* queue = MessageQueue::lookup(_entries[i].queueId);
 
 	    if (!queue)
@@ -194,7 +193,6 @@ cout << "GOT EVENTS ON SOCKET: " << _entries[i].socket << endl;
 
 
 	    Message* message = new SocketMessage(socket, events);
-cout << "ENQUEUE" << endl;
 	    queue->enqueue(message);
 
 	    if (events & SocketMessage::WRITE)

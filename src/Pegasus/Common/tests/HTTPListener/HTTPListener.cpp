@@ -28,7 +28,7 @@
 
 #include <cassert>
 #include <iostream>
-#include <Pegasus/Common/HTTPListener.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -39,10 +39,10 @@ int main()
     {
 	Monitor* monitor = new Monitor;
 
-	HTTPListener* httpListener = new HTTPListener(monitor);
+	HTTPAcceptor* httpAcceptor = new HTTPAcceptor(monitor);
 
 	const Uint32 PORT_NUMBER = 7777;
-	httpListener->bind(PORT_NUMBER);
+	httpAcceptor->bind(PORT_NUMBER);
 
 	cout << "Binding to port " << PORT_NUMBER << endl;
 

@@ -96,6 +96,7 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE",
     "CIM_INVOKE_METHOD_RESPONSE_MESSAGE",
     "SOCKET_MESSAGE",
+    "CLOSE_CONNECTION_MESSAGE"
 };
 
 const char* MessageTypeToString(Uint32 messageType)

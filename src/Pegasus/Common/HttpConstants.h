@@ -44,6 +44,9 @@ PEGASUS_NAMESPACE_BEGIN
 //  HTTP Request Line elements
 //
 
+// ATTN: note: this use of static will cause the string to be created in
+// every compiliation unit which includes it.
+
 /**
  *  A string representing the HTTP M-POST method.
  */

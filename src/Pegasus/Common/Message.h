@@ -141,9 +141,13 @@ enum MessageType
     CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE,
     CIM_INVOKE_METHOD_RESPONSE_MESSAGE,
 
-    // Monitor-related methods:
+    // Monitor-related messages:
 
     SOCKET_MESSAGE,
+
+    // Connection-oriented messages:
+
+    CLOSE_CONNECTION_MESSAGE,
 
     NUMBER_OF_MESSAGES
 };

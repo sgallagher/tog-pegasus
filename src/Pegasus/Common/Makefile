@@ -9,6 +9,11 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
+    Socket.cpp \
+    Monitor.cpp \
+    HTTPAcceptor.cpp \
+    HTTPConnection.cpp \
+    \
     CIMStatusCode.cpp \
     CIMMessage.cpp \
     Message.cpp \

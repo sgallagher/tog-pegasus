@@ -36,8 +36,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream.h>
-//#include <string.h>
 
+#include <Pegasus/Common/Constants.h>
 //The following include is needed for UUID Generator
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <objbase.h>
@@ -329,7 +329,7 @@ void SLPProvider::populateTemplateField(CIMInstance& instance,const String& fiel
 /** populates the SLP template and its corresponding instance
     ATTN: In the future, we should populate these separately
 */
-void SLPProvider::populateData(void)
+void SLPProvider::populateData(const String &protocol, const bool & start_listener)
 {
    String mynamespace = "root/cimv2";
    Uint32 index=10;
@@ -339,8 +339,8 @@ void SLPProvider::populateData(void)
    CIMInstance instance1(SlpTemplateClassName);
 
    // get the uuid for this device.
-   String strUUID = getUUIDString();
-   
+   //String strUUID = getUUIDString();
+   /*
    Array<CIMKeyBinding> keyBindings;
    keyBindings.append(CIMKeyBinding(serviceIDAttribute, strUUID, CIMKeyBinding::STRING));
    CIMObjectPath reference1  = CIMObjectPath("localhost",mynamespace,
@@ -348,7 +348,53 @@ void SLPProvider::populateData(void)
                                              keyBindings);
 
    populateTemplateField(instance1, serviceIDAttribute, strUUID);
+   */ 
+  // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
+  
+  String IPAddress = getHostAddress(getHostName());
+   /**************
+  if (protocol.find("https") != PEG_NOT_FOUND)
+    {
+      IPAddress.append(":5989");
+    }
+  else
+    {
+      IPAddress.append(":5988");
+    }
+    */
+      // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
+     // Need to tie these two together.
+    Uint32 portNumber;
+    if (protocol.find("https") != PEG_NOT_FOUND)
+    {
+         portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
+            WBEM_DEFAULT_HTTPS_PORT); 
+    }
+    else
+    {
+        portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
+            WBEM_DEFAULT_HTTP_PORT);
+    }
+    IPAddress.append(":");
     
+    char buffer[32];
+    sprintf(buffer, "%u", portNumber);
+    IPAddress.append(buffer);
+    CDEBUG("portNumber" << buffer);
+
+    // template-url-syntax=string
+    // #The template-url-syntax MUST be the WBEM URI Mapping of
+    // #the location of one service access point offered by the WBEM Server 
+    // #over TCP transport. This attribute must provide sufficient addressing 
+    // #information so that the WBEM Server can be addressed directly using 
+    // #the URL.  The WBEM URI Mapping is defined in the WBEM URI Mapping 
+    // #Specification 1.0.0 (DSP0207).
+    // # Example: (template-url-syntax=https://localhost:5989)
+    populateTemplateField(instance1, serviceUrlSyntax, protocol + "://" + IPAddress);
+
+
+    populateTemplateField(instance1, serviceLocationTCP,IPAddress);
+
     CDEBUG("populateData. getting objmgr and comm from " << _interopNamespace.getString());
     Array<CIMInstance> instances_ObjMgr = _ch.enumerateInstances(
                                              OperationContext(),
@@ -361,6 +407,39 @@ void SLPProvider::populateData(void)
                                              _interopNamespace,
                                              CIMName(CIMObjectManagerCommMechName),
                                              false, false, false,false, CIMPropertyList());
+
+
+    // now fillout the serviceIDAttribute.  Is this correct??????
+    // get the name property from the object manager instance.
+    String strUUID;
+    {
+        Uint32 pos;
+        CIMInstance instanceObjMgr = instances_ObjMgr[0];
+        if (pos = instanceObjMgr.findProperty("Name") != PEG_NOT_FOUND)
+        {
+            CIMProperty p1 = instanceObjMgr.getProperty(pos);
+            CIMValue v1  = p1.getValue();
+            v1.get(strUUID);
+            // now have the ID
+        }
+        else
+        {
+            strUUID = "NoNameInObjectManagerInstance";
+        }
+
+    }
+    // Fill out the CIMObjectpath for the slp instance.
+    // ATTN: We have problem here now because using the serviceID as key and this
+    // means non-unique key.
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append(CIMKeyBinding(serviceIDAttribute, strUUID, CIMKeyBinding::STRING));
+    CIMObjectPath reference1  = CIMObjectPath("localhost",mynamespace,
+                                              CIMName(SlpTemplateClassName),
+                                              keyBindings);
+    //service-id=string L
+    //# The ID of this WBEM Server. The value MUST be the 
+    //# CIM_ObjectManager.Name property value.
+    populateTemplateField(instance1, serviceIDAttribute, strUUID);
 
     // Enumerating Instances for the CIM_ObjectManager class .......
     // Note that the CIM_OBjectManager is a singleton class.  It is an error if there is
@@ -375,30 +454,33 @@ void SLPProvider::populateData(void)
             CIMProperty p1=i1.getProperty(j);
             CIMValue v1=p1.getValue();
             CIMName n1=p1.getName();
-            
-            // ATTN: Rewrite this to find the property.  More logical
+            /*
             if (n1.equal("Name"))
             {
-                populateTemplateField(instance1, serviceUrlSyntax,v1.toString());
+                populateTemplateField(instance1, serviceUrlSyntax, protocol + "://" + IPAddress);
+
+                //  populateTemplateField(instance1, serviceUrlSyntax,v1.toString());
             }
-            else if (n1.equal("ElementName"))
+            */
+            // service-hi-name=string O
+            // # This string is used as a name of the CIM service for human
+            // # interfaces. This attribute MUST be the
+            // # CIM_ObjectManager.ElementName property value.
+            if (n1.equal("ElementName"))
             {
-                populateTemplateField(instance1, serviceHiName,v1.toString());
+                populateTemplateField(instance1, serviceHiName, v1.toString());
             }
+
+            // service-hi-description=string O
+            // # This string is used as a description of the CIM service for
+            // # human interfaces.This attribute MUST be the 
+            // # CIM_ObjectManager.Description property value.
             else if (n1.equal("Description"))
             {
-              populateTemplateField(instance1, serviceHiDescription,v1.toString());
+              populateTemplateField(instance1, serviceHiDescription, v1.toString());
             }
         }
     }
-
-     // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
-     
-    String IPAddress = getHostAddress(getHostName());
- 
-    IPAddress.append(":5988");
-    
-    populateTemplateField(instance1, serviceLocationTCP,IPAddress);
 
     // Default properties for PG_SLPWBEMClass
     populateTemplateField(instance1, templateType, String("wbem"));
@@ -459,49 +541,24 @@ void SLPProvider::populateData(void)
                 {
                   Uint32 temp = i1.findProperty(CIMName(otherProfileDescriptionAttribute));
                   CIMProperty temppr = i1.getProperty(temp);
-                  //LONG_ATTRIBUTE_STRING.append("(OtherProfileDescription=").append(temppr.getValue().toString()).append("),");
                   populateTemplateField(instance1, otherProfileDescriptionAttribute, temppr.getValue().toString());
                 }
             }
 
             else if (n1.equal(multipleOperationsSupportedAttribute))
             {  
-            populateTemplateField(instance1, multipleOperationsSupportedAttribute,v1.toString());
+                populateTemplateField(instance1, multipleOperationsSupportedAttribute,v1.toString());
             }
             
             else if (n1.equal(authenticationMechanismDescriptionsAttribute))
             {
-            Array<String> authenticationDescriptions;
-            v1.get(authenticationDescriptions);
-            String authList = arrayToString(authenticationDescriptions);
-
-            populateTemplateField(instance1, authenticationMechanismsSupportedAttribute,authList);
-            /***************
-            Array<Uint16> arr;
-            v1.get(arr);
-            Uint32 sizeofarray = v1.getArraySize();
-            for (Uint32 loopvar=0;loopvar<sizeofarray;loopvar++)
-            {
-                   if(arr[loopvar] == 1) //Means "Other"
-               {
-                     //Following block fails because the OtherAuthenticationDescription property is NOT currently registered inthe repository
-                     Uint32 pos;
-                     if ((pos = i1.findProperty(CIMName("OtherAuthenticationDescription"))) != PEG_NOT_FOUND)
-                     {
-                        CIMProperty p = i1.getProperty(temp);
-                        String v = p.getValue();
-                        cout << "OtherAuthenticationDescription = " << (temppr.getValue()).toString() << endl;
-                        //instance1.addProperty(CIMProperty("OtherAuthenticationDescription",(temppr.getValue()).toString()));
-                        //LONG_ATTRIBUTE_STRING.append("(OtherAuthenticationDescription=").append(temppr.getValue().toString()).append("),");
-                        
-                        populateTemplateField(instance1, otherAuthenticationDescriptionAttribute,v.toString());
-            
-                     }
-               }			   
-            }*******************/
-        }
+                Array<String> authenticationDescriptions;
+                v1.get(authenticationDescriptions);
+                String authList = arrayToString(authenticationDescriptions);
     
-       }
+                populateTemplateField(instance1, authenticationMechanismsSupportedAttribute,authList);
+            }
+        }
     }
     
     // fill in the classname information (namespace and classinfo).
@@ -530,7 +587,7 @@ and Masking:Pool Manipulation Capabilities and Settings:Extent Mapping:LUN Creat
 
    //Begin registering the service.
    CDEBUG("Template:\n" << slpTemplateInstance);
-   String ServiceID = "service:serviceid:";
+   String ServiceID = "service:wbem:";
 
    instance1.addProperty(CIMProperty(CIMName("RegisteredTemplate"), slpTemplateInstance));
    ServiceID = ServiceID + strUUID;
@@ -549,20 +606,50 @@ and Masking:Pool Manipulation Capabilities and Settings:Extent Mapping:LUN Creat
                         serviceName,
                         "DEFAULT", 
                         0xffff);
-   
-   // start the background thread - nothing is actually advertised until this function returns. 
-   slp_agent.start_listener();
-      
-   Uint32 finish, now, msec;
-   System::getCurrentTime(now, msec);
-   finish = now + 10;
-   
-   // wait for 10 seconds. Earlier wait for 30 secs caused the client to timeout !
-   while(finish > now) 
-   {
+   /* Moved this to the common code with issueregistrations.
+   if (start_listener == true)
+     {
+        // start the background thread - nothing is actually advertised until this function returns. 
+        slp_agent.start_listener();
+    
+        Uint32 finish, now, msec;
+        System::getCurrentTime(now, msec);
+        finish = now + 10;
+    
+        // wait for 10 seconds. Earlier wait for 30 secs caused the client to timeout !
+        while(finish > now) 
+        {
+          pegasus_sleep(1000);
+          System::getCurrentTime(now, msec);
+        }
+     }
+     */
+}
+
+
+
+/** issue all necessary SLP registrations.
+*/
+void SLPProvider::issueSLPRegistrations()
+{
+    populateData("http");
+    populateData("https", true);
+    
+    // Start the slp listener
+    // start the background thread - nothing is actually advertised until this function returns. 
+    slp_agent.start_listener();
+
+    Uint32 finish, now, msec;
+    System::getCurrentTime(now, msec);
+    finish = now + 10;
+
+    // wait for 10 seconds. Earlier wait for 30 secs caused the client to timeout !
+    while(finish > now) 
+    {
       pegasus_sleep(1000);
       System::getCurrentTime(now, msec);
-   }
+    }
+    initFlag=true;
 }
 
 void SLPProvider::initialize(CIMOMHandle & handle)
@@ -592,8 +679,7 @@ void SLPProvider::getInstance(
    // convert a potential fully qualified reference into a local reference
     if(initFlag == false)
     {
-    populateData();
-    initFlag=true;
+        issueSLPRegistrations();
     }
     
    // (class name and keys only).
@@ -639,8 +725,7 @@ void SLPProvider::enumerateInstances(
 
     if(initFlag == false)
     {
-        populateData();
-        initFlag=true;
+        issueSLPRegistrations();
     }
     
     // begin processing the request
@@ -668,8 +753,7 @@ void SLPProvider::enumerateInstanceNames(
     // This is not a good assumption.
     if(initFlag == false)
     {
-       populateData();
-       initFlag=true;
+        issueSLPRegistrations();
     }
     
     // begin processing the request

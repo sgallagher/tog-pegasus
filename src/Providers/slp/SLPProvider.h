@@ -45,7 +45,7 @@ Boolean initFlag = false;
 class SLPProvider: public CIMInstanceProvider
 {
 	public:
-            SLPProvider(void);
+        SLPProvider(void);
 	    ~SLPProvider(void);
 		          
 	    void initialize(CIMOMHandle & cimom);
@@ -105,8 +105,8 @@ class SLPProvider: public CIMInstanceProvider
         String slpTemplateInstance;
         CIMNamespaceName _interopNamespace;
 
-        void populateData(void);
-
+        void populateData(const String &protocol, const bool & start_listener = false);
+        void issueSLPRegistrations();
         String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
         void populateTemplateField(CIMInstance& instance, const String& fieldName, const String& value);
         String getHostAddress(String hostName);

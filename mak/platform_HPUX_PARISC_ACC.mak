@@ -53,15 +53,11 @@ DEPEND_INCLUDES =
 ##       +b enables dynamic search in the specified directory(ies)
 ##
 
-IAFLAGS =
-
 ifeq ($(HPUX_IA64_VERSION), yes)
   DEFINES += -DPEGASUS_ARCHITECTURE_IA64
-  IAFLAGS = +DD64 -mt
-  FLAGS = +Z $(IAFLAGS) 
+  FLAGS = +Z +DD64 -mt 
 else
-  IAFLAGS =  +DAportable 
-  FLAGS = +Z $(IAFLAGS) -D_POSIX_C_SOURCE=199506L -D_HPUX_SOURCE -D_REENTRANT -DRWSTD_MULTI_THREAD
+  FLAGS = +Z +DAportable -mt
 endif
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)

@@ -36,20 +36,27 @@
 
 inline Boolean Thread::run(void)
 {
-	// Note: A Win32 thread ID is not the same thing as a pthread ID.
-	// Win32 threads have both a thread ID and a handle.  The handle
-	// is used in the wait functions, etc.
-	// So _handle.thid is actually the thread handle.
+    // Note: A Win32 thread ID is not the same thing as a pthread ID.
+    // Win32 threads have both a thread ID and a handle.  The handle
+    // is used in the wait functions, etc.
+    // So _handle.thid is actually the thread handle.
 
-	unsigned threadid = 0;
-	_handle.thid = (PEGASUS_THREAD_TYPE)_beginthreadex( NULL, 0, _start, this, 0, &threadid );
-	// ATTN: Return false if "temporary" failure (for resource reasons)
-	if( _handle.thid == 0 )
-	{
-	    // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
-	    return true;
-	}
-	return true;
+    unsigned threadid = 0;
+    _handle.thid = (PEGASUS_THREAD_TYPE)
+        _beginthreadex(NULL, 0, _start, this, 0, &threadid);
+    if (_handle.thid == 0)
+    {
+        if (errno == EAGAIN)
+        {
+            return false;
+        }
+        else
+        {
+            // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
+            return true;
+        }
+    }
+    return true;
 }
 
 inline void Thread::cancel(void)

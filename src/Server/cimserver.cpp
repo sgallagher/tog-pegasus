@@ -79,6 +79,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstdlib>
+#include <fstream>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Server/CIMServer.h>
@@ -134,6 +135,7 @@ static const char OPTION_TIMEOUT     = 'T';
 static const String NAMESPACE = "root/PG_Internal";
 static const String CLASSNAME_SHUTDOWNSERVICE = "PG_ShutdownService";
 static const String PROPERTY_TIMEOUT = "operationTimeout";
+static const String CIMSERVERSTART_FILE = "/etc/wbem/cimserver_start.conf";
 
 ConfigManager*    configManager;
 
@@ -248,8 +250,9 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
             "Failed to connect to $0 $1.", PEGASUS_NAME, e.getMessage());
 
-        PEGASUS_STD(cerr) << "Failed to connect to server: " << e.getMessage() << PEGASUS_STD(endl);
-        exit(1);
+        PEGASUS_STD(cerr) << "Failed to connect to server: ";
+        PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+        exit(0);
     }
 
     try
@@ -286,18 +289,42 @@ void shutdownCIMOM(Boolean forceOption, Uint32 timeoutValue)
 	    "$0 terminated on port $1.", PEGASUS_NAME, portNumberStr);
 
     }
-    catch(CIMClientCIMException& e)
-    {
-        PEGASUS_STD(cerr) << "Failed to shutdown server: " << e.getMessage() << PEGASUS_STD(endl);
-        exit(1);
-    }
     catch(CIMClientException& e)
     {
-        // this may mean the cimserver has been terminated
+        //
+        // This may mean the cimserver has been terminated and returns the 
+        // "Empty HTTP response message" HTTP error response.  To be sure,
+        // we need to check if cimserver is indeed terminated.
+        //
+#ifdef PEGASUS_OS_TYPE_UNIX
+        System::sleep(1);
+        int ret = system("ps -ef | grep cimserver | grep -v grep | grep -v cimserverd >/dev/null");
+        if (ret == 0) 
+        {
+            // cimserver has been terminated
+            // Put server shutdown message to the logger
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	        "$0 terminated on port $1.", PEGASUS_NAME, portNumberStr);
+        }
+        else
+        {
+            // cimserver is still running
+            PEGASUS_STD(cerr) << "Failed to shutdown server: ";
+            PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+            exit(1);
+        }
+#endif
+    }
+    catch(CIMClientCIMException& e)
+    {
+        PEGASUS_STD(cerr) << "Failed to shutdown server: ";
+        PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+        exit(1);
     }
     catch(Exception& e)
     {
-        PEGASUS_STD(cerr) << "Failed to shutdown server: " << e.getMessage() << PEGASUS_STD(endl);
+        PEGASUS_STD(cerr) << "Failed to shutdown server: ";
+        PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
         exit(1);
     }
 
@@ -597,6 +624,7 @@ int main(int argc, char** argv)
             }
 
             shutdownCIMOM(forceOption, timeoutValue);
+
             cout << "Pegasus CIM Server terminated." << endl;
             exit(0);
         }
@@ -704,6 +732,29 @@ int main(int argc, char** argv)
 
 	time_t last = 0;
 
+#if defined(PEGASUS_OS_HPUX)
+        //
+        // create a file to indicate that the cimserver has started
+        //
+        fstream fs;
+        ArrayDestroyer<char> p(CIMSERVERSTART_FILE.allocateCString());
+        fs.open(p.getPointer(), ios::in | ios::out);
+        if (!fs)
+        {
+            //
+            // failed to create the file, write an entry to the log file
+            // and proceed
+            //
+            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	        "Failed to open the $0 file needed by cimserverd.", 
+                CIMSERVERSTART_FILE);
+        }
+        else
+        {
+            fs.close();
+        }
+#endif
+
         //
         // Loop to call CIMServer's runForever() method until CIMServer
         // has been shutdown
@@ -730,10 +781,19 @@ int main(int argc, char** argv)
 	  server.runForever();
 	}
 
-	// This statement is unrechable!
+        //
+        // normal termination
 	//
-	// Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	//   "Normal Termination");
+	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
+	    "Normal Termination");
+
+#if defined(PEGASUS_OS_HPUX)
+        //
+        // close the file at startup time to indicate that the cimserver
+        // has terminated normally.
+        //
+        FileSystem::removeFile(CIMSERVERSTART_FILE);
+#endif
     }
     catch(Exception& e)
     {

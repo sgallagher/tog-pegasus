@@ -47,8 +47,11 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
+
 #ifdef PEGASUS_OS_OS400
 #include "qycmutiltyUtility.H"
+#include "vfyptrs.cinc"
+#include <stdio.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -235,6 +238,14 @@ static const char   OPTION_LIST                = 'l';
     The option character used to specify get module status.
 */
 static const char   OPTION_STATUS                = 's';
+
+#ifdef PEGASUS_OS_OS400
+/**
+    The option character used to specify no output to stdout or stderr.
+*/
+     static const char OPTION_QUIET      = 'q';
+#endif
+
 
 /**
     The name of the Method that implements stop provider or module
@@ -466,6 +477,11 @@ CIMProviderCommand::CIMProviderCommand ()
     usage.append(" [ -").append(OPTION_STATUS);
     usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
 
+#ifdef PEGASUS_OS_OS400
+    usage.append("                   -").append(OPTION_QUIET);
+    usage.append("\n");
+#endif
+
     setUsage (usage);
 }
 
@@ -499,6 +515,9 @@ void CIMProviderCommand::setCommand (
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append(OPTION_PROVIDER);
     optString.append(getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+#ifdef PEGASUS_OS_OS400
+    optString.append(OPTION_QUIET);
+#endif
     optString.append(OPTION_LIST);
     optString.append(OPTION_STATUS);
     optString.append(OPTION_MODULE);
@@ -518,6 +537,21 @@ void CIMProviderCommand::setCommand (
         throw e;
     }
     _operationType = OPERATION_TYPE_UNINITIALIZED;
+
+#ifdef PEGASUS_OS_OS400
+      // check for quiet option before processing the rest of the options
+     for (i =  options.first (); i <  options.last (); i++)
+     {
+        c = options [i].getopt () [0];
+	if( c == OPTION_QUIET )
+	{
+	   // Redirect to /dev/null.
+           // Works for both qshell and native modes.
+           freopen("/dev/null","w",stdout);
+           freopen("/dev/null","w",stderr);
+	}
+      }
+#endif
 
     //
     //  Get options and arguments from the command line
@@ -1385,7 +1419,12 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
 	    }
 	    else
 	    {
-		instances[i].getProperty(pos).getValue().get(_status);
+		if( instances[i].getProperty(pos).getValue().isNull() ){
+		    if( _status.size() == 0 )
+				_status.append(0);
+		}
+		else
+		    instances[i].getProperty(pos).getValue().get(_status);
 	    }
 
 	    for (Uint32 j=0; j < _status.size(); j++)
@@ -1517,12 +1556,25 @@ int main (int argc, char* argv [])
 {
     CIMProviderCommand*      command;
     Uint32               retCode;
+    
 
 #ifdef PEGASUS_OS_OS400
+
+  VFYPTRS_INCDCL;               // VFYPTRS local variables
+
+  // verify pointers
+  #pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
+    0,_C2_MH_ESCAPE)
+      for( int arg_index = 1; arg_index < argc; arg_index++ ){
+	  VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
+      }
+  #pragma disable_handler
+
     if(FALSE == ycmCheckCmdAuthorities())
     { 
 	return 9;
     }
+
 #endif
 
     command  = new CIMProviderCommand ();
@@ -1543,6 +1595,6 @@ int main (int argc, char* argv [])
 
     retCode = command->execute (cout, cerr);
 
-	retCode = 0;
-    return (retCode);
+    exit(retCode);
+    return (0);
 }

@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,9 +32,75 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+Char16::Char16()
+    : _code(0)
+{
+}
+
+Char16::Char16(Uint16 x)
+    : _code(x)
+{
+}
+
+Char16::Char16(const Char16& x)
+    : _code(x._code)
+{
+}
+
+Char16::~Char16()
+{
+}
+
+Char16& Char16::operator=(Uint16 x)
+{
+    _code = x;
+    return *this;
+}
+
+Char16& Char16::operator=(const Char16& x)
+{
+    _code = x._code;
+    return *this;
+}
+
+Char16::operator Uint16() const
+{
+    return _code;
+}
+
+Boolean operator==(const Char16& x, const Char16& y)
+{
+    return Uint16(x) == Uint16(y);
+}
+
+Boolean operator==(const Char16& x, char y)
+{
+    return Uint16(x) == Uint16(y);
+}
+
+Boolean operator==(char x, const Char16& y)
+{
+    return Uint16(x) == Uint16(y);
+}
+
+Boolean operator!=(const Char16& x, const Char16& y)
+{
+    return Uint16(x) != Uint16(y);
+}
+
+Boolean operator!=(const Char16& x, char y)
+{
+    return Uint16(x) != Uint16(y);
+}
+
+Boolean operator!=(char x, const Char16& y)
+{
+    return Uint16(x) != Uint16(y);
+}
+
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Char16& x)
 {
-    Uint16 code = x.getCode();
+    Uint16 code = x;
 
     if (code > 0 && code <= PEGASUS_MAX_PRINTABLE_CHAR)
     {

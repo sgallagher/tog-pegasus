@@ -23,7 +23,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,63 +48,37 @@ class PEGASUS_COMMON_LINKAGE Char16
 public:
 
     /// Constructor Char16
-    Char16() : _code(0) { }
+    Char16();
 
     /// Constructor Char16
-    Char16(Uint16 x) : _code(x) { }
+    Char16(Uint16 x);
 
     /// Constructor Char16
-    Char16(const Char16& x) : _code(x._code) { }
+    Char16(const Char16& x);
 
     /** Destructor. */
-    ~Char16() { }
+    ~Char16();
 
     /// Constructor Char16
-    Char16& operator=(Uint16 x) { _code = x; return *this; }
+    Char16& operator=(Uint16 x);
 
     /// Constructor Char16
-    Char16& operator=(const Char16& x) {_code = x._code; return *this;}
+    Char16& operator=(const Char16& x);
 
     /// Implicit converter from Char16 to Uint16
-    operator Uint16() const { return _code; }
-
-    /// Accessor for internal code member
-    Uint16 getCode() const { return _code; }
+    operator Uint16() const;
 
 private:
 
     Uint16 _code;
 };
 
-inline Boolean operator==(const Char16& x, const Char16& y)
-{
-    return x.getCode() == y.getCode();
-}
-
-inline Boolean operator==(const Char16& x, char y)
-{
-    return x.getCode() == y;
-}
-
-inline Boolean operator==(char x, const Char16& y)
-{
-    return x == y.getCode();
-}
-
-inline Boolean operator!=(const Char16& x, const Char16& y)
-{
-    return !operator==(x, y);
-}
-
-inline Boolean operator!=(const Char16& x, char y)
-{
-    return !operator==(x, y);
-}
-
-inline Boolean operator!=(char x, const Char16& y)
-{
-    return !operator==(x, y);
-}
+PEGASUS_COMMON_LINKAGE Boolean operator==(const Char16& x, const Char16& y);
+PEGASUS_COMMON_LINKAGE Boolean operator==(const Char16& x, char y);
+PEGASUS_COMMON_LINKAGE Boolean operator==(char x, const Char16& y);
+PEGASUS_COMMON_LINKAGE Boolean operator!=(const Char16& x, const Char16& y);
+PEGASUS_COMMON_LINKAGE Boolean operator!=(const Char16& x, char y);
+PEGASUS_COMMON_LINKAGE Boolean operator!=(char x, const Char16& y);
 
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<( 
     PEGASUS_STD(ostream)& os, 

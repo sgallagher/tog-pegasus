@@ -46,7 +46,7 @@ public:
     virtual ~SafeQueue(void);
 
     void enqueue(const T & O);
-    T & dequeue(void);
+    T dequeue(void);
 
     T & front(void);
     const T & front(void) const;
@@ -81,11 +81,11 @@ void SafeQueue<T>::enqueue(const T & O)
 }
 
 template<class T>
-T & SafeQueue<T>::dequeue(void)
+T SafeQueue<T>::dequeue(void)
 {
     MutexLock lock(_mutex);
 
-    T & O = _queue.front();
+    T O = _queue.front();
 
     _queue.dequeue();
 

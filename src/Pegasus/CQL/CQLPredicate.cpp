@@ -6,12 +6,21 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
+#define PEGASUS_ARRAY_T BooleanOpType
+#include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
+
 CQLPredicate::CQLPredicate(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted)
 {
+	_simplePredicate = inSimplePredicate;
+	_invert = inVerted;
 }
 
 CQLPredicate::CQLPredicate(const CQLPredicate& inPredicate, Boolean inInverted)
 {
+	_predicates.append(inPredicate);
+	_invert = inInverted;
 }
 
 Boolean CQLPredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
@@ -26,12 +35,14 @@ Boolean CQLPredicate::getInverted(){
 	return _invert;
 }
 
-Boolean CQLPredicate::setInverted(){
+void CQLPredicate::setInverted(){
 	_invert = true;
 }
 
 void CQLPredicate::appendPredicate(CQLPredicate inPredicate, BooleanOpType inBooleanOperator)
 {
+	_predicates.append(inPredicate);
+	_operators.append(inBooleanOperator);
 }
 
 void CQLPredicate::appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator){
@@ -39,28 +50,25 @@ void CQLPredicate::appendPredicate(CQLSimplePredicate inSimplePredicate, Boolean
 }
 
 Array<CQLPredicate> CQLPredicate::getPredicates(){
-//	return _predicates;
+	return _predicates;
 }
 
 CQLSimplePredicate CQLPredicate::getSimplePredicate(){
 	return _simplePredicate;
 }
 
-BooleanOpType* CQLPredicate::getOperators(){
+Array<BooleanOpType> CQLPredicate::getOperators(){
 	return _operators;
 }
-/*
 Array<CQLScope> CQLPredicate::getScopes(){
 
 }
-
 void CQLPredicate::applyScopes(Array<CQLScope> & inScopes){
-
 }
-*/
+
 
 Boolean CQLPredicate::isSimple(){
-
+	return (_predicates.size() == 1);
 }
 
 String CQLPredicate::toString(){

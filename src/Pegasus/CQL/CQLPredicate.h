@@ -3,7 +3,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/CQLSimplePredicate.h>
-//#include <Pegasus/CQL/CQLScope.h>
+#include <Pegasus/CQL/CQLScope.h>
 #include <Pegasus/CQL/Linkage.h>
 
 
@@ -18,6 +18,13 @@ class CQLPredicate;
 #endif
 
     enum BooleanOpType { AND, OR } ;
+
+#ifndef PEGASUS_ARRAY_T
+#define PEGASUS_ARRAY_T BooleanOpType
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+#endif
+
 /** 
    This object is populated by Bison.
 
@@ -106,7 +113,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
     Boolean getInverted();
 
-    Boolean setInverted();
+    void setInverted();
 
     /** Appends a predicate to the predicate array. This method should only
             be called by Bison.
@@ -119,11 +126,11 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
   
     CQLSimplePredicate getSimplePredicate();
 
-    BooleanOpType* getOperators();
+    Array<BooleanOpType> getOperators();
 
-    //Array<CQLScope> getScopes();
+    Array<CQLScope> getScopes();
 
-    //void applyScopes(Array<CQLScope> & inScopes)
+    void applyScopes(Array<CQLScope> & inScopes);
 
     Boolean isSimple();
 
@@ -136,7 +143,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
    Array<CQLPredicate> _predicates;
    CQLSimplePredicate _simplePredicate;
-   BooleanOpType _operators[MAXOPTYPES];
+   Array<BooleanOpType> _operators;
 
     Boolean _invert;
 

@@ -62,6 +62,17 @@ LocaleContainer::~LocaleContainer(void)
 {
 }
 
+LocaleContainer &LocaleContainer::operator=(const LocaleContainer &container)
+{
+	if (this == &container)
+	{
+		return (*this);
+	}
+
+	_languageId = container._languageId;
+	return (*this);
+}
+
 String LocaleContainer::getName(void) const
 {
     return(NAME);
@@ -111,6 +122,23 @@ ProviderIdContainer::ProviderIdContainer(const CIMInstance & module, const CIMIn
 
 ProviderIdContainer::~ProviderIdContainer(void)
 {
+}
+
+ProviderIdContainer & ProviderIdContainer::operator=(
+    const ProviderIdContainer & container)
+{
+memcpy((void*)this, (void *)&container
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _module = container._module;
+    _provider = container._provider;
+    _remoteNameSpace = container._remoteNameSpace;
+    _remoteInfo = container._remoteInfo;
+
+    return (*this);
 }
 
 String ProviderIdContainer::getName(void) const

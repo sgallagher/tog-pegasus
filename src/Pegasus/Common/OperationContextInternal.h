@@ -52,6 +52,7 @@ public:
     LocaleContainer(const OperationContext::Container & container);
     LocaleContainer(const String & languageId);
     virtual ~LocaleContainer(void);
+		LocaleContainer &operator=(const LocaleContainer &);
 
     virtual String getName(void) const;
     virtual OperationContext::Container * clone(void) const;
@@ -74,6 +75,7 @@ public:
     ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
         Boolean remoteNameSpace=false, String remoteInfo=String::EMPTY);
     virtual ~ProviderIdContainer(void);
+		ProviderIdContainer &operator=(const ProviderIdContainer &);
 
     virtual String getName(void) const;
     virtual OperationContext::Container * clone(void) const;

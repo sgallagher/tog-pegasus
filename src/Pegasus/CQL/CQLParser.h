@@ -41,8 +41,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class is the main interface to the CQL parser used for parsing CQL1
-    compliant SQL statements.
+/** This class is the main interface to the CQL parser used for parsing CQL compliant statements.
 
     Here's an example which parses a SELECT statement:
 
@@ -54,109 +53,23 @@ PEGASUS_NAMESPACE_BEGIN
 
 	Array<Sint8> text(TEXT, sizeof(TEXT));
 
-	WQLSelectStatement selectStatement;
+	CQLSelectStatement selectStatement;
 
-	WQLParser parser;
+	CQLParser parser;
 
 	try
 	{
 	    parser.parse(text, selectStatement);
 	}
-	catch (ParseError&)
-	{
-	    ...
-	}
-	catch (MissingNullTerminator&)
+	catch (QueryException&)
 	{
 	    ...
 	}
     </pre>
-
-    Note that the text must be NULL terminated or else the MissingNullTerminator
-    exception is thrown.
 
     The text is read and the result is left in the selectStatement output
     argument.
 
-    At this point you might wish to peek at the contents of the selectStatement.
-    This may be done by calling WQLSelectStatement::print() like this:
-
-    <pre>
-	WQLSelectStatement selectStatement;
-	...
-	selectStatement.print();
-    </pre>
-
-    For the above query text, the following is printed:
-
-    <pre>
-	WQLSelectStatement
-	{
-	    _className: "MyClass"
-
-	    _propertyNames[0]: "X"
-	    _propertyNames[1]: "Y"
-
-	    _operations[0]: "WQL_GT"
-	    _operations[1]: "WQL_LT"
-	    _operations[2]: "WQL_AND"
-
-	    _operands[0]: "PROPERTY_NAME: X"
-	    _operands[1]: "INTEGER_VALUE: 10"
-	    _operands[2]: "PROPERTY_NAME: Y"
-	    _operands[3]: "INTEGER_VALUE: 3"
-	}
-    </pre>
-
-    The WQLSelectStatement::evaluateWhereClause() method may be called to
-    determine whether a particular instance (whose properties are made 
-    available to he evaluateWhereClause() by a user implementation of the
-    WQLPropertySource class). This method returns true, if the where clause
-    matches this instance. Here is an example:
-
-    <pre>
-	WQLSelectStatement selectStatement;
-	...
-	WQLPropertySource* propertySource = new MyPropertySource(...);
-
-	if (selectStatement.evaluateWhereClause(propertySource))
-	{
-	    // It's a match!
-	}
-    </pre>
-
-    The evaluateWhereClause() method calls propertySource->getValue() to
-    obtain values for each of the properties referred to in where clause (X 
-    and Y in the above query example).
-
-    The implementer of the WQLPropertySource interface must provide the
-    implementation of getValue() to produce values for the target data
-    types. The WQL library makes no assumptions about the nature of the 
-    target data representation. This was done so that this libary could be
-    adapted to multiple data representations.
-
-    For use with Pegasus CIMInstance objects, a CIMInstancePropertySource
-    class could be developed whose getValue() method fetches values from 
-    a CIMInstance. Here is an example of how it might be used.
-
-    <pre>
-	CIMInstancePropertySource* propertySource 
-	    = new CIMInstancePropertySource(...);
-
-	CIMInstance instance;
-
-	while (instance = GetNextInstance(...))
-	{
-	    propertySource->setInstance(currentInstance);
-
-	    if (selectStatement.evaluateWhereClause(propertySource))
-	    {
-		// It's a match!
-	    }
-	}
-    </pre>
-
-    Of course the numeration of instances is left to the user of WQL.
 */
 class PEGASUS_CQL_LINKAGE CQLParser
 {
@@ -168,10 +81,10 @@ public:
 	Please note that this method is not thread safe. It must be guarded 
 	with mutexes by the caller.
 
-	@param text null-terminated C-string which points to SQL statement.
+	@param text null-terminated C-string which points to CQL statement.
 	@param statement object which holds the compiled version of the SELECT
 	    statement upon return.
-	@exception ParseError if text is not a valid SELECT statement.
+	@exception CQLSyntaxErrorException if text is not a valid SELECT statement.
 	@exception MissingNullTerminator if text argument is not 
 	    terminated with a null. 
     */
@@ -207,4 +120,4 @@ private:
 
 PEGASUS_NAMESPACE_END
 #endif
-#endif /* Pegasus_WQLParser_h */
+#endif /* Pegasus_CQLParser_h */

@@ -309,9 +309,19 @@ public:
             }
 
 // l10n 
-            exportclient.exportIndication(
-                destStr.subString(destStr.find("/")), indicationInstance,
-                contentLanguages);
+	    // check destStr, if no path is specified, use "/" for the URI
+            Uint32 slash = destStr.find ("/");
+            if (slash != PEG_NOT_FOUND)
+	    {
+                exportclient.exportIndication(
+                    destStr.subString(slash), indicationInstance,
+                    contentLanguages);
+            }
+	    else
+	    {
+                exportclient.exportIndication(
+                    "/", indicationInstance, contentLanguages);
+	    }
         }
         catch(Exception& e)
         {

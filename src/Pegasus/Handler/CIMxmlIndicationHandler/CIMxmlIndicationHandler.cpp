@@ -28,6 +28,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <iostream>
 #include <Pegasus/ExportClient/CIMExportClient.h>
 #include <Pegasus/Handler/CIMHandler.h>

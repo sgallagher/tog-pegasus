@@ -47,6 +47,7 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>

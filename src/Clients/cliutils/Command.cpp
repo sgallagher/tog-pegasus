@@ -29,6 +29,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "Command.h"
 
 PEGASUS_NAMESPACE_BEGIN

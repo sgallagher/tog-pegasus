@@ -26,6 +26,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/PegasusVersion.h>
 #include "CIMBaseProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN

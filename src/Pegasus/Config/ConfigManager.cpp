@@ -36,6 +36,8 @@
 
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "ConfigExceptions.h"
 #include "ConfigManager.h"
 

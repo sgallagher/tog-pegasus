@@ -40,6 +40,8 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/OperationFlag.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>

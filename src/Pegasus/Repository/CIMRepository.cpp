@@ -42,6 +42,8 @@
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
 #include "InstanceIndexFile.h"

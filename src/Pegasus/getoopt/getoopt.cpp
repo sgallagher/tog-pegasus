@@ -31,6 +31,8 @@
 //
 // implementation of getoopt
 
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "getoopt.h"
 #include <cctype>
 #include <cstdlib>

@@ -30,6 +30,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPMessage.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <Pegasus/Provider/CIMOMHandle.h>
 
 #include "CIMExportRequestDispatcher.h"

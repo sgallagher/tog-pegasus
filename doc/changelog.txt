@@ -155,6 +155,10 @@ TAG: Version_1_09.
     closely models the intent of the String match in this case and is
     therefore more correct.
 
+25. (Denise Eckstein - HP) 20 Apr 2002 - Added an instance of 
+    PegasusVersion.h to each product component. This was done
+    to support component level version tracking.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

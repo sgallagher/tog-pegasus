@@ -36,6 +36,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "CIMExportRequestEncoder.h"
 #include "CIMExportResponseDecoder.h"
 #include "CIMExportClient.h"

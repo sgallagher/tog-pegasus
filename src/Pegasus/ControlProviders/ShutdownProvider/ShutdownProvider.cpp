@@ -37,6 +37,8 @@
 #include "ShutdownProvider.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <Pegasus/Provider/CIMMethodProvider.h>
 //#include <Pegasus/Server/ShutdownService.h>
 

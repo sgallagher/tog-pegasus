@@ -43,6 +43,8 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
 #include "HttpConstants.h"

@@ -46,6 +46,8 @@
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Cimom.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <Pegasus/Repository/CIMRepository.h>
 #include "ProviderMessageFacade.h"
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>

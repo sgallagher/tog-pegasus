@@ -28,9 +28,10 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <iostream>
 #include <Pegasus/Handler/CIMHandler.h>
-#include <Pegasus/Repository/CIMRepository.h>
 
 #ifdef PEGASUS_OS_HPUX
 # include <unistd.h>

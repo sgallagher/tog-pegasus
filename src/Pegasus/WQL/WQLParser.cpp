@@ -31,6 +31,8 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <iostream>
 #include "WQLParser.h"
 #include "WQLParserState.h"

@@ -30,6 +30,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 #include "IndicationHandlerService.h"
 

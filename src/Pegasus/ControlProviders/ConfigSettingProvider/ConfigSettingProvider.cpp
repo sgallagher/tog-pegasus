@@ -36,6 +36,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 #include <cctype>
 #include <iostream>

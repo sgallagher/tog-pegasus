@@ -30,6 +30,7 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

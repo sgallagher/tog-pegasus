@@ -43,6 +43,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 PEGASUS_USING_STD;
 

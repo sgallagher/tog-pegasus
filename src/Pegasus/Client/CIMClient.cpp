@@ -36,6 +36,8 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include "CIMOperationResponseDecoder.h"
 #include "CIMOperationRequestEncoder.h"
 #include "CIMClient.h"

@@ -38,6 +38,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <Pegasus/Provider/OperationFlag.h>
 
 #include "ProviderRegistrationTable.h"

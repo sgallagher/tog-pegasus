@@ -28,8 +28,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "ProviderRegistrationProvider.h"
+#include <Pegasus/Common/PegasusVersion.h>
 
+#include "ProviderRegistrationProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -33,6 +33,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <Pegasus/Config/ConfigManager.h>
 
 #include "LocalAuthenticationHandler.h"

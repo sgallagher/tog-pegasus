@@ -37,6 +37,8 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
 

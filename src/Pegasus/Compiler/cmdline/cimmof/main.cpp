@@ -36,6 +36,8 @@
 #include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Compiler/parserExceptions.h>
 
+#include <Pegasus/Common/PegasusVersion.h>
+
 PEGASUS_USING_STD;
 
 #ifdef PEGASUS_HAVE_NAMESPACES

@@ -52,19 +52,15 @@ Boolean InstanceDataFile::_openFile(
     int mode)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::_openFile()");
-
+#if defined(__GNUC__) && GCC_VERSION >= 30200
+    if (FileSystem::openNoCase(fs, path, PEGASUS_STD(ios_base::openmode)(mode)))
+#else
     if (FileSystem::openNoCase(fs, path, mode))
+#endif
     {
         PEG_METHOD_EXIT();
 	return true;
     }
-
-    //
-    // File does not exist so create it:
-    //
-
-    fs.open(path.getCString(), mode);
-
     PEG_METHOD_EXIT();
     return !!fs;
 }

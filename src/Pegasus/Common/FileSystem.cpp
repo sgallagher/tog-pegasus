@@ -247,8 +247,11 @@ Boolean FileSystem::openNoCase(
 
     if (!existsNoCase(path, realPath))
 	return false;
-
+#if defined(__GNUC__) && GCC_VERSION >= 30200
+    fs.open(_clonePath(realPath), PEGASUS_STD(ios_base::openmode)(mode));
+#else
     fs.open(_clonePath(realPath), mode);
+#endif
     return !!fs;
 }
 

@@ -26,6 +26,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef PegasusRepository_Repository_Decl_Context_h
+#define PegasusRepository_Repository_Decl_Context_h
+
 #include <Pegasus/Common/DeclContext.h>
 
 PEGASUS_USING_STD;
@@ -65,3 +68,5 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
+
+#endif

@@ -120,7 +120,7 @@ public:
 	#endif
 	
 	/*
-	 * Formatter::Arg0-9: These are assigned the various substitutions necessary to properly format
+	 * const Formatter::Arg&0-9: These are assigned the various substitutions necessary to properly format
 	 * the message being extracted.  MessageLoader substitutes these in the correct places in the message
 	 * being returned from MessageLoader::getMessage()
 	 */
@@ -135,101 +135,82 @@ public:
 	Formatter::Arg arg8;
 	Formatter::Arg arg9;
 	
-	/**
-	 * Constructor:
-	 */
-	MessageLoaderParms(){
-		useProcessLocale = false;
-		useThreadLocale = true;
-		
-		#ifdef PEGASUS_HAS_ICU
-		useICUfallback = false;
-		#endif
-		
-		acceptlanguages = AcceptLanguages();
-		contentlanguages = ContentLanguages();
-		msg_src_path = String();
-	}
-	
-	/*
-	 * Constructor: 
-	 * @param id String - message identifier used to look up a message in a message resource
-	 * @param msg String - default message to use if a message cannot be found in the message resources.
-	 * @param arg0 Formatter::Arg - optional substitution parameter
-	 * @param arg1 Formatter::Arg - optional substitution parameter
-	 * @param arg2 Formatter::Arg - optional substitution parameter
-	 * @param arg3 Formatter::Arg - optional substitution parameter
-	 * @param arg4 Formatter::Arg - optional substitution parameter
-	 * @param arg5 Formatter::Arg - optional substitution parameter
-	 * @param arg6 Formatter::Arg - optional substitution parameter
-	 * @param arg7 Formatter::Arg - optional substitution parameter
-	 * @param arg8 Formatter::Arg - optional substitution parameter
-	 * @param arg9 Formatter::Arg - optional substitution parameter
-	 */
-	MessageLoaderParms( String id, String msg, 
-						Formatter::Arg anArg0 = Formatter::Arg(), 
-						Formatter::Arg anArg1 = Formatter::Arg(),
-						Formatter::Arg anArg2 = Formatter::Arg(),
-						Formatter::Arg anArg3 = Formatter::Arg(),
-						Formatter::Arg anArg4 = Formatter::Arg(),
-						Formatter::Arg anArg5 = Formatter::Arg(),
-						Formatter::Arg anArg6 = Formatter::Arg(),
-						Formatter::Arg anArg7 = Formatter::Arg(),
-						Formatter::Arg anArg8 = Formatter::Arg(),
-						Formatter::Arg anArg9 = Formatter::Arg() ){
-							
-		msg_id = id;
-		default_msg = msg;
-		useProcessLocale = false;
-		useThreadLocale = true;
-		
-		#ifdef PEGASUS_HAS_ICU
-		useICUfallback = false;
-		#endif
-		
-		acceptlanguages = AcceptLanguages::EMPTY;
-		contentlanguages = ContentLanguages::EMPTY;
-		msg_src_path = String::EMPTY;
-		this->arg0 = anArg0;
-		this->arg1 = anArg1;
-		this->arg2 = anArg2;
-		this->arg3 = anArg3;
-		this->arg4 = anArg4;
-		this->arg5 = anArg5;
-		this->arg6 = anArg6;
-		this->arg7 = anArg7;
-		this->arg8 = anArg8;
-		this->arg9 = anArg9;
-	}	
-	
-	String toString(){
-		
-		String s;
-		String processLoc,threadLoc,ICUfallback;
-		processLoc = (useProcessLocale) ? "true" : "false";
-		threadLoc = (useThreadLocale) ? "true" : "false";
-		#ifdef PEGASUS_HAS_ICU
-		ICUfallback = (useICUfallback) ? "true" : "false";
-		#endif
-		
-		s.append("msg_id = " + msg_id + "\n");
-		s.append("default_msg = " + default_msg + "\n");
-		s.append("msg_src_path = " + msg_src_path + "\n");
-		s.append("acceptlanguages = " + acceptlanguages.toString() + "\n");
-		s.append("contentlanguages = " + contentlanguages.toString() + "\n");
-		
-		s.append("useProcessLocale = " + processLoc + "\n");
-		s.append("useThreadLocale = " + threadLoc + "\n");
-		#ifdef PEGASUS_HAS_ICU
-		s.append("useICUfallback = " + ICUfallback + "\n");
-		#endif
-		s.append("arg0 = " + arg0.toString() + "\n" + "arg1 = " + arg1.toString() + "\n" + "arg2 = " + arg2.toString() + "\n" + "arg3 = " + arg3.toString() + "\n" + 
-		          "arg4 = " + arg4.toString() + "\n" + "arg5 = " + arg5.toString() + "\n" + "arg6 = " + arg6.toString() + "\n" + "arg7 = " + arg7.toString() + "\n" + 
-		          "arg8 = " + arg8.toString() + "\n" + "arg9 = " + arg9.toString() + "\n\n");
-		          
-		return s;
-	}	
-		
+    /** Constructor */
+    MessageLoaderParms();
+
+    /** Constructor */
+    MessageLoaderParms(
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0,
+	const Formatter::Arg& arg1,
+	const Formatter::Arg& arg2,
+	const Formatter::Arg& arg3,
+	const Formatter::Arg& arg4,
+	const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
+	const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
+	const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
+	const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
+	const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
+
+    /** Constructor */
+    MessageLoaderParms(
+	const String& id, 
+	const String& msg);
+    
+    /** Constructor */
+    MessageLoaderParms(
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0);
+
+    /** Constructor */
+    MessageLoaderParms(
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0,
+	const Formatter::Arg& arg1);
+
+    /** Constructor */
+    MessageLoaderParms(
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0,
+	const Formatter::Arg& arg1,
+	const Formatter::Arg& arg2);
+
+    /** Constructor */
+    MessageLoaderParms(
+	const String& id, 
+	const String& msg, 
+	const Formatter::Arg& arg0,
+	const Formatter::Arg& arg1,
+	const Formatter::Arg& arg2,
+	const Formatter::Arg& arg3);
+
+    MessageLoaderParms(
+	const char* id, 
+	const char* msg);
+
+    MessageLoaderParms(
+	const char* id, 
+	const char* msg, 
+	const String& arg0);
+
+    MessageLoaderParms(
+	const char* id, 
+	const char* msg, 
+	const String& arg0,
+	const String& arg1);
+    
+    /** Converts to string. */
+    String toString();
+
+    ~MessageLoaderParms();
+
+private:
+
+    void _init();
 }; // end MessageLoaderParms
 
 

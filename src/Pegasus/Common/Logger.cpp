@@ -273,6 +273,7 @@ void Logger::_putInternal(
     }
 }
 
+#if 1
 void Logger::put(
 		 LogFileType logFileType,
 		 const String& systemId,
@@ -291,27 +292,39 @@ void Logger::put(
 {
     Uint32 logComponent = 0;
 
-    Logger::_putInternal(
-			logFileType,
-			systemId,
-			logComponent,
-			logLevel,
-			formatString,
-//l10n
-			String::EMPTY,
-			arg0,
-			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
-			arg6,
-			arg7,
-			arg8,
-			arg9);		
+    Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
+	formatString, String::EMPTY, arg0, arg1, arg2, arg3, arg4, arg5, arg6,
+	arg7, arg8, arg9);		
+}
+#endif
+
+void Logger::put(
+	    LogFileType logFileType,
+	    const String& systemId,
+	    Uint32 logLevel,
+	    const String& formatString)
+{
+    Uint32 logComponent = 0;
+
+    Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
+	formatString, String::EMPTY);
+}
+
+void Logger::put(
+	    LogFileType logFileType,
+	    const String& systemId,
+	    Uint32 logLevel,
+	    const String& formatString,
+	    const Formatter::Arg& arg0)
+{
+    Uint32 logComponent = 0;
+
+    Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
+	formatString, String::EMPTY, arg0);
 }
 
 // l10n
+#if 1
 void Logger::put_l(
 		 LogFileType logFileType,
 		 const String& systemId,
@@ -331,23 +344,37 @@ void Logger::put_l(
 {
     Uint32 logComponent = 0;
 
-    Logger::_putInternal(
-			logFileType,
-			systemId,
-			logComponent,
-			logLevel,
-			formatString,
-			messageId,
-			arg0,
-			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
-			arg6,
-			arg7,
-			arg8,
-			arg9);		
+    Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
+	formatString, messageId, arg0, arg1, arg2, arg3, arg4, arg5,
+	arg6, arg7, arg8, arg9);		
+}
+#endif
+
+void Logger::put_l(
+     LogFileType logFileType,
+     const String& systemId,
+     Uint32 logLevel,
+     const String& messageId,
+     const String& formatString)
+{
+    Uint32 logComponent = 0;
+
+    Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
+	formatString, messageId);
+}
+
+void Logger::put_l(
+     LogFileType logFileType,
+     const String& systemId,
+     Uint32 logLevel,
+     const String& messageId,
+     const String& formatString,
+     const Formatter::Arg& arg0)
+{
+    Uint32 logComponent = 0;
+
+    Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
+	formatString, messageId, arg0);
 }
 
 void Logger::trace(
@@ -438,7 +465,7 @@ void Logger::setHomeDirectory(const String& homeDirectory)
 void Logger::setlogLevelMask( const String logLevelList )
 {
     Uint32 position          = 0;
-    Uint32 logLevelType;
+    Uint32 logLevelType = 0;
     String logLevelName      = logLevelList;
 
     // Check if logLevel has been specified

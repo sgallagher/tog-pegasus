@@ -538,35 +538,17 @@ public:
     {
     }
 
-    QueueIdStack(const QueueIdStack& x) : _size(x._size)
-    {
-	memcpy(_items, x._items, sizeof(_items));
-    }
+    QueueIdStack(const QueueIdStack& x);
 
-    PEGASUS_EXPLICIT QueueIdStack(Uint32 x) : _size(0)
-    {
-	push(x);
-    }
+    PEGASUS_EXPLICIT QueueIdStack(Uint32 x);
 
-    PEGASUS_EXPLICIT QueueIdStack(Uint32 x1, Uint32 x2) : _size(0)
-    {
-	push(x1);
-	push(x2);
-    }
+    PEGASUS_EXPLICIT QueueIdStack(Uint32 x1, Uint32 x2);
 
     ~QueueIdStack()
     {
     }
 
-    QueueIdStack& operator=(const QueueIdStack& x)
-    {
-	if (this != &x)
-	{
-	    memcpy(_items, x._items, sizeof(_items));
-	    _size = x._size;
-	}
-	return *this;
-    }
+    QueueIdStack& operator=(const QueueIdStack& x);
 
     Uint32 size() const
     {
@@ -580,17 +562,19 @@ public:
 
     void push(Uint32 x)
     {
+#ifdef PEGASUS_DEBUG
 	if (_size == MAX_SIZE)
 	    throw StackOverflow();
-
+#endif
 	_items[_size++] = x;
     }
 
     Uint32& top()
     {
+#ifdef PEGASUS_DEBUG
 	if (_size == 0)
 	    throw StackUnderflow();
-
+#endif
 	return _items[_size-1];
     }
 
@@ -601,26 +585,20 @@ public:
 
     void pop()
     {
+#ifdef PEGASUS_DEBUG
 	if (_size == 0)
 	    throw StackUnderflow();
-
+#endif
 	_size--;
     }
 
     /** Make a copy of this stack and then pop the top element. */
-    QueueIdStack copyAndPop() const
-    {
-	return QueueIdStack(*this, 0);
-    }
+    QueueIdStack copyAndPop() const;
 
 private:
 
     // Copy the given stack but then pop the top element:
-    QueueIdStack(const QueueIdStack& x, int) : _size(x._size)
-    {
-	memcpy(_items, x._items, sizeof(_items));
-	pop();
-    }
+    QueueIdStack(const QueueIdStack& x, int);
 
     enum { MAX_SIZE = 5 };
     Uint32 _items[MAX_SIZE];

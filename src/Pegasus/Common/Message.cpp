@@ -302,4 +302,47 @@ void Message::endProvider()
 }
 #endif
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// QueueIdStack
+//
+////////////////////////////////////////////////////////////////////////////////
+
+QueueIdStack::QueueIdStack(const QueueIdStack& x) : _size(x._size)
+{
+    memcpy(_items, x._items, sizeof(_items));
+}
+
+QueueIdStack::QueueIdStack(Uint32 x) : _size(0)
+{
+    push(x);
+}
+
+QueueIdStack::QueueIdStack(Uint32 x1, Uint32 x2) : _size(0)
+{
+    push(x1);
+    push(x2);
+}
+
+QueueIdStack& QueueIdStack::operator=(const QueueIdStack& x)
+{
+    if (this != &x)
+    {
+	memcpy(_items, x._items, sizeof(_items));
+	_size = x._size;
+    }
+    return *this;
+}
+
+QueueIdStack QueueIdStack::copyAndPop() const
+{
+    return QueueIdStack(*this, 0);
+}
+
+QueueIdStack::QueueIdStack(const QueueIdStack& x, int) : _size(x._size)
+{
+    memcpy(_items, x._items, sizeof(_items));
+    pop();
+}
+
 PEGASUS_NAMESPACE_END

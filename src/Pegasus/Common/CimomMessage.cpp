@@ -566,5 +566,12 @@ EnumerateServiceResponse::EnumerateServiceResponse(Uint32 key,
 	 
 }
 
+AsyncMessage::~AsyncMessage(void) 
+{
+}
+
+AsyncRequest::~AsyncRequest(void)
+{
+}
 
 PEGASUS_NAMESPACE_END

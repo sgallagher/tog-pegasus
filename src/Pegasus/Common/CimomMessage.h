@@ -127,10 +127,7 @@ class PEGASUS_COMMON_LINKAGE AsyncMessage : public Message
 		   Uint32 mask,
 		   AsyncOpNode *operation);
            
-      virtual ~AsyncMessage(void) 
-      {
-	 
-      }
+      virtual ~AsyncMessage(void);
       
       Boolean operator ==(const void *key);
       Boolean operator ==(const AsyncMessage& msg);
@@ -167,10 +164,7 @@ class PEGASUS_COMMON_LINKAGE AsyncRequest : public AsyncMessage
 		   Boolean blocking);
       
       
-      virtual ~AsyncRequest(void) 
-      {
-
-      }
+      virtual ~AsyncRequest(void);
             
       Uint32 resp;
       Boolean block;
@@ -189,10 +183,7 @@ class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
 		 Boolean blocking);
       
       
-      virtual ~AsyncReply(void)
-      {
-	 
-      }
+      virtual ~AsyncReply(void) { }
             
       Uint32 result;
       Boolean block;

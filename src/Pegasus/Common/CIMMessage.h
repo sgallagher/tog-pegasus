@@ -87,14 +87,7 @@ class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {
 public:
 
-    CIMMessage(Uint32 type,
-	 const String& messageId_)
-	: Message(type),
-	 messageId(messageId_)
-	{
-		operationContext.insert(AcceptLanguageListContainer(AcceptLanguages::EMPTY)); 
-		operationContext.insert(ContentLanguageListContainer(ContentLanguages::EMPTY)); 
-    }
+    CIMMessage(Uint32 type, const String& messageId_);
 
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
@@ -124,13 +117,7 @@ class PEGASUS_COMMON_LINKAGE CIMRequestMessage : public CIMMessage
 {
 public:
     CIMRequestMessage(
-        Uint32 type_,
-	const String& messageId_,
-	const QueueIdStack& queueIds_)
-    : CIMMessage(type_, messageId_),
-	queueIds(queueIds_)
-    {
-    }
+        Uint32 type_, const String& messageId_, const QueueIdStack& queueIds_);
 
     virtual CIMResponseMessage* buildResponse() = 0;
 
@@ -158,16 +145,12 @@ public:
 class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage
 {
 public:
+
     CIMResponseMessage(
         Uint32 type_,
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_)
-    : CIMMessage(type_, messageId_),
-        queueIds(queueIds_),
-        cimException(cimException_)
-    {
-    }
+        const QueueIdStack& queueIds_);
 
     void syncAttributes(CIMRequestMessage* request);
 
@@ -175,28 +158,22 @@ public:
     CIMException cimException;
 };
 
-
 //
 // CIMRequestMessages
 //
-
 class PEGASUS_COMMON_LINKAGE CIMOperationRequestMessage
     : public CIMRequestMessage
 {	// PEP# 99
 public:
+
     CIMOperationRequestMessage(
         Uint32 type_,
 	const String& messageId_,
 	const QueueIdStack& queueIds_,
         const CIMNamespaceName& nameSpace_,
 	const CIMName& className_,
-	Uint32 providerType_ = TYPE_INSTANCE)
-    : CIMRequestMessage(type_, messageId_, queueIds_),
-        nameSpace(nameSpace_),
-        className(className_),
-        providerType(providerType_)
-    {
-    }
+	Uint32 providerType_ = TYPE_INSTANCE);
+
     CIMNamespaceName nameSpace;
     CIMName className;
     Uint32 providerType;
@@ -210,7 +187,8 @@ public:
         Uint32 type_,
         const String & messageId_,
         const QueueIdStack& queueIds_)
-    : CIMRequestMessage(type_, messageId_, queueIds_)
+	: 
+	CIMRequestMessage(type_, messageId_, queueIds_)
     {
     }
 };

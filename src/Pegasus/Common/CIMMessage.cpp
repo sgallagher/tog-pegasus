@@ -519,4 +519,46 @@ CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse()
     return response.release();
 }
 
+CIMMessage::CIMMessage(Uint32 type, const String& messageId_)
+    : Message(type), messageId(messageId_)
+{
+    operationContext.insert(
+	AcceptLanguageListContainer(AcceptLanguages::EMPTY)); 
+    operationContext.insert(
+	ContentLanguageListContainer(ContentLanguages::EMPTY)); 
+}
+
+CIMRequestMessage::CIMRequestMessage(
+    Uint32 type_, const String& messageId_, const QueueIdStack& queueIds_)
+    : CIMMessage(type_, messageId_), queueIds(queueIds_)
+{
+}
+
+CIMResponseMessage::CIMResponseMessage(
+    Uint32 type_,
+    const String& messageId_,
+    const CIMException& cimException_,
+    const QueueIdStack& queueIds_)
+    : 
+    CIMMessage(type_, messageId_),
+    queueIds(queueIds_),
+    cimException(cimException_)
+{
+}
+
+CIMOperationRequestMessage::CIMOperationRequestMessage(
+    Uint32 type_,
+    const String& messageId_,
+    const QueueIdStack& queueIds_,
+    const CIMNamespaceName& nameSpace_,
+    const CIMName& className_,
+    Uint32 providerType_)
+    : 
+    CIMRequestMessage(type_, messageId_, queueIds_),
+    nameSpace(nameSpace_),
+    className(className_),
+    providerType(providerType_)
+{
+}
+
 PEGASUS_NAMESPACE_END

@@ -137,21 +137,23 @@ public:
 
 	Type _type;
     };
+
     /**	 Format function for the formatter
     */
     static String format(
 	const String& formatString,
-	const Arg& arg0 = Arg(),
-	const Arg& arg1 = Arg(),
-	const Arg& arg2 = Arg(),
-	const Arg& arg3 = Arg(),
-	const Arg& arg4 = Arg(),
-	const Arg& arg5 = Arg(),
-	const Arg& arg6 = Arg(),
-	const Arg& arg7 = Arg(),
-	const Arg& arg8 = Arg(),
-	const Arg& arg9 = Arg());
-	
+	const Arg& arg0 = Formatter::DEFAULT_ARG,
+	const Arg& arg1 = Formatter::DEFAULT_ARG,
+	const Arg& arg2 = Formatter::DEFAULT_ARG,
+	const Arg& arg3 = Formatter::DEFAULT_ARG,
+	const Arg& arg4 = Formatter::DEFAULT_ARG,
+	const Arg& arg5 = Formatter::DEFAULT_ARG,
+	const Arg& arg6 = Formatter::DEFAULT_ARG,
+	const Arg& arg7 = Formatter::DEFAULT_ARG,
+	const Arg& arg8 = Formatter::DEFAULT_ARG,
+	const Arg& arg9 = Formatter::DEFAULT_ARG);
+
+    static const Formatter::Arg DEFAULT_ARG;
 };
 
 PEGASUS_NAMESPACE_END

@@ -37,6 +37,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+const Formatter::Arg Formatter::DEFAULT_ARG;
+
 String Formatter::Arg::toString() const
 {
     switch (_type)

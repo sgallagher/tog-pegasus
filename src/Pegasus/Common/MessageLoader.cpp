@@ -368,21 +368,21 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 	
 	void MessageLoader::xferFormattables(MessageLoaderParms &parms, Formattable *formattables){	
 		
-		Formatter::Arg arg_arr[10] = {parms.arg0,parms.arg1,parms.arg2,parms.arg3,parms.arg4,parms.arg5,
+		const Formatter::Arg& arg_arr[10] = {parms.arg0,parms.arg1,parms.arg2,parms.arg3,parms.arg4,parms.arg5,
 								 	  parms.arg6,parms.arg7,parms.arg8,parms.arg9};
 		//cout << "XFERFORMATTABLES" << endl;
 		for(int i = 0; i < 10; i++){  
 			//cout << "arg" << i << " = " << arg_arr[i].toString() << endl;
 			switch (arg_arr[i]._type)
     		{
-				case Formatter::Arg::INTEGER:   formattables[i] = (int32_t)arg_arr[i]._integer;break;
-				case Formatter::Arg::UINTEGER:  formattables[i] = (int32_t)arg_arr[i]._uinteger;break;
-				case Formatter::Arg::BOOLEAN:   formattables[i] = (int32_t)arg_arr[i]._boolean;break;
-				case Formatter::Arg::REAL:      formattables[i] = (float)arg_arr[i]._real;break;
-				case Formatter::Arg::LINTEGER:  formattables[i] = (double)arg_arr[i]._lInteger;break;
-				case Formatter::Arg::ULINTEGER: formattables[i] = (double)arg_arr[i]._lUInteger;break;
-				case Formatter::Arg::STRING:    formattables[i] = Formattable(string2UChar(arg_arr[i]._string));break;
-	    		case Formatter::Arg::VOIDT:     formattables[i] = "";break;
+				case const Formatter::Arg&::INTEGER:   formattables[i] = (int32_t)arg_arr[i]._integer;break;
+				case const Formatter::Arg&::UINTEGER:  formattables[i] = (int32_t)arg_arr[i]._uinteger;break;
+				case const Formatter::Arg&::BOOLEAN:   formattables[i] = (int32_t)arg_arr[i]._boolean;break;
+				case const Formatter::Arg&::REAL:      formattables[i] = (float)arg_arr[i]._real;break;
+				case const Formatter::Arg&::LINTEGER:  formattables[i] = (double)arg_arr[i]._lInteger;break;
+				case const Formatter::Arg&::ULINTEGER: formattables[i] = (double)arg_arr[i]._lUInteger;break;
+				case const Formatter::Arg&::STRING:    formattables[i] = Formattable(string2UChar(arg_arr[i]._string));break;
+	    		case const Formatter::Arg&::VOIDT:     formattables[i] = "";break;
 			}	
 		}
 	}
@@ -502,6 +502,200 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 	    _useDefaultMsg = true;	
 	}
 
+MessageLoaderParms::MessageLoaderParms()
+{
+	useProcessLocale = false;
+	useThreadLocale = true;
+	
+	#ifdef PEGASUS_HAS_ICU
+	useICUfallback = false;
+	#endif
+	
+	acceptlanguages = AcceptLanguages();
+	contentlanguages = ContentLanguages();
+}
+
+MessageLoaderParms::MessageLoaderParms( 
+    const String& id, 
+    const String& msg, 
+    const Formatter::Arg& arg0, 
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    this->arg0 = arg0;
+    this->arg1 = arg1;
+    this->arg2 = arg2;
+    this->arg3 = arg3;
+    this->arg4 = arg4;
+    this->arg5 = arg5;
+    this->arg6 = arg6;
+    this->arg7 = arg7;
+    this->arg8 = arg8;
+    this->arg9 = arg9;
+}	
+
+MessageLoaderParms::MessageLoaderParms( 
+    const String& id, 
+    const String& msg)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+}
+
+MessageLoaderParms::MessageLoaderParms( 
+    const String& id, 
+    const String& msg, 
+    const Formatter::Arg& arg0)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    this->arg0 = arg0;
+}
+
+MessageLoaderParms::MessageLoaderParms( 
+    const String& id, 
+    const String& msg, 
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    this->arg0 = arg0;
+    this->arg1 = arg1;
+}
+
+MessageLoaderParms::MessageLoaderParms( 
+    const String& id, 
+    const String& msg, 
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    this->arg0 = arg0;
+    this->arg1 = arg1;
+    this->arg2 = arg2;
+}
+
+MessageLoaderParms::MessageLoaderParms( 
+    const String& id, 
+    const String& msg, 
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    this->arg0 = arg0;
+    this->arg1 = arg1;
+    this->arg2 = arg2;
+    this->arg3 = arg3;
+}
+
+MessageLoaderParms::MessageLoaderParms(
+    const char* id, 
+    const char* msg)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+}
+
+MessageLoaderParms::MessageLoaderParms(
+    const char* id, 
+    const char* msg, 
+    const String& arg0)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    this->arg0 = arg0;
+}
+
+MessageLoaderParms::MessageLoaderParms(
+    const char* id, 
+    const char* msg, 
+    const String& arg0,
+    const String& arg1)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+    this->arg0 = arg0;
+    this->arg1 = arg1;
+}
+
+void MessageLoaderParms::_init()
+{
+    useProcessLocale = false;
+    useThreadLocale = true;
+    
+#ifdef PEGASUS_HAS_ICU
+    useICUfallback = false;
+#endif
+    
+    acceptlanguages = AcceptLanguages::EMPTY;
+    contentlanguages = ContentLanguages::EMPTY;
+
+    this->arg0 = Formatter::DEFAULT_ARG;
+    this->arg1 = Formatter::DEFAULT_ARG;
+    this->arg2 = Formatter::DEFAULT_ARG;
+    this->arg3 = Formatter::DEFAULT_ARG;
+    this->arg4 = Formatter::DEFAULT_ARG;
+    this->arg5 = Formatter::DEFAULT_ARG;
+    this->arg6 = Formatter::DEFAULT_ARG;
+    this->arg7 = Formatter::DEFAULT_ARG;
+    this->arg8 = Formatter::DEFAULT_ARG;
+    this->arg9 = Formatter::DEFAULT_ARG;
+}
+
+String MessageLoaderParms::toString()
+{
+    String s;
+    String processLoc,threadLoc,ICUfallback;
+    processLoc = (useProcessLocale) ? "true" : "false";
+    threadLoc = (useThreadLocale) ? "true" : "false";
+    #ifdef PEGASUS_HAS_ICU
+    ICUfallback = (useICUfallback) ? "true" : "false";
+    #endif
+    
+    s.append("msg_id = " + msg_id + "\n");
+    s.append("default_msg = " + default_msg + "\n");
+    s.append("msg_src_path = " + msg_src_path + "\n");
+    s.append("acceptlanguages = " + acceptlanguages.toString() + "\n");
+    s.append("contentlanguages = " + contentlanguages.toString() + "\n");
+    
+    s.append("useProcessLocale = " + processLoc + "\n");
+    s.append("useThreadLocale = " + threadLoc + "\n");
+    #ifdef PEGASUS_HAS_ICU
+    s.append("useICUfallback = " + ICUfallback + "\n");
+    #endif
+    s.append("arg0 = " + arg0.toString() + "\n" + "arg1 = " + arg1.toString() + "\n" + "arg2 = " + arg2.toString() + "\n" + "arg3 = " + arg3.toString() + "\n" + 
+	      "arg4 = " + arg4.toString() + "\n" + "arg5 = " + arg5.toString() + "\n" + "arg6 = " + arg6.toString() + "\n" + "arg7 = " + arg7.toString() + "\n" + 
+	      "arg8 = " + arg8.toString() + "\n" + "arg9 = " + arg9.toString() + "\n\n");
+		  
+    return s;
+}
+
+MessageLoaderParms::~MessageLoaderParms()
+{
+}
+
 PEGASUS_NAMESPACE_END
-
-

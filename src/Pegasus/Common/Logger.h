@@ -95,21 +95,36 @@ public:
 	"X=$0, Y=$1, Z=$2", 88,  "Hello World", 7.5);
     </pre>
     */
+#if 1
     static void put(
-		    LogFileType logFileType,
-		    const String& systemId,
-		    Uint32 logLevel,
-		    const String& formatString,
-		    const Formatter::Arg& arg0 = Formatter::Arg(),
-		    const Formatter::Arg& arg1 = Formatter::Arg(),
-		    const Formatter::Arg& arg2 = Formatter::Arg(),
-		    const Formatter::Arg& arg3 = Formatter::Arg(),
-		    const Formatter::Arg& arg4 = Formatter::Arg(),
-		    const Formatter::Arg& arg5 = Formatter::Arg(),
-		    const Formatter::Arg& arg6 = Formatter::Arg(),
-		    const Formatter::Arg& arg7 = Formatter::Arg(),
-		    const Formatter::Arg& arg8 = Formatter::Arg(),
-		    const Formatter::Arg& arg9 = Formatter::Arg());
+		LogFileType logFileType,
+		const String& systemId,
+		Uint32 logLevel,
+		const String& formatString,
+		const Formatter::Arg& arg0,
+		const Formatter::Arg& arg1,
+		const Formatter::Arg& arg2 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg3 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
+#endif
+
+    static void put(
+		LogFileType logFileType,
+		const String& systemId,
+		Uint32 logLevel,
+		const String& formatString);
+
+    static void put(
+		LogFileType logFileType,
+		const String& systemId,
+		Uint32 logLevel,
+		const String& formatString,
+		const Formatter::Arg& arg0);
 
 // l10n
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
@@ -133,64 +148,80 @@ public:
 	"X=$0, Y=$1, Z=$2", 88,  "Hello World", 7.5);
     </pre>
     */
+#if 1
     static void put_l(
     		LogFileType logFileType,
-		    const String& systemId,
-		    Uint32 logLevel,
-                    const String& messageId,		    
-		    const String& formatString,
-		    const Formatter::Arg& arg0 = Formatter::Arg(),
-		    const Formatter::Arg& arg1 = Formatter::Arg(),
-		    const Formatter::Arg& arg2 = Formatter::Arg(),
-		    const Formatter::Arg& arg3 = Formatter::Arg(),
-		    const Formatter::Arg& arg4 = Formatter::Arg(),
-		    const Formatter::Arg& arg5 = Formatter::Arg(),
-		    const Formatter::Arg& arg6 = Formatter::Arg(),
-		    const Formatter::Arg& arg7 = Formatter::Arg(),
-		    const Formatter::Arg& arg8 = Formatter::Arg(),
-		    const Formatter::Arg& arg9 = Formatter::Arg());
+		const String& systemId,
+		Uint32 logLevel,
+		const String& messageId,		    
+		const String& formatString,
+		const Formatter::Arg& arg0,
+		const Formatter::Arg& arg1,
+		const Formatter::Arg& arg2 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg3 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
+#endif
+
+    static void put_l(
+    		LogFileType logFileType,
+		const String& systemId,
+		Uint32 logLevel,
+		const String& messageId,		    
+		const String& formatString);
+
+    static void put_l(
+    		LogFileType logFileType,
+		const String& systemId,
+		Uint32 logLevel,
+		const String& messageId,		    
+		const String& formatString,
+		const Formatter::Arg& arg0);
 #endif
 
 
     // _trace - puts a message to the define log.  Should only be used
     // for trace type logs  
     static void trace(
-		       LogFileType logFileType,
-		       const String& systemId,
-		       const Uint32 logComponent,
-		       const String& formatString,
-		       const Formatter::Arg& arg0 = Formatter::Arg(),
-		       const Formatter::Arg& arg1 = Formatter::Arg(),
-		       const Formatter::Arg& arg2 = Formatter::Arg(),
-		       const Formatter::Arg& arg3 = Formatter::Arg(),
-		       const Formatter::Arg& arg4 = Formatter::Arg(),
-		       const Formatter::Arg& arg5 = Formatter::Arg(),
-		       const Formatter::Arg& arg6 = Formatter::Arg(),
-		       const Formatter::Arg& arg7 = Formatter::Arg(),
-		       const Formatter::Arg& arg8 = Formatter::Arg(),
-		       const Formatter::Arg& arg9 = Formatter::Arg());
-
+	       LogFileType logFileType,
+	       const String& systemId,
+	       const Uint32 logComponent,
+	       const String& formatString,
+	       const Formatter::Arg& arg0,
+	       const Formatter::Arg& arg1,
+	       const Formatter::Arg& arg2 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg3 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
 
 // l10n
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     // trace - puts a localized message to the log.  Should only be used
     // for trace type logs  
     static void trace_l(
-		       LogFileType logFileType,
-		       const String& systemId,
-		       const Uint32 logComponent,
-                       const String& messageId,		       
-		       const String& formatString,
-		       const Formatter::Arg& arg0 = Formatter::Arg(),
-		       const Formatter::Arg& arg1 = Formatter::Arg(),
-		       const Formatter::Arg& arg2 = Formatter::Arg(),
-		       const Formatter::Arg& arg3 = Formatter::Arg(),
-		       const Formatter::Arg& arg4 = Formatter::Arg(),
-		       const Formatter::Arg& arg5 = Formatter::Arg(),
-		       const Formatter::Arg& arg6 = Formatter::Arg(),
-		       const Formatter::Arg& arg7 = Formatter::Arg(),
-		       const Formatter::Arg& arg8 = Formatter::Arg(),
-		       const Formatter::Arg& arg9 = Formatter::Arg());
+	       LogFileType logFileType,
+	       const String& systemId,
+	       const Uint32 logComponent,
+	       const String& messageId,		       
+	       const String& formatString,
+	       const Formatter::Arg& arg0 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg1 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg2 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg3 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
+	       const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
 #endif
 
 
@@ -221,22 +252,22 @@ private:
     static const Boolean _SUCCESS;
     static const Boolean _FAILURE;
     static void _putInternal(
-		    LogFileType logFileType,
-		    const String& systemId,
-		    const Uint32 logComponent,
-		    Uint32 logLevel,
-		    const String& formatString,
-                    const String& messageId,  // l10n
-		    const Formatter::Arg& arg0 = Formatter::Arg(),
-		    const Formatter::Arg& arg1 = Formatter::Arg(),
-		    const Formatter::Arg& arg2 = Formatter::Arg(),
-		    const Formatter::Arg& arg3 = Formatter::Arg(),
-		    const Formatter::Arg& arg4 = Formatter::Arg(),
-		    const Formatter::Arg& arg5 = Formatter::Arg(),
-		    const Formatter::Arg& arg6 = Formatter::Arg(),
-		    const Formatter::Arg& arg7 = Formatter::Arg(),
-		    const Formatter::Arg& arg8 = Formatter::Arg(),
-		    const Formatter::Arg& arg9 = Formatter::Arg());
+		LogFileType logFileType,
+		const String& systemId,
+		const Uint32 logComponent,
+		Uint32 logLevel,
+		const String& formatString,
+		const String& messageId,  // l10n
+		const Formatter::Arg& arg0 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg1 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg2 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg3 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
+		const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
 
 };
 

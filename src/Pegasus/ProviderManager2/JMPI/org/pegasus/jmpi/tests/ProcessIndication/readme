@@ -1,0 +1,21 @@
+
+
+JMPI Indication sample
+
+This sample is modeled after pegasus/src/Providers/sample/RT_Indications
+It requires pegasus/src/Providers/IndicationConsumer/SimpleDisplayConsumer to be installed 
+
+For Linux perform the following steps:
+
+1) Execute "make" and "make install"
+   Compiles and installs .jar and mofs
+
+2) Execute "sh RT_subscribe.sh"  
+   Generates subscription
+
+3) Execute "sh RT_trigger.sh"
+   Trace message now in pegasus/indicationlog
+   
+4) Execute "sh RT_delSubscription" 
+   Removes subscription
+

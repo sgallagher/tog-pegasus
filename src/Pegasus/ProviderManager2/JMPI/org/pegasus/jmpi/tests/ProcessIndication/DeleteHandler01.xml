@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIM CIMVERSION="2.0" DTDVERSION="2.0">
+  <MESSAGE ID="140001" PROTOCOLVERSION="1.0">
+    <SIMPLEREQ>
+      <IMETHODCALL NAME="DeleteInstance">
+        <LOCALNAMESPACEPATH>
+          <NAMESPACE NAME="root"/>
+          <NAMESPACE NAME="PG_InterOp"/>
+        </LOCALNAMESPACEPATH>
+        <IPARAMVALUE NAME="InstanceName">
+          <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+            <KEYBINDING NAME="SystemCreationClassName">
+              <KEYVALUE VALUETYPE="string">
+              </KEYVALUE>
+            </KEYBINDING>
+            <KEYBINDING NAME="SystemName">
+              <KEYVALUE VALUETYPE="string">
+              </KEYVALUE>
+            </KEYBINDING>
+            <KEYBINDING NAME="CreationClassName">
+              <KEYVALUE VALUETYPE="string">
+              </KEYVALUE>
+            </KEYBINDING>
+            <KEYBINDING NAME="Name">
+              <KEYVALUE VALUETYPE="string">
+              Pegasus_RT_TestHandler01
+              </KEYVALUE>
+            </KEYBINDING>
+          </INSTANCENAME>
+        </IPARAMVALUE>
+      </IMETHODCALL>
+    </SIMPLEREQ>
+  </MESSAGE>
+</CIM>

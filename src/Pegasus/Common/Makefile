@@ -8,50 +8,36 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 
 LIBRARY = pegcommon
 
-NEW_SOURCES = \
+SOURCES = \
+    Array.cpp \
     AsyncOpNode.cpp \
     AsyncOpNodeLocal.cpp \
     AsyncResponseHandler.cpp \
-    Monitor.cpp \
-    HTTPAcceptor.cpp \
-    HTTPConnection.cpp \
-    HTTPConnector.cpp  \
-    HTTPMessage.cpp \
-    HTTPDelegator.cpp \
-	 CIMHandle.cpp \
-	 OperationContext.cpp \
-	 ResponseHandler.cpp
-
-SOURCES = \
-    $(NEW_SOURCES) \
-    OptionManager.cpp \
-    Socket.cpp \
-    CIMStatusCode.cpp \
-    CIMMessage.cpp \
-    Message.cpp \
-    MessageQueue.cpp \
-    CIMObject.cpp \
-    Array.cpp \
+    CGIQueryString.cpp \
     Channel.cpp \
     Char16.cpp \
-    Config.cpp \
     CIMClass.cpp \
     CIMClassRep.cpp \
     CIMDateTime.cpp \
     CIMFlavor.cpp \
+    CIMHandle.cpp \
+    CIMIndication.cpp \
     CIMInstance.cpp \
     CIMInstanceRep.cpp \
+    CIMMessage.cpp \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \
     CIMNamedInstance.cpp \
+    CIMObject.cpp \
+    CIMOMHandle.cpp \
     CIMParameter.cpp \
     CIMParameterRep.cpp \
     CIMParamValue.cpp \
     CIMParamValueRep.cpp \
     CIMProperty.cpp \
-    CIMPropertyRep.cpp \
     CIMPropertyList.cpp \
+    CIMPropertyRep.cpp \
     CIMQualifier.cpp \
     CIMQualifierDecl.cpp \
     CIMQualifierDeclRep.cpp \
@@ -60,10 +46,10 @@ SOURCES = \
     CIMQualifierRep.cpp \
     CIMReference.cpp \
     CIMScope.cpp \
+    CIMStatusCode.cpp \
     CIMType.cpp \
     CIMValue.cpp \
-    CIMIndication.cpp \
-    CIMOMHandle.cpp \
+    Config.cpp \
     DeclContext.cpp \
     Destroyer.cpp \
     Dir.cpp \
@@ -72,29 +58,40 @@ SOURCES = \
     FileSystem.cpp \
     Formatter.cpp \
     HashTable.cpp \
+    HTTPAcceptor.cpp \
+    HTTPConnection.cpp \
+    HTTPConnector.cpp  \
+    HTTPDelegator.cpp \
+    HTTPMessage.cpp \
     Indentor.cpp \
     IPC.cpp \
     Logger.cpp \
     Memory.cpp \
+    Message.cpp \
+    MessageQueue.cpp \
+    Monitor.cpp \
+    OperationContext.cpp \
+    OptionManager.cpp \
     Pair.cpp \
     Queue.cpp \
-    Thread.cpp \
-    TraceFileHandler.cpp \
-    Tracer.cpp \
+    ResponseHandler.cpp \
     Selector.cpp \
     Service.cpp \
     Sharable.cpp \
+    Socket.cpp \
     Stack.cpp \
     Stopwatch.cpp \
     String.cpp \
     System.cpp \
     TCPChannel.cpp \
+    Thread.cpp \
     TimeValue.cpp \
+    TraceFileHandler.cpp \
+    Tracer.cpp \
     Union.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
-    XmlWriter.cpp \
-    CGIQueryString.cpp \
+    XmlWriter.cpp
 
 ##
 ## Took these out again. They broke the NT build.

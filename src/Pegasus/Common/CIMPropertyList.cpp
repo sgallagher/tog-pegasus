@@ -37,20 +37,20 @@ CIMPropertyList::CIMPropertyList() : _isNull(true)
 }
 
 CIMPropertyList::CIMPropertyList(const CIMPropertyList& x) :
-    _properties(x._properties), _isNull(x._isNull)
+    _propertyNames(x._propertyNames), _isNull(x._isNull)
 {
 
 }
 
-CIMPropertyList::CIMPropertyList(const Array<CIMProperty>& properties) :
-    _properties(properties), _isNull(false)
+CIMPropertyList::CIMPropertyList(const Array<String>& propertyNames) :
+    _propertyNames(propertyNames), _isNull(false)
 {
 
 }
 
-void CIMPropertyList::set(const Array<CIMProperty>& properties)
+void CIMPropertyList::set(const Array<String>& propertyNames)
 {
-    _properties = properties;
+    _propertyNames = propertyNames;
     _isNull = false;
 }
 
@@ -58,7 +58,7 @@ CIMPropertyList& CIMPropertyList::operator=(const CIMPropertyList& x)
 {
     if (&x != this)
     {
-	_properties = x._properties;
+	_propertyNames = x._propertyNames;
 	_isNull = x._isNull;
     }
 
@@ -67,7 +67,7 @@ CIMPropertyList& CIMPropertyList::operator=(const CIMPropertyList& x)
 
 void CIMPropertyList::clear()
 {
-    _properties.clear();
+    _propertyNames.clear();
     _isNull = true;
 }
 

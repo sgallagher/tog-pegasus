@@ -32,14 +32,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 
 /** This class is for representing property lists in the CIM interface.
 
-    This class comprises an array of properties and a flag indicating whether
+    This class comprises an array of propertyNames and a flag indicating whether
     the list is null. There are three possibilties which must be represented;
     the property list is:
 
@@ -72,19 +72,19 @@ public:
     */
     CIMPropertyList(const CIMPropertyList& x);
 
-    /** Constructor. Initializes properties (sets isNull to false).
+    /** Constructor. Initializes propertyNames (sets isNull to false).
     */
-    CIMPropertyList(const Array<CIMProperty>& properties);
+    CIMPropertyList(const Array<String>& propertyNames);
 
-    /** Modifier for properties (sets isNull to false).
+    /** Modifier for propertyNames (sets isNull to false).
     */
-    void set(const Array<CIMProperty>& properties);
+    void set(const Array<String>& propertyNames);
 
     /** Assignment operator.
     */
     CIMPropertyList& operator=(const CIMPropertyList& x);
 
-    /** Clears the properties array (sets isNull to true).
+    /** Clears the propertyNames array (sets isNull to true).
     */
     void clear();
 
@@ -92,34 +92,22 @@ public:
     */
     Boolean isNull() const { return _isNull; }
 
-    /** Get the number of properties in the list.
+    /** Get the number of propertyNames in the list.
     */
-    Uint32 getNumProperties() const { return _properties.size(); }
-
-    /** Returns true if the property list is empty.
-    */
-    Boolean isEmpty() const { return getNumProperties() == 0; }
+    Uint32 getNumProperties() const { return _propertyNames.size(); }
 
     /** Get the property at the given position.
     */
-    CIMProperty getProperty(Uint32 pos)
+    const String& getPropertyName(Uint32 pos) const
     {
-	return _properties[pos];
-    }
-
-    /** Get the (const) property at the given position.
-    */
-    CIMConstProperty getProperty(Uint32 pos) const
-    {
-	return _properties[pos];
+	return _propertyNames[pos];
     }
 
 private:
 
-    Array<CIMProperty> _properties;
+    Array<String> _propertyNames;
     Boolean _isNull;
 };
-
 
 PEGASUS_NAMESPACE_END
 

@@ -20,9 +20,12 @@
 //END_LICENSE
 //BEGIN_HISTORY
 //
-// Author: AUTHOR
+// Author: Michael E. Brasher
 //
-// DOLLARLogDOLLAR
+// $Log: Channel.h,v $
+// Revision 1.4  2001/04/11 05:19:09  mike
+// more docs
+//
 //
 //END_HISTORY
 

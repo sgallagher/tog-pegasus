@@ -42,7 +42,7 @@
 #include "CommonUTF.h"
 
 #ifdef PEGASUS_HAS_ICU
-#include <unistr.h>
+#include <unicode/unistr.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -657,7 +657,7 @@ Boolean String::isUTF8(const char *legal)
 
     // Validate that the string is long enough to hold all the expected bytes.
     // Note that if legal[0] == 0, numBytes will be 1.
-    for (Uint32 i=1; i<numBytes; i++)
+    for (char i=1; i<numBytes; i++)
     {
         if (legal[i] == 0)
         {

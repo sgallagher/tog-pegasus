@@ -232,15 +232,11 @@ HTTPConnection::HTTPConnection(
           _authInfo->setExportConnection(exportConnection);
        }
 
-       if (_socket->isPeerVerificationEnabled()) 
+       if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified()) 
        {
-           _authInfo->setPeerCertificate(_socket->getPeerCertificate());
-           if (_socket->isCertificateVerified())
-           {
                _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
            }
        }
-   }
 
    _responsePending = false;
    _connectionRequestCount = 0;
@@ -776,8 +772,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 			 // This will fail in the addTrustedClient function if enableSSLTrustStoreAutoUpdate is 
 			 // not enabled.
 			 if (_authInfo->isAuthenticated() &&
-					 _authInfo->getPeerCertificate() && 
-					 _authInfo->getPeerCertificate()->getErrorCode() != (Uint32) SSLCertificateInfo::V_OK)
+				 _socket->getPeerCertificate() && 
+				 _socket->getPeerCertificate()->getErrorCode() != (Uint32) SSLCertificateInfo::V_OK)
 			 {
 				 _socket->addTrustedClient(_authInfo->getAuthenticatedUser().getCString());
 			 }
@@ -1655,14 +1651,10 @@ HTTPConnection2::HTTPConnection2(pegasus_socket socket,
    _authInfo = new AuthenticationInfo(true);
 
    // add SSL verification information to the authentication information
-   if (_socket.is_secure() && _socket.isPeerVerificationEnabled()) 
+   if (_socket.is_secure() && _socket.isPeerVerificationEnabled() && _socket.isCertificateVerified()) 
    {
-       _authInfo->setPeerCertificate(_socket.getPeerCertificate());
-       if (_socket.isCertificateVerified())
-       {
            _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
        }
-   }
 
    PEG_METHOD_EXIT();
 }
@@ -1770,8 +1762,8 @@ void HTTPConnection2::handleEnqueue(Message *message)
          // This will fail in the addTrustedClient function if enableSSLTrustStoreAutoUpdate is 
          // not enabled.
          if (_authInfo->isAuthenticated() &&
-             _authInfo->getPeerCertificate() && 
-             _authInfo->getPeerCertificate()->getErrorCode() != (Uint32) SSLCertificateInfo::V_OK)
+             _socket.getPeerCertificate() && 
+             _socket.getPeerCertificate()->getErrorCode() != (Uint32) SSLCertificateInfo::V_OK)
          {
              _socket.addTrustedClient(_authInfo->getAuthenticatedUser().getCString());
          }

@@ -77,27 +77,10 @@ public:
     @param keyPath  server key file path
     @param verifyCert  function pointer to a certificate verification
     call back function.
-    @param randomFile  file path of a random file that is used as a seed
-    for random number generation by OpenSSL.
-
-    @exception SSLException  exception indicating failure to create a context.
-    */
-    SSLContextRep(
-        const String& trustStore,
-        const String& certPath = String::EMPTY,
-        const String& keyPath = String::EMPTY,
-        SSLCertificateVerifyFunction* verifyCert = NULL,
-        const String& randomFile = String::EMPTY);
-
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    //ATTN: We may need to make this more robust to cover the different variations of SSLContexts
-	
-	/** Constructor for a SSLContextRep object.
-    @param trustStore  trust store file path
-    @param certPath  server certificate file path
-    @param keyPath  server key file path
-    @param verifyCert  function pointer to a certificate verification
-    call back function.
+	@param trustStoreAutoUpdate indicates that the server can automatically add certificates
+	to the truststore if they are sent with valid sslTrustStoreUserName credentials
+	@param trustStoreUserName the user to associate the truststore with; this is basically
+	a workaround to providers that require a username and will be addressed post 2.4
     @param randomFile  file path of a random file that is used as a seed
     for random number generation by OpenSSL.
 
@@ -111,7 +94,6 @@ public:
         Boolean trustStoreAutoUpdate = false,
 		String trustStoreUserName = String::EMPTY,
         const String& randomFile = String::EMPTY);
-#endif
 
     SSLContextRep(const SSLContextRep& sslContextRep);
 

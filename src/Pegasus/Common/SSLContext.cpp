@@ -168,7 +168,7 @@ int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     // get the verification callback info specific to each SSL connection
     //
     ssl = (SSL*) X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
-    SSLCallbackInfo* exData = (SSLCallbackInfo*) SSL_get_ex_data(ssl, SSL_CALLBACK_INDEX);
+    SSLCallbackInfo* exData = (SSLCallbackInfo*) SSL_get_ex_data(ssl, SSLCallbackInfo::SSL_CALLBACK_INDEX);
 
     //
     // If the SSLContext does not have an additional callback
@@ -341,88 +341,6 @@ void SSLContextRep::free_ssl()
 // For the OSs that don't have /dev/random device file,
 // must enable PEGASUS_SSL_RANDOMFILE flag.
 //
-SSLContextRep::SSLContextRep(const String& trustStore,
-                       const String& certPath,
-                       const String& keyPath,
-                       SSLCertificateVerifyFunction* verifyCert,
-                       const String& randomFile)
-{
-    PEG_METHOD_ENTER(TRC_SSL, "SSLContextRep::SSLContextRep()");
-
-    _trustStore = trustStore;
-
-    _certPath = certPath;
-
-    _keyPath = keyPath;
-
-    _certificateVerifyFunction = verifyCert;
-
-	_trustStoreAutoUpdate = false;
-
-	_trustStoreUserName = String::EMPTY;
-
-    //
-    // If a truststore and/or peer verification function is specified, enable peer verification
-    //
-    if (trustStore != String::EMPTY || verifyCert != NULL)
-    {
-        _verifyPeer = true;
-    } 
-    else
-    {
-        _verifyPeer = false;
-    }
-
-    //
-    // Initialize SSL callbacks and increment the SSLContextRep object _counter.
-    //
-    _countRepMutex.lock(pegasus_thread_self());
-
-    try
-    {
-        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Value of Countrep in constructor %d", _countRep);
-        if ( _countRep == 0 )
-        {
-            init_ssl();
-
-            //
-            // load SSL library
-            //
-            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Before calling SSL_load_error_strings %d", pegasus_thread_self());
-
-            SSL_load_error_strings();
-
-            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "After calling SSL_load_error_strings %d", pegasus_thread_self());
-
-            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "Before calling SSL_library_init %d", pegasus_thread_self());
-
-            SSL_library_init();
-
-            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "After calling SSL_library_init %d", pegasus_thread_self());
-
-        } 
-    }
-    catch(...)
-    {
-        _countRepMutex.unlock();
-        throw;
-    }
-    _countRep++;
-    _countRepMutex.unlock();
-
-    _randomInit(randomFile);
-
-    _sslContext = _makeSSLContext();
-
-    PEG_METHOD_EXIT();
-}
-
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
 SSLContextRep::SSLContextRep(
                        const String& trustStore,
                        const String& certPath,
@@ -506,7 +424,6 @@ SSLContextRep::SSLContextRep(
 
     PEG_METHOD_EXIT();
 }
-#endif
 
 SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep)
 {
@@ -1026,17 +943,9 @@ SSLContextRep::SSLContextRep(const String& trustStore,
                        const String& certPath,
                        const String& keyPath,
                        SSLCertificateVerifyFunction* verifyCert,
-                       const String& randomFile) {}
-
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-SSLContextRep::SSLContextRep(const String& trustStore,
-                       const String& certPath,
-                       const String& keyPath,
-                       SSLCertificateVerifyFunction* verifyCert,
                        Boolean trustStoreAutoUpdate,
 					   String trustStoreUserName,
                        const String& randomFile) {}
-#endif
 
 SSLContextRep::SSLContextRep(const SSLContextRep& sslContextRep) {}
 
@@ -1081,11 +990,7 @@ SSLContext::SSLContext(
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
 {
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     _rep = new SSLContextRep(trustStore, String::EMPTY, String::EMPTY,  verifyCert, false, String::EMPTY, randomFile);
-#else
-    _rep = new SSLContextRep(trustStore, String::EMPTY, String::EMPTY,  verifyCert, randomFile);
-#endif
 }
 
 SSLContext::SSLContext(
@@ -1095,14 +1000,21 @@ SSLContext::SSLContext(
     SSLCertificateVerifyFunction* verifyCert,
     const String& randomFile)
 {
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     _rep = new SSLContextRep(trustStore, certPath, keyPath, verifyCert, false, String::EMPTY, randomFile);
-#else
-    _rep = new SSLContextRep(trustStore, certPath, keyPath, verifyCert, randomFile);
-#endif
 }
 
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+SSLContext::SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+		String trustStoreUserName,
+        const String& randomFile)
+{
+    _rep = new SSLContextRep(trustStore, certPath, keyPath, verifyCert, false, trustStoreUserName, randomFile);
+}
+
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
 SSLContext::SSLContext(
         const String& trustStore,
         const String& certPath,
@@ -1152,10 +1064,12 @@ Boolean SSLContext::isPeerVerificationEnabled() const
     return (_rep->isPeerVerificationEnabled());
 }
 
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
 Boolean SSLContext::isTrustStoreAutoUpdateEnabled() const
 {
     return (_rep->isTrustStoreAutoUpdateEnabled());
 }
+#endif
 
 String SSLContext::getTrustStoreUserName() const
 {

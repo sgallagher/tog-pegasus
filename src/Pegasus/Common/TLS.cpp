@@ -91,7 +91,7 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConne
     // 
     _SSLCallbackInfo = new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction());
 
-    if (SSL_set_ex_data(_SSLConnection, SSL_CALLBACK_INDEX, _SSLCallbackInfo)) 
+    if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo)) 
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "--->SSL: Set callback info");
     }
@@ -416,6 +416,7 @@ Boolean SSLSocket::isCertificateVerified()
     return _certificateVerified; 
 }
 
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
 Boolean SSLSocket::addTrustedClient(const char* username) 
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::addTrustedClient()");
@@ -536,6 +537,13 @@ Boolean SSLSocket::addTrustedClient(const char* username)
     PEG_METHOD_EXIT();
     return true;
 }
+#else
+Boolean SSLSocket::addTrustedClient(const char* username) 
+{
+	return false;
+}
+#endif
+
 
 //
 // MP_Socket (Multi-purpose Socket class

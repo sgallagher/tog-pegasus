@@ -55,9 +55,6 @@ class SSLCertificateInfo;
 // Pegasus-defined SSL certificate verification callback
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
 
-// index to the application-specific data in the SSL connection object
-static const int SSL_CALLBACK_INDEX = 0;
-
 /** This class provides information that is used during the SSL verification callback.
     We pass a pointer to this object to the SSL_set_ex_data function.  We can then use SSL_get_ex_data
     from within the callback and cast the void* back to this object.  In this case, we store a pointer 
@@ -71,6 +68,9 @@ class PEGASUS_COMMON_LINKAGE SSLCallbackInfo
 {
 public:
     
+	// index to the application-specific data in the SSL connection object
+    static const int SSL_CALLBACK_INDEX = 0;
+
     SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert);  
 
     ~SSLCallbackInfo(); 
@@ -321,12 +321,14 @@ public:
     */
     Boolean isPeerVerificationEnabled() const;
 
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
     /** Returns whether enableSSLTrustStoreAutoUpdate is ON or OFF
     If on, untrusted certificates sent with privileged credentials will
     be automatically added to the server's truststore
     @return true if auto update is on; false otherwise
     */
     Boolean isTrustStoreAutoUpdateEnabled() const;
+#endif
 
 	/** Returns the username associated with the truststore, if applicable
 	This is currently necessary for OperationContext
@@ -339,12 +341,8 @@ public:
     */
     SSLCertificateVerifyFunction* getSSLCertificateVerifyFunction() const;
 
-
-#ifndef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-private:
-#endif
     /** Constructor for a SSLContext object. This constructor is intended
-    to be used by the CIMServer or CIMClient (with PEGASUS_USE_SSL_CLIENT_VERIFICATION) only.
+    to be used by the CIMServer or CIMClient.
     @param trustStore file path of the trust store.
     @param certPath  file path of the server certificate.
     @param KeyPath  file path of the private key. 
@@ -363,11 +361,43 @@ private:
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
 
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-private:
-#endif
+	/** Constructor for a SSLContextRep object.
+    @param trustStore  trust store file path
+    @param certPath  server certificate file path
+    @param keyPath  server key file path
+    @param verifyCert  function pointer to a certificate verification
+    call back function.
+    @param trustStoreUserName the user to associate the truststore with; this is basically
+	a workaround to providers that require a username and will be addressed post 2.4
+    @param randomFile  file path of a random file that is used as a seed
+    for random number generation by OpenSSL.
 
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
+    @exception SSLException  exception indicating failure to create a context.
+    */
+    SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+		String trustStoreUserName,
+        const String& randomFile);
+
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
+	/** Constructor for a SSLContextRep object.
+    @param trustStore  trust store file path
+    @param certPath  server certificate file path
+    @param keyPath  server key file path
+    @param verifyCert  function pointer to a certificate verification
+    call back function.
+	@param trustStoreAutoUpdate indicates that the server can automatically add certificates
+	to the truststore if they are sent with valid sslTrustStoreUserName credentials
+	@param trustStoreUserName the user to associate the truststore with; this is basically
+	a workaround to providers that require a username and will be addressed post 2.4
+    @param randomFile  file path of a random file that is used as a seed
+    for random number generation by OpenSSL.
+
+    @exception SSLException  exception indicating failure to create a context.
+    */
     SSLContext(
         const String& trustStore,
         const String& certPath,

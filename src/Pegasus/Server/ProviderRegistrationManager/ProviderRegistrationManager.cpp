@@ -1036,6 +1036,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
     CIMObjectPath reference;
     Array<CIMInstance> cimNamedInstances;
     String _providerModuleName;
+    Array<CIMObjectPath> instanceNames;
 
     //
     // create the key by using providerModuleName and MODULE_KEY
@@ -1049,43 +1050,41 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
     //
     try
     {
-	cimNamedInstances = _repository->enumerateInstances(
+	instanceNames = _repository->enumerateInstanceNames(
 		PEGASUS_NAMESPACENAME_INTEROP,
 		PEGASUS_CLASSNAME_PROVIDERMODULE);
 
-	for(Uint32 i = 0, n=cimNamedInstances.size(); i < n; i++)
+	for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
 	{
-	    instance = cimNamedInstances[i];
-
 	    //
-	    // get provider module name
+	    // get provider module name from reference
   	    // 
-	    instance.getProperty(instance.findProperty
-	    (_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(_providerModuleName);
+
+	    Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+
+	    for(Uint32 j=0; j < keys.size(); j++)
+	    {
+		if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULE_NAME))
+		{
+		    _providerModuleName = keys[j].getValue();
+		}
+  	    }
+
 	    if (String::equalNoCase(providerModuleName, _providerModuleName))
 	    {
-		//
-		// get CIMObjectPath
-		//
-		reference = cimNamedInstances[i].getPath ();	
-
-		CIMObjectPath newInstancereference("", CIMNamespaceName (),
-		    reference.getClassName(),
-		    reference.getKeyBindings());
-
 		//
 		// update repository
 		//
 		_repository->setProperty(
                     PEGASUS_NAMESPACENAME_INTEROP, 
-                    newInstancereference, _PROPERTY_OPERATIONALSTATUS, status);
+                    instanceNames[i], _PROPERTY_OPERATIONALSTATUS, status);
 
 		//
 		// update the table
 		//
 		CIMInstance _instance = _repository->getInstance(
                     PEGASUS_NAMESPACENAME_INTEROP,
-                    newInstancereference);
+                    instanceNames[i]);
 
 		//
 		// remove old entry from table
@@ -1120,6 +1119,7 @@ Boolean ProviderRegistrationManager::setProviderModuleStatus(
 	_repository->write_unlock();
 	return (false);
     }
+
 
     // keep the compiler happy
     return (false);

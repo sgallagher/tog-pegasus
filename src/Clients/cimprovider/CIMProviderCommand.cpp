@@ -1214,7 +1214,7 @@ void CIMProviderCommand::_ListProviders
     try
     {
     	Array<CIMInstance> moduleInstances;
-    	Array<CIMInstance> providerInstances;
+    	Array<CIMObjectPath> instanceNames;
     	String moduleName;
     	String providerName;
 	Array<String> moduleNames;
@@ -1224,11 +1224,11 @@ void CIMProviderCommand::_ListProviders
 	if ( _moduleSet )
 	{
 	    // get registered providers which are in the specified module
-	    providerInstances = _client->enumerateInstances(
+	    instanceNames = _client->enumerateInstanceNames(
 				PEGASUS_NAMESPACENAME_PROVIDERREG, 
 				PEGASUS_CLASSNAME_PROVIDER);
 
-	    if ( providerInstances.size() == 0 )
+	    if ( instanceNames.size() == 0 )
 	    {
  	  	cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
 		exit(-1);	
@@ -1236,13 +1236,20 @@ void CIMProviderCommand::_ListProviders
 	    else
 	    {
 	        // List all the registered providers which have specified module
-	        for (Uint32 i = 0; i < providerInstances.size(); i++)
+	        for (Uint32 i = 0; i < instanceNames.size(); i++)
 	        {
-		    CIMInstance& instance = providerInstances[i];
-		    instance.getProperty(
-			instance.findProperty(_PROPERTY_PROVIDERMODULENAME)).getValue().get(moduleName);
-		    instance.getProperty(
-			instance.findProperty(_PROPERTY_PROVIDER_NAME)).getValue().get(providerName);
+		    Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+		    for(Uint32 j=0; j < keys.size(); j++)
+            	    {
+                	if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+                	{
+                    	    moduleName = keys[j].getValue();
+                	}
+                	if(keys[j].getName().equal (_PROPERTY_PROVIDER_NAME))
+                	{
+                    	    providerName = keys[j].getValue();
+                	}
+             	    }
 		    if (String::equalNoCase(moduleName, _moduleName))
 		    {
 			moduleExist = true;
@@ -1294,34 +1301,34 @@ void CIMProviderCommand::_ListProviders
 CIMInstance CIMProviderCommand::_getModuleInstance()
 {
 
-    Array<CIMInstance> namedInstances;
-    String moduleName;
+    CIMKeyBinding kb(CIMName(_PROPERTY_PROVIDERMODULE_NAME),
+                     _moduleName, CIMKeyBinding::STRING);
 
-    // Get all registered provider modules
-    namedInstances = _client->enumerateInstances(PEGASUS_NAMESPACENAME_PROVIDERREG, PEGASUS_CLASSNAME_PROVIDERMODULE);
-    if ( namedInstances.size() == 0 )
+    Array<CIMKeyBinding> kbArray;
+    kbArray.append(kb);
+
+    CIMObjectPath moduleRef("", PEGASUS_NAMESPACENAME_PROVIDERREG,
+                            PEGASUS_CLASSNAME_PROVIDERMODULE,
+                            kbArray);
+
+    try
     {
+	    CIMInstance instance = _client->getInstance(
+		PEGASUS_NAMESPACENAME_PROVIDERREG, moduleRef);
+	    return (instance);
+    }
+    catch (CIMException& exception)
+    {
+        // Provider module was not registered yet
  	cerr << ERR_MODULE_NOT_REGISTERED << endl;
 	exit(-1);	
     }
-
-
-    for (Uint32 i = 0; i < namedInstances.size(); i++)
+    catch (Exception& exception)
     {
-	CIMInstance& instance = namedInstances[i];
-	instance.getProperty(
-	    instance.findProperty(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(moduleName);
-	
-	// If the provider is registered
-	if (String::equalNoCase(_moduleName, moduleName))
-	{
-	    return (namedInstances[i]);
-	}
+        // Provider module was not registered yet
+ 	cerr << ERR_MODULE_NOT_REGISTERED << endl;
+	exit(-1);	
     }
-
-    // Provider module was not registered yet
-    cerr << ERR_MODULE_NOT_REGISTERED << endl;
-    exit(-1); 
     
     // Keep the compiler happy
     return CIMInstance();
@@ -1331,39 +1338,38 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
 CIMInstance CIMProviderCommand::_getProviderInstance()
 {
 
-    Array<CIMInstance> namedInstances;
-    String moduleName;
-    String providerName;
+    CIMKeyBinding kb(CIMName(_PROPERTY_PROVIDERMODULENAME),
+                     _moduleName, CIMKeyBinding::STRING);
 
-    // Get all registered providers
-    namedInstances = _client->enumerateInstances(PEGASUS_NAMESPACENAME_PROVIDERREG, PEGASUS_CLASSNAME_PROVIDER);
+    CIMKeyBinding kb2(CIMName(_PROPERTY_PROVIDER_NAME),
+                     _providerName, CIMKeyBinding::STRING);
 
-    if ( namedInstances.size() == 0 )
+    Array<CIMKeyBinding> kbArray;
+    kbArray.append(kb);
+    kbArray.append(kb2);
+
+    CIMObjectPath providerRef("", PEGASUS_NAMESPACENAME_PROVIDERREG,
+                            PEGASUS_CLASSNAME_PROVIDER,
+                            kbArray);
+
+    try
     {
- 	cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+	    CIMInstance instance = _client->getInstance(
+		PEGASUS_NAMESPACENAME_PROVIDERREG, providerRef);
+	    return (instance);
+    }
+    catch (CIMException& exception)
+    {
+        // Provider was not registered yet
+        cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
 	exit(-1);	
     }
-
-
-    for (Uint32 i = 0; i < namedInstances.size(); i++)
+    catch (Exception& exception)
     {
-	CIMInstance& instance = namedInstances[i];
-	instance.getProperty(
-	    instance.findProperty(_PROPERTY_PROVIDERMODULENAME)).getValue().get(moduleName);
-	instance.getProperty(
-	    instance.findProperty(_PROPERTY_PROVIDER_NAME)).getValue().get(providerName);
-	
-	// If the provider is registered
-	if (String::equalNoCase(_moduleName, moduleName) &&
-	    String::equalNoCase(_providerName, providerName))
-	{
-	    return (namedInstances[i]);
-	}
+        // Provider was not registered yet
+        cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
+	exit(-1);	
     }
-
-    // Provider was not registered yet
-    cerr << ERR_PROVIDER_NOT_REGISTERED << endl;
-    exit(-1); 
     
     // Keep the compiler happy
     return CIMInstance();

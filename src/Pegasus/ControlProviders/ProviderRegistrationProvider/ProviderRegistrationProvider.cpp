@@ -684,15 +684,28 @@ void ProviderRegistrationProvider::invokeMethod(
 				 objectReference.getNameSpace(),
 				 PEGASUS_CLASSNAME_PROVIDER,
 				 objectReference.getKeyBindings());
-	Array<CIMInstance> namedInstances;
-	namedInstances = _providerRegistrationManager->enumerateInstances(providerRef);
-	for(Uint32 i = 0, n=namedInstances.size(); i < n; i++)
+ 	Array<CIMObjectPath> instanceNames;
+	instanceNames = _providerRegistrationManager->enumerateInstanceNames(providerRef);
+	for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
 	{
-	    instance = namedInstances[i];
-	    instance.getProperty(instance.findProperty
-	    (_PROPERTY_PROVIDERMODULENAME)).getValue().get(_moduleName);	
+	    //
+            // get provider module name from reference
+            //
+
+            Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+
+            for(Uint32 j=0; j < keys.size(); j++)
+            {
+                if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+                {
+                    _moduleName = keys[j].getValue();
+                }
+            }
+
 	    if (String::equalNoCase(_moduleName, moduleName))
 	    {
+		providerRef.setKeyBindings(keys);
+		instance = _providerRegistrationManager->getInstance(providerRef);
 		instances.append(instance);
 	    }
 
@@ -922,23 +935,30 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
     CIMObjectPath reference("", PEGASUS_NAMESPACENAME_INTEROP,
 	PEGASUS_CLASSNAME_PROVIDER, ref.getKeyBindings());
 
-    // get all registered providers
-    Array<CIMInstance> enumInstances =
-	_providerRegistrationManager->enumerateInstances(reference);
+    Array<CIMObjectPath> instanceNames =
+	_providerRegistrationManager->enumerateInstanceNames(reference);
 
     // find all the instances which have same module name as moduleName
-    for (Uint32 i = 0, n=enumInstances.size(); i < n; i++)
+    for (Uint32 i = 0, n=instanceNames.size(); i < n; i++)
     {
-	instance = enumInstances[i];
+	    //
+            // get provider module name from reference
+            //
 
-	//
-        // get provider module name
-        //
-        instance.getProperty(instance.findProperty
-	(_PROPERTY_PROVIDERMODULENAME)).getValue().get(_moduleName);
+            Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+
+            for(Uint32 j=0; j < keys.size(); j++)
+            {
+                if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+                {
+                    _moduleName = keys[j].getValue();
+                }
+            }
 
 	if (String::equalNoCase(moduleName, _moduleName))
 	{
+	    reference.setKeyBindings(keys);
+	    instance = _providerRegistrationManager->getInstance(reference);
 	    instances.append(instance);
 	}
     }

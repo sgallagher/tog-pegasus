@@ -24,6 +24,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Eger (dteger@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,16 +56,18 @@ public:
     virtual ~Sharable();
     Uint32 getRef() const { return _ref.value(); }
 
-    friend void Inc(const Sharable* sharable);
+    friend void Inc(Sharable* sharable); 
 
-    friend void Dec(const Sharable* sharable);
+    friend void Dec(Sharable* sharable);
 
 private:
+    Sharable(const Sharable &s) : _ref(1) {assert(0);} 
+    // we should never copy a counter, so we make this private - dte
+
         AtomicInt _ref;
 };
 
-inline void Inc(const Sharable* x)
-
+inline void Inc(Sharable* x)
 {
   if (x)
     {
@@ -73,16 +76,16 @@ inline void Inc(const Sharable* x)
       // of sharable assignment or copy constructors somewhere
       // << Wed Nov  6 12:46:52 2002 mdd >>
       assert(((Sharable*)x)->_ref.value());
-      ((Sharable*)x)->_ref++;
+      x->_ref++;
     }
   
 }
 
 
-inline void Dec(const Sharable* x)
+inline void Dec(Sharable* x)
 {
-  if (x && ((Sharable*)x)->_ref.DecAndTestIfZero())
-    delete (Sharable*)x;
+  if (x && x->_ref.DecAndTestIfZero())
+    delete x;
 }
 
 PEGASUS_NAMESPACE_END

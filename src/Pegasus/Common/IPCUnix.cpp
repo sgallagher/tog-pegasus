@@ -26,12 +26,11 @@
 // Modified By: Mike Day (mdday@us.ibm.com) -- added native implementation
 // of AtomicInt class, exceptions
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//         David Eger (dteger@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 PEGASUS_NAMESPACE_BEGIN
-
-
 
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
 # define SEM_VALUE_MAX 0x0000ffff
@@ -45,6 +44,9 @@ Mutex::Mutex()
    // Needed because of EDEADLK checks below.
    // Otherwise, the thread will block if it already owns the mutex.
    pthread_mutexattr_settype(&_mutex.mutatt, PTHREAD_MUTEX_ERRORCHECK);
+   pthread_mutex_init(&_mutex.mut, &_mutex.mutatt);
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+   pthread_mutexattr_settype(&_mutex.mutatt, PTHREAD_MUTEX_ERRORCHECK_NP);
    pthread_mutex_init(&_mutex.mut, &_mutex.mutatt);
 #else
    pthread_mutex_init(&_mutex.mut, NULL);
@@ -889,10 +891,9 @@ Uint32 AtomicInt::value(void) const
 
    // except for zSeries, i=_rep seems to be atomic even 
    // on multiprocessor systems without spinlock usage
-   PEGASUS_CRIT_TYPE * crit = const_cast<PEGASUS_CRIT_TYPE *>(&_crit);
-   pthread_spin_lock(crit);
+   pthread_spin_lock(&_crit);
    i = _rep;
-   pthread_spin_unlock(crit);
+   pthread_spin_unlock(&_crit);
 
    return i;
 }

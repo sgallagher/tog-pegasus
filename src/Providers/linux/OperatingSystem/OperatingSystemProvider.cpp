@@ -27,6 +27,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              David Eger          <dteger@us.ibm.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -423,7 +424,7 @@ static CIMDateTime time_t_to_CIMDateTime(time_t *time_to_represent)
    if (strftime(date_ascii_rep, CIM_DATE_TIME_ASCII_LEN,
 	        "%Y%m%d%H%M%S.000000", &broken_time))
    {
-#if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
       //-- the following makes use of a GNU extension
       snprintf(utc_offset, 20, "%+03ld", broken_time.tm_gmtoff / 60);
 #else
@@ -482,7 +483,7 @@ Sint16 OperatingSystemProvider::_timeZone()
    struct tm buf;
    time_t now;
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
    now = time(NULL);
    localtime_r(&now, &buf);
    return (buf.tm_gmtoff / 60);
@@ -538,7 +539,7 @@ Uint32 OperatingSystemProvider::_processes()
       {
 	 while (readdir_r(procdir, &entry, &result) == 0 && result != NULL)
 	 {
-#if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 	    if (entry.d_type != DT_DIR)
 	       continue;
 #endif

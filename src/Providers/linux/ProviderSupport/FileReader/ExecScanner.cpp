@@ -27,6 +27,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              David Eger          <dteger@us.ibm.com>
 //
 //%////////////////////////////////////////////////////////////////////////////
 //
@@ -183,7 +184,7 @@ void ExecScanner::HandleEndOfStream(void)
   
   if (exe_pid != 0) {
     kill(exe_pid, SIGKILL);
-#ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     wait4(exe_pid, NULL, WNOHANG | WUNTRACED, NULL);
 #endif
   }

@@ -27,6 +27,7 @@
 //              K. Schopmeyer
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              David Eger (dteger@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +54,8 @@
 # include <Pegasus/Common/Platform_NSK_NONSTOP_NMCPLUS.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
 # include <Pegasus/Common/Platform_LINUX_IA64_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_PPC_GNU)
+# include <Pegasus/Common/Platform_LINUX_PPC_GNU.h>
 #elif defined (__OS400__)
 # if !defined (PEGASUS_PLATFORM_OS400_ISERIES_IBM)
 #   define PEGASUS_PLATFORM_OS400_ISERIES_IBM 

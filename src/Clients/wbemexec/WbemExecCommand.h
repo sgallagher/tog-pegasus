@@ -26,6 +26,7 @@
 //
 // Modified By:
 //         Warren Otsuka (warren_otsuka@hp.com)
+//         David Eger (dteger@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +39,7 @@
 #include "WbemExecException.h"
 #include "WbemExecClient.h"
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)||defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
 char * ultostr(unsigned long int ulint, int width)
 {
     char * retval = NULL;

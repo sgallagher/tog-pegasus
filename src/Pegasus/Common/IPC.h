@@ -25,6 +25,7 @@
 //
 // Modified By: Markus Mueller
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//         David Eger (dteger@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +38,7 @@
 #include <Pegasus/Common/Linkage.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "IPCUnix.h"
 #elif defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "IPCHpux.h"
@@ -396,7 +397,7 @@ class PEGASUS_COMMON_LINKAGE AtomicInt
    private:
       PEGASUS_ATOMIC_TYPE _rep; //    atomic_t on POSIX systems with glibc
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
-      PEGASUS_CRIT_TYPE _crit;
+      mutable PEGASUS_CRIT_TYPE _crit;
 #endif /* PEGASUS_NEED_CRITICAL_TYPE */
 };
     
@@ -604,7 +605,7 @@ class PEGASUS_COMMON_LINKAGE Condition
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "IPCWindows_inline.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "IPCUnix_inline.h"
 #elif defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "IPCUnix_inline.h"

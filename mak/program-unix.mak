@@ -29,6 +29,9 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
      ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
      else
+         ifeq ($(PEGASUS_PLATFORM),LINUX_PPC_GNU)
+	$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+     else
          ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) -Xlinker -rpath -Xlinker $(LIB_DIR) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
      else
@@ -43,6 +46,7 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
              endif
          endif
      endif
+   endif
 
 	$(TOUCH) $(FULL_PROGRAM)
 	@ $(ECHO)

@@ -28,11 +28,12 @@
 //         Warren Otsuka (warren_otsuka@hp.com)
 //         Sushma Fernandes, Hewlett-Packard Company
 //         (sushma_fernandes@hp.com)
+//	   David Eger (dteger@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 // define asprintf used to implement ultostr on Linux
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)||defined(PEGASUS_LINUX_PPC_GNU)
 #define _GNU_SOURCE
 #include <features.h>
 #include <stdio.h>

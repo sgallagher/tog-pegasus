@@ -24,6 +24,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By: 
+//         David Eger (dteger@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -81,7 +82,7 @@
 #include <unistd.h>
 #include <malloc.h>
 
-#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include <sched.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -202,7 +203,7 @@ typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
 typedef Uint32 PEGASUS_MUTEX_T;
 
-#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 
 typedef pthread_mutex_t PEGASUS_MUTEX_T;
 
@@ -713,7 +714,7 @@ inline void peg_suballocator::CLOSE_MUTEX(PEGASUS_MUTEX_T *mut)
 
 }
 
-#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined (PEGASUS_PLATFORM_GENERIC_GNU)
 
 inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
 {

@@ -74,8 +74,8 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup
    CmpiContext ctx(eCtx);
    CmpiStatus rc(CMPI_RC_OK);
    CmpiProviderBase::setBroker(((CmpiBaseMI*)mi->hdl)->broker->getEnc());
-   rc=((CmpiBaseMI*)mi->hdl)->cleanup(ctx);
-   delete (CmpiBaseMI*)mi->hdl;
+   rc=((CmpiInstanceMI*)mi->hdl)->cleanup(ctx);
+   delete (CmpiInstanceMI*)mi->hdl;
    return rc.status();
   } catch (CmpiStatus& stat) {
     std::cerr << "caught status :" << stat.rc() << " "  << stat.msg() << std::endl;
@@ -89,6 +89,7 @@ CmpiStatus CmpiBaseMI::initialize(const CmpiContext& ctx) {
 }
 
 CmpiStatus CmpiBaseMI::cleanup(CmpiContext& ctx) { 
+    std::cerr << "cleaning up provider" << std::endl;
    return CmpiStatus(CMPI_RC_OK); 
 }
 
@@ -1132,9 +1133,9 @@ void *CmpiArgs::makeArgs(CMPIBroker *mb) {
    return args;
 }
 
-void CmpiArgs::setArg(const char* name, CmpiData& data) {
+void CmpiArgs::setArg(const char* name, const CmpiData& data) {
    CMPIStatus rc=getEnc()->ft->addArg(getEnc(),name,
-         data.data.type!=CMPI_chars ? &data.data.value
+         data.data.type!=CMPI_chars ? (CMPIValue*)&data.data.value
 	                            : (CMPIValue*)data.data.value.chars,
          data.data.type);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);

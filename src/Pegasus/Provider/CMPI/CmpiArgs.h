@@ -97,7 +97,7 @@ class CmpiArgs : public CmpiObject {
 	@param name Property name.
 	@param data Type and Value to be added.
     */
-   void setArg(const char* name, CmpiData& data);
+   void setArg(const char* name, const CmpiData& data);
 };
 
 #endif

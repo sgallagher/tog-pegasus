@@ -329,7 +329,7 @@ Condition::~Condition()
 // END of native conditional semaphore implementation
 //-----------------------------------------------------------------
 
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 Semaphore::Semaphore(Uint32 initial) 
 {
    if(initial > SEM_VALUE_MAX)
@@ -361,8 +361,8 @@ Semaphore::~Semaphore()
 //
 Semaphore::Semaphore(Uint32 initial) 
 {
-    pthread_mutex_init (&_semaphore.mutex);
-    pthread_cond_init (&_semaphore.cond);
+    pthread_mutex_init (&_semaphore.mutex,NULL);
+    pthread_cond_init (&_semaphore.cond,NULL);
     if (initial > SEM_VALUE_MAX)
          _count = SEM_VALUE_MAX - 1;
     else
@@ -394,8 +394,8 @@ void Semaphore::wait(void)
 
    // Wait until the semaphore count is > 0, then atomically release
    // <lock_> and wait for <count_nonzero_> to be signaled. 
-   while (count_ == 0)
-      pthread_cond_wait (&_semaphore.count,&_semaphore.mutex);
+   while (_count == 0)
+      pthread_cond_wait (&_semaphore.cond,&_semaphore.mutex);
 
    // <_semaphore.mutex> is now held.
 
@@ -426,7 +426,7 @@ void Semaphore::signal()
 
    // Always allow one thread to continue if it is waiting.
    if (_semaphore.waiters > 0)
-      pthread_cond_signal (&_semaphore.count);
+      pthread_cond_signal (&_semaphore.cond);
 
    // Increment the semaphore's count.
    _count++;

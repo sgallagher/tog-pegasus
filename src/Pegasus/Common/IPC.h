@@ -39,6 +39,8 @@
 # include "IPCHpux.h"
 #elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include "IPCUnix.h"
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+# include "IPCAix.h"
 #else
 # error "Unsupported platform"
 #endif

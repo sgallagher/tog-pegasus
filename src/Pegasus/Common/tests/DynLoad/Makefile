@@ -9,4 +9,8 @@ SOURCES = DynLoad.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(PROGRAM) $(PEGASUS_HOME)/lib/libDynLib.so
+ifeq ($(OS_TYPE),windows)
+	$(PROGRAM) $(HOME_DIR)/bin/DynLib.dll
+else
+	$(PROGRAM) $(HOME_DIR)/lib/libDynLib.so
+endif

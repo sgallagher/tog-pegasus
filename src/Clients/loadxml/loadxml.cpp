@@ -246,9 +246,10 @@ int main(int argc, char** argv)
     {
         char* repositoryRoot;
         char* nameSpace = "CIMv2";
-        if (argc == 3)
+        if (argc == 4)
         {
         repositoryRoot = argv[3];
+        cout << "repository Root " << repositoryRoot << endl;
         }
         else
         {
@@ -267,10 +268,12 @@ int main(int argc, char** argv)
             }
             
         }
+        cout << "test argc" << argc << endl;
         if (argc == 2)
         {
         nameSpace = argv[2];  
         }
+        cout << "test xmlfile" << endl;
 
         char* xmlFile = argv[1];
         

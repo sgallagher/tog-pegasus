@@ -64,76 +64,69 @@ class  PEGASUS_SERVER_LINKAGE operationAggregate
 {
 public:
 
-    operationAggregate(CIMEnumerateInstanceNamesRequestMessage* request)
-    {
-	_request = request;
-	_total = 0;
-	_returnedCount = 0;
-    }
+    operationAggregate(CIMRequestMessage* request,
+                                Uint32 msgRequestType,
+                                String messageId)
+    : _request(request), _total(0), returnedCount(0), 
+    _msgRequestType(msgRequestType), _messageId(messageId),
+    _magicNumber(12345)
+    {}
 
-    ~operationAggregate(){
-
-    }
+    ~operationAggregate()
+    {}
 
     /** Copy constructor */
-    operationAggregate(const operationAggregate& x)
-    {
+    operationAggregate(const operationAggregate& x){ }
 
-    }
-
-     /* Assignment operator
-    operationAggregate& operator=(const operationAggregate& x)
-    {
-
-    }
-     */
 
     void incrementReturned()
     {
-	_returnedCount++;
+	returnedCount++;
     }
 
     void setTotalIssued(Uint32 i)
     {
 	_total = i;
-	_returnedCount = 0;
+	returnedCount = 0;
     }
 
-    Uint32 returned()
-    {
-	return _returnedCount;
-    }
-    Uint32 total()
-    {
-	return _total;
-    }
+    Boolean valid() {return(_magicNumber == 12345)? true: false; }
+
+    Uint32 returned() { return returnedCount; }
+
+    Uint32 total() { return _total; }
+
     // Append a new entry to the response list
     void appendResponse(CIMResponseMessage* response)
     {
 	_responseList.append(response);
     }
-    Uint32 numberResponses()
-    {
-	return _responseList.size();
-    }
+
+    Uint32 numberResponses() { return _responseList.size(); }
+
     CIMResponseMessage* getResponse(const Uint32& pos)
     {
 	return _responseList[pos];
     }
-    void deleteResponse(const Uint32&pos)
-    {
-	_responseList[pos];
+
+    void deleteResponse(const Uint32&pos) { _responseList.remove(pos);}
+
+    Uint32 getRequestType(){
+        return _msgRequestType;
     }
-    Array<String> _subClasses;
-    Array<String> _Servicenames;
-    Array<String> _ControlProviderNames;
-    Array<String> _provider;
- 
+    String _messageId;
+    Uint32 _msgRequestType;
+    void * dest;
+    Array<String> classes;
+    Array<String> serviceNames;
+    Array<String> controlProviderNames;
+    Array<String> propertyList;
+    Uint32 returnedCount;
 private:
     Array<CIMResponseMessage*> _responseList;
-    CIMEnumerateInstanceNamesRequestMessage* _request;
-    Uint32 _returnedCount;
+    CIMRequestMessage* _request;
     Uint32 _total;
+    Uint32 _magicNumber;
 };
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService
 {
@@ -142,8 +135,8 @@ public:
       typedef MessageQueueService Base;
 
       CIMOperationRequestDispatcher(
-	 CIMRepository* repository,
-	 ProviderRegistrationManager* providerRegistrationManager);
+    	 CIMRepository* repository,
+         ProviderRegistrationManager* providerRegistrationManager);
 
       virtual ~CIMOperationRequestDispatcher();
 
@@ -152,82 +145,79 @@ public:
       virtual void handleEnqueue();
 
       void handleGetClassRequest(
-	 CIMGetClassRequestMessage* request);
+    	 CIMGetClassRequestMessage* request);
 
       void handleGetInstanceRequest(
-	 CIMGetInstanceRequestMessage* request);
+    	 CIMGetInstanceRequestMessage* request);
 
       void handleDeleteClassRequest(
-	 CIMDeleteClassRequestMessage* request);
+    	 CIMDeleteClassRequestMessage* request);
 
       void handleDeleteInstanceRequest(
-	 CIMDeleteInstanceRequestMessage* request);
+          CIMDeleteInstanceRequestMessage* request);
 
       void handleCreateClassRequest(
-	 CIMCreateClassRequestMessage* request);
+          CIMCreateClassRequestMessage* request);
 
       void handleCreateInstanceRequest(
-	 CIMCreateInstanceRequestMessage* request);
+          CIMCreateInstanceRequestMessage* request);
 
       void handleModifyClassRequest(
-	 CIMModifyClassRequestMessage* request);
+    	 CIMModifyClassRequestMessage* request);
 
       void handleModifyInstanceRequest(
-	 CIMModifyInstanceRequestMessage* request);
+    	 CIMModifyInstanceRequestMessage* request);
 
       void handleEnumerateClassesRequest(
-	 CIMEnumerateClassesRequestMessage* request);
+    	 CIMEnumerateClassesRequestMessage* request);
 
       void handleEnumerateClassNamesRequest(
-	 CIMEnumerateClassNamesRequestMessage* request);
+    	 CIMEnumerateClassNamesRequestMessage* request);
 
       void handleEnumerateInstancesRequest(
-	 CIMEnumerateInstancesRequestMessage* request);
-
-      void postProcessEnumerateInstanceNamesResponse(
-			operationAggregate* operationAggregator);
+    	 CIMEnumerateInstancesRequestMessage* request);
 
       void handleEnumerateInstanceNamesRequest(
-	 CIMEnumerateInstanceNamesRequestMessage* request);
+    	 CIMEnumerateInstanceNamesRequestMessage* request);
 
       void handleAssociatorsRequest(
-	 CIMAssociatorsRequestMessage* request);
+    	 CIMAssociatorsRequestMessage* request);
 
       void handleAssociatorNamesRequest(
-	 CIMAssociatorNamesRequestMessage* request);
+    	 CIMAssociatorNamesRequestMessage* request);
 
       void handleReferencesRequest(
-	 CIMReferencesRequestMessage* request);
+    	 CIMReferencesRequestMessage* request);
 
       void handleReferenceNamesRequest(
-	 CIMReferenceNamesRequestMessage* request);
+          CIMReferenceNamesRequestMessage* request);
 
       void handleGetPropertyRequest(
-	 CIMGetPropertyRequestMessage* request);
+    	 CIMGetPropertyRequestMessage* request);
 
       void handleSetPropertyRequest(
-	 CIMSetPropertyRequestMessage* request);
+    	 CIMSetPropertyRequestMessage* request);
 
       void handleGetQualifierRequest(
-	 CIMGetQualifierRequestMessage* request);
+    	 CIMGetQualifierRequestMessage* request);
 
       void handleSetQualifierRequest(
-	 CIMSetQualifierRequestMessage* request);
+    	 CIMSetQualifierRequestMessage* request);
 
       void handleDeleteQualifierRequest(
-	 CIMDeleteQualifierRequestMessage* request);
+    	 CIMDeleteQualifierRequestMessage* request);
 
       void handleEnumerateQualifiersRequest(
-	 CIMEnumerateQualifiersRequestMessage* request);
+    	 CIMEnumerateQualifiersRequestMessage* request);
 
       void handleExecQueryRequest(
-	 CIMExecQueryRequestMessage* request);
+    	 CIMExecQueryRequestMessage* request);
 
       void handleInvokeMethodRequest(
-	 CIMInvokeMethodRequestMessage* request);
+    	 CIMInvokeMethodRequestMessage* request);
 
       void handleProcessIndicationRequest(
-	 CIMProcessIndicationRequestMessage* request);
+    	 CIMProcessIndicationRequestMessage* request);
       
       static void _forwardToServiceCallBack(AsyncOpNode *, 
 					    MessageQueue *,
@@ -245,6 +235,19 @@ public:
       static void _forwardToModuleCallBackEnum(AsyncOpNode *, 
 					   MessageQueue *, 
 					   void *);
+      
+      // Response Handler functions
+      void handleOperationResponseAggregation(
+			operationAggregate* poA);
+      
+      static void _handleResponse(CIMOperationRequestDispatcher * service,
+          CIMResponseMessage * response, void * parm);
+      
+      static void handleEnumerateInstancesResponse(operationAggregate* poA);
+
+      static void handleEnumerateInstanceNamesResponse(operationAggregate* poA);
+
+
    protected:
 
 	/** _getSubClassNames - Gets the names of all subclasses of the defined
@@ -269,54 +272,52 @@ public:
         String& provider);
 
       String _lookupInstanceProvider(
-	const String& nameSpace, const String& className);
+    	const String& nameSpace, const String& className);
 
       Boolean _lookupNewInstanceProvider(
-	const String& nameSpace, 
-	const String& className,
-	String& serviceName,
-	String& controlProviderName);
+    	const String& nameSpace, 
+    	const String& className,
+    	String& serviceName,
+    	String& controlProviderName);
 
       Array<String> _lookupAssociationProvider(
-	const String& nameSpace, const String& className,
+    	const String& nameSpace, const String& className,
         const String& assocClassName = String::EMPTY,
         const String& resultClassName = String::EMPTY);
 
       String _lookupMethodProvider(const String& nameSpace,
-	const String& className, const String& methodName);
+    	const String& className, const String& methodName);
 
       String _lookupIndicationProvider(
-	const String& nameSpace, const String& className);
+    	const String& nameSpace, const String& className);
 
       void _forwardRequestToService(
-	const String& serviceName,
-	CIMRequestMessage* request,
-	CIMResponseMessage*& response);
+        const String& serviceName,
+        CIMRequestMessage* request,
+        CIMResponseMessage*& response);
 
       void _forwardRequestToControlProvider(
-	const String& serviceName,
-	const String& controlProviderName,
-	CIMRequestMessage* request,
-	CIMResponseMessage*& response);
+        const String& serviceName,
+        const String& controlProviderName,
+        CIMRequestMessage* request,
+        CIMResponseMessage*& response);
 
       void _forwardRequest(
         const String& className,
-	const String& serviceName,
-	const String& controlProviderName,
-	CIMRequestMessage* request);
-
-	//ATTNKSDELETE CIMRequestMessage* request,
-	//ATTNKSDELETECIMResponseMessage*& response);
+        const String& serviceName,
+        const String& controlProviderName,
+        CIMRequestMessage* request);
 
       void _forwardRequestEnum(
         const String& className,
-	const String& serviceName,
-	const String& controlProviderName,
-	CIMRequestMessage* request);
+        const String& serviceName,
+        const String& controlProviderName,
+        CIMRequestMessage* request,
+        operationAggregate* poA);
 
       void _enqueueResponse(
-	 CIMRequestMessage* request, CIMResponseMessage* response);
-
+          CIMRequestMessage* request, CIMResponseMessage* response);
+      
       CIMValue _convertValueType(const CIMValue& value, CIMType type);
 
       void _fixInvokeMethodParameterTypes(CIMInvokeMethodRequestMessage* request);

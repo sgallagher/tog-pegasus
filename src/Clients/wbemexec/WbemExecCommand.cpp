@@ -36,20 +36,6 @@
 #include <stdio.h>
 #endif
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-# include <windows.h>
-#else
-# include <cctype>
-# include <unistd.h>
-# include <cstdlib>
-# include <errno.h>
-# include <fcntl.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-# include <sys/socket.h>
-#endif
-
 #include <iostream>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Config.h>
@@ -428,7 +414,6 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     Array <Sint8>                httpHeaders;
     ClientAuthenticator*         clientAuthenticator            = NULL;
     Boolean                      useAuthentication              = false;
-    struct sockaddr_in           saddress;
 
 
     //
@@ -448,10 +433,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     //
     if (!_hostNameSet)
     {
-        memset( &saddress, 0, sizeof(saddress) );
-
-        saddress.sin_addr.s_addr = INADDR_LOOPBACK;
-        _hostName = inet_ntoa( saddress.sin_addr );
+      _hostName = System::getHostName();
     }
     if( !_portNumberSet )
     {

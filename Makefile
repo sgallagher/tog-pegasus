@@ -42,14 +42,17 @@ repositoryServer: FORCE
 testrepository: FORCE
 	@ $(MAKE) -SC src/Providers/sample/Load repository
 	@ $(MAKE) -SC test/wetest repository
+	@ $(MAKE) -SC src/Clients/benchmarkTest/Load repository
 
 testrepositoryServer: FORCE
 	@ $(MAKE) -SC src/Providers/sample/Load repositoryServer
 	@ $(MAKE) -SC test/wetest repositoryServer
+	@ $(MAKE) -SC src/Clients/benchmarkTest/Load repositoryServer
 
 removetestrepository: FORCE
 	@ $(MAKE) -SC src/Providers/sample/Load removerepository
 	@ $(MAKE) -SC test/wetest removerepository
+	@ $(MAKE) -SC src/Clients/benchmarkTest/Load removerepository
 
 # the collections of tests that we run with the server active.
 # For now, these are centralized and do not include startup

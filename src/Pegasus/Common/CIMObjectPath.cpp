@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -104,7 +104,7 @@ static void _BubbleSort(Array<CIMKeyBinding>& x)
     Uint32 n = x.size();
 
     //
-    //  If the key is a reference, the keys in the reference must also be 
+    //  If the key is a reference, the keys in the reference must also be
     //  sorted
     //
     for (Uint32 k = 0; k < n ; k++)
@@ -124,7 +124,7 @@ static void _BubbleSort(Array<CIMKeyBinding>& x)
     {
         for (Uint32 j = 0; j < n - 1; j++)
         {
-            if (String::compareNoCase(x[j].getName().getString(), 
+            if (String::compareNoCase(x[j].getName().getString(),
                                       x[j+1].getName().getString()) > 0)
             {
                 CIMKeyBinding t = x[j];
@@ -451,17 +451,17 @@ public:
         // ^([A-Za-z0-9][A-Za-z0-9-]*)(\.[A-Za-z][A-Za-z0-9-]*)*(:[0-9]*)?$
         // ^([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*)(:[0-9]*)?$
         // Note for Bug#1462. Be careful here, from RFC 1123:
-        // - The syntax of a legal Internet host name was specified in 
-        //   RFC-952 [DNS:4]. One aspect of host name syntax is hereby 
-        //   changed: the restriction on the first character is relaxed to 
-        //   allow either a letter or a digit. 
+        // - The syntax of a legal Internet host name was specified in
+        //   RFC-952 [DNS:4]. One aspect of host name syntax is hereby
+        //   changed: the restriction on the first character is relaxed to
+        //   allow either a letter or a digit.
         // - If a dotted-decimal number can be entered without identifying
         //   delimiters, then a full syntactic check must be made, because
         //   a segment of a host domain name is now allowed to begin with a
         //   digit and could legally be entirely numeric (see Section 6.1.2.4).
         //   However, a valid host name can never have the dotted-decimal form
         //   #.#.#.#, since at least the highest-level component label will be
-        //   alphabetic. 
+        //   alphabetic.
         // The algorithm below has been updated accordingly.
         //------------------------------------------------------------------
 
@@ -472,7 +472,7 @@ public:
         if (isdigit(hostname[0]))
         {
             //--------------------------------------------------------------
-            // Attempt to validate an IP address, but keep in mind that it 
+            // Attempt to validate an IP address, but keep in mind that it
             // might be a host name, since the leading character can now be
             // a digit.
             //--------------------------------------------------------------
@@ -535,7 +535,7 @@ public:
                 expectHostSegment = false;
                 hostSegmentIsNumeric = true; // assume all-numeric host segment
 
-                if (!isalnum(hostname[i++]))
+                if (!isalnum(hostname[i]))
                 {
                     return false;
                 }
@@ -576,7 +576,7 @@ public:
             {
                 return false;
             }
-        
+
             while (isdigit(hostname[++i]));
         }
 
@@ -706,7 +706,7 @@ Boolean _parseNamespaceElement(
         return false;
     }
 
-    // A ':' as part of a keybinding value should not be interpreted as 
+    // A ':' as part of a keybinding value should not be interpreted as
     // a namespace delimiter.  Since keybinding pairs follow the first '.'
     // in the object path string, the ':' delimiter only counts if it
     // appears before the '.'.
@@ -754,7 +754,7 @@ Boolean _parseNamespaceElement(
 void _parseKeyBindingPairs(
     const String& objectName,
     char*& p,
-    Array<CIMKeyBinding>& keyBindings)  
+    Array<CIMKeyBinding>& keyBindings)
 {
     // Get the key-value pairs:
 
@@ -884,7 +884,7 @@ void _parseKeyBindingPairs(
             p = p + n;
         }
 
-        keyBindings.append(CIMKeyBinding(keyName.getString (), valueString, 
+        keyBindings.append(CIMKeyBinding(keyName.getString (), valueString,
             type));
 
         if (*p)
@@ -899,7 +899,7 @@ void _parseKeyBindingPairs(
     _BubbleSort(keyBindings);
 }
 
-void CIMObjectPath::set(const String& objectName)  
+void CIMObjectPath::set(const String& objectName)
 {
     clear();
 
@@ -1057,7 +1057,7 @@ String CIMObjectPath::toString() const
                 keyBindings[i].getValue());
 
             CIMKeyBinding::Type type = keyBindings[i].getType();
-        
+
             if (type == CIMKeyBinding::STRING || type == CIMKeyBinding::REFERENCE)
                 objectName.append('"');
 
@@ -1079,13 +1079,13 @@ String CIMObjectPath::_toStringCanonical() const
     CIMObjectPath ref = *this;
 
     // Normalize hostname by changing to lower case
-    ref._rep->_host.toLower(); // ICU_TODO:  
+    ref._rep->_host.toLower(); // ICU_TODO:
 
     // Normalize namespace by changing to lower case
     if (!ref._rep->_nameSpace.isNull())
     {
         String nameSpaceLower = ref._rep->_nameSpace.getString();
-        nameSpaceLower.toLower(); // ICU_TODO:  
+        nameSpaceLower.toLower(); // ICU_TODO:
         ref._rep->_nameSpace = nameSpaceLower;
     }
 
@@ -1093,7 +1093,7 @@ String CIMObjectPath::_toStringCanonical() const
     if (!ref._rep->_className.isNull())
     {
         String classNameLower = ref._rep->_className.getString();
-        classNameLower.toLower(); // ICU_TODO:  
+        classNameLower.toLower(); // ICU_TODO:
         ref._rep->_className = classNameLower;
     }
 
@@ -1102,7 +1102,7 @@ String CIMObjectPath::_toStringCanonical() const
         // Normalize key binding name by changing to lower case
         if (!ref._rep->_keyBindings[i]._rep->_name.isNull())
         {
-            String keyBindingNameLower = 
+            String keyBindingNameLower =
                 ref._rep->_keyBindings[i]._rep->_name.getString();
             keyBindingNameLower.toLower(); // ICU_TODO:
             ref._rep->_keyBindings[i]._rep->_name = keyBindingNameLower;

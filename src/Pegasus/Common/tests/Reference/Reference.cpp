@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -63,7 +63,7 @@ void test01()
     assert(r.toString() == on2);
 
     CIMObjectPath r2 = r;
-    CIMObjectPath r3 = CIMObjectPath 
+    CIMObjectPath r3 = CIMObjectPath
         ("//atp:77/root/cimv25:TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
     if (verbose)
@@ -78,9 +78,9 @@ void test01()
     }
 
     {
-    CIMObjectPath r1 = CIMObjectPath 
+    CIMObjectPath r1 = CIMObjectPath
         ("MyClass.z=true,y=1234,x=\"Hello World\"");
-    CIMObjectPath r2 = CIMObjectPath 
+    CIMObjectPath r2 = CIMObjectPath
         ("myclass.X=\"Hello World\",Z=true,Y=1234");
     CIMObjectPath r3 = CIMObjectPath ("myclass.X=\"Hello\",Z=true,Y=1234");
     // cout << r1.toString() << endl;
@@ -108,19 +108,19 @@ void test01()
 	    {
 			if (verbose)
             {
-                cout << "keyName= " <<  kbArray[i].getName() << " Value= " 
+                cout << "keyName= " <<  kbArray[i].getName() << " Value= "
     				 << kbArray[i].getValue() << endl;
             }
 		if ( kbArray[i].getName() == CIMName ("B") )
 		{
 		    keyValue = kbArray[i].getValue();
 		    if(keyValue == "TRUE")
-			found = true;    
+			found = true;
 		}
 	    }
 	    if(!found)
 	    {
-			cerr << "Key Binding Test error " << endl; 
+			cerr << "Key Binding Test error " << endl;
 				exit(1);
 	    }
 		//ATTN: KS 12 May 2002 P3 DEFER - keybinding manipulation. too simplistic
@@ -133,7 +133,7 @@ void test01()
 
     // Test building from component parts of CIM Reference.
     {
-	CIMObjectPath r1 ("atp:77", CIMNamespaceName ("root/cimv25"), 
+	CIMObjectPath r1 ("atp:77", CIMNamespaceName ("root/cimv25"),
             CIMName ("TennisPlayer"));
 	CIMObjectPath r2 ("//atp:77/root/cimv25:TennisPlayer.");
 	//cout << "r1 " << r1.toString() << endl;
@@ -196,6 +196,13 @@ void test01()
      CIMObjectPath h13("//192.168.257.80.com:77/root/cimv25:"
                       "TennisPlayer.first=\"Chris\",last=\"Evert\"");
      CIMObjectPath h14("//192.256.0.80.org/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+
+     CIMObjectPath h15("//localhost/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h16("//ou812/root/cimv25:"
+                      "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     CIMObjectPath h17("//u812/root/cimv25:"
                       "TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
      // try IPAddress as hostname which should be good
@@ -386,27 +393,27 @@ void test02()
 {
     // test cases with commas in the key value string
 
-    CIMObjectPath testr1 = CIMObjectPath 
+    CIMObjectPath testr1 = CIMObjectPath
         ("MyClass.z=true,y=1234,x=\"Hello,World\"");
 
-    CIMObjectPath testr2 = CIMObjectPath 
+    CIMObjectPath testr2 = CIMObjectPath
         ("MyClass.z=true,y=1234,x=\"Hello World,\"");
 
-    CIMObjectPath testr3 = CIMObjectPath 
+    CIMObjectPath testr3 = CIMObjectPath
         ("MyClass.z=true,y=1234,x=\"Hello,,World\"");
 
-    CIMObjectPath testr4 = CIMObjectPath 
+    CIMObjectPath testr4 = CIMObjectPath
         ("//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"");
 
     // test cases with colon inside keybinding string value
 
-    CIMObjectPath testc1 = CIMObjectPath 
+    CIMObjectPath testc1 = CIMObjectPath
         ("MyClass.z=true,y=1234,x=\"Hello:World\"");
 
     Boolean colonException = false;
     try
     {
-        CIMObjectPath testc2 = CIMObjectPath 
+        CIMObjectPath testc2 = CIMObjectPath
             ("MyNamespace.ns:MyClass.z=true,y=1234,x=\"Hello:World\"");
     }
     catch (Exception&)
@@ -420,7 +427,7 @@ void test02()
     Boolean errorDetected = false;
     try
     {
-       CIMObjectPath testerr1 = CIMObjectPath 
+       CIMObjectPath testerr1 = CIMObjectPath
            ("myclass.X=\"Hello World\"Z=trueY=1234");
     }
     catch (Exception&)
@@ -443,7 +450,7 @@ void test02()
     errorDetected = false;
     try
     {
-       CIMObjectPath testerr3 = CIMObjectPath 
+       CIMObjectPath testerr3 = CIMObjectPath
            ("MyClass.z=true,y=1234abc,x=\"Hello World\"");
     }
     catch (Exception&)
@@ -455,7 +462,7 @@ void test02()
     errorDetected = false;
     try
     {
-       CIMObjectPath testerr4 = CIMObjectPath 
+       CIMObjectPath testerr4 = CIMObjectPath
            ("MyClass.z=nottrue,y=1234,x=\"Hello World\"");
     }
     catch (Exception&)
@@ -603,7 +610,7 @@ void test04()
     instanceB.addProperty (CIMProperty (CIMName ("q"), String ("pelargonium")));
     instanceB.addProperty (CIMProperty (CIMName ("r"), String ("thyme")));
     instanceB.addProperty (CIMProperty (CIMName ("s"), String ("sage")));
-    
+
     // Test to assure that the buildpath function works.
     CIMObjectPath bPath = instanceB.buildPath (classB);
     CIMObjectPath bPath2 ("B.s=\"sage\",q=\"pelargonium\",r=\"thyme\"");
@@ -611,15 +618,15 @@ void test04()
 
     // Build instance of C and build path from buildPath function.
     CIMInstance instanceC (CIMName ("C"));
-    instanceC.addProperty (CIMProperty (CIMName ("a"), aPath, 0, 
+    instanceC.addProperty (CIMProperty (CIMName ("a"), aPath, 0,
         CIMName ("A")));
-    instanceC.addProperty (CIMProperty (CIMName ("b"), bPath, 0, 
+    instanceC.addProperty (CIMProperty (CIMName ("b"), bPath, 0,
         CIMName ("B")));
     CIMObjectPath cPath = instanceC.buildPath (classC);
 
     // Build CIMObjectPath from keybindings.
     Array <CIMKeyBinding> keyBindings;
-    CIMKeyBinding aBinding ("a", "A.y=\"lavender\",x=\"rose\",z=\"rosemary\"", 
+    CIMKeyBinding aBinding ("a", "A.y=\"lavender\",x=\"rose\",z=\"rosemary\"",
         CIMKeyBinding::REFERENCE);
     CIMKeyBinding bBinding ("b", "B.s=\"sage\",q=\"pelargonium\",r=\"thyme\"",
         CIMKeyBinding::REFERENCE);

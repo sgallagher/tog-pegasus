@@ -433,7 +433,7 @@ void XmlWriter::appendMethodCallHeader(
 
     out << "M-POST /cimom HTTP/1.1\r\n";
     out << "HOST: " << host << "\r\n";
-    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
     out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
     out << nn <<"\r\n";
@@ -462,7 +462,7 @@ void XmlWriter::appendMethodResponseHeader(
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     out << "HTTP/1.1 200 OK\r\n";
-    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
     out << "Ext:\r\n";
     out << "Cache-Control: no-cache\r\n";
@@ -1274,7 +1274,7 @@ void XmlWriter::appendEMethodRequestHeader(
 
     out << "M-POST /cimom HTTP/1.1\r\n";
     out << "HOST: " << host << "\r\n";
-    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
     out << "Man: http://www.hp.com; ns=";
     out << nn <<"\r\n";
@@ -1302,11 +1302,11 @@ void XmlWriter::appendEMethodResponseHeader(
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
     out << "HTTP/1.1 200 OK\r\n";
-    out << "Content-CIMType: application/xml; charset=\"utf-8\"\r\n";
+    out << "Content-Type: application/xml; charset=\"utf-8\"\r\n";
     out << "Content-Length: " << contentLength << "\r\n";
     out << "Ext:\r\n";
     out << "Cache-Control: no-cache\r\n";
-    out << "Man:  http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
+    out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
     out << nn <<"\r\n";
     out << nn << "-CIMExport: MethodResponse\r\n\r\n";
 }

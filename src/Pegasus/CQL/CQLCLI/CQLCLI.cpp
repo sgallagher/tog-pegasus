@@ -103,6 +103,36 @@ void hackInstances(Array<CIMInstance>& instances)
   }
 }
 
+String getStatementString(const String& stmt)
+{
+  // Returns the select statement string, but takes
+  // non-ascii chars (> 0x7f) into account by turning
+  // them into hex strings.
+  // This is needed because some tests contain
+  // non-ascii in their select statements, and we
+  // want a consistent output on all platforms.
+  String res;
+
+  for (Uint32 i = 0, n = stmt.size(); i < n; i++)
+  {
+    Uint16 code = stmt[i];
+
+    if (code <= PEGASUS_MAX_PRINTABLE_CHAR)
+    {
+      res.append((char)code);
+    }
+    else
+    {
+      // turn into hex format:
+      char hex[8];
+      sprintf(hex, "\\x%04X", code);
+      res.append(hex);
+    }
+  }
+
+  return res;
+}
+
 
 void printProperty(CIMProperty& prop, Uint32 propNum, String& prefix)
 {
@@ -439,7 +469,9 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
                   Array<CIMInstance>& _instances,
                   String testOption)
 {
-  // Not liking how the mof compiler is working with CQL_TestPropertyTypes, so I am going to hack the instances so that they have the values I need for the function tests.
+  // Not liking how the mof compiler is working with CQL_TestPropertyTypes, 
+  // so I am going to hack the instances so that they have the values
+  // I need for the function tests.
   hackInstances(_instances);
   
   if(testOption == String::EMPTY || testOption == "1")
@@ -448,7 +480,7 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
     for(Uint32 i = 0; i < _statements.size(); i++)
     {
       cout << "=========     " << i << "     =========" << endl;
-      cout << "-----Query: " << _statements[i].toString() << endl << endl;;
+      cout << "-----Query: " << getStatementString(_statements[i].toString()) << endl << endl;;
 
       for(Uint32 j = 0; j < _instances.size(); j++)
       {
@@ -457,10 +489,10 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements,
           cout << "-----Instance: " << _instances[j].getPath().toString() << endl;
           Boolean result = _statements[i].evaluate(_instances[j]);
 
-	  if(cqlcli_verbose)
-	    {
-	      cout << "Inst # " << j << ": " <<  _statements[i].toString() << " = ";
-	    }
+          if(cqlcli_verbose)
+          {
+            cout << "Inst # " << j << ": " <<  _statements[i].toString() << " = ";
+          }
           if(result) printf("TRUE\n");
           else printf("FALSE\n");
         }
@@ -743,7 +775,8 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
       return false;
     }
 
-    // For every computer system instance, make a runningOS that has a reference to it.  The RunningOS will be the instance that is stored.
+    // For every computer system instance, make a runningOS that has a reference to it.
+    //The RunningOS will be the instance that is stored.
     for (Uint32 i=0; i < cSystems.size(); i++)
     {
       CIMInstance runOS("CIM_RunningOS");
@@ -801,7 +834,6 @@ Boolean populateInstances(Array<CIMInstance>& _instances, String& className, CIM
   return true;
 }
 
-
 void help(const char* command){
 	cout << command << " queryFile [option]" << endl;
 	cout << " options:" << endl;
@@ -825,7 +857,8 @@ int main(int argc, char ** argv)
   }
 
   // Since the output of this program will be compared with
-  // a master output file, turn off ICU message loading.
+  // a master output file, and the master file will have default
+  // messages, turn off ICU message loading.
   MessageLoader::_useDefaultMsg = true;
 
   String testOption;
@@ -839,7 +872,7 @@ int main(int argc, char ** argv)
       className = argv[i+1];
     if((strcmp(argv[i],"-nameSpace") == 0) && (i+1 < argc))
       nameSpace = argv[i+1];
-    if((strcmp(argv[i],"-verbose") == 0) && (i+1 < argc))
+    if((strcmp(argv[i],"-verbose") == 0))
       cqlcli_verbose = true;
   }
 
@@ -903,7 +936,10 @@ int main(int argc, char ** argv)
       return 1;
     }
     int statementsInError = 0;
-    while(!queryInputSource.eof()){
+    int lineNum = 0;
+    while(!queryInputSource.eof())
+    {
+      lineNum++;
       queryInputSource.getline(text, 1024);
       char* _ptr = text;
       _text = strcat(_ptr,"\n");	
@@ -913,7 +949,9 @@ int main(int argc, char ** argv)
       int i = 0;
       while(text[i] == ' ' || text[i] == '\t') i++; // ignore whitespace
       if(text[i] != _comment)
-        if(!(strlen(_text) < 2)){
+      {  
+        if(!(strlen(_text) < 2) && i == 0)
+        {
           try {
             CQLParser::parse(text,_ss);
             _statements.append(_ss);
@@ -925,6 +963,12 @@ int main(int argc, char ** argv)
             statementsInError++;
           } // end-catch
         } // end-if
+        else
+        {
+          if (cqlcli_verbose)
+            cout << "IGNORING line " << lineNum << endl;
+        }
+      }
     } // end-while
     queryInputSource.close();
     if (statementsInError)

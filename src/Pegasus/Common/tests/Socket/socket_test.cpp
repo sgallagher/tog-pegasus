@@ -173,6 +173,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL domain_socket(void *parm)
 int main(int argc, char** argv)
 {
 
+#ifndef PEGASUS_USE_23HTTPMONITOR_SERVER
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 #else
    signal(SIGPIPE, SIG_IGN);
@@ -308,6 +310,8 @@ int main(int argc, char** argv)
    th_domain.join();
 			
 #endif // domain socket
+
+#endif // PEGASUS_USE_23HTTPMONITOR_SERVER
 
    cout << argv[0] << " +++++ passed all tests" << endl;
    return 0;

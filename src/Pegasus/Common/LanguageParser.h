@@ -118,6 +118,8 @@ Boolean isValid(String language_tag, Boolean length_check = true);
  */
 Boolean checkAlpha(CString _str);
 
+Boolean checkAlphaNum(char c);
+
 CString replaceSeparator(CString _s, char new_sep = '-');
 
 char findSeparator(CString _str);

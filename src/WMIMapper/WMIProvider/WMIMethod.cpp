@@ -274,13 +274,22 @@ WMIMethod::WMIMethod(const BSTR & name,
 	String referenceClass = String::EMPTY;
 
 	CComBSTR propertyName = L"ReturnValue";
-	if( outParameters->Get(
+
+// modified to correct bug JAGaf25827  
+// JAGaf25827 - new code begin
+	HRESULT hr = outParameters->Get(
 		propertyName,  
 		0, 
 		&vValue, 
 		&returnValueType, 
-		NULL) != WBEM_S_NO_ERROR )
-	{
+		NULL);
+
+	//	not found. Maybe it is a 'void' return value
+	if (hr == WBEM_E_NOT_FOUND) {
+	    vValue = NULL;
+	    returnValueType = CIM_UINT32; 
+    }
+    else if (hr != WBEM_S_NO_ERROR) {
 		// Error: throw?
 		throw Exception("WMIMethod::WMIMethod Get ReturnValue Failed.");
 	}

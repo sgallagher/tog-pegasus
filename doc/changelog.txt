@@ -1,4 +1,14 @@
 CHANGE LOG FOR PEGASUS
+
+
+Version 1.07 working towards 1.1 - Started 4 Feb 2002
+Started just before cutover to the new dispatcher, etc.
+TAG: VERSION_1_07
+
+1. KS - Updated pegsusversion to 1.07  and tagged file.
+
+
+-------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 
 1. Merged back to Main branch.  All general development will be in main branch 

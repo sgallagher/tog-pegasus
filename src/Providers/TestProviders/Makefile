@@ -9,13 +9,12 @@ include $(ROOT)/mak/config.mak
 DIRS = \
 	PG_TestPropertyTypes \
 	DefaultInstanceProvider \
-	InstanceProvider \
-	InstanceProvider/testclient \
 	ClientProvider \
 	AlertIndicationProvider \
 	ProcessIndicationProvider \
 	MCCA_TestAssocProvider \
 	InstanceProvider \
+	InstanceProvider/testclient \
 	UserContextTestProvider \
 	UserContextTestProvider/testclient
 

@@ -79,3 +79,7 @@ YACC = bison
 SH = bash
 
 YACC = bison
+
+INSTALL_LIBRARY = echo Not supported.
+INSTALL_PROGRAM = echo Not supported.
+INSTALL_SBIN_PROGRAM = echo Not supported.

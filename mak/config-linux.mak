@@ -6,11 +6,6 @@ PEGASUS_PLATFORM_LINUX_GENERIC_GNU = 1
 DEFINES += -DPEGASUS_PLATFORM_LINUX_GENERIC_GNU
 DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
-ifdef PEGASUS_LSB
-SYS_INCLUDES += -I/usr/include -I/usr/include/c++
-FLAGS += -DPEGASUS_OS_LSB
-endif
-
 OS = linux
 
 COMPILER = gnu
@@ -26,6 +21,8 @@ YACC = yacc
 COPY = cp
 
 MOVE = mv
+
+MKDIRHIER = mkdir -p
 
 PEGASUS_SUPPORTS_DYNLIB = yes
 
@@ -134,3 +131,27 @@ endif
     SYS_LIBS += -licui18n
   endif
 endif
+
+####################################
+##
+##   If PEGASUS_LSB is set, set the rest of the variables.
+##
+####################################
+
+ifdef PEGASUS_LSB
+    SYS_INCLUDES += -I/usr/include -I/usr/include/c++
+    FLAGS += -DPEGASUS_OS_LSB
+    ## This name is hard-coded in the config files. Change accordingly.
+    PEGASUS_LSB_NAME = pegasus-lsb
+    PREFIX = /opt
+    SYSCONF_PREFIX = /etc/opt
+    LOCAL_STATE_PREFIX = /var/opt/
+    DEST_LIB_DIR = $(PREFIX)/$(PEGASUS_LSB_NAME)/lib
+    DEST_BIN_DIR = $(PREFIX)/$(PEGASUS_LSB_NAME)/bin
+    DEST_SBIN_DIR = $(PREFIX)/$(PEGASUS_LSB_NAME)/sbin
+    DEST_ETC_DIR = $(SYSCONF_PREFIX)/$(PEGASUS_LSB_NAME)/
+    DEST_MAN_DIR = $(PREFIX)/$(PEGASUS_LSB_NAME)/man
+    DEST_VAR_DIR = $(LOCAL_STATE_PREFIX)/$(PEGASUS_LSB_NAME)/
+    REPOSITORY_DIR = $(LOCAL_STATE_PREFIX)/$(PEGASUS_LSB_NAME)/repository
+endif
+

@@ -51,6 +51,7 @@
 
 #ifdef PEGASUS_OS_OS400
 #include "qycmutiltyUtility.H"
+#include "OS400ConvertChar.h"
 #endif
 
 PEGASUS_USING_STD;
@@ -372,11 +373,21 @@ Boolean AuthorizationHandler::verifyAuthorization(
 #ifdef PEGASUS_OS_OS400
     if (readOperation || writeOperation)
     {
-	// Use OS/400 Application Administration to do cim operation verification
+        // Use OS/400 Application Administration to do cim operation verification
+        // (note - need to convert to EBCDIC before calling ycm)
+	CString userCStr = userName.getCString();
+	const char * user = (const char *)userCStr;
+	AtoE((char *)user);
+	CString nsCStr = nameSpace.getString().getCString();
+	const char * ns = (const char *)nsCStr;
+	AtoE((char *)ns);
+	CString cimMethCStr = cimMethodName.getString().getCString();
+	const char * cimMeth = (const char *)cimMethCStr;
+	AtoE((char *)cimMeth);
 	int os400auth =
-	  ycmVerifyFunctionAuthorization((const char*)userName.getCString(),
-					 (const char*)(nameSpace.getString()).getCString(),
-					 (const char*)(cimMethodName.getString()).getCString());
+	  ycmVerifyFunctionAuthorization(user,
+					 ns,
+					 cimMeth);
 	if (os400auth == TRUE) 
 	    authorized = true;
     }

@@ -40,6 +40,9 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
+#if defined(PEGASUS_OS_OS400)
+#include "OS400ConvertChar.h"
+#endif
 
 #include "LocalAuthFile.h"
 
@@ -135,7 +138,14 @@ String LocalAuthFile::create()
     //
     // 1. Create a file name for authentication.
     //
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = filePathCString;
+    const char * tmp = tempPath;
+    AtoE((char *)tmp);
+    ofstream outfs(tmp, PEGASUS_STD(_CCSID_T(1208)));
+#else
     ofstream outfs(filePathCString);
+#endif
     if (!outfs)
     {
         // unable to create file
@@ -149,7 +159,11 @@ String LocalAuthFile::create()
     //
     // 2. Set file permission to read only by the owner.
     //
+#if defined(PEGASUS_OS_OS400)
+    Sint32 ret = chmod(tmp, S_IRUSR);
+#else
     Sint32 ret = chmod(filePathCString, S_IRUSR);
+#endif
     if ( ret == -1)
     {
         PEG_METHOD_EXIT();
@@ -227,14 +241,20 @@ Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
 
     struct passwd*        userPasswd;
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-    struct passwd   pwd;
-    struct passwd   *result;
-    char            pwdBuffer[1024];
+    struct passwd  pwd;
+    struct passwd *result;
+    char        pwdBuffer[1024];
 
-    if (getpwnam_r(_userName.getCString(), &pwd, pwdBuffer, 1024, &userPasswd)
-								 != 0) {
-	userPasswd = (struct passwd *)NULL;
+    if(getpwnam_r(_userName.getCstring(), &pwd, pwdBuffer, 1024, &userPasswd) != 0)
+    {
+	userPasswd=(struct passwd *)NULL;
     }
+
+#elif defined(PEGASUS_OS_OS400)
+    CString tempName = _userName.getCString();
+    const char * tmp = tempName;
+    AtoE((char *)tmp);
+    userPasswd = getpwnam(tmp);
 #else
 
     userPasswd = getpwnam(_userName.getCString());
@@ -245,8 +265,15 @@ Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
         PEG_METHOD_EXIT();
         return (false);
     }
-    
+
+#if defined(PEGASUS_OS_OS400)
+    CString tempPath = fileName.getCString();
+    const char * tmp1 = tempPath;
+    AtoE((char *)tmp1);
+    Sint32 ret = chown(tmp1, userPasswd->pw_uid, userPasswd->pw_gid);
+#else
     Sint32 ret = chown(fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
+#endif
     if ( ret == -1)
     {
         PEG_METHOD_EXIT();

@@ -51,6 +51,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include "CIMOperationRequestDecoder.h"
+#include <Pegasus/Common/CommonUTF.h>
 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
@@ -244,12 +245,81 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
    // Process M-POST and POST messages:
 
+   String cimContentType;
    String cimOperation;
    String cimBatch;
    Boolean cimBatchFlag;
    String cimProtocolVersion;
    String cimMethod;
    String cimObject;
+
+   // Validate the "Content-Type" header:
+
+   // 4.2.2. Accept-Charset
+   //  If a CIM client includes an Accept-Charset header in a request,
+   //  it MUST specify a value which allows the CIM Server or CIM Listener
+   //  to return an entity body using the character set "utf-8".
+   //  A CIM server or CIM Listener MUST accept any value for this header
+   //  which implies that "utf-8" is an acceptable character set for an
+   //  response entity.  A CIM Server or CIM Listener SHOULD return
+   //  "406 Not Acceptable" if the Accept-Charset header indicates that
+   //  this character set is not acceptable. 
+   //
+   //  If a CIM Server or CIM Listener decides to accept a request to return
+   //  an entity using a character set other than "utf-8", the nature
+   //  of the response is outside of the domain of this specification. 
+
+
+   Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(headers,
+							    "Content-Type",
+							    cimContentType,
+							    true);
+
+   Uint32 validateSize= httpMessage->message.size();
+   Uint8  *validateContent = (Uint8*) httpMessage->message.getData();
+   Uint32 count;
+
+   // If the Content-Type header is missing we will assume a charset of ISO-8859-1
+   if(!contentTypeHeaderFound)
+   {
+       // We will verify that the characters fall in the 7-bit ASCII range
+       for(count = 0;count < validateSize; ++count)
+       {
+	   if(validateContent[count] > 0x7F)
+	   {
+	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
+			     String("8-bit characters detected, Content-Type value is required."));
+	       PEG_METHOD_EXIT();
+	       return;
+	   } 
+       }
+   }
+   // Validating the charset is utf-8
+   else if(!String::equalNoCase(cimContentType, "application/xml; charset=\"utf-8\""))
+   {
+       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
+		     String("Content-Type value \"") + cimContentType +
+		     "\" is not supported.");
+       PEG_METHOD_EXIT();
+       return; 
+   }
+   // Validating content falls within UTF8
+   else
+   {
+       char currentChar;
+       count = 0;
+       while(count<validateSize)
+       {
+	   UTF8_NEXT(validateContent,count,currentChar);
+	   if (!(String::isUTF8(validateContent[count])))
+	   {
+	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
+			     String("Invalid UTF-8 character detected."));
+	       PEG_METHOD_EXIT();
+	       return; 
+	   }
+       }
+   }
 
    // Validate the "CIMOperation" header:
 

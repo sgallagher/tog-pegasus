@@ -11,7 +11,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -93,19 +93,18 @@ void Test2(void)
     {
         DynamicLibrary library2(library);
 
-        if(!library.isLoaded())
+        if(library2.isLoaded() != library.isLoaded())
         {
             cout << "failed to preserve module state in copy " << library.getFileName() << endl;
         }
     }
-
 
     {
         DynamicLibrary library2;
 
         library2 = library;
 
-        if(!library.isLoaded())
+        if(library2.isLoaded() != library.isLoaded())
         {
             cout << "failed to preserve module state in assignment " << library.getFileName() << endl;
         }
@@ -123,6 +122,8 @@ void Test3(void)
 
     if(library.isLoaded())
     {
+        library.unload();
+
         cout << "failed by loading " << library.getFileName() << endl;
 
         throw 0;

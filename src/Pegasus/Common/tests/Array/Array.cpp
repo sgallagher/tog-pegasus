@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,13 +45,13 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-char * verbose;
+const char * verbose;
 
 template<class T>
 void Print(const Array<T>& arr)
 {
-    for (size_t i = 0; i < arr.size(); i++)
-	cout << arr[i] << endl;
+    for (Uint32 i = 0; i < arr.size(); i++)
+        cout << arr[i] << endl;
     cout << "-- end" << endl;
 }
 
@@ -63,7 +64,7 @@ void test01(STR*)
     assert(arr[1] == STR("Hello"));
     assert(arr[2] == STR("Hello"));
     if(verbose)
-	Print(arr);
+        Print(arr);
 }
 
 template<class STR>
@@ -186,7 +187,7 @@ void test06()
     {
         Array<Uint32> arr(0xffff0000);
     }
-    catch (NullPointer&)
+    catch (const NullPointer&)
     {
         exceptionCaught = true;
     }
@@ -198,7 +199,7 @@ void test06()
     {
         Array<Uint32> arr(0xffff0000, 100);
     }
-    catch (NullPointer&)
+    catch (const NullPointer&)
     {
         exceptionCaught = true;
     }
@@ -211,7 +212,7 @@ void test06()
         Uint32 myInt = 50;
         Array<Uint32> arr(&myInt, 0xffff0000);
     }
-    catch (NullPointer&)
+    catch (const NullPointer&)
     {
         exceptionCaught = true;
     }
@@ -231,19 +232,19 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
-	test01((Str*)0);
-	test02((Str*)0);
-	test01((String*)0);
-	test02((String*)0);
-	test03((Int*)0);
-	test03((int*)0);
-	test04();
-	test05();
-	test06();
-	assert(Int::_count == 0);
-	assert(Str::_constructions == Str::_destructions);
+        test01((Str*)0);
+        test02((Str*)0);
+        test01((String*)0);
+        test02((String*)0);
+        test03((Int*)0);
+        test03((int*)0);
+        test04();
+        test05();
+        test06();
+        assert(Int::_count == 0);
+        assert(Str::_constructions == Str::_destructions);
     }
-    catch(Exception& e)
+    catch(const Exception& e)
     {
         cerr << argv[0] << " Exception: " << e.getMessage() << endl;
         exit(1);

@@ -706,6 +706,7 @@ void IndicationService::_checkNonprivilegedAuthorization(
     {
         if (_enableSubscriptionsForNonprivilegedUsers)
         {
+           PEG_METHOD_EXIT();
            return;
         }
         else
@@ -985,6 +986,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
                 //
                 //  This instance from the repository is invalid
                 //
+                PEG_METHOD_EXIT();
                 throw;
             }
             if (startTimeAdded)
@@ -1291,6 +1293,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 //
                 //  This instance from the repository is invalid
                 //
+                PEG_METHOD_EXIT();
                 throw;
             }
 
@@ -3193,6 +3196,7 @@ Boolean IndicationService::_canCreate (
             if (String::equalNoCase(queryLanguage, "cim:cql"))
             {
               // CQL is not allowed in this case
+              PEG_METHOD_EXIT();
               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
                                           queryLanguage);
             }
@@ -3223,6 +3227,7 @@ Boolean IndicationService::_canCreate (
             catch (QueryLanguageInvalidException&)
             {
               // The filter query had an invalid language name.
+              PEG_METHOD_EXIT();
               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
                                           queryLanguage);
             }
@@ -3248,6 +3253,7 @@ Boolean IndicationService::_canCreate (
             catch (QueryMissingPropertyException& qmp)
             {
               // A property does not exist on the class it is scoped to.
+              PEG_METHOD_EXIT();
               throw PEGASUS_CIM_EXCEPTION
                 (CIM_ERR_INVALID_PARAMETER, qmp.getMessage());
             }
@@ -3256,6 +3262,7 @@ Boolean IndicationService::_canCreate (
               // Received some other validation error.
               // This includes detecting an array property
               // is in the WHERE list for WQL.
+              PEG_METHOD_EXIT();
               throw PEGASUS_CIM_EXCEPTION
                 (CIM_ERR_NOT_SUPPORTED, qv.getMessage());
             }
@@ -3282,7 +3289,7 @@ Boolean IndicationService::_canCreate (
             (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
             {
                 //
-            //  The System Log Handler is not enabled currently,
+                //  The System Log Handler is not enabled currently,
                 //  this class is not currently served by the Indication Service
                 //
                 PEG_METHOD_EXIT ();
@@ -3299,7 +3306,7 @@ Boolean IndicationService::_canCreate (
             (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
             {
                 //
-            //  The Email Handler is not enabled currently,
+                //  The Email Handler is not enabled currently,
                 //  this class is not currently served by the Indication Service
                 //
                 PEG_METHOD_EXIT ();
@@ -4554,6 +4561,7 @@ Boolean IndicationService::_inPropertyList (
     //
     if (supportedProperties.isNull ())
     {
+        PEG_METHOD_EXIT();
         return true;
     }
     else
@@ -4565,6 +4573,7 @@ Boolean IndicationService::_inPropertyList (
         //
         if (requiredProperties.isNull ())
         {
+            PEG_METHOD_EXIT();
             return false;
         }
         else
@@ -4579,6 +4588,7 @@ Boolean IndicationService::_inPropertyList (
                     (supportedProperties.getPropertyNameArray (),
                     requiredProperties[i]))
                 {
+                    PEG_METHOD_EXIT();
                     return false;
                 }
             }
@@ -4817,6 +4827,7 @@ CIMPropertyList IndicationService::_getPropertyList
         //
         //  Return null property list for all properties
         //
+        PEG_METHOD_EXIT();
         return propertyList;
     }
     else
@@ -4828,6 +4839,7 @@ CIMPropertyList IndicationService::_getPropertyList
         propertyArray = propertyList.getPropertyNameArray ();
 
         Array <CIMName> indicationClassProperties;
+        PEG_METHOD_EXIT();
         return _checkPropertyList (propertyArray, nameSpaceName,
             indicationClassName, indicationClassProperties);
     }
@@ -5412,6 +5424,7 @@ void IndicationService::_sendAsyncCreateRequests
     // If there are no providers to accept the subscription, just return
     if (indicationProviders.size() == 0)
     {
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -5570,6 +5583,7 @@ Uint32 IndicationService::_sendWaitCreateRequests
     // If there are no providers to accept the subscription, just return
     if (indicationProviders.size() == 0)
     {
+        PEG_METHOD_EXIT();
         return accepted;
     }
 
@@ -5685,6 +5699,7 @@ void IndicationService::_sendWaitModifyRequests
     // If there are no providers to accept the subscription update, just return
     if (indicationProviders.size() == 0)
     {
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -5788,6 +5803,7 @@ void IndicationService::_sendAsyncDeleteRequests
     // If there are no providers to delete the subscription, just return
     if (indicationProviders.size() == 0)
     {
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -5921,6 +5937,7 @@ void IndicationService::_sendWaitDeleteRequests
     // If there are no providers to delete the subscription, just return
     if (indicationProviders.size() == 0)
     {
+        PEG_METHOD_EXIT();
         return;
     }
 
@@ -6630,6 +6647,7 @@ Boolean IndicationService::_getCreator (
             //
             //  This is a corrupted/invalid instance
             //
+            PEG_METHOD_EXIT();
             return false;
         }
         else if ((creatorValue.getType () != CIMTYPE_STRING) ||
@@ -6649,6 +6667,7 @@ Boolean IndicationService::_getCreator (
             //
             //  This is a corrupted/invalid instance
             //
+            PEG_METHOD_EXIT();
             return false;
         }
         else
@@ -6665,6 +6684,7 @@ Boolean IndicationService::_getCreator (
         //
         //  This is a corrupted/invalid instance
         //
+        PEG_METHOD_EXIT();
         return false;
     }
 
@@ -6846,9 +6866,8 @@ CIMClass IndicationService::_getIndicationClass (
         (sourceNameSpace, indicationClassName, false, false, false,
          CIMPropertyList ());
 
-    return indicationClass;
-
     PEG_METHOD_EXIT();
+    return indicationClass;
 }
 
 PEGASUS_NAMESPACE_END

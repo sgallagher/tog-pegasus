@@ -41,10 +41,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-  #include "debug.h"
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+  #include <error.h>
 #else
-#include <error.h>
+  #include "debug.h"
 #endif
 #include <stdlib.h>
 #include "io.h"

@@ -46,7 +46,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <error.h>
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+  #include <error.h>
+#endif
 #include <errno.h>
 #include <netinet/in.h>
 

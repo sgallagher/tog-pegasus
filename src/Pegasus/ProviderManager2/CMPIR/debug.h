@@ -210,7 +210,7 @@ static void __start_debugger ()
 
 
 #endif
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_PLATFORM_LINUX_GENERIC_GNU 
 static void error_at_line( int a_num, int error, char* filename, int line, char* message, ... )
 {
    va_list ap;

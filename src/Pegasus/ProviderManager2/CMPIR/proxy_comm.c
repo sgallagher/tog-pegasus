@@ -49,7 +49,7 @@
 #include <dlfcn.h>
 #endif
 #include <string.h>
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include <error.h>
 #endif
 #include <errno.h>

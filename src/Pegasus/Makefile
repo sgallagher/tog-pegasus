@@ -58,10 +58,14 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
   endif
     DIRS += \
 	ProviderManager2/CMPIR \
-	ProviderManager2/CMPIR/tcpcomm \
+	ProviderManager2/CMPIR/tcpcomm 
+
+  ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+   DIRS += \  
 	ProviderManager2/CMPIR/native \
 	ProviderManager2/CMPIR/tcpcommrem \
 	ProviderManager2/CMPIR/daemon
+  endif
 endif
 
 ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER

@@ -56,7 +56,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include <error.h>
 #endif
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
@@ -64,6 +64,7 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <netinet/in.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>

@@ -39,10 +39,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include "debug.h"
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+  #include <error.h>
 #else
-#include <error.h>
+  #include "debug.h"
 #endif
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #define _XOPEN_SOURCE_EXTENDED 1
@@ -50,6 +50,7 @@
 #endif
 #include <errno.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -195,11 +196,7 @@ void accept_connections ( int port,
 #else
 	     listen ( listen_socket, 0 ) ) {
 #endif
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-		error ( -1, errno, "cannot listen on port %d", port );
-#else
 		error_at_line ( -1, errno, __FILE__, __LINE__, "cannot listen on port %d", port );
-#endif
 
 	}
 

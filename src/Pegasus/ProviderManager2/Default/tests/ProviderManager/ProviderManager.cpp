@@ -25,40 +25,44 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/FileSystem.h>
 
 #include <Pegasus/ProviderManager2/Default/LocalProviderManager.h>
 
-PEGASUS_USING_PEGASUS;
-
 #include <iostream>
 
+PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
     const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
-	
+
     try
-	{
-		LocalProviderManager providerManager;
+    {
+        LocalProviderManager providerManager;
 
-		OpProviderHolder provider = providerManager.getProvider("SampleInstanceProvider", "SampleInstanceProvider");
+        OpProviderHolder provider = providerManager.getProvider(
+            FileSystem::buildLibraryFileName("SampleInstanceProvider"),
+            "SampleInstanceProvider");
 
-		cout << "+++++passed all tests" << endl;
-	}
-	catch(Exception &)
-	{
-		cout << "failed" << endl;
-	}
-	catch(...)
-	{
-		cout << "failed" << endl;
-	}
+        cout << "+++++passed all tests" << endl;
+    }
+    catch(Exception& e)
+    {
+        cout << "Failed: " << e.getMessage() << endl;
+        return(1);
+    }
+    catch(...)
+    {
+        cout << "failed" << endl;
+        return(1);
+    }
 
     return(0);
 }

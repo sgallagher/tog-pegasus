@@ -52,6 +52,7 @@ LanguageElement::LanguageElement(){
 	language = String();
 	country = String();
 	variant = String();
+	quality = 0;
 }
 
 LanguageElement::LanguageElement(String aLanguage, 

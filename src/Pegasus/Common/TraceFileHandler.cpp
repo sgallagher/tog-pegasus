@@ -118,6 +118,7 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
         strcpy (_fileName,fileName);
     }
 
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     //
     // Set permissions on the trace file to 0400
     //
@@ -128,6 +129,7 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
            "Failed to set permissions on file $0", _fileName);
             return 1;
     }
+#endif
 
     return 0;
 }

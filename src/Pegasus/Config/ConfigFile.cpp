@@ -288,6 +288,7 @@ void ConfigFile::save (ConfigTable* confTable)
 #endif
     ofs.clear();
 
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     //
     // Set permissions on the config file to 0644
     //
@@ -296,6 +297,7 @@ void ConfigFile::save (ConfigTable* confTable)
     {
         throw CannotOpenFile(_configFile);
     }
+#endif
 
     //
     // Write config file header information
@@ -366,6 +368,7 @@ void ConfigFile::replace (const String& fileName)
 #endif
     ofs.clear();
 
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     //
     // Set permissions on the config file to 0644
     //
@@ -374,6 +377,7 @@ void ConfigFile::replace (const String& fileName)
     {
         throw CannotOpenFile(_configFile);
     }
+#endif
 
     //
     // Read each line of the new file and write to the config file.

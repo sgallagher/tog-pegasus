@@ -41,6 +41,13 @@
 #include <Pegasus/Common/Logger.h>
 #include <sys/stat.h>
 
+
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#ifndef mode_t
+#define mode_t unsigned long
+#endif
+#endif
+
 //
 // Protocal Type
 //

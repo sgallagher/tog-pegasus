@@ -89,6 +89,7 @@ public:
     TraceFileHandler();
 
     ~TraceFileHandler();
+
 };
 
 PEGASUS_NAMESPACE_END

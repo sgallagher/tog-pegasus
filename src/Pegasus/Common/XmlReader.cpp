@@ -902,7 +902,7 @@ Boolean XmlReader::stringToReal(const char* stringValue, Real64& x)
     return true;
 }
 
-static inline Uint8 _hexCharToNumeric(const char c)
+inline Uint8 _xmlReader_hexCharToNumeric(const char c)
 {
     Uint8 n;
 
@@ -943,8 +943,8 @@ String XmlReader::decodeURICharacters(String uriString)
 
             }
 
-            Uint8 digit1 = _hexCharToNumeric(char(uriString[++i]));
-            Uint8 digit2 = _hexCharToNumeric(char(uriString[++i]));
+            Uint8 digit1 = _xmlReader_hexCharToNumeric(char(uriString[++i]));
+            Uint8 digit2 = _xmlReader_hexCharToNumeric(char(uriString[++i]));
             if ( (digit1 > 15) || (digit2 > 15) )
             {
 	      // l10n
@@ -1033,7 +1033,7 @@ Boolean XmlReader::stringToSignedInteger(
                 x = x << 4;
 
                 // Make sure we don't overflow when we add the next digit
-                Sint64 newDigit = Sint64(_hexCharToNumeric(*p++));
+                Sint64 newDigit = Sint64(_xmlReader_hexCharToNumeric(*p++));
                 if (PEGASUS_SINT64_MIN - x > -newDigit)
                 {
                     return false;
@@ -1153,7 +1153,7 @@ Boolean XmlReader::stringToUnsignedInteger(
                 x = x << 4;
 
                 // We can't overflow when we add the next digit
-                Uint64 newDigit = Uint64(_hexCharToNumeric(*p++));
+                Uint64 newDigit = Uint64(_xmlReader_hexCharToNumeric(*p++));
                 if (PEGASUS_UINT64_MAX - x < newDigit)
                 {
                     return false;
@@ -4718,3 +4718,4 @@ Boolean XmlReader::getReturnValueElement(
 }
 
 PEGASUS_NAMESPACE_END
+

@@ -143,7 +143,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os,
     return os;
 }
 
-static inline void _appendChar(Array<Sint8>& out, const Char16& c)
+inline void _xmlWritter_appendChar(Array<Sint8>& out, const Char16& c)
 {
     // We need to convert the Char16 to UTF8 then append the UTF8
     // character into the array.
@@ -168,7 +168,7 @@ static inline void _appendChar(Array<Sint8>& out, const Char16& c)
     out.append((Sint8 *)str,trailingBytesForUTF8[Uint32(str[0])]+1);
 }
 
-static inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
+inline void _xmlWritter_appendSpecialChar(Array<Sint8>& out, const Char16& c)
 {
     if ( ((c < Char16(0x20)) && (c >= Char16(0x00))) || (c == Char16(0x7f)) )
     {
@@ -230,7 +230,7 @@ static inline void _appendSpecialChar(Array<Sint8>& out, const Char16& c)
     }
 }
 
-static inline void _appendSpecialChar(Array<Sint8>& out, char c)
+inline void _xmlWritter_appendSpecialChar(Array<Sint8>& out, char c)
 {
     if ( ((c < Char16(0x20)) && (c >= Char16(0x00))) || (c == Char16(0x7f)) )
     {
@@ -269,7 +269,7 @@ static inline void _appendSpecialChar(Array<Sint8>& out, char c)
 }
 
 
-static inline void _appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
+inline void _xmlWritter_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
     if ( (c < Char16(0x20)) || (c == Char16(0x7f)) )
     {
@@ -307,7 +307,7 @@ static inline void _appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
     }
 }
 
-void _appendSurrogatePair(Array<Sint8>& out, Uint16 high, Uint16 low)
+void _xmlWritter_appendSurrogatePair(Array<Sint8>& out, Uint16 high, Uint16 low)
 {
     Uint8 str[6];
     Uint8 charIN[5];
@@ -329,15 +329,15 @@ void _appendSurrogatePair(Array<Sint8>& out, Uint16 high, Uint16 low)
     out.append((Sint8 *)str,number1);
 }
 
-static inline void _appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
+inline void _xmlWritter_appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
 {
     while (*str)
-	_appendSpecialChar(os, *str++);
+	_xmlWritter_appendSpecialChar(os, *str++);
 }
 
 void XmlWriter::append(Array<Sint8>& out, const Char16& x)
 {
-    _appendChar(out, x);
+    _xmlWritter_appendChar(out, x);
 }
 
 void XmlWriter::append(Array<Sint8>& out, Boolean x)
@@ -384,7 +384,7 @@ void XmlWriter::append(Array<Sint8>& out, Real64 x)
 void XmlWriter::append(Array<Sint8>& out, const char* str)
 {
     while (*str)
-	_appendChar(out, *str++);
+	_xmlWritter_appendChar(out, *str++);
 }
 
 void XmlWriter::append(Array<Sint8>& out, const String& str)
@@ -398,11 +398,11 @@ void XmlWriter::append(Array<Sint8>& out, const String& str)
 	    Char16 highSurrogate = str[i];
 	    Char16 lowSurrogate = str[++i];
 	    
-	    _appendSurrogatePair(out, Uint16(highSurrogate),Uint16(lowSurrogate));
+	    _xmlWritter_appendSurrogatePair(out, Uint16(highSurrogate),Uint16(lowSurrogate));
 	}
 	else
 	{
-	    _appendChar(out, str[i]);
+	    _xmlWritter_appendChar(out, str[i]);
 	}
     }
 }
@@ -415,18 +415,18 @@ void XmlWriter::append(Array<Sint8>& out, const Indentor& x)
 
 void XmlWriter::appendSpecial(Array<Sint8>& out, const Char16& x)
 {
-    _appendSpecialChar(out, x);
+    _xmlWritter_appendSpecialChar(out, x);
 }
 
 void XmlWriter::appendSpecial(Array<Sint8>& out, char x)
 {
-    _appendSpecialChar(out, x);
+    _xmlWritter_appendSpecialChar(out, x);
 }
 
 void XmlWriter::appendSpecial(Array<Sint8>& out, const char* str)
 {
     while (*str)
-	_appendSpecialChar(out, *str++);
+	_xmlWritter_appendSpecialChar(out, *str++);
 }
 
 void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
@@ -441,11 +441,11 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 	    Char16 highSurrogate = str[i];
 	    Char16 lowSurrogate = str[++i];
 	    
-	    _appendSurrogatePair(out, Uint16(highSurrogate),Uint16(lowSurrogate));
+	    _xmlWritter_appendSurrogatePair(out, Uint16(highSurrogate),Uint16(lowSurrogate));
 	}
 	else
 	{
-	    _appendSpecialChar(out, str[i]);
+	    _xmlWritter_appendSpecialChar(out, str[i]);
 	}
     }
 }
@@ -461,7 +461,7 @@ void XmlWriter::appendSpecial(Array<Sint8>& out, const String& str)
 //   Unwise = '{' '}' '|' '\\' '^' '[' ']' '`'
 //
 
-static inline void _encodeURIChar(String& outString, Sint8 char8)
+inline void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
 {
     Uint8 c = (Uint8)char8;
     
@@ -496,7 +496,7 @@ String XmlWriter::encodeURICharacters(Array<Sint8> uriString)
 
     for (Uint32 i=0; i<uriString.size(); i++)
     {
-        _encodeURIChar(encodedString, uriString[i]);
+        _xmlWritter_encodeURIChar(encodedString, uriString[i]);
     }
 
     return encodedString;
@@ -509,7 +509,7 @@ String XmlWriter::encodeURICharacters(String uriString)
 /* i18n remove - did not handle surrogate pairs
     for (Uint32 i=0; i<uriString.size(); i++)
     {
-        _encodeURIChar(encodedString, uriString[i]);
+        _xmlWritter_encodeURIChar(encodedString, uriString[i]);
     }
 */
 
@@ -528,18 +528,18 @@ String XmlWriter::encodeURICharacters(String uriString)
 	    Char16 highSurrogate = uriString[i];
 	    Char16 lowSurrogate = uriString[++i];
 	    
-	    _appendSurrogatePair(utf8, Uint16(highSurrogate),Uint16(lowSurrogate));
+	    _xmlWritter_appendSurrogatePair(utf8, Uint16(highSurrogate),Uint16(lowSurrogate));
 	}
         else
         {
-            _appendChar(utf8, uriString[i]);     
+            _xmlWritter_appendChar(utf8, uriString[i]);     
         }
     }
 
     // Second, escape the non HTTP-safe chars
     for (Uint32 i=0; i<utf8.size(); i++)
     {
-        _encodeURIChar(encodedString, utf8[i]);
+        _xmlWritter_encodeURIChar(encodedString, utf8[i]);
     }
 
     return encodedString;
@@ -765,100 +765,100 @@ void XmlWriter::appendLocalObjectPathElement(
 //
 //------------------------------------------------------------------------------
 
-static inline void _appendValue(Array<Sint8>& out, Boolean x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Boolean x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Uint8 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Uint8 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Sint8 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Sint8 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Uint16 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Uint16 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Sint16 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Sint16 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Uint32 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Uint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Sint32 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Sint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Uint64 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Uint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Sint64 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Sint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Real32 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Real32 x)
 {
     XmlWriter::append(out, Real64(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Real64 x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, Real64 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, const Char16& x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, const Char16& x)
 {
     XmlWriter::appendSpecial(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, const String& x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, const String& x)
 {
     XmlWriter::appendSpecial(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, const CIMDateTime& x)
 {
     out << x.toString();  //ATTN: append() method?
 }
 
-static inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
+inline void _xmlWritter_appendValue(Array<Sint8>& out, const CIMObjectPath& x)
 {
     XmlWriter::appendValueReferenceElement(out, x, true);
 }
 
-void _appendValueArray(Array<Sint8>& out, const CIMObjectPath* p, Uint32 size)
+void _xmlWritter_appendValueArray(Array<Sint8>& out, const CIMObjectPath* p, Uint32 size)
 {
     out << "<VALUE.REFARRAY>\n";
     while (size--)
     {
-        _appendValue(out, *p++);
+        _xmlWritter_appendValue(out, *p++);
     }
     out << "</VALUE.REFARRAY>\n";
 }
 
 template<class T>
-void _appendValueArray(Array<Sint8>& out, const T* p, Uint32 size)
+void _xmlWritter_appendValueArray(Array<Sint8>& out, const T* p, Uint32 size)
 {
     out << "<VALUE.ARRAY>\n";
 
     while (size--)
     {
         out << "<VALUE>";
-        _appendValue(out, *p++);
+        _xmlWritter_appendValue(out, *p++);
         out << "</VALUE>\n";
     }
 
@@ -894,7 +894,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Boolean> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -902,7 +902,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Uint8> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -910,7 +910,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Sint8> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -918,7 +918,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Uint16> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -926,7 +926,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Sint16> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -934,7 +934,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Uint32> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -942,7 +942,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Sint32> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -950,7 +950,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Uint64> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -958,7 +958,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Sint64> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -966,7 +966,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Real32> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -974,7 +974,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Real64> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -982,7 +982,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<Char16> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -990,7 +990,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<String> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -998,7 +998,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<CIMDateTime> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -1006,7 +1006,7 @@ void XmlWriter::appendValueElement(
             {
                 Array<CIMObjectPath> a;
                 value.get(a);
-                _appendValueArray(out, a.getData(), a.size());
+                _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
 
@@ -1019,7 +1019,7 @@ void XmlWriter::appendValueElement(
         // Has to be separate because it uses VALUE.REFERENCE tag
         CIMObjectPath v;
         value.get(v);
-        _appendValue(out, v);
+        _xmlWritter_appendValue(out, v);
     }
     else
     {
@@ -1031,7 +1031,7 @@ void XmlWriter::appendValueElement(
             {
                 Boolean v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1039,7 +1039,7 @@ void XmlWriter::appendValueElement(
             {
                 Uint8 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1047,7 +1047,7 @@ void XmlWriter::appendValueElement(
             {
                 Sint8 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1055,7 +1055,7 @@ void XmlWriter::appendValueElement(
             {
                 Uint16 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1063,7 +1063,7 @@ void XmlWriter::appendValueElement(
             {
                 Sint16 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1071,7 +1071,7 @@ void XmlWriter::appendValueElement(
             {
                 Uint32 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1079,7 +1079,7 @@ void XmlWriter::appendValueElement(
             {
                 Sint32 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1087,7 +1087,7 @@ void XmlWriter::appendValueElement(
             {
                 Uint64 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1095,7 +1095,7 @@ void XmlWriter::appendValueElement(
             {
                 Sint64 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1103,7 +1103,7 @@ void XmlWriter::appendValueElement(
             {
                 Real32 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1111,7 +1111,7 @@ void XmlWriter::appendValueElement(
             {
                 Real64 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1119,7 +1119,7 @@ void XmlWriter::appendValueElement(
             {
                 Char16 v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1127,7 +1127,7 @@ void XmlWriter::appendValueElement(
             {
                 String v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -1135,7 +1135,7 @@ void XmlWriter::appendValueElement(
             {
                 CIMDateTime v;
                 value.get(v);
-                _appendValue(out, v);
+                _xmlWritter_appendValue(out, v);
                 break;
             }
 
@@ -2973,11 +2973,11 @@ Array<Sint8> XmlWriter::formatSimpleEMethodErrorRspMessage(
 
 //------------------------------------------------------------------------------
 //
-// _printAttributes()
+// _xmlWritter_printAttributes()
 //
 //------------------------------------------------------------------------------
 
-static void _printAttributes(
+void _xmlWritter_printAttributes(
     PEGASUS_STD(ostream)& os,
     const XmlAttribute* attributes,
     Uint32 attributeCount)
@@ -2987,7 +2987,7 @@ static void _printAttributes(
 	os << attributes[i].name << "=";
 
 	os << '"';
-	_appendSpecial(os, attributes[i].value);
+	_xmlWritter_appendSpecial(os, attributes[i].value);
 	os << '"';
 
 	if (i + 1 != attributeCount)
@@ -2997,11 +2997,11 @@ static void _printAttributes(
 
 //------------------------------------------------------------------------------
 //
-// _indent()
+// _xmlWritter_indent()
 //
 //------------------------------------------------------------------------------
 
-static void _indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentChars)
+void _xmlWritter_indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentChars)
 {
     Uint32 n = level * indentChars;
 
@@ -3032,24 +3032,24 @@ void XmlWriter::indentedPrint(
 	{
 	    case XmlEntry::XML_DECLARATION:
 	    {
-		_indent(os, stack.size(), indentChars);
+		_xmlWritter_indent(os, stack.size(), indentChars);
 
 		os << "<?" << entry.text << " ";
-		_printAttributes(os, entry.attributes, entry.attributeCount);
+		_xmlWritter_printAttributes(os, entry.attributes, entry.attributeCount);
 		os << "?>";
 		break;
 	    }
 
 	    case XmlEntry::START_TAG:
 	    {
-		_indent(os, stack.size(), indentChars);
+		_xmlWritter_indent(os, stack.size(), indentChars);
 
 		os << "<" << entry.text;
 
 		if (entry.attributeCount)
 		    os << ' ';
 
-		_printAttributes(os, entry.attributes, entry.attributeCount);
+		_xmlWritter_printAttributes(os, entry.attributes, entry.attributeCount);
 		os << ">";
 		stack.push(entry.text);
 		break;
@@ -3057,10 +3057,10 @@ void XmlWriter::indentedPrint(
 
 	    case XmlEntry::EMPTY_TAG:
 	    {
-		_indent(os, stack.size(), indentChars);
+		_xmlWritter_indent(os, stack.size(), indentChars);
 
 		os << "<" << entry.text << " ";
-		_printAttributes(os, entry.attributes, entry.attributeCount);
+		_xmlWritter_printAttributes(os, entry.attributes, entry.attributeCount);
 		os << "/>";
 		break;
 	    }
@@ -3070,7 +3070,7 @@ void XmlWriter::indentedPrint(
 		if (!stack.isEmpty() && strcmp(stack.top(), entry.text) == 0)
 		    stack.pop();
 
-		_indent(os, stack.size(), indentChars);
+		_xmlWritter_indent(os, stack.size(), indentChars);
 
 		os << "</" << entry.text << ">";
 		break;
@@ -3079,30 +3079,30 @@ void XmlWriter::indentedPrint(
 	    case XmlEntry::COMMENT:
 	    {
 
-		_indent(os, stack.size(), indentChars);
+		_xmlWritter_indent(os, stack.size(), indentChars);
 		os << "<!--";
-		_appendSpecial(os, entry.text);
+		_xmlWritter_appendSpecial(os, entry.text);
 		os << "-->";
 		break;
 	    }
 
 	    case XmlEntry::CONTENT:
 	    {
-		_indent(os, stack.size(), indentChars);
-		_appendSpecial(os, entry.text);
+		_xmlWritter_indent(os, stack.size(), indentChars);
+		_xmlWritter_appendSpecial(os, entry.text);
 		break;
 	    }
 
 	    case XmlEntry::CDATA:
 	    {
-		_indent(os, stack.size(), indentChars);
+		_xmlWritter_indent(os, stack.size(), indentChars);
 		os << "<![CDATA[...]]>";
 		break;
 	    }
 
 	    case XmlEntry::DOCTYPE:
 	    {
-		_indent(os, stack.size(), indentChars);
+		_xmlWritter_indent(os, stack.size(), indentChars);
 		os << "<!DOCTYPE...>";
 		break;
 	    }
@@ -3162,3 +3162,4 @@ const char* XmlWriter::keyBindingTypeToString (CIMKeyBinding::Type type)
 }
 
 PEGASUS_NAMESPACE_END
+

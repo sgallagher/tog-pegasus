@@ -62,62 +62,62 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //------------------------------------------------------------------------------
 
-static inline void _appendValue(Array<Sint8>& out, Boolean x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Boolean x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Uint8 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Uint8 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Sint8 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Sint8 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Uint16 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Uint16 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Sint16 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Sint16 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Uint32 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Uint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Sint32 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Sint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Uint64 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Uint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Sint64 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Sint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Real32 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Real32 x)
 {
     XmlWriter::append(out, Real64(x));
 }
 
-static inline void _appendValue(Array<Sint8>& out, Real64 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Real64 x)
 {
     XmlWriter::append(out, x);
 }
 
-static inline void _appendValue(Array<Sint8>& out, Char16 x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, Char16 x)
 {
     XmlWriter::appendSpecial(out, x);
 }
@@ -137,7 +137,7 @@ static inline void _appendValue(Array<Sint8>& out, Char16 x)
 */
 /* ATTN:KS - We need to account for characters greater than x'7f
 */
-static inline void _appendValue(Array<Sint8>& out, const String& x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, const String& x)
 {
     out << "\"";
     for (Uint32 i = 0; i < x.size(); i++)
@@ -184,12 +184,12 @@ static inline void _appendValue(Array<Sint8>& out, const String& x)
     out << "\"";
 }
 
-static inline void _appendValue(Array<Sint8>& out, const CIMDateTime& x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, const CIMDateTime& x)
 {
     out << x.toString();  //ATTN: append() method?
 }
 
-static inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
+inline void _mofWriter_appendValue(Array<Sint8>& out, const CIMObjectPath& x)
 {
     XmlWriter::appendValueReferenceElement(out, x, true);
 }
@@ -199,7 +199,7 @@ static inline void _appendValue(Array<Sint8>& out, const CIMObjectPath& x)
 */
 template<class T>
 
-void _appendValueArrayMof(Array<Sint8>& out, const T* p, Uint32 size)
+void _mofWriter_appendValueArrayMof(Array<Sint8>& out, const T* p, Uint32 size)
 {
     Boolean isFirstEntry = true;
     // if there are any entries in the array output them
@@ -214,7 +214,7 @@ void _appendValueArrayMof(Array<Sint8>& out, const T* p, Uint32 size)
                 out << ", ";
             }
             isFirstEntry = false;
-            _appendValue(out, *p++);
+            _mofWriter_appendValue(out, *p++);
         }
         out << "}";
     }
@@ -245,7 +245,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Boolean> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -253,7 +253,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Uint8> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -261,7 +261,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Sint8> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -269,7 +269,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Uint16> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -277,7 +277,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Sint16> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -285,7 +285,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Uint32> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -293,7 +293,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Sint32> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -301,7 +301,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Uint64> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -309,7 +309,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Sint64> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -317,7 +317,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Real32> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -325,7 +325,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Real64> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -333,7 +333,7 @@ void MofWriter::appendValueElement(
             {
                 Array<Char16> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -341,7 +341,7 @@ void MofWriter::appendValueElement(
             {
                 Array<String> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -349,7 +349,7 @@ void MofWriter::appendValueElement(
             {
                 Array<CIMDateTime> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -357,7 +357,7 @@ void MofWriter::appendValueElement(
             {
                 Array<CIMObjectPath> a;
                 value.get(a);
-                _appendValueArrayMof(out, a.getData(), a.size());
+                _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
 
@@ -373,7 +373,7 @@ void MofWriter::appendValueElement(
             {
                 Boolean v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -381,7 +381,7 @@ void MofWriter::appendValueElement(
             {
                 Uint8 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -389,7 +389,7 @@ void MofWriter::appendValueElement(
             {
                 Sint8 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -397,7 +397,7 @@ void MofWriter::appendValueElement(
             {
                 Uint16 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -405,7 +405,7 @@ void MofWriter::appendValueElement(
             {
                 Sint16 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -413,7 +413,7 @@ void MofWriter::appendValueElement(
             {
                 Uint32 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -421,7 +421,7 @@ void MofWriter::appendValueElement(
             {
                 Sint32 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -429,7 +429,7 @@ void MofWriter::appendValueElement(
             {
                 Uint64 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -437,7 +437,7 @@ void MofWriter::appendValueElement(
             {
                 Sint64 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -445,7 +445,7 @@ void MofWriter::appendValueElement(
             {
                 Real32 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -453,7 +453,7 @@ void MofWriter::appendValueElement(
             {
                 Real64 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -461,7 +461,7 @@ void MofWriter::appendValueElement(
             {
                 Char16 v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -469,7 +469,7 @@ void MofWriter::appendValueElement(
             {
                 String v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -477,7 +477,7 @@ void MofWriter::appendValueElement(
             {
                 CIMDateTime v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -485,7 +485,7 @@ void MofWriter::appendValueElement(
             {
                 CIMObjectPath v;
                 value.get(v);
-                _appendValue(out, v);
+                _mofWriter_appendValue(out, v);
                 break;
             }
 
@@ -698,3 +698,4 @@ String MofWriter::getQualifierScope (const CIMScope & scope)
 }
 
 PEGASUS_NAMESPACE_END
+

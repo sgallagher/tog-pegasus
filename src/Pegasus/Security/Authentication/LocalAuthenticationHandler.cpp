@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Destroyer.h>
 
 #include "SecureLocalAuthenticator.h"
 #include "LocalAuthenticationHandler.h"
@@ -101,6 +102,16 @@ Boolean LocalAuthenticationHandler::authenticate(
         secretReceived = authHeader.subString( colon2 + 1 );    
     }
 
+    //
+    // Check if the user is a valid system user
+    //
+    ArrayDestroyer<char> un(userName.allocateCString());
+    if ( !System::isSystemUser( un.getPointer() ) )
+    {
+        PEG_METHOD_EXIT();
+        return (authenticated);
+    }
+
     authenticated = _localAuthenticator->authenticate(filePath, 
         secretReceived, authInfo->getAuthChallenge());
 
@@ -122,16 +133,26 @@ String LocalAuthenticationHandler::getAuthResponseHeader(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
         "LocalAuthenticationHandler::getAuthResponseHeader()");
 
-    String challenge;
+    String challenge = String::EMPTY;
+    String authResp = String::EMPTY;
 
-    String authResp = 
-        _localAuthenticator->getAuthResponseHeader(authType, userName, challenge);
+    //
+    // Check if the user is a valid system user
+    //
+    ArrayDestroyer<char> un(userName.allocateCString());
+    if ( !System::isSystemUser( un.getPointer() ) )
+    {
+        PEG_METHOD_EXIT();
+        return ( authResp );
+    }
+
+    authResp = _localAuthenticator->getAuthResponseHeader(authType, userName, challenge);
 
     authInfo->setAuthChallenge(challenge);
 
     PEG_METHOD_EXIT();
 
-    return(authResp);
+    return ( authResp );
 }
 
 PEGASUS_NAMESPACE_END

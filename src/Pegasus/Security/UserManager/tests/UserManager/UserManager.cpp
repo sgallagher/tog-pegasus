@@ -52,6 +52,8 @@ static const String BAD_USER        = "nosuchuser";
 int main()
 {
 #ifdef PEGASUS_OS_HPUX
+
+#ifndef PEGASUS_NO_PASSWORDFILE
     // -- Create a test repository:
 
     String repositoryPath = "./repository";
@@ -188,6 +190,7 @@ int main()
         exceptionFlag = true;
     }
     assert( exceptionFlag == false );
+#endif
     cout << "+++++ passed all tests" << endl;
     return 0;
 #else

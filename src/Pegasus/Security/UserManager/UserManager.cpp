@@ -62,8 +62,10 @@ UserManager::UserManager(CIMRepository* repository)
     try
     {
         _userFileHandler = 0;
-        _userFileHandler = new UserFileHandler();
 
+#ifndef PEGASUS_NO_PASSWORDFILE
+        _userFileHandler = new UserFileHandler();
+#endif
         _authHandler = 0;
         _authHandler = new AuthorizationHandler(repository);
     }
@@ -135,6 +137,7 @@ void UserManager::addUser(const String& userName, const String& password)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::addUser");
 
+#ifndef PEGASUS_NO_PASSWORDFILE
     //
     // Check if the user is a valid system user
     //
@@ -157,6 +160,7 @@ void UserManager::addUser(const String& userName, const String& password)
         PEG_METHOD_EXIT();
 	throw e;
     }
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -171,6 +175,7 @@ void UserManager::modifyUser(
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::modifyUser");
 
+#ifndef PEGASUS_NO_PASSWORDFILE
     try
     {
         _userFileHandler->modifyUserEntry(userName, password, newPassword);
@@ -180,6 +185,8 @@ void UserManager::modifyUser(
         PEG_METHOD_EXIT();
 	throw e;
     }
+#endif
+
     PEG_METHOD_EXIT();
 }
 
@@ -189,6 +196,8 @@ void UserManager::modifyUser(
 void UserManager::removeUser(const String& userName)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::removeUser");
+
+#ifndef PEGASUS_NO_PASSWORDFILE
     try
     {
         _userFileHandler->removeUserEntry(userName);
@@ -198,6 +207,7 @@ void UserManager::removeUser(const String& userName)
         PEG_METHOD_EXIT();
 	throw e;
     }
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -210,6 +220,7 @@ void UserManager::getAllUserNames(Array<String>& userNames)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::getAllUserNames");
 
+#ifndef PEGASUS_NO_PASSWORDFILE
     try
     {
         _userFileHandler->getAllUserNames( userNames );
@@ -219,6 +230,7 @@ void UserManager::getAllUserNames(Array<String>& userNames)
     {
 	throw e;
     }
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -230,6 +242,7 @@ Boolean UserManager::verifyCIMUser (const String& userName)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUser");
 
+#ifndef PEGASUS_NO_PASSWORDFILE
     try
     {
         if ( _userFileHandler->verifyCIMUser( userName ))
@@ -253,6 +266,10 @@ Boolean UserManager::verifyCIMUser (const String& userName)
         PEG_METHOD_EXIT();
 	throw e;
     }
+#else
+    PEG_METHOD_EXIT();
+    return false;
+#endif
 }
 
 //
@@ -264,6 +281,7 @@ Boolean UserManager::verifyCIMUserPassword (
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserManager::verifyCIMUserPassword");
 
+#ifndef PEGASUS_NO_PASSWORDFILE
     try
     {
         if ( _userFileHandler->verifyCIMUserPassword( userName, password ))
@@ -287,6 +305,10 @@ Boolean UserManager::verifyCIMUserPassword (
         PEG_METHOD_EXIT();
 	throw e;
     }
+#else
+    PEG_METHOD_EXIT();
+    return false;
+#endif
 }
 
 //

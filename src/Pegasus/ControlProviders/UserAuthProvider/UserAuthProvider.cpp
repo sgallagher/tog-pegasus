@@ -117,6 +117,7 @@ void UserAuthProvider::createInstance(
     // begin processing the request
     handler.processing();
 
+#ifndef PEGASUS_NO_PASSWORDFILE
     //
     // check if the class name requested is PG_User
     //
@@ -164,6 +165,10 @@ void UserAuthProvider::createInstance(
     //
     else if (String::equal(
         CLASS_NAME_PG_AUTHORIZATION, instanceReference.getClassName()))
+#else
+    if (String::equal(
+        CLASS_NAME_PG_AUTHORIZATION, instanceReference.getClassName()))
+#endif
     {
         try
         {
@@ -197,6 +202,8 @@ void UserAuthProvider::createInstance(
                 InvalidSystemUser isu(userNameStr);
                 throw isu;
             }
+
+#ifndef PEGASUS_NO_PASSWORDFILE
             //
             // check if the user is a valid CIM user
             //
@@ -205,6 +212,7 @@ void UserAuthProvider::createInstance(
                 InvalidUser iu(userNameStr);
                 throw iu;
             }
+#endif
 
             //
             // check if the specified namespace is valid namespace
@@ -287,6 +295,7 @@ void UserAuthProvider::deleteInstance(
     // begin processing the request
     handler.processing();
 
+#ifndef PEGASUS_NO_PASSWORDFILE
     //
     // check if the class name requested is PG_User
     //
@@ -336,6 +345,10 @@ void UserAuthProvider::deleteInstance(
     //
     else if (String::equal(
         CLASS_NAME_PG_AUTHORIZATION, myInstance.getClassName()))
+#else
+    if (String::equal(
+        CLASS_NAME_PG_AUTHORIZATION, myInstance.getClassName()))
+#endif
     {
         try
         {
@@ -587,6 +600,7 @@ void UserAuthProvider::enumerateInstanceNames(
     // begin processing the request
     handler.processing();
 
+#ifndef PEGASUS_NO_PASSWORDFILE
     //
     // check if the class name requested is PG_User
     //
@@ -631,6 +645,9 @@ void UserAuthProvider::enumerateInstanceNames(
     // check if the class name requested is PG_Authorization
     //
     else if (String::equal(CLASS_NAME_PG_AUTHORIZATION, className))
+#else
+    if (String::equal(CLASS_NAME_PG_AUTHORIZATION, className))
+#endif
     {
         try
         {
@@ -675,12 +692,13 @@ void UserAuthProvider::invokeMethod(
     Array<CIMParamValue> & outParams,
     ResponseHandler<CIMValue> & handler)
 {
+    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::invokeMethod");
+
+#ifndef PEGASUS_NO_PASSWORDFILE
     String            userName;
     String            password;
-    String             newPassword;
+    String            newPassword;
     Array<KeyBinding>     kbArray;
-
-    PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::invokeMethod");
 
     // Begin processing the request
     handler.processing();
@@ -783,6 +801,10 @@ void UserAuthProvider::invokeMethod(
 
     PEG_METHOD_EXIT();
     return;
+#else
+    PEG_METHOD_EXIT();
+    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, ref.getClassName());
+#endif
 }
 
 PEGASUS_NAMESPACE_END

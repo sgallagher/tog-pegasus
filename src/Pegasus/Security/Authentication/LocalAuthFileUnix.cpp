@@ -128,7 +128,7 @@ String LocalAuthFile::create()
     filePath.append(extension);
 
     //
-    // create a file name with the name of the user
+    // 1. Create a file name for authentication.
     //
     ArrayDestroyer<char> p(filePath.allocateCString());
     ofstream outfs(p.getPointer());
@@ -142,20 +142,36 @@ String LocalAuthFile::create()
     }
     outfs.clear();
 
-    String randomToken = _generateRandomTokenString();
-    outfs << randomToken;
-    outfs.close();
-
-    _challenge = randomToken;
-
     //
-    //change the file owner
+    // 2. Set file permission to read only by the owner.
     //
-    if (!_changeFileOwner(filePath))
+    Sint32 ret = chmod(p.getPointer(), S_IRUSR);
+    if ( ret == -1)
     {
         PEG_METHOD_EXIT();
         return(_filePathName);
     }
+
+    //
+    // 3. Generate random token and write the token to the file.
+    //
+    String randomToken = _generateRandomTokenString();
+    outfs << randomToken;
+    outfs.close();
+
+    //
+    // 4. Change the file owner to the requesting user.
+    //
+    if (!_changeFileOwner(filePath))
+    {
+        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL3, 
+            "Could not change owner of file '" + filePath + "' to '" +
+            _userName + "'.");
+        PEG_METHOD_EXIT();
+        return(_filePathName);
+    }
+
+    _challenge = randomToken;
 
     _filePathName = filePath;
 
@@ -225,13 +241,6 @@ Boolean LocalAuthFile::_changeFileOwner(const String& fileName)
         return (false);
     }
    
-    ret = chmod(pFileName.getPointer(), S_IRUSR);
-    if ( ret == -1)
-    {
-        PEG_METHOD_EXIT();
-        return (false);
-    }
-
     PEG_METHOD_EXIT();
 
     return (true);

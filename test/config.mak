@@ -20,6 +20,6 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 
 %.rsp: %.xml
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $*.rsp | cd .
-	@ $(DIFF) $*.rsp $*rspgood.xml
+	@ $(DIFF) $*rspgood.xml $*.rsp
 	@ $(RM) $*.rsp
 	@ echo +++ $* passed successfully +++

@@ -36,6 +36,14 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_HAS_SSL
+
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+//Bugzilla 2366
+//Use the X509_NAME in wincrypt.h on Windows.  See X509.h for more info.
+#include <windows.h>
+#include <wincrypt.h>
+#endif
+
 #define OPENSSL_NO_KRB5 1
 #include <openssl/err.h>
 #include <openssl/ssl.h>

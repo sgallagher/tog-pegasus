@@ -87,8 +87,8 @@ class PG_TestPropertyTypes:PG_TestElement
       "a datetime property of PG_TestPropertyTypes")]
    datetime PropertyDatetime;
 
-//      [Description (
-//      "a char16 property of PG_TestPropertyTypes")]
-//   char16 PropertyChar16;
+      [Description (
+      "a char16 property of PG_TestPropertyTypes")]
+   char16 PropertyChar16;
       
 };

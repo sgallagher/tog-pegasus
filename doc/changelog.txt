@@ -87,6 +87,11 @@ TAG: Version_1_09.
 14. (Denise Eckstein - HP) 14 Apr 2002 - Added compile flags  _REENTRANT and RWSTD_MULTI_THREAD flags for platform_HPUX_PARISC_ACC.
 
 
+15. (Nag Boranna - HP) 15 Feb 2002 - HP-Nag: Added PAM based user 
+    authentication module. The implementation is available only on Unix 
+    platforms. The PAM module is optional and it can be built by setting 
+    the environment variable PEGASUS_PAM_AUTHENTICATION." 
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

@@ -51,33 +51,30 @@ CIMPropertyRep::CIMPropertyRep(
     _propagated(propagated)
 {
     if (!CIMName::legal(name))
-	throw IllegalName();
+		throw IllegalName();
 
     if (arraySize && (!value.isArray() || value.getArraySize() != arraySize))
-	throw IncompatibleTypes();
+		throw IncompatibleTypes();
 
     if (classOrigin.size() && !CIMName::legal(classOrigin))
-	throw IllegalName();
+		throw IllegalName();
 
     if (_value.getType() == CIMType::NONE)
-	throw NullType();
+		throw NullType();
 
+	// If referenceClassName exists, must be legal namd and CIMType REFERENCE.
     if (referenceClassName.size())
     {
-	if (!CIMName::legal(referenceClassName))
-	    throw IllegalName();
-
-	if (_value.getType() != CIMType::REFERENCE)
-	{
-	    throw ExpectedReferenceValue();
+		if (!CIMName::legal(referenceClassName))
+			throw IllegalName();
+	
+		if (_value.getType() != CIMType::REFERENCE)
+			throw ExpectedReferenceValue();
 	}
-    }
-    else
-    {
-	if (_value.getType() == CIMType::REFERENCE)
+	else
 	{
-	    throw MissingReferenceClassName();
-	}
+		if (_value.getType() == CIMType::REFERENCE)
+			throw MissingReferenceClassName();
     }
 }
 

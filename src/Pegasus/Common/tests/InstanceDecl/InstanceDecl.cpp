@@ -26,6 +26,11 @@
 // Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
+/* This program tests the generation and resolution of instances.  It creates
+	a set of qualifiers and a class and then creates instances of the class
+	and confirms both the creation characteristics and the resolution
+	characteristics.
+*/
 
 #include <cassert>
 #include <Pegasus/Common/CIMInstance.h>
@@ -34,6 +39,8 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
+static char * verbose;
 
 void test01()
 {
@@ -45,6 +52,10 @@ void test01()
 
     context->addQualifierDecl(
 	NAMESPACE, CIMQualifierDecl("counter", false, CIMScope::PROPERTY));
+
+    context->addQualifierDecl(
+	NAMESPACE, CIMQualifierDecl("classcounter", false, CIMScope::CLASS));
+
 
     context->addQualifierDecl(
 	NAMESPACE, CIMQualifierDecl("min", String(), CIMScope::PROPERTY));
@@ -78,15 +89,19 @@ void test01()
 
     class1.resolve(context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
-    // class1.print();
+
+	if(verbose) {
+		class1.print();
+	}
 
     CIMInstance instance0("//localhost/root/cimv2:MyClass.Foo=1");
 
     assert(instance0.getPath() == CIMReference("//localhost/root/cimv2:MyClass.Foo=1"));
 
     CIMInstance instance1("MyClass");
+    instance1.addQualifier(CIMQualifier("classcounter", true));
+
     instance1.addProperty(CIMProperty("message", "Goodbye"));
-    instance1.addQualifier(CIMQualifier("counter", true));
 
     assert(instance1.findProperty("message") != PEG_NOT_FOUND);
     assert(instance1.existsProperty("message"));
@@ -96,9 +111,15 @@ void test01()
     assert(!instance1.existsProperty("nuts"));
     assert(instance1.getPropertyCount() == 1);
 
+	if(verbose)
+		instance1.print();
+
     instance1.resolve(context, NAMESPACE, true);
 
-    // Now test for parameters after resolution.
+	if(verbose)
+		instance1.print();
+
+    // Now test for properties after resolution.
 
     assert(instance1.findProperty("message") != PEG_NOT_FOUND);
     assert(instance1.existsProperty("message"));
@@ -107,7 +128,6 @@ void test01()
     assert(!instance1.existsProperty("nuts"));
 
     assert(instance1.getPropertyCount() == 3);
-
     // Now remove a property
 
     Uint32 posProperty;
@@ -123,7 +143,7 @@ void test01()
  
     // SF-HP
 
-    CIMQualifier cq=instance1.getQualifier(instance1.findQualifier("counter"));
+    CIMQualifier cq=instance1.getQualifier(instance1.findQualifier("classcounter"));
 
     const CIMInstance instance2 = instance1.clone();
     assert(instance2.identical(instance1));
@@ -133,11 +153,15 @@ void test01()
     assert(instance2.findQualifier("nuts") == PEG_NOT_FOUND);
     assert(instance1.getQualifierCount() != 4);
 
+	// Confirm that the classcounter qualifier is in instance 2
+	// NOTE: This is dangerous coding and generates an exception
+	// out of bounds error if the qualifier	does not exist.
     CIMConstQualifier ccq=
-          instance2.getQualifier(instance2.findQualifier("counter"));
+          instance2.getQualifier(instance2.findQualifier("classcounter"));
 
-    instance2.print();
- 
+	if(verbose)
+		instance2.print();
+
     // Tests for CIMConstInstance 
     CIMConstInstance cinstance1("MyClass"), cinstance3;
     CIMConstInstance ccopy(cinstance1);
@@ -145,7 +169,7 @@ void test01()
     cinstance1 = instance1;
     assert(cinstance1.identical(instance1));
 
-    ccq = cinstance1.getQualifier(cinstance1.findQualifier("counter"));
+    ccq = cinstance1.getQualifier(cinstance1.findQualifier("classcounter"));
     assert(cinstance1.findProperty("message") != PEG_NOT_FOUND);
     CIMConstProperty ccp = 
            cinstance1.getProperty(cinstance1.findProperty("message"));
@@ -159,7 +183,10 @@ void test01()
    
     CIMConstInstance cinstance2 = cinstance1.clone();
     assert(cinstance2.identical(cinstance1));
-    cinstance1.print();
+
+
+	if(verbose)
+		cinstance1.print();
   
     cinstance1.getInstanceName(class1);
  
@@ -209,8 +236,9 @@ void test02()
     assert(tmp.makeHashCode() == instanceName.makeHashCode());
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
 	test01();
@@ -222,7 +250,7 @@ int main()
 	exit(1);
     }
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

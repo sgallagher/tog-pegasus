@@ -1,7 +1,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
-//
+//									 ropogated
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to 
 // deal in the Software without restriction, including without limitation the 
@@ -60,7 +60,9 @@ public:
 
     }
 
-    /** CIMProperty. */
+    /** CIMProperty constructor. Constructs this property form another 
+		CIMProperty object
+	*/
     CIMProperty(const CIMProperty& x)
     {
 	Inc(_rep = x._rep);
@@ -69,18 +71,18 @@ public:
     /** CIMProperty Constructor for CIMProperty that adds a number of 
         parameters to the constructed CIMProperty object.
         @param name String Name for the property 
-	@param value CIMValue defines the value for the property
-	@param arraySize (optional) - ATTN - TBD
-	@param referenceClassName (optional) String parameter that defines the 
-        reference class name for the property. /Ref{referenceClassName}
-        @param classOrigin (optional) String 
-        parameter to define the class origin of the property	
-        /Ref{ClassOrigin} 
+		@param value CIMValue defines the value for the property
+		@param arraySize (optional) - Size of array if fixed array size.
+		@param referenceClassName (optional) String parameter that defines the 
+        reference class name for the property. This parameter is required if
+		the property is type CIMReference. /Ref{referenceClassName}
+        @param classOrigin (optional) String parameter to define the class 
+		origin of the property /Ref{ClassOrigin} 
         @param propagated (optional) If true defines the property as 
         propagated  /Ref{propagated properties}
         @return	The constructed property object
-	@exception Throws "IllegalName" if name argumentis not legal a CIM 
-	name /Ref{CIMName}.
+		@exception Throws "IllegalName" if name argumentis not legal a CIM 
+		name /Ref{CIMName}.
     */
     CIMProperty(
 	const String& name,
@@ -116,7 +118,7 @@ public:
         <pre>
         CIMProperty p1("count", Uint32(231));
     	assert(p1.getName() == Uint32(231));
-	</pre>
+		</pre>
     */
     const String& getName() const
     {
@@ -126,16 +128,15 @@ public:
 
     /** setName - Set the property name. Throws IllegalName if name 
         argument not legal CIM identifier.
-	@param - Name to set
-	@exception Throws "IllegalName" exception is name
-	ATTN: please hide this. The only way a name should be
-	set is through a constructor.
-	is not legal syntax.
+		@param - Name to set
+		@exception Throws "IllegalName" exception is name
+		ATTN: please hide this. The only way a name should be
+		set is through a constructor.
     */
     void setName(const String& name)
     {
-	_checkRep();
-	_rep->setName(name);
+		_checkRep();
+		_rep->setName(name);
     }
 
     /** Get the value of the property. */
@@ -161,7 +162,7 @@ public:
 
     /** setValue Sets the Value in the Property object from the input 
         parameter.
-	@param value CIMValue containing the value to be put into the 
+		@param value CIMValue containing the value to be put into the 
         property. /Ref{CIMValue}
     */
     void setValue(const CIMValue& value)
@@ -170,14 +171,18 @@ public:
 	_rep->setValue(value);
     }
 
-    /// getArraySize - ATTN:
+    /** getArraySize gets the arraysize parameter from the property
+	@return Uint32 with the arraysize.
+	*/
     Uint32 getArraySize() const
     {
 	_checkRep();
 	return _rep->getArraySize();
     }
 
-    /** getReferenceClassName - ATTN:
+    /** getReferenceClassName - gets the referenceClassName.
+	@return String contianing the referenceClassName if this is a
+	reference property or empty if another CIMType.
     */
     const String& getReferenceClassName() const
     {
@@ -185,14 +190,19 @@ public:
 	return _rep->getReferenceClassName();
     }
 
-    /// getClassOrigin - ATTN
+    /** getClassOrigin - Gets the classOrigin field from the property
+		object. This will be a string with the name of the originating
+		class for the property or empty if this is the originating class
+		@return String with classOrigin name.
+	*/
     const String& getClassOrigin() const
     {
 	_checkRep();
 	return _rep->getClassOrigin();
     }
 
-    /**setClassOrigin - Sets the Class Origin
+    /**setClassOrigin - Sets the Class Origin attribute
+	@param classOrigin String containing the classOrigin
     */
     void setClassOrigin(const String& classOrigin)
     {
@@ -209,15 +219,20 @@ public:
 	return _rep->getPropagated();
     }
 
-    /// setProgagated - ATTN
+    /** setProgagated - Sets the propagated attribute true or fals.
+		@param Boolean true or false representing propagated state to be set.
+	*/
     void setPropagated(Boolean propagated)
     {
 	_checkRep();
 	_rep->setPropagated(propagated);
     }
 
-    /** addQualifier - ATTN
-	Throws AlreadyExists.
+    /** addQualifier adds a qualifier object to the property and
+		increases the qualifier count
+		@param x CIMQualifier object to be added
+		@return Returns this properpty as a convience in adding multiple entities
+		@exceptionThrows AlreadyExists.
     */
     CIMProperty& addQualifier(const CIMQualifier& x)
     {
@@ -248,11 +263,11 @@ public:
 
     /** existsQualifier - Determines if the qualifier object 
         defined by the name parameter is attached to this 
-	CIMProperty.
-	@param name String parameter defining name of Qualifier
-	object.
-	@return Returns true if the qualifier is found, else 
-	returns false. 
+		CIMProperty.
+		@param name String parameter defining name of Qualifier
+		object.
+		@return Returns true if the qualifier is found, else 
+		returns false. 
     */
     Boolean existsQualifier(const String& name)
     {

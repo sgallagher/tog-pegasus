@@ -414,7 +414,6 @@ public:
 	return _rep->existsMethod(name);
     }
 
-
     /** getMethod - Gets the method object defined by the
 	input parameter.
 	@param pos Index to the method object to get

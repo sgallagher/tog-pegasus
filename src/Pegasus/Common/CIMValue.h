@@ -319,8 +319,13 @@ public:
     void set(const Array<CIMReference>& x);
 
     /** get - Gets the value of a CIMValue
-        @param ATTNDOC:
-        @return ATTNDOC:
+        @param Variable in which we return the value:
+        @return void
+		<pre>
+		Uint32 v;
+		CIMValue value(CIMValue::UINT32, UINT32(99));
+		value.get(v);
+		</pre>
     */
     void get(Boolean& x) const;
     ///
@@ -462,9 +467,15 @@ private:
 	const CIMValue& x, 
 	const CIMValue& y);
 };
-
+/** operator == compares two CIMValue objects for equality.
+	@param x - First CIMvalue to compare
+	@parm y - Second CIMValue to compare
+	@return True if they are identical in type, attribute and value.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator==(const CIMValue& x, const CIMValue& y);
 
+/** operator != compares two CIMValue objects for nonequality
+*/
 inline Boolean operator!=(const CIMValue& x, const CIMValue& y)
 {
     return !operator==(x, y);

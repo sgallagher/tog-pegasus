@@ -38,6 +38,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMQualifierRep.h>
+#include <Pegasus/Common/CIMFlavor.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -122,8 +123,9 @@ public:
 	return _rep->getName(); 
     }
 
-    /**	CIMMethod
-     Throws IllegalName if name argument not legal CIM  identifier.
+    /**	setName - Sets the qualifier name field in the qualifier object.
+	@param name - String containing the name for the qualifier
+    @exception Throws IllegalName if name argument not legal CIM  identifier.
     */
     void setName(const String& name) 
     { 
@@ -131,7 +133,7 @@ public:
 	_rep->setName(name); 
     }
 
-    /**	CIMMethod
+    /** getType - Gets the ATTN:
     
     */
     CIMType getType() const 
@@ -140,8 +142,8 @@ public:
 	return _rep->getType(); 
     }
 
-    /**	CIMMethod
-    
+    /**	isArray - Returns true if the qualifier is an array
+	@return Boolean try if array qualifier.
     */
     Boolean isArray() const 
     {
@@ -149,7 +151,8 @@ public:
 	return _rep->isArray();
     }
 
-    /**	CIMMethod
+    /**	getValue - Gets the value component of the qualifier object
+	@return CIMValue containing the value component
     
     */
     const CIMValue& getValue() const 
@@ -158,7 +161,8 @@ public:
 	return _rep->getValue(); 
     }
 
-    /**	CIMMethod
+    /**	setValue - Puts a CIMValue object into a CIMQualifier object
+	@param value - The CIMValue object to install
     
     */
     void setValue(const CIMValue& value) 
@@ -167,14 +171,40 @@ public:
 	_rep->setValue(value); 
     }
 
-    /**	CIMMethod
-    
+    /**	getFlavor - Gets the Flavor field from a Qualifier
+    @return - Uint32 with the Flavor flags
     */
     Uint32 getFlavor() const 
     {
 	_checkRep();
 	return _rep->getFlavor();
     }
+	/**
+	*/
+	Boolean isFlavor(Uint32 flavor) const
+	{
+		return ((getFlavor() & flavor) !=0);
+	}
+	/** Determine if Flavor toSubClass set for this qualifier
+	*/
+	Boolean isFlavorToSubclass() const
+	{
+		return ((getFlavor() & CIMFlavor::TOSUBCLASS) !=0);
+	}
+
+	/** Determine if Flavor ToInstance set for this qualifier
+	*/
+	Boolean isFlavorToInstance() const
+	{
+		return ((getFlavor() & CIMFlavor::TOINSTANCE) !=0);
+	}
+
+	/** Determine if Flavor Overridable set for this qualifier
+	*/
+	Boolean isFlavorOverridable() const
+	{
+		return ((getFlavor() & CIMFlavor::OVERRIDABLE) !=0);
+	}
 
     /**	CIMMethod
 
@@ -360,6 +390,26 @@ public:
 	_checkRep();
 	return _rep->getFlavor();
     }
+
+	Boolean isFlavor(Uint32 flavor) const
+	{
+		return ((getFlavor() & flavor) !=0);
+	}
+	
+	Boolean isFlavorToSubclass() const
+	{
+		return ((getFlavor() & CIMFlavor::TOSUBCLASS) != 0);
+	}
+
+	Boolean isFlavorToInstance() const
+	{
+		return ((getFlavor() & CIMFlavor::TOINSTANCE) != 0);
+	}
+
+	Boolean isFlavorOverridable() const
+	{
+		return ((getFlavor() & CIMFlavor::OVERRIDABLE) != 0);
+	}
 
     const Uint32 getPropagated() const 
     { 

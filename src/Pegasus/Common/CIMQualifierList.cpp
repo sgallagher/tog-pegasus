@@ -22,7 +22,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +95,7 @@ Uint32 CIMQualifierList::findReverse(const String& name) const
 void CIMQualifierList::resolve(
     DeclContext* declContext,
     const String& nameSpace,
-    Uint32 scope,
+    Uint32 scope, 					// Association or class scope
     Boolean isInstancePart,
     CIMQualifierList& inheritedQualifiers,
     Boolean propagateQualifiers)
@@ -107,7 +107,7 @@ void CIMQualifierList::resolve(
     //
     //     2. Whether it has the same type as the declaration.
     //
-    //	   3. Whether the the qualifier is valid for the given scope.
+    //	   3. Whether the qualifier is valid for the given scope.
     //
     //	   4. Whether the qualifier can be overriden (the flavor is
     //	      ENABLEOVERRIDE on the corresponding reference qualifier).
@@ -119,56 +119,54 @@ void CIMQualifierList::resolve(
 
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
     {
-	CIMQualifier q = _qualifiers[i];
-        //cout << "KSTEST  Qualifier resolve for Name = " << q.getName() << endl;
-	//----------------------------------------------------------------------
-	// 1. Check to see if it's declared.
-	//----------------------------------------------------------------------
+		CIMQualifier q = _qualifiers[i];
+		//----------------------------------------------------------------------
+		// 1. Check to see if it's declared.
+		//----------------------------------------------------------------------
+	
+		CIMConstQualifierDecl qd = declContext->lookupQualifierDecl(
+			nameSpace, q.getName());
+	
+		if (!qd)
+			throw UndeclaredQualifier(q.getName());
+	
+		//----------------------------------------------------------------------
+		// 2. Check the type and isArray.  Must be the same:
+		//----------------------------------------------------------------------
+	
+		if (!(q.getType() == qd.getType() && q.isArray() == qd.isArray()))
+			throw BadQualifierType(q.getName());
+	
+		//----------------------------------------------------------------------
+		// 3. Check the scope: Must be legal for this qualifier
+		//----------------------------------------------------------------------
+//#if 0
+			// ATTN:  These lines throw a bogus exception if the qualifier has
+			// a valid scope (such as Scope::ASSOCIATION) which is not Scope::CLASS
+			// ks Mar 2002. Reinstalled 23 March 2002 to test.
 
-	CIMConstQualifierDecl qd = declContext->lookupQualifierDecl(
-	    nameSpace, q.getName());
-
-	if (!qd)
-	    throw UndeclaredQualifier(q.getName());
-
-	//----------------------------------------------------------------------
-	// 2. Check the type:
-	//----------------------------------------------------------------------
-
-	if (!(q.getType() == qd.getType() && q.isArray() == qd.isArray()))
-	    throw BadQualifierType(q.getName());
-
-	//----------------------------------------------------------------------
-	// 3. Check the scope:
-	//----------------------------------------------------------------------
+		if (!(qd.getScope() & scope))
+			throw BadQualifierScope(qd.getName(), ScopeToString(scope));
+//#endif
+		//----------------------------------------------------------------------
+		// See if this qualifier is contained in the inheritedQualifiers. If
+		// so then we must handle the OVERRIDABLE flavor.
+		//----------------------------------------------------------------------
+	
+		// ATTN: there seems to be a problem with the CIM schema that marks the
+		// abstract qualifier as non-overridable but then they override it.
+		// For now it is just disabled. This problem exists in both XML and
+		// CIM schema.
+			 //cout << "KSTEST QUal resolve Propagate 1 " << q.getName() << endl;
 #if 0
-        // ATTN:  These lines throw a bogus exception if the qualifier has
-        // a valid scope (such as Scope::ASSOCIATION) which is not Scope::CLASS
-        // ks Mar 2002
-	if (!(qd.getScope() & scope))
-	    throw BadQualifierScope(qd.getName(), ScopeToString(scope));
-#endif
-	//----------------------------------------------------------------------
-	// See if this qualifier is contained in the inheritedQualifiers. If
-	// so then we must handle the OVERRIDABLE flavor.
-	//----------------------------------------------------------------------
-
-	// ATTN: there seems to be a problem with the CIM schema that marks the
-	// abstract qualifier as non-overridable but then they override it.
-	// For now it is just disabled. This problem exists in both XML and
-	// CIM schema.
-         //cout << "KSTEST QUal resolve Propagate 1 " << q.getName() << endl;
-#if 0
-	Uint32 pos = inheritedQualifiers.find(q.getName());
-
-	if (pos != PEG_NOT_FOUND)
-	{
-	    CIMConstQualifier iq = inheritedQualifiers.getQualifier(pos);{
-
-	    if (!(iq.getFlavor() & CIMFlavor::OVERRIDABLE))
-		throw BadQualifierOverride(q.getName());
-            }
-	}
+		Uint32 pos = inheritedQualifiers.find(q.getName());
+	
+		if (pos != PEG_NOT_FOUND)
+		{
+			CIMConstQualifier iq = inheritedQualifiers.getQualifier(pos);
+			if (!iq.isFlavor(CIMFlavor::OVERRIDABLE))
+				throw BadQualifierOverride(q.getName());
+		}
 #endif
     }
 
@@ -178,45 +176,40 @@ void CIMQualifierList::resolve(
     //--------------------------------------------------------------------------
     for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
     {
-	CIMQualifier iq = inheritedQualifiers.getQualifier(i);
-        //cout << "KSTEST inherited  propagate loop 2 " <<  iq.getName() 
-        //<< " flavor " << iq.getFlavor << " count " << i << endl;
-
-        // ATTN-DE-P1-This next test is incorrect. It is a temporary, hard-coded
-        // HACK to avoid propagating the "Abstract" Qualifier to subclasses
-	//if (CIMName::equal(iq.getName(), "Abstract"))
-        //   continue;
-
-	if (isInstancePart)
-	{
-	    if (!(iq.getFlavor() && CIMFlavor::TOINSTANCE))
-		continue;
-	}
-	else
-	{
-            if (!(iq.getFlavor() && CIMFlavor::TOSUBCLASS)){
-		continue;
-            }
-	}
-
-	// If the qualifiers list does not already contain this qualifier,
-	// then propagate it (and set the propagated flag to true).
-
-	if (find(iq.getName()) != PEG_NOT_FOUND)
-	    continue;
-        
-        /*
-        cout << "KSTEST resolve Propagate " << iq.getName() << " true= " << true 
-        << " flavor= " << iq.getFlavor()
-        << " TOSUBCLASS " << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
-        */
-
-	if (propagateQualifiers)
-	{
-	    CIMQualifier q = iq.clone();
-	    q.setPropagated(true);
-	    _qualifiers.prepend(q);
-	}
+		CIMQualifier iq = inheritedQualifiers.getQualifier(i);
+			//cout << "KSTEST inherited  propagate loop 2 " <<  iq.getName() 
+			//<< " flavor " << iq.getFlavor << " count " << i << endl;
+		
+			// ATTN-DE-P1-This next test is incorrect. It is a temporary, hard-coded
+			// HACK to avoid propagating the "Abstract" Qualifier to subclasses
+		//if (CIMName::equal(iq.getName(), "Abstract"))
+			//   continue;
+		
+		if (isInstancePart)
+		{
+			if (!iq.isFlavor(CIMFlavor::TOINSTANCE))
+				continue;
+		}
+		else
+		{
+			if (!iq.isFlavor(CIMFlavor::TOSUBCLASS))
+				continue;
+		}
+		
+		// If the qualifiers list does not already contain this qualifier,
+		// then propagate it (and set the propagated flag to true).
+		
+		if (find(iq.getName()) != PEG_NOT_FOUND)
+			continue;
+			
+			/*
+			cout << "KSTEST resolve Propagate " << iq.getName() << " true= " << true 
+			<< " flavor= " << iq.getFlavor()
+			<< " TOSUBCLASS " << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
+			*/
+		CIMQualifier q = iq.clone();
+		q.setPropagated(true);
+		_qualifiers.prepend(q);
     }
 }
 

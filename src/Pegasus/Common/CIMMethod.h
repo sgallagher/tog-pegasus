@@ -133,7 +133,7 @@ public:
 
     /** getClassOrigin - Returns the class in which this method
 	was defined.
-	@return ATTN:
+	@return String containing the classOrigin field. 
     */
     const String& getClassOrigin() const
     {
@@ -141,7 +141,11 @@ public:
 	return _rep->getClassOrigin();
     }
 
-    /** setClassOrigin - ATTN: */
+    /** setClassOrigin - Set the ClassOrigin attribute with
+		the classname defined on input
+		@param classOrigin - String parameter defining the name
+		of the class origin
+	*/
     void setClassOrigin(const String& classOrigin)
     {
 	_checkRep();

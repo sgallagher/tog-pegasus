@@ -211,14 +211,14 @@ void CIMClassRep::resolve(
 
 	    if (pos == PEG_NOT_FOUND)
 	    {
-		property.resolve(context, nameSpace, false, true);
+			property.resolve(context, nameSpace, false, true);
 	    }
 	    else
 	    {
-		CIMConstProperty superClassProperty =
-		superClass.getProperty(pos);
-		property.resolve(
-		    context, nameSpace, false, superClassProperty, true);
+			CIMConstProperty superClassProperty =
+			superClass.getProperty(pos);
+			property.resolve(
+				context, nameSpace, false, superClassProperty, true);
 	    }
 	}
 
@@ -238,17 +238,18 @@ void CIMClassRep::resolve(
 	    // the class-origin and propagated flag accordingly.
 
 	    Uint32 pos = PEG_NOT_FOUND;
-
+		/*	 ATTN: KS move to simpler
 	    for (Uint32 j = m, n = _properties.size(); j < n; j++)
 	    {
-		if (CIMName::equal(
-		    _properties[j].getName(),
-		    superClassProperty.getName()))
-		{
-		    pos = j;
-		    break;
-		}
+			if (CIMName::equal(_properties[j].getName(),
+							   superClassProperty.getName()))
+			{
+				pos = j;
+				break;
+			}
 	    }
+		*/
+		pos = findProperty(superClassProperty.getName());
 
 	    // If property exists in super class but not in this one, then
 	    // clone and insert it. Otherwise, the properties class
@@ -258,10 +259,11 @@ void CIMClassRep::resolve(
 
 	    if (pos == PEG_NOT_FOUND)
 	    {
-		_properties.insert(m++, superproperty);
+			superproperty.setPropagated(true);
+			_properties.insert(m++, superproperty);
 	    } 
-	    else 
-	    {
+		else 
+		{
 	        // If property exists in the superclass and in the subclass,
 	        // then, enumerate the qualifiers of the superclass's property.
 	        // If a qualifier is defined on the superclass's property
@@ -269,26 +271,35 @@ void CIMClassRep::resolve(
 	        // property's qualifier list.
 	        CIMProperty subproperty = _properties[pos];
 	        for (Uint32 i = 0, n = superproperty.getQualifierCount();
-		     i < n;
-		     i++) {
-		    Uint32 pos = PEG_NOT_FOUND;
-		    CIMQualifier superClassQualifier = 
-		                            superproperty.getQualifier(i);
-		    const String name = superClassQualifier.getName();
-		    for (Uint32 j = 0, m = subproperty.getQualifierCount();
-		         j < m;
-		         j++) {
-		        CIMConstQualifier q = subproperty.getQualifier(j);
-		        if (CIMName::equal(name,
-					   q.getName())) {
-		            pos = j;
-		            break;
-		        }
-		    }  // end comparison of subclass property's qualifiers
-		    if (pos == PEG_NOT_FOUND) {
-		        subproperty.addQualifier(superClassQualifier);
-		    }
-		} // end iteration over superclass property's qualifiers
+				i < n; i++) 
+			{
+				Uint32 pos = PEG_NOT_FOUND;
+				CIMQualifier superClassQualifier = 
+										superproperty.getQualifier(i);
+				const String name = superClassQualifier.getName();
+				for (Uint32 j = 0, m = subproperty.getQualifierCount();
+					 j < m;
+					 j++) 
+				{
+					CIMConstQualifier q = subproperty.getQualifier(j);
+					if (CIMName::equal(name,
+						   q.getName())) 
+					{
+						pos = j;
+						break;
+					}
+				}  // end comparison of subclass property's qualifiers
+				if (pos == PEG_NOT_FOUND)
+				{
+					subproperty.addQualifier(superClassQualifier);
+				}
+				/*
+				if ((pos = subproperty.findQualifier(name)) == PEG_NOT_FOUND)
+				{
+					subproperty.addQualifier(superClassQualifier);
+				}
+				*/
+			} // end iteration over superclass property's qualifiers
 	    }
 	}
 
@@ -304,12 +315,12 @@ void CIMClassRep::resolve(
 
 	    if (pos == PEG_NOT_FOUND)
 	    {
-		method.resolve(context, nameSpace);
+			method.resolve(context, nameSpace);
 	    }
 	    else
 	    {
-		CIMConstMethod superClassMethod = superClass.getMethod(pos);
-		method.resolve(context, nameSpace, superClassMethod);
+			CIMConstMethod superClassMethod = superClass.getMethod(pos);
+			method.resolve(context, nameSpace, superClassMethod);
 	    }
 	}
 
@@ -327,16 +338,15 @@ void CIMClassRep::resolve(
 	    // the class-origin and propagated flag accordingly.
 
 	    Uint32 pos = PEG_NOT_FOUND;
-
+		/**********************
 	    for (Uint32 j = m, n = _methods.size(); j < n; j++)
 	    {
-		if (CIMName::equal(
-		    _methods[j].getName(),
-		    superClassMethod.getName()))
-		{
-		    pos = j;
-		    break;
-		}
+			if (CIMName::equal(_methods[j].getName(),
+								superClassMethod.getName()))
+			{
+				pos = j;
+				break;
+			}
 	    }
 
 	    // If method exists in super class but not in this one, then
@@ -345,10 +355,18 @@ void CIMClassRep::resolve(
 
 	    if (pos == PEG_NOT_FOUND)
 	    {
-		CIMMethod method = superClassMethod.clone();
-		method.setPropagated(true);
-		_methods.insert(m++, method);
+			CIMMethod method = superClassMethod.clone();
+			method.setPropagated(true);
+			_methods.insert(m++, method);
 	    }
+		*/
+		if((pos = findMethod(superClassMethod.getName())) == PEG_NOT_FOUND)
+		{
+			CIMMethod method = superClassMethod.clone();
+			method.setPropagated(true);
+			_methods.insert(m++, method);
+		}
+
 	}
 
 	//----------------------------------------------------------------------
@@ -365,33 +383,33 @@ void CIMClassRep::resolve(
     }
     else
     {
-	//----------------------------------------------------------------------
-	// Resolve each property:
-	//----------------------------------------------------------------------
-
-	for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-	    _properties[i].resolve(context, nameSpace, false, true);
-
-	//----------------------------------------------------------------------
-	// Resolve each method:
-	//----------------------------------------------------------------------
-
-	for (Uint32 i = 0, n = _methods.size(); i < n; i++)
-	    _methods[i].resolve(context, nameSpace);
-
-	//----------------------------------------------------------------------
-	// Resolve the qualifiers:
-	//----------------------------------------------------------------------
-
-	CIMQualifierList dummy;
-
-	_qualifiers.resolve(
-	    context,
-	    nameSpace,
-	    isAssociation() ? CIMScope::ASSOCIATION : CIMScope::CLASS,
-	    false,
-	    dummy, 
-	    true);
+		//----------------------------------------------------------------------
+		// Resolve each property:
+		//----------------------------------------------------------------------
+	
+		for (Uint32 i = 0, n = _properties.size(); i < n; i++)
+			_properties[i].resolve(context, nameSpace, false, true);
+	
+		//----------------------------------------------------------------------
+		// Resolve each method:
+		//----------------------------------------------------------------------
+	
+		for (Uint32 i = 0, n = _methods.size(); i < n; i++)
+			_methods[i].resolve(context, nameSpace);
+	
+		//----------------------------------------------------------------------
+		// Resolve the qualifiers:
+		//----------------------------------------------------------------------
+	
+		CIMQualifierList dummy;
+	
+		_qualifiers.resolve(
+			context,
+			nameSpace,
+			isAssociation() ? CIMScope::ASSOCIATION : CIMScope::CLASS,
+			false,
+			dummy, 
+			true);
     }
 
     // _resolved = true;

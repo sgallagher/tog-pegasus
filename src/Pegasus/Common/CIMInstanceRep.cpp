@@ -90,7 +90,6 @@ void CIMInstanceRep::resolve(
     //----------------------------------------------------------------------
     // Validate and propagate qualifiers.
     //----------------------------------------------------------------------
-
     _qualifiers.resolve(
 	context,
 	nameSpace,
@@ -116,6 +115,7 @@ void CIMInstanceRep::resolve(
 	if (pos == PEG_NOT_FOUND)
 	    throw NoSuchProperty(property.getName());
 
+	// resolve the property
 	property.resolve(context, 
 	    nameSpace, true, cimClass.getProperty(pos), propagateQualifiers);
         property.setClassOrigin(classOrigin);
@@ -145,12 +145,12 @@ void CIMInstanceRep::resolve(
 	    }
 	}
 
-	if (!found)
-	{
-	    CIMProperty p = property.clone(propagateQualifiers);
-	    p.setPropagated(true);
-	    _properties.insert(m++, p);
-	}
+		if (!found)
+		{
+			CIMProperty p = property.clone(propagateQualifiers);
+			p.setPropagated(true);
+			_properties.insert(m++, p);
+		}
     }
 
 #if 0

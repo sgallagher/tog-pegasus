@@ -36,6 +36,7 @@
 #include <tchar.h>
 #include <direct.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include <Pegasus/Common/Thread.h>  // l10n
 
 #include "service.cpp"
 
@@ -77,11 +78,26 @@ int cimserver_fork(void) { return(0); }
 int cimserver_kill(void) { return(0); }
 void notify_parent(int id) { return;    }
 
+// l10n
+//-------------------------------------------------------------------------
+// Dummy function for the Thread object associated with the initial thread.
+// Since the initial thread is used to process CIM requests, this is
+// needed to localize the exceptions thrown during CIM request processing.
+// Note: This function should never be called! 
+//------------------------------------------------------------------------- 
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL dummyThreadFuncWindows(void *parm)
+{
+   return((PEGASUS_THREAD_RETURN)0);	
+}
+
 //-------------------------------------------------------------------------
 // START MONITOR Asynchronously
 //-------------------------------------------------------------------------
 static void __cdecl cimserver_windows_thread(void *parm) 
 {
+//l10n
+   // Set Message loading to process locale
+   MessageLoader::_useProcessLocale = true; 
 
   // Get options (from command line and from configuration file); this
   // removes corresponding options and their arguments fromt he command
@@ -105,6 +121,10 @@ static void __cdecl cimserver_windows_thread(void *parm)
     {
       exit(1);
     }
+
+// l10n
+  String messagesDir = ConfigManager::getHomedPath("msg");
+  MessageLoader::setPegasusMsgHome(messagesDir);	
 
   Boolean enableHttpConnection = String::equal(
     configManager->getCurrentValue("enableHttpConnection"), "true");
@@ -207,6 +227,22 @@ static void __cdecl cimserver_windows_thread(void *parm)
     }
 
     server_windows->bind();
+
+//l10n
+    // reset message loading to NON-process locale
+    MessageLoader::_useProcessLocale = false; 
+// l10n
+    // Now we are about to run the server..
+    // Create a dummy Thread object that can be used to store the
+    // AcceptLanguages object for CIM requests that are serviced
+    // by this thread (initial thread of server).  Need to do this
+    // because this thread is not in a ThreadPool, but is used
+    // to service CIM requests.
+    // The run function for the dummy Thread should never be called,
+    Thread *dummyInitialThread = new Thread(dummyThreadFuncWindows, NULL, false);
+    Thread::setCurrent(dummyInitialThread);
+    AcceptLanguages default_al = AcceptLanguages::getDefaultAcceptLanguages();
+    Thread::setLanguages(new AcceptLanguages(default_al));
 
     while(!server_windows->terminated())
       {

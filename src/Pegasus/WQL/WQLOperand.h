@@ -144,7 +144,7 @@ public:
 
     /** Initializes object as INTEGER_VALUE.
     */
-    WQLOperand(Sint32 x, WQLIntegerValueTag)
+    WQLOperand(Sint64 x, WQLIntegerValueTag)
     {
 	_integerValue = x;
 	_type = INTEGER_VALUE;
@@ -204,7 +204,7 @@ public:
 
     /** Sets this object to an INTEGER_VALUE.
     */
-    void setIntegerValue(Sint32 x)
+    void setIntegerValue(Sint64 x)
     {
 	clear();
 	_integerValue = x;
@@ -249,7 +249,7 @@ public:
 
     /** Gets this object as an INTEGER_VALUE.
     */
-    Sint32 getIntegerValue() const
+    Sint64 getIntegerValue() const
     {
 	if (_type != INTEGER_VALUE)
 	    throw TypeMismatchException();
@@ -260,7 +260,7 @@ public:
     /** Gets this object as an DOUBLE_VALUE.
 	@exception TypeMismatchException is not the expected type.
     */
-    Real32 getDoubleValue() const
+    Real64 getDoubleValue() const
     {
 	if (_type != DOUBLE_VALUE)
 	    throw TypeMismatchException();
@@ -309,7 +309,7 @@ private:
 
     union
     {
-	Sint32 _integerValue;
+	Sint64 _integerValue;
 	Real64 _doubleValue;
 	Boolean _booleanValue;
 	char _stringValue[sizeof(String)];

@@ -1579,7 +1579,7 @@ Boolean operator==(const CIMValue& x, const CIMValue& y)
     if (!x.typeCompatible(y))
 	return false;
 
-    if (x.isNull != y.isNull)
+    if (x._isNull != y._isNull)
         return false;
 
     if (x._isArray)

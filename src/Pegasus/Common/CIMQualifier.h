@@ -51,7 +51,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifier;
 class CIMClassRep;
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 class CIMQualifierRep;
+#endif
 
 /** Class CIMQualifier - This class defines the Pegasus implementation of the 
     CIM Qualifier \Ref{QUALIFIER}.  It is almost identical to

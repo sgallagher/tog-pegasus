@@ -286,6 +286,12 @@ will be deleted.
 	not be found, because the pegasusHome variable was not being set properly 
 	in the Windows service work thread.
 
+28.  (Bob Blair by KS) 17 March 2002 - Modified repository so there is both a
+        local repository (cimmofl) and a client interface repository (cimmof) 
+	executable
+       
+29.  (KS ) 18 March 2002 - Modified schema makefiles to use the cimomfl respository
+        executable. 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001
 

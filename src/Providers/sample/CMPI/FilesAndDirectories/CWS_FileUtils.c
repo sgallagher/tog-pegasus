@@ -60,7 +60,7 @@ char * CSCreationClassName()
 char * CSName()
 {
   if (*csn == 0)
-#if defined SIMULATED
+#ifdef SIMULATED
     strcpy(csn,"localhost");
 #else
     gethostname(csn,sizeof(csn));

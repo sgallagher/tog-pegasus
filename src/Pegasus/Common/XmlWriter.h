@@ -42,6 +42,7 @@
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMNamedInstance.h>
+#include <Pegasus/Common/CIMParamValue.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -108,6 +109,10 @@ public:
     static void appendLocalInstancePathElement(
 	Array<Sint8>& out,
 	const CIMReference& instancePath);
+
+    static void appendLocalObjectPathElement(
+	Array<Sint8>& out,
+	const CIMReference& objectPath);
 
     static void appendMethodCallHeader(
 	Array<Sint8>& out,
@@ -196,9 +201,9 @@ public:
 	const char* host,
 	const CIMReference& path,
 	const char* methodName,
+	const Array<CIMParamValue>& parameters,
 	const String& messageId,
-        const String& authenticationHeader,
-	const Array<Sint8>& body);
+        const String& authenticationHeader);
 
     static Array<Sint8> formatSimpleMethodRspMessage(
 	const char* methodName,

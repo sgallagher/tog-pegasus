@@ -391,6 +391,29 @@ void XmlWriter::appendLocalInstancePathElement(
 
 //------------------------------------------------------------------------------
 //
+// appendLocalObjectPathElement()
+//
+//     If the reference has keys, write a LOCALINSTANCEPATH, otherwise write
+//     a LOCALCLASSPATH.
+//
+//------------------------------------------------------------------------------
+
+void XmlWriter::appendLocalObjectPathElement(
+    Array<Sint8>& out, 
+    const CIMReference& objectPath)
+{
+    if (objectPath.getKeyBindings().size() > 0)
+    {
+        appendLocalInstancePathElement(out, objectPath);
+    }
+    else
+    {
+        appendLocalClassPathElement(out, objectPath);
+    }
+}
+
+//------------------------------------------------------------------------------
+//
 // appendMethodCallHeader()
 //
 //     Build HTTP request header.
@@ -978,9 +1001,9 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     const char* host,
     const CIMReference& path,
     const char* methodName,
+    const Array<CIMParamValue>& parameters,
     const String& messageId,
-    const String& authenticationHeader,
-    const Array<Sint8>& body)
+    const String& authenticationHeader)
 {
     Array<Sint8> out;
     Array<Sint8> tmp;
@@ -988,19 +1011,11 @@ Array<Sint8> XmlWriter::formatSimpleMethodReqMessage(
     _appendMessageElementBegin(out, messageId);
     _appendSimpleReqElementBegin(out);
     _appendMethodCallElementBegin(out, methodName);
-
-    // See if it is a class or instance reference (instance references have
-    // key-bindings; class references do not).
-    if (path.getKeyBindings().size() > 0)
+    appendLocalObjectPathElement(out, path);
+    for (Uint32 i=0; i < parameters.size(); i++)
     {
-        appendLocalInstancePathElement(out, path);
+        parameters[i].toXml(out);
     }
-    else
-    {
-        appendLocalClassPathElement(out, path);
-    }
-
-    out << body;
     _appendMethodCallElementEnd(out);
     _appendSimpleReqElementEnd(out);
     _appendMessageElementEnd(out);

@@ -28,6 +28,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
+#include <Pegasus/Common/Config.h>
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else

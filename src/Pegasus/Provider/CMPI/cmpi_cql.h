@@ -91,7 +91,7 @@ The following CMPIrc codes shall be recognized:
 
       CMPI_IRC_INVALID_HANDLE The mb handle is invalid.
    */
-   inline static CMPISelectExp *CMPI_CQL_NewSelectExp
+   CMPISelectExp *CMPI_CQL_NewSelectExp
     (const CMPIBroker * mb, const char *query, const char *lang,
      const CMPIArray ** projection, CMPIStatus * rc)
   {

@@ -97,8 +97,8 @@ public:
     AcceptLanguages getRequestAcceptLanguages() const;
     ContentLanguages getRequestContentLanguages() const;
     ContentLanguages getResponseContentLanguages() const;
-    void setRequestAcceptLanguages(AcceptLanguages& langs);
-    void setRequestContentLanguages(ContentLanguages& langs);
+    void setRequestAcceptLanguages(const AcceptLanguages& langs);
+    void setRequestContentLanguages(const ContentLanguages& langs);
     void setRequestDefaultLanguages();
     // l10n end
 

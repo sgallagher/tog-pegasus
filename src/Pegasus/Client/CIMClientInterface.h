@@ -79,8 +79,8 @@ public:
     virtual AcceptLanguages getRequestAcceptLanguages() const = 0;
     virtual ContentLanguages getRequestContentLanguages() const = 0;
     virtual ContentLanguages getResponseContentLanguages() const = 0;
-    virtual void setRequestAcceptLanguages(AcceptLanguages& langs) = 0;
-    virtual void setRequestContentLanguages(ContentLanguages& langs) = 0;
+    virtual void setRequestAcceptLanguages(const AcceptLanguages& langs) = 0;
+    virtual void setRequestContentLanguages(const ContentLanguages& langs) = 0;
     virtual void setRequestDefaultLanguages() = 0;
 // l10n end
 

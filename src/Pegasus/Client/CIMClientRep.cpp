@@ -473,12 +473,12 @@ ContentLanguages CIMClientRep::getResponseContentLanguages() const
     return responseContentLanguages;
 }
 
-void CIMClientRep::setRequestAcceptLanguages(AcceptLanguages& langs)
+void CIMClientRep::setRequestAcceptLanguages(const AcceptLanguages& langs)
 {
     requestAcceptLanguages = langs;
 }
 
-void CIMClientRep::setRequestContentLanguages(ContentLanguages& langs)
+void CIMClientRep::setRequestContentLanguages(const ContentLanguages& langs)
 {
     requestContentLanguages = langs;
 }

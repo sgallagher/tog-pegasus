@@ -266,7 +266,7 @@ public:
         returned on the response to the next request.
         @param langs - REVIEWERS: Complete this
     */	
-	void setRequestAcceptLanguages(AcceptLanguages& langs);
+	void setRequestAcceptLanguages(const AcceptLanguages& langs);
 
     /** Gets the accept languages that will be used on the next request.
         Accept languages are the preferred languages that are to be
@@ -279,7 +279,7 @@ public:
         sent on the next request.
         @param langs REVIEWERS: Complete this
     */  	
-	void setRequestContentLanguages(ContentLanguages& langs);
+	void setRequestContentLanguages(const ContentLanguages& langs);
 
     /** Gets the content languages that will be used on the next request.
      * These content languages are the languages of the CIM objects that will
@@ -1040,8 +1040,8 @@ public:
 
     Only elements (properties, methods and qualifiers) defined or
     overridden within the class are included in the response. Propagated
-    properties are not included because their values are based on another class’
-    information. If not specified, all elements of the class’ definition are
+    properties are not included because their values are based on another classÂ’
+    information. If not specified, all elements of the classÂ’ definition are
     returned.  Note: When instances are returned, the InstanceName must include
     all keys, including propagated keys. Therefore, these attributes are
     included in the name part of the method response, but not in the value

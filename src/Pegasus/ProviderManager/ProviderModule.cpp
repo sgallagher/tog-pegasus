@@ -93,9 +93,7 @@ CIMBaseProvider *ProviderModule::load(const String & providerName)
     // test for the appropriate interface
     if(dynamic_cast<CIMBaseProvider *>(provider) == 0)
     {
-       cout << "provider is not a CIMBaseProvider." << endl;
-       
-        String errorString = "provider is not a CIMBaseProvider.";
+           String errorString = "provider is not a CIMBaseProvider.";
         throw Exception("ProviderLoadFailure (" + _fileName + ":" + providerName + "):" + errorString);
     }
     _ref_count++;

@@ -434,7 +434,7 @@ install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Linkage.h %INCLUDE_DEST
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/MessageLoader.h %INCLUDE_DEST_PATH/Pegasus/Common/MessageLoader.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/OperationContext.h %INCLUDE_DEST_PATH/Pegasus/Common/OperationContext.h
 %ifarch ia64
-install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_LINUX_IA64_GNU.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IX86_GNU.h
+install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_LINUX_IA64_GNU.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IA64_GNU.h
 %else
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Common/Platform_LINUX_IX86_GNU.h %INCLUDE_DEST_PATH/Pegasus/Common/Platform_LINUX_IX86_GNU.h
 %endif
@@ -480,7 +480,7 @@ install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiSelectExp.h 
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiStatus.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiStatus.h
 install -D -m 0444 %SDK_STAGE_LOC/include/Pegasus/Provider/CMPI/CmpiString.h %INCLUDE_DEST_PATH/Pegasus/Provider/CMPI/CmpiString.h
 
-cp -f %SDK_STAGE_LOC/html/* %HTML_DEST_PATH/
+cp -rf %SDK_STAGE_LOC/html $RPM_BUILD_ROOT%PEGASUS_PRODSHARE_DIR/
 
 install -D -m 0444 %SDK_STAGE_LOC/samples/Makefile %SAMPLES_DEST_PATH/Makefile 
 install -D -m 0444 %SDK_STAGE_LOC/samples/mak/common.mak %SAMPLES_DEST_PATH/mak/common.mak 

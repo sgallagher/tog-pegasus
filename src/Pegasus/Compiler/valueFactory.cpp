@@ -30,6 +30,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Ed Boden, IBM (bodeneb@us.ibm.com) for bugzilla 1557, 9/6/2004
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,8 @@
 #include <cstring>
 #include <cstdlib>
 #include <Pegasus/Common/String.h>
+
+// put any debug include, I'd say about here
 
 #define local_min(a,b) ( a < b ? a : b )
 #define local_max(a,b) ( a > b ? a : b )
@@ -220,6 +223,9 @@ nextcsv(const String &csv, int sep, const Uint32 start,
   return idx;
 }
 
+
+
+
 //-------------------------------------------------------------------
 // This builds a reference value from a String via the objname class
 //-------------------------------------------------------------------
@@ -227,11 +233,16 @@ static
 CIMValue *
 build_reference_value(const String &rep)
 {
-  objectName oname(rep);
-  AutoPtr<CIMObjectPath> ref(cimmofParser::Instance()->newReference(oname));
-  AutoPtr<CIMValue> v(new CIMValue(*ref.get()));
+  // following 2 lines commented out for bugzilla fix 1557
+  //objectName oname(rep);           
+  //AutoPtr<CIMObjectPath> ref( cimmofParser::Instance()->newReference(oname));
+  CIMObjectPath cop(rep);                     
+  AutoPtr<CIMValue> v( new CIMValue(cop) );
   return v.release();
 }
+
+
+
 
 // ------------------------------------------------------------------
 // When the value to be build is of Array type, this routine
@@ -408,6 +419,7 @@ build_array_value(CIMType type, unsigned int arrayDimension,
                 CIMValue x;
             x.set(Uint16(9)
 */
+//----------------------------------------------------------------
 CIMValue *
 valueFactory::createValue(CIMType type, int arrayDimension,
                           Boolean isNULL,
@@ -422,6 +434,7 @@ valueFactory::createValue(CIMType type, int arrayDimension,
     {
        return new CIMValue(type, false);
     }
+
     switch(type) {
     case CIMTYPE_UINT8:    return new CIMValue((Uint8)  valueFactory::Stoi(rep));
     case CIMTYPE_SINT8:    return new CIMValue((Sint8)  valueFactory::Stoi(rep));

@@ -13,7 +13,7 @@ LIBRARIES = $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 LIBRARY = pegrepository
 
 SOURCES = \
-    NameSpace.cpp \
+    NameSpaceManager.cpp \
     InheritanceTree.cpp \
     InstanceIndexFile.cpp \
     CIMRepository.cpp 

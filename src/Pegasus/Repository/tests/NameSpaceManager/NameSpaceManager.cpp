@@ -26,15 +26,51 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <Pegasus/Repository/NameSpace.h>
+#include <Pegasus/Repository/NameSpaceManager.h>
+#include <Pegasus/Common/FileSystem.h>
 
 using namespace std;
 using namespace Pegasus;
 
+static const char* _nameSpaceNames[] =
+{
+    "aa",
+    "aa/bb",
+    "aa/bb/cc",
+    "lmnop/qrstuv",
+    "xx",
+    "xx/yy"
+};
+
+static const Uint32 NUM_NAMSPACE_NAMES = 
+    sizeof(_nameSpaceNames) / sizeof(_nameSpaceNames[0]);
+
 void test01()
 {
+    FileSystem::removeDirectoryHier("./repository/lmnop#qrstuv");
+
     NameSpaceManager nsm("./repository");
-    nsm.print(cout);
+    // nsm.print(cout);
+
+    // Create a namespace called "lmnop/qrstuv":
+
+    nsm.createNameSpace("lmnop/qrstuv");
+
+    Array<String> nameSpaceNames;
+    nsm.getNameSpaceNames(nameSpaceNames);
+    assert(nameSpaceNames.getSize() == NUM_NAMSPACE_NAMES);
+    BubbleSort(nameSpaceNames);
+
+    for (Uint32 i = 0; i < NUM_NAMSPACE_NAMES; i++)
+    {
+	assert(_nameSpaceNames[i] == nameSpaceNames[i]);
+	assert(nsm.nameSpaceExists(nameSpaceNames[i]));
+    }
+
+    nsm.deleteNameSpace("lmnop/qrstuv");
+
+    nsm.getNameSpaceNames(nameSpaceNames);
+    assert(nameSpaceNames.getSize() == NUM_NAMSPACE_NAMES - 1);
 }
 
 int main()

@@ -78,14 +78,50 @@ public:
     */
     ~NameSpaceManager();
 
+    /** Determines whether the given namespace exists:
+	@param nameSpaceName name of namespace.
+	@return true if namespace eixsts; false otherwise.
+    */
+    Boolean nameSpaceExists(const String& nameSpaceName) const;
+
+    /** Creates the given namespace.
+	@param nameSpaceName name of namespace to be created.
+	@exception CIMException(CIMException::ALREADY_EXISTS)
+	@exception CannotCreateDirectory
+    */
+    void createNameSpace(const String& nameSpaceName);
+
+    /** Deletes the given namespace.
+	@param nameSpaceName name of namespace to be deleted.
+	@exception CIMException(CIMException::INVALID_NAMESPACE)
+	@exception NonEmptyNameSpace
+	@exception FailedToRemoveDirectory
+    */
+    void deleteNameSpace(const String& nameSpaceName);
+
+    /** Gets array of all namespace names.
+	@param nameSpaceNames filled with names of all namespaces.
+    */
+    void getNameSpaceNames(Array<String>& nameSpaceNames) const;
+
     /** Print out the namespaces. */
     void print(std::ostream& os) const;
-
 
 private:
 
     String _repositoryRoot;
     NameSpaceManagerRep* _rep;
+};
+
+/** This exception is thrown if one attempts to remove a namespace that still
+    contains classes, instances, or qualifier.
+*/
+class NonEmptyNameSpace : public Exception
+{
+public:
+
+    NonEmptyNameSpace(const String& nameSpaceName) : Exception(
+	"Attempt to delete a non-empty namespace: " + nameSpaceName) { }
 };
 
 PEGASUS_NAMESPACE_END

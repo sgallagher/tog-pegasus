@@ -234,10 +234,11 @@ public:
 
     /** CIMMethod deleteNameSpace - Deletes a namespace in the repository.
 	The deleteNameSpace method will only delete a namespace if there are 
-	no classed defined in the namespace.  Today this is a Pegasus characteristics 
-	and not defined as part of the DMTF standards.
+	no classed defined in the namespace.  Today this is a Pegasus 
+	characteristics and not defined as part of the DMTF standards.
 	@param String with the name of the namespace 
-	@exception - Throws NoSuchDirectory if the Namespace does not exist. */
+	@exception - Throws NoSuchDirectory if the Namespace does not exist. 
+    */
     void deleteNameSpace(const String& nameSpace);
 
 

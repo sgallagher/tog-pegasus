@@ -81,7 +81,10 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService
       virtual void handleEnqueue(void);
 
       virtual const char* getQueueName() const;
-    
+      static void _handleIndicationCallBack(AsyncOpNode *, 
+					    MessageQueue *, 
+					    void *);
+      
       AtomicInt dienow;
 
    protected:

@@ -53,8 +53,52 @@ struct providerClassList
     CIMInstance provider;
     CIMInstance providerModule;
     Array <String> classList;
+      providerClassList() 
+      {
+      }
+      
+      providerClassList(const providerClassList & rh)
+	 : provider(rh.provider),
+	   providerModule(rh.providerModule),
+	   classList(rh.classList)
+      {
+	 
+      }
+      providerClassList & operator= (const providerClassList & rh)
+      {
+	 if( this != &rh)
+	 {
+	    provider = rh.provider;
+	    providerModule = rh.providerModule;
+	    classList = rh.classList;
+	 }
+	 return *this;
+      }
 };
+
 typedef struct providerClassList ProviderClassList;
+
+struct enableProviderList
+{
+      ProviderClassList *pcl;
+      CIMNamedInstance *cni;
+      
+      enableProviderList(const ProviderClassList & list, 
+			 const CIMNamedInstance & instance)
+      {
+	 pcl = new ProviderClassList(list);
+	 cni = new CIMNamedInstance(instance);
+	 
+      }
+
+      ~enableProviderList() 
+      {
+	 delete pcl;
+	 delete cni;
+      }
+      
+};
+
 
 /**
     Entry for Subscription table
@@ -612,6 +656,20 @@ private:
         const String & nameSpaceName,
         const CIMInstance & subscriptionInstance);
 
+
+      /**
+	 Asynchronous completion routine for _sendEnableRequests.
+	 
+	 @param  operation            shared data structure that controls msg processing
+	 @param  destination          target queue of completion callback
+	 @param  parm                 user parameter for callback processing
+      */
+
+      static void _sendEnableRequestsCallBack(AsyncOpNode *operation, 
+					      MessageQueue *destination, 
+					      void *parm);
+       
+
     /**
         Sends enable subscription request for the specified subscription
         to each provider in the list.
@@ -639,6 +697,17 @@ private:
         const CIMNamedInstance & subscription,
         const String & userName,
         const String & authType = String::EMPTY);
+
+
+      /** 
+	  Callback completion routine for _sendModifyRequests
+	 
+      */
+
+      static void _sendModifyRequestsCallBack(AsyncOpNode *operation,
+					      MessageQueue *destination,
+					      void *parm);
+      
 
     /**
         Sends modify subscription request for the specified subscription

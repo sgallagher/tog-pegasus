@@ -1427,7 +1427,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                      handler_request,
                      _queueId);
 
-                 //AsyncReply *async_reply = SendWait(async_req);
                  SendForget(async_req);
 
                 //
@@ -4327,6 +4326,68 @@ Array <ProviderClassList> IndicationService::_getDisableParams (
     return indicationProviders;
 }
     
+
+void IndicationService::_sendEnableRequestsCallBack(AsyncOpNode *op, 
+						    MessageQueue *q, 
+						    void *parm)
+{
+    IndicationService *service = 
+      static_cast<IndicationService *>(q);
+    struct enableProviderList *epl = 
+       reinterpret_cast<struct enableProviderList *>(parm);
+    
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+   CIMCreateSubscriptionResponseMessage * response =
+      reinterpret_cast 
+      <CIMCreateSubscriptionResponseMessage *>
+      ((static_cast <AsyncLegacyOperationResult *>
+	(asyncReply))->get_result());
+   
+   PEGASUS_ASSERT(response != 0);
+   if (response->errorCode == CIM_ERR_SUCCESS)
+   {
+      //cout << "Enable accepted" << endl;
+      
+      //
+      //  Insert entry into subscription table 
+      //
+      service->_insertEntry(*(epl->cni), epl->pcl->provider, epl->pcl->classList);
+      
+//      service->_insertEntry (subscription, indicationProviders [i].provider,
+//			     indicationProviders [i].classList);
+   }
+   else
+   {
+      //
+      //  ATTN-CAKG-P3-20020326: Any action required?
+      //  Should a message be logged?
+      //
+      
+      //cout << "Enable rejected" << endl;
+      //cout << "Error code: " << response->errorCode << endl;
+      //cout << response->errorDescription << endl;
+   }
+   
+   //
+   //  ATTN: This is temporary... because requests are not accepted yet
+   //
+   service->_insertEntry(*(epl->cni), epl->pcl->provider, epl->pcl->classList);
+//   service->_insertEntry (subscription, indicationProviders [i].provider,
+//			  indicationProviders [i].classList);
+   delete epl;
+   delete request;
+   delete response;
+   delete asyncRequest;
+   delete asyncReply;
+   op->release();
+   service->return_op(op);
+   
+}
+
+
 Boolean IndicationService::_sendEnableRequests
     (const Array <ProviderClassList> & indicationProviders,
      const String & nameSpace,
@@ -4354,25 +4415,30 @@ Boolean IndicationService::_sendEnableRequests
     //
     //  Send enable request to each provider
     //
-    Uint8 accepted = 0;
+
     for (Uint8 i = 0; i < indicationProviders.size (); i++)
     {
+       
+       struct enableProviderList *epl = 
+	  new enableProviderList(indicationProviders[i], 
+				 subscription);
+       
         CIMCreateSubscriptionRequestMessage * request =
             new CIMCreateSubscriptionRequestMessage
                 (XmlWriter::getNextMessageId (),
                 nameSpace,
                 subscription.getInstance (),
-                indicationProviders [i].classList,
-                indicationProviders [i].provider,
-                indicationProviders [i].providerModule,
-                propertyList,
-                repeatNotificationPolicy,
-                condition,
-                queryLanguage,
-                QueueIdStack (_providerManager, getQueueId ()),
-                authType,
-                userName);
-
+		 epl->pcl->classList, 
+		 epl->pcl->provider, 
+		 epl->pcl->providerModule,
+		 propertyList,
+		 repeatNotificationPolicy,
+		 condition,
+		 queryLanguage,
+		 QueueIdStack (_providerManager, getQueueId ()),
+		 authType,
+		 userName);
+	
         AsyncOpNode* op = this->get_op(); 
 
         AsyncLegacyOperationStart * async_req =
@@ -4383,7 +4449,14 @@ Boolean IndicationService::_sendEnableRequests
                 request,
                 _queueId);
 
-        AsyncReply * async_reply = SendWait (async_req);
+	SendAsync(op, 
+		  _providerManager, 
+		  IndicationService::_sendEnableRequestsCallBack,
+		  this, 
+		  (void *)epl);
+	
+
+        // AsyncReply * async_reply = SendWait (async_req);
 
         //
         //  ATTN: Check for return value indicating invalid queue ID
@@ -4391,43 +4464,7 @@ Boolean IndicationService::_sendEnableRequests
         //  again
         //
 
-        CIMCreateSubscriptionResponseMessage * response =
-            reinterpret_cast 
-            <CIMCreateSubscriptionResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *>
-            (async_reply))->get_result());
 
-        if (response->errorCode == CIM_ERR_SUCCESS)
-        {
-            //cout << "Enable accepted" << endl;
-            accepted++;
-
-            //
-            //  Insert entry into subscription table 
-            //
-            _insertEntry (subscription, indicationProviders [i].provider,
-                indicationProviders [i].classList);
-        }
-        else
-        {
-            //
-            //  ATTN-CAKG-P3-20020326: Any action required?
-            //  Should a message be logged?
-            //
-
-            //cout << "Enable rejected" << endl;
-            //cout << "Error code: " << response->errorCode << endl;
-            //cout << response->errorDescription << endl;
-        }
-
-        //
-        //  ATTN: This is temporary... because requests are not accepted yet
-        //
-        _insertEntry (subscription, indicationProviders [i].provider,
-            indicationProviders [i].classList);
-
-        delete async_req;
-        delete async_reply;
     }
 
     //
@@ -4439,6 +4476,60 @@ Boolean IndicationService::_sendEnableRequests
     return result;
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);
+}
+
+void IndicationService::_sendModifyRequestsCallBack(AsyncOpNode *op,
+						    MessageQueue *q,
+						    void *parm)
+{
+   
+   IndicationService *service = 
+      static_cast<IndicationService *>(q);
+   struct enableProviderList *epl = 
+      reinterpret_cast<struct enableProviderList *>(parm);
+   
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+
+   //
+   //  ATTN: Check for return value indicating invalid queue ID
+   //  If received, need to find Provider Manager Service queue ID
+   //  again
+   //
+   
+   
+   
+   //
+   //  ATTN-CAKG-P2-20020326: Do we need to look at the response?
+   //  Indication providers may ignore modify requests, so I don't think
+   //  we care whether they accept or reject the modification...
+   //
+
+   CIMModifySubscriptionResponseMessage * response =
+      reinterpret_cast
+      <CIMModifySubscriptionResponseMessage *>
+      ((static_cast <AsyncLegacyOperationResult *>
+	(asyncReply))->get_result());
+   PEGASUS_ASSERT(response != 0);
+   
+   
+   
+   //
+   //  Remove old entry from subscription table and insert 
+   //  updated entry
+   //
+   String tableKey = service->_generateKey(*(epl->cni), epl->pcl->provider);
+   service->_subscriptionTable.remove (tableKey);
+   service->_insertEntry (*(epl->cni), epl->pcl->provider, epl->pcl->classList);
+   delete epl;
+   delete request;
+   delete response;
+   delete asyncRequest;
+   delete asyncReply;
+   op->release();
+   service->return_op(op);
 }
 
 
@@ -4471,6 +4562,11 @@ void IndicationService::_sendModifyRequests
     //
     for (Uint8 i = 0; i < indicationProviders.size (); i++)
     {
+
+       struct enableProviderList *epl = 
+	  new enableProviderList(indicationProviders[i], 
+				 subscription);
+
         CIMModifySubscriptionRequestMessage * request =
             new CIMModifySubscriptionRequestMessage
                 (XmlWriter::getNextMessageId (),
@@ -4497,38 +4593,14 @@ void IndicationService::_sendModifyRequests
                 request,
                 _queueId);
 
-        AsyncReply * async_reply = SendWait (async_req);
+	SendAsync(op, 
+		  _providerManager, 
+		  IndicationService::_sendModifyRequestsCallBack,
+		  this, 
+		  (void *)epl);
 
-        //
-        //  ATTN: Check for return value indicating invalid queue ID
-        //  If received, need to find Provider Manager Service queue ID
-        //  again
-        //
+//        AsyncReply * async_reply = SendWait (async_req);
 
-        CIMModifySubscriptionResponseMessage * response =
-            reinterpret_cast
-            <CIMModifySubscriptionResponseMessage *>
-            ((static_cast <AsyncLegacyOperationResult *>
-            (async_reply))->get_result());
-
-        //
-        //  ATTN-CAKG-P2-20020326: Do we need to look at the response?
-        //  Indication providers may ignore modify requests, so I don't think
-        //  we care whether they accept or reject the modification...
-        //
-
-        //
-        //  Remove old entry from subscription table and insert 
-        //  updated entry
-        //
-        String tableKey = _generateKey 
-            (subscription, indicationProviders [i].provider);
-        _subscriptionTable.remove (tableKey);
-        _insertEntry (subscription, indicationProviders [i].provider,
-            indicationProviders [i].classList);
-
-        delete async_req;
-        delete async_reply;
     }
 
     PEG_FUNC_EXIT (TRC_INDICATION_SERVICE, METHOD_NAME);

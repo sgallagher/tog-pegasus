@@ -154,7 +154,7 @@ void test_async_queue::async_handleEnqueue(AsyncOpNode *op,
    {
       Message *cim_rq = rq->get_action();
       Message *cim_rp = rp->get_result_data();
-      
+       
       PEGASUS_ASSERT(cim_rq->getType() == CIM_GET_INSTANCE_REQUEST_MESSAGE);
       PEGASUS_ASSERT(cim_rp->getType() == CIM_GET_INSTANCE_RESPONSE_MESSAGE);
       test_async_queue::msg_count++;
@@ -240,7 +240,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
 			(void *)0);
       rq_count++;
       pegasus_yield();
-      
+
    } while( test_async_queue::msg_count.value() < 10000 );
    
    cout << "sending stop to server " << endl;

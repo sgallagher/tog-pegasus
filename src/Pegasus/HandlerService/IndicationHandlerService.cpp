@@ -98,6 +98,31 @@ void IndicationHandlerService::handleEnqueue()
       handleEnqueue(message);
 }
 
+
+void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op, 
+							 MessageQueue *q, 
+							 void *parm)
+{
+   IndicationHandlerService *service = 
+      static_cast<IndicationHandlerService *>(q);
+
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+   CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
+      ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+   PEGASUS_ASSERT(response != 0);
+   // ensure that the destination queue is in response->dest
+   response->dest = (Uint32)parm;
+   service->SendForget(response);
+   delete asyncRequest;
+   delete asyncReply;
+//   op->release();
+//   service->return_op(op);
+}
+
+
 void IndicationHandlerService::_handleIndication(const Message* message)
 {
    CIMHandleIndicationRequestMessage* request = 
@@ -158,13 +183,21 @@ void IndicationHandlerService::_handleIndication(const Message* message)
 	    _queueId);
       //getQueueId());
 
-      AsyncReply* reply = SendWait(req);
 
-      _enqueueResponse(req, reply);
+      SendAsync(op, 
+		exportServer[0],
+		IndicationHandlerService::_handleIndicationCallBack,
+		this, 
+		(void *)request->queueIds.top());
 
-      delete req;
-      delete exportmessage;
-      delete reply;
+// << Thu Apr  4 14:30:33 2002 mdd >>
+//       AsyncReply* reply = SendWait(req);
+
+//       _enqueueResponse(req, reply);
+
+//       delete req;
+//       delete exportmessage;
+//       delete reply;
    }
    else
    {

@@ -263,8 +263,6 @@ void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op,
    service->SendForget(response);
    delete asyncRequest;
    delete asyncReply;
-   op->release();
-   service->return_op(op);
 }
 
 
@@ -326,8 +324,6 @@ void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op,
    service->SendForget(response);
    delete asyncRequest;
    delete asyncReply;
-   op->release();
-   service->return_op(op);
 }
 
 void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(

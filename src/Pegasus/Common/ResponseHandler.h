@@ -30,11 +30,6 @@
 #define Pegasus_ResponseHandler_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMClass.h>
-#include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/CIMIndication.h>
-//#include <Pegasus/Common/CIMPredicate.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -45,16 +40,35 @@ public:
 //    enum ProcessingClass { POLL, SIGNAL };
 //    enum FilteringClass { INDISCRETE, DISCRETIONARY };
 
+      /** ATTN:
+      */
       ResponseHandler(void) {};
+
+      /** ATTN:
+      */
       virtual ~ResponseHandler(void) {};
 
+      /** ATTN:
+      */
       virtual void deliver(const object_type & object) = 0;
+
+      /** ATTN:
+      */
       virtual void deliver(const Array<object_type> & objects) = 0;
+
+      /** ATTN:
+      */
       virtual void reserve(const Uint32 size) = 0;
 //    virtual CIMPredicate *processing(
 //	 ProcessingClass pc = POLL,
 //	 FilteringClass fc = INDISCRETE ) = 0;
+
+      /** ATTN:
+      */
       virtual void processing(void) = 0;
+
+      /** ATTN:
+      */
       virtual void complete(void) = 0;
 
 };
@@ -62,3 +76,4 @@ public:
 PEGASUS_NAMESPACE_END
 
 #endif
+	

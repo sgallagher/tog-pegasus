@@ -20,11 +20,19 @@
 //END_LICENSE
 //BEGIN_HISTORY
 //
-// Author: AUTHOR
+// Author: Michael E. Brasher
 //
 //END_HISTORY
 
-#include "CLASSNAME.h"
+#include "Service.h"
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+# include "ServiceWindows.cpp"
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+# include "ServiceUnix.cpp"
+#else
+# error "Unsupported platform"
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

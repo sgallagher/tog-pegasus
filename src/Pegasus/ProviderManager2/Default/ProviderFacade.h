@@ -257,7 +257,8 @@ public:
 protected:
     CIMProvider * _provider;
     AtomicInt _current_operations;
-    AtomicInt _current_ind_operations;
+//    AtomicInt _current_ind_operations;
+    Boolean _indications_enabled;
 
 };
 

@@ -125,6 +125,7 @@ protected:
     EnableIndicationsResponseHandler * _removeEntry(const String & key);
 
     String _generateKey(const Provider & provider);
+    String _generateKey(const String & providerName,const String & providerFileName);
 
     ProviderName _resolveProviderName(const ProviderName & providerName);
     ProviderName _resolveProviderName(String & destinationPath);

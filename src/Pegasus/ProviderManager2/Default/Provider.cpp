@@ -109,13 +109,13 @@ void Provider::initialize(CIMOMHandle & cimom)
     catch(...)
     {
   _current_operations = 0;
-  _current_ind_operations = 0;
+//  _current_ind_operations = 0;
 	throw;
     }
 
     _status = INITIALIZED;
     _current_operations = 0;
-    _current_ind_operations = 0;
+//    _current_ind_operations = 0;
  }
 }
 

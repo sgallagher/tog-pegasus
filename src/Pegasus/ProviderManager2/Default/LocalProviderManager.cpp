@@ -508,104 +508,6 @@ Sint16 LocalProviderManager::disableProvider(
     return(1);
 }
 
-Sint16 LocalProviderManager::disableIndicationProvider(
-    const String & fileName,
-    const String & providerName)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::disableIndicationProvider");
-
-    Provider *pr = _lookupProvider(providerName);
-    if(pr->getStatus() == Provider::INITIALIZED)
-    {
-        //
-        // Check to see if there are pending requests. If there are pending
-        // requests and the disable timeout has not expired, loop and wait one
-        // second until either there are no pending requests or until timeout expires.
-        //
-        Uint32 waitTime = PROVIDER_DISABLE_TIMEOUT;
-        while(pr->_current_ind_operations.value() > 0  &&  waitTime > 0)
-        {
-            System::sleep(1);
-            waitTime = waitTime - 1;
-        }
-
-        // If there are still pending requests, do not disable
-        if(pr->_current_ind_operations.value() > 0)
-        {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Provider not disabled because there are pending requests" );
-            PEG_METHOD_EXIT();
-            return(0);
-        }
-        else
-        {
-          PEG_TRACE_STRING(TRC_PROVIDERMANAGER,Tracer::LEVEL2,"provider " + providerName +
-              "is not loaded");
-          PEG_METHOD_EXIT();
-          return(1);
-        }
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Disabling Provider " + pr->_name );
-        AutoMutex lock(_providerTableMutex);
-        AutoMutex pr_lock(pr->_statusMutex);
-        
-        try
-        {
-            pr->disableIndications();
-            pr->terminate();
-        }
-        catch(...)
-        {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Disable failed." );
-            PEG_METHOD_EXIT();
-            return(-1);
-        }
-
-        if((pr->_module != 0 ) && pr->_module->_ref_count.value() <= 1)
-        {
-            _modules.remove(pr->_module->_fileName);
-            try
-            {
-                pr->_module->unloadModule();
-            }
-            catch(...)
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "unloadModule failed.");
-                PEG_METHOD_EXIT();
-                return(-1);
-            }
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Destroying Provider " + pr->_name );
-
-            delete pr->_module;
-        }
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Destroying Provider's CIMOM Handle " + pr->_name );
-
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "ProviderManager::_provider_crtl -  Unload provider $0",
-            pr->_name);
-
-        delete pr->_cimom_handle;
-        delete pr;
-        return(1);
-    }
-    else
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Unable to find Provider in cache: " +
-            providerName);
-        PEG_METHOD_EXIT();
-        return(1);
-    }
-}
-
-
 Provider* LocalProviderManager::_initProvider(
     Provider * provider,
     const String & moduleFileName,
@@ -617,11 +519,11 @@ Provider* LocalProviderManager::_initProvider(
     CIMProvider *base;
 
     {
-	// lock the providerTable mutex
+        // lock the providerTable mutex
         AutoMutex lock(_providerTableMutex);
 
         // lookup provider module
-	module = _lookupModule(moduleFileName, interfaceName);
+        module = _lookupModule(moduleFileName, interfaceName);
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Loading/Linking Provider Module " + moduleFileName);
@@ -704,9 +606,9 @@ void LocalProviderManager::_unloadProvider( Provider * provider)
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                      "Unloading Provider " + provider->_name );
 
-    if ( provider->_current_operations.value())
+    if ( provider->_current_operations.value()>0)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                          "Provider cannot be unloaded due to pending operations: " +
                          provider->_name );
     }
@@ -718,6 +620,19 @@ void LocalProviderManager::_unloadProvider( Provider * provider)
         // lock the provider mutex
         AutoMutex pr_lock(provider->_statusMutex);
 
+        try 
+        {
+           if (provider->_indications_enabled)
+           {
+               provider->disableIndications();
+           }
+        }
+        catch(...)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3, 
+                             "Error occured disabling provider " + provider->_name );
+        }
+        
         try
         {
             provider->terminate();

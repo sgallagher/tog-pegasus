@@ -14,7 +14,7 @@ endif
 # 1) Add your .query and .query.resgood file to this directory
 # 2) Add a rule to build your .query.res file from a .query file 
 # 3) Add the .query.res file to the tests target  BUT NOT YET!!!!!
-# 4) Add the .query.res file to the clean target  BUT NOT YET!!!!!
+# 4) Add the .query.res file to the clean target  
 
 Like.query.res: Like.query
 	@ cqlcli Like.query -test 1 -className CQL_TestPropertyTypes > $(TMP_DIR)/Like.query.res | cd .
@@ -40,15 +40,43 @@ SymbolicConstant.query.res: SymbolicConstant.query
 	@ $(RM) $(TMP_DIR)/SymbolicConstant.query.res
 	@ $(ECHO) +++ SymbolicConstant.query passed successfully +++
 
+ValidateProperties.query.res: ValidateProperties.query
+	@ cqlcli ValidateProperties.query -test 4 -className CQL_TestPropertyTypes > $(TMP_DIR)/ValidateProperties.query.res | cd .
+	@ $(DIFF) ValidateProperties.query.resgood $(TMP_DIR)/ValidateProperties.query.res
+	@ $(RM) $(TMP_DIR)/ValidateProperties.query.res
+	@ $(ECHO) +++ ValidateProperties.query passed successfully +++
+
+GetPropertyList.query.res: GetPropertyList.query
+	@ cqlcli GetPropertyList.query -test 3 -className CQL_TestElement > $(TMP_DIR)/GetPropertyList.query.res | cd .
+	@ $(DIFF) GetPropertyList.query.resgood $(TMP_DIR)/GetPropertyList.query.res
+	@ $(RM) $(TMP_DIR)/GetPropertyList.query.res
+	@ $(ECHO) +++ GetPropertyList.query passed successfully +++
+
+ApplyProjection.query.res: ApplyProjection.query
+	@ cqlcli ApplyProjection.query -test 2 -className CQL_TestElement > $(TMP_DIR)/ApplyProjection.query.res | cd .
+	@ $(DIFF) ApplyProjection.query.resgood $(TMP_DIR)/ApplyProjection.query.res
+	@ $(RM) $(TMP_DIR)/ApplyProjection.query.res
+	@ $(ECHO) +++ ApplyProjection.query passed successfully +++
+
+EmbeddedSelect.query.res: EmbeddedSelect.query
+	@ cqlcli EmbeddedSelect.query -test 2 -className CQL_EmbeddedSubClass > $(TMP_DIR)/EmbeddedSelect.query.res | cd .
+	@ $(DIFF) EmbeddedSelect.query.resgood $(TMP_DIR)/EmbeddedSelect.query.res
+	@ $(RM) $(TMP_DIR)/EmbeddedSelect.query.res
+	@ $(ECHO) +++ EmbeddedSelect.query passed successfully +++
+
 clean:
 	$(RM) Like.query.res
 	$(RM) isa.query.res
 	$(RM) SymbolicConstant.query.res
 	$(RM) EmbeddedEvaluate.query.res
+	$(RM) ValidateProperties.query.res
+	$(RM) GetPropertyList.query.res
+	$(RM) ApplyProjection.query.res
+	$(RM) EmbeddedSelect.query.res
 
 depend:
 
-tests:
+tests:  
 
 poststarttests:
 

@@ -78,7 +78,7 @@ SELECT EmbObjSub.CQL_NonExistent::TPT, EmbObjSub.CQL_NonExistent::CS FROM CQL_Em
 SELECT EmbObjSub.CQL_NonExistent::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::CS FROM CQL_EmbeddedSubClass
 
 # Combine bad scoping classes, and the embedded object itself
-# Result: ignore the bad scopes, project TPT
+# Result: ignore the bad scopes, project EmbObjSub
 SELECT EmbObjSub.CQL_NonExistent::CS, EmbObjSub.CQL_NonExistent::TPT, EmbObjSub FROM CQL_EmbeddedSubClass
 
 # Combine one good scoping class, one bad scoping class, and the embedded object itself
@@ -227,7 +227,7 @@ SELECT *, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::pr
 #
 # Result: Error
 #
-SELECT *, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::CS.CQL_NonExistent::EnabledState FROM CQL_EmbeddedSubClass
+SELECT *, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::NotThere, EmbObjBase.CQL_EmbeddedTestElement::CS.CQL_NonExistent::EnabledState FROM CQL_EmbeddedSubClass
 
 # Nested wildcards, and pick two leaves, one with good scope, one with bad scope.
 # Projected Properties:
@@ -376,6 +376,7 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, 
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::NotThere, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState, EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass
 
 # Missing required property, wildcard case.
+# Note: this assumes that CQLCLI removes the PrimaryOwnerName property from the CS instance
 # 
 # Projected Properties:
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8                       => scope matches, project

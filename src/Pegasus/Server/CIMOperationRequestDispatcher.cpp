@@ -2843,659 +2843,572 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
    PEG_METHOD_EXIT();
 }
-/**$*******EnumerateInstancesRequest*********************************
-    handleEnumerateInstancesRequest
-    If !validClassName
-        generate exception response
-        Return
-    Get all subclasses to target class
-    For all classes
-        Get Provider for Class
-    If number of providers > BreadthLimit
-        generate excetpion
-        Return
-    if (no Proiders found) and (repository is default)
-        Get instances from repository for class and sublclasses
-        Generate response
-        Return
-    if (no providers found) and NOT(repository is default)
-        generate CIM_Not Supported response
-        Return
-    For all targetclass and subclasses
-        if class has a provider
-            Copy request
-            Substitute current class name
-            Forward request to provider
-       else
-            Issue request for this class to repository
-            put response on aggregate list.
 
-    Return
+/**$*******************************************************
+    handleEnumerateInstancesRequest
+
+    if !validClassName
+        generate exception response
+        return
+    get all subclasses to target class
+    for all classes
+        get Provider for Class
+    if (number of providers > BreadthLimit)
+        generate exception
+        return
+    if (no providers found) and !(repository is default provider)
+        generate CIM_ERR_NOT_SUPPORTED response
+        return
+    for all targetclass and subclasses
+        if (class has a provider)
+            copy request
+            substitute current class name
+            forward request to provider
+    if (repository is default provider)
+        for all targetclass and subclasses
+            if !(class has a provider)
+                issue request for this class to repository
+                put response on aggregate list
 **********************************************************/
 
 void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
-   CIMEnumerateInstancesRequestMessage* request)
+    CIMEnumerateInstancesRequestMessage* request)
 {
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+       "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
 
-   // get the class name
-   CIMName className = request->className;
-
-   CIMException checkClassException;
-   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
-   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
-   {
-      CIMEnumerateInstancesResponseMessage* response =
-         new CIMEnumerateInstancesResponseMessage(request->messageId,
-            checkClassException,
-            request->queueIds.copyAndPop(),
-            Array<CIMInstance>());
-
-      STAT_COPYDISPATCHER_REP
-      _enqueueResponse(request, response);
-      PEG_METHOD_EXIT();
-      return;
-   }
-
-   /***** ATTN: KS 28 May 2002 - localonly and deepinheritance processing
-        temporarily removed until testing complete.
-   // If localonly or deepinheritance, build propertylist.
-   // unless there is specific propertylist. Assume that
-   // specific property list has priority over that generated
-   // from localOnly
-   Array<CIMName> classProperties;
-   if (!request->deepInheritance || request->localOnly)
-   {
-       if (request->propertyList.isNull())
-       {
-           CIMClass cl;
-           // add try here
-           // get the class.
-           cl = _repository->getClass(
-               request->nameSpace,
-               request->className,
-               true, false, false);
-           for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
-           {
-                CIMProperty p = cl.getProperty(i);
-                if (request->localOnly)
-                {
-                    if (!p.getPropagated())
-                        classProperties.append(p.getName());
-                }
-                else
-                    classProperties.append(p.getName());
-           }
-        // We now have property list and can either send it to
-        // the provider or save for review of the responses.
-        }
-
-   }
-   NOTE: See the piece below that puts it into the PoA
-   **************************************************/
-   //
-   // Get names of descendent classes:
-   //
-   CIMException cimException;
-   Array<ProviderInfo> providerInfos;
-
-   // Note that we modify this in the function.
-   Uint32 providerCount;
-
-   try
-   {
-       providerInfos = _lookupAllInstanceProviders(request->nameSpace,
-                                                  className,
-                                                  providerCount);
-   }
-   catch(CIMException& exception)
-   {
-       // Return exception response if exception from getSubClasses
-       cimException = exception;
-       CIMEnumerateInstancesResponseMessage* response =
-       new CIMEnumerateInstancesResponseMessage(request->messageId,
-         cimException,
-         request->queueIds.copyAndPop(),
-         Array<CIMInstance>());
-
-       _enqueueResponse(request, response);
-       PEG_METHOD_EXIT();
-       return;
-   }
-   Uint32 toIssueCount = providerInfos.size();
-
-   STAT_PROVIDERSTART
-
-   // Test for "enumerate to Broad" and if so, execute exception.
-   // Simply limits the subclass depth to some max, not number
-   // of instances returned.
-   if(providerCount > _maximumEnumerateBreadth)
-   {
-       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		   "CIMOperationRequestDispatcher::enumerateInstanceNamesRequest - Request-to-broad exception.  Name Space: $0  Class Name: $1 Limit= $2",
-		   request->nameSpace.getString(),
-		   className.getString(), _maximumEnumerateBreadth, providerCount);
-
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-           Formatter::format("ERROR Enumerate to Broad for  class $0. Limit = $1. Request = $2",
-               className.getString(), _maximumEnumerateBreadth, providerCount));
-
-       // l10n
-
-       CIMEnumerateInstancesResponseMessage* response =
-         new CIMEnumerateInstancesResponseMessage( request->messageId,
-            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, 
-                       MessageLoaderParms("Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD","Enumerate request too Broad")),
-            request->queueIds.copyAndPop(),
-            Array<CIMInstance>());
-
-       // CIMEnumerateInstancesResponseMessage* response =
-       // new CIMEnumerateInstancesResponseMessage( request->messageId,
-       //  PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate request too Broad"),
-       //   request->queueIds.copyAndPop(),
-       //   Array<CIMInstance>());
-
-      STAT_COPYDISPATCHER
-
-      _enqueueResponse(request, response);
-      PEG_METHOD_EXIT();
-      return;
-   }
-    if ((providerCount == 0) && (_repository->isDefaultInstanceProvider()))
+    CIMException checkClassException;
+    _checkExistenceOfClass(request->nameSpace,
+                           request->className,
+                           checkClassException);
+    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-    	 "Repository is default instance provider for Class " + className.getString());
-
-        // If there are no proivders, issue one repository request.
-          CIMException cimException;
-          STAT_PROVIDERSTART
-          Array<CIMInstance> cimNamedInstances;
-          _repository->read_lock();
-          try
-          {
-              // Enumerate complete hiearchy from request class.
-              cimNamedInstances = _repository->enumerateInstancesForClass(
-                 request->nameSpace,
-                 request->className,
-                 request->deepInheritance,
-                 request->localOnly,
-                 request->includeQualifiers,
-                 request->includeClassOrigin,
-                 true,
-                 request->propertyList);
-          }
-          catch(CIMException& exception)
-          {
-             cimException = exception;
-          }
-          catch(Exception& exception)
-          {
-             cimException =
-                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-          }
-          catch(...)
-          {
-             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-          }
-          _repository->read_unlock();
-
-          STAT_PROVIDEREND
-
-          CIMEnumerateInstancesResponseMessage* response =
-            new CIMEnumerateInstancesResponseMessage(
-            request->messageId,
-            cimException,
-            request->queueIds.copyAndPop(),
-            cimNamedInstances);
-
-          STAT_COPYDISPATCHER_REP
-
-          _enqueueResponse(request, response);
-          PEG_METHOD_EXIT();
-          return;
-   }
-   // No provider is registered and the repository isn't the default
-   if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
-   {
-       // ATTN: KS 20030425 - Is CIM_ERR_NOT_SUPPORTED correct here
-       CDEBUG("No providers, no repository");
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-           "CIM_ERROR_NOT_SUPPORTED for " + className.getString() + " and subclasses.");
-
-       CIMEnumerateInstancesResponseMessage* response =
-         new CIMEnumerateInstancesResponseMessage( request->messageId,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
-            request->queueIds.copyAndPop(),
-            Array<CIMInstance>());
-
-      STAT_COPYDISPATCHER
-
-      _enqueueResponse(request, response);
-      PEG_METHOD_EXIT();
-      return;
-
-   }
-   // We have instances for Providers and possibly repository.
-   //Set up an aggregate object for the information and save request in it.
-   // With the original request message.
-
-   OperationAggregate *poA= new OperationAggregate(
-       new CIMEnumerateInstancesRequestMessage(*request),
-       request->getType(),
-       request->messageId,
-       request->queueIds.top(),
-       className);
-   poA->_aggregationSN = cimOperationAggregationSN++;
-
-   //************* Limit to one response if we have problems with more.
-#ifdef LIMIT_ENUM_TO_ONE_LEVEL
-   toIssueCount = 1;
-#endif
-   // Takes the top level request and ignores the others.
-   //*******************/
-   poA->setTotalIssued(toIssueCount);
-
-   for(Uint32 i = 0; i < toIssueCount; i++ )
-   {
-       poA->classes.append(providerInfos[i]._className);
-       poA->serviceNames.append(providerInfos[i]._serviceName);
-       poA->controlProviderNames.append(providerInfos[i]._controlProviderName);
-
-       // This should be used for displays, etc for the moment.
-       Uint32 current =  poA->classes.size() - 1;
-       //request->print(cout, true);
-
-      STAT_PROVIDERSTART
-
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-           Formatter::format(
-           "EnumerateInstances Req. class $0 to svc $1 for control provider $2 No $3 of $4, SN $5",
-                poA->classes[current].getString(),
-                poA->serviceNames[current],
-                ((poA->controlProviderNames[current] != String::EMPTY)  ?
-                        poA->controlProviderNames[current] : "None"),
-                i, providerCount,
-                poA->_aggregationSN));
-
-       // If this class has a provider
-       if (!providerInfos[i]._hasProvider)
-       {
-           if (_repository->isDefaultInstanceProvider())
-           {
-               PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                   Formatter::format("Call Repository for class $0 SN $1",
-                        providerInfos[i]._className.getString(), poA->_aggregationSN));
-
-               CDEBUG("Class for repository = " << providerInfos[i]._className.getString());
-
-               CIMException cimException;
-               STAT_PROVIDERSTART
-               Array<CIMInstance> cimNamedInstances;
-               _repository->read_lock();
-               try
-               {
-                   // Enumerate instances only for this class
-                   cimNamedInstances = _repository->enumerateInstancesForClass(
-                      request->nameSpace,
-                      providerInfos[i]._className.getString(),
-                      request->deepInheritance,
-                      request->localOnly,
-                      request->includeQualifiers,
-                      request->includeClassOrigin,
-                      false,
-                      request->propertyList);
-               }
-               catch(CIMException& exception)
-               {
-                  cimException = exception;
-               }
-               catch(Exception& exception)
-               {
-                  cimException =
-                     PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-               }
-               catch(...)
-               {
-                  cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-               }
-               _repository->read_unlock();
-
-               STAT_PROVIDEREND
-
-               CIMEnumerateInstancesResponseMessage* response =
-                 new CIMEnumerateInstancesResponseMessage(
-                 request->messageId,
-                 cimException,
-                 request->queueIds.copyAndPop(),
-                 cimNamedInstances);
-
-               STAT_COPYDISPATCHER_REP
-               Boolean isDoneAggregation;
-               isDoneAggregation =  poA->appendResponse(response);
-               CDEBUG("ReferenceName Send Is response done? = " << ((isDoneAggregation)? "true" : "false"));
-               if (isDoneAggregation)
-                   handleOperationResponseAggregation(poA);
-           }
-       }
-       else
-       {
-           CIMEnumerateInstancesRequestMessage* requestCopy =
-             new CIMEnumerateInstancesRequestMessage(*request);
-
-           requestCopy->className = providerInfos[i]._className;
-
-           CDEBUG("Class to Provider = " << providerInfos[i]._className.getString());
-           PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-               Formatter::format("Call Provider for class $0 SN $1",
-                   poA->classes[current].getString(),
-                   poA->_aggregationSN));
-
-           //request->print(cout, true);
-          _forwardRequestForAggregation(poA->serviceNames[current],
-               poA->controlProviderNames[current], requestCopy, poA);
-       }
-   }
-   PEG_METHOD_EXIT();
-   return;
-}
-
-/**$*******************************************************
-    handleEnumerateInstanceNamesRequest
-    Returns instance names from the target class and all
-    descendant classes in the hiearchy.
-    Looks both in the repository and providers for instances.
-
-**********************************************************/
-
-void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
-   CIMEnumerateInstanceNamesRequestMessage* request)
-{
-   PEG_METHOD_ENTER(TRC_DISPATCHER,
-      "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
-
-   // get the class name
-   CIMName className = request->className;
-
-   CIMException checkClassException;
-   _checkExistenceOfClass(request->nameSpace, className, checkClassException);
-   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
-   {
-      CIMEnumerateInstanceNamesResponseMessage* response =
-         new CIMEnumerateInstanceNamesResponseMessage(
-            request->messageId,
-            checkClassException,
-            request->queueIds.copyAndPop(),
-            Array<CIMObjectPath>());
-
-      STAT_COPYDISPATCHER_REP
-      _enqueueResponse(request, response);
-      PEG_METHOD_EXIT();
-      return;
-   }
-   // Get names of descendent classes:
-   //
-   CIMException cimException;
-   Array<ProviderInfo> providerInfos;
-
-   // Note that we modify this in the function.
-   Uint32 providerCount;
-
-   try
-   {
-       providerInfos = _lookupAllInstanceProviders(request->nameSpace,
-                                                  className,
-                                                  providerCount);
-   }
-   catch(CIMException& exception)
-   {
-       // Return exception response if exception from getSubClasses
-       cimException = exception;
-
-       CIMEnumerateInstanceNamesResponseMessage* response =
-       new CIMEnumerateInstanceNamesResponseMessage(
-         request->messageId,
-         cimException,
-         request->queueIds.copyAndPop(),
-         Array<CIMObjectPath>());
-
-       _enqueueResponse(request, response);
-       PEG_METHOD_EXIT();
-       return;
-   }
-   Uint32 toIssueCount = providerInfos.size();
-   STAT_PROVIDERSTART
-
-   //
-   //Find all providers for these classes and modify the subclass list.
-   //
-   // The following arrays represent the list of subclasses with
-   // valid providers
-   //Array<String> serviceNames;
-   //Array<String> controlProviderNames;
-   //Array<Boolean> hasProvider;
-   //Uint32 providersFound = 0;
-
-   // Test for "enumerate to Broad" and if so, execute exception.
-   // Limits the subclass depth to some max, not number
-   // of instances returned.
-   if(providerCount > _maximumEnumerateBreadth)
-   {
-       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		   "CIMOperationRequestDispatcher::enumerateInstanceNamesRequest - Request-to-broad exception.  Name Space: $0  Class Name: $1 Limit= $2",
-		   request->nameSpace.getString(),
-		   className.getString(), _maximumEnumerateBreadth, providerCount);
-
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-           Formatter::format(
-           "ERROR Enumerate to Broad for  class $0. Limit = $1. Request = $2",
-               className.getString(), _maximumEnumerateBreadth, providerCount));
-
-
-       // l10n
-
-       CIMEnumerateInstanceNamesResponseMessage* response =
-         new CIMEnumerateInstanceNamesResponseMessage( request->messageId,
-            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD","Enumerate request too Broad")),
-            request->queueIds.copyAndPop(),
-            Array<CIMObjectPath>());
-
-       // CIMEnumerateInstanceNamesResponseMessage* response =
-       // new CIMEnumerateInstanceNamesResponseMessage( request->messageId,
-       //  PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate request too Broad"),
-       //   request->queueIds.copyAndPop(),
-       //   Array<CIMObjectPath>());
-
-      STAT_COPYDISPATCHER
-
-      _enqueueResponse(request, response);
-      PEG_METHOD_EXIT();
-      return;
-   }
-    CDEBUG("Providers Found = " << providerCount );
-    if ((providerCount == 0) && (_repository->isDefaultInstanceProvider()))
-    {
-        CDEBUG( "Going to repository for everything" << className.getString());
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            "Repository is default instance provider for Class " + className.getString());
-
-        // If there are no proivders, issue one repository request.
-        CIMException cimException;
-        STAT_PROVIDERSTART
-        Array<CIMObjectPath> instanceNames;
-        _repository->read_lock();
-        try
-        {
-             instanceNames = _repository->enumerateInstanceNamesForClass(
-                request->nameSpace,
-                request->className,
-                true);
-        }
-        catch(CIMException& exception)
-        {
-         cimException = exception;
-        }
-        catch(Exception& exception)
-        {
-         cimException =
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-        }
-        catch(...)
-        {
-         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-        }
-        _repository->read_unlock();
-
-        STAT_PROVIDEREND
-
-        CIMEnumerateInstanceNamesResponseMessage* response =
-        new CIMEnumerateInstanceNamesResponseMessage(
-        request->messageId,
-        cimException,
-        request->queueIds.copyAndPop(),
-        instanceNames);
+        CIMEnumerateInstancesResponseMessage* response =
+            new CIMEnumerateInstancesResponseMessage(request->messageId,
+                checkClassException,
+                request->queueIds.copyAndPop(),
+                Array<CIMInstance>());
 
         STAT_COPYDISPATCHER_REP
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    /***** ATTN: KS 28 May 2002 - localonly and deepinheritance processing
+         temporarily removed until testing complete.
+    // If localonly or deepinheritance, build propertylist.
+    // unless there is specific propertylist. Assume that
+    // specific property list has priority over that generated
+    // from localOnly
+    Array<CIMName> classProperties;
+    if (!request->deepInheritance || request->localOnly)
+    {
+        if (request->propertyList.isNull())
+        {
+            CIMClass cl;
+            // add try here
+            // get the class.
+            cl = _repository->getClass(
+                request->nameSpace,
+                request->className,
+                true, false, false);
+            for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
+            {
+                 CIMProperty p = cl.getProperty(i);
+                 if (request->localOnly)
+                 {
+                     if (!p.getPropagated())
+                         classProperties.append(p.getName());
+                 }
+                 else
+                     classProperties.append(p.getName());
+            }
+            // We now have property list and can either send it to
+            // the provider or save for review of the responses.
+        }
+    }
+    NOTE: See the piece below that puts it into the PoA
+    **************************************************/
+
+    //
+    // Get names of descendent classes:
+    //
+    CIMException cimException;
+    Array<ProviderInfo> providerInfos;
+
+    // This gets set by _lookupAllInstanceProviders()
+    Uint32 providerCount;
+
+    try
+    {
+        providerInfos = _lookupAllInstanceProviders(request->nameSpace,
+                                                    request->className,
+                                                    providerCount);
+    }
+    catch(CIMException& exception)
+    {
+        // Return exception response if exception from getSubClasses
+        cimException = exception;
+        CIMEnumerateInstancesResponseMessage* response =
+        new CIMEnumerateInstancesResponseMessage(request->messageId,
+            cimException,
+            request->queueIds.copyAndPop(),
+            Array<CIMInstance>());
 
         _enqueueResponse(request, response);
         PEG_METHOD_EXIT();
         return;
-   }
-   // No provider is registered and the repository isn't the default
-   if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
-   {
-       CDEBUG("No providers, no repository");
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-           "CIM_ERROR_NOT_SUPPORTED for " + className.getString() + " and subclasses.");
+    }
 
-       CIMEnumerateInstanceNamesResponseMessage* response =
-         new CIMEnumerateInstanceNamesResponseMessage( request->messageId,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+    // Test for "enumerate too Broad" and if so, execute exception.
+    // This limits the number of provider invocations, not the number
+    // of instances returned.
+    if(providerCount > _maximumEnumerateBreadth)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "Request-too-broad exception.  Namespace: $0  "
+                        "Class Name: $1 Limit: $2  ProviderCount: $3",
+                    request->nameSpace.getString(),
+                    request->className.getString(),
+                    _maximumEnumerateBreadth, providerCount);
+
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            Formatter::format("ERROR Enumerate too broad for class $0. "
+                                  "Limit = $1, Request = $2",
+                              request->className.getString(),
+                              _maximumEnumerateBreadth,
+                              providerCount));
+
+        // l10n
+
+        CIMEnumerateInstancesResponseMessage* response =
+            new CIMEnumerateInstancesResponseMessage(request->messageId,
+                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, 
+                    MessageLoaderParms("Server.CIMOperationRequestDispatcher."
+                        "ENUM_REQ_TOO_BROAD", "Enumerate request too Broad")),
+                request->queueIds.copyAndPop(),
+                Array<CIMInstance>());
+
+        // CIMEnumerateInstancesResponseMessage* response =
+        //     new CIMEnumerateInstancesResponseMessage(request->messageId,
+        //         PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+        //             "Enumerate request too Broad"),
+        //             request->queueIds.copyAndPop(),
+        //             Array<CIMInstance>());
+
+        STAT_COPYDISPATCHER
+
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    // If no provider is registered and the repository isn't the default,
+    // return CIM_ERR_NOT_SUPPORTED
+    if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
+    {
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
+
+        CIMEnumerateInstancesResponseMessage* response =
+            new CIMEnumerateInstancesResponseMessage(request->messageId,
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+                request->queueIds.copyAndPop(),
+                Array<CIMInstance>());
+
+        STAT_COPYDISPATCHER
+
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    // We have instances for Providers and possibly repository.
+    // Set up an aggregate object and save a copy of the original request.
+    OperationAggregate *poA= new OperationAggregate(
+        new CIMEnumerateInstancesRequestMessage(*request),
+        request->getType(),
+        request->messageId,
+        request->queueIds.top(),
+        request->className);
+    poA->_aggregationSN = cimOperationAggregationSN++;
+
+    // Set the number of expected responses in the OperationAggregate
+    Uint32 numClasses = providerInfos.size();
+    if (_repository->isDefaultInstanceProvider())
+    {
+        poA->setTotalIssued(numClasses);
+    }
+    else
+    {
+        poA->setTotalIssued(providerCount);
+    }
+
+    // Loop through providerInfos, forwarding requests to providers
+    for (Uint32 i = 0; i < numClasses; i++)
+    {
+        // If this class has a provider
+        if (providerInfos[i]._hasProvider)
+        {
+            STAT_PROVIDERSTART
+
+            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                Formatter::format(
+                    "EnumerateInstances Req. class $0 to svc \"$1\" for "
+                        "control provider \"$2\", No $3 of $4, SN $5",
+                    providerInfos[i]._className.getString(),
+                    providerInfos[i]._serviceName,
+                    providerInfos[i]._controlProviderName,
+                    i, numClasses, poA->_aggregationSN));
+
+            CIMEnumerateInstancesRequestMessage* requestCopy =
+                new CIMEnumerateInstancesRequestMessage(*request);
+
+            requestCopy->className = providerInfos[i]._className;
+
+            _forwardRequestForAggregation(providerInfos[i]._serviceName,
+                providerInfos[i]._controlProviderName, requestCopy, poA);
+
+            STAT_PROVIDEREND
+        }
+    }
+
+    if (_repository->isDefaultInstanceProvider())
+    {
+        // Loop through providerInfos, forwarding requests to repository
+        for (Uint32 i = 0; i < numClasses; i++)
+        {
+            // If this class does not have a provider
+            if (!providerInfos[i]._hasProvider)
+            {
+                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                    Formatter::format(
+                        "EnumerateInstances Req. class $0 to repository, "
+                            "No $1 of $2, SN $3",
+                        providerInfos[i]._className.getString(),
+                        i, numClasses, poA->_aggregationSN));
+
+                CIMException cimException;
+                Array<CIMInstance> cimNamedInstances;
+
+                STAT_PROVIDERSTART
+
+                _repository->read_lock();
+                try
+                {
+                    // Enumerate instances only for this class
+                    cimNamedInstances =
+                        _repository->enumerateInstancesForClass(
+                            request->nameSpace,
+                            providerInfos[i]._className,
+                            request->deepInheritance,
+                            request->localOnly,
+                            request->includeQualifiers,
+                            request->includeClassOrigin,
+                            false,
+                            request->propertyList);
+                }
+                catch(CIMException& exception)
+                {
+                    cimException = exception;
+                }
+                catch(Exception& exception)
+                {
+                    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                        exception.getMessage());
+                }
+                catch(...)
+                {
+                    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                        String::EMPTY);
+                }
+                _repository->read_unlock();
+
+                STAT_PROVIDEREND
+
+                CIMEnumerateInstancesResponseMessage* response =
+                    new CIMEnumerateInstancesResponseMessage(
+                        request->messageId,
+                        cimException,
+                        request->queueIds.copyAndPop(),
+                        cimNamedInstances);
+
+                STAT_COPYDISPATCHER_REP
+
+                Boolean isDoneAggregation = poA->appendResponse(response);
+                if (isDoneAggregation)
+                {
+                    handleOperationResponseAggregation(poA);
+                }
+            }
+        }
+    }
+    PEG_METHOD_EXIT();
+    return;
+}
+
+/**$*******************************************************
+    handleEnumerateInstanceNamesRequest
+
+    if !validClassName
+        generate exception response
+        return
+    get all subclasses to target class
+    for all classes
+        get Provider for Class
+    if (number of providers > BreadthLimit)
+        generate exception
+        return
+    if (no providers found) and !(repository is default provider)
+        generate CIM_ERR_NOT_SUPPORTED response
+        return
+    for all targetclass and subclasses
+        if (class has a provider)
+            copy request
+            substitute current class name
+            forward request to provider
+    if (repository is default provider)
+        for all targetclass and subclasses
+            if !(class has a provider)
+                issue request for this class to repository
+                put response on aggregate list
+**********************************************************/
+
+void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
+    CIMEnumerateInstanceNamesRequestMessage* request)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+       "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest");
+
+    CIMException checkClassException;
+    _checkExistenceOfClass(request->nameSpace,
+                           request->className,
+                           checkClassException);
+    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+    {
+        CIMEnumerateInstanceNamesResponseMessage* response =
+            new CIMEnumerateInstanceNamesResponseMessage(request->messageId,
+                checkClassException,
+                request->queueIds.copyAndPop(),
+                Array<CIMObjectPath>());
+
+        STAT_COPYDISPATCHER_REP
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    //
+    // Get names of descendent classes:
+    //
+    CIMException cimException;
+    Array<ProviderInfo> providerInfos;
+
+    // This gets set by _lookupAllInstanceProviders()
+    Uint32 providerCount;
+
+    try
+    {
+        providerInfos = _lookupAllInstanceProviders(request->nameSpace,
+                                                    request->className,
+                                                    providerCount);
+    }
+    catch(CIMException& exception)
+    {
+        // Return exception response if exception from getSubClasses
+        cimException = exception;
+        CIMEnumerateInstanceNamesResponseMessage* response =
+        new CIMEnumerateInstanceNamesResponseMessage(request->messageId,
+            cimException,
             request->queueIds.copyAndPop(),
             Array<CIMObjectPath>());
 
-      STAT_COPYDISPATCHER
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
+        return;
+    }
 
-      _enqueueResponse(request, response);
-      PEG_METHOD_EXIT();
-      return;
+    // Test for "enumerate too Broad" and if so, execute exception.
+    // This limits the number of provider invocations, not the number
+    // of instances returned.
+    if(providerCount > _maximumEnumerateBreadth)
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "Request-too-broad exception.  Namespace: $0  "
+                        "Class Name: $1 Limit: $2  ProviderCount: $3",
+                    request->nameSpace.getString(),
+                    request->className.getString(),
+                    _maximumEnumerateBreadth, providerCount);
 
-   }
-   // We have instances for Providers and possibly repository.
-   //Set up an aggregate object for the information and save request in it.
-   // With the original request message.
-   OperationAggregate *poA= new OperationAggregate(
-       new CIMEnumerateInstanceNamesRequestMessage(*request),
-       request->getType(),
-       request->messageId,
-       request->queueIds.top(),
-       className);
-   poA->_aggregationSN = cimOperationAggregationSN++;
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            Formatter::format("ERROR Enumerate too broad for class $0. "
+                                  "Limit = $1, Request = $2",
+                              request->className.getString(),
+                              _maximumEnumerateBreadth,
+                              providerCount));
 
-   //************* Limit to one response if we have problems with more.
-#ifdef LIMIT_ENUM_TO_ONE_LEVEL
-   toIssueCount = 1;
-#endif
-   // Takes the top level request and ignores the others.
-   //*******************/
-   poA->setTotalIssued(toIssueCount);
+        // l10n
 
-   for(Uint32 i = 0; i < toIssueCount; i++ )
-   {
-       // save for diagnostics.
-       poA->classes.append(providerInfos[i]._className);
-       poA->serviceNames.append(providerInfos[i]._serviceName);
-       poA->controlProviderNames.append(providerInfos[i]._controlProviderName);
+        CIMEnumerateInstanceNamesResponseMessage* response =
+            new CIMEnumerateInstanceNamesResponseMessage(request->messageId,
+                PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, 
+                    MessageLoaderParms("Server.CIMOperationRequestDispatcher."
+                        "ENUM_REQ_TOO_BROAD", "Enumerate request too Broad")),
+                request->queueIds.copyAndPop(),
+                Array<CIMObjectPath>());
 
-       // This should be used for displays, etc for the moment.
-       Uint32 current =  poA->classes.size() - 1;
-       //request->print(cout, true);
+        // CIMEnumerateInstanceNamesResponseMessage* response =
+        //     new CIMEnumerateInstanceNamesResponseMessage(request->messageId,
+        //         PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+        //             "Enumerate request too Broad"),
+        //             request->queueIds.copyAndPop(),
+        //             Array<CIMObjectPath>());
 
+        STAT_COPYDISPATCHER
 
-       PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-           Formatter::format(
-           "EnumerateNames Req. class $0 to svc $1 for control provider $2 No $3 of $4, SN $5",
-               poA->classes[current].getString(), poA->serviceNames[current],
-               ((poA->controlProviderNames[current] != String::EMPTY)  ?
-                    poA->controlProviderNames[current] : "None"),
-               i, toIssueCount,
-               poA->_aggregationSN));
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
+        return;
+    }
 
-       // If this class has a provider
-       if (!providerInfos[i]._hasProvider)
-       {
-           if (_repository->isDefaultInstanceProvider())
-           {
-               PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                   Formatter::format("Call Repository for class $0 SN $1",
-                        providerInfos[i]._className.getString(), poA->_aggregationSN));
+    // If no provider is registered and the repository isn't the default,
+    // return CIM_ERR_NOT_SUPPORTED
+    if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
+    {
+        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+            "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
 
-               CDEBUG("Class for repository = " << providerInfos[i]._className.getString());
+        CIMEnumerateInstanceNamesResponseMessage* response =
+            new CIMEnumerateInstanceNamesResponseMessage(request->messageId,
+                PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+                request->queueIds.copyAndPop(),
+                Array<CIMObjectPath>());
 
-               CIMException cimException;
-               STAT_PROVIDERSTART
-               Array<CIMObjectPath> instanceNames;
-               _repository->read_lock();
-               try
-               {
-                  instanceNames = _repository->enumerateInstanceNamesForClass(
-                             request->nameSpace,
-                             providerInfos[i]._className,
-                             false);
-               }
-               catch(CIMException& exception)
-               {
-                  cimException = exception;
-               }
-               catch(Exception& exception)
-               {
-                  cimException =
-                     PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
-               }
-               catch(...)
-               {
-                  cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-               }
-               _repository->read_unlock();
+        STAT_COPYDISPATCHER
 
-               STAT_PROVIDEREND
+        _enqueueResponse(request, response);
+        PEG_METHOD_EXIT();
+        return;
+    }
 
-               CIMEnumerateInstanceNamesResponseMessage* response =
-                 new CIMEnumerateInstanceNamesResponseMessage(
-                 request->messageId,
-                 cimException,
-                 request->queueIds.copyAndPop(),
-                 instanceNames);
+    // We have instances for Providers and possibly repository.
+    // Set up an aggregate object and save a copy of the original request.
+    OperationAggregate *poA= new OperationAggregate(
+        new CIMEnumerateInstanceNamesRequestMessage(*request),
+        request->getType(),
+        request->messageId,
+        request->queueIds.top(),
+        request->className);
+    poA->_aggregationSN = cimOperationAggregationSN++;
 
-               STAT_COPYDISPATCHER_REP
-               Boolean isDoneAggregation;
-               isDoneAggregation =  poA->appendResponse(response);
-               CDEBUG("ReferenceName Send Is response done? = " << ((isDoneAggregation)? "true" : "false"));
-               if (isDoneAggregation)
-                   handleOperationResponseAggregation(poA);
-           }
-       }
-       else
-       {
-           CIMEnumerateInstanceNamesRequestMessage* requestCopy =
-             new CIMEnumerateInstanceNamesRequestMessage(*request);
+    // Set the number of expected responses in the OperationAggregate
+    Uint32 numClasses = providerInfos.size();
+    if (_repository->isDefaultInstanceProvider())
+    {
+        poA->setTotalIssued(numClasses);
+    }
+    else
+    {
+        poA->setTotalIssued(providerCount);
+    }
 
-           requestCopy->className = providerInfos[i]._className;
+    // Loop through providerInfos, forwarding requests to providers
+    for (Uint32 i = 0; i < numClasses; i++)
+    {
+        // If this class has a provider
+        if (providerInfos[i]._hasProvider)
+        {
+            STAT_PROVIDERSTART
 
-           //request->print(cout, true);
-           CDEBUG("Class to Provider = " << providerInfos[i]._className);
-           PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-               Formatter::format("Call Provider for class $0 SN $1",
-                   poA->classes[current].getString(),
-                   poA->_aggregationSN));
+            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                Formatter::format(
+                    "EnumerateInstanceNames Req. class $0 to svc \"$1\" for "
+                        "control provider \"$2\", No $3 of $4, SN $5",
+                    providerInfos[i]._className.getString(),
+                    providerInfos[i]._serviceName,
+                    providerInfos[i]._controlProviderName,
+                    i, numClasses, poA->_aggregationSN));
 
-          _forwardRequestForAggregation(poA->serviceNames[current],
-               poA->controlProviderNames[current], requestCopy, poA);
-       }
-   }
-   PEG_METHOD_EXIT();
-   return;
+            CIMEnumerateInstanceNamesRequestMessage* requestCopy =
+                new CIMEnumerateInstanceNamesRequestMessage(*request);
 
+            requestCopy->className = providerInfos[i]._className;
+
+            _forwardRequestForAggregation(providerInfos[i]._serviceName,
+                providerInfos[i]._controlProviderName, requestCopy, poA);
+
+            STAT_PROVIDEREND
+        }
+    }
+
+    if (_repository->isDefaultInstanceProvider())
+    {
+        // Loop through providerInfos, forwarding requests to repository
+        for (Uint32 i = 0; i < numClasses; i++)
+        {
+            // If this class does not have a provider
+            if (!providerInfos[i]._hasProvider)
+            {
+                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
+                    Formatter::format(
+                        "EnumerateInstanceNames Req. class $0 to repository, "
+                            "No $1 of $2, SN $3",
+                        providerInfos[i]._className.getString(),
+                        i, numClasses, poA->_aggregationSN));
+
+                CIMException cimException;
+                Array<CIMObjectPath> cimInstanceNames;
+
+                STAT_PROVIDERSTART
+
+                _repository->read_lock();
+                try
+                {
+                    // Enumerate instances only for this class
+                    cimInstanceNames =
+                        _repository->enumerateInstanceNamesForClass(
+                            request->nameSpace,
+                            providerInfos[i]._className,
+                            false);
+                }
+                catch(CIMException& exception)
+                {
+                    cimException = exception;
+                }
+                catch(Exception& exception)
+                {
+                    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                        exception.getMessage());
+                }
+                catch(...)
+                {
+                    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                        String::EMPTY);
+                }
+                _repository->read_unlock();
+
+                STAT_PROVIDEREND
+
+                CIMEnumerateInstanceNamesResponseMessage* response =
+                    new CIMEnumerateInstanceNamesResponseMessage(
+                        request->messageId,
+                        cimException,
+                        request->queueIds.copyAndPop(),
+                        cimInstanceNames);
+
+                STAT_COPYDISPATCHER_REP
+
+                Boolean isDoneAggregation = poA->appendResponse(response);
+                if (isDoneAggregation)
+                {
+                    handleOperationResponseAggregation(poA);
+                }
+            }
+        }
+    }
+    PEG_METHOD_EXIT();
+    return;
 }
 
 /**$*******************************************************

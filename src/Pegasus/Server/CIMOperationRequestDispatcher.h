@@ -227,9 +227,6 @@ public:
     CIMNamespaceName _nameSpace;
     CIMName _className;
 
-    Array<CIMName> classes;
-    Array<String> serviceNames;
-    Array<String> controlProviderNames;
     Array<String> propertyList;
 
     Uint64 _aggregationSN;

@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMNamedInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/CIMRepositoryBase.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 
@@ -48,7 +49,7 @@ class RepositoryDeclContext;
 
 /** This class provides a simple implementation of a CIM repository.
 */
-class PEGASUS_REPOSITORY_LINKAGE CIMRepository
+class PEGASUS_REPOSITORY_LINKAGE CIMRepository : public CIMRepositoryBase
 {
 public:
 
@@ -82,8 +83,7 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList(),
-	Boolean _resolveInstance = true /* private parameter; pass default*/ );
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// deleteClass
     virtual void deleteClass(
@@ -222,21 +222,13 @@ public:
     virtual Array<CIMQualifierDecl> enumerateQualifiers(
         const String& nameSpace);
 
-    /// invokeMethod
-    virtual CIMValue invokeMethod(
-        const String& nameSpace,
-        const CIMReference& instanceName,
-        const String& methodName,
-        const Array<CIMValue>& inParameters,
-        Array<CIMValue>& outParameters);
-
     /** CIMMethod createNameSpace - Creates a new namespace in the repository
         @param String with the name of the namespace
         @exception - Throws "Already_Exists if the Namespace exits.
         Throws "CannotCreateDirectory" if there are problems in the
         creation.
     */
-    void createNameSpace(const String& nameSpace);
+    virtual void createNameSpace(const String& nameSpace);
 
     /** CIMMethod enumerateNameSpaces - Get all of the namespaces in the
         repository. \Ref{NAMESPACE}
@@ -251,7 +243,9 @@ public:
         @param String with the name of the namespace
         @exception - Throws NoSuchDirectory if the Namespace does not exist.
     */
-    void deleteNameSpace(const String& nameSpace);
+    virtual void deleteNameSpace(const String& nameSpace);
+
+    ////////////////////////////////////////////////////////////////////////////
 
     /** CIMMethod setDeclContext - allows the Declaration Context set
         by default in the CIMRepository constructor to be overridden.
@@ -276,8 +270,7 @@ public:
         return _providerName;
     }
 
-    // used for enumerateInstances
-     /** Get subclass names of the given class in the given namespace.
+    /** Get subclass names of the given class in the given namespace.
         @param nameSpaceName
         @param className - class whose subclass names will be gotten. If
             className is empty, all classnames are returned.
@@ -285,7 +278,7 @@ public:
             are returned. If className is empty, only root classes are returned.        @param subClassNames - output argument to hold subclass names.
         @exception CIMException(CIM_ERR_INVALID_CLASS)
     */
-    void getSubClassNames(
+    virtual void getSubClassNames(
         const String& nameSpaceName,
         const String& className,
         Boolean deepInheritance,
@@ -300,7 +293,7 @@ public:
     /** Get the names of all superclasses (direct and indirect) of this
         class.
     */
-    void getSuperClassNames(
+    virtual void getSuperClassNames(
         const String& nameSpaceName,
         const String& className,
         Array<String>& subClassNames) const
@@ -469,8 +462,13 @@ private:
     String _providerName;
 
 protected:
+
+    // Used by getInstance(); indicates whether instance should be resolved
+    // after it is retrieved from the file.
+
     ReadWriteSem _lock;
     RepositoryDeclContext* _context;
+    Boolean _resolveInstance;
 };
 
 PEGASUS_NAMESPACE_END

@@ -155,7 +155,7 @@ static String _MakeAssocClassPath(
 
 CIMRepository::CIMRepository(const String& repositoryRoot)
    : _repositoryRoot(repositoryRoot), _nameSpaceManager(repositoryRoot),
-     _lock()
+     _resolveInstance(true), _lock()
 {
     _context = new RepositoryDeclContext(this);
     _isDefaultInstanceProvider = (ConfigManager::getInstance()->getCurrentValue(
@@ -276,8 +276,7 @@ CIMInstance CIMRepository::getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    Boolean _resolveInstance)
+    const CIMPropertyList& propertyList)
 {
     //
     // Get the index for this instance:
@@ -961,8 +960,16 @@ void CIMRepository::modifyInstance(
             // original qualifiers on the instance and on the properties
             //
 
-            cimInstance = getInstance(nameSpace,
-                modifiedInstance.getInstanceName(), false, true, false);
+	    _resolveInstance = false;
+
+            cimInstance = getInstance(
+		nameSpace,
+                modifiedInstance.getInstanceName(), 
+		false, 
+		true, 
+		true);
+
+	    _resolveInstance = true;
 
             CIMInstance newInstance(
                 modifiedInstance.getInstanceName().getClassName());
@@ -1020,8 +1027,13 @@ void CIMRepository::modifyInstance(
         // Replace only the properties specified in the given instance
         //
 
+	_resolveInstance = false;
+
         cimInstance = getInstance(nameSpace,
-            modifiedInstance.getInstanceName(), false, true, false);
+            modifiedInstance.getInstanceName(), false, true, true);
+
+	_resolveInstance = true;
+
         CIMInstance givenInstance = modifiedInstance.getInstance();
 
         // NOTE: Instance qualifiers are not changed when a property list
@@ -1321,7 +1333,6 @@ Boolean CIMRepository::_loadAllInstances(
 
 		namedInstances.append(
 		    CIMNamedInstance(instanceNames[i], tmpInstance));
-
 	    }
         }
     }
@@ -1829,20 +1840,6 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
     }
 
     return qualifiers;
-}
-
-CIMValue CIMRepository::invokeMethod(
-    const String& nameSpace,
-    const CIMReference& instanceName,
-    const String& methodName,
-    const Array<CIMValue>& inParameters,
-    Array<CIMValue>& outParameters)
-{
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "invokeMethod()");
-
-
-
-    return CIMValue();
 }
 
 void CIMRepository::createNameSpace(const String& nameSpace)

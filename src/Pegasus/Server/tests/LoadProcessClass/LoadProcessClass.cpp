@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: LoadProcessClass.cpp,v $
+// Revision 1.9  2001/02/18 19:44:15  mike
+// added meta-qualifiers to root namespace
+//
 // Revision 1.8  2001/02/18 19:13:56  mike
 // okay
 //
@@ -88,7 +91,7 @@ int main(int argc, char** argv)
 	r.createClass(NAMESPACE, c);
 
 
-	cout << "Created Process class with MyProvider Qualifier" <<endl;
+	// cout << "Created Process class with MyProvider Qualifier" <<endl;
 
 	// Create the __NameSpace Class in /root namespace
 	//delete the class if it exists
@@ -117,7 +120,7 @@ int main(int argc, char** argv)
 					"Namespace Name")));
 
 	r.createClass(ROOTNAMESPACE, cn);
-	cout << "Created __Namespace class with Provider Qualfier" << endl;
+	// cout << "Created __Namespace class with Provider Qualfier" << endl;
     }
     catch(Exception& e)
     {

@@ -78,6 +78,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [SELECT] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;    
+    globalParserState->tokenCount++;
     return SELECT;
 }
 
@@ -86,6 +87,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [FROM] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return FROM;
 }
 
@@ -94,6 +96,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [WHERE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return WHERE;
 }
 
@@ -102,6 +105,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [ANY] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return ANY;
 }
 
@@ -109,6 +113,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [AS] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return AS;
 }
 
@@ -116,6 +121,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [ASC] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return ASC;
 }
 
@@ -123,6 +129,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [BY] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return BY;
 }
 
@@ -130,6 +137,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [DESC] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return DESC;
 }
 
@@ -138,6 +146,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [DISTINCT] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return DISTINCT;
 }
 
@@ -145,6 +154,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [EVERY] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return EVERY;
 }
 
@@ -152,6 +162,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [FIRST] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return FIRST;
 }
 
@@ -159,6 +170,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [IN] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return IN;
 }
 
@@ -166,6 +178,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [IS] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return IS;
 }
 
@@ -173,6 +186,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [ISA] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _ISA;
 }
 
@@ -180,6 +194,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [LIKE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _LIKE;
 }
 
@@ -187,6 +202,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [ORDER] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return ORDER;
 }
 
@@ -194,6 +210,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [SATISFIES] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return SATISFIES;
 }
 
@@ -201,6 +218,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_TRUE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _TRUE;
 }
 
@@ -208,6 +226,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_FALSE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _FALSE;
 }
 
@@ -215,6 +234,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_NULL] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _NULL;
 }
 
@@ -222,6 +242,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [NOT] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return NOT;
 }
 
@@ -229,6 +250,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [AND] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _AND;
 }
 
@@ -236,11 +258,13 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [OR] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _OR;
 }
 
 {IDENT_CHAR}*\:\:{PROP_CHAR}* {
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
         delete [] CQL_lval.strValue;
@@ -257,6 +281,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [NEGATIVE_HEXADECIMAL] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     /* copy the hex value */
     {
         size_t n = strlen(yytext);
@@ -273,6 +298,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [HEXADECIMAL] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     /* copy the hex value */
     {
         size_t n = strlen(yytext);
@@ -289,6 +315,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [NEGATIVE_BINARY] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     /* copy the bin value */ 
     {
         size_t n = strlen(yytext);
@@ -305,6 +332,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [BINARY] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     /* copy the bin value */
     {
         size_t n = strlen(yytext);
@@ -323,6 +351,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [NEGATIVE_INTEGER] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
 	    delete [] CQL_lval.strValue;
@@ -339,6 +368,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [INTEGER] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
             delete [] CQL_lval.strValue;
@@ -356,6 +386,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [INTEGER] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
 	    delete [] CQL_lval.strValue;
@@ -371,6 +402,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [NEGATIVE_REAL] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
             delete [] CQL_lval.strValue;
@@ -387,6 +419,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [REAL] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     size_t n = strlen(yytext);
     if(CQL_lval.strValue)
             delete [] CQL_lval.strValue;
@@ -406,6 +439,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [STRING] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     /* remove any escaped \ OR escaped ' */
 
     String _esc_doubleslash = "\\\\";
@@ -439,12 +473,14 @@ Z [Zz]
     sprintf(msg_,"Unterminated string");
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
 }
 
 \*{1} {
    sprintf(msg_,"LEX: [STAR] ");
    printf__(msg_);
    globalParserState->currentTokenPos+=yyleng;
+   globalParserState->tokenCount++;
    return STAR;
 }
 
@@ -452,6 +488,7 @@ Z [Zz]
    sprintf(msg_,"LEX: [DIV] ");
    printf__(msg_);
    globalParserState->currentTokenPos+=yyleng;
+   globalParserState->tokenCount++;
    return DIV;
 }
 
@@ -459,6 +496,7 @@ Z [Zz]
    sprintf(msg_,"LEX: [PLUS] ");
    printf__(msg_);
    globalParserState->currentTokenPos+=yyleng;
+   globalParserState->tokenCount++;
    return PLUS;
 }
 
@@ -466,6 +504,7 @@ Z [Zz]
    sprintf(msg_,"LEX: [MINUS] ");
    printf__(msg_);
    globalParserState->currentTokenPos+=yyleng;
+   globalParserState->tokenCount++;
    return MINUS;
 }
 
@@ -473,6 +512,7 @@ Z [Zz]
    sprintf(msg_,"LEX: [COMMA] ");
    printf__(msg_);
    globalParserState->currentTokenPos+=yyleng;
+   globalParserState->tokenCount++;
    return COMMA;
 }
 
@@ -480,6 +520,7 @@ Z [Zz]
     sprintf(msg_,"LEX: [DOTDOT] ");
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return DOTDOT;
 }
 
@@ -487,6 +528,7 @@ Z [Zz]
     sprintf(msg_,"LEX: [HASH] ");
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;                                                                   
+    globalParserState->tokenCount++;
     return HASH;
 }
 
@@ -494,6 +536,7 @@ Z [Zz]
     sprintf(msg_,"LEX: [DOT] ");
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return DOT;
 }
 
@@ -501,6 +544,7 @@ Z [Zz]
     sprintf(msg_,"LEX: [LBRKT] ");
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return LBRKT;
 }
 
@@ -508,6 +552,7 @@ Z [Zz]
     sprintf(msg_,"LEX: [RBRKT] ");
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return RBRKT;
 }
 
@@ -515,6 +560,7 @@ Z [Zz]
     sprintf(msg_,"LEX: [LPAR] ");
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return LPAR;
 }
 
@@ -522,6 +568,7 @@ Z [Zz]
     sprintf(msg_,"LEX: [RPAR] ");
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return RPAR;
 }
 
@@ -529,6 +576,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [DBL_PIPE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return DBL_PIPE;
 }
 
@@ -536,6 +584,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [UNDERSCORE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return UNDERSCORE;
 }
 
@@ -543,6 +592,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_EQ] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _EQ; 
 }
 
@@ -551,6 +601,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_NE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _NE; 
 }
 
@@ -559,6 +610,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_LE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _LE; 
 }
 
@@ -567,6 +619,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_LT] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _LT; 
 }
 
@@ -575,6 +628,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_GE] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _GE; 
 }
 
@@ -583,6 +637,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [_GT] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     return _GT; 
 }
 
@@ -591,6 +646,7 @@ Z [Zz]
     sprintf(msg_,"LEX: %s [IDENTIFIER] ", yytext);
     printf__(msg_);
     globalParserState->currentTokenPos+=yyleng;
+    globalParserState->tokenCount++;
     {
 	size_t n = strlen(yytext);
 	if(CQL_lval.strValue)

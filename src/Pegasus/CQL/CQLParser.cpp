@@ -70,6 +70,7 @@ void CQLParser::parse(
     globalParserState->textSize = strlen(text) + 1;
     globalParserState->offset = 0;
     globalParserState->currentTokenPos = 0;
+    globalParserState->tokenCount = 0;
     globalParserState->currentRule = String::EMPTY;
     globalParserState->statement = &statement;
 
@@ -80,10 +81,11 @@ void CQLParser::parse(
 	String errorMessage = globalParserState->errorMessage;
 	cleanup();
 	Uint32 position = globalParserState->currentTokenPos;
+	Uint32 token = globalParserState->tokenCount;
 	String rule = globalParserState->currentRule;
 	delete globalParserState;
         PEG_METHOD_EXIT();
-	throw CQLSyntaxErrorException(errorMessage,position,rule);
+	throw CQLSyntaxErrorException(errorMessage,token,position,rule);
     }
 
     cleanup();

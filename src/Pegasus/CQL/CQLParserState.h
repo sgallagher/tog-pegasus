@@ -96,7 +96,10 @@ struct CQLParserState
 
     Uint32 currentTokenPos;
 
+    Uint32 tokenCount;
+
     String currentRule;
+
 };
 
 PEGASUS_NAMESPACE_END

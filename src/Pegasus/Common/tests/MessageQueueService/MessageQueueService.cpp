@@ -423,20 +423,23 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    // now that we have sent and received all of our responses, tell 
    // the server thread to stop 
 
+   AsyncMessage *reply;
+   
 
    cout << " sending LEGACY to test server" << endl;
    
    Message *legacy = new Message(0x11100011, 
 				 Message::getNextKey());
-   AsyncOpNode *op = q_client->get_op();
    
    AsyncLegacyOperationStart *req = 
       new AsyncLegacyOperationStart(q_client->get_next_xid(), 
-				    op, 
+				    0, 
 				    services[0],
 				    legacy, 
 				    q_client->getQueueId());
-   q_client->SendWait(req);
+   reply = q_client->SendWait(req);
+   delete req;
+   delete reply;
    
 
    cout << "sending STOP to test server" << endl;
@@ -448,8 +451,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
 			 q_client->get_qid(),
 			 true);
 
-   q_client->SendWait(stop ); 
+   reply = q_client->SendWait(stop ); 
    delete stop;
+   delete reply;
    
    cout << "deregistering client qid " << q_client->getQueueId() << endl;
  
@@ -479,39 +483,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    q_server->register_service("test server", q_server->_capabilities, q_server->_mask);
    
    cout << "test server registered" << endl;
-   Boolean paused_client = false;
    
    while( q_server->dienow.value()  < 3  )
    {
       pegasus_yield();
-      
-
-      // send client at QID 2 a pause and resume message. 
-
-      if ( msg_count.value() > 1000 && paused_client == false)
-      {
-	 paused_client = true;
-	 
-	 CimServicePause *pause_req = new CimServicePause(q_server->get_next_xid(), 
-							  0,
-							  2, 
-							  q_server->getQueueId(),
-							  true);
-	 AsyncMessage *response = q_server->SendWait(pause_req);
-	 delete response;
-	 delete pause_req;
-      
-	 pegasus_sleep(10);
-
-	 CimServiceResume *resume_req = new CimServiceResume(q_server->get_next_xid(), 
-							     0,
-							     2, 
-							     q_server->getQueueId(),
-							     true);
-	 response = q_server->SendWait(resume_req);
-	 delete response;
-	 delete resume_req;
-      }
    }
  
    cout << "deregistering server qid " << q_server->getQueueId() << endl;

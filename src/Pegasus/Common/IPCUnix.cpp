@@ -187,7 +187,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 gettimeofday(&now, NULL);
       }
       while(errorcode == EBUSY && 
-	    ((now.tv_usec < start.tv_usec) || (now.tv_sec <= start.tv_sec )));
+	    ( (now.tv_sec <= start.tv_sec ) &&  (now.tv_usec < start.tv_usec) ));
       // ATTN: RK - Added ');' to the end of the preceding line.  Is this
       // "while" condition correct?
 

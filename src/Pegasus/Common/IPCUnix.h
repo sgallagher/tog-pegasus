@@ -255,5 +255,10 @@ inline PEGASUS_THREAD_TYPE pegasus_thread_self(void)
    return(pthread_self());
 }
 
+inline void destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
+{
+   pthread_cancel(th);
+}
+
 
 PEGASUS_NAMESPACE_END

@@ -60,6 +60,8 @@ Thread::~Thread()
       }
       while( exit_code == STILL_ACTIVE);
    }
+   CloseHandle(_handle.thid);
+   
 }
 
 PEGASUS_NAMESPACE_END

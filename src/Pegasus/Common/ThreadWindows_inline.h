@@ -86,4 +86,10 @@ inline void Thread::thread_init(void)
    
 }
 
+inline void Thread::detach(void)
+{
+   _is_detached = true;
+}
+
+
 #endif // ThreadWindows_inline_h

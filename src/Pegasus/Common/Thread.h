@@ -220,7 +220,7 @@ class PEGASUS_COMMON_LINKAGE Thread
       void resume(void) ;
 #endif
 
-      void sleep(Uint32 msec) ;
+      static void sleep(Uint32 msec) ;
 
       // block the calling thread until this thread terminates
       void join( void );
@@ -228,7 +228,7 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       // thread routine needs to call this function when
       // it is ready to exit
-      void exit_self(PEGASUS_THREAD_RETURN return_code) ;
+      static void exit_self(PEGASUS_THREAD_RETURN return_code) ;
 
       // stack of functions to be called when thread terminates
       // will be called last in first out (LIFO)
@@ -298,7 +298,6 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       {
 	 PEGASUS_ASSERT(key != NULL);
-	 PEGASUS_ASSERT(delete_func != NULL);
 	 thread_data *tsd ;
 	 tsd = _tsd.remove((void *)key);  // may throw an IPC exception 
 	 thread_data *ntsd = new thread_data(key);
@@ -323,6 +322,8 @@ class PEGASUS_COMMON_LINKAGE Thread
 	 return(operator==((const void *)&b ));
       }
 
+      void detach(void);
+  
    private:
       Thread();
       inline void create_tsd(Sint8 *key ) throw(IPCException)
@@ -356,20 +357,107 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
 {
    public:
 
-      ThreadPool(Sint16 initial_size, 
-		 Sint16 max, 
+      ThreadPool(Sint16 initial_size,
+		 Sint8 *key,
 		 Sint16 min,
-		 Sint8 *key);
-
+		 Sint16 max,
+		 struct timeval & alloc_wait,
+		 struct timeval & dealloc_wait, 
+		 struct timeval & deadlock_detect);
+      
       ~ThreadPool(void);
       void allocate_and_awaken(void *parm,
 			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *work)(void *))  
 	 throw(IPCException);
 
+      void kill_dead_threads( void ) 
+	 throw(IPCException);
+      
       void get_key(Sint8 *buf, int bufsize);
 
-      // accessors for min, max, wait
+      inline Boolean operator==(const void *key) const 
+      { 
+	 if ( ! strncmp( reinterpret_cast<Sint8 *>(const_cast<void *>(key)), _key, 16  )) 
+	    return(true); 
+	 return(false);
+      } 
+      inline Boolean operator==(const ThreadPool & b) const
+      {
+	 return(operator==((const void *) b._key ));
+      }
+
+      inline void set_min_threads(Sint16 min)
+      {
+	 _min_threads = min;
+      }
       
+      inline Sint16 get_min_threads(void) const
+      {
+	 return _min_threads;
+      }
+
+      inline void set_max_threads(Sint16 max)
+      {
+	 _max_threads = max;
+      }
+      
+      inline Sint16 get_max_threads(void) const
+      {
+	 return _max_threads;
+      }
+      
+      inline void set_allocate_wait(const struct timeval & alloc_wait)
+      {
+	 _allocate_wait.tv_sec = alloc_wait.tv_sec;
+	 _allocate_wait.tv_usec = alloc_wait.tv_usec;
+      }
+      
+      inline struct timeval *get_allocate_wait(struct timeval *buffer) const
+      {
+	 if(buffer == 0)
+	    throw NullPointer();
+	 buffer->tv_sec = _allocate_wait.tv_sec;
+	 buffer->tv_usec = _allocate_wait.tv_usec;
+	 return buffer;
+      }
+
+      inline void set_deallocate_wait(const struct timeval & dealloc_wait)
+      {
+	 _deallocate_wait.tv_sec = dealloc_wait.tv_sec;
+	 _deallocate_wait.tv_usec = dealloc_wait.tv_usec;
+      }
+      
+      inline struct timeval *get_deallocate_wait(struct timeval *buffer) const
+      {
+	 if(buffer == 0)
+	    throw NullPointer();
+	 buffer->tv_sec = _deallocate_wait.tv_sec;
+	 buffer->tv_usec = _deallocate_wait.tv_usec;
+	 return buffer;
+      }
+
+      inline void set_deadlock_detect(const struct timeval & deadlock)
+      {
+	 _deadlock_detect.tv_sec = deadlock.tv_sec;
+	 _deadlock_detect.tv_usec = deadlock.tv_usec;
+      }
+      
+      inline struct timeval * get_deadlock_detect(struct timeval *buffer) const
+      {
+	 if(buffer == 0)
+	    throw NullPointer();
+	 buffer->tv_sec = _deadlock_detect.tv_sec;
+	 buffer->tv_usec = _deadlock_detect.tv_usec;
+	 return buffer;
+      }
+
+      inline Uint32 running_count(void)
+      {
+	 return _running.count();
+      }
+      
+      static Boolean check_time(struct timeval *start, struct timeval *interval);
+
    private:
       ThreadPool(void);
       Sint16 _max_threads;
@@ -382,20 +470,22 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       Semaphore _waiters;
       Sint8 _key[17];
       Semaphore _pool_sem;
-      DQueue<Thread>_pool;
-      DQueue<Thread>_running;
+      DQueue<Thread> _pool;
+      DQueue<Thread> _running;
+      DQueue<Thread> _dead;
       AtomicInt _dying;
       
-      void _kill_dead_threads(DQueue<Thread> *q, Boolean (*check)(struct timeval *)) 
-	 throw(IPCException);
+
       static void _sleep_sem_del(void *p);
-      static Boolean _check_time(struct timeval *start, struct timeval *interval);
+      
       void _check_deadlock(struct timeval *start) throw(Deadlock);
       Boolean _check_deadlock_no_throw(struct timeval *start);
       Boolean _check_dealloc(struct timeval *start);
       Thread *_init_thread(void) throw(IPCException);
       void _link_pool(Thread *th) throw(IPCException);
-};
+      static PEGASUS_THREAD_RETURN  _undertaker(void *);
+      
+ };
 
 
 inline void ThreadPool::_sleep_sem_del(void *p)
@@ -408,7 +498,7 @@ inline void ThreadPool::_sleep_sem_del(void *p)
 
 inline void ThreadPool::_check_deadlock(struct timeval *start) throw(Deadlock)
 {
-   if (true == _check_time(start, &_deadlock_detect))
+   if (true == check_time(start, &_deadlock_detect))
       throw Deadlock(pegasus_thread_self());
    return;
 }
@@ -416,12 +506,12 @@ inline void ThreadPool::_check_deadlock(struct timeval *start) throw(Deadlock)
 
 inline Boolean ThreadPool::_check_deadlock_no_throw(struct timeval *start)
 {
-   return(_check_time(start, &_deadlock_detect));
+   return(check_time(start, &_deadlock_detect));
 }
 
 inline Boolean ThreadPool::_check_dealloc(struct timeval *start)
 {
-   return(_check_time(start, &_deallocate_wait));
+   return(check_time(start, &_deallocate_wait));
 }
 
 inline Thread *ThreadPool::_init_thread(void) throw(IPCException)

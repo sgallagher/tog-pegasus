@@ -63,6 +63,8 @@ void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit);
 PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void);
 void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc);
 void PEGASUS_EXPORT sleep(int ms);
+void PEGASUS_EXPORT destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc);
+
 
 
 //%//////// -------- IPC Exception Classes -------- ///////////////////////////////

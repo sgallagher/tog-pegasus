@@ -79,7 +79,7 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
     catch(IPCException& e) 
     {
 	PEGASUS_ASSERT(0); 
-    }
+     }
     if(execute == true)
 	cu->execute();
     delete cu;
@@ -115,21 +115,24 @@ void Thread::exit_self(PEGASUS_THREAD_RETURN exit_code)
 #endif
 
 
-ThreadPool::ThreadPool(Sint16 initial_size, 
-		       Sint16 max, 
-		       Sint16 min, 
-		       Sint8 *key)
+ThreadPool::ThreadPool(Sint16 initial_size,
+		       Sint8 *key,
+		       Sint16 min,
+		       Sint16 max,
+		       struct timeval & alloc_wait,
+		       struct timeval & dealloc_wait, 
+		       struct timeval & deadlock_detect)
    : _max_threads(max), _min_threads(min),
      _current_threads(0), _waiters(initial_size), 
      _pool_sem(0), _pool(true), _running(true), 
-     _dying(0)
+     _dead(true), _dying(0)
 {
-   _allocate_wait.tv_sec = 1;
-   _allocate_wait.tv_usec = 0;
-   _deallocate_wait.tv_sec = 30;
-   _deallocate_wait.tv_usec = 0;
-   _deadlock_detect.tv_sec = 60;
-   _deadlock_detect.tv_usec = 0;
+   _allocate_wait.tv_sec = alloc_wait.tv_sec;
+   _allocate_wait.tv_usec = alloc_wait.tv_usec;
+   _deallocate_wait.tv_sec = dealloc_wait.tv_sec; 
+   _deallocate_wait.tv_usec = dealloc_wait.tv_usec;
+   _deadlock_detect.tv_sec = deadlock_detect.tv_sec;
+   _deadlock_detect.tv_usec = deadlock_detect.tv_usec;
    memset(_key, 0x00, 17);
    if(key != 0)
       strncpy(_key, key, 16);
@@ -145,10 +148,34 @@ ThreadPool::ThreadPool(Sint16 initial_size,
    }
 }
 
+   
+
 ThreadPool::~ThreadPool(void)
 {
    _dying++;
    Thread *th = _pool.remove_first();
+   while(th != 0)
+   {      
+      Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+
+      if(sleep_sem == 0)
+      {
+	 th->dereference_tsd();
+	 throw NullPointer();
+      }
+      
+      sleep_sem->signal();
+      sleep_sem->signal();
+      th->dereference_tsd();
+      // signal the thread's sleep semaphore
+      th->cancel();
+      th->join();
+      th->empty_tsd();
+      delete th;
+      th = _pool.remove_first();
+   }
+
+   th = _running.remove_first();
    while(th != 0)
    {
       // signal the thread's sleep semaphore
@@ -156,7 +183,18 @@ ThreadPool::~ThreadPool(void)
       th->join();
       th->empty_tsd();
       delete th;
-      th = _pool.remove_first();
+      th = _running.remove_first();
+   }
+
+   th = _dead.remove_first();
+   while(th != 0)
+   {
+      // signal the thread's sleep semaphore
+      th->cancel();
+      th->join();
+      th->empty_tsd();
+      delete th;
+      th = _dead.remove_first();
    }
 }
 
@@ -188,10 +226,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 
    while(pool->_dying < 1)
    {
-      myself->test_cancel();
       sleep_sem->wait();
       // when we awaken we reside on the running queue, not the pool queue
-      myself->test_cancel();
+      if(pool->_dying > 0)
+	 break;
       gettimeofday(deadlock_timer, NULL);
       
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *);
@@ -225,6 +263,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 myself->exit_self(0);
       }
    }
+   // wait to be awakend by the thread pool destructor
+   sleep_sem->wait();
+   myself->test_cancel();
    myself->exit_self(0);
    return((PEGASUS_THREAD_RETURN)0);
 }
@@ -265,7 +306,9 @@ void ThreadPool::allocate_and_awaken(void *parm,
 	 } 
       } 
       // will throw a Deadlock Exception before falling out of the loop
-      _check_deadlock(&start);
+
+      _check_deadlock(&start); 
+      
    } // while th == null
    
    if(_dying < 1)
@@ -283,9 +326,15 @@ void ThreadPool::allocate_and_awaken(void *parm,
 
       // signal the thread's sleep semaphore to awaken it
       Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+
       if(sleep_sem == 0)
+      {
+	 th->dereference_tsd();
 	 throw NullPointer();
+      }
+      
       sleep_sem->signal();
+      th->dereference_tsd();
    }
    else
       _pool.insert_first(th);
@@ -295,79 +344,139 @@ void ThreadPool::allocate_and_awaken(void *parm,
 // but should call it at least once per _deadlock_detect with the running q
 // and at least once per _deallocate_wait for the pool q
 
-void ThreadPool::_kill_dead_threads(DQueue<Thread> *q, Boolean (*check)(struct timeval *)) 
-   throw(IPCException)
+void ThreadPool::kill_dead_threads(void) 
+	 throw(IPCException)
 {
    struct timeval now;
    gettimeofday(&now, NULL);
    
-   DQueue<Thread> dead(true) ;
-   
-   if(q->count() > 0 )
-   {
-      try 
-      {
-	 q->try_lock();
-      }
-      catch(AlreadyLocked & a)
-      {
-	 return;
-      }
 
-      Thread *context = 0;
-      struct timeval dt = { 0, 0 };
-      struct timeval *dtp;
-      Thread *th = q->next(context);
-      while (th != 0 )
+   // first go thread the dead q and clean it up as much as possible
+   while(_dead.count() > 0)
+   {
+      Thread *dead = _dead.remove_first();
+      if(dead == 0)
+	 throw NullPointer();
+      if(dead->_handle.thid != 0)
+      {
+	 destroy_thread(dead->_handle.thid, 0);
+	 while(dead->_cleanup.count() )
+	 {
+	    dead->cleanup_pop(true);
+	 }
+      }
+      delete dead;
+   }
+   
+   DQueue<Thread> * map[2] = 
+      {
+	 &_pool, &_running
+      };
+   
+   
+   DQueue<Thread> *q = 0;
+   int i = 0;
+   AtomicInt needed(0);
+   
+   for( q = map[i] ; i < 2; i++, q = map[i])
+   {
+      if(q->count() > 0 )
       {
 	 try 
 	 {
-	    dtp = (struct timeval *)th->try_reference_tsd("deadlock timer");
+	    q->try_lock();
 	 }
 	 catch(AlreadyLocked & a)
 	 {
-	    context = th;
-	    th = q->next(context);
+	    q++;
 	    continue;
 	 }
-	 
-	 if(dtp != 0)
+
+	 struct timeval dt = { 0, 0 };
+	 struct timeval *dtp;
+	 Thread *th = 0;
+	 th = q->next(th);
+	 while (th != 0 )
 	 {
-	    memcpy(&dt, dtp, sizeof(struct timeval));
-	    
-	 }
-	 th->dereference_tsd();
-	 if( true == check(&dt))
-	 {
-	    th = q->remove_no_lock((void *)th);
-	    
-	    if(th != 0)
+	    try 
 	    {
-	       dead.insert_first(th);
-	       th = 0;
+	       dtp = (struct timeval *)th->try_reference_tsd("deadlock timer");
 	    }
+	    catch(AlreadyLocked & a)
+	    {
+	       th = q->next(th);
+	       continue;
+	    }
+	 
+	    if(dtp != 0)
+	    {
+	       memcpy(&dt, dtp, sizeof(struct timeval));
+	    
+	    }
+	    th->dereference_tsd();
+	    struct timeval deadlock_timeout;
+	    if( true == check_time(&dt, get_deadlock_detect(&deadlock_timeout) ))
+	    {
+	       // if we are deallocating from the pool, escape if we are
+	       // down to the minimum thread count 
+	       if( _current_threads.value() <= (Uint32)_min_threads )
+	       {
+		  if( i == 1)
+		  {
+		     th = q->next(th);
+		     continue;
+		  }
+		  else 
+		  {
+		     // we are killing a hung thread and we will drop below the 
+		     // minimum. create another thread to make up for the one
+		     // we are about to kill
+		     needed++;
+		  }
+	       }
+	       
+	       th = q->remove_no_lock((void *)th);
+	    
+	       if(th != 0)
+	       {
+		  th->remove_tsd("work func");
+		  th->put_tsd("work func", NULL, 
+			      sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
+			      (void *)&_undertaker);
+		  th->remove_tsd("work parm");
+		  th->put_tsd("work parm", NULL, sizeof(void *), th);
+	        
+		  // signal the thread's sleep semaphore to awaken it
+		  Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+	       
+		  if(sleep_sem == 0)
+		  {
+		     th->dereference_tsd();
+		     throw NullPointer();
+		  }
+		  // put the thread on the dead  list 
+		  _dead.insert_first(th);
+		  sleep_sem->signal(); 
+		  th->dereference_tsd();
+		  th = 0;
+	       }
+	    }
+	    th = q->next(th);
 	 }
-	 context = th;
-	 th = q->next(context);
+	 q->unlock();
+	 while (needed.value() > 0)
+	 {
+	    _link_pool(_init_thread());
+	    needed--;
+	 }
       }
-      q->unlock();
    }
    
-   if(dead.count())
-   {
-      Thread *th = dead.remove_first();
-      while(th != 0)
-      {
-	 th->cancel();
-	 th->join();
-	 delete th;
-	 th = dead.remove_first();
-      }
-   }
+   
    return;
 }
 
-Boolean ThreadPool::_check_time(struct timeval *start, struct timeval *interval)
+Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
 {
    struct timeval now;
    gettimeofday(&now, NULL);
@@ -377,6 +486,21 @@ Boolean ThreadPool::_check_time(struct timeval *start, struct timeval *interval)
       return true;
    else
       return false;
+}
+
+
+PEGASUS_THREAD_RETURN ThreadPool::_undertaker( void *parm )
+{
+   Thread *myself = reinterpret_cast<Thread *>(parm);
+   if(myself != 0)
+   {
+      myself->detach();
+      myself->_handle.thid = 0;
+      myself->cancel();
+      myself->test_cancel();
+      myself->exit_self(0);
+   }
+   return((PEGASUS_THREAD_RETURN)0);
 }
 
 

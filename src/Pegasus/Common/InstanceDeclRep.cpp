@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: InstanceDeclRep.cpp,v $
-// Revision 1.1  2001/01/14 19:52:39  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:44  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:52:39  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -54,8 +57,14 @@ void InstanceDeclRep::addProperty(const Property& x)
     if (!x)
 	throw UnitializedHandle();
 
+    // Reject duplicate property names:
+
     if (findProperty(x.getName()) != Uint32(-1))
 	throw AlreadyExists();
+
+    // Note: class origin is resolved later:
+
+    // Append property:
 
     _properties.append(x);
 }

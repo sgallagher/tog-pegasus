@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Property.h,v $
-// Revision 1.1  2001/01/14 19:53:04  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:44  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:53:04  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -392,16 +395,12 @@ public:
 	return _rep->identical(x._rep);
     }
 
-    ConstProperty clone() const 
+    Property clone() const 
     {
-	return ConstProperty(_rep->clone()); 
+	return Property(_rep->clone()); 
     }
 
 private:
-
-    ConstProperty(PropertyRep* rep) : _rep(rep) 
-    {
-    }
 
     void _checkRep() const
     {

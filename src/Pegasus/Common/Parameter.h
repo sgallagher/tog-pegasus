@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Parameter.h,v $
-// Revision 1.1  2001/01/14 19:53:02  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:44  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:53:02  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -341,16 +344,12 @@ public:
 	return _rep->identical(x._rep);
     }
 
-    ConstParameter clone() const
+    Parameter clone() const
     {
-	return ConstParameter(_rep->clone());
+	return Parameter(_rep->clone());
     }
 
 private:
-
-    ConstParameter(ParameterRep* rep) : _rep(rep)
-    {
-    }
 
     void _checkRep() const
     {

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: ClassDeclRep.cpp,v $
-// Revision 1.1  2001/01/14 19:50:39  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:43  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:50:39  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -103,14 +106,17 @@ void ClassDeclRep::addProperty(const Property& x)
     if (!x)
 	throw UnitializedHandle();
 
+    // Reject addition of duplicate property name:
+
     if (findProperty(x.getName()) != Uint32(-1))
 	throw AlreadyExists();
 
-    if (findMethod(x.getName()) != Uint32(-1))
-	throw AlreadyExists();
+    // Reject addition of references to non-associations:
 
     if (!isAssociation() && x.getValue().getType() == Type::REFERENCE)
 	throw AddedReferenceToClass(_className);
+
+    // Add the property:
 
     _properties.append(x);
 }
@@ -150,11 +156,12 @@ void ClassDeclRep::addMethod(const Method& x)
     if (!x)
 	throw UnitializedHandle();
 
+    // Reject duplicate method names:
+
     if (findMethod(x.getName()) != Uint32(-1))
 	throw AlreadyExists();
 
-    if (findProperty(x.getName()) != Uint32(-1))
-	throw AlreadyExists();
+    // Add the method:
 
     _methods.append(x);
 }
@@ -184,13 +191,13 @@ Uint32 ClassDeclRep::getMethodCount() const
 }
 
 void ClassDeclRep::resolve(
-    DeclContext* declContext,
+    DeclContext* context,
     const String& nameSpace)
 {
     if (_resolved)
 	throw ClassAlreadyResolved(_className);
 
-    if (!declContext)
+    if (!context)
 	throw NullPointer();
 
     if (_superClassName.getLength())
@@ -200,7 +207,7 @@ void ClassDeclRep::resolve(
 	//----------------------------------------------------------------------
 
 	ConstClassDecl superClass 
-	    = declContext->lookupClassDecl(nameSpace, _superClassName);
+	    = context->lookupClassDecl(nameSpace, _superClassName);
 
 	if (!superClass)
 	    throw NoSuchSuperClass(_superClassName);
@@ -209,8 +216,8 @@ void ClassDeclRep::resolve(
 	    throw ClassNotResolved(_superClassName);
 
 	//----------------------------------------------------------------------
-	// Iterate all the properties of this class. Resolve each one and
-	// mark inherited properties with the appropriate class-origin.
+	// Iterate all the properties of *this* class. Resolve each one and
+	// set the class-origin:
 	//----------------------------------------------------------------------
 
 	for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
@@ -220,17 +227,14 @@ void ClassDeclRep::resolve(
 
 	    if (pos == Uint32(-1))
 	    {
-		Property dummy;
-		property.resolve(declContext, nameSpace, false, dummy);
+		property.resolve(context, nameSpace, false);
+		property.setClassOrigin(getClassName());
 	    }
 	    else
 	    {
 		ConstProperty superClassProperty = superClass.getProperty(pos);
-		property.resolve(
-		    declContext, nameSpace, false, superClassProperty);
-
-		_properties[i].setClassOrigin(
-		    superClassProperty.getClassOrigin());
+		property.resolve(context, nameSpace, false, superClassProperty);
+		property.setClassOrigin(superClassProperty.getClassOrigin());
 	    }
 	}
 
@@ -241,50 +245,42 @@ void ClassDeclRep::resolve(
 
 	// Iterate super-class properties:
 
-	Uint32 m = 0;
-
-	for (Uint32 i = 0, n = superClass.getPropertyCount(); i < n; i++)
+	for (Uint32 i = 0, m = 0, n = superClass.getPropertyCount(); i < n; i++)
 	{
-	    Property property = Property(superClass.getProperty(i));
-	    String classOrigin = property.getClassOrigin();
+	    ConstProperty superClassProperty = superClass.getProperty(i);
 
-	    // Be sure that this class does not have a method with that
-	    // name.
-
-	    if (findMethod(property.getName()) != Uint32(-1))
-	    {
-		String tmp = property.getName();
-		tmp.append(
-		    "; attempt to override property with method of same name");
-		throw InvalidPropertyOverride(tmp);
-	    }
-
-	    // Find the property in this class; if not found, then adopt it.
-	    // Otherwise, change the class-origin and propagated flag
-	    // accordingly.
+	    // Find the property in *this* class; if not found, then clone and
+	    // insert it (setting the propagated flag). Otherwise, change 
+	    // the class-origin and propagated flag accordingly.
 
 	    Uint32 pos = Uint32(-1);
 
 	    for (Uint32 j = m, n = _properties.getSize(); j < n; j++)
 	    {
-		if (Name::equal(_properties[j].getName(), property.getName()))
+		if (Name::equal(
+		    _properties[j].getName(), 
+		    superClassProperty.getName()))
 		{
 		    pos = j;
 		    break;
 		}
 	    }
 
+	    // If property exists in super class but not in this one, then
+	    // clone and insert it. Otherwise, the properties class
+	    // origin was set above.
+
 	    if (pos == Uint32(-1))
 	    {
-		property.setClassOrigin(classOrigin);
+		Property property = superClassProperty.clone();
 		property.setPropagated(true);
 		_properties.insert(m++, property);
 	    }
 	}
 
 	//----------------------------------------------------------------------
-	// Iterate all the methods of this class. Resolve each one and
-	// mark inherited methods with the appropriate class-origin.
+	// Iterate all the methods of *this* class. Resolve each one and
+	// set the class-origin:
 	//----------------------------------------------------------------------
 
 	for (Uint32 i = 0, n = _methods.getSize(); i < n; i++)
@@ -294,14 +290,14 @@ void ClassDeclRep::resolve(
 
 	    if (pos == Uint32(-1))
 	    {
-		Method dummy;
-		method.resolve(declContext, nameSpace, dummy);
+		method.resolve(context, nameSpace);
+		method.setClassOrigin(getClassName());
 	    }
 	    else
 	    {
 		ConstMethod superClassMethod = superClass.getMethod(pos);
-		method.resolve(declContext, nameSpace, superClassMethod);
-		_methods[i].setClassOrigin(superClassMethod.getClassOrigin());
+		method.resolve(context, nameSpace, superClassMethod);
+		method.setClassOrigin(superClassMethod.getClassOrigin());
 	    }
 	}
 
@@ -310,50 +306,36 @@ void ClassDeclRep::resolve(
 	// are not overriden by this sub-class).
 	//----------------------------------------------------------------------
 
-	// Iterate super-class methods:
-
-	m = 0;
-
-	for (Uint32 i = 0, n = superClass.getMethodCount(); i < n; i++)
+	for (Uint32 i = 0, m = 0, n = superClass.getMethodCount(); i < n; i++)
 	{
-	    Method method = Method(superClass.getMethod(i));
-	    String classOrigin = method.getClassOrigin();
+	    ConstMethod superClassMethod = superClass.getMethod(i);
 
-	    // Be sure that this class does not have a property with that
-	    // name.
-
-	    if (findProperty(method.getName()) != Uint32(-1))
-	    {
-		String tmp = method.getName();
-		tmp.append(
-		    "; attempt to override method with property of same name");
-		throw InvalidMethodOverride(tmp);
-	    }
-
-	    // Find the method in this class; if not found, then adopt it.
-	    // Otherwise, change the class-origin and propagated flag
-	    // accordingly.
+	    // Find the method in *this* class; if not found, then clone and
+	    // insert it (setting the propagated flag). Otherwise, change 
+	    // the class-origin and propagated flag accordingly.
 
 	    Uint32 pos = Uint32(-1);
 
 	    for (Uint32 j = m, n = _methods.getSize(); j < n; j++)
 	    {
 		if (Name::equal(
-		    _methods[j].getName(), method.getName()))
+		    _methods[j].getName(), 
+		    superClassMethod.getName()))
 		{
 		    pos = j;
 		    break;
 		}
 	    }
 
+	    // If method exists in super class but not in this one, then
+	    // clone and insert it. Otherwise, the method's class origin
+	    // has already been set above.
+
 	    if (pos == Uint32(-1))
 	    {
+		Method method = superClassMethod.clone();
+		method.setPropagated(true);
 		_methods.insert(m++, method);
-	    }
-	    else
-	    {
-		_methods[pos].resolve(declContext, nameSpace, method);
-		_methods[pos].setClassOrigin(classOrigin);
 	    }
 	}
 
@@ -362,7 +344,7 @@ void ClassDeclRep::resolve(
 	//----------------------------------------------------------------------
 
 	_qualifiers.resolve(
-	    declContext,
+	    context,
 	    nameSpace,
 	    Scope::CLASS,
 	    false,
@@ -375,16 +357,14 @@ void ClassDeclRep::resolve(
 	//----------------------------------------------------------------------
 
 	for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
-	    _properties[i].resolve(declContext, nameSpace, false);
+	    _properties[i].resolve(context, nameSpace, false);
 
 	//----------------------------------------------------------------------
 	// Resolve each method:
 	//----------------------------------------------------------------------
 
 	for (Uint32 i = 0, n = _methods.getSize(); i < n; i++)
-	{
-	    _methods[i].resolve(declContext, nameSpace);
-	}
+	    _methods[i].resolve(context, nameSpace);
 
 	//----------------------------------------------------------------------
 	// Resolve the qualifiers:
@@ -393,7 +373,7 @@ void ClassDeclRep::resolve(
 	QualifierList dummy;
 
 	_qualifiers.resolve(
-	    declContext,
+	    context,
 	    nameSpace,
 	    Scope::CLASS,
 	    false,

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: QualifierDecl.h,v $
-// Revision 1.1  2001/01/14 19:53:07  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:44  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:53:07  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -297,16 +300,12 @@ public:
 	return _rep->identical(x._rep);
     }
 
-    ConstQualifierDecl clone() const
+    QualifierDecl clone() const
     {
-	return ConstQualifierDecl(_rep->clone());
+	return QualifierDecl(_rep->clone());
     }
 
 private:
-
-    ConstQualifierDecl(QualifierDeclRep* rep) : _rep(rep)
-    {
-    }
 
     void _checkRep() const
     {

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: Method.h,v $
-// Revision 1.1  2001/01/14 19:52:57  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:44  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:52:57  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -410,16 +413,12 @@ public:
 	return _rep->identical(x._rep);
     }
 
-    ConstMethod clone() const
+    Method clone() const
     {
-	return ConstMethod(_rep->clone());
+	return Method(_rep->clone());
     }
 
 private:
-
-    ConstMethod(MethodRep* rep) : _rep(rep)
-    {
-    }
 
     void _checkRep() const
     {

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: InstanceDecl.h,v $
-// Revision 1.1  2001/01/14 19:52:38  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:44  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:52:38  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -326,16 +329,12 @@ public:
 	return _rep->identical(x._rep);
     }
 
-    ConstInstanceDecl clone() const
+    InstanceDecl clone() const
     {
 	return InstanceDecl(_rep->clone());
     }
 
 private:
-
-    ConstInstanceDecl(InstanceDeclRep* rep) : _rep(rep)
-    {
-    }
 
     void _checkRep() const
     {

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: ClassDecl.h,v $
-// Revision 1.1  2001/01/14 19:50:37  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:43  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:50:37  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -236,7 +239,8 @@ public:
 
     // Resolve the class: inherit any properties and qualifiers.
     // make sure the superClass really exists and is consistent with
-    // this class.
+    // this class. Also set the propagated flag class-origin for each
+    // class feature.
 
     void resolve(
 	DeclContext* declContext,
@@ -441,16 +445,12 @@ public:
 	return _rep->identical(x._rep);
     }
 
-    ConstClassDecl clone() const
+    ClassDecl clone() const
     {
 	return ClassDecl(_rep->clone());
     }
 
 private:
-
-    ConstClassDecl(ClassDeclRep* rep) : _rep(rep)
-    {
-    }
 
     void _checkRep() const
     {

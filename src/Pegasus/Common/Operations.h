@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Operations.h,v $
+// Revision 1.3  2001/01/15 04:31:44  mike
+// worked on resolve scheme
+//
 // Revision 1.2  2001/01/15 04:19:08  karl
 // Add Class Documentation
 //
@@ -1036,7 +1039,7 @@ public:
         const String& resultRole = String::EMPTY,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
-        const Array<String>& propertyList = Array<String>()) = 0;
+        const Array<String>& propertyList = _getStringArray()) = 0;
 
     /** The <TT>associatorNames</TT> operation is used to enumerate the names of
     CIM Objects (Classes or Instances) that are associated to a particular

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: ClassDeclRep.h,v $
-// Revision 1.1  2001/01/14 19:50:39  mike
-// Initial revision
+// Revision 1.2  2001/01/15 04:31:43  mike
+// worked on resolve scheme
+//
+// Revision 1.1.1.1  2001/01/14 19:50:39  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -131,7 +134,7 @@ public:
     Uint32 getMethodCount() const;
 
     void resolve(
-	DeclContext* declContext,
+	DeclContext* context,
 	const String& nameSpace);
 
     void toXml(Array<Sint8>& out) const;

@@ -187,7 +187,7 @@ void test01()
         // Octet out of range
         CIMObjectPath h5("//192.168.256.80:77/root/cimv25:"
                          "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (const Exception&)
      {
         errorDetected = true;
      }
@@ -199,7 +199,7 @@ void test01()
         // Missing port
         CIMObjectPath h5("//192.168.256.80:/root/cimv25:"
                          "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (const Exception&)
      {
         errorDetected = true;
      }
@@ -211,7 +211,7 @@ void test01()
         // Too many octets
         CIMObjectPath h5("//192.168.1.80.12/root/cimv25:"
                          "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (const Exception&)
      {
         errorDetected = true;
      }
@@ -223,7 +223,7 @@ void test01()
         // Too few octets
         CIMObjectPath h5("//192.168.80:77/root/cimv25:"
                          "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     } catch (Exception& e)
+     } catch (const Exception&)
      {
         errorDetected = true;
      }
@@ -246,7 +246,7 @@ void test01()
      {
         // Hostname (IP) without trailing '/' (with port)
         CIMObjectPath h5("//192.168.256.80:77");
-     } catch (Exception& e)
+     } catch (const Exception&)
      {
         errorDetected = true;
      }
@@ -257,7 +257,7 @@ void test01()
      {
         // Hostname (IP) without trailing '/' (without port)
         CIMObjectPath h5("//192.168.256.80");
-     } catch (Exception& e)
+     } catch (const Exception&)
      {
         errorDetected = true;
      }
@@ -268,7 +268,7 @@ void test01()
      {
         // Hostname without trailing '/' (with port)
         CIMObjectPath h5("//usopen-9.usta-1-a.org:77");
-     } catch (Exception& e)
+     } catch (const Exception&)
      {
         errorDetected = true;
      }
@@ -279,7 +279,7 @@ void test01()
      {
         // Hostname without trailing '/' (without port)
         CIMObjectPath h5("//usopen-9.usta-1-a.org");
-     } catch (Exception& e)
+     } catch (const Exception&)
      {
         errorDetected = true;
      }
@@ -643,7 +643,7 @@ void test05()
     try
     {
         CIMObjectPath r1("MyClass.key1=\"\\\"");
-    } catch (MalformedObjectNameException& e)
+    } catch (const MalformedObjectNameException&)
     {
        errorDetected = true;
     }
@@ -654,7 +654,7 @@ void test05()
     try
     {
         CIMObjectPath r1("MyClass.key1=\"\\n\"");
-    } catch (MalformedObjectNameException& e)
+    } catch (const MalformedObjectNameException&)
     {
        errorDetected = true;
     }
@@ -665,7 +665,7 @@ void test05()
     try
     {
         CIMObjectPath r1("MyClass.key1=\"\\x000A\"");
-    } catch (MalformedObjectNameException& e)
+    } catch (const MalformedObjectNameException&)
     {
        errorDetected = true;
     }

@@ -141,19 +141,6 @@ public:
         : Exception("NonDynamic config property: " + name) { }
 };
 
-/**
-NotSupportedPropertyValue Exception class
-*/
-class NotSupportedPropertyValue : public Exception
-{
-public:
-    NotSupportedPropertyValue(const String& name, const String& value,
-        const String& name2, const String& value2)
-        : Exception("Not supported property value: " + name + "=" +
-            value + ", because " + name2 + "=" + value2) { }
-};
-
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_ConfigExceptions_h */

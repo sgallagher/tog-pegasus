@@ -33,6 +33,8 @@
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"httpPort", "5988", 0, 0, 0},
     {"httpsPort", "5989", 0, 0, 0},
+    {"enableHttpConnection", "false", 0, 0, 0},
+    {"enableHttpsConnection", "true", 0, 0, 0},
     {"home", "./", 0, 0, 0},
     {"daemon", "true", 0, 0, 0},
     {"install", "false", 0, 0, 0},
@@ -46,6 +48,8 @@
 #else
     {"httpPort", "5988", 0, 0, 0},
     {"httpsPort", "5989", 0, 0, 0},
+    {"enableHttpConnection", "true", 0, 0, 0},
+    {"enableHttpsConnection", "false", 0, 0, 0},
     {"home", "./", 0, 0, 0},
     {"daemon", "true", 0, 0, 0},
     {"install", "false", 0, 0, 0},

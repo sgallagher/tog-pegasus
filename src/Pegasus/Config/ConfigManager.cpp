@@ -121,8 +121,8 @@ static struct OwnerEntry _properties[] =
     {"logtrace",            (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"cleanlogs",           (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"severity",            (ConfigPropertyOwner* )ConfigManager::logOwner},
-    {"enableHttpConnection", (ConfigPropertyOwner* )ConfigManager::securityOwner},
-    {"enableHttpsConnection",(ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"enableHttpConnection", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"enableHttpsConnection",(ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"httpPort",            (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"httpsPort",           (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"home",                (ConfigPropertyOwner* )ConfigManager::defaultOwner},
@@ -306,12 +306,6 @@ Boolean ConfigManager::updateCurrentValue(
     {
         throw ucp;
     }
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    catch (NotSupportedPropertyValue& nspv)
-    {
-        throw nspv;
-    }
-#endif
 
     return 1;
 }
@@ -386,12 +380,6 @@ Boolean ConfigManager::updatePlannedValue(
     {
         throw ucp;
     }
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    catch (NotSupportedPropertyValue& nspv)
-    {
-        throw nspv;
-    }
-#endif
 
     return 1;
 }

@@ -58,24 +58,8 @@ static struct ConfigPropertyRow properties[] =
     {"httpAuthType", "Basic", 0, 0, 0},
     {"passwordFilePath", "cimserver.passwd", 0, 0, 0},
     {"sslCertificateFilePath", "server.pem", 0, 0, 0}, 
-#if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined(PEGASUS_PLATFORM_HPUX_ACC)
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"enableNamespaceAuthorization", "false", 0, 0, 0},
-    {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0},
-    {"enableHttpConnection", "false", 0, 0, 0},
-    {"enableHttpsConnection", "true", 0, 0, 0}
-#else
-    {"enableNamespaceAuthorization", "false", 0, 0, 0},
-    {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0},
-    {"enableHttpConnection", "true", 0, 0, 0},
-    {"enableHttpsConnection", "false", 0, 0, 0}
-#endif
-#else
-    {"enableNamespaceAuthorization", "false", 0, 0, 0},
-    {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0},
-    {"enableHttpConnection", "true", 0, 0, 0},
-    {"enableHttpsConnection", "false", 0, 0, 0}
-#endif
+    {"enableRemotePrivilegedUserAccess", "false", 0, 0, 0}
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -91,8 +75,6 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _passwordFilePath = new ConfigProperty();
     _certificateFilePath = new ConfigProperty();
     _enableRemotePrivilegedUserAccess = new ConfigProperty();
-    _enableHttpConnection = new ConfigProperty();
-    _enableHttpsConnection = new ConfigProperty();
 }
 
 /** Destructor  */
@@ -105,8 +87,6 @@ SecurityPropertyOwner::~SecurityPropertyOwner()
     delete _passwordFilePath;
     delete _certificateFilePath;
     delete _enableRemotePrivilegedUserAccess;
-    delete _enableHttpConnection;
-    delete _enableHttpsConnection;
 }
 
 
@@ -216,28 +196,6 @@ void SecurityPropertyOwner::initialize()
             _enableRemotePrivilegedUserAccess->domain = properties[i].domain;
             _enableRemotePrivilegedUserAccess->domainSize = properties[i].domainSize;
         }
-        else if (String::equalNoCase(
-            properties[i].propertyName, "enableHttpConnection"))
-        { 
-            _enableHttpConnection->propertyName = properties[i].propertyName;
-            _enableHttpConnection->defaultValue = properties[i].defaultValue;
-            _enableHttpConnection->currentValue = properties[i].defaultValue;
-            _enableHttpConnection->plannedValue = properties[i].defaultValue;
-            _enableHttpConnection->dynamic = properties[i].dynamic;
-            _enableHttpConnection->domain = properties[i].domain;
-            _enableHttpConnection->domainSize = properties[i].domainSize;
-        }
-        else if (String::equalNoCase( 
-            properties[i].propertyName, "enableHttpsConnection"))
-        {                                                       
-            _enableHttpsConnection->propertyName = properties[i].propertyName;
-            _enableHttpsConnection->defaultValue = properties[i].defaultValue;
-            _enableHttpsConnection->currentValue = properties[i].defaultValue;
-            _enableHttpsConnection->plannedValue = properties[i].defaultValue;
-            _enableHttpsConnection->dynamic = properties[i].dynamic;
-            _enableHttpsConnection->domain = properties[i].domain; 
-            _enableHttpsConnection->domainSize = properties[i].domainSize; 
-        }
     }
 
 }
@@ -273,14 +231,6 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
                  _enableRemotePrivilegedUserAccess->propertyName, name))
     {
         return _enableRemotePrivilegedUserAccess;
-    }
-    else if (String::equalNoCase(_enableHttpConnection->propertyName, name))
-    {
-        return _enableHttpConnection;
-    }
-    else if (String::equalNoCase(_enableHttpsConnection->propertyName, name))
-    {
-        return _enableHttpsConnection;
     }
     else
     {
@@ -380,29 +330,6 @@ void SecurityPropertyOwner::updateCurrentValue(
     }
 
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    if (String::equalNoCase(configProperty->propertyName, "enableHttpConnection"))
-    {                                                                         
-        String httpsValue = getCurrentValue("enableHttpsConnection");          
-                                                                                
-        if ( String::equal(httpsValue, "true") && String::equal(value, "true") )
-        {                                                                    
-            throw NotSupportedPropertyValue(name, value,                      
-                "enableHttpsConnection", httpsValue);                          
-        }                                                                       
-    }                                                                            
-    else if (String::equalNoCase(configProperty->propertyName, "enableHttpsConnection"))
-    {                                                                        
-        String httpValue = getCurrentValue("enableHttpConnection");           
-                                                                               
-        if ( String::equal(httpValue, "true") && String::equal(value, "true") )
-        {                                         
-            throw NotSupportedPropertyValue(name, value,
-                "enableHttpConnection", httpValue);
-        }
-    }
-#endif
     configProperty->currentValue = value;
 }
 
@@ -415,30 +342,6 @@ void SecurityPropertyOwner::updatePlannedValue(
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    if (String::equalNoCase(configProperty->propertyName, "enableHttpConnection"))
-    {                                                                         
-        String httpsValue = getPlannedValue("enableHttpsConnection");          
-                                                                                
-        if ( String::equal(httpsValue, "true") && String::equal(value, "true") )
-        {                                                                    
-            throw NotSupportedPropertyValue(name, value,                      
-                "enableHttpsConnection", httpsValue);                          
-        }                                                                       
-    }                                                                            
-    else if (String::equalNoCase(configProperty->propertyName, "enableHttpsConnection"))
-    {                                                                          
-        String httpValue = getPlannedValue("enableHttpConnection");             
-                                                                                 
-        if ( String::equal(httpValue, "true") && String::equal(value, "true") )
-        {                                                                       
-            throw NotSupportedPropertyValue(name, value,                         
-                "enableHttpConnection", httpValue);                               
-        } 
-    }
-#endif
-
     configProperty->plannedValue = value;
 }
 
@@ -594,20 +497,6 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
         return true;
     }
     else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        if(String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
-    else if (String::equalNoCase(_enableHttpConnection->propertyName, name))
-    {                                                                   
-        if(String::equal(value, "true") || String::equal(value, "false"))
-        {                                                                 
-            retVal = true;                                                 
-        }                                                                   
-    }                                                                        
-    else if (String::equalNoCase(_enableHttpsConnection->propertyName, name)) 
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {

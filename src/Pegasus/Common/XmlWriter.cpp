@@ -31,8 +31,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//				Willis White (whiwill@us.ibm.com) PEP 127 and 128
+//              Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
+//              Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2875,7 +2875,7 @@ void XmlWriter::appendEMethodRequestHeader(
 
     if (httpMethod == HTTP_METHOD_M_POST)
     {
-        out << "Man: http://www.hp.com; ns=";
+        out << "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=";
         out << nn <<"\r\n";
         out << nn << "-CIMExport: MethodRequest\r\n";
         out << nn << "-CIMExportMethod: " << cimMethod << "\r\n";

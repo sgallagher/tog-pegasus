@@ -118,7 +118,7 @@ CMPIInstance   *makeInstance(CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"CreationClassName",classname,CMPI_chars);
       CMSetProperty(in,"Name",cwsf->cws_name,CMPI_chars); 
       CMSetProperty(in,"FileSize",(CMPIValue*)&cwsf->cws_size,CMPI_uint64);
-      val.uint64 = cwsf->cws_ctime;
+      /* val.uint64 = cwsf->cws_ctime;
       val.dateTime = CMNewDateTimeFromBinary(broker,val.uint64*1000000,0,NULL);
       CMSetProperty(in,"CreationDate",&val,CMPI_dateTime);
       val.uint64 = cwsf->cws_mtime;
@@ -126,7 +126,7 @@ CMPIInstance   *makeInstance(CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"LastModified",&val,CMPI_dateTime);
       val.uint64 = cwsf->cws_atime;
       val.dateTime = CMNewDateTimeFromBinary(broker,val.uint64*1000000,0,NULL);
-      CMSetProperty(in,"LastAccessed",&val,CMPI_dateTime);
+      CMSetProperty(in,"LastAccessed",&val,CMPI_dateTime); */
       val.uint64=0L;
       val.boolean=(cwsf->cws_mode & 0400) != 0;
       CMSetProperty(in,"Readable",&val,CMPI_boolean);

@@ -660,13 +660,13 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
 	// ATTN: SPECIAL CASE
 	{
-		// CreateInstance requests for classes of type CIM_ObjectManager and CIM_Provider
+		// CreateInstance requests for classes of type CIM_Provider and CIM_ProviderCapabilities
 		// go to the ConfigurationManager.
 		// ATTN: should check class inheritance, not just the name
 		String className = request->newInstance.getClassName();
 	
-		if(String::equalNoCase(className, "CIM_ObjectManager") ||
-           String::equalNoCase(className, "CIM_Provider"))
+		if(String::equalNoCase(className, "CIM_Provider") ||
+           String::equalNoCase(className, "CIM_ProviderCapabilities"))
 		{
 			// ATTN: function under construction
 			
@@ -825,13 +825,13 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
 	// ATTN: SPECIAL CASE
 	{
-		// ModifyInstance requests for classes of type CIM_ObjectManager and CIM_Provider
+		// ModifyInstance requests for classes of type CIM_Provider and CIM_ProviderCapabilities
 		// go to the ConfigurationManager.
 		// ATTN: should check class inheritance, not just the name
 		String className = request->modifiedInstance.getInstance().getClassName();
 	
-		if(String::equalNoCase(className, "CIM_ObjectManager") ||
-           String::equalNoCase(className, "CIM_Provider"))
+		if(String::equalNoCase(className, "CIM_Provider") ||
+           String::equalNoCase(className, "CIM_ProviderCapabilities"))
 		{
 			// ATTN: function under construction
 			

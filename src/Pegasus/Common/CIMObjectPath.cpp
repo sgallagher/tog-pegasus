@@ -839,7 +839,7 @@ void CIMObjectPath::set(const String& objectName)
 
     // Convert to a C String first:
 
-    CString pCString = objectName.getCStringUTF8();
+    CString pCString = objectName.getCString();
     char* p = const_cast<char*>((const char*) pCString);
     Boolean gotHost;
     Boolean gotNamespace;

@@ -427,9 +427,9 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	    // or to delete the ostream object.  It's OK for now because
 	    // the program terminates when we're done with the stream.
 #if defined(PEGASUS_OS_OS400)
-	    ofstream *tracefile = new ofstream(s.getCStringUTF8(),PEGASUS_STD(_CCSID_T(1208)));
+	    ofstream *tracefile = new ofstream(s.getCString(),PEGASUS_STD(_CCSID_T(1208)));
 #else
-	    ofstream *tracefile = new ofstream(s.getCStringUTF8());
+	    ofstream *tracefile = new ofstream(s.getCString());
 #endif
 	    if (tracefile && *tracefile)
 	      cmdlinedata.set_traceos(*tracefile);

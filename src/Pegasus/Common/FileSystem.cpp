@@ -406,7 +406,7 @@ Boolean FileSystem::changeFilePermissions(const String& path, mode_t mode)
     //       EBCDIC coversion in SystemUnix.cpp
     CString tempPath = path.getCString();
 #else
-    CString tempPath = path.getCStringUTF8();
+    CString tempPath = path.getCString();
 #endif
 
     return System::changeFilePermissions(tempPath, mode);

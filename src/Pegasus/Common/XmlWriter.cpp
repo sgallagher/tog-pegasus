@@ -573,7 +573,7 @@ void XmlWriter::appendLocalNameSpacePathElement(
 {
     out << "<LOCALNAMESPACEPATH>\n";
 
-    char* nameSpaceCopy = strdup(nameSpace.getString().getCStringUTF8());
+    char* nameSpaceCopy = strdup(nameSpace.getString().getCString());
 #if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || \
     defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_OS_LINUX)

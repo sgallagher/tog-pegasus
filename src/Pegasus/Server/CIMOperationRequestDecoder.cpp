@@ -1009,7 +1009,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                                  //cimMethodName + "\".");
                MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_DOES_NOT_MATCH_REQUEST_METHOD",
    								 "CIMMethod value \"$0\" does not match CIM request method \"$1\".",
-   								 ( const char *)cimMethodInHeader.getCStringUTF8(),
+   								 ( const char *)cimMethodInHeader.getCString(),
    								 cimMethodName);
    				sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
    						MessageLoader::getMessage(parms));

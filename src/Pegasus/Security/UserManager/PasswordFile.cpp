@@ -192,9 +192,9 @@ void PasswordFile::load (PasswordTable& passwordTable)
     // Open the password file
     //
 #if defined(PEGASUS_OS_OS400)
-    ifstream ifs(_passwordFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
+    ifstream ifs(_passwordFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-    ifstream ifs(_passwordFile.getCStringUTF8());
+    ifstream ifs(_passwordFile.getCString());
 #endif
     if (!ifs)
     {
@@ -363,9 +363,9 @@ void PasswordFile::save (PasswordTable& passwordTable)
     // Open the password file for writing
     //
 #if defined(PEGASUS_OS_OS400)
-    ofstream ofs(_passwordFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
+    ofstream ofs(_passwordFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-    ofstream ofs(_passwordFile.getCStringUTF8());
+    ofstream ofs(_passwordFile.getCString());
 #endif
     if (!ofs)
     {

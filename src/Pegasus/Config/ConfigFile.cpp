@@ -142,9 +142,9 @@ void ConfigFile::load (ConfigTable* confTable)
     // Open the config file
     //
 #if defined(PEGASUS_OS_OS400)
-    ifstream ifs(_configFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
+    ifstream ifs(_configFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-    ifstream ifs(_configFile.getCStringUTF8());
+    ifstream ifs(_configFile.getCString());
 #endif
     if (!ifs)
     {
@@ -282,9 +282,9 @@ void ConfigFile::save (ConfigTable* confTable)
     // Open the config file for writing
     //
 #if defined(PEGASUS_OS_OS400)
-    ofstream ofs(_configFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
+    ofstream ofs(_configFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-    ofstream ofs(_configFile.getCStringUTF8());
+    ofstream ofs(_configFile.getCString());
 #endif
     ofs.clear();
 
@@ -333,9 +333,9 @@ void ConfigFile::replace (const String& fileName)
     // Open the given config file for reading
     //
 #if defined(PEGASUS_OS_OS400)
-    ifstream ifs(fileName.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
+    ifstream ifs(fileName.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-    ifstream ifs(fileName.getCStringUTF8());
+    ifstream ifs(fileName.getCString());
 #endif
 
     //
@@ -362,9 +362,9 @@ void ConfigFile::replace (const String& fileName)
     // Open the existing config file for writing
     //
 #if defined(PEGASUS_OS_OS400)
-    ofstream ofs(_configFile.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)));
+    ofstream ofs(_configFile.getCString(), PEGASUS_STD(_CCSID_T(1208)));
 #else
-    ofstream ofs(_configFile.getCStringUTF8());
+    ofstream ofs(_configFile.getCString());
 #endif
     ofs.clear();
 

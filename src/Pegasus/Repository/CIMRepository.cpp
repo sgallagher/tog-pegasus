@@ -400,7 +400,7 @@ void _SaveObject(const String& path, Array<Sint8>& objectXml)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
 
-    PEGASUS_STD(ofstream) os(path.getCStringUTF8() PEGASUS_IOS_BINARY);
+    PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
 
     if (!os)
     {

@@ -363,9 +363,9 @@ String ClientAuthenticator::_getFileContent(String filePath)
     // Open the challenge file and read the challenge data
     //
 #if defined(PEGASUS_OS_OS400)
-    ifstream ifs(filePath.getCStringUTF8(), PEGASUS_STD(_CCSID_T(1208)) );
+    ifstream ifs(filePath.getCString(), PEGASUS_STD(_CCSID_T(1208)) );
 #else
-    ifstream ifs(filePath.getCStringUTF8());
+    ifstream ifs(filePath.getCString());
 #endif
     if (!ifs)
     {

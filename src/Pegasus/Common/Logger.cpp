@@ -245,7 +245,7 @@ void Logger::_putInternal(
 	    System::openlog(systemId);
 
             // Log the message
-	    System::syslog(logLevel,(const char*)localizedMsg.getCStringUTF8());	    
+	    System::syslog(logLevel,(const char*)localizedMsg.getCString());	    
 	    
 
             // Close the syslog.
@@ -265,7 +265,7 @@ void Logger::_putInternal(
 	    if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
 	    if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
                 _rep->logOf(logFileType) << System::getCurrentASCIITime()
-               << " " << tmp << (const char *)messageString.getCStringUTF8() << endl;
+               << " " << tmp << (const char *)messageString.getCString() << endl;
 
        #endif
     }

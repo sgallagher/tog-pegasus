@@ -547,9 +547,9 @@ Boolean InstanceIndexFile::_openFile(
 	    // File does not exist so create it:
 	    //
 #if defined(PEGASUS_OS_OS400)
-	    fs.open(path.getCStringUTF8(), ios::out PEGASUS_OR_IOS_BINARY, PEGASUS_STD(_CCSID_T(1208)));
+	    fs.open(path.getCString(), ios::out PEGASUS_OR_IOS_BINARY, PEGASUS_STD(_CCSID_T(1208)));
 #else
-            fs.open(path.getCStringUTF8(), ios::out PEGASUS_OR_IOS_BINARY);
+            fs.open(path.getCString(), ios::out PEGASUS_OR_IOS_BINARY);
 #endif
 
             if (!fs)

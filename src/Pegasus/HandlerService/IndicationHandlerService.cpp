@@ -198,7 +198,7 @@ void IndicationHandlerService::_handleIndicationCallBack(AsyncOpNode *op,
 
 String IndicationHandlerService::_parseDestination(String dest)
 {
-    CString pCString = dest.getCStringUTF8();
+    CString pCString = dest.getCString();
     char* p = const_cast<char*>((const char*) pCString);
 
     static char schemeType[] = "HTTP:";

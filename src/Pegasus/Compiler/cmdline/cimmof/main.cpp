@@ -265,7 +265,7 @@ main(int argc, char ** argv) {
       cmd_msg_t    cmdMSG;
       memset((char *)&cmdMSG, ' ', sizeof(cmd_msg_t) ); // init to blanks
       memcpy(cmdMSG.commandName, "QYCMMOFL", 7);  // must be in utf-8
-      CString utf8 = msg_.getCStringUTF8();
+      CString utf8 = msg_.getCString();
       if (strlen((const char *)utf8) <= 200)            // max repl data is 200 chars  
 	  memcpy(cmdMSG.message, utf8, strlen((const char *)utf8));
       else

@@ -251,6 +251,23 @@ void test02()
     CIMObjectPath testr4 = CIMObjectPath 
         ("//atp:77/root/cimv25:test.last=\"Rafter,Smith.Jones long_name:any*char=any123%#@!<>?+^\",first=\"Patrick\"");
 
+    // test cases with colon inside keybinding string value
+
+    CIMObjectPath testc1 = CIMObjectPath 
+        ("MyClass.z=true,y=1234,x=\"Hello:World\"");
+
+    Boolean colonException = false;
+    try
+    {
+        CIMObjectPath testc2 = CIMObjectPath 
+            ("MyNamespace.ns:MyClass.z=true,y=1234,x=\"Hello:World\"");
+    }
+    catch (Exception&)
+    {
+        colonException = true;
+    }
+    PEGASUS_ASSERT(colonException);
+
     // test error cases
 
     Boolean errorDetected = false;

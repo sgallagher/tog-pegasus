@@ -549,6 +549,17 @@ Boolean _parseNamespaceElement(
         return false;
     }
 
+    // A ':' as part of a keybinding value should not be interpreted as 
+    // a namespace delimiter.  Since keybinding pairs follow the first '.'
+    // in the object path string, the ':' delimiter only counts if it
+    // appears before the '.'.
+
+    char* dot = strchr(p, '.');
+    if (dot && (dot < colon))
+    {
+        return false;
+    }
+
     //----------------------------------------------------------------------
     // Validate the namespace path.  Namespaces must match the following
     // regular expression: "[A-Za-z_]+(/[A-Za-z_]+)*"

@@ -39,8 +39,6 @@
     {"httpsPort",           "5989"},
     {"home",                ""},
     {"daemon",              "true"},
-    {"install",             "false"},
-    {"remove",              "false"},
     {"slp",                 "false"},
     {"SSL",                 "false"},
     {"enableAuthentication", "true"},

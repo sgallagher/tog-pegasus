@@ -128,10 +128,6 @@ static struct OwnerEntry _properties[] =
     {"httpsPort",           (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"home",                (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"daemon",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"install",             (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"remove",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"start",             (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"stop",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"SSL",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"tempLocalAuthDir",    (ConfigPropertyOwner* )ConfigManager::defaultOwner},
@@ -598,43 +594,11 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
     {
         const char* arg = argv[i];
 
-        // Check for -option
-        if (*arg == '-')
+        // Get the config option
+        //const char* configOption = argv[i];
+        if (!_initPropertyWithCommandLineOption(arg))
         {
-            // Get the option
-            const char* option = arg + 1;
-
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-            if (!strcmp(option,"install"))
-            {
-                _initPropertyWithCommandLineOption("install=true");
-            }
-            else if (!strcmp(option,"remove"))
-            {
-                _initPropertyWithCommandLineOption("remove=true");
-            }
-            else if (!strcmp(option,"start"))
-            {
-                _initPropertyWithCommandLineOption("start=true");
-            }
-            else if (!strcmp(option,"stop"))
-            {
-                _initPropertyWithCommandLineOption("stop=true");
-            }
-            else
-#endif
-            {
-                throw UnrecognizedCommandLineOption();
-            }
-        }
-        else 
-        {
-            // Get the config option
-            //const char* configOption = argv[i];
-            if (!_initPropertyWithCommandLineOption(arg))
-            {
-                throw UnrecognizedConfigProperty(arg); 
-            }
+            throw UnrecognizedConfigProperty(arg); 
         }
 
         // Remove the option from the command line

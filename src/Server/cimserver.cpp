@@ -142,6 +142,14 @@ static const char OPTION_HOME        = 'D';
 
 static const char OPTION_SHUTDOWN    = 's';
 
+static const char OPTION_INSTALL[]   = "install";
+
+static const char OPTION_REMOVE[]   = "remove";
+
+static const char OPTION_START[]   = "start";
+
+static const char OPTION_STOP[]   = "stop";
+
 #if defined(PEGASUS_OS_HPUX)
 static const char OPTION_BINDVERBOSE = 'X';
 #endif
@@ -426,7 +434,8 @@ int main(int argc, char** argv)
                 //
                 // Check to see if user asked for the version (-v option):
                 //
-                if (*option == OPTION_VERSION)
+                if (*option == OPTION_VERSION &&
+                    strlen(option) == 1)
                 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
                     cout << PLATFORM_PRODUCT_VERSION << endl;
@@ -438,13 +447,15 @@ int main(int argc, char** argv)
                 //
                 // Check to see if user asked for help (-h option):
                 //
-                else if (*option == OPTION_HELP)
+                else if (*option == OPTION_HELP &&
+                        (strlen(option) == 1))
                 {
                     PrintHelp(argv[0]);
                     exit(0);
                 }
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-                else if (*option == OPTION_HOME)
+                else if (*option == OPTION_HOME &&
+                        (strlen(option) == 1))
                 {
                     if (i + 1 < argc)
                     {
@@ -464,7 +475,8 @@ int main(int argc, char** argv)
                 //
                 // Check to see if user asked for the version (-X option):
                 //
-                if (*option == OPTION_BINDVERBOSE)
+                if (*option == OPTION_BINDVERBOSE &&
+                        (strlen(option) == 1))
                 {
 		    System::bindVerbose = true;
                     cout << "Unsupported debug option, BIND_VERBOSE, enabled." 
@@ -507,6 +519,67 @@ int main(int argc, char** argv)
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
                     argc--;   
                 }
+                else if (strcmp(option, OPTION_INSTALL) == 0)
+                {
+                  //
+                  // Install as a NT service
+                  //
+                  if(cimserver_install_nt_service())
+                  {
+                      cout << "\nPegasus installed as NT Service";
+                      exit(0);
+                  }
+                  else
+                  {
+                      exit(0);
+                  }
+                }
+                else if (strcmp(option, OPTION_REMOVE) == 0)
+                {
+                  //
+                  // Remove Pegasus as an NT service
+                  //
+                  if(cimserver_remove_nt_service())
+                  {
+                      cout << "\nPegasus removed as NT Service";
+                      exit(0);
+                  }
+                  else
+                  {
+                      exit(0);
+                  }
+
+                }
+                else if (strcmp(option, OPTION_START) == 0)
+                {
+                  //
+                  // Start as a NT service
+                  //
+                  if(cimserver_start_nt_service())
+                  {
+                      cout << "\nPegasus started as NT Service";
+                      exit(0);
+                  }
+                  else
+                  {
+                      exit(0);
+                  }
+                }
+                else if (strcmp(option, OPTION_STOP) == 0)
+                {
+                  //
+                  // Stop as a NT service
+                  //
+                  if(cimserver_stop_nt_service())
+                  {
+                      cout << "\nPegasus stopped as NT Service";
+                      exit(0);
+                  }
+                  else
+                  {
+                      exit(0);
+                  }
+                }
                 else
                     i++;
             }
@@ -542,72 +615,6 @@ int main(int argc, char** argv)
 
     try
     {
-        //
-        // Check to see if we should (can) install as a NT service
-        //
-        if (String::equal(configManager->getCurrentValue("install"), "true"))
-        {
-            if(cimserver_install_nt_service())
-            {
-                cout << "\nPegasus installed as NT Service";
-                exit(0);
-            }
-            else
-            {
-                exit(0);
-            }
-        }
-
-        //
-        // Check to see if we should (can) remove Pegasus as an NT service
-        //
-
-        if (String::equal(configManager->getCurrentValue("remove"), "true"))
-        {
-            if(cimserver_remove_nt_service())
-            {
-                cout << "\nPegasus removed as NT Service";
-                exit(0);
-            }
-            else
-            {
-                exit(0);
-            }
-
-        }
-
-        //
-        // Check to see if we should (can) start as a NT service
-        //
-        if (String::equal(configManager->getCurrentValue("start"), "true"))
-        {
-            if(cimserver_start_nt_service())
-            {
-                cout << "\nPegasus started as NT Service";
-                exit(0);
-            }
-            else
-            {
-                exit(0);
-            }
-        }
-
-        //
-        // Check to see if we should (can) stop as a NT service
-        //
-        if (String::equal(configManager->getCurrentValue("stop"), "true"))
-        {
-            if(cimserver_stop_nt_service())
-            {
-                cout << "\nPegasus stopped as NT Service";
-                exit(0);
-            }
-            else
-            {
-                exit(0);
-            }
-        }
-
         //
         // Check to see if we should Pegasus as a daemon
         //

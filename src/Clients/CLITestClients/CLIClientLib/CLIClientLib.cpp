@@ -199,15 +199,15 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
     }
     // Added to allow "" string input to represent NULL CIMName.
     CIMName myClassName = CIMName();
-    if (opts.className != "")
+    /****if (opts.className != "")
     {
         myClassName = opts.className;
-    }
+    }*/
     
     Array<CIMName> classNames; 
     
     classNames = client.enumerateClassNames(opts.nameSpace,
-                                        myClassName,
+                                        opts.className,
                                         opts.deepInheritance);
     
     for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
@@ -284,12 +284,27 @@ int enumerateInstances(CIMClient& client, Options& opts)
 
 int deleteInstance(CIMClient& client, Options& opts)
 {
-    client.deleteInstance(opts.nameSpace, opts.className);
+    if (opts.verboseTest)
+    {
+        cout << "deleteInstance "
+            << "Namespace = " << opts.nameSpace
+            << ", Object = " << opts.objectName
+            << endl;
+    }
+    client.deleteInstance(opts.nameSpace, opts.objectName);
     return 0;  
 }
 
 int getInstance(CIMClient& client, Options& opts)
 {
+    if (opts.verboseTest)
+    {
+        cout << "getInstance "
+            << "Namespace = " << opts.nameSpace
+            << ", ObjectPath = " << opts.cimObjectPath
+            << endl;
+    }
+    
     CIMInstance cimInstance = client.getInstance(opts.nameSpace,
                                                  opts.cimObjectPath);
 
@@ -316,16 +331,16 @@ int enumerateClassNames(CIMClient& client, Options& opts)
             << endl;
     }
     // Added to allow "" string input to represent NULL CIMName.
-    CIMName myClassName = CIMName();
+    /*******************CIMName myClassName = CIMName();
     if (opts.className != "")
     {
         myClassName = opts.className;
-    }
+    }*********************/
     
     Array<CIMName> classNames; 
     
     classNames = client.enumerateClassNames(opts.nameSpace,
-                                        myClassName,
+                                        opts.className,
                                         opts.deepInheritance);
     
     if (opts.summary)
@@ -355,16 +370,17 @@ int enumerateClasses(CIMClient& client, Options& opts)
             << endl;
     }
     // Added to allow "" string input to represent NULL CIMName.
+    /*
     CIMName myClassName = CIMName();
     if (opts.className != "")
     {
         myClassName = opts.className;
     }
-    
+    */
     Array<CIMClass> classes; 
     
     classes = client.enumerateClasses(opts.nameSpace,
-                                        myClassName,
+                                        opts.className,
                                         opts.deepInheritance,
                                         opts.localOnly,
                                         opts.includeQualifiers,
@@ -601,7 +617,7 @@ int referenceNames(CIMClient& client, Options& opts)
     }
     Array<CIMObjectPath> referenceNames = 
     
-    client.referenceNames( opts.nameSpace, opts.objectName);
+    client.referenceNames( opts.nameSpace, opts.objectName, opts.resultClass, opts.role);
     
     /*
 	const CIMNamespaceName& nameSpace,
@@ -828,8 +844,103 @@ int associators(CIMClient& client, Options& opts)
 
          return 0;
      }
-
+     return 0;
  }
+ 
+
+ /* Enumerate the Namespaces.  This function is based on using the __Namespace class
+    and either returns all namespaces or simply the ones starting at the namespace input
+    as the namespace variable.
+    It assumes that the input classname is __Namespace.
+ */
+int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
+{
+    if (opts.verboseTest)
+    {
+        cout << "EnumerateNamespaces "
+            << "Namespace = " << opts.nameSpace
+            << ", Class = " << opts.className
+            << endl;
+    }
+    Array<CIMNamespaceName> namespaceNames;
+    
+    // Build the namespaces incrementally starting at the root
+    // ATTN: 20030319 KS today we start with the "root" directory but this is wrong. We should be
+    // starting with null (no directoyr) but today we get an xml error return in Pegasus
+    // returned for this call. Note that the specification requires that the root namespace be used
+    // when __namespace is defined but does not require that it be the root for allnamespaces. That
+    // is a hole is the spec, not in our code.
+    namespaceNames.append(opts.nameSpace);
+    Uint32 start = 0;
+    Uint32 end = namespaceNames.size();
+    do
+    {
+        // for all new elements in the output array
+        for (Uint32 range = start; range < end; range ++)
+        {
+            // Get the next increment in naming for all a name element in the array
+            Array<CIMInstance> instances = client.enumerateInstances(namespaceNames[range],opts.className);
+            for (Uint32 i = 0 ; i < instances.size(); i++)
+            {
+                Uint32 pos;
+                // if we find the property and it is a string, use it.
+                if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
+                {
+                    CIMValue value;
+                    String namespaceComponent;
+                    value = instances[i].getProperty(pos).getValue();
+                    if (value.getType() == CIMTYPE_STRING)
+                    {
+                        value.get(namespaceComponent);
+                        String ns = namespaceNames[range];
+                        ns.append("/");
+                        ns.append(namespaceComponent);
+                        namespaceNames.append(ns);
+                    }
+                }
+            }
+            start = end;
+            end = namespaceNames.size();
+        }
+    }
+    while (start != end);
+    // Validate that all of the returned entities are really namespaces. It is legal for us to
+    // have an name component that is really not a namespace (ex. root/fred/john is a namespace
+    // but root/fred is not.
+    // There is no clearly defined test for this so we will simply try to get something, in this
+    // case a wellknown assoication
+    Array<CIMNamespaceName> returnNamespaces;
+
+    for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+    {
+        try
+        {
+            CIMQualifierDecl cimQualifierDecl;
+            cimQualifierDecl = client.getQualifier(namespaceNames[i],
+                                           "Association");
+
+            returnNamespaces.append(namespaceNames[i]);
+        }
+        catch(CIMException& e)
+        {
+            if (e.getCode() != CIM_ERR_INVALID_NAMESPACE)
+                returnNamespaces.append(namespaceNames[i]);
+        }
+    }
+
+    if (opts.summary)
+    {
+        cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
+    }
+    else
+    {
+        for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ ) 
+        {
+            cout << returnNamespaces[cnt] << endl;;
+        }
+    }
+    return 0;
+}
 
 
 void GetOptions(
@@ -853,11 +964,12 @@ void GetOptions(
         {"Password", "unknown", false, Option::STRING, 0, 0, "p",
                                         "Defines password for authentication" },
         
+        /*  These are really of no value
         {"className", "", false, Option::STRING, 0, 0, "c",
                                         "ClassName to use" },
 
         {"cimObjectPath", "", false, Option::STRING, 0, 0, "-p",
-                                        "CIMObjectPath to use" },
+                                        "CIMObjectPath to use" },*/
         
         {"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
                                         "specifies system and port" },
@@ -885,10 +997,12 @@ void GetOptions(
         {"propertyList", "unknown", false, Option::STRING, 0, 0, "pl",
                                         "This parameter defines a propertyNameList "},
         
-        {"resultClass", "unknown", false, Option::STRING, 0, 0, "rc",
+        {"assocClass", "", false, Option::STRING, 0, 0, "sc",
+                            "This parameter defines a assocClass string for Associator calls"},
+        {"resultClass", "", false, Option::STRING, 0, 0, "rc",
                             "This parameter defines a resultClass string for References, etc. "},
         
-        {"role", "unknown", false, Option::STRING, 0, 0, "role",
+        {"role", "", false, Option::STRING, 0, 0, "role",
                                         "This parameter defines a role string for References, etc. "},
         
         {"version", "false", false, Option::BOOLEAN, 0, 0, "-v",
@@ -992,9 +1106,13 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             cout << "Namespace = " << opts.nameSpace << endl;
     }
 
-    if(om.lookupValue("className", opts.className))
+    if(om.lookupValue("className", opts.classNameString))
     {
-       if (verboseTest)
+        if (opts.classNameString != "")
+        {
+            opts.className = opts.classNameString;
+        }
+        if (verboseTest)
            cout << "Class Name = " << opts.className << endl;
     }
 
@@ -1006,26 +1124,19 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     String temprole;
     if(om.lookupValue("role", temprole))
     {
+        // we need to deliver String::EMPTY when no param.
+        if (temprole != "")
+            opts.role = temprole;
         if (verboseTest)
-           cout << "role = " << temprole << endl;
+           cout << "role = " << opts.role << endl;
     }
-    if (temprole != "unknown")
-    {
-        opts.role = temprole;
-        ////cout << "KSTEST role after setting " << opts.role << endl;
-    }
-    else
-        opts.role = String::EMPTY;
 
-    /////cout << "KSTEST role output " << opts.role;
-
-    opts.role = String::EMPTY;
     if(om.lookupValue("resultClass", opts.resultClassName))
     {
-       if (verboseTest)
-           cout << "resultClassName = " << opts.resultClassName << endl;
-       if (opts.resultClassName != "unknown")
+       
+       if (opts.resultClassName != "")
        {
+           //Covers fact that assigning to CIMName can cause exception.
            try
            {
                opts.resultClass = opts.resultClassName;
@@ -1036,24 +1147,47 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                exit(1);
            }
        }
+       if (verboseTest)
+           cout << "resultClassName = " << opts.resultClassName << endl;
     }
+
+    if(om.lookupValue("assocClass", opts.assocClassName))
+    {
+       if (verboseTest)
+           cout << "assocClassName = " << opts.assocClassName << endl;
+       if (opts.assocClassName != "")
+       {
+           try
+           {
+               opts.assocClass = opts.assocClassName;
+           }
+           catch(Exception& e)
+           {
+               cout << "Error in assoc Class. Exception " << e.getMessage() << endl;
+               exit(1);
+           }
+       }
+    }
+
     
     opts.deepInheritance = om.isTrue("deepInheritance");
     if (om.isTrue("deepInheritance")  & verboseTest)
         cout << "deepInteritance set" << endl;
     
     opts.localOnly = om.isTrue("localOnly");
+    if (om.isTrue("localOnly")  & verboseTest)
+        cout << "localOnly set" << endl;
     
     opts.includeQualifiers = om.isTrue("includeQualifiers");
+    if (om.isTrue("includeQualifiers")  & verboseTest)
+        cout << "includeQualifiers set" << endl;
     
     opts.includeClassOrigin = om.isTrue("includeClassOrigin");
+    if (om.isTrue("includeClassOrigin")  & verboseTest)
+        cout << "includeClassOrigin set" << endl;
 
     opts.summary = om.isTrue("summary");
     /*
-    Boolean activeTest = false;
-    if (om->valueEquals("active", "true"))
-                 activeTest = true;
-    */
     // Now develop the target instname from the arglist
     // For this one, at least one arguement is required
     // Not sure if this is true.
@@ -1066,33 +1200,25 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         exit(0);
     }
 
-    if(om.lookupValue("location", opts.location))
-    {
-        if (verboseTest)
-            cout << "Location = " << opts.location << endl;
-    }
-    
+    /*  ATTN: Drop this one.  It was overkill. KS 20030311
     Boolean authenticate = (om.isTrue("authenticate"));
     {
         if (verboseTest)
             cout << "authenticate = " << (authenticate? "true": "false") << endl;
     }
-                         
+    */                     
     // Don't get user and password if not authenticating.
-    if (authenticate)
-    {
-         if(om.lookupValue("User", opts.user))
-         {
-             if (verboseTest)
-                 cout << "User = " << opts.user << endl;
-         }
-         
-         if(om.lookupValue("Password", opts.password))
-         {
-             if (verboseTest)
-                 cout << "Password = " << opts.password << endl;
-         }
-    }
+     if(om.lookupValue("User", opts.user))
+     {
+         if (verboseTest)
+             cout << "User = " << opts.user << endl;
+     }
+     
+     if(om.lookupValue("Password", opts.password))
+     {
+         if (verboseTest)
+             cout << "Password = " << opts.password << endl;
+     }
     
     // Create a variable with the format output and a correponding type.
     // Suggest we might change this whole thing to the option type that

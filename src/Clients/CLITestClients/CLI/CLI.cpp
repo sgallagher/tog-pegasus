@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Clients/CLITestClients/CLIClientLib/CLIClientLib.h>
 #include <Pegasus/Common/Constants.h>
@@ -90,7 +91,7 @@ int main(int argc, char** argv)
     opts.location =   "localhost:5988";
     opts.nameSpace = "root/cimv2";
     opts.cimCmd = "unknown";
-    opts.className = "unknown";
+    opts.className = CIMName();
     opts.objectName = "unknown";
     opts.outputFormat;
     opts.outputFormatType = OUTPUT_MOF;
@@ -103,6 +104,8 @@ int main(int argc, char** argv)
     opts.deepInheritance = false;
     opts.includeQualifiers = false;
     opts.includeClassOrigin = false;
+    opts.assocClassName = String::EMPTY;
+    opts.assocClass = CIMName();
     opts.resultClassName = String::EMPTY;
     opts.resultClass = CIMName();
     opts.role = String::EMPTY;
@@ -209,6 +212,7 @@ int main(int argc, char** argv)
                     {
                         opts.className = argv[2];
                     }
+                    // else usage error
                     getInstance(client, opts);
                 }
                 break;
@@ -216,11 +220,15 @@ int main(int argc, char** argv)
             case ID_EnumerateClassNames :
                 {
                     if (argc > 2)
-                        opts.className = argv[2];
+                        opts.classNameString = argv[2];
                     
                     if (argc == 2)
-                        opts.className = "";
-                    
+                        opts.classNameString = "";
+                    if (opts.classNameString != "")
+                    {
+                        //CDEBUG("classname not empty" << opts.classNameString);
+                        opts.className = opts.classNameString;
+                    }
                     enumerateClassNames(client, opts);
                 }
                 
@@ -233,6 +241,11 @@ int main(int argc, char** argv)
                     
                     if (argc == 2)
                         opts.className = "";
+                    if (opts.classNameString != "")
+                    {
+                        //CDEBUG("classname not empty" << opts.classNameString);
+                        opts.className = opts.classNameString;
+                    }
                     
                     enumerateClasses(client, opts);
                 }
@@ -255,7 +268,7 @@ int main(int argc, char** argv)
                 {
                     if (argc > 2)
                     {
-                        opts.className = argv[2];
+                        opts.objectName = argv[2];
                     }
                     deleteInstance(client, opts);
                 }
@@ -372,15 +385,17 @@ int main(int argc, char** argv)
                 break;
         case ID_EnumerateNamespaces :
                 {
+                    // Note that the following constants are fixed here.  We
+                    // should be getting them from the environment to assure that
+                    // others know that we are using them.
                     opts.className = "__namespace";
                     if (argc > 2)
                     {
                         opts.nameSpace = argv[2];
                     }
                     else
-                        opts.nameSpace = "";
-                    cout << "KSTEST " << argc << " " << opts.nameSpace << endl;
-                    enumerateInstanceNames(client,opts);
+                        opts.nameSpace = "root";
+                    enumerateNamespaces_Namespace(client,opts);
                 }
                 break;
                 /*

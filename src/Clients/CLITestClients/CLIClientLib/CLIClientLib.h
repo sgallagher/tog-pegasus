@@ -38,6 +38,9 @@
 #include <Clients/CLITestClients/CLIClientLib/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
+#define CDEBUG(X) PEGASUS_STD(cout) << "CLI " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X)
+//#define DEBUG(X) Logger::put (Logger::DEBUG_LOG, "CIMOpReqDsptchr", Logger::INFORMATION, "$0", X)
 
 typedef int     CommandID;
 typedef int     OutputType;
@@ -149,7 +152,8 @@ struct  OPTION_STRUCT
 {
     String location;
     String nameSpace;
-    String className;
+    String classNameString;
+    CIMName className;
     String objectName;
     String cimCmd;
     String outputFormat;
@@ -233,6 +237,8 @@ int PEGASUS_CLI_LINKAGE associators(CIMClient& client, Options& opts);
 int PEGASUS_CLI_LINKAGE associatorNames(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE invokeMethod(CIMClient& client, Options& opts);
+
+int PEGASUS_CLI_LINKAGE enumerateNamespaces_Namespace(CIMClient& client, Options& opts);
 
 PEGASUS_NAMESPACE_END
 

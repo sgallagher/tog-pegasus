@@ -45,7 +45,7 @@ int main()
 {
     String testUser = String::EMPTY;
 
-    testUser.assign(System::getCurrentLoginName());
+    testUser.assign(System::getEffectiveUserName());
 
     LocalAuthFile localAuthFile(testUser);
 

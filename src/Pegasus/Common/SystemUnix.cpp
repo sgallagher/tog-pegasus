@@ -353,7 +353,7 @@ String System::getPassword(const char* prompt)
     return password;
 }
 
-String System::getCurrentLoginName()
+String System::getEffectiveUserName()
 {
     String userName = String::EMPTY;
     struct passwd*   pwd = NULL;
@@ -361,7 +361,7 @@ String System::getCurrentLoginName()
     //
     //  get the currently logged in user's UID.
     //
-    pwd = getpwuid(getuid());
+    pwd = getpwuid(geteuid());
     if ( pwd == NULL )
     {
         //ATTN: Log a message
@@ -398,41 +398,21 @@ Boolean System::isSystemUser(char* userName)
 Boolean System::isPrivilegedUser(const String userName)
 {
     //
-    // Check if username has been passed
+    // Check if the given user is a privileged user
     //
-    if ( userName != String::EMPTY )
-    {
-        //
-        // Check if the given user is a privileged user
-        //
-        struct passwd   pwd;
-        struct passwd   *result;
-        char            pwdBuffer[1024];
+    struct passwd   pwd;
+    struct passwd   *result;
+    char            pwdBuffer[1024];
 
-        ArrayDestroyer<char> userName_(userName.allocateCString());
-        if (getpwnam_r(userName_.getPointer(), &pwd, pwdBuffer, 1024, &result) == 0)
-        {
-            if ( pwd.pw_uid == 0 )
-            {
-                return true;
-            }
-            return false;
-        }
-    }
-    else
+    ArrayDestroyer<char> userName_(userName.allocateCString());
+    if (getpwnam_r(userName_.getPointer(), &pwd, pwdBuffer, 1024, &result) == 0)
     {
-        //
-        // Get the effective UID for the user
-        //
-        if ( geteuid() != 0 )
+        if ( pwd.pw_uid == 0 )
         {
-            return false;
+            return true;
         }
-        return true;
     }
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-    return false; // keep the compiler happy
-#endif
+    return false;
 }
 
 String System::getPrivilegedUserName()

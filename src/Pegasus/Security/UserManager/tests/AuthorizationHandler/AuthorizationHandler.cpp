@@ -64,7 +64,7 @@ int main()
 
     Boolean authorized;
 
-    testUser.assign(System::getCurrentLoginName());
+    testUser.assign(System::getEffectiveUserName());
 
     // Create a test repository
     String repositoryPath = "./repository";

@@ -254,7 +254,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
                 //
                 // Get the current login user name
                 //
-                challengeResponse.append(System::getCurrentLoginName());
+                challengeResponse.append(System::getEffectiveUserName());
             }
 
             challengeResponse.append(_buildLocalAuthResponse());

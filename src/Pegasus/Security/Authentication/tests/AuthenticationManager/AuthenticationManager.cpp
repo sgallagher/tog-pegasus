@@ -51,7 +51,7 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 
-String testUser = System::getCurrentLoginName();
+String testUser = System::getEffectiveUserName();
 
 String guestUser = "guest";
 

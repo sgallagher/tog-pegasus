@@ -50,7 +50,7 @@ PEGASUS_USING_STD;
 
 String authType = "Local";
 
-String testUser = System::getCurrentLoginName();
+String testUser = System::getEffectiveUserName();
 
 String challenge = String::EMPTY;
 

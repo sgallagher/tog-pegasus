@@ -224,7 +224,7 @@ String System::getPassword(const char* prompt)
     return password;
 }
 
-String System::getCurrentLoginName()
+String System::getEffectiveUserName()
 {
     //ATTN: Implement this method to get the current login user name
     //      This is used in local authentication.

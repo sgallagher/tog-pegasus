@@ -439,7 +439,7 @@ int main(int argc, char** argv)
                     //
                     // check to see if user is root
                     //
-                    if (!System::isPrivilegedUser())
+                    if (!System::isPrivilegedUser(System::getEffectiveUserName()))
                     {
                         cout << "You must have superuser privilege to run ";
                         cout << "cimserver." << endl;

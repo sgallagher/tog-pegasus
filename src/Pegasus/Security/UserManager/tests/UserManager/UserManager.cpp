@@ -127,7 +127,7 @@ int main()
     // Positive tests
     //
      
-    String goodUser = System::getCurrentLoginName();
+    String goodUser = System::getEffectiveUserName();
 
     exceptionFlag = false;
     try

@@ -53,7 +53,7 @@ PEGASUS_USING_STD;
 
 String authType = "Basic";
 
-String testUser = System::getCurrentLoginName();
+String testUser = System::getEffectiveUserName();
 
 String guestUser = "guest";
 

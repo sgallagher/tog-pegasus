@@ -1193,7 +1193,7 @@ int main (int argc, char* argv [])
     //
     // Check if root is issuing the command
     //
-    if ( !System::isPrivilegedUser() )
+    if ( !System::isPrivilegedUser(System::getEffectiveUserName()) )
     {
         cerr << NOT_PRIVILEGED_USER << endl;
         return 1;

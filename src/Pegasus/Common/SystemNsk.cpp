@@ -105,7 +105,7 @@ String System::getPassword(const char* prompt)
     return password;
 }
 
-String System::getCurrentLoginName() { return String(); }
+String System::getEffectiveUserName() { return String(); }
 
 String System::encryptPassword(const char* password, const char* salt)
 {

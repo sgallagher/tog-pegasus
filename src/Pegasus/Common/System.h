@@ -126,7 +126,7 @@ public:
         const char * serviceName,
         Uint32 defaultPort);
 
-    static String getCurrentLoginName();
+    static String getEffectiveUserName();
 
     /**
     This function is used to input a password with echo disabled.
@@ -161,16 +161,12 @@ public:
     static Boolean isSystemUser(char* userName);
 
     /**
-    When the user name is not passed as an argument, this function 
-    checks whether the user running the command is a privileged user.
-    If a user name is given this function checks whether
-    the given user is a privileged user.
+    Checks whether the given user is a privileged user.
 
     @param userName     User name to be checked.
-
     @return             true if the user is a privileged user, else false
     */
-    static Boolean isPrivilegedUser(const String userName = String::EMPTY);
+    static Boolean isPrivilegedUser(const String userName);
 
     /**
     This function returns the privileged user name on the system.

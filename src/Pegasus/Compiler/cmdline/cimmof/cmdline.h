@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By:  Gerarda Marquez (gmarquez@us.ibm.com)
+//               -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,8 @@ enum opttypes {FILESPEC,
 	       SUPPRESSFLAG,
 	       NAMESPACE,
 	       REPOSITORYNAME, 
+	       UPDATEFLAG,
+	       ALLOWFLAG,
 #ifndef PEGASUS_OS_HPUX
 	       SYNTAXFLAG,
 	       FILELIST,

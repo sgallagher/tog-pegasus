@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +60,7 @@ PEGASUS_USING_PEGASUS;
 
 
 // COMPILER VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
-#define COMPILER_VERSION "1.1.00" /* as of March 10, 2002 */
+#define COMPILER_VERSION "1.2.00" /* as of April 28, 2003 */
 // COMPILER_VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
  
 #define DEFAULT_SERVER_AND_PORT "localhost:5988"
@@ -68,23 +69,31 @@ ostream &
 help(ostream &os) {
   os << endl << "MOF Compiler version " << COMPILER_VERSION << endl << endl;
 #ifdef PEGASUS_OS_HPUX
-  os << "Usage: cimmof [-h] [-w] [-I path] [-n namespace] [file, ...]" << endl;
+  os << "Usage: cimmof [-h] [-w] [-uc] [-aE | -aV | -aEV] [-I path] [-n namespace] [file, ...]" << endl;
   os << "    -h           - show this help " << endl;
   os << "    -w           - suppress warnings " << endl;
   os << "    -I path      - specify an include path " << endl;
   os << "    -n namespace - override the default CIMRepository namespace "
      << endl;
+  os << "  -uc   -- allow update of an existing class definition." << endl;
+  os << "  -aE   -- allow creation, either through addition or modification, of Experimental classes." << endl;
+  os << "  -aV   -- allow both Major and Down Revision Schema changes." << endl;
+  os << "  -aEV  -- allow both Experimental and Version Schema changes." << endl;
 #else
 #ifndef PEGASUS_OS_OS400
-  os << "Usage: cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile" << endl;
-  os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]" << endl;
+  os << "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile" << endl;
+  os << "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]" << endl;
 #else
-  os << "Usage: cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] -ffile" << endl;
-  os << "       cimmof [-h] [-E] [-w] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] mof_files..." << endl;
+  os << "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] -ffile" << endl;
+  os << "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] mof_files..." << endl;
 #endif
   os << "  -h, --help -- show this help." << endl;
   os << "  -E -- syntax check only." << endl;
   os << "  -w -- suppress warnings." << endl;
+  os << "  -uc   -- allow update of an existing class definition." << endl;
+  os << "  -aE   -- allow creation, either through addition or modification, of Experimental classes." << endl;
+  os << "  -aV   -- allow both Major and Down Revision Schema changes." << endl;
+  os << "  -aEV  -- allow both Experimental and Version Schema changes." << endl;
 #ifdef PEGASUS_OS_OS400
   os << "  -q -- suppress all messages except command line usage errors." << endl;
 #endif
@@ -136,6 +145,8 @@ static struct optspec optspecs[] =
     {(char*)"w", SUPPRESSFLAG, false, getoopt::NOARG},
     {(char*)"R", REPOSITORYNAME, false, getoopt::MUSTHAVEARG},
     {(char*)"CIMRepository", REPOSITORYNAME, true, getoopt::MUSTHAVEARG},
+    {(char*)"u", UPDATEFLAG, false, getoopt::MUSTHAVEARG},
+    {(char*)"a", ALLOWFLAG, false, getoopt::MUSTHAVEARG},
 #ifndef PEGASUS_OS_HPUX
     {(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
     {(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
@@ -204,6 +215,9 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   cmdlinedata.set_warningos(PEGASUS_STD(cerr));
   cmdlinedata.reset_operationType();
   cmdlinedata.reset_xmloutput();
+  cmdlinedata.reset_update_class();
+  cmdlinedata.reset_allow_experimental();
+  cmdlinedata.reset_allow_version();
 #ifdef PEGASUS_OS_OS400
   cmdlinedata.reset_quiet();
 #endif
@@ -303,6 +317,53 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         break;
       case REPOSITORYNAME:  cmdlinedata.set_repository_name(arg.optarg());
 	break;
+      case UPDATEFLAG:
+        { 
+          if (arg.optarg().size() == 1)
+          {
+              for (unsigned int i = 0; i < arg.optarg().size(); i++)
+              {
+                  if (arg.optarg()[i] == 'c')
+                      cmdlinedata.set_update_class();
+                  else
+                  {
+                      throw ArgumentErrorsException(
+                          "Unknown value specified for option -u.");
+                  }
+              }
+          }
+          else
+          {
+            throw ArgumentErrorsException(
+                "Too many values specified for option -u.");
+          }
+        }
+        break;
+      case ALLOWFLAG:
+        { 
+          if ((arg.optarg().size() <= 2) && (arg.optarg().size() != 0))
+          {
+              for (unsigned int i = 0; i < arg.optarg().size(); i++)
+              {
+                 if (arg.optarg()[i] == 'E')
+                     cmdlinedata.set_allow_experimental();
+                 else
+                 if (arg.optarg()[i] == 'V')
+                     cmdlinedata.set_allow_version();
+                 else
+                  {
+                      throw ArgumentErrorsException(
+                          "Unknown value specified for option -a.");
+                  }
+              }
+          }
+          else
+          {
+            throw ArgumentErrorsException(
+                "Too many values specified for option -a.");
+          }
+        }
+        break;
 #ifndef PEGASUS_OS_HPUX
       case SYNTAXFLAG: cmdlinedata.set_syntax_only();
 		       cmdlinedata.set_operationType(

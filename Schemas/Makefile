@@ -21,9 +21,9 @@ repository:
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 	@ echo +++++ Populating CIM repository - this will take a while
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER).mof into root namespace...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -nroot $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -nroot $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading CIM_Schema$(CIM_SCHEMA_VER).mof into $(NAMESPACE) namespace...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(NAMESPACE) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(NAMESPACE) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
 
 # The following is a hangover from previous testing and simply loads the
 # core into the namespace defined by NAMESPACE.  It should probably be 
@@ -32,7 +32,7 @@ short:
 	@ echo +++++ Populating CIM repository - this will take a minute
 	$(RMREPOSITORY) $(REPOSITORY_ROOT)
 	echo +++++ Loading CIM_Core.mof into root namespace...
-	cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(NAMESPACE) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(NAMESPACE) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 
 clean:
 	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)

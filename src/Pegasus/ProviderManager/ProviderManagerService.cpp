@@ -280,7 +280,6 @@ void ProviderManagerService::handleEnqueue(Message * message)
 
     _handle_async_request(asyncRequest);
 
-    //delete asyncReply;
     //delete asyncRequest;
 }
 
@@ -428,6 +427,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManagerService::handleCimOper
 	service->handleDisableIndicationRequest(message);
 
 	break;
+    /*
+    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
+	service->handleCreateSubscriptionRequest(message);
+
+	break;
+    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
+	service->handleModifySubscriptionRequest(message);
+
+	break;
+    case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
+	service->handleDeleteSubscriptionRequest(message);
+
+	break;
+    */
     default:
 	// unsupported messages are ignored
 	break;
@@ -1313,6 +1326,75 @@ void ProviderManagerService::handleDisableIndicationRequest(Message * message) t
 
     // call the message queue service method to see if this is an async envelope
     _enqueueResponse((Message *)request, (Message *)response);
+}
+
+void ProviderManagerService::handleCreateSubscriptionRequest(Message * message) throw()
+{
+    /*
+    const CIMCreateSubscriptionRequestMessage * request =
+	dynamic_cast<CIMCreateSubscriptionRequestMessage *>(message);
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMCreateSubscriptionResponseMessage * response =
+	new CIMCreateSubscriptionResponseMessage(
+	request->messageId,
+	CIM_ERR_FAILED,
+	"not implemented",
+	request->queueIds.copyAndPop());
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    // call the message queue service method to see if this is an async envelope
+    _enqueueResponse((Message *)request, (Message *)response);
+    */
+}
+
+void ProviderManagerService::handleModifySubscriptionRequest(Message * message) throw()
+{
+    /*
+    const CIMModifySubscriptionRequestMessage * request =
+	dynamic_cast<CIMModifySubscriptionRequestMessage *>(message);
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMModifySubscriptionResponseMessage * response =
+	new CIMModifySubscriptionResponseMessage(
+	request->messageId,
+	CIM_ERR_FAILED,
+	"not implemented",
+	request->queueIds.copyAndPop());
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    // call the message queue service method to see if this is an async envelope
+    _enqueueResponse((Message *)request, (Message *)response);
+    */
+}
+
+void ProviderManagerService::handleDeleteSubscriptionRequest(Message * message) throw()
+{
+    /*
+    const CIMDeleteSubscriptionRequestMessage * request =
+	dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(message);
+
+    PEGASUS_ASSERT(request != 0);
+
+    CIMDeleteSubscriptionResponseMessage * response =
+	new CIMDeleteSubscriptionResponseMessage(
+	request->messageId,
+	CIM_ERR_FAILED,
+	"not implemented",
+	request->queueIds.copyAndPop());
+
+    // preserve message key
+    response->setKey(request->getKey());
+
+    // call the message queue service method to see if this is an async envelope
+    _enqueueResponse((Message *)request, (Message *)response);
+    */
 }
 
 PEGASUS_NAMESPACE_END

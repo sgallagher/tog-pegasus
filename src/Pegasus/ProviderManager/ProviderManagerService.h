@@ -105,6 +105,10 @@ protected:
     void handleModifyIndicationRequest(Message * message) throw();
     void handleDisableIndicationRequest(Message * message) throw();
 
+    void handleCreateSubscriptionRequest(Message * message) throw();
+    void handleModifySubscriptionRequest(Message * message) throw();
+    void handleDeleteSubscriptionRequest(Message * message) throw();
+
 protected:
     ThreadPool _threadPool;
     Semaphore _threadSemaphore;

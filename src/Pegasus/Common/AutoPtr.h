@@ -28,6 +28,7 @@
 // Author: Amit Arora, IBM (amita@in.ibm.com) (based on PEP101 by David Dillard)
 //
 // Modified By: Amit Arora, IBM (amita@in.ibm.com) for Bug#2168
+//              Amit Arora, IBM (amita@in.ibm.com) for Bug#2480
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -129,9 +130,8 @@ public:
      {
          //a._ptr = 0;
      }
- 
-     template<class Y> AutoPtr(AutoPtr<Y> &a) throw()
-         : _ptr(a.release()) 
+
+     inline AutoPtr(AutoPtr<X> &a) throw() : _ptr(a.release()) 
      {
      }
  
@@ -240,9 +240,8 @@ public:
      {
          //a._ptr = 0;
      }
- 
-     template<class Y> AutoArrayPtr(AutoArrayPtr<Y> &a) throw()
-         : _ptr(a.release())  
+
+     inline AutoArrayPtr(AutoArrayPtr<X> &a) throw() : _ptr(a.release()) 
      {
      }
  

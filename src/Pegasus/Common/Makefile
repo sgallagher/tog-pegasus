@@ -80,6 +80,7 @@ SOURCES = \
     OptionManager.cpp \
     Pair.cpp \
     Queue.cpp \
+    Resolver.cpp \
     Service.cpp \
     Sharable.cpp \
     Socket.cpp \

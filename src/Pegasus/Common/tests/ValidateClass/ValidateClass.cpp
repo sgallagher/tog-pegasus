@@ -23,12 +23,14 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/Resolver.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -47,14 +49,14 @@ int main(int argc, char** argv)
 	x.addProperty(CIMProperty("two", Real32(222.222)));
 	x.addProperty(CIMProperty("three", String("Three")));
 	context.addClass(NAMESPACE, x);
-	x.resolve(&context, NAMESPACE);
+	Resolver::resolveClass (x, &context, NAMESPACE);
 
 	CIMClass y("Y", "X");
 	y.addProperty(CIMProperty("three", String("Three - Three")));
 	y.addProperty(CIMProperty("four", Boolean(false)));
 	y.addProperty(CIMProperty("five", Real32(555.555)));
 	context.addClass(NAMESPACE, y);
-	y.resolve(&context, NAMESPACE);
+	Resolver::resolveClass (y, &context, NAMESPACE);
 
 	// y.print();
     }

@@ -203,29 +203,6 @@ Uint32 CIMProperty::getQualifierCount() const
     return _rep->getQualifierCount();
 }
 
-void CIMProperty::resolve(
-    DeclContext* declContext,
-    const String& nameSpace,
-    Boolean isInstancePart,
-    const CIMConstProperty& property,
-    Boolean propagateQualifiers)
-{
-    _checkRep();
-    _rep->resolve(declContext, 
-        nameSpace, isInstancePart, property, propagateQualifiers);
-}
-
-void CIMProperty::resolve(
-    DeclContext* declContext,
-    const String& nameSpace,
-    Boolean isInstancePart,
-    Boolean propagateQualifiers)
-{
-    _checkRep();
-    _rep->resolve(
-        declContext, nameSpace, isInstancePart, propagateQualifiers);
-}
-
 Boolean CIMProperty::isNull() const
 {
     return (_rep == 0)? true : false;

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class DeclContext;
+class Resolver;
 class CIMConstParameter;
 class CIMParameterRep;
 
@@ -93,8 +95,6 @@ public:
     Uint32 getQualifierCount() const;
 
 #ifdef PEGASUS_INTERNALONLY
-    void resolve(DeclContext* declContext, const String& nameSpace);
-
     Boolean isNull() const;
 #endif
 
@@ -111,6 +111,7 @@ private:
     CIMParameterRep* _rep;
 
     friend class CIMConstParameter;
+    friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
 };

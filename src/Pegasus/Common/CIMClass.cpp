@@ -247,14 +247,6 @@ Uint32 CIMClass::getMethodCount() const
     return _rep->getMethodCount();
 }
 
-void CIMClass::resolve(
-    DeclContext* declContext,
-    const String& nameSpace)
-{
-    _checkRep();
-    _rep->resolve(declContext, nameSpace);
-}
-
 Boolean CIMClass::isNull() const
 {
     return (_rep == 0)? true : false;

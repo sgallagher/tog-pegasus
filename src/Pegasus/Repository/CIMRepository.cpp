@@ -42,7 +42,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/DeclContext.h>
-#include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
@@ -378,7 +378,8 @@ CIMInstance CIMRepository::getInstance(
     if (_resolveInstance)
     {
 	CIMConstClass cimClass;
-	cimInstance.resolve(_context, nameSpace, cimClass, true);
+	Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
+            true);
     }
 
     PEG_METHOD_EXIT();
@@ -679,7 +680,7 @@ void CIMRepository::createClass(
     // -- Resolve the class:
         CIMClass cimClass(newClass);
         
-    cimClass.resolve(_context, nameSpace);
+    Resolver::resolveClass (cimClass, _context, nameSpace);
 
     // -- If an association, populate associations file:
 
@@ -852,7 +853,8 @@ CIMObjectPath CIMRepository::createInstance(
 
     CIMInstance cimInstance(newInstance);
     CIMConstClass cimClass;
-    cimInstance.resolve(_context, nameSpace, cimClass, false);
+    Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
+        false);
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     //
@@ -958,7 +960,8 @@ CIMObjectPath CIMRepository::createInstance(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "commit failed");
     }
 
-    cimInstance.resolve(_context, nameSpace, cimClass, true);
+    Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
+        true);
 
     PEG_METHOD_EXIT();
     return instanceName;
@@ -975,7 +978,7 @@ void CIMRepository::modifyClass(
     //
 
     CIMClass cimClass(modifiedClass);
-    cimClass.resolve(_context, nameSpace);
+    Resolver::resolveClass (cimClass, _context, nameSpace);
 
     //
     // Check to see if it is okay to modify this class:
@@ -1277,7 +1280,8 @@ void CIMRepository::modifyInstance(
     //
 
     CIMConstClass cimClass;
-    cimInstance.resolve(_context, nameSpace, cimClass, false);
+    Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
+        false);
 
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
@@ -1366,7 +1370,8 @@ void CIMRepository::modifyInstance(
     // Resolve the instance:
     //
 
-    cimInstance.resolve(_context, nameSpace, cimClass, true);
+    Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass, 
+        true);
 
     PEG_METHOD_EXIT();
 }
@@ -1485,7 +1490,8 @@ Boolean CIMRepository::_loadAllInstances(
 
 		XmlReader::getObject(parser, tmpInstance);
 
-		tmpInstance.resolve(_context, nameSpace, true);
+		Resolver::resolveInstance (tmpInstance, _context, nameSpace, 
+                    true);
                 tmpInstance.setPath (instanceNames[i]);
 
 		namedInstances.append (tmpInstance);

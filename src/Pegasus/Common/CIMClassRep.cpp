@@ -32,6 +32,7 @@
 
 #include "CIMClassRep.h"
 #include "DeclContext.h"
+#include "Resolver.h"
 #include "Indentor.h"
 #include "CIMName.h"
 #include "CIMQualifierNames.h"
@@ -247,14 +248,15 @@ void CIMClassRep::resolve(
 	
 			if (pos == PEG_NOT_FOUND)
 			{
-				property.resolve(context, nameSpace, false, true);
+                            Resolver::resolveProperty (property, context, 
+                                nameSpace, false, true);
 			}
 			else
 			{
 				CIMConstProperty superClassProperty =
 				superClass.getProperty(pos);
-				property.resolve(
-					context, nameSpace, false, superClassProperty, true);
+                            Resolver::resolveProperty (property, context, 
+                                nameSpace, false, superClassProperty, true);
 			}
 		}
 	
@@ -359,12 +361,14 @@ void CIMClassRep::resolve(
 	
 			if (pos == PEG_NOT_FOUND)
 			{
-				method.resolve(context, nameSpace);
+                            Resolver::resolveMethod (method, context, 
+                                nameSpace);
 			}
 			else
 			{
 				CIMConstMethod superClassMethod = superClass.getMethod(pos);
-				method.resolve(context, nameSpace, superClassMethod);
+                            Resolver::resolveMethod (method, context, 
+                                nameSpace, superClassMethod);
 			}
 		}
 	
@@ -432,14 +436,15 @@ void CIMClassRep::resolve(
 		//cout << "KSTEST Class Resolve, No Super class " << getClassName() << endl;
 
 		for (Uint32 i = 0, n = _properties.size(); i < n; i++)
-			_properties[i].resolve(context, nameSpace, false, true);
+                    Resolver::resolveProperty (_properties[i], context, 
+                        nameSpace, false, true);
 	
 		//----------------------------------------------------------------------
 		// Resolve each method:
 		//----------------------------------------------------------------------
 	
 		for (Uint32 i = 0, n = _methods.size(); i < n; i++)
-			_methods[i].resolve(context, nameSpace);
+                    Resolver::resolveMethod (_methods[i], context, nameSpace);
 	
 		//----------------------------------------------------------------------
 		// Resolve the qualifiers:

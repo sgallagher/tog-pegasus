@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class DeclContext;
+class Resolver;
 class CIMConstMethod;
 class CIMMethodRep;
 
@@ -195,17 +195,6 @@ public:
     Uint32 getParameterCount() const;
 
 #ifdef PEGASUS_INTERNALONLY
-    /** resolve - resolves and completes the CIMMethod */
-    void resolve(
-	DeclContext* declContext,
-	const String& nameSpace,
-	const CIMConstMethod& method);
-
-    /** resolve - Resolves and completes the CIMMethod */
-    void resolve(
-	DeclContext* declContext,
-	const String& nameSpace);
-
     /** Returns true if CIMMethod refers to a null pointer */
     Boolean isNull() const;
 #endif
@@ -228,6 +217,7 @@ private:
 
     CIMMethodRep* _rep;
     friend class CIMConstMethod;
+    friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
 };

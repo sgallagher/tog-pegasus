@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstClass;
 class CIMClassRep;
-class DeclContext;
+class Resolver;
 
 // REVIEW: redocument.
 
@@ -310,16 +310,6 @@ public:
     Boolean identical(const CIMConstClass& x) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    // ATTN: explain why this here
-    /** Resolve -  Resolve the class: inherit any properties and
-	qualifiers. Make sure the superClass really exists and is consistent
-	with this class. Also set the propagated flag class-origin for each
-	class feature.
-    */
-    void resolve(
-	DeclContext* declContext,
-	const String& nameSpace);
-
     // isNull - ATTN:
     Boolean isNull() const;
 #endif
@@ -335,6 +325,7 @@ private:
     friend class CIMConstClass;
     friend class CIMObject;
     friend class CIMConstObject;
+    friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
 };

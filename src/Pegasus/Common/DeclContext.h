@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,11 +41,12 @@ PEGASUS_NAMESPACE_BEGIN
 
 /**
     This class is used internally as a source of CIM declarations.
-    It is passed to the _resolve() method of several classes (CIMClass,
-    CIMMethod, CIMProperty, CIMObjectPath, CIMQualifier). Methods are provided 
-    for looking up class, qualifier, and instance declarations. This is
-    an abstract base class: implementations must be provided by derived 
-    classes.
+    It is passed to the resolve[objectType] () methods of the Resolver class
+    (where [objectType] is Class, Instance, Property, Method, Parameter), and 
+    in turn to the resolve () methods of the CIM[objectType]Rep classes. 
+    Methods are provided for looking up class, qualifier, and instance 
+    declarations.  This is an abstract base class: implementations must be 
+    provided by derived classes.
 */
 class PEGASUS_COMMON_LINKAGE DeclContext
 {

@@ -50,7 +50,7 @@ class CIMPropertyRep;
 #ifdef PEGASUS_INTERNALONLY
 class CIMClassRep;
 class CIMInstanceRep;
-class DeclContext;
+class Resolver;
 #endif
 
 // ATTN : P3 KS 03/02/02Documentation This is a very poor definition for property class.
@@ -241,33 +241,6 @@ public:
     CIMProperty clone(Boolean propagateQualifiers) const;
 
 #ifdef PEGASUS_INTERNALONLY
-    /// CIMMethod resolve
-    void resolve(
-	DeclContext* declContext,
-	const String& nameSpace,
-	Boolean isInstancePart,
-	const CIMConstProperty& property,
-	Boolean propagateQualifiers);
-
-    //  ATTN: P3 03/02/02 KS Needs more documentation.
-    /* resolve - Resolves the property. Resolution is the process of
-        intregating the property into the the context of a repository
-        or other store.
-        Note that this is an internal function and should not be made
-        available to external users.
-        @param declContext Defines the context in which the property is
-        to be resolved.  This provides the basis for other functions to
-        get information from the context to use to resolve the property.
-        @parm nameSpace Namespace in which the property is to be placed
-        @param isInstancePart - Is this instance or class resolution
-        @param propagateQualifiers Boolean to determine if we propagate qualifiers
-    */
-    void resolve(
-	DeclContext* declContext,
-	const String& nameSpace,
-	Boolean isInstancePart,
-	Boolean propagateQualifiers);
-
     // ATTN: documentation
     Boolean isNull() const;
 #endif
@@ -286,6 +259,7 @@ private:
     friend class CIMConstProperty;
     friend class CIMClassRep;
     friend class CIMInstanceRep;
+    friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
 

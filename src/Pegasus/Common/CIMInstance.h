@@ -46,6 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstInstance;
 class CIMInstanceRep;
+class Resolver;
 
 /** This class represents the instance of a CIM class. It is used manipulate
     instances and their parts.
@@ -236,18 +237,6 @@ public:
     /**	isNull() */
     Boolean isNull() const;
 
-    /**	resolve */
-    void resolve(
-	DeclContext* declContext,
-	const String& nameSpace,
-	Boolean propagateQualifiers);
-
-    void resolve(
-	DeclContext* declContext,
-	const String& nameSpace,
-	CIMConstClass& cimClassOut,
-	Boolean propagateQualifiers);
-
     String toString() const;
 #endif
 
@@ -262,6 +251,7 @@ private:
     friend class CIMConstInstance;
     friend class CIMObject;
     friend class CIMConstObject;
+    friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
 };

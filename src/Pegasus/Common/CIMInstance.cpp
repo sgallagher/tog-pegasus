@@ -191,26 +191,6 @@ Boolean CIMInstance::identical(const CIMConstInstance& x) const
     return _rep->identical(x._rep);
 }
 
-void CIMInstance::resolve(
-    DeclContext* declContext, 
-    const String& nameSpace,
-    Boolean propagateQualifiers)
-{
-    _checkRep();
-    CIMConstClass cimClass;
-    _rep->resolve(declContext, nameSpace, cimClass, propagateQualifiers);
-}
-
-void CIMInstance::resolve(
-    DeclContext* declContext,
-    const String& nameSpace,
-    CIMConstClass& cimClassOut,
-    Boolean propagateQualifiers)
-{
-    _checkRep();
-    _rep->resolve(declContext, nameSpace, cimClassOut, propagateQualifiers);
-}
-
 CIMInstance CIMInstance::clone() const
 {
     return CIMInstance((CIMInstanceRep*)(_rep->clone()));

@@ -25,6 +25,8 @@
 //
 // Modified By:	Karl Schopmeyer (k.schopemyer@opengroup.org)
 //				Mar 2002 - Add more tests for flavors
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +34,7 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
@@ -105,7 +108,7 @@ int main(int argc, char** argv)
 	assert(!q2.isFlavor(CIMFlavor::TOSUBCLASS));
 	assert(!q2.isFlavor(CIMFlavor::OVERRIDABLE));
 
-	q2.resolveFlavor(CIMFlavor::OVERRIDABLE, false);
+	Resolver::resolveQualifierFlavor(q2, CIMFlavor::OVERRIDABLE, false);
 	assert(q2.isFlavor(CIMFlavor::OVERRIDABLE));
 
 	q2.setFlavor(CIMFlavor::ALL);
@@ -123,7 +126,8 @@ int main(int argc, char** argv)
 
 	q2.setFlavor( CIMFlavor::TOSUBCLASS	+ CIMFlavor::ENABLEOVERRIDE);
 
-	q2.resolveFlavor (CIMFlavor::DISABLEOVERRIDE | CIMFlavor::RESTRICTED, false);
+	Resolver::resolveQualifierFlavor (q2, 
+            CIMFlavor::DISABLEOVERRIDE | CIMFlavor::RESTRICTED, false);
 	assert( q2.isFlavor(CIMFlavor::DISABLEOVERRIDE));
 	assert(!q2.isFlavor(CIMFlavor::ENABLEOVERRIDE));
 	assert(!q2.isFlavor(CIMFlavor::TOSUBCLASS));

@@ -23,7 +23,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +32,7 @@
 #include <cstdlib>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/Resolver.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -57,10 +59,10 @@ int main(int argc, char** argv)
 
 	CIMClass class2("Class", "PeskySuperClass");
 
-	class1.resolve(context, NAMESPACE);
+	Resolver::resolveClass (class1, context, NAMESPACE);
 	context->addClass(NAMESPACE, class1);
 
-	class2.resolve(context, NAMESPACE);
+	Resolver::resolveClass (class2, context, NAMESPACE);
 	context->addClass(NAMESPACE, class2);
 
 	// class1.print();

@@ -24,6 +24,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -154,12 +156,6 @@ Uint32 CIMParameter::getQualifierCount() const
 {
     _checkRep();
     return _rep->getQualifierCount();
-}
-
-void CIMParameter::resolve(DeclContext* declContext, const String& nameSpace)
-{
-    _checkRep();
-    _rep->resolve(declContext, nameSpace);
 }
 
 Boolean CIMParameter::isNull() const

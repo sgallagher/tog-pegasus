@@ -138,7 +138,7 @@ void CIMPropertyRep::resolve(
     DeclContext* declContext,
     const String& nameSpace,
     Boolean isInstancePart,
-    Boolean propagateQuaifiers)
+    Boolean propagateQualifiers)
 {
     CIMQualifierList dummy;
 
@@ -153,7 +153,7 @@ void CIMPropertyRep::resolve(
 	scope,
 	isInstancePart,
 	dummy,
-	propagateQuaifiers);
+	propagateQualifiers);
 }
 
 static const char* _toString(Boolean x)

@@ -25,6 +25,8 @@
 //
 // Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //             	Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,6 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMConstQualifier;
 class CIMClassRep;
+class Resolver;
 #if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 class CIMQualifierRep;
 #endif
@@ -167,18 +170,6 @@ public:
     */
     Boolean isFlavor(Uint32 flavor) const;
 
-    /** resolveFlavor - Function used only in object creation to
-        resolve the combination of a qualifer flavor input and
-        the corresponding inherited flavor from declaration or
-        superclass and set the current qualifier to that
-        definition.  The functions changes the current flavor based
-        on the characteristics of the inheritance.
-        @param inheritedFlavor - The flavor inherited from higher level
-        @param inherited - True if inherited from definition. False if this
-        is definition that inherits from the declaration
-    */
-    void resolveFlavor(Uint32 inheritedFlavor, Boolean inherited);
-
     /**	getPropagated returns the propagated indicator
 	@return Uint32 - TBD
     */
@@ -215,6 +206,7 @@ private:
 
     friend class CIMConstQualifier;
     friend class CIMClassRep;
+    friend class Resolver;
     friend class XmlWriter;
     friend class MofWriter;
 };

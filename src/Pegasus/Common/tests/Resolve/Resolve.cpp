@@ -64,6 +64,7 @@
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
@@ -157,7 +158,7 @@ void test01()
 	;
     
     context->addClass(NAMESPACE, class2);
-    class2.resolve(context, NAMESPACE);
+    Resolver::resolveClass (class2, context, NAMESPACE);
     
 	if(verbose)	cout << "Create Class1 " << endl;
 
@@ -184,7 +185,7 @@ void test01()
 	if(verbose)	cout << "Resolve class 1 " << endl;
 
     try{
-        class1.resolve(context, NAMESPACE);
+        Resolver::resolveClass (class1, context, NAMESPACE);
 		if(verbose)
 			cout << "Passed basic resolution test" << endl;
 
@@ -370,7 +371,7 @@ void test02()
 
 	// add the superclass and resolve it.
     context->addClass(NAMESPACE, superClass);
-    superClass.resolve(context, NAMESPACE);
+    Resolver::resolveClass (superClass, context, NAMESPACE);
     
 	// Create the subclass
     CIMClass subClass("SubClass", "SuperClass");
@@ -399,7 +400,7 @@ void test02()
 		XmlWriter::printClassElement(subClass);
 	}
     try{
-        subClass.resolve(context, NAMESPACE);
+        Resolver::resolveClass (subClass, context, NAMESPACE);
         resolved = true;
     }
     catch (Exception& e)
@@ -685,7 +686,7 @@ void test04()
 	class2.addProperty(CIMProperty(keyProperty));
     
     context->addClass(NAMESPACE, class2);
-    class2.resolve(context, NAMESPACE);
+    Resolver::resolveClass (class2, context, NAMESPACE);
     
     CIMClass class1("SubClass", "SuperClass");
 
@@ -707,7 +708,7 @@ void test04()
 		XmlWriter::printClassElement(class2);
 	}
     try{
-        class1.resolve(context, NAMESPACE);
+        Resolver::resolveClass (class1, context, NAMESPACE);
 		resolved = true;
 		if(verbose)
 			cout << "Passed basic resolution test" << endl;
@@ -794,7 +795,7 @@ void test05()
 
 	try
 	{
-        classWithPropertyQualifier.resolve(context, NAMESPACE);
+        Resolver::resolveClass (classWithPropertyQualifier, context, NAMESPACE);
         resolved = true;
 		if(verbose)
 		{
@@ -833,7 +834,7 @@ void test05()
 
 	try
 	{
-        classWithBadProperty.resolve(context, NAMESPACE);
+        Resolver::resolveClass (classWithBadProperty, context, NAMESPACE);
         resolved = true;
     }
     catch (Exception& e)
@@ -871,7 +872,7 @@ void test05()
 	
 	try
 	{
-        classAssoc.resolve(context, NAMESPACE);
+        Resolver::resolveClass (classAssoc, context, NAMESPACE);
         resolved = true;
     }
     catch (Exception& e)
@@ -916,7 +917,7 @@ void test06()
 			.addParameter(CIMParameter("hostname", CIMType::STRING)));
     try
 	{
-        subClass.resolve(context, NAMESPACE);
+        Resolver::resolveClass (subClass, context, NAMESPACE);
         resolved = true;
     }
     catch (Exception& e)

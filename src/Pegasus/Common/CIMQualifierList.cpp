@@ -24,11 +24,14 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:	Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMQualifierList.h"
 #include "DeclContext.h"
+#include "Resolver.h"
 #include "CIMQualifierDecl.h"
 #include "CIMName.h"
 #include "Indentor.h"
@@ -223,7 +226,8 @@ void CIMQualifierList::resolve(
 			if(!qd.isFlavor(CIMFlavor::OVERRIDABLE) && q.isFlavor(CIMFlavor::OVERRIDABLE ))
 				throw BadQualifierOverride(q.getName());
 
-			q.resolveFlavor(qd.getFlavor(), false);
+			Resolver::resolveQualifierFlavor (q, qd.getFlavor (), 
+                            false);
 			/*if(!(q.getValue() == qd.getValue()))
 				cout << "KSTEST Flavor resolved from decl. " << q.getName()
 				<< " decl flavor " << qd.getFlavor() << " Flavor " << q.getFlavor()
@@ -257,7 +261,8 @@ void CIMQualifierList::resolve(
 			  }
 			} 
 			//cout << iq.getFlavor()  << endl;
-			q.resolveFlavor(iq.getFlavor(), true);	
+			Resolver::resolveQualifierFlavor (q, iq.getFlavor (), 
+                            true);	
 		}
     } 					// end of this objects qualifier loop
 

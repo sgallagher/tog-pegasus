@@ -204,23 +204,6 @@ Uint32 CIMMethod::getParameterCount() const
     return _rep->getParameterCount();
 }
 
-void CIMMethod::resolve(
-    DeclContext* declContext,
-    const String& nameSpace,
-    const CIMConstMethod& method)
-{
-    _checkRep();
-    _rep->resolve(declContext, nameSpace, method);
-}
-
-void CIMMethod::resolve(
-    DeclContext* declContext,
-    const String& nameSpace)
-{
-    _checkRep();
-    _rep->resolve(declContext, nameSpace);
-}
-
 Boolean CIMMethod::isNull() const
 {
     return (_rep == 0)? true : false;

@@ -27,6 +27,8 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +43,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/DeclContext.h>
-#include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include "RepositoryDeclContext.h"
@@ -447,7 +449,7 @@ void CIMRepository::createClass(
     // -- Resolve the class:
         CIMClass cimClass(newClass);
         
-    cimClass.resolve(_context, nameSpace);
+    Resolver::resolveClass (cimClass, _context, nameSpace);
 
     // -- If an association, populate associations file:
 
@@ -576,7 +578,7 @@ CIMObjectPath CIMRepository::createInstance(
     CIMInstance cimInstance(newInstance);
 
     CIMConstClass cimClass;
-    cimInstance.resolve(_context, nameSpace, cimClass);
+    Resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass);
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 
     // -- Make sure the class has keys (otherwise it will be impossible to
@@ -656,7 +658,7 @@ void CIMRepository::modifyClass(
     // -- Resolve the class:
         CIMClass cimClass(modifiedClass);
 
-    cimClass.resolve(_context, nameSpace);
+    Resolver::resolveClass (cimClass, _context, nameSpace);
 
     // -- Check to see if it is okay to modify this class:
 
@@ -870,7 +872,7 @@ void CIMRepository::modifyInstance(
     // -- Resolve the instance (looks up the class):
 
     CIMConstClass cimClass;
-    cimInstance.resolve(_context, nameSpace, cimClass);
+    resolver::resolveInstance (cimInstance, _context, nameSpace, cimClass);
 
     CIMObjectPath instanceName = cimInstance.getInstanceName(cimClass);
 

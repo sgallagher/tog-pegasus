@@ -40,6 +40,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/DeclContext.h>
+#include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
@@ -88,7 +89,7 @@ void test01()
     assert(class1.findProperty("message") != PEG_NOT_FOUND);
     assert(class1.findProperty("ratio") != PEG_NOT_FOUND);
 
-    class1.resolve(context, NAMESPACE);
+    Resolver::resolveClass (class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
 
 	if(verbose) {
@@ -114,7 +115,7 @@ void test01()
 	if(verbose)
 		XmlWriter::printInstanceElement(instance1);
 
-    instance1.resolve(context, NAMESPACE, true);
+    Resolver::resolveInstance (instance1, context, NAMESPACE, true);
 
 	if(verbose)
 		XmlWriter::printInstanceElement(instance1);

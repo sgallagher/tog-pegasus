@@ -23,13 +23,15 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include "CIMMethod.h"
 #include "CIMMethodRep.h"
+#include "Resolver.h"
 #include "Indentor.h"
 #include "CIMName.h"
 #include "CIMScope.h"
@@ -139,7 +141,7 @@ void CIMMethodRep::resolve(
     // Validate each of the parameters:
 
     for (size_t i = 0; i < _parameters.size(); i++)
-	_parameters[i].resolve(declContext, nameSpace);
+	Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
 
     _classOrigin = inheritedMethod.getClassOrigin();
 }
@@ -163,7 +165,7 @@ void CIMMethodRep::resolve(
     // Validate each of the parameters:
 
     for (size_t i = 0; i < _parameters.size(); i++)
-	_parameters[i].resolve(declContext, nameSpace);
+	Resolver::resolveParameter (_parameters[i], declContext, nameSpace);
 }
 
 static const char* _toString(Boolean x)

@@ -26,6 +26,8 @@
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company 
 //              (sushma_fernandes@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,6 +36,7 @@
 #include "CIMClassRep.h"
 #include "CIMScope.h"
 #include "DeclContext.h"
+#include "Resolver.h"
 #include "Indentor.h"
 #include "CIMName.h"
 #include "Constants.h"
@@ -137,7 +140,7 @@ void CIMInstanceRep::resolve(
         else
         {
 	    // resolve the property
-	    property.resolve (context, nameSpace, true, 
+	    Resolver::resolveProperty (property, context, nameSpace, true, 
                 cimClass.getProperty (pos), propagateQualifiers);
         }
     }

@@ -67,6 +67,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <string.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

@@ -10,6 +10,8 @@ Urgent
     -	Change INVALID_CLASS exceptions to NOT_FOUND (they're wrong in 
 	Repository).
 
+    -	Add tracing of output HTTP messages.
+
 Topical To-Do List
 ==================
 

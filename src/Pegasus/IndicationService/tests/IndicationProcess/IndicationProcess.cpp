@@ -302,7 +302,18 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
 int main(int argc, char** argv)
 {
     CIMClient client;
-    client.connectLocal();
+    try
+    {
+      client.connectLocal();
+    }
+    catch (Exception& e)
+    {
+      PEGASUS_STD (cerr) << "Exception: " << e.getMessage () 
+                         << PEGASUS_STD (endl);
+      PEGASUS_STD (cerr) << "connectLocal failed" 
+                         << PEGASUS_STD (endl);
+      return -1;
+    }
 
     String query1="SELECT MethodName FROM rt_testindication";
 

@@ -991,6 +991,16 @@ void ProviderRegistrationManager::modifyInstance(
 	CIMReference cimRef = _createInstance(ref, instance, OP_MODIFY);
 
 	//
+	// if only modify SupportedMethods, do not send notification to
+	// subscription service
+	//
+	if (propertyList.size() == 1 &&
+	    String::equal(propertyList[0], _PROPERTY_SUPPORTEDMETHODS))
+	{
+	    return;
+	}
+
+	//
 	// get provider types
 	// if the provider is indication provider, send notification
 	// to subscription service
@@ -1039,19 +1049,19 @@ Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
     // Find the entry whose key's value is same as _moduleKey
     // get provider module status from the value
     //
-    for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+    ProviderRegistrationTable* _providerModule = 0;
+
+    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
-	if (String::equal(i.key(), _moduleKey))
-	{
-	    instances = i.value()->getInstances();
-
-	    instances[0].getProperty(instances[0].findProperty
-	    (_PROPERTY_OPERATIONALSTATUS)).getValue().get(_providerModuleStatus);
-	    return (_providerModuleStatus);
-	}
+    	throw (CIMException(CIM_ERR_FAILED, "Can not find the provider module."));
     }
+    
+    instances = _providerModule->getInstances();
 
-    throw (CIMException(CIM_ERR_FAILED, "Can not find the provider module."));
+    instances[0].getProperty(instances[0].findProperty
+        (_PROPERTY_OPERATIONALSTATUS)).getValue().get(_providerModuleStatus);
+
+    return (_providerModuleStatus);
 }
 
 Boolean ProviderRegistrationManager::setProviderModuleStatus(

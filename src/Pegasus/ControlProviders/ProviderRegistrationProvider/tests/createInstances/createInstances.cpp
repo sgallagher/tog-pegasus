@@ -27,6 +27,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
+#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
@@ -34,16 +35,15 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/test";
+const String NAMESPACE = "root/PG_InterOp";
 const String CLASSNAME = "PG_ProviderModule";
 const String CLASSNAME2 = "PG_Provider";
 const String CLASSNAME3 = "PG_ProviderCapabilities";
 
-Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
+void TestCreateInstances(CIMClient& client)
 {
-
     //
-    // create Provider module instances
+    // Test create Provider module instances
     //
     CIMReference returnRef;
 
@@ -65,14 +65,14 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 
     try
     {
-    	returnRef = prmanager.createInstance(instanceName, cimInstance);
+        returnRef = client.createInstance(NAMESPACE, cimInstance);
     }
     catch(CIMException& e)
     {
-        throw (e);
+	throw (e);
     }
 
-    // create PG_Provider instances
+    // Test create PG_Provider instances
 
     CIMReference returnRef2;
 
@@ -90,30 +90,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
 
     try
     {
-    	returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
-    }
-    catch(CIMException& e)
-    {
-        throw (e);
-    }
-
-    CIMReference returnRef4;
-
-    CIMClass cimClass4(CLASSNAME2);
-
-    CIMInstance cimInstance4(CLASSNAME2);
-
-    cimInstance4.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
-    cimInstance4.addProperty(CIMProperty("Name", "PG_ProviderInstance2"));
-
-    CIMReference instanceName4 = cimInstance4.getInstanceName(cimClass4);
-
-    instanceName4.setNameSpace(NAMESPACE);
-    instanceName4.setClassName(CLASSNAME2);
-
-    try
-    {
-    	returnRef4 = prmanager.createInstance(instanceName4, cimInstance4);
+	returnRef2 = client.createInstance(NAMESPACE, cimInstance2);
     }
     catch(CIMException& e)
     {
@@ -121,7 +98,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     }
 
     //
-    // create provider capability instances
+    // test create provider capability instances
     //
 
     Array <String> namespaces;
@@ -129,19 +106,17 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     Array <String> supportedMethods;
     Array <String> supportedProperties;
 
-    namespaces.append("test_namespace1");
-    namespaces.append("test_namespace2");
+    namespaces.append("root/cimv2");
+    namespaces.append("root/cimv3");
     
     providerType.append(4);
+    providerType.append(5);
 
     supportedMethods.append("test_method1");
     supportedMethods.append("test_method2");
 
-    supportedProperties.append("p1");
-    supportedProperties.append("p2");
-    supportedProperties.append("p3");
-    supportedProperties.append("p4");
-    supportedProperties.append("p5");
+    supportedProperties.append("PkgStatus");
+    supportedProperties.append("PkgIndex");
 
     CIMReference returnRef3;
 
@@ -152,7 +127,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     cimInstance3.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
     cimInstance3.addProperty(CIMProperty("ProviderName", "PG_ProviderInstance1"));
     cimInstance3.addProperty(CIMProperty("CapabilityID", "capability1"));
-    cimInstance3.addProperty(CIMProperty("ClassName", "test_class1"));
+    cimInstance3.addProperty(CIMProperty("ClassName", "TestSoftwarePkg"));
     cimInstance3.addProperty(CIMProperty("Namespaces", namespaces));
     cimInstance3.addProperty(CIMProperty("ProviderType", providerType));
     cimInstance3.addProperty(CIMProperty("SupportedMethods", supportedMethods));
@@ -163,97 +138,46 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    try 
+    try
     {
-    	returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
+        returnRef3 = client.createInstance(NAMESPACE, cimInstance3);
     }
     catch(CIMException& e)
     {
         throw (e);
     }
 
-    Array <String> supportedProperties2;
+    KeyBinding kb1("Name", "providersModule1", KeyBinding::STRING);
+    Array<KeyBinding> keys;
+    keys.append(kb1);
 
-    supportedProperties2.append("p1");
-    supportedProperties2.append("p2");
-    supportedProperties2.append("p3");
-    supportedProperties2.append("p4");
-    supportedProperties2.append("p6");
-
-    CIMReference returnRef5;
-
-    CIMClass cimClass5(CLASSNAME3);
-
-    CIMInstance cimInstance5(CLASSNAME3);
-
-    cimInstance5.addProperty(CIMProperty("ProviderModuleName", "providersModule1"));
-    cimInstance5.addProperty(CIMProperty("ProviderName", "PG_ProviderInstance2"));
-    cimInstance5.addProperty(CIMProperty("CapabilityID", "capability2"));
-    cimInstance5.addProperty(CIMProperty("ClassName", "test_class1"));
-    cimInstance5.addProperty(CIMProperty("Namespaces", namespaces));
-    cimInstance5.addProperty(CIMProperty("ProviderType", providerType));
-    cimInstance5.addProperty(CIMProperty("SupportedProperties", supportedProperties2));
-
-    CIMReference instanceName5 = cimInstance5.getInstanceName(cimClass5);
-
-    instanceName5.setNameSpace(NAMESPACE);
-    instanceName5.setClassName(CLASSNAME3);
-
-    try 
-    {
-    	returnRef5 = prmanager.createInstance(instanceName5, cimInstance5);
-    }
-    catch(CIMException& e)
-    {
-        throw (e);
-    }
-
-    //
-    // test lookupIndicationProvider Interface
-    //
-    String _providerName;
-    String _providerModuleName2;
-    Array <String> requiredProperties;
-
-    Array <CIMInstance> providerIns;
-    Array <CIMInstance> providerModuleIns;
-
-    requiredProperties.append("p1");
-    requiredProperties.append("p3");
-    requiredProperties.append("p4");
-
-    CIMPropertyList requiredPropertyList(requiredProperties);
-
-    if (prmanager.getIndicationProviders("test_namespace1", 
-	"test_class1", requiredPropertyList, providerIns, providerModuleIns))
-    {
-	return (true);
-    }
-    else
-    {
-	return (false);
-    }
+    instanceName.setKeyBindings(keys);
+    client.deleteInstance(NAMESPACE, instanceName);
 }
 
 int main(int argc, char** argv)
 {
-    CIMRepository r("../repository") ;
-    ProviderRegistrationManager prmanager(&r);
+
+
+//    CIMRepository r("../repository") ;
+
+//   ProviderRegistrationManager prmanager(&r);
 
     try
     {
-	if (!TestLookupIndicationProvider(prmanager))
-	{
-	    PEGASUS_STD(cerr) << "Error: lookupIndicationProvider Failed" << PEGASUS_STD(
-endl);
-            exit (-1);
-	}
+//	Monitor* monitor = new Monitor;
+//	HTTPConnector* httpConnector = new HTTPConnector(monitor);
+//	CIMClient client(monitor, httpConnector);
+	CIMClient client;
+	
+	client.connect("localhost:5988");
+	TestCreateInstances(client);
     }
 
     catch(Exception& e)
     {
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-	PEGASUS_STD (cout) << "+++++ lookup indication provider failed"
+	PEGASUS_STD (cout) << "+++++ create instances failed"
                            << PEGASUS_STD (endl);
 	exit(-1);
     }

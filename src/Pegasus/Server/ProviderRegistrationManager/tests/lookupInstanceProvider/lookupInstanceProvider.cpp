@@ -27,12 +27,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
-#include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-#include <Pegasus/Server/ServiceCIMOMHandle.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

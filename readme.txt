@@ -7,6 +7,8 @@ Tagline: OpenPegasus is an object manager for DMTF CIM objects written in C++
          and supported by The Open Group
 
 STATUS: Revised October 2003 to match Pegasus release 2.3
+
+NOTE: Obsolete. See readme.html
 Contents:
 =========
 

@@ -29,7 +29,7 @@ Release Readme file</p>
   </tr>
   <tr>
     <td align="center">1.0</td>
-    <td align="center">12 Novemberl 2003</td>
+    <td align="center">12 November 2003</td>
     <td align="center">Karl Schopmeyer</td>
     <td>Update from 2.2 Release notes. Converted to HTML</td>
   </tr>
@@ -43,7 +43,7 @@ Release Readme file</p>
 <hr>
 <p><b>Abstract:</b>&nbsp; Installation, build, operation information on the 
 Pegasus Platform Version 2.3 Release. Note that if this readme conflicts with 
-the documentation in the release notes or interface defintion documents for a 
+the documentation in the release notes or interface definition documents for a 
 particular release, those documents should be considered authorative. This is a 
 simplified overview to act as an introduction to Pegasus.</p>
 <hr>
@@ -59,7 +59,7 @@ and supported by The Open Group </p>
 
 <p align="left">
 
-<b>STATUS:</b> Revised October 2003 for&nbsp; Pegasus release version 2.3.
+<b>STATUS:</b> Revised November 2003 for&nbsp; Pegasus release version 2.3.0
 &nbsp;</p>
 
 <p align="center">
@@ -121,17 +121,18 @@ Providers</a><p align="left" style="margin-top: 0; margin-bottom: 0">
 
 <h1><a name="Overview">Overview</a> </h1>
 
-<p>OpenPegasus (also referred to as Pegasus):
+<p><b>OpenPegasus (also referred to as Pegasus):</b>
 
-Pegasus is an open-source object manager (CIMOM) for DMTF CIM objects. It is written
-in C++ and includes the Object manager, a set of defined interfaces, and 
+Pegasus is an open-source CIM Server for DMTF CIM objects. It is written
+in C++ and includes the Object manager (CIMOM), a set of defined interfaces, an 
+implemenation of the CIMOperations over HTTP operations and their cimxml HTTP 
+encodings, and 
 Interface libraries
 for both client and providers. It is maintained
 consistent with the DMTF CIM and WBEM specifications except for&nbsp; exceptions
 noted in the documentation.
 <P>
-Pegasus is open source and is covered under the MIT open-source license.
-<P>
+Pegasus is open source and is covered under the MIT open-source license.<P>
 Pegasus is being developed and maintained under the auspices of The Open
 Group. Pegasus is maintained under the license defined in the doc directory
 (LICENSE) of this release. This licensing is intended to support as wide a
@@ -141,19 +142,21 @@ More information on this project, access to the CVS, and documentation on
 Pegasus are available from the OpenGroup WEB site.
 <P>
 &nbsp;&nbsp;&nbsp; <a href="http://www.opengroup.org">http://www.openpegaus.org</a><p>
-There are separate documents
+There are a number of separate documents representing the status and each 
+release of Pegasus
 <ul>
-<li>What's new for this release - WHATSNEW and the release notes for each 
-release.<li>What's Broken - BUGS - See the ReleaseNotes for this release in the CVS and 
-the web site as a Pegasus PEP.<li>Release Notes for each released version</ul>
+<li>What's new for this release - See the PEPs (Pegasus Enhancement Procedures) 
+release notes on the Pegasus web site and duplicated in the source top level 
+directory<li>What's Broken - BUGS - See the ReleaseNotes for this release in the CVS and 
+the web site as a Pegasus PEP.</ul>
 
 
 <p>The release notes are available on the WEB site as Pegasus PEP documents and 
 in the CVS for each release.</p>
 <table border="1" cellspacing="1" width="31%" id="AutoNumber3">
   <tr>
-    <td width="42%">Release</td>
-    <td width="58%">Release Notes PEP</td>
+    <td width="42%"><b>Release</b></td>
+    <td width="58%"><b>Release Notes PEP</b></td>
   </tr>
   <tr>
     <td width="42%">2.0</td>
@@ -177,7 +180,7 @@ in the CVS for each release.</p>
 <h1><a name="Availability of Pegasus">Availability of Pegasus</a></h1>
 
 <p>Pegasus is distributed as open source under the MIT open-source license. The distribution is available via 
-CVS and snapshot images in tar and zip file formats.
+CVS and snapshot images in tar and zip file formats on the web site.
 The source code from CVS can be found at the following Open Group CVS server;
 <p>
 <font face="Courier New">&nbsp;&nbsp;&nbsp;
@@ -233,7 +236,8 @@ C++ interfaces and using the WBEM HTTP/XML protocols or directly
 interfacing with Pegasus.
   </li>
   <li><b>Pegasus Test Clients</b> - Simple test clients being developed as part of the
-Pegasus development process
+Pegasus development process. These can be seen in the src/Clients directory and 
+  its subdirectories 
   </li>
   <li><b>Pegasus HTML Test Client</b> - To aid in testing we created a test client for
 Pegasus that uses a WEB server (ex. Apache) with a set of CGI modules and
@@ -413,19 +417,22 @@ tests Test programs for the common functions</font></li>
 </font></li>
           <li><font face="Courier New"><b>Config</b> Pegasus Configuration 
           functions</font></li>
-          <li><font face="Courier New"><b>Consumer</b> TBD </font></li>
+          <li><font face="Courier New"><b>Consumer</b> Indication Consumer class 
+          header</font></li>
           <li><font face="Courier New"><b>ControlProviders</b> Implementation of Pegasus internal providers
           </font></li>
-          <li><font face="Courier New"><b>ExportClient</b> TBD
-</font></li>
-          <li><font face="Courier New"><b>ExportServer</b> TBD
-</font></li>
-          <li><font face="Courier New"><b>Handler</b> TBD </font></li>
-          <li><font face="Courier New"><b>HandlerService</b> TBD
-</font></li>
-          <li><font face="Courier New"><b>IndicationService</b> TBD
-</font></li>
-          <li><font face="Courier New"><b>Listener</b> TBD </font></li>
+          <li><font face="Courier New"><b>ExportClient</b> Client connect code 
+          for export of indications</font></li>
+          <li><font face="Courier New"><b>ExportServer</b> Server code for 
+          import of indications</font></li>
+          <li><font face="Courier New"><b>Handler</b> Indication handlers. Today 
+          this includes cimxml, SNMP and email handlers</font></li>
+          <li><font face="Courier New"><b>HandlerService</b> Common code for 
+          indication handler service</font></li>
+          <li><font face="Courier New"><b>IndicationService</b> Common service 
+          functions for indication subscription processing</font></li>
+          <li><font face="Courier New"><b>Listener</b> Common code that allows 
+          CIM Listeners to be created and connected.</font></li>
           <li><font face="Courier New"><b>Protocol</b> Pegasus Client HTTP/XML Protocol Modules
 depends </font></li>
           <li><font face="Courier New"><b>Provider</b> Pegasus Provider interface functions
@@ -443,11 +450,12 @@ depends </font></li>
             </li>
             </ul>
           </li>
-          <li><font face="Courier New"><b>Security</b> TBD </font></li>
+          <li><font face="Courier New"><b>Security</b> Authentication and user 
+          support functions.</font></li>
           <li><font face="Courier New"><b>Server</b> Pegasus Server Modules
           </font></li>
-          <li><font face="Courier New"><b>WQL</b> TBD
-</font></li>
+          <li><font face="Courier New"><b>WQL</b> the WQL query language 
+          interpreter.</font></li>
           </ul>
           </li>
           </ul>
@@ -455,12 +463,17 @@ depends </font></li>
           <li><font face="Courier New"><b>Providers</b> Pegasus test and required providers
           </font>
           <ul>
-            <li><font face="Courier New"><b>generic</b> TBD this and following IndicationConsumer
+            <li><font face="Courier New"><b>generic</b> A number of 
+            cross-platform providers
             </font></li>
-            <li><font face="Courier New"><b>Linux</b> </font></li>
+            <li><font face="Courier New">IndicationConsumer - Provider that 
+            consumes indications</font></li>
+            <li><font face="Courier New"><b>Linux</b> - A number of linux 
+            providers</font></li>
             <li><font face="Courier New"><b>ManagedSystem</b> Providers 
             associated with managing the Pegasus System</font></li>
-            <li><font face="Courier New"><b>slp</b> -&nbsp; </font></li>
+            <li><font face="Courier New"><b>slp</b> -&nbsp; Provider for slp 
+            service agent support</font></li>
             <li><font face="Courier New"><b>statistic</b> - Providers for 
             Pegasus statistics.</font></li>
             <li><font face="Courier New"><b>sample</b> Sample providers for the 
@@ -470,16 +483,16 @@ depends </font></li>
             </li>
             <li><font face="Courier New"><b>Server</b> Pegasus executable build
             </font></li>
-            <li><font face="Courier New"><b>slp</b> - TBD</font></li>
-            <li><font face="Courier New"><b>Standard Includes</b> - TBD</font></li>
+            <li><font face="Courier New"><b>slp</b> - </font></li>
+            <li><font face="Courier New"><b>Standard Includes</b> - </font></li>
             <li><font face="Courier New"><b>test</b> - Directory of end-end 
             tests that are regularly conducted on Pegasus</font></li>
             <li><font face="Courier New"><b>tools</b> MU and other utilities written for Pegasus support
             </font></li>
             <li><font face="Courier New"><b>Unsupported</b> Code that is made available but is not supported or included
 in the normal make. </font></li>
-            <li><font face="Courier New"><b>WMIMapper</b> Pegasus implementation that implements mapping to Microsoft
-WMI objects.
+            <li><font face="Courier New"><b>WMIMapper</b> Pegasus implementation that 
+            provides mapping to Microsoft WMI objects.
 
 </font></li>
             </ul>
@@ -514,8 +527,9 @@ Pegasus build. This directory should be make public so that the test functions,
 <h1>
 <a name="Pegasus Installation">Pegasus Installation</a> </h1>
 <p>
-Pegasus today is provided only as a source distribution. 
-<p>
+Pegasus today is provided only as a source distribution.&nbsp; Note that there 
+is code for a Linux RPM distribution but the project is not yet releasing 
+binaies.<p>
 To install Pegasus, you must check it out using CVS (Common Version System)
 or download a snapshot. You download, compile, and use it. 
 <p>
@@ -546,8 +560,8 @@ Be sure these are on the path.
 (e.g., set it to $HOME/pegasus_home). Then the output will go into
 $HOME/pegasus_home/bin and $HOME/pegasus_home/lib
                 </li>
-                <li><b>PEGASUS_PLATFORM</b> - this must be set to a supported platform identifier.
-                </li>
+                <li><b>PEGASUS_PLATFORM</b> - this must be set to a supported 
+                platform identifier.</li>
                 </ul>
                 <blockquote>
 <p>
@@ -559,7 +573,7 @@ This identifier has the following form:
 For example (Linux on IA32 platform using the GNU Compiler):
 LINUX_IX86_GNU
 <p>
-For a complete list of platforms supported and platform support keywords, refer to the platform_ make files found in directory&nbsp; 
+For a complete list of platforms supported and platform support keywords, refer to the platform make files found in directory&nbsp; 
 <font face="Courier New">pegasus/mak</font>
 
                 </blockquote>
@@ -580,7 +594,7 @@ That way, the output of each build will be placed in its own directory.
 Place $PEGASUS_HOME/lib on your LD_LIBRARY_PATH (for Unix only).
 For RedHat/SuSE/UL, edit /etc/ld.so.conf and add $PEGASUS_HOME/lib
 <p>
-4. Change to the root of the Pegasus distrubution and type &quot;make&quot;
+4. Change to the root of the Pegasus distribution and type &quot;make&quot;
 (where make refers to GNU make).
 <p>
 5. Then create the repository, which is needed to serve data.
@@ -814,9 +828,8 @@ This is a separate test tool that allows Pegasus requests to be initiated from
 any WEB browser and that uses a WEB browser, CGI scripts and HTML pages for
 the formatting and connections. It requires a WEB server, etc. The
 instructions for setting up this environment are maintained in a separate readme in the CGI directory. <h1><a name="Development with Pegasus and Pegasus Tools">Development with Pegasus and Pegasus Tools</a></h1><p>
-ATTN: This section needs to be completed. It should reference the more
-complete documentation
-ATTN: Write about providers? <h1><a name="Commands">Commands</a></h1><p>
+ATTN: This section needs to be completed. It should reference the more complete 
+documentation.<h1><a name="Commands">Commands</a></h1><p>
 The manpages for each of the commands are in rpm/manLinux/man1.Z directory (on 
 CVS) <p>
 To see simple help for each of the commands, use the &quot;-h&quot; flag. <blockquote><pre>Examples:
@@ -874,7 +887,7 @@ If this variable is left defined, Pegasus will not be able to load messages
 using ICU resource bundles. <h1><a name="Pegasus Documentation">Pegasus Documentation</a></h1><p>
 The documentation is currently in preparation.&nbsp; Much of Pegasus is 
 documented in the PEGASUS PEPs which are the basis for approval of Pegasus 
-functioanlity, changes, plans, etc.&nbsp; These documents are openly available 
+functionality, changes, plans, etc.&nbsp; These documents are openly available 
 on the PEGASUS web site.&nbsp; The preliminary documentation
 is not provided with this release. The current documentation is maintained both as a manual created
 under the tool DOC++ in the runtime subdirectory manual/html (see doc/devManual 

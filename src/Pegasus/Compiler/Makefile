@@ -51,5 +51,5 @@ cimmof_lex.cpp: cimmof.l cimmof_tab.h
 	$(LEX) -ocimmof_lex.cpp -Pcimmof_ cimmof.l
 
 local_clean_target:
-	$(RM) cimmof_lex.cpp cimmof_tab.cpp cimmof_tab.h cimmoftemp.out
+	$(RM) cimmof_lex.cpp cimmof_tab.cpp cimmof_tab.h cimmoftemp.out cimmoftemp.output
 

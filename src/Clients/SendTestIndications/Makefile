@@ -5,8 +5,8 @@ PROGRAM = SendTestIndications
 SOURCES = SendTestIndications.cpp
 
 LIBRARIES = \
-   pegcommon \
-   pegclient
+   pegclient \
+   pegcommon 
 
 include $(ROOT)/mak/program.mak
 

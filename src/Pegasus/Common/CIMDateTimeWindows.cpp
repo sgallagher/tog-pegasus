@@ -52,10 +52,13 @@ Boolean getCurrentTimeZone(Sint16& currentTimeZone)
    switch(::GetTimeZoneInformation(&timezone)) {
    case TIME_ZONE_ID_UNKNOWN:
       currentTimeZone = timezone.Bias;
+	  break;
    case TIME_ZONE_ID_STANDARD:
       currentTimeZone = timezone.Bias + timezone.StandardBias;
+	  break;
    case TIME_ZONE_ID_DAYLIGHT:
       currentTimeZone = timezone.Bias + timezone.DaylightBias;
+	  break;
    default:
       break;
    }

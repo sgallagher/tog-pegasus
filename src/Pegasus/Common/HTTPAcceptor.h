@@ -31,7 +31,7 @@
 #define Pegasus_HTTPAcceptor_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TLS.h>
@@ -55,9 +55,9 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 	  @param outputMessageQueue ouptut message queue for connections
 	  created by this acceptor.
       */
-      HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue);
+      HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue);
 
-      HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue, 
+      HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue, 
 		   SSLContext * sslcontext);
 
       /** Destructor. */
@@ -109,7 +109,7 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
     
 
       Monitor* _monitor;
-      MessageQueueService* _outputMessageQueue;
+      MessageQueue* _outputMessageQueue;
       HTTPAcceptorRep* _rep;
 
       SSLContext * _sslcontext;

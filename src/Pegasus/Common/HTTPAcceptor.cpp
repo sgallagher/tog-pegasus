@@ -83,7 +83,7 @@ struct HTTPAcceptorRep
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue)
+HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue)
    : Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
      _monitor(monitor), _outputMessageQueue(outputMessageQueue), 
      _rep(0), _sslcontext(NULL)
@@ -92,7 +92,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQ
    Socket::initializeInterface();
 }
 
-HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueueService* outputMessageQueue,
+HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue,
                            SSLContext * sslcontext)
    :       Base(PEGASUS_QUEUENAME_HTTPACCEPTOR), 
 	   _monitor(monitor), _outputMessageQueue(outputMessageQueue), 

@@ -75,8 +75,8 @@
    #define TYPE_QUERY       7
 
 
-PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
 // l10n - added AcceptLanguages and ContentLanguages below
 
@@ -181,7 +181,8 @@ public:
     CIMException cimException;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMOperationRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMOperationRequestMessage
+    : public CIMRequestMessage
 {	// PEP# 99
 public:
     CIMOperationRequestMessage(
@@ -205,7 +206,8 @@ public:
     Uint32 providerType;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMIndicationRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMIndicationRequestMessage
+    : public CIMRequestMessage
 {	// PEP# 99
 public:
     CIMIndicationRequestMessage(
@@ -266,7 +268,8 @@ public:
     String userName;
 };
 
-class CIMGetInstanceRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMGetInstanceRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMGetInstanceRequestMessage(
@@ -307,7 +310,8 @@ public:
     String userName;
 };
 
-class CIMExportIndicationRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMExportIndicationRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMExportIndicationRequestMessage(
@@ -337,7 +341,8 @@ public:
     String userName;
 };
 
-class CIMDeleteClassRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMDeleteClassRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMDeleteClassRequestMessage(
@@ -365,7 +370,8 @@ public:
     String userName;
 };
 
-class CIMDeleteInstanceRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMDeleteInstanceRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMDeleteInstanceRequestMessage(
@@ -394,7 +400,8 @@ public:
     String userName;
 };
 
-class CIMCreateClassRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMCreateClassRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMCreateClassRequestMessage(
@@ -424,7 +431,8 @@ public:
     String userName;
 };
 
-class CIMCreateInstanceRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMCreateInstanceRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMCreateInstanceRequestMessage(
@@ -453,7 +461,8 @@ public:
     String userName;
 };
 
-class CIMModifyClassRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMModifyClassRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMModifyClassRequestMessage(
@@ -483,7 +492,8 @@ public:
     String userName;
 };
 
-class CIMModifyInstanceRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMModifyInstanceRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMModifyInstanceRequestMessage(
@@ -518,7 +528,8 @@ public:
     String userName;
 };
 
-class CIMEnumerateClassesRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateClassesRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateClassesRequestMessage(
@@ -558,7 +569,8 @@ public:
     String userName;
 };
 
-class CIMEnumerateClassNamesRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateClassNamesRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateClassNamesRequestMessage(
@@ -589,7 +601,8 @@ public:
     String userName;
 };
 
-class CIMEnumerateInstancesRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateInstancesRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateInstancesRequestMessage(
@@ -631,7 +644,8 @@ public:
     String userName;
 };
 
-class CIMEnumerateInstanceNamesRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateInstanceNamesRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateInstanceNamesRequestMessage(
@@ -679,7 +693,8 @@ public:
     String userName;
 };
 
-class CIMExecQueryRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMExecQueryRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMExecQueryRequestMessage(
@@ -711,7 +726,8 @@ public:
     String userName;
 };
 
-class CIMAssociatorsRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMAssociatorsRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMAssociatorsRequestMessage(
@@ -762,7 +778,8 @@ public:
     String userName;
 };
 
-class CIMAssociatorNamesRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMAssociatorNamesRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMAssociatorNamesRequestMessage(
@@ -804,7 +821,8 @@ public:
     String userName;
 };
 
-class CIMReferencesRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMReferencesRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMReferencesRequestMessage(
@@ -849,7 +867,8 @@ public:
     String userName;
 };
 
-class CIMReferenceNamesRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMReferenceNamesRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMReferenceNamesRequestMessage(
@@ -885,7 +904,8 @@ public:
     String userName;
 };
 
-class CIMGetPropertyRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMGetPropertyRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMGetPropertyRequestMessage(
@@ -917,7 +937,8 @@ public:
     String userName;
 };
 
-class CIMSetPropertyRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMSetPropertyRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMSetPropertyRequestMessage(
@@ -952,7 +973,8 @@ public:
     String userName;
 };
 
-class CIMGetQualifierRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMGetQualifierRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMGetQualifierRequestMessage(
@@ -982,7 +1004,8 @@ public:
     String userName;
 };
 
-class CIMSetQualifierRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMSetQualifierRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMSetQualifierRequestMessage(
@@ -1012,7 +1035,8 @@ public:
     String userName;
 };
 
-class CIMDeleteQualifierRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMDeleteQualifierRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMDeleteQualifierRequestMessage(
@@ -1042,7 +1066,8 @@ public:
     String userName;
 };
 
-class CIMEnumerateQualifiersRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateQualifiersRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMEnumerateQualifiersRequestMessage(
@@ -1069,7 +1094,8 @@ public:
     String userName;
 };
 
-class CIMInvokeMethodRequestMessage : public CIMOperationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMInvokeMethodRequestMessage
+    : public CIMOperationRequestMessage
 {
 public:
     CIMInvokeMethodRequestMessage(
@@ -1105,7 +1131,8 @@ public:
     String userName;
 };
 
-class CIMProcessIndicationRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMProcessIndicationRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMProcessIndicationRequestMessage(
@@ -1135,7 +1162,8 @@ public:
     CIMInstance provider;
 };
 
-class CIMConsumeIndicationRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMConsumeIndicationRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMConsumeIndicationRequestMessage(
@@ -1167,7 +1195,8 @@ public:
 
 
 
-class CIMEnableIndicationsRequestMessage : public CIMIndicationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMEnableIndicationsRequestMessage
+    : public CIMIndicationRequestMessage
 {
 public:
     CIMEnableIndicationsRequestMessage(
@@ -1186,7 +1215,8 @@ public:
     virtual CIMResponseMessage* buildResponse();
 };
 
-class CIMDisableIndicationsRequestMessage : public CIMIndicationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMDisableIndicationsRequestMessage
+    : public CIMIndicationRequestMessage
 {
 public:
     CIMDisableIndicationsRequestMessage(
@@ -1205,7 +1235,8 @@ public:
     virtual CIMResponseMessage* buildResponse();
 };
 
-class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationRequestMessage
+    : public CIMRequestMessage
 {
 public:
     enum Operation
@@ -1250,7 +1281,8 @@ public:
     Operation operation;
 };
 
-class CIMNotifyProviderTerminationRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMNotifyProviderTerminationRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMNotifyProviderTerminationRequestMessage(
@@ -1269,7 +1301,8 @@ public:
     Array <CIMInstance> providers;
 };
 
-class CIMHandleIndicationRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMHandleIndicationRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMHandleIndicationRequestMessage(
@@ -1302,7 +1335,8 @@ public:
     String userName;
 };
 
-class CIMCreateSubscriptionRequestMessage : public CIMIndicationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMCreateSubscriptionRequestMessage
+    : public CIMIndicationRequestMessage
 {
 public:
     CIMCreateSubscriptionRequestMessage(
@@ -1355,7 +1389,8 @@ public:
     String userName;
 };
 
-class CIMModifySubscriptionRequestMessage : public CIMIndicationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMModifySubscriptionRequestMessage
+    : public CIMIndicationRequestMessage
 {
 public:
     CIMModifySubscriptionRequestMessage(
@@ -1408,7 +1443,8 @@ public:
     String userName;
 };
 
-class CIMDeleteSubscriptionRequestMessage : public CIMIndicationRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMDeleteSubscriptionRequestMessage
+    : public CIMIndicationRequestMessage
 {
 public:
     CIMDeleteSubscriptionRequestMessage(
@@ -1446,7 +1482,8 @@ public:
     String userName;
 };
 
-class CIMDisableModuleRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMDisableModuleRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMDisableModuleRequestMessage(
@@ -1481,7 +1518,8 @@ public:
     String userName;
 };
 
-class CIMEnableModuleRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMEnableModuleRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMEnableModuleRequestMessage(
@@ -1507,7 +1545,8 @@ public:
     String userName;
 };
 
-class CIMNotifyProviderEnableRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMNotifyProviderEnableRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMNotifyProviderEnableRequestMessage(
@@ -1533,7 +1572,8 @@ public:
     Array <CIMInstance> capInstances;
 };
 
-class CIMStopAllProvidersRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMStopAllProvidersRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMStopAllProvidersRequestMessage(
@@ -1549,7 +1589,8 @@ public:
     virtual CIMResponseMessage* buildResponse();
 };
 
-class CIMInitializeProviderRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMInitializeProviderRequestMessage
+    : public CIMRequestMessage
 {
 public:
     CIMInitializeProviderRequestMessage(
@@ -1585,7 +1626,8 @@ public:
     CIMClass cimClass;
 };
 
-class CIMGetInstanceResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMGetInstanceResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMGetInstanceResponseMessage(
@@ -1604,7 +1646,8 @@ public:
     CIMInstance cimInstance;
 };
 
-class CIMExportIndicationResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMExportIndicationResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMExportIndicationResponseMessage(
@@ -1617,7 +1660,8 @@ public:
     }
 };
 
-class CIMDeleteClassResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMDeleteClassResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMDeleteClassResponseMessage(
@@ -1630,7 +1674,8 @@ public:
     }
 };
 
-class CIMDeleteInstanceResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMDeleteInstanceResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMDeleteInstanceResponseMessage(
@@ -1643,7 +1688,8 @@ public:
     }
 };
 
-class CIMCreateClassResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMCreateClassResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMCreateClassResponseMessage(
@@ -1656,7 +1702,8 @@ public:
     }
 };
 
-class CIMCreateInstanceResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMCreateInstanceResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMCreateInstanceResponseMessage(
@@ -1675,7 +1722,8 @@ public:
     CIMObjectPath instanceName;
 };
 
-class CIMModifyClassResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMModifyClassResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMModifyClassResponseMessage(
@@ -1688,7 +1736,8 @@ public:
     }
 };
 
-class CIMModifyInstanceResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMModifyInstanceResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMModifyInstanceResponseMessage(
@@ -1701,7 +1750,8 @@ public:
     }
 };
 
-class CIMEnumerateClassesResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateClassesResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMEnumerateClassesResponseMessage(
@@ -1720,7 +1770,8 @@ public:
     Array<CIMClass> cimClasses;
 };
 
-class CIMEnumerateClassNamesResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateClassNamesResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMEnumerateClassNamesResponseMessage(
@@ -1739,7 +1790,8 @@ public:
     Array<CIMName> classNames;
 };
 
-class CIMEnumerateInstancesResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateInstancesResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMEnumerateInstancesResponseMessage(
@@ -1758,7 +1810,8 @@ public:
     Array<CIMInstance> cimNamedInstances;
 };
 
-class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateInstanceNamesResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMEnumerateInstanceNamesResponseMessage(
@@ -1777,7 +1830,8 @@ public:
     Array<CIMObjectPath> instanceNames;
 };
 
-class CIMExecQueryResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMExecQueryResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMExecQueryResponseMessage(
@@ -1796,7 +1850,8 @@ public:
     Array<CIMObject> cimObjects;
 };
 
-class CIMAssociatorsResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMAssociatorsResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMAssociatorsResponseMessage(
@@ -1815,7 +1870,8 @@ public:
     Array<CIMObject> cimObjects;
 };
 
-class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMAssociatorNamesResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMAssociatorNamesResponseMessage(
@@ -1834,7 +1890,8 @@ public:
     Array<CIMObjectPath> objectNames;
 };
 
-class CIMReferencesResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMReferencesResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMReferencesResponseMessage(
@@ -1853,7 +1910,8 @@ public:
     Array<CIMObject> cimObjects;
 };
 
-class CIMReferenceNamesResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMReferenceNamesResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMReferenceNamesResponseMessage(
@@ -1872,7 +1930,8 @@ public:
     Array<CIMObjectPath> objectNames;
 };
 
-class CIMGetPropertyResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMGetPropertyResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMGetPropertyResponseMessage(
@@ -1891,7 +1950,8 @@ public:
     CIMValue value;
 };
 
-class CIMSetPropertyResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMSetPropertyResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMSetPropertyResponseMessage(
@@ -1904,7 +1964,8 @@ public:
     }
 };
 
-class CIMGetQualifierResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMGetQualifierResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMGetQualifierResponseMessage(
@@ -1923,7 +1984,8 @@ public:
     CIMQualifierDecl cimQualifierDecl;
 };
 
-class CIMSetQualifierResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMSetQualifierResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMSetQualifierResponseMessage(
@@ -1937,7 +1999,8 @@ public:
     }
 };
 
-class CIMDeleteQualifierResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMDeleteQualifierResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMDeleteQualifierResponseMessage(
@@ -1951,7 +2014,8 @@ public:
     }
 };
 
-class CIMEnumerateQualifiersResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMEnumerateQualifiersResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMEnumerateQualifiersResponseMessage(
@@ -1970,7 +2034,8 @@ public:
     Array<CIMQualifierDecl> qualifierDeclarations;
 };
 
-class CIMInvokeMethodResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMInvokeMethodResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMInvokeMethodResponseMessage(
@@ -1995,7 +2060,8 @@ public:
     CIMName methodName;
 };
 
-class CIMProcessIndicationResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMProcessIndicationResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMProcessIndicationResponseMessage(
@@ -2008,7 +2074,8 @@ public:
     }
 };
 
-class CIMConsumeIndicationResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMConsumeIndicationResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMConsumeIndicationResponseMessage(
@@ -2021,7 +2088,8 @@ public:
     }
 };
 
-class CIMEnableIndicationsResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMEnableIndicationsResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMEnableIndicationsResponseMessage(
@@ -2037,7 +2105,8 @@ public:
     }
 };
 
-class CIMDisableIndicationsResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMDisableIndicationsResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMDisableIndicationsResponseMessage(
@@ -2053,7 +2122,8 @@ public:
     }
 };
 
-class CIMNotifyProviderRegistrationResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMNotifyProviderRegistrationResponseMessage(
@@ -2066,7 +2136,8 @@ public:
     }
 };
 
-class CIMNotifyProviderTerminationResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMNotifyProviderTerminationResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMNotifyProviderTerminationResponseMessage(
@@ -2079,7 +2150,8 @@ public:
     }
 };
 
-class CIMHandleIndicationResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMHandleIndicationResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMHandleIndicationResponseMessage(
@@ -2092,7 +2164,8 @@ public:
     }
 };
 
-class CIMCreateSubscriptionResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMCreateSubscriptionResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMCreateSubscriptionResponseMessage(
@@ -2108,7 +2181,8 @@ public:
     }
 };
 
-class CIMModifySubscriptionResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMModifySubscriptionResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMModifySubscriptionResponseMessage(
@@ -2124,7 +2198,8 @@ public:
     }
 };
 
-class CIMDeleteSubscriptionResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMDeleteSubscriptionResponseMessage
+    : public CIMResponseMessage
 {
 public:
     CIMDeleteSubscriptionResponseMessage(

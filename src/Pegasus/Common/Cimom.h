@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AsyncOpNode.h>
 #include <Pegasus/Common/CimomMessage.h>
+#include <Pegasus/Common/MessageQueueService.h>
 //#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 //#include <Pegasus/Server/CIMOperationResponseEncoder.h>
 //#include <Pegasus/Server/CIMOperationRequestDecoder.h>
@@ -124,12 +125,15 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 
       void find_service_q(FindServiceQueue *msg );
       void enumerate_service(EnumerateService *msg );
+      Boolean route_async(AsyncOpNode *operation);
       
             
    protected:
       Uint32 get_module_q(const String & name);
-      void _enqueueResponse(AsyncOpNode *op);
-      
+      void _completeAsyncResponse(AsyncRequest *request, 
+				  AsyncReply *reply, 
+				  Uint32 state, 
+				  Uint32 flag);
    private:
       struct timeval _default_op_timeout;
       struct timeval _last_module_change;
@@ -137,22 +141,19 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
 
       DQueue<AsyncOpNode> _recycle;
       
-      // accepted - put on the pending q
-      // complete - put on the completed q
-      // released - processed by reply destination, put op node on the recycle queue
-
-      AsyncDQueue<AsyncOpNode> _pending_ops;
-      AsyncDQueue<AsyncOpNode> _completed_ops;
+      AsyncDQueue<AsyncOpNode> _routed_ops;
+      AsyncDQueue<AsyncOpNode> _internal_ops;
       
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _pending_proc(void *);
-      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _completed_proc(void *);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _routing_proc(void *);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _internal_proc(void *);
+
+      Thread _routing_thread;
+      Thread _internal_thread;
 
       static Uint32 get_xid(void);
-      
-      void _handle_cimom_msg(Message *msg);
+      void _handle_cimom_op(AsyncOpNode *op);
       Uint32 _ioctl(Uint32, Uint32, void *);
-      Thread _pending_thread;
-      Thread _completed_thread;
+
 
       AtomicInt _die;
       static AtomicInt _xid;

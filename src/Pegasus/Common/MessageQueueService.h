@@ -41,6 +41,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
+class message_module;
+
 class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
 {
    public:
@@ -65,16 +67,15 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       virtual void handle_AsyncOperationStart(AsyncOperationStart *req);
       virtual void handle_AsyncOperationResult(AsyncOperationResult *req);
             
-//     virtual Boolean accept_async(Message *message) throw(IPCException);
-//     virtual Boolean messageOK(const Message *msg) ;
+      virtual Boolean accept_async(AsyncOpNode *op) throw(IPCException);
+      virtual Boolean messageOK(const Message *msg) ;
 
 //      virtual Message *openEnvelope(Message *msg);
       
-      AsyncMessage *SendWait(AsyncRequest *request);
-      
-      void SendWait(AsyncRequest *request, unlocked_dq<AsyncMessage> *reply_list);
 //      Boolean SendAsync(AsyncMessage *msg);
-      void _enqueueAsyncResponse(AsyncRequest *request, 
+      AsyncReply *SendWait(AsyncRequest *request);
+      
+      void _completeAsyncResponse(AsyncRequest *request, 
 				 AsyncReply *reply, 
 				 Uint32 state, 
 				 Uint32 flag);
@@ -95,21 +96,27 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       AtomicInt _die;
    protected:
 
-      // handle all your messages. call Base:_handle_async_msg to 
-      // deal with messages you don't handle 
-      virtual void _handle_async_msg(AsyncMessage *msg);
-      
-
+      virtual void _handle_async_request(AsyncRequest *req);
+      virtual void _handle_async_reply(AsyncReply *rep);
+      virtual void _make_response(AsyncRequest *req, Uint32 code);
       cimom *_meta_dispatcher;
+
    private: 
 
+      AsyncDQueue<AsyncOpNode> _pending;
+      AsyncDQueue<AsyncOpNode> _incoming;
+      
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
+      static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _rpl_proc(void *);
+      Thread _req_thread;
+      Thread _rpl_thread;
       
       struct timeval _default_op_timeout;
 
       static AtomicInt _xid;
-      void _handle_async_request(AsyncRequest *req);
-      void _handle_async_reply(AsyncReply *rep);
-      void _make_response(AsyncRequest *req, Uint32 code);
+      void _handle_incoming_operation(AsyncOpNode *operation);
+
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -149,8 +149,8 @@ class MessageQueueServer : public MessageQueueService
       void handle_test_request(AsyncRequest *msg);
       virtual void handle_CimServiceStop(CimServiceStop *req);
 
+      virtual void _handle_async_request(AsyncRequest *req);
       
-      virtual void _handle_async_msg(AsyncMessage *msg);
       AtomicInt dienow;
       
 
@@ -164,7 +164,7 @@ class MessageQueueClient : public MessageQueueService
       typedef MessageQueueService Base;
       
       MessageQueueClient(char *name)
-	 : Base(name, MessageQueue::getNextQueueId(), 0, 
+	 : Base(name, MessageQueue::getNextQueueId(), 0,  
 		message_mask::type_cimom | 
 		message_mask::type_service | 
 		message_mask::ha_request | 
@@ -189,8 +189,7 @@ class MessageQueueClient : public MessageQueueService
       Uint32 _client_capabilities;
       Uint32 _client_mask;
       
-      
-      virtual void _handle_async_msg(AsyncMessage *msg);
+      virtual void _handle_async_request(AsyncRequest *req);
       AtomicInt client_xid;
 };
 
@@ -203,21 +202,21 @@ Uint32 MessageQueueClient::get_qid(void)
    return _queueId;
 }
 
-void MessageQueueServer::_handle_async_msg(AsyncMessage *msg)
+void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 {
-   if (msg->getType() == 0x04100000 )
+   if (req->getType() == 0x04100000 )
    {
-      msg->op->processing();
-      handle_test_request(static_cast<AsyncRequest *>(msg));
+      req->op->processing();
+      handle_test_request(req);
    }
-   else if ( msg->getType() == async_messages::CIMSERVICE_STOP )
+   else if ( req->getType() == async_messages::CIMSERVICE_STOP )
    {
-      msg->op->processing();
-      handle_CimServiceStop(static_cast<CimServiceStop *>(msg));
+      req->op->processing();
+      handle_CimServiceStop(static_cast<CimServiceStop *>(req));
    }
    
    else
-      Base::_handle_async_msg(msg);
+      Base::_handle_async_request(req);
 }
 
 Boolean MessageQueueServer::messageOK(const Message *msg)
@@ -242,7 +241,7 @@ void MessageQueueServer::handle_test_request(AsyncRequest *msg)
 			   async_results::OK,
 			   msg->dest, 
 			   "i am a test response");
-      _enqueueAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
+      _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
    }
 }
 
@@ -259,7 +258,7 @@ void MessageQueueServer::handle_CimServiceStop(CimServiceStop *req)
 		     async_results::CIM_SERVICE_STOPPED, 
 		     req->resp, 
 		     req->block);
-   _enqueueAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
+   _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0 );
    
    cout << "recieved STOP from test client" << endl;
    
@@ -267,11 +266,11 @@ void MessageQueueServer::handle_CimServiceStop(CimServiceStop *req)
 }
 
 
-void MessageQueueClient::_handle_async_msg(AsyncMessage *msg)
+void MessageQueueClient::_handle_async_request(AsyncRequest *req)
 {
-   Base::_handle_async_msg(msg);
+   Base::_handle_async_request(req);
 }
-
+ 
 
 Boolean MessageQueueClient::messageOK(const Message *msg)
 {
@@ -298,6 +297,7 @@ void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
    if( response != 0  )
    {
       msg_count++; 
+      cout << msg_count.value() << endl;
       delete response;
    }
 }
@@ -316,7 +316,7 @@ int main(int argc, char **argv)
 
    server.run();
    client.run();
-   while( msg_count.value() < 10000 )
+   while( msg_count.value() < 500 )
    {
       pegasus_sleep(10);
    }
@@ -340,7 +340,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    q_client->register_service("test client", q_client->_client_capabilities, q_client->_client_mask);
    cout << " client registered " << endl;
    
-   Array<Uint32> services;
+   Array<Uint32> services; 
    while( services.size() == 0 )
    {
       q_client->find_services(String("test server"), 0, 0, &services);
@@ -349,7 +349,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    
    cout << "found server at " << services[0] << endl;
    
-   while (msg_count.value() < 10000 )
+   while (msg_count.value() < 500 )
    {
       q_client->send_test_request("i am the test client" , services[0]);
    }
@@ -399,7 +399,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    cout << " deleting server " << endl;
    
    delete q_server; 
-
    
    my_handle->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);

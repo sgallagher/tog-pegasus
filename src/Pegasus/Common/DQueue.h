@@ -543,7 +543,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 
 	 if(Base::count() > 0 ) 
 	 {
-	    L *ret = _remove_no_lock(key);
+	    ret = _remove_no_lock(key);
 	    if(ret != 0)
 	    {
 	       (*_actual_count)--;
@@ -562,7 +562,7 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: virtual public inter
 	 
 	 if(Base::count() > 0 ) 
 	 {
-	    L *ret = _remove_no_lock(key);
+	    ret = _remove_no_lock(key);
 	    if(ret != 0)
 	    {
 	       (*_actual_count)--;

@@ -1544,7 +1544,7 @@ String CIMValue::toString() const
     }
     else if (_type == CIMType::REFERENCE)
     {
-	// ATTN: work on this:
+	return _u._referenceValue->toString();
     }
     else
     {

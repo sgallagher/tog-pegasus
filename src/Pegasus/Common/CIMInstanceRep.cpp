@@ -333,7 +333,7 @@ CIMReference CIMInstanceRep::getInstanceName(
 		PEGASUS_ASSERT(false);
 
 	    CIMType type = value.getType();
-	    String valueStr = value.toString();
+	    String valueStr;
 
 	    KeyBinding::Type kbType = KeyBinding::STRING;
 
@@ -341,6 +341,7 @@ CIMReference CIMInstanceRep::getInstanceName(
 	    {
 		case CIMType::BOOLEAN:
 		    kbType = KeyBinding::BOOLEAN;
+		    valueStr = value.toString();
 		    break;
 
 		case CIMType::UINT8:
@@ -353,12 +354,23 @@ CIMReference CIMInstanceRep::getInstanceName(
 		case CIMType::SINT64:
 		case CIMType::CHAR16:
 		    kbType = KeyBinding::NUMERIC;
+		    valueStr = value.toString();
 		    break;
 
 		case CIMType::STRING:
 		case CIMType::DATETIME:
 		    kbType = KeyBinding::STRING;
+		    valueStr = value.toString();
 		    break;
+
+		case CIMType::REFERENCE:
+		{
+		    kbType = KeyBinding::STRING;
+
+		    CIMReference tmpRef = value.toString();
+		    valueStr = tmpRef.toStringCanonical();
+		    break;
+		}
 
 		case CIMType::REAL32:
 		case CIMType::REAL64:

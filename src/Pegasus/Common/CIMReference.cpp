@@ -52,6 +52,38 @@ PEGASUS_NAMESPACE_BEGIN
 // of the class or used. Also be sure that there is a valid conversion 
 // between the string value and the value of that property.
 
+static String _escapeSpecialCharacters(const String& str)
+{
+    String result;
+
+    for (Uint32 i = 0, n = str.size(); i < n; i++)
+    {
+	switch (str[i])
+	{
+	    case '\n':
+		result += "\\n";
+		break;
+
+	    case '\r':
+		result += "\\r";
+		break;
+
+	    case '\t':
+		result += "\\t";
+		break;
+
+	    case '"':
+		result += "\\\"";
+		break;
+
+	    default:
+		result += str[i];
+	}
+    }
+
+    return result;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Local routines:
@@ -472,9 +504,8 @@ String CIMReference::toString() const
 	objectName.append(keyBindings[i].getName());
 	objectName.append('=');
 
-	// ATTN: handle escaping of special characters:
-
-	const String& value = keyBindings[i].getValue();
+	const String& value = _escapeSpecialCharacters(
+	    keyBindings[i].getValue());
 
 	KeyBinding::Type type = keyBindings[i].getType();
 	
@@ -491,6 +522,18 @@ String CIMReference::toString() const
     }
 
     return objectName;
+}
+
+String CIMReference::toStringCanonical() const
+{
+    CIMReference ref = *this;
+
+    ref._className.toLower();
+
+    for (Uint32 i = 0, n = ref._keyBindings.size(); i < n; i++)
+	ref._keyBindings[i]._name.toLower();
+
+    return ref.toString();
 }
 
 Boolean CIMReference::identical(const CIMReference& x) const

@@ -525,18 +525,26 @@ public:
     */
     void setKeyBindings(const Array<KeyBinding>& keyBindings);
 
-    /** Returns the object name represented by this reference.
-    The returned string is formed from the hostname, namespace, classname
-    and keybindings defined for this CIMReference object.
-    the form of the name is:
-    <PRE>
-    	"//" + hostname + "/" + namespace + ":" + classname +"." +
-    		(keyname) + "=" (keyvalue) +"," ...
-    </PRE>
-    The building includes the escaping of special characters.
-    ATTN: The form of the above string definition needs cleaning.
+    /** Returns the object name represented by this reference. The returned 
+	string is formed from the hostname, namespace, classname
+	and keybindings defined for this CIMReference object.
+	the form of the name is:
+
+	    <pre>
+		"//" + hostname + "/" + namespace + ":" + classname +"." +
+			(keyname) + "=" (keyvalue) +"," ...
+	    </pre>
+
+	The building includes the escaping of special characters.
+	ATTN: The form of the above string definition needs cleaning.
     */
     String toString() const;
+
+    /** Stringizes object into canonical form (in which all keys are sorted
+	into ascending order and classnames and keynames are shifted to
+	lower case.
+    */
+    String toStringCanonical() const;
 
     /** Returns true if this reference is identical to the one given
 	by the x argument. Since CIMReferences are normalized when they

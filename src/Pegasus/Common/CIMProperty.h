@@ -53,13 +53,13 @@ ATTN: Define the property concept in more detail and ref property.
 {
 public:
 
-    /// CIMProperty constructor
+    /** CIMProperty constructor. */
     CIMProperty() : _rep(0)
     {
 
     }
 
-    /// CIMProperty
+    /** CIMProperty. */
     CIMProperty(const CIMProperty& x)
     {
 	Inc(_rep = x._rep);
@@ -93,6 +93,7 @@ public:
 	    arraySize, referenceClassName, classOrigin, propagated);
     }
 
+    /** ~CIMProperty(). */
     ~CIMProperty()
     {
 	Dec(_rep);
@@ -145,8 +146,7 @@ public:
         parameter.
 	@param value CIMValue containing the value to be put into the 
         property. /Ref{CIMValue}
-     */
-
+    */
     void setValue(const CIMValue& value)
     {
 	_checkRep();

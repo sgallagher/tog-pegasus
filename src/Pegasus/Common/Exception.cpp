@@ -66,7 +66,7 @@ const char AlreadyExists::MSG[] = "already exists: ";
 
 const char NullPointer::MSG[] = "null pointer";
 
-const char UnitializedHandle::MSG[] = "unitialized reference";
+const char UnitializedHandle::MSG[] = "unitialized handle";
 
 const char IllegalName::MSG[] = "illegal CIM name";
 

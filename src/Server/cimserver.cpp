@@ -363,7 +363,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
         //PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
         MessageLoaderParms parms("src.Server.cimserver.UNABLE_CONNECT_SERVER_MAY_NOT_BE_RUNNING",
-        						 "Unable to connect to CIM Server.\nCIM Server may not be running.\n");
+                                                         "Unable to connect to CIM Server.\nCIM Server may not be running.\n");
         PEGASUS_STD(cerr) << MessageLoader::getMessage(parms);
 #endif
         cimserver_exit(1);
@@ -428,22 +428,42 @@ void shutdownCIMOM(Uint32 timeoutValue)
 	if(cimserver_kill() == -1)
 	   cimserver_exit(2);
 #else
-        //l10n
-        //PEGASUS_STD(cerr) << "Failed to shutdown server: ";
+        //l10n - TODO
         MessageLoaderParms parms("src.Server.cimserver.SHUTDOWN_FAILED",
-        						 "Failed to shutdown server: ");
+                                 "Error in server shutdown: ");
         PEGASUS_STD(cerr) << MessageLoader::getMessage(parms);
         if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
         {
-            //PEGASUS_STD(cerr) << "The repository may be empty.";
-            //PEGASUS_STD(cerr) << PEGASUS_STD(endl);
+            //
+            // Repository may be empty.  
+            //
+            //l10n - TODO
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                "src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY",
+                "Error in server shutdown: The repository may be empty.");
             MessageLoaderParms parms("src.Server.cimserver.REPOSITORY_EMPTY",
-        						 	 "The repository may be empty.");
-        	PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+                                     "The repository may be empty.");
+            PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
         }
         else
         {
+            //l10n - TODO
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                "src.Server.cimserver.SHUTDOWN_FAILED",
+                "Error in server shutdown: $0", e.getMessage());
             PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
+        }
+
+	// Kill the cimserver process 
+	if (cimserver_kill() == 0)
+        {
+            //l10n - TODO
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                "src.Server.cimserver.SERVER_FORCED_SHUTDOWN",
+			"Forced shutdown initiated.");
+            MessageLoaderParms parms("src.Server.cimserver.SERVER_FORCED_SHUTDOWN",
+                                     "Forced shutdown initiated.");
+            PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
         }
 #endif
         cimserver_exit(1);
@@ -485,10 +505,12 @@ void shutdownCIMOM(Uint32 timeoutValue)
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 	    if (kill_rc != -1)
             {
-                //l10n
-                //cout << "Shutdown timeout expired.  CIM Server process killed." << endl;
+                //l10n - TODO
+                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                    "src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
+                    "Shutdown timeout expired.  Forced shutdown initiated.");
                 MessageLoaderParms parms("src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
-                						 "Shutdown timeout expired.  CIM Server process killed.");
+                    "Shutdown timeout expired.  Forced shutdown initiated.");
                 cout << MessageLoader::getMessage(parms) << endl;
                 exit(0);
             }
@@ -1075,6 +1097,7 @@ MessageLoader::_useProcessLocale = false;
 		//cout << "CIMServer is already running." << endl;
 		MessageLoaderParms parms("src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
 					 "Unable to start CIMServer.\nCIMServer is already running.");
+	PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
 
 	//
         // notify parent process (if there is a parent process) to terminate

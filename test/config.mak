@@ -19,7 +19,7 @@ XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
 WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PASSWORD)
 
 %.rsp: %.xml
-	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $*.rsp; cd .
+	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $*.rsp | cd .
 	@ $(DIFF) $*.rsp $*rspgood.xml
 	@ $(RM) $*.rsp
 	@ echo +++ $* passed successfully +++

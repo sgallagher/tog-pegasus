@@ -206,6 +206,9 @@ public:
 	const String& messageId,
 	const String& nameSpace);
 
+    void handleEnumerateQualifiersResponse(
+	CIMEnumerateQualifiersResponseMessage* response);
+
     void handleCreateClassRequest(
 	XmlParser& parser, 
 	const String& messageId,
@@ -526,8 +529,6 @@ int ClientConnection::handleMethodCall()
     // Dispatch the method:
     //--------------------------------------------------------------------------
 
-PEGASUS_OUT(iMethodCallName);
-
     if (CompareNoCase(iMethodCallName, "GetClass") == 0)
 	handleGetClassRequest(parser, messageId, nameSpace);
     else if (CompareNoCase(iMethodCallName, "GetInstance") == 0)
@@ -713,6 +714,8 @@ void ClientConnection::handleEnqueue()
 	    break;
 
 	case CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE:
+	    handleEnumerateQualifiersResponse(
+		(CIMEnumerateQualifiersResponseMessage*)response);
 	    break;
 
 	// ATTN: implement this:
@@ -747,122 +750,12 @@ void ClientConnection::sendError(
     delete [] tmp;
 }
 
-void ClientConnection::handleEnumerateQualifiersRequest(
-    XmlParser& parser, 
-    const String& messageId,
-    const String& nameSpace)
-{
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-
-    Array<CIMQualifierDecl> qualifierDecls;
-    
-    try
-    {
-	qualifierDecls = _dispatcher->enumerateQualifiers(nameSpace);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "EnumerateQualifiers", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "EnumerateQualifiers", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < qualifierDecls.size(); i++)
-	qualifierDecls[i].toXml(body);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateQualifiers", messageId, body);
-
-    sendMessage(message);
-}
-
 void ClientConnection::handleGetPropertyRequest(
     XmlParser& parser, 
     const String& messageId,
     const String& nameSpace)
 {
-
-    /// This is a really sloppy way to get the instance anme
-    CIMReference instanceName;
-    String propertyName;
-    CIMValue cimValueRtn;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	CIMValue cimValue; 
-	if (CompareNoCase(name, "InstanceName") == 0)
-       {
-	   String className;
-	   Array<KeyBinding> keyBindings;
-	   XmlReader::getInstanceNameElement(parser, className, keyBindings);
-
-	   // ATTN: do we need the namespace here?
-
-	   instanceName.set(String(), String(), className, keyBindings);
-       }
-
-       // Get the Property Name field
-       // How do we know if we got everything??
-       else if (strcmp(name, "PropertyName") == 0)
-	   XmlReader::getValueElement(parser, CIMType::STRING, cimValue);
-
-       XmlReader::expectEndTag(parser, "IPARAMVALUE");
-
-       //propertyName = cimValue.data;
-       propertyName = "pid";
-    }
-
-    
-    try
-    {
-	cimValueRtn = _dispatcher->getProperty(
-	    nameSpace,
-	    instanceName,
-	    propertyName);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "GetProperty", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "GetProperty", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    // Here is where we format the parm part of the response.
-    // neet to format the CIMValue here in the response
-    //for (Uint32 i = 0; i < classNames.size(); i++)
-    //    XmlWriter::appendClassNameElement(body, classNames[i]);
-    // We need to put propertyValue on this thing.  Note
-    // Lets assume that at this point we have cimvalue with
-    // everything defined.  It will only be on the move back
-    // through XML that we lose the typing.
-
-    Array<Sint8> body;
-
-    cimValueRtn.toXml(body);
-
-	// body contains <value>value</value> to return
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"GetProperty", messageId, body);
-
-    // cout << "DEBUG CIMServer:IhandleGetPropertyRequest " <<
-    //	cimValueRtn.toString() << endl;
-
-    sendMessage(message);
+    // ATTN: implement this!
 }
 
 void ClientConnection::handleSetPropertyRequest(
@@ -870,50 +763,7 @@ void ClientConnection::handleSetPropertyRequest(
     const String& messageId,
     const String& nameSpace)
 {
-    String className;
-    Boolean deepInheritance = false;
-
-    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
-    {
-	if (CompareNoCase(name, "ClassName") == 0)
-	    XmlReader::getClassNameElement(parser, className, true);
-	else if (CompareNoCase(name, "DeepInheritance") == 0)
-	    XmlReader::getBooleanValueElement(parser, deepInheritance, true);
-
-	XmlReader::expectEndTag(parser, "IPARAMVALUE");
-    }
-
-    Array<String> classNames;
-    
-    try
-    {
-	classNames = _dispatcher->enumerateClassNames(
-	    nameSpace,
-	    className,
-	    deepInheritance);
-    }
-    catch (CIMException& e)
-    {
-	sendError(messageId, "EnumerateClassNames", 
-	    e.getCode(), CIMStatusCodeToString(e.getCode()));
-	return;
-    }
-    catch (Exception&)
-    {
-	sendError(messageId, "EnumerateClassNames", CIM_ERR_FAILED, 
-	    CIMStatusCodeToString(CIM_ERR_FAILED));
-	return;
-    }
-
-    Array<Sint8> body;
-
-    for (Uint32 i = 0; i < classNames.size(); i++)
-	XmlWriter::appendClassNameElement(body, classNames[i]);
-
-    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
-	"EnumerateClassNames", messageId, body);
-
-    sendMessage(message);
+    // ATTN: implement this!
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1840,7 +1690,6 @@ void ClientConnection::handleSetQualifierRequest(
     const String& messageId,
     const String& nameSpace)
 {
-cout << "handleSetQualifierRequest" << endl;
     CIMQualifierDecl qualifierDeclaration;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
@@ -1916,6 +1765,43 @@ void ClientConnection::handleDeleteQualifierResponse(
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"DeleteQualifier", response->messageId, body);
+
+    sendMessage(message);
+}
+
+void ClientConnection::handleEnumerateQualifiersRequest(
+    XmlParser& parser, 
+    const String& messageId,
+    const String& nameSpace)
+{
+    for (const char* name; XmlReader::getIParamValueTag(parser, name);)
+	XmlReader::expectEndTag(parser, "IPARAMVALUE");
+
+    CIMEnumerateQualifiersRequestMessage* request = 
+	new CIMEnumerateQualifiersRequestMessage(
+	    messageId,
+	    nameSpace,
+	    getQueueId());
+
+    _dispatcher->enqueue(request);
+}
+
+void ClientConnection::handleEnumerateQualifiersResponse(
+    CIMEnumerateQualifiersResponseMessage* response)
+{
+    if (response->errorCode != CIM_ERR_SUCCESS)
+    {
+	sendError(response, "EnumerateQualifiers");
+	return;
+    }
+
+    Array<Sint8> body;
+
+    for (Uint32 i = 0; i < response->qualifierDeclarations.size(); i++)
+	response->qualifierDeclarations[i].toXml(body);
+
+    Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
+	"EnumerateQualifiers", response->messageId, body);
 
     sendMessage(message);
 }

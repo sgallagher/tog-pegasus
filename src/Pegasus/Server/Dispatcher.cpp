@@ -50,263 +50,6 @@ Dispatcher::~Dispatcher()
 
 }
 
-CIMClass Dispatcher::getClass(
-    const String& nameSpace,
-    const String& className,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const Array<String>& propertyList)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-CIMInstance Dispatcher::getInstance(
-    const String& nameSpace,
-    const CIMReference& instanceName,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const Array<String>& propertyList)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-void Dispatcher::deleteClass(
-    const String& nameSpace,
-    const String& className)
-{
-}
-
-void Dispatcher::deleteInstance(
-    const String& nameSpace,
-    const CIMReference& instanceName)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-void Dispatcher::createClass(
-    const String& nameSpace,
-    const CIMClass& newClass)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-void Dispatcher::createInstance(
-    const String& nameSpace,
-    const CIMInstance& newInstance)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-void Dispatcher::modifyClass(
-    const String& nameSpace,
-    const CIMClass& modifiedClass)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-void Dispatcher::modifyInstance(
-    const String& nameSpace,
-    const CIMInstance& modifiedInstance)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-Array<CIMClass> Dispatcher::enumerateClasses(
-    const String& nameSpace,
-    const String& className,
-    Boolean deepInheritance,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<CIMClass>();
-}
-
-Array<String> Dispatcher::enumerateClassNames(
-    const String& nameSpace,
-    const String& className,
-    Boolean deepInheritance)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<String>();
-}
-
-Array<CIMInstance> Dispatcher::enumerateInstances(
-    const String& nameSpace,
-    const String& className,
-    Boolean deepInheritance,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const Array<String>& propertyList)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<CIMInstance>();
-}
-
-Array<CIMReference> Dispatcher::enumerateInstanceNames(
-    const String& nameSpace,
-    const String& className)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<CIMReference>();
-}
-
-Array<CIMInstance> Dispatcher::execQuery(
-    const String& queryLanguage,
-    const String& query)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<CIMInstance>();
-}
-
-Array<CIMObjectWithPath> Dispatcher::associators(
-    const String& nameSpace,
-    const CIMReference& objectName,
-    const String& assocClass,
-    const String& resultClass,
-    const String& role,
-    const String& resultRole,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const Array<String>& propertyList)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<CIMObjectWithPath>();
-}
-
-Array<CIMReference> Dispatcher::associatorNames(
-    const String& nameSpace,
-    const CIMReference& objectName,
-    const String& assocClass,
-    const String& resultClass,
-    const String& role,
-    const String& resultRole)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<CIMReference>();
-}
-
-Array<CIMObjectWithPath> Dispatcher::references(
-    const String& nameSpace,
-    const CIMReference& objectName,
-    const String& resultClass,
-    const String& role,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const Array<String>& propertyList)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<CIMObjectWithPath>();
-}
-
-Array<CIMReference> Dispatcher::referenceNames(
-    const String& nameSpace,
-    const CIMReference& objectName,
-    const String& resultClass,
-    const String& role)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return Array<CIMReference>();
-}
-
-CIMValue Dispatcher::getProperty(
-    const String& nameSpace,
-    const CIMReference& instanceName,
-    const String& propertyName)
-{
-    String className = instanceName.getClassName();
-    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
-
-    if (provider)
-	return provider->getProperty(nameSpace,instanceName, propertyName );
-    else
-	return _repository->getProperty(nameSpace, instanceName,propertyName);
-}
-
-void Dispatcher::setProperty(
-    const String& nameSpace,
-    const CIMReference& instanceName,
-    const String& propertyName,
-    const CIMValue& newValue)
-{
-    String className = instanceName.getClassName();
-    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
-
-    if (provider)
-	provider->setProperty(nameSpace,instanceName,propertyName,newValue);
-    else
-	_repository->setProperty(nameSpace,instanceName,propertyName,newValue);
-}
-
-CIMQualifierDecl Dispatcher::getQualifier(
-    const String& nameSpace,
-    const String& qualifierName)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-    return CIMQualifierDecl();
-}
-
-void Dispatcher::setQualifier(
-    const String& nameSpace,
-    const CIMQualifierDecl& qualifierDecl)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-void Dispatcher::deleteQualifier(
-    const String& nameSpace,
-    const String& qualifierName)
-{
-    // Obsolete!
-    PEGASUS_ASSERT(0);
-}
-
-Array<CIMQualifierDecl> Dispatcher::enumerateQualifiers(
-    const String& nameSpace)
-{
-    return _repository->enumerateQualifiers(nameSpace);
-}
-
-CIMValue Dispatcher::invokeMethod(
-    const String& nameSpace,
-    const CIMReference& instanceName,
-    const String& methodName,
-    const Array<CIMValue>& inParameters,
-    Array<CIMValue>& outParameters)
-{
-    String className = instanceName.getClassName();
-    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
-
-    if (provider)
-	return provider->invokeMethod(
-	    nameSpace, instanceName, methodName, inParameters, outParameters);
-    else
-	return _repository->invokeMethod(
-	    nameSpace, instanceName, methodName, inParameters, outParameters);
-}
-
 CIMProvider* Dispatcher::_lookupProviderForClass(
     const String& nameSpace,
     const String& className)
@@ -357,7 +100,7 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
 
 	try 
 	{
-	    provider->initialize(CIMOMHandle(this));
+	    // provider->initialize(CIMOMHandle(this));
 	}
 	catch(NotImplemented) 
 	{
@@ -500,6 +243,11 @@ void Dispatcher::handleEnqueue()
 	    break;
 
 	case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
+	    handleEnumerateQualifiersRequest(
+		(CIMEnumerateQualifiersRequestMessage*)request);
+	    break;
+
+	// ATTN: implement this!
 	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
 	    break;
     }
@@ -1285,6 +1033,41 @@ void Dispatcher::handleDeleteQualifierRequest(
 	    request->messageId,
 	    errorCode,
 	    errorDescription);
+
+    enqueueResponse(request, response);
+
+    delete request;
+}
+
+void Dispatcher::handleEnumerateQualifiersRequest(
+    CIMEnumerateQualifiersRequestMessage* request)
+{
+    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
+    String errorDescription;
+    Array<CIMQualifierDecl> qualifierDeclarations;
+
+    try 
+    {
+	qualifierDeclarations = _repository->enumerateQualifiers(
+	    request->nameSpace);
+    }
+    catch (CIMException& exception)
+    {
+	errorCode = exception.getCode();
+	errorDescription = exception.getMessage();
+    }
+    catch (Exception& exception)
+    {
+	errorCode = CIM_ERR_FAILED;
+	errorDescription = exception.getMessage();
+    }
+
+    CIMEnumerateQualifiersResponseMessage* response = 
+	new CIMEnumerateQualifiersResponseMessage(
+	    request->messageId,
+	    errorCode,
+	    errorDescription,
+	    qualifierDeclarations);
 
     enqueueResponse(request, response);
 

@@ -1103,15 +1103,15 @@ public:
         const String& messageId_,
         CIMStatusCode errorCode_,
 	const String& errorDescription_,
-        const Array<CIMQualifierDecl>& cimQualifierDecls_)
+        const Array<CIMQualifierDecl>& qualifierDeclarations_)
         :
         CIMResponseMessage(CIM_ENUMERATE_QUALIFIERS_RESPONSE_MESSAGE, 
 	    messageId_, errorCode_, errorDescription_),
-        cimQualifierDecls(cimQualifierDecls_)
+        qualifierDeclarations(qualifierDeclarations_)
     {
     }
 
-    Array<CIMQualifierDecl> cimQualifierDecls;
+    Array<CIMQualifierDecl> qualifierDeclarations;
 };
 
 class CIMInvokeMethodResponseMessage : public CIMResponseMessage

@@ -1,4 +1,9 @@
 
+    -	Figure out how to handle very large CIM respones and possibly
+	requests too.
+
+    -   Integrate client/server tests into make system somehow.
+
     -   Note that it is possible to remove an class and still have association
 	classes which refer to it.
 

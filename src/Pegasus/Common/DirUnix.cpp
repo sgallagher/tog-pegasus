@@ -49,7 +49,7 @@ static CString _clonePath(const String& path)
 }
 
 // ATTN-RK-20021111: Perhaps this should be enabled for all Unix platforms?
-#if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if defined(PEGASUS_OS_OS400) || defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) || defined (PLATFORM_PEGASUS_SOLARIS_SPARC_CC)
 #define PEGASUS_HAS_READDIR_R
 #endif
 

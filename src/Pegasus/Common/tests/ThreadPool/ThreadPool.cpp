@@ -93,11 +93,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
 int main(int argc, char **argv) 
 { 
    
-#if defined(PEGASUS_DEBUG)
-   Tracer::setTraceComponents("All");
-   Tracer::setTraceLevel(Tracer::LEVEL4);
-   Tracer::setTraceFile("thread_pool_trace.txt");
-#endif
    struct timeval await = { 0, 40000 };
    struct timeval dwait = { 1, 0 };
    struct timeval deadwait = { 0, 80000 }; 
@@ -169,10 +164,8 @@ int main(int argc, char **argv)
       {
       }
    }  
-   cout << " sleeping ... " << endl;
    
    pegasus_sleep( 7000 ) ; 
-   cout << " awakening" << endl;
    
    tp.kill_dead_threads( );
    tp.kill_dead_threads( );
@@ -184,14 +177,11 @@ int main(int argc, char **argv)
    {
       try 
       {
-	 cout << " trying to allocate a new thread" << endl;
 	 
 	 tp.allocate_and_awaken((void *)16, work_func_blocking , &blocking);
       }
       catch(Deadlock & ) 
       { 
-	 cout << " deadlock " << endl;
-	 
 	 success = false; 
 	 pegasus_sleep(100);
       } 
@@ -200,13 +190,13 @@ int main(int argc, char **argv)
    
    
    blocking.wait();
-//   tp.kill_dead_threads( ) ;
+  tp.kill_dead_threads( ) ;
 
-//    while(tp.running_count() )
-//    {  
-//       tp.kill_dead_threads();
-//       pegasus_sleep(1);
-//    }
+   while(tp.running_count() )
+   {  
+      tp.kill_dead_threads();
+      pegasus_sleep(1);
+   }
    
 
    cout << argv[0] << " +++++ passed all tests" << endl;

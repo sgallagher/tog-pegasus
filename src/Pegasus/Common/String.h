@@ -476,23 +476,6 @@ public:
     static Boolean equalNoCase(const String& str1, const String& str2, const char * strLocale);
 #endif
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    // UTF8 specific code:
-
-    /** Assign this string with a C string that may contain UTF-8.
-	@param str The C string
-    */
-    String& assignUTF8(const char* str);
-
-    /** Create an 8-bit UTF-8 representation of this String object.
-        @return CString object that provides access to the 8-bit UTF-8 String
-        representation.
-    */
-    CString getCStringUTF8() const;
-
-    
-#endif
-
 private:
 
     StringRep* _rep;

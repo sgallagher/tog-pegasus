@@ -700,36 +700,6 @@ String& String::assign(const char* str)
 
     return *this;
 }
-// UTF8 specific code:
-String& String::assignUTF8(const char* str)
-{
-    _rep->c16a.clear();
-    Uint32 n = strlen(str) + 1;
-
-    const Uint8 *strsrc = (Uint8 *)str;
-    Uint8 *endsrc = (Uint8 *)&str[n-1];
-
-    Char16 *msg16 = new Char16[n];
-    Uint16 *strtgt = (Uint16 *)msg16;
-    Uint16 *endtgt = (Uint16 *)&msg16[n];
-
-    UTF8toUTF16(&strsrc,
-		endsrc,
-		&strtgt,
-		endtgt);
-
-    Uint32 count;
-
-    for(count = 0; ((msg16[count]) != Char16(0x00)) && (count < (n - 1)); ++count);
-
-    _rep->c16a.append(msg16, count);
-
-    _rep->c16a.append('\0');
-
-    delete [] msg16;
-
-    return *this;
-}
 
 CString String::getCString() const
 {
@@ -755,33 +725,6 @@ CString String::getCString() const
 
     return CString(str1);
 }
-
-CString String::getCStringUTF8() const
-{
-    Uint32 n = 3*size() + 1;
-    char* str = new char[n];
-
-    const Char16* msg16 = getChar16Data();
-
-    const Uint16 *strsrc = (Uint16 *)msg16;
-    Uint16 *endsrc = (Uint16 *)&msg16[size()+1];
-
-    Uint8 *strtgt = (Uint8 *)str;
-    Uint8 *endtgt = (Uint8 *)&str[n];
-
-    UTF16toUTF8 (&strsrc,
-		 endsrc,
-		 &strtgt,
-		 endtgt);
-
-	char* str1 = new char[strlen(str)+1];
-	strcpy(str1,str);
-	delete [] str;
-
-    return CString(str1);
-}
-
-
 
 #if 0
 // ATTN-RK-P3-20020603: This code is not completely correct

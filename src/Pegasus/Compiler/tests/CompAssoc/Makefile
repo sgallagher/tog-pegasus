@@ -15,4 +15,5 @@ tests:
 	@ cimmof -R. -I$(MOF_PATH) -nroot $(MOF_PATH)/CIM_Core25.mof
 	@ cimmof -R. -nroot CompAssoc.mof
 	@ $(PROGRAM)
-	@ $(RMDIRHIER) ./repository
+
+# @ $(RMDIRHIER) ./repository

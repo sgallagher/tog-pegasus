@@ -85,6 +85,18 @@ void TestAssociations(CIMRepository& r)
 	Boolean cond = (tmpInstanceName == tmp);
 	assert(cond);
     }
+
+    // Delete all the object we created:
+    {
+	// First delete the association:
+
+	CIMReference assocInstanceName = "A."
+	    "left=\"x.key=\\\"John Smith\\\"\","
+	    "right=\"y.key=\\\"John Jones\\\"\"";
+
+cout << "deleting " << nameSpace << ": " << assocInstanceName << endl;
+	r.deleteInstance(nameSpace, assocInstanceName);
+    }
 }
 
 int main()

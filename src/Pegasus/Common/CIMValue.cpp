@@ -29,7 +29,6 @@
 //              Karl Schopmeyer, (k.schopmeyer@opengroup.org)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 ////////////////////////////////////////////////////////////////////////////////
+
 //
 // _toString routines:
 //
@@ -161,207 +161,207 @@ public:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-CIMValue::CIMValue() :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue()
 {
+    _rep = new CIMValueRep();
 }
 
-CIMValue::CIMValue(CIMType type, Boolean isArray, Uint32 arraySize) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(CIMType type, Boolean isArray, Uint32 arraySize)
 {
-     setNullValue(type, isArray, arraySize);
+    _rep = new CIMValueRep();
+    setNullValue(type, isArray, arraySize);
 }
 
-CIMValue::CIMValue(Boolean x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Boolean x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(Uint8 x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Uint8 x)
 {
-     set(x);
-}
-
-CIMValue::CIMValue(Sint8 x) :
-     _rep(new CIMValueRep())
-{
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(Uint16 x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Sint8 x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(Sint16 x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Uint16 x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(Uint32 x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Sint16 x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(Sint32 x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Uint32 x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(Uint64 x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Sint32 x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(Sint64 x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Uint64 x)
 {
-     set(x);
-}
-
-CIMValue::CIMValue(Real32 x) :
-     _rep(new CIMValueRep())
-{
-     set(x);
-}
-
-CIMValue::CIMValue(Real64 x) :
-     _rep(new CIMValueRep())
-{
-     set(x);
-}
-
-CIMValue::CIMValue(const Char16& x) :
-     _rep(new CIMValueRep())
-{
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const String& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Sint64 x)
 {
-     set(x);
-}
-
-CIMValue::CIMValue(const CIMDateTime& x) :
-     _rep(new CIMValueRep())
-{
-     set(x);
-}
-
-CIMValue::CIMValue(const CIMObjectPath& x) :
-     _rep(new CIMValueRep())
-{
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Boolean>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Real32 x)
 {
-     set(x);
-}
-
-CIMValue::CIMValue(const Array<Uint8>& x) :
-     _rep(new CIMValueRep())
-{
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Sint8>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(Real64 x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Uint16>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Char16& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Sint16>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const String& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Uint32>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const CIMDateTime& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Sint32>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const CIMObjectPath& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Uint64>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Boolean>& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Sint64>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Uint8>& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Real32>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Sint8>& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Real64>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Uint16>& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<Char16>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Sint16>& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<String>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Uint32>& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<CIMDateTime>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Sint32>& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const Array<CIMObjectPath>& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Uint64>& x)
 {
+    _rep = new CIMValueRep();
     set(x);
 }
 
-CIMValue::CIMValue(const CIMValue& x) :
-     _rep(new CIMValueRep())
+CIMValue::CIMValue(const Array<Sint64>& x)
 {
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const Array<Real32>& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const Array<Real64>& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const Array<Char16>& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const Array<String>& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const Array<CIMDateTime>& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const Array<CIMObjectPath>& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const CIMValue& x)
+{
+    _rep = new CIMValueRep();
     assign(x);
 }
 
 CIMValue::~CIMValue()
 {
     clear();
-  //  delete _rep;
+    delete _rep;
 }
 
 CIMValue& CIMValue::operator=(const CIMValue& x)

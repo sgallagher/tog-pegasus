@@ -31,7 +31,6 @@
 //              Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
-//              Amit K Arora (amita@in.ibm.com) for PEP-101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,32 +40,10 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMDateTimeRep
-{
-public:
-    enum { FORMAT_LENGTH = 25 };
-
-    //
-    // Length of the string required to store only the date and time without
-    // the UTC sign and UTC offset.
-    // Format is yyyymmddhhmmss.
-    // Note : The size does not include the null byte.
-    //
-    enum { DATE_TIME_LENGTH = 14 };
-
-    //
-    // Length of the string required to store the  formatted date and time
-    // Format is yyyy:mm:dd:hh:mm:ss.
-    //
-    enum { FORMATTED_DATE_TIME = 20 };
-
-    char data[FORMAT_LENGTH + 1];
-};
-
+class CIMDateTimeRep;
 
 /**
     The CIMDateTime class represents the CIM datetime data type as a C++ class
@@ -139,7 +116,9 @@ public:
     */
     CIMDateTime(const CIMDateTime& x);
 
-      
+    /** CIMDateTime destructor. */
+    ~CIMDateTime();
+
     /** Assigns one instance of the CIMDateTime object to another.
         @param x  The CIMDateTime Object to assign to the CIMDateTime object.
         For example, you can assign the d1 CIMDateTime instance to the d2
@@ -228,7 +207,7 @@ public:
 
 private:
 
-    AutoPtr<CIMDateTimeRep> _rep;//PEP101
+    CIMDateTimeRep* _rep;
     Boolean _set(const String & dateTimeStr);
 };
 /**

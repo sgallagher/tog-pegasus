@@ -26,7 +26,6 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,28 +41,29 @@ public:
 };
 
 
-CIMPropertyList::CIMPropertyList() :
-            _rep(new CIMPropertyListRep())
+CIMPropertyList::CIMPropertyList()
 {
-     _rep->isNull = true;
+    _rep = new CIMPropertyListRep();
+    _rep->isNull = true;
 }
 
-CIMPropertyList::CIMPropertyList(const CIMPropertyList& x) :
-            _rep(new CIMPropertyListRep())
+CIMPropertyList::CIMPropertyList(const CIMPropertyList& x)
 {
+    _rep = new CIMPropertyListRep();
     _rep->propertyNames = x._rep->propertyNames;
     _rep->isNull = x._rep->isNull;
 }
 
-CIMPropertyList::CIMPropertyList(const Array<CIMName>& propertyNames) :
-            _rep(new CIMPropertyListRep())
+CIMPropertyList::CIMPropertyList(const Array<CIMName>& propertyNames)
 {
+    _rep = new CIMPropertyListRep();
     _rep->propertyNames = propertyNames;
     _rep->isNull = false;
 }
 
 CIMPropertyList::~CIMPropertyList()
 {
+    delete _rep;
 }
 
 void CIMPropertyList::set(const Array<CIMName>& propertyNames)

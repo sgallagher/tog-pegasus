@@ -26,7 +26,6 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Amit K Arora, IBM (amita@in.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +36,6 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/AutoPtr.h> 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -183,7 +181,7 @@ public:
 
 private:
 
-    AutoPtr<CIMPropertyListRep> _rep;//PEP101
+    CIMPropertyListRep* _rep;
 };
 
 PEGASUS_NAMESPACE_END

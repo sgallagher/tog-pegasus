@@ -50,7 +50,10 @@ enum cimom_results
    
    ASYNC_STARTED,
    ASYNC_PROCESSING,
-   ASYNC_COMPLETE, 
+   ASYNC_COMPLETE,
+   ASYNC_CANCELLED,
+   ASYNC_PAUSED,
+   ASYNC_RESUMED,
 
    NUMBER_RESULTS
 };
@@ -79,7 +82,10 @@ enum service_messages
    SERVICE_PAUSE,
    SERVICE_RESUME,
    SERVICE_IOCTL,
-   SERVICE_ASYNC_OP,
+   SERVICE_ASYNC_START,
+   SERVICE_ASYNC_CANCEL,
+   SERVICE_ASYNC_PAUSE,
+   SERVICE_ASYNC_RESUME,
 
    NUMBER_SERVICE_MESSAGES
 } ;
@@ -127,20 +133,20 @@ class PEGASUS_CIMOM_LINKAGE Reply : public Message
 
 // heartbeat TO the cimom from a SERVICE 
 
-// class PEGASUS_CIMOM_LINKAGE CimomHeartbeat : pubic Request
-// {
-//    public:
-//       CimomHeartbeat(Uint32 key,
-// 		     QueueIdStack queue_ids,
-// 		     Uint32 mask, 
-// 		     Uint32 routing = 0)
-// 	 : Request(CIMOM_HEARTBEAT, key, queue_ids, mask, routing)   {      }
+class PEGASUS_CIMOM_LINKAGE CimomHeartBeat : public Reply
+{
+   public:
+      CimomHeartBeat(Uint32 key,
+		     Uint32 routing = 0)
+	 : Reply(CIMOM_HEARTBEAT, key, 0, 
+		 (message_mask::type_cimom | message_mask::ha_reply), 
+		 routing ) 
+      {
+      }
       
-//       virtual ~CimomHeartbeat(void);
+      virtual ~CimomHeartBeat(void);
       
-// } ;
-
-
+} ;
 
 // request from a service to the cimom
 class PEGASUS_CIMOM_LINKAGE CimomRegisterService : public Request 
@@ -217,6 +223,7 @@ class PEGASUS_CIMOM_LINKAGE CimomUpdateService : public Request
 // class PEGASUS_CIMOM_LINKAGE CimomIoctl : public Request
 
 
+
 class PEGASUS_CIMOM_LINKAGE CimomAsyncReply : public Reply
 {
    public:
@@ -232,20 +239,73 @@ class PEGASUS_CIMOM_LINKAGE CimomAsyncReply : public Reply
 };
 
 // async operation issued TO a service FROM the Cimom
-class PEGASUS_CIMOM_LINKAGE ServiceAsyncOp : public Request
+class PEGASUS_CIMOM_LINKAGE ServiceAsyncReq : public Request
 {
    public:
-      ServiceAsyncOp(Uint32 key,
-		     QueueIdStack queue_ids,
-		     AsyncOpNode *operation,
-		     Uint32 routing = 0)
-	 : Request(SERVICE_ASYNC_OP, key, queue_ids, routing,
+      ServiceAsyncReq(Uint32 type,
+		   Uint32 key,
+		   QueueIdStack queue_ids,
+		   AsyncOpNode *operation,
+		   Uint32 routing = 0)
+	 : Request(type, key, queue_ids, routing,
 		   ( message_mask::type_service | message_mask::ha_request) ),
 	   op(operation) {  }
       
+      virtual ~ServiceAsyncReq(void);
+      
       AsyncOpNode *op;
+} ;
+
+class PEGASUS_CIMOM_LINKAGE ServiceAsyncStart : public ServiceAsyncReq
+{
+   public:
+      ServiceAsyncStart(Uint32 key,
+			QueueIdStack queue_ids,
+			AsyncOpNode *operation,
+			Uint32 routing = 0)
+	 : ServiceAsyncReq(SERVICE_ASYNC_START, key, queue_ids, operation, routing)  {  }
+      
+      virtual ~ServiceAsyncStart(void);
 };
 
+class PEGASUS_CIMOM_LINKAGE ServiceAsyncCancel : public ServiceAsyncReq
+{
+   public:
+      ServiceAsyncCancel(Uint32 key, 
+			 QueueIdStack queue_ids, 
+			 AsyncOpNode *operation,
+			 Uint32 routing = 0)
+	 : ServiceAsyncReq(SERVICE_ASYNC_CANCEL, key, queue_ids, operation, routing) {  }
+      
+      virtual ~ServiceAsyncCancel(void);
+      
+};
+
+class PEGASUS_CIMOM_LINKAGE ServiceAsyncPause : public ServiceAsyncReq
+{
+   public:
+      ServiceAsyncPause(Uint32 key, 
+			 QueueIdStack queue_ids, 
+			 AsyncOpNode *operation,
+			 Uint32 routing = 0)
+	 : ServiceAsyncReq(SERVICE_ASYNC_PAUSE, key, queue_ids, operation, routing) {  }
+      
+      virtual ~ServiceAsyncPause(void);
+      
+};
+
+class PEGASUS_CIMOM_LINKAGE ServiceAsyncResume : public ServiceAsyncReq
+{
+   public:
+      ServiceAsyncResume(Uint32 key, 
+			 QueueIdStack queue_ids, 
+			 AsyncOpNode *operation,
+			 Uint32 routing = 0)
+	 : ServiceAsyncReq(SERVICE_ASYNC_RESUME, key, queue_ids, operation, routing) {  }
+      
+      virtual ~ServiceAsyncResume(void);
+      
+};
 
 
 // void handleEnqueue(void )

@@ -96,13 +96,13 @@ class PEGASUS_CIMOM_LINKAGE cimom : public MessageQueue
       {  }
             
       virtual void handleEnqueue();
-      void register_module(ModuleRegister *);
-      void deregister_module(ModuleDeregister *msg) ;
+      void register_module(CimomRegisterService *);
+      void deregister_module(CimomDeregisterService *msg) ;
       
 
    protected:
       Uint32 get_module_q(const String & name);
-      void _enqueueResponse(CimomRequest *req, CimomReply *rep);
+      void _enqueueResponse(Request *req, Reply *rep);
       
    private:
       DQueue<message_module> _modules;

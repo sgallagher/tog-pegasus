@@ -38,8 +38,8 @@ const Uint32 module_capabilities::remote =  0x00000002;
 const Uint32 module_capabilities::trusted = 0x00000004; 
 
 void cimom::_enqueueResponse(
-    CimomRequest* request,
-    CimomReply* response)
+    Request* request,
+    Reply* response)
 {
     // Use the same key as used in the request:
 
@@ -97,8 +97,8 @@ void cimom::handleEnqueue(void)
 	  // a message that we can handle synchronously on the caller's thread
 	  switch(request->getType())
 	  {
-	     case MODULE_REGISTER:
-		register_module(static_cast<ModuleRegister *>(request));
+	     case CIMOM_REGISTER_SERVICE:
+		register_module(static_cast<CimomRegisterService *>(request));
 		break;
 
 		
@@ -111,7 +111,7 @@ void cimom::handleEnqueue(void)
 }
 
 
-void cimom::register_module(ModuleRegister *msg)
+void cimom::register_module(CimomRegisterService *msg)
 {
    // first see if the module is already registered
    Uint32 result = OK;
@@ -122,7 +122,7 @@ void cimom::register_module(ModuleRegister *msg)
    {
       message_module *new_mod =  new message_module(msg->name,
 						    msg->capabilities,
-						    msg->msg_mask, 
+						    msg->mask, 
 						    msg->q_id);
       try 
       {
@@ -134,15 +134,15 @@ void cimom::register_module(ModuleRegister *msg)
       }
    }
    
-   CimomReply *reply = new CimomReply(  msg->getType(), msg->getKey(), 
-					result, msg->queues.copyAndPop(), 
-					msg->getRouting() );
+   Reply *reply = new Reply(msg->getType(), msg->getKey(), result,
+			    message_mask::type_cimom | message_mask::ha_reply,
+			    msg->getRouting() );
    _enqueueResponse(msg, reply);
    return;
    
 }
 
-void cimom::deregister_module(ModuleDeregister *msg)
+void cimom::deregister_module(CimomDeregisterService *msg)
 {
    
    Uint32 result = OK;
@@ -163,9 +163,9 @@ void cimom::deregister_module(ModuleDeregister *msg)
    else
       delete temp;
       
-   CimomReply *reply = new CimomReply ( msg->getType(), msg->getKey(), 
-					result, msg->queues.copyAndPop(), 
-					msg->getRouting() );
+   Reply *reply = new Reply ( msg->getType(), msg->getKey(), result, 
+			      message_mask::type_cimom | message_mask::ha_reply,
+			      msg->getRouting() );
    _enqueueResponse(msg, reply);
    return;
 }

@@ -60,7 +60,7 @@ PEGASUS_NAMESPACE_END
 void buildInstances(Array<CIMInstance>& instances){
 
    // #1
-   const CIMName _cimName(String("CQL_Class"));
+   const CIMName _cimName(String("CIM_OperatingSystem"));
    CIMInstance _i1(_cimName);
    CIMProperty _p1(CIMName("Description"),CIMValue(String("Bert Rules")));
    CIMProperty _p2(CIMName("EnabledState"),CIMValue(Uint16(2)));
@@ -77,6 +77,8 @@ int main(int argc, char ** argv)
 	Array<CIMInstance> _instances;
 	buildInstances(_instances);
 
+	Array<CQLSelectStatement> _statements;
+
 	// init parser state
 	const char* env = getenv("PEGASUS_HOME");
         String repositoryDir(env);
@@ -84,11 +86,10 @@ int main(int argc, char ** argv)
         CIMNamespaceName _ns("root/cimv2");
         CIMRepository* _rep = new CIMRepository(repositoryDir);
         RepositoryQueryContext* _ctx = new RepositoryQueryContext(_ns, _rep);
-	String lang("CQL");
+	String lang("CIM:CQL");
         String query("");
 	CQLSelectStatement _ss(lang,query,_ctx);
 	char text[255];
-	//char* _ptr = &text;
 	char* _text;
 
 	// setup input stream
@@ -98,22 +99,26 @@ int main(int argc, char ** argv)
 			cout << "Cannot open input file.\n" << endl;
 			return 1;
 		}
-		int i = 0;
 		while(!queryInputSource.eof()){
 			queryInputSource.getline(text, 255);
 			char* _ptr = text;
 			_text = strcat(_ptr,"\n");	
-			//cout << _text;
-			if(!(strlen(_text) < 2))
+			cout << "text = " << _text;
+			if(!(strlen(_text) < 2)){
 				CQLParser::parse(text,_ss);
-			/*if(argc == 3){
-                                printf("Evaluating query %d...\n",i);
-                                Boolean result = globalParserState->statement->evaluate(_instances[i]);
-                                printf("Result = %d\n", result);
-                        }*/
-			i++;
+				_statements.append(_ss);
+			}
+			
 		}
 		queryInputSource.close();
+		Boolean result = false;
+		for(Uint32 i=0; i < _statements.size(); i++){
+			printf("Evaluating query %d...\n",i);
+                        result = _statements[i].evaluate(_instances[0]);
+			cout << _statements[i].toString() << " = ";
+                        if(result) printf("TRUE\n");
+                        else printf("FALSE\n");
+		}
 	}else{
 		// manually setup parser state
 		String lang("CQL");
@@ -126,17 +131,19 @@ int main(int argc, char ** argv)
         	globalParserState->statement = new CQLSelectStatement(lang,query,_ctx);
 
 		printf("Starting CQL lexer/parser...\n");
+		int i = 0;
 		while(1){
          	       globalParserState->statement->clear();
                 	CQL_parse();
                                                                                                                   
                 	String s = globalParserState->statement->toString();
                		printf("%s\n",(const char*)(s.getCString()));
-                	/*if(argc == 3){
+                	//if(argc == 2){
                         	printf("Evaluating...\n");
                         	Boolean result = globalParserState->statement->evaluate(_instances[i]);
-                        	printf("Result = %d\n", result);
-                	}
+                        	if(result) printf("Result = true\n");
+				else printf("Result = false\n");
+                	//}
                 	i++;  // current query expression*/
         	}
 	}

@@ -314,38 +314,6 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 pos, Uint32 size)
 #ifndef PEGASUS_ARRAY_T
 template<class PEGASUS_ARRAY_T>
 #endif
-PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::begin()
-{
-    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data();
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::end()
-{
-    return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data() + size();
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::begin() const
-{
-    return getData();
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
-const PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::end() const
-{
-    return getData() + size();
-}
-
-#ifndef PEGASUS_ARRAY_T
-template<class PEGASUS_ARRAY_T>
-#endif
 PEGASUS_ARRAY_T* Array<PEGASUS_ARRAY_T>::_data() const
 {
     return static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep)->data();

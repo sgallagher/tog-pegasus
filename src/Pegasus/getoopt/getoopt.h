@@ -227,10 +227,6 @@ class PEGASUS_GETOOPT_LINKAGE getoopt {
   void printErrors(String &s) const;
 
   // Routines for processing the parsed command line
-  //   Using iterators
-  typedef Arg_List::const_iterator const_iterator;
-  Optarg *begin();
-  Optarg *end();
   //   Using indexes
   unsigned int size() const;  // The number of arguments found
   const Optarg &operator[](unsigned int n);  // The nth element

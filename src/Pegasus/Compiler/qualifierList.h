@@ -73,11 +73,13 @@ template <class T>
 void apply(qualifierList* that, T *c)
 {
   if (that->_pv) {
-    for (qplist::iterator i = that->_pv->begin(); 
-		    i != that->_pv->end() && *i; i++) {
-      c->addQualifier( **i );
-      delete *i;
-      *i = 0;
+    for (Uint32 i = 0;
+         i < that->_pv->size();  // && (*that->_pv)[i] ?
+         i++) {
+      CIMQualifier** qpp = &((*that->_pv)[i]);
+      c->addQualifier( **qpp );
+      delete *qpp;
+      *qpp = 0;
     }
     that->init(that->_initsize);
   }

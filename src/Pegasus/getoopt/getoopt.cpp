@@ -403,10 +403,9 @@ addarg(getoopt::Arg_List&list, const String &name, Optarg::opttype type,
 // Take an array of arguments and append it to another
 static void
 copyargs(getoopt::Arg_List &out, const getoopt::Arg_List &in) {
-  for (getoopt::Arg_List::const_iterator it = in.begin(); 
-       it != in.end();
-       it++) {
-    addarg(out, *it);
+  Uint32 size = in.size();
+  for (Uint32 i = 0; i < size; i++) {
+    addarg(out, in[i]);
   }
 }
 
@@ -532,21 +531,6 @@ unsigned int
 getoopt::last() const { return _args.size(); }
 
 //-----------------------------------------------
-// Access the command line arguments using
-// getoopt::const_iterator
-//-----------------------------------------------
-
-Optarg *
-getoopt::begin() {
-  return _args.begin();
-}
-
-Optarg *
-getoopt::end() {
-  return _args.end();
-}
-
-//-----------------------------------------------
 // Access the command line arguments ad-hoc
 //-----------------------------------------------
 
@@ -623,10 +607,8 @@ getoopt::value(const String &opt, unsigned int idx) const {
 unsigned int
 getoopt::flagcnt() const {
   unsigned int cnt = 0;
-  for (Arg_List::const_iterator it = _args.begin();
-       it != _args.end();
-       it++) {
-    if (it->getType() != Optarg::REGULAR)
+  for (Uint32 i = 0; i < _args.size(); i++) {
+    if (_args[i].getType() != Optarg::REGULAR)
       cnt++; 
   }
   return cnt;
@@ -688,20 +670,16 @@ getoopt::getFlagspec(const String &s) {
 
 ostream &
 getoopt::printErrors(ostream &os) const {
-  for (Error_List::const_iterator it = _errorStrings.begin();
-       it != _errorStrings.end();
-       it++) {
-    os << "> " << *it << endl;
+  for (Uint32 i = 0; i < _errorStrings.size(); i++) {
+    os << "> " << _errorStrings[i] << endl;
   }
   return os;
 }
 
 void
 getoopt::printErrors(String &s) const {
-  for (Error_List::const_iterator it = _errorStrings.begin();
-       it != _errorStrings.end();
-	 it++) {
-    s += "> " + *it + "\n";
+  for (Uint32 i = 0; i < _errorStrings.size(); i++) {
+    s += "> " + _errorStrings[i] + "\n";
   }
 }
 

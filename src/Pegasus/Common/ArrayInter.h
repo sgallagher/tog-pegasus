@@ -173,18 +173,6 @@ public:
     */
     void remove(Uint32 pos, Uint32 size);
 
-    typedef PEGASUS_ARRAY_T* iterator;
-
-    typedef const PEGASUS_ARRAY_T* const_iterator;
-
-    iterator begin();
-
-    iterator end();
-
-    const_iterator begin() const;
-
-    const_iterator end() const;
-
 private:
 
     PEGASUS_ARRAY_T* _data() const;

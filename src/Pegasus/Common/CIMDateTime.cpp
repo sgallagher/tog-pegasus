@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//              sushma_fernandes@hp.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +33,18 @@
 #include "CIMDateTime.h"
 #include "Exception.h"
 #include "Array.h"
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+    # include <Pegasus/Common/CIMDateTimeWindows.cpp>
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+    # include <Pegasus/Common/CIMDateTimeUnix.cpp>
+#elif defined(PEGASUS_OS_TYPE_NSK)
+    # include <Pegasus/Common/CIMDateTimeNsk.cpp>
+#else
+    # error "Unsupported platform"
+#endif
+
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -183,6 +196,106 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
 Boolean operator==(const CIMDateTime& x, const CIMDateTime& y)
 {
     return memcmp(x._rep, y._rep, sizeof(x._rep)) == 0;
+}
+
+void CIMDateTime::formatDateTime(char* dateTimeStr, tm* tm)
+{
+    Uint32 index = 0, index1 = 0;
+    long   year = 0;
+    char   buffer[16];
+
+    // Initialize the components of tm structure
+    tm->tm_year = 0;
+    tm->tm_mon  = 0;
+    tm->tm_mday = 0;
+    tm->tm_hour = 0;
+    tm->tm_min  = 0;
+    tm->tm_sec  = 0;
+    tm->tm_isdst = 0;
+    tm->tm_wday  = 0;
+    tm->tm_yday  = 0;
+
+    // Extract the year.
+    sprintf(buffer, "%4.4s", dateTimeStr);
+    year   = atoi(buffer);
+    year = year - 1900;
+    tm->tm_year   = year;
+
+    // Extract the Month.
+    sprintf(buffer, "%2.2s", dateTimeStr + 4);
+    tm->tm_mon   = atoi(buffer);
+
+    // Extract the Day.
+    sprintf(buffer, "%2.2s", dateTimeStr + 6);
+    tm->tm_mday   = atoi(buffer);
+
+    // Extract the Hour.
+    sprintf(buffer, "%2.2s", dateTimeStr + 8);
+    tm->tm_hour   = atoi(buffer);
+
+    // Extract the Minutes.
+    sprintf(buffer, "%2.2s", dateTimeStr + 10);
+    tm->tm_min   = atoi(buffer);
+
+    // Extract the Seconds.
+    sprintf(buffer, "%2.2s", dateTimeStr + 12);
+    tm->tm_sec   = atoi(buffer);
+}
+
+Boolean CIMDateTime::isInterval()
+{
+    const char*  	str; 
+    const Uint32 	SIGN_OFFSET = 21;
+
+    str = getString();
+    Boolean isInterval = strcmp(&str[SIGN_OFFSET], ":000") == 0 ;
+    
+    return isInterval;
+}
+
+Uint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
+{
+    const char*         startDateTimeCString;
+    const char*         finishDateTimeCString;
+    char*               dateTimeOnly;
+    struct tm           tmvalStart;
+    struct tm           tmvalFinish;
+    Real64              differenceInSeconds = 0;
+
+    //
+    // Get the dates in CString form
+    //
+    startDateTimeCString = startTime.getString();
+    finishDateTimeCString = finishTime.getString();
+
+    //
+    // Check if the startTime or finishTime are intervals
+    //
+    if (startTime.isInterval() || finishTime.isInterval())
+    {
+        throw BadFormat();
+    }
+
+    //
+    // Copy only the Start date and time in to the dateTimeOnly string
+    //
+    dateTimeOnly = new char [FORMATTED_DATE_TIME];
+    strncpy( dateTimeOnly, startDateTimeCString, DATE_TIME_LENGTH );
+    formatDateTime(dateTimeOnly ,&tmvalStart);
+
+    //
+    // Copy only the Finish date and time in to the dateTimeOnly string
+    //
+    strncpy( dateTimeOnly, finishDateTimeCString, DATE_TIME_LENGTH );
+    formatDateTime( dateTimeOnly, &tmvalFinish );
+
+    //
+    // Get the difference between the two times
+    //
+    differenceInSeconds = difftime( mktime(&tmvalFinish), mktime(&tmvalStart));
+
+    delete []dateTimeOnly;
+    return differenceInSeconds;
 }
 
 PEGASUS_NAMESPACE_END

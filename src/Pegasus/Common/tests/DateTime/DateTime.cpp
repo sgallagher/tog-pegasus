@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+// Modified By: Sushma Fernandes, Hewlett-Packard Company
+//              (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -81,6 +82,48 @@ int main(int argc, char** argv)
     CIMDateTime dt1;
     dt1 = dt;
  
+    //
+    // Tests for getCurrentDateTime and getDifference.
+    //
+    CIMDateTime         startTime, finishTime;
+    Uint64              differenceInSeconds;
+
+    //
+    // Call getCurrentDateTime
+    //
+    startTime = CIMDateTime::getCurrentDateTime();
+    finishTime = CIMDateTime::getCurrentDateTime();
+
+    //
+    // Call getDifference
+    //
+    try 
+    {
+        differenceInSeconds = CIMDateTime::getDifference( startTime, finishTime );
+    }
+    catch(BadFormat &e)
+    {
+    }
+
+
+    if (verbose)
+    {
+        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+        cout << "Start date time is  : " << startTime << endl;
+        cout << "Finish date time is : " << finishTime << endl;
+    }
+
+    if (startTime == finishTime)
+    {
+        assert ( differenceInSeconds == 0 );
+    }
+
+    // Check for interval
+    CIMDateTime testInterval;
+    testInterval.set("20020412175729.000000:000");
+
+    assert ( testInterval.isInterval() == true );
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

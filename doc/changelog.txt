@@ -92,6 +92,13 @@ TAG: Version_1_09.
     platforms. The PAM module is optional and it can be built by setting 
     the environment variable PEGASUS_PAM_AUTHENTICATION." 
 
+16. (Sushma Fernandes - HP) 15 Apr 2002 - Implemented static methods
+   Uint64 getDifference(CIMDateTime, CIMDateTime), to get the difference
+   between two CIMDateTimes and CIMDateTime getCurrentDateTime(), to return
+   the current date time as CIMDateTime in the CIMDateTime class. Also added
+   method Boolean isInterval(), to check if the CIMDateTime object is an
+   interval.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

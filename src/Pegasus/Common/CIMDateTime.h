@@ -24,6 +24,9 @@
 //
 // Modified By: Karl Schopmeyer(k.schopmeyer@opengroup.org)
 //
+// Modified By: Sushma Fernandes, Hewlett Packard Company 
+//              (sushma_fernandes@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_DateTime_h
@@ -33,10 +36,12 @@
 #include <Pegasus/Common/Array.h>
 #include <iostream>
 
+#include <time.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 /* ATTN: P3. Several functions should be added to this class for datetime manipulation
-   including get and set each subcomponent (year, month, etc). isInterval, test for equality,
+   including get and set each subcomponent (year, month, etc), test for equality,
    create intervals from absolutes, possibly gett current time, Note that
    the Java rep is probably tostring, not get string, 
 */
@@ -101,7 +106,6 @@ class PEGASUS_COMMON_LINKAGE CIMDateTime
 public:
 
     enum { FORMAT_LENGTH = 25 };
-
     /** Create a new CIMDateTime object with NULL DateTime definition.
     */
     CIMDateTime();
@@ -173,6 +177,36 @@ public:
     */
     void clear();
 
+    /**
+    Get current time as CIMDateTime. The time returned is always in UTC format.
+
+    @return CIMDateTime   Contains the current datetime as a CIMDateTime object.
+
+    Note: Original code was taken from OperationSystem::getLocalDateTime()
+    */
+    static CIMDateTime getCurrentDateTime();
+
+    /**
+    Get the difference between two CIMDateTimes.
+
+    @param startTime     Contains the start time.
+
+    @param finishTime    Contains the finish time.
+
+    @return difference   Difference between the two datetimes in seconds.
+    
+    @throws BadFormat
+
+    */
+    static Uint64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
+ 
+    /**
+    Checks whether the datetime is an interval.
+
+    @return isInterval  True if the datetime is an interval, else false
+    */
+    Boolean isInterval();
+
     /** CIMDateTime - ATTN: Friend operator Test for CIMDateTime 
 	equality
     */
@@ -182,8 +216,33 @@ public:
 
 private:
 
+    //
+    // Length of the string required to store only the date and time without
+    // the UTC sign and UTC offset.
+    // Format is yyyymmddhhmmss.
+    // Note : The size does not include the null byte.
+    //
+    enum { DATE_TIME_LENGTH = 14 };
+
+    //
+    // Length of the string required to store the  formatted date and time
+    // Format is yyyy:mm:dd:hh:mm:ss.
+    //
+    enum { FORMATTED_DATE_TIME = 20 };
+
     Boolean _set(const char* str);
+
     char _rep[FORMAT_LENGTH + 1];
+
+    /**
+       This function extracts the different components of the date and time
+       from the string passed and assigns it to the tm structure.
+
+       @param dateTimeStr  Contains the string to be assigned.
+
+       @param tm           Contains the tm structure to be updated.
+    */
+    static void formatDateTime(char* dateTime, tm* tm);
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(

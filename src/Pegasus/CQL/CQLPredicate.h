@@ -65,9 +65,9 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
   public:
     CQLPredicate(){}
     
-    CQLPredicate(CQLSimplePredicate inSimplePredicate, Boolean inVerted);
+    CQLPredicate(const CQLSimplePredicate & inSimplePredicate, Boolean inVerted = false);
 
-    CQLPredicate(CQLPredicate inPredicate, Boolean inVerted);
+    CQLPredicate(const CQLPredicate & inPredicate, Boolean inVerted = false);
 
    ~CQLPredicate(){}
     /**  

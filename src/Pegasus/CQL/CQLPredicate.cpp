@@ -6,11 +6,11 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-CQLPredicate::CQLPredicate(CQLSimplePredicate inSimplePredicate, Boolean inVerted)
+CQLPredicate::CQLPredicate(const CQLSimplePredicate& inSimplePredicate, Boolean inVerted)
 {
 }
 
-CQLPredicate::CQLPredicate(CQLPredicate inPredicate, Boolean inInverted)
+CQLPredicate::CQLPredicate(const CQLPredicate& inPredicate, Boolean inInverted)
 {
 }
 

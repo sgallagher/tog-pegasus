@@ -130,13 +130,13 @@ Z [Zz]
 {I}{S}{A} {
                                                                                                                                                              
     printf("LEX: %s [ISA] ", yytext);
-    return ISA;
+    return _ISA;
 }
 
 {L}{I}{K}{E} {
                                                                                                                                                              
     printf("LEX: %s [LIKE] ", yytext);
-    return LIKE;
+    return _LIKE;
 }
 
 {O}{R}{D}{E}{R} {
@@ -405,11 +405,6 @@ Z [Zz]
 \){1} {
     printf("LEX: [RPAR] ");
     return RPAR;
-}
-
-"::" {
-    printf("LEX: %s [SCOPE] ", yytext);
-    return SCOPE;
 }
 
 "||" {

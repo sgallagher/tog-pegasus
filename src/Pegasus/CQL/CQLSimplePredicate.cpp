@@ -12,7 +12,7 @@ CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression)
 {
 }
 
-CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression, ExpressionOpType inOperator)
+CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression, const ExpressionOpType inOperator)
 {
 }
 

@@ -34,6 +34,8 @@ PEGASUS_NAMESPACE_END
    CQLTerm * _term;
    CQLFactor * _factor;
    CQLPredicate * _predicate;
+   CQLSimplePredicate * _simplePredicate;
+   ExpressionOpType _opType;
    CQLExpression * _expression;
    void * _node;
 }
@@ -68,14 +70,14 @@ PEGASUS_NAMESPACE_END
 %token <strValue> DIV 
 %token <strValue> IS 
 %token <strValue> _NULL 
-%token <strValue> EQ 
-%token <strValue> NE 
-%token <strValue> GT 
-%token <strValue> LT 
-%token <strValue> GE 
-%token <strValue> LE 
-%token <strValue> ISA 
-%token <strValue> LIKE 
+%token <_opType> EQ
+%token <_opType> NE 
+%token <_opType> GT 
+%token <_opType> LT 
+%token <_opType> GE 
+%token <_opType> LE 
+%token <_opType> _ISA 
+%token <_opType> _LIKE 
 %token <strValue> NOT AND OR 
 %token <strValue> SCOPE 
 %token <strValue> ANY EVERY IN SATISFIES 
@@ -115,8 +117,8 @@ PEGASUS_NAMESPACE_END
 %type <_expression> arith
 %type <_value> value_symbol
 %type <_expression> arith_or_value_symbol
-%type <_predicate> comp_op
-%type <strValue> comp
+%type <_opType> comp_op
+%type <_predicate> comp
 %type <strValue> optional_not
 %type <strValue> expr_factor
 %type <strValue> expr_term
@@ -337,59 +339,78 @@ chain : literal
 
 concat : chain
          {
-             printf("BISON::concat->chain = %s\n",$1);
+             printf("BISON::concat->chain\n");
+             $$ = new CQLValue(*(CQLChainedIdentifier*)$1);
          }
        | concat DBL_PIPE chain
          {
              printf("BISON::concat||chain\n");
+	     $$ = new CQLValue(*(CQLChainedIdentifier*)$1);
          }
 ;
 
 factor : concat
          {
              printf("BISON::factor->concat\n");
+             $$ = new CQLFactor(*(CQLValue*)$1);
          }         
        | PLUS concat
          {
              printf("BISON::factor->PLUS concat\n");
+             $$ = new CQLFactor(*(CQLValue*)$1);
          }
        | MINUS concat
          {
              printf("BISON::factor->MINUS concat\n");
+             CQLValue tmp = *(CQLValue*)$1;
+             tmp.invert();
+	     $$ = new CQLFactor(tmp);
          }
 ;
 
 term : factor
        {
            printf("BISON::term->factor\n");
+           $$ = new CQLTerm(*$1);
        }
      | term STAR factor
        {
            printf("BISON::term->term STAR factor\n");
+           $$->appendOperation(mult, *$3);
        }
      | term DIV factor
        {
            printf("BISON::term->term DIV factor\n");
+           $$->appendOperation(divide, *$3);
        }
 ;
 
 arith : term
         {
             printf("BISON::arith->term\n");
+            $$ = new CQLExpression(*$1);
         }
       | arith PLUS term
         {
             printf("BISON::arith->arith PLUS term\n");
+            $1->appendOperation(plus, *$3);
+            $$ = new CQLExpression(*$1);
         }
       | arith MINUS term
         {
             printf("BISON::arith->arith MINUS term\n");
+	    $1->appendOperation(minus, *$3);
+            $$ = new CQLExpression(*$1);
         }
 ;
 
 value_symbol : HASH literal_string
                {
                    printf("BISON::value_symbol->#literal_string\n");
+		   String tmp("#");
+		   tmp.append(*$2);
+		   CQLIdentifier tmpid(tmp);
+		   $$ = new CQLValue(tmpid);
                }
 ;
 
@@ -400,6 +421,9 @@ arith_or_value_symbol : arith
                       | value_symbol
                         {
                             printf("BISON::arith_or_value_symbol->value_symbol\n");
+			    CQLFactor tmpfctr(*$1);
+			    CQLTerm tmpterm(tmpfctr);
+			    $$ = new CQLExpression(tmpterm);
                         }
 ;
 
@@ -407,7 +431,7 @@ comp_op : EQ
           {
               printf("BISON::comp_op->EQ\n");
           }
-        | NE 
+        | NE
           {
               printf("BISON::comp_op->NE\n");
           }
@@ -415,15 +439,15 @@ comp_op : EQ
           {
               printf("BISON::comp_op->GT\n");
           }
-        | LT 
+        | LT
           {
               printf("BISON::comp_op->LT\n");
           }
-        | GE 
+        | GE
           {
               printf("BISON::comp_op->GE\n");
           }
-        | LE 
+        | LE
           {
               printf("BISON::comp_op->LE\n");
           }
@@ -432,36 +456,68 @@ comp_op : EQ
 comp : arith
        {
            printf("BISON::comp->arith\n");
+	   CQLSimplePredicate tmp(*$1);
+	   $$ = new CQLPredicate(tmp);
        }
-     | arith IS optional_not _NULL
+     | arith IS NOT _NULL
        {
-           printf("BISON::comp->arith IS optional_not _NULL\n");
+           printf("BISON::comp->arith IS NOT _NULL\n");
+	   CQLSimplePredicate tmp(*$1, IS_NOT_NULL);
+           $$ = new CQLPredicate(tmp);
+       }
+     | arith IS _NULL
+       {
+           printf("BISON::comp->arith IS _NULL\n");
+	   CQLSimplePredicate tmp(*$1, IS_NULL);
+           $$ = new CQLPredicate(tmp);
        }
      | arith comp_op arith_or_value_symbol
        {
            printf("BISON::comp->arith comp_op arith_or_value_symbol\n");
+	   CQLSimplePredicate tmp(*$1, *$3, $2);
+           $$ = new CQLPredicate(tmp);
        }
      | value_symbol comp_op arith
        {
            printf("BISON::comp->value_symbol comp_op arith\n");
+           CQLFactor tmpfctr(*$1);
+           CQLTerm tmpterm(tmpfctr);
+           CQLExpression tmpexpr(tmpterm);
+	   CQLSimplePredicate tmp(tmpexpr, *$3, $2);
+           $$ = new CQLPredicate(tmp);
        }
-     | arith ISA identifier
+     | arith _ISA identifier
        {
-           printf("BISON::comp->arith ISA identifier\n");
+           printf("BISON::comp->arith _ISA identifier\n");
+	   CQLChainedIdentifier tmpcid(*$3);
+	   CQLValue tmpval(tmpcid);
+	   CQLFactor tmpfctr(tmpval);
+           CQLTerm tmpterm(tmpfctr);
+           CQLExpression tmpexpr(tmpterm);
+           CQLSimplePredicate tmp(*$1, tmpexpr, ISA);
+           $$ = new CQLPredicate(tmp);
        }
-     | arith LIKE literal_string
+     | arith _LIKE literal_string
        {
-           printf("BISON::comp->arith LIKE literal_string\n");
+           printf("BISON::comp->arith LIKE_ literal_string\n");
+	   CQLIdentifier tmpid(*$3);
+	   CQLChainedIdentifier tmpcid(tmpid);
+           CQLValue tmpval(tmpcid);
+           CQLFactor tmpfctr(tmpval);
+           CQLTerm tmpterm(tmpfctr);
+           CQLExpression tmpexpr(tmpterm);
+           CQLSimplePredicate tmp(*$1, tmpexpr, LIKE);
+           $$ = new CQLPredicate(tmp);
        }
 ;
-
-optional_not : {;} /* nothing */
+/*
+optional_not : {;} 
              | NOT
                {
                    printf("BISON::optional_not->NOT\n");
                }
 ;
-
+*/
 expr_factor : comp
               {
                   printf("BISON::expr_factor->comp\n");

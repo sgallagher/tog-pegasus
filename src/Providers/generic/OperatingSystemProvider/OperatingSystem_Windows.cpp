@@ -219,11 +219,11 @@ Sint16 OperatingSystem::GetCurrentTimeZone(void) const
 
    switch(::GetTimeZoneInformation(&timezone)) {
    case TIME_ZONE_ID_UNKNOWN:
-      CurrentTimeZone = timezone.Bias;
+      CurrentTimeZone = static_cast<Sint16>(timezone.Bias);
    case TIME_ZONE_ID_STANDARD:
-      CurrentTimeZone = timezone.Bias + timezone.StandardBias;
+      CurrentTimeZone = static_cast<Sint16>(timezone.Bias + timezone.StandardBias);
    case TIME_ZONE_ID_DAYLIGHT:
-      CurrentTimeZone = timezone.Bias + timezone.DaylightBias;
+      CurrentTimeZone = static_cast<Sint16>(timezone.Bias + timezone.DaylightBias);
    default:
       break;
    }

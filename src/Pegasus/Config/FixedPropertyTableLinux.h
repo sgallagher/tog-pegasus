@@ -33,7 +33,7 @@
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
     {"home",                ""},
-    {"daemon",              "true"},
+//    {"daemon",              "true"},
     {"install",             "false"},
     {"remove",              "false"},
     {"slp",                 "false"},

@@ -38,7 +38,6 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/CimomMessage.h>
 #include <Pegasus/Common/MessageQueueService.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 class ModuleController;
@@ -46,38 +45,146 @@ class ModuleController;
 
 class PEGASUS_COMMON_LINKAGE pegasus_module
 {
+      class  module_rep;
+      
    public:
 
-      pegasus_module() 
+      pegasus_module(ModuleController *controller, 
+		     const String &id, 
+		     void *module_address,
+		     void (*_async_callback)(Uint32, Message *)) 
       {
+	 
+      }
+      
+      pegasus_module(const pegasus_module & mod)
+      {
+	 (mod._rep->_reference_count)++;
+	 _rep = mod._rep;
       }
       
       virtual ~pegasus_module()
       {
+	 if( 0 == (_rep->_reference_count.value()))
+	    delete _rep;
+	 
       }
       
-      Boolean operator == (const service_module *) const;
-      Boolean operator == (const String &  ) const ;
-      Boolean operator == (const service_module & ) const ;
-      Boolean operator == (const void *) const;
-
-      String & get_name(void);
+      pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
+      {
+	 (mod._rep->_reference_count)++;
+	 if ( ((rep->_reference_count)--) == 0 )
+	    delete rep;
+	 _rep = mod._rep;
+	 return *this;
+      }
       
+      
+      Boolean operator == (const pegasus_module *mod) const
+      {
+	 if(mod->_rep == _rep)
+	    return true;
+	 return false;
+      }
+      
+      Boolean operator == (const String &  mod) const 
+      {
+	 if(_rep->_name == mod)
+	    return true;
+	 return false;
+      }
+      
+      Boolean operator == (const pegasus_module & mod) const 
+      {
+	 if( mod._rep == _rep )
+	    return true;
+	 return false;
+	 
+      }
+      
+      Boolean operator == (const void *mod) const
+      {
+	 if ( (reinterpret_cast<pegasus_module *>(mod))->_rep == _rep)
+	    return true;
+	 return false;
+      }
+      
+      const String & get_name(void);
+            
       // introspection interface
-      virtual Boolean query_interface(String & class_id, 
-				      void **object_ptr) = 0;
+      Boolean query_interface(String & class_id, void **object_ptr) ;
+
+   private:
+
+      module_rep *_rep;
+      
+      pegasus_module(void);
+      virtual Boolean _rcv_msg(Message *) = 0;
+      void _send_async_callback(Uint32 msg_handle, Message *msg) ;
+      
+      virtual Boolean _shutdown(Uint32) = 0;
+
       virtual Uint32 reference(void) { _reference_count++; }
       virtual Uint32 dereference(void)  { _reference_count--; }
 
-   private:
-      virtual Boolean _rcv_msg(Message *) = 0;
-      virtual void _send_async_callback(Uint32 msg_handle, Message *msg) = 0;
+      friend class ModuleController;
+};
+
+
+class PEGASUS_COMMON_LINKAGE pegasus_module::module_rep 
+{
+   public:
+      module_rep(ModuleController *controller, 
+		 const String & name,
+		 void *module_address, 
+		 void (*async_callback)(Uint32, Message *))
+	 : _controller(controller), 
+	   _name(name), 
+	   _reference_count(1), 
+	   _module_address(module_address),
+	   _async_callback(async_callback)
+      {
+
+      }
       
-      virtual Boolean _shutdown(Uint32) = 0;
+      virtual ~module_rep(void) 
+      {
+
+      }
+      
+      Boolean operator == (const module_rep *rep) const
+      {
+	 if (rep == this )
+	    return true;
+	 return false;
+      }
+      
+      Boolean operator == (const module_rep &rep) const
+      {
+	 if (rep == *this)
+	    return true;
+	 return false;
+      }
+      
+      Boolean operator == (void *rep) const 
+      {
+	 if ( (void *)this == rep )
+	    return true;
+	 return false;
+      }
+      
+
+   private: 
+      module_rep(void);
+      module_rep(const module_rep & );
+      module_rep& operator= (const module_rep & );
+      
+
       ModuleController *_controller;
       String _name;
       AtomicInt _reference_count;
-      
+      void *_module_address;
+      void (*_async_callback)(Uint32, Message *);
       friend class ModuleController;
 };
 
@@ -89,20 +196,20 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       typedef MesageQueueService Base;
       
       ModuleController(const char *name, Uint32 queueID);
-      ~ModuleController(void);
+      virtual ~ModuleController(void);
 
-      
-      
       // module api 
-      ModuleController & register_module(pegasus_module *);
-      deregister_module(pegasus_module *);
+      ModuleController & register_module(const String & module_name, 
+					 void *module_address, 
+					 void (*async_callback)(Uint32, Message *));
+
+      deregister_module(const String & module_name);
       
       Uint32 find_service(pegasus_module & handle, String & name);
       String & find_service(pegasus_module & handle, Uint32 queue_id);
 
       pegasus_module & get_module_reference(pegasus_module & handle, String & name);
       
-
       // send a message to another service
       Message *ModuleSendWait(pegasus_module & handle,
 			      Uint32 destination_q, 
@@ -134,11 +241,6 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 			       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
 			       void *parm);
       
-      // << Thu Mar 14 09:52:56 2002 mdd >>
-      // need to add a blocking semaphore to ThreadPool for "joinable" threads
-      // need to define a special message type for sending messages to modules
-      //
-
    protected:
 
    private:

@@ -80,7 +80,6 @@ class PEGASUS_COMMON_LINKAGE message_module
       Boolean operator == (const message_module & mm ) const ;
       Boolean operator == (const void *) const;
       Boolean operator == (Uint32) const;
-      
       const String & get_name(void) const ;
       Uint32 get_capabilities(void) const ; 
       Uint32 get_mask(void) const ; 
@@ -124,17 +123,7 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
       void set_default_op_timeout(const struct timeval *buffer);
       void get_default_op_timeout(struct timeval *timeout) const ;
 
-      virtual void handleEnqueue();
-      void register_module(RegisterCimService *msg);
-      void deregister_module(Uint32 quid);
-      void update_module(UpdateCimService *msg );
-      void ioctl(AsyncIoctl *msg );
 
-      void find_service_q(FindServiceQueue *msg );
-      void enumerate_service(EnumerateService *msg );
-      Boolean route_async(AsyncOpNode *operation);
-      void _shutdown_routed_queue(void);
-      
             
    protected:
       Uint32 get_module_q(const String & name);
@@ -164,6 +153,21 @@ class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
       void _handle_cimom_op(AsyncOpNode *op, Thread *thread, MessageQueue *queue);
       Uint32 _ioctl(Uint32, Uint32, void *);
 
+      virtual void handleEnqueue();
+      void register_module(RegisterCimService *msg);
+      void deregister_module(Uint32 quid);
+      void update_module(UpdateCimService *msg );
+      void ioctl(AsyncIoctl *msg );
+
+      void find_service_q(FindServiceQueue *msg );
+      void enumerate_service(EnumerateService *msg );
+      Boolean route_async(AsyncOpNode *operation);
+      void _shutdown_routed_queue(void);
+      
+      void _registered_module_in_service(RegisteredModule *msg);
+      void _deregistered_module_in_service(DeRegisteredModule *msg);
+      void _find_module_in_service(FindModuleInService *msg);
+      
 
       AtomicInt _die;
       AtomicInt _routed_queue_shutdown;

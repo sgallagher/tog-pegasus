@@ -63,31 +63,34 @@ const Uint32 async_results::CIM_STOPPED =               0x00000015;
 
 
 
-const Uint32 async_messages::HEARTBEAT =                0x00000000;
-const Uint32 async_messages::REPLY =                    0x00000000;
-const Uint32 async_messages::REGISTER_CIM_SERVICE =     0x00000001;
-const Uint32 async_messages::DEREGISTER_CIM_SERVICE =   0x00000002;
-const Uint32 async_messages::UPDATE_CIM_SERVICE =       0x00000003;
-const Uint32 async_messages::IOCTL =                    0x00000004;
-const Uint32 async_messages::CIMSERVICE_START =         0x00000005;
-const Uint32 async_messages::CIMSERVICE_STOP =          0x00000006;
-const Uint32 async_messages::CIMSERVICE_PAUSE =         0x00000007;
-const Uint32 async_messages::CIMSERVICE_RESUME =        0x00000008;
+const Uint32 async_messages::HEARTBEAT =                       0x00000000;
+const Uint32 async_messages::REPLY =                           0x00000000;
+const Uint32 async_messages::REGISTER_CIM_SERVICE =            0x00000001;
+const Uint32 async_messages::DEREGISTER_CIM_SERVICE =          0x00000002;
+const Uint32 async_messages::UPDATE_CIM_SERVICE =              0x00000003;
+const Uint32 async_messages::IOCTL =                           0x00000004;
+const Uint32 async_messages::CIMSERVICE_START =                0x00000005;
+const Uint32 async_messages::CIMSERVICE_STOP =                 0x00000006;
+const Uint32 async_messages::CIMSERVICE_PAUSE =                0x00000007;
+const Uint32 async_messages::CIMSERVICE_RESUME =               0x00000008;
 
-const Uint32 async_messages::ASYNC_OP_START =           0x00000009;
-const Uint32 async_messages::ASYNC_OP_RESULT =          0x0000000a;
-const Uint32 async_messages::ASYNC_LEGACY_OP_START =    0x0000000b;
-const Uint32 async_messages::ASYNC_LEGACY_OP_RESULT =   0x0000000c;
+const Uint32 async_messages::ASYNC_OP_START =                  0x00000009;
+const Uint32 async_messages::ASYNC_OP_RESULT =                 0x0000000a;
+const Uint32 async_messages::ASYNC_LEGACY_OP_START =           0x0000000b;
+const Uint32 async_messages::ASYNC_LEGACY_OP_RESULT =          0x0000000c;
 
-const Uint32 async_messages::FIND_SERVICE_Q =           0x0000000d;
-const Uint32 async_messages::FIND_SERVICE_Q_RESULT =    0x0000000e;
-const Uint32 async_messages::ENUMERATE_SERVICE =        0x0000000f;
-const Uint32 async_messages::ENUMERATE_SERVICE_RESULT = 0x00000010;
+const Uint32 async_messages::FIND_SERVICE_Q =                  0x0000000d;
+const Uint32 async_messages::FIND_SERVICE_Q_RESULT =           0x0000000e;
+const Uint32 async_messages::ENUMERATE_SERVICE =               0x0000000f;
+const Uint32 async_messages::ENUMERATE_SERVICE_RESULT =        0x00000010;
 
-const Uint32 async_messages::REGISTERED_MODULE =        0x00000011;
-const Uint32 async_messages::DEREGISTERED_MODULE =      0x00000012;
-const Uint32 async_messages::FIND_MODULE_IN_SERVICE =   0x00000013;
+const Uint32 async_messages::REGISTERED_MODULE =               0x00000011;
+const Uint32 async_messages::DEREGISTERED_MODULE =             0x00000012;
+const Uint32 async_messages::FIND_MODULE_IN_SERVICE =          0x00000013;
 const Uint32 async_messages::FIND_MODULE_IN_SERVICE_RESPONSE = 0x00000014;
+
+const Uint32 async_messages::ASYNC_MODULE_OP_START =           0x00000015;
+const Uint32 async_messages::ASYNC_MODULE_OP_RESULT  =         0x00000016;
 
 
 
@@ -383,6 +386,51 @@ AsyncOperationResult::AsyncOperationResult(Uint32 key,
 }
 
 
+AsyncModuleOperationStart::AsyncModuleOperationStart(Uint32 routing, 
+						     AsyncOpNode *operation, 
+						     Uint32 destination, 
+						     Uint32 response, 
+						     Boolean blocking, 
+						     String target_module,
+						     Message *action)
+   : AsyncRequest(async_messages::ASYNC_MODULE_OP_START, 
+		  Message::getNextKey(), routing, 0,
+		  operation, 
+		  destination, response, blocking),
+     _target_module(target_module),
+     _act(action) 
+{  
+   _act->put_async(this);
+   
+}
+
+
+Message * AsyncModuleOperationStart::get_action(void)
+{
+   Message *ret = _act;
+   _act = 0;
+   ret->put_async(0);
+   return ret;
+   
+}
+
+AsyncModuleOperationResult::AsyncModuleOperationResult(Uint32 key, 
+						       Uint32 routing, 
+						       AsyncOpNode *operation,
+						       Uint32 result_code, 
+						       Uint32 destination,
+						       Uint32 blocking,
+						       String target_module,
+						       Message *result)
+   : AsyncReply(async_messages::ASYNC_MODULE_OP_RESULT, 
+		key, routing, 0,
+		operation, result_code, destination, 
+		blocking),
+     _target_module(target_module),
+     _res(result)
+{   
+   _res->put_async(this);
+}
 
 AsyncLegacyOperationStart::AsyncLegacyOperationStart(Uint32 routing, 
 						     AsyncOpNode *operation, 

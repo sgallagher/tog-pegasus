@@ -106,6 +106,9 @@ class PEGASUS_COMMON_LINKAGE async_messages
       static const Uint32 DEREGISTERED_MODULE;
       static const Uint32 FIND_MODULE_IN_SERVICE;
       static const Uint32 FIND_MODULE_IN_SERVICE_RESPONSE;
+
+      static const Uint32 ASYNC_MODULE_OP_START;
+      static const Uint32 ASYNC_MODULE_OP_RESULT;
 };
 
 
@@ -459,6 +462,59 @@ class PEGASUS_COMMON_LINKAGE AsyncOperationResult : public AsyncReply
 
       }
 };
+
+
+class PEGASUS_COMMON_LINKAGE AsyncModuleOperationStart : public AsyncRequest
+{
+   public:
+      AsyncModuleOperationStart(Uint32 routing, 
+				AsyncOpNode *operation,
+				Uint32 destination, 
+				Uint32 response, 
+				Boolean blocking, 
+				String target_module,
+				Message *action);
+
+      virtual ~AsyncModuleOperationStart(void) 
+      {
+	 delete _act;
+      }
+      
+      Message *get_action(void);
+
+   private:
+      friend class MessageQueueService;
+      friend class cimom;
+      String _target_module;
+      Message *_act;
+};
+
+class PEGASUS_COMMON_LINKAGE AsyncModuleOperationResult : public AsyncReply
+{
+   public:
+      AsyncModuleOperationResult(Uint32 key, 
+				 Uint32 routing, 
+				 AsyncOpNode *operation,
+				 Uint32 result_code, 
+				 Uint32 destination,
+				 Uint32 blocking, 
+				 String target_module, 
+				 Message *action);
+
+      virtual ~AsyncModuleOperationResult(void)
+      {
+	 delete _res;
+      }
+      
+      Message *get_result(void);
+   private:
+      friend class MessageQueueService;
+      friend class cimom;
+      String _target_module;
+      Message *_res;
+};
+
+
 
 
 class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationStart : public AsyncRequest

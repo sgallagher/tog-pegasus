@@ -330,8 +330,7 @@ void cimom::_make_response(Message *req, Uint32 code)
    AsyncReply *reply = 0 ;
    if ( ! ((static_cast<AsyncRequest *>(req))->op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS) )
    {
-      // sender does not want a reply message, just the 
-      // _completion_code field in the AsyncOpNode. 
+ 
       reply = new AsyncReply(async_messages::REPLY,
 			     req->getKey(),
 			     req->getRouting(),
@@ -341,8 +340,11 @@ void cimom::_make_response(Message *req, Uint32 code)
 			     (static_cast<AsyncRequest *>(req))->resp,
 			     false);
    }
-   else 
+   else       
       (static_cast<AsyncRequest *>(req))->op->_completion_code = code;
+             // sender does not want a reply message, just the 
+             // _completion_code field in the AsyncOpNode.
+
 
    _completeAsyncResponse(static_cast<AsyncRequest *>(req), reply, ASYNC_OPSTATE_COMPLETE, 0 );
 }
@@ -356,6 +358,15 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
 
    AsyncOpNode *op = request->op;
    op->lock();
+
+  if ( op->_flags & ASYNC_OPFLAGS_CALLBACK && ! (op->_flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK) )
+  {
+     op->unlock();
+     if ( (reply != 0) && (false == op->_response.exists(reinterpret_cast<void *>(reply))) )
+	 op->_response.insert_last(reply);
+     _complete_op_node(op, state, flag, (reply ? reply->result : 0 ));
+  }
+   
 
    if( op->_flags & ASYNC_OPFLAGS_FIRE_AND_FORGET )
    {
@@ -422,7 +433,6 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
       _global_this->route_async(op);
       return;
    }
-   
    op->_client_sem.signal();
    return;
 }
@@ -887,6 +897,108 @@ void cimom::get_default_op_timeout(struct timeval *timeout) const
    }
    return;
 }
+
+void cimom::_registered_module_in_service(RegisteredModule *msg)
+{
+   Uint32 result = async_results::MODULE_NOT_FOUND;
+   
+   _modules.lock();
+   message_module *ret = _modules.next( 0 );
+   while( ret != 0 )
+   {
+      if (ret->_q_id == msg->resp)
+      {
+	 // see if the module is already registered
+	 Uint32 i = 0;
+	 for( ; i < ret->_modules.size() ; i++  )
+	 {
+	    if( ret->_modules[i] == msg->_module )
+	    {
+	       result = async_results::MODULE_ALREADY_REGISTERED;;
+	       break;
+	    }
+	 }
+	 if ( result != async_results::MODULE_ALREADY_REGISTERED)
+	 {
+	    ret->_modules.append(msg->_module);
+	    result = async_results::OK;
+	 }
+	 break;
+      }
+      ret = _modules.next(ret);
+   }
+   _modules.unlock();
+   _make_response(msg, result);
+}
+
+void cimom::_deregistered_module_in_service(DeRegisteredModule *msg)
+{
+   Uint32 result = async_results::MODULE_NOT_FOUND;
+   
+   _modules.lock();
+   message_module *ret = _modules.next( 0 );
+   while( ret != 0 )
+   {
+      if (ret->_q_id == msg->resp)
+      {
+	 Uint32 i = 0;
+	 for( ; i < ret->_modules.size() ; i++  )
+	 {
+	    if( ret->_modules[i] == msg->_module )
+	    {
+	       ret->_modules.remove(i);
+	       result = async_results::OK;
+	       break;
+	    }
+	 }
+      }
+      ret = _modules.next(ret);
+   }
+   _modules.unlock();
+   _make_response(msg, result);
+}
+
+void cimom::_find_module_in_service(FindModuleInService *msg)
+{
+   Uint32 result = async_results::MODULE_NOT_FOUND;
+   Uint32 q_id = 0;
+   
+   _modules.lock();
+   message_module *ret = _modules.next( 0 );
+   while( ret != 0 )
+   {
+      // see if the module is in this service 
+      Uint32 i = 0;
+      for( ; i < ret->_modules.size() ; i++  )
+      {
+	 if( ret->_modules[i] == msg->_module )
+	 {
+	    result = async_results::OK;
+	    q_id = ret->_q_id;
+	    break;
+	 }
+      }
+      ret = _modules.next(ret);
+   }
+   _modules.unlock();
+
+   FindModuleInServiceResponse *response = 
+      new FindModuleInServiceResponse(msg->getRouting(), 
+				      msg->getKey(),
+				      msg->op, 
+				      result,
+				      msg->resp,
+				      msg->block,
+				      q_id);
+	    
+   msg->op->_response.insert_first(response);
+   _complete_op_node(msg->op, 
+		     ASYNC_OPSTATE_COMPLETE, 
+		     0, 
+		     result);
+}
+
+
 
 PEGASUS_NAMESPACE_END
 

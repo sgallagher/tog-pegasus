@@ -112,18 +112,58 @@ void CIMPropertyRep::resolve(
     // Test the reference class name against the inherited property
     if (_value.getType() == CIMTYPE_REFERENCE)
     {
-		CIMName inheritedReferenceClassName = inheritedProperty.getReferenceClassName();
-        CIMName referenceClassName = _referenceClassName;
-		bool found = inheritedReferenceClassName.equal(referenceClassName);
-		while(!found)
-		{
-			CIMClass referenceClass = declContext->lookupClass(nameSpace, referenceClassName);
-			referenceClassName = referenceClass.getSuperClassName();
-			if(referenceClassName.isNull())
-				throw TypeMismatchException();
+        CIMName inheritedReferenceClassName = inheritedProperty.getReferenceClassName();
+        CIMName referenceClassName;
+        if(!_referenceClassName.isNull() && !_value.isNull())
+        {
+            CIMObjectPath valuePath;
+            _value.get(valuePath);
+            referenceClassName = valuePath.getClassName();
+            bool found = _referenceClassName.equal(referenceClassName);
+            while(!found)
+            {
+                CIMClass referenceClass = declContext->lookupClass(nameSpace, referenceClassName);
+                if(referenceClass.isUninitialized())
+                {
+                    throw PEGASUS_CIM_EXCEPTION(
+                      CIM_ERR_NOT_FOUND, referenceClassName.getString());
+                }
+                referenceClassName = referenceClass.getSuperClassName();
+                if(referenceClassName.isNull())
+                    throw TypeMismatchException();
 
-			found = inheritedReferenceClassName.equal(referenceClassName);
-		}
+                found = inheritedReferenceClassName.equal(referenceClassName);
+            }
+        }
+        else if(!_referenceClassName.isNull())
+        {
+            referenceClassName = _referenceClassName;
+        }
+        else if(!_value.isNull())
+        {
+            CIMObjectPath valuePath;
+            _value.get(valuePath);
+            referenceClassName = valuePath.getClassName();
+        }
+
+        if(!referenceClassName.isNull())
+        {
+            bool found = inheritedReferenceClassName.equal(referenceClassName);
+            while(!found)
+            {
+                CIMClass referenceClass = declContext->lookupClass(nameSpace, referenceClassName);
+                if(referenceClass.isUninitialized())
+                {
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_NOT_FOUND, referenceClassName.getString());
+                }
+                referenceClassName = referenceClass.getSuperClassName();
+                if(referenceClassName.isNull())
+                    throw TypeMismatchException();
+
+                found = inheritedReferenceClassName.equal(referenceClassName);
+            }
+        }
     }
 
     _qualifiers.resolve(

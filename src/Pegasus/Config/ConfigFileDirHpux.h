@@ -40,6 +40,11 @@ static char CURRENT_CONFIG_FILE [] = "/var/opt/wbem/cimserver_current.conf";
     Default file name for the planned configuration.
 */
 static char PLANNED_CONFIG_FILE [] = "/var/opt/wbem/cimserver_planned.conf";
+
+/**
+    Default file name for the cimserver startup file containing the PID
+*/
+static char CIMSERVER_START_FILE [] = "/etc/opt/wbem/cimserver_start.conf";
 #else
 /**
     Default file name for the current configuration.
@@ -50,6 +55,11 @@ static char CURRENT_CONFIG_FILE [] = "cimserver_current.conf";
     Default file name for the planned configuration.
 */
 static char PLANNED_CONFIG_FILE [] = "cimserver_planned.conf";
+
+/**
+    Default file name for the cimserver startup file containing the PID
+*/
+static char CIMSERVER_START_FILE [] = "/tmp/cimserver_start.conf";
 #endif
 
 #endif /* Pegasus_ConfigFileDirHpux_h */

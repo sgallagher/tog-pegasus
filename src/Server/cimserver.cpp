@@ -159,7 +159,6 @@ static const char OPTION_BINDVERBOSE = 'X';
 #endif
 
 static const String PROPERTY_TIMEOUT = "shutdownTimeout";
-static const String CIMSERVERSTART_FILE = "/etc/opt/wbem/cimserver_start.conf";
 
 ConfigManager*    configManager;
 
@@ -361,24 +360,18 @@ void shutdownCIMOM(Uint32 timeoutValue)
     catch(Exception& e)
     {
         //
-        // This may mean the CIM Server has been terminated and returns a 
-        // "Empty HTTP response message" HTTP error response.  To be sure
-        // CIM Server gets shutdown, if CIM Server is still running at 
-        // this time, we will kill the cimserver process.
+        // This may mean that the CIM Server has terminated, causing this
+        // client to get a "Empty HTTP response message" exception.  It may
+        // also mean that the CIM Server is taking longer than 2 seconds 
+        // (client timeout value) to terminate, causing this client to 
+        // timeout with a "connection timeout" exception.
         //
-        // give CIM Server some time to finish up
-        //
-        //System::sleep(1);
-        //cimserver_kill();
-
-        //
-        // Check to see if CIMServer is still running.  If CIMServer
+        // Check to see if CIM Server is still running.  If CIM Server
         // is still running and the shutdown timeout has not expired,
-        // loop and wait one second until either CIM Server is
-        // terminated or until timeout expires.  If timeout expires
-        // and CIMServer is still running, kill the CIMServer
-        // process.
-        //
+        // loop and wait one second until either the CIM Server is
+        // terminated or timeout expires.  If timeout expires and
+        // the CIM Server is still running, kill the CIMServer process.
+        // 
         Uint32 maxWaitTime = timeoutValue - 2;
         Boolean running = isCIMServerRunning();
         while ( running && maxWaitTime > 0 )
@@ -396,14 +389,16 @@ void shutdownCIMOM(Uint32 timeoutValue)
 		cimserver_exit(2);
 	    cimserver_exit(1);
 #endif
+
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+	    if (kill_rc != -1)
+            {
+                cout << "Shutdown timeout expired.  CIM Server process killed." << endl;
+                exit(0);
+            }
+#endif
         }
     }
-    //catch(Exception& e)
-    //{
-    //    PEGASUS_STD(cerr) << "Error occurred while stopping the CIM Server: ";
-    //    PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
-    //    exit(1);
-    //}
 
     return;
 }
@@ -813,7 +808,7 @@ int main(int argc, char** argv)
     } 
 #endif
 
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     umask(S_IWGRP|S_IWOTH);
 
     //
@@ -899,17 +894,17 @@ int main(int argc, char** argv)
 
 	time_t last = 0;
 
-#if defined(PEGASUS_OS_HPUX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
         //
         // create a file to indicate that the cimserver has started and
         // save the process id of the cimserver process in the file
         //
-
         // remove the old file if it exists
-        System::removeFile(fname);
+        System::removeFile(CIMSERVER_START_FILE);
 
         // open the file
-        FILE *pid_file = fopen(fname, "w");
+        FILE *pid_file = fopen(CIMSERVER_START_FILE, "w");
+
         if (pid_file)
         {
             // save the pid in the file
@@ -917,6 +912,7 @@ int main(int argc, char** argv)
             fclose(pid_file);
         }
 #endif
+
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
 !defined(PEGASUS_OS_OS400)
 	cout << "Started. " << endl;
@@ -972,12 +968,12 @@ int main(int argc, char** argv)
             "$0 stopped.", PEGASUS_NAME);
 #endif
 
-#if defined(PEGASUS_OS_HPUX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
         //
         // close the file created at startup time to indicate that the 
         // cimserver has terminated normally.
         //
-        FileSystem::removeFile(CIMSERVERSTART_FILE);
+        FileSystem::removeFile(CIMSERVER_START_FILE);
 #endif
     }
     catch(Exception& e)

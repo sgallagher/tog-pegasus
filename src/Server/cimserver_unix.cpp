@@ -46,7 +46,6 @@ Boolean handleSigUsr1 = false;
 
 void cim_server_service(int argc, char **argv ) { return; }  
 
-const char *fname = "/etc/opt/wbem/cimserver_start.conf";
 pid_t server_pid;
 
 void sigUsr1Handler(int s_n, PEGASUS_SIGINFO_T * s_info, void * sig)
@@ -93,13 +92,109 @@ getSigHandle()->activate(PEGASUS_SIGUSR1);
   return(0);
 }
 
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+
+//===========================================================================
+//  NAME          : verify_process_name
+//  DESCRIPTION   : Opens the 'stat' file in the /proc/<pid> directory to 
+//                  verify that the process name is that of the cimserver.
+//===========================================================================
+int verify_process_name(char *directory) 
+{
+    static char filename[80];
+    static char buffer[512];
+    int fd, bytesRead;
+
+    // generate the name of the stat file in the process's /proc directory,
+    // and open it
+    sprintf(filename, "%s/%s", directory, "stat");
+    if ( (fd = open(filename, O_RDONLY, 0)) == -1 ) 
+    {
+        return -1;
+    }
+
+    // read the contents
+    if ( (bytesRead = read( fd, buffer, (sizeof buffer) - 1 )) <= 0 ) 
+    {
+        close(fd);
+        return -1;
+    }
+
+    // null terminate the file contents
+    buffer[bytesRead] = 0;
+
+    close(fd);
+
+    // the process name is the second element of the file contents and
+    // is surrounded by parentheses. 
+    //
+    // find the positions of the parentheses in the file contents
+    char * open_paren;
+    char * close_paren;
+    
+    open_paren = strchr (buffer, '(');
+    close_paren = strchr (buffer, ')');
+    if (open_paren == NULL || close_paren == NULL || close_paren < open_paren)
+    {
+        return -1;
+    }
+
+    // allocate memory for the result
+    char * process_name;
+    process_name = (char*) malloc(close_paren - open_paren - 1);
+
+    // copy the process name into the result  
+    strncpy (process_name, open_paren + 1, close_paren - open_paren -1);
+
+    // strncpy doesn't NULL-terminate the result, so do it here
+    process_name[close_paren - open_paren -1] = '\0';
+
+    if (strcmp(process_name, "cimserver") != 0)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+//=============================================================================
+// NAME           : get_proc
+// DESCRIPTION    : get_proc() makes a stat() system call on the directory in
+//                  /proc with a name that matches the pid of the cimserver.
+//                  It returns 0 if it successfully located the process dir
+//                  and verified that the process name matches that of the
+//                  cimserver.  It returns -1 if it fails to open /proc, or
+//                  the cimserver process does not exist.
+//=============================================================================
+int get_proc(int pid)
+{
+  static char path[32];
+  static struct stat stat_buff;
+
+  sprintf(path, "/proc/%d", pid);
+  if (stat(path, &stat_buff) == -1)          // process stopped running
+  {
+    return -1;
+  }
+
+  // get the process name to make sure it is the cimserver process
+  if ((verify_process_name(path)) == -1)
+  {
+    return -1;
+  }
+
+  return 0;
+}
+#endif
+
+
 Boolean isCIMServerRunning(void)
 {
   FILE *pid_file;
   pid_t pid = 0;
 
   // open the file containing the CIMServer process ID
-  pid_file = fopen(fname, "rw");
+  pid_file = fopen(CIMSERVER_START_FILE, "rw");
   if (!pid_file)
   {
       return false;
@@ -130,6 +225,13 @@ Boolean isCIMServerRunning(void)
       return true;
   }
 #endif
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+  if (get_proc(pid) != -1 )
+  {
+      // cimserver is running
+      return true;
+  }
+#endif
 
   return false;
 }
@@ -140,7 +242,7 @@ int cimserver_kill(void)
   pid_t pid = 0;
   
   // open the file containing the CIMServer process ID
-  pid_file = fopen(fname, "r");
+  pid_file = fopen(CIMSERVER_START_FILE, "r");
   if (!pid_file) 
   {
       return (-1);
@@ -153,7 +255,7 @@ int cimserver_kill(void)
 
   if (pid == 0)
   {
-     System::removeFile(fname);
+     System::removeFile(CIMSERVER_START_FILE);
      return (-1);
   }
 
@@ -172,9 +274,15 @@ int cimserver_kill(void)
       kill(pid, SIGKILL);
   }
 #endif
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+  if (get_proc(pid) != -1 )
+  {
+      kill(pid, SIGKILL);
+  }
+#endif
 
   // remove the file
-  System::removeFile(fname);
+  System::removeFile(CIMSERVER_START_FILE);
   
   return(0);
 }

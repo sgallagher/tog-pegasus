@@ -7,7 +7,7 @@
 ##
 ################################################################################
 
-_TMP_O = .tmp.o
+_TMP_O = $(PEGASUS_PLATFORM).o
 
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)
 	$(CXX) -c -o$(_TMP_O) $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp

@@ -165,6 +165,22 @@ class PEGASUS_COMMON_LINKAGE CIMGetClassRequestMessage
       {
       }
 
+      CIMGetClassRequestMessage(CIMGetClassRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            className = msg.className;
+            localOnly = msg.localOnly;
+            includeQualifiers = msg.includeQualifiers;
+            includeClassOrigin = msg.includeClassOrigin;
+            propertyList = msg.propertyList;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       virtual ~CIMGetClassRequestMessage();
 
       String nameSpace;
@@ -207,6 +223,22 @@ class CIMGetInstanceRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMGetInstanceRequestMessage(CIMGetInstanceRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            instanceName = msg.instanceName;
+            localOnly = msg.localOnly;
+            includeQualifiers = msg.includeQualifiers;
+            includeClassOrigin = msg.includeClassOrigin;
+            propertyList = msg.propertyList;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       CIMReference instanceName;
       Boolean localOnly;
@@ -239,6 +271,18 @@ class CIMExportIndicationRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMExportIndicationRequestMessage(CIMExportIndicationRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            url = msg.url;
+            indicationInstance = msg.indicationInstance;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String url;
       CIMInstance indicationInstance;
       String authType;
@@ -265,6 +309,18 @@ class CIMDeleteClassRequestMessage : public CIMRequestMessage
 	 userName(userName_)
       {
 
+      }
+
+      CIMDeleteClassRequestMessage(CIMDeleteClassRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            className = msg.className;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -295,6 +351,18 @@ class CIMDeleteInstanceRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMDeleteInstanceRequestMessage(CIMDeleteInstanceRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            instanceName = msg.instanceName;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       CIMReference instanceName;
       String authType;
@@ -321,6 +389,18 @@ class CIMCreateClassRequestMessage : public CIMRequestMessage
 	 userName(userName_)
       {
 
+      }
+
+      CIMCreateClassRequestMessage(CIMCreateClassRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            newClass = msg.newClass;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -351,6 +431,18 @@ class CIMCreateInstanceRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMCreateInstanceRequestMessage(CIMCreateInstanceRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            newInstance = msg.newInstance;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       CIMInstance newInstance;
       String authType;
@@ -377,6 +469,18 @@ class CIMModifyClassRequestMessage : public CIMRequestMessage
 	 userName(userName_)
       {
 
+      }
+
+      CIMModifyClassRequestMessage(CIMModifyClassRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            modifiedClass = msg.modifiedClass;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -409,6 +513,20 @@ class CIMModifyInstanceRequestMessage : public CIMRequestMessage
 	 userName(userName_)
       {
 
+      }
+
+      CIMModifyInstanceRequestMessage(CIMModifyInstanceRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            modifiedInstance = msg.modifiedInstance;
+            includeQualifiers = msg.includeQualifiers;
+            propertyList = msg.propertyList;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -447,6 +565,22 @@ class CIMEnumerateClassesRequestMessage : public CIMRequestMessage
       {
       }
 
+      CIMEnumerateClassesRequestMessage(CIMEnumerateClassesRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            className = msg.className;
+            deepInheritance = msg.deepInheritance;
+            localOnly = msg.localOnly;
+            includeQualifiers = msg.includeQualifiers;
+            includeClassOrigin = msg.includeClassOrigin;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       String className;
       Boolean deepInheritance;
@@ -479,6 +613,19 @@ class CIMEnumerateClassNamesRequestMessage : public CIMRequestMessage
 	 userName(userName_)
       {
 
+      }
+
+      CIMEnumerateClassNamesRequestMessage(CIMEnumerateClassNamesRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            className = msg.className;
+            deepInheritance = msg.deepInheritance;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -520,6 +667,23 @@ class CIMEnumerateInstancesRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMEnumerateInstancesRequestMessage(CIMEnumerateInstancesRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            className = msg.className;
+            deepInheritance = msg.deepInheritance;
+            localOnly = msg.localOnly;
+            includeQualifiers = msg.includeQualifiers;
+            includeClassOrigin = msg.includeClassOrigin;
+            propertyList = msg.propertyList;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       String className;
       Boolean deepInheritance;
@@ -552,6 +716,18 @@ class CIMEnumerateInstanceNamesRequestMessage : public CIMRequestMessage
       {
       }
 
+      CIMEnumerateInstanceNamesRequestMessage(CIMEnumerateInstanceNamesRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            className = msg.className;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       String className;
       String authType;
@@ -578,6 +754,19 @@ class CIMExecQueryRequestMessage : public CIMRequestMessage
 	 authType(authType_),
 	 userName(userName_)
       {
+      }
+
+      CIMExecQueryRequestMessage(CIMExecQueryRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            queryLanguage = msg.queryLanguage;
+            query = msg.query;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -623,6 +812,25 @@ class CIMAssociatorsRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMAssociatorsRequestMessage(CIMAssociatorsRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            objectName = msg.objectName;
+            assocClass = msg.assocClass;
+            resultClass = msg.resultClass;
+            role = msg.role;
+            resultRole = msg.resultRole;
+            includeQualifiers = msg.includeQualifiers;
+            includeClassOrigin = msg.includeClassOrigin;
+            propertyList = msg.propertyList;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       CIMReference objectName;
       String assocClass;
@@ -663,6 +871,22 @@ class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
 	 authType(authType_),
 	 userName(userName_)
       {
+      }
+
+      CIMAssociatorNamesRequestMessage(CIMAssociatorNamesRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            objectName = msg.objectName;
+            assocClass = msg.assocClass;
+            resultClass = msg.resultClass;
+            role = msg.role;
+            resultRole = msg.resultRole;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -706,6 +930,23 @@ class CIMReferencesRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMReferencesRequestMessage(CIMReferencesRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            objectName = msg.objectName;
+            resultClass = msg.resultClass;
+            role = msg.role;
+            includeQualifiers = msg.includeQualifiers;
+            includeClassOrigin = msg.includeClassOrigin;
+            propertyList = msg.propertyList;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       CIMReference objectName;
       String resultClass;
@@ -742,6 +983,20 @@ class CIMReferenceNamesRequestMessage : public CIMRequestMessage
       {
       }
 	
+      CIMReferenceNamesRequestMessage(CIMReferenceNamesRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            objectName = msg.objectName;
+            resultClass = msg.resultClass;
+            role = msg.role;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       CIMReference objectName;
       String resultClass;
@@ -772,6 +1027,19 @@ class CIMGetPropertyRequestMessage : public CIMRequestMessage
 	 userName(userName_)
       {
 
+      }
+
+      CIMGetPropertyRequestMessage(CIMGetPropertyRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            instanceName = msg.instanceName;
+            propertyName = msg.propertyName;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -807,6 +1075,20 @@ class CIMSetPropertyRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMSetPropertyRequestMessage(CIMSetPropertyRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            instanceName = msg.instanceName;
+            propertyName = msg.propertyName;
+            newValue = msg.newValue;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       CIMReference instanceName;
       String propertyName;
@@ -837,8 +1119,20 @@ class CIMGetQualifierRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMGetQualifierRequestMessage(CIMGetQualifierRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            qualifierName = msg.qualifierName;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
-      const String qualifierName;
+      String qualifierName;
       String authType;
       String userName;
 };
@@ -865,8 +1159,20 @@ class CIMSetQualifierRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMSetQualifierRequestMessage(CIMSetQualifierRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            qualifierDeclaration = msg.qualifierDeclaration;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
-      const CIMQualifierDecl qualifierDeclaration;
+      CIMQualifierDecl qualifierDeclaration;
       String authType;
       String userName;
 };
@@ -893,8 +1199,20 @@ class CIMDeleteQualifierRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMDeleteQualifierRequestMessage(CIMDeleteQualifierRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            qualifierName = msg.qualifierName;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
-      const String qualifierName;
+      String qualifierName;
       String authType;
       String userName;
 };
@@ -917,6 +1235,17 @@ class CIMEnumerateQualifiersRequestMessage : public CIMRequestMessage
 	 userName(userName_)
       {
 
+      }
+
+      CIMEnumerateQualifiersRequestMessage(CIMEnumerateQualifiersRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -951,229 +1280,24 @@ class CIMInvokeMethodRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMInvokeMethodRequestMessage(CIMInvokeMethodRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            instanceName = msg.instanceName;
+            methodName = msg.methodName;
+            inParameters = msg.inParameters;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
       String nameSpace;
       CIMReference instanceName;
       String methodName;
       Array<CIMParamValue> inParameters;
-      String authType;
-      String userName;
-};
-
-//
-//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
-//  has been modified to use the new messages
-//
-class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
-{
-   public:
-
-      CIMEnableIndicationSubscriptionRequestMessage(
-	 const String & messageId_,
-	 const String & nameSpace_,
-	 const CIMNamedInstance & subscription_,
-	 const Array<String> & classNames_,
-	 const CIMInstance & provider_,
-	 const CIMInstance & providerModule_,
-	 const CIMPropertyList & propertyList_,
-	 const Uint16 repeatNotificationPolicy_,
-	 const String & condition_,
-	 const String & queryLanguage_,
-	 QueueIdStack queueIds_,
-	 const String& authType_ = String::EMPTY,
-	 const String& userName_ = String::EMPTY,
-	 const String & otherRepeatNotificationPolicy_ = String::EMPTY,
-	 const CIMDateTime & repeatNotificationInterval_ = CIMDateTime (),
-	 const CIMDateTime & repeatNotificationGap_ = CIMDateTime (),
-	 const Uint16 repeatNotificationCount_ = 0)
-	 :
-	 CIMRequestMessage
-      (CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
-       messageId_,
-       queueIds_),
-	 nameSpace (nameSpace_),
-	 classNames (classNames_),
-	 provider (provider_),
-	 providerModule (providerModule_),
-	 propertyList (propertyList_),
-	 repeatNotificationPolicy (repeatNotificationPolicy_),
-	 otherRepeatNotificationPolicy (otherRepeatNotificationPolicy_),
-	 repeatNotificationInterval (repeatNotificationInterval_),
-	 repeatNotificationGap (repeatNotificationGap_),
-	 repeatNotificationCount (repeatNotificationCount_),
-	 condition (condition_),
-	 queryLanguage (queryLanguage_),
-	 subscription (subscription_.getInstance ()),
-	 authType(authType_),
-	 userName(userName_)
-      {
-      }
-
-      String nameSpace;
-      Array<String> classNames;
-      CIMInstance provider;
-      CIMInstance providerModule;
-      CIMPropertyList propertyList;
-      Uint16 repeatNotificationPolicy;
-      String otherRepeatNotificationPolicy;
-      CIMDateTime repeatNotificationInterval;
-      CIMDateTime repeatNotificationGap;
-      Uint16 repeatNotificationCount;
-      String condition;
-      String queryLanguage;
-      CIMInstance subscription;
-      String authType;
-      String userName;
-};
-
-class CIMEnableIndicationsRequestMessage : public CIMRequestMessage
-{
-public:
-    CIMEnableIndicationsRequestMessage(
-	const String & messageId_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
-	QueueIdStack queueIds_)
-    :
-    CIMRequestMessage(
-	CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE,
-        messageId_,
-        queueIds_),
-    provider(provider_),
-    providerModule(providerModule_)
-    {
-    }
-
-    CIMInstance provider;
-    CIMInstance providerModule;
-};
-
-class CIMDisableIndicationsRequestMessage : public CIMRequestMessage
-{
-public:
-    CIMDisableIndicationsRequestMessage(
-	const String & messageId_,
-        const CIMInstance & provider_,
-        const CIMInstance & providerModule_,
-	QueueIdStack queueIds_)
-    :
-    CIMRequestMessage(
-	CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE,
-        messageId_,
-        queueIds_),
-    provider(provider_),
-    providerModule(providerModule_)
-
-    {
-    }
-
-    CIMInstance provider;
-    CIMInstance providerModule;
-};
-
-
-//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
-//  has been modified to use the new messages
-//
-class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
-{
-   public:
-
-      CIMModifyIndicationSubscriptionRequestMessage(
-	 const String & messageId_,
-	 const String & nameSpace_,
-	 const CIMNamedInstance & subscription_,
-	 const Array<String> & classNames_,
-	 const CIMInstance & provider_,
-	 const CIMInstance & providerModule_,
-	 const CIMPropertyList & propertyList_,
-	 const Uint16 repeatNotificationPolicy_,
-	 const String & condition_,
-	 const String & queryLanguage_,
-	 QueueIdStack queueIds_,
-	 const String& authType_ = String::EMPTY,
-	 const String& userName_ = String::EMPTY,
-	 const String & otherRepeatNotificationPolicy_ = String::EMPTY,
-	 const CIMDateTime & repeatNotificationInterval_ = CIMDateTime (),
-	 const CIMDateTime & repeatNotificationGap_ = CIMDateTime (),
-	 const Uint16 repeatNotificationCount_ = 0)
-	 :
-	 CIMRequestMessage
-      (CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
-       messageId_,
-       queueIds_),
-	 nameSpace (nameSpace_),
-	 classNames (classNames_),
-	 provider (provider_),
-	 providerModule (providerModule_),
-	 propertyList (propertyList_),
-	 repeatNotificationPolicy (repeatNotificationPolicy_),
-	 otherRepeatNotificationPolicy (otherRepeatNotificationPolicy_),
-	 repeatNotificationInterval (repeatNotificationInterval_),
-	 repeatNotificationGap (repeatNotificationGap_),
-	 repeatNotificationCount (repeatNotificationCount_),
-	 condition (condition_),
-	 queryLanguage (queryLanguage_),
-	 subscription (subscription_.getInstance ()),
-	 authType(authType_),
-	 userName(userName_)
-      {
-      }
-
-      String nameSpace;
-      Array<String> classNames;
-      CIMInstance provider;
-      CIMInstance providerModule;
-      CIMPropertyList propertyList;
-      Uint16 repeatNotificationPolicy;
-      String otherRepeatNotificationPolicy;
-      CIMDateTime repeatNotificationInterval;
-      CIMDateTime repeatNotificationGap;
-      Uint16 repeatNotificationCount;
-      String condition;
-      String queryLanguage;
-      CIMInstance subscription;
-      String authType;
-      String userName;
-};
-
-//
-//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
-//  has been modified to use the new messages
-//
-class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
-{
-   public:
-
-      CIMDisableIndicationSubscriptionRequestMessage(
-	 const String & messageId_,
-	 const String & nameSpace_,
-	 const CIMNamedInstance & subscription_,
-	 const Array<String> & classNames_,
-	 const CIMInstance & provider_,
-	 const CIMInstance & providerModule_,
-	 QueueIdStack queueIds_,
-	 const String& authType_ = String::EMPTY,
-	 const String& userName_ = String::EMPTY)
-	 :
-	 CIMRequestMessage
-      (CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
-       messageId_,
-       queueIds_),
-	 nameSpace (nameSpace_),
-	 classNames (classNames_),
-	 provider (provider_),
-	 providerModule (providerModule_),
-	 subscription (subscription_.getInstance ()),
-	 authType(authType_),
-	 userName(userName_)
-      {
-      }
-
-      String nameSpace;
-      Array<String> classNames;
-      CIMInstance provider;
-      CIMInstance providerModule;
-      CIMInstance subscription;
       String authType;
       String userName;
 };
@@ -1183,22 +1307,96 @@ class CIMProcessIndicationRequestMessage : public CIMRequestMessage
    public:
 
       CIMProcessIndicationRequestMessage(
-	 const String & messageId_,
-	 const String & nameSpace_,
-	 const CIMInstance& indicationInstance_,
-	 QueueIdStack queueIds_)
-	 :
-	 CIMRequestMessage(
+         const String & messageId_,
+         const String & nameSpace_,
+         const CIMInstance& indicationInstance_,
+         QueueIdStack queueIds_)
+         :
+         CIMRequestMessage(
             CIM_PROCESS_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
-	 nameSpace (nameSpace_),
-	 indicationInstance(indicationInstance_)
+         nameSpace (nameSpace_),
+         indicationInstance(indicationInstance_)
       {
+      }
 
+      CIMProcessIndicationRequestMessage(CIMProcessIndicationRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            indicationInstance = msg.indicationInstance;
+	 }
       }
 
       String nameSpace;
       CIMInstance indicationInstance;
 };
+
+class CIMEnableIndicationsRequestMessage : public CIMRequestMessage
+{
+public:
+      CIMEnableIndicationsRequestMessage(
+          const String & messageId_,
+          const CIMInstance & provider_,
+          const CIMInstance & providerModule_,
+          QueueIdStack queueIds_)
+      :
+      CIMRequestMessage(
+          CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE,
+          messageId_,
+          queueIds_),
+      provider(provider_),
+      providerModule(providerModule_)
+      {
+      }
+
+      CIMEnableIndicationsRequestMessage(CIMEnableIndicationsRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            provider = msg.provider;
+            providerModule = msg.providerModule;
+	 }
+      }
+
+      CIMInstance provider;
+      CIMInstance providerModule;
+};
+
+class CIMDisableIndicationsRequestMessage : public CIMRequestMessage
+{
+public:
+      CIMDisableIndicationsRequestMessage(
+          const String & messageId_,
+          const CIMInstance & provider_,
+          const CIMInstance & providerModule_,
+          QueueIdStack queueIds_)
+      :
+      CIMRequestMessage(
+          CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE,
+          messageId_,
+          queueIds_),
+      provider(provider_),
+      providerModule(providerModule_)
+      {
+      }
+
+      CIMDisableIndicationsRequestMessage(CIMDisableIndicationsRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            provider = msg.provider;
+            providerModule = msg.providerModule;
+	 }
+      }
+
+    CIMInstance provider;
+    CIMInstance providerModule;
+};
+
 
 class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
 {
@@ -1232,6 +1430,22 @@ class CIMNotifyProviderRegistrationRequestMessage : public CIMRequestMessage
 
       }
 
+      CIMNotifyProviderRegistrationRequestMessage(CIMNotifyProviderRegistrationRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            provider = msg.provider;
+            providerModule = msg.providerModule;
+            className = msg.className;
+            newNamespaces = msg.newNamespaces;
+            oldNamespaces = msg.oldNamespaces;
+            newPropertyNames = msg.newPropertyNames;
+            oldPropertyNames = msg.oldPropertyNames;
+            operation = msg.operation;
+	 }
+      }
+
       CIMInstance provider;
       CIMInstance providerModule;
       String className;
@@ -1256,6 +1470,15 @@ class CIMNotifyProviderTerminationRequestMessage : public CIMRequestMessage
 	 providers (providers_)
       {
 
+      }
+
+      CIMNotifyProviderTerminationRequestMessage(CIMNotifyProviderTerminationRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            providers = msg.providers;
+	 }
       }
 
       Array <CIMInstance> providers;
@@ -1283,6 +1506,19 @@ class CIMHandleIndicationRequestMessage : public CIMRequestMessage
 	 userName(userName_)
       {
 
+      }
+
+      CIMHandleIndicationRequestMessage(CIMHandleIndicationRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            handlerInstance = msg.handlerInstance;
+            indicationInstance = msg.indicationInstance;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
       }
 
       String nameSpace;
@@ -1333,6 +1569,25 @@ class CIMCreateSubscriptionRequestMessage : public CIMRequestMessage
 	userName(userName_)
     {
     }
+
+      CIMCreateSubscriptionRequestMessage(CIMCreateSubscriptionRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            subscriptionInstance = msg.subscriptionInstance;
+            classNames = msg.classNames;
+            provider = msg.provider;
+            providerModule = msg.providerModule;
+            propertyList = msg.propertyList;
+            repeatNotificationPolicy = msg.repeatNotificationPolicy;
+            condition = msg.condition;
+            queryLanguage = msg.queryLanguage;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
 
     String nameSpace;
     CIMInstance subscriptionInstance;
@@ -1389,6 +1644,25 @@ class CIMModifySubscriptionRequestMessage : public CIMRequestMessage
     {
     }
 
+      CIMModifySubscriptionRequestMessage(CIMModifySubscriptionRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            subscriptionInstance = msg.subscriptionInstance;
+            classNames = msg.classNames;
+            provider = msg.provider;
+            providerModule = msg.providerModule;
+            propertyList = msg.propertyList;
+            repeatNotificationPolicy = msg.repeatNotificationPolicy;
+            condition = msg.condition;
+            queryLanguage = msg.queryLanguage;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
     String nameSpace;
     CIMInstance subscriptionInstance;
     Array<String> classNames;
@@ -1436,6 +1710,21 @@ class CIMDeleteSubscriptionRequestMessage : public CIMRequestMessage
     {
     }
 
+      CIMDeleteSubscriptionRequestMessage(CIMDeleteSubscriptionRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            nameSpace = msg.nameSpace;
+            subscriptionInstance = msg.subscriptionInstance;
+            classNames = msg.classNames;
+            provider = msg.provider;
+            providerModule = msg.providerModule;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
     String nameSpace;
     CIMInstance subscriptionInstance;
     Array<String> classNames;
@@ -1466,6 +1755,17 @@ class CIMDisableModuleRequestMessage : public CIMRequestMessage
     {
     }
 
+      CIMDisableModuleRequestMessage(CIMDisableModuleRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            moduleName = msg.moduleName;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
     String moduleName;
     String authType;
     String userName;
@@ -1492,6 +1792,17 @@ class CIMEnableModuleRequestMessage : public CIMRequestMessage
     {
     }
 
+      CIMEnableModuleRequestMessage(CIMEnableModuleRequestMessage & msg)
+	 : CIMRequestMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            moduleName = msg.moduleName;
+            authType = msg.authType;
+            userName = msg.userName;
+	 }
+      }
+
     String moduleName;
     String authType;
     String userName;
@@ -1514,6 +1825,15 @@ class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage
       {
       }
 
+      CIMGetClassResponseMessage(CIMGetClassResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            cimClass = msg.cimClass;
+	 }
+      }
+
       virtual ~CIMGetClassResponseMessage();
 
       CIMClass cimClass;
@@ -1533,6 +1853,15 @@ class CIMGetInstanceResponseMessage : public CIMResponseMessage
 			    messageId_, cimException_, queueIds_),
 	 cimInstance(cimInstance_)
       {
+      }
+
+      CIMGetInstanceResponseMessage(CIMGetInstanceResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            cimInstance = msg.cimInstance;
+	 }
       }
 
       CIMInstance cimInstance;
@@ -1614,6 +1943,15 @@ class CIMCreateInstanceResponseMessage : public CIMResponseMessage
       {
       }
 
+      CIMCreateInstanceResponseMessage(CIMCreateInstanceResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            instanceName = msg.instanceName;
+	 }
+      }
+
       CIMReference instanceName;	
 };
 
@@ -1663,6 +2001,15 @@ class CIMEnumerateClassesResponseMessage : public CIMResponseMessage
       {
       }
 
+      CIMEnumerateClassesResponseMessage(CIMEnumerateClassesResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            cimClasses = msg.cimClasses;
+	 }
+      }
+
       Array<CIMClass> cimClasses;
 };
 
@@ -1680,6 +2027,15 @@ class CIMEnumerateClassNamesResponseMessage : public CIMResponseMessage
 			    messageId_, cimException_, queueIds_),
 	 classNames(classNames_)
       {
+      }
+
+      CIMEnumerateClassNamesResponseMessage(CIMEnumerateClassNamesResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            classNames = msg.classNames;
+	 }
       }
 
       Array<String> classNames;
@@ -1701,6 +2057,15 @@ class CIMEnumerateInstancesResponseMessage : public CIMResponseMessage
       {
       }
 
+      CIMEnumerateInstancesResponseMessage(CIMEnumerateInstancesResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            cimNamedInstances = msg.cimNamedInstances;
+	 }
+      }
+
       Array<CIMNamedInstance> cimNamedInstances;
 };
 
@@ -1718,6 +2083,15 @@ class CIMEnumerateInstanceNamesResponseMessage : public CIMResponseMessage
 			    messageId_, cimException_, queueIds_),
 	 instanceNames(instanceNames_)
       {
+      }
+
+      CIMEnumerateInstanceNamesResponseMessage(CIMEnumerateInstanceNamesResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            instanceNames = msg.instanceNames;
+	 }
       }
 
       Array<CIMReference> instanceNames;
@@ -1739,6 +2113,15 @@ class CIMExecQueryResponseMessage : public CIMResponseMessage
       {
       }
 
+      CIMExecQueryResponseMessage(CIMExecQueryResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            cimObjects = msg.cimObjects;
+	 }
+      }
+
       Array<CIMObjectWithPath> cimObjects;
 };
 
@@ -1756,6 +2139,15 @@ class CIMAssociatorsResponseMessage : public CIMResponseMessage
 			    messageId_, cimException_, queueIds_),
 	 cimObjects(cimObjects_)
       {
+      }
+
+      CIMAssociatorsResponseMessage(CIMAssociatorsResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            cimObjects = msg.cimObjects;
+	 }
       }
 
       Array<CIMObjectWithPath> cimObjects;
@@ -1777,6 +2169,15 @@ class CIMAssociatorNamesResponseMessage : public CIMResponseMessage
       {
       }
 
+      CIMAssociatorNamesResponseMessage(CIMAssociatorNamesResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            objectNames = msg.objectNames;
+	 }
+      }
+
       Array<CIMReference> objectNames;
 };
 
@@ -1794,6 +2195,15 @@ class CIMReferencesResponseMessage : public CIMResponseMessage
 			    messageId_, cimException_, queueIds_),
 	 cimObjects(cimObjects_)
       {
+      }
+
+      CIMReferencesResponseMessage(CIMReferencesResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            cimObjects = msg.cimObjects;
+	 }
       }
 
       Array<CIMObjectWithPath> cimObjects;
@@ -1815,6 +2225,15 @@ class CIMReferenceNamesResponseMessage : public CIMResponseMessage
       {
       }
 
+      CIMReferenceNamesResponseMessage(CIMReferenceNamesResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            objectNames = msg.objectNames;
+	 }
+      }
+
       Array<CIMReference> objectNames;
 };
 
@@ -1832,6 +2251,15 @@ class CIMGetPropertyResponseMessage : public CIMResponseMessage
 			    messageId_, cimException_, queueIds_),
 	 value(value_)
       {
+      }
+
+      CIMGetPropertyResponseMessage(CIMGetPropertyResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            value = msg.value;
+	 }
       }
 
       CIMValue value;
@@ -1866,6 +2294,15 @@ class CIMGetQualifierResponseMessage : public CIMResponseMessage
 			    messageId_, cimException_, queueIds_),
 	 cimQualifierDecl(cimQualifierDecl_)
       {
+      }
+
+      CIMGetQualifierResponseMessage(CIMGetQualifierResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            cimQualifierDecl = msg.cimQualifierDecl;
+	 }
       }
 
       CIMQualifierDecl cimQualifierDecl;
@@ -1917,6 +2354,15 @@ class CIMEnumerateQualifiersResponseMessage : public CIMResponseMessage
       {
       }
 
+      CIMEnumerateQualifiersResponseMessage(CIMEnumerateQualifiersResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            qualifierDeclarations = msg.qualifierDeclarations;
+	 }
+      }
+
       Array<CIMQualifierDecl> qualifierDeclarations;
 };
 
@@ -1940,68 +2386,20 @@ class CIMInvokeMethodResponseMessage : public CIMResponseMessage
       {
       }
 
+      CIMInvokeMethodResponseMessage(CIMInvokeMethodResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            retValue = msg.retValue;
+            outParameters = msg.outParameters;
+            methodName = msg.methodName;
+	 }
+      }
+
       CIMValue retValue;
       Array<CIMParamValue> outParameters;
       String methodName;
-};
-
-//
-//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
-//  has been modified to use the new messages
-//
-class CIMEnableIndicationSubscriptionResponseMessage : public CIMResponseMessage
-{
-   public:
-
-      CIMEnableIndicationSubscriptionResponseMessage (
-	 const String & messageId_,
-	 const CIMException& cimException_,
-	 const QueueIdStack & queueIds_)
-	 :
-	 CIMResponseMessage (CIM_ENABLE_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
-			     messageId_, cimException_, queueIds_)
-      {
-      }
-};
-
-//
-//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
-//  has been modified to use the new messages
-//
-class CIMModifyIndicationSubscriptionResponseMessage : public CIMResponseMessage
-{
-   public:
-
-      CIMModifyIndicationSubscriptionResponseMessage (
-	 const String & messageId_,
-	 const CIMException& cimException_,
-	 const QueueIdStack & queueIds_)
-	 :
-	 CIMResponseMessage (CIM_MODIFY_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
-			     messageId_, cimException_, queueIds_)
-      {
-      }
-};
-
-//
-//  ATTN-CAKG-P2-20020326: To Be Removed - once the ProviderManagerService
-//  has been modified to use the new messages
-//
-class CIMDisableIndicationSubscriptionResponseMessage :
-   public CIMResponseMessage
-{
-   public:
-
-      CIMDisableIndicationSubscriptionResponseMessage (
-	 const String & messageId_,
-	 const CIMException& cimException_,
-	 const QueueIdStack & queueIds_)
-	 :
-	 CIMResponseMessage
-      (CIM_DISABLE_INDICATION_SUBSCRIPTION_RESPONSE_MESSAGE,
-       messageId_, cimException_, queueIds_)
-      {
-      }
 };
 
 class CIMProcessIndicationResponseMessage : public CIMResponseMessage
@@ -2139,6 +2537,15 @@ class PEGASUS_COMMON_LINKAGE CIMDisableModuleResponseMessage
       {
       }
 
+      CIMDisableModuleResponseMessage(CIMDisableModuleResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            operationalStatus = msg.operationalStatus;
+	 }
+      }
+
       Array<Uint16> operationalStatus;
 };
 
@@ -2157,6 +2564,15 @@ class PEGASUS_COMMON_LINKAGE CIMEnableModuleResponseMessage
 			    messageId_, cimException_, queueIds_),
 	 operationalStatus(operationalStatus_)
       {
+      }
+
+      CIMEnableModuleResponseMessage(CIMEnableModuleResponseMessage & msg)
+	 : CIMResponseMessage(msg)
+      {
+	 if(this != &msg)
+	 {
+            operationalStatus = msg.operationalStatus;
+	 }
       }
 
       Array<Uint16> operationalStatus;

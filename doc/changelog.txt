@@ -179,6 +179,9 @@ TAG: Version_1_09.
     new WbemExecClient interface based on HTTPConnection instead of the
     obsolete Channel code.  Also add SSL option to wbemexec.
 
+31. (Roger Kumpf - HP) 26 Apr 2002 - Added copy constructors to the
+    CIMMessage subclasses.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

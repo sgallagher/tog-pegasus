@@ -184,7 +184,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     CIMInstance providerModule;
 
     if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
-        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE))
+        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
+	(request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
     {
         // Provider information is in OperationContext
         ProviderIdContainer pidc = (ProviderIdContainer)
@@ -215,13 +216,6 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     else if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
     {
         // This operation is not provider-specific
-    }
-    else if (dynamic_cast<CIMInitializeProviderRequestMessage*>(request) != 0)
-    {
-        // Provider information is in CIMInitializeProviderRequestMessage
-        CIMInitializeProviderRequestMessage* initReq =
-            dynamic_cast<CIMInitializeProviderRequestMessage*>(request);
-        providerModule = initReq->providerModule;
     }
     else
     {

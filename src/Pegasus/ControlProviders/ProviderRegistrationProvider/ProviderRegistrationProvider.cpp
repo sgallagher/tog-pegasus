@@ -1477,7 +1477,7 @@ Sint16 ProviderRegistrationProvider::_enableModule(
         MessageQueueService * _service = _getProviderManagerService();
 	Boolean enabled = false;
 
-	if (_service != NULL)
+        if (_service != NULL)
 	{
 	    // create CIMEnableModuleRequestMessage
 	    CIMEnableModuleRequestMessage * enable_req =
@@ -1506,8 +1506,12 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 	    //
 	    // Since module is enabled, need get updated module instance
 	    //
-            CIMInstance UpdatedModuleInstance = 
+            CIMInstance updatedModuleInstance = 
 	        _providerRegistrationManager->getInstance(moduleRef);
+
+	    // module is enabled, initialize providers as necessary
+	    _providerRegistrationManager->initializeProviders(
+		updatedModuleInstance);
 
 	    //
 	    // The module is enabled, need to send enable message to 
@@ -1571,7 +1575,7 @@ Sint16 ProviderRegistrationProvider::_enableModule(
 		    //
 		    if (capInstances.size() != 0)
 		    {
-		        _sendEnableMessageToSubscription(UpdatedModuleInstance,
+		        _sendEnableMessageToSubscription(updatedModuleInstance,
 		  					 pInstance,
 						     	 capInstances,
 							 al);

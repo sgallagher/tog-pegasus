@@ -46,6 +46,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/OperationContextInternal.h>
 
 #include "ProviderRegistrationTable.h"
 
@@ -186,6 +187,80 @@ void ProviderRegistrationManager::initializeProviders(void)
     {
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
 	    "Exception: Unknown");
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+void ProviderRegistrationManager::initializeProviders(
+    const CIMInstance & providerModule)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+		     "ProviderRegistrationManager::initializeProviders");
+
+    // get provider module name
+    String providerModuleName;
+    providerModule.getProperty(providerModule.findProperty
+	(_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(providerModuleName);
+
+    Array<CIMInstance> instances;
+
+    ReadLock lock(_registrationTableLock);
+
+    try
+    {
+        for (Table::Iterator i=_registrationTable->table.start(); i; i++)
+        {
+            instances = i.value()->getInstances();
+
+	    for (Uint32 j = 0; j < instances.size(); j++)
+            {
+                Uint32 pos = instances[j].findProperty(_PROPERTY_AUTOSTART);
+
+		if (pos != PEG_NOT_FOUND)
+		{
+                    // get provider module name
+                    String moduleName;
+                    instances[j].getProperty(instances[j].findProperty(
+		        _PROPERTY_PROVIDERMODULENAME)).getValue().get(moduleName);
+
+                    // if the moduleName is same as providerModuleName and 
+                    // autoStart is true send message to Provider Manager Service 
+                    // to load and initialize providers in the module
+                    if (String::equalNoCase(providerModuleName, moduleName))
+                    {
+                        Boolean autoStart;
+                        instances[j].getProperty(pos).getValue().get(autoStart);
+                        if (autoStart)
+			{
+		            _sendInitializeProviderMessage(instances[j], 
+                                providerModule);
+                        }
+                    }
+		}
+	    }
+        }
+    }
+    catch(CIMException & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "CIMException: " + e.getMessage());
+        PEG_METHOD_EXIT();
+	throw (e);
+    }
+    catch(Exception & e)
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Exception: " + e.getMessage());
+        PEG_METHOD_EXIT();
+	throw (e);
+    }
+    catch(...)
+    {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+	    "Exception: Unknown");
+        PEG_METHOD_EXIT();
+ 	throw;
     }
 
     PEG_METHOD_EXIT();
@@ -1956,9 +2031,12 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             String _moduleKey = _generateKey(_providerModule, MODULE_KEY);
 
             //
-            // check if the PG_ProviderModule class was registered
+            // if the PG_ProviderModule class was registered
+	    // get provider module instance from the table
             //
-            if (_registrationTable->table.contains(_moduleKey))
+	    ProviderRegistrationTable* _providerModule = 0;
+            if (_registrationTable->table.lookup(_moduleKey,
+		_providerModule))
             {
                 //
                 // the provider module class was registered
@@ -1971,6 +2049,47 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
                 //
                 instances.append(instance);
                 _addInstancesToTable(_providerKey, instances);
+
+		// if AutoStart property is set to true in the instance,
+		// send initialize provider request message to Provider
+		// Manager Service to load and initialize the provider
+
+		Uint32 pos = instance.findProperty(_PROPERTY_AUTOSTART);
+		if (pos != PEG_NOT_FOUND)
+		{
+		    Boolean autoStart;
+		    try
+		    {
+		        instance.getProperty(pos).getValue().get(autoStart);
+                    }
+		    catch (CIMException & e)
+		    {
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+			    "CIMException: " + e.getMessage());
+                        PEG_METHOD_EXIT();
+			throw (e);
+		    }
+		    catch (Exception & e)
+		    {
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+			    "Exception: " + e.getMessage());
+                        PEG_METHOD_EXIT();
+			throw (e);
+		    }
+
+		    if (autoStart)
+		    {
+			Array<CIMInstance> providerModuleInstances =
+			    _providerModule->getInstances();
+
+			for (Uint32 i=0; i<providerModuleInstances.size(); i++)
+			{
+                            _sendInitializeProviderMessage(
+			        instance, providerModuleInstances[i]);
+                        }
+		    }
+		}
+
 
                 PEG_METHOD_EXIT();
                 return (cimRef);
@@ -3470,9 +3589,10 @@ void ProviderRegistrationManager::_sendInitializeProviderMessage(
         CIMInitializeProviderRequestMessage * notify_req =
             new CIMInitializeProviderRequestMessage (
             XmlWriter::getNextMessageId (),
-            providerModule,
-            provider,
             QueueIdStack(service->getQueueId()));
+     
+	notify_req->operationContext.insert(ProviderIdContainer(
+	    providerModule, provider));
 
         // create request envelope
         AsyncLegacyOperationStart * asyncRequest =

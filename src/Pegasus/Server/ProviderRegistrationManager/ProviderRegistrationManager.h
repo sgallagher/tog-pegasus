@@ -304,11 +304,19 @@ public:
 
 	Boolean setProviderModuleStatus(const String & providerModuleName, Array<Uint16> status);
 
-	// Iterate through registration hash table, if AutoStart property
-	// is set to true in a PG_Provider instance, send initialize provider
-	// request message to Provider Manager Service to load and initialize 
-	// the provider
+	/**
+	    Iterate through registration hash table, if AutoStart property
+	    is set to true in a PG_Provider instance, send initialize provider
+	    request message to Provider Manager Service to load and initialize 
+	    the provider
+        */
         void initializeProviders();
+
+	/**
+	    send initialize provider request message to Provider Manager
+	    Service to load the module and initialize providers in the module
+        */
+	void initializeProviders(const CIMInstance & providerModule);
 
    	enum Operation {OP_CREATE = 1, OP_DELETE = 2, OP_MODIFY = 3};
 

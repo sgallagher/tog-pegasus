@@ -603,8 +603,11 @@ ProviderIdContainer ProviderManagerService::_getProviderIdContainer(
         // Provider information is already in the message
         const CIMInitializeProviderRequestMessage* request =
             dynamic_cast<const CIMInitializeProviderRequestMessage*>(message);
-        providerModule = request->providerModule;
-        provider = request->provider;
+
+        const ProviderIdContainer container =
+            request->operationContext.get(ProviderIdContainer::NAME);
+        providerModule = container.getModule(); 
+        provider = container.getProvider(); 
         break;
     }
 

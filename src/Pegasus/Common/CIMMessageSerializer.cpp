@@ -1271,8 +1271,7 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderRequestMessage(
     Array<Sint8>& out,
     CIMInitializeProviderRequestMessage* message)
 {
-    _serializeCIMInstance(out, message->providerModule);
-    _serializeCIMInstance(out, message->provider);
+    // No additional attributes to serialize!
 }
 
 

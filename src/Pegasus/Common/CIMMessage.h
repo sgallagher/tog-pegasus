@@ -1504,20 +1504,13 @@ class CIMInitializeProviderRequestMessage : public CIMRequestMessage
 public:
     CIMInitializeProviderRequestMessage(
 	const String & messageId_,
-	const CIMInstance & providerModule_,
-	const CIMInstance & provider_,
 	QueueIdStack queueIds_)
     : CIMRequestMessage(
 	CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE,
 	messageId_,
-        queueIds_),
-	providerModule(providerModule_),
-	provider(provider_)
-	{
-	}
-    
-    CIMInstance providerModule;
-    CIMInstance provider;
+        queueIds_)
+    {
+    }
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage

@@ -1836,17 +1836,9 @@ CIMInitializeProviderRequestMessage*
 CIMMessageDeserializer::_deserializeCIMInitializeProviderRequestMessage(
     XmlParser& parser)
 {
-    CIMInstance providerModule;
-    CIMInstance provider;
-
-    _deserializeCIMInstance(parser, providerModule);
-    _deserializeCIMInstance(parser, provider);
-
     CIMInitializeProviderRequestMessage* message =
         new CIMInitializeProviderRequestMessage(
             String::EMPTY,         // messageId
-            providerModule,
-            provider,
             QueueIdStack());       // queueIds
 
     return(message);

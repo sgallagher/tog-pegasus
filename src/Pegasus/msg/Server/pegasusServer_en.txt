@@ -3921,6 +3921,88 @@ CIM server listening on HTTPS port {0}."}
 
 
 
+        
+        // ==========================================================
+        // Messages for CIMDateTime
+        //  Please use message prefix "PGS14400"
+        // ==========================================================
+
+        /**
+        * @note  PGS14400
+        *   version 2.5
+        *   do not translate CIMDateTime because it is a class name.
+        */
+        Common.CIMDateTime.OVERFLOW:string {"PGS14400: Overflow error has occurrred in forming a CIMDateTime object."}
+
+
+        /**
+        * @note  PGS14401
+        *   version 2.5
+        *   do not translate CIMDateTime because it is a class name.
+        */
+        Common.CIMDateTime.UNDERFlOW:string {"PGS14401: Underflow error has occurred in forming a CIMDateTime object."}
+
+
+        /**
+        * @note  PGS14402
+        *   version 2.5
+        *   
+        */
+        Common.CIMDateTime.INVAID_OPERATION_DIV_INT:string {"PGS14402: Can not divide a TimeStamp by an integer."}
+        
+
+        /**
+        * @note  PGS14403
+        *   version 2.5
+        *   do not translate CIMDateTime because it is a class name.
+        */
+        Common.CIMDateTime.UTC_OVERFLOW:string {"PGS14403: Overflow error has occurrred in a CIMDateTime object during conversion to UTC."}
+
+
+        /**                                                            
+        * @note  PGS14404
+        *   version 2.5
+        *   do not translate CIMDateTime because it is a class name.
+        */
+        Common.CIMDateTime.UTC_UNDERFlOW:string {"PGS14404: Underflow error has occurred in a CIMDateTime object during conversion to UTC."}
+
+
+        /**
+        * @note  PGS14405
+        *   version 2.5
+        *   do not translate CIMDateTime because it is a class name.
+        */
+        Common.CIMDateTime.INVAID_OPERATION_DIV_ZERO:string {"PGS14405: Can not divide CIMDateTime object by zero."}
+        
+
+        /**
+        * @note  PGS14406
+        *   version 2.5
+        *   do not translate CIMDateTime because it is a class name.
+        */
+        Common.CIMDateTime.INVAID_OPERATION_DIV_TS:string {"PGS14406:Can not divide two CIMDateTime objects if one of them is a TimeStamp."}
+
+
+        /**                                                            
+        * @note  PGS14407
+        *   version 2.5
+        *   do not translate CIMDateTime because it is a class name.
+        */
+        Common.CIMDateTime.INVAID_OPERATION_DIV_ZERO_CDT:string {"PGS14407: Trying to divide a CIMDateTime objects by a zero value CIMDateTime object."}
+        
+        /**                                                            
+        * @note  PGS14408
+        *   version 2.5
+        *   do not translate CIMDateTime because it is a class name.
+        */
+        Common.CIMDateTime.INVAID_OPERATION_COMP_DIF:string {"PGS14408:Trying to compare CIMDateTime objects of differing types."}
+
+
+        
+
+
+
+
 // ==============================================================================
 // END OF RESOURCE BUNDLE
 // DO NOT ADD MESSAGES AFTER THE FOLLOWING '}' 

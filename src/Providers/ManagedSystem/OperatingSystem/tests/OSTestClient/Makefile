@@ -15,4 +15,6 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 	$(PROGRAM)
+endif

@@ -27,7 +27,7 @@ rm -f $CA_NAME1.cert
 rm -f $CA_NAME1.key
 rm -f $CA_NAME1.srl
 rm -f $CA_NAME1.crl
-rm -f index.txt
+rm -f index*
 
 #
 # Create a self-signed certificate
@@ -35,7 +35,7 @@ rm -f index.txt
 $OPENSSL_HOME/bin/openssl genrsa -out $CERT_NAME1.key 1024 
 $OPENSSL_HOME/bin/openssl req -config $OPENSSL_CNF -new -key $CERT_NAME1.key -out $CERT_NAME1.csr < $CERT_NAME1.txt 
 $OPENSSL_HOME/bin/openssl x509 -in $CERT_NAME1.csr -out $CERT_NAME1.cert -req -signkey $CERT_NAME1.key -days 356 
-rm $CERT_NAME1.csr
+rm -f $CERT_NAME1.csr
 
 #
 # Create a self-signed CA 
@@ -49,7 +49,7 @@ $OPENSSL_HOME/bin/openssl req -new -key $CA_NAME1.key -x509 -config $OPENSSL_CNF
 $OPENSSL_HOME/bin/openssl genrsa -out $CERT_NAME2.key 1024 
 $OPENSSL_HOME/bin/openssl req -config $OPENSSL_CNF -new -key $CERT_NAME2.key -out $CERT_NAME2.csr < $CERT_NAME2.txt 
 $OPENSSL_HOME/bin/openssl x509 -req -days 365 -in $CERT_NAME2.csr -CA $CA_NAME1.cert -CAkey $CA_NAME1.key -CAcreateserial -out $CERT_NAME2.cert 
-rm $CERT_NAME2.csr
+rm -f $CERT_NAME2.csr
 
 #
 # Create another test certificate signed by the CA
@@ -57,7 +57,7 @@ rm $CERT_NAME2.csr
 $OPENSSL_HOME/bin/openssl genrsa -out $CERT_NAME3.key 1024 
 $OPENSSL_HOME/bin/openssl req -config $OPENSSL_CNF -new -key $CERT_NAME3.key -out $CERT_NAME3.csr < $CERT_NAME3.txt 
 $OPENSSL_HOME/bin/openssl x509 -req -days 365 -in $CERT_NAME3.csr -CA $CA_NAME1.cert -CAkey $CA_NAME1.key -CAcreateserial -out $CERT_NAME3.cert 
-rm $CERT_NAME3.csr
+rm -f $CERT_NAME3.csr
 
 #
 # Create a self-signed CRL

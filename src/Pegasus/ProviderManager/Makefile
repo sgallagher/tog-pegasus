@@ -31,3 +31,4 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(PEGASUS_ROOT)/mak/library.mak
+include $(PEGASUS_ROOT)/mak/install.mak

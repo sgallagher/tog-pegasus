@@ -19,5 +19,6 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 endif
 
 include $(ROOT)/mak/program.mak
+include $(ROOT)/mak/install.mak
 
 # DO NOT DELETE

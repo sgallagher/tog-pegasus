@@ -38,6 +38,9 @@ tests:
 poststarttests:
 
 install:
+	$(INSTALL_SBIN_PROGRAM)
+
+install_run:
 	$(RM) $(PEGASUS_HOME)/cimserver_planned.conf
 	$(RM) $(PEGASUS_HOME)/cert.pem
 	$(RM) $(PEGASUS_HOME)/file.pem
@@ -63,7 +66,7 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 	$(PEGASUS_HOME)/bin/cimserver -remove
 endif
 
-run: install
+run: install_run
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 	cimserver -start
 else

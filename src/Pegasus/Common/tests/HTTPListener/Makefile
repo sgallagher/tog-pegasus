@@ -11,4 +11,5 @@ SOURCES = HTTPListener.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	TestHTTPListener
+	$(PROGRAM)
+install:

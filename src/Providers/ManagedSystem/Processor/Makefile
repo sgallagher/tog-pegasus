@@ -51,6 +51,7 @@ LIBRARIES = \
 	pegprovider
 
 include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/install.mak
 
 general:
 

@@ -15,4 +15,4 @@ tests:
 	$(PROGRAM)
 
 poststarttests:
-
+install:

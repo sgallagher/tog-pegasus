@@ -18,3 +18,5 @@ tests:
 
 poststarttests:
 	$(PROGRAM_NAME)
+
+install:

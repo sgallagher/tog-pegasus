@@ -16,3 +16,4 @@ tests:
 	$(RM) $(TMP_DIR)/dq_memory_trace
 
 poststarttests:
+install:

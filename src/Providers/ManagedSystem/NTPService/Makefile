@@ -56,6 +56,7 @@ DYNAMIC_LIBRARIES = \
 	-lNTPProviderSecurity
 
 include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/install.mak
 
 tests:
 

@@ -65,3 +65,5 @@ poststarttests:
 	$(POSTSTARTTESTS)
 
 depend:
+
+install:

@@ -29,3 +29,4 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 SYS_LIBS = ws2_32.lib advapi32.lib
 
 include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/install.mak

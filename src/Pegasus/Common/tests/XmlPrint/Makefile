@@ -15,3 +15,4 @@ tests:
 	$(PROGRAM) x.xml
 
 poststarttests:
+install:

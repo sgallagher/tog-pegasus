@@ -21,3 +21,4 @@ NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider
 endif
 
 include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/install.mak

@@ -85,3 +85,4 @@ poststarttests:
 general:
 
 clean:
+install:

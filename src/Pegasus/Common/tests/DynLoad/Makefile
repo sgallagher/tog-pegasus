@@ -18,3 +18,4 @@ else
 endif
 
 poststarttests:
+install:

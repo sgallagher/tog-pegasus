@@ -12,6 +12,7 @@ PROGRAM = dnsinfo
 SOURCES = DNSInfo.cpp
 
 include $(ROOT)/mak/program.mak
+include $(ROOT)/mak/install.mak
 
 tests:
 

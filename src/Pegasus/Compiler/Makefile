@@ -48,3 +48,5 @@ $(OBJ_DIR)/cimmof_lex_wrapper$(OBJ) : cimmof_lex.cpp
 
 local_clean_target:
 	$(RM) cimmoftemp.out cimmoftemp.output
+
+include $(ROOT)/mak/install.mak

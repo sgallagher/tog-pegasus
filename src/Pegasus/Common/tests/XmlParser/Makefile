@@ -15,4 +15,4 @@ tests:
 	@ echo +++++ passed all tests
 
 poststarttests:
-
+install:

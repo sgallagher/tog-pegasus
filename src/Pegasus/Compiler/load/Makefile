@@ -53,7 +53,8 @@ clean:
 	@ echo +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
 	@ $(RMREPOSITORY) $(REPOSITORY_ROOT)
 
-
+install:
+	@echo Deprecated. Will use the one defined in Schema directory.
 depend:
 
 sub:

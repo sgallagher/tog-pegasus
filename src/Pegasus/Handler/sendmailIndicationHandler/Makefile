@@ -13,5 +13,6 @@ SOURCES = sendmailIndicationHandler.cpp
 LIBRARY = sendmailIndicationHandler
  
 include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/install.mak
 
 tests:

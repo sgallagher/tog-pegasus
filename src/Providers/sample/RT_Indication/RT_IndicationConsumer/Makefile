@@ -19,3 +19,4 @@ SOURCES = \
 include $(ROOT)/mak/library.mak
 
 tests:
+install:

@@ -16,4 +16,4 @@ SOURCES = \
    benchmarkProviderMain.cpp 
 
 include $(ROOT)/mak/library.mak
-
+install:

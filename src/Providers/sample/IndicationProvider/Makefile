@@ -13,3 +13,4 @@ SOURCES = \
 	IndicationProvider.cpp
 
 include $(PEGASUS_ROOT)/mak/library.mak
+install:

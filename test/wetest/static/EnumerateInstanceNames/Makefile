@@ -10,3 +10,4 @@ XMLSCRIPTS += EnumerateInstanceNames50001
 endif
 
 include $(ROOT)/test/configend.mak
+install:

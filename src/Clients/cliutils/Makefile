@@ -22,3 +22,5 @@ SOURCES = \
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak
+
+install:

@@ -10,7 +10,6 @@ DIRS = \
     getoopt \
     Client \
     Compiler \
-    Compiler/load \
     Compiler/cmdline \
     ExportClient \
     WQL \

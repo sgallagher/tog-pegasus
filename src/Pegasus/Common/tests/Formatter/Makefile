@@ -14,3 +14,4 @@ tests:
 	$(PROGRAM)
 
 poststarttests:
+install:

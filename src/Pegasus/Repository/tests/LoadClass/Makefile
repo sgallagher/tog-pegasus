@@ -11,3 +11,4 @@ SOURCES = LoadClass.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
+install:

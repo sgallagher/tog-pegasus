@@ -14,3 +14,4 @@ XMLSCRIPTS += \
 endif
 
 include $(ROOT)/test/configend.mak
+install:

@@ -17,3 +17,4 @@ tests:
 
 poststarttests:
 	@$(PROGRAM)
+install:

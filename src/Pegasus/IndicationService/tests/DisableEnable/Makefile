@@ -49,3 +49,4 @@ poststarttests:
 	@echo "TestDisableEnable cleanup"
 	@$(PROGRAM) cleanup
 	@echo "+++++ TestDisableEnable passed all tests"
+install:

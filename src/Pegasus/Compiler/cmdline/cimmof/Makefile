@@ -17,9 +17,11 @@ PROGRAM = cimmof
 SOURCES = main.cpp cmdline.cpp cmdlineExceptions.cpp $(EXTRA_SOURCES)
 
 include $(ROOT)/mak/program.mak
+include $(ROOT)/mak/install.mak
 
 messages:
 
 tests:
 
 poststarttests: 
+

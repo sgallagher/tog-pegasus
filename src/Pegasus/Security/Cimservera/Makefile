@@ -29,7 +29,6 @@ tests:
 
 poststarttests:
 
-install:
 
 rebuild: clean depend all
 	$(MAKE) -s tests
@@ -37,3 +36,5 @@ rebuild: clean depend all
 build: depend all
 	$(MAKE) -s tests
 
+install:
+	$(INSTALL_SBIN_PROGRAM)

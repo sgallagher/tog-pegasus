@@ -13,3 +13,4 @@ SOURCES = \
 	RT_IndicationProvider.cpp
 
 include $(PEGASUS_ROOT)/mak/library.mak
+install:

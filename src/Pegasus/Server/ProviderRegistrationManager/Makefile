@@ -26,3 +26,4 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 endif
 
 include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/install.mak

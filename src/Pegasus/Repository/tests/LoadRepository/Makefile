@@ -14,3 +14,4 @@ include $(ROOT)/mak/program.mak
 tests:
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
 	LoadRepository $(REPOSITORY_ROOT) x.xml
+install:

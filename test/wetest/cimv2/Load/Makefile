@@ -61,3 +61,4 @@ messages:
 poststarttests:
 
 general:
+install:

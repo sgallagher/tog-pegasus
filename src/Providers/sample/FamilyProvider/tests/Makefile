@@ -148,4 +148,6 @@ poststarttests:
 general:
 
 clean:
+
+install:
 # END_OF_FILE

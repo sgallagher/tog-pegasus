@@ -18,3 +18,4 @@ tests:
 
 poststarttests:
 
+install:

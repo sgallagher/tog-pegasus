@@ -15,6 +15,7 @@ SOURCES = $(PROGRAM_NAME).cpp \
 LIBRARIES += pegrepository
 
 include $(ROOT)/mak/program.mak
+include $(ROOT)/mak/install.mak
 
 tests:
 

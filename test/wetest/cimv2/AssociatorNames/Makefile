@@ -8,3 +8,4 @@ XMLSCRIPTS = AssociatorNames30000 AssociatorNames30001 AssociatorNames30002 Asso
 
 include $(ROOT)/test/configend.mak
 
+install:

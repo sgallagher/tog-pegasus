@@ -7,3 +7,4 @@ XMLSCRIPTS = BadCIMMethodValue01 BadCIMMethodValue02 BadCIMObjectValue01 BadCIMO
 
 
 include $(ROOT)/test/configend.mak
+install:

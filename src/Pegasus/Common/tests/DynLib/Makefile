@@ -16,3 +16,4 @@ include $(ROOT)/mak/library.mak
 tests:
 
 poststarttests:
+install:

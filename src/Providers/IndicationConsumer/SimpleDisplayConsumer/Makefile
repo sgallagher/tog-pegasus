@@ -17,3 +17,4 @@ SOURCES = \
    SimpleDisplayConsumer.cpp
 
 include $(ROOT)/mak/library.mak
+install:

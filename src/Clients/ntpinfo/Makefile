@@ -10,6 +10,7 @@ PROGRAM = ntpinfo
 SOURCES = NTPInfo.cpp
 
 include $(ROOT)/mak/program.mak
+include $(ROOT)/mak/install.mak
 
 tests:
 

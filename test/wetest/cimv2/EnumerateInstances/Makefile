@@ -7,3 +7,4 @@ include $(ROOT)/test/config.mak
 XMLSCRIPTS = EnumerateInstances60000 
 
 include $(ROOT)/test/configend.mak
+install:

@@ -7,3 +7,4 @@ XMLSCRIPTS = BadAttributeName01 BadBooleanValue01 BadInstanceClassName01 BadMeth
 
 
 include $(ROOT)/test/configend.mak
+install:

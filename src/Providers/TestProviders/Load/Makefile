@@ -96,3 +96,4 @@ clitests:
 		CLI rn TST_ClassD -rc TST_Assoc1 -n $(TESTPROVIDERNS)
 		CLI rn TST_ClassD -rc TST_Assoc1 -rr from -n $(TESTPROVIDERNS)
 		CLI rn TST_ClassD -rc TST_Assoc1 -rr to -n $(TESTPROVIDERNS)
+install:

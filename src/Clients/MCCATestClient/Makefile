@@ -73,3 +73,5 @@ unregister:
 
 unregisterproviders:
 	cimprovider -r -m MCCATestAssocProviderModule	
+
+install:

@@ -17,7 +17,7 @@ SOURCES = interop.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-
+install:
  
 poststarttests:
 	$(PROGRAM)

@@ -22,3 +22,4 @@ tests:
 	$(RM) *.passwd
 
 poststarttests:
+install:

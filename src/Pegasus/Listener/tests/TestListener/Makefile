@@ -16,3 +16,4 @@ poststarttests:
 
 run:
 	$(PROGRAM)
+install:

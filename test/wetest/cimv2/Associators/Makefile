@@ -8,3 +8,4 @@ XMLSCRIPTS = Associators33000 Associators33001 Associators33002 Associators33003
 
 include $(ROOT)/test/configend.mak
 
+install:

@@ -38,3 +38,4 @@ deleteSubscription:
 	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler01.xml
 
 include $(ROOT)/test/configend.mak
+install:

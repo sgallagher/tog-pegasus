@@ -50,3 +50,4 @@ general:
 
 clean:
 
+install:

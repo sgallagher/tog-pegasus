@@ -25,4 +25,4 @@ tests:
 
 poststarttests:
 
-install:
+include $(ROOT)/mak/install.mak

@@ -649,7 +649,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 		     {
                        queue->enqueue(httpMessage);
 		     }
-		   catch( ... )
+		   catch(bad_alloc &e)
 		     {
 		       delete httpMessage;
                        _sendHttpError(queueId,

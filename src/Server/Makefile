@@ -36,6 +36,10 @@ tests:
 poststarttests:
 
 install:
+	$(RM) $(PEGASUS_HOME)/cimserver_planned.conf
+	$(RM) $(PEGASUS_HOME)/cimserver_current.conf
+	$(RM) $(PEGASUS_HOME)/server.pem
+	$(RM) $(PEGASUS_HOME)/ssl.rnd
 	$(COPY) cimserver_planned.conf $(PEGASUS_HOME)
 	$(COPY) cimserver_current.conf $(PEGASUS_HOME)
 	$(COPY) $(PEGASUS_ROOT)/server.pem $(PEGASUS_HOME)

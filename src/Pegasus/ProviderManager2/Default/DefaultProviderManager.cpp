@@ -1081,7 +1081,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
             request->resultRole,
             request->includeQualifiers,
             request->includeClassOrigin,
-            request->propertyList.getPropertyNameArray(),
+            request->propertyList,
             handler);
 
         STAT_PMS_PROVIDEREND;

@@ -54,6 +54,7 @@ JMPIProvider::JMPIProvider(const String & name,
      _no_unload(0), _rm(0)
 {
    _current_operations = 1;
+   _currentSubscriptions = 0;
    miVector=*mv;
    jProvider=mv->jProvider;
    jProviderClass=mv->jProviderClass;
@@ -66,6 +67,7 @@ JMPIProvider::JMPIProvider(JMPIProvider *pr)
     _no_unload(0), _rm(0)
 {
    _current_operations = 1;
+   _currentSubscriptions = 0;
    miVector=pr->miVector;
    _cimom_handle=new CIMOMHandle();
    noUnload=pr->noUnload;
@@ -184,6 +186,48 @@ void JMPIProvider::protect(void)
 void JMPIProvider::unprotect(void)
 {
   // _no_unload--;
+}
+
+Boolean JMPIProvider::testIfZeroAndIncrementSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    Boolean isZero = (_currentSubscriptions == 0);
+    _currentSubscriptions++;
+
+    return isZero;
+}
+
+Boolean JMPIProvider::decrementSubscriptionsAndTestIfZero ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    _currentSubscriptions--;
+    Boolean isZero = (_currentSubscriptions == 0);
+
+    return isZero;
+}
+
+Boolean JMPIProvider::testSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    Boolean currentSubscriptions = (_currentSubscriptions > 0);
+
+    return currentSubscriptions;
+}
+
+void JMPIProvider::resetSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    _currentSubscriptions = 0;
+}
+
+void JMPIProvider::setProviderInstance (const CIMInstance & instance)
+{
+    _providerInstance = instance;
+}
+
+CIMInstance JMPIProvider::getProviderInstance ()
+{
+    return _providerInstance;
 }
 
 PEGASUS_NAMESPACE_END

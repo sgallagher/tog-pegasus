@@ -29,6 +29,9 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "BinaryMessageHandler.h"
@@ -405,11 +408,10 @@ BinaryMessageHandler::handle_binary_message(void *parm)
 	 case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
 
 	    // new
-	 case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-	 case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
 	 case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
 	 case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
 	 case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
+	 case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
 
 	    // new
 	 case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
@@ -439,11 +441,10 @@ BinaryMessageHandler::handle_binary_message(void *parm)
 	 case CIM_NOTIFY_PROVIDER_TERMINATION_RESPONSE_MESSAGE:
 	 case CIM_HANDLE_INDICATION_RESPONSE_MESSAGE:
 	    // new
-	 case CIM_ENABLE_INDICATIONS_RESPONSE_MESSAGE:
-	 case CIM_DISABLE_INDICATIONS_RESPONSE_MESSAGE:
 	 case CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE:
 	 case CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE:
 	 case CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE:
+	 case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
 	    // new
 	 case CIM_DISABLE_MODULE_RESPONSE_MESSAGE:
 	 case CIM_ENABLE_MODULE_RESPONSE_MESSAGE:

@@ -53,7 +53,8 @@ OperationResponseHandler::OperationResponseHandler
 
 	_responseObjectTotal = 0;
 	_responseMessageTotal = 0;
-    if(request->requestIsOOP == true)
+
+    if (!request || (request->requestIsOOP == true))
     {
         _responseObjectThreshold = ~0;
     }

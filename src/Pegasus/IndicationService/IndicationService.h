@@ -885,15 +885,6 @@ private:
         IndicationOperationAggregate * operationAggregate);
 
     /**
-        Processes enable indications responses from providers, once all have 
-        been received.
-
-        @param   operationAggregate    the operation aggregate instance 
-     */
-    void _handleEnableResponseAggregation (
-        IndicationOperationAggregate * operationAggregate);
-
-    /**
         Processes modify subscription responses from providers, once all have 
         been received.  Updates the subscription hash tables.
 
@@ -912,15 +903,6 @@ private:
      */
     void _handleDeleteResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
-
-    /**
-        Processes disable indications responses from providers, once all have 
-        been received.
-
-        @param   operationAggregate    the operation aggregate instance 
-     */
-    void _handleDisableResponseAggregation 
-        (IndicationOperationAggregate * operationAggregate);
 
     /**
         Creates an alert instance of the specified class.
@@ -958,31 +940,10 @@ private:
 #endif
       
     /**
-        Sends an Enable Indications request to the specified providers.
-
-        @param   enableProviders       the providers to be enabled
-        @param   origRequest           the original request, if any (e.g. Create
-                                           Instance, Modify Instance, Provider 
-                                           Registration change, Provider Enable)
-        @param   path                  path of created instance (for create 
-                                         instance request)
+        Sends a Subscription Init Complete request to the Provider 
+        Manager Service.
      */
-    void _sendEnable (
-        const Array <ProviderClassList> & enableProviders,
-        const CIMRequestMessage * origRequest,
-        const CIMObjectPath & path = CIMObjectPath ());
-
-    /**
-        Sends a Disable Indications request to the specified providers.
-
-        @param   disableProviders      the providers to be disabled
-        @param   origRequest           the original request, if any (e.g. Delete
-                                           Instance, Modify Instance, Provider 
-                                           Registration change)
-     */
-    void _sendDisable 
-        (const Array <ProviderClassList> & disableProviders,
-         const CIMRequestMessage * origRequest);
+    void _sendSubscriptionInitComplete ();
 
     /**
         Gets the value of the Creator property from the specified Subscription

@@ -124,8 +124,6 @@ protected:
     Message * handleCreateSubscriptionRequest(const Message * message) throw();
 //    Message * handleModifySubscriptionRequest(const Message * message) throw();
     Message * handleDeleteSubscriptionRequest(const Message * message) throw();
-    Message * handleEnableIndicationsRequest(const Message * message) throw();
-    Message * handleDisableIndicationsRequest(const Message * message) throw();
 
 //  Not supported by CMPI
 //    Message * handleExportIndicationRequest(const Message * message) throw();
@@ -134,6 +132,7 @@ protected:
     Message * handleEnableModuleRequest(const Message * message) throw();
     Message * handleStopAllProvidersRequest(const Message * message) throw();
     Message * handleInitializeProviderRequest(const Message * message);
+    Message * handleSubscriptionInitCompleteRequest (const Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 };

@@ -30,7 +30,8 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -197,6 +198,14 @@ private:
         the last provider module instance sent.
      */
     CIMInstance _providerModuleCache;
+
+    /**
+        Indicates whether the Indication Service has completed initialization.
+
+        For more information, please see the description of the
+        ProviderManagerRouter::_subscriptionInitComplete member variable.
+     */
+    Boolean _subscriptionInitComplete;
 };
 
 PEGASUS_NAMESPACE_END

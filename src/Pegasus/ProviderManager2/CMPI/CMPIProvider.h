@@ -173,6 +173,67 @@ public:
 // allow provider manager to unload when idle
     virtual void unprotect(void);
 
+    /**
+        Increments the count of current subscriptions for this provider, and
+        determines if there were no current subscriptions before the increment.
+        If there were no current subscriptions before the increment, the first
+        subscription has been created, and the provider's enableIndications
+        method should be called.
+
+        @return  True, if before the increment there were no current
+                       subscriptions for this provider;
+                 False, otherwise
+     */
+    Boolean testIfZeroAndIncrementSubscriptions ();
+
+    /**
+        Decrements the count of current subscriptions for this provider, and
+        determines if there are no current subscriptions after the decrement.
+        If there are no current subscriptions after the decrement, the last
+        subscription has been deleted, and the provider's disableIndications
+        method should be called.
+
+        @return  True, if after the decrement there are no current subscriptions
+                       for this provider;
+                 False, otherwise
+     */
+    Boolean decrementSubscriptionsAndTestIfZero ();
+
+    /**
+        Determines if there are current subscriptions for this provider.
+
+        @return  True, if there is at least one current subscription
+                       for this provider;
+                 False, otherwise
+     */
+    Boolean testSubscriptions ();
+
+    /**
+        Resets the count of current subscriptions for the indication provider.
+     */
+    void resetSubscriptions ();
+
+    /**
+        Sets the provider instance for the provider.
+
+        Note: the provider instance is set only for an indication provider, and
+        is set when a Create Subscription request is processed for the provider.
+
+        @param  instance  the Provider CIMInstance for the provider
+     */
+    void setProviderInstance (const CIMInstance & instance);
+
+    /**
+        Gets the provider instance for the provider.
+
+        Note: the provider instance is set only for an indication provider, and
+        only if a Create Subscription request has been processed for the
+        provider.
+
+        @return  the Provider CIMInstance for the provider
+     */
+    CIMInstance getProviderInstance ();
+
 protected:
     String _location;
     Status _status;
@@ -195,6 +256,36 @@ private:
     Uint32 _quantum;
     AtomicInt _current_operations;
     Mutex _statusMutex;
+
+    /**
+        Count of current subscriptions for this provider.  Access to this
+        data member is controlled by the _currentSubscriptionsLock.
+     */
+    Uint32 _currentSubscriptions;
+
+    /**
+        A mutex to control access to the _currentSubscriptions member variable.
+        Before any access (test, increment, decrement or reset) of the
+        _currentSubscriptions member variable, the _currentSubscriptionsMutex is
+        first locked.
+     */
+    Mutex _currentSubscriptionsMutex;
+
+    /**
+        The Provider CIMInstance for the provider.
+        The Provider CIMInstance is set only for indication providers, and only
+        if a Create Subscription request has been processed for the provider.
+        The Provider CIMInstance is needed in order to construct the
+        EnableIndicationsResponseHandler to send to the indication provider
+        when the provider's enableIndications() method is called.
+        The Provider CIMInstance is needed in the
+        EnableIndicationsResponseHandler in order to construct the Process
+        Indication request when an indication is delivered by the provider.
+        The Provider CIMInstance is needed in the Process Indication request
+        to enable the Indication Service to determine if the provider that
+        generated the indication accepted a matching subscription.
+     */
+    CIMInstance _providerInstance;
 //};
 
 

@@ -126,8 +126,6 @@ protected:
     Message * handleCreateSubscriptionRequest(const Message * message);
 //    Message * handleModifySubscriptionRequest(const Message * message);
     Message * handleDeleteSubscriptionRequest(const Message * message);
-    Message * handleEnableIndicationsRequest(const Message * message);
-    Message * handleDisableIndicationsRequest(const Message * message);
 
 //  Not supported by CMPI
 //    Message * handleExportIndicationRequest(const Message * message);
@@ -136,8 +134,35 @@ protected:
     Message * handleEnableModuleRequest(const Message * message);
     Message * handleStopAllProvidersRequest(const Message * message);
     Message * handleInitializeProviderRequest(const Message * message);
+    Message * handleSubscriptionInitCompleteRequest (const Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
+
+    /**
+        Calls the provider's enableIndications() method, if the provider 
+        version supports enableIndications().
+
+        Note that since an exception thrown by the provider's
+        enableIndications() method is considered a provider error, any such
+        exception is ignored, and no exceptions are thrown by this method.
+
+        @param  req_provider  CIMInstance for the provider to be enabled
+        @param  _indicationCallback  PEGASUS_INDICATION_CALLBACK for indications
+        @param  ph  OpProviderHolder for the provider to be enabled
+     */
+    void _callEnableIndications
+        (CIMInstance & req_provider,
+         PEGASUS_INDICATION_CALLBACK _indicationCallback,
+         CMPIProvider::OpProviderHolder & ph);
+
+    /**
+        Calls the provider's disableIndications() method, if the provider
+        version supports disableIndications().
+
+        @param  ph  OpProviderHolder for the provider to be enabled
+     */
+    void _callDisableIndications
+        (CMPIProvider::OpProviderHolder & ph);
 };
 
 PEGASUS_NAMESPACE_END

@@ -30,7 +30,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//            : Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -354,28 +356,6 @@ CIMResponseMessage* CIMProcessIndicationRequestMessage::buildResponse()
     return response.release();
 }
 
-CIMResponseMessage* CIMEnableIndicationsRequestMessage::buildResponse()
-{
-    AutoPtr<CIMEnableIndicationsResponseMessage> response(
-        new CIMEnableIndicationsResponseMessage(
-            messageId,
-            CIMException(),
-            queueIds.copyAndPop()));
-    response->syncAttributes(this);
-    return response.release();
-}
-
-CIMResponseMessage* CIMDisableIndicationsRequestMessage::buildResponse()
-{
-    AutoPtr<CIMDisableIndicationsResponseMessage> response(
-        new CIMDisableIndicationsResponseMessage(
-            messageId,
-            CIMException(),
-            queueIds.copyAndPop()));
-    response->syncAttributes(this);
-    return response.release();
-}
-
 CIMResponseMessage* CIMNotifyProviderRegistrationRequestMessage::buildResponse()
 {
     AutoPtr<CIMNotifyProviderRegistrationResponseMessage> response(
@@ -435,6 +415,18 @@ CIMResponseMessage* CIMDeleteSubscriptionRequestMessage::buildResponse()
 {
     AutoPtr<CIMDeleteSubscriptionResponseMessage> response(
         new CIMDeleteSubscriptionResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
+    response->syncAttributes(this);
+    return response.release();
+}
+
+CIMResponseMessage* 
+    CIMSubscriptionInitCompleteRequestMessage::buildResponse()
+{
+    AutoPtr<CIMSubscriptionInitCompleteResponseMessage> response(
+        new CIMSubscriptionInitCompleteResponseMessage(
             messageId,
             CIMException(),
             queueIds.copyAndPop()));

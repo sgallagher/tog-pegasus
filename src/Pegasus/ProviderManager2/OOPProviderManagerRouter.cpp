@@ -31,6 +31,8 @@
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
 // Modified By:	Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -117,7 +119,8 @@ public:
     ProviderAgentContainer(
         const String & moduleName,
         const String & userName,
-        PEGASUS_INDICATION_CALLBACK indicationCallback);
+        PEGASUS_INDICATION_CALLBACK indicationCallback,
+        Boolean subscriptionInitComplete);
 
     ~ProviderAgentContainer();
 
@@ -259,6 +262,14 @@ private:
         (active) at one time.
     */
     static Uint32 _maxProviderProcesses;
+
+    /**
+        Indicates whether the Indication Service has completed initialization.
+
+        For more information, please see the description of the
+        ProviderManagerRouter::_subscriptionInitComplete member variable.
+     */
+    Boolean _subscriptionInitComplete;
 };
 
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
@@ -268,11 +279,13 @@ Uint32 ProviderAgentContainer::_maxProviderProcesses = PEG_NOT_FOUND;
 ProviderAgentContainer::ProviderAgentContainer(
     const String & moduleName,
     const String & userName,
-    PEGASUS_INDICATION_CALLBACK indicationCallback)
+    PEGASUS_INDICATION_CALLBACK indicationCallback,
+    Boolean subscriptionInitComplete)
     : _moduleName(moduleName),
       _userName(userName),
       _indicationCallback(indicationCallback),
-      _isInitialized(false)
+      _isInitialized(false),
+      _subscriptionInitComplete(subscriptionInitComplete)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::ProviderAgentContainer");
@@ -570,6 +583,7 @@ void ProviderAgentContainer::_sendInitializationData()
             configManager->getPegasusHome(),
             configProperties,
             System::bindVerbose,
+            _subscriptionInitComplete,
             QueueIdStack()));
 
     //
@@ -1071,6 +1085,7 @@ OOPProviderManagerRouter::OOPProviderManagerRouter(
         "OOPProviderManagerRouter::OOPProviderManagerRouter");
 
     _indicationCallback = indicationCallback;
+    _subscriptionInitComplete = false;
 
     PEG_METHOD_EXIT();
 }
@@ -1151,6 +1166,8 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
         providerModule = dmReq->providerModule;
     }
     else if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+             (request->getType() ==
+                 CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
              (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
     {
         // This operation is not provider-specific
@@ -1177,6 +1194,17 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
         // Note: Do not uninitialize the ProviderAgentContainers here.
         // Just let the selecting thread notice when the agent connections
         // are closed.
+    }
+    else if (request->getType () == 
+        CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
+    {
+        _subscriptionInitComplete = true;
+
+        //
+        //  Forward the CIMSubscriptionInitCompleteRequestMessage to 
+        //  all providers
+        //
+        response.reset (_forwardRequestToAllAgents (request));
     }
     else if (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE)
     {
@@ -1432,7 +1460,8 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     if (!_providerAgentTable.lookup(key, pa))
     {
         pa = new ProviderAgentContainer(
-            moduleName, userName, _indicationCallback);
+            moduleName, userName, _indicationCallback,
+            _subscriptionInitComplete);
         _providerAgentTable.insert(key, pa);
     }
     return pa;

@@ -32,6 +32,8 @@
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Dan Gorey, IBM djgorey@us.ibm.com
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +52,8 @@ Provider::Provider(const String & name,
    : Base(pr), _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
      _no_unload(0)
 {
-   _current_operations = 1;
+    _current_operations = 1;
+    _currentSubscriptions = 0;
 }
 
 
@@ -241,6 +244,48 @@ void Provider::protect(void)
 void Provider::unprotect(void)
 {
    _no_unload--;
+}
+
+Boolean Provider::testIfZeroAndIncrementSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    Boolean isZero = (_currentSubscriptions == 0);
+    _currentSubscriptions++;
+
+    return isZero;
+}
+
+Boolean Provider::decrementSubscriptionsAndTestIfZero ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    _currentSubscriptions--;
+    Boolean isZero = (_currentSubscriptions == 0);
+
+    return isZero;
+}
+
+Boolean Provider::testSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    Boolean currentSubscriptions = (_currentSubscriptions > 0);
+
+    return currentSubscriptions;
+}
+
+void Provider::resetSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    _currentSubscriptions = 0;
+}
+
+void Provider::setProviderInstance (const CIMInstance & instance)
+{
+    _providerInstance = instance;
+}
+
+CIMInstance Provider::getProviderInstance ()
+{
+    return _providerInstance;
 }
 
 PEGASUS_NAMESPACE_END

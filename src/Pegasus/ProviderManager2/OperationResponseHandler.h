@@ -658,13 +658,11 @@ class EnableIndicationsResponseHandler : public OperationResponseHandler, public
 {
 public:
     EnableIndicationsResponseHandler(
-        CIMEnableIndicationsRequestMessage * request,
-        CIMEnableIndicationsResponseMessage * response,
+        CIMRequestMessage * request,
+        CIMResponseMessage * response,
         CIMInstance & provider,
         PEGASUS_INDICATION_CALLBACK indicationCallback)
     : OperationResponseHandler(request, response),
-        _request_copy(*request),
-        _response_copy(*response),
         _indicationCallback(indicationCallback)
     {
         _provider = provider;
@@ -773,8 +771,6 @@ protected:
     }
 
 private:
-    CIMEnableIndicationsRequestMessage _request_copy;
-    CIMEnableIndicationsResponseMessage _response_copy;
     PEGASUS_INDICATION_CALLBACK _indicationCallback;
 
 };

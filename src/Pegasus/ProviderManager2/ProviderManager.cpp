@@ -30,7 +30,9 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
+//              Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,6 +84,12 @@ void ProviderManager::setIndicationCallback(
         PEGASUS_INDICATION_CALLBACK indicationCallback)
 {
     _indicationCallback = indicationCallback;
+}
+
+void ProviderManager::setSubscriptionInitComplete
+    (Boolean subscriptionInitComplete)
+{
+    _subscriptionInitComplete = subscriptionInitComplete;
 }
 
 PEGASUS_NAMESPACE_END

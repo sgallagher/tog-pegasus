@@ -35,9 +35,9 @@
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - Fix associators.
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//				Seema Gupta (gseema@in.ibm.com) for PEP135
-//				Willis White (whiwill@us.ibm.com)
-//				Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//              Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Willis White (whiwill@us.ibm.com)
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -87,6 +87,7 @@ public:
 //
 DefaultProviderManager::DefaultProviderManager(void)
 {
+    _subscriptionInitComplete = false;
 }
 
 DefaultProviderManager::~DefaultProviderManager(void)
@@ -171,14 +172,6 @@ Message * DefaultProviderManager::processMessage(Message * request)
         response = handleDeleteSubscriptionRequest(request);
 
         break;
-    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleEnableIndicationsRequest(request);
-
-        break;
-    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleDisableIndicationsRequest(request);
-
-        break;
     case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         response = handleExportIndicationRequest(request);
         break;
@@ -197,6 +190,10 @@ Message * DefaultProviderManager::processMessage(Message * request)
         break;
     case CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE:
 	response = handleInitializeProviderRequest(request);
+
+	break;
+    case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
+	response = handleSubscriptionInitCompleteRequest (request);
 
 	break;
     default:
@@ -1820,6 +1817,11 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
         OpProviderHolder ph =
             providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
 
+        //
+        //  Save the provider instance from the request
+        //
+        ph.GetProvider ().setProviderInstance (req_provider);
+
         // convert arguments
         OperationContext context;
 
@@ -1861,6 +1863,23 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
             classNames,
             propertyList,
             repeatNotificationPolicy);
+
+        //
+        //  Increment count of current subscriptions for this provider
+        //
+        if (ph.GetProvider ().testIfZeroAndIncrementSubscriptions ())
+        {
+            //
+            //  If there were no current subscriptions before the increment, 
+            //  the first subscription has been created
+            //  Call the provider's enableIndications method
+            //
+            if (_subscriptionInitComplete)
+            {
+                _callEnableIndications (req_provider, 
+                    _indicationCallback, ph);
+            }
+        }
     }
     catch(CIMException & e)
     {
@@ -2117,6 +2136,37 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
             context,
             subscriptionName,
             classNames);
+
+        //
+        //  Decrement count of current subscriptions for this provider
+        //
+        if (ph.GetProvider ().decrementSubscriptionsAndTestIfZero ())
+        {
+            //
+            //  If there are no current subscriptions after the decrement, 
+            //  the last subscription has been deleted
+            //  Call the provider's disableIndications method
+            //
+            if (_subscriptionInitComplete)
+            {
+                PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "Calling provider.disableIndications: " +
+                    ph.GetProvider ().getName ());
+
+                ph.GetProvider ().disableIndications ();
+
+                ph.GetProvider ().unprotect ();
+
+                //
+                //
+                //
+                PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "Removing and Destroying indication handler for " +
+                    ph.GetProvider ().getName ());
+
+                delete _removeEntry (_generateKey (ph.GetProvider ()));
+            }
+        }
     }
     catch(CIMException & e)
     {
@@ -2138,194 +2188,6 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
             "Exception: Unknown");
 
         handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
-    }
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager:: handleEnableIndicationsRequest");
-
-    CIMEnableIndicationsRequestMessage * request =
-        dynamic_cast<CIMEnableIndicationsRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMEnableIndicationsResponseMessage * response =
-        new CIMEnableIndicationsResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
-    PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
-
-    response->dest = request->queueIds.top();
-
-	CIMInstance req_provider, req_providerModule;
-	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-
-	req_provider = pidc.getProvider();
-	req_providerModule = pidc.getModule();
-
-    EnableIndicationsResponseHandler *handler =
-        new EnableIndicationsResponseHandler(
-            request, response, req_provider, _indicationCallback);
-
-
-
-    try
-    {
-          String physicalName=_resolvePhysicalName( req_providerModule.getProperty(
-                                                    req_providerModule.findProperty("Location")).getValue().toString());
-
-          ProviderName name(req_provider.getProperty(req_provider.findProperty("Name")).getValue ().toString (),
-                                  physicalName,
-                                  req_providerModule.getProperty(req_providerModule.findProperty
-                                  ("InterfaceType")).getValue().toString(),
-                                   0);
-
-        // get cached or load new provider module
-        OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.enableIndications: " +
-            ph.GetProvider().getName());
-
-        pm_service_op_lock op_lock(&ph.GetProvider());
-        ph.GetProvider().protect();
-
-        ph.GetProvider().enableIndications(*handler);
-
-
-        // if no exception, store the handler so it is persistent for as
-        // long as the provider has indications enabled.
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Storing indication handler for " + ph.GetProvider().getName());
-
-        _insertEntry(ph.GetProvider(), handler);
-    }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        response->cimException = CIMException(e);
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-        response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.DefaultProviderManager.INTERNAL_ERROR",
-            "Internal Error"));
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-        response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.DefaultProviderManager.UNKNOWN_ERROR",
-            "Unknown Error"));
-    }
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleDisableIndicationsRequest");
-
-    CIMDisableIndicationsRequestMessage * request =
-        dynamic_cast<CIMDisableIndicationsRequestMessage *>(const_cast<Message *>(message));
-
-    PEGASUS_ASSERT(request != 0);
-
-    CIMDisableIndicationsResponseMessage * response =
-        new CIMDisableIndicationsResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
-
-    OperationResponseHandler handler(request, response);
-
-	CIMInstance req_provider, req_providerModule;
-	ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-
-	req_provider = pidc.getProvider();
-	req_providerModule = pidc.getModule();
-     
-    try
-    {
-       String physicalName=_resolvePhysicalName(
-              req_providerModule.getProperty(
-                req_providerModule.findProperty("Location")).getValue().toString());
-
-       ProviderName name(
-               req_provider.getProperty(req_provider.findProperty
-                   ("Name")).getValue ().toString (),
-               physicalName,
-                req_providerModule.getProperty(req_providerModule.findProperty
-                    ("InterfaceType")).getValue().toString(),
-            0);
-        // get cached or load new provider module
-        OpProviderHolder ph =
-            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Calling provider.disableIndications: " +
-            ph.GetProvider().getName());
-
-        ph.GetProvider().disableIndications();
-
-        ph.GetProvider().unprotect();
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Removing and Destroying indication handler for " +
-            ph.GetProvider().getName());
-
-        delete _removeEntry(_generateKey(ph.GetProvider()));
-    }
-
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        response->cimException = CIMException(e);
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-            response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.DefaultProviderManager.INTERNAL_ERROR",
-            "Internal Error"));
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-            response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
-            "ProviderManager.DefaultProviderManager.UNKNOWN_ERROR",
-            "Unknown Error"));
     }
 
     PEG_METHOD_EXIT();
@@ -2485,11 +2347,25 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
             }
             else if (ret_value == 1)  // Success
             {
-                // if It is an indication provider
-                // remove the entry from the table since the
-                // provider has been disabled
                 if (_indicationProviders[i])
                 {
+                    //
+                    //  Reset the indication provider's count of current 
+                    //  subscriptions since it has been disabled
+                    //
+                    if (physicalName.size () > 0)
+                    {
+                        OpProviderHolder ph = providerManager.getProvider
+                            (physicalName, pName, String::EMPTY);
+
+                        ph.GetProvider ().resetSubscriptions ();
+                    }
+
+                    //
+                    //  If it is an indication provider
+                    //  remove the entry from the table since the
+                    //  provider has been disabled
+                    //
                     delete _removeEntry(_generateKey(pName,physicalName));
                 }
             }
@@ -2622,6 +2498,75 @@ Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * 
     return(response);
 }
 
+Message * 
+DefaultProviderManager::handleSubscriptionInitCompleteRequest
+    (const Message * message)
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, 
+     "DefaultProviderManager::handleSubscriptionInitCompleteRequest");
+
+    CIMSubscriptionInitCompleteRequestMessage * request =
+        dynamic_cast <CIMSubscriptionInitCompleteRequestMessage *>
+            (const_cast <Message *> (message));
+
+    PEGASUS_ASSERT (request != 0);
+
+    CIMSubscriptionInitCompleteResponseMessage * response = 
+        dynamic_cast <CIMSubscriptionInitCompleteResponseMessage *> 
+            (request->buildResponse ());
+
+    PEGASUS_ASSERT (response != 0);
+
+    //
+    //  Set indicator
+    //
+    _subscriptionInitComplete = true;
+
+    //
+    //  For each provider that has at least one subscription, call 
+    //  provider's enableIndications method
+    //
+    Array <Provider *> enableProviders;
+    enableProviders = providerManager.getIndicationProvidersToEnable ();
+
+    Uint32 numProviders = enableProviders.size ();
+    for (Uint32 i = 0; i < numProviders; i++)
+    {
+        try
+        {
+            CIMInstance provider;
+            provider = enableProviders [i]->getProviderInstance ();
+
+            //
+            //  Get cached or load new provider module
+            //
+            OpProviderHolder ph = providerManager.getProvider
+                (enableProviders [i]->getModule ()->getFileName (),
+                 enableProviders [i]->getName (), String::EMPTY);
+
+            _callEnableIndications (provider, _indicationCallback, ph);
+        }
+        catch (CIMException & e)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "CIMException: " + e.getMessage ());
+        }
+        catch (Exception & e)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Exception: " + e.getMessage ());
+        }
+        catch(...)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Unknown error in handleSubscriptionInitCompleteRequest");
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+    return (response);
+}
+
 void DefaultProviderManager::_insertEntry (
     const Provider & provider,
     const EnableIndicationsResponseHandler *handler)
@@ -2725,6 +2670,77 @@ Boolean DefaultProviderManager::hasActiveProviders()
 void DefaultProviderManager::unloadIdleProviders()
 {
     providerManager.unloadIdleProviders();
+}
+
+void DefaultProviderManager::_callEnableIndications
+    (CIMInstance & req_provider,
+     PEGASUS_INDICATION_CALLBACK _indicationCallback,
+     OpProviderHolder & ph)
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, 
+        "DefaultProviderManager::_callEnableIndications");
+
+    try
+    {
+        CIMRequestMessage * request = 0;
+        CIMResponseMessage * response = 0;
+        EnableIndicationsResponseHandler * enableHandler =
+            new EnableIndicationsResponseHandler
+                (request, response, req_provider, _indicationCallback);
+    
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Calling provider.enableIndications: " +
+            ph.GetProvider ().getName ());
+    
+        pm_service_op_lock op_lock (& ph.GetProvider ());
+        ph.GetProvider ().protect ();
+        ph.GetProvider ().enableIndications (* enableHandler);
+    
+        //
+        //  Store the handler so it is persistent for as
+        //  long as the provider has indications enabled
+        //
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Storing indication handler for " +
+            ph.GetProvider ().getName ());
+    
+        _insertEntry (ph.GetProvider (), enableHandler);
+    }
+    catch (CIMException & e)
+    {
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "CIMException: " + e.getMessage ());
+
+        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.Default.DefaultProviderManager."
+                "ENABLE_INDICATIONS_FAILED",
+            "Failed to enable indications for provider $0: $1.", 
+            ph.GetProvider ().getName (), e.getMessage ());
+    }
+    catch (Exception & e)
+    {
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Exception: " + e.getMessage ());
+
+        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.Default.DefaultProviderManager."
+                "ENABLE_INDICATIONS_FAILED",
+            "Failed to enable indications for provider $0: $1.", 
+            ph.GetProvider ().getName (), e.getMessage ());
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unexpected error in _callEnableIndications");
+
+        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.Default.DefaultProviderManager."
+                "ENABLE_INDICATIONS_FAILED_UNKNOWN",
+            "Failed to enable indications for provider $0.", 
+            ph.GetProvider ().getName ());
+    }
+
+    PEG_METHOD_EXIT ();
 }
 
 PEGASUS_NAMESPACE_END

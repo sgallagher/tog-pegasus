@@ -72,6 +72,17 @@ public:
     Boolean hasActiveProviders();
     void unloadIdleProviders();
 
+    /**
+         Gets list of indication providers to be enabled.
+         Once IndicationService initialization has been completed, the
+         enableIndications() method must be called on each indication provider
+         that has current subscriptions.
+
+         @return list of providers whose enableIndications() method must be
+                 called
+     */
+    Array <JMPIProvider *> getIndicationProvidersToEnable ();
+
 private:
     enum CTRL
     {

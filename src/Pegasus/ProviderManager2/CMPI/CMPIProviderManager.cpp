@@ -59,6 +59,7 @@
 
 #include <Pegasus/ProviderManager2/ProviderType.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 //#include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
@@ -115,7 +116,7 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
    ProviderManagerService *provService =ProviderManagerService::providerManagerService;
 	_repository=
 		provService->_repository;
-
+   _subscriptionInitComplete = false;
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)
@@ -221,14 +222,6 @@ Message * CMPIProviderManager::processMessage(Message * request)
         response = handleDeleteSubscriptionRequest(request);
 
         break;
-    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleEnableIndicationsRequest(request);
-
-        break;
-    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleDisableIndicationsRequest(request);
-
-        break;
 /*    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         response = handleExportIndicationRequest(request);
         break;
@@ -249,6 +242,10 @@ Message * CMPIProviderManager::processMessage(Message * request)
 	response = handleInitializeProviderRequest(request);
 
 	break;
+    case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
+        response = handleSubscriptionInitCompleteRequest (request);
+
+        break;
     default:
         response = handleUnsupportedRequest(request);
 
@@ -1728,6 +1725,11 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
            provTab.insert(providerName,prec);
         }
 
+        //
+        //  Save the provider instance from the request
+        //
+        ph.GetProvider ().setProviderInstance (req_provider);
+
         indSelectRecord *srec=new indSelectRecord();
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 
@@ -1825,8 +1827,29 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
+        {
            throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+        }
+        else
+        {
+            //
+            //  Increment count of current subscriptions for this provider
+            //
+            if (ph.GetProvider ().testIfZeroAndIncrementSubscriptions ())
+            {
+                //
+                //  If there were no current subscriptions before the increment,
+                //  the first subscription has been created
+                //  Call the provider's enableIndications method
+                //
+                if (_subscriptionInitComplete)
+                {
+                    _callEnableIndications (req_provider, _indicationCallback, 
+                        ph);
+                }
+            }
+        }
     }
     HandlerCatch(handler);
 
@@ -1951,177 +1974,28 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
+        {
            throw CIMException((CIMStatusCode)rc.rc,
                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
-    }
-    HandlerCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * CMPIProviderManager::handleEnableIndicationsRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleEnableIndicationsRequest");
-
-    HandlerIntroInd(EnableIndications,message,request,response,
-                 handler);
-    try {
-        String providerName,providerLocation;
-		CIMInstance req_provider, req_providerModule;
-		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-		req_provider = pidc.getProvider();
-		req_providerModule = pidc.getModule();
-
-        LocateIndicationProviderNames(req_provider, req_providerModule,
-           providerName,providerLocation);
-
-        indProvRecord *provRec;
-        if (provTab.lookup(providerName,provRec)) {
-           provRec->enabled=true;
-		   ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME);
-           provRec->handler=new EnableIndicationsResponseHandler(
-               request, response, req_provider, _indicationCallback);
         }
-
-        Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
-
-        String fileName = _resolvePhysicalName(providerLocation);
-
-/*        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
-           ph = providerManager.getProvider("CMPIRProxyProvider", providerName);
+        else
+        {
+            //
+            //  Decrement count of current subscriptions for this provider
+            //
+            if (ph.GetProvider ().decrementSubscriptionsAndTestIfZero ())
+            {
+                //
+                //  If there are no current subscriptions after the decrement,
+                //  the last subscription has been deleted
+                //  Call the provider's disableIndications method
+                //
+                if (_subscriptionInitComplete)
+                {
+                    _callDisableIndications (ph);
+                }
+            }
         }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(fileName, providerName);
-        } */
-        ph = providerManager.getProvider(fileName, providerName);
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
-
-        CMPIProvider & pr=ph.GetProvider();
-
-		/* Versions prior to 86 did not include enableIndications routine */
-		if (pr.miVector.indMI->ft->ftVersion >= 86) {
-        	CMPIStatus rc={CMPI_RC_OK,NULL};
-        	CMPI_ContextOnStack eCtx(context);
-        	CMPI_ThreadContext thr(&pr.broker,&eCtx);
-
-        	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            	"Calling provider.EnableIndicationRequest: " + pr.getName());
-
-        	DDD(cerr<<"--- CMPIProviderManager::enableIndicationRequest"<<endl);
-
-        	CMPIProvider::pm_service_op_lock op_lock(&pr);
-        	ph.GetProvider().protect();
-
-        	STAT_GETSTARTTIME;
-
-        	pr.miVector.indMI->ft->enableIndications(
-           		pr.miVector.indMI);
-
-       		STAT_PMS_PROVIDEREND;
-		}
-		else
-	  	{
-			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-							"Not calling provider.EnableIndicationRequest: " + pr.getName() +
-							" routine as it is an earlier version that does not support this function");
-			DDD(cerr<<"--- CMPIProviderManager::enableIndicationRequest cannot be called " \
-						"as the provider uses an earlier version that does not support this function"<<endl);
-		}
-
-    }
-    HandlerCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * CMPIProviderManager::handleDisableIndicationsRequest(const Message * message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager:: handleDisableIndicationsRequest");
-
-    HandlerIntroInd(DisableIndications,message,request,response,
-                 handler);
-    try {
-        String providerName,providerLocation;
-        CIMInstance req_provider, req_providerModule;
-        ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-        req_provider = pidc.getProvider();
-        req_providerModule = pidc.getModule();
-
-        LocateIndicationProviderNames(req_provider, req_providerModule ,
-           providerName,providerLocation);
-
-        indProvRecord *provRec;
-        if (provTab.lookup(providerName,provRec)) {
-           provRec->enabled=false;
-           if (provRec->handler) delete provRec->handler;
-           provRec->handler=NULL;
-        }
-
-        Boolean remote=false;
-        CMPIProvider::OpProviderHolder ph;
-
-        String fileName = _resolvePhysicalName(providerLocation);
-
-/*        if ((remote=_repository->isRemoteNameSpace(request->nameSpace,remoteInfo))) {
-           ph = providerManager.getProvider("CMPIRProxyProvider", providerName);
-        }
-        else {
-        // get cached or load new provider module
-           ph = providerManager.getProvider(fileName, providerName);
-        } */
-        ph = providerManager.getProvider(fileName, providerName);
-
-        // convert arguments
-        OperationContext context;
-
-		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
-	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
-
-        CMPIProvider & pr=ph.GetProvider();
-
-		/* Versions prior to 86 did not include disableIndications routine */
-		if (pr.miVector.indMI->ft->ftVersion >= 86) {
-        	CMPIStatus rc={CMPI_RC_OK,NULL};
-        	CMPI_ContextOnStack eCtx(context);
-        	CMPI_ThreadContext thr(&pr.broker,&eCtx);
-
-        	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            	"Calling provider.DisableIndicationRequest: " + pr.getName());
-
-        	DDD(cerr<<"--- CMPIProviderManager::disableIndicationRequest"<<endl);
-
-        	CMPIProvider::pm_service_op_lock op_lock(&pr);
-
-        	STAT_GETSTARTTIME;
-
-        	pr.miVector.indMI->ft->disableIndications(
-           		pr.miVector.indMI);
-
-        	ph.GetProvider().unprotect();
-
-        	STAT_PMS_PROVIDEREND;
-		}
-		else
-		{
-        	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-				"Not calling provider.EnableIndicationRequest: " + pr.getName() +
-				" routine as it is an earlier version that does not support this function");
-
-			DDD(cerr<<"--- CMPIProviderManager::disableIndicationRequest cannot be called " \
-					"as the provider uses an earlier version that does not support this function"<<endl);
-
-		}
     }
     HandlerCatch(handler);
 
@@ -2150,6 +2024,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     // Unload providers
     //
     Array<CIMInstance> _pInstances = request->providers;
+    Array <Boolean> _indicationProviders = request->indicationProviders;
 	/* The CIMInstances on request->providers array is completly _different_ than
 	   the request->providerModule CIMInstance. Hence  */
 
@@ -2158,11 +2033,30 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
+        String providerName;
+        _pInstances [i].getProperty (_pInstances [i].findProperty 
+            (CIMName ("Name"))).getValue ().get (providerName);
+
 		Uint32 pos = _pInstances[i].findProperty("Name");
         providerManager.unloadProvider(_pInstances[i].getProperty(
 											_pInstances[i].findProperty("Name")
 										).getValue ().toString (), 
                                        physicalName);
+
+        //
+        //  Reset the indication provider's count of current
+        //  subscriptions since it has been disabled
+        //
+        if (_indicationProviders [i])
+        {
+            if (physicalName.size () > 0)
+            {
+                CMPIProvider::OpProviderHolder ph = providerManager.getProvider
+                    (physicalName, providerName);
+
+                ph.GetProvider ().resetSubscriptions ();
+            }
+        }
     }
 
     CIMDisableModuleResponseMessage * response =
@@ -2274,6 +2168,74 @@ Message * CMPIProviderManager::handleInitializeProviderRequest(const Message * m
     return(response);
 }
 
+Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
+    (const Message * message)
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
+     "CMPIProviderManager::handleSubscriptionInitCompleteRequest");
+
+    CIMSubscriptionInitCompleteRequestMessage * request =
+        dynamic_cast <CIMSubscriptionInitCompleteRequestMessage *>
+            (const_cast <Message *> (message));
+
+    PEGASUS_ASSERT (request != 0);
+
+    CIMSubscriptionInitCompleteResponseMessage * response =
+        dynamic_cast <CIMSubscriptionInitCompleteResponseMessage *>
+            (request->buildResponse ());
+
+    PEGASUS_ASSERT (response != 0);
+
+    //
+    //  Set indicator
+    //
+    _subscriptionInitComplete = true;
+
+    //
+    //  For each provider that has at least one subscription, call
+    //  provider's enableIndications method
+    //
+    Array <CMPIProvider *> enableProviders;
+    enableProviders = providerManager.getIndicationProvidersToEnable ();
+
+    Uint32 numProviders = enableProviders.size ();
+    for (Uint32 i = 0; i < numProviders; i++)
+    {
+        try
+        {
+            CIMInstance provider;
+            provider = enableProviders [i]->getProviderInstance ();
+
+            //
+            //  Get cached or load new provider module
+            //
+            CMPIProvider::OpProviderHolder ph = providerManager.getProvider
+                (enableProviders [i]->getModule ()->getFileName (),
+                 enableProviders [i]->getName ());
+
+            _callEnableIndications (provider, _indicationCallback, ph);
+        }
+        catch (CIMException & e)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "CIMException: " + e.getMessage ());
+        }
+        catch (Exception & e)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Exception: " + e.getMessage ());
+        }
+        catch(...)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Unknown error in handleSubscriptionInitCompleteRequest");
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+    return (response);
+}
+
 Message * CMPIProviderManager::handleUnsupportedRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -2311,6 +2273,149 @@ ProviderName CMPIProviderManager::_resolveProviderName(
     name.setLocation(location);
     return name;
 //    return ProviderName(providerName, fileName, interfaceName, 0);
+}
+
+void CMPIProviderManager::_callEnableIndications
+    (CIMInstance & req_provider,
+     PEGASUS_INDICATION_CALLBACK _indicationCallback,
+     CMPIProvider::OpProviderHolder & ph)
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::_callEnableIndications");
+
+    try
+    {
+        indProvRecord *provRec;
+        if (provTab.lookup (ph.GetProvider ().getName (), provRec))
+        {
+            provRec->enabled = true;
+            CIMRequestMessage * request = 0;
+            CIMResponseMessage * response = 0;
+            provRec->handler=new EnableIndicationsResponseHandler
+                (request, response, req_provider, _indicationCallback);
+        }
+
+        CMPIProvider & pr=ph.GetProvider();
+
+        //
+        //  Versions prior to 86 did not include enableIndications routine
+        //
+        if (pr.miVector.indMI->ft->ftVersion >= 86)
+        {
+            OperationContext context;
+            CMPIStatus rc={CMPI_RC_OK,NULL};
+            CMPI_ContextOnStack eCtx(context);
+            CMPI_ThreadContext thr(&pr.broker,&eCtx);
+
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Calling provider.enableIndications: " + pr.getName());
+
+            DDD(cerr<<"--- provider.enableIndications"<<endl);
+
+            CMPIProvider::pm_service_op_lock op_lock(&pr);
+            ph.GetProvider().protect();
+
+            pr.miVector.indMI->ft->enableIndications(pr.miVector.indMI);
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Not calling provider.enableIndications: " + pr.getName() +
+                " routine as it is an earlier version that does not support this function");
+
+            DDD(cerr<<"--- provider.enableIndications " \
+                "cannot be called as the provider uses an earlier version " \
+                "that does not support this function"<<endl);
+        }
+    }
+    catch (CIMException & e)
+    {
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "CIMException: " + e.getMessage ());
+
+        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.CMPI.CMPIProviderManager."
+                "ENABLE_INDICATIONS_FAILED",
+            "Failed to enable indications for provider $0: $1.",
+            ph.GetProvider ().getName (), e.getMessage ());
+    }
+    catch (Exception & e)
+    {
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Exception: " + e.getMessage ());
+
+        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.CMPI.CMPIProviderManager."
+                "ENABLE_INDICATIONS_FAILED",
+            "Failed to enable indications for provider $0: $1.",
+            ph.GetProvider ().getName (), e.getMessage ());
+    }
+    catch(...)
+    {
+        PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unexpected error in _callEnableIndications");
+
+        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            "ProviderManager.CMPI.CMPIProviderManager."
+                "ENABLE_INDICATIONS_FAILED_UNKNOWN",
+            "Failed to enable indications for provider $0.",
+            ph.GetProvider ().getName ());
+    }
+
+    PEG_METHOD_EXIT ();
+}
+
+void CMPIProviderManager::_callDisableIndications
+    (CMPIProvider::OpProviderHolder & ph)
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::_callDisableIndications");
+
+    indProvRecord * provRec;
+    if (provTab.lookup (ph.GetProvider ().getName (), provRec))
+    {
+        provRec->enabled = false;
+        if (provRec->handler) delete provRec->handler;
+        provRec->handler = NULL;
+    }
+
+    CMPIProvider & pr=ph.GetProvider();
+
+    //
+    //  Versions prior to 86 did not include disableIndications routine
+    //
+    if (pr.miVector.indMI->ft->ftVersion >= 86)
+    {
+        OperationContext context;
+        CMPIStatus rc={CMPI_RC_OK,NULL};
+        CMPI_ContextOnStack eCtx(context);
+        CMPI_ThreadContext thr(&pr.broker,&eCtx);
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Calling provider.disableIndications: " + pr.getName());
+
+        DDD(cerr<<"--- provider.disableIndications"<<endl);
+
+        CMPIProvider::pm_service_op_lock op_lock(&pr);
+
+        pr.miVector.indMI->ft->disableIndications(pr.miVector.indMI);
+
+        ph.GetProvider().unprotect();
+    }
+    else
+    {
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Not calling provider.disableIndications: "
+            + pr.getName() +
+            " routine as it is an earlier version that does not support this function");
+
+        DDD(cerr<<"--- provider.disableIndications " \
+            "cannot be called as the provider uses an earlier version " \
+            "that does not support this function"<<endl);
+
+    }
+
+    PEG_METHOD_EXIT ();
 }
 
 PEGASUS_NAMESPACE_END

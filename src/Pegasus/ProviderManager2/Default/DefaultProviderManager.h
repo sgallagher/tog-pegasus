@@ -106,8 +106,6 @@ protected:
     Message * handleCreateSubscriptionRequest(const Message * message);
     Message * handleModifySubscriptionRequest(const Message * message);
     Message * handleDeleteSubscriptionRequest(const Message * message);
-    Message * handleEnableIndicationsRequest(const Message * message);
-    Message * handleDisableIndicationsRequest(const Message * message);
 
     Message * handleExportIndicationRequest(const Message * message);
 
@@ -115,6 +113,8 @@ protected:
     Message * handleEnableModuleRequest(const Message * message);
     Message * handleStopAllProvidersRequest(const Message * message);
     Message * handleInitializeProviderRequest(const Message * message);
+    Message * handleSubscriptionInitCompleteRequest
+        (const Message * message);
 
     void _insertEntry(const Provider & provider, const EnableIndicationsResponseHandler *handler);
     EnableIndicationsResponseHandler * _removeEntry(const String & key);
@@ -127,6 +127,26 @@ protected:
 protected:
     IndicationResponseTable _responseTable;
     LocalProviderManager providerManager;
+
+private:
+
+    /**
+        Calls the provider's enableIndications() method.
+        If successful, the indications response handler is stored in the 
+        _responseTable.
+
+        @param  req_provider  CIMInstance for the provider to be enabled
+        @param  _indicationCallback  PEGASUS_INDICATION_CALLBACK for indications
+        @param  ph  OpProviderHolder for the provider to be enabled
+
+        Note that since an exception thrown by the provider's 
+        enableIndications() method is considered a provider error, any such
+        exception is ignored, and no exceptions are thrown by this method.
+     */
+    void _callEnableIndications
+        (CIMInstance & req_provider,
+         PEGASUS_INDICATION_CALLBACK _indicationCallback,
+         OpProviderHolder & ph);
 };
 
 PEGASUS_NAMESPACE_END

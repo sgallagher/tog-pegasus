@@ -29,7 +29,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,12 @@ ProviderManagerRouter::ProviderManagerRouter()
 
 ProviderManagerRouter::~ProviderManagerRouter()
 {
+}
+
+void ProviderManagerRouter::setSubscriptionInitComplete
+    (Boolean subscriptionInitComplete)
+{
+    _subscriptionInitComplete = subscriptionInitComplete;
 }
 
 PEGASUS_NAMESPACE_END

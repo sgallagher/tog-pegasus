@@ -5047,6 +5047,41 @@ CIM server listening on HTTPS port {0}."}
 
         Handler.SystemLogListenerDestination.SystemLogListenerDestination.FAILED_TO_DELIVER_INDICATION_TO_SYSTEM_LOG:string {"PGS16300:  Failed to deliver indication to system log file."}
 
+        // ==========================================================
+        // Messages for DefaultProviderManager
+        //  Please use message prefix "PGS16400 - PGS16499"
+        // ==========================================================
+
+        /**
+        * @note  PGS16400
+        *    Substitution {0} is the name of the provider
+        *    Substitution {1} is another message string
+        */
+        ProviderManager.Default.DefaultProviderManager.ENABLE_INDICATIONS_FAILED":string {"PGS16400: Failed to enable indications for provider {0}: {1}."}
+
+        /**
+        * @note  PGS16401
+        *    Substitution {0} is the name of the provider
+        */
+        ProviderManager.Default.DefaultProviderManager.ENABLE_INDICATIONS_FAILED_UNKNOWN":string {"PGS16401: Failed to enable indications for provider {0}."}
+
+        // ==========================================================
+        // Messages for CMPIProviderManager
+        //  Please use message prefix "PGS16500 - PGS16599"
+        // ==========================================================
+
+        /**
+        * @note  PGS16500
+        *    Substitution {0} is the name of the provider
+        *    Substitution {1} is another message string
+        */
+        ProviderManager.CMPI.CMPIProviderManager.ENABLE_INDICATIONS_FAILED":string {"PGS16500: Failed to enable indications for provider {0}: {1}."}
+
+        /**
+        * @note  PGS16501
+        *    Substitution {0} is the name of the provider
+        */
+        ProviderManager.CMPI.CMPIProviderManager.ENABLE_INDICATIONS_FAILED_UNKNOWN":string {"PGS16501: Failed to enable indications for provider {0}."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

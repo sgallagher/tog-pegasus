@@ -30,6 +30,8 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,8 +69,23 @@ public:
 
     virtual Boolean supportsRemoteNameSpaces() { return false; }
 
+    /**
+        Sets the SubscriptionInitComplete flag indicating whether the Indication
+        Service has completed its initialization.
+     */
+    virtual void setSubscriptionInitComplete
+        (Boolean subscriptionInitComplete);
+
 protected:
     PEGASUS_INDICATION_CALLBACK _indicationCallback;
+
+    /**
+        Indicates whether the Indication Service has completed initialization.
+
+        For more information, please see the description of the 
+        ProviderManagerRouter::_subscriptionInitComplete member variable.
+     */
+    Boolean _subscriptionInitComplete;
 
     // ingredients for CIMOMHandle (binary message handler, repository, etc.)
 };

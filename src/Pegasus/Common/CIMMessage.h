@@ -1052,40 +1052,6 @@ public:
     CIMInstance provider;
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnableIndicationsRequestMessage
-    : public CIMIndicationRequestMessage
-{
-public:
-    CIMEnableIndicationsRequestMessage(
-        const String & messageId_,
-        const QueueIdStack& queueIds_)
-    : CIMIndicationRequestMessage(
-        CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE,
-        messageId_,
-        queueIds_)
-    {
-    }
-
-    virtual CIMResponseMessage* buildResponse();
-};
-
-class PEGASUS_COMMON_LINKAGE CIMDisableIndicationsRequestMessage
-    : public CIMIndicationRequestMessage
-{
-public:
-    CIMDisableIndicationsRequestMessage(
-        const String & messageId_,
-        const QueueIdStack& queueIds_)
-    : CIMIndicationRequestMessage(
-        CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE,
-        messageId_,
-        queueIds_)
-    {
-    }
-
-    virtual CIMResponseMessage* buildResponse();
-};
-
 class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationRequestMessage
     : public CIMRequestMessage
 {
@@ -1297,6 +1263,24 @@ public:
     String userName;
 };
 
+class PEGASUS_COMMON_LINKAGE 
+    CIMSubscriptionInitCompleteRequestMessage
+    : public CIMRequestMessage
+{
+public:
+    CIMSubscriptionInitCompleteRequestMessage(
+        const String & messageId_,
+        const QueueIdStack & queueIds_)
+    : CIMRequestMessage
+       (CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_)
+    {
+    }
+
+    virtual CIMResponseMessage * buildResponse ();
+};
+
 class PEGASUS_COMMON_LINKAGE CIMDisableModuleRequestMessage
     : public CIMRequestMessage
 {
@@ -1425,6 +1409,7 @@ public:
         const String& pegasusHome_,
         const Array<Pair<String, String> >& configProperties_,
         Boolean bindVerbose_,
+        Boolean subscriptionInitComplete_,
         const QueueIdStack& queueIds_)
     : CIMRequestMessage(
 	CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE,
@@ -1432,7 +1417,8 @@ public:
         queueIds_),
       pegasusHome(pegasusHome_),
       configProperties(configProperties_),
-      bindVerbose(bindVerbose_)
+      bindVerbose(bindVerbose_),
+      subscriptionInitComplete(subscriptionInitComplete_)
     {
     }
 
@@ -1441,6 +1427,7 @@ public:
     String pegasusHome;
     Array<Pair<String, String> > configProperties;
     Boolean bindVerbose;
+    Boolean subscriptionInitComplete;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMNotifyConfigChangeRequestMessage
@@ -1911,40 +1898,6 @@ public:
     }
 };
 
-class PEGASUS_COMMON_LINKAGE CIMEnableIndicationsResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMEnableIndicationsResponseMessage(
-        const String & messageId_,
-        const CIMException & cimException_,
-        const QueueIdStack & queueIds_)
-    : CIMResponseMessage(
-        CIM_ENABLE_INDICATIONS_RESPONSE_MESSAGE,
-        messageId_,
-        cimException_,
-        queueIds_)
-    {
-    }
-};
-
-class PEGASUS_COMMON_LINKAGE CIMDisableIndicationsResponseMessage
-    : public CIMResponseMessage
-{
-public:
-    CIMDisableIndicationsResponseMessage(
-        const String & messageId_,
-        const CIMException & cimException_,
-        const QueueIdStack& queueIds_)
-    : CIMResponseMessage(
-        CIM_DISABLE_INDICATIONS_RESPONSE_MESSAGE,
-        messageId_,
-        cimException_,
-        queueIds_)
-    {
-    }
-};
-
 class PEGASUS_COMMON_LINKAGE CIMNotifyProviderRegistrationResponseMessage
     : public CIMResponseMessage
 {
@@ -2031,6 +1984,24 @@ public:
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(
         CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+    {
+    }
+};
+
+class PEGASUS_COMMON_LINKAGE 
+CIMSubscriptionInitCompleteResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMSubscriptionInitCompleteResponseMessage
+       (const String & messageId_,
+        const CIMException & cimException_,
+        const QueueIdStack & queueIds_)
+    : CIMResponseMessage
+       (CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE,
         messageId_,
         cimException_,
         queueIds_)

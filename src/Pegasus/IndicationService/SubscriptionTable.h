@@ -173,10 +173,8 @@ public:
         @param   providers               the list of providers
         @param   indicationSubclassNames the list of indication subclass names
         @param   sourceNamespaceName     the source namespace name
-
-        @return  list of (0 or more) providers that must be enabled
      */
-    Array <ProviderClassList> insertSubscription (
+    void insertSubscription (
         const CIMInstance & subscription,
         const Array <ProviderClassList> & providers,
         const Array <CIMName> & indicationSubclassNames,
@@ -191,10 +189,8 @@ public:
         @param   provider                the provider to be added or removed
         @param   addProvider             indicates if adding or removing 
                                          provider
-
-        @return  list of (0 or 1) provider that must be enabled or disabled
      */
-    Array <ProviderClassList> updateProviders (
+    void updateProviders (
         const CIMObjectPath & subscriptionPath,
         const ProviderClassList & providers,
         Boolean addProvider);
@@ -222,10 +218,8 @@ public:
         @param   sourceNamespaceName     the source namespace name
         @param   providers               the list of providers that had been 
                                          serving the subscription
-
-        @return  list of (0 or more) providers that must be disabled
      */
-    Array <ProviderClassList> removeSubscription (
+    void removeSubscription (
         const CIMInstance & subscription,
         const Array <CIMName> & indicationSubclassNames,
         const CIMNamespaceName & sourceNamespaceName,

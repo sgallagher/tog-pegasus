@@ -249,16 +249,6 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                     break;
                 }
         
-                case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-                {
-                    CIMEnableIndicationsRequestMessage * request =
-                        (CIMEnableIndicationsRequestMessage *) getRequest (i);
-					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
-                    provider.provider = pidc.getProvider();
-                    provider.providerModule = pidc.getModule();
-                    break;
-                }
-        
                 case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
                 {
                     CIMModifySubscriptionRequestMessage * request =
@@ -278,16 +268,6 @@ ProviderClassList IndicationOperationAggregate::findProvider (
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
-                    break;
-                }
-        
-                case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-                {
-                    CIMDisableIndicationsRequestMessage * request =
-                        (CIMDisableIndicationsRequestMessage *) getRequest (i);
-					ProviderIdContainer pidc = request->operationContext.get(ProviderIdContainer::NAME); 
-                    provider.provider = pidc.getProvider();
-                    provider.providerModule = pidc.getModule();
                     break;
                 }
         

@@ -495,6 +495,60 @@ void CMPILocalProviderManager::unloadIdleProviders(void)
     PEG_METHOD_EXIT();
 }
 
+Array <CMPIProvider *> 
+CMPILocalProviderManager::getIndicationProvidersToEnable ()
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
+        "CMPILocalProviderManager::getIndicationProvidersToEnable");
+
+    Array <CMPIProvider *> enableProviders;
+
+    Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Number of providers in _providers table = %d", _providers.size ());
+
+    try
+    {
+        AutoMutex lock (_providerTableMutex);
+
+        //
+        // Iterate through the _providers table
+        //
+        for (ProviderTable::Iterator i = _providers.start (); i != 0; i++)
+        {
+            //
+            //  Enable any indication provider with current subscriptions
+            //
+            CMPIProvider * provider = i.value ();
+            if (provider->testSubscriptions ())
+            {
+                enableProviders.append (provider);
+            }
+        }
+
+    }
+    catch (CIMException & e)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "CIMException: " + e.getMessage ());
+    }
+    catch (Exception & e)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception: " + e.getMessage ());
+    }
+    catch (...)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Unexpected error in getIndicationProvidersToEnable");
+    }
+
+    Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Number of indication providers to enable = %d",
+        enableProviders.size ());
+
+    PEG_METHOD_EXIT ();
+    return enableProviders;
+}
 
 CMPIProvider* CMPILocalProviderManager::_initProvider(
     CMPIProvider * provider,

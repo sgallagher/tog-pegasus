@@ -30,7 +30,8 @@
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,6 +100,7 @@ ProviderAgent::ProviderAgent(
     _pipeFromServer = pipeFromServer;
     _pipeToServer = pipeToServer;
     _providerAgent = this;
+    _subscriptionInitComplete = false;
 
     PEG_METHOD_EXIT();
 }
@@ -327,6 +329,14 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
         System::bindVerbose = ipaRequest->bindVerbose;
 
+        //
+        //  Set _subscriptionInitComplete from value in 
+        //  InitializeProviderAgent request
+        //
+        _subscriptionInitComplete = ipaRequest->subscriptionInitComplete;
+        _providerManagerRouter.setSubscriptionInitComplete 
+            (_subscriptionInitComplete);
+
         PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Processed the agent initialization message.");
 
@@ -391,6 +401,23 @@ Boolean ProviderAgent::_readAndProcessRequest()
             // Operation is successful. End the agent process.
             _terminating = true;
         }
+
+        delete request;
+    }
+    else if (request->getType () == 
+             CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
+    {
+        _subscriptionInitComplete = true;
+
+        //
+        // Process the request in this thread
+        //
+        AutoPtr <Message> response (_processRequest (request));
+        _writeResponse (response.get ());
+
+        //
+        //  Note: the response does not contain interesting data
+        //
 
         delete request;
     }

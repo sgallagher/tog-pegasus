@@ -29,7 +29,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -179,12 +180,6 @@ private:
     // CIMIndicationRequestMessages
     //
 
-    static CIMEnableIndicationsRequestMessage*
-        _deserializeCIMEnableIndicationsRequestMessage(XmlParser& parser);
-
-    static CIMDisableIndicationsRequestMessage*
-        _deserializeCIMDisableIndicationsRequestMessage(XmlParser& parser);
-
     static CIMCreateSubscriptionRequestMessage*
         _deserializeCIMCreateSubscriptionRequestMessage(XmlParser& parser);
 
@@ -215,6 +210,10 @@ private:
 
     static CIMNotifyConfigChangeRequestMessage*
         _deserializeCIMNotifyConfigChangeRequestMessage(XmlParser& parser);
+
+    static CIMSubscriptionInitCompleteRequestMessage*
+        _deserializeCIMSubscriptionInitCompleteRequestMessage
+            (XmlParser& parser);
 
     //
     //
@@ -279,12 +278,6 @@ private:
     // CIM Indication Response Messages
     //
 
-    static CIMEnableIndicationsResponseMessage*
-        _deserializeCIMEnableIndicationsResponseMessage(XmlParser& parser);
-
-    static CIMDisableIndicationsResponseMessage*
-        _deserializeCIMDisableIndicationsResponseMessage(XmlParser& parser);
-
     static CIMCreateSubscriptionResponseMessage*
         _deserializeCIMCreateSubscriptionResponseMessage(XmlParser& parser);
 
@@ -316,6 +309,9 @@ private:
     static CIMNotifyConfigChangeResponseMessage*
         _deserializeCIMNotifyConfigChangeResponseMessage(XmlParser& parser);
 
+    static CIMSubscriptionInitCompleteResponseMessage*
+        _deserializeCIMSubscriptionInitCompleteResponseMessage
+            (XmlParser& parser);
 
 };
 

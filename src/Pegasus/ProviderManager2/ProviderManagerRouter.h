@@ -29,7 +29,8 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,6 +70,32 @@ public:
         be called on a non-critical thread.
      */
     virtual void unloadIdleProviders() = 0;
+
+    /**
+        Sets the SubscriptionInitComplete flag indicating whether the Indication
+        Service has completed its initialization.
+     */
+    virtual void setSubscriptionInitComplete
+        (Boolean subscriptionInitComplete);
+
+protected:
+    /**
+        Indicates whether the Indication Service has completed initialization.
+        During initialization, the Indication Service processes all active
+        subscriptions from the repository, sending Create Subscription requests
+        to the appropriate indication providers, and the providers'
+        enableIndications method must be called only after all the Create
+        Subscription requests have been processed.  Once Indication Service
+        initialization is complete, the Indication Service sends the Provider
+        Manager Service a Subscription Initialization Complete request message.
+        At that time, the enableIndications method must be called on each 
+        provider with current subscriptions.  Subsequently, the 
+        enableIndications method must be called only after the first 
+        subscription is created for a provider, and the disableIndications 
+        method must be called when the last subscription is deleted for a 
+        provider.
+     */
+    Boolean _subscriptionInitComplete;
 };
 
 PEGASUS_NAMESPACE_END

@@ -62,6 +62,7 @@ CMPIProvider::CMPIProvider(const String & name,
      _no_unload(0), _rm(0)
 {
    _current_operations = 1;
+   _currentSubscriptions = 0;
    if (mv) miVector=*mv;
    noUnload=false;
 }
@@ -71,6 +72,7 @@ CMPIProvider::CMPIProvider(CMPIProvider *pr)
     _no_unload(0), _rm(0)
 {
    _current_operations = 1;
+   _currentSubscriptions = 0;
    miVector=pr->miVector;
    _cimom_handle=new CIMOMHandle();
    noUnload=pr->noUnload;
@@ -347,6 +349,48 @@ void CMPIProvider::protect(void)
 void CMPIProvider::unprotect(void)
 { 
    _no_unload--;
+}
+
+Boolean CMPIProvider::testIfZeroAndIncrementSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    Boolean isZero = (_currentSubscriptions == 0);
+    _currentSubscriptions++;
+
+    return isZero;
+}
+
+Boolean CMPIProvider::decrementSubscriptionsAndTestIfZero ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    _currentSubscriptions--;
+    Boolean isZero = (_currentSubscriptions == 0);
+
+    return isZero;
+}
+
+Boolean CMPIProvider::testSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    Boolean currentSubscriptions = (_currentSubscriptions > 0);
+
+    return currentSubscriptions;
+}
+
+void CMPIProvider::resetSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    _currentSubscriptions = 0;
+}
+
+void CMPIProvider::setProviderInstance (const CIMInstance & instance)
+{
+    _providerInstance = instance;
+}
+
+CIMInstance CMPIProvider::getProviderInstance ()
+{
+    return _providerInstance;
 }
 
 PEGASUS_NAMESPACE_END

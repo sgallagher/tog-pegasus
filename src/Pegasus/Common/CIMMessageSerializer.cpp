@@ -33,6 +33,8 @@
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -205,14 +207,6 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
 
         switch (cimMessage->getType())
         {
-        case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-            _serializeCIMEnableIndicationsRequestMessage(
-                out, (CIMEnableIndicationsRequestMessage*)cimMessage);
-            break;
-        case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-            _serializeCIMDisableIndicationsRequestMessage(
-                out, (CIMDisableIndicationsRequestMessage*)cimMessage);
-            break;
         case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
             _serializeCIMCreateSubscriptionRequestMessage(
                 out, (CIMCreateSubscriptionRequestMessage*)cimMessage);
@@ -293,6 +287,13 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
         case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
             _serializeCIMNotifyConfigChangeRequestMessage(
                 out, (CIMNotifyConfigChangeRequestMessage*)cimMessage);
+            break;
+
+        case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
+            _serializeCIMSubscriptionInitCompleteRequestMessage(
+                out, 
+                (CIMSubscriptionInitCompleteRequestMessage *)
+                cimMessage);
             break;
 
         default:
@@ -407,14 +408,6 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
         // CIM Indication Response Messages
         //
 
-        case CIM_ENABLE_INDICATIONS_RESPONSE_MESSAGE:
-            _serializeCIMEnableIndicationsResponseMessage(
-                out, (CIMEnableIndicationsResponseMessage*)cimMessage);
-            break;
-        case CIM_DISABLE_INDICATIONS_RESPONSE_MESSAGE:
-            _serializeCIMDisableIndicationsResponseMessage(
-                out, (CIMDisableIndicationsResponseMessage*)cimMessage);
-            break;
         case CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE:
             _serializeCIMCreateSubscriptionResponseMessage(
                 out, (CIMCreateSubscriptionResponseMessage*)cimMessage);
@@ -487,6 +480,12 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
         case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
             _serializeCIMNotifyConfigChangeResponseMessage(
                 out, (CIMNotifyConfigChangeResponseMessage*)cimMessage);
+            break;
+        case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
+            _serializeCIMSubscriptionInitCompleteResponseMessage(
+                out, 
+                (CIMSubscriptionInitCompleteResponseMessage *)
+                cimMessage);
             break;
 
         default:
@@ -1098,26 +1097,6 @@ void CIMMessageSerializer::_serializeCIMInvokeMethodRequestMessage(
 //
 
 //
-// _serializeCIMEnableIndicationsRequestMessage
-//
-void CIMMessageSerializer::_serializeCIMEnableIndicationsRequestMessage(
-    Array<char>& out,
-    CIMEnableIndicationsRequestMessage* message)
-{
-    // No additional attributes to serialize!
-}
-
-//
-// _serializeCIMDisableIndicationsRequestMessage
-//
-void CIMMessageSerializer::_serializeCIMDisableIndicationsRequestMessage(
-    Array<char>& out,
-    CIMDisableIndicationsRequestMessage* message)
-{
-    // No additional attributes to serialize!
-}
-
-//
 // _serializeCIMCreateSubscriptionRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMCreateSubscriptionRequestMessage(
@@ -1320,6 +1299,8 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderAgentRequestMessage(
     XmlWriter::append(out, "</PGCONFARRAY>\n");
 
     XmlWriter::appendValueElement(out, message->bindVerbose);
+
+    XmlWriter::appendValueElement(out, message->subscriptionInitComplete);
 }
 
 //
@@ -1332,6 +1313,17 @@ void CIMMessageSerializer::_serializeCIMNotifyConfigChangeRequestMessage(
     XmlWriter::appendValueElement(out, message->propertyName);
     XmlWriter::appendValueElement(out, message->newPropertyValue);
     XmlWriter::appendValueElement(out, message->currentValueModified);
+}
+
+//
+// _serializeCIMSubscriptionInitCompleteRequestMessage
+//
+void 
+CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteRequestMessage(
+    Array<char>& out,
+    CIMSubscriptionInitCompleteRequestMessage* message)
+{
+    // No additional attributes to serialize!
 }
 
 //
@@ -1552,26 +1544,6 @@ void CIMMessageSerializer::_serializeCIMInvokeMethodResponseMessage(
 //
 
 //
-// _serializeCIMEnableIndicationsResponseMessage
-//
-void CIMMessageSerializer::_serializeCIMEnableIndicationsResponseMessage(
-    Array<char>& out,
-    CIMEnableIndicationsResponseMessage* message)
-{
-    // No additional attributes to serialize!
-}
-
-//
-// _serializeCIMDisableIndicationsResponseMessage
-//
-void CIMMessageSerializer::_serializeCIMDisableIndicationsResponseMessage(
-    Array<char>& out,
-    CIMDisableIndicationsResponseMessage* message)
-{
-    // No additional attributes to serialize!
-}
-
-//
 // _serializeCIMCreateSubscriptionResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMCreateSubscriptionResponseMessage(
@@ -1696,6 +1668,17 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderAgentResponseMessage(
 void CIMMessageSerializer::_serializeCIMNotifyConfigChangeResponseMessage(
     Array<char>& out,
     CIMNotifyConfigChangeResponseMessage* message)
+{
+    // No additional attributes to serialize!
+}
+
+//
+// _serializeCIMSubscriptionInitCompleteResponseMessage
+//
+void 
+CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteResponseMessage
+   (Array<char>& out,
+    CIMSubscriptionInitCompleteResponseMessage* message)
 {
     // No additional attributes to serialize!
 }

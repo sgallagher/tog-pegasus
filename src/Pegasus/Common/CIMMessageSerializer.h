@@ -31,6 +31,8 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -201,14 +203,6 @@ private:
     // CIMIndicationRequestMessages
     //
 
-    static void _serializeCIMEnableIndicationsRequestMessage(
-        Array<char>& out,
-        CIMEnableIndicationsRequestMessage* message);
-
-    static void _serializeCIMDisableIndicationsRequestMessage(
-        Array<char>& out,
-        CIMDisableIndicationsRequestMessage* message);
-
     static void _serializeCIMCreateSubscriptionRequestMessage(
         Array<char>& out,
         CIMCreateSubscriptionRequestMessage* message);
@@ -256,6 +250,10 @@ private:
     static void _serializeCIMNotifyConfigChangeRequestMessage(
         Array<char>& out,
         CIMNotifyConfigChangeRequestMessage* message);
+
+    static void _serializeCIMSubscriptionInitCompleteRequestMessage(
+        Array<char>& out,
+        CIMSubscriptionInitCompleteRequestMessage* message);
 
 
     //
@@ -328,14 +326,6 @@ private:
     // CIMIndicationResponseMessages
     //
 
-    static void _serializeCIMEnableIndicationsResponseMessage(
-        Array<char>& out,
-        CIMEnableIndicationsResponseMessage* message);
-
-    static void _serializeCIMDisableIndicationsResponseMessage(
-        Array<char>& out,
-        CIMDisableIndicationsResponseMessage* message);
-
     static void _serializeCIMCreateSubscriptionResponseMessage(
         Array<char>& out,
         CIMCreateSubscriptionResponseMessage* message);
@@ -383,6 +373,10 @@ private:
     static void _serializeCIMNotifyConfigChangeResponseMessage(
         Array<char>& out,
         CIMNotifyConfigChangeResponseMessage* message);
+
+    static void _serializeCIMSubscriptionInitCompleteResponseMessage(
+        Array<char>& out,
+        CIMSubscriptionInitCompleteResponseMessage* message);
 };
 
 PEGASUS_NAMESPACE_END

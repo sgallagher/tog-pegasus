@@ -549,7 +549,7 @@ void SubscriptionTable::_lockedRemoveSubscriptionClassesEntry (
     PEG_METHOD_EXIT ();
 }
 
-Array <ProviderClassList> SubscriptionTable::insertSubscription (
+void SubscriptionTable::insertSubscription (
     const CIMInstance & subscription,
     const Array <ProviderClassList> & providers,
     const Array <CIMName> & indicationSubclassNames,
@@ -558,25 +558,12 @@ Array <ProviderClassList> SubscriptionTable::insertSubscription (
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::insertSubscription");
 
-    Array <ProviderClassList> enableProviders;
-
     //
     //  Insert entry into active subscriptions table 
     //
     {
         WriteLock lock(_activeSubscriptionsTableLock);
 
-        //
-        //  If provider is not yet in the table, add to list of 
-        //  providers to enable
-        //
-        for (Uint32 i = 0; i < providers.size (); i++)
-        {
-            if (!_providerInUse (providers [i].provider))
-            {
-                enableProviders.append (providers [i]);
-            }
-        }
         _insertActiveSubscriptionsEntry (subscription, providers);
     }
 
@@ -615,18 +602,15 @@ Array <ProviderClassList> SubscriptionTable::insertSubscription (
     }
 
     PEG_METHOD_EXIT ();
-    return enableProviders;
 }
 
-Array <ProviderClassList> SubscriptionTable::updateProviders (
+void SubscriptionTable::updateProviders (
     const CIMObjectPath & subscriptionPath,
     const ProviderClassList & provider,
     Boolean addProvider)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::updateProviders");
-
-    Array <ProviderClassList> providers;
 
     String activeSubscriptionsKey = _generateActiveSubscriptionsKey
         (subscriptionPath);
@@ -672,10 +656,6 @@ Array <ProviderClassList> SubscriptionTable::updateProviders (
         {
             WriteLock lock (_activeSubscriptionsTableLock);
             _removeActiveSubscriptionsEntry (activeSubscriptionsKey);
-            if (!_providerInUse (provider.provider))
-            {
-                providers.append (provider);
-            }
             _insertActiveSubscriptionsEntry (tableValue.subscription, 
                 tableValue.providers);
         }
@@ -693,7 +673,6 @@ Array <ProviderClassList> SubscriptionTable::updateProviders (
     }
 
     PEG_METHOD_EXIT ();
-    return providers;
 }
 
 void SubscriptionTable::updateClasses (
@@ -752,7 +731,7 @@ void SubscriptionTable::updateClasses (
     PEG_METHOD_EXIT ();
 }
 
-Array <ProviderClassList> SubscriptionTable::removeSubscription (
+void SubscriptionTable::removeSubscription (
     const CIMInstance & subscription,
     const Array <CIMName> & indicationSubclassNames,
     const CIMNamespaceName & sourceNamespaceName,
@@ -760,8 +739,6 @@ Array <ProviderClassList> SubscriptionTable::removeSubscription (
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::removeSubscription");
-
-    Array <ProviderClassList> disableProviders;
 
     //
     //  Remove entry from active subscriptions table 
@@ -771,14 +748,6 @@ Array <ProviderClassList> SubscriptionTable::removeSubscription (
 
         _removeActiveSubscriptionsEntry (
             _generateActiveSubscriptionsKey (subscription.getPath ()));
-
-        for (Uint32 i = 0; i < providers.size (); i++)
-        {
-            if (!_providerInUse (providers [i].provider))
-            {
-                disableProviders.append (providers [i]);
-            }
-        }
     }
 
     //
@@ -834,7 +803,6 @@ Array <ProviderClassList> SubscriptionTable::removeSubscription (
     }
 
     PEG_METHOD_EXIT ();
-    return disableProviders;
 }
 
 Uint32 SubscriptionTable::providerInList 

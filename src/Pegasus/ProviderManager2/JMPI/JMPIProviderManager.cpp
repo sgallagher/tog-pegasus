@@ -71,6 +71,7 @@ JMPIProviderManager::JMPIProviderManager(Mode m)
    mode=m;
    if (getenv("JMPI_TRACE")) _jmpi_trace=1;
    else _jmpi_trace=0;
+   _subscriptionInitComplete = false;
 }
 
 JMPIProviderManager::~JMPIProviderManager(void)
@@ -155,14 +156,6 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleDeleteSubscriptionRequest(request);
 
         break;
-    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleEnableIndicationsRequest(request);
-
-        break;
-    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-        response = handleDisableIndicationsRequest(request);
-
-        break;
 /*    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         response = handleExportIndicationRequest(request);
         break;
@@ -183,6 +176,10 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
 	response = handleInitializeProviderRequest(request);
 
 	break;
+    case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
+        response = handleSubscriptionInitCompleteRequest (request);
+
+        break;
     default:
 	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
         	"*** Unsupported Request "+request->getType());
@@ -1683,6 +1680,11 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
            provTab.insert(providerName,prec);
         }
 
+        //
+        //  Save the provider instance from the request
+        //
+        ph.GetProvider ().setProviderInstance (req_provider);
+
         indSelectRecord *srec=new indSelectRecord();
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
         selxTab.insert(sPath.toString(),srec);
@@ -1765,6 +1767,26 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         env->CallVoidMethod((jobject)pr.jProvider,id,jSel,jType,
 	   jRef,(jboolean)0);
         JMPIjvm::checkException(env);
+
+        //
+        //  Increment count of current subscriptions for this provider
+        //
+        if (ph.GetProvider ().testIfZeroAndIncrementSubscriptions ())
+        {
+            //
+            //  If there were no current subscriptions before the increment,
+            //  the first subscription has been created
+            //  Call the provider's enableIndications method
+            //
+            if (_subscriptionInitComplete)
+            {
+                prec->enabled = true;
+                CIMRequestMessage * request = 0;
+                CIMResponseMessage * response = 0;
+                prec->handler = new EnableIndicationsResponseHandler
+                    (request, response, req_provider, _indicationCallback);
+            }
+        }
 
        STAT_PMS_PROVIDEREND;
 
@@ -1866,84 +1888,28 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 	   jRef,(jboolean)(prec==NULL));
         JMPIjvm::checkException(env);
 
+        //
+        //  Decrement count of current subscriptions for this provider
+        //
+        if (ph.GetProvider ().decrementSubscriptionsAndTestIfZero ())
+        {
+            //
+            //  If there are no current subscriptions after the decrement,
+            //  the last subscription has been deleted
+            //  Call the provider's disableIndications method
+            //
+            if (_subscriptionInitComplete)
+            {
+                prec->enabled = false;
+                if (prec->handler) delete prec->handler;
+                prec->handler = NULL;
+            }
+        }
+
        STAT_PMS_PROVIDEREND;
 
        delete eSelx;
 
-    }
-    HandlerCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * JMPIProviderManager::handleEnableIndicationsRequest(const Message * message) throw()
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager:: handleEnableIndicationsRequest");
-
-    HandlerIntroInd(EnableIndications,message,request,response,
-                 handler);
-    try {
-        String providerName,providerLocation;
-		CIMInstance req_provider, req_providerModule;
-		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-		req_provider = pidc.getProvider();
-		req_providerModule = pidc.getModule();
-
-	LocateIndicationProviderNames(req_provider, req_providerModule,
-	   providerName,providerLocation);
-
-        indProvRecord *provRec;
-        if (provTab.lookup(providerName,provRec)) {
-           provRec->enabled=true;
-           provRec->handler=new EnableIndicationsResponseHandler(
-               request, response, req_provider, _indicationCallback);
-        }
-
-        String fileName = resolveFileName(providerLocation);
-
-        // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
-
-    }
-    HandlerCatch(handler);
-
-    PEG_METHOD_EXIT();
-
-    return(response);
-}
-
-Message * JMPIProviderManager::handleDisableIndicationsRequest(const Message * message) throw()
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager:: handleDisableIndicationsRequest");
-
-    HandlerIntroInd(DisableIndications,message,request,response,
-                 handler);
-    try {
-        String providerName,providerLocation;
-		CIMInstance req_provider, req_providerModule;
-		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
-
-		req_provider = pidc.getProvider();
-		req_providerModule = pidc.getModule();
-
-	LocateIndicationProviderNames(req_provider, req_providerModule,
-	   providerName,providerLocation);
-
-        indProvRecord *provRec;
-        if (provTab.lookup(providerName,provRec)) {
-           provRec->enabled=false;
-           if (provRec->handler) delete provRec->handler;
-	   provRec->handler=NULL;
-        }
-
-        String fileName = resolveFileName(providerLocation);
-
-        // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
-            providerManager.getProvider(fileName, providerName, String::EMPTY);
     }
     HandlerCatch(handler);
 
@@ -2090,6 +2056,83 @@ Message * JMPIProviderManager::handleInitializeProviderRequest(const Message * m
     PEG_METHOD_EXIT();
 
     return(response);
+}
+
+Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest
+    (const Message * message)
+{
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
+     "JMPIProviderManager::handleSubscriptionInitCompleteRequest");
+
+    CIMSubscriptionInitCompleteRequestMessage * request =
+        dynamic_cast <CIMSubscriptionInitCompleteRequestMessage *>
+            (const_cast <Message *> (message));
+
+    PEGASUS_ASSERT (request != 0);
+
+    CIMSubscriptionInitCompleteResponseMessage * response =
+        dynamic_cast <CIMSubscriptionInitCompleteResponseMessage *>
+            (request->buildResponse ());
+
+    PEGASUS_ASSERT (response != 0);
+
+    //
+    //  Set indicator
+    //
+    _subscriptionInitComplete = true;
+
+    //
+    //  For each provider that has at least one subscription, call
+    //  provider's enableIndications method
+    //
+    Array <JMPIProvider *> enableProviders;
+    enableProviders = providerManager.getIndicationProvidersToEnable ();
+
+    Uint32 numProviders = enableProviders.size ();
+    for (Uint32 i = 0; i < numProviders; i++)
+    {
+        try
+        {
+            CIMInstance provider;
+            provider = enableProviders [i]->getProviderInstance ();
+
+            //
+            //  Get cached or load new provider module
+            //
+            JMPIProvider::OpProviderHolder ph = providerManager.getProvider
+                (enableProviders [i]->getModule ()->getFileName (),
+                 enableProviders [i]->getName ());
+
+            indProvRecord * prec = NULL;
+            provTab.lookup (enableProviders [i]->getName (), prec);
+            if (prec)
+            {
+                prec->enabled = true;
+                CIMRequestMessage * request = 0;
+                CIMResponseMessage * response = 0;
+                prec->handler = new EnableIndicationsResponseHandler
+                    (request, response, provider, _indicationCallback);
+            }
+        }
+        catch (CIMException & e)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "CIMException: " + e.getMessage ());
+        }
+        catch (Exception & e)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Exception: " + e.getMessage ());
+        }
+        catch(...)
+        {
+            PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Unknown error in handleSubscriptionInitCompleteRequest");
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+    return (response);
 }
 
 Message * JMPIProviderManager::handleUnsupportedRequest(const Message * message) throw()

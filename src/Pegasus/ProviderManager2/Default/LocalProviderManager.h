@@ -34,6 +34,8 @@
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Dan Gorey, IBM djgorey@us.ibm.com
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +74,16 @@ public:
     void unloadIdleProviders();
 
     Sint16 disableProvider(const String & fileName, const String & providerName);
+    /**
+         Gets list of indication providers to be enabled.  
+         Once IndicationService initialization has been completed, the 
+         enableIndications() method must be called on each indication provider 
+         that has current subscriptions.
+
+         @return list of providers whose enableIndications() method must be 
+                 called
+     */
+    Array <Provider *> getIndicationProvidersToEnable ();
 
 private:
     enum CTRL

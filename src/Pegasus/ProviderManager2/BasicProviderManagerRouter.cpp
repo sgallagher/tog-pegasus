@@ -32,6 +32,8 @@
 //
 // Modified By: Seema Gupta(gseema@in.ibm.com) for PEP135
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +81,8 @@ public:
         const String& physicalName,
         const String& logicalName,
         const String& interfaceName,
-        PEGASUS_INDICATION_CALLBACK indicationCallback)
+        PEGASUS_INDICATION_CALLBACK indicationCallback,
+        Boolean subscriptionInitComplete)
     : _manager(0)
     {
 #if defined (PEGASUS_OS_VMS)
@@ -99,6 +102,8 @@ public:
         PEGASUS_ASSERT(_manager != 0);
 
         _manager->setIndicationCallback(indicationCallback);
+
+        _manager->setSubscriptionInitComplete (subscriptionInitComplete);
     }
 
     ~ProviderManagerContainer()
@@ -169,6 +174,7 @@ BasicProviderManagerRouter::BasicProviderManagerRouter(
         "BasicProviderManagerRouter::BasicProviderManagerRouter");
 
     _indicationCallback = indicationCallback;
+    _subscriptionInitComplete = false;
 
     PEG_METHOD_EXIT();
 }
@@ -230,6 +236,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         providerModule = dmReq->providerModule;
     }
     else if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+             (request->getType() == 
+              CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
 	     (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
     {
         // This operation is not provider-specific
@@ -248,9 +256,14 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     // Forward the request to the appropriate ProviderManager(s)
     //
 
-    if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
+    if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
+        (request->getType() == 
+         CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE))
     {
-        // Send CIMStopAllProvidersRequestMessage to all ProviderManagers
+        _subscriptionInitComplete = true;
+
+        // Send CIMStopAllProvidersRequestMessage or 
+        // CIMSubscriptionInitCompleteRequestMessage to all ProviderManagers
         ReadLock tableLock(_providerManagerTableLock);
         for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
         {
@@ -340,7 +353,7 @@ ProviderManager* BasicProviderManagerRouter::_lookupProviderManager(
         {
             ProviderManagerContainer* pmc = new ProviderManagerContainer(
                 LIBRARY_NAME_DEFAULTPM, "DEFAULT", "C++Default",
-                _indicationCallback);
+                _indicationCallback, _subscriptionInitComplete);
             _providerManagerTable.append(pmc);
             return pmc->getProviderManager();
         }

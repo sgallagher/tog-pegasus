@@ -31,6 +31,8 @@
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Jenny Yu, Hewlett-Packard company (jenny.yu@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -207,12 +209,6 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
         CIMIndicationRequestMessage* cimIndReqMessage;
         switch (type)
         {
-        case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-            cimIndReqMessage = _deserializeCIMEnableIndicationsRequestMessage(parser);
-            break;
-        case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-            cimIndReqMessage = _deserializeCIMDisableIndicationsRequestMessage(parser);
-            break;
         case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
             cimIndReqMessage = _deserializeCIMCreateSubscriptionRequestMessage(parser);
             break;
@@ -280,6 +276,11 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
             break;
         case CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE:
             message = _deserializeCIMNotifyConfigChangeRequestMessage(parser);
+            break;
+        case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
+            message = 
+                _deserializeCIMSubscriptionInitCompleteRequestMessage
+                    (parser);
             break;
 
         default:
@@ -382,12 +383,6 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
         // CIM Indication Response Messages
         //
 
-        case CIM_ENABLE_INDICATIONS_RESPONSE_MESSAGE:
-            message = _deserializeCIMEnableIndicationsResponseMessage(parser);
-            break;
-        case CIM_DISABLE_INDICATIONS_RESPONSE_MESSAGE:
-            message = _deserializeCIMDisableIndicationsResponseMessage(parser);
-            break;
         case CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE:
             message = _deserializeCIMCreateSubscriptionResponseMessage(parser);
             break;
@@ -446,6 +441,11 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             break;
         case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
             message = _deserializeCIMNotifyConfigChangeResponseMessage(parser);
+            break;
+        case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
+            message = 
+                _deserializeCIMSubscriptionInitCompleteResponseMessage
+                    (parser);
             break;
 
         default:
@@ -1497,36 +1497,6 @@ CIMMessageDeserializer::_deserializeCIMInvokeMethodRequestMessage(
 //
 
 //
-// _deserializeCIMEnableIndicationsRequestMessage
-//
-CIMEnableIndicationsRequestMessage*
-CIMMessageDeserializer::_deserializeCIMEnableIndicationsRequestMessage(
-    XmlParser& parser)
-{
-    CIMEnableIndicationsRequestMessage* message =
-        new CIMEnableIndicationsRequestMessage(
-            String::EMPTY,         // messageId
-            QueueIdStack());       // queueIds
-
-    return(message);
-}
-
-//
-// _deserializeCIMDisableIndicationsRequestMessage
-//
-CIMDisableIndicationsRequestMessage*
-CIMMessageDeserializer::_deserializeCIMDisableIndicationsRequestMessage(
-    XmlParser& parser)
-{
-    CIMDisableIndicationsRequestMessage* message =
-        new CIMDisableIndicationsRequestMessage(
-            String::EMPTY,         // messageId
-            QueueIdStack());       // queueIds
-
-    return(message);
-}
-
-//
 // _deserializeCIMCreateSubscriptionRequestMessage
 //
 CIMCreateSubscriptionRequestMessage*
@@ -1883,6 +1853,7 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderAgentRequestMessage(
     String pegasusHome;
     Array<Pair<String, String> > configProperties;
     Boolean bindVerbose;
+    Boolean subscriptionInitComplete;
 
     XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
     genericValue.get(pegasusHome);
@@ -1907,12 +1878,16 @@ CIMMessageDeserializer::_deserializeCIMInitializeProviderAgentRequestMessage(
     XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
     genericValue.get(bindVerbose);
 
+    XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
+    genericValue.get(subscriptionInitComplete);
+
     CIMInitializeProviderAgentRequestMessage* message =
         new CIMInitializeProviderAgentRequestMessage(
             String::EMPTY,         // messageId
             pegasusHome,
             configProperties,
             bindVerbose,
+            subscriptionInitComplete,
             QueueIdStack());       // queueIds
 
     return(message);
@@ -1946,6 +1921,21 @@ CIMMessageDeserializer::_deserializeCIMNotifyConfigChangeRequestMessage(
             newPropertyValue,
             currentValueModified,
             QueueIdStack());        // queueIds
+
+    return(message);
+}
+
+//
+// _deserializeCIMSubscriptionInitCompleteRequestMessage
+//
+CIMSubscriptionInitCompleteRequestMessage*
+CIMMessageDeserializer::_deserializeCIMSubscriptionInitCompleteRequestMessage(
+    XmlParser& parser)
+{
+    CIMSubscriptionInitCompleteRequestMessage* message =
+        new CIMSubscriptionInitCompleteRequestMessage(
+            String::EMPTY,         // messageId
+            QueueIdStack());       // queueIds
 
     return(message);
 }
@@ -2321,38 +2311,6 @@ CIMMessageDeserializer::_deserializeCIMInvokeMethodResponseMessage(
 //
 
 //
-// _deserializeCIMEnableIndicationsResponseMessage
-//
-CIMEnableIndicationsResponseMessage*
-CIMMessageDeserializer::_deserializeCIMEnableIndicationsResponseMessage(
-    XmlParser& parser)
-{
-    CIMEnableIndicationsResponseMessage* message =
-        new CIMEnableIndicationsResponseMessage(
-            String::EMPTY,         // messageId
-            CIMException(),        // cimException
-            QueueIdStack());       // queueIds
-
-    return(message);
-}
-
-//
-// _deserializeCIMDisableIndicationsResponseMessage
-//
-CIMDisableIndicationsResponseMessage*
-CIMMessageDeserializer::_deserializeCIMDisableIndicationsResponseMessage(
-    XmlParser& parser)
-{
-    CIMDisableIndicationsResponseMessage* message =
-        new CIMDisableIndicationsResponseMessage(
-            String::EMPTY,         // messageId
-            CIMException(),        // cimException
-            QueueIdStack());       // queueIds
-
-    return(message);
-}
-
-//
 // _deserializeCIMCreateSubscriptionResponseMessage
 //
 CIMCreateSubscriptionResponseMessage*
@@ -2565,5 +2523,20 @@ CIMMessageDeserializer::_deserializeCIMNotifyConfigChangeResponseMessage(
     return(message);
 }
 
+//
+// _deserializeCIMSubscriptionInitCompleteResponseMessage
+//
+CIMSubscriptionInitCompleteResponseMessage*
+CIMMessageDeserializer::_deserializeCIMSubscriptionInitCompleteResponseMessage(
+    XmlParser& parser)
+{
+    CIMSubscriptionInitCompleteResponseMessage* message =
+        new CIMSubscriptionInitCompleteResponseMessage(
+            String::EMPTY,         // messageId
+            CIMException(),        // cimException
+            QueueIdStack());       // queueIds
+
+    return(message);
+}
 
 PEGASUS_NAMESPACE_END

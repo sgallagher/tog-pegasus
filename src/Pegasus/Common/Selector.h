@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Selector.h,v $
+// Revision 1.4  2001/04/11 04:20:39  mike
+// new
+//
 // Revision 1.3  2001/04/08 08:28:20  mike
 // Added more windows channel implementation code.
 //
@@ -39,10 +42,12 @@
 #define Pegasus_Selector_h 
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 class SelectorHandler;
+struct SelectorRep;
 
 class PEGASUS_COMMON_LINKAGE Selector
 {
@@ -50,20 +55,35 @@ public:
 
     enum Reason { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
-    virtual ~Selector();
+    Selector();
 
-    virtual Boolean select(Uint32 milliseconds) = 0;
+    ~Selector();
 
-    virtual Boolean addHandler(
+    Boolean select(Uint32 milliseconds);
+
+    Boolean addHandler(
 	Sint32 desc, 
 	Uint32 reasons,
-	SelectorHandler* handler) = 0;
+	SelectorHandler* handler);
 
-    virtual Boolean removeHandler(SelectorHandler* handler) = 0;
+    Boolean removeHandler(SelectorHandler* handler);
 
     /** Creates a selector for this platform.
     */
     static Selector* create();
+
+private:
+
+    Uint32 _findEntry(Sint32 desc) const;
+
+    struct Entry
+    {
+	Sint32 desc;
+	SelectorHandler* handler;
+    };
+
+    Array<Entry> _entries;
+    SelectorRep* _rep;
 };
 
 class PEGASUS_COMMON_LINKAGE SelectorHandler

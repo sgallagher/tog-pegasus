@@ -12,7 +12,6 @@ ifeq ($(OS_TYPE),windows)
 OS_SPECIFIC_SOURCES = \
     Channel.cpp \
     Selector.cpp \
-    WindowsSelector.cpp \
     WindowsChannel.cpp \
     SystemWindows.cpp \
     DirWindows.cpp

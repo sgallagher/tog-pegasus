@@ -34,9 +34,10 @@
 
 
 // Using the general CIMOM TestClient as an example, developed an
-// Operating System t EnumerateInstanceNames, EnumerateInstances
+// OperatingSystem test client to exercise the intrinsic methods of
+// the CIM_OperatingSystem class and PG_OperatingSystem subclass: 
+// testing EnumerateInstanceNames, EnumerateInstances
 // and GetInstance.  InvokeMethod is not currently tested.
-// one instance (the running OS).
 
 #include "OSTestClient.h"
 

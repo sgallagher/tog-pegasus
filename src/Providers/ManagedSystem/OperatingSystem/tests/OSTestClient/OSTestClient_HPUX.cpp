@@ -321,34 +321,17 @@ Boolean OSTestClient::goodLocalDateTime(const CIMDateTime &ltime,
       cout<<"Checking LocalDateTime " << ltime.getString() << endl;
 
    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
-   Real64 delta = CIMDateTime::getDifference(ltime, currentDT);
-
-   // now adjust the delta for the timezone effect local vs. UTC/GMT
-   // remove this if CIMOM changes to return local time
-   String ds = currentDT.getString();  // want timezone
-   const Char16 *dateString = ds.getData();
-
-   // cheat here since we know the position of the timezone info
-   // subtracting '0' gets us the number from the ASCII, while 
-   // the multiplies do our shifts and we use the sign appropriately
-   Sint32 tz = ((dateString[22]-'0') * 100 +
-               (dateString[23]-'0') * 10 +
-               (dateString[24]-'0')) *
-               (dateString[21]=='-'?-1:1);
-
-   tz = tz * 60;  // convert to seconds
-   // intentionally always print the following adjustment for visibility
-   cout <<" Adjusting for timezone since CIMOM time in UTC"<<endl;
-   delta = delta + tz; // timezone has sign 
+   Sint64 raw_delta = CIMDateTime::getDifference(ltime, currentDT);
+printf("raw delta = %lld\n",raw_delta);
+   Uint64 delta = labs(raw_delta);
    
    if (verbose) {
       cout<<" Should be close to " << currentDT.getString() << endl;
-      cout<<" Actual delta (seconds) = "<<  delta << endl;
+      printf(" Actual delta (want < 360 seconds) = %lld\n",delta);
+      fflush(stdout);
    }
-   // getCurrentDateTime is returning UTC, BZ#73 - always pass for now
-   return true;
    // arbitrary choice of expecting them to be within 360 seconds
-//   return (delta < 360);   
+   return (delta < 360);   
 }
 
 /**
@@ -488,7 +471,10 @@ Boolean OSTestClient::goodNumberOfProcesses(const Uint32 &nprocs,
    Uint32 delta = abs(raw_delta);
 
    if (verbose)
+   {
       printf (" Delta should be within 10, is %d\n", delta); 
+      fflush(stdout);
+   }
 
    return (delta <= 10);
 }
@@ -506,8 +492,6 @@ Boolean OSTestClient::goodMaxNumberOfProcesses(const Uint32 &maxprocs,
 
    if (verbose)
       cout<<"Checking MaxNumberOfProcs " << maxprocs << endl;
-
-// ATTN-SLC-P2-17-Apr-02: getting value of 820? correct?
 
    if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
    {
@@ -636,7 +620,10 @@ Boolean OSTestClient::goodFreeVirtualMemory(const Uint64 &freevmem,
    Uint64 delta = labs(raw_delta);
 
    if (verbose)
+   {
       printf (" Delta should be within 2048, is %lld\n", delta); 
+      fflush(stdout);
+   }
 
    // arbitrary choice of valid delta
    return (delta < 2048 );   
@@ -752,9 +739,12 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
    Uint64             maxtsiz_64bit;
    long               ret;    
 
-   if (verbose)
+   if (verbose) 
+   {
       printf("Checking maxProcessMemorySize = 0x%llx = %lld\n",
              maxpmem, maxpmem);
+      fflush(stdout);   // flush, especially since mix of cout and printf
+   }
    
    Uint64 maxProcessMemorySize = 0;
 
@@ -781,9 +771,12 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
 
            (void)pclose (mtuneInfo);
            maxProcessMemorySize = (maxdsiz + maxssiz + maxtsiz);
-           if (verbose)
+           if (verbose) 
+           {
               printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
                      maxProcessMemorySize);
+              fflush(stdout);
+           }
        } // end if popen worked
        else 
        {
@@ -809,8 +802,11 @@ Boolean OSTestClient::goodMaxProcessMemorySize(const Uint64 &maxpmem,
            maxProcessMemorySize = (maxdsiz_64bit + maxssiz_64bit
                                   + maxtsiz_64bit);
            if (verbose)
+           {
               printf(" Should be 0x%llx = %lld\n", maxProcessMemorySize,
                      maxProcessMemorySize);
+              fflush(stdout);
+           }
        } // end if popen worked
        else 
        {

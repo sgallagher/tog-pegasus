@@ -198,6 +198,10 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       static const Uint32 CLIENT_SEND_ASYNC_MODULE;
       static const Uint32 CLIENT_BLOCKING_THREAD_EXEC;
       static const Uint32 CLIENT_ASYNC_THREAD_EXEC;
+      static const Uint32 CLIENT_SEND_FORGET;
+      static const Uint32 CLIENT_SEND_FORGET_MODULE;
+      static const Uint32 MODULE_SEND_FORGET;
+      static const Uint32 MODULE_SEND_FORGET_MODULE;
       
 // ATTN-DME-P2-20020406 Removed private declaration.  client_handle is
 //          currently used in Pegasus/Provider/CIMOMHandle.cpp
@@ -285,47 +289,58 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       Boolean deregister_module(const String & module_name)
 	 throw(Permission);
       
-      Uint32 find_service(pegasus_module & handle, const String & name) throw(Permission);
+      Uint32 find_service(const pegasus_module & handle, const String & name) throw(Permission);
 
-      Uint32 find_module_in_service(pegasus_module & handle, 
+      Uint32 find_module_in_service(const pegasus_module & handle, 
 				    const String & module_name) 
 	 throw(Permission, IPCException);
 				    
 
-      pegasus_module * get_module_reference(pegasus_module & my_handle, 
+      pegasus_module * get_module_reference(const pegasus_module & my_handle, 
 					    const String & module_name)
 	 throw(Permission);
       
       // send a message to another service
-      AsyncReply *ModuleSendWait(pegasus_module & handle,
-			      Uint32 destination_q, 
-			      AsyncRequest *request) throw(Permission, IPCException);
+      AsyncReply *ModuleSendWait(const pegasus_module & handle,
+				 Uint32 destination_q, 
+				 AsyncRequest *request) throw(Permission, IPCException);
 
       // send a message to another module via another service
-      AsyncReply *ModuleSendWait(pegasus_module & handle,
-			      Uint32 destination_q,
-			      String & destination_module,
-			      AsyncRequest *message) throw(Permission, Deadlock, IPCException);
+      AsyncReply *ModuleSendWait(const pegasus_module & handle,
+				 Uint32 destination_q,
+				 const String & destination_module,
+				 AsyncRequest *message) throw(Permission, Deadlock, IPCException);
 
       // send an async message to another service
-      Boolean ModuleSendAsync(pegasus_module & handle,
+      Boolean ModuleSendAsync(const pegasus_module & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 
 			      AsyncRequest *message, 
 			      void *callback_parm) throw(Permission, IPCException);
 
       // send an async message to another module via another service
-      Boolean ModuleSendAsync(pegasus_module & handle,
+      Boolean ModuleSendAsync(const pegasus_module & handle,
 			      Uint32 msg_handle, 
 			      Uint32 destination_q, 
-			      String & destination_module,
+			      const String & destination_module,
 			      AsyncRequest *message, 
 			      void *callback_parm) throw(Permission, IPCException);
 
-      void blocking_thread_exec(pegasus_module & handle,
+      Boolean ModuleSendForget(const pegasus_module & handle, 
+			       Uint32 destination_q, 
+			       AsyncRequest *message)
+	 throw(Permission, IPCException);
+      
+      Boolean ModuleSendForget(const pegasus_module & handle, 
+			       Uint32 destination_q, 
+			       const String & destination_module, 
+			       AsyncRequest *message)
+	 throw(Permission, IPCException);
+      
+      void blocking_thread_exec(const pegasus_module & handle,
 				PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
 				void *parm) throw(Permission, Deadlock, IPCException);
-      void async_thread_exec(pegasus_module & handle, 
+      void async_thread_exec(const pegasus_module & handle, 
 			     PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
 			     void *parm) throw(Permission, Deadlock, IPCException);
 
@@ -369,6 +384,17 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 			      void *callback_parm )
 	 throw(Permission, IPCException);
 
+      Boolean ClientSendForget(const client_handle & handle, 
+			       Uint32 destination_q, 
+			       AsyncRequest *message)
+	 throw(Permission, IPCException);
+
+      Boolean ClientSendForget(const client_handle & handle, 
+			       Uint32 destination_q, 
+			       String & destination_module, 
+			       AsyncRequest *message)
+	 throw(Permission, IPCException);
+
       void client_blocking_thread_exec(const client_handle & handle,
 				       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
 				       void *parm) 
@@ -394,14 +420,16 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
       ThreadPool _thread_pool;
       pegasus_module _internal_module;
       AsyncReply *_send_wait(Uint32, AsyncRequest *);
-      AsyncReply *_send_wait(Uint32, String &, AsyncRequest *);
+      AsyncReply *_send_wait(Uint32, const String &, AsyncRequest *);
+      Boolean _send_forget(Uint32, AsyncRequest *) throw(IPCException);
+      Boolean _send_forget(Uint32, const String &, AsyncRequest *) throw(IPCException);
+      
       void _blocking_thread_exec(
 	 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
 	 void *parm) ;
       void _async_thread_exec(
 	 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
 	 void *parm) ;
-      
 };
 
 

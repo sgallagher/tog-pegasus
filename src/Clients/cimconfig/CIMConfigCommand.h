@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,10 +35,10 @@
 #ifndef Pegasus_CIMConfigCommand_h
 #define Pegasus_CIMConfigCommand_h
 
-#include <iostream>
 #include <Pegasus/Common/String.h>
 #include <Clients/cliutils/Command.h>
 #include <Clients/cliutils/CommandException.h>
+#include <iostream>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -29,6 +29,7 @@
 //                (carolann_graves@hp.com)
 //              Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43 changes
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -49,9 +50,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Repository/RepositoryDeclContext.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Compiler/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -96,3 +97,4 @@ public RepositoryDeclContext {
 PEGASUS_NAMESPACE_END
 
 #endif // PegasusCompiler_Compiler_Decl_Context_h
+

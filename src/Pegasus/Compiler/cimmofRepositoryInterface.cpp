@@ -29,17 +29,19 @@
 //                (carolann_graves@hp.com)
 //              Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43 changes
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "cimmofRepositoryInterface.h"
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMInstance.h>
 #include "cimmofRepository.h"
 #include "cimmofClient.h"
 #include "cimmofParser.h"
 #include "cimmofMessages.h"
-#include <Pegasus/Common/CIMClass.h>
-#include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Common/CIMInstance.h>
+#include "cimmofRepositoryInterface.h"
 
 PEGASUS_USING_PEGASUS;
 

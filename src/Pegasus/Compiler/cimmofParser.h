@@ -29,6 +29,7 @@
 //                (carolann_graves@hp.com)
 //              Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43 changes
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,14 +56,14 @@
 #define _CIMMOFPARSER_H_
 
 
-#include "parser.h"
-#include "mofCompilerOptions.h"
-#include "cimmofRepositoryInterface.h"
-#include "cimmofMessages.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
 #include <Pegasus/Compiler/Linkage.h>
+#include "parser.h"
+#include "mofCompilerOptions.h"
+#include "cimmofRepositoryInterface.h"
+#include "cimmofMessages.h"
 #include "memobjs.h"
 #include "objname.h"
 

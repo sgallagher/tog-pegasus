@@ -32,6 +32,7 @@
 //              Gerarda Marquez (gmarquez@us.ibm.com)
 //              -- PEP 43 changes
 //				Seema gupta (gseema@in.ibm.com) Bug 281
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,18 +45,18 @@
 // Implementation of methods of cimmofParser class
 //
 //
-#include <cctype>
 #include <Pegasus/Common/Config.h>
-#include "cimmofParser.h"
-#include <cstring>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMScope.h>
-#include <Pegasus/Compiler/compilerCommonDefs.h>
-#include <iostream>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Compiler/compilerCommonDefs.h>
 #include "valueFactory.h"
 #include "cimmofMessages.h"
-#include <Pegasus/Common/XmlWriter.h>
+#include "cimmofParser.h"
+#include <cctype>
+#include <cstring>
+#include <iostream>
 
 #define CHAR_PERIOD '.'
 #define EXPERIMENTAL "Experimental"

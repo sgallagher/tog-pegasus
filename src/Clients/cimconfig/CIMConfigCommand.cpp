@@ -29,12 +29,12 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/getoopt/getoopt.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -44,7 +44,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/XmlWriter.h>
-
+#include <Pegasus/getoopt/getoopt.h>
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Config/ConfigFileHandler.h>

@@ -23,6 +23,9 @@
 // Author: Michael E. Brasher
 //
 // $Log: Selector.h,v $
+// Revision 1.6  2001/04/11 05:18:17  mike
+// Added documentation.
+//
 // Revision 1.5  2001/04/11 04:53:10  mike
 // Porting
 //
@@ -52,23 +55,68 @@ PEGASUS_NAMESPACE_BEGIN
 class SelectorHandler;
 struct SelectorRep;
 
+/** The Selector class is used to demultiplex socket descriptor events. 
+
+    The TCPChannel implementations use the Selector class to detect events 
+    on socket descriptors. To use the class, one derives from the 
+    SelectorHandler class and overrides the handle() method. Then the
+    handler is installed into the selector by calling the addHandler() method
+    of the Selector class. Here is an example:
+
+    <pre>
+	Uint32 sock;
+	...
+	Selector* selector = new Selector;
+	SelectorHandler* handler = new MySelectorHandler;
+	selector->addHandler(sock, Selector::READ | Selector::WRITE, handler);
+    </pre>
+
+    In this example, an instance of MySelectorHandler is installed to catch
+    read and write events on the given socket. The MySelectorHandler::handle()
+    method is called when such an event occurs.
+
+    The Selector::select() method must be called to check for events. This
+    method sleeps until there is activity on one of the registered descriptors
+    and then the associated handle method is called.
+*/
+
 class PEGASUS_COMMON_LINKAGE Selector
 {
 public:
 
+    /** Event types which handlers may be registered to catch.
+    */
     enum Reason { READ = 1, WRITE = 2, EXCEPTION = 4 };
 
+    /** Default constructor.
+    */
     Selector();
 
+    /** This destruct deletes all handlers which were installed.
+    */
     ~Selector();
 
+    /** This waits for the given amount of milliseconds for an event on one
+	of the descriptors for which handlers were added. If such an event
+	occurs, the correspondintg handle() method is called and the method
+	immediately returns (without waiting for the remaining duration
+	indicated by the milliseconds argument to elapse. If not such event
+	occurs, then the select call will returns after waiting for the
+	amount of time indicated by the argument.
+    */
     Boolean select(Uint32 milliseconds);
 
+    /** Adds a new handler for the given socket descriptor. The reasons
+	are defined by the Reason enumeration above. The handler becomes
+	the property of the Selector instance.
+    */
     Boolean addHandler(
 	Sint32 desc, 
 	Uint32 reasons,
 	SelectorHandler* handler);
 
+    /** Remove and delete the given handler. 
+    */
     Boolean removeHandler(SelectorHandler* handler);
 
 private:

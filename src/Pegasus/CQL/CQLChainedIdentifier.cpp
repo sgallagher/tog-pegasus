@@ -1,5 +1,5 @@
 #include "CQLChainedIdentifier.h"
-
+#include <Pegasus/CQL/CQLScope.h>
 PEGASUS_NAMESPACE_BEGIN
 
 CQLChainedIdentifier::CQLChainedIdentifier(String inString)
@@ -12,6 +12,9 @@ CQLChainedIdentifier::CQLChainedIdentifier(CQLIdentifier &id)
         _subIdentifiers.append(id);
 }
 
+CQLChainedIdentifier::CQLChainedIdentifier(const CQLChainedIdentifier& cid){
+	_subIdentifiers = cid.getSubIdentifiers();	
+}
 
 const Array<CQLIdentifier>& CQLChainedIdentifier::getSubIdentifiers()const
 {
@@ -19,7 +22,9 @@ const Array<CQLIdentifier>& CQLChainedIdentifier::getSubIdentifiers()const
 }
 
 CQLIdentifier CQLChainedIdentifier::getLastIdentifier(){
-	return _subIdentifiers[_subIdentifiers.size()-1];
+	if(_subIdentifiers.size() > 0)
+		return _subIdentifiers[_subIdentifiers.size()-1];
+	return CQLIdentifier();
 }
 
 String CQLChainedIdentifier::toString()const{
@@ -34,6 +39,10 @@ String CQLChainedIdentifier::toString()const{
 
 void CQLChainedIdentifier::append(CQLIdentifier & id){
 	_subIdentifiers.append(id);
+}
+
+void CQLChainedIdentifier::applyScopes(Array<CQLScope>& scopes){
+
 }
 
 void CQLChainedIdentifier::parse(String & string){

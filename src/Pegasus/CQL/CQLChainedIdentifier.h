@@ -6,9 +6,8 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
-                                                                                                              
 PEGASUS_NAMESPACE_BEGIN 
-
+class CQLScope;
 /**  
 CQLChainedIdentifier class is used for parsing (not resolving)
 the identifier portion of a CQL select statement.  
@@ -40,6 +39,8 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
     CQLChainedIdentifier(String inString);
 
     CQLChainedIdentifier(CQLIdentifier & id);
+ 
+    CQLChainedIdentifier(const CQLChainedIdentifier& cid);
 
     ~CQLChainedIdentifier(){}
 
@@ -59,7 +60,17 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 
     void append(CQLIdentifier & id);
 
+    Uint32 size();
+
+    Boolean prepend(CQLIdentifier & id);
+
+    CQLIdentifier& operator[](Uint32 index);
+
+    Boolean isSubChain(CQLChainedIdentifier & chain);
+
     CQLIdentifier getLastIdentifier();
+	
+    void applyScopes(Array<CQLScope>& scopes);
 
   private:
 

@@ -12,18 +12,15 @@ class CQLScope{
 
     public:
 	CQLScope(){}
-    	CQLScope(CIMName _inCIMName, Array<CIMName> _inList, 
-               CQLChainedIdentifier _inChainedIdentifier);
-	~CQLScope();
+    	CQLScope(CIMName _inCIMName, CQLChainedIdentifier _inChainedIdentifier);
+	~CQLScope(){}
 	CIMName getScope();
-   Array<CIMName> getList();
 	CQLChainedIdentifier getTarget();
 	Boolean isDefault();
 
     private:
 	CIMName _name;	
-   Array<CIMName> _list;
-	CQLChainedIdentifier* _chainedIdentifier;
+	CQLChainedIdentifier _chainedIdentifier;
 };
 
 #ifndef PEGASUS_ARRAY_T
@@ -31,6 +28,9 @@ class CQLScope{
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 #endif
+
+
+
 
 PEGASUS_NAMESPACE_END
 #endif

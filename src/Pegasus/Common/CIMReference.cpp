@@ -96,29 +96,6 @@ static String _escapeSpecialCharacters(const String& str)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-int _Compare(const String& s1_, const String& s2_)
-{
-    const Char16* s1 = s1_.getData();
-    const Char16* s2 = s2_.getData();
-
-    while (*s1 && *s2)
-    {
-	char c1 = tolower(*s1++);
-	char c2 = tolower(*s2++);
-	int r = c1 - c2;
-
-	if (r)
-	    return r;
-    }
-
-    if (*s2)
-	return -1;
-    else if (*s1)
-	return 1;
-
-    return 0;
-}
-
 static void _BubbleSort(Array<KeyBinding>& x)
 {
     Uint32 n = x.size();
@@ -130,7 +107,7 @@ static void _BubbleSort(Array<KeyBinding>& x)
     {
 	for (Uint32 j = 0; j < n - 1; j++)
 	{
-	    if (_Compare(x[j].getName(), x[j+1].getName()) > 0)
+	    if (String::compareNoCase(x[j].getName(), x[j+1].getName()) > 0)
 	    {
 		KeyBinding t = x[j];
 		x[j] = x[j+1];

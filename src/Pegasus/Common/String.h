@@ -348,12 +348,15 @@ public:
     */
     Uint32 reverseFind(Char16 c) const;
 
+#ifdef PEGASUS_INTERNALONLY
+    // ATTN-RK-P3-20020509: Define case-sensitivity for non-English characters
     /** Converts all characters in this string to lower case.
     */
     void toLower();
 
     /// Convert the plain old C-string to lower case:
     static void toLower(char* str);
+#endif
 
     /** Translate any occurences of fromChar to toChar.
     */
@@ -388,6 +391,10 @@ public:
     static int compareNoCase(const char* s1, const char* s2, Uint32 n);
 
     static int compareNoCase(const char* s1, const char* s2);
+
+#ifdef PEGASUS_INTERNALONLY
+    static int compareNoCase(const String& s1, const String& s2);
+#endif
 
     /** Compare two String objects for equality.
 	@param s1 First <TT>String</TT> for comparison.

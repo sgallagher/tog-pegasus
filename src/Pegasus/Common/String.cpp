@@ -520,6 +520,40 @@ int String::compareNoCase(const char* s1, const char* s2)
     return 0;
 }
 
+int String::compareNoCase(const String& s1, const String& s2)
+{
+    const Char16* _s1 = s1.getData();
+    const Char16* _s2 = s2.getData();
+
+    while (*_s1 && *_s2)
+    {
+        int r;
+
+#ifdef PEGASUS_HAS_EBCDIC
+        if (*_s1 <= 255 && *_s2 <= 255)
+#else
+        if (*_s1 <= 127 && *_s2 <= 127)
+#endif
+        {
+            r = tolower(*_s1++) - tolower(*_s2++);
+        }
+        else
+        {
+            r = *_s1++ - *_s2++;
+        }
+
+	if (r)
+	    return r;
+    }
+
+    if (*_s2)
+	return -1;
+    else if (*_s1)
+	return 1;
+
+    return 0;
+}
+
 Boolean String::equal(const String& str1, const String& str2)
 {
     if (str1.size() != str2.size())

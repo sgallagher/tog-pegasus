@@ -1,9 +1,6 @@
 OS_TYPE = windows
-
 OS = win32
-
 ARCHITECTURE = iX86
-
 COMPILER = msvc
 
 SYS_INCLUDES =

@@ -1,7 +1,5 @@
 OS_TYPE = unix
 
-DEPEND_INCLUDES = -I/usr/include/g++-3
-
 RM = rm -f
 
 RMDIRHIER = rm -rf

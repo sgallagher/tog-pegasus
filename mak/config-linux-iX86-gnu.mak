@@ -10,7 +10,11 @@ SYS_INCLUDES =
 
 DEPEND_INCLUDES = -I/usr/include/g++-3
 
+ifdef PEGASUS_DEBUG
+FLAGS = -g -W -Wall -Wno-unused
+else
 FLAGS = -O2 -W -Wall -Wno-unused
+endif
 
 SYS_LIBS = -ldl
 

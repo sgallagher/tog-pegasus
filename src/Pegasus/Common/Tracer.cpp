@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 // Set the trace levels
 // These levels will be compared against a trace level mask to determine
-// if a specific trace level is enabled 
+// if a specific trace level is enabled
 
 const Uint32 Tracer::LEVEL1 = (1 << 0);
 const Uint32 Tracer::LEVEL2 = (1 << 1);
@@ -60,12 +60,12 @@ const char Tracer::_LOG_MSG[] = "LEVEL1 may only be used with trace macros PEG_M
 
 // Initialize singleton instance of Tracer
 Tracer* Tracer::_tracerInstance = 0;
- 
+
 // Set component separator
 const char Tracer::_COMPONENT_SEPARATOR = ',';
 
 // Set the number of defined components
-const Uint32 Tracer::_NUM_COMPONENTS = 
+const Uint32 Tracer::_NUM_COMPONENTS =
     sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]);
 
 // Set the line maximum
@@ -87,10 +87,10 @@ Tracer::Tracer()
     _traceComponentMask=new Boolean[_NUM_COMPONENTS];
 
     // Initialize ComponentMask array to false
-    for (Uint32 index=0;index < _NUM_COMPONENTS; 
+    for (Uint32 index=0;index < _NUM_COMPONENTS;
 	_traceComponentMask[index++]=false);
 }
-            
+
 ////////////////////////////////////////////////////////////////////////////////
 //Tracer destructor
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ void Tracer::_trace(
     {
         if (_isTraceEnabled(traceComponent,traceLevel))
         {
-            _trace(traceComponent,"",fmt,argList); 
+            _trace(traceComponent,"",fmt,argList);
 	}
     }
 }
@@ -149,7 +149,7 @@ void Tracer::_trace(
             // Allocate memory for the message string
             // Needs to be updated if additional info is added
             //
-	    message = new char[ strlen(fileName) + 
+	    message = new char[ strlen(fileName) +
 		_STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
             sprintf(
                message,
@@ -159,7 +159,7 @@ void Tracer::_trace(
                fileName,
                lineNum);
 
-            _trace(traceComponent,message,fmt,argList); 
+            _trace(traceComponent,message,fmt,argList);
 	    delete []message;
         }
     }
@@ -317,7 +317,7 @@ void Tracer::_traceEnter(
         // Allocate memory for the message string
         // Needs to be updated if additional info is added
         //
-	message = new char[ strlen(fileName) + 
+	message = new char[ strlen(fileName) +
 			    _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
 	
         sprintf(
@@ -327,7 +327,7 @@ void Tracer::_traceEnter(
            Uint32(pegasus_thread_self()),
            fileName,
            lineNum);
-        _trace(traceComponent,message,fmt,argList); 
+        _trace(traceComponent,message,fmt,argList);
 
         va_end(argList);
         delete []message;
@@ -350,12 +350,12 @@ void Tracer::_traceExit(
     if (_isTraceEnabled(traceComponent,LEVEL1))
     {
         va_start(argList,fmt);
- 
+
         //
         // Allocate memory for the message string
         // Needs to be updated if additional info is added
         //
-	message = new char[ strlen(fileName) + 
+	message = new char[ strlen(fileName) +
 			    _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
 	
         sprintf(
@@ -365,7 +365,7 @@ void Tracer::_traceExit(
            Uint32(pegasus_thread_self()),
            fileName,
            lineNum);
-        _trace(traceComponent,message,fmt,argList); 
+        _trace(traceComponent,message,fmt,argList);
         va_end(argList);
 
         delete []message;
@@ -403,25 +403,25 @@ void Tracer::_trace(
     CString timeStamp = currentTime.getCString();
 
     //
-    // Allocate messageHeader. 
+    // Allocate messageHeader.
     // Needs to be updated if additional info is added
     //
 
 
 
     // Construct the message header
-    // The message header is in the following format 
+    // The message header is in the following format
     // timestamp: <component name> [file name:line number]
     if (strcmp(message,"") != 0)
     {
        // << Wed Jul 16 10:58:40 2003 mdd >> _STRLEN_MAX_PID_TID is not used in this format string
        msgHeader = new char [strlen(message)
-			     + strlen(TRACE_COMPONENT_LIST[traceComponent]) 
+			     + strlen(TRACE_COMPONENT_LIST[traceComponent])
 			     + strlen(timeStamp) + _STRLEN_MAX_PID_TID + 5];
-       
+
         sprintf(msgHeader,"%s: %s %s",(const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent] ,message);
-	delete [] msgHeader;
+        //delete [] msgHeader;
     }
     else
     {
@@ -431,24 +431,26 @@ void Tracer::_trace(
         char*  tmpBuffer;
 
         //
-        // Allocate messageHeader. 
+        // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //
 	tmpBuffer = new char[_STRLEN_MAX_PID_TID + 6];
         sprintf(tmpBuffer, "[%u:%u]: ", System::getPID(),
                 Uint32(pegasus_thread_self()));
-	msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) + 
+	msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) +
 			       strlen(tmpBuffer) + 1  + 5 ];
 	
         sprintf(msgHeader,"%s: %s %s ",(const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent] ,tmpBuffer );
         delete []tmpBuffer;
-	delete [] msgHeader;
+        //delete [] msgHeader;
 	
     }
 
     // Call trace file handler to write message
     _getInstance()->_traceHandler->handleMessage(msgHeader,fmt,argList);
+
+    delete [] msgHeader;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -510,7 +512,7 @@ Boolean Tracer::isValidComponents(
 
             while (index < _NUM_COMPONENTS)
             {
-                if (String::equalNoCase( 
+                if (String::equalNoCase(
 		       componentName, TRACE_COMPONENT_LIST[index]))
                 {
                     // Found component, break from the loop
@@ -549,7 +551,7 @@ Boolean Tracer::isValidComponents(
     }
     return retCode;
 }
-    
+
 ////////////////////////////////////////////////////////////////////////////////
 //Returns the Singleton instance of the Tracer
 ////////////////////////////////////////////////////////////////////////////////
@@ -562,7 +564,7 @@ Tracer* Tracer::_getInstance()
     return _tracerInstance;
 }
 
-// PEGASUS_REMOVE_TRACE defines the compile time inclusion of the Trace 
+// PEGASUS_REMOVE_TRACE defines the compile time inclusion of the Trace
 // interfaces. If defined the interfaces map to empty functions
 
 #ifndef PEGASUS_REMOVE_TRACE
@@ -573,7 +575,7 @@ Tracer* Tracer::_getInstance()
 Uint32 Tracer::setTraceFile(const char* traceFile)
 {
     return (_getInstance()->_traceHandler->setFileName (traceFile));
-} 
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //Set the trace level
@@ -587,7 +589,7 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
 	case LEVEL1:
             _getInstance()->_traceLevelMask = 0x01;
 	    break;
-    
+
         case LEVEL2:
             _getInstance()->_traceLevelMask = 0x03;
 	    break;
@@ -608,7 +610,7 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Set components to be traced. 
+// Set components to be traced.
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::setTraceComponents( const String traceComponents )
 {
@@ -617,7 +619,7 @@ void Tracer::setTraceComponents( const String traceComponents )
     String componentName     = String::EMPTY;
     String componentStr      = traceComponents;
     String invalidComponents = String::EMPTY;
-    
+
     if (componentStr != String::EMPTY)
     {
         // Check if ALL is specified
@@ -625,11 +627,11 @@ void Tracer::setTraceComponents( const String traceComponents )
         {
             for (index=0; index < _NUM_COMPONENTS;
                     _getInstance()->_traceComponentMask[index++] = true);
-            return ; 
+            return ;
         }
 
         // initialise ComponentMask array to False
-        for (index = 0;index < _NUM_COMPONENTS; 
+        for (index = 0;index < _NUM_COMPONENTS;
 	        _getInstance()->_traceComponentMask[index++] = false);
 
  	// Append _COMPONENT_SEPARATOR to the end of the traceComponents
@@ -637,7 +639,7 @@ void Tracer::setTraceComponents( const String traceComponents )
 
         while (componentStr != String::EMPTY)
         {
-            // Get the Component name from traceComponents. 
+            // Get the Component name from traceComponents.
 	    // Components are separated by _COMPONENT_SEPARATOR
             position = componentStr.find(_COMPONENT_SEPARATOR);
  	    componentName = componentStr.subString(0,(position));
@@ -658,7 +660,7 @@ void Tracer::setTraceComponents( const String traceComponents )
 	        {
 	 	    index++;
                 }
-            }   
+            }
 
             // Remove the searched componentname from the traceComponents
             componentStr.remove(0,position+1);
@@ -667,7 +669,7 @@ void Tracer::setTraceComponents( const String traceComponents )
     else
     {
         // initialise ComponentMask array to False
-        for (Uint32 index = 0;index < _NUM_COMPONENTS; 
+        for (Uint32 index = 0;index < _NUM_COMPONENTS;
                  _getInstance()->_traceComponentMask[index++] = false);
     }
     return ;

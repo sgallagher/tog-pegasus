@@ -46,12 +46,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 CQLSimplePredicateRep::CQLSimplePredicateRep(){
 	_isSimple = true;
+	_operator = NOOP;
 }
 
 CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression)
 {
 	_leftSide = inExpression;
 	_isSimple = true;
+	_operator = NOOP;
 }
 
 CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression, 

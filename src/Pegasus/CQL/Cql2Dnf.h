@@ -53,7 +53,7 @@ class term_el
 public:
     term_el(){}
     term_el(Boolean m, CQLSimplePredicate simplePredicate) :
-       mark(m), _simplePredicate(simplePredicate){}
+       mark(m), _simplePredicate(simplePredicate), NOT(false){}
     Boolean mark;
     CQLSimplePredicate _simplePredicate;
     Boolean NOT;

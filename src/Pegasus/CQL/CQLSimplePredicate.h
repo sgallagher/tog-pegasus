@@ -48,7 +48,7 @@ class PEGASUS_CQL_LINKAGE CQLExpression;
 class PEGASUS_CQL_LINKAGE CQLFactory;
 class PEGASUS_CQL_LINKAGE CQLSimplePredicateRep;
 
-enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE };
+enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, IS_NOT_NULL, ISA, LIKE, NOOP };
 
  
 /** 

@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/url.y,v 1.1 2003/05/21 15:14:09 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/url.y,v 1.2 2003/06/05 20:39:29 mday Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -76,7 +76,7 @@ static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 /* typecast the non-terminals */
 
 /* %type <_i> */
-%type <_s> ip_site ipx_site at_site hostport host
+%type <_s> ip_site ipx_site at_site hostport host service_id
 %type <_aturl> url
 %type <_atl> service_list service site path_list path_el attr_list attr_el
 %type <_atl> url_part sap
@@ -288,6 +288,23 @@ site:  ip_site {
 			else
 				$$ = NULL;
 		}
+
+|       service_id {
+  
+			if ($1 != NULL)
+			{
+				if(NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
+				{
+					$$->next = $$->prev = $$;
+					$$->str = $1;
+					$$->hash = lslpCheckSum($$->str, (int16)strlen($$->str));
+				}
+			}
+			else
+				$$ = NULL;
+  
+}
+
 	;
 
 ip_site: '/''/' {
@@ -311,6 +328,11 @@ ip_site: '/''/' {
 			}
 		}
 	;
+
+service_id: _RESNAME {
+	  $$ = strdup($1);
+	}
+        ;
 
 ipx_site: _IPX {
 			$$ = $1;

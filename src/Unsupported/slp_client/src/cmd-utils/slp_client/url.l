@@ -5,7 +5,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/url.l,v 1.1 2003/05/21 15:14:09 mday Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/slp_client/Attic/url.l,v 1.2 2003/06/05 20:39:29 mday Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -176,7 +176,7 @@ uric			({reserved} | {unreserved} | {escaped})
 
  /* resource names start with alpha and include alphanum and '+' or '-' */
  /* but '+' is reserved and must be escaped */
-{alpha}+[-a-zA-Z0-9.]* 	{
+[-a-zA-Z0-9.]* 	{
  			if(NULL != (urllval._s	= _lslp_strdup(urltext)))
 				return(_RESNAME);
 			else

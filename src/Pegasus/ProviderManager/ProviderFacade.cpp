@@ -516,6 +516,7 @@ void ProviderFacade::executeQuery(
 void ProviderFacade::enableIndications(IndicationResponseHandler & handler)
 {
    _current_operations++;
+   op_counter ind_ops(&_current_ind_operations);
    
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
@@ -540,6 +541,7 @@ void ProviderFacade::createSubscription(
     const Uint16 repeatNotificationPolicy)
 {
    op_counter ops(&_current_operations);
+   op_counter ind_ops(&_current_ind_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -559,6 +561,7 @@ void ProviderFacade::modifySubscription(
     const Uint16 repeatNotificationPolicy)
 {
    op_counter ops(&_current_operations);
+   op_counter ind_ops(&_current_ind_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request
@@ -576,6 +579,7 @@ void ProviderFacade::deleteSubscription(
     const Array<CIMObjectPath> & classNames)
 {
    op_counter ops(&_current_operations);
+   op_counter ind_ops(&_current_ind_operations);
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 
     // forward request

@@ -89,6 +89,7 @@ void Provider::initialize(CIMOMHandle & cimom)
 
     _status = INITIALIZED;
     _current_operations = 0;
+    _current_ind_operations = 0;
 }
 
 Boolean Provider::tryTerminate(void)

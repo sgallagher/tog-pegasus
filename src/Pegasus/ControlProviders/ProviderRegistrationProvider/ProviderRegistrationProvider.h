@@ -157,6 +157,14 @@ protected:
 			  const String & moduleName,
 			  Boolean disableProviderOnly,
                       const AcceptLanguages & al);           // l10n
+
+    //
+    // If the provider is an indication provider, return true
+    // otherwise, return false
+    //
+    Boolean _isIndicationProvider(const String & moduleName,
+                                  const CIMInstance & instance,
+                                  const CIMObjectPath & providerRef);
 };
 
 PEGASUS_NAMESPACE_END

@@ -715,4 +715,92 @@ Sint16 ProviderManager::disableProvider(
    return (1);
 }
 
+Sint16 ProviderManager::disableIndicationProvider(
+    const String & fileName,
+    const String & providerName)
+{
+   PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::disableIndicationProvider");
+
+   Provider *pr;
+   if(_providers.lookup(providerName, pr ))
+   {
+	//
+        // Check to see if there are pending requests. If there are pending
+        // requests and the disable timeout has not expired, loop and wait one
+        // second until either there are no pending requests or until timeout expires.
+        //
+        Uint32 waitTime = PROVIDER_DISABLE_TIMEOUT;
+        while ( pr->_current_ind_operations.value() > 0  &&  waitTime > 0)
+        {
+            System::sleep(1);
+            waitTime = waitTime - 1;
+        }
+
+        // If there are still pending requests, do not disable
+        if (pr->_current_ind_operations.value() > 0 )
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		     "Disable failed since there are pending requests." );
+            PEG_METHOD_EXIT();
+            return (0);
+        }
+
+        _providers.remove(pr->_name);
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		     "Disabling Provider " + pr->_name );
+	try 
+	{
+	     pr->disableIndications();
+	     pr->terminate();
+	}
+	catch(...)
+	{
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		     "Disable failed." );
+   	    PEG_METHOD_EXIT();
+	    return(-1);
+	}
+
+	if((pr->_module != 0 ) && pr->_module->_ref_count.value() <= 1)
+   	{
+	     _modules.remove(pr->_module->_fileName);
+	     try 
+	     {
+		  pr->_module->unloadModule();
+	     }
+	     catch(...)
+	     {
+        	  PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+		     "unloadModule failed.");
+   	          PEG_METHOD_EXIT();
+	          return(-1);
+	     }
+
+	     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+				"Destroying Provider " + pr->_name );
+
+	     delete pr->_module;
+	}
+	    
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
+	   "Destroying Provider's CIMOM Handle " + pr->_name );
+
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	    	"ProviderManager::_provider_crtl -  Unload provider $0",
+		    pr->_name);
+
+        delete pr->_cimom_handle;
+       	delete pr;
+	return (1);
+   }
+   else
+   {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                             "Unable to find Provider in cache: " +
+                             providerName);
+   	PEG_METHOD_EXIT();
+	return (1);
+   }
+}
+
 PEGASUS_NAMESPACE_END

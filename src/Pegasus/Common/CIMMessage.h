@@ -1352,6 +1352,7 @@ public:
         const CIMInstance& providerModule_,
         const Array<CIMInstance>& providers_,
 	Boolean disableProviderOnly_,
+	const Array<Boolean>& indicationProviders_,
         QueueIdStack queueIds_,
         const String& authType_ = String::EMPTY,
         const String& userName_ = String::EMPTY)
@@ -1362,6 +1363,7 @@ public:
         providerModule(providerModule_),
         providers(providers_),
 	disableProviderOnly(disableProviderOnly_),
+	indicationProviders(indicationProviders_),
         authType(authType_),
         userName(userName_)
     {
@@ -1370,6 +1372,7 @@ public:
     CIMInstance providerModule;
     Array<CIMInstance> providers;
     Boolean disableProviderOnly;
+    Array<Boolean> indicationProviders;
     String authType;
     String userName;
 };

@@ -2333,8 +2333,8 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
 	// get cached or load new provider module
 	   
         //Provider provider =
-        OpProviderHolder ph = 
-	   providerManager.getProvider(triad.first, triad.second, triad.third);
+	OpProviderHolder ph =
+	    providerManager.getProvider(triad.first, triad.second, triad.third);
 
 	// convert arguments
 	OperationContext context;
@@ -2451,7 +2451,7 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
 
 	// get cached or load new provider module
         //Provider provider =
-        OpProviderHolder ph = 
+	OpProviderHolder ph =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -2568,7 +2568,7 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
 
 	// get cached or load new provider module
         //Provider provider =
-        OpProviderHolder ph = 
+	OpProviderHolder ph =
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         // convert arguments
@@ -2686,8 +2686,8 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 	  
        // get cached or load new provider module
         //Provider provider =
-       OpProviderHolder ph = 
-	  providerManager.getProvider(triad.first, triad.second, triad.third);
+	OpProviderHolder ph =
+            providerManager.getProvider(triad.first, triad.second, triad.third);
 
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Calling provider.enableIndications: " + 
@@ -2898,6 +2898,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 
     // Unload providers
     Array<CIMInstance> _pInstances = request->providers;
+    Array<Boolean> _indicationProviders = request->indicationProviders;
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
@@ -2905,6 +2906,47 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 	Triad<String, String, String> triad =
             _getProviderRegPair(_pInstances[i], mInstance);
 
+      // It is an indication provider
+      if (_indicationProviders[i])
+      {
+	  Sint16 ret_value = providerManager.disableIndicationProvider(
+				triad.first, triad.second);
+	  if (ret_value == 1)
+	  {
+	      // remove the entry from the table since the indication provider 
+	      // has been disabled
+	      _removeEntry(_generateKey(triad.second, triad.first));
+	  }
+	  else if (ret_value == 0)
+          {
+	      // disable failed since there are pending requests, 
+	      // update module status from Stopping to OK
+              {
+                  if (operationalStatus[i] == _MODULE_STOPPING)
+                  {
+                      operationalStatus.remove(i);
+                  }
+              }
+
+              operationalStatus.append(_MODULE_OK);
+
+              if(_providerRegistrationManager->setProviderModuleStatus
+                  (moduleName, operationalStatus) == false)
+              {
+		  throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
+            				"set module status failed."));
+	      }
+          }
+	  else // disable failed for other reason, throw exception
+	  {
+// L10N TODO
+              throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                        "Disable Indication Provider Failed.");
+	  }
+      }
+      else // not an indication provider
+      {
         if (providerManager.disableProvider(triad.first, triad.second) == 0)
 	{
 	    // disable failed since there are pending requests
@@ -2930,6 +2972,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
             				"set module status failed."));
 	    }
         }
+      }
     }
 
     if (!disableProviderOnly)
@@ -3235,6 +3278,25 @@ String ProviderManagerService::_generateKey (
     //
     String providerName = provider.getName();
     String providerFileName = provider.getModule()->getFileName();
+    tableKey.append (providerName);
+    tableKey.append (providerFileName);
+
+    PEG_METHOD_EXIT ();
+    return tableKey;
+}
+
+String ProviderManagerService::_generateKey (
+    const String & providerName,
+    const String & providerFileName)
+{
+    String tableKey;
+
+    PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
+                      "ProviderManagerService::_generateKey");
+
+    //
+    //  Append providerName and providerFileName to key
+    //
     tableKey.append (providerName);
     tableKey.append (providerFileName);
 

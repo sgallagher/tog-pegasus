@@ -169,6 +169,19 @@ protected:
 
       String _generateKey (
 	 const Provider & provider);
+
+    /**
+        Generates a String key by combining the provider name and provider
+	file name.
+
+        @param   providerName       the name of the provider 
+        @param   providerFileName   the provider file name 
+
+	@return  the generated key
+    */
+    String _generateKey (const String & providerName,
+			 const String & providerFileName);
+
       
 protected:
 

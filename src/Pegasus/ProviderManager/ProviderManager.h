@@ -65,6 +65,12 @@ public:
     void unload_idle_providers(void) ;
 
     Sint16 disableProvider(const String & fileName, const String & providerName);
+    //
+    // If there are pending requests, do not disable the provider and return 0;
+    // Otherwise, disable the provider. If success, return 1, otherwise, return -1
+    //
+    Sint16 disableIndicationProvider(const String & fileName, 
+				     const String & providerName);
 
 private:
     enum CTRL 

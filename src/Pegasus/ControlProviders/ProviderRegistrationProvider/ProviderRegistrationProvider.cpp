@@ -1231,14 +1231,27 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
 	    {
 	        reference.setKeyBindings(keys);
 	        instance = _providerRegistrationManager->getInstance(reference);
-	        instances.append(instance);
+		//
+		// if the provider is indication provider
+		//
+		if (_isIndicationProvider(moduleName, instance, reference))
+		{
+	            instances.append(instance);
+		}
 	    }
         }
     }
     else
     {
-	    instance = _providerRegistrationManager->getInstance(ref);
+	instance = _providerRegistrationManager->getInstance(ref);
+
+	//
+	// if the provider is indication provider
+	//
+	if (_isIndicationProvider(moduleName, instance, ref))
+	{
 	    instances.append(instance);
+	}
     }
 
     //
@@ -1321,6 +1334,8 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	String _moduleName;
 	Uint16 providers;
 	CIMObjectPath providerRef;
+	Boolean indProvider = false;
+        Array<Boolean> indicationProviders;
 
 	// disable a provider module or delete a provider module
 	if (!disableProviderOnly)
@@ -1380,6 +1395,15 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 		    providerRef.setKeyBindings(keys);
 		    instance = _providerRegistrationManager->getInstance
 			(providerRef);
+		    if (_isIndicationProvider(moduleName, instance, providerRef))
+                    {
+                        indProvider = true;
+                        indicationProviders.append(true);
+                    }
+                    else
+                    {
+                        indicationProviders.append(false);
+                    }
 		    instances.append(instance);
 	        }
 
@@ -1387,8 +1411,18 @@ Sint16 ProviderRegistrationProvider::_disableModule(
         }
         else
         {
-	    instances.append(_providerRegistrationManager->getInstance
-	         (objectReference));
+	    instance = _providerRegistrationManager->getInstance(objectReference);
+            if (_isIndicationProvider(moduleName, instance, objectReference))
+            {
+                indProvider = true;
+                indicationProviders.append(true);
+            }
+            else
+            {
+                indicationProviders.append(false);
+            }
+
+            instances.append(instance);
         }
 
         //
@@ -1405,6 +1439,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 		    mInstance,
 		    instances,
 		    disableProviderOnly,
+		    indicationProviders,
 		    QueueIdStack(_service->getQueueId()));
 // l10n
             disable_req->acceptLanguages = al;
@@ -1419,9 +1454,12 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 		    // module was disabled successfully
 	            if (_opStatus[i] == _MODULE_STOPPED)
 	            {
-	 	        // send termination message to subscription service
-		        _sendTerminationMessageToSubscription(objectReference,
-				moduleName, false, al);
+			if (indProvider)
+			{
+	 	            // send termination message to subscription service
+		            _sendTerminationMessageToSubscription(objectReference,
+				  moduleName, false, al);
+			}
 		        return (0);
 	            }
 
@@ -1435,14 +1473,95 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 	    }
 	    else // disable provider
 	    {
-	        _sendTerminationMessageToSubscription(objectReference,
+		if (indProvider)
+		{
+	            _sendTerminationMessageToSubscription(objectReference,
 			moduleName, true, al);
+		}
 	        return (0);
 	    }
   	}
 
         // disable failed
 	return (-1);
+}
+
+// If the provider is indication provider, return true,
+// otherwise, return false
+Boolean ProviderRegistrationProvider::_isIndicationProvider(
+    const String & moduleName,
+    const CIMInstance & instance,
+    const CIMObjectPath & providerRef)
+{
+    // get provider name
+    String providerName;
+    Uint32 pos = instance.findProperty(CIMName (_PROPERTY_PROVIDER_NAME));
+    if (pos != PEG_NOT_FOUND)
+    {
+	instance.getProperty(pos).getValue().get(providerName);	
+    }
+
+    CIMObjectPath capabilityRef;
+
+    capabilityRef = CIMObjectPath(providerRef.getHost(),
+				  providerRef.getNameSpace(),
+		       		  PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION,
+		       		  providerRef.getKeyBindings());
+
+    // get all Capabilities instances
+    Array<CIMObjectPath> instanceNames =
+	_providerRegistrationManager->enumerateInstanceNames(capabilityRef);
+			
+    //
+    // get provider module name and provider name from capability reference
+    //
+    String _moduleName, _providerName;
+    CIMInstance capInstance;
+    Array<Uint16> providerTypes;
+    for(Uint32 i = 0, n=instanceNames.size(); i < n; i++)
+    {
+	Array<CIMKeyBinding> keys = instanceNames[i].getKeyBindings();
+
+	for(Uint32 j=0; j < keys.size(); j++)
+        {
+             if(keys[j].getName().equal (_PROPERTY_PROVIDERMODULENAME))
+             {
+                  _moduleName = keys[j].getValue();
+             }
+
+             if(keys[j].getName().equal (_PROPERTY_PROVIDERNAME))
+             {
+                  _providerName = keys[j].getValue();
+             }
+
+	     //
+	     // if capability instance has same module name as moduleName
+	     // and same provider name as providerName, get provider type
+	     //
+	     if(String::equal(_moduleName, moduleName) &&
+		String::equal(_providerName, providerName))
+	     {
+		  capInstance = _providerRegistrationManager->getInstance
+				(instanceNames[i]);
+
+		  Uint32 pos = capInstance.findProperty(CIMName (_PROPERTY_PROVIDERTYPE));
+    		  if (pos != PEG_NOT_FOUND)
+		  {
+		       capInstance.getProperty(pos).getValue().get(providerTypes); 
+
+    			for (Uint32 k=0; k < providerTypes.size(); k++)
+    			{
+        		    if (providerTypes[k] == _INDICATION_PROVIDER)
+        		    {
+            			return (true);
+        		    }
+    			}
+		  }
+  	     }
+        }
+    }
+
+    return (false);
 }
 
 PEGASUS_NAMESPACE_END

@@ -116,7 +116,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // If it is a method response, then dispatch it to be handled:
     //
 
-    if (!String::equalNoCase(cimOperation, "MethodCall"))
+    if (!String::equalNoCase(cimOperation, "MethodResponse"))
     {
 	// ATTN: error discarded at this time!
 	return;
@@ -205,7 +205,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
 	    _decodeAssociatorsResponse(parser, messageId);
 	else if (EqualNoCase(iMethodResponseName, "CreateInstance"))
 	    _decodeCreateInstanceResponse(parser, messageId);
-	else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames")==0)
+	else if (EqualNoCase(iMethodResponseName,"EnumerateInstanceNames"))
 	    _decodeEnumerateInstanceNamesResponse(parser, messageId);
 	else if (EqualNoCase(iMethodResponseName, "DeleteQualifier"))
 	    _decodeDeleteQualifierResponse(parser, messageId);
@@ -241,7 +241,6 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content)
     {
 	// ATTN: ignore the exception for now!
 
-	PEGASUS_TRACE;
 	cout << x.getMessage() << endl;
 	return;
     }

@@ -48,7 +48,8 @@ Pegasus.
 #include <Pegasus/Common/CGIQueryString.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Stopwatch.h>
-#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/Logger.h>
 
 PEGASUS_USING_PEGASUS;
@@ -651,8 +652,10 @@ static void GetClass(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
+
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -705,8 +708,9 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -803,8 +807,9 @@ static void EnumerateClassNames(const CGIQueryString& qs)
 	Stopwatch elapsedTime;
 
 	// Make the Connection
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -844,8 +849,9 @@ static void DeleteClass(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -974,8 +980,9 @@ static void EnumerateQualifiers(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1012,8 +1019,9 @@ static void GetQualifier(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1148,8 +1156,9 @@ static void EnumerateInstanceNames(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1211,8 +1220,9 @@ static void GetInstance(const CGIQueryString& qs)
 
     try
     {
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1302,8 +1312,9 @@ static void EnumerateInstances(const CGIQueryString& qs)
 
     try
 	{
-	    Selector selector;
-	    CIMClient client(&selector);
+	    Monitor* monitor = new Monitor;
+	    HTTPConnector* connector = new HTTPConnector(monitor);
+	    CIMClient client(monitor, connector);
 	    HostInfo hostinfo;
 	    client.connect(hostinfo.getAddress());
 
@@ -1405,8 +1416,9 @@ static void CreateNameSpace(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1465,8 +1477,9 @@ static void DeleteNameSpace(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1507,8 +1520,9 @@ static void EnumerateNameSpaces(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1724,8 +1738,9 @@ static void ClassInheritance(const CGIQueryString& qs)
 	Boolean includeClassOrigin = true;
 
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 	client.setTimeOut(timeOut);
@@ -1814,8 +1829,9 @@ static void ClassTree(const CGIQueryString& qs)
 	Boolean deepInheritance = true;
 	String className = "";
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1895,8 +1911,9 @@ static void ReferenceNames(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 
@@ -1959,8 +1976,9 @@ static void AssociatorNames(const CGIQueryString& qs)
 	// Time the connection
 	Stopwatch elapsedTime;
 
-	Selector selector;
-	CIMClient client(&selector);
+	Monitor* monitor = new Monitor;
+	HTTPConnector* connector = new HTTPConnector(monitor);
+	CIMClient client(monitor, connector);
 	HostInfo hostinfo;
 	client.connect(hostinfo.getAddress());
 

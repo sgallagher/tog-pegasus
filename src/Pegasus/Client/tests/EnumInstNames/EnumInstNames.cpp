@@ -26,31 +26,40 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include "CIMMessage.h"
+#include <cassert>
+#include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
 
+PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN
+const String NAMESPACE = "root/cimv2";
 
-CIMMessage::~CIMMessage()
+int main(int argc, char** argv)
 {
-}
+    try
+    {
+	Monitor* monitor = new Monitor;
+	HTTPConnector* httpConnector = new HTTPConnector(monitor);
+	CIMClient client(monitor, httpConnector);
+	client.connect("localhost:5988");
 
-CIMRequestMessage::~CIMRequestMessage()
-{
-}
+	String instanceName = "Process.pid=123456";
 
-CIMResponseMessage::~CIMResponseMessage()
-{
-}
+	Array<CIMReference> instanceNames = 
+	    client.enumerateInstanceNames(NAMESPACE, "Process");
 
-CIMGetClassRequestMessage::~CIMGetClassRequestMessage()
-{
-}
+	for (Uint32 i = 0; i < instanceNames.size(); i++)
+	    cout << instanceNames[i] << endl;
+    }
+    catch(Exception& e)
+    {
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	exit(1);
+    }
 
-CIMGetClassResponseMessage::~CIMGetClassResponseMessage()
-{
-}
+    PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
 
-PEGASUS_NAMESPACE_END
+    return 0;
+}

@@ -32,7 +32,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/CIMStatusCode.h>
@@ -665,9 +666,9 @@ Uint32 CIMConfigCommand::execute (
         //
         // Open connection with CIMSever
         //
-        Selector selector;
-
-        CIMClient client(&selector);
+        Monitor* monitor = new Monitor;
+        HTTPConnector* connector = new HTTPConnector(monitor);
+        CIMClient client(monitor, connector);
 
         addressStr.append(_hostName);
         addressStr.append(":");
@@ -1108,9 +1109,9 @@ void CIMConfigCommand::_getPropertiesFromCIMServer
         //
         // Open connection with CIMSever
         //
-        Selector selector;
-
-        CIMClient client(&selector);
+        Monitor* monitor = new Monitor;
+        HTTPConnector* connector = new HTTPConnector(monitor);
+        CIMClient client(monitor, connector);
 
         client.connect(address);
 
@@ -1172,9 +1173,9 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         //
         // Open connection with CIMSever
         //
-        Selector selector;
-
-        CIMClient client(&selector);
+        Monitor* monitor = new Monitor;
+        HTTPConnector* connector = new HTTPConnector(monitor);
+        CIMClient client(monitor, connector);
 
         client.connect(address);
 
@@ -1243,9 +1244,9 @@ void CIMConfigCommand::_listAllPropertiesInCIMServer
         //
         // Open connection with CIMSever
         //
-        Selector selector;
-
-        CIMClient client(&selector);
+        Monitor* monitor = new Monitor;
+        HTTPConnector* connector = new HTTPConnector(monitor);
+        CIMClient client(monitor, connector);
         
         client.connect(address);
 

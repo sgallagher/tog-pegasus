@@ -28,7 +28,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <Pegasus/Common/Selector.h>
+#include <Pegasus/Common/Monitor.h>
+#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -562,8 +563,9 @@ int main(int argc, char** argv)
       try
 		 {
 		   Stopwatch elapsedTime;
-		   Selector selector;
-		   CIMClient client(&selector, 60 * 1000);
+		   Monitor* monitor = new Monitor;
+		   HTTPConnector* connector = new HTTPConnector(monitor);
+		   CIMClient client(monitor, connector, 60 * 1000);
 
 		   char * connection = connectionList[i].allocateCString();
 		   cout << "connecting to " << connection << endl;

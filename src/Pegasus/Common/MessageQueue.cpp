@@ -72,7 +72,7 @@ void MessageQueue::enqueue(Message* message)
 
     if (getenv("PEGASUS_TRACE"))
     {
-	cout << "===== " << getQueueName() << "::enqueue(): ";
+	cout << "===== " << getQueueName() << ": ";
 	message->print(cout);
     }
 

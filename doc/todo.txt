@@ -1,4 +1,8 @@
 
+    -   Rethink the useage of queue-ids in messages and how requests and
+	responses are matched up. Queue-ids are only used on the server
+	side. Perhaps a more general mechanism can be found.
+
     -   Fix bug in which the messageId is calculated inside the XmlWriter.
 	It should be calculated by the caller.
 

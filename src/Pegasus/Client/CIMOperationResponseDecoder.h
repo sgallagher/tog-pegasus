@@ -26,8 +26,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Client_h
-#define Pegasus_Client_h
+#ifndef Pegasus_CIMOperationResponseDecoder_h
+#define Pegasus_CIMOperationResponseDecoder_h
 
 #include <fstream>
 #include <Pegasus/Common/Config.h>
@@ -132,4 +132,4 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Client_h */
+#endif /* Pegasus_CIMOperationResponseDecoder_h */

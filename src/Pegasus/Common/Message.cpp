@@ -36,7 +36,6 @@ Uint32 Message::_nextKey = 0;
 
 Message::~Message() 
 { 
-
 }
 
 void Message::print(ostream& os) const

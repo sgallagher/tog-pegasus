@@ -20,13 +20,11 @@ DYNAMIC_LIBRARIES = \
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-_SOURCES = \
-    CIMOperationRequestEncoder.cpp \
-    CIMOperationResponseDecoder.cpp
-
 SOURCES = \
     CIMClient.cpp \
-    ClientException.cpp \
+    CIMOperationRequestEncoder.cpp \
+    CIMOperationResponseDecoder.cpp \
+    ClientException.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

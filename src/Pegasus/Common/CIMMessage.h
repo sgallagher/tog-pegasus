@@ -38,26 +38,31 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMMessage : public Message
+class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {
 public:
     CIMMessage(Uint32 type, const String& messageId_) 
 	: Message(type), messageId(messageId_) { }
 
-    const String& messageId;
+    virtual ~CIMMessage();
+
+    const String messageId;
 };
 
-class CIMRequestMessage : public CIMMessage
+class PEGASUS_COMMON_LINKAGE CIMRequestMessage : public CIMMessage
 {
 public:
+
     CIMRequestMessage(
 	Uint32 type_, const String& messageId_, QueueIdStack queueIds_) 
 	: CIMMessage(type_, messageId_), queueIds(queueIds_) { }
 
+    virtual ~CIMRequestMessage();
+
     QueueIdStack queueIds;
 };
 
-class CIMResponseMessage : public CIMMessage
+class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage
 {
 public:
 
@@ -75,12 +80,15 @@ public:
     {
     }
 
+    virtual ~CIMResponseMessage();
+
     QueueIdStack queueIds;
     CIMStatusCode errorCode;
     String errorDescription;
 };
 
-class CIMGetClassRequestMessage : public CIMRequestMessage
+class PEGASUS_COMMON_LINKAGE CIMGetClassRequestMessage 
+    : public CIMRequestMessage
 {
 public:
     
@@ -103,6 +111,8 @@ public:
 	propertyList(propertyList_)
     {
     }
+
+    virtual ~CIMGetClassRequestMessage();
 
     String nameSpace;
     String className;
@@ -718,7 +728,8 @@ public:
     Array<CIMValue> inParameters;
 };
 
-class CIMGetClassResponseMessage : public CIMResponseMessage
+class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 
+    : public CIMResponseMessage
 {
 public:
 
@@ -734,6 +745,8 @@ public:
 	cimClass(cimClass_)
     {
     }
+
+    virtual ~CIMGetClassResponseMessage();
 
     CIMClass cimClass;
 };

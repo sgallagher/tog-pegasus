@@ -127,7 +127,7 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
     //
     if ( !FileSystem::changeFilePermissions(String(_fileName), S_IRUSR) )
 #else
-    if ( !FileSystem::changeFilePermissions(String(_fileName), (S_IRUSR|S_IWUSR)) )
+    if ( !FileSystem::changeFilePermissions(String(_fileName), (_S_IREAD | _S_IWRITE )) )
 #endif
     {
         Logger::put_l(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,
@@ -135,7 +135,6 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
            "Failed to set permissions on file $0", _fileName);
             return 1;
     }
-#endif
 
     return 0;
 }

@@ -44,6 +44,7 @@
 #include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/Repository/RepositoryQueryContext.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -156,10 +157,17 @@ void printProperty(CIMProperty& prop, Uint32 propNum, String& prefix)
           cout << newPrefix << "No properties left after projection" << endl;
         }
 
-        for (Uint32 n = 0; n < cnt; n++)
+        if (cnt > 10 && !cqlcli_verbose)
         {
-          CIMProperty prop = embInst.getProperty(n);
-          printProperty(prop, n, newPrefix);
+          cout << newPrefix << "Instance has " << cnt << " properties" << endl;
+        }
+        else
+        {
+          for (Uint32 n = 0; n < cnt; n++)
+          {
+            CIMProperty prop = embInst.getProperty(n);
+            printProperty(prop, n, newPrefix);
+          }
         }
       }
     }
@@ -204,11 +212,18 @@ Boolean _applyProjection(Array<CQLSelectStatement>& _statements,
           }
 
           String prefix("-----");
-          
-          for (Uint32 n = 0; n < cnt; n++)
+
+          if (cnt > 10 && !cqlcli_verbose)
           {
-            CIMProperty prop = projInst.getProperty(n);
-            printProperty(prop, n, prefix);
+            cout << "-----Instance has " << cnt << " properties" << endl;
+          }
+          else
+          {
+            for (Uint32 n = 0; n < cnt; n++)
+            {
+              CIMProperty prop = projInst.getProperty(n);
+              printProperty(prop, n, prefix);
+            }
           }
         }
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
@@ -274,64 +289,114 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements,
   {
     cout << "========Get Property List Results=======" << endl;
 
+    CIMPropertyList propList;
+
     for(Uint32 i = 0; i < _statements.size(); i++)
     {
       cout << "======================================" << i << endl;
       cout << _statements[i].toString() << endl;
 
+      try
+      {
+        cout << endl << "Get Class Path List" << endl;
+        Array<CIMObjectPath> fromPaths = _statements[i].getClassPathList();
+        for (Uint32 k = 0; k < fromPaths.size(); k++)
+        {
+          cout << "-----" << fromPaths[k].toString() << endl;
+        }
+      }
+      catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+      catch(...){ cout << "Unknown Exception" << endl;}
+
+      try
+      {     
+        cout << "SELECT Chained Identifiers" << endl;
+        Array<CQLChainedIdentifier> selIds = _statements[i].getSelectChainedIdentifiers();
+        for (Uint32 k = 0; k < selIds.size(); k++)
+        {
+          cout << "-----" << selIds[k].toString() << endl;
+        }
+      }
+      catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+      catch(...){ cout << "Unknown Exception" << endl;}
+
+      try
+      {     
+        cout << "WHERE Chained Identifiers" << endl;
+        Array<CQLChainedIdentifier> whereIds = _statements[i].getWhereChainedIdentifiers();
+        if (whereIds.size() == 0)
+        {
+          cout << "-----none" << endl; 
+        }
+        for (Uint32 k = 0; k < whereIds.size(); k++)
+        {
+          cout << "-----" << whereIds[k].toString() << endl;
+        }
+      }
+      catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+      catch(...){ cout << "Unknown Exception" << endl;}
+
+      try
+      {
+        cout << "Property List for the FROM class " << endl;
+        propList.clear();
+        propList = _statements[i].getPropertyList();
+        _printPropertyList(propList);
+      }
+      catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+      catch(...){ cout << "Unknown Exception" << endl;}
+
+      try
+      {
+        cout << "SELECT Property List for the FROM class " << endl;
+        propList.clear();
+        propList = _statements[i].getSelectPropertyList();
+        _printPropertyList(propList);
+      }
+      catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+      catch(...){ cout << "Unknown Exception" << endl;}
+
+      try
+      {
+        cout << "WHERE Property List for the FROM class " << endl;
+        propList.clear();
+        propList = _statements[i].getWherePropertyList();
+        _printPropertyList(propList);
+      }
+      catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+      catch(...){ cout << "Unknown Exception" << endl;}
+
+      // Build a list of unique class names from the instances
+      Array<CIMName> classNames;
       for(Uint32 j = 0; j < _instances.size(); j++)
       {
-        try
+        Boolean found = false;
+        for(Uint32 k = 0; k < classNames.size(); k++)
         {
-          cout << endl << "Get Class Path List" << endl;
-          Array<CIMObjectPath> fromPaths = _statements[i].getClassPathList();
-          for (Uint32 k = 0; k < fromPaths.size(); k++)
+          if (_instances[j].getClassName() == classNames[k])
           {
-            cout << "-----" << fromPaths[k].toString() << endl;
+            found = true;
           }
         }
-        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
-        catch(...){ cout << "Unknown Exception" << endl;}
 
-        CIMName className = _instances[j].getClassName();
+        if (!found)
+        {
+          classNames.append(_instances[j].getClassName());
+        }
+      }
+
+      for(Uint32 j = 0; j < classNames.size(); j++)
+      {
+        CIMName className = classNames[j];
         CIMObjectPath classPath (String::EMPTY,
                                  ns,
                                  className);
 
-        CIMPropertyList propList;
-
-        try
-        {     
-          cout << "SELECT Chained Identifiers" << endl;
-          Array<CQLChainedIdentifier> selIds = _statements[i].getSelectChainedIdentifiers();
-          for (Uint32 k = 0; k < selIds.size(); k++)
-          {
-            cout << "-----" << selIds[k].toString() << endl;
-          }
-        }
-        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
-        catch(...){ cout << "Unknown Exception" << endl;}
-
-        try
-        {     
-          cout << "WHERE Chained Identifiers" << endl;
-          Array<CQLChainedIdentifier> whereIds = _statements[i].getWhereChainedIdentifiers();
-          if (whereIds.size() == 0)
-          {
-            cout << "-----none" << endl; 
-          }
-          for (Uint32 k = 0; k < whereIds.size(); k++)
-          {
-            cout << "-----" << whereIds[k].toString() << endl;
-          }
-        }
-        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
-        catch(...){ cout << "Unknown Exception" << endl;}
-
         try
         {
           cout << "Property List for " << className.getString() << endl;
-           propList = _statements[i].getPropertyList(classPath);
+          propList.clear();
+          propList = _statements[i].getPropertyList(classPath);
           _printPropertyList(propList);
         }
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
@@ -352,36 +417,6 @@ Boolean _getPropertyList(Array<CQLSelectStatement>& _statements,
           cout << "WHERE Property List for " << className.getString() << endl;
           propList.clear();
           propList = _statements[i].getWherePropertyList(classPath);
-          _printPropertyList(propList);
-        }
-        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
-        catch(...){ cout << "Unknown Exception" << endl;}
-
-        try
-        {
-          cout << "Property List for the FROM class " << endl;
-          propList.clear();
-          propList = _statements[i].getPropertyList();
-          _printPropertyList(propList);
-        }
-        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
-        catch(...){ cout << "Unknown Exception" << endl;}
-
-        try
-        {
-          cout << "SELECT Property List for the FROM class " << endl;
-          propList.clear();
-          propList = _statements[i].getSelectPropertyList();
-          _printPropertyList(propList);
-        }
-        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
-        catch(...){ cout << "Unknown Exception" << endl;}
-
-        try
-        {
-          cout << "WHERE Property List for the FROM class " << endl;
-          propList.clear();
-          propList = _statements[i].getWherePropertyList();
           _printPropertyList(propList);
         }
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
@@ -764,7 +799,8 @@ void help(const char* command){
 	cout << "        4 = validate properties" << endl;
 	cout << "        5 = normalize to DOC" << endl;
 	cout << " -className class" << endl;
-	cout << " -nameSpace namespace (Example: root/SampleProvider)" << endl << endl;
+	cout << " -nameSpace namespace (Example: root/SampleProvider)" << endl;
+	cout << " -verbose" << endl << endl;
 }
 
 int main(int argc, char ** argv)
@@ -774,6 +810,10 @@ int main(int argc, char ** argv)
     help(argv[0]);
     exit(0);
   }
+
+  // Since the output of this program will be compared with
+  // a master output file, turn off ICU message loading.
+  MessageLoader::_useDefaultMsg = true;
 
   String testOption;
   String className = String::EMPTY;

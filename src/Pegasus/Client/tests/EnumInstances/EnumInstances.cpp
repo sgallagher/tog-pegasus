@@ -26,7 +26,8 @@
 // Author: Warren Otsuka (warren_otsuka@hp.com) 
 //
 // Modified By:  Carol Ann Krug Graves, Hewlett-Packard Company
-//               (carolann_graves@hp.com)
+//                   (carolann_graves@hp.com)
+//               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //        
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -39,9 +40,9 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const String NAMESPACE = "root/SampleProvider";
-const String INSTANCE0 = "instance 0Sample_InstanceProviderClass";
-const String INSTANCE1 = "instance 1Sample_InstanceProviderClass";
-const String INSTANCE2 = "instance 2Sample_InstanceProviderClass";
+const CIMObjectPath INSTANCE1("Sample_InstanceProviderClass.Identifier=1");
+const CIMObjectPath INSTANCE2("Sample_InstanceProviderClass.Identifier=2");
+const CIMObjectPath INSTANCE3("Sample_InstanceProviderClass.Identifier=3");
 const String CLASSNAME = "Sample_InstanceProviderClass";
 
 int main(int argc, char** argv)
@@ -51,53 +52,33 @@ int main(int argc, char** argv)
 	CIMClient client;
 	client.connectLocal();
 
-	const String classname = CLASSNAME;
 	Boolean deepInheritance = true;
 	Boolean localOnly = true;
 	Boolean includeQualifiers = false;
 	Boolean includeClassOrigin = false;
 	Array<CIMInstance> cimNInstances = 
-	  client.enumerateInstances(NAMESPACE,  classname, deepInheritance,
-				    localOnly,  includeQualifiers,
+	  client.enumerateInstances(NAMESPACE, CLASSNAME, deepInheritance,
+				    localOnly, includeQualifiers,
 				    includeClassOrigin );
 
-	assert( cimNInstances.size() == 3);
+	assert(cimNInstances.size() == 3);
 	for (Uint32 i = 0; i < cimNInstances.size(); i++)
-	  {
-	    String instanceRef = cimNInstances[i].getPath().toString();
-
-	    //ATTN P2 WO 4 April 2002
-	    // Test for INSTANCE0..2 when getInstanceName returns
-            // the full reference string
-
-	    if( !(String::equal(  instanceRef, CLASSNAME ) ) )
-	      {
-		PEGASUS_STD(cerr) << "Error: EnumInstances failed" <<
-		  PEGASUS_STD(endl);
-		exit(1);
-	      }
-	  }
+        {
+	    if (!((cimNInstances[i].getPath() == INSTANCE1) ||
+	          (cimNInstances[i].getPath() == INSTANCE2) ||
+	          (cimNInstances[i].getPath() == INSTANCE3)))
+            {
+                cerr << "Error: EnumInstances failed" << endl;
+                exit(1);
+            }
+        }
     }
     catch(Exception& e)
     {
-	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+	cerr << "Error: " << e.getMessage() << endl;
 	exit(1);
     }
 
-    PEGASUS_STD(cout) << "EnumInstances +++++ passed all tests" << PEGASUS_STD(endl);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    cout << "EnumInstances +++++ passed all tests" << endl;
     return 0;
 }

@@ -62,17 +62,17 @@ public:
     {
 
     }
+
     /** Constructor - Create a CIMInstance object from another Instance.
 	@param Instance object from which the new instance is created.
 	@return New instance
-	@example
-	ATTN:
     */
     CIMInstance(const CIMInstance& x)
     {
 	Inc(_rep = x._rep);
     }
-    /// Constructor - ATTN
+
+    /** Constructor. */
     CIMInstance& operator=(const CIMInstance& x)
     {
 	if (x._rep != _rep)
@@ -82,6 +82,7 @@ public:
 	}
 	return *this;
     }
+
     /**	Constructor - Creates an Instance object with the classname
 	from the input parameters
 	@param - String className to be used with new instance object
@@ -93,11 +94,13 @@ public:
     {
 	_rep = new CIMInstanceRep(className);
     }
-    /// Destructor
+
+    /** Destructor. */
     ~CIMInstance()
     {
 	Dec(_rep);
     }
+
     /**	getClassName - 	Returns the class name of the instance
 	@return String with the class name.
     */
@@ -106,6 +109,7 @@ public:
 	_checkRep();
 	return _rep->getClassName(); 
     }
+
     /**	addQualifier - Adds the CIMQualifier object to the instance.
 	Thows an exception of the CIMQualifier already exists in the instance
 	@param CIMQualifier object to add to instance
@@ -145,7 +149,6 @@ public:
 	@return: Returns qualifier object defined by index.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds  
-    ATTN: What is effect of out of range index???
     */
     CIMQualifier getQualifier(Uint32 pos)
     {
@@ -153,7 +156,7 @@ public:
 	return _rep->getQualifier(pos);
     }
 
-     /** getQualifier - Retrieves the qualifier object defined by the
+    /** getQualifier - Retrieves the qualifier object defined by the
 	index input parameter.  @ index for the qualifier object.
 	The index to qualifier objects is zero-origin and continuous
 	so that incrementing loops can be used to get all qualifier
@@ -161,9 +164,8 @@ public:
 	@return: Returns qualifier object defined by index. 
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds  
- 
-    ATTN: What is effect of out of range index???
-    ATTN: Is the above statement correct???
+	ATTN: What is effect of out of range index???
+	ATTN: Is the above statement correct???
     */
     CIMConstQualifier getQualifier(Uint32 pos) const
     {
@@ -177,7 +179,6 @@ public:
 	CIMInstance.
 	@exception Throws the OutOfBounds exception if the index
 	is out of bounds  
-
     */ 
     Uint32 getQualifierCount() const
     {
@@ -270,14 +271,10 @@ public:
 	return _rep->getPropertyCount();
     }
 
-    /**	operator int() - ATTN:
-    
-    */
+    /**	operator int() - ATTN: */
     operator int() const { return _rep != 0; }
 
-    /**	resolve - ATTN:
-    
-    */
+    /**	resolve - ATTN: */
     void resolve(DeclContext* declContext, const String& nameSpace);
 
     void resolve(
@@ -300,9 +297,7 @@ public:
 	_rep->toXml(out);
     }
 
-    /**	CIMMethod
-    
-    */
+    /**	prints the class in XML format. */
     void print(std::ostream &o=std::cout) const
     {
 	_checkRep();
@@ -313,7 +308,6 @@ public:
 	defined by the input parameter for equality of all components.
 	@param CIMInstance to be compared
 	@return Boolean true if they are identical
-    
     */
     Boolean identical(const CIMConstInstance& x) const;
 

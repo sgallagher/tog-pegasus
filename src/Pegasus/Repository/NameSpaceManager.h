@@ -166,6 +166,14 @@ public:
 	Boolean deepInheritance,
 	Array<String>& subClassNames) const;
 
+    /** Get the names of all superclasses (direct and indirect) of this
+	class.
+    */
+    void getSuperClassNames(
+	const String& nameSpaceName,
+	const String& className,
+	Array<String>& subClassNames) const;
+
 private:
 
     String _repositoryRoot;

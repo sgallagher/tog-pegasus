@@ -83,8 +83,8 @@ public:
     // Get the size of the file in bytes:
 
     static Boolean getFileSize(const String& path, Uint32& size);
-     /** Get the current working Directory
-    */
+
+    /** Get the current working Directory. */
     static Boolean getCurrentDirectory(String& path);
 
     /** Remove the given directory. The directory must be empty

@@ -242,8 +242,23 @@ public:
     */
     void deleteNameSpace(const String& nameSpace);
 
-
 private:
+
+    Boolean _getInstanceIndex(
+	const String& nameSpace,
+	const CIMReference& instanceName,
+	String& className,
+	Uint32& index,
+	Boolean searchSuperClasses = false) const;
+
+    String _getIndexFilePath(
+	const String& nameSpace,
+	const String& className) const;
+
+    String _getInstanceFilePath(
+	const String& nameSpace,
+	const String& className,
+	Uint32 index) const;
 
     String _repositoryRoot;
     RepositoryDeclContext* _context;

@@ -539,6 +539,26 @@ void NameSpaceManager::getSubClassNames(
 	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
 }
 
+void NameSpaceManager::getSuperClassNames(
+    const String& nameSpaceName,
+    const String& className,
+    Array<String>& subClassNames) const
+{
+    // -- Lookup namespace:
+
+    NameSpace* nameSpace = 0;
+
+    if (!_rep->table.lookup(nameSpaceName, nameSpace))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_NAMESPACE, nameSpaceName);
+
+    InheritanceTree& it = nameSpace->getInheritanceTree();
+
+    // -- Get names of all superclasses:
+
+    if (!it.getSuperClassNames(className, subClassNames))
+	throw PEGASUS_CIM_EXCEPTION(INVALID_CLASS, className);
+}
+
 String NameSpaceManager::getQualifiersRoot(const String& nameSpaceName) const
 {
     // -- Lookup namespace:

@@ -128,15 +128,15 @@ void TestCreateClass()
 
     // -- Create an instance of each class:
 
-    CIMInstance inst1("MyClass");
-    inst1.addProperty(CIMProperty("key", Uint32(111)));
+    CIMInstance inst0("MyClass");
+    inst0.addProperty(CIMProperty("key", Uint32(111)));
+    r.createInstance(NAMESPACE, inst0);
+
+    CIMInstance inst1("YourClass");
+    inst1.addProperty(CIMProperty("key", Uint32(222)));
     r.createInstance(NAMESPACE, inst1);
 
-    CIMInstance inst2("YourClass");
-    inst2.addProperty(CIMProperty("key", Uint32(222)));
-    r.createInstance(NAMESPACE, inst2);
-
-    // -- Enumerate the instances of 
+    // -- Enumerate instances names:
 
     Array<CIMReference> instanceNames = 
 	r.enumerateInstanceNames(NAMESPACE, "MyClass");
@@ -150,6 +150,25 @@ void TestCreateClass()
     assert(
 	instanceNames[1].toString() == "MyClass.key=111" ||
 	instanceNames[1].toString() == "YourClass.key=222");
+
+    // -- Enumerate instances:
+
+    Array<CIMInstance> instances = r.enumerateInstances(NAMESPACE, "MyClass");
+
+    assert(instances.size() == 2);
+
+    assert(
+	instances[0].identical(inst0) ||
+	instances[0].identical(inst1));
+
+    assert(
+	instances[1].identical(inst0) ||
+	instances[1].identical(inst1));
+
+#if 0
+    for (Uint32 i = 0; i < instances.size(); i++)
+	instances[i].print(cout);
+#endif
 
     // -- Delete the instances:
 

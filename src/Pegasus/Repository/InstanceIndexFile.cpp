@@ -174,7 +174,6 @@ Boolean InstanceIndexFile::lookup(
 	}
     }
 
-    // Not found:
     return false;
 }
 
@@ -339,6 +338,42 @@ Boolean InstanceIndexFile::remove(
     }
 
     return found;
+}
+
+Boolean InstanceIndexFile::appendInstanceNamesTo(
+    const String& path,
+    Array<CIMReference>& instanceNames,
+    Array<Uint32>& indices)
+{
+    // -- Open index file; return false if file doesn't exist:
+
+    String realPath;
+
+    if (!FileSystem::existsIgnoreCase(path, realPath))
+	return false;
+
+    ArrayDestroyer<char> p(realPath.allocateCString());
+
+    ifstream is(p.getPointer());
+
+    if (!is)
+	return false;
+
+    // -- Build instance-names array:
+
+    Array<char> line;
+    Uint32 hashCode;
+    const char* objectName;
+    Uint32 index;
+    Boolean error;
+
+    while (_GetNextRecord(is, line, hashCode, objectName, index, error))
+    {
+	instanceNames.append(objectName);
+	indices.append(index);
+    }
+
+    return true;
 }
 
 PEGASUS_NAMESPACE_END

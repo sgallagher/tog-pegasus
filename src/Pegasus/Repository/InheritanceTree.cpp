@@ -66,6 +66,8 @@ struct InheritanceTreeNode
 	Array<String>& subClassNames, 
 	Boolean deepInheritance);
 
+    void getSuperClassNames(Array<String>& superClassNames);
+
     void print(std::ostream& os) const;
 
     String className;
@@ -124,6 +126,17 @@ void InheritanceTreeNode::getSubClassNames(
 	{
 	    p->getSubClassNames(subClassNames, true);
 	}
+    }
+}
+
+void InheritanceTreeNode::getSuperClassNames(Array<String>& superClassNames)
+{
+    // For each superClass:
+
+    for (InheritanceTreeNode* p = superClass; p; p = p->superClass)
+    {
+	superClassNames.append(p->className);
+	p->getSuperClassNames(superClassNames);
     }
 }
 
@@ -281,6 +294,21 @@ Boolean InheritanceTree::getSubClassNames(
     }
 
     // Not found!
+    return false;
+}
+
+Boolean InheritanceTree::getSuperClassNames(
+    const String& className,
+    Array<String>& superClassNames) const
+{
+    InheritanceTreeNode* classNode;
+
+    if (_rep->table.lookup(className, classNode))
+    {
+	classNode->getSuperClassNames(superClassNames);
+	return true;
+    }
+
     return false;
 }
 

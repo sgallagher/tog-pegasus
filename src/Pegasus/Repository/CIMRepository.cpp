@@ -208,20 +208,24 @@ CIMClass CIMRepository::getClass(
     return cimClass;
 }
 
-static Boolean _GetInstanceIndex(
-    NameSpaceManager& nameSpaceManager,
+Boolean CIMRepository::_getInstanceIndex(
     const String& nameSpace,
     const CIMReference& instanceName,
-    String& instanceFileBase,
     String& className,
-    Uint32& index)
+    Uint32& index,
+    Boolean searchSuperClasses) const
 {
     // -- Get all descendent classes of this class:
 
     className = instanceName.getClassName();
     Array<String> classNames;
-    nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     classNames.prepend(className);
+
+    // -- Get all superclasses of this one:
+
+    if (searchSuperClasses)
+	_nameSpaceManager.getSuperClassNames(nameSpace, className, classNames);
 
     // -- Search each qualifying instance file for the instance:
 
@@ -230,16 +234,11 @@ static Boolean _GetInstanceIndex(
 	CIMReference tmpInstanceName = instanceName;
 	tmpInstanceName.setClassName(classNames[i]);
 
-	// -- Get common base (of instance file and index file):
-
-	instanceFileBase = 
-	    nameSpaceManager.getInstanceFileBase(nameSpace, classNames[i]);
-
 	// -- Lookup index of instance:
 
-	String indexFilePath = instanceFileBase + ".idx";
+	String path = _getIndexFilePath(nameSpace, classNames[i]);
     
-	if (InstanceIndexFile::lookup(indexFilePath, tmpInstanceName, index))
+	if (InstanceIndexFile::lookup(path, tmpInstanceName, index))
 	{
 	    className = classNames[i];
 	    return true;
@@ -259,23 +258,19 @@ CIMInstance CIMRepository::getInstance(
 {
     // -- Get the index for this instances:
 
-    String instanceFileBase;
     String className;
     Uint32 index;
 
-    if (!_GetInstanceIndex(_nameSpaceManager,
-	nameSpace, instanceName, instanceFileBase, className, index))
+    if (!_getInstanceIndex(nameSpace, instanceName, className, index))
     {
 	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, "getInstance()");
     }
 
     // Load the instance file:
 
-    char extension[32];
-    sprintf(extension, ".%d", index);
-    String instanceFilePath = instanceFileBase + extension;
+    String path = _getInstanceFilePath(nameSpace, className, index);
     CIMInstance cimInstance;
-    _LoadObject(instanceFilePath, cimInstance);
+    _LoadObject(path, cimInstance);
     return cimInstance;
 }
 
@@ -283,6 +278,17 @@ void CIMRepository::deleteClass(
     const String& nameSpace,
     const String& className)
 {
+    // -- Disallow deletion if class has instances:
+
+    String path = _getIndexFilePath(nameSpace, className);
+
+    String realPath;
+
+    if (FileSystem::existsIgnoreCase(path, realPath))
+	throw PEGASUS_CIM_EXCEPTION(CLASS_HAS_INSTANCES, className);
+
+    // -- Delete the class (disallowed if there are subclasses):
+
     _nameSpaceManager.deleteClass(nameSpace, className);
 }
 
@@ -290,7 +296,46 @@ void CIMRepository::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName) 
 {
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "deleteInstance()");
+    // -- Lookup index of entry from index file:
+
+    String indexFilePath = _getIndexFilePath(
+	nameSpace, instanceName.getClassName());
+
+    Uint32 index;
+
+    if (!InstanceIndexFile::lookup(indexFilePath, instanceName, index))
+	throw PEGASUS_CIM_EXCEPTION(NOT_FOUND, instanceName.toString());
+
+    // -- Attempt to remove the instance file:
+
+    String instanceFilePath = _getInstanceFilePath(
+	nameSpace, instanceName.getClassName(), index);
+
+    if (!FileSystem::removeFile(instanceFilePath))
+    {
+	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	    "failed to remove file in CIMRepository::deleteInstance()");
+    }
+
+    // -- Remove entry from index file:
+
+    InstanceIndexFile::remove(indexFilePath, instanceName);
+
+    // -- Delete index file if it is now empty (zero size):
+
+    Uint32 size;
+
+    if (!FileSystem::getFileSize(indexFilePath, size))
+    {
+	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	    "unexpected failure in CIMRepository::deleteInstance()");
+    }
+
+    if (size == 0 && !FileSystem::removeFile(indexFilePath))
+    {
+	throw PEGASUS_CIM_EXCEPTION(FAILED, 
+	    "unexpected failure in CIMRepository::deleteInstance()");
+    }
 }
 
 void CIMRepository::createClass(
@@ -325,24 +370,23 @@ void CIMRepository::createInstance(
 
     // -- Be sure instance does not already exist:
 
-    String dummyInstanceFileBase;
     String className;
     Uint32 dummyIndex;
 
-    if (_GetInstanceIndex(_nameSpaceManager,
-	nameSpace, instanceName, dummyInstanceFileBase, className, dummyIndex))
+    if (_getInstanceIndex(nameSpace, instanceName, className, dummyIndex, true))
     {
 	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, instanceName.toString());
     }
 
     // -- Get common base (of instance file and index file):
 
-    String instanceFileBase = _nameSpaceManager.getInstanceFileBase(nameSpace, 
-	newInstance.getClassName());
+    String instanceFileBase = _nameSpaceManager.getInstanceFileBase(
+	nameSpace, newInstance.getClassName());
 
     // -- Make index file entry:
 
-    String indexFilePath = instanceFileBase + ".idx";
+    String indexFilePath = _getIndexFilePath(
+	nameSpace, newInstance.getClassName());
     Uint32 index;
 
     if (!InstanceIndexFile::insert(indexFilePath, instanceName, index))
@@ -350,9 +394,9 @@ void CIMRepository::createInstance(
 
     // -- Save instance to file:
 
-    char extension[32];
-    sprintf(extension, ".%d", index);
-    String instanceFilePath = instanceFileBase + extension;
+    String instanceFilePath = _getInstanceFilePath(nameSpace, 
+	newInstance.getClassName(), index);
+
     _SaveObject(instanceFilePath, newInstance);
 }
 
@@ -437,18 +481,77 @@ Array<CIMInstance> CIMRepository::enumerateInstances(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
-{ 
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "enumerateInstances()");
+{
+    // -- Get all descendent classes of this class:
 
-    return Array<CIMInstance>();
+    Array<String> classNames;
+    _nameSpaceManager.getSubClassNames(
+	nameSpace, className, deepInheritance, classNames);
+    classNames.prepend(className);
+
+    // -- Search each qualifying instance file for the instance:
+
+    Array<CIMReference> instanceNames;
+    Array<Uint32> indices;
+    Array<CIMInstance> instances;
+    Uint32 start = 0;
+
+    for (Uint32 i = 0; i < classNames.size(); i++)
+    {
+	// -- Form the name of the class index file:
+
+	String path = _getIndexFilePath(nameSpace, classNames[i]);
+
+	// Get all instance names for that class:
+    
+	InstanceIndexFile::appendInstanceNamesTo(path, instanceNames, indices);
+	PEGASUS_ASSERT(instanceNames.size() == indices.size());
+
+	// -- Load up all the instances of this class:
+
+	for (Uint32 j = start; j < instanceNames.size(); j++)
+	{
+	    String instanceFilePath = _getInstanceFilePath(
+		nameSpace, classNames[i], indices[i]);
+
+	    CIMInstance tmpInstance;
+	    _LoadObject(instanceFilePath, tmpInstance);
+	    instances.append(tmpInstance);
+	}
+
+	start = instanceNames.size();
+    }
+
+    return instances;
 }
 
 Array<CIMReference> CIMRepository::enumerateInstanceNames(
     const String& nameSpace,
     const String& className) 
-{ 
-    throw PEGASUS_CIM_EXCEPTION(NOT_SUPPORTED, "enumerateInstanceNames()");
-    return Array<CIMReference>();
+{
+    // -- Get all descendent classes of this class:
+
+    Array<String> classNames;
+    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+    classNames.prepend(className);
+
+    // -- Search each qualifying instance file for the instance:
+
+    Array<CIMReference> instanceNames;
+    Array<Uint32> indices;
+
+    for (Uint32 i = 0; i < classNames.size(); i++)
+    {
+	// -- Form the name of the class index file:
+
+	String path = _getIndexFilePath(nameSpace, classNames[i]);
+
+	// Get all instances for that class:
+    
+	InstanceIndexFile::appendInstanceNamesTo(path, instanceNames, indices);
+    }
+
+    return instanceNames;
 }
 
 Array<CIMInstance> CIMRepository::execQuery(
@@ -637,6 +740,27 @@ Array<String> CIMRepository::enumerateNameSpaces() const
 void CIMRepository::deleteNameSpace(const String& nameSpace)
 {
     _nameSpaceManager.deleteNameSpace(nameSpace);
+}
+
+String CIMRepository::_getIndexFilePath(
+    const String& nameSpace,
+    const String& className) const
+{
+    String tmp = _nameSpaceManager.getInstanceFileBase(nameSpace, className);
+    tmp.append(".idx");
+    return tmp;
+}
+
+String CIMRepository::_getInstanceFilePath(
+    const String& nameSpace,
+    const String& className,
+    Uint32 index) const
+{
+    String tmp = _nameSpaceManager.getInstanceFileBase(nameSpace, className);
+    char extension[32];
+    sprintf(extension, ".%d", index);
+    tmp += extension;
+    return tmp;
 }
 
 PEGASUS_NAMESPACE_END

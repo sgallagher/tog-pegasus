@@ -100,6 +100,14 @@ public:
     static Boolean remove(
 	const String& path, 
 	const CIMReference& instanceName);
+
+    /** Get instance names of the given class. Append them to the given
+	array (do not clear the array first).
+    */
+    static Boolean appendInstanceNamesTo(
+	const String& path,
+	Array<CIMReference>& instanceNames,
+	Array<Uint32>& indices);
 };
 
 PEGASUS_NAMESPACE_END

@@ -192,6 +192,12 @@ public:
 	Boolean deepInheritance,
 	Array<String>& subClassNames) const;
 
+    /** Get the names of all superclasses of this class (direct and indirect).
+    */
+    Boolean getSuperClassNames(
+	const String& className,
+	Array<String>& subClassNames) const;
+
     /** Get the superclass of the given class.
 	@param className name of class.
 	@param superClassName name of superclass upon return.

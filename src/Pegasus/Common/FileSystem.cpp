@@ -98,6 +98,7 @@ Boolean FileSystem::existsIgnoreCase(const String& path, String& realPath)
 	dirPath = ".";
     }
 
+
     for (Dir dir(dirPath); dir.more(); dir.next())
     {
 	if (CompareIgnoreCase(fileName, dir.getName()) == 0)

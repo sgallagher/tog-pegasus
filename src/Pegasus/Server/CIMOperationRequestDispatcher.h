@@ -442,10 +442,14 @@ public:
 
       void _fixSetPropertyValueType(CIMSetPropertyRequestMessage* request);
 
-      void _checkExistenceOfClass(
-          const CIMNamespaceName& nameSpace,
-	  const CIMName& className,
-	  CIMException& cimException);
+      void _checkExistenceOfClass(const CIMNamespaceName& nameSpace,
+		                          const CIMName& className,
+		                          CIMException& cimException);
+	  
+	  CIMClass _getClass(const CIMNamespaceName& nameSpace,
+		                 const CIMName& className,
+		                 CIMException& cimException);
+
 
       CIMRepository * _repository;
 

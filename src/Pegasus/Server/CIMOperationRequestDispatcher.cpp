@@ -402,6 +402,215 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
 }
 
 ///////////////////////////////////////////////////////////////////////////
+//	PropertyList builder functions.
+//  Builds property list for enumerates based on input of cimclass,
+//  localOnly parameter (true/false) and input propertylist
+//
+//////////////////////////////////////////////////////////////////////////
+
+/* local support for display of propertyLists.
+*/
+String _toStringPropertyList(const CIMPropertyList& pl)
+{
+    String tmp;
+    for (Uint32 i = 0; i < pl.size() ; i++)
+    {
+        if (i > 0)
+            tmp.append(", ");
+        tmp.append(pl[i].getString());
+    }
+    return(tmp);
+}
+
+/* _showPropertyList is local support for displaying the propertylist
+*/
+String _showPropertyList(const CIMPropertyList& pl)
+{
+    if (pl.isNull())
+        return("NULL");
+
+    String tmp = " ";
+
+    tmp.append((pl.size() == 0) ? "Empty" : _toStringPropertyList(pl));
+    return(tmp);
+}
+
+/** determine of the the input property is in the list.
+    @param property list
+    @param name of property to compare
+*/
+Boolean _containsProperty(const CIMPropertyList& pl, const CIMName& pn)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+           "CIMOperationRequestDispatcher::_containsProperty");
+    for (Uint32 i = 0; i < pl.size() ; i++)
+    {
+        // if name found in propertyList return true
+        if (pn.equal(pl[i].getString()))
+        {
+            PEG_METHOD_EXIT();
+            return(true);
+        }
+    }
+    PEG_METHOD_EXIT();
+    return(false);
+}
+
+/*  Determine of the the input property is in the array.
+    @param plA Array<CINMame> containing list of properties
+    @param name of property to compare
+*/
+Boolean _containsPropertyArray(const Array<CIMName>& pl, const CIMName& pn)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+           "CIMOperationRequestDispatcher::_containsPropertyArray");
+    
+    for (Uint32 i = 0; i < pl.size() ; i++)
+    {
+        // if name found in propertyList return true
+        if (pl[i].equal(pn))
+        {
+            PEG_METHOD_EXIT();
+            return(true);
+        }
+    }
+    PEG_METHOD_EXIT();
+    return(false);
+}
+
+/* build a propertylist from a CIMClass. Builds a list of the properties in the
+    class either localOnly properties (if localOnly in parameter is true) or
+    all properties in the class.
+    @param CIMClass cl - Class from which list is to be built
+    @param Boolean localOnly - if true only non-propagated properties are included
+    in the output list
+    @return Array<CIMName> list containing the properties.
+*/
+
+Array<CIMName> _buildPropertyList(const CIMClass cl, const Boolean localOnly)
+{
+    Array<CIMName> outputPropertyListArray;
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+           "CIMOperationRequestDispatcher::_buildPropertyList");
+
+    for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
+    {
+         CIMConstProperty p = cl.getProperty(i);
+         CIMName n = p.getName();
+
+         if (!localOnly || (localOnly && !p.getPropagated()))
+             outputPropertyListArray.append(n);
+    }
+    PEG_METHOD_EXIT();
+    return(outputPropertyListArray);
+}
+
+
+/* Add properties to a propertyListArray based on the properties in
+   the class provided.  Note that this adds the localOnly properties and only
+   if they are not already in the list.  This function assumes that there
+   may be duplicated properties.
+   @param pl contains the current list of properties to which any new
+   local properties from the defined class must be added.
+   @param namespace - The namespace in which we are working.
+   @param class The class from which any new local properties should be
+   extracted.
+   @return true if any new properties added, false if no new properties added.
+*/
+Boolean _addPropertiesToArray(Array<CIMName>& pl, const CIMClass& cimClass)
+{
+
+   Boolean rtn = false;
+
+   // Build local list of properties from the class and flag
+   Array<CIMName> plLocalArray;
+   plLocalArray = _buildPropertyList(cimClass, true);
+
+   if (plLocalArray.size() == 0)
+       return(false);
+
+   // if new class properties are not already in current list,
+   // add them.
+   for (Uint32 i = 0 ; i < plLocalArray.size() ; i++)
+   {
+       if (!_containsPropertyArray(pl, plLocalArray[i]))
+       {
+           pl.append(plLocalArray[i]);
+           rtn = true;
+       }
+   }
+   return(rtn);
+}
+
+/*  Build list of properties based on class, localOnly and request input list.
+    <ul>
+    <li> localonly and property list.  local properties filtered with propertylist
+    <li> !localOnly and property list , all properties filtered with propertylist
+    <li> localonly and null property list - all local properties
+    <li> !localonly and null propertylist - all properties
+    <li> localonly and empty property list - empty propertyList
+    <li> !localonly and empty propertylist - empty propertylist
+    </ul>
+    @return true if we are to send list built.  False if we are to send
+    list as received.  The list is in the outputPropertyList parameter.
+    @param CIMClass target class. Used to determine list of local properties
+    for the propertylist.
+    @param Boolean localOnly parameter
+    @param CIMPropertyList pl, input propertyList object. This list is used
+    to construct new list for output
+    @param reference to returned property list.
+    @return Boolean true if there is a propertylist returned
+*/
+
+Boolean _mergePropertyLists(const CIMClass cl, const Boolean localOnly,
+    const CIMPropertyList pl, Array<CIMName>& outputPropertyListArray)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+           "CIMOperationRequestDispatcher::_mergePropertyLists");
+
+    Boolean listIsNull = pl.isNull();
+    
+    // if property list is  !NULL but empty, we send empty propertylist
+    // with NO properties independent of localOnly. 
+    //
+    if (!listIsNull && (pl.size() == 0))
+    {
+        PEG_METHOD_EXIT();
+        return(false);
+    }
+   
+   // ATTN: Spec says property must be in this class. Do we need additional
+   // test to assure that properties in list are in this class.  Or is this
+   // covered below? 
+   // If list null and !localOnly, request is for all properties.  Do not 
+   // create a new list.
+   if (listIsNull && !localOnly)
+   {
+       PEG_METHOD_EXIT();
+       return(false);
+   }
+
+   // ATTN: Optimization: There is another option where there are NO nonlocal 
+   // properties and localOnly not important. Set flag to determine 
+   // !localOnly property count.
+
+   for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
+   {
+        CIMConstProperty p = cl.getProperty(i);
+        CIMName n = p.getName();
+
+        if (listIsNull || _containsProperty(pl, n))
+        {
+            if (!localOnly || (localOnly && !p.getPropagated()))
+                outputPropertyListArray.append(n);
+        }
+   }
+   PEG_METHOD_EXIT();
+   return(true);
+}
+
+
+///////////////////////////////////////////////////////////////////////////
 // Provider Lookup Functions
 ///////////////////////////////////////////////////////////
 /* _lookupAllInstanceProviders - Returns the list of all subclasses of this
@@ -2874,85 +3083,21 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     CIMEnumerateInstancesRequestMessage* request)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-       "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
+   CDEBUG("EnumerateInstances. lo = " << ((request->localOnly)? "true" : "false"));
+   // get the class name
+   CIMName className = request->className;
+   Array<CIMName> localPropertyListArray;
+   CIMClass cimClass;
+   CIMException checkClassException;
 
-    CIMException checkClassException;
-    _checkExistenceOfClass(request->nameSpace,
-                           request->className,
-                           checkClassException);
-    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
-    {
-        CIMEnumerateInstancesResponseMessage* response =
-            new CIMEnumerateInstancesResponseMessage(request->messageId,
-                checkClassException,
-                request->queueIds.copyAndPop(),
-                Array<CIMInstance>());
-
-        STAT_COPYDISPATCHER_REP
-        _enqueueResponse(request, response);
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    /***** ATTN: KS 28 May 2002 - localonly and deepinheritance processing
-         temporarily removed until testing complete.
-    // If localonly or deepinheritance, build propertylist.
-    // unless there is specific propertylist. Assume that
-    // specific property list has priority over that generated
-    // from localOnly
-    Array<CIMName> classProperties;
-    if (!request->deepInheritance || request->localOnly)
-    {
-        if (request->propertyList.isNull())
-        {
-            CIMClass cl;
-            // add try here
-            // get the class.
-            cl = _repository->getClass(
-                request->nameSpace,
-                request->className,
-                true, false, false);
-            for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
-            {
-                 CIMProperty p = cl.getProperty(i);
-                 if (request->localOnly)
-                 {
-                     if (!p.getPropagated())
-                         classProperties.append(p.getName());
-                 }
-                 else
-                     classProperties.append(p.getName());
-            }
-            // We now have property list and can either send it to
-            // the provider or save for review of the responses.
-        }
-    }
-    NOTE: See the piece below that puts it into the PoA
-    **************************************************/
-
-    //
-    // Get names of descendent classes:
-    //
-    CIMException cimException;
-    Array<ProviderInfo> providerInfos;
-
-    // This gets set by _lookupAllInstanceProviders()
-    Uint32 providerCount;
-
-    try
-    {
-        providerInfos = _lookupAllInstanceProviders(request->nameSpace,
-                                                    request->className,
-                                                    providerCount);
-    }
-    catch(CIMException& exception)
-    {
-        // Return exception response if exception from getSubClasses
-        cimException = exception;
-        CIMEnumerateInstancesResponseMessage* response =
-        new CIMEnumerateInstancesResponseMessage(request->messageId,
-            cimException,
+   cimClass = _getClass(request->nameSpace, className, checkClassException);
+   if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+   {
+      CIMEnumerateInstancesResponseMessage* response =
+         new CIMEnumerateInstancesResponseMessage(request->messageId,
+            checkClassException,
             request->queueIds.copyAndPop(),
             Array<CIMInstance>());
 
@@ -2961,6 +3106,74 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         return;
     }
 
+   // localonly and property list.  local properties filtered with propertylist
+   // !localOnly and property list , all properties filtered with propertylist
+   // localonly and null property list - all local properties
+   // !localonly and null propertylist - all properties if di true, else this class properties
+   // localonly and empty property list - empty propertyList
+   // !localonly and empty propertylist - empty propertylist
+   // Question if propertylist empty and di = true -- WHAT Return?
+   
+   CDEBUG("CIMOP ei propertyList0= " << _showPropertyList(request->propertyList));
+   Boolean rtn;
+
+   rtn = _mergePropertyLists(cimClass, 
+                        request->localOnly,
+			            request->propertyList, 
+                        localPropertyListArray);
+   
+   CDEBUG("EnumerateInstances Built property list size = " << localPropertyListArray.size());
+   for (Uint32 i = 0; i < localPropertyListArray.size() ; i++)
+   {
+       CDEBUG("P= " << localPropertyListArray[i].getString());
+   }
+   
+   CDEBUG("CIMOP ei propertyList1= " << _showPropertyList(request->propertyList));
+   if (rtn)
+   {
+       CIMPropertyList pl(localPropertyListArray);
+	   request->propertyList = pl;
+   }
+   CDEBUG("CIMOP ei propertyList2= " << _showPropertyList(request->propertyList));
+   
+
+   // NOTE: See the piece below that puts it into the PoA
+   // Note that we are not making use of the rtn.
+   // Need to cover di
+   //
+   // Get names of descendent classes:
+   //
+   CIMException cimException;
+   Array<ProviderInfo> providerInfos;
+   //CIMPropertyList plLocal = request->pl;
+   // Note that we modify this in the function.
+   Uint32 providerCount;
+   
+   try
+   {
+       CDEBUG("Looking up Instance Providers");
+       providerInfos = _lookupAllInstanceProviders(request->nameSpace,
+                                                  className,
+                                                  providerCount);
+   }
+   catch(CIMException& exception)
+   {
+       // Return exception response if exception from getSubClasses
+       cimException = exception;
+       CIMEnumerateInstancesResponseMessage* response =
+       new CIMEnumerateInstancesResponseMessage(request->messageId,
+         cimException,
+         request->queueIds.copyAndPop(),
+         Array<CIMInstance>());
+
+       _enqueueResponse(request, response);
+       PEG_METHOD_EXIT();
+       return;
+   }
+
+   Uint32 toIssueCount = providerInfos.size();
+
+   STAT_PROVIDERSTART
     // Test for "enumerate too Broad" and if so, execute exception.
     // This limits the number of provider invocations, not the number
     // of instances returned.
@@ -2990,13 +3203,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 request->queueIds.copyAndPop(),
                 Array<CIMInstance>());
 
-        // CIMEnumerateInstancesResponseMessage* response =
-        //     new CIMEnumerateInstancesResponseMessage(request->messageId,
-        //         PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-        //             "Enumerate request too Broad"),
-        //             request->queueIds.copyAndPop(),
-        //             Array<CIMInstance>());
-
         STAT_COPYDISPATCHER
 
         _enqueueResponse(request, response);
@@ -3006,6 +3212,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     // If no provider is registered and the repository isn't the default,
     // return CIM_ERR_NOT_SUPPORTED
+
     if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
     {
         PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
@@ -3023,6 +3230,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         PEG_METHOD_EXIT();
         return;
     }
+
+   //
+   // Get names of descendent classes:
+   //
+   //CIMException cimException;
+   //Array<ProviderInfo> providerInfos;
 
     // We have instances for Providers and possibly repository.
     // Set up an aggregate object and save a copy of the original request.
@@ -3045,14 +3258,16 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         poA->setTotalIssued(providerCount);
     }
 
+    CDEBUG("Before Loop to send requests. numClasses = " << numClasses);
     // Loop through providerInfos, forwarding requests to providers
     for (Uint32 i = 0; i < numClasses; i++)
     {
         // If this class has a provider
+        CIMClass cimClassLocal;
         if (providerInfos[i]._hasProvider)
         {
             STAT_PROVIDERSTART
-
+            
             PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
                 Formatter::format(
                     "EnumerateInstances Req. class $0 to svc \"$1\" for "
@@ -3061,15 +3276,42 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     providerInfos[i]._serviceName,
                     providerInfos[i]._controlProviderName,
                     i, numClasses, poA->_aggregationSN));
-
+            
             CIMEnumerateInstancesRequestMessage* requestCopy =
                 new CIMEnumerateInstancesRequestMessage(*request);
-
+            
             requestCopy->className = providerInfos[i]._className;
 
+            CIMException checkClassException;
+            if (request->deepInheritance && !request->propertyList.isNull())
+            {
+                cimClassLocal = _getClass(request->nameSpace, providerInfos[i]._className,
+                                                checkClassException);
+                // The following is not correct. Need better way to terminate.
+                if (checkClassException.getCode() != CIM_ERR_SUCCESS)
+                {
+                  CIMEnumerateInstancesResponseMessage* response =
+                     new CIMEnumerateInstancesResponseMessage(request->messageId,
+                        checkClassException,
+                        request->queueIds.copyAndPop(),
+                        Array<CIMInstance>());
+                
+                    Boolean isDoneAggregation = poA->appendResponse(response);
+                    if (isDoneAggregation)
+                    {
+                        handleOperationResponseAggregation(poA);
+                    }
+                }
+                else
+                {
+                   _addPropertiesToArray(localPropertyListArray,cimClassLocal);
+                   CIMPropertyList pl(localPropertyListArray);
+                   requestCopy->propertyList = pl;
+                }
+            }
+            // Save for test cout << _toStringPropertyList(requestCopy->propertyList) << endl;
             _forwardRequestForAggregation(providerInfos[i]._serviceName,
                 providerInfos[i]._controlProviderName, requestCopy, poA);
-
             STAT_PROVIDEREND
         }
     }
@@ -5536,5 +5778,64 @@ void CIMOperationRequestDispatcher::_checkExistenceOfClass(
 
    _repository->read_unlock();
 }
+
+CIMClass CIMOperationRequestDispatcher::_getClass(
+   const CIMNamespaceName& nameSpace,
+   const CIMName& className,
+   CIMException& cimException)
+{
+   if (className.equal (CIMName (PEGASUS_CLASSNAME___NAMESPACE)))
+   {
+      return CIMClass();
+   }
+
+   CIMClass cimClass;
+
+   _repository->read_lock();
+
+   // get the complete class, specifically not local only
+   try
+   {
+      cimClass = _repository->getClass(
+         nameSpace,
+         className,
+         false,
+         true,
+         true,
+         CIMPropertyList());
+
+      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		  "CIMOperationRequestDispatcher::_getClass - Name Space: $0  Class Name: $1",
+		  nameSpace.getString(),
+		  className.getString());
+   }
+   catch(CIMException& exception)
+   {
+      // map CIM_ERR_NOT_FOUND to CIM_ERR_INVALID_CLASS
+      if (exception.getCode() == CIM_ERR_NOT_FOUND)
+      {
+         cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
+                                              className.getString());
+      }
+      else
+      {
+         cimException = exception;
+      }
+   }
+   catch(Exception& exception)
+   {
+      cimException =
+         PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
+   }
+   catch(...)
+   {
+      cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
+   }
+
+   _repository->read_unlock();
+
+   return(cimClass);
+}
+
 
 PEGASUS_NAMESPACE_END

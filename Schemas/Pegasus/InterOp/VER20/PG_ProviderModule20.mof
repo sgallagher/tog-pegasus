@@ -207,7 +207,7 @@ class PG_ProviderCapabilitiesElements : CIM_Dependency {
     PG_Provider REF Antecedent;
       [Override ("Dependent"), Weak,
        Description ("The Capability of the CIM_Provider.")]
-    PG_RegistrationCapabilities REF Dependent;
+    PG_CapabilitiesRegistration REF Dependent;
 };
 
 

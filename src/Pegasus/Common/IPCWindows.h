@@ -240,7 +240,7 @@ inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void)
 }
 
 // l10n start
-typedef PEGASUS_THREAD_KEY_TYPE DWORD;
+typedef DWORD PEGASUS_THREAD_KEY_TYPE;
 
 inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
 {

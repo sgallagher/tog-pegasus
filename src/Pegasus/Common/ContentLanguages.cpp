@@ -100,6 +100,11 @@ PEGASUS_NAMESPACE_BEGIN
 		return stream;
 	}
 	
+ContentLanguages ContentLanguages::operator=(ContentLanguages rhs){
+	LanguageElementContainer::operator=(rhs);
+	return *this;	
+}
+
 	int ContentLanguages::find(String language_tag){
 		return LanguageElementContainer::find(ContentLanguageElement(language_tag));
 	}

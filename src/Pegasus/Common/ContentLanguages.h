@@ -127,7 +127,13 @@ public:
 	 * according to the RFC
 	 */
 	friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, ContentLanguages cl);
-	
+
+	/**
+	 * Assignment 
+	 * @param rhs ContentLanguages
+	 */
+	ContentLanguages operator=(ContentLanguages rhs);
+
 private:	
 
 	virtual void buildLanguageElements(Array<String> values);

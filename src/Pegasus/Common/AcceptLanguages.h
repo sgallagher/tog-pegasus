@@ -96,6 +96,12 @@ public:
 	friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, AcceptLanguages al);
 	
 	/**
+	 * Assignment 
+	 * @param rhs AcceptLanguages
+	 */
+	AcceptLanguages operator=(AcceptLanguages rhs);
+
+	/**
 	 * Random access into this container given an index
 	 * @param index int - index into the container
 	 * @return AcceptLanguageElement - valid element 
@@ -133,7 +139,7 @@ public:
 	void remove(Uint32 index);
 
 	/**
-	 * Removes the element matching the parameter, returns -1 if not found
+	 * Removes the element matching the parameter
 	 * @param element AcceptLanguageElement - element to remove
 	 * @return int  -1 if element not found, otherwise returns the position of element before the remove.
 	 */

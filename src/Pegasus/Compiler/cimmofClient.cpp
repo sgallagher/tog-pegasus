@@ -29,8 +29,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "cimmofClient.h"
-#include <Pegasus/Common/Monitor.h>
-#include <Pegasus/Common/HTTPConnector.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMInstance.h>

@@ -436,7 +436,7 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     // Check for both return code from mktime as well as errno. 
     // In case of Windows errno is not set, only check for return code 
     // from mktime for Windows platform.
-#ifdef PEGASUS_OS_TYPE_UNIX
+#ifdef PEGASUS_OS_HPUX
     if ( timeStartInSeconds == (time_t)-1 && errno == ERANGE)
 #else
     if ( timeStartInSeconds == (time_t)-1 )
@@ -452,7 +452,7 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     // Check for both return code from mktime as well as errno. 
     // In case of Windows errno is not set, only check for return code 
     // from mktime for Windows platform.
-#ifdef PEGASUS_OS_TYPE_UNIX
+#ifdef PEGASUS_OS_HPUX
     if ( timeFinishInSeconds == (time_t)-1 && errno == ERANGE)
 #else
     if ( timeFinishInSeconds == (time_t)-1 )

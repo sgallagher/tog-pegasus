@@ -40,301 +40,394 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-    // ATTN-P2-KS 20 Mar 2002 - Needs expansion of tests.
-    // get the output display flag.
-    Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+    try
+    {
+        // ATTN-P2-KS 20 Mar 2002 - Needs expansion of tests.
+        // get the output display flag.
+        Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+        
+        CIMDateTime dt;
+        dt.set("19991224120000.000000+360");
     
-    CIMDateTime dt;
-    dt.set("19991224120000.000000+360");
+        dt.clear();
+        assert (dt.equal (CIMDateTime ("00000000000000.000000:000")));
+    
+        {
+            Boolean bad = false;
 
-    dt.clear();
-    assert (dt.equal (CIMDateTime ("00000000000000.000000:000")));
+            try
+            {
+                dt.set("too short");
+            }
+            catch (InvalidDateTimeFormatException&)
+            {
+                bad = true;
+            }
 
-    {
-	Boolean bad = false;
+            assert(bad);
+        }
+    
+        {
+            Boolean bad = false;
+    
+            try
+            {
+                dt.set("too short");
+                dt.set("19990132120000.000000+360");
+            }
+            catch (InvalidDateTimeFormatException&)
+            {
+                bad = true;
+            }
 
-	try
-	{
-	    dt.set("too short");
-	}
-	catch (InvalidDateTimeFormatException&)
-	{
-	    bad = true;
-	}
-
-	assert(bad);
-    }
-
-    {
-	Boolean bad = false;
-
-	try
-	{
-	    dt.set("too short");
-	    dt.set("19990132120000.000000+360");
-	}
-	catch (InvalidDateTimeFormatException&)
-	{
-	    bad = true;
-	}
-
-	assert(bad);
-    }
-    if (verbose)
-	cout << dt << endl;
-
-    CIMDateTime dt1;
-    dt1 = dt;
- 
-    //
-    // Tests for getCurrentDateTime and getDifference.
-    //
-    CIMDateTime         startTime, finishTime;
-    Sint64              differenceInMicroseconds;
-
-
-    //
-    // Call getCurrentDateTime
-    //
-    //startTime = CIMDateTime::getCurrentDateTime();
-    //finishTime = CIMDateTime::getCurrentDateTime();
-
-    // Set the start and finish times
-    startTime.set("20020507170000.000000-480");
-    finishTime.set("20020507170000.000000-300");
-
-    //
-    // Call getDifference
-    //
-    try 
-    {
+            assert(bad);
+        }
+        if (verbose)
+    	cout << dt << endl;
+    
+        CIMDateTime dt1;
+        dt1 = dt;
+     
+        //
+        // Tests for getCurrentDateTime and getDifference.
+        //
+        CIMDateTime         startTime, finishTime;
+        Sint64              differenceInMicroseconds;
+    
+        //
+        // Call getCurrentDateTime
+        //
+        //startTime = CIMDateTime::getCurrentDateTime();
+        //finishTime = CIMDateTime::getCurrentDateTime();
+    
+        // Set the start and finish times
+        startTime.set("20020507170000.000000-480");
+        finishTime.set("20020507170000.000000-300");
+    
+        //
+        // Call getDifference
+        //
         differenceInMicroseconds = CIMDateTime::getDifference (startTime,
             finishTime);
-    }
-    catch(InvalidDateTimeFormatException &e)
-    {
-    }
-
-    if (verbose)
-    {
-        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-        cout << "Start date time is  : " << startTime << endl;
-        cout << "Finish date time is : " << finishTime << endl;
-    }
-
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-    assert ( differenceInMicroseconds == -10800000000LL );
-#else
-    assert ( differenceInMicroseconds == -10800000000 );
-#endif
-
-    //
-    //  Test date difference with microseconds
-    //
-    // Set the start and finish times
-    startTime.clear ();
-    finishTime.clear ();
-    finishTime.set ("20020507170000.000003-480");
-    startTime.set ("20020507170000.000000-300");
-
-    //
-    // Call getDifference
-    //
-    try 
-    {
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+        }
+    
+        assert (differenceInMicroseconds == 
+            -PEGASUS_SINT64_LITERAL(10800000000));
+    
+        //
+        //  Test date difference with microseconds
+        //
+        // Set the start and finish times
+        startTime.clear ();
+        finishTime.clear ();
+        finishTime.set ("20020507170000.000003-480");
+        startTime.set ("20020507170000.000000-300");
+    
+        //
+        // Call getDifference
+        //
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime, 
+            finishTime);
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+        }
+    
+        assert (differenceInMicroseconds == 
+            PEGASUS_SINT64_LITERAL(10800000003));
+    
+        // Set the start and finish times
+        startTime.clear ();
+        finishTime.clear ();
+        finishTime.set ("20020507170000.000000-480");
+        startTime.set ("20020507170000.000003-300");
+    
+        //
+        // Call getDifference
+        //
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime, 
+            finishTime);
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+        }
+        assert (differenceInMicroseconds == 
+            PEGASUS_SINT64_LITERAL(10799999997));
+    
+        // Set the start and finish times
+        startTime.clear();
+        finishTime.clear();
+        finishTime.set("20020507170000.000000-480");
+        startTime.set("20020507170000.000000-300");
+    
+        //
+        // Call getDifference
+        //
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+            finishTime);
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+        }
+    
+        assert (differenceInMicroseconds == 
+            PEGASUS_SINT64_LITERAL(10800000000));
+    
+        // Set the start and finish times
+        startTime.clear();
+        startTime.set("20020507170000.000000+330");
+        finishTime.clear(); 
+        finishTime.set("20020507170000.000000-480");
+    
+        //
+        // Call getDifference
+        //
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+            finishTime);
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+        }
+    
+        assert (differenceInMicroseconds == 
+            PEGASUS_SINT64_LITERAL(48600000000));
+    
+        // Set the start and finish times
+        startTime.clear();
+        finishTime.clear(); 
+        finishTime.set("20020507170000.000000+330");
+        startTime.set("20020507170000.000000-480");
+    
+        //
+        // Call getDifference
+        //
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+            finishTime);
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+        }
+    
+        assert (differenceInMicroseconds == 
+            -PEGASUS_SINT64_LITERAL(48600000000));
+    
+        //
+        // Set the start and finish times
+        //
+        startTime.set ("19011214000000.000000-000");
+        finishTime.set("19011215000000.000000-000");
+    
+        //
+        // Call getDifference
+        //
+        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
+            finishTime);
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+            char buffer [32];
+            sprintf (buffer, "%lli", differenceInMicroseconds);
+            cout << "differenceInMicroseconds : " << buffer << endl;
+        }
+    
+        assert (differenceInMicroseconds == 
+            PEGASUS_SINT64_LITERAL(86400000000));
+    
+        //
+        //  ATTN-CAKG-P2-20020819: the following test currently returns an 
+        //  incorrect result
+        //
+        // Set the start and finish times
+        //
+        startTime.set ("19000101000000.000000-000");
+        finishTime.set("19000102000000.000000-000");
+    
+        //
+        // Call getDifference
+        //
         differenceInMicroseconds = CIMDateTime::getDifference
-            (startTime, finishTime);
-    }
-    catch (InvalidDateTimeFormatException & e)
-    {
-    }
-
-    if (verbose)
-    {
-        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-        cout << "Start date time is  : " << startTime << endl;
-        cout << "Finish date time is : " << finishTime << endl;
-    }
-
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-    assert (differenceInMicroseconds == 10800000003LL);
-#else
-    assert (differenceInMicroseconds == 10800000003);
-#endif
-
-    // Set the start and finish times
-    startTime.clear ();
-    finishTime.clear ();
-    finishTime.set ("20020507170000.000000-480");
-    startTime.set ("20020507170000.000003-300");
-
-    //
-    // Call getDifference
-    //
-    try 
-    {
-        differenceInMicroseconds = CIMDateTime::getDifference
-            (startTime, finishTime);
-    }
-    catch (InvalidDateTimeFormatException & e)
-    {
-    }
-
-    if (verbose)
-    {
-        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-        cout << "Start date time is  : " << startTime << endl;
-        cout << "Finish date time is : " << finishTime << endl;
-    }
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-    assert (differenceInMicroseconds == 10799999997LL);
-#else
-    assert (differenceInMicroseconds == 10799999997);
-#endif
-
-    // Set the start and finish times
-    startTime.clear();
-    finishTime.clear();
-    finishTime.set("20020507170000.000000-480");
-    startTime.set("20020507170000.000000-300");
-
-    //
-    // Call getDifference
-    //
-    try 
-    {
+            (startTime,finishTime);
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+            char buffer [32];
+            sprintf (buffer, "%lli", differenceInMicroseconds);
+            cout << "differenceInMicroseconds : " << buffer << endl;
+        }
+    
+        //assert (differenceInMicroseconds == 
+            //PEGASUS_SINT64_LITERAL(86400000000));
+    
+        //
+        // Set the start and finish times
+        //
+        startTime.set ("20370101000000.000000-000");
+        finishTime.set("20370102000000.000000-000");
+    
+        //
+        // Call getDifference
+        //
         differenceInMicroseconds = CIMDateTime::getDifference (startTime,
             finishTime);
-    }
-    catch(InvalidDateTimeFormatException &e)
-    {
-    }
-
-    if (verbose)
-    {
-        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-        cout << "Start date time is  : " << startTime << endl;
-        cout << "Finish date time is : " << finishTime << endl;
-    }
-
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-    assert ( differenceInMicroseconds == 10800000000LL );
-#else
-    assert ( differenceInMicroseconds == 10800000000 );
-#endif
-
-    // Set the start and finish times
-    startTime.clear();
-    startTime.set("20020507170000.000000+330");
-    finishTime.clear(); 
-    finishTime.set("20020507170000.000000-480");
-
-    //
-    // Call getDifference
-    //
-    try 
-    {
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+            char buffer [32];
+            sprintf (buffer, "%lli", differenceInMicroseconds);
+            cout << "differenceInMicroseconds : " << buffer << endl;
+        }
+    
+        assert (differenceInMicroseconds == 
+            PEGASUS_SINT64_LITERAL(86400000000));
+    
+        //
+        //  ATTN-CAKG-P2-20020819: the following test currently returns an 
+        //  incorrect result
+        //
+        // Set the start and finish times
+        //
+        startTime.set ("20380120000000.000000-000");
+        finishTime.set("20380121000000.000000-000");
+    
+        //
+        // Call getDifference
+        //
         differenceInMicroseconds = CIMDateTime::getDifference (startTime,
             finishTime);
-    }
-    catch(InvalidDateTimeFormatException &e)
-    {
-    }
-
-    if (verbose)
-    {
-        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-        cout << "Start date time is  : " << startTime << endl;
-        cout << "Finish date time is : " << finishTime << endl;
-    }
-
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-    assert ( differenceInMicroseconds == 48600000000LL );
-#else
-    assert ( differenceInMicroseconds == 48600000000 );
-#endif
-
-    // Set the start and finish times
-    startTime.clear();
-    finishTime.clear(); 
-    finishTime.set("20020507170000.000000+330");
-    startTime.set("20020507170000.000000-480");
-
-    //
-    // Call getDifference
-    //
-    try 
-    {
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+            char buffer [32];
+            sprintf (buffer, "%lli", differenceInMicroseconds);
+            cout << "differenceInMicroseconds : " << buffer << endl;
+        }
+    
+        //assert (differenceInMicroseconds == 
+            //PEGASUS_SINT64_LITERAL(86400000000));
+    
+        //
+        //  ATTN-CAKG-P2-20020819: the following test currently returns an 
+        //  incorrect result
+        //
+        //  Test maximum date difference
+        //
+        // Set the start and finish times
+        startTime.set("00010101000000.000000-000");
+        finishTime.set("99991231235959.999999-000");
+    
+        //
+        // Call getDifference
+        //
         differenceInMicroseconds = CIMDateTime::getDifference (startTime,
             finishTime);
+    
+        if (verbose)
+        {
+            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+            cout << "Start date time is  : " << startTime << endl;
+            cout << "Finish date time is : " << finishTime << endl;
+            char buffer [32];
+            sprintf (buffer, "%lli", differenceInMicroseconds);
+            cout << "differenceInMicroseconds : " << buffer << endl;
+        }
+    
+        //assert (differenceInMicroseconds == 
+            //PEGASUS_SINT64_LITERAL(315538070399999999));
+    
+        // Check for interval
+        CIMDateTime 	 startInterval;
+        CIMDateTime		 finishInterval;
+        Sint64      	 intervalDifferenceInMicroseconds;
+    
+        startInterval.set  ("00000001010100.000000:000");
+        finishInterval.set ("00000001010200.000000:000");
+    
+        if (verbose)
+        {
+            cout << "Format              : ddddddddhhmmss.mmmmmm:000" << endl;
+            cout << "Start interval is   : " << startInterval << endl;
+            cout << "Finish interval is  : " << finishInterval << endl;
+        }
+    
+        intervalDifferenceInMicroseconds = CIMDateTime::getDifference
+                                         (startInterval, finishInterval);
+    
+        assert ( startInterval.isInterval() == true );
+        assert ( intervalDifferenceInMicroseconds == 60000000 );
+    
+        //
+        //  Test maximum interval difference
+        //
+        startInterval.set  ("00000000000000.000000:000");
+        finishInterval.set ("99999999235959.999999:000");
+    
+        if (verbose)
+        {
+            cout << "Format              : ddddddddhhmmss.mmmmmm:000" << endl;
+            cout << "Start interval is   : " << startInterval << endl;
+            cout << "Finish interval is  : " << finishInterval << endl;
+        }
+    
+        intervalDifferenceInMicroseconds = CIMDateTime::getDifference
+                                         (startInterval, finishInterval);
+    
+        assert ( startInterval.isInterval() == true );
+        assert ( intervalDifferenceInMicroseconds == 
+            PEGASUS_SINT64_LITERAL(8639999999999999999) );
+    
+        {
+            Boolean bad = false;
+    
+            try
+            {
+                CIMDateTime::getDifference(startInterval, finishTime);
+            }
+            catch (InvalidDateTimeFormatException&)
+            {
+                bad = true;
+            }
+    
+            assert(bad);
+        }
+
     }
-    catch(InvalidDateTimeFormatException &e)
+    catch (Exception & e)
     {
-    }
-
-    if (verbose)
-    {
-        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-        cout << "Start date time is  : " << startTime << endl;
-        cout << "Finish date time is : " << finishTime << endl;
-    }
-
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-    assert ( differenceInMicroseconds == -48600000000LL );
-#else
-    assert ( differenceInMicroseconds == -48600000000 );
-#endif
-
-    // Check for interval
-    CIMDateTime 	 startInterval;
-    CIMDateTime		 finishInterval;
-    Sint64      	 intervalDifferenceInMicroseconds;
-
-    startInterval.set  ("00000001010100.000000:000");
-    finishInterval.set ("00000001010200.000000:000");
-
-    if (verbose)
-    {
-        cout << "Format              : ddddddddhhmmss.mmmmmm:000" << endl;
-        cout << "Start interval is   : " << startInterval << endl;
-        cout << "Finish interval is  : " << finishInterval << endl;
-    }
-
-    intervalDifferenceInMicroseconds = CIMDateTime::getDifference
-                                     (startInterval, finishInterval);
-
-    assert ( startInterval.isInterval() == true );
-    assert ( intervalDifferenceInMicroseconds == 60000000 );
-
-    //
-    //  Test maximum interval difference
-    //
-    startInterval.set  ("00000000000000.000000:000");
-    finishInterval.set ("99999999235959.999999:000");
-
-    if (verbose)
-    {
-        cout << "Format              : ddddddddhhmmss.mmmmmm:000" << endl;
-        cout << "Start interval is   : " << startInterval << endl;
-        cout << "Finish interval is  : " << finishInterval << endl;
-    }
-
-    intervalDifferenceInMicroseconds = CIMDateTime::getDifference
-                                     (startInterval, finishInterval);
-
-    assert ( startInterval.isInterval() == true );
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-    assert ( intervalDifferenceInMicroseconds == 8639999999999999999LL );
-#else
-    assert ( intervalDifferenceInMicroseconds == 8639999999999999999 );
-#endif
-
-    try 
-    {
-        CIMDateTime::getDifference(startInterval, finishTime);
-    }
-    catch (InvalidDateTimeFormatException& bfe)
-    {
+        cout << "Exception: " << e.getMessage () << endl;
+        exit (1);
     }
     cout << argv[0] << " +++++ passed all tests" << endl;
 

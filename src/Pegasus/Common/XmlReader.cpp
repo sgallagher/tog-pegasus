@@ -46,6 +46,9 @@
 #include "CIMObject.h"
 #include "CIMParamValue.h"
 
+#define PEGASUS_SINT64_MIN (-PEGASUS_SINT64_LITERAL(9223372036854775808))
+#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(18446744073709551615)
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -737,7 +740,7 @@ Boolean XmlReader::stringToSignedInteger(
             while (isxdigit(*p))
             {
                 // Make sure we won't overflow when we multiply by 16
-                if (x < PEGASUS_LLONG_MIN/16)
+                if (x < PEGASUS_SINT64_MIN/16)
                 {
                     return false;
                 }
@@ -745,7 +748,7 @@ Boolean XmlReader::stringToSignedInteger(
 
                 // Make sure we don't overflow when we add the next digit
                 Sint64 newDigit = Sint64(_hexCharToNumeric(*p++));
-                if (PEGASUS_LLONG_MIN - x > -newDigit)
+                if (PEGASUS_SINT64_MIN - x > -newDigit)
                 {
                     return false;
                 }
@@ -760,7 +763,7 @@ Boolean XmlReader::stringToSignedInteger(
             // overflow error
             if (!negative)
             {
-                if (x == PEGASUS_LLONG_MIN)
+                if (x == PEGASUS_SINT64_MIN)
                 {
                     return false;
                 }
@@ -788,7 +791,7 @@ Boolean XmlReader::stringToSignedInteger(
     while (isdigit(*p))
     {
         // Make sure we won't overflow when we multiply by 10
-        if (x < PEGASUS_LLONG_MIN/10)
+        if (x < PEGASUS_SINT64_MIN/10)
         {
             return false;
         }
@@ -796,7 +799,7 @@ Boolean XmlReader::stringToSignedInteger(
 
         // Make sure we won't overflow when we add the next digit
         Sint64 newDigit = (*p++ - '0');
-        if (PEGASUS_LLONG_MIN - x > -newDigit)
+        if (PEGASUS_SINT64_MIN - x > -newDigit)
         {
             return false;
         }
@@ -811,7 +814,7 @@ Boolean XmlReader::stringToSignedInteger(
     // overflow error
     if (!negative)
     {
-        if (x == PEGASUS_LLONG_MIN)
+        if (x == PEGASUS_SINT64_MIN)
         {
             return false;
         }
@@ -857,7 +860,7 @@ Boolean XmlReader::stringToUnsignedInteger(
             while (isxdigit(*p))
             {
                 // Make sure we won't overflow when we multiply by 16
-                if (x > PEGASUS_ULLONG_MAX/16)
+                if (x > PEGASUS_UINT64_MAX/16)
                 {
                     return false;
                 }
@@ -865,7 +868,7 @@ Boolean XmlReader::stringToUnsignedInteger(
 
                 // We can't overflow when we add the next digit
                 Uint64 newDigit = Uint64(_hexCharToNumeric(*p++));
-                if (PEGASUS_ULLONG_MAX - x < newDigit)
+                if (PEGASUS_UINT64_MAX - x < newDigit)
                 {
                     return false;
                 }
@@ -891,7 +894,7 @@ Boolean XmlReader::stringToUnsignedInteger(
     while (isdigit(*p))
     {
         // Make sure we won't overflow when we multiply by 10
-        if (x > PEGASUS_ULLONG_MAX/10)
+        if (x > PEGASUS_UINT64_MAX/10)
         {
             return false;
         }
@@ -899,7 +902,7 @@ Boolean XmlReader::stringToUnsignedInteger(
 
         // Make sure we won't overflow when we add the next digit
         Uint64 newDigit = (*p++ - '0');
-        if (PEGASUS_ULLONG_MAX - x < newDigit)
+        if (PEGASUS_UINT64_MAX - x < newDigit)
         {
             return false;
         }

@@ -386,28 +386,18 @@ Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
         // Convert all values to seconds and compute the start and finish
         // intervals in seconds.
         startIntervalInMicroseconds = 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-            (Uint64)((startIntervalDays*86400000000ULL) +
-                     (startIntervalHours*3600000000ULL) +
-#else
-            (Uint64)((startIntervalDays*86400000000) +
-                     (startIntervalHours*3600000000) +
-#endif
-                     (startIntervalMinutes*60000000) +
-                     (startIntervalSeconds*1000000) +
-                      startIntervalMicroseconds);
+            (startIntervalDays*PEGASUS_UINT64_LITERAL(86400000000)) +
+            (startIntervalHours*PEGASUS_UINT64_LITERAL(3600000000)) +
+            (startIntervalMinutes*60000000) +
+            (startIntervalSeconds*1000000) +
+             startIntervalMicroseconds;
 
         finishIntervalInMicroseconds = 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU) || defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-            (Uint64)((finishIntervalDays*86400000000ULL) +
-                     (finishIntervalHours*3600000000ULL) +
-#else
-            (Uint64)((finishIntervalDays*86400000000) +
-                     (finishIntervalHours*3600000000) +
-#endif
-                     (finishIntervalMinutes*60000000) + 
-                     (finishIntervalSeconds*1000000) +
-                      finishIntervalMicroseconds);
+            (finishIntervalDays*PEGASUS_UINT64_LITERAL(86400000000)) +
+            (finishIntervalHours*PEGASUS_UINT64_LITERAL(3600000000)) +
+            (finishIntervalMinutes*60000000) + 
+            (finishIntervalSeconds*1000000) +
+             finishIntervalMicroseconds;
 
         // Get the difference.
         intervalDifferenceInMicroseconds =

@@ -49,17 +49,19 @@
    or provides the registration to a DA if required.  That set of functions in in the
    Pegasus service agent code.
    
-   To initiate the SA within pegasus, the system must make a first PEG_WBEMSLPTemplate
-   enumerateInstances call to this provider.  That initiates the build of the registration
-   and the startup of the SA.
+   To initiate the SA within Pegasus, the system must make a first PEG_WBEMSLPTemplate
+   enumerateInstances call to this provider or execute the register method.
+   That initiates the build of the registration information and the startup of the SA.
+
+   Note that this providers sets itself so that it cannot be removed once started.
 */
 
 /* TODO
-    We can make this more flexible by allowing the following:
-    1. method to force reregistration.  Today, once you register it is finished.
-    2. createInstance, deleteInstance to allow adding and deleting other
-    registrations.
-    3. Today this module assumes that we will populate the registration once at
+    1.We can make this more flexible by allowing the following:
+        a. method to force reregistration.  Today, once you register it is finished.
+        b. createInstance, deleteInstance to allow adding and deleting other
+        registrations.
+    2. Today this module assumes that we will populate the registration once at
     startup and then it will remain fixed.  It does not provide for dynamic
     re-registration when something changes in the system. KS Fix this. We need the
     following changes (1) dynamic reregistration within this module (2) dynamic
@@ -72,6 +74,13 @@
     it could operate as first a separate process and second as a separte executable.
     5. Look at getting certain parameters as the default from the class.  This way we could
     use the class definition for defaults.
+    6. Modify _getValueQualifier so not dependent on qualifiers in the instance.  Must
+    get the class for qualifier information.
+    7. Determine if we really want to get enumerated  attribute strings from the class or from
+    a string tied to the template.  If we get them from the class we are committed to
+    whatever is in the class.  However, in reality, the class and the template could
+    be different in some cases.  For the moment we are getting them from the class
+    and the template and class enumerations do match.
 */
 
 #include "SLPProvider.h"
@@ -90,13 +99,14 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
 
-//#define CDEBUG(X)
-#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
+#define CDEBUG(X)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
 
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
+
 //******************************************************************
 //
 // Constants
@@ -212,7 +222,6 @@ const char * classinfoAttribute =  "Classinfo";
 
 const char * registeredProfilesSupportedAttribute = "RegisteredProfilesSupported";
 
-
 CIMNamespaceName _interopNamespace = PEGASUS_NAMESPACENAME_INTEROP;
 
 CIMName namePropertyName = "name";
@@ -245,20 +254,130 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & nam
 //
 //********************************************************************
 
+/** Returns value string from the value qualifier for
+    the current value of an enumerated property. This function assumes 
+    that the qualifiers are in the property in the instance itself. The
+    function determines if the qualifiers value and valuemap exist and
+    are valid and then uses the property value to find the value
+    and get the corresponding valueMap string.
+    NOTE: Today this function assumes that the qualifiers are in the
+    instance.  In the long term this is incorrect.  We need to get the
+    class
+    @param myInstance CIMInstance containing the property and with
+    the qualifiers in the instance.
+    @return String The value from the qualifier.
+    @exception throws CIM_ERR_FAILED error if the value and
+    value map information is not correct.
+*/
+String _showStringArray(const Array<String>& s)
+{
+    String o;
+    for (Uint32 i = 0 ; i < s.size() ; i++)
+    {
+        if (i > 0) {o.append(" ");}
+        o.append(s[i]);
+    }
+    return o;
+}
+String _getValueQualifier(const CIMConstProperty& property)
+{
+    String name = property.getName().getString();
+    CIMValue propertyValue = property.getValue();
+
+    // validate the valueMap qualifiers
+    Uint32 posValueMap;
+    String error = String::EMPTY;
+    if ((posValueMap = property.findQualifier("valueMap")) == PEG_NOT_FOUND)
+    {
+        error = "No valueMap Qualifier";
+    }
+
+    CIMConstQualifier qValueMap = property.getQualifier(posValueMap);
+
+    if (!qValueMap.isArray() || (qValueMap.getType() != CIMTYPE_STRING))
+    {
+        error = "Error in valueMap Qualifier";
+    }
+
+    CIMValue q1 = qValueMap.getValue();
+    Array<String> va1;
+    q1.get(va1);
+
+    // validate the value qualifier
+    Uint32 posValue;
+    if ((posValue = property.findQualifier("values")) == PEG_NOT_FOUND)
+    {
+        error = "No value Qualifier";
+    }
+
+    CIMConstQualifier qValue = property.getQualifier(posValue);
+    if (!qValue.isArray() || (qValue.getType() != CIMTYPE_STRING))
+    {
+        error = "Invalid value Qualifier";
+    }
+
+    CIMValue q2 = qValue.getValue();
+    Array<String> va2;
+    q2.get(va2);
+
+    // Test if the array size for the two values is the same.
+    if (va2.size() != va1.size())
+    {
+        error = "Size error on value Qualifier";
+    }
+
+    // test if property value is legal size for this value qualifier.
+    // This one can be nasty because we cannot guarantee that all enums are
+    // Uint16
+
+    Uint16 localValue;
+    propertyValue.get(localValue);
+    if (localValue > va1.size())
+    {
+        error = "Invalid property value";
+    }
+
+    if (error != String::EMPTY)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, " Value mapping error. " + error 
+            + name);
+    }
+    // find the value in the valueMap as a string.
+    // This one needs to understand the property type and doesn't now.
+    // convert the property to a string
+
+    char buffer[32];
+    sprintf(buffer, "%u", localValue);
+    String targetValueString = buffer;
+
+    // find this valueMap and get corresponding value
+    for (Uint32 i = 0 ; i < va1.size() ; i++)
+    {
+        if (targetValueString == va1[i])
+        {
+            // Return corresponding value in value qualifier
+            return(va2[i]);
+        }
+    }
+    // Should this be an exception since it means that the
+    // property value is not really legal?
+    return String::EMPTY;
+}
+
 /** convert an array of strings to a CSV string.
     @param s Array<String> with input strings
     @return String with CSV String from array
 */
 String _arrayToString(const Array<String>& s)
 {
-String output;    
-for (Uint32 i = 0 ; i < s.size() ; i++)
-    {
-        if (i > 0)
-            output.append(",");
-        output.append(s[i]);
-    }
-    return(output);
+    String output;    
+    for (Uint32 i = 0 ; i < s.size() ; i++)
+        {
+            if (i > 0)
+                output.append(",");
+            output.append(s[i]);
+        }
+        return(output);
 }
 
 /** append the input string and if output not empty a comma separator
@@ -279,11 +398,13 @@ void _appendCSV(String& s, const String& s1)
     not exist, is Null, or is not a string type. The substitute is String::EMPTY
     @return String value found or defaultValue.
 */
-String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName, const String& defaultValue = String::EMPTY)
+String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName,
+     const String& defaultValue = String::EMPTY)
 {
     String output;
     Uint32 pos;
-    CDEBUG("_getPropertyValue for name= " << propertyName.getString() << " default= " << defaultValue);
+    CDEBUG("_getPropertyValue for name= " << propertyName.getString() 
+        << " default= " << defaultValue);
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
     {
         CIMConstProperty p1 = instance.getProperty(pos);
@@ -303,7 +424,6 @@ String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNam
         output = defaultValue;
     return(output);
 }
-
 
 /** Set the value of a property defined by property name in the instance provided.
     Sets a String into the value field unless the property name cannot be found.
@@ -360,7 +480,7 @@ CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className)
     PEG_METHOD_EXIT();
     return(skeleton.clone());
 }
-/* remove the instances created as part of the registration and unregister.
+/* Remove the instances created as part of the registration and unregister.
   This is completely unregisters this this provider and disconnects it
   from the slp agent.
   ATTN: We could also change status so it could be unloaded.
@@ -377,7 +497,7 @@ void SLPProvider::deregisterSLP()
     
 }
 
-/** gets the list of registered profiles for the SLP template.
+/** get the list of registered profiles for the SLP template.
     Until we start using CIM 28, there are no template classes
     and no templates.  We are doing a temporary hack here of
     (1) getting from an environment variable or (2) if this does
@@ -469,13 +589,14 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     adds the defined property value to the instance in the property defined by instanceFieldName
     @param regfieldName String defining the name of the field to populate in the registration
     @param value String defining the value with which to populate the field
-    @param insstanceFieldName (Optional) String defining the name of the field to populate in the instance.
+    @param insstanceFieldName (Optional) String defining the name of the field to populate in 
+    the instance.
 */
 void _addSeparator(String& s)
 {
     // if not first entry, set newline
     if (s != String::EMPTY)
-    // bug 1737  EOL confuses some UA 
+    // bug 1737  EOL between attributes confuses some UA 
         // s(",\n");
         s.append(",");
 }
@@ -533,9 +654,6 @@ void SLPProvider::populateTemplateField(CIMInstance& instance,
 
     // if not first entry, set newline
     _addSeparator(_currentSLPTemplateString);
-    //if (_currentSLPTemplateString != String::EMPTY)
-    //// bug 1737  EOL confuses some UA _currentSLPTemplateStringappend(",\n");
-    //    _currentSLPTemplateString.append(",\n");
 
     // Add entry as (name=value)
     _currentSLPTemplateString.append("(" + attributeFieldName + "=" + accumulatedValue + ")");
@@ -600,8 +718,6 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
     populateTemplateField(instance1, serviceUrlSyntaxAttribute, serviceUrlSyntaxValue,
         serviceUrlSyntaxProperty);
 
-    //populateTemplateField(instance1, serviceLocationTCP,IPAddress);
-
     //service-id=string L
     //# The ID of this WBEM Server. The value MUST be the 
     //# CIM_ObjectManager.Name property value.
@@ -658,11 +774,17 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
         CIMName n1 = p1.getName();
         CIMValue v1= p1.getValue();
 
-        CDEBUG("MgrCommLoop. count " << j << " Name= " << n1.getString());
-
+        CDEBUG("MgrCommLoop. count: " << j << " Name= " << n1.getString());
 
         if (n1.equal(communicationMechanismAttribute))
-            populateTemplateField(instance1, communicationMechanismAttribute,v1.toString());
+        {
+            String thisValue = _getValueQualifier(p1);
+            if (thisValue == String::EMPTY)
+            {
+                thisValue = "Unknown";
+            }
+            populateTemplateField(instance1, communicationMechanismAttribute,thisValue);
+        }
 
         else if (n1.equal(otherCommunicationMechanismAttribute))
         {
@@ -858,8 +980,7 @@ Boolean SLPProvider::issueSLPRegistrations()
                                              OperationContext(),
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerCommMechName),
-                                             false, false, false,false, CIMPropertyList());
-    
+                                             false, false, true,false, CIMPropertyList());
 
     CDEBUG("Registration found Obj Mgr Comm. No Instance = " << instancesObjMgrComm.size());
     //Loop to create an SLP registration for each communication mechanism
@@ -1018,7 +1139,6 @@ void SLPProvider::enumerateInstances(
     {
        // deliver instance
        handler.deliver(_instances[i]);
-       //XmlWriter::printInstanceElement( _instances[i]);
     }
     
     // complete processing the request
@@ -1153,14 +1273,6 @@ void SLPProvider::invokeMethod(
     PEG_METHOD_EXIT();
 }
 
-// Do not allow termination of this function.
-// ATTN: Note that we should allow termination if unregistered.
-/*   Remove this function completely as it is no longer supported.
-Boolean SLPProvider::tryterminate(void)
-{
-   return false;
-}
-*/ 
 void SLPProvider::terminate(void)
 {
     deregisterSLP();

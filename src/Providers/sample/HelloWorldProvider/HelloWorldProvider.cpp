@@ -1,40 +1,49 @@
-//BEGIN_LICENSE
+//%/////////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
+// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-// DEALINGS IN THE SOFTWARE.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//END_LICENSE
+//==============================================================================
+//
+// Author: Chip Vincent (cvincent@us.ibm.com)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider2/CIMInstanceProvider.h>
+#include <Pegasus/Provider2/SimpleResponseHandler.h>
 #include <Pegasus/Provider2/CIMProviderStub.h>
 
 #include "HelloWorldProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-// provider module entry point
+static HelloWorldProvider provider;
+
 extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider_HelloWorldProvider()
 {
-   return(new CIMProviderStub((CIMInstanceProvider *)new HelloWorldProvider()));
+   return(new CIMProviderStub((CIMInstanceProvider *)&provider));
 }
 
-HelloWorldProvider::HelloWorldProvider(void) : _pRepository(0)
+HelloWorldProvider::HelloWorldProvider(void)
 {
 }
 
@@ -42,12 +51,12 @@ HelloWorldProvider::~HelloWorldProvider(void)
 {
 }
 
-void HelloWorldProvider::initialize(CIMRepository & repository)
+void HelloWorldProvider::initialize(const CIMOMHandle & cimom)
 {
-   // derefence repository pointer and save for later
-   _pRepository = &repository;
+   // save cimom handle
+   _cimom = cimom;
 
-   // create an instances
+   // create default instances
    CIMInstance instance1("HelloWorld");
 
    instance1.addProperty(CIMProperty("Identifier", Uint32(1)));   // key
@@ -77,97 +86,190 @@ void HelloWorldProvider::terminate(void)
 {
 }
 
-CIMInstance HelloWorldProvider::getInstance(const OperationContext & context, const CIMReference & ref, const Uint32 flags, const Array<String> & propertyList)
+void HelloWorldProvider::getInstance(
+   const OperationContext & context,
+   const CIMReference & ref,
+   const Uint32 flags,
+   const Array<String> & propertyList,
+   ResponseHandler<CIMInstance> & handler)
 {
-   // instance index corresponds to reference index
-   Array<CIMReference> references = enumerateInstanceNames(context, ref);
+   handler.setStatus(PROCESSING);
 
-   for(Uint32 i = 0; i < references.size(); ++i) {
+   // get references
+   Array<CIMReference> references;
+
+   try {
+      SimpleResponseHandler<CIMReference> handler;
+
+      enumerateInstanceNames(context, ref, handler);
+
+      references = handler._objects;
+   }
+   catch(...) {
+   }
+
+   handler.setStatus(PROCESSING);
+
+   // instance index corresponds to reference index
+   for(Uint32 i = 0; i < references.size(); i++) {
       if(references[i] == ref) {
-         return(_instances[i]);
+         handler.putObject(_instances[i]);
+
+         handler.setStatus(COMPLETE);
+
+         return;
       }
    }
 
-   throw((CIMException)(CIMException::NOT_FOUND));
+   throw CIMException(CIM_ERR_NOT_FOUND);
 }
 
-Array<CIMInstance> HelloWorldProvider::enumerateInstances(const OperationContext & context, const CIMReference & ref, const Uint32 flags, const Array<String> & propertyList)
+void HelloWorldProvider::enumerateInstances(
+   const OperationContext & context,
+   const CIMReference & ref,
+   const Uint32 flags,
+   const Array<String> & propertyList,
+   ResponseHandler<CIMInstance> & handler)
 {
-   return(_instances);
-}
+   handler.setStatus(PROCESSING);
 
-Array<CIMReference> HelloWorldProvider::enumerateInstanceNames(const OperationContext & context, const CIMReference & ref)
-{
-   // check dependencies
-   if(_pRepository == 0) {
-      throw(UnitializedHandle());
+   for(Uint32 i = 0; i < _instances.size(); i++) {
+      handler.putObject(_instances[i]);
    }
 
-   // get class definition from repository
-   CIMClass cimclass = _pRepository->getClass(ref.getNameSpace(), ref.getClassName());
+   handler.setStatus(COMPLETE);
+}
 
-   Array<CIMReference> references;
+void HelloWorldProvider::enumerateInstanceNames(
+   const OperationContext & context,
+   const CIMReference & ref,
+   ResponseHandler<CIMReference> & handler)
+{
+   handler.setStatus(PROCESSING);
+
+   // get class definition from repository
+   CIMClass cimclass = _cimom.getClass(ref.getNameSpace(), ref.getClassName());
 
    // convert instances to references;
-   for(Uint32 i = 0; i < _instances.size(); ++i) {
+   for(Uint32 i = 0; i < _instances.size(); i++) {
       CIMReference tempRef = _instances[i].getInstanceName(cimclass);
 
       // make references fully qualified
       tempRef.setHost(ref.getHost());
       tempRef.setNameSpace(ref.getNameSpace());
 
-      // add instance reference to array
-      references.append(tempRef);
+      handler.putObject(tempRef);
    }
 
-   return(references);
+   handler.setStatus(COMPLETE);
 }
 
-void HelloWorldProvider::modifyInstance(const OperationContext & context, const CIMReference & ref, const CIMInstance & obj)
+void HelloWorldProvider::modifyInstance(
+   const OperationContext & context,
+   const CIMReference & ref,
+   const CIMInstance & obj,
+   ResponseHandler<CIMInstance> & handler)
 {
-   // instance index corresponds to reference index
-   Array<CIMReference> references = enumerateInstanceNames(context, ref);
+   handler.setStatus(PROCESSING);
 
-   for(Uint32 i = 0; i < references.size(); ++i) {
+   // get references
+   Array<CIMReference> references;
+
+   try {
+      SimpleResponseHandler<CIMReference> handler;
+
+      enumerateInstanceNames(context, ref, handler);
+
+      references = handler._objects;
+   }
+   catch(...) {
+   }
+
+   handler.setStatus(PROCESSING);
+
+   for(Uint32 i = 0; i < references.size(); i++) {
       if(ref == references[i]) {
          _instances.remove(i);
          _instances.insert(i, obj);
 
+         handler.setStatus(COMPLETE);
+
          return;
       }
    }
 
-   throw((CIMException)(CIMException::NOT_FOUND));
+   throw CIMException(CIM_ERR_NOT_FOUND);
 }
 
-void HelloWorldProvider::createInstance(const OperationContext & context, const CIMReference & ref, const CIMInstance & obj)
+void HelloWorldProvider::createInstance(
+   const OperationContext & context,
+   const CIMReference & ref,
+   const CIMInstance & obj,
+   ResponseHandler<CIMInstance> & handler)
 {
-   // instance index corresponds to reference index
-   Array<CIMReference> references = enumerateInstanceNames(context, ref);
+   handler.setStatus(PROCESSING);
 
-   for(Uint32 i = 0; i < references.size(); ++i) {
+   // get references
+   Array<CIMReference> references;
+
+   try {
+      SimpleResponseHandler<CIMReference> handler;
+
+      enumerateInstanceNames(context, ref, handler);
+
+      references = handler._objects;
+   }
+   catch(...) {
+   }
+
+   handler.setStatus(PROCESSING);
+
+   for(Uint32 i = 0; i < references.size(); i++) {
       if(ref == references[i]) {
-         throw((CIMException)(CIMException::ALREADY_EXISTS));
+         throw CIMException(CIM_ERR_ALREADY_EXISTS);
       }
    }
 
    _instances.append(obj);
+
+   handler.setStatus(COMPLETE);
+
+   return;
 }
 
-void HelloWorldProvider::deleteInstance(const OperationContext & context, const CIMReference & ref)
+void HelloWorldProvider::deleteInstance(
+   const OperationContext & context,
+   const CIMReference & ref,
+   ResponseHandler<CIMInstance> & handler)
 {
-   // instance index corresponds to reference index
-   Array<CIMReference> references = enumerateInstanceNames(context, ref);
+   handler.setStatus(PROCESSING);
 
-   for(Uint32 i = 0; i < references.size(); ++i) {
+   // get references
+   Array<CIMReference> references;
+
+   try {
+      SimpleResponseHandler<CIMReference> handler;
+
+      enumerateInstanceNames(context, ref, handler);
+
+      references = handler._objects;
+   }
+   catch(...) {
+   }
+
+   handler.setStatus(PROCESSING);
+
+   for(Uint32 i = 0; i < references.size(); i++) {
       if(ref == references[i]) {
          _instances.remove(i);
+
+         handler.setStatus(COMPLETE);
 
          return;
       }
    }
 
-   throw((CIMException)(CIMException::NOT_FOUND));
+   throw CIMException(CIM_ERR_NOT_FOUND);
 }
 
 PEGASUS_NAMESPACE_END

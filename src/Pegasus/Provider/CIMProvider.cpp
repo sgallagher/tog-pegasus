@@ -266,7 +266,12 @@ CIMValue CIMProvider::invokeMethod(
 
 void CIMProvider::initialize(CIMRepository& repository)
 {
+   throw NotImplemented("");
+}
 
+void CIMProvider::initialize(const CIMOMHandle & cimom)
+{
+   throw NotImplemented("");
 }
 
 PEGASUS_NAMESPACE_END

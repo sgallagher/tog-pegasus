@@ -47,6 +47,9 @@
 #include "CmpiCharData.h"
 #include "CmpiBooleanData.h"
 
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+#include <pthread.h>
+#endif
 
 //---------------------------------------------------
 //--
@@ -1283,6 +1286,10 @@ CMPIUint64 CmpiDateTime::getDateTime() const{
 CmpiBooleanData CmpiTrue(true);
 CmpiBooleanData CmpiFalse(false);
 
+// this code segment has been deactivated for other than Linux platforms for the moment.
+// It will be reenabled when we have a platform indepedent solution
+
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 //-----------------------------------------------------------
 //--
 //      per thread support
@@ -1295,17 +1302,24 @@ static void init_key()
 {
   pthread_key_create(&brokerKey,NULL);
 }
+#endif
 
 CMPIBroker* CmpiProviderBase::
    getBroker()
 {
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
   return (CMPIBroker*) pthread_getspecific(brokerKey);
+#else
+  return 0;
+#endif
 }
 
 void CmpiProviderBase::
     setBroker(const CMPIBroker *mb)
 {
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
   pthread_once(&brokerOnce,init_key);
   pthread_setspecific(brokerKey,mb);
+#endif
 }
 

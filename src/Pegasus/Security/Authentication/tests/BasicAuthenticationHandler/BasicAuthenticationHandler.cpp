@@ -58,6 +58,8 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
+Boolean verbose = false;
+
 String authType = "Basic";
 
 String testUser = System::getEffectiveUserName();
@@ -97,10 +99,8 @@ String encodeUserPass(const String& userPass)
     String encodedStr =
         String( encodedArray.getData(), encodedArray.size() );
 
-#ifdef DEBUG
-    cout << "userPass: " << userPass << endl;
-    cout << "Encoded userPass: " << encodedStr << endl;
-#endif
+    if (verbose) cout << "userPass: " << userPass << endl;
+    if (verbose) cout << "Encoded userPass: " << encodedStr << endl;
 
     return (encodedStr);
 }
@@ -111,9 +111,7 @@ void testAuthHeader()
 
     String respHeader = basicAuthHandler.getAuthResponseHeader();
 
-#ifdef DEBUG
-    cout << "realm = " << respHeader << endl;
-#endif
+    if (verbose) cout << "realm = " << respHeader << endl;
 
     PEGASUS_ASSERT(respHeader.size() != 0);
 }
@@ -140,12 +138,10 @@ void testAuthenticationFailure_1()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-#ifdef DEBUG
     if (authenticated)
-        cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        cout << "User " + testUser + " authentication failed." << endl;
-#endif
+        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -175,12 +171,10 @@ void testAuthenticationFailure_2()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-#ifdef DEBUG
     if (authenticated)
-        cout << "User " + invalidUser + " authenticated successfully." << endl;
+        if (verbose) cout << "User " + invalidUser + " authenticated successfully." << endl;
     else
-        cout << "User " + invalidUser + " authentication failed." << endl;
-#endif
+        if (verbose) cout << "User " + invalidUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -207,12 +201,10 @@ void testAuthenticationFailure_3()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-#ifdef DEBUG
     if (authenticated)
-        cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        cout << "User " + testUser + " authentication failed." << endl;
-#endif
+        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -239,12 +231,10 @@ void testAuthenticationFailure_4()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-#ifdef DEBUG
     if (authenticated)
-        cout << "User " + testUser + " authenticated successfully." << endl;
+        if (verbose) cout << "User " + testUser + " authenticated successfully." << endl;
     else
-        cout << "User " + testUser + " authentication failed." << endl;
-#endif
+        if (verbose) cout << "User " + testUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -273,12 +263,10 @@ void testAuthenticationSuccess()
 
     authenticated = basicAuthHandler.authenticate(authHeader, authInfo);
 
-#ifdef DEBUG
     if (authenticated)
-        cout << "User " + guestUser + " authenticated successfully." << endl;
+        if (verbose) cout << "User " + guestUser + " authenticated successfully." << endl;
     else
-        cout << "User " + guestUser + " authentication failed." << endl;
-#endif
+        if (verbose) cout << "User " + guestUser + " authentication failed." << endl;
 
     delete authInfo;
 
@@ -287,8 +275,11 @@ void testAuthenticationSuccess()
 
 ////////////////////////////////////////////////////////////////////
 
-int main()
+int main(int argc, char** argv)
 {
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    if (verbose) cout << argv[0] << ": started" << endl;
+
 #if defined(PEGASUS_OS_TYPE_UNIX)
 
     try
@@ -297,6 +288,7 @@ int main()
         Tracer::setTraceFile("./Authentication.trc");
         Tracer::setTraceComponents("all");
         Tracer::setTraceLevel(Tracer::LEVEL4);
+	verbose = true;
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();
@@ -307,13 +299,9 @@ int main()
         if(pegHome.size())
             ConfigManager::setPegasusHome(pegHome);
 
-#ifdef DEBUG
-        cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
-#endif
+        if (verbose) cout << "Peg Home : " << ConfigManager::getPegasusHome() << endl;
 
-#ifdef DEBUG
-        cout << "Doing testAuthHeader()...." << endl;
-#endif
+        if (verbose) cout << "Doing testAuthHeader()...." << endl;
 
         // -- Create a test repository:
 
@@ -339,45 +327,30 @@ int main()
 
         testAuthHeader();
 
-#ifdef DEBUG
-        cout << "Doing testAuthenticationFailure_1()...." << endl;
-#endif
-
+        if (verbose) cout << "Doing testAuthenticationFailure_1()...." << endl;
         testAuthenticationFailure_1();
 
-#ifdef DEBUG
-        cout << "Doing testAuthenticationFailure_2()...." << endl;
-#endif
-
+        if (verbose) cout << "Doing testAuthenticationFailure_2()...." << endl;
         testAuthenticationFailure_2();
 
-#ifdef DEBUG
-        cout << "Doing testAuthenticationFailure_3()...." << endl;
-#endif
-
+        if (verbose) cout << "Doing testAuthenticationFailure_3()...." << endl;
         testAuthenticationFailure_3();
 
-#ifdef DEBUG
-        cout << "Doing testAuthenticationFailure_4()...." << endl;
-#endif
-
+        if (verbose) cout << "Doing testAuthenticationFailure_4()...." << endl;
         testAuthenticationFailure_4();
 
-#ifdef DEBUG
-        cout << "Doing testAuthenticationSuccess()...." << endl;
-#endif
-
+        if (verbose) cout << "Doing testAuthenticationSuccess()...." << endl;
         testAuthenticationSuccess();
     }
     catch(Exception& e)
     {
-        cout << "Exception: " << e.getMessage() << endl;
+      cout << argv[0] << " Exception: " << e.getMessage() << endl;
         PEGASUS_ASSERT(0);
     }
 
 #endif
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

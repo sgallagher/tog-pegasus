@@ -42,11 +42,16 @@ PEGASUS_USING_PEGASUS;
 
 PEGASUS_USING_STD;
 
+Boolean verbose = false;
 //
 //
 //
-int main()
+
+int main(int argc, char** argv)
 {
+    verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
+    if (verbose) cout << argv[0] << ": started" << endl;
+
     String testUser = String::EMPTY;
 
     testUser.assign(System::getEffectiveUserName());
@@ -61,7 +66,7 @@ int main()
 
     assert(isDelete != false);
 
-    cout << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

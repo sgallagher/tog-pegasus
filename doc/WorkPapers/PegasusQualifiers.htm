@@ -13,17 +13,17 @@ xmlns="http://www.w3.org/TR/REC-html40">
  <o:DocumentProperties>
   <o:Author>Karl</o:Author>
   <o:LastAuthor>Karl</o:LastAuthor>
-  <o:Revision>13</o:Revision>
-  <o:TotalTime>294</o:TotalTime>
+  <o:Revision>14</o:Revision>
+  <o:TotalTime>305</o:TotalTime>
   <o:Created>2002-02-19T16:31:00Z</o:Created>
-  <o:LastSaved>2002-02-25T09:44:00Z</o:LastSaved>
+  <o:LastSaved>2002-03-31T14:33:00Z</o:LastSaved>
   <o:Pages>7</o:Pages>
-  <o:Words>3388</o:Words>
-  <o:Characters>19313</o:Characters>
+  <o:Words>3428</o:Words>
+  <o:Characters>19540</o:Characters>
   <o:Company>Inova</o:Company>
-  <o:Lines>160</o:Lines>
-  <o:Paragraphs>38</o:Paragraphs>
-  <o:CharactersWithSpaces>23717</o:CharactersWithSpaces>
+  <o:Lines>162</o:Lines>
+  <o:Paragraphs>39</o:Paragraphs>
+  <o:CharactersWithSpaces>23996</o:CharactersWithSpaces>
   <o:Version>9.4402</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
@@ -90,14 +90,15 @@ Status and work on Qualifiers<o:p></o:p></span></p>
 
 <p class=MsoNormal>17 Feb 2002, V 0.2, KS</p>
 
-<p class=MsoNormal>19 Feb 2002 V 0.3 KS – Extended the definition of work for
-pegasus</p>
+<p class=MsoNormal>19 Feb 2002 V 0.3 KS – Extended the definition of work for Pegasus</p>
+
+<p class=MsoNormal>29 March Status updated</p>
 
 <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
 
-<p class=MsoNormal>This table defines the qualifiers that are valid for CIM effective
-with the CIM Specification 2.2.1 (specification 2.2, errata, and addendum
-2.2.1).<span style="mso-spacerun: yes">  </span>It does not yet cover
+<p class=MsoNormal>This table defines the qualifiers that are valid for CIM
+effective with the CIM Specification 2.2.1 (specification 2.2, errata, and
+addendum 2.2.1).<span style="mso-spacerun: yes">  </span>It does not yet cover
 extensions for CIM specification 2.3.<span style="mso-spacerun: yes"> 
 </span>That will be added. We have attempted to define the qualifier and its
 characteristics from the existing documentation and then to define the state of
@@ -265,7 +266,7 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal>Not sure at this point</p>
+  <p class=MsoNormal>We have to add validations to the create functions.</p>
   </td>
  </tr>
  <tr>
@@ -324,6 +325,8 @@ for providers.</p>
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal>Possible extra validation for valid use of this type.</p>
+  <p class=MsoNormal>Disallow<span style="mso-spacerun: yes">  </span>instance
+  creation of abstract types</p>
   </td>
  </tr>
  <tr>
@@ -372,8 +375,8 @@ for providers.</p>
   style='font-size:9.0pt;color:navy'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><b><span
   style='font-size:9.0pt;color:navy'>Usage Rule: </span></b><span
-  style='font-size:9.0pt;color:navy'>The Aggregation and Aggregate qualifiers are
-  used together – Aggregation qualifying the association, and Aggregate
+  style='font-size:9.0pt;color:navy'>The Aggregation and Aggregate qualifiers
+  are used together – Aggregation qualifying the association, and Aggregate
   specifying the &quot;parent&quot;<span style="mso-spacerun: yes"> 
   </span>reference.</span><span style='font-size:10.0pt;color:black'><o:p></o:p></span></p>
   <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
@@ -388,7 +391,7 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal>Resolution – See aggregate qualifier.</p>
+  <p class=MsoNormal>Resolution – See aggregation qualifier.</p>
   </td>
  </tr>
  <tr>
@@ -505,7 +508,8 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal>TBD- Until we understand future</p>
+  <p class=MsoNormal>We will ignore this qualifier based on the proposal that
+  it be deprecated.</p>
   </td>
  </tr>
  <tr>
@@ -573,7 +577,7 @@ for providers.</p>
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal>Resolution – Add test - Should only apply to property that
-  is an array</p>
+  is an array??</p>
   <p class=MsoNormal>Check to see if really ordered or indexed if this type
   set.</p>
   <p class=MsoNormal>Need to put in a check for unordered insertions </p>
@@ -636,7 +640,7 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal>Resolution – Test for existence of bitvalues</p>
+  <p class=MsoNormal>Resolution – Test for existence of bitvalues qualifier.</p>
   </td>
  </tr>
  <tr>
@@ -681,9 +685,9 @@ for providers.</p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>Provides translation between a bit<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-  style='font-size:9.0pt;color:navy'>position value and an associated string. See
-  the description for the BitMap qualifier.</span><span style='font-size:10.0pt;
-  color:black'><o:p></o:p></span></p>
+  style='font-size:9.0pt;color:navy'>position value and an associated string.
+  See the description for the BitMap qualifier.</span><span style='font-size:
+  10.0pt;color:black'><o:p></o:p></span></p>
   <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
@@ -881,7 +885,7 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+  <p class=MsoNormal>No Action Required</p>
   </td>
  </tr>
  <tr>
@@ -939,7 +943,7 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+  <p class=MsoNormal>No action required</p>
   </td>
  </tr>
  <tr>
@@ -981,9 +985,9 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal>When applied to a string property or method, the DN
-  qualifier specifies that the string must be a<span style="mso-spacerun:
-  yes">  </span>distinguished name as defined in section 9 of X.501.</p>
+  <p class=MsoNormal>When applied to a string property or method, the DN qualifier
+  specifies that the string must be a<span style="mso-spacerun: yes"> 
+  </span>distinguished name as defined in section 9 of X.501.</p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
   border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
@@ -1043,13 +1047,14 @@ for providers.</p>
   properties and method parameters. In indiates that the qualified entity
   contains an encoding of an instance’s data. At this time the DMTF defines
   twoo possible encodings – character striing encoded in MOF (INSTANCE OF abc
-  {…}: or an XML representation (&lt;INSTANCECLASSNAME=”abc”&gt;…&lt;/INSTANCE&gt;).
-  It is desirable that the encoding of the embedded object data match the
-  encoding of the instance/indication that contains this property or method
-  parameter. This allows the same parsing engine that decodes the instance/indication
-  envelope to decode the EmbeddedObject string. (However, encodings are defined
-  by an implementation and are not the subject of this document). Please see
-  Appendis H for examples and<span style="mso-spacerun: yes">  </span>furher
+  {…}: or an XML representation
+  (&lt;INSTANCECLASSNAME=”abc”&gt;…&lt;/INSTANCE&gt;). It is desirable that the
+  encoding of the embedded object data match the encoding of the
+  instance/indication that contains this property or method parameter. This
+  allows the same parsing engine that decodes the instance/indication envelope
+  to decode the EmbeddedObject string. (However, encodings are defined by an
+  implementation and are not the subject of this document). Please see Appendis
+  H for examples and<span style="mso-spacerun: yes">  </span>furher
   explanation.</p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
@@ -1072,7 +1077,8 @@ for providers.</p>
   <p class=MsoNormal>We need to add validation to assure that the object is
   XML.</p>
   <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
-  <p class=MsoNormal>NOTE: This qualifier not needed in V2 Pegasus</p>
+  <p class=MsoNormal>NOTE: This qualifier not needed in V2 Pegasus. The above
+  is for 2.1 and after</p>
   </td>
  </tr>
  <tr>
@@ -1131,7 +1137,7 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
+  <p class=MsoNormal>Nothing planned for version 2</p>
   </td>
  </tr>
  <tr>
@@ -1174,15 +1180,15 @@ for providers.</p>
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal><span style='font-size:9.0pt;color:navy'>.</span>Applicable
-  only to integer types. Represents an integer which may increase or decrease
-  in any order or magnitude. The value of a Gauge is capped at the implied
-  limits of the effected property’s datatype. If and while the information
-  being modeled exceeds an implied limit, the value represented will instead be
-  that limit; values do not wrap. For unsigned integers, the limits are zero
-  (0) to 2^n-1, inclusive. For signed integers, the limits are –(2^(n-1)) to 2^(n-1)-1,
-  inclusive. N can be 8, 16, 32, or 64 depending on the datatype of the
-  property to which the qualifier is applied.<span style='font-size:10.0pt'> <span
-  style='color:black'><span style="mso-spacerun: yes"> </span></span></span></p>
+  only to integer types. Represents an integer which may increase or decrease in
+  any order or magnitude. The value of a Gauge is capped at the implied limits
+  of the effected property’s datatype. If and while the information being
+  modeled exceeds an implied limit, the value represented will instead be that
+  limit; values do not wrap. For unsigned integers, the limits are zero (0) to
+  2^n-1, inclusive. For signed integers, the limits are –(2^(n-1)) to
+  2^(n-1)-1, inclusive. N can be 8, 16, 32, or 64 depending on the datatype of
+  the property to which the qualifier is applied.<span style='font-size:10.0pt'>
+  <span style='color:black'><span style="mso-spacerun: yes"> </span></span></span></p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
   border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
@@ -1296,9 +1302,9 @@ for providers.</p>
   none;border-bottom:solid windowtext .5pt;border-right:solid windowtext .5pt;
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal>Reference Indicates that the property is part of the
-  namespace handle (see Section 5.3.1.2 for information about namespace handles).
-  If more than one property has the KEY qualifier, then all such properties
+  <p class=MsoNormal>Reference Indicates that the property is part of the namespace
+  handle (see Section 5.3.1.2 for information about namespace handles). If more
+  than one property has the KEY qualifier, then all such properties
   collectively form the key (a compound key). <b>Usage Rule: </b>Keys are
   written once at object instantiation and must not be modified thereafter. It
   does not make sense to apply a default value to a KEY-qualified property.
@@ -1366,8 +1372,8 @@ for providers.</p>
   data providers or agents.<span style="mso-spacerun: yes">  </span>See Section
   </span><span style='font-size:9.0pt;color:black'>2.5.5 </span><span
   style='font-size:9.0pt;color:navy'>and </span><span style='font-size:9.0pt;
-  color:black'>2.5.6 </span><span style='font-size:9.0pt;color:navy'>for more details.</span><span
-  style='font-size:10.0pt;color:black'><o:p></o:p></span></p>
+  color:black'>2.5.6 </span><span style='font-size:9.0pt;color:navy'>for more
+  details.</span><span style='font-size:10.0pt;color:black'><o:p></o:p></span></p>
   <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
@@ -1616,13 +1622,13 @@ for providers.</p>
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-  style='font-size:9.0pt;color:navy'>Indicates the minimum cardinality of the reference
-  (i.e. the minimum number of values a given reference can have for each set of
-  other reference values in the association). For example, if an association
-  relates A instances to B<span style="mso-spacerun: yes">  </span>instances,
-  and there must be at least one A instance for each B instance, then the
-  reference to A should have a Min(1) qualifier.</span><span style='font-size:
-  10.0pt;color:black'><o:p></o:p></span></p>
+  style='font-size:9.0pt;color:navy'>Indicates the minimum cardinality of the
+  reference (i.e. the minimum number of values a given reference can have for
+  each set of other reference values in the association). For example, if an
+  association relates A instances to B<span style="mso-spacerun: yes"> 
+  </span>instances, and there must be at least one A instance for each B
+  instance, then the reference to A should have a Min(1) qualifier.</span><span
+  style='font-size:10.0pt;color:black'><o:p></o:p></span></p>
   <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
@@ -1928,13 +1934,12 @@ for providers.</p>
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>Defines a value the presence of which
-  indicates that the associated property is NULL – that is that the property
-  cannot be considered as having a valid or meaningful value. The conventions
-  and restrictions used for defining null values are the same as those
-  applicable to the ValueMap qualifier. Note this qualifier cannot be
-  overridden as it seems unreasonable to permit a subclass to return a
-  different null value to that of the superclass.</span><span style='font-size:
-  10.0pt;color:black'><o:p></o:p></span></p>
+  indicates that the associated property is NULL – that is that the property cannot
+  be considered as having a valid or meaningful value. The conventions and
+  restrictions used for defining null values are the same as those applicable
+  to the ValueMap qualifier. Note this qualifier cannot be overridden as it
+  seems unreasonable to permit a subclass to return a different null value to
+  that of the superclass.</span><span style='font-size:10.0pt;color:black'><o:p></o:p></span></p>
   <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
@@ -2111,8 +2116,8 @@ for providers.</p>
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>Indicates that the property, method, or
-  reference in the derived class overrides the similar construct (of the same
-  name) in the parent class in the inheritance tree, or in the specified parent
+  reference in the derived class overrides the similar construct (of the same name)
+  in the parent class in the inheritance tree, or in the specified parent
   class. The<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>value of this qualifier MAY identify the
@@ -2147,8 +2152,7 @@ for providers.</p>
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal>Part of general create class validation and processing
   that we may need to extend. Verify</p>
-  <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
-  <p class=MsoNormal>ACTION: Review:</p>
+  <p class=MsoNormal>Treated as part of cimclass::resolve.</p>
   </td>
  </tr>
  <tr>
@@ -2684,10 +2688,10 @@ for providers.</p>
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>Indicate that the class can have no
-  subclasses. If such a subclass is declared the compiler will generate an
-  error. Note this qualifier cannot coexist with the Abstract qualifier. If
-  both are specified the compiler generates an error.</span><span
-  style='font-size:10.0pt;color:black'><o:p></o:p></span></p>
+  subclasses. If such a subclass is declared the compiler will generate an error.
+  Note this qualifier cannot coexist with the Abstract qualifier. If both are
+  specified the compiler generates an error.</span><span style='font-size:10.0pt;
+  color:black'><o:p></o:p></span></p>
   <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
@@ -2808,9 +2812,9 @@ for providers.</p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-  style='font-size:9.0pt;color:navy'>Defines the set of permissible values for this
-  property, method return type or method parameter. The ValueMap can be used
-  alone, or in combination with the Values qualifier. When used in<span
+  style='font-size:9.0pt;color:navy'>Defines the set of permissible values for
+  this property, method return type or method parameter. The ValueMap can be
+  used alone, or in combination with the Values qualifier. When used in<span
   style="mso-spacerun: yes">  </span>combination with the Values qualifier, the
   location of the value in the ValueMap array provides the location of the
   corresponding entry in the Values array.<o:p></o:p></span></p>
@@ -2887,8 +2891,8 @@ for providers.</p>
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-  style='font-size:9.0pt;color:navy'>Provides translation between an integer
-  value and an associated string. If a ValueMap qualifier is not present, the Values
+  style='font-size:9.0pt;color:navy'>Provides translation between an integer value
+  and an associated string. If a ValueMap qualifier is not present, the Values
   array is indexed (zero relative) using the value in the associated property,
   method return type or method parameter. If a ValueMap qualifier is present,
   the Values index is defined by the location of the property value in the
@@ -3008,9 +3012,9 @@ for providers.</p>
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-  style='font-size:9.0pt'>Indicates that the keys of the referenced class
-  include the keys of the other participants in the association. This qualifier
-  is used when the identity of the<o:p></o:p></span></p>
+  style='font-size:9.0pt'>Indicates that the keys of the referenced class include
+  the keys of the other participants in the association. This qualifier is used
+  when the identity of the<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt'>referenced class depends on the identity of the other
   participants in the association. No more than one reference to any given
@@ -3174,8 +3178,8 @@ for providers.</p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><b><span
   style='font-size:9.0pt'>Usage Rule</span></b><span style='font-size:9.0pt'>:
   Applications must to chase associations according to the modeled semantic and
-  delete objects appropriately. <i>Note: This usage rule must be verified when
-  the CIM security model is defined.</i></span><span style='font-size:10.0pt'><o:p></o:p></span></p>
+  delete objects appropriately. <i>Note: This usage rule must be verified when the
+  CIM security model is defined.</i></span><span style='font-size:10.0pt'><o:p></o:p></span></p>
   <p class=MsoNormal><![if !supportEmptyParas]>&nbsp;<![endif]><o:p></o:p></p>
   </td>
   <td width=89 valign=top style='width:66.8pt;border-top:none;border-left:none;
@@ -3718,8 +3722,8 @@ for providers.</p>
   which indicates that the value of the associated property is unknown – that
   is<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-  style='font-size:9.0pt;color:navy'>that the property cannot be considered as having
-  a valid or meaningful value. The<span style="mso-spacerun: yes">  
+  style='font-size:9.0pt;color:navy'>that the property cannot be considered as
+  having a valid or meaningful value. The<span style="mso-spacerun: yes">  
   </span>onventions and restrictions used<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>for defining unknown values are the same
@@ -3786,17 +3790,17 @@ for providers.</p>
   mso-border-top-alt:solid windowtext .5pt;mso-border-left-alt:solid windowtext .5pt;
   padding:0in 5.4pt 0in 5.4pt'>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-  style='font-size:9.0pt;color:navy'>Defines a set of values the presence of which
-  indicates that the value of the associated property is unsupported – that is
-  that the property cannot be<o:p></o:p></span></p>
+  style='font-size:9.0pt;color:navy'>Defines a set of values the presence of
+  which indicates that the value of the associated property is unsupported –
+  that is that the property cannot be<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>considered as having a valid or<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>meaningful value. The conventions and
   restrictions used<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-  style='font-size:9.0pt;color:navy'>for defining unsupported values are the
-  same as those applicable to the ValueMap qualifier.<o:p></o:p></span></p>
+  style='font-size:9.0pt;color:navy'>for defining unsupported values are the same
+  as those applicable to the ValueMap qualifier.<o:p></o:p></span></p>
   <p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
   style='font-size:9.0pt;color:navy'>Note this qualifier cannot be overridden
   as it seems unreasonable to permit a<o:p></o:p></span></p>

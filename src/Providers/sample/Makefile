@@ -10,12 +10,8 @@ DIRS = \
 	FamilyProvider \
 	FamilyProvider/tests \
 	LocalizedProvider \
-	LocalizedProvider/msg
-
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS += \
+	LocalizedProvider/msg \
 	CMPI/FilesAndDirectories \
 	CMPI/FilesAndDirectories/tests
-endif
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

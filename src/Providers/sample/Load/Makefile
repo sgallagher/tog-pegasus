@@ -46,12 +46,10 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(SAMPLEPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" FamilyProviderSchemaR.mof
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ $(ECHO) +++++ Installing the MOF file for CMPI Providers
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 	@ $(ECHO) +++++ Registering FilesAndDir schema Providers  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" CWS_FilesAndDirR.mof
-endif
 # Load the sample mofe through the Client interface compiler but do not
 # clean out the existing version.
 repositoryServer:

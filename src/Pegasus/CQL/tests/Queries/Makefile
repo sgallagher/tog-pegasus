@@ -64,6 +64,12 @@ EmbeddedSelect.query.res: EmbeddedSelect.query
 	@ $(RM) $(TMP_DIR)/EmbeddedSelect.query.res
 	@ $(ECHO) +++ EmbeddedSelect.query passed successfully +++
 
+Misc.query.res: Misc.query
+	@ cqlcli Misc.query -test 1 > $(TMP_DIR)/Misc.query.res | cd .
+	@ $(DIFF) Misc.query.resgood $(TMP_DIR)/Misc.query.res
+	@ $(RM) $(TMP_DIR)/Misc.query.res
+	@ $(ECHO) +++ Misc.query passed successfully +++
+
 clean:
 	$(RM) Like.query.res
 	$(RM) isa.query.res
@@ -73,6 +79,7 @@ clean:
 	$(RM) GetPropertyList.query.res
 	$(RM) ApplyProjection.query.res
 	$(RM) EmbeddedSelect.query.res
+	$(RM) Misc.query.res
 
 depend:
 
@@ -84,7 +91,8 @@ tests: \
 	ValidateProperties.query.res \
 	GetPropertyList.query.res \
 	ApplyProjection.query.res \
-	EmbeddedSelect.query.res  
+	EmbeddedSelect.query.res \
+	Misc.query.res
 
 poststarttests:
 

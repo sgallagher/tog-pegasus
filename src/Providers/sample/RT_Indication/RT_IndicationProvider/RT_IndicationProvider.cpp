@@ -36,7 +36,8 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/System.h>
-//#include <Pegasus/Query/QueryExpression/SubscriptionFilterQueryContainer.h>
+#include <Pegasus/Query/QueryExpression/QueryExpression.h>
+#include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 
 #include "RT_IndicationProvider.h"
 
@@ -48,6 +49,7 @@ static IndicationResponseHandler * _handler = 0;
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
+static CIMOMHandle _cimom;
 
 void _generateIndication (
     IndicationResponseHandler * handler,
@@ -69,6 +71,7 @@ RT_IndicationProvider::~RT_IndicationProvider (void) throw ()
 
 void RT_IndicationProvider::initialize (CIMOMHandle & cimom)
 {
+  _cimom = cimom;
 }
 
 void RT_IndicationProvider::terminate (void)
@@ -282,18 +285,10 @@ void RT_IndicationProvider::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-    _numSubscriptions++;
-	
-	 // 
-	 // test containers
-	 //
-	 /*SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
-    QueryExpression qExpression = qContainer.getQueryExpression();
-    assert(qExpression.getQuery() != String::EMPTY);
-    assert(qExpression.getQueryLanguage() != String::EMPTY);
+    String funcName("RT_IndicationProvider::createSubscription ");
+    _checkOperationContext(context, funcName);
 
-    SubscriptionFilterConditionContainer cContainer = context.get(SubscriptionFilterConditionContainer::NAME); 
-	 assert(cContainer.getQueryLanguage() != String::EMPTY);*/
+    _numSubscriptions++;
 }
 
 void RT_IndicationProvider::modifySubscription (
@@ -303,18 +298,10 @@ void RT_IndicationProvider::modifySubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-    _generateIndication(_handler, "modifySubscription");
-    
-	 // 
-    // test containers
-    //
-	 /*SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
-    QueryExpression qExpression = qContainer.getQueryExpression();
-    assert(qExpression.getQuery() != String::EMPTY);
-    assert(qExpression.getQueryLanguage() != String::EMPTY);
+    String funcName("RT_IndicationProvider::modifySubscription ");
+    _checkOperationContext(context, funcName);
 
-    SubscriptionFilterConditionContainer cContainer = context.get(SubscriptionFilterConditionContainer::NAME);
-	 assert(cContainer.getQueryLanguage() != String::EMPTY);*/
+    _generateIndication(_handler, "modifySubscription");
 }
 
 void RT_IndicationProvider::deleteSubscription (
@@ -374,5 +361,52 @@ void RT_IndicationProvider::invokeMethod(
 
         if (sendIndication)
            _generateIndication(_handler, methodName);
+}
+
+void RT_IndicationProvider::_checkOperationContext(const OperationContext& context,
+                                                  const String &  funcName)
+{
+	 // 
+	 // Test the filter query container
+	 //
+	 SubscriptionFilterQueryContainer qContainer = context.get(SubscriptionFilterQueryContainer::NAME);
+    if (qContainer.getFilterQuery() == String::EMPTY) 
+    {
+      PEGASUS_STD(cout) << funcName << "- empty filter query" << PEGASUS_STD(endl);
+      throw CIMOperationFailedException(funcName + "- empty filter query");
+    }
+    if (qContainer.getQueryLanguage() == String::EMPTY)
+    {
+      PEGASUS_STD(cout) << funcName << "- empty filter query lang" << PEGASUS_STD(endl);
+      throw CIMOperationFailedException(funcName + "- empty filter query lang");
+    }
+
+    //
+    // Try to parse the filter query from the filter query container
+    //
+    try
+    {
+      CIMOMHandleQueryContext ctx(qContainer.getSourceNameSpace(), _cimom);
+      QueryExpression qe(qContainer.getQueryLanguage(),
+                         qContainer.getFilterQuery(),
+                         ctx);
+    }
+    catch (Exception & e)
+    {
+      PEGASUS_STD(cout) << funcName << "- parse error: " << e.getMessage() << PEGASUS_STD(endl);
+      throw CIMOperationFailedException(funcName + "- parse error: " + e.getMessage()); 
+    }
+
+    //
+    // Test the filter condition container.
+    // Note:  since this only contains the WHERE clause, the condition could be empty (and will
+    // be for some testcases)
+    //
+    SubscriptionFilterConditionContainer cContainer = context.get(SubscriptionFilterConditionContainer::NAME); 
+	 if (cContainer.getQueryLanguage() == String::EMPTY)
+    {
+      PEGASUS_STD(cout) << funcName << "- empty filter condition lang" << PEGASUS_STD(endl);
+      throw CIMOperationFailedException(funcName + "- empty filter condition lang"); 
+    }
 }
 

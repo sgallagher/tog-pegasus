@@ -86,6 +86,9 @@ public:
 
 protected:
 
+     void _checkOperationContext(const OperationContext& context,
+                                 const String& funcName);
+
 };
 
 #endif

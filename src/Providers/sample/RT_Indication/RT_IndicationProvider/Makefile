@@ -6,7 +6,8 @@ LIBRARY = RT_IndicationProvider
 
 LIBRARIES = \
 	pegcommon \
-	pegprovider
+	pegprovider \
+	pegqueryexpression
 	
 SOURCES = \
 	RT_IndicationProviderMain.cpp \

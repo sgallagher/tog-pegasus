@@ -24,6 +24,8 @@
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 // 				Karl Schopmeyer, (k.schopmeyer@opengroup.org)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -100,6 +102,12 @@ const CIMObjectPath& CIMInstance::getPath() const
 {
     _checkRep();
     return _rep->getPath();
+}
+
+void CIMInstance::setPath (const CIMObjectPath & path)
+{
+    _checkRep ();
+    _rep->setPath (path);
 }
 
 CIMInstance& CIMInstance::addQualifier(const CIMQualifier& qualifier)

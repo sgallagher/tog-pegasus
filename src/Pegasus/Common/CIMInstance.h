@@ -24,6 +24,8 @@
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 // 				Karl Schopmeyer, (k.schopmeyer@opengroup.org)
+//              Carol Ann Krug Graves, Hewlett-Packard Company 
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -85,6 +87,12 @@ public:
     const String& getClassName() const;
 
     const CIMObjectPath& getPath() const;
+
+    /**
+      Sets the object path for the instance
+      @param  path  CIMObjectPath containing the object path
+     */
+    void setPath (const CIMObjectPath & path);
 
     /**	addQualifier - Adds the CIMQualifier object to the instance.
 	Thows an exception of the CIMQualifier already exists in the instance

@@ -23,6 +23,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,6 +109,12 @@ const CIMObjectPath& CIMClass::getPath() const
 {
     _checkRep();
     return _rep->getPath();
+}
+
+void CIMClass::setPath (const CIMObjectPath & path)
+{
+    _checkRep ();
+    _rep->setPath (path);
 }
 
 const String& CIMClass::getSuperClassName() const

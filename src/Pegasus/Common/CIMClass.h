@@ -23,6 +23,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -119,6 +121,12 @@ public:
     const String& getClassName() const;
         
     const CIMObjectPath& getPath() const;
+
+    /**
+      Sets the object path for the class
+      @param  path  CIMObjectPath containing the object path
+     */
+    void setPath (const CIMObjectPath & path);
 
     /** getSuperClassName - Gets the name of the Parent
 	@return String with parent class name.

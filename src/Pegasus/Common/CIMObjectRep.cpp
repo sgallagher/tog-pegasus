@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -143,6 +144,11 @@ Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
 	return false;
 
     return true;
+}
+
+void CIMObjectRep::setPath (const CIMObjectPath& path)
+{
+    _reference = path;
 }
 
 PEGASUS_NAMESPACE_END

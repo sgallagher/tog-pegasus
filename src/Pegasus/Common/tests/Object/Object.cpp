@@ -23,6 +23,8 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:  Jenny Yu (jenny_yu@hp.com)
+//               Carol Ann Krug Graves, Hewlett-Packard Company 
+//                   (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -275,6 +277,105 @@ void test03()
     }
 }
 
+//*********************************************************************
+//  CIMObject, CIMClass, CIMInstance tests using setPath and getPath
+//*********************************************************************
+void test04()
+{
+    //
+    //  Test CIMClass
+    //
+    CIMClass class1 ("//localhost/root/cimv2:MyClass");
+    CIMProperty prop1;
+    prop1 = CIMProperty ("message", CIMValue (CIMType::STRING));
+    prop1.addQualifier (CIMQualifier ("Key", true));
+    CIMProperty prop2;
+    prop2 = CIMProperty ("count", CIMValue (CIMType::UINT32));
+    prop2.addQualifier (CIMQualifier ("Key", true));
+    class1.addProperty (prop1);
+    class1.addProperty (prop2);
+
+    CIMObjectPath cpath = class1.getPath ();
+    class1.setPath (CIMObjectPath (class1.getClassName ()));
+    CIMObjectPath cpath2 = class1.getPath ();
+    class1.setPath (cpath);
+    CIMObjectPath cpath3 = class1.getPath ();
+    assert (cpath3 == cpath);
+
+    if (verbose)
+    {
+        cout << "Class object path from getPath: " << cpath << endl;
+        cout << "Class object path from getPath after setPath: " << cpath2 
+             << endl;
+        cout << "Class object path from getPath after second setPath: " 
+             << cpath3 << endl;
+    }
+
+
+    //
+    //  Test class CIMObject
+    //
+    CIMObject oclass1 = class1;
+    CIMObjectPath ocpath = class1.getPath ();
+    class1.setPath (CIMObjectPath (class1.getClassName ()));
+    CIMObjectPath ocpath2 = class1.getPath ();
+    class1.setPath (ocpath);
+    CIMObjectPath ocpath3 = class1.getPath ();
+    assert (ocpath3 == ocpath);
+
+    if (verbose)
+    {
+        cout << "Class object path from getPath: " << ocpath << endl;
+        cout << "Class object path from getPath after setPath: " << ocpath2 
+             << endl;
+        cout << "Class object path from getPath after second setPath: " 
+             << ocpath3 << endl;
+    }
+
+
+    //
+    //  Test CIMInstance
+    //
+    CIMInstance instance1 ("MyClass");
+    instance1.addProperty (CIMProperty ("message", "Hello There"));
+    instance1.addProperty (CIMProperty ("count", Uint32 (77)));
+    CIMObjectPath path = instance1.getInstanceName (class1);
+    CIMObjectPath path2 = instance1.getPath ();
+    instance1.setPath (path);
+    CIMObjectPath path3 = instance1.getPath ();
+    assert (path3 == path);
+
+    if (verbose)
+    {
+        cout << "Instance object path from getInstanceName: " << path << endl;
+        cout << "Instance object path from getPath: " << path2 << endl;
+        cout << "Instance object path from getPath after setPath: " << path3 
+             << endl;
+    }
+
+
+    //
+    //  Test instance CIMObject
+    //
+    CIMInstance instance2 ("MyClass");
+    instance2.addProperty (CIMProperty ("message", "Good-bye..."));
+    instance2.addProperty (CIMProperty ("count", Uint32 (88)));
+    CIMObject oinstance1 = instance2;
+    CIMObjectPath opath = instance2.getInstanceName (class1);
+    CIMObjectPath opath1 = oinstance1.getPath ();
+    oinstance1.setPath (opath);
+    CIMObjectPath opath2 = oinstance1.getPath ();
+    assert (opath2 == opath);
+
+    if (verbose)
+    {
+        cout << "Instance object path from getInstanceName: " << opath << endl;
+        cout << "Instance object path from getPath: " << opath1 << endl;
+        cout << "Instance object path from getPath after setPath: " << opath2 
+             << endl;
+    }
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -284,6 +385,7 @@ int main(int argc, char** argv)
        test01();
        test02();
        test03();
+       test04();
     }
     catch (Exception& e)
     {

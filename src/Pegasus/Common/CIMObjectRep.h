@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +64,12 @@ public:
     {
 	return _reference;
     }
+
+    /**
+      Sets the object path for the object
+      @param  path  CIMObjectPath containing the object path
+     */
+    void setPath (const CIMObjectPath & path);
 
     void addQualifier(const CIMQualifier& qualifier)
     {

@@ -75,7 +75,7 @@ CIMInstance Dispatcher::getInstance(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    
+
     String className = instanceName.getClassName();
 
     DDD(cout << dptchr << "getInstance of " << className << endl;)
@@ -181,7 +181,7 @@ Array<String> Dispatcher::enumerateClassNames(
     Boolean deepInheritance)
 {
     DDD(cout << dptchr << "emumClass " << className << endl;)
-    
+
     return _repository->enumerateClassNames(
 	nameSpace,
 	className,
@@ -198,8 +198,15 @@ Array<CIMInstance> Dispatcher::enumerateInstances(
     const Array<String>& propertyList)
 {
     DDD(cout << dptchr << "emumInstance of " << className << endl;)
-    
-    return Array<CIMInstance>();
+
+    CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
+
+    if (provider)
+	return provider->enumerateInstances(nameSpace, className, deepInheritance, localOnly, includeQualifiers, includeClassOrigin, propertyList);
+    else
+	return _repository->enumerateInstances(nameSpace, className, deepInheritance, localOnly, includeQualifiers, includeClassOrigin, propertyList);
+
+	 return Array<CIMInstance>();
 }
 
 Array<CIMReference> Dispatcher::enumerateInstanceNames(
@@ -207,7 +214,7 @@ Array<CIMReference> Dispatcher::enumerateInstanceNames(
     const String& className)
 {
     DDD(cout << dptchr << "emumInstanceNames of " << className << endl;)
-    
+
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
     if (provider)

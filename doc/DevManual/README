@@ -1,0 +1,20 @@
+$Log: README,v $
+Revision 1.1  2001/02/25 15:01:40  karl
+Add frames to manual
+
+
+This directory contains the source files for the Pegasus documentation.
+
+Documentation creation for Pegasus is done with the tool DOC++ 
+
+which is availabile from
+
+http://docpp.sourceforge.com
+
+Documentation consists of the files defined in this directory (*.dxx) and
+comments in the Pegasus .cpp and .h files.
+
+The primary documentation file is Pegasusdoc.dxx which controls the 
+structure of the Pegasus documentation.
+
+

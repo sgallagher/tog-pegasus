@@ -1,11 +1,19 @@
 /*
 	$Log: components.dxx,v $
+	Revision 1.2  2001/02/25 15:01:40  karl
+	Add frames to manual
+	
 	Revision 1.1  2001/01/24 14:18:49  karl
 	import Dev Doc Files
 	
 	$Author: karl $
 */
 /** @name Pegasus Components
+This section defines the major components that make up the Pegasus environment, the architectureal components, the built components, and the supporting directory structure.
+*/
+
+//@{ 
+/** name Components
 The major components of Pegasus are:
 
 Pegasus Server - WBEM/CIM CIM_Server with interfaces for providers and Clients
@@ -34,7 +42,7 @@ Pegasus MOF Compiler - Future (Version 0.9)
 ATTN: Define the files that make up these components and their structure.
 
 
-<EM>The Pegasus Directory Structure</EM>
+@name Pegasus Directory Structure
 
 
 Pegasus is distributed as a complete directory structure that should be installed either
@@ -83,3 +91,5 @@ In the near future we will add directories for:
     Providers
 
 */
+
+//@}

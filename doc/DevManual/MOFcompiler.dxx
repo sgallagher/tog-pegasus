@@ -1,0 +1,108 @@
+/*
+	$Log: MOFcompiler.dxx,v $
+	Revision 1.1  2001/02/25 15:01:40  karl
+	Add frames to manual
+	
+The file documents the Pegasus MOF compiler.
+*/
+
+/** @name Pegasus MOF Compiler
+
+The Pegasus MOF compiler is a command line utility that compiles MOF files
+(using the MOF format defined by the DMTF CIM Specification) into a Pegasus
+repository. It allows compiling from strucutures of MOF files using the
+include pragma and can either compile into a Pegasus repository or simply
+perform a syntax check on the MOF files.
+
+In the syntax check mode, it checks each class independently and does not do
+semantic checks between classes (ex. check for super-classes, etc.). When
+compiling into a Pegasus repository, the compiler uses Pegasus to install the
+classes and instances into the repository and uses the semantic checking built
+into Pegasus.
+
+The compiler operates standalone in the syntax checking mode but requires the
+Pegasus libraries when compiling into a Pegasus respository.
+
+The compiler requires that the input MOF files be in the current directory
+unless TBD
+
+The compiler assumes that the file extension is .mof it is not specified.
+
+The actual configuration and type of repository created depends on the characteristics of the repository implemented in Pegasus. See the description of the Pegasus repositories for more information.
+
+<B>EXAMPLE</B>
+
+<PRE>
+       cimmof -w -Rtestrepository -IMOF MOF/CIMSchema25.mof
+</PRE>
+
+Compile the mof file defined in the directory MOF with the name CIMSchema25.mof
+and with include pragmas for other MOF files also in that directory and create
+the repository testrepository
+
+
+<B>NAME</B>
+
+	cimmof - Compile DMTF CIM MOF
+
+<B>SYNOPSIS</B>
+	<PRE>
+	cimmof [OPTION]... [FILE]...
+	</PRE>
+	
+
+<B>DESCRIPTION</B>
+
+The MOF compiler TBD
+
+<B>OPTIONS</B>
+<UL>
+<LI>-h, --help	Print out usage message with command line definitions.
+
+
+<LI>-E - 		Perform only a syntax check on the input and creates no 					repository.  Inthis mode, the compiler does not do the sematic checks that are done when MOFis added to a repository
+
+-w -- Suppresses ??? warnings.
+
+<LI>-R<path> - 	Specifies the path to the repository to be written. This is an
+alternative to the PEGASUS_HOME environment variable. If PEGASUS_HOME is set
+the repository gets written to $PEGASUS_HOME/repository. The -R flag one the
+command line overrides this with <path> specified in the directive.
+
+
+?? relative or absolute???
+
+<LI>--CIMRepository=<path>
+
+<LI>-I<path> -- 	Specifies the path to included MOF files. If the inputmof file has include pragmas and the included files  do not reside in the current directory, the -I directive must be used to specify a path to them on the compiler command line. Do this with the -I flag.
+
+	cimmof -I~/testfiles ~/testfiles/main.mof
+
+?? relative or absolute ??
+
+</UL>
+
+Limitations of the current version
+
+<EM>See the README in the COMPILER section of the Pegasus code tree for up-to-date
+information on both the current Limitations and the current TODOs.</EM>
+
+  The compiler does not handle missing include files very sanely
+       right now.  It just skips them.
+
+TODOs
+
+<UL>
+  
+<LI>  - Parse and store references correctly
+  
+<LI> - Test parsing and storage of instances.  They probably don't work now.
+  
+<LI> - Rationalize the error logging scheme.  Things are spit randomly to
+    sterr now.
+    
+<LI>  - Extend error detection and handling.
+
+</UL>
+*/
+

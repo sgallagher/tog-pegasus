@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.13  2001/02/25 15:01:40  karl
+	Add frames to manual
+	
 	Revision 1.12  2001/02/23 20:27:46  karl
 	correct documentation
 	
@@ -40,7 +43,8 @@ This file defines the document strucuture and provides the introduction
 	
 	$Author: karl $
 */
-/* do not change the following Name.  Used in the Frame definition
+/* do not change the following Name.  Used in the Frame definition.
+If you change it, the HTML Frame must also be changed.
 */
 /** @name Introduction
 
@@ -75,6 +79,13 @@ This file defines the document strucuture and provides the introduction
       <td width="37%">Karl</td>
       <td width="117%">Change Class names, Add definitions, Add Architecture documentation.</td>
   </tr>  
+    </tr>
+      <tr>
+        <td width="10%">0.75</td>
+        <td width="13%">02/25/02</td>
+        <td width="37%">Karl</td>
+        <td width="117%">Create Frames Version and redo structure..</td>
+  </tr> 
 </table>
 
 Pegasus is an open source implementation of the manageability environment defined by the DMTF WBEM standards.
@@ -103,17 +114,25 @@ NOTE: This a working document today.  It is revised frequently as we learn more 
 This version of the Pegasus User Manual was created at \today
 */
 /* The following is the complete file haearchy for this document.
-   We ahve tried to keep all file references in only this one place
+   We have tried to keep all file references in only this one place
    to make modification easier.  In the future, please keep the
    references here and text in the individual files.
 */
-//@{
+
     //@Include: objectives.dxx
     //@Include: overview.dxx
     //@Include: credits.dxx
     //@Include: Architecture.dxx
     //@Include: Components.dxx
     //@Include: Utilization.dxx
+        //@{	    
+    	//@Include: availability.dxx
+    	//@Include: installation.dxx
+    	//@Include: operation.dxx
+    	//@Include: CIMClients.dxx
+    	//@Include: PegasusProviders.dxx
+    	//@Include: MOFCompiler.dxx    
+        //@}
     //@Include: CIMOBJECTS.dxx
         //@{
 	   //@Include: CIMOBJECTTable.dxx 
@@ -139,7 +158,7 @@ This version of the Pegasus User Manual was created at \today
     		//@Include: ..\..\src\Pegasus\Common\Char16.h
         	//@Include: ..\..\src\Pegasus\Common\DeclContext.h
         	//@{
-		//@Include: ..\..\src\Pegasus\Common\Exception.dxx  
+		//@Include: Exceptions.dxx  
         	//@Include: ..\..\src\Pegasus\Common\Exception.h
         	//@}
             //@}
@@ -176,5 +195,5 @@ This version of the Pegasus User Manual was created at \today
     	//@}
     //@Include: references.dxx
     //@Include: FAQ.dxx
-//@}
+ 
 

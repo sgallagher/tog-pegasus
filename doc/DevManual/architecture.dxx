@@ -1,23 +1,28 @@
 /*
-$Log: architecture.dxx,v $
-Revision 1.3  2001/02/02 19:38:23  karl
-add graphic
+    $Log: architecture.dxx,v $
+    Revision 1.4  2001/02/25 15:01:40  karl
+    Add frames to manual
 
-Revision 1.2  2001/02/02 18:48:20  karl
-Doc++ expansion
+    Revision 1.3  2001/02/02 19:38:23  karl
+    add graphic
 
-Revision 1.1  2001/01/24 14:18:49  karl
-import Dev Doc Files
+    Revision 1.2  2001/02/02 18:48:20  karl
+    Doc++ expansion
+
+    Revision 1.1  2001/01/24 14:18:49  karl
+    import Dev Doc Files
 
 */
-/** @name Architecture
 
+/** @name Pegasus Architecture
 
 This section defines the overall architecture of the Pegasus implementation.
 
-@name Design Goals
+*/
+//@{
+/** @name Design Goals
 
-We set some basic design goals early in the development of Pegasus as follows:
+The Pegasus design team set some basic design goals early in the development of Pegasus as follows:
 <UL>
 <LI>C++ as the core development language. We selected C++ because it represented a compromise between the ability to work with objects and a language that would be acceptable for high avaailablity platforms.
 <LI>Modular Architecture - We wanted to be able to create the architecture based on well understand standardized modules that have clean well defined interfaces between the modules.
@@ -30,8 +35,8 @@ We set some basic design goals early in the development of Pegasus as follows:
 </UL>
 */
 
-//@{
-/** @name Manageability Services Broker (MSB).
+  
+/** @name The Broker
 
 The Common Information Model Object Broker (often known as the CIM Information
 manager or CIMOM) brokers CIM objects between a number of sources and
@@ -59,7 +64,7 @@ ATTN: define in more detail
 
 */
 
-/** @name Description of the CIMOM and WEBM
+/** @name Functional Flow
 
 The Common Information Model Object Broker (often known as the CIM Information
 manager or CIMOM) brokers CIM objects between a number of sources and
@@ -223,5 +228,5 @@ instances can be set or createdusing internal class,
 property, instance, method, and qualifier checkers and the rules ov validation defined by the CIM specification. These verifiers ensure that the CIM rules are enforced. This includes type verification,type conversions, verification of proper key usage, and other checks.,
 
 */
-
 //@}
+

@@ -794,8 +794,9 @@ expr_term : expr_factor
 		sprintf(msg,"BISON::expr_term->expr_term AND expr_factor\n");
 		printf_(msg);
 
-		$1->appendPredicate(*$3,AND);
-		$$ = $1;
+		$$ = new CQLPredicate();
+           	$$->appendPredicate(*$1);
+           	$$->appendPredicate(*$3, AND);	
             }
 ;
 
@@ -810,9 +811,9 @@ expr : expr_term
        {
            sprintf(msg,"BISON::expr->expr OR expr_term\n");
 	   printf_(msg);
-
-	   $1->appendPredicate(*$3, OR);
-	   $$ = $1;
+	   $$ = new CQLPredicate();
+	   $$->appendPredicate(*$1);
+	   $$->appendPredicate(*$3, OR);
        }
 ;
 

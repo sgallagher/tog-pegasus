@@ -13,8 +13,12 @@ CQLPredicateRep::CQLPredicateRep(const CQLSimplePredicate& inSimplePredicate, Bo
 
 CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, Boolean inInverted)
 {
+/*	 printf("CQLPredicateRep()\n");
 	_predicates.append(inPredicate);
+	printf("CQLPredicateRep() size = %d\n",_predicates.size());
 	_invert = inInverted;
+	_terminal = false;
+*/
 }
 
 CQLPredicateRep::CQLPredicateRep(const CQLPredicateRep* rep){
@@ -42,10 +46,16 @@ void CQLPredicateRep::setInverted(){
 	_invert = true;
 }
 
-void CQLPredicateRep::appendPredicate(CQLPredicate inPredicate, BooleanOpType inBooleanOperator)
+void CQLPredicateRep::appendPredicate(const CQLPredicate& inPredicate){
+	_predicates.append(inPredicate);
+	_terminal = false;
+}
+
+void CQLPredicateRep::appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator)
 {
 	_predicates.append(inPredicate);
 	_operators.append(inBooleanOperator);
+	_terminal = false;
 }
 
 void CQLPredicateRep::appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator){
@@ -101,10 +111,12 @@ String CQLPredicateRep::toString(){
 	String s;
 	for(Uint32 i = 0; i < _predicates.size(); i++){
 		s.append(_predicates[i].toString());
-		if(i <= _operators.size()){
+		if(i < _operators.size()){
 			switch(_operators[i]){
 				case AND: s.append(" AND ");
+					break;
 				case OR: s.append(" OR ");
+					break;
 			}
 		}
 	}

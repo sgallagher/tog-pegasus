@@ -48,7 +48,11 @@ void CQLPredicate::setInverted(){
 	_rep->setInverted();
 }
 
-void CQLPredicate::appendPredicate(CQLPredicate inPredicate, BooleanOpType inBooleanOperator)
+void CQLPredicate::appendPredicate(const CQLPredicate& inPredicate){
+	_rep->appendPredicate(inPredicate);
+}
+
+void CQLPredicate::appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator)
 {
 	_rep->appendPredicate(inPredicate,inBooleanOperator);
 }

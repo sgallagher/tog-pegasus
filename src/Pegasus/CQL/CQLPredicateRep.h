@@ -107,7 +107,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
     /** Appends a predicate to the predicate array. This method should only
             be called by Bison.
         */
-    void appendPredicate(CQLPredicate inPredicate, BooleanOpType inBooleanOperator);
+    void appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator);
 
     void appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator);
   
@@ -123,6 +123,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     Boolean isSimpleValue();
     String toString();
+    void appendPredicate(const CQLPredicate& inPredicate);
     friend class CQLFactory;
   private:
     

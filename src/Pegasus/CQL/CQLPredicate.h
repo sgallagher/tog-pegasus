@@ -113,10 +113,12 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
     void setInverted();
 
+
+    void appendPredicate(const CQLPredicate& inPredicate);
     /** Appends a predicate to the predicate array. This method should only
             be called by Bison.
         */
-    void appendPredicate(CQLPredicate inPredicate, BooleanOpType inBooleanOperator);
+    void appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator);
 
     void appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator);
   
@@ -138,7 +140,6 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
 
     friend class CQLFactory;
   private:
-    
 	CQLPredicateRep* _rep;    
 
 };

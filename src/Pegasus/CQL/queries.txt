@@ -10,3 +10,5 @@ select A::prop#OK from class
 select class.class1.class2.A::prop#OK from class where prop != 'blah'
 select prop[4] from class
 select prop from class where prop >= max(*)
+select class.prop from class where class ISA superclass
+select class.prop from class where class ISA superclassX OR class ISA superclassY

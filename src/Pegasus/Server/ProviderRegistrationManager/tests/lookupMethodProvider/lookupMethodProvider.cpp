@@ -42,7 +42,7 @@ const CIMName CLASSNAME = CIMName ("PG_ProviderModule");
 const CIMName CLASSNAME2 = CIMName ("PG_Provider");
 const CIMName CLASSNAME3 = CIMName ("PG_ProviderCapabilities");
 
-Boolean TestLookupMethodProvider(ProviderRegistrationManager prmanager)
+Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 {
 
     //

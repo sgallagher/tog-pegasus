@@ -42,7 +42,7 @@ const String CLASSNAME = "PG_ProviderModule";
 const String CLASSNAME2 = "PG_Provider";
 const String CLASSNAME3 = "PG_ProviderCapabilities";
 
-Boolean TestLookupIndicationProvider(ProviderRegistrationManager prmanager)
+Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 {
 
     //

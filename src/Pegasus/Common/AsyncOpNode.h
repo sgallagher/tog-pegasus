@@ -173,7 +173,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void *_callback_ptr;
       void *_callback_parameter;
       void *_callback_handle;
-      Semaphore *_callback_notify;
+      Condition *_callback_notify;
       
       MessageQueue *_callback_request_q;
       //      << Tue Mar 12 14:44:53 2002 mdd >>

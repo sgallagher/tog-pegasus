@@ -122,6 +122,10 @@ template<class L> class PEGASUS_COMMON_LINKAGE AsyncDQueue: public internal_dq
       void try_lock(PEGASUS_THREAD_TYPE myself) throw(IPCException);
       void lock(PEGASUS_THREAD_TYPE myself) throw(IPCException);
       void unlock(void);
+      void signal_slot(void) throw(IPCException);
+      void signal_node(void) throw(IPCException);
+      Condition *get_node_cond(void);
+      Condition *get_slot_cond(void);
       void wait_for_node(void) throw(IPCException);
       void set_capacity(Uint32 capacity) throw(IPCException);
       Uint32 get_capacity(void);
@@ -279,7 +283,6 @@ template<class L> void DQueue<L>::unlock(void) throw(IPCException)
 
 template<class L> void DQueue<L>::try_lock() throw(IPCException) 
 {  _mutex->try_lock(pegasus_thread_self()); }
-
 
 template<class L> void DQueue<L>::insert_first_no_lock(L *element) throw(IPCException)
 {
@@ -745,6 +748,26 @@ template<class L> void AsyncDQueue<L>::unlock(void)
    _cond->unlock();
 }
 
+template<class L> void AsyncDQueue<L>::signal_slot(void) throw(IPCException)
+{ 
+   _cond->lock(pegasus_thread_self()); 
+   _slot->unlocked_signal(pegasus_thread_self());
+   _cond->unlock();
+}
+
+template<class L> void AsyncDQueue<L>::signal_node(void) throw(IPCException)
+{
+   _cond->lock(pegasus_thread_self()); 
+   _node->unlocked_signal(pegasus_thread_self());
+   _cond->unlock();
+}
+
+template<class L> Condition *AsyncDQueue<L>::get_node_cond(void) 
+{ return _node ; }
+   
+template<class L> Condition * AsyncDQueue<L>::get_slot_cond(void)
+{ return _slot; }
+      
 template<class L> void AsyncDQueue<L>::wait_for_node(void) throw(IPCException)
 {
    _unlink_prep();

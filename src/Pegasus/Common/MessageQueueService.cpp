@@ -96,7 +96,6 @@ MessageQueueService::~MessageQueueService(void)
       _shutdown_incoming_queue();
        _req_thread.join();
    }
-   
    _callback_ready.signal();
    _callback_thread.join();
    
@@ -118,7 +117,6 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    
    if (_incoming_queue_shutdown.value() > 0 )
       return ;
-   
    AsyncIoctl *msg = new AsyncIoctl(get_next_xid(),
 				    0, 
 				    _queueId, 
@@ -239,11 +237,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
 	 service->_callback.unlock();
       }
       if( (service->_incoming.count() == 0) && (service->_callback.count() == 0 ) )
-	 pegasus_sleep(1);
+	 myself->sleep(1);
       else 
-	 pegasus_yield();
-  }
-   
+	 myself->thread_switch();
+   }
+      
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
    return(0);
 }
@@ -817,9 +815,8 @@ Boolean MessageQueueService::SendAsync(Message *msg,
       (static_cast<AsyncMessage *>(msg))->op = op;
    }
    
-   op->_callback_notify = &_callback_ready;
+   op->_callback_notify = _incoming.get_node_cond();
    _callback.insert_last(op);
-   
    return _meta_dispatcher->route_async(op);
 }
 

@@ -447,7 +447,6 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
    }
    if((flags & ASYNC_OPFLAGS_SAFE_CALLBACK ) && (! (flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)))
    {
-      op->_callback_notify->signal();
       return;
    }
    

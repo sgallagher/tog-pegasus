@@ -188,6 +188,9 @@ ProviderRegistrationManager::~ProviderRegistrationManager(void)
 {
     if (_registrationTable)
     {
+        for (Table::Iterator i = _registrationTable->table.start(); i; i++)
+            delete i.value();
+
         delete _registrationTable;
     }
 }

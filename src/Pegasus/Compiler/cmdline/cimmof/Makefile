@@ -18,6 +18,7 @@ SOURCES = main.cpp cmdline.cpp cmdlineExceptions.cpp $(EXTRA_SOURCES)
 
 include $(ROOT)/mak/program.mak
 
+messages:
 
 tests:
 

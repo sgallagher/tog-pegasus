@@ -116,6 +116,8 @@ clean:
 
 tests: 
 
+messages:
+
 poststarttests: $(XMLRESPONSES) $(XMLCOVRESPONSES)
 
 depend:

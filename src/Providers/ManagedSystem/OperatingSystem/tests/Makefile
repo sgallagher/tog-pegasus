@@ -78,6 +78,8 @@ clean:
 
 tests: 
 
+messages:
+
 poststarttests: $(XMLRESPONSES)
 
 depend:

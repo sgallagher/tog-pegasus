@@ -62,6 +62,8 @@ misc:
 
 tests:
 
+messages:
+
 poststarttests:
 
 general:

@@ -61,7 +61,7 @@ public:
        Boolean localOnly = true,
        Boolean includeQualifiers = false,
        Boolean includeClassOrigin = false,
-       const Array<String>& propertyList = StringArray())
+       const Array<String>& propertyList = EmptyStringArray())
 
    {
        DDD(cout << "**NAMEOFPROVIDER**::getInstance() called" << endl;)
@@ -121,15 +121,18 @@ public:
        Boolean localOnly = true,
        Boolean includeQualifiers = false,
        Boolean includeClassOrigin = false,
-       const Array<String>& propertyList = StringArray())
+       const Array<String>& propertyList = EmptyStringArray())
 
     {
-	DDD(cout << "**NAMEOFPROVIDER**::enumerateInstance()" << endl;)	
-	      
-       // ////ADD CODE HERE FOR Enumerate Instance Names/////
-       return(NEEDSRETURNVALUE);
-	return Array<CIMInstance>();
+	DDD(cout << "**NAMEOFPROVIDER**::enumerateInstance()" << endl;)
 
+	Array<CIMReference> instanceNameRefs;
+
+	// ////////ADD CODE HERE FOR Enumerate Instance Names/////
+
+	// Return the Array of CIMReferences Generated
+	 return instanceNameRefs;
+	      
     }
 
    virtual void modifyInstance(
@@ -153,10 +156,11 @@ public:
 	DDD(cout << "**NAMEOFPROVIDER**::getProperty() called"
 		 << "instanceName= "	<< instanceName.ToString();
 		 " propertyName = " << propertyName << endl;)
+	CIMValue returnValue;
 
 
 	// ///ADD CODE HERE  for get property//
-	return(NEEDSRETURNVALUE):
+	return(returnValue);
      }
 
     /* Process setProperty method.
@@ -189,16 +193,16 @@ public:
     {
 	DDD(cout << "**NAMEOFPROVIDER**::getProperty() called" << endl;)
 
-	CIMValue rtnValue
+	CIMValue returnValue
 
-	return(rntValue);
+	return(returnValue);
     }
 
     Array<CIMInstance> execQuery(
 	const String& queryLanguage,
 	const String& query) 
     { 
-	DDD(cout << "**NAMEOFPROVIDER**::execQueyr() called" << endl;)
+	DDD(cout << "**NAMEOFPROVIDER**::execQuery() called" << endl;)
 	
 	throw CIMException(CIMException::NOT_SUPPORTED);
 	return Array<CIMInstance>();

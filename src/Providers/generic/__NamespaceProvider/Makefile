@@ -1,6 +1,6 @@
-# Makes the dynamic load libs for the files named in DIR
+# Makes the dynamic load libs for the files named in SOURCES
+# to create the DLL nameed in LIBRARY
 ROOT = ../../../..
-include ../../libraries.mak
 
 DIR = Providers/generic/__NamespaceProvider
 

@@ -26,18 +26,17 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /* __Namespace CIMProvider
-The __Namespace Provider provides responses to the CIM Operations defined in
-the DMTF docuument CIM Operations over HTTP (Section 2.5),
-This provider implements 3 functions:
-Create namespace when it receives a create __Namespace instance.
-Delete namesapce when it receives a delete __Namespace instance
-Enumerate namespace when it recieves an enumerate __Namespaces or
-    enumerate __Namespace names
+    The __Namespace Provider provides responses to the CIM Operations defined in
+    the DMTF docuument CIM Operations over HTTP (Section 2.5),
+    This provider implements 3 functions:
+    Create namespace when it receives a create __Namespace instance.
+    Delete namesapce when it receives a delete __Namespace instance
+    Enumerate namespace when it recieves an enumerate __Namespaces or
+	enumerate __Namespace names
 
-NOTE: It is the intention of the DMTF to depricate the __Namespace
-functions so that eventually this provider will be depricated and
-removed
-
+    NOTE: It is the intention of the DMTF to depricate the __Namespace
+    functions so that eventually this provider will be depricated and
+    removed.
 */
 
 #include <iostream>

@@ -525,7 +525,11 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
     }
     else if (String::equalNoCase(_httpAuthType->propertyName, name))
     {
+#ifdef PEGASUS_OS_OS400
+        if(String::equal(value, "Basic")
+#else
         if(String::equal(value, "Basic") || String::equal(value, "Digest")
+#endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
             || String::equal(value, "Kerberos") 
 #endif

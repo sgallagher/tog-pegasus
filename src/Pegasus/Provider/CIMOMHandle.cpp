@@ -769,6 +769,19 @@ CIMClass CIMOMHandle::getClass(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
     
     CIMGetClassResponseMessage * response;
@@ -857,6 +870,19 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMEnumerateClassesResponseMessage *response;
@@ -935,6 +961,19 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
     CIMEnumerateClassNamesResponseMessage * response;
@@ -1012,6 +1051,19 @@ void CIMOMHandle::createClass(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMCreateClassResponseMessage *response;
@@ -1089,6 +1141,19 @@ void CIMOMHandle::modifyClass(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMModifyClassResponseMessage *response;
@@ -1166,6 +1231,19 @@ void CIMOMHandle::deleteClass(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMDeleteClassResponseMessage * response;
@@ -1255,6 +1333,19 @@ CIMInstance CIMOMHandle::getInstance(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMGetInstanceResponseMessage * response;
@@ -1346,6 +1437,19 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMEnumerateInstancesResponseMessage * response; 
@@ -1423,6 +1527,19 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMEnumerateInstanceNamesResponseMessage * response;
@@ -1498,6 +1615,19 @@ CIMObjectPath CIMOMHandle::createInstance(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMCreateInstanceResponseMessage *response;
@@ -1582,6 +1712,19 @@ void CIMOMHandle::modifyInstance(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMModifyInstanceResponseMessage *response;
@@ -1659,6 +1802,19 @@ void CIMOMHandle::deleteInstance(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMDeleteInstanceResponseMessage *response;
@@ -1738,6 +1894,19 @@ Array<CIMObject> CIMOMHandle::execQuery(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
    
    CIMExecQueryResponseMessage * response;
@@ -1836,6 +2005,19 @@ Array<CIMObject> CIMOMHandle::associators(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
     CIMAssociatorsResponseMessage *response;
@@ -1926,6 +2108,19 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMAssociatorNamesResponseMessage *response;
@@ -2019,6 +2214,19 @@ Array<CIMObject> CIMOMHandle::references(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMReferencesResponseMessage *response;
@@ -2101,6 +2309,19 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMReferenceNamesResponseMessage * response;
@@ -2181,6 +2402,19 @@ CIMValue CIMOMHandle::getProperty(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
     CIMGetPropertyResponseMessage *response;
@@ -2267,6 +2501,19 @@ void CIMOMHandle::setProperty(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
 
    CIMSetPropertyResponseMessage *response;
@@ -2348,6 +2595,19 @@ CIMValue CIMOMHandle::invokeMethod(
     }
     EtoA(os400UserName);
     request->userName = String(os400UserName);
+#else
+    // Propagate the userid from the operations context
+    try
+    {
+       IdentityContainer idContainer = context.get(IdentityContainer::NAME);
+       request->userName = idContainer.getUserName();
+    }
+    catch (...){
+       // Since it is a valid situation to have no userid in a request
+       // message or context this exception is kindly ignored.
+       PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL4,
+                        "No userid found in operation context");
+    }
 #endif
    
    CIMInvokeMethodResponseMessage *response;

@@ -299,6 +299,7 @@ HTTPConnection* HTTPConnector::connect(
          //throw CannotConnectException("Cannot connect to local CIM server. Connection failed.");
          MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
          						  "Cannot connect to local CIM server. Connection failed.");
+         Socket::close(socket);
          throw CannotConnectException(parms);
       }
    }
@@ -339,6 +340,7 @@ HTTPConnection* HTTPConnector::connect(
          					   "Cannot connect to $0:$1. Connection failed.",
          					   host,
          					   portStr);
+      Socket::close(socket);
       throw CannotConnectException(parms);
    }
 
@@ -358,6 +360,7 @@ HTTPConnection* HTTPConnector::connect(
          					   "Cannot connect to $0:$1. Connection failed.",
          					   host,
          					   portStr);
+      mp_socket->close();
       throw CannotConnectException(parms);
    }
     

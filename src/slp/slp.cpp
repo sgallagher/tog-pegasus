@@ -96,8 +96,12 @@ PEGASUS_EXPORT int gethostbyname_r(const char *name,
   resultbuf = resultbuf;
   buf = buf;
   bufsize = bufsize;
-  
+
+#ifndef PEGASUS_OS_OS400   
   if(NULL == (*result = gethostbyname(name))) {
+#else
+  if(NULL == (*result = gethostbyname((char *)name))) {
+#endif
     *errnop = h_errno;
     return(-1);
   } 
@@ -325,8 +329,12 @@ static Boolean  slp_join_multicast(SOCKET sock, Uint32 addr)
   struct ip_mreq mreq;
   mreq.imr_multiaddr.s_addr = inet_addr("239.255.255.253");
   mreq.imr_interface.s_addr = addr;
-  
-  if(SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)&mreq, sizeof(mreq))) 
+
+#ifndef PEGASUS_OS_OS400  
+  if(SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)&mreq, sizeof(mreq)))
+#else
+  if(SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof(mreq)))
+#endif 
     return(false);
   return(true);
 }
@@ -353,7 +361,11 @@ static SOCKET slp_open_listen_sock( void )
 
   SOCKET sock  = socket(AF_INET, SOCK_DGRAM, 0) ;
   int err = 1;
+#ifndef PEGASUS_OS_OS400
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err));
+#else
+  setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&err, sizeof(err));
+#endif
   struct sockaddr_in local;
   local.sin_family = AF_INET;
   local.sin_port = htons(427);
@@ -627,8 +639,12 @@ void slp_client::set_target_addr(const Sint8 *addr)
 {
   if(addr == NULL)
     _target_addr = inet_addr("239.255.255.253") ;
-  else 
+  else
+#ifndef PEGASUS_OS_OS400
     _target_addr = inet_addr(addr);
+#else
+    _target_addr = inet_addr((char *)addr);
+#endif
 }
 
 void slp_client::set_local_interface(const Sint8 *iface)
@@ -637,7 +653,11 @@ void slp_client::set_local_interface(const Sint8 *iface)
   if(iface == NULL)
     _local_addr = INADDR_ANY;
   else
+#ifndef PEGASUS_OS_OS400
     _local_addr = inet_addr(iface);
+#else
+    _local_addr = inet_addr((char *)iface);
+#endif
 }
 
 void slp_client::set_spi(const Sint8 *spi) 
@@ -1352,7 +1372,11 @@ void slp_client::decode_srvreq(struct sockaddr_in *remote )
 	    SOCKET sock;
 	    if(INVALID_SOCKET != (sock = socket(AF_INET, SOCK_DGRAM, 0))) {
 	      int err = 1;
+#ifndef PEGASUS_OS_OS400
 	      setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
+#else
+	      setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&err, sizeof(err) );
+#endif
 	      struct sockaddr_in local;
 	      local.sin_family = AF_INET;
 	      local.sin_port = _target_port ; 
@@ -1482,7 +1506,11 @@ Boolean slp_client::send_rcv_udp( void )
   Boolean ccode = false;
   if(INVALID_SOCKET != (sock = socket(AF_INET, SOCK_DGRAM, 0))) {
     int err = 1;
+#ifndef PEGASUS_OS_OS400
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err) );
+#else
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&err, sizeof(err) );
+#endif
 
     local.sin_family = AF_INET;
     local.sin_port = 0;
@@ -1490,8 +1518,12 @@ Boolean slp_client::send_rcv_udp( void )
     if(SOCKET_ERROR != bind(sock, SOCKADDR_CAST&local, sizeof(local))) {
       int bcast = ( (_LSLP_GETFLAGS(_msg_buf)) & LSLP_FLAGS_MCAST) ? 1 : 0 ;
       if(bcast) {
-	if( (SOCKET_ERROR ==  _LSLP_SET_TTL(sock, _ttl) )  ||  
+	if( (SOCKET_ERROR ==  _LSLP_SET_TTL(sock, _ttl) )  ||
+#ifndef PEGASUS_OS_OS400  
 	    (SOCKET_ERROR == setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (const Sint8 *)&bcast, sizeof(bcast)))) {
+#else
+	    (SOCKET_ERROR == setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *)&bcast, sizeof(bcast)))) {
+#endif
 	  _LSLP_CLOSESOCKET(sock);
 	  return(false);
 	}
@@ -1499,7 +1531,11 @@ Boolean slp_client::send_rcv_udp( void )
 	  struct sockaddr_in ma;
 	  memset(&ma, 0x00, sizeof(ma));
 	  ma.sin_addr.s_addr = _local_addr;
+#ifndef PEGASUS_OS_OS400
 	  if( (SOCKET_ERROR == setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF, (const char *)&ma, sizeof(struct sockaddr_in))) ) {
+#else
+	  if( (SOCKET_ERROR == setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF, (char *)&ma, sizeof(struct sockaddr_in))) ) {
+#endif
 	    _LSLP_CLOSESOCKET(sock);
 	    return(false);
 	  }

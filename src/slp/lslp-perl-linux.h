@@ -101,7 +101,7 @@ typedef int BOOL;
 #define _LSLP_INIT_NETWORK()
 #define _LSLP_DEINIT_NETWORK()
 
-#ifndef PEGASUS_OS_OS40
+#ifndef PEGASUS_OS_OS400
 #define _LSLP_SET_TTL(s, t)  setsockopt((s), IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&(t), sizeof((t))) 
 #else
 // Remove const for OS/400

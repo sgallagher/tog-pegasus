@@ -462,10 +462,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
    // first go thread the dead q and clean it up as much as possible
    while(_dead.count() > 0)
    {
-
-#if !defined(PEGASUS_PLATFORM_HPUX_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-      PEGASUS_STD(cout) << "ThreadPool:: removing and joining dead thread" << PEGASUS_STD(endl);
-#endif
+      Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "ThreadPool:: removing and joining dead thread");
       Thread *dead = _dead.remove_first();
       if(dead == 0)
 	 throw NullPointer();
@@ -600,9 +597,7 @@ Uint32 ThreadPool::kill_dead_threads(void)
 		  else 
 		  {
 		     // deadlocked threads
-#if !defined(PEGASUS_PLATFORM_HPUX_ACC) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-		     PEGASUS_STD(cout) << "Killing a deadlocked thread" << PEGASUS_STD(endl);
-#endif
+		     Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Killing a deadlocked thread");
 		     th->cancel();
 		     delete th;
 		  }

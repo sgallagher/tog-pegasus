@@ -31,6 +31,7 @@
 // 		 Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //               Dave Rosckes (rosckes@us.ibm.com)
 // 		 Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//       Seema Gupta (gseema@in.ibm.com for PEP135)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +50,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/AcceptLanguages.h> // l10n  
 #include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/OperationContextInternal.h> 
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/String.h>
@@ -5165,6 +5167,9 @@ void IndicationService::_sendCreateRequests
             new CIMCreateSubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
+        requestCopy->operationContext.insert(*new ProviderIdContainer (indicationProviders [i].providerModule,
+			                                                           indicationProviders [i].provider)); 
+
         AsyncOpNode * op = this->get_op (); 
 
         AsyncLegacyOperationStart * async_req =
@@ -5289,7 +5294,9 @@ void IndicationService::_sendModifyRequests
             new CIMModifySubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
-        AsyncOpNode * op = this->get_op ();
+		requestCopy->operationContext.insert(*new ProviderIdContainer (indicationProviders [i].providerModule,
+																	   indicationProviders [i].provider));
+		AsyncOpNode * op = this->get_op ();
 
         AsyncLegacyOperationStart * async_req =
             new AsyncLegacyOperationStart
@@ -5422,6 +5429,9 @@ void IndicationService::_sendDeleteRequests
         CIMDeleteSubscriptionRequestMessage * requestCopy =
             new CIMDeleteSubscriptionRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
+
+		requestCopy->operationContext.insert(*new ProviderIdContainer (indicationProviders [i].providerModule,
+																		indicationProviders [i].provider)); 
 
         AsyncOpNode * op = this->get_op ();
 
@@ -6430,6 +6440,8 @@ void IndicationService::_sendEnable (
             new CIMEnableIndicationsRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
 
+		requestCopy->operationContext.insert(* new ProviderIdContainer(enableProviders [i].providerModule,
+																	   enableProviders [i].provider));
         AsyncOpNode* op = this->get_op (); 
 
         AsyncLegacyOperationStart * async_req =
@@ -6551,6 +6563,9 @@ void IndicationService::_sendDisable (
         CIMDisableIndicationsRequestMessage * requestCopy =
             new CIMDisableIndicationsRequestMessage (* request);
         operationAggregate->appendRequest (requestCopy);
+
+		requestCopy->operationContext.insert(*new ProviderIdContainer(disableProviders [i].providerModule,
+																	 disableProviders [i].provider)); 
 
         AsyncOpNode* op = this->get_op (); 
 

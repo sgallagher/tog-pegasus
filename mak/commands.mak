@@ -15,6 +15,8 @@ ifndef OPENSSL_BIN
     OPENSSL_BIN = $(OPENSSL_HOME)/bin
 endif
 
+    OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
+
 ifeq ($(OS),win32)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
     DIFF = mu compare
@@ -55,7 +57,6 @@ ifeq ($(OS),HPUX)
     DOCXX = doc++
 
     GENERATE_RANDSEED = randseed
-    OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
     GET_HOSTNAME = `hostname`
 
     ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
@@ -125,7 +126,6 @@ ifeq ($(OS),linux)
     CAT = cat
     DOCXX = doc++
 
-    OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
     GET_HOSTNAME = `hostname`
 
     LIB_LINK_SUFFIX = .so

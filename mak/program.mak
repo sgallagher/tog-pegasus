@@ -16,8 +16,6 @@ $(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OBJECTS) $(LIBRARIES) $(E
 
 include $(ROOT)/mak/objects.mak
 
-# include $(ROOT)/mak/headers.mak
-
 FILES_TO_CLEAN = $(OBJECTS) $(FULL_PROGRAM)
 
 include $(ROOT)/mak/clean.mak
@@ -25,8 +23,6 @@ include $(ROOT)/mak/clean.mak
 -include $(ROOT)/mak/depend.mak
 
 include $(ROOT)/mak/build.mak
-
-include $(ROOT)/mak/headers.mak
 
 include $(ROOT)/mak/sub.mak
 

@@ -42,13 +42,9 @@ include $(ROOT)/mak/clean.mak
 
 include $(ROOT)/mak/objects.mak
 
-# include $(ROOT)/mak/headers.mak
-
 include $(ROOT)/mak/depend.mak
 
 include $(ROOT)/mak/build.mak
-
-include $(ROOT)/mak/headers.mak
 
 include $(ROOT)/mak/docxx.mak
 

@@ -18,10 +18,6 @@ clean:
 
 depend:
 
-strip-headers:
-
-prepend-headers:
-
-zap:
-
 sub:
+
+misc:

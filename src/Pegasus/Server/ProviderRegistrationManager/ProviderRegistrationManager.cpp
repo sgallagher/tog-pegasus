@@ -157,6 +157,8 @@ static const Uint16 _METHOD_PROVIDER    = 5;
 */
 static const Uint16 _PROVIDER_OK        = 2;
 
+static const Uint16 _PROVIDER_STOPPING   = 9;
+
 static const Uint16 _PROVIDER_STOPPED   = 10;
 
 /**
@@ -1226,12 +1228,14 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
     CIMInstance instance;
+    CIMObjectPath reference;
     String providerModuleName;
     String providerName;
     String className;
     String capabilityKey;
     Array<String> namespaces;
     Array<Uint16> providerType;
+    Array<Uint16> status;
     Array<String> supportedMethods;
     Array<CIMNamedInstance> cimNamedInstances;
   
@@ -1261,11 +1265,48 @@ void ProviderRegistrationManager::_initialRegistrationTable()
     	{
 	    Array<CIMInstance> instances;
             instance = cimNamedInstances[i].getInstance();
+	    reference = cimNamedInstances[i].getInstanceName();
 
 	    // get provider module name
             instance.getProperty(instance.findProperty
             (_PROPERTY_PROVIDERMODULE_NAME)).getValue().get(providerModuleName);
 	
+	    // get operational status
+	    Uint32 pos = instance.findProperty(_PROPERTY_OPERATIONALSTATUS);
+	    
+ 	    if (pos != PEG_NOT_FOUND)
+	    {
+		instance.getProperty(pos).getValue().get(status);
+	    }
+
+	    for (Uint32 j=0; j < status.size(); j++)
+	    {
+		if (status[j] == _PROVIDER_STOPPING)
+		{
+		    // if operational status is stopping
+		    // change module status to be Stopped
+		    status.clear();
+		    status.append(_PROVIDER_STOPPED);
+
+		    CIMObjectPath newInstancereference("", "",
+                    	reference.getClassName(),
+                    	reference.getKeyBindings());
+		  
+		    //
+                    // update repository
+                    //
+                    _repository->setProperty(PEGASUS_NAMESPACENAME_INTEROP,
+                                             newInstancereference,
+                                             _PROPERTY_OPERATIONALSTATUS,
+                                             status);
+
+		    // get new instance
+		    instance = _repository->getInstance(
+				PEGASUS_NAMESPACENAME_INTEROP,
+				newInstancereference);
+		}
+	    }
+
 	    //
             // create the key by using providerModuleName and MODULE_KEY
             //
@@ -1801,20 +1842,23 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 				//
 				MessageQueueService * _service = _getIndicationService();
 
-			    	CIMNotifyProviderRegistrationRequestMessage * notify_req =
-			        new CIMNotifyProviderRegistrationRequestMessage(
-				    XmlWriter::getNextMessageId (),
-				    CIMNotifyProviderRegistrationRequestMessage::Operation(OP_CREATE),
-				    _providerInstance,
-				    _moduleInstance,	
-				    _className,
-				    _namespaces,
-				    _oldNamespaces,
-				    _newPropertyNames,
-				    _oldPropertyNames,
-				    QueueIdStack(_service->getQueueId()));
+				if (_service != NULL)
+				{
+			    	    CIMNotifyProviderRegistrationRequestMessage * notify_req =
+			            new CIMNotifyProviderRegistrationRequestMessage(
+				        XmlWriter::getNextMessageId (),
+				        CIMNotifyProviderRegistrationRequestMessage::Operation(OP_CREATE),
+				        _providerInstance,
+				        _moduleInstance,	
+				        _className,
+				        _namespaces,
+				        _oldNamespaces,
+				        _newPropertyNames,
+				        _oldPropertyNames,
+				        QueueIdStack(_service->getQueueId()));
 
-				_sendMessageToSubscription(notify_req);
+				    _sendMessageToSubscription(notify_req);
+				}
 			    }
 
 			    break;
@@ -2668,20 +2712,23 @@ void ProviderRegistrationManager::_sendDeleteNotifyMessage(
     // 
     MessageQueueService * _service = _getIndicationService();
     
-    CIMNotifyProviderRegistrationRequestMessage * notify_req =
-	new CIMNotifyProviderRegistrationRequestMessage(
-	    XmlWriter::getNextMessageId (),
-	    CIMNotifyProviderRegistrationRequestMessage::Operation(OP_DELETE),
-	    _providerInstance,
-	    _moduleInstance,
-	    _className,
-	    Array<String>(),
-	    _namespaces,
-	    _newPropertyNames,
-	    _oldPropertyNames,
-	    QueueIdStack(_service->getQueueId()));
+    if (_service != NULL)
+    {
+        CIMNotifyProviderRegistrationRequestMessage * notify_req =
+	    new CIMNotifyProviderRegistrationRequestMessage(
+	        XmlWriter::getNextMessageId (),
+	        CIMNotifyProviderRegistrationRequestMessage::Operation(OP_DELETE),
+	        _providerInstance,
+	        _moduleInstance,
+	        _className,
+	        Array<String>(),
+	        _namespaces,
+	        _newPropertyNames,
+	        _oldPropertyNames,
+	        QueueIdStack(_service->getQueueId()));
 
-    _sendMessageToSubscription(notify_req);
+        _sendMessageToSubscription(notify_req);
+    }
 }
 
 //
@@ -2757,20 +2804,23 @@ void ProviderRegistrationManager::_sendModifyNotifyMessage(
     // 
     MessageQueueService * _service = _getIndicationService();
 
-    CIMNotifyProviderRegistrationRequestMessage * notify_req =
-	new CIMNotifyProviderRegistrationRequestMessage(
-	    XmlWriter::getNextMessageId (),
-	    CIMNotifyProviderRegistrationRequestMessage::Operation(OP_MODIFY),
-	    _providerInstance,
-	    _moduleInstance,
-	    _className,
-	    _newNamespaces,
-	    _oldNamespaces,
-	    _newPropertyNames,
-	    _oldPropertyNames,
-	    QueueIdStack(_service->getQueueId()));
+    if (_service != NULL)
+    {
+        CIMNotifyProviderRegistrationRequestMessage * notify_req =
+	    new CIMNotifyProviderRegistrationRequestMessage(
+	        XmlWriter::getNextMessageId (),
+	        CIMNotifyProviderRegistrationRequestMessage::Operation(OP_MODIFY),
+	        _providerInstance,
+	        _moduleInstance,
+	        _className,
+	        _newNamespaces,
+	        _oldNamespaces,
+	        _newPropertyNames,
+	        _oldPropertyNames,
+	        QueueIdStack(_service->getQueueId()));
 
-    _sendMessageToSubscription(notify_req);
+        _sendMessageToSubscription(notify_req);
+    }
 }
 
 // get indication service
@@ -2803,24 +2853,28 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
     // get indication server queueId
     //
     MessageQueueService * _service = _getIndicationService();
-    Uint32 _queueId = _service->getQueueId();
+    
+    if (_service != NULL)
+    {
+    	Uint32 _queueId = _service->getQueueId();
 
-    // create request envelope
-    AsyncLegacyOperationStart * asyncRequest =
-    	new AsyncLegacyOperationStart (
-		_service->get_next_xid(),
-		NULL,
- 		_queueId,	
-		notify_req,
-		_queueId);
+    	// create request envelope
+    	AsyncLegacyOperationStart * asyncRequest =
+    		new AsyncLegacyOperationStart (
+		     _service->get_next_xid(),
+		     NULL,
+ 		     _queueId,	
+		     notify_req,
+		     _queueId);
 
-    if( false  == _controller->ClientSendForget(
+        if( false  == _controller->ClientSendForget(
 			   *_client_handle,
 			   _queueId,
 			   asyncRequest))
-    {
-    	delete asyncRequest;
-    	throw CIMException(CIM_ERR_NOT_FOUND);
+        {
+    	    delete asyncRequest;
+    	    throw CIMException(CIM_ERR_NOT_FOUND);
+        }
     }
 }
 

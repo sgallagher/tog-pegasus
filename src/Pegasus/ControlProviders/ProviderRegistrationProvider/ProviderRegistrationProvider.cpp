@@ -34,6 +34,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -332,13 +334,23 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
 // only support to change property of Namespaces, property of 
 // SupportedProperties, and property of SupportedMethods
 void ProviderRegistrationProvider::modifyInstance(
-        const OperationContext & _context,
+        const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
         ResponseHandler<CIMInstance> & handler)
 {
+    // get userName and only privileged user can execute this operation
+    IdentityContainer container = context.get(CONTEXT_IDENTITY);
+    String userName = container.getUserName();
+
+    if (!System::isPrivilegedUser(userName)) 
+    {
+	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	    "You must have superuser privilege to modify the registration."); 	
+    }
+
     if(!String::equalNoCase(instanceReference.getNameSpace(), 
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
@@ -399,6 +411,16 @@ void ProviderRegistrationProvider::createInstance(
     const CIMInstance & instanceObject,
     ResponseHandler<CIMObjectPath> & handler)
 {
+    // get userName and only privileged user can execute this operation
+    IdentityContainer container = context.get(CONTEXT_IDENTITY);
+    String userName = container.getUserName();
+
+    if (!System::isPrivilegedUser(userName)) 
+    {
+	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	    "You must have superuser privilege to register providers."); 	
+    }
+
     String className = instanceReference.getClassName();
     String nameSpace = instanceReference.getNameSpace();
 
@@ -559,6 +581,16 @@ void ProviderRegistrationProvider::deleteInstance(
     const CIMObjectPath & instanceReference,
     ResponseHandler<CIMInstance> & handler)
 {
+    // get userName and only privileged user can execute this operation
+    IdentityContainer container = context.get(CONTEXT_IDENTITY);
+    String userName = container.getUserName();
+
+    if (!System::isPrivilegedUser(userName)) 
+    {
+	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	    "You must have superuser privilege to unregister providers."); 	
+    }
+
     if(!String::equalNoCase(instanceReference.getNameSpace(), 
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
@@ -600,6 +632,16 @@ void ProviderRegistrationProvider::invokeMethod(
     Array<CIMParamValue> & outParameters,
     ResponseHandler<CIMValue> & handler)
 {
+    // get userName and only privileged user can execute this operation
+    IdentityContainer container = context.get(CONTEXT_IDENTITY);
+    String userName = container.getUserName();
+
+    if (!System::isPrivilegedUser(userName)) 
+    {
+	throw CIMException (CIM_ERR_ACCESS_DENIED,
+	    "You must have superuser privilege to disable or enable providers."); 	
+    }
+
     if(!String::equalNoCase(objectReference.getNameSpace(), 
       	                    PEGASUS_NAMESPACENAME_INTEROP))
     {
@@ -686,32 +728,35 @@ void ProviderRegistrationProvider::invokeMethod(
         //
         MessageQueueService * _service = _getProviderManagerService();
 
-	// create CIMDisableModuleRequestMessage
-	CIMDisableModuleRequestMessage * disable_req = 
-	    new CIMDisableModuleRequestMessage(
-		XmlWriter::getNextMessageId (),
-		mInstance,
-		instances,
-		QueueIdStack(_service->getQueueId()));
-
-  	Array<Uint16> _opStatus = 
-	    _sendDisableMessageToProviderManager(disable_req);
-
-	for (Uint32 i = 0; i<_opStatus.size(); i++)
+	if (_service != NULL)
 	{
-	    if (_opStatus[i] == _MODULE_STOPPED)
-	    {
-		// module was disabled successfully
-		ret_value = 0;
-		CIMValue retValue(ret_value);
-		handler.deliver(retValue);
-    		handler.complete();
+	    // create CIMDisableModuleRequestMessage
+	    CIMDisableModuleRequestMessage * disable_req = 
+	        new CIMDisableModuleRequestMessage(
+		    XmlWriter::getNextMessageId (),
+		    mInstance,
+		    instances,
+		    QueueIdStack(_service->getQueueId()));
 
-	 	// send termination message to subscription service
-		_sendTerminationMessageToSubscription(objectReference, moduleName);
-		return;
+  	    Array<Uint16> _opStatus = 
+	        _sendDisableMessageToProviderManager(disable_req);
+
+	    for (Uint32 i = 0; i<_opStatus.size(); i++)
+	    {
+	        if (_opStatus[i] == _MODULE_STOPPED)
+	        {
+		    // module was disabled successfully
+		    ret_value = 0;
+		    CIMValue retValue(ret_value);
+		    handler.deliver(retValue);
+    		    handler.complete();
+
+	 	    // send termination message to subscription service
+		    _sendTerminationMessageToSubscription(objectReference, moduleName);
+		    return;
+	        }
 	    }
-	}
+  	}
 
         // disable failed
 	ret_value = -1;
@@ -751,26 +796,29 @@ void ProviderRegistrationProvider::invokeMethod(
         //
         MessageQueueService * _service = _getProviderManagerService();
 
-	// create CIMEnableModuleRequestMessage
-	CIMEnableModuleRequestMessage * enable_req = 
-	    new CIMEnableModuleRequestMessage(
-		XmlWriter::getNextMessageId (),
-		moduleName,
-		QueueIdStack(_service->getQueueId()));
-
-  	Array<Uint16> _opStatus;
-        _opStatus = _sendEnableMessageToProviderManager(enable_req);
-
-	for (Uint32 i = 0; i<_opStatus.size(); i++)
+	if (_service != NULL)
 	{
-	    if (_opStatus[i] == _MODULE_OK)
+	    // create CIMEnableModuleRequestMessage
+	    CIMEnableModuleRequestMessage * enable_req = 
+	        new CIMEnableModuleRequestMessage(
+		    XmlWriter::getNextMessageId (),
+		    moduleName,
+		    QueueIdStack(_service->getQueueId()));
+
+  	    Array<Uint16> _opStatus;
+            _opStatus = _sendEnableMessageToProviderManager(enable_req);
+
+	    for (Uint32 i = 0; i<_opStatus.size(); i++)
 	    {
-		// module was enabled successfully
-		ret_value = 0;
-		CIMValue retValue(ret_value);
-		handler.deliver(retValue);
-    		handler.complete();
-		return;
+	        if (_opStatus[i] == _MODULE_OK)
+	        {
+		    // module was enabled successfully
+		    ret_value = 0;
+		    CIMValue retValue(ret_value);
+		    handler.deliver(retValue);
+    		    handler.complete();
+		    return;
+	        }
 	    }
 	}
 
@@ -1017,30 +1065,34 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
     // get indication server queueId
     //
     MessageQueueService * _service = _getIndicationService();
-    Uint32 _queueId = _service->getQueueId();
 
-    CIMNotifyProviderTerminationRequestMessage * termination_req =
-	new CIMNotifyProviderTerminationRequestMessage(
-	    XmlWriter::getNextMessageId (),
-	    instances,
-	    QueueIdStack(_service->getQueueId()));
+    if (_service != NULL)
+    {
+        Uint32 _queueId = _service->getQueueId();
 
-    // create request envelope
-    AsyncLegacyOperationStart * asyncRequest =
-        new AsyncLegacyOperationStart (
+        CIMNotifyProviderTerminationRequestMessage * termination_req =
+	    new CIMNotifyProviderTerminationRequestMessage(
+	        XmlWriter::getNextMessageId (),
+	        instances,
+	        QueueIdStack(_service->getQueueId()));
+
+        // create request envelope
+        AsyncLegacyOperationStart * asyncRequest =
+            new AsyncLegacyOperationStart (
                 _service->get_next_xid(),
                 NULL,
                 _queueId,
                 termination_req,
                 _queueId);
 
-    if( false  == _controller->ClientSendForget(
+        if( false  == _controller->ClientSendForget(
                            *_client_handle,
                            _queueId,
                            asyncRequest))
-    {
-        delete asyncRequest;
-        throw CIMException(CIM_ERR_NOT_FOUND);
+        {
+            delete asyncRequest;
+            throw CIMException(CIM_ERR_NOT_FOUND);
+        }
     }
 }
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.h,v $
+// Revision 1.3  2001/02/13 02:06:40  mike
+// Added renameFile() method.
+//
 // Revision 1.2  2001/02/11 05:42:33  mike
 // new
 //
@@ -117,6 +120,12 @@ public:
     static Boolean compare(
 	const String& fileName1,
 	const String& fileName2);
+
+    // Rename the given file to the new name:
+
+    static Boolean renameFile(
+	const String& oldFileName,
+	const String& newFileName);
 };
 
 PEGASUS_NAMESPACE_END

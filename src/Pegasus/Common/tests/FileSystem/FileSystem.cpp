@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.4  2001/02/13 02:06:40  mike
+// Added renameFile() method.
+//
 // Revision 1.3  2001/02/11 05:42:33  mike
 // new
 //
@@ -79,6 +82,21 @@ int main()
     assert(paths[0] == "a");
     assert(paths[1] == "b");
     assert(paths[2] == "c");
+
+    // Try out renameFile:
+    {
+	const char FILE1[] = "file1.txt";
+	const char FILE2[] = "file2.txt";
+
+	assert(FileSystem::exists(FILE1));
+	assert(!FileSystem::exists(FILE2));
+	assert(FileSystem::renameFile(FILE1, FILE2));
+	assert(!FileSystem::exists(FILE1));
+	assert(FileSystem::exists(FILE2));
+	assert(FileSystem::renameFile(FILE2, FILE1));
+	assert(FileSystem::exists(FILE1));
+	assert(!FileSystem::exists(FILE2));
+    }
 
     cout << "+++++ passed all tests" << endl;
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: FileSystem.cpp,v $
+// Revision 1.3  2001/02/13 02:06:40  mike
+// Added renameFile() method.
+//
 // Revision 1.2  2001/02/11 05:42:33  mike
 // new
 //
@@ -327,6 +330,20 @@ Boolean FileSystem::getDirectoryContents(
     }
 
     return true;
+}
+
+Boolean FileSystem::renameFile(
+    const String& oldFileName,
+    const String& newFileName)
+{
+    Destroyer<char> p(oldFileName.allocateCString());
+    Destroyer<char> q(newFileName.allocateCString());
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    return rename(p.getPointer(), q.getPointer()) == 0;
+#else
+    return link(p.getPointer(), q.getPointer()) == 0;
+#endif
 }
 
 PEGASUS_NAMESPACE_END

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: QualifierList.cpp,v $
+// Revision 1.5  2001/02/13 02:06:40  mike
+// Added renameFile() method.
+//
 // Revision 1.4  2001/01/28 04:11:03  mike
 // fixed qualifier resolution
 //
@@ -128,6 +131,12 @@ void QualifierList::resolve(
 	// so then we must handle the OVERRIDABLE flavor.
 	//----------------------------------------------------------------------
 
+	// ATTN: there seems to be a problem with the CIM schema that marks the
+	// abstract qualifier as non-overridable but then they override it.
+	// For now it is just disabled. This problem exists in both XML and
+	// CIM schema.
+
+#if 0
 	Uint32 pos = inheritedQualifiers.find(q.getName());
 
 	if (pos != Uint32(-1))
@@ -137,6 +146,7 @@ void QualifierList::resolve(
 	    if (!(iq.getFlavor() & Flavor::OVERRIDABLE))
 		throw BadQualifierOverride(q.getName());
 	}
+#endif
     }
 
     //--------------------------------------------------------------------------

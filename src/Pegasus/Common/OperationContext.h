@@ -266,6 +266,8 @@ protected:
     */
     IdentityContainerRep* _rep;
 
+private:
+    IdentityContainer();    // Unimplemented
 };
 
 
@@ -322,6 +324,8 @@ public:
 protected:
     SubscriptionInstanceContainerRep* _rep;
 
+private:
+    SubscriptionInstanceContainer();    // Unimplemented
 };
 
 class SubscriptionFilterConditionContainerRep;
@@ -386,6 +390,8 @@ public:
 protected:
     SubscriptionFilterConditionContainerRep* _rep;
 
+private:
+    SubscriptionFilterConditionContainer();    // Unimplemented
 };
 
     /**REVIEWERS: Insert class description here.
@@ -447,6 +453,8 @@ public:
 protected:
     SubscriptionInstanceNamesContainerRep* _rep;
 
+private:
+    SubscriptionInstanceNamesContainer();    // Unimplemented
 };
 
     ///Insert class description here. 
@@ -546,6 +554,8 @@ public:
 protected:
    AcceptLanguageListContainerRep* _rep;
 
+private:
+    AcceptLanguageListContainer();    // Unimplemented
 };
     /** REVIEWERS: Insert class description here. 
     */
@@ -606,6 +616,9 @@ protected:
     /** REVIEWERS: Insert description here. What parameters need descriptions?
     */
     SubscriptionLanguageListContainerRep* _rep;
+
+private:
+    SubscriptionLanguageListContainer();    // Unimplemented
 };    
 
     /** REVIEWERS: Insert class description here. 
@@ -670,6 +683,8 @@ protected:
     */
    ContentLanguageListContainerRep* _rep;
 
+private:
+    ContentLanguageListContainer();    // Unimplemented
 };
 
 #endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
@@ -735,6 +750,8 @@ public:
 protected:
     SnmpTrapOidContainerRep* _rep;
 
+private:
+    SnmpTrapOidContainer();    // Unimplemented
 };
 
 

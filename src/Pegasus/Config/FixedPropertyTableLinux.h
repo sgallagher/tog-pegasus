@@ -42,7 +42,7 @@
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
 #endif
-#ifdef PEGASUS_USE_RELEASE_DIRS
+#if defined(PEGASUS_USE_RELEASE_DIRS) && !defined(PEGASUS_OS_LSB)
     {"traceFilePath",       "/var/cache/pegasus/cimserver.trc"},
     {"logdir",              "/var/log/pegasus"},
     {"tempLocalAuthDir",    "/var/cache/pegasus/localauth"},
@@ -53,6 +53,18 @@
     {"exportSSLTrustStore", "/etc/pegasus/indication_trust.pem"},
     {"repositoryDir",       "/var/lib/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers"},
+#endif
+#if defined(PEGASUS_OS_LSB)
+    {"traceFilePath",       "/var/opt/lsb-pegasus/cache/cimserver.trc"},
+    {"logdir",              "/var/opt/lsb-pegasus/log"},
+    {"tempLocalAuthDir",    "/var/opt/lsb-pegasus/cache/localauth"},
+    {"passwordFilePath",    "/etc/opt/lsb-pegasus/cimserver.passwd"},
+    {"sslCertificateFilePath", "/etc/opt/lsb-pegasus/server.pem"},
+    {"sslKeyFilePath",      "/etc/opt/lsb-pegasus/file.pem"},
+    {"sslTrustStore",      "/etc/opt/lsb-pegasus/client.pem"},
+    {"exportSSLTrustStore", "/etc/opt/lsb-pegasus/indication_trust.pem"},
+    {"repositoryDir",       "/var/opt/lsb-pegasus/repository"},
+    {"providerDir",         "/opt/lsb-pegasus/providers"},
 #endif
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"} // Remove this line if others are added

@@ -35,6 +35,8 @@ poststarttests:
 install:
 	$(COPY) cimserver_planned.conf $(PEGASUS_HOME)
 	$(COPY) cimserver_current.conf $(PEGASUS_HOME)
+	$(COPY) $(PEGASUS_ROOT)/server.pem $(PEGASUS_HOME)
+	$(COPY) $(PEGASUS_ROOT)/ssl.rnd    $(PEGASUS_HOME)
 
 run: install
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

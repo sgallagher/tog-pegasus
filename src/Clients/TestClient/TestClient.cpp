@@ -26,6 +26,9 @@
 //         Mike Day (mdday@us.ibm.com)
 //         Jenny Yu (jenny_yu@hp.com)
 //
+// Modified By:
+//         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -44,6 +47,9 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 String globalNamespace = "root/cimv2";
+
+static const char CERTIFICATE[] = "server.pem";
+static const char RANDOMFILE[] = "ssl.rnd";
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -707,8 +713,7 @@ int main(int argc, char** argv)
 	// Show the connectionlist
     cout << "Connection List size " << connectionList.size() << endl;
     for (Uint32 i = 0; i < connectionList.size(); i++)
-		 cout << "Connection " << i << " address " << connectionList[i] << 
-		 		 		 		 		 		     endl; 
+	cout << "Connection " << i << " address " << connectionList[i] << endl; 
 
     for(Uint32 numTests = 1; numTests <= repeatTestCount; numTests++)
 	{
@@ -718,35 +723,60 @@ int main(int argc, char** argv)
 			cout << "Start Try Block" << endl;
 		  try
 		  {
-			  cout << "Set Stopwatch" << endl;
-			   Stopwatch elapsedTime;
-			   cout << "Create client" << endl;
-			   CIMClient client(60 * 1000);
-			   cout << "Client created" << endl;
-				   if (useSSL)
-				   {
-						String certpath("/home/markus/src/pegasus/server.pem");
-						SSLContext * sslcontext = new SSLContext(certpath);
-						cout << "connecting to " << connectionList[i] << endl;
-						client.connect(connectionList[i], sslcontext);
-				   }
-				   else
-				   {
-					   if (om.isTrue("local"))
-					   {
-						   cout << "Using local connection mechanism " << endl;
-						   client.connectLocal();
-					   }
-					   else 
-					   {
+		     cout << "Set Stopwatch" << endl;
+		     Stopwatch elapsedTime;
+		     cout << "Create client" << endl;
+		     CIMClient client(60 * 1000);
+		     cout << "Client created" << endl;
+                     if (useSSL)
+		     {
+
+                        //
+                        // Get environment variables:
+                        //
+                        const char* pegasusHome = getenv("PEGASUS_HOME");
+
+                        String certpath = String::EMPTY;
+                        if (pegasusHome)
+                        {
+                               certpath.append(pegasusHome);
+                               certpath.append("/");
+                        }
+                        certpath.append(CERTIFICATE);
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+                        String randFile = String::EMPTY;
+                        if (pegasusHome)
+                        {
+                              randFile.append(pegasusHome);
+                              randFile.append("/");
+                        }
+                        randFile.append(RANDOMFILE);
+
+                        SSLContext * sslcontext = new SSLContext(certpath, randFile, true);
+#else
+                        SSLContext * sslcontext = new SSLContext(certpath);
+#endif
+                        cout << "connecting to " << connectionList[i] << endl;
+		        client.connect(connectionList[i], sslcontext);
+		      }
+	              else
+		      {
+			if (om.isTrue("local"))
+			{
+			     cout << "Using local connection mechanism " << endl;
+     			     client.connectLocal();
+			}
+			else 
+			{
 						   cout << "Connecting to " << connectionList[i] << endl;
 						   client.connect(connectionList[i], userName, password);
-					   }
-				   }
-			   cout << "Client Connected" << endl;
+			}
+		      }
+		      cout << "Client Connected" << endl;
 		
-			   testStart("Test NameSpace Operations");
-		
+		           testStart("Test NameSpace Operations");
+	
 			   TestNameSpaceOperations(client, activeTest, verboseTest);
 				   testEnd(elapsedTime.getElapsed());
 				   

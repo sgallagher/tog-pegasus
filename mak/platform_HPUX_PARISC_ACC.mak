@@ -61,6 +61,11 @@ endif
 
 SYS_LIBS = -lpthread -lrt
 
+# SSL support
+FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+SYS_LIBS += -L$(OPENSSL_HOME)/lib -lcrypto -lssl
+
 CXX = aCC
 
 SH = sh

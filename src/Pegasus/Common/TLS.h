@@ -33,6 +33,7 @@
 #ifdef PEGASUS_HAS_SSL
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <openssl/rand.h>
 #else
 #define SSL_CTX void
 #endif
@@ -48,7 +49,11 @@ class PEGASUS_EXPORT SSLContext
 {
 public:
 
-    SSLContext(const String& certPath) throw(SSL_Exception);
+   SSLContext(const String& certPath,
+              const String& randomFile = String::EMPTY,
+              Boolean isCIMClient = false)
+              throw(SSL_Exception);
+
     ~SSLContext();
 
     SSL_CTX * getContext();

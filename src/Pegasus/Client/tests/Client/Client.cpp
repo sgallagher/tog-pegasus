@@ -24,16 +24,22 @@
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //
+// Modified By:
+//         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/OptionManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const String NAMESPACE = "root/cimv2";
+
+static const char CERTIFICATE[] = "server.pem";
+static const char RANDOMFILE[] = "ssl.rnd";
 
 static void TestGetClass(CIMClient& client)
 {
@@ -308,17 +314,65 @@ static void TestReferenceClassNames(CIMClient& client)
 
 int main(int argc, char** argv)
 {
+
+    Boolean useSSL =  false;
+
+    if ( argc > 1 )
+    {
+      char *temp = argv[1];
+      if ( ! strcasecmp (temp, "-ssl" ) )
+      {
+        cout << "SSL Enabled " << endl;
+        useSSL = true;
+      }
+      else
+      {
+        cout << "SSL not Enabled " << endl;
+      }
+    }
     try
     {
 	CIMClient client;
-#if 0
-        // Test SSL
-        String certpath("/home/markus/src/pegasus/server.pem");
-        SSLContext * sslcontext = new SSLContext(certpath);
-	client.connect("localhost:5988", sslcontext);
+
+        if (useSSL)
+        {
+
+               //
+               // Get environment variables:
+               //
+               const char* pegasusHome = getenv("PEGASUS_HOME");
+
+               String certpath = String::EMPTY;
+               if (pegasusHome)
+               {
+                     certpath.append(pegasusHome);
+                     certpath.append("/");
+               }
+               certpath.append(CERTIFICATE);
+
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+
+               String randFile = String::EMPTY;
+               if (pegasusHome)
+               {
+                  randFile.append(pegasusHome);
+                  randFile.append("/");
+               }
+               randFile.append(RANDOMFILE);
+
+               SSLContext * sslcontext = new SSLContext(certpath, randFile, true);
+#else
+               SSLContext * sslcontext = new SSLContext(certpath);
+
 #endif
 
-	client.connect("localhost:5988");
+               client.connect("localhost:5988", sslcontext);
+        }
+        else
+        { 
+	      client.connect("localhost:5988");
+        }
 
 	TestGetClass(client);
 	TestQualifierOperations(client);

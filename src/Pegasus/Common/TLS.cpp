@@ -24,13 +24,17 @@
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
 // Modified By:
+//         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Socket.h>
+
 #include "TLS.h"
-#define PEGASUS_CERT "/home/markus/src/pegasus/server.pem"
-#define PEGASUS_KEY "/home/markus/src/pegasus/server.pem"
+#define PEGASUS_CERT "/server.pem"
+#define PEGASUS_KEY "/server.pem"
+
 
 // debug flag
 #define TLS_DEBUG(X) // X
@@ -50,6 +54,7 @@
 
 static int cert_verify(SSL_CTX *ctx, char *cert_file, char *key_file)
 {
+
    if (cert_file != NULL)
    {
        if (SSL_CTX_use_certificate_file(ctx,cert_file,SSL_FILETYPE_PEM) <=0)
@@ -76,19 +81,81 @@ static int cert_verify(SSL_CTX *ctx, char *cert_file, char *key_file)
 PEGASUS_NAMESPACE_BEGIN
 
 
+
 //
 // SSL context area
 //
-
-SSLContext::SSLContext(const String& certPath)
+// For the OSs that don't have /dev/random device file,
+// must enable PEGASUS_SSL_RANDOMFILE flag.
+//
+// CIM clients must specify a SSL random file and also
+// set isCIMClient to true. However, CIMserver does not
+// seem to care the Random seed and /dev/random. 
+//
+//
+SSLContext::SSLContext(const String&  certPath,
+                       const String&  randomFile,
+                       Boolean isCIMClient )
     throw(SSL_Exception)
 {
     _certPath = certPath.allocateCString();
 
     // load SSL library
-
     SSL_load_error_strings();
     SSL_library_init();
+
+#ifdef PEGASUS_SSL_RANDOMFILE
+    
+    //
+    // We will only need SSL Random Seed for CIM Clients
+    // 
+    if (isCIMClient) 
+    {
+       long  seedNumber;
+       /*
+        * Initialise OpenSSL 0.9.5 random number generator.
+        */
+       if ( randomFile != String::EMPTY )
+       {
+          //char* randFilename = randomFile.allocateCString();
+          ArrayDestroyer<char> pRandomFile(randomFile.allocateCString());
+          char* randFilename = pRandomFile.getPointer();
+   
+          TLS_DEBUG( cout << "load Rand file: name=" << randFilename << endl; )
+          int ret = RAND_load_file(randFilename, -1);
+          if ( ret < 0 )
+          {
+            TLS_DEBUG( cerr << " RAND_load_file failed, Status="<< ret << endl;)
+            throw( SSL_Exception("RAND_load_file - failed"));
+          }
+          else
+          {
+            TLS_DEBUG( cerr << " RAND_load_file Status="<< ret << endl;)
+          }
+
+          //
+          // Will do more seeding
+          //
+          srandom((unsigned int)time(NULL)); // Initialize
+          seedNumber = random();
+          RAND_seed((unsigned char *) &seedNumber, sizeof(seedNumber));
+
+          int  seedRet = RAND_status();
+          if ( seedRet == 0 )
+          {
+            TLS_DEBUG( cerr << " Not enough data , Rand Status="<< seedRet << endl;)
+            throw( SSL_Exception("RAND_seed - Not enough seed data "));
+          }
+       }
+       else
+       {
+           throw( SSL_Exception("Random seed file required"));
+       }
+ 
+     }
+
+#endif // end of PEGASUS_SSL_RANDOMFILE
+
 
     // create SSL Context Area
 
@@ -114,6 +181,10 @@ SSLContext::SSLContext(const String& certPath)
         throw( SSL_Exception("Could not get certificate and/or private key"));
 }
 
+  
+//
+// Destructor
+//
 
 SSLContext::~SSLContext()
 {
@@ -121,7 +192,9 @@ SSLContext::~SSLContext()
     SSL_CTX_free(_SSLContext);
 }
 
-
+//
+//
+//
 
 SSL_CTX * SSLContext::getContext()
 {
@@ -230,7 +303,13 @@ redo_accept:
     }
     else if (ssl_rc == 0)
     {
+       ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
        TLS_DEBUG(cerr << "Shutdown SSL_accept()\n";)
+       TLS_DEBUG(cerr << "Error Code: " << ssl_rsn << " \n";)
+       char *errStr =  ERR_error_string(ssl_rc, NULL);
+       TLS_DEBUG(cerr << "Error string: " << errStr << " \n";)
+       ERR_print_errors_fp(stderr);
+
        return -1;
     }
     TLS_DEBUG(else cerr << "Accepted\n";)
@@ -261,6 +340,7 @@ Sint32 SSLSocket::connect()
     SSL_set_connect_state(_SSLConnection);
 
 redo_connect:
+
     ssl_rc = SSL_connect(_SSLConnection);
 
     if (ssl_rc < 0)
@@ -276,7 +356,8 @@ redo_connect:
     }
     else if (ssl_rc == 0)
     {
-       TLS_DEBUG(cerr << "Shutdown SSL_accept()\n";)
+       TLS_DEBUG(cerr << "Shutdown SSL_connect()\n";)
+       ERR_print_errors_fp(stderr);
        return -1;
     }
     TLS_DEBUG(else cerr << "Connected\n";)

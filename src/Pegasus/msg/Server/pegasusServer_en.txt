@@ -9,14 +9,14 @@
 //     This will allow us to tell which source code file is using a message.
 //     Please try to follow this naming convention.
 //
-// 2)  All the messages for a source code file are grouped together.  When adding 
-//     new messages for a source code file, please add those messages to the same 
+// 2)  All the messages for a source code file are grouped together.  When adding
+//     new messages for a source code file, please add those messages to the same
 //     group as the other messages for that file.
 //
-//     Be sure to include the message identifier as the first element of the 
+//     Be sure to include the message identifier as the first element of the
 //     message and include the documented message prefix at the beginning of
 //     the message identifier (in upper case):
-//        <MESSAGEPREFIX><MESSAGEIDENTIFIER>: <message>  
+//        <MESSAGEPREFIX><MESSAGEIDENTIFIER>: <message>
 //
 //     For example:
 //        "PGS03600:  Adapter {0} is not a ProviderAdapter."
@@ -37,7 +37,7 @@
 // 3)  Place any messages from platform-specific source files in the section
 //     at the end of this file.
 //
-// 4)  To compile this message bundle, run make messages (but refer to 
+// 4)  To compile this message bundle, run make messages (but refer to
 //     pegasus/doc/Globalization_HOWTO.htm for details of how to set up ICU).
 // ==============================================================================
 
@@ -48,7 +48,7 @@
         *          each message prior to the colon ':'.
         *
         *        Do not translate the following strings in this file:
-        *         'CGI', 'CIM', 'CIMOM', 'CIMMOF','DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME', 
+        *         'CGI', 'CIM', 'CIMOM', 'CIMMOF','DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME',
         *         'root/cimv2', 'SNMP', 'SSL', 'URL', 'URI', 'UTF-8', 'XML',
         *         'NT', 'Windows NT', 'OS/400',
         */
@@ -62,44 +62,44 @@ en:table {
         // ==========================================================
 
         Common.CIMStatusCode.CIM_ERR_SUCCESS:string {"CIM_ERR_SUCCESS:  Successful."}
-        
+
         Common.CIMStatusCode.CIM_ERR_FAILED:string {"CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code."}
-        
+
         Common.CIMStatusCode.CIM_ERR_ACCESS_DENIED:string {"CIM_ERR_ACCESS_DENIED: Access to a CIM resource is not available to the client."}
 
         Common.CIMStatusCode.CIM_ERR_INVALID_NAMESPACE:string {"CIM_ERR_INVALID_NAMESPACE: The target namespace does not exist."}
-        
+
         Common.CIMStatusCode.CIM_ERR_INVALID_PARAMETER:string {"CIM_ERR_INVALID_PARAMETER: One or more parameter values passed to the method are not valid."}
-        
+
         Common.CIMStatusCode.CIM_ERR_INVALID_CLASS:string {"CIM_ERR_INVALID_CLASS: The specified class does not exist."}
-        
+
         Common.CIMStatusCode.CIM_ERR_NOT_FOUND:string {"CIM_ERR_NOT_FOUND: The requested object cannot be found."}
-        
+
         Common.CIMStatusCode.CIM_ERR_NOT_SUPPORTED:string {"CIM_ERR_NOT_SUPPORTED: The requested operation is not supported."}
-        
+
         Common.CIMStatusCode.CIM_ERR_CLASS_HAS_CHILDREN:string {"CIM_ERR_CLASS_HAS_CHILDREN: The operation cannot be performed on this class because it has subclasses."}
-        
+
         Common.CIMStatusCode.CIM_ERR_CLASS_HAS_INSTANCES:string {"CIM_ERR_CLASS_HAS_INSTANCES: The operation cannot be performed on this class because one or more instances of this class exist."}
-        
+
         Common.CIMStatusCode.CIM_ERR_INVALID_SUPERCLASS:string {"CIM_ERR_INVALID_SUPERCLASS: The operation cannot be performed because the specified superclass does not exist."}
-        
+
         Common.CIMStatusCode.CIM_ERR_ALREADY_EXISTS:string {"CIM_ERR_ALREADY_EXISTS: The operation cannot be performed because an object already exists."}
-        
+
         Common.CIMStatusCode.CIM_ERR_NO_SUCH_PROPERTY:string {"CIM_ERR_NO_SUCH_PROPERTY: The specified property does not exist."}
-        
+
         Common.CIMStatusCode.CIM_ERR_TYPE_MISMATCH:string {"CIM_ERR_TYPE_MISMATCH: The value supplied is not compatible with the type."}
-        
+
         Common.CIMStatusCode.CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED:string {"CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED: The query language is not recognized or supported."}
-        
+
         Common.CIMStatusCode.CIM_ERR_INVALID_QUERY:string {"CIM_ERR_INVALID_QUERY: The query is not valid for the specified query language."}
-        
+
         Common.CIMStatusCode.CIM_ERR_METHOD_NOT_AVAILABLE:string {"CIM_ERR_METHOD_NOT_AVAILABLE: The extrinsic method cannot be performed."}
-        
+
         Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND:string {"CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist."}
 
         /**
         * @version 2.4
-        * @note : 
+        * @note :
         *        Substitution {0} is a status code (an integer).
         */
 	Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE:string {"Unrecognized CIM status code \"{0}\"."}
@@ -107,103 +107,103 @@ en:table {
 
         // ==========================================================
         // Messages for InternalException
-        //  Please use message prefix "PGS00200" 
+        //  Please use message prefix "PGS00200"
         // ==========================================================
 
         Common.InternalException.NULL_POINTER:string {"PGS00200: Null pointer."}
 
         /**
-        * @note PGS00201:  
-        *        Substitution {0} is a qualifier name (a string)  
+        * @note PGS00201:
+        *        Substitution {0} is a qualifier name (a string)
         */
         Common.InternalException.UNDECLARED_QUALIFIER:string { "PGS00201:  The {0} qualifier is not declared."}
 
         /**
-        * @note PGS00202:  
-        *        Substitution {0} is a qualifier name (a string) 
-        *        Substitution {1} is a scope (a string)  
+        * @note PGS00202:
+        *        Substitution {0} is a qualifier name (a string)
+        *        Substitution {1} is a scope (a string)
         */
         Common.InternalException.BAD_QUALIFIER_SCOPE:string { "PGS00202: The {0} qualifier is not valid in scope {1}."}
 
         /**
-        * @note PGS00203:  
-        *         Substitution {0} is a qualifier name (a string)  
+        * @note PGS00203:
+        *         Substitution {0} is a qualifier name (a string)
         */
         Common.InternalException.BAD_QUALIFIER_OVERRIDE:string { "PGS00203: The {0} qualifier cannot be overridden."}
 
         /**
-        * @note PGS00204:  
-        *        Substitution {0} is a qualifier name (a string)  
+        * @note PGS00204:
+        *        Substitution {0} is a qualifier name (a string)
         */
         Common.InternalException.BAD_QUALIFIER_TYPE:string {"PGS00204: CIM type is different than its declaration for qualifier {0}."}
 
         /**
-        * @note PGS00205:  
-        *        Substitution {0} is a class name (a string)  
-        * 
+        * @note PGS00205:
+        *        Substitution {0} is a class name (a string)
+        *
         */
         Common.InternalException.CLASS_ALREADY_RESOLVED:string {"PGS00205: Attempted to resolve a class that is already resolved: {0}."}
 
         /**
-        * @note PGS00206:  
-        *        Substitution {0} is a class name (a string)  
+        * @note PGS00206:
+        *        Substitution {0} is a class name (a string)
         */
         Common.InternalException.CLASS_NOT_RESOLVED:string {"PGS00206: Class {0} is not yet resolved."}
 
         Common.InternalException.InstanceAlreadyResolved:string {"PGS00207: Attempted to resolve an instance that is already resolved."}
 
         /**
-        * @note PGS00208:  
-        *        Substitution {0} is a class name (a string)  
+        * @note PGS00208:
+        *        Substitution {0} is a class name (a string)
         */
         Common.InternalException.INSTANTIATED_ABSTRACT_CLASS:string {"PGS00208:  Attempted to create an instance of the abstract class {0}."}
 
 
         /**
-        * @note PGS00209:  
-        *        Substitution {0} is a property name (a string)  
+        * @note PGS00209:
+        *        Substitution {0} is a property name (a string)
         */
         Common.InternalException.NO_SUCH_PROPERTY:string { "PGS00209:  The {0} property does not exist."}
 
         /**
-        * @note PGS00210:  
-        *        Substitution {0} is a file name (a string)  
+        * @note PGS00210:
+        *        Substitution {0} is a file name (a string)
         */
         Common.InternalException.NO_SUCH_FILE:string { "PGS00210:  File {0} does not exist."}
 
         /**
-        * @note PGS00211:  
-        *         Substitution {0} is a file name (a string)  
+        * @note PGS00211:
+        *         Substitution {0} is a file name (a string)
         */
         Common.InternalException.FILE_NOT_READABLE:string { "PGS00211:  File {0} cannot be read."}
 
         /**
-        * @note PGS00212:  
-        *        Substitution {0} is a directory path (a string)  
+        * @note PGS00212:
+        *        Substitution {0} is a directory path (a string)
         */
         Common.InternalException.CANNOT_REMOVE_DIRECTORY:string { "PGS00212: Cannot remove directory {0}."}
 
         /**
-        * @note PGS00213:  
-        *        Substitution {0} is a file path and name (a string)  
+        * @note PGS00213:
+        *        Substitution {0} is a file path and name (a string)
         */
         Common.InternalException.CANNOT_REMOVE_FILE:string { "PGS00213: Cannot remove file {0}."}
 
         /**
-        * @note PGS00214:  
-        *         Substitution {0} is a file path and name (a string)  
+        * @note PGS00214:
+        *         Substitution {0} is a file path and name (a string)
         */
         Common.InternalException.CANNOT_RENAME_FILE:string {"PGS00214: Cannot rename file {0}."}
 
         /**
-        * @note PGS00215:  
-        *         Substitution {0} is a directory path (a string)  
+        * @note PGS00215:
+        *         Substitution {0} is a directory path (a string)
         */
         Common.InternalException.NO_SUCH_DIRECTORY:string {"PGS00215:  Directory {0} does not exist."}
 
         /**
-        * @note PGS00216:  
-        *         Substitution {0} is a directory path (a string)  
+        * @note PGS00216:
+        *         Substitution {0} is a directory path (a string)
         */
         Common.InternalException.CANNOT_CREATE_DIRECTORY:string {"PGS00216:  Cannot create directory {0}."}
 
@@ -218,7 +218,7 @@ en:table {
         Common.InternalException.QUEUE_UNDERFLOW:string { "PGS00221: Queue is empty."}
 
         /**
-        * @note PGS00222: 
+        * @note PGS00222:
         *    Do not translate the word 'Formatter::format()' since it is a class name::method name
         */
         Common.InternalException.BAD_FORMAT:string { "PGS00222: Incorrect format is passed to Formatter::format()."}
@@ -226,59 +226,59 @@ en:table {
         Common.InternalException.BADLY_FORMED_CGI_QUERY_STRING:string { "PGS00223:  The CGI query string is not valid."}
 
         /**
-        * @note PGS00224:  
-        *    Substitution {0} is a library name (a string)  
+        * @note PGS00224:
+        *    Substitution {0} is a library name (a string)
         */
         Common.InternalException.DYNAMIC_LOAD_FAILED:string { "PGS00224:  Failed to load dynamic library {0}."}
 
         /**
-        * @note PGS00225:  
-        *     Substitution {0} is a symbol (a string)  
+        * @note PGS00225:
+        *     Substitution {0} is a symbol (a string)
         */
         Common.InternalException.DYNAMIC_LOOKUP_FAILED:string {"PGS00225: Lookup of symbol {0} in dynamic library failed."}
 
         /**
-        * @note PGS00226:  
-        *     Substitution {0} is a directory path (a string) 
+        * @note PGS00226:
+        *     Substitution {0} is a directory path (a string)
         */
         Common.InternalException.CANNOT_OPEN_DIRECTORY:string { "PGS00226: Cannot open directory {0}."}
 
         /**
-        * @note PGS00227:   
-        *        Substitution {0} is a message string  
+        * @note PGS00227:
+        *        Substitution {0} is a message string
         */
         Common.InternalException.ParseError:string { "PGS00227:  Parse error: {0}"}
 
         Common.InternalException.MISSING_NULL_TERMINATOR:string { "PGS00228:  The character string end delimiter is missing."}
 
         /**
-        * @note PGS00229:   
-        *          Substitution {0} is a message string  
+        * @note PGS00229:
+        *          Substitution {0} is a message string
         */
         Common.InternalException.MALFORMED_LANGUAGE_HEADER:string { "PGS00229:  The language header is not valid: {0}"}
 
         /**
-        * @note PGS00230:   
-        *         Substitution {0} is a message string 
-        *         Do not translate the word 'Accept-Language' since it is a standard HTTP request header field 
+        * @note PGS00230:
+        *         Substitution {0} is a message string
+        *         Do not translate the word 'Accept-Language' since it is a standard HTTP request header field
         */
         Common.InternalException.INVALID_ACCEPTLANGUAGE_HEADER:string { "PGS00230: The Accept-Language header is not valid: {0}"}
 
         /**
-        * @note PGS00231:   
-        *         Substitution {0} is a message string 
+        * @note PGS00231:
+        *         Substitution {0} is a message string
         *         Do not translate the word 'Content-Language' since it is a standard HTTP header
         */
         Common.InternalException.INVALID_CONTENTLANGUAGE_HEADER:string { "PGS00231: The Content-Language header is not valid: {0}"}
 
         /**
-        * @note PGS00232:   
+        * @note PGS00232:
         *          Do not translate the word 'Authorization' since it is a standard HTTP header
         */
         Common.InternalException.INVALID_AUTH_HEADER:string {"PGS00232: The Authorization header is not valid."}
 
         Common.InternalException.UNAUTHORIZED_ACCESS:string {"PGS00233: Unauthorized access."}
-        
+
 
         // ==========================================================
         // Messages for Exception
@@ -286,76 +286,76 @@ en:table {
         // ==========================================================
 
         Common.Exception.INDEX_OUT_OF_BOUNDS_EXCEPTION:string {"PGS00400: Index out of bounds."}
-        
+
         /**
-        * @note PGS00401:  
-        *            Substitution {0} is a message string  
+        * @note PGS00401:
+        *            Substitution {0} is a message string
         */
         Common.Exception.ALREADY_EXISTS_EXCEPTION:string {"PGS00401: Already exists: {0}"}
 
         /**
-        * @note PGS00402:  
+        * @note PGS00402:
         *        Substitution {0} is a CIM name (a string)
         */
         Common.Exception.NAME_EXCEPTION:string {"PGS00402: The CIM name is not valid: {0}"}
-        
+
         /**
-        * @note PGS00403:  
+        * @note PGS00403:
         *        Substitution {0} is a CIM namespace (a string)
         */
         Common.Exception.INVALID_NAMESPACE_NAME_EXCEPTION:string {"PGS00403: The CIM namespace name is not valid: {0}"}
-        
+
         Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION:string {"PGS00404:  The object is not initialized."}
-        
+
         Common.Exception.TYPE_MISMATCH_EXCEPTION:string {"PGS00405: The CIM type does not match the expected CIM type."}
-        
+
         Common.Exception.DYNAMIC_CAST_FAILED_EXCEPTION:string {"PGS00406: Dynamic cast failure."}
-        
+
         /**
-        * @note PGS00407:  
+        * @note PGS00407:
         *      Do not translate the word 'datetime' since it is a standard CIM type
         */
         Common.Exception.INVALID_DATETIME_FORMAT_EXCEPTION:string {"PGS00407:  The format of the CIM datetime type is not valid."}
-        
+
         /**
-        * @note PGS00408:  
+        * @note PGS00408:
         *         Substitution {0} is an object name (a string)
         */
         Common.Exception.MALFORMED_OBJECT_NAME_EXCEPTION:string {"PGS00408: The object name is not valid: {0}"}
 
         /**
-        * @note PGS00409:   
-        *        Substitution {0} is a message string  
+        * @note PGS00409:
+        *        Substitution {0} is a message string
         */
         Common.Exception.BIND_FAILED_EXCEPTION:string {"PGS00409: Bind failed: {0}"}
 
         /**
-        * @note PGS00410:   
-        *        Substitution {0} is a string with the hostname:portnumber  
+        * @note PGS00410:
+        *        Substitution {0} is a string with the hostname:portnumber
         */
         Common.Exception.INVALID_LOCATOR_EXCEPTION:string {"PGS00410: Locator is not valid: {0}"}
-        
+
         Common.Exception.CANNOT_CREATE_SOCKET_EXCEPTION:string {"PGS00411: Cannot create the socket."}
-        
+
         Common.Exception.ALREADY_CONNECTED_EXCEPTION:string {"PGS00412: Already connected."}
-        
+
         Common.Exception.NOT_CONNECTED_EXCEPTION:string {"PGS00413: Not connected."}
-        
+
         Common.Exception.CONNECTION_TIMEOUT_EXCEPTION:string {"PGS00414: Connection timed out."}
-        
+
         /**
-        * @note PGS00415:   
-        *         Substitution {0} is a message string  
+        * @note PGS00415:
+        *         Substitution {0} is a message string
         */
         Common.Exception.SSL_EXCEPTION:string {"PGS00415: SSL exception: {0}"}
-        
+
         /**
-        * @note PGS00416:   
-        *          Substitution {0} is a time (in string format) 
+        * @note PGS00416:
+        *          Substitution {0} is a time (in string format)
         *          Do not translate the word 'datetime' since it is a standard CIM type
         */
         Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION:string {"PGS00416: The value of the CIM datetime type is out of range: {0}"}
-        
+
 
         // ==========================================================
         // Messages for XmlParser
@@ -363,122 +363,122 @@ en:table {
         // ==========================================================
 
         /**
-        * @note PGS00600:  
+        * @note PGS00600:
         *         Substitution {0} is a line number (Uint32)
-        *         Substitution {1} is a message 
+        *         Substitution {1} is a message
         */
         Common.XmlParser.BAD_START_TAG:string {"PGS00600: Opening element on line {0} is not valid. {1}"}
-        
+
         /**
-        * @note PGS00601:  
+        * @note PGS00601:
         *        Substitution {0} is a line number (Uint32)
         *        Substitution {1} is a message
         */
         Common.XmlParser.BAD_END_TAG:string {"PGS00601: Closing element on line {0} is not valid. {1}"}
-    
+
         /**
-        * @note PGS00602:  
+        * @note PGS00602:
         *         Substitution {0} is a line number (Uint32)
         *         Substitution {1} is a message
         */
         Common.XmlParser.BAD_ATTRIBUTE_NAME:string {"PGS00602: Attribute name on line {0} is not valid. {1}"}
-    
+
         /**
-        * @note  PGS00603:  
+        * @note  PGS00603:
         *          Substitution {0} is a line number (Uint32)
         *          Substitution {1} is a message
         */
         Common.XmlParser.EXPECTED_EQUAL_SIGN:string {"PGS00603: Expected an equal sign on line {0}. {1}"}
-    
+
         /**
-        * @note PGS00604:  
+        * @note PGS00604:
         *         Substitution {0} is a line number (Uint32)
         *         Substitution {1} is a message
         */
         Common.XmlParser.BAD_ATTRIBUTE_VALUE:string {"PGS00604: Attribute value on line {0} is not valid. {1}"}
-    
+
         /**
-        * @note  PGS00605:  
+        * @note  PGS00605:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         */
         Common.XmlParser.MINUS_MINUS_IN_COMMENT:string {"PGS00605: A \"--\" sequence is found within a comment on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00606:  
+        * @note  PGS00606:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         */
         Common.XmlParser.UNTERMINATED_COMMENT:string {"PGS00606:  Expected an end comment on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00607:  
+        * @note  PGS00607:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         *    Do not translate the word 'CDATA' since it is a standard XML section name
         */
         Common.XmlParser.UNTERMINATED_CDATA:string {"PGS00607: Expected an end for the CDATA block on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00608:  
+        * @note  PGS00608:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         *    Do not translate the word 'DOCTYPE' since it is a standard XML type declaration
         */
         Common.XmlParser.UNTERMINATED_DOCTYPE:string {"PGS00608: Expected an end for the DOCTYPE on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00609:  
+        * @note  PGS00609:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         */
         Common.XmlParser.TOO_MANY_ATTRIBUTES:string {"PGS00609: Too many attributes on line {0}.  The XML parser handles a maximum of 10. {1}"}
-    
+
         /**
-        * @note  PGS00610:  
+        * @note  PGS00610:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         */
         Common.XmlParser.MALFORMED_REFERENCE:string {"PGS00610: Character or entity reference is not valid on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00611:  
+        * @note  PGS00611:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         *    Do not translate the word 'CDATA' since it is a standard XML section name
         */
         Common.XmlParser.EXPECTED_COMMENT_OR_CDATA:string {"PGS00611: Expected a comment or CDATA following the \"<!\" sequence on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00612:  
+        * @note  PGS00612:
         *    Substitution {0} is a line number (Uint32)
-        *    Substitution {1} is a message 
+        *    Substitution {1} is a message
         */
         Common.XmlParser.START_END_MISMATCH:string {"PGS00612: The closing element does not match the opening element on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00613:  
+        * @note  PGS00613:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message but it is not used!
         */
         Common.XmlParser.UNCLOSED_TAGS:string {"PGS00613: One or more tags are still open on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00614:  
+        * @note  PGS00614:
         *    Substitution {0} is a line number (Uint32)
-        *    Substitution {1} is a message 
+        *    Substitution {1} is a message
         */
         Common.XmlParser.MULTIPLE_ROOTS:string {"PGS00614: More than one root element is found on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00615:  
+        * @note  PGS00615:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         */
         Common.XmlParser.VALIDATION_ERROR:string {"PGS00615: Validation error on line {0}. {1}"}
-    
+
         /**
-        * @note  PGS00616:  
+        * @note  PGS00616:
         *    Substitution {0} is a line number (Uint32)
         *    Substitution {1} is a message
         */
@@ -491,7 +491,7 @@ en:table {
         // ==========================================================
 
         /**
-        * @note  PGS00800:  
+        * @note  PGS00800:
         *    Substitution {0} is a class name (a string)
         */
         Repository.InheritanceTree.INVALID_INHERITANCE_TREE:string {"PGS00800: The inheritance tree is not valid.  Unknown class: {0}"}
@@ -499,11 +499,11 @@ en:table {
 
         // ==========================================================
         // Messages for Repository NameSpaceManager
-        //  Please use message prefix "PGS01000" for NameSpaceManager 
+        //  Please use message prefix "PGS01000" for NameSpaceManager
         // ==========================================================
 
         /**
-        * @note  PGS01000:  
+        * @note  PGS01000:
         *    Substitution {0} is a namespace (a string)
         */
         Repository.NameSpaceManager.ATTEMPT_DELETE_NONEMPTY_NAMESPACE:string {"PGS01000: Namespace {0} is not empty.  Delete failed."}
@@ -513,7 +513,7 @@ en:table {
 
         // ==========================================================
         // Messages for CIMRepository
-        //  Please use message prefix "PGS01200" 
+        //  Please use message prefix "PGS01200"
         // ==========================================================
 
         Repository.CIMRepository.COMPACT_FAILED:string {"PGS01200: Failed to compact the file."}
@@ -523,7 +523,7 @@ en:table {
         Repository.CIMRepository.BEGIN_FAILED:string {"PGS01202: The attempt to begin the transaction failed."}
 
         /**
-        * @note  PGS01203:  
+        * @note  PGS01203:
         *    Substitution {0} is an instance name (a string)
         */
         Repository.CIMRepository.FAILED_TO_DELETE_INSTANCE:string {"PGS01203: Failed to delete instance {0}." }
@@ -531,19 +531,19 @@ en:table {
         Repository.CIMRepository.COMMIT_FAILED:string {"PGS01204: The commit operation failed."}
 
         /**
-        * @note  PGS01205:  
+        * @note  PGS01205:
         *    Substitution {0} is a CIM class name (a string)
         */
         Repository.CIMRepository.CLASS_HAS_NO_KEYS:string {"PGS01205: Class {0} has no keys. An instance of that class cannot be created." }
 
         /**
-        * @note  PGS01206:  
+        * @note  PGS01206:
         *    Substitution {0} is an instance name (a string)
         */
         Repository.CIMRepository.FAILED_TO_CREATE_INSTANCE:string {"PGS01206: Failed to create instance {0}."}
 
         /**
-        * @note  PGS01207:  
+        * @note  PGS01207:
         *    Substitution {0} is a class name::method name (a string)
         */
         Repository.CIMRepository.FAILED_TO_REMOVE_FILE:string {"PGS01207: Failed to remove the file in {0}."}
@@ -551,32 +551,32 @@ en:table {
         Repository.CIMRepository.ATTEMPT_TO_MODIFY_KEY_PROPERTY:string {"PGS01208: An attempt to modify a key property is detected."}
 
         /**
-        * @note  PGS01209:  
+        * @note  PGS01209:
         *    Substitution {0} is an instance name (a string)
         */
         Repository.CIMRepository.FAILED_TO_MODIFY_INSTANCE:string {"PGS01209: Failed to modify instance {0}."}
 
         /**
-        * @note  PGS01210:  
+        * @note  PGS01210:
         *    Substitution {0} is a class name (a string)
         */
         Repository.CIMRepository.FAILED_TO_LOAD_INSTANCES:string {"PGS01210: Failed to load instances in class {0}."}
 
         /**
-        * @note  PGS01211:  
+        * @note  PGS01211:
         *    Substitution {0} is a class name (a string)
         */
         Repository.CIMRepository.FAILED_TO_LOAD_INSTANCE_NAMES:string {"PGS01211: Failed to load instance names in class {0}."}
 
         /**
-        * @note  PGS01212:  
+        * @note  PGS01212:
         *    Substitution {0} is a method name (a string)
         */
         Repository.CIMRepository.INTERNAL_ERROR:string {"PGS01212: Internal error in method {0}."}
 
         /**
         * @version 2.4
-        * @note  PGS01213:  
+        * @note  PGS01213:
         *         Do not translate the word 'Content-Language' since it is a standard HTTP header
         */
         Repository.CIMRepository.UNSUPPORTED_CONTENTLANG:string {"PGS01213: The Content-Language parameter is not supported for this request."}
@@ -588,25 +588,25 @@ en:table {
         // ==========================================================
 
         /**
-        * @note  PGS01400:  
+        * @note  PGS01400:
         *    Substitution {0} is a user name (a string)
         */
         Security.UserManager.UserExceptions.USER_ALREADY_EXISTS:string {"PGS01400: User {0} already exists."}
 
         /**
-        * @note  PGS01401:  
+        * @note  PGS01401:
         *    Substitution {0} is a user name (a string)
         */
         Security.UserManager.UserExceptions.INVALID_CIM_USER:string {"PGS01401: User {0} is not a valid CIM user."}
 
         /**
-        * @note  PGS01402:  
+        * @note  PGS01402:
         *    Substitution {0} is a user name (a string)
         */
         Security.UserManager.UserExceptions.INVALID_USER_ON_LOCAL_SYSTEM:string {"PGS01402: User {0} is not a valid user on the local system."}
 
         /**
-        * @note  PGS01403:  
+        * @note  PGS01403:
         *    Substitution {0} is a user name (a string)
         */
         Security.UserManager.UserExceptions.PASSWORD_MISMATCH:string {"PGS01403: The specified password does not match user's current password for user {0}."}
@@ -614,7 +614,7 @@ en:table {
         Security.UserManager.UserExceptions.INTERNAL_ERROR_PWD_CACHE:string {"PGS01404: Internal error while processing the password cache table."}
 
         /**
-        * @note  PGS01405:  
+        * @note  PGS01405:
         *    Substitution {0} is a user name (a string)
         *    Substitution {1} is a namespace (a string)
         */
@@ -623,14 +623,14 @@ en:table {
         Security.UserManager.UserExceptions.INTERNAL_ERROR_AUTH_CACHE:string {"PGS01406: Internal error while processing the authorization cache table."}
 
         /**
-        * @note  PGS01407:  
+        * @note  PGS01407:
         *    Substitution {0} is a user name (a string)
         *    Substitution {1} is a namespace (a string)
         */
         Security.UserManager.UserExceptions.AUTH_ENTRY_NOT_FOUND:string {"PGS01407: Authorization entry is not found for user {0} with the namespace {1}."}
 
         /**
-        * @note  PGS01408:  
+        * @note  PGS01408:
         *    Substitution {0} is a namespace (a string)
         */
         Security.UserManager.UserExceptions.NAMESPACE_DOES_NOT_EXIST:string {"PGS01408: The specified namespace {0} does not exist."}
@@ -648,7 +648,7 @@ en:table {
         // ==========================================================
 
         /**
-        * @note  PGS01600:  
+        * @note  PGS01600:
         *    Substitution {0} is a file name (a string)
         */
         Security.UserManager.PasswordFile.PWD_FILE_NOT_FOUND:string {"PGS01600: The password file {0} is not found."}
@@ -656,55 +656,55 @@ en:table {
         Security.UserManager.PasswordFile.CREATING_BLANK_PWD_FILE:string {"PGS01601: Creating blank password file."}
 
         /**
-        * @note  PGS01602:  
+        * @note  PGS01602:
         *    Substitution {0} is a file name (a string)
         */
         Security.UserManager.PasswordFile.TRYING_TO_BACKUP_FILE:string {"PGS01602: Attempting to use the backup file {0}."}
 
         /**
-        * @note  PGS01603:  
+        * @note  PGS01603:
         *    Substitution {0} is a file name (a string)
         */
         Security.UserManager.PasswordFile.CANNOT_USE_BACKUP_FILE:string {"PGS01603: Unable to use the backup file {0}."}
 
         /**
-        * @note  PGS01604:  
+        * @note  PGS01604:
         *    Substitution {0} is a file name (a string)
         */
         Security.UserManager.PasswordFile.RECOVERED_USING_BACKUP_FILE:string {"PGS01604: Recovered using the backup file {0}."}
 
         /**
-        * @note  PGS01605:  
+        * @note  PGS01605:
         *    Substitution {0} is a file name (a string)
         */
         Security.UserManager.PasswordFile.ERROR_OPENING_PWD_FILE:string {"PGS01605: Error opening the password file {0}."}
 
         /**
-        * @note  PGS01606:  
+        * @note  PGS01606:
         *    Substitution {0} is a user name (a string)
         */
         Security.UserManager.PasswordFile.ERROR_READING_PWD_ENTRY:string {"PGS01606: Error reading the password entry for user {0}."}
 
         /**
-        * @note  PGS01607:  
+        * @note  PGS01607:
         *    Substitution {0} is a user name (a string)
         */
         Security.UserManager.PasswordFile.DUPLICATE_USER:string {"PGS01607: Duplicate user: {0}."}
 
         /**
-        * @note  PGS01608:  
+        * @note  PGS01608:
         *    Substitution {0} is a file name (a string)
         */
         Security.UserManager.PasswordFile.CANNOT_REMOVE_PWD_FILE:string {"PGS01608: Cannot remove the password file {0}."}
 
         /**
-        * @note  PGS01609:  
+        * @note  PGS01609:
         *    Substitution {0} is a file name (a string)
         */
         Security.UserManager.PasswordFile.CANNOT_RENAME_PWD_FILE:string {"PGS01609: Cannot rename the password file {0}."}
 
         /**
-        * @note  PGS01610:  
+        * @note  PGS01610:
         *    Substitution {0} is a file name (a string)
         */
         Security.UserManager.PasswordFile.CANNOT_REMOVE_BACKUP_PWD_FILE:string {"PGS01610: Cannot remove the backup password file {0}."}
@@ -712,15 +712,15 @@ en:table {
 
         // ==========================================================
         // Messages for Security  UserFileHandler
-        //  Please use message prefix "PGS01800" 
+        //  Please use message prefix "PGS01800"
         // ==========================================================
 
         Security.UserManager.UserFileHandler.TIMEOUT:string {"PGS01800: Timed out while attempting to perform the requested operation. Try the operation again."}
-                                                                                          
+
         Security.UserManager.UserFileHandler.DEADLOCK:string {"PGS01801: Deadlock encountered while attempting to perform the requested operation.  Try the operation again."}
 
         /**
-        * @note  PGS01802:  
+        * @note  PGS01802:
         *    Substitution {0} is a user name (a string)
         */
         Security.UserManager.UserFileHandler.ERROR_UPDATING_USER_INFO:string {"PGS01802: Error updating the user information for user {0}."}
@@ -728,7 +728,7 @@ en:table {
 
         // ==========================================================
         // Messages for Security AuthenticationManager
-        //  Please use message prefix "PGS02000" 
+        //  Please use message prefix "PGS02000"
         // ==========================================================
 
         Security.Authentication.AuthenticationManager.AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE:string {"PGS02000: The CIM server authentication handler for Kerberos failed to initialize properly. The CIM server is not started."}
@@ -740,7 +740,7 @@ en:table {
         // ==========================================================
 
         /**
-        * @note  PGS02200:  
+        * @note  PGS02200:
         *    Substitution {0} is the option (a string)
         */
         Config.ConfigExceptions.MISSING_CMDLINE_OPTION:string {"PGS02200: Missing the command line option {0}."}
@@ -748,38 +748,38 @@ en:table {
         Config.ConfigExceptions.UNRECOGNIZED_CMDLINE_OPTION:string {"PGS02201: Command line option is not recognized. "}
 
         /**
-        * @note  PGS02202:  
+        * @note  PGS02202:
         *    Substitution {0} is the name of the property (a string)
         *    Substitution {1} is the property value
         */
         Config.ConfigExceptions.INVALID_PROPERTY_VALUE:string {"PGS02202: Property value is not valid: {0}={1}"}
 
         /**
-        * @note  PGS02203:  
+        * @note  PGS02203:
         *    Substitution {0} is the option (a string)
         */
         Config.ConfigExceptions.DUPLICATE_OPTION:string {"PGS02203:  Duplicate option {0}."}
 
         /**
-        * @note  PGS02204:  
+        * @note  PGS02204:
         *    Substitution {0} is the option (a string)
         */
         Config.ConfigExceptions.UNRECOGNIZED_CONFIG_FILE_OPTION:string {"PGS02204: Configuration file option {0} is not recognized."}
 
         /**
-        * @note  PGS02205:  
+        * @note  PGS02205:
         *    Substitution {0} is the option (a string)
         */
         Config.ConfigExceptions.MISSING_REQUIRED_OPTION:string {"PGS02205: Missing the required option value {0}."}
 
         /**
-        * @note  PGS02206:  
+        * @note  PGS02206:
         *    Substitution {0} is the name of a property (a string)
         */
         Config.ConfigExceptions.UNRECOGNIZED_CONFIG_PROPERTY:string {"PGS02206:  The configuration property {0} is not recognized."}
 
         /**
-        * @note  PGS02207:  
+        * @note  PGS02207:
         *    Substitution {0} is the name of a property (a string)
         */
         Config.ConfigExceptions.NONDYNAMIC_CONFIG_PROPERTY:string {"PGS02207: The configuration property {0} is not dynamic."}
@@ -789,11 +789,11 @@ en:table {
 
         // ==========================================================
         // Messages for TracePropertyOwner
-        //  Please use message prefix "PGS02400" 
+        //  Please use message prefix "PGS02400"
         // ==========================================================
 
         /**
-        * @note  PGS02400: 
+        * @note  PGS02400:
         *    Substitution {0} is a file name (a string)
         */
         Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE:string {"PGS02400: Unable to write to trace file {0}."}
@@ -829,7 +829,7 @@ en:table {
 
         // ==========================================================
         // Messages for NamespaceProvider
-        //  Please use message prefix "PGS02800" 
+        //  Please use message prefix "PGS02800"
         // ==========================================================
 
         /**
@@ -863,7 +863,7 @@ en:table {
 
         // ==========================================================
         // Messages for ProviderRegistrationProvider
-        //  Please use message prefix "PGS03000" 
+        //  Please use message prefix "PGS03000"
         // ==========================================================
 
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_MODIFY_REGISTRATION:string {"PGS03000: Superuser authority is required to modify the CIM provider registration."}
@@ -976,14 +976,14 @@ en:table {
         /**
         * @note PGS03014:
         *     Do not translate the word 'InterfaceType' since it is the name of a CIM property.
-        *     Substitution {0} is an InterfaceType value (a string) 
+        *     Substitution {0} is an InterfaceType value (a string)
         */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACETYPE_VALUE:string {"PGS03014: InterfaceType property value {0} is not supported."} // 485
 
         /**
         * @note PGS03015:
         *     Do not translate the word 'InterfaceVersion' since it is the name of a CIM property.
-        *     Substitution {0} is an InterfaceVersion value (a string) 
+        *     Substitution {0} is an InterfaceVersion value (a string)
         */      ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACEVERSION_VALUE:string {"PGS03015: InterfaceVersion property value {0} is not supported."} // 485
 
 
@@ -994,7 +994,7 @@ en:table {
         /**
         * @note PGS03017:
         *     Do not translate the word 'ProviderModuleName' since it is the name of a CIM property.
-          */  
+          */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.PROVIDERMODULENAME_KEY_NOT_FOUND:string {"PGS03017: The key property ProviderModuleName is not found."} // 485
 
 
@@ -1003,7 +1003,7 @@ en:table {
         /**
         * @note PGS03019:
         *     Do not translate the word 'Name' since it is the name of a CIM property.
-          */  
+          */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.NAME_KEY_NOT_FOUND:string {"PGS03019: The key property Name is not found."} // 485
 
 
@@ -1012,7 +1012,7 @@ en:table {
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED:string {"PGS03021: Failed to disable the CIM provider module."}
 
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.SUPERUSER_PRIVILEGE_REQUIRED_DISABLE_ENABLE_PROVIDERS:string {"PGS03022:  Superuser authority is required to disable or enable CIM providers."}
-        
+
         /**
         * @note  PGS03023:
         *   Do not translate the word 'ProviderModuleName' since it is the name of a CIM property.
@@ -1047,11 +1047,11 @@ en:table {
         *   Do not translate the word 'PG_ConsumerCapabilities' since it is the name of a CIM class.
         */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_DESTINATIONS_TYPE_WHICH_IS_REQUIRED:string {"PGS03027: Missing the required Destinations property in PG_ConsumerCapabilities class."}
-        
+
 
         // ==========================================================
         // Messages for UserAuthProvider
-        //  Please use message prefix "PGS03200" 
+        //  Please use message prefix "PGS03200"
         // ==========================================================
 
         ControlProviders.UserAuthProvider.MUST_BE_PRIVILEGED_USER:string {"PGS03200: Superuser authority is required to run this CIM operation."}
@@ -1086,7 +1086,7 @@ en:table {
 
         // ==========================================================
         // Messages for CertificateProvider
-        //  Please use message prefix "PGS03300" 
+        //  Please use message prefix "PGS03300"
         // ==========================================================
 
 	ControlProviders.CertificateProvider.MUST_BE_PRIVILEGED_USER:string {"PGS03301: Superuser authority is required to run this CIM operation."}
@@ -1100,27 +1100,27 @@ en:table {
         /**
 	* @note PGS03303
 	*    Substitution {0} is the name of the directory
-	*/    							 
+	*/
 	ControlProviders.CertificateProvider.INVALID_DIRECTORY:string {"PGS03303: Invalid directory {0}."}
-				 
+
         /**
 	* @note PGS03304
 	*    Substitution {0} is the name of the file
-	*/    
+	*/
 	ControlProviders.CertificateProvider.DELETE_FAILED:string {"PGS03304: Could not delete file {0}."}
-        
+
         /**
 	* @note PGS03305
 	*    Substitution {0} is the name of the file
-	*/  
+	*/
 	ControlProviders.CertificateProvider.FILE_DNE:string {"PGS03305: File does not exist {0}."}
 
 	ControlProviders.CertificateProvider.BAD_X509_FORMAT:string {"PGS03306: Could not read x509 PEM format."}
-        
+
 	ControlProviders.CertificateProvider.CERT_NOT_VALID_YET:string {"PGS03307: The certificate is not valid yet.  Check the timestamps on your machine."}
 
 	ControlProviders.CertificateProvider.CERT_EXPIRED:string {"PGS03308: The certificate has expired."}
-											 
+
 	ControlProviders.CertificateProvider.BAD_DATE_FORMAT:string {"PGS03309: The validity dates are out of range."}
 
 	ControlProviders.CertificateProvider.CRL_NOT_VALID_YET:string {"PGS03310: The CRL is not valid yet.  Check the timestamps on your machine.."}
@@ -1132,7 +1132,7 @@ en:table {
 
         // ==========================================================
         // Messages for CIMOMHandle
-        //  Please use message prefix "PGS03400" 
+        //  Please use message prefix "PGS03400"
         // ==========================================================
 
         /**
@@ -1154,7 +1154,7 @@ en:table {
 
         // ==========================================================
         // Messages for ProviderAdapter
-        //  Please use message prefix "PGS03600" 
+        //  Please use message prefix "PGS03600"
         // ==========================================================
 
         /**
@@ -1203,7 +1203,7 @@ en:table {
 
         // ==========================================================
         // Messages for ProviderFacade
-        //  Please use message prefix "PGS03800" 
+        //  Please use message prefix "PGS03800"
         // ==========================================================
 
         ProviderManager.ProviderFacade.INVALID_PROVIDER_INTERFACE:string {"PGS03800: Provider interface is not valid."}
@@ -1211,7 +1211,7 @@ en:table {
 
         // ==========================================================
         // Messages for ProviderManagerService
-        //  Please use message prefix "PGS04000" 
+        //  Please use message prefix "PGS04000"
         // ==========================================================
 
         ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED:string {"PGS04000: Provider lookup failed."}
@@ -1231,7 +1231,7 @@ en:table {
 
         // ==========================================================
         // Messages for ProviderModule
-        //  Please use message prefix "PGS04200" 
+        //  Please use message prefix "PGS04200"
         // ==========================================================
 
         /**
@@ -1266,7 +1266,7 @@ en:table {
 
         // ==========================================================
         // Messages for CommandException
-        //  Please use message prefix "PGS04400" 
+        //  Please use message prefix "PGS04400"
         // ==========================================================
 
         /**
@@ -1315,7 +1315,7 @@ en:table {
 
         // ==========================================================
         // Messages for Getoopt
-        //  Please use message prefix "PGS04600" 
+        //  Please use message prefix "PGS04600"
         // ==========================================================
 
         /**
@@ -1344,14 +1344,14 @@ en:table {
         // ==========================================================
 
         /**
-        * @note  Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX 
+        * @note  Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX
         *   Substitution {0} is the version of the MOF compiler (a string)
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
         */
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX:string {
-          
+
           "\nMOF Compiler version {0}\n\n"
-          "Usage: cimmof [-h] [-w] [-uc] [-aE | -aV | -aEV] [-I path] [-n namespace] [file, ...]\n" 
+          "Usage: cimmof [-h] [-w] [-uc] [-aE | -aV | -aEV] [-I path] [-n namespace] [file, ...]\n"
           "    -h           - Used to show this help.\n"
           "    -w           - Used to suppress warnings.\n"
           "    -I <path>    - Used to specify a path to the included MOF files.\n"
@@ -1364,7 +1364,7 @@ en:table {
           "           For example, 2.7.0 is a valid format for CIM schema 2.7.0.\n"
           "           If the input class has the same version as the class in the repository,\n"
           "           the class is not updated.\n"
-          "  -aEV  -- Used to allow changes to the schema version or changes to any class with an experimental qualifier.\n"  
+          "  -aEV  -- Used to allow changes to the schema version or changes to any class with an experimental qualifier.\n"
         }
 
 
@@ -1374,7 +1374,7 @@ en:table {
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
         */
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400:string {
-        
+
           "\nMOF Compiler version {0}\n\n"
           "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] -ffile\n"
           "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [-q] mof_files...\n"
@@ -1390,7 +1390,7 @@ en:table {
           "             For example, 2.7.0 is a valid format for CIM schema 2.7.0.\n"
           "             If the input class has the same version as the class in the repository,\n"
           "             the class is not updated.\n"
-          "  -aEV    -- Used to allow changes to the schema version or changes to any class with an experimental qualifier.\n" 
+          "  -aEV    -- Used to allow changes to the schema version or changes to any class with an experimental qualifier.\n"
           "  -q      -- Used to suppress all messages except command line usage errors.\n"
           "  -R <repository> -- Used to specify the path to the repository.  If specified,\n"
           "             this overrides the PEGASUS_HOME environment variable.  Specify an absolute or relative path.\n"
@@ -1400,10 +1400,10 @@ en:table {
           "  -f <file>     -- Used to specify a file that contains a list of MOF files to compile.\n"
           " --file=<file>  -- Used to specify a file that contains a list of MOF files to compile.\n"
           " -n <namespace> -- Used to override the default CIM repository namespace.  The default is root/cimv2.\n"
-          " --namespace=<namespace> -- Used to override default CIM repository namespace.  The default is root/cimv2.\n" 
+          " --namespace=<namespace> -- Used to override default CIM repository namespace.  The default is root/cimv2.\n"
           " --xml          -- Used to output XML to standard output.  This option does not update the repository.\n"
-          " --trace        -- Used to output trace information to a file.  The output destination is standard output.\n" 
-          " --trace=<tracefile> -- Used to output trace information to the specified file.\n" 
+          " --trace        -- Used to output trace information to a file.  The output destination is standard output.\n"
+          " --trace=<tracefile> -- Used to output trace information to the specified file.\n"
         }
 
 
@@ -1413,10 +1413,10 @@ en:table {
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
         */
         Compiler.cmdline.cimmof.cmdline.MENU.STANDARD:string {
-  
+
           "\nMOF Compiler version {0}\n\n"
           "Usage: cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] -ffile\n"
-          "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]\n" 
+          "       cimmof [-h] [-E] [-w] [-uc] [-aE | -aV | -aEV] [-R repository] [-I path] [-n namespace] [--xml] [--trace] [mof_files...]\n"
           "  -h      -- Used to show this help.\n"
           " --help   -- Used to show this help.\n"
           "  -E      -- Used to perform a syntax check on the input.  This option does not update the repository.\n"
@@ -1429,7 +1429,7 @@ en:table {
           "             For example, 2.7.0 is a valid format for CIM schema 2.7.0.\n"
           "             If the input class has the same version as the class in the repository,\n"
           "             the class is not updated.\n"
-          "  -aEV    -- Used to allow changes to the schema version or changes to any class with an experimental qualifier.\n" 
+          "  -aEV    -- Used to allow changes to the schema version or changes to any class with an experimental qualifier.\n"
           "  -R <repository> -- For the cimmofl command this option is used to specify the path to the repository.\n"
           "             If specified, this overrides the PEGASUS_HOME environment variable.\n"
           "             Specify an absolute or relative path.\n"
@@ -1442,10 +1442,10 @@ en:table {
           "  -f <file>     -- Used to specify a file that contains a list of MOF files to compile.\n"
           " --file=<file>  -- Used to specify a file that contains a list of MOF files to compile.\n"
           " -n <namespace> -- Used to override the default CIM repository namespace.  The default is root/cimv2.\n"
-          " --namespace=<namespace> -- Used to override default CIM repository namespace.  The default is root/cimv2.\n" 
+          " --namespace=<namespace> -- Used to override default CIM repository namespace.  The default is root/cimv2.\n"
           " --xml -- Used to output XML to standard output.  This option does not update the repository.\n"
-          " --trace        -- Used to output trace information to a file.  The output destination is standard output.\n" 
-          " --trace=<tracefile> -- Used to output trace information to the specified file.\n"  
+          " --trace        -- Used to output trace information to a file.  The output destination is standard output.\n"
+          " --trace=<tracefile> -- Used to output trace information to the specified file.\n"
         }
 
         Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS:string {"PGS04800: command line errors: \n"}
@@ -1518,18 +1518,18 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04817: 
+        * @note  PGS04817:
         *       "Parameter" and "method" are used in the programming sense.
         *        "Method" is similiar to "function".
         *        Substitution {0} is the parameter name (a string).
-        *        Substitution {1} is the method name (a string).  
+        *        Substitution {1} is the method name (a string).
         *        Substitution {2} is the detailed error message (a string).
         */
         Compiler.cimmofMessages.APPLY_PARAMETER_ERROR:string {"PGS04817: Error applying parameter {0} to method {1}: {2}"}
 
         /**
         * @version 2.4
-        * @note  PGS04818: 
+        * @note  PGS04818:
         *       "Parameter" is used in the programming sense of a parameter to a function.
         *        Do not translate CIMParameter.
         *        Substitution {0} is the parameter name (a string).
@@ -1539,7 +1539,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04819: 
+        * @note  PGS04819:
         *       "Parameter" and "class" are used in the programming sense.
         *        Substitution {0} is the parameter name (a string).
         *        Substitution {1} is the class name (a string).
@@ -1548,7 +1548,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04820: 
+        * @note  PGS04820:
         *        Do not translate CIMMethod and CIMClass
         *        Substitution {0} is the method name (a string).
         *        Substitution {1} is the class name (a string).
@@ -1557,19 +1557,19 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04821: 
+        * @note  PGS04821:
         *        "Method" is used in the programming sense.
         *        "Method" is similiar to "function".
         *        Do not translate CIMClass.
         *        Substitution {0} is the method name (a string).
-        *        Substitution {1} is the class name (a string).  
+        *        Substitution {1} is the class name (a string).
         *        Substitution {2} is the detailed error message (a string).
         */
         Compiler.cimmofMessages.APPLY_METHOD_ERROR:string {"PGS04821: Error applying method {0} to CIMClass {1}: {2}:"}
 
         /**
         * @version 2.4
-        * @note  PGS04822: 
+        * @note  PGS04822:
         *        Do not translate CIMMethod.
         *        Substitution {0} is the method name (a string).
         *        Substitution {1} is the detailed error message (a string).
@@ -1592,7 +1592,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04825: 
+        * @note  PGS04825:
         *        Substitution {0} is the qualifier declaration name (a string).
         *        Substitution {1} is the detailed error message (a string).
         */
@@ -1607,7 +1607,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04827: 
+        * @note  PGS04827:
 	*        Do not translate CIMQualifier
         *        Substitution {0} is the qualifier name (a string).
         *        Substitution {1} is the detailed error message (a string).
@@ -1616,7 +1616,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04828: 
+        * @note  PGS04828:
 	*        Do not translate CIMQualifier
         *        Substitution {0} is the qualifier name (a string).
         *        Substitution {1} is the detailed error message (a string).
@@ -1625,7 +1625,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04829: 
+        * @note  PGS04829:
         *        Substitution {0} is the qualifier declaration name (a string).
         *        Substitution {1} is the detailed error message (a string).
         */
@@ -1633,7 +1633,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04830: 
+        * @note  PGS04830:
         *        Substitution {0} is the qualifier declaration name (a string).
         */
         Compiler.cimmofMessages.GET_QUALIFIER_DECL_ERROR:string {"PGS04830: Could not find declaration for qualifier named {0}"}
@@ -1647,7 +1647,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04832: 
+        * @note  PGS04832:
         *       "Parameter" and "class" are used in the programming sense.
         *        Substitution {1} is the parameter name (a string).
         *        Substitution {0} is the class name (a string).
@@ -1656,7 +1656,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04833: 
+        * @note  PGS04833:
         *        Substitution {1} is the property name (a string).
         *        Substitution {0} is the class name (a string).
         */
@@ -1664,7 +1664,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04834: 
+        * @note  PGS04834:
         *        Substitution {1} is the property name (a string).
         *        Substitution {0} is the class name (a string).
         *        Substitution {2} is the detailed error message (a string).
@@ -1673,7 +1673,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04835: 
+        * @note  PGS04835:
         *        Substitution {0} is the property name (a string).
         *        Substitution {1} is the detailed error message (a string).
         */
@@ -1681,7 +1681,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04836: 
+        * @note  PGS04836:
 	*        "Class" is used in the programming sense.
         *        Substitution {0} is the name of the class being declared (a string).
         *        Substitution {1} is the detailed error message (a string).
@@ -1697,7 +1697,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04838: 
+        * @note  PGS04838:
 	*        "Class" is used in the programming sense.
         *        "Repository" is similiar to "database"
         *        Substitution {0} is the name of the class (a string).
@@ -1706,7 +1706,7 @@ en:table {
 
         /**
         * @version 2.4
-        * @note  PGS04839: 
+        * @note  PGS04839:
 	*        "Class" is used in the programming sense.
         *        "Repository" is similiar to "database"
         *        Substitution {0} is the name of the class (a string).
@@ -1913,11 +1913,11 @@ en:table {
 
         // ==========================================================
         // Messages for CIMOperationRequestAuthorizer
-        //  Please use message prefix "PGS05200" 
+        //  Please use message prefix "PGS05200"
         // ==========================================================
 
         /**
-        * @note  PGS05200 
+        * @note  PGS05200
         *    Substitution {0} is the name of the CIM operation (a string)
         *    Substitution {1} is the namespace (a string)
         */
@@ -1934,7 +1934,7 @@ en:table {
 
         // ==========================================================
         // Messages for CIMOperationRequestDecoder
-        //  Please use message prefix "PGS05400" 
+        //  Please use message prefix "PGS05400"
         // ==========================================================
 
         /**
@@ -1943,13 +1943,13 @@ en:table {
         Server.CIMOperationRequestDecoder.EXPECTED_MESSAGE_ELEMENT:string {"PGS05400: A <MESSAGE> element expected in the CIM request."}
 
         /**
-        * @note  PGS05401:  
+        * @note  PGS05401:
         *    Do not translate the word '<LOCALNAMESPACEPATH>' since it is an XML tag
         */
         Server.CIMOperationRequestDecoder.EXPECTED_LOCALNAMESPACEPATH_ELEMENT:string {"PGS05401: A <LOCALNAMESPACEPATH> element expected in the CIM request."}
 
         /**
-        * @note  PGS05402:  
+        * @note  PGS05402:
         *    Do not translate the word '<IMETHODCALL>' or '<METHODCALL>' since they are XML tags
         */
         Server.CIMOperationRequestDecoder.EXPECTED_IMETHODCALL_ELEMENT:string {"PGS05402: A <IMETHODCALL> or a <METHODCALL> element expected in the CIM request."}
@@ -1958,9 +1958,9 @@ en:table {
         * @note  PGS05403:  Substitution {0} is a method name (a string)
         */
         Server.CIMOperationRequestDecoder.UNRECOGNIZED_INTRINSIC_METHOD:string {"PGS05403: The intrinsic method {0} not recognized."}
-        
+
         /**
-        * @note  PGS05404:  
+        * @note  PGS05404:
         *    Do not translate the word 'Content-Type' since it is an HTTP tag
         */
         Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR:string{"PGS05404: HTTP Content-Type value syntax error detected in the CIM request."}
@@ -1968,32 +1968,32 @@ en:table {
         Server.CIMOperationRequestDecoder.INVALID_UTF8_CHARACTER:string{"PGS05405: UTF-8 character in the CIM request is not valid."}
 
         /**
-        * @note   PGS05406: 
+        * @note   PGS05406:
         *    Substitution {0} is the name of the CIMOperation (a string that contains a method to call)
         *    Do not translate the word 'CIMOperation' since it is an HTTP extension header for CIM
         */
         Server.CIMOperationRequestDecoder.PGS05406:string{"CIMOP_CIMOPERATION_VALUE_NOT_SUPPORTED: CIMOperation value \"{0}\" not supported."}
 
         /**
-        * @note  PGS05407:  
+        * @note  PGS05407:
         *    Do not translate the word 'CIMMethod' since it is an HTTP extension header for CIM
         */
         Server.CIMOperationRequestDecoder.EMPTY_CIMMETHOD_VALUE:string{"PGS05407: Empty CIMMethod value in the CIM request."}
 
         /**
-        * @note  PGS05408:  
+        * @note  PGS05408:
         *   Do not translate the word 'CIMMethod' since it is an HTTP extension header for CIM
         */
         Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_SYNTAX_ERROR:string{"PGS05408: CIMMethod value syntax error in the CIM request."}
 
         /**
-        * @note  PGS05409:  
+        * @note  PGS05409:
         *   Do not translate the word 'CIMObject' since it is an HTTP extension header for CIM
         */
         Server.CIMOperationRequestDecoder.EMPTY_CIMOBJECT_VALUE:string{"PGS05409: Empty CIMObject value in the CIM request."}
 
         /**
-        * @note  PGS05410:  
+        * @note  PGS05410:
         *   Do not translate the word 'CIMObject' since it is an HTTP extension header for CIM
         */
         Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_SYNTAX_ERROR:string{"PGS05410: CIMObject value syntax error in the CIM request."}
@@ -2001,13 +2001,13 @@ en:table {
         Server.CIMOperationRequestDecoder.CIMSERVER_SHUTTING_DOWN:string{"PGS05411: The CIM server is ending."}
 
         /**
-        * @note  PGS05412:  
+        * @note  PGS05412:
         *    Substitution {0} is a version of CIM (a string such as '2.0')
         */
         Server.CIMOperationRequestDecoder.CIM_VERSION_NOT_SUPPORTED:string{"PGS05412: CIM version \"{0}\" not supported."}
 
         /**
-        * @note  PGS05413:  
+        * @note  PGS05413:
         *    Substitution {0} is a version of DTD (a string such as '2.0')
         */
         Server.CIMOperationRequestDecoder.DTD_VERSION_NOT_SUPPORTED:string{"PGS05413: DTD version \"{0}\" not supported."}
@@ -2026,7 +2026,7 @@ en:table {
         Server.CIMOperationRequestDecoder.CIMPROTOCOL_VERSION_NOT_SUPPORTED:string{"PGS05415: The CIM protocol version \"{0}\" is not supported."}
 
         /**
-        * @note  PGS05416: 
+        * @note  PGS05416:
         *    Do not translate the words 'MULTIREQ' or "CIMBatch" since they are HTTP extensions for CIM
         */
         Server.CIMOperationRequestDecoder.MULTI_REQUEST_MISSING_CIMBATCH_HTTP_HEADER:string{"PGS05416:  Multiple request tag (MULTIREQ) is missing the CIMBatch HTTP header."}
@@ -2046,7 +2046,7 @@ en:table {
         Server.CIMOperationRequestDecoder.CIMMETHOD_VALUE_DOES_NOT_MATCH_REQUEST_METHOD:string{"PGS05418: CIMMethod value \"{0}\" does not match the CIM request method \"{1}\"."}
 
         /**
-        * @note  PGS05419:  
+        * @note  PGS05419:
         *    Do not translate the words 'SIMPLEREQ' or 'CIMObject' since they are HTTP extensions for CIM
         */
         Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.MISSING_CIMOBJECT_HTTP_HEADER:string{"PGS05419: Simple request tag (SIMPLEREQ) is missing the CIMObject HTTP header."}
@@ -2072,7 +2072,7 @@ en:table {
         //  Please use message prefix "PGS05600"
         // ==========================================================
 
-        Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD:string {"PGS05600: The enumerate request is too broad."}        
+        Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD:string {"PGS05600: The enumerate request is too broad."}
 
         Server.CIMOperationRequestDispatcher.PROVIDER_NOT_AVAILABLE:string {"PGS05601: The provider is not available."}
 
@@ -2134,42 +2134,42 @@ en:table {
         Server.ProviderRegistrationManager.ProviderRegistrationManager.CONSUMER_CAPABILITY_NOT_YET_REGISTERED:string {"PGS06403: The consumer capability is not registered."}
 
         /**
-        * @note  PGS06404:  
+        * @note  PGS06404:
         *    Do not translate the word 'root/PG_InterOp' since it is a path/CIM class name
         */
         Server.ProviderRegistrationManager.ProviderRegistrationManager.REPOSITORY_CORRUPTED:string {"PGS06404: The provider registration schema in namespace \"root/PG_InterOp\" is corrupted."}
 
         /**
-        * @note  PGS06405:  
+        * @note  PGS06405:
         *    Do not translate the word 'ProviderName' since it is a CIM property name
         *    Do not translate the word 'PG_ProviderCapabilities' since it is a CIM class name
         */
         Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME:string {"PGS06405: The key property ProviderName is missing from the PG_ProviderCapabilities class."}
 
         /**
-        * @note  PGS06406:  
+        * @note  PGS06406:
         *    Do not translate the word 'ProviderModuleName' since it is a CIM property name
         *    Do not translate the word 'PG_ProviderCapabilities' since it is a CIM class name
         */
         Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME:string {"PGS06406: The key property ProviderModuleName is missing from the PG_ProviderCapabilities class."}
 
         Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_MODULE:string {"PGS06407: The provider module must be registered before registering the provider."}
-        
+
         Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_CLASS:string {"PGS06408: The provider must be registered before registering the provider capabilities."}
 
         Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT:string {"PGS06409: CIM provider registration:  An element cannot be inserted into the registration table."}
-        
+
         Server.ProviderRegistrationManager.ProviderRegistrationManager.PGPROVIDER_NEEDS_TO_BE_REGISTERED_BEFORE_CONSUMER_CAPABILITIES:string {"PGS06410: The provider must be registered before registering the consumer capabilities."}
 
         /**
-        * @note  PGS06411:  
+        * @note  PGS06411:
         *    Do not translate the word 'ProviderModuleName' since it is a CIM property name
         *    Do not translate the word 'PG_ConsumerCapabilities' since it is a CIM class name
         */
         Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERMODULENAME_KEY_IN_CONSUMER_CAPABILITIES:string {"PGS06411: The key property ProviderModuleName is missing from the PG_ConsumerCapabilities instance."}
 
         /**
-        * @note  PGS06412:  
+        * @note  PGS06412:
         *    Do not translate the word 'ProviderName' since it is a CIM property name
         *    Do not translate the word 'PG_ConsumerCapabilities' since it is a CIM class name
         */
@@ -2192,31 +2192,31 @@ en:table {
         *    Substitution {1} is the value (a string)
         */
         Common.OptionManager.INVALID_OPTION_VALUE:string {"PGS06601: Option value is not valid: {0}={1}."}
-        
+
         /**
         * @note  PGS06602:
         *    Substitution {0} is the name of the option (a string)
         */
         Common.OptionManager.DUPLICATE_OPTION:string {"PGS06602: Duplicate option {0}."}
-        
+
         /**
         * @note  PGS06603:
         *    Substitution {0} is the name of the option (a string)
         */
         Common.OptionManager.UNRECOGNIZED_CONFIG_FILE_OPTION:string {"PGS06603: Unrecognized CIM configuration file option {0}."}
-        
+
         /**
         * @note  PGS06604:
         *    Substitution {0} is the name of the option (a string)
         */
         Common.OptionManager.MISSING_REQUIRED_OPTION:string {"PGS06604: Required option {0} is missing."}
-        
+
         /**
         * @note  PGS06605:
         *    Substitution {0} is the name of the bad command line option (a string)
         */
         Common.OptionManager.PARAMETER_NOT_VALID:string {"PGS06605: Parameter {0} is not valid."}
-        
+
         Common.OptionManager.SYNTAX_ERR_CONFIG_FILE:string {"PGS06606: Syntax error in the CIM configuration file: "}
 
 
@@ -2238,7 +2238,7 @@ en:table {
         Common.CIMClassRep.METHOD:string {"PGS06801: Method {0}"}
 
         /**
-        * @note  PGS06802:  
+        * @note  PGS06802:
         *    Do not translate the word 'Association' since it is a CIM qualifier on a CIM class
         *    Do not translate the word 'PROPERTY.REFERENCE' since it is an element for CIM in XML
         */
@@ -2301,7 +2301,7 @@ en:table {
 
         // ==========================================================
         // Messages for HTTPAcceptor
-        //  Please use message prefix "PGS07800" 
+        //  Please use message prefix "PGS07800"
         // ==========================================================
 
         Common.HTTPAcceptor.ALREADY_BOUND:string {"PGS07800: CIM HTTP or HTTPS connection is already bound to the socket."}
@@ -2317,7 +2317,7 @@ en:table {
 
         // ==========================================================
         // Messages for HTTPConnector
-        //  Please use message prefix "PGS08000" 
+        //  Please use message prefix "PGS08000"
         // ==========================================================
 
         Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER:string {"PGS08000: CIM HTTP or HTTPS connector cannot connect to local CIM server. Connection failed."}
@@ -2332,29 +2332,29 @@ en:table {
 
         // ==========================================================
         // Messages for LanguageParser
-        //  Please use message prefix "PGS08200" 
+        //  Please use message prefix "PGS08200"
         // ==========================================================
 
         /**
-        * @note  PGS08200:  
+        * @note  PGS08200:
         *   Do not translate the word 'Accept-Language' since it is a standard HTTP request header field
         */
         Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_AL:string {"PGS08200: Accept-Language contains nonalphabetic characters or too many characters."}
 
         /**
-        * @note  PGS08201:  
+        * @note  PGS08201:
         *   Do not translate the word 'Content-Language' since it is a standard HTTP header
         */
         Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_CL:string {"PGS08201: Content-Language contains nonalphabetic characters or too many characters."}
 
         /**
-        * @note  PGS08202:  
+        * @note  PGS08202:
         *   Do not translate the word 'Accept-Language' since it is a standard HTTP request header field
         */
         Common.LanguageParser.INVALID_QUALITY_VALUE:string {"PGS08202: Accept-Language contains a quality value that is not valid."}
 
         /**
-        * @note  PGS08203:  
+        * @note  PGS08203:
         *   Do not translate the word 'Content-Language' since it is a standard HTTP header
         */
         Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING:string {"PGS08203: Content-Language does not contain ending \")\" character."}
@@ -2362,7 +2362,7 @@ en:table {
 
         // ==========================================================
         // Messages for Logger
-        //  Please use message prefix "PGS08400" 
+        //  Please use message prefix "PGS08400"
         // ==========================================================
 
         Common.Logger.LOGGING_DISABLED:string {"PGS08400: Logging is disabled."}
@@ -2370,7 +2370,7 @@ en:table {
 
         // ==========================================================
         // Messages for MessageQueueService
-        //  Please use message prefix "PGS08600" 
+        //  Please use message prefix "PGS08600"
         // ==========================================================
 
         Common.MessageQueueService.FORCING_SHUTDOWN:string {"PGS08600: Forcing a shutdown of the CIM message router."}
@@ -2386,7 +2386,7 @@ en:table {
 
         // ==========================================================
         // Messages for ModuleController
-        //  Please use message prefix "PGS08800" 
+        //  Please use message prefix "PGS08800"
         // ==========================================================
 
         /**
@@ -2398,7 +2398,7 @@ en:table {
 
         // ==========================================================
         // Messages for OperationContext
-        //  Please use message prefix "PGS09000" 
+        //  Please use message prefix "PGS09000"
         // ==========================================================
 
         Common.OperationContext.OBJECT_NOT_FOUND:string {"PGS09000: Object not found."}
@@ -2408,7 +2408,7 @@ en:table {
 
         // ==========================================================
         // Messages for SSLContext
-        //  Please use message prefix "PGS09200" 
+        //  Please use message prefix "PGS09200"
         // ==========================================================
 
         Common.SSLContext.COULD_NOT_GET:string {"PGS09200: Cannot get SSL context."}
@@ -2440,7 +2440,7 @@ en:table {
 
         // ==========================================================
         // Messages for TraceFileHandler
-        //  Please use message prefix "PGS09400" 
+        //  Please use message prefix "PGS09400"
         // ==========================================================
 
         /**
@@ -2494,11 +2494,11 @@ en:table {
 
         // ==========================================================
         // Messages for XmlReader
-        //  Please use message prefix "PGS09600" 
+        //  Please use message prefix "PGS09600"
         // ==========================================================
 
         /**
-        * @note  PGS09600:  
+        * @note  PGS09600:
         *   Do not translate the word '<?xml ... ?>' since it is a standard XML declaration
         */
         Common.XmlReader.EXPECTED_XML_STYLE:string {"PGS09600:  A <?xml ... ?> style declaration is expected."}
@@ -2506,13 +2506,13 @@ en:table {
         Common.XmlReader.MISSING_XML_ATTRIBUTE:string {"PGS09601: The XML version attribute is missing from the XML declaration."}
 
         /**
-        * @note  PGS09602:  
+        * @note  PGS09602:
         *   Do not translate the word 'CIMVERSION' since it is a standard attribute for CIM in XML
         */
         Common.XmlReader.MISSING_CIMVERSION_ATTRIBUTE:string {"PGS09602: The CIMVERSION attribute is missing from the CIM in XML element attribute list."}
 
         /**
-        * @note  PGS09603:  
+        * @note  PGS09603:
         *   Do not translate the word 'DTDVERSION' since it is a standard attribute for CIM in XML
         */
         Common.XmlReader.MISSING_DTDVERSION_ATTRIBUTE:string {"PGS09603: The DTDVERSION attribute is missing from the CIM in XML element attribute list."}
@@ -2524,14 +2524,14 @@ en:table {
         Common.XmlReader.MISSING_REQUIRED_ATTRIBUTE:string {"PGS09604: The required attribute {0} is missing."}
 
         /**
-        * @note  PGS09605: 
+        * @note  PGS09605:
         *    Substitution {0} is the name of the expected element (a string)
         *    This error is for a missing XML Start-Tag
         */
         Common.XmlReader.EXPECTED_OPEN:string {"PGS09605: Expecting a start tag for {0} element."}
 
         /**
-        * @note  PGS09606: 
+        * @note  PGS09606:
         *    Substitution {0} is the expected element tag name (a string)
         *    Substitution {1} is the XML text that was found (a string)
         *    This error is for a missing XML End-Tag
@@ -2539,26 +2539,26 @@ en:table {
         Common.XmlReader.EXPECTED_CLOSE:string {"PGS09606: Expecting an end tag for {0} element, found {1} instead."}
 
         /**
-        * @note  PGS09607: 
+        * @note  PGS09607:
         *    Substitution {0} is the name of the expected element (a string)
         *    This error is for a missing XML Start-Tag or empty tag
         */
         Common.XmlReader.EXPECTED_OPENCLOSE:string {"PGS09607: Expecting a start tag or an empty tag for the {0} element."}
 
         /**
-        * @note  PGS09608:  
+        * @note  PGS09608:
         *   Do not translate the word 'CDATA' since it is a standard XML section name
         */
         Common.XmlReader.EXPECTED_CDATA:string {"PGS09608: Expecting XML element content or CDATA."}
 
         /**
-        * @note  PGS09609: 
+        * @note  PGS09609:
         *    Substitution {0} is the name of the element tag.attribute (a string)
         */
         Common.XmlReader.MISSING_ATTRIBUTE:string {"PGS09609:  The {0} attribute is missing."}
 
         /**
-        * @note  PGS09610: 
+        * @note  PGS09610:
         *    Substitution {0} is the name of the element tag.attribute (a string)
         */
         Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE:string {"PGS09610:  The {0} attribute value is not valid."}
@@ -2572,13 +2572,13 @@ en:table {
         Common.XmlReader.INVALID_URI_ENCODING:string {"PGS09612:  The URI encoding is not valid."}
 
         /**
-        * @note  PGS09613:  
+        * @note  PGS09613:
         *   Do not translate the word 'boolean' since it is a standard CIM type
         */
         Common.XmlReader.INVALID_BOOLEAN_VALUE:string {"PGS09613:  The boolean value is not valid."}
 
         /**
-        * @note  PGS09614:  
+        * @note  PGS09614:
         *   Do not translate the word 'char16' since it is a standard CIM type
         */
         Common.XmlReader.INVALID_CHAR16_VALUE:string {"PGS09614: The char16 value is not valid."}
@@ -2588,7 +2588,7 @@ en:table {
         Common.XmlReader.INVALID_SI_VALUE:string {"PGS09616: The signed integer value is not valid."}
 
         /**
-        * @note  PGS09617:  
+        * @note  PGS09617:
         *   Do not translate the word 'datetime' since it is a standard CIM type
         */
         Common.XmlReader.INVALID_DATETIME_VALUE:string {"PGS09617: The datetime value is not valid."}
@@ -2596,37 +2596,37 @@ en:table {
         Common.XmlReader.INVALID_RN_VALUE:string {"PGS09618: The real number value is not valid."}
 
         /**
-        * @note  PGS09619:  
+        * @note  PGS09619:
         *   Do not translate the word 'Uint8' since it is a standard CIM type
         */
         Common.XmlReader.U8_VALUE_OUT_OF_RANGE:string {"PGS09619: The Uint8 value is out of range."}
 
         /**
-        * @note  PGS09620:  
+        * @note  PGS09620:
         *   Do not translate the word 'Uint16' since it is a standard CIM type
         */
         Common.XmlReader.U16_VALUE_OUT_OF_RANGE:string {"PGS09620: The Uint16 value is out of range."}
 
         /**
-        * @note  PGS09621:  
+        * @note  PGS09621:
         *   Do not translate the word 'Uint32' since it is a standard CIM type
         */
         Common.XmlReader.U32_VALUE_OUT_OF_RANGE:string {"PGS09621: The Uint32 value is out of range."}
 
         /**
-        * @note  PGS09622:  
+        * @note  PGS09622:
         *   Do not translate the word 'Sint8' since it is a standard CIM type
         */
         Common.XmlReader.S8_VALUE_OUT_OF_RANGE:string {"PGS09622: The Sint8 value is out of range."}
 
         /**
-        * @note  PGS09623:  
+        * @note  PGS09623:
         *   Do not translate the word 'Sint16' since it is a standard CIM type
         */
         Common.XmlReader.S16_VALUE_OUT_OF_RANGE:string {"PGS09623: The Sint16 value is out of range."}
 
         /**
-        * @note  PGS09624:  
+        * @note  PGS09624:
         *   Do not translate the word 'Sint32' since it is a standard CIM type
         */
         Common.XmlReader.S32_VALUE_OUT_OF_RANGE:string {"PGS09624: The Sint32 value is out of range."}
@@ -2634,85 +2634,85 @@ en:table {
         Common.XmlReader.MALFORMED_XML:string {"PGS09625: The XML is not valid."}
 
         /**
-        * @note  PGS09626:  
+        * @note  PGS09626:
         *   Do not translate the word 'HOST' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_HOST_ELEMENT:string {"PGS09626:  A HOST element is expected."}
 
         /**
-        * @note  PGS09627:  
+        * @note  PGS09627:
         *   Do not translate the word 'LOCALNAMESPACEPATH' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_LOCALNAMESPACEPATH_ELEMENT:string {"PGS09627:  A LOCALNAMESPACEPATH element is expected."}
 
         /**
-        * @note  PGS09628:  
+        * @note  PGS09628:
         *   Do not translate the word 'CLASSNAME' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_CLASSNAME_ELEMENT:string {"PGS09628:  A CLASSNAME element is expected."}
 
         /**
-        * @note  PGS09629:  
+        * @note  PGS09629:
         *   Do not translate the word 'NAMESPACEPATH' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_NAMESPACEPATH_ELEMENT:string {"PGS09629:  A NAMESPACEPATH element is expected."}
 
         /**
-        * @note  PGS09630:  
+        * @note  PGS09630:
         *   Do not translate the word 'INSTANCENAME' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_INSTANCENAME_ELEMENT:string {"PGS09630:  An INSTANCENAME element is expected."}
 
         /**
-        * @note  PGS09631:  
+        * @note  PGS09631:
         *   Do not translate the word 'INSTANCE' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_INSTANCE_ELEMENT:string {"PGS09631:  An INSTANCE element is expected."}
 
         /**
-        * @note  PGS09632:  
+        * @note  PGS09632:
         *   Do not translate the word 'CLASS' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_CLASS_ELEMENT:string {"PGS09632:  A CLASS element is expected."}
 
         /**
-        * @note  PGS09633:  
+        * @note  PGS09633:
         *   Do not translate the word 'QUALIFIER.DECLARATION' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_QUALIFIER_DECLARATION_ELEMENT:string {"PGS09633:  A QUALIFIER.DECLARATION element is expected."}
 
         /**
-        * @note  PGS09634:  
+        * @note  PGS09634:
         *   Do not translate the word 'ERROR' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_ERROR_ELEMENT:string {"PGS09634:  An ERROR element is expected."}
 
         /**
-        * @note  PGS09635:  
+        * @note  PGS09635:
         *   Do not translate the words 'INSTANCE' and 'CLASS' since they are standard element names for CIM in XML
         */
         Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT:string {"PGS09635:  An INSTANCE or CLASS element is expected."}
 
         /**
-        * @note  PGS09636:  
+        * @note  PGS09636:
         *   Do not translate the words 'INSTANCEPATH' and 'CLASSPATH' since they are standard element names for CIM in XML
         */
         Common.XmlReader.EXPECTED_INSTANCEPATH_OR_CLASSPATH_ELEMENT:string {"PGS09636:  An INSTANCEPATH or CLASSPATH element is expected."}
 
         /**
-        * @note  PGS09637:  
+        * @note  PGS09637:
         *   Do not translate the words 'LOCALINSTANCEPATH' and 'LOCALCLASSPATH' since they are standard element names for CIM in XML
         */
         Common.XmlReader.EXPECTED_LOCALINSTANCEPATH_OR_LOCALCLASSPATH_ELEMENT:string {"PGS09637:  A LOCALINSTANCEPATH or LOCALCLASSPATH element is expected."}
 
         /**
-        * @note  PGS09638:  
+        * @note  PGS09638:
         *   Do not translate the words 'CLASSNAME' and 'INSTANCENAME' since they are standard element names for CIM in XML
         */
         Common.XmlReader.EXPECTED_CLASSNAME_OR_INSTANCENAME_ELEMENT:string {"PGS09638:  A CLASSNAME or INSTANCENAME element is expected."}
 
         /**
-        * @note  PGS09639: 
+        * @note  PGS09639:
         *    Substitution {0} is the name of the element tag (a string)
         */
         Common.XmlReader.EXPECTED_ELEMENT:string {"PGS09639:  A {0} element is expected."}
@@ -2722,13 +2722,13 @@ en:table {
         Common.XmlReader.DUPLICATE_PARAMETER:string {"PGS09641: A duplicate parameter is found."}
 
         /**
-        * @note  PGS09642:  
+        * @note  PGS09642:
         *   Do not translate the word 'VALUE' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_VALUE_ELEMENT:string {"PGS09642:  A VALUE element is expected."}
 
         /**
-        * @note  PGS09643:  
+        * @note  PGS09643:
         *   Do not translate the word 'VALUE.REFERENCE' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_VALUE_REFERENCE_ELEMENT:string {"PGS09643:  A VALUE.REFERENCE element is expected."}
@@ -2736,163 +2736,163 @@ en:table {
         Common.XmlReader.DUPLICATE_QUALIFIER:string {"PGS09644: A duplicate qualifier is found."}
 
         /**
-        * @note  PGS09645: 
+        * @note  PGS09645:
         *    Substitution {0} is the name of the element tag.attribute (a string)
         */
         Common.XmlReader.ILLEGAL_VALUE:string {"PGS09645: The {0} value is not valid."}
 
         /**
-        * @note  PGS09646:  
+        * @note  PGS09646:
         *   Do not translate the word 'ARRAYSIZE' since it is a standard entity name for CIM in XML
         */
         Common.XmlReader.ARRAY_SIZE_DIFFERENT:string {"PGS09646:  The ARRAYSIZE attribute and the size of the array of values are different."}
 
         /**
-        * @note  PGS09647:  
+        * @note  PGS09647:
         *   Do not translate the words 'ARRAYSIZE' and 'VALUE.ARRAY' since they are standard entity names for CIM in XML
         */
         Common.XmlReader.ARRAY_SIZE_NOT_SAME:string {"PGS09647: The VALUE.ARRAY size is not the same as the ARRAYSIZE attribute."}
 
         /**
-        * @note  PGS09648:  
+        * @note  PGS09648:
         *   Do not translate the word 'HOST' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_CONTENT_ELEMENT:string {"PGS09648:  The content of the HOST element is expected."}
 
         /**
-        * @note  PGS09649:  
+        * @note  PGS09649:
         *   Do not translate the words 'NAMESPACE' and 'LOCALNAMESPACEPATH' since they are standard element names for CIM in XML
         */
         Common.XmlReader.EXPECTED_NAMESPACE_ELEMENTS:string {"PGS09649:  One or more NAMESPACE elements is expected within the LOCALNAMESPACEPATH element."}
 
         /**
-        * @note  PGS09650: 
+        * @note  PGS09650:
         *    Substitution {0} is the name of the element tag.attribute (a string)
         */
         Common.XmlReader.ILLEGAL_VALUE_FOR_CIMVALUE_ATTRIBUTE:string {"PGS09650: The {0} attribute value is not valid. The value must be one of \"string\", \"boolean\" or \"numeric\"."}
 
         /**
-        * @note  PGS09651:  
+        * @note  PGS09651:
         *   Do not translate the word 'KEYVALUE' since it is a standard element name for CIM in XML
         *   Do not translate the word 'VALUE.REFERENCE' since it is a standard element.attribute name for CIM in XML
         */
         Common.XmlReader.EXPECTED_KEYVALUE_OR_REFERENCE_ELEMENT:string {"PGS09651:  A KEYVALUE or VALUE.REFERENCE element is expected."}
 
         /**
-        * @note  PGS09652: 
+        * @note  PGS09652:
         *    Substitutions {0} and {1} are the names of elements for CIM in XML (strings)
         */
         Common.XmlReader.EXPECTED_OR_ELEMENT:string {"PGS09652: The element {0} or {1} is expected."}
 
         /**
-        * @note  PGS09653:  
-        *   Do not translate the word 'CLASSPATH' since it is a standard element name for CIM in XML 
-        *   Do not translate the word 'LOCALCLASSPATH' since it is a standard element name for CIM in XML 
-        *   Do not translate the word 'CLASSNAME' since it is a standard element name for CIM in XML 
-        *   Do not translate the word 'INSTANCEPATH' since it is a standard element name for CIM in XML 
-        *   Do not translate the word 'LOCALINSTANCEPATH' since it is a standard element name for CIM in XML 
-        *   Do not translate the word 'INSTANCENAME' since it is a standard element name for CIM in XML 
+        * @note  PGS09653:
+        *   Do not translate the word 'CLASSPATH' since it is a standard element name for CIM in XML
+        *   Do not translate the word 'LOCALCLASSPATH' since it is a standard element name for CIM in XML
+        *   Do not translate the word 'CLASSNAME' since it is a standard element name for CIM in XML
+        *   Do not translate the word 'INSTANCEPATH' since it is a standard element name for CIM in XML
+        *   Do not translate the word 'LOCALINSTANCEPATH' since it is a standard element name for CIM in XML
+        *   Do not translate the word 'INSTANCENAME' since it is a standard element name for CIM in XML
         */
         Common.XmlReader.EXPECTED_START_TAGS:string {"PGS09653:  One of the following start tags is expected: CLASSPATH, LOCALCLASSPATH, CLASSNAME, INSTANCEPATH, LOCALINSTANCEPATH, INSTANCENAME."}
 
         /**
-        * @note  PGS09654:  
-        *   Do not translate the word 'VALUE.ARRAY' since it is a standard element name for CIM in XML 
-        *   Do not translate the word 'ISARRAY' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09654:
+        *   Do not translate the word 'VALUE.ARRAY' since it is a standard element name for CIM in XML
+        *   Do not translate the word 'ISARRAY' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.ARRAY_WITHOUT_ISARRAY:string {"PGS09654:  A VALUE.ARRAY element is encountered without an ISARRAY attribute."}
 
         /**
-        * @note  PGS09655:  
-        *   Do not translate the word 'VALUE' since it is a standard element name for CIM in XML 
-        *   Do not translate the word 'ISARRAY' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09655:
+        *   Do not translate the word 'VALUE' since it is a standard element name for CIM in XML
+        *   Do not translate the word 'ISARRAY' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.ARRAY_ATTRIBUTE_DIFFERENT:string {"PGS09655:  An ISARRAY attribute is used but a VALUE element is encountered."}
 
         /**
-        * @note  PGS09656:  
-        *   Do not translate the word 'MESSAGE.ID' since it is a standard element.attribute name for CIM in XML 
+        * @note  PGS09656:
+        *   Do not translate the word 'MESSAGE.ID' since it is a standard element.attribute name for CIM in XML
         */
         Common.XmlReader.INVALID_MISSING_MESSAGE_ID_ATTRIBUTE:string {"PGS09656:  The MESSAGE.ID attribute is missing or not valid."}
 
         /**
-        * @note  PGS09657:  
-        *   Do not translate the word 'MESSAGE.PROTOCOLVERSION' since it is a standard element.attribute name for CIM in XML 
+        * @note  PGS09657:
+        *   Do not translate the word 'MESSAGE.PROTOCOLVERSION' since it is a standard element.attribute name for CIM in XML
         */
         Common.XmlReader.INVALID_MISSING_PROTOCOLVERSION_ATTRIBUTE:string {"PGS09657:  The MESSAGE.PROTOCOLVERSION attribute is missing or not valid."}
 
         /**
-        * @note  PGS09658:  
-        *   Do not translate the word 'IMETHODCALL' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09658:
+        *   Do not translate the word 'IMETHODCALL' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_IMETHODCALL_ATTRIBUTE:string {"PGS09658:  The IMETHODCALL attribute is missing."}
 
         /**
-        * @note  PGS09659:  
-        *   Do not translate the word 'IMETHODRESPONSE' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09659:
+        *   Do not translate the word 'IMETHODRESPONSE' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_IMETHODRESPONSE_ATTRIBUTE:string {"PGS09659: The IMETHODRESPONSE attribute is missing."}
 
         /**
-        * @note  PGS09660:  
-        *   Do not translate the word 'IPARAMVALUE.NAME' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09660:
+        *   Do not translate the word 'IPARAMVALUE.NAME' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_IPARAMVALUE_ATTRIBUTE:string {"PGS09660: The IPARAMVALUE.NAME attribute is missing."}
 
         /**
-        * @note  PGS09661:  
-        *   Do not translate the word 'ERROR.CODE' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09661:
+        *   Do not translate the word 'ERROR.CODE' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_ERROR_CODE_ATTRIBUTE:string {"PGS09661:  The ERROR.CODE attribute is missing."}
 
         /**
-        * @note  PGS09662:  
-        *   Do not translate the word 'EXPMETHODCALL.NAME' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09662:
+        *   Do not translate the word 'EXPMETHODCALL.NAME' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_EXPMETHODCALL_ATTRIBUTE:string {"PGS09662:  The EXPMETHODCALL.NAME attribute is missing."}
 
         /**
-        * @note  PGS09663:  
-        *   Do not translate the word 'EXPMETHODRESPONSE.NAME' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09663:
+        *   Do not translate the word 'EXPMETHODRESPONSE.NAME' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_EXPMETHODRESPONSE_ATTRIBUTE:string {"PGS09663:  The EXPMETHODRESPONSE.NAME attribute is missing."}
 
         /**
-        * @note  PGS09664:  
-        *   Do not translate the word 'EXPPARAMVALUE.NAME' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09664:
+        *   Do not translate the word 'EXPPARAMVALUE.NAME' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_EXPPARAMVALUE_ATTRIBUTE:string {"PGS09664:  The EXPPARAMVALUE.NAME attribute is missing."}
 
         /**
-        * @note  PGS09665:  
-        *   Do not translate the word 'METHODCALL.NAME' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09665:
+        *   Do not translate the word 'METHODCALL.NAME' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_METHODCALL_ATTRIBUTE:string {"PGS09665:  The METHODCALL.NAME attribute is missing."}
 
         /**
-        * @note  PGS09666:  
-        *   Do not translate the word 'METHODRESPONSE.NAME' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09666:
+        *   Do not translate the word 'METHODRESPONSE.NAME' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_METHODRESPONSE_ATTRIBUTE:string {"PGS09666:  The METHODRESPONSE.NAME attribute is missing."}
 
         /**
-        * @note  PGS09667:  
-        *   Do not translate the word 'PARAMVALUE.NAME' since it is a standard attribute name for CIM in XML 
+        * @note  PGS09667:
+        *   Do not translate the word 'PARAMVALUE.NAME' since it is a standard attribute name for CIM in XML
         */
         Common.XmlReader.MISSING_PARAMVALUE_ATTRIBUTE:string {"PGS09667: The PARAMVALUE.NAME attribute is missing."}
 
         /**
-        * @note  PGS09668:  
-        *   Do not translate the word 'VALUE' since it is a standard element name for CIM in XML 
-        *   Do not translate the words 'TRUE' and 'FALSE' since they are standard values for CIM in XML 
+        * @note  PGS09668:
+        *   Do not translate the word 'VALUE' since it is a standard element name for CIM in XML
+        *   Do not translate the words 'TRUE' and 'FALSE' since they are standard values for CIM in XML
         */
         Common.XmlReader.INVALID_VALUE_FOR_VALUE_ELEMENT:string {"PGS09668:  The VALUE element must be \"TRUE\" or \"FALSE\"."}
 
         /**
-        * @note  PGS09669:  
+        * @note  PGS09669:
         *   Substitution {0} is a string containing a parameter name
-        *   Do not translate the word 'IPARAMVALUE' since it is a standard element name for CIM in XML 
-        * @version 2.4 
+        *   Do not translate the word 'IPARAMVALUE' since it is a standard element name for CIM in XML
+        * @version 2.4
         */
         Common.XmlReader.INVALID_NULL_IPARAMVALUE:string {"PGS09669: A null value is not valid for IPARAMVALUE \"{0}\"."}
 
@@ -2904,17 +2904,17 @@ en:table {
 
         /**
         * @note  PGS10001:
-        *    Substitution {0} is a string containing the class name:method name and command name 
+        *    Substitution {0} is a string containing the class name:method name and command name
         *    Substitution {1} is the name of the CIM server program (a string)
         */
         src.Server.cimserver_os400.FAILED_TO_START_SERVER:string {"PGS10001:
 {0} failed to start the {1} CIM server."}
 
         /**
-        * @note  PGS10002: 
+        * @note  PGS10002:
         *    Substitution {0} is a string containing the class name:method name
         *    A word of explanation:  in computing terminology, exceptions are 'thrown' and 'caught'.
-        *    The word 'caught' in this message is using the computing terminology for exceptions. 
+        *    The word 'caught' in this message is using the computing terminology for exceptions.
         */
         src.Server.cimserver_os400.CAUGHT_UNKNOWN_EXCEPTION:string {"PGS10002:  {0} caught unknown exception.\n"}
 
@@ -2937,7 +2937,7 @@ en:table {
         /**
         * @note PGS10006:
         *     Substitution {0} is an integer that is the port number.
-          */ 
+          */
         src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT:string {"PGS10006: The CIM server is listening on HTTP port {0}."} // 485
 
         /**
@@ -2955,8 +2955,8 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note PGS10011:
-        *     Substitution {0} is a string containing the exception message 
-          */ 
+        *     Substitution {0} is a string containing the exception message
+          */
         src.Server.cimserver.SHUTDOWN_FAILED:string {"PGS10011: Error ending the CIM server: {0}"} //485
 
         src.Server.cimserver.REPOSITORY_EMPTY:string {"PGS10012:  The CIM repository may be empty."}
@@ -2970,7 +2970,7 @@ CIM server listening on HTTPS port {0}."}
         src.Server.cimserver.MISSING_ARGUMENT:string {"PGS10014: Missing argument for option -{0}."}
 
         /**
-        * @note  PGS10015:  
+        * @note  PGS10015:
         *   Do not translate 'BIND_VERBOSE' since it is the name of an option
         */
         src.Server.cimserver.UNSUPPORTED_DEBUG_OPTION:string {"PGS10015:  Unsupported debug option BIND_VERBOSE is enabled."}
@@ -3022,7 +3022,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS10027:  Substitution {0} is the port number (an integer)
-        * @version 2.4 
+        * @version 2.4
         */
         src.Server.cimserver.LISTENING_ON_EXPORT_HTTPS_PORT:string {"PGS10027:  The CIM server is listening on Export HTTPS port {0}."}
 
@@ -3033,7 +3033,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS10029:
-        * @version 2.4 
+        * @version 2.4
         */
         src.Server.cimserver.EXPORT_HTTPS_PORT_NOT_DEFINED:string {"PGS10029: Port not defined for the service wbem-exp-https. cimserver not started."}
 
@@ -3160,7 +3160,7 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS10204:
         *    do not translate "Indication" since it is a type of CIM class
         *    do not translate 'FROM' since it is a type of clause
-        *    Substitution {0} is a string containing a class name 
+        *    Substitution {0} is a string containing a class name
         *    Substitution {1} is a string containing a Indication filter
         *    Substitution {2} is a string containing a query property
         */
@@ -3179,53 +3179,53 @@ CIM server listening on HTTPS port {0}."}
         *    do not translate "Indication" since it is a type of CIM class
         */
         IndicationService.IndicationService._MSG_CLASS_NOT_SERVED:string {"PGS10209: The specified class is not serviced by the CIM Indication service."}
-        
+
         IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCES_IGNORED:string {"PGS10210: One or more subscription instances are not valid and are ignored."}
 
         /**
-        * @note  PGS10211: 
+        * @note  PGS10211:
         *    Substitution {0} is a string containing the property value type
         *    Substitution {1} is a string containing the property name
         */
         IndicationService.IndicationService._MSG_INVALID_TYPE_FOR_PROPERTY:string {"PGS10211: The value of type {0} is not valid for property {1}."}
 
         /**
-        * @note  PGS10212: 
+        * @note  PGS10212:
         *    Substitution {0} is a string containing the property array type value
         *    Substitution {1} is a string containing the property name
         */
         IndicationService.IndicationService._MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY:string {"PGS10212: The value of an array of type {0} is not valid for property {1}."}
-        
+
 
         /**
-        * @note  PGS10213: 
+        * @note  PGS10213:
         *    Substitution {0} is a string containing the provider object path in string form
         *    Substitution {1} is a string containing the subscription object path in string form
         */
         IndicationService.IndicationService._MSG_PROVIDER_NO_LONGER_SERVING:string {"PGS10213: Provider ({0}) is no longer serving subscription ({1})."}
-        
+
 
         /**
-        * @note  PGS10214: 
+        * @note  PGS10214:
         *    Substitution {0} is a string containing the provider object path in string form
         *    Substitution {1} is a string containing the subscription object path in string form
         */
         IndicationService.IndicationService._MSG_PROVIDER_NOW_SERVING:string {"PGS10214: Provider ({0}) is now serving subscription ({1})."}
-        
+
 
         /**
-        * @note  PGS10215: 
+        * @note  PGS10215:
         *    Substitution {0} is a string containing the subscription object path in string form
         */
         IndicationService.IndicationService._MSG_NO_PROVIDER:string {"PGS10215: Subscription ({0}) has no provider."}
-        
+
         /**
-        * @note  PGS10216: 
+        * @note  PGS10216:
         *    Message added after Pegasus 2.3 freeze
         *    Substitution {0} is a user name (a string)
         */
         IndicationService.IndicationService._MSG_NON_PRIVILEGED_ACCESS_DISABLED:string {"PGS10216: User ({0}) is not authorized to perform this operation."}
-        
+
         /**
         * @note  PGS10217:
         *    Substitution {0} is a string containing the property value
@@ -3298,29 +3298,29 @@ CIM server listening on HTTPS port {0}."}
         // ==========================================================
 
         /**
-        * @note  PGS10600:  
+        * @note  PGS10600:
         *   Do not translate 'MappingStrings' since it is a standard Indication qualifier CIM name
         */
         Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_MS_VALUE:string {"PGS10600:  The MappingStrings qualifier value is not valid."}
 
         /**
-        * @note  PGS10601:  
+        * @note  PGS10601:
         *   Do not translate 'PG_IndicationHandlerSNMPMapper' since it is a CIM class name
         */
         Handler.snmpIndicationHandler.snmpIndicationHandler.INVALID_SNMP_INSTANCE:string {"PGS10601: The PG_IndicationHandlerSNMPMapper instance is not valid."}
-        
+
         /**
-        * @note  PGS10602:  
+        * @note  PGS10602:
         *   Do not translate 'MappingStrings' since it is a standard Indication qualifier CIM name
         */
         Handler.snmpIndicationHandler.snmpIndicationHandler.QUALIFIER_MAPPINGS_NOT_FOUND:string {"PGS10602:  CIM qualifier MappingStrings cannot be found"}
 
 	Handler.snmpIndicationHandler.snmpIndicationHandler.FAILED_TO_DELIVER_TRAP:string {"PGS10603: Failed to deliver trap."}
 
-         
+
         // ==========================================================
         // Messages for CIMxmlIndicationHandler
-        //  Please use message prefix "PGS10800" 
+        //  Please use message prefix "PGS10800"
         // ==========================================================
 
         /**
@@ -3346,7 +3346,7 @@ CIM server listening on HTTPS port {0}."}
         Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_DESTINATION_NOT_FOUND:string {"PGS11002: The SNMP trap destination cannot be found."}
 
         /**
-        * @note  PGS11003:  
+        * @note  PGS11003:
         *   Do not translate the word 'TargetHostFormat' since it is a CIM property name
         *   Do not translate 'PG_IndicationHandlerSNMPMapper' since it is a CIM class name
         */
@@ -3365,28 +3365,28 @@ CIM server listening on HTTPS port {0}."}
         Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID_PROPERTY:string{"PGS11009: The value of the CIM property is not valid."}
 
         /**
-        * @note  PGS11010:  
+        * @note  PGS11010:
         *   Do not translate the word 'MakeVarBindWithValue' since it is an SNMP function name
         *   Do not translate 'OCTET_PRIM_TYPE' since it is an SNMP type
         */
         Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE:string{"PGS11010:  Failed to perform an SNMP MakeVarBindWithValue for type OCTET_PRIM_TYPE."}
 
         /**
-        * @note  PGS11011:  
+        * @note  PGS11011:
         *   Do not translate the word 'MakeVarBindWithValue' since it is an SNMP function name
         *   Do not translate 'OBJECT_ID_TYPE' since it is an SNMP type
         */
         Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE:string{"PGS11011:  Failed to perform an SNMP MakeVarBindWithValue for type OBJECT_ID_TYPE."}
 
         /**
-        * @note  PGS11012:  
+        * @note  PGS11012:
         *   Do not translate the word 'MakeVarBindWithValue' since it is an SNMP function name
         *   Do not translate 'INTEGER_TYPE' since it is an SNMP type
         */
         Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE:string{"PGS11012:  Failed to perform an SNMP MakeVarBindWithValue for type INTEGER_TYPE."}
 
         /**
-        * @note  PGS11013:  
+        * @note  PGS11013:
         *   Do not translate the word 'SNMPVersion' since it is a CIM property name
         *   Do not translate 'PG_IndicationHandlerSNMPMapper' since it is a CIM class name
         */
@@ -3399,14 +3399,14 @@ CIM server listening on HTTPS port {0}."}
         // ==========================================================
 
         /**
-        * @note  PGS11200:  
-        *   Do not translate 'MESSAGE' since it is a standard element for CIM in XML 
+        * @note  PGS11200:
+        *   Do not translate 'MESSAGE' since it is a standard element for CIM in XML
         */
         ExportServer.CIMExportRequestDecoder.EXPECTED_MESSAGE_ELEMENT:string {"PGS11200:  A MESSAGE element is expected for CIM in XML."}
 
         /**
-        * @note  PGS11201:  
-        *   Do not translate 'EXPMETHODCALL' since it is a standard element for CIM in XML 
+        * @note  PGS11201:
+        *   Do not translate 'EXPMETHODCALL' since it is a standard element for CIM in XML
         */
         ExportServer.CIMExportRequestDecoder.EXPECTED_EXPMETHODCALL_ELEMENT:string {"PGS11201:  A EXPMETHODCALL element is expected."}
 
@@ -3428,15 +3428,15 @@ CIM server listening on HTTPS port {0}."}
         // ==========================================================
 
         /**
-        * @note  PGS11400:  
-        *   Do not translate 'MESSAGE' since it is a standard element for CIM in XML 
+        * @note  PGS11400:
+        *   Do not translate 'MESSAGE' since it is a standard element for CIM in XML
         */
         ExportClient.CIMExportResponseDecoder.EXPECTED_MESSAGE_ELEMENT:string {"PGS11400:  A MESSAGE element is expected for CIM in XML."}
 
         /**
-        * @note  PGS11401:  
-        *   Do not translate 'METHODRESPONSE' since it is a standard element for CIM in XML 
-        *   Do not translate 'IMETHODRESPONSE' since it is a standard element for CIM in XML 
+        * @note  PGS11401:
+        *   Do not translate 'METHODRESPONSE' since it is a standard element for CIM in XML
+        *   Do not translate 'IMETHODRESPONSE' since it is a standard element for CIM in XML
         */
         ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT:string {"PGS11401:  A METHODRESPONSE or an IMETHODRESPONSE element is expected for CIM in XML."}
 
@@ -3447,30 +3447,30 @@ CIM server listening on HTTPS port {0}."}
         ExportClient.CIMExportResponseDecoder.AUTHENTICATION_FAILED:string {"PGS11404: Authentication failed."}
 
         /**
-        * @note  PGS11405:  
+        * @note  PGS11405:
         *   Do not translate 'CIMOperation' since it is a standard CIM HTTP header
         */
         ExportClient.CIMExportResponseDecoder.MISSING_CIMOP_HEADER:string {"PGS11405: The CIMOperation HTTP header is missing."}
 
         /**
-        * @note  PGS11406:  
+        * @note  PGS11406:
         *    Substitution {0} is a string containing a CIM operation element
         *    Do not translate 'CIMOperation' since it is a standard CIM HTTP header
-        *    Do not translate 'METHODRESPONSE' since it is a standard element for CIM in XML 
+        *    Do not translate 'METHODRESPONSE' since it is a standard element for CIM in XML
         */
         ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE:string {"PGS11406:  Client received a CIMOperation HTTP header value of \"{0}\" when \"METHODRESPONSE\" element is expected."}
 
         /**
-        * @note  PGS11407:  
+        * @note  PGS11407:
         *    Substitution {0} is a string containing a protocol version
         *    Substitution {1} is a string containing the expected version (such as "1.0")
         */
         ExportClient.CIMExportResponseDecoder.UNSUPPORTED_PROTOCOL:string {"PGS11407:  Unsupported protocol version {0} is received, {1} is expected."}
 
         /**
-        * @note  PGS11408:  
+        * @note  PGS11408:
         *    Substitution {0} is a string containing a CIM operation name
-        *    Do not translate 'IMETHODRESPONSE' since it is a standard element for CIM in XML 
+        *    Do not translate 'IMETHODRESPONSE' since it is a standard element for CIM in XML
         */
         ExportClient.CIMExportResponseDecoder.UNRECOGNIZED_IMETH:string {"PGS11408:  IMETHODRESPONSE name {0} is not recognized."}
 
@@ -3481,7 +3481,7 @@ CIM server listening on HTTPS port {0}."}
         // ==========================================================
 
         /**
-        * @note  PGS11600:  
+        * @note  PGS11600:
         *    Substitution {0} and {1} are strings containing message identifiers
         */
         ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID:string {"PGS11600:  The response message identifier {0} does not match the expected response message identifier {1}."}
@@ -3495,14 +3495,14 @@ CIM server listening on HTTPS port {0}."}
         // ==========================================================
 
         /**
-        * @note  PGS11800:  
+        * @note  PGS11800:
         *    Substitution {0} and {1} are strings containing message identifiers
         */
         Client.CIMClient.MISMATCHED_RESPONSE:string {"PGS11800:  The response message identifier {0} does not match the expected response message identifier {1}."}
 
         Client.CIMClient.MISMATCHED_RESPONSE_TYPE:string {"PGS11801: The response message type does not match the expected response message type."}
 
-        
+
         // ==========================================================
         // Messages for CIMClientRep
         //  Please use message prefix "PGS11900"
@@ -3514,7 +3514,7 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate 'CIMClient' since it is the name of the client API interface
         *    Do not translate 'CIM' since it is the name of the technology
         */
-        
+
         Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH:string {"PGS11900:  Failed validation of CIM object path: port of CIMClient connection({0}) and port of object path({1}) not equal."}
 
         /**
@@ -3522,16 +3522,16 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is a string containing the host of object path
         *    Do not translate 'CIM' since it is the name of the technology
         */
-        
+
         Client.CIMClientRep.TYPEMISMATCH_OBJECTPATH_IP_UNRESOLVEABLE:string {"PGS11901:  Failed validation of CIM object path: failed to resolve IP address({0}) from object path"}
-        
+
         /**
         * @note  PGS11902:
         *    Substitution {0} is a string containing the host of the CIMClient connection
         *    Do not translate 'CIMClient' since it is the name of the client API interface
         *    Do not translate 'CIM' since it is the name of the technology
         */
-        
+
         Client.CIMClientRep.TYPEMISMATCH_CIMCLIENTCONNECTION_IP_UNRESOLVEABLE:string {"PGS11902:  Failed validation of CIM object path: failed to resolve IP address({0}) of CIMClient connection"}
 
         /**
@@ -3540,56 +3540,56 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate 'CIMClient' since it is the name of the client API interface
         *    Do not translate 'CIM' since it is the name of the technology
         */
-        
+
         Client.CIMClientRepTYPEMISMATCH_OBJECTPATHS_NOTEQUAL:string {"PGS11903:  Failed validation of CIM object path: host of CIMClient connection({0}) and object path({1}) not equal"}
 
-        
+
         // ==========================================================
         // Messages for CIMOperationResponseDecoder
         //  Please use message prefix "PGS12000"
         // ==========================================================
 
         /**
-        * @note  PGS12000:  
+        * @note  PGS12000:
         *   Do not translate 'MESSAGE' since it is a standard element for CIM in XML
         */
         Client.CIMOperationResponseDecoder.EXPECTED_MESSAGE_ELEMENT:string {"PGS12000:  A MESSAGE element is expected."}
 
         /**
-        * @note  PGS12001:  
+        * @note  PGS12001:
         *   Do not translate 'CLASS' since it is a standard element for CIM in XML
         */
         Client.CIMOperationResponseDecoder.EXPECTED_CLASS_ELEMENT:string {"PGS12001:  A CLASS element is expected."}
 
         /**
-        * @note  PGS12002:  
+        * @note  PGS12002:
         *   Do not translate 'INSTANCE' since it is a standard element for CIM in XML
         */
         Client.CIMOperationResponseDecoder.EXPECTED_INSTANCE_ELEMENT:string {"PGS12002:  An INSTANCE element is expected."}
 
         /**
-        * @note  PGS12003:  
+        * @note  PGS12003:
         *   Do not translate 'RETURNVALUE' since it is a standard element for CIM in XML
         */
         Client.CIMOperationResponseDecoder.EXPECTED_RETURNVALUE_ELEMENT:string {"PGS12003: A RETURNVALUE element is not expected."}
 
         /**
-        * @note  PGS12004:  
+        * @note  PGS12004:
         *   Do not translate 'IRETURNVALUE' since it is a standard element for CIM in XML
         *   Do not translate 'ERROR' since it is a standard element for CIM in XML
         */
         Client.CIMOperationResponseDecoder.EXPECTED_ERROR_OR_IRETURNVALUE_ELEMENT:string {"PGS12004:  An ERROR or an IRETURNVALUE element is expected."}
 
         /**
-        * @note  PGS12005:  
+        * @note  PGS12005:
         *   Do not translate 'METHODRESPONSE' since it is a standard element for CIM in XML
         *   Do not translate 'IMETHODRESPONSE' since it is a standard element for CIM in XML
         */
         Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE_OR_IMETHODRESPONSE_ELEMENT:string {"PGS12005:  A METHODRESPONSE or an IMETHODRESPONSE element is expected."}
 
         /**
-        * @note  PGS12006:  
-        *    Substitution {0} is a string containing a standard CIM name 
+        * @note  PGS12006:
+        *    Substitution {0} is a string containing a standard CIM name
         *    Do not translate 'IMETHODRESPONSE' since it is a standard element for CIM in XML
         */
         Client.CIMOperationResponseDecoder.UNRECOGNIZED_NAME:string {"PGS12006:  The name {0} of the IMETHODRESPONSE element is not recognized."}
@@ -3601,19 +3601,19 @@ CIM server listening on HTTPS port {0}."}
         Client.CIMOperationResponseDecoder.AUTHENTICATION_FAILED:string {"PGS12009: Authentication failed."}
 
         /**
-        * @note  PGS12010:  
+        * @note  PGS12010:
         *   Do not translate the word 'Content-Language' since it is a standard HTTP header
         */
         Client.CIMOperationResponseDecoder.MALFORMED_CONTENT:string {"PGS12010:  The Content-Language header is not valid."}
 
         /**
-        * @note  PGS12011:  
+        * @note  PGS12011:
         *   Do not translate 'CIMOperation' since it is a standard CIM HTTP header
         */
         Client.CIMOperationResponseDecoder.MISSING_CIMOP_HEADER:string {"PGS12011:  The CIMOperation HTTP header is missing."}
 
         /**
-        * @note  PGS12012:  
+        * @note  PGS12012:
         *    Substitution {0} is a string containing a CIM operation element
         *    Do not translate 'CIMOperation' since it is a standard CIM HTTP header
         *    Do not translate 'METHODRESPONSE' since it is a standard element for CIM in XML
@@ -3621,7 +3621,7 @@ CIM server listening on HTTPS port {0}."}
         Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE:string {"PGS12012:  Client received a CIMOperation HTTP header value of \"{0}\" when \"METHODRESPONSE\" is expected."}
 
         /**
-        * @note  PGS12013:  
+        * @note  PGS12013:
         *    Substitution {0} is a string containing a protocol version
         *    Substitution {1} is a string containing the expected version (such as "1.0")
         */
@@ -3632,7 +3632,7 @@ CIM server listening on HTTPS port {0}."}
         // Messages for Kerberos Authentication
         //  Please use message prefix "PGS12200"
         // ==========================================================
-        
+
         /**
         * @note  PGS12200 - Substitution {0} is the kerberos principal (a string)
         */
@@ -3640,11 +3640,11 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS12201 -
-        *    Substitution {0} is the name of API (a string) 
+        *    Substitution {0} is the name of API (a string)
         *    Substitution {1} is the return code (a decimal)
         */
         Authentication.Kerberos.CONTEXT_NOT_ESTABLISHED: string {"PGS12201: Cannot establish security context,  {0} returned error {1}. Negotiation continuing."}
-         
+
 
         // ==========================================================
         // Start of messages from platform-specific source files
@@ -3656,50 +3656,50 @@ CIM server listening on HTTPS port {0}."}
         Common.CIMOMHandleOS400UserState.UNKNOWN_ERROR:string {"PGS12400:  An internal error occurred during the processing of the CIMOM handle."}
 
         /**
-        * @note  PGS12401:  
+        * @note  PGS12401:
         *    Substitution {0} is a string containing the name of a user profile
         */
         ProviderManager.sharedOS400.SWAP_ERROR:string {"PGS12401:  An error occurred while changing the CIM server user profile to user {0}."}
 
         /**
-        * @note  PGS12402:  
+        * @note  PGS12402:
         *    Substitution {0} is a string containing the name of a service program
         */
         ProviderManager.sharedOS400.ILLEGAL_OP:string {"PGS12402:  An illegal operation is attempted by a CIM provider in service program {0}."}
 
         /**
-        * @note  PGS12403:  
+        * @note  PGS12403:
         *   Do not translate 'ResponseHandler' since it is a class name
         */
         ProviderManager.CIMProviderOS400Helper.ILLEGAL_RH_INTFC:string {"PGS12403:  An internal error occurred during ResponseHandler processing.  An unsupported ResponseHandler interface is found."}
 
         /**
-        * @note  PGS12404:  
+        * @note  PGS12404:
         *   Do not translate 'QYCMCIMOM' since it is the name of an OS/400 server job
         */
         ProviderManager.CIMProviderOS400SystemState.INIT_ERROR:string {"PGS12404:  An error occurred while initializing a CIM provider.  Refer to the QYCMCIMOM job log for details."}
 
         /**
-        * @note  PGS12405:  
+        * @note  PGS12405:
         *    Substitution {0} is a string containing the name of a user profile
         *    Substitution {1} is a string containing the name of an OS/400 service program
         */
         ProviderManager.CIMProviderOS400SystemState.SRVPGM_AUTH_ERROR:string {"PGS12405:  The user {0} is not authorized to CIM provider service program {1}."}
 
         /**
-        * @note  PGS12406:  
+        * @note  PGS12406:
         *   Do not translate 'ResponseHandler' since it is a class name
         */
         ProviderManager.ResponseHandlerOS400UserState.RH_BAD_HANDLE:string {"PGS12406:  An internal error occurred during ResponseHandler processing.  Found a handle that is not valid."}
 
         /**
-        * @note  PGS12407:  
+        * @note  PGS12407:
         *   Do not translate 'ResponseHandler' since it is a class name
         */
         ProviderManager.ResponseHandlerOS400UserState.RH_DELIVER_ERROR:string {"PGS12407:  An internal error occurred during ResponseHandler processing.  An error occurred during the delivery of objects."}
 
         /**
-        * @note  PGS12408:  
+        * @note  PGS12408:
         *    Substitution {0} is an OS/400 error code
         *    Do not translate 'YCMPROV400QTEMP' since it is the name of an OS/400 user space
         *    Do not translate '*USRSPC' since it is a type an OS/400 object
@@ -3707,7 +3707,7 @@ CIM server listening on HTTPS port {0}."}
         os400.shared.USERSPACE_ACCESS_ERROR:string {"PGS12408:  An error occurred while accessing the user space YCMPROV400QTEMP *USRSPC.  The error code is {0}."}
 
         /**
-        * @note  PGS12409:  
+        * @note  PGS12409:
         *    Substitution {0} is an OS/400 error code
         *    Do not translate 'YCMPROV400QTEMP' since it is the name of an OS/400 user space
         *    Do not translate '*USRSPC' since it is a type an OS/400 object
@@ -3717,44 +3717,44 @@ CIM server listening on HTTPS port {0}."}
         os400.shared.SERVER_PROFILE_ERROR:string {"PGS12410:  An unknown error occurred while retrieving the user profile of the CIM server."}
 
         /**
-        * @note  PGS12411:  
+        * @note  PGS12411:
         *    Substitution {0} is the name of an OS/400 service program
         */
         Common.OS400SystemState.SRVPGM_NOT_FOUND:string {"PGS12411:  The CIM provider service program {0} is not found."}
 
         /**
-        * @note  PGS12412:  
+        * @note  PGS12412:
         *    Substitution {0} is the name of an OS/400 service program
         */
         os400.shared.SRVPGM_RESOLVE_ERROR:string {"PGS12412:  An unknown error occurred while loading the CIM provider service program {0}."}
 
         /**
-        * @note  PGS12413:  
+        * @note  PGS12413:
         *    Substitution {0} is the name of an OS/400 service program
         *    Substitution {1} is an OS/400 error code
         */
         Common.OS400SystemState.SRVPGM_ACTIVATE_ERROR:string {"PGS12413:  An error occurred while loading the CIM provider service program {0}.  The error code is {1}."}
 
         /**
-        * @note  PGS12414:  
+        * @note  PGS12414:
         *    Substitution {0} is an OS/400 error code
         */
         Common.OS400SystemState.SRVPGM_EXPORT_ERROR:string {"PGS12414:  An error occurred while starting a CIM provider service program.  The error code is {0}."}
 
         /**
-        * @note  PGS12415:  
+        * @note  PGS12415:
         *    Substitution {0} is the name of an OS/400 service program
         *    Do not translate '*SYSTEM' since it is a type an OS/400 domain
         */
         Common.OS400SystemState.SRVPGM_SYSTEM_DOMAIN:string {"PGS12415:  An error occurred while loading the CIM provider service program {0}.  The provider service program has a domain of *SYSTEM."}
 
         // End OS/400 messages
-        
 
-        // ========================================================== 
+
+        // ==========================================================
         // End of messages from platform-specific source files
-        // ==========================================================     
-        
+        // ==========================================================
+
         // ==========================================================
         // Messages for XmlConstants
         //  Please use message prefix "PGS12600"
@@ -3766,14 +3766,14 @@ CIM server listening on HTTPS port {0}."}
         * Do not translate 'MULTIREQ'
         */
         Common.XmlConstants.MISSING_ELEMENT_REQ:string {"PGS12600:  Expected SIMPLEREQ or MULTIREQ element."}
-        
+
         /**
         * @note MISSING_ELEMENT_LOCALPATH:
         * Do not translate 'LOCALCLASSPATH'
         * Do not translate 'LOCALINSTANCEPATH'
         */
         Common.XmlConstants.MISSING_ELEMENT_LOCALPATH:string{"PGS12601:  Expected LOCALCLASSPATH or LOCALINSTANCEPATH element."}
-        
+
         // ==========================================================
         // Messages for Thread
         //  Please use message prefix "PGS12800"
@@ -3789,7 +3789,7 @@ CIM server listening on HTTPS port {0}."}
         // Messages for HTTPAuthenticatorDelegator
         //  Please use message prefix "PGS13000"
         // ==========================================================
-        
+
 	/**
         * @note HTTPAuthenticatorDelegator:
 	* @version 2.4
@@ -3811,9 +3811,9 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note HTTPAuthenticatorDelegator:
         * @version 2.5
-        */   
+        */
 	Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE:string{"PGS13003:  The certificate used for authentication is not valid."}
-	
+
         /**
         * @note HTTPAuthenticatorDelegator:
         * @version 2.5
@@ -3825,7 +3825,7 @@ CIM server listening on HTTPS port {0}."}
         // Messages for Server.CIMServer
         //  Please use message prefix "PGS13200"
         // ==========================================================
-                                                                                                                                               
+
         Server.CIMServer.BIND_FAILED:string {"PGS13200: No CIM server connections are enabled."}
 
 	/**
@@ -3842,11 +3842,11 @@ CIM server listening on HTTPS port {0}."}
 
         // ==========================================================
         // Messages for AnonymousPipe
-        //  Please use message prefix "PGS13400" 
+        //  Please use message prefix "PGS13400"
         // ==========================================================
 
         /**
-        * @note  PGS13400: 
+        * @note  PGS13400:
         * @version 2.4
         */
         Common.AnonymousPipe.CREATE_PIPE_FAILED:string {"PGS13400: Failed to create pipe."}
@@ -3947,7 +3947,7 @@ CIM server listening on HTTPS port {0}."}
         Common.Monitor.TICKLE_CLIENT_CREATE:string {"PGS14204: Received error number {0} while creating the internal client socket."}
 
         /**
-        * @note  PGS14205 
+        * @note  PGS14205
 	*    Substitution {0} is an error status code.  This is a number.
         */
         Common.Monitor.TICKLE_CLIENT_BIND:string {"PGS14205: Received error number {0} while binding the internal client socket."}
@@ -3964,9 +3964,13 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.Monitor.TICKLE_ACCEPT:string {"PGS14207: Received error number {0} while accepting the internal socket connection."}
 
+        /**
+        * @note  PGS14208
+        *    Substitution {0} is an error message.  This is a string.
+        */
+        Common.Monitor.TICKLE_BIND_LONG:string {"PGS14208: Received error:{0} while binding the internal socket."}
 
 
-        
         // ==========================================================
         // Messages for CIMDateTime
         //  Please use message prefix "PGS14400"
@@ -3991,10 +3995,10 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS14402
         *   version 2.5
-        *   
+        *
         */
         Common.CIMDateTime.INVAID_OPERATION_DIV_INT:string {"PGS14402: Can not divide a TimeStamp by an integer."}
-        
+
 
         /**
         * @note  PGS14403
@@ -4004,7 +4008,7 @@ CIM server listening on HTTPS port {0}."}
         Common.CIMDateTime.UTC_OVERFLOW:string {"PGS14403: Overflow error has occurrred in a CIMDateTime object during conversion to UTC."}
 
 
-        /**                                                            
+        /**
         * @note  PGS14404
         *   version 2.5
         *   do not translate CIMDateTime because it is a class name.
@@ -4018,7 +4022,7 @@ CIM server listening on HTTPS port {0}."}
         *   do not translate CIMDateTime because it is a class name.
         */
         Common.CIMDateTime.INVAID_OPERATION_DIV_ZERO:string {"PGS14405: Can not divide CIMDateTime object by zero."}
-        
+
 
         /**
         * @note  PGS14406
@@ -4028,14 +4032,14 @@ CIM server listening on HTTPS port {0}."}
         Common.CIMDateTime.INVAID_OPERATION_DIV_TS:string {"PGS14406:Can not divide two CIMDateTime objects if one of them is a TimeStamp."}
 
 
-        /**                                                            
+        /**
         * @note  PGS14407
         *   version 2.5
         *   do not translate CIMDateTime because it is a class name.
         */
         Common.CIMDateTime.INVAID_OPERATION_DIV_ZERO_CDT:string {"PGS14407: Trying to divide a CIMDateTime objects by a zero value CIMDateTime object."}
-        
-        /**                                                            
+
+        /**
         * @note  PGS14408
         *   version 2.5
         *   do not translate CIMDateTime because it is a class name.
@@ -4043,14 +4047,14 @@ CIM server listening on HTTPS port {0}."}
         Common.CIMDateTime.INVAID_OPERATION_COMP_DIF:string {"PGS14408:Trying to compare CIMDateTime objects of differing types."}
 
 
-        
+
 
 
 
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE
-// DO NOT ADD MESSAGES AFTER THE FOLLOWING '}' 
+// DO NOT ADD MESSAGES AFTER THE FOLLOWING '}'
 // ==============================================================================
 }
 

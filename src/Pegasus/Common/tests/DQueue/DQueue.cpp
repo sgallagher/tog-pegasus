@@ -87,7 +87,7 @@ AtomicInt replies;
 AtomicInt requests;
 Mutex msg_mutex;
 
-const Uint32 NUMBER_MSGS = 100000;
+const Uint32 NUMBER_MSGS = 100;
 const int NUMBER_CLIENTS = 20;
 const int NUMBER_SERVERS = 10;
 

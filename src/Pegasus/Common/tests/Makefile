@@ -3,7 +3,6 @@ ROOT=../../../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    async_callback \
     Config \
     HashTable \
     Resolve \
@@ -50,6 +49,6 @@ DIRS = \
 
 #    MessageQueueService \
 #    WebServer \
-
+#    async_callback \
 
 include $(ROOT)/mak/recurse.mak

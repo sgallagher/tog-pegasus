@@ -55,6 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define ASYNC_OPFLAGS_CALLBACK          0x00000200
 #define ASYNC_OPFLAGS_FORWARD           0x00000400
 #define ASYNC_OPFLAGS_PSEUDO_CALLBACK   0x00000800
+#define ASYNC_OPFLAGS_SAFE_CALLBACK     0x00001000
 
 #define ASYNC_OPSTATE_UNKNOWN           0x00000000
 #define ASYNC_OPSTATE_OFFERED           0x00000001
@@ -77,6 +78,14 @@ class Thread;
 
 class PEGASUS_COMMON_LINKAGE AsyncOpNode
 {
+
+   public:
+      static void * operator new(size_t );
+      static void operator delete( void *, size_t);
+   private:
+      static AsyncOpNode * _headOfFreeList;
+      static const int BLOCK_SIZE;
+      static Mutex _alloc_mut;
    public:
 
       AsyncOpNode(void);
@@ -156,11 +165,16 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void (*_async_callback)(AsyncOpNode *, 
 			      MessageQueue *, 
 			      void *);
+      void (*__async_callback)(Message *, void *, void *);
       // << Tue Mar 12 14:44:51 2002 mdd >>
       // pointers for async callbacks  - don't use 
       AsyncOpNode *_callback_node;
       MessageQueue *_callback_response_q;
       void *_callback_ptr;
+      void *_callback_parameter;
+      void *_callback_handle;
+      Semaphore *_callback_notify;
+      
       MessageQueue *_callback_request_q;
       //      << Tue Mar 12 14:44:53 2002 mdd >>
       // pointers to help static class message handlers - don't use 

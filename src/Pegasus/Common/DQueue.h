@@ -166,7 +166,7 @@ template<class L> void *DQueue<L>::operator new(size_t size)
 	 static_cast<DQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(DQueue<L>)));
       int i;
       for( i = 1; i < BLOCK_SIZE - 1; ++i)
-	 newBlock[i]._dq_next = &newBlock[i];
+	 newBlock[i]._dq_next = &newBlock[i + 1];
       newBlock[BLOCK_SIZE - 1]._dq_next = 0;
       
       p = newBlock;
@@ -213,7 +213,7 @@ template<class L> void * AsyncDQueue<L>::operator new(size_t size)
 	 static_cast<AsyncDQueue<L> *>(::operator new(BLOCK_SIZE * sizeof(AsyncDQueue<L>)));
       int i;
       for( i = 1; i < BLOCK_SIZE - 1; ++i)
-	 newBlock[i]._dq_next = &newBlock[i];
+	 newBlock[i]._dq_next = &newBlock[i + 1];
       newBlock[BLOCK_SIZE - 1]._dq_next = 0;
       
       p = newBlock;

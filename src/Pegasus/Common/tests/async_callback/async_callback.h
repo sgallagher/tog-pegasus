@@ -121,6 +121,8 @@ class test_async_queue : public MessageQueueService
       
       // static callback function 
       static void async_handleEnqueue(AsyncOpNode *op, MessageQueue *, void *);
+      static void async_handleSafeEnqueue(Message *, void *, void *);
+      
       static AtomicInt msg_count;
       AtomicInt _die_now;
    protected:

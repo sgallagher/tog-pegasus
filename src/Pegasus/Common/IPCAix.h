@@ -134,12 +134,13 @@ inline void enable_cancel(void)
 // they are implemented as macros by glibc. 
 // native_cleanup_push( void (*func)(void *) ) ;
 // these ALSO SET CANCEL STATE TO DEFER
-#define native_cleanup_push( func, arg ) \
-   pthread_cleanup_push_defer_np((func), arg)
+//#define native_cleanup_push( func, arg ) \
+//   pthread_cleanup_push_defer_np((func), arg)
+
 
 // native cleanup_pop(Boolean execute) ; 
-#define native_cleanup_pop(execute) \
-   pthread_cleanup_pop_restore_np(execute)
+//#define native_cleanup_pop(execute) \
+//   pthread_cleanup_pop_restore_np(execute)
 
 inline void pegasus_sleep(int msec)
 {

@@ -25,7 +25,7 @@
 //
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
-// Modified By: 
+// Modified By: Dave Sudlik, IBM (dsudlik@us.ibm.com), for PEP 164
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -206,6 +206,8 @@ private:
     The repository properties owned by this class
     */
     struct ConfigProperty*      _repositoryIsDefaultInstanceProvider;
+    struct ConfigProperty*      _enableBinaryRepository;  // PEP 164
+    struct ConfigProperty*      _removeDescriptionQualifiers; // PEP 164
 
 };
 

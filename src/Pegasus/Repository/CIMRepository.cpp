@@ -35,6 +35,7 @@
 //              Seema Gupta (gseema@in.ibm.com) - Bugzilla 281, Bugzilla 1313
 //              Adrian Schuur (schuur@de.ibm.com) - PEP 129 & 164
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +99,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static const Uint32 _MAX_FREE_COUNT = 16;
-static int binaryMode = 0;
+static int binaryMode = -1; // PEP 164
+extern int removeDescription; // PEP 164
 
 //
 //  The following _xx functions are local to the repository implementation
@@ -456,20 +458,24 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
-    if (!binaryMode) {
-       if (getenv("PEGASUS_BINARY_REPOSITORY")) binaryMode=1;
-       else binaryMode=-1;
+    if (binaryMode==-1) { // PEP 164
+       binaryMode = (ConfigManager::getInstance()->getCurrentValue(
+        "enableBinaryRepository") == "true");
     }
 
-    if (binaryMode>0) {
+    if (binaryMode>0) { // PEP 164
        streamer=new AutoStreamer(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
     }
-
     else { // streamer=new XmlStreamer();
        streamer=new AutoStreamer(new XmlStreamer(),0xff);
        ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
+    }
+
+    if (removeDescription==-1) { // PEP 164
+       removeDescription = (ConfigManager::getInstance()->getCurrentValue(
+        "removeDescriptionQualifiers") == "true");
     }
 
     _context = new RepositoryDeclContext(this);

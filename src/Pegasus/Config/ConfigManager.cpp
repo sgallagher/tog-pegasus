@@ -34,6 +34,7 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Heather Sterling, IBM (hsterl@us.ibm.com)
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
@@ -152,6 +153,8 @@ static struct OwnerEntry _properties[] =
     {"kerberosServiceName", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #endif
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
+    {"enableBinaryRepository", (ConfigPropertyOwner* )ConfigManager::repositoryOwner}, // PEP 164
+    {"removeDescriptionQualifiers", (ConfigPropertyOwner* )ConfigManager::repositoryOwner}, // PEP 164
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"providerDir",         (ConfigPropertyOwner* )ConfigManager::providerDirOwner},

@@ -27,6 +27,7 @@
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                sushma_fernandes@hp.com
+//              Dave Sudlik, IBM (dsudlik@us.ibm.com), for PEP 164
 //
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -51,7 +52,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0, 1}
+    {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0, 1},
+    {"enableBinaryRepository", "false", 0, 0, 0, 1},  // PEP 164
+    {"removeDescriptionQualifiers", "false", 0, 0, 0, 1}  // PEP 164
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -61,12 +64,16 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 RepositoryPropertyOwner::RepositoryPropertyOwner()
 {
     _repositoryIsDefaultInstanceProvider = new ConfigProperty;
+    _enableBinaryRepository = new ConfigProperty; // PEP 164
+    _removeDescriptionQualifiers = new ConfigProperty; // PEP 164
 }
 
 /** Destructor  */
 RepositoryPropertyOwner::~RepositoryPropertyOwner()
 {
     delete _repositoryIsDefaultInstanceProvider;
+    delete _enableBinaryRepository;  // PEP 164
+    delete _removeDescriptionQualifiers; // PEP 164
 }
 
 
@@ -92,6 +99,30 @@ void RepositoryPropertyOwner::initialize()
             _repositoryIsDefaultInstanceProvider->domainSize = properties[i].domainSize;
             _repositoryIsDefaultInstanceProvider->externallyVisible = properties[i].externallyVisible;
         }
+        else if (String::equalNoCase(
+            properties[i].propertyName, "enableBinaryRepository")) // PEP 164
+        {
+            _enableBinaryRepository->propertyName = properties[i].propertyName;
+            _enableBinaryRepository->defaultValue = properties[i].defaultValue;
+            _enableBinaryRepository->currentValue = properties[i].defaultValue;
+            _enableBinaryRepository->plannedValue = properties[i].defaultValue;
+            _enableBinaryRepository->dynamic = properties[i].dynamic;
+            _enableBinaryRepository->domain = properties[i].domain;
+            _enableBinaryRepository->domainSize = properties[i].domainSize;
+            _enableBinaryRepository->externallyVisible = properties[i].externallyVisible;
+        }
+        else if (String::equalNoCase(
+            properties[i].propertyName, "removeDescriptionQualifiers")) // PEP 164
+        {
+            _removeDescriptionQualifiers->propertyName = properties[i].propertyName;
+            _removeDescriptionQualifiers->defaultValue = properties[i].defaultValue;
+            _removeDescriptionQualifiers->currentValue = properties[i].defaultValue;
+            _removeDescriptionQualifiers->plannedValue = properties[i].defaultValue;
+            _removeDescriptionQualifiers->dynamic = properties[i].dynamic;
+            _removeDescriptionQualifiers->domain = properties[i].domain;
+            _removeDescriptionQualifiers->domainSize = properties[i].domainSize;
+            _removeDescriptionQualifiers->externallyVisible = properties[i].externallyVisible;
+        }
     }
 }
 
@@ -102,6 +133,16 @@ struct ConfigProperty* RepositoryPropertyOwner::_lookupConfigProperty(
             _repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         return _repositoryIsDefaultInstanceProvider;
+    }
+    else if (String::equalNoCase(
+            _enableBinaryRepository->propertyName, name)) // PEP 164
+    {
+        return _enableBinaryRepository;
+    }
+    else if (String::equalNoCase(
+            _removeDescriptionQualifiers->propertyName, name)) // PEP 164
+    {
+        return _removeDescriptionQualifiers;
     }
     else
     {
@@ -239,6 +280,20 @@ Boolean RepositoryPropertyOwner::isValid(const String& name, const String& value
     // Validate the specified value
     //
     if (String::equalNoCase(_repositoryIsDefaultInstanceProvider->propertyName, name))
+    {
+        if(String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
+    else if (String::equalNoCase(_enableBinaryRepository->propertyName, name)) // PEP 164
+    {
+        if(String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
+    else if (String::equalNoCase(_removeDescriptionQualifiers->propertyName, name)) // PEP 164
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {

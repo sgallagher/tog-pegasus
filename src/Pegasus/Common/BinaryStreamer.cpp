@@ -25,7 +25,7 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
 //
-// Modified By:
+// Modified By: Dave Sudlik (dsudlik@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static int removeDescription=0;
+int removeDescription=-1;
 
 void BinaryStreamer::encode(Array<Sint8>& out, const CIMClass& cls)
 {
@@ -667,11 +667,6 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMQualifier& qual)
 
    CIMName name=rep->getName();
    append(out,name);
-
-   if (removeDescription==0) {
-      if (getenv("PEGASUS_REMOVE_DESCRIPTIONS")) removeDescription=1;
-      else removeDescription=-1;
-   }
 
    if (removeDescription>0 && name=="description") {
       CIMValue val(CIMTYPE_STRING,false);

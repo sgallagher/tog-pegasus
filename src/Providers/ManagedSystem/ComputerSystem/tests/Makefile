@@ -51,6 +51,7 @@ SOURCES = \
 	TestCSProvider.cpp
 
 LIBRARIES = \
+    pegprovider \
     pegclient \
     pegconfig \
     pegcommon \

@@ -7,7 +7,6 @@ LIBRARIES = \
     pegserver \
     peguser \
     pegprm \
-    CIMOMStatDataProvider \
     InteropProvider \
     NamespaceProvider \
     pegindicationservice \
@@ -29,9 +28,14 @@ LIBRARIES = \
     pegconfig \
     pegcommon 
 
+ifndef PEGASUS_DISABLE_PERFINST
+LIBRARIES += \
+    CIMOMStatDataProvider
+endif
+
 ifdef PEGASUS_HAS_SSL
 LIBRARIES += \
-    CertificateProvider 
+    CertificateProvider
 endif
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)

@@ -372,66 +372,76 @@ void ProviderAgentContainer::_startAgentProcess()
 
 #elif defined (PEGASUS_OS_VMS)
 
-        //
-        //  fork and exec the child process
-        //
-        int status;
+    //
+    //  fork and exec the child process
+    //
+    int status;
 
-        status = vfork ();
-        switch (status)
+    status = vfork ();
+    switch (status)
+    {
+      case 0:
+        try
         {
-          case 0:
-            try
-            {
-              //
-              // Execute the cimprovagt program
-              //
-              String agentCommandPath =
-                  ConfigManager::getHomedPath(PEGASUS_PROVIDER_AGENT_PROC_NAME);
-              CString agentCommandPathCString = agentCommandPath.getCString();
+          //
+          // Execute the cimprovagt program
+          //
+          String agentCommandPath =
+              ConfigManager::getHomedPath(PEGASUS_PROVIDER_AGENT_PROC_NAME);
+          CString agentCommandPathCString = agentCommandPath.getCString();
 
-              char readHandle[32];
-              char writeHandle[32];
-              pipeToAgent->exportReadHandle(readHandle);
-              pipeFromAgent->exportWriteHandle(writeHandle);
+          char readHandle[32];
+          char writeHandle[32];
+          pipeToAgent->exportReadHandle(readHandle);
+          pipeFromAgent->exportWriteHandle(writeHandle);
 
-              if ((status = execl(agentCommandPathCString, agentCommandPathCString,
-                  readHandle, writeHandle,
-                  (const char*)_moduleName.getCString(), (char*)0)) == -1);
-              {
-                // If we're still here, there was an error
-                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "execl() failed.  errno = %d.", errno);
-                _exit(1);
-              }
-              break;
-            }
-            catch (...)
-            {
-              // There's not much we can do here in no man's land
-              try
-              {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                    "Caught exception before calling execl().");
-              }
-              catch (...) 
-              {
-              }
-             _exit(1);
-            }
-            break;
+          if ((status = execl(agentCommandPathCString, agentCommandPathCString,
+              readHandle, writeHandle,
+              (const char*)_moduleName.getCString(), (char*)0)) == -1);
+          {
+            // If we're still here, there was an error
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "execl() failed.  errno = %d.", errno);
+            _exit(1);
+          }
+        }
+        catch (...)
+        {
+          // There's not much we can do here in no man's land
+          try
+          {
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Caught exception before calling execl().");
+          }
+          catch (...) 
+          {
+          }
+         _exit(1);
+        }
+        PEG_METHOD_EXIT();
+        return;
+        break;
 
-          case -1:
-            Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "fork() failed.  errno = %d.", errno);
-            PEG_METHOD_EXIT();
-            throw Exception(MessageLoaderParms(
-                "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
-                "Failed to start cimprovagt \"$0\".",
-                _moduleName));
-            break;
+      case -1:
+        Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "fork() failed.  errno = %d.", errno);
+        PEG_METHOD_EXIT();
+        throw Exception(MessageLoaderParms(
+            "ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_START_FAILED",
+            "Failed to start cimprovagt \"$0\".",
+            _moduleName));
+        break;
 
-          default:
+      default:
+        // Close our copies of the agent's ends of the pipes
+        pipeToAgent->closeReadHandle();
+        pipeFromAgent->closeWriteHandle();
+
+        _pipeToAgent.reset(pipeToAgent.release());
+        _pipeFromAgent.reset(pipeFromAgent.release());
+
+        PEG_METHOD_EXIT();
+    }
 #else
     pid_t pid = fork();
     if (pid < 0)
@@ -519,14 +529,14 @@ void ProviderAgentContainer::_startAgentProcess()
     _pipeToAgent.reset(pipeToAgent.release());
     _pipeFromAgent.reset(pipeFromAgent.release());
 
-    PEG_METHOD_EXIT();
-
 #if defined (PEGASUS_OS_VMS)
     //
     // Denote end of switch
     //
     }
 #endif
+
+    PEG_METHOD_EXIT();
 }
 
 // Note: Caller must lock _agentMutex

@@ -3,6 +3,7 @@ include $(PEGASUS_ROOT)/mak/config.mak
 DIR = Pegasus/ProviderManager2/Default/tests/ProviderFacade
 
 LIBRARIES = \
+    DefaultProviderManager \
     pegprovider \
     pegcommon \
     DefaultProviderManager

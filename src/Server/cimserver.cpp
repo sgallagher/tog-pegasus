@@ -176,12 +176,6 @@ static const char   LONG_VERSION []  = "version";
 static const char OPTION_BINDVERBOSE = 'X';
 #endif
 
-# if defined(PEGASUS_OS_VMS)
-static const char OPTION_PORT    = 'p';
-
-static const char OPTION_TRACE    = 't';
-#endif
-
 static const String PROPERTY_TIMEOUT = "shutdownTimeout";
 
 ConfigManager*    configManager;
@@ -648,38 +642,6 @@ setlocale(LC_ALL, "");
                     argc -= 2;
                 }
 #endif
-#if defined(PEGASUS_OS_VMS)
-                else if (*option == OPTION_PORT)
-                {
-                    if (i + 1 < argc)
-                    {
-                        newPortNumber.assign(argv[i + 1]);
-                    }
-                    else
-                    {
-                        cout << "Missing argument for option -" << option << endl;
-                        exit(0);
-                    }
-
-                    memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
-                    argc -= 2;
-                }
-                else if (*option == OPTION_TRACE)
-                {
-                    if (i + 1 < argc)
-                    {
-                        pegasusTrace.assign(argv[i + 1]);
-                    }
-                    else
-                    {
-                        cout << "Missing argument for option -" << option << endl;
-                        exit(0);
-                    }
-
-                    memmove(&argv[i], &argv[i + 2], (argc-i-1) * sizeof(char*));
-                    argc -= 2;
-                }
-#endif
 #if defined(PEGASUS_OS_HPUX)
                 //
                 // Check to see if user asked for the version (-X option):
@@ -980,13 +942,6 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     {
         String httpsPort = configManager->getCurrentValue("httpsPort");
         CString portString = httpsPort.getCString();
-#if defined(PEGASUS_OS_VMS)
-//        if (!(newPortNumber == String::EMPTY))
-        if (!(newPortNumber == ""))
-        {
-          portString = newPortNumber.getCString();
-        }
-#endif
         char* end = 0;
         Uint32 port = strtol(portString, &end, 10);
         if(!(end != 0 && *end == '\0'))
@@ -1006,13 +961,6 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     {
         String httpPort = configManager->getCurrentValue("httpPort");
         CString portString = httpPort.getCString();
-#if defined(PEGASUS_OS_VMS)
-//        if (!(newPortNumber == String::EMPTY))
-        if (!(newPortNumber == ""))
-        {
-          portString = newPortNumber.getCString();
-        }
-#endif
         char* end = 0;
         Uint32 port = strtol(portString, &end, 10);
         if(!(end != 0 && *end == '\0'))
@@ -1175,18 +1123,6 @@ MessageLoader::_useProcessLocale = false;
 
 	CimserverHolder cimserverHolder( &server );
 
-#if defined(PEGASUS_OS_VMS)
-        //
-        // Enable tracing at highest level
-        //
-
-        if (!(pegasusTrace == String::EMPTY))
-        {
-          Tracer::setTraceFile(pegasusTrace.getCString());
-          Tracer::setTraceLevel(Tracer::LEVEL4);
-          Tracer::setTraceComponents("All");
-        }
-#endif
         if (enableHttpConnection)
         {
             server.addAcceptor(false, portNumberHttp, false, false);

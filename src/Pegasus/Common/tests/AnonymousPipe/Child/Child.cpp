@@ -85,9 +85,6 @@ int main (int argc, char * argv [])
             pipeFromParent->closeWriteHandle ();
             pipeToParent->closeReadHandle ();
 #endif
-#if defined (PEGASUS_OS_VMS)
-#else
-#endif
         //
         //  Test readBuffer and writeBuffer
         //
@@ -141,9 +138,6 @@ int main (int argc, char * argv [])
         writeBufferStatus = pipeToParent->writeBuffer
             ((const char *) &bufferLength, sizeof (Uint32));
 
-#if defined (PEGASUS_OS_VMS)
-#else
-#endif
         if (writeBufferStatus == AnonymousPipe::STATUS_SUCCESS)
         {
             writeBufferStatus = pipeToParent->writeBuffer 

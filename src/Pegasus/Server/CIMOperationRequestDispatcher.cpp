@@ -1766,7 +1766,8 @@ void CIMOperationRequestDispatcher::handleEnableIndicationSubscriptionRequest(
 	    //
 	    _providerManager.enqueue(
 		new CIMEnableIndicationSubscriptionRequestMessage(*request));
-	    return;
+	
+		return;
 	}
 
 	CIMEnableIndicationSubscriptionResponseMessage* response =
@@ -1801,7 +1802,8 @@ void CIMOperationRequestDispatcher::handleModifyIndicationSubscriptionRequest(
 	    //
 	    _providerManager.enqueue(
 		new CIMModifyIndicationSubscriptionRequestMessage(*request));
-	    return;
+	
+		return;
 	}
 
 	CIMModifyIndicationSubscriptionResponseMessage* response =
@@ -1836,7 +1838,8 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 	    //
 	    _providerManager.enqueue(
 		new CIMDisableIndicationSubscriptionRequestMessage(*request));
-	    return;
+	
+		return;
 	}
 
     CIMDisableIndicationSubscriptionResponseMessage* response =
@@ -1852,14 +1855,13 @@ void CIMOperationRequestDispatcher::handleDisableIndicationSubscriptionRequest(
 void CIMOperationRequestDispatcher::handleProcessIndicationRequest(
         CIMProcessIndicationRequestMessage* request)
 {
-
     //
     // forward request to IndicationService. IndicartionService will take care
     // of response to this request.
     //
-
     _indicationService.enqueue(new CIMProcessIndicationRequestMessage(*request));
-    return;
+
+	return;
 }
 
 //

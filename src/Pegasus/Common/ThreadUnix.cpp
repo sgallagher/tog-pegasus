@@ -184,10 +184,10 @@ void * Thread::get_parm(void)
     return _thread_parm;
 }
 
-void Thread::kill(int signum)
-{
-    pthread_kill(_handle.thid, signum);
-}
+// void Thread::kill(int signum)
+// {
+  //    pthread_kill(_handle.thid, signum);
+  //}
 
 void Thread::cancel()
 {
@@ -204,13 +204,13 @@ void Thread::thread_switch()
     pthread_yield();
 }
 
-void Thread::suspend()
-{
-}
+// void Thread::suspend()
+// {
+// }
 
-void Thread::resume()
-{
-}
+// void Thread::resume()
+// {
+// }
 
 void Thread::sleep(Uint32 msec)
 {

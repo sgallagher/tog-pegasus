@@ -139,7 +139,7 @@ class  PEGASUS_EXPORT thread_data
 {
 
  public:
-  thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL)
+  thread_data( Sint8 *key ) : _delete_func(NULL) , _data(NULL), _size(0)
     {
       _key = strdup(key) ; 
     }
@@ -159,8 +159,9 @@ class  PEGASUS_EXPORT thread_data
 
   ~thread_data() { if( _data != NULL) _delete_func( _data ); }  
 
-  void *get_data(Sint8 *key);
-  void *put_data(Sint8 *key, void (*delete_func) (void *), void *data  )
+  void *get_data(void );
+  Uint32 get_data_size(void);
+  void *put_data(Sint8 *key, void (*delete_func) (void *), Uint32 size, void *data  )
     {
       void *old_data = data;
       _delete_func = delete_func;
@@ -172,11 +173,14 @@ class  PEGASUS_EXPORT thread_data
   void (*_delete_func) (void *data) ;
   thread_data();
   void *_data;
+  Uint32 _size;
   Sint8 *_key;
   friend class Dqueue;
   friend class Thread;
 };
 
+
+///////////////////////////////////////////////////////////////////////////
 
 class PEGASUS_EXPORT Thread
 {
@@ -193,7 +197,7 @@ class PEGASUS_EXPORT Thread
   void *get_parm(void);
 
   // send the thread a signal -- may not be appropriate due to Windows 
-  void kill(int signum); 
+  //  void kill(int signum); 
 
   // cancellation must be deferred (not asynchronous)
   // for user-level threads the thread itself can decide
@@ -214,10 +218,10 @@ class PEGASUS_EXPORT Thread
   void thread_switch(void);
 
   // suspend this thread 
-  void suspend(void) ;
+  // void suspend(void) ;
 
   // resume this thread
-  void resume(void) ;
+  // void resume(void) ;
 
   void sleep(Uint32 msec) ;
 
@@ -232,11 +236,24 @@ class PEGASUS_EXPORT Thread
 
   // thread specific data (thread_data object methods)
 
-  void create_tsd(void *key ) ;
+  // create an empty tsd and index it according to <key>
+  void create_tsd(void *key );
+
+  // create an empty tsd with a pre-allocated buffer of <size>
   void create_tsd(void *key, int size) ;
+  
+  // create and initialize a tsd
+  void create_tsd(void *key, int size, void *buffer);
+
+  // get the buffer associated with the key
   void *get_tsd(void *key);
+
+  // delete the tsd associated with the key
   void delete_tsd(void *key);
-  void * put_tsd(void *key, void (*delete_func)(void *), void *value);
+
+  // create or re-initialize tsd associated with the key
+  // if the tsd already exists, return the existing buffer
+  void * put_tsd(void *key, void (*delete_func)(void *), Uint32 size, void *value);
 
   inline PEGASUS_THREAD_RETURN get_exit(void) { return _exit_code; }
   inline PEGASUS_THREAD_TYPE self(void) {return _handle.thid; }

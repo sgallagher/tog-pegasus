@@ -73,6 +73,11 @@ pages.
 ProviderTable tests. Fixed build process (slp with PEGASUS_SUPPORTS_DYNLIB).
 Made cimserver accept the -D flag to eliminate the need for environment
 variables.
+
+18. (Mike Brasher) Added support for Associators(), AssociatorNames(),
+    References() and ReferenceNames() CIM operations. These only operate
+    on instances at this time. They will operate on classes soon.
+    
 ------------------------------------------------------------------------------
 --
 Version 0.97.3 - Released 5 June 2001

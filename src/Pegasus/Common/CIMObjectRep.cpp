@@ -57,7 +57,7 @@ void CIMObjectRep::addProperty(const CIMProperty& x)
     _properties.append(x);
 }
 
-Uint32 CIMObjectRep::findProperty(const String& name)
+Uint32 CIMObjectRep::findProperty(const String& name) const
 {
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
     {
@@ -68,7 +68,7 @@ Uint32 CIMObjectRep::findProperty(const String& name)
     return PEG_NOT_FOUND;
 }
 
-Boolean CIMObjectRep::existsProperty(const String& name)
+Boolean CIMObjectRep::existsProperty(const String& name) const
 {
     return (findProperty(name) == PEG_NOT_FOUND) ? false : true;
 }

@@ -110,19 +110,9 @@ public:
 
     virtual void addProperty(const CIMProperty& x);
 
-    Uint32 findProperty(const String& name);
+    Uint32 findProperty(const String& name) const;
 
-    Uint32 findProperty(const String& name) const
-    {
-	return ((CIMObjectRep*)this)->findProperty(name);
-    }
-
-    Boolean existsProperty(const String& name);
-
-    Boolean existsProperty(const String& name) const
-    {
-	return ((CIMObjectRep*)this)->existsProperty(name);
-    }
+    Boolean existsProperty(const String& name) const;
 
     CIMProperty getProperty(Uint32 pos);
 
@@ -149,16 +139,20 @@ protected:
 
     CIMObjectRep(const CIMObjectRep& x);
 
-    CIMObjectRep& operator=(const CIMObjectRep& x)
-    {
-	// This method is never called.
-	return *this;
-    }
-
     CIMReference _reference;
     CIMQualifierList _qualifiers;
     Array<CIMProperty> _properties;
     Boolean _resolved;
+
+private:
+
+    // This method is declared and made private so that the compiler does
+    // not implicitly define a default copy constructor.
+    CIMObjectRep& operator=(const CIMObjectRep& x)
+    {
+	PEGASUS_ASSERT(0);
+	return *this;
+    }
 
     friend class CIMObject;
 };

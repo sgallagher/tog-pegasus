@@ -1,4 +1,13 @@
 
+Ported to what?
+===============
+
+We ported to a platform using the DEC C++ compiler (whose program name
+is cxx). Here is what "uname -a" had to say about our platform):
+
+% uname -a 
+OSF1 hodtbd01.bmc.com V4.0 1229 alpha
+
 Notes on building for TRU64:
 ============================
 

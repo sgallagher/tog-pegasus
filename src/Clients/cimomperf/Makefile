@@ -1,6 +1,6 @@
 ROOT = $(PEGASUS_ROOT)
 
-PROGRAM_NAME = cimomperf
+PROGRAM_NAME = cimperf
 DIR = Clients/$(PROGRAM_NAME)
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
@@ -18,5 +18,3 @@ tests:
 
 poststarttests:
 	$(PROGRAM_NAME)
-
-install:

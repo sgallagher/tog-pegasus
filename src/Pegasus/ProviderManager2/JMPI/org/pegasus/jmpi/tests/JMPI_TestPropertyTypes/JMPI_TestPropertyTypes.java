@@ -46,7 +46,7 @@ import org.pegasus.jmpi.*;
 import java.util.*;
 
 
-public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider 
+public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider, EventProvider
 {
    CIMOMHandle ch;
 
@@ -391,15 +391,54 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider
       return null;
    }
 
+
+
+
    public CIMValue invokeMethod(CIMObjectPath op,
                                String method,
-			       Vector in,
-                               Vector out) throws CIMException {
+                               Vector in,
+                               Vector out)
+                        throws CIMException {
 
       if (method.equalsIgnoreCase("SayHello"))
          return new CIMValue(new String("hello"));
 
       throw new CIMException(CIMException.CIM_ERR_METHOD_NOT_AVAILABLE);
    }
+
+
+
+
+    public void authorizeFilter(SelectExp filter,
+                                String eventType,
+                                CIMObjectPath classPath,
+                                String owner)
+                        throws CIMException {
+    }
+
+    public boolean mustPoll(SelectExp filter,
+                            String eventType,
+                            CIMObjectPath classPath)
+                        throws CIMException {
+        return false;
+    }
+
+
+    public void activateFilter(SelectExp filter,
+                               String eventType,
+                               CIMObjectPath classPath,
+                               boolean firstActivation)
+                        throws CIMException {
+    }
+
+
+    public void deActivateFilter(SelectExp filter,
+                                 String eventType,
+                                 CIMObjectPath classPath,
+                                 boolean lastActivation)
+                        throws CIMException {
+    }
+
+
 }
 

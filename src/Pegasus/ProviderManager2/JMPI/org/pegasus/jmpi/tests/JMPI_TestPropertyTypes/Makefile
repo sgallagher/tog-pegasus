@@ -8,7 +8,7 @@ ROOT = ../../../../../../../../..
 
 PACKAGEDIR = org/pegasus/jmpi/tests/JMPI_TestPropertyTypes
 
-   CLASSES = \
+CLASSES = \
    JMPI_TestPropertyTypes.class
 
 PFXCLASSES=$(addprefix -C ../../../../.. org/pegasus/jmpi/tests/JMPI_TestPropertyTypes/,$(CLASSES))

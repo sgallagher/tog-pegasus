@@ -1,1 +1,2 @@
 #pragma include ("JMPI_TestPropertyTypes.mof")
+#pragma include ("RT_Sample.mof")

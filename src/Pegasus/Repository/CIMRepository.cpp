@@ -29,6 +29,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Karl Schopmeyer(k.schopmeyer@opengroup.org) - extend ref function.
+//              Robert Kieninger, IBM (kieningr@de.ibm.com) - Bugzilla 383
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2523,7 +2524,11 @@ String namespaceNameToDirName(const CIMNamespaceName& namespaceName)
 {
     String dirName = namespaceName.getString();
 
-    for (int i=0; i<dirName.size(); i++)
+    // Fix for bugzilla 383. Associations do not work for mixed case
+    // namespaces on Unix type platforms
+    dirName.toLower();
+
+    for (Uint32 i=0; i<dirName.size(); i++)
     {
         if (dirName[i] == '/')
         {
@@ -2538,7 +2543,7 @@ String dirNameToNamespaceName(const String& dirName)
 {
     String namespaceName = dirName;
 
-    for (int i=0; i<namespaceName.size(); i++)
+    for (Uint32 i=0; i<namespaceName.size(); i++)
     {
         if (namespaceName[i] == '#')
         {

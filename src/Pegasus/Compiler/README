@@ -1,0 +1,47 @@
+02/16/2001
+
+The mof compiler is a long ways from done, but it does
+build and populate a repository.
+
+Build instructions
+
+  cd Pegasus/getoopt
+  make
+  cd ../Common
+  make
+  cd ../Repository
+  make
+  cd ../Compiler
+  make
+  cd cmdline
+  make
+
+It will be integrated in Mike's make system shortly.
+It should build on NT with MSVC++ version 6 (I haven't tried version 5)
+and on Linux with gcc 2.95.  On my machines, it successfully compiles
+CIM_Schema25.mof.
+
+Partial list of to-do's:
+  - Add command line arguments to control over-laying of existing objects,
+    stopping the addition of new base classes and several other things.
+  - Parse and store references correctly
+  - Test parsing and storage of instances.  They probably don't work now.
+  - Rationalize the error logging scheme.  Things are spit randomly to
+    sterr now.
+  - Handle a whole bunch of errors that are ignored now.
+  - bunch of other cleanup
+
+Here are two gotcha's in trying to get things running:
+  1. Make sure you set the PEGASUS_HOME command line variable.
+     The repository gets written to $PEGASUS_HOME/repository.
+     You can override this with the -R flag on the command line.
+
+  2. If your mof file has include pragmas and the included files
+     do not reside in the current directory, you must provide a path
+     to them on the compiler command line.  You do this with the 
+     -I flag.  Example:
+
+         cimmof -I~/testfiles ~/testfiles/main.mof
+
+     The compiler does not handle missing include files very sanely
+     right now.  It just skips them.

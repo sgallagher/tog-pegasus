@@ -126,8 +126,7 @@ private:
 //    CMPIResolverModule *_loadResolver(const String & fileName);
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
-    Mutex _mut;
-
+	Mutex _providerTableMutex;
 protected:
 
 };

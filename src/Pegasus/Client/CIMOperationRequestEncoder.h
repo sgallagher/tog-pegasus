@@ -132,7 +132,7 @@ private:
 	CIMAssociatorsRequestMessage* message);
 
     void _encodeExecQueryRequest(
-	CIMAssociatorsRequestMessage* message);
+	CIMExecQueryRequestMessage* message);
 
     void _encodeInvokeMethodRequest(
 	CIMInvokeMethodRequestMessage* message);

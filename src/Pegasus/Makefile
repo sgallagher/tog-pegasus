@@ -47,7 +47,8 @@ DIRS = \
     ControlProviders/ProviderRegistrationProvider/tests \
     Listener/tests \
     Consumer/tests \
-	ProviderManager/tests \
+	ProviderManager2/tests \
+	ProviderManager2/Default/tests \
     msg/Server \
     msg/CLI
 

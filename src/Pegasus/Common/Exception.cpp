@@ -118,6 +118,10 @@ const char IllegalTypeTag::MSG[] = "illegal type tag";
 
 const char TypeMismatch::MSG[] = "type mismatch";
 
+const char CIMValueIsNull::MSG[] = "null CIMValue accessed";
+
+const char CIMValueInvalidType::MSG[] = "invalid CIMValue type";
+
 const char DynamicCastFailed::MSG[] = "dynamic cast failed";
 
 const char NoSuchFile::MSG[] = "no such file: ";

@@ -24,7 +24,7 @@
 //
 // Modified By: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -339,6 +339,27 @@ public:
 
     TypeMismatch() : Exception(MSG) { }
 };
+
+/// ATTN:
+class PEGASUS_COMMON_LINKAGE CIMValueIsNull : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CIMValueIsNull() : Exception(MSG) { }
+};
+
+/// ATTN:
+class PEGASUS_COMMON_LINKAGE CIMValueInvalidType : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    CIMValueInvalidType() : Exception(MSG) { }
+};
+
 
 /// ATTN:
 class PEGASUS_COMMON_LINKAGE DynamicCastFailed : public Exception

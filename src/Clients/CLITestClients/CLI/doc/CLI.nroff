@@ -15,15 +15,16 @@ All platforms that support the Pegasus CIMOM
 
 .I CLI
 is a command line test tool for executing CIM client operations. It implements
-all of the DMTF CIM operations except for the modify and create  class/instance operations and includes several
+all of the DMTF CIM operations except for the modify and create class/instance operations and includes several
 other operations that are useful in testing including getting all namespaces and enumerating all
 instances in a namespace.
 .P
 Each execution of CLI invokes a CIM Operation with the corresponding command parameters equivalent
-to the CIM Operations defined in the CIM Operations over HTTP specification. 
-In addition to the basic
-CIM Operations defined in the specification, this tool implements a number of other specific operations
-that support testing and querying CIM servers including
+to the CIM Operations defined in the CIM Operations over HTTP specification.
+.P
+In addition to the basic CIM Operations defined in the specification, this tool implements a number of
+other specific operations that support testing and querying CIM servers including  a command to query
+for namespaces and to get all instances in a namespace.
 
 .Bl -bullet
 .It
@@ -74,7 +75,12 @@ provide parameters for the initiation or execution of the command. These include
 .It
 \-n   Namespace name for this operation (ex. -n root). The default namespace is root/cimv2.
 .It
-\-l   Location (host name or IP address and optionally port) for this operation. The default is localhost:5988
+\-l   Location (host name or IP address and optionally port) for this operation. The default for this command
+if the the -n option is not used is to use the Pegasus connectLocal() function to connect to the server.
+Note that this means that a command like CLI gc CIM_Door may not work when trying to connect to a 
+server other than Pegasus on the same system. If CLI is to be used to connect to a CIM Server other
+than Pegasus on the same system use -l localhost or -l 127.0.0.1 or the actual name or IP address.
+This will force CLI to make the connection in the normal way, not using connectLocal()
 .It
 \-u   User name. The user name to be used in in the connect for the command
 .It
@@ -232,6 +238,15 @@ The possible options specific to this command are:
 -nlo  localonly
 -pl  optional property list that defines which properties to return.
 
+Example:
+
+CLI gi cim_managedElement
+
+This is an interactive request that returns a list of instances from an
+enumerateinstance of CIM_ManagedElement from which the user can select one which CLI
+will return as a complete instance.
+
+
 .TP
 .B di    deleteinstance
 Delete instance executed a single deleteInstance command to the CIM Server.  
@@ -261,6 +276,9 @@ getQualifier displays the target qualifier
 
 CLI gq [qualifier name]
 
+Example:
+
+CLI gq abstract - returns the mof or xml for the abstract qualifier.
 .TP
 .B sq    setQualifier
 This command is not implemented.
@@ -279,13 +297,16 @@ Deletes the target qualifier.
 
 CLI dq [qualifier name]
 
+NOTE: This should be used with great caution.
+
 .TP
-.B a     associatiors
+.B a     associators
 Enumerate the associators for the target object.  The syntax for this operation
 is 
     CLI a [object] [options]
 where the possible options are:
 
+TBD
 
 Text
 
@@ -346,7 +367,7 @@ RETURN - It returns a list of the namespace names returned by the CIM Server.
 There are a significant number of options to this utility, some if which provide specific information 
 for one or more commands and some of which are universal across all of the commands.   In general, the
 program does not check for spurious options so that if you input an option that is not used by a particular
-operation, it is ignored.
+operation, it is simply ignored.
 .TP 5 
 -u  
 User. Allows input of a user name for authentication
@@ -368,25 +389,32 @@ Note that this means different things to different commands and is used only wit
 .TP
 -lo
 localOnly. Specifies the localOnly operation parameter for selected commands if the option is set.
-See the commands for more information.
+See the commands for more information. This option is Deprecated in favor of the -!lo and -nlo because the
+default for local only is on so that generally the -lo is simply the default.  We recommend using
+-nlo to turn off local only.
 .TP
 -iq
-includeQualifiers. Specifies the includeQualifiers operation input paramter for selected commands. if the option is set.
+includeQualifiers. Specifies the includeQualifiers operation input paramter for selected commands. This option
+is deprecated in favor of the -!iq and -niq parameters because -iq is the equivalent of the defualt for
+most of the commands.
 
 .TP
--is
+-ic
 includeClassOrigin
 Set the includeClassOrigin operation parameter to true. Default(false).
 
 .TP
 -u
 User
-Defines User Name for authentication. Default().
+Defines User Name for authentication. Default is no user name and no authentication.
+
+Example:
+-u username
 
 .TP 
 -p
 Password
-Defines password for authentication. Default().
+Defines password for authentication. Default is no password and no connection authentication.
 
 .TP
 -l
@@ -406,17 +434,19 @@ If set deepInheritance operation parameter set true . Default(false).
 .TP 
 -lo  
 localOnly. 
-DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default. See !lo . Default(true).
+DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default. 
+See !lo . Default(true).
 
 .TP 
 -!lo  
 !localOnly. 
-When set, sets LocalOnly = false on operations. DEPRECATED,!confuses bash. Use -nlo . Default(false).
+When set, sets LocalOnly = false on operations. DEPRECATED,!confuses bash. Use -nlo . Default(false).  See also -nlo.
 
 .TP 
 -nlo  
 notLocalOnly. 
-When set, sets LocalOnly = false on operations . Default(false).
+When set, sets LocalOnly = false on operations . Default(false). See also -!lo. This form was implemented with the
+-!lo form on some systems. It is equivalent to -!lo.
 
 .TP 
 -iq  
@@ -431,7 +461,8 @@ Sets includeQualifiers = false on operations. DEPRECATED, ! confuses bash. Use -
 .TP 
 -niq  
 notIncludeQualifiers
-Sets includeQualifiers = false on operations. Default(false).
+Sets includeQualifiers = false on operations. Default(false). See also -!iq.  This form was implemented because of
+problems with the -!iq form on some systems.  It is equivalent to -!iq.
 
 .TP 
 -pl  

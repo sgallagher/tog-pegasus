@@ -420,6 +420,7 @@ void CIMListenerRep::stop()
 	{ // stop the thread
 		
 		delete _thread_pool;
+		_thread_pool = NULL;
 		
 		Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER,
 						    Logger::INFORMATION,

@@ -187,6 +187,7 @@ AcceptLanguages AcceptLanguages::getDefaultAcceptLanguages(){
 			
 		#endif
 	#endif
+	return AcceptLanguages();
 }
 
 void AcceptLanguages::prioritize() {

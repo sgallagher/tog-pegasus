@@ -152,7 +152,7 @@ public:
 	/**
 	 * Writes the String representation of this object to the stream
 	 */
-	friend PEGASUS_STD(ostream)& operator <<(PEGASUS_STD(ostream) &stream, LanguageElement le);
+	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream)& operator <<(PEGASUS_STD(ostream) &stream, LanguageElement le);
 
 	/**
 	 * AcceptLanguages needs direct access to quality, but ContentLanguages does not.

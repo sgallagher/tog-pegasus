@@ -29,26 +29,27 @@
 //
 // Author: Dave Rosckes   (rosckes@us.ibm.com)
 //
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include "CommonUTF.h"
-#include <cctype>
 #include <cstdio>
 #include <cstring>
 
 PEGASUS_NAMESPACE_BEGIN
 
 
-inline Uint8 _hexCharToNumeric(const Uint16 c)
+inline Uint8 _hexCharToNumeric(Char16 c)
 {
     Uint8 n;
 
-    if (isdigit(c))
+    if (c.isDigit())
         n = (c - '0');
-    else if (isupper(c))
+    else if (c.isUpper())
         n = (c - 'A' + 10);
     else // if (islower(c))
         n = (c - 'a' + 10);

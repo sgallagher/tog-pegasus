@@ -37,7 +37,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cctype>
 #include <cstring>
 #include <iostream>
 #include "HashTable.h"
@@ -469,7 +468,7 @@ public:
 
         Boolean isValid = false;
 
-        if (isdigit(hostname[0]))
+        if (hostname[0].isDigit())
         {
             //--------------------------------------------------------------
             // Attempt to validate an IP address, but keep in mind that it
@@ -486,13 +485,13 @@ public:
                 // If a non-digit is encountered in the input parameter,
                 // then break from here and attempt to validate as host name.
                 //----------------------------------------------------------
-                if (!isdigit(hostname[i]))
+                if (!hostname[i].isDigit())
                 {
                     isValid = false;
                     break;
                 }
 
-                while (isdigit(hostname[i]))  // skip over digits
+                while (hostname[i].isDigit())  // skip over digits
                 {
                     octetValue = octetValue*10 + (hostname[i] - '0');
                     i++;
@@ -535,16 +534,16 @@ public:
                 expectHostSegment = false;
                 hostSegmentIsNumeric = true; // assume all-numeric host segment
 
-                if (!isalnum(hostname[i]))
+                if (!hostname[i].isAlnum())
                 {
                     return false;
                 }
 
-                while (isalnum(hostname[i]) || (hostname[i] == '-'))
+                while (hostname[i].isAlnum() || (hostname[i] == '-'))
                 {
                     // If a non-digit is encountered, set "all-numeric"
                     // flag to false
-                    if (isalpha(hostname[i]) || (hostname[i] == '-')) {
+                    if (hostname[i].isAlpha() || (hostname[i] == '-')) {
                         hostSegmentIsNumeric = false;
                     }
                     i++;
@@ -572,12 +571,12 @@ public:
 
         if (hostname[i] == ':')
         {
-            if (!isdigit(hostname[++i]))
+            if (!hostname[++i].isDigit())
             {
                 return false;
             }
 
-            while (isdigit(hostname[++i]));
+            while (hostname[++i].isDigit());
         }
 
         return (hostname[i] == char(0));

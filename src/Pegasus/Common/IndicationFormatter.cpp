@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 // Author: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,8 +62,8 @@ void IndicationFormatter::validateTextFormat (
            if (leftBrace != PEG_NOT_FOUND)
            {
                // Do not expect a right brace before the left
-               // brace. e.g An invalid text format string could be: 
-              // "Indication occurred at 2, datetime} with 
+               // brace. e.g An invalid text format string could be:
+              // "Indication occurred at 2, datetime} with
                // identify ID {3, string}"
 
                textFormatSubStr = textFormatStr.subString(
@@ -93,14 +94,14 @@ void IndicationFormatter::validateTextFormat (
                rightBrace = textFormatStr.find("}");
 
                // Do not expect a left brace between left and right
-               // braces. e.g A text string: "Indication occurred 
+               // braces. e.g A text string: "Indication occurred
 	      // at {2, datetime with identify ID {3, string}" is
 	      // an invalid format.
 
              if (rightBrace != PEG_NOT_FOUND)
              {
                  textFormatSubStr.clear();
-                   textFormatSubStr = textFormatStr.subString(0, 
+                   textFormatSubStr = textFormatStr.subString(0,
 		                      rightBrace);
 
                  Uint32 leftBrace2 = textFormatSubStr.find("{");
@@ -135,7 +136,7 @@ void IndicationFormatter::validateTextFormat (
 
 	        comma = textFormatSubStr.find(",");
 
-	        // A dynamic content can have format either 
+	        // A dynamic content can have format either
 	       // {index} or {index[x]}
 	       if (comma == PEG_NOT_FOUND)
 	       {
@@ -147,12 +148,12 @@ void IndicationFormatter::validateTextFormat (
 		           rightBracket = textFormatSubStr.find("]");
 
 	      }
-	      // A dynamic content can have format either 
+	      // A dynamic content can have format either
 	     // {index, type} or {index[x], type}
 	     else
 	     {
-	          propertyParam = 
-		      textFormatSubStr.subString(0, comma); 
+	          propertyParam =
+		      textFormatSubStr.subString(0, comma);
 		  propertyTypeStr = textFormatSubStr.subString(
 		      comma +1, PEG_NOT_FOUND);
 
@@ -164,7 +165,7 @@ void IndicationFormatter::validateTextFormat (
 	    // {index} or {index, type}
 	    if (leftBracket == PEG_NOT_FOUND)
 	    {
-	        // there is no left bracket, do not expect a 
+	        // there is no left bracket, do not expect a
 	        // right bracket
 	        if (rightBracket != PEG_NOT_FOUND)
 	        {
@@ -248,7 +249,7 @@ void IndicationFormatter::validateTextFormat (
 	   if (propertyTypeStr != String::EMPTY)
 	   {
 	       _validatePropertyType(indicationClass,
-	           textFormatParams[propertyIndex], 
+	           textFormatParams[propertyIndex],
 		   propertyTypeStr, isArray);
            }
 
@@ -293,7 +294,7 @@ void IndicationFormatter::validateTextFormat (
 		  throw PEGASUS_CIM_EXCEPTION (
 		    CIM_ERR_INVALID_PARAMETER, exceptionStr);
             }
-            
+
            break;
        }
 
@@ -347,7 +348,7 @@ void IndicationFormatter::_validatePropertyType (
     }
 
     String providedTypeStr = providedPropertyType;
- 
+
     Uint32 space = providedTypeStr.find(" ");
 
     if (space != PEG_NOT_FOUND)
@@ -361,7 +362,7 @@ void IndicationFormatter::_validatePropertyType (
 	    providedTypeStr = providedTypeStr.subString(0, space);
 	}
     }
-    
+
     //
     // Checks if the provided property type is a valid type
     //
@@ -388,7 +389,7 @@ void IndicationFormatter::_validatePropertyType (
         if (String::equalNoCase(propertyParam, (propertyName.getString())))
         {
 	    // get the property type;
-	    CIMType propertyType = 
+	    CIMType propertyType =
 	                indicationClass.getProperty (i).getType();
 
 	    // Check if the property is an array type
@@ -427,7 +428,7 @@ void IndicationFormatter::_validatePropertyType (
 	        PEG_METHOD_EXIT();
 	        throw PEGASUS_CIM_EXCEPTION (
 	            CIM_ERR_INVALID_PARAMETER, exceptionStr);
-            }	
+            }
 
         }
     }
@@ -445,7 +446,7 @@ void IndicationFormatter::validateTextFormatParameters (
 
     Array <String> indicationClassProperties;
     String exceptionStr;
-    
+
     // All the properties are selected
     if (propertyList.isNull ())
     {
@@ -466,7 +467,7 @@ void IndicationFormatter::validateTextFormatParameters (
 	}
     }
 
-    // check if the textFormatParams is contained in the 
+    // check if the textFormatParams is contained in the
     // indicationClassProperties
     for (Uint32 k = 0; k < textFormatParams.size(); k++)
     {
@@ -508,7 +509,7 @@ void IndicationFormatter::_isValidIndex (
         // invalid index string [12 xxx]
         if (indexSubStr.size() > 0)
         {
-            // invalid index string 
+            // invalid index string
             MessageLoaderParms parms(
                 "IndicationFormatter.IndicationFormatter._MSG_INVALID_INDEX",
                 "Invalid index string $0",
@@ -524,7 +525,7 @@ void IndicationFormatter::_isValidIndex (
     }
 
     Uint32 i=0;
-    while (isdigit(indexSubStr[i]))
+    while (indexSubStr[i].isDigit())
     {
         i++;
     }
@@ -532,7 +533,7 @@ void IndicationFormatter::_isValidIndex (
     // invalid index string [12xxx}
     if (i != indexSubStr.size() )
     {
-        // invalid index string 
+        // invalid index string
         MessageLoaderParms parms(
             "IndicationFormatter.IndicationFormatter._MSG_INVALID_INDEX",
             "Invalid index string $0",
@@ -543,7 +544,7 @@ void IndicationFormatter::_isValidIndex (
         throw PEGASUS_CIM_EXCEPTION (
             CIM_ERR_INVALID_PARAMETER, exceptionStr);
     }
-                         
+
     PEG_METHOD_EXIT();
 }
 
@@ -552,7 +553,7 @@ String IndicationFormatter::getFormattedIndText(
     const CIMInstance & indication,
     const ContentLanguages & contentLangs)
 {
-    PEG_METHOD_ENTER (TRC_IND_FORMATTER, 
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
         "IndicationFormatter::getFormattedIndText");
 
     String indicationText;
@@ -563,14 +564,14 @@ String IndicationFormatter::getFormattedIndText(
     Array<String> textFormatParams = NULL;
 
         // get TextFormat from subscription
-        Uint32 textFormatPos = 
-	    subscription.findProperty(_PROPERTY_TEXTFORMAT); 
+        Uint32 textFormatPos =
+	    subscription.findProperty(_PROPERTY_TEXTFORMAT);
 
-	// if the property TextFormat is not found, 
+	// if the property TextFormat is not found,
 	// indication is constructed with default format
         if (textFormatPos == PEG_NOT_FOUND)
         {
-            indicationText = _formatDefaultIndicationText(indication, 
+            indicationText = _formatDefaultIndicationText(indication,
 							 contentLangs);
         }
         else
@@ -578,18 +579,18 @@ String IndicationFormatter::getFormattedIndText(
             textFormatValue = subscription.getProperty(textFormatPos).
 		getValue();
 
-	    // if the value of textFormat is NULL, 
+	    // if the value of textFormat is NULL,
 	    // indication is constructed with default format
-            if (textFormatValue.isNull()) 
+            if (textFormatValue.isNull())
             {
-                indicationText = _formatDefaultIndicationText(indication, 
+                indicationText = _formatDefaultIndicationText(indication,
 							     contentLangs);
 	    }
 	    else
 	    {
                 // get TextFormatParameters from subscription
                 Uint32 textFormatParamsPos = subscription.findProperty(
-		    _PROPERTY_TEXTFORMATPARAMETERS); 
+		    _PROPERTY_TEXTFORMATPARAMETERS);
 
 	        if (textFormatParamsPos != PEG_NOT_FOUND)
 	        {
@@ -604,7 +605,7 @@ String IndicationFormatter::getFormattedIndText(
 		    textFormatValue.get(textFormat);
 		    if (!textFormatParamsValue.isNull())
 		    {
-			if ((textFormatParamsValue.getType() == 
+			if ((textFormatParamsValue.getType() ==
 			     CIMTYPE_STRING) &&
                             (textFormatParamsValue.isArray()))
                         {
@@ -619,7 +620,7 @@ String IndicationFormatter::getFormattedIndText(
 		}
 		else
 		{
-                    indicationText = _formatDefaultIndicationText(indication, 
+                    indicationText = _formatDefaultIndicationText(indication,
 				                                 contentLangs);
 		}
 	    }
@@ -634,13 +635,13 @@ String IndicationFormatter::_formatDefaultIndicationText(
     const CIMInstance & indication,
     const ContentLanguages & contentLangs)
 {
-    PEG_METHOD_ENTER (TRC_IND_FORMATTER, 
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
         "IndicationFormatter::_formatDefaultIndicationText");
 
     CIMInstance indicationInstance = indication.clone();
     String propertyName;
     String indicationStr;
-    Uint32 propertyCount = indicationInstance.getPropertyCount(); 
+    Uint32 propertyCount = indicationInstance.getPropertyCount();
 
     indicationStr.append("Indication (default format):");
 
@@ -680,14 +681,14 @@ String IndicationFormatter::_formatDefaultIndicationText(
 		    {
 			CIMDateTime dateTimeValue;
 			propertyValue.get(dateTimeValue);
-		        indicationStr.append(_localizeDateTime(dateTimeValue, 
+		        indicationStr.append(_localizeDateTime(dateTimeValue,
 		    	    locale));
 		    }
 		    else if (type == CIMTYPE_BOOLEAN)
 		    {
 			Boolean booleanValue;
 			propertyValue.get(booleanValue);
-		        indicationStr.append(_localizeBooleanStr(booleanValue, 
+		        indicationStr.append(_localizeBooleanStr(booleanValue,
 		    	    locale));
 		    }
 		}
@@ -738,7 +739,7 @@ String IndicationFormatter::_formatIndicationText(
     const CIMInstance & indication,
     const ContentLanguages & contentLangs)
 {
-    PEG_METHOD_ENTER (TRC_IND_FORMATTER, 
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
         "IndicationFormatter::_formatIndicationText");
 
     String indicationText;
@@ -775,7 +776,7 @@ String IndicationFormatter::_formatIndicationText(
 
         // there is a left brace
         textStr = indicationFormat.subString(0, leftBrace);
-         
+
         indicationText.append(textStr);
 
         indicationFormat = indicationFormat.subString(leftBrace+1,
@@ -785,7 +786,7 @@ String IndicationFormatter::_formatIndicationText(
         // expecting a right brace
         if (rightBrace != PEG_NOT_FOUND)
         {
-            // gets property index which is inside braces. 
+            // gets property index which is inside braces.
             // The supported formats are: {index} or {index, type}
 	    // or {index[x]} or {index[x], type}
             propertyParam = indicationFormat.subString(0,
@@ -803,7 +804,7 @@ String IndicationFormatter::_formatIndicationText(
 	    // A dynamic content has syntax {index} or {index, type}
 	    if (leftBracket == PEG_NOT_FOUND)
 	    {
-                propertyIndexStr = propertyParam; 
+                propertyIndexStr = propertyParam;
 	    }
 	    // A dynamic content has syntax {index[x]} or {index[x], type}
 	    else
@@ -812,10 +813,10 @@ String IndicationFormatter::_formatIndicationText(
 
 		propertyParam = propertyParam.subString(
 		    leftBracket, PEG_NOT_FOUND);
-                 
+
 	        rightBracket = propertyParam.find("]");
 
-		arrayIndexStr = propertyParam.subString(1, rightBracket-1); 
+		arrayIndexStr = propertyParam.subString(1, rightBracket-1);
 	    }
 
             sprintf(propertyIndexBuffer, "%s", (const char *)
@@ -833,9 +834,9 @@ String IndicationFormatter::_formatIndicationText(
 	    }
 
 
-            // property index is out of range 
-            if ((propertyIndex < 0) || 
-                (propertyIndex >= textFormatParams.size())) 
+            // property index is out of range
+            if ((propertyIndex < 0) ||
+                (propertyIndex >= textFormatParams.size()))
             {
 		propertyValue = "UNKNOWN";
             }
@@ -873,7 +874,7 @@ String IndicationFormatter::_getIndPropertyValue(
     const CIMInstance & indication,
     const ContentLanguages & contentLangs)
 {
-    PEG_METHOD_ENTER (TRC_IND_FORMATTER, 
+    PEG_METHOD_ENTER (TRC_IND_FORMATTER,
         "IndicationFormatter::_getIndPropertyValue");
 
     CIMInstance indicationInstance = indication.clone();
@@ -883,7 +884,7 @@ String IndicationFormatter::_getIndPropertyValue(
 
 #ifdef PEGASUS_HAS_ICU
     Locale locale;
-    canLocalize = _canLocalize(contentLangs, locale);	
+    canLocalize = _canLocalize(contentLangs, locale);
 #endif
 
     for (Uint32 i=0; i < indicationInstance.getPropertyCount(); i++)
@@ -1024,13 +1025,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Uint8> propertyValueUint8;
 	    propertyValue.get(propertyValueUint8);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%u", 
+		    sprintf(propertyValueBuffer, "%u",
 			propertyValueUint8[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1044,11 +1045,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%u", 
+	        sprintf(propertyValueBuffer, "%u",
 		    propertyValueUint8[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1057,13 +1058,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Uint16> propertyValueUint16;
 	    propertyValue.get(propertyValueUint16);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%u", 
+		    sprintf(propertyValueBuffer, "%u",
 			propertyValueUint16[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1077,11 +1078,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%u", 
+	        sprintf(propertyValueBuffer, "%u",
 		    propertyValueUint16[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1090,13 +1091,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Uint32> propertyValueUint32;
 	    propertyValue.get(propertyValueUint32);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%u", 
+		    sprintf(propertyValueBuffer, "%u",
 			propertyValueUint32[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1110,11 +1111,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%u", 
+	        sprintf(propertyValueBuffer, "%u",
 		    propertyValueUint32[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1123,13 +1124,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Uint64> propertyValueUint64;
 	    propertyValue.get(propertyValueUint64);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%u", 
+		    sprintf(propertyValueBuffer, "%u",
 			propertyValueUint64[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1143,11 +1144,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%u", 
+	        sprintf(propertyValueBuffer, "%u",
 		    propertyValueUint64[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1156,13 +1157,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Sint8> propertyValueSint8;
 	    propertyValue.get(propertyValueSint8);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%i", 
+		    sprintf(propertyValueBuffer, "%i",
 			propertyValueSint8[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1176,11 +1177,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%i", 
+	        sprintf(propertyValueBuffer, "%i",
 		    propertyValueSint8[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1189,13 +1190,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Sint16> propertyValueSint16;
 	    propertyValue.get(propertyValueSint16);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%i", 
+		    sprintf(propertyValueBuffer, "%i",
 			propertyValueSint16[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1209,11 +1210,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%i", 
+	        sprintf(propertyValueBuffer, "%i",
 		    propertyValueSint16[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1222,13 +1223,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Sint32> propertyValueSint32;
 	    propertyValue.get(propertyValueSint32);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%i", 
+		    sprintf(propertyValueBuffer, "%i",
 			propertyValueSint32[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1242,11 +1243,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%i", 
+	        sprintf(propertyValueBuffer, "%i",
 		    propertyValueSint32[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1255,13 +1256,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Sint64> propertyValueSint64;
 	    propertyValue.get(propertyValueSint64);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%i", 
+		    sprintf(propertyValueBuffer, "%i",
 			propertyValueSint64[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1275,11 +1276,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%i", 
+	        sprintf(propertyValueBuffer, "%i",
 		    propertyValueSint64[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1288,13 +1289,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Real32> propertyValueReal32;
 	    propertyValue.get(propertyValueReal32);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%f", 
+		    sprintf(propertyValueBuffer, "%f",
 			propertyValueReal32[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1308,11 +1309,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%f", 
+	        sprintf(propertyValueBuffer, "%f",
 		    propertyValueReal32[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1321,13 +1322,13 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Real64> propertyValueReal64;
 	    propertyValue.get(propertyValueReal64);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-		    sprintf(propertyValueBuffer, "%f", 
+		    sprintf(propertyValueBuffer, "%f",
 			propertyValueReal64[i]);
 		    arrayValues.append(propertyValueBuffer);
 
@@ -1341,11 +1342,11 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        sprintf(propertyValueBuffer, "%f", 
+	        sprintf(propertyValueBuffer, "%f",
 		    propertyValueReal64[arrayIndex]);
-	        arrayValues = propertyValueBuffer; 
+	        arrayValues = propertyValueBuffer;
 	    }
-	     
+
             break;
 	}
 
@@ -1361,7 +1362,7 @@ String IndicationFormatter::_getArrayValues(
 	    canLocalize = _canLocalize(contentLangs, locale);
 #endif
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
@@ -1405,7 +1406,7 @@ String IndicationFormatter::_getArrayValues(
 		arrayValues = _getBooleanStr(booleanValue[arrayIndex]);
 #endif
 	    }
-	     
+
             break;
 	}
 
@@ -1414,7 +1415,7 @@ String IndicationFormatter::_getArrayValues(
 	    Array<Char16> propertyValueChar16;
 	    propertyValue.get(propertyValueChar16);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
@@ -1432,9 +1433,9 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        arrayValues.append(propertyValueChar16[arrayIndex]); 
+	        arrayValues.append(propertyValueChar16[arrayIndex]);
 	    }
-	     
+
             break;
 	}
 
@@ -1443,7 +1444,7 @@ String IndicationFormatter::_getArrayValues(
 	    Array<String> propertyValueString;
 	    propertyValue.get(propertyValueString);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
@@ -1461,9 +1462,9 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-	        arrayValues.append(propertyValueString[arrayIndex]); 
+	        arrayValues.append(propertyValueString[arrayIndex]);
 	    }
-	     
+
             break;
 	}
 
@@ -1479,7 +1480,7 @@ String IndicationFormatter::_getArrayValues(
 	    canLocalize = _canLocalize(contentLangs, locale);
 #endif
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
@@ -1522,10 +1523,10 @@ String IndicationFormatter::_getArrayValues(
 		}
 #else
 	        arrayValues.append(propertyValueDateTime
-		    [arrayIndex].toString()); 
+		    [arrayIndex].toString());
 #endif
 	    }
-	     
+
             break;
 	}
 
@@ -1534,7 +1535,7 @@ String IndicationFormatter::_getArrayValues(
 	    Array<CIMObjectPath> propertyValueRef;
 	    propertyValue.get(propertyValueRef);
 
-	    // Empty brackets (e.g. []), gets all values of the array 
+	    // Empty brackets (e.g. []), gets all values of the array
 	    if (sizeOfArrayIndexStr == 0)
 	    {
                 arrayValues.append("[");
@@ -1553,9 +1554,9 @@ String IndicationFormatter::_getArrayValues(
 	    else
 	    {
 	        arrayValues.append(propertyValueRef
-		    [arrayIndex].toString()); 
+		    [arrayIndex].toString());
 	    }
-	     
+
             break;
 	}
 
@@ -1564,7 +1565,7 @@ String IndicationFormatter::_getArrayValues(
 	    arrayValues.append("UNKNOWN");
 
             PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL4,
-		"Unknown CIMType: " + type); 
+		"Unknown CIMType: " + type);
 
             break;
 	}
@@ -1684,21 +1685,21 @@ String IndicationFormatter::_localizeDateTime(
     Uint64 dateTimeValueInMicroSecs =
         dateTimeValue.toMicroSeconds();
 
-    // In ICU, as UTC milliseconds from the epoch starting 
+    // In ICU, as UTC milliseconds from the epoch starting
     // (1 January 1970 0:00 UTC)
     CIMDateTime dt;
     dt.set("19700101230000.000000+000");
 
     // Convert dateTimeValue to be milliSeconds,
-    // the number of milliSeconds from the epoch starting 
+    // the number of milliSeconds from the epoch starting
     // (1 January 1970 0:00 UTC)
-    UDate dateTimeValueInMilliSecs = 
+    UDate dateTimeValueInMilliSecs =
        (dateTimeValueInMicroSecs - dt.toMicroSeconds())/1000;
 
     // Create a formatter for DATE and TIME with medium length
-    // such as Jan 12, 1952 3:30:32pm 
+    // such as Jan 12, 1952 3:30:32pm
     DateFormat *fmt;
-    fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM, 
+    fmt = DateFormat::createDateTimeInstance(DateFormat::MEDIUM,
         DateFormat::MEDIUM, locale);
 
     // Format the Date and Time
@@ -1712,13 +1713,13 @@ String IndicationFormatter::_localizeDateTime(
         PEG_METHOD_EXIT();
         return (dateTimeValue.toString());
     }
-            
+
     // convert UnicodeString to char *
     char dateTimeBuffer[256];
     char *extractedStr = 0;
 
     // Copy the contents of the string into dateTimeBuffer
-    Uint32 strLen = dateTimeUniStr.extract(0, sizeof(dateTimeBuffer), 
+    Uint32 strLen = dateTimeUniStr.extract(0, sizeof(dateTimeBuffer),
 					   dateTimeBuffer);
 
     // There is not enough space in dateTimeBuffer

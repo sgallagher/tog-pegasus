@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -41,7 +41,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
-#include <cctype>
 #include "HTTPMessage.h"
 
 PEGASUS_USING_STD;
@@ -53,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Implementation notes:
 //
-//     According to the HTTP specification: 
+//     According to the HTTP specification:
 //
 //         1.  Method names are case-sensitive.
 //         2.  Field names are case-insensitive.
@@ -95,11 +94,11 @@ static char* _FindSeparator(const char* data, Uint32 size)
 }
 
 HTTPMessage::HTTPMessage(
-    const Array<char>& message_, 
+    const Array<char>& message_,
     Uint32 queueId_, const CIMException *cimException_)
     :
-    Message(HTTP_MESSAGE), 
-    message(message_), 
+    Message(HTTP_MESSAGE),
+    message(message_),
     queueId(queueId_),
     acceptLanguagesDecoded(false),
     contentLanguagesDecoded(false)
@@ -232,7 +231,7 @@ void HTTPMessage::printAll(ostream& os) const
     for (Uint32 i = 0; i < headers.size(); i++)
     {
     	cout << headers[i].first << ": " << headers[i].second << endl;
-    
+
     	if (String::equalNoCase(headers[i].first, "content-type"))
     	{
     	    if (headers[i].second.find("image/") == 0)
@@ -269,8 +268,8 @@ void HTTPMessage::printAll(ostream& os) const
 
 /*
  * Find the header prefix (i.e 2-digit number in front of cim keyword) if any.
- * If a fieldName is given it will use that, otherwise the FIRST field 
- * starting with the standard keyword will be used. Given field names that do 
+ * If a fieldName is given it will use that, otherwise the FIRST field
+ * starting with the standard keyword will be used. Given field names that do
  * not start with the standard keyword will never match.
  * if there is a keyword match, the prefix will be populated, else set to empty
  */
@@ -287,7 +286,7 @@ void HTTPMessage::lookupHeaderPrefix(
 	{
 		const String &h = headers[i].first;
 
-		if (h.size() >= 3 && isdigit(char(h[0])) && isdigit(char(h[1])) &&
+		if (h.size() >= 3 && h[0].isDigit() && h[1].isDigit() &&
 				h[2] == Char16('-'))
 		{
 			String fieldNameCurrent = h.subString(3);
@@ -304,7 +303,7 @@ void HTTPMessage::lookupHeaderPrefix(
 
 			if (String::equalNoCase(fieldNameCurrent, fieldName) == false)
 				prefix.clear();
-			else break;				
+			else break;
 		}
 	}
 }
@@ -319,8 +318,8 @@ Boolean HTTPMessage::lookupHeader(
     {
         if (String::equalNoCase(headers[i].first, fieldName) ||
             (allowNamespacePrefix && (headers[i].first.size() >= 3) &&
-             isdigit(char(headers[i].first[0])) &&
-             isdigit(char(headers[i].first[1])) &&
+             headers[i].first[0].isDigit() &&
+             headers[i].first[1].isDigit() &&
              (headers[i].first[2] == Char16('-')) &&
              String::equalNoCase(headers[i].first.subString(3), fieldName)))
 	{

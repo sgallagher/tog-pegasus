@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -38,12 +38,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cctype>
 #include <time.h>
 #include <math.h>
 #include <errno.h>
-#include "CIMDateTime.h" 
-#include "InternalException.h" 
+#include "CIMDateTime.h"
+#include "InternalException.h"
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
@@ -82,13 +81,13 @@ static const char _NULL_DATE_TYPE_STRING[] = "00000000000000.000000-000";
 static const Uint64 _TEN_THOUSAND_YEARS = PEGASUS_UINT64_LITERAL(315569520000000000);
 static const Uint64 _HUNDRED_MILLION_DAYS = PEGASUS_UINT64_LITERAL(8640000000000000000);
 static const Uint64 _ONE_DAY = PEGASUS_UINT64_LITERAL(86400000000);
-static const Uint64 _ONE_HOUR = PEGASUS_UINT64_LITERAL(3600000000);                                     
+static const Uint64 _ONE_HOUR = PEGASUS_UINT64_LITERAL(3600000000);
 static const Uint64 _ONE_MINUTE = 60000000;
 static const Uint64 _ONE_SECOND = 1000000;
 
 
  /* the CIMDateTimeRep class holds the data for the CIMDateTime class as it's protected
-data members.It also allows for "setting" and "getting" of individual components of 
+data members.It also allows for "setting" and "getting" of individual components of
 date time.
 */
 class CIMDateTimeRep
@@ -111,7 +110,7 @@ public:
     // Format is yyyymmddhhmmss.
     // Note : The size does not include the null byte.
     //
-    enum { DATE_TIME_LENGTH = 14 };                                              
+    enum { DATE_TIME_LENGTH = 14 };
 
     //
     // Length of the string required to store the  formatted date and time
@@ -125,7 +124,7 @@ public:
 
 
     char data[FORMAT_LENGTH + 1];
-    
+
 
     /* Checks for correctness and sets the MicroSeconds value of CIMDateTimeRep
     */
@@ -141,7 +140,7 @@ public:
     @param size - size of the value paramiter (number of charicters
     */
     void set_data(const String & value, Uint32 index, Uint32 size);
-                                      
+
 
     /* these set functions are not used yet.
     when they become used the enum CIMDateTime::Field should be moved to CIMDateTimeRep
@@ -149,10 +148,10 @@ public:
     void set_seconds(const String & sec);
     void set_minutes(const String & min);
     void set_hours(const String & ho);
-    void set_days(const String & da); 
+    void set_days(const String & da);
     void set_month(const String & mon);
     void set_year(const String & ye);
-    
+
     void copy(CIMDateTimeRep * cTR);
 
  };
@@ -181,11 +180,11 @@ micro seconds value
 */
 Uint16 CIMDateTimeRep::set_microSec(const String & mS)
 {
-    //  String fin_data = sum_data.append(mS.subString(21,4));   
-    
+    //  String fin_data = sum_data.append(mS.subString(21,4));
+
     //cout << "begining of set_microSec" << endl;
     Uint32 ast_post;
- 
+
     ast_post = mS.find("*");
     if (ast_post == PEG_NOT_FOUND) {
         set_data(mS, 15, 6);
@@ -217,7 +216,7 @@ void CIMDateTimeRep::set_data(const String & value, Uint32 index, Uint32 size)
 {
     for (Uint32 i=0; i < size; i++) {
         data[index+i] = (char) value[i];
-    } 
+    }
 }
 
 
@@ -227,17 +226,17 @@ void CIMDateTimeRep::set_seconds(const String & sec)
 {
     seconds = sec;
 }
-    
+
 void CIMDateTimeRep::set_minutes(const String & min)
 {
     minutes = min;
 }
-    
+
 void CIMDateTimeRep::set_hours(const String & ho)
 {
     hours = ho;
 }
-    
+
 void CIMDateTimeRep::set_days(const String & da)
 {
     days = da;
@@ -247,7 +246,7 @@ void CIMDateTimeRep::set_month(const String & mon)
 {
     month = mon;
 }
-    
+
 void CIMDateTimeRep::set_year(const String & ye)
 {
     year = ye;
@@ -277,11 +276,11 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
                       "'*' was found in the UTC offset this is not allowed");
         return false;
     }
- 
+
 
     String uOff_num = uOffSet.subString(1,3);
     for (int i=0; i < 3; i++) {
-        if (!isdigit(uOff_num[i])) {
+        if (!uOff_num[i].isDigit()) {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                  "Format is wrong - UTC off set contains non digit charichter.");
             return false;
@@ -299,7 +298,7 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
 
     return true;
 
-        
+
 }
 
 
@@ -340,7 +339,7 @@ CIMDateTime::CIMDateTime(const CIMDateTime& x)
     _rep->copy(x._rep);
 
     rep.release();
-}  
+}
 
 /*constructs a CIMDateTime object from micro second value.
 pusdo code:
@@ -350,12 +349,12 @@ check to make sure
         10,000 years (uper bound of time stamp)
      }
     if interval {
-        check to make sure heck to make surenumber of micro seconds is not greater 
+        check to make sure heck to make surenumber of micro seconds is not greater
         then or equal to 100 millon years (uperbound of interval)
     }
-    
+
     number of days = day_sub1
-        
+
     if interval{
         get number of 400 year blocks  (number of days in 400 years is always the same)
         While (numer of days after taking out 400 year blocks > 365){
@@ -366,13 +365,13 @@ check to make sure
                 subtract 366 days from toatal
             }
         }
-       
-        tottal number of years = year 
-        
+
+        tottal number of years = year
+
         if (year we are calculating months for is a leap year){
             add one to end date of Feb and add on to start end end days of all month after Feb
         }
-        
+
         if (number of days left after taking of years is between 334 and 365){
             we are in the 12th month
             subtract months from number of days left
@@ -380,35 +379,35 @@ check to make sure
          else if (number of days left after taking of years is between 334 and 304){
             we are in the 11th month
             subtract months from number of days left
-            
-            
+
+
             ...
-            
-            
+
+
          esle if (number of days left after taking of years is between 31 and 0){
             we are in the 1st month
-            subtract months from number of days left 
+            subtract months from number of days left
          }
          else{
             we should never get to this code
          }
-         
+
          get number of days left
     }
-                 
+
     get number of hours, minutes, seconds, and microseconds
-    
+
     build string representaion of object
-    
-    send string to set()                            
- */                               
+
+    send string to set()
+ */
 CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
-{                                         
+{
     if (microSec >= _TEN_THOUSAND_YEARS && !interval) { //time stamps must be less then number of micro Seconds in 10,000 years
         MessageLoaderParms parmsTS("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
                "trying to create a CIMDateTime object (time stamp) greater then the year 10,000");
         throw DateTimeOutOfRangeException(parmsTS);
-    } 
+    }
     if (microSec >= _HUNDRED_MILLION_DAYS && interval) { //intervals must be less then the number of microseconds in 100 million days
         MessageLoaderParms parmsIN("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
                "can't create a CIMDateTime object (interval) greater then the year 100 million days");
@@ -427,7 +426,7 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
         Uint32 blocks_rem = day_sub1%days_in400;  //clauclates number of day after 400 year blocks are removed
         Uint32 days_rem = blocks_rem;
 
-       
+
         /*While loop computes number of years form number of day
         taking into accoutn leap years
         */
@@ -435,10 +434,10 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
         Uint32 i = 1;
         Uint32 count = 0;
         Uint32 leap_next = 1;
-         
+
         /*  ((i%4 == 0) && (i%100 != 0)) || (i%400 == 0)) is only true for leap years. So this while
         loop says "do if days_rem >= for non-leap years or days_rem >= 366 for leap years
-        */ 
+        */
         while ((days_rem >= 365 && !(((i%4 == 0) && (i%100 != 0)) || (i%400 == 0))) || (days_rem >= 366 && (((i%4 == 0) && (i%100 != 0)) || (i%400 == 0)))) {
             if (!(((i%4 == 0) && (i%100 != 0)) || (i%400 == 0))) {
                 days_rem = days_rem - 365;
@@ -452,8 +451,8 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
                 i = i + 1;
                 leap_next = 0;
                  //cout << "leap year" << endl;
-            }                                
-        }                                                                       
+            }
+        }
 
       // cout << "leap next = " << leap_next << " and count = " << count << " days_rem = " << days_rem << endl;
         Uint32 tot_year = (blocks_400 * 400) + count;
@@ -466,29 +465,29 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
             assert(false);
             // the calculated year should never be greater then 9999
         }
-                                                              
 
-        /*Switch block is used to calculate the the number of months from the number of days 
-        left after years are subtracted. 
-        */ 
+
+        /*Switch block is used to calculate the the number of months from the number of days
+        left after years are subtracted.
+        */
 
         Uint16 lp = 0;
 
         /*lp is 0 for non leap years and 1 for leap years
         */
-        if ((((i%4 == 0) && (i%100 != 0)) || (i%400 == 0))) { 
+        if ((((i%4 == 0) && (i%100 != 0)) || (i%400 == 0))) {
             lp = 1;
            // cout << "months are being calculated for a leap year" << endl;
         }
 
         char bu_day [5];
         sprintf(bu_day, "%02d", days_rem);
-       
+
 
 
         /* this block of if else statments figures out the number of months. When it subtracts
         days it is subtracting whole days. i.e. if 0 days for the year means Jan. 1
-        */          
+        */
         if (days_rem < Uint32(365+lp) && (days_rem >= Uint32(334+lp))) {
             ye_mo = year.append(String("12"));
             days_rem = days_rem - (334+lp);
@@ -546,10 +545,10 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
 
        char bu_mon [5];
        sprintf(bu_mon, "%02d", days_rem);
-      // cout << "this is the days left after months is taken " << String(bu_mon) << endl;    
+      // cout << "this is the days left after months is taken " << String(bu_mon) << endl;
 
 
-               //converting number of days from from Uint32 -> String 
+               //converting number of days from from Uint32 -> String
         char buffer_day [5];
         sprintf(buffer_day, "%02d", (days_rem+1));   // day of the month is never 0 (1-31)
         ye_mo_da = ye_mo.append(buffer_day);
@@ -562,10 +561,10 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
         sprintf(buffer_day, "%08d", day_sub1);
         ye_mo_da = String(buffer_day);
     }
- 
+
    //cout << "when days are added the string is  " << ye_mo_da << endl;
 
-    //get hours, minutes, seconds and microseconds 
+    //get hours, minutes, seconds and microseconds
     Uint64 after_ymd = microSec%_ONE_DAY;
 
     Uint32 hour_num = (Uint32)(after_ymd/_ONE_HOUR);
@@ -606,7 +605,7 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
         sprintf(buffer_mic, ".%06d+000", mic_num);
     }
     final = ye_mo_da_ho_mn_se.append(buffer_mic);
-    //cout << "when at the end of constructor that takes Uint64 created string is  " << final  << endl << endl; 
+    //cout << "when at the end of constructor that takes Uint64 created string is  " << final  << endl << endl;
 
     _rep = new CIMDateTimeRep();
     AutoPtr<CIMDateTimeRep> rep(_rep);
@@ -616,13 +615,13 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
                     "CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval) failed");
         throw InvalidDateTimeFormatException(); //can't pass message to this exceptions
     }
- 
+
     rep.release();
 }
 
 
 /*copies CIMDateTimeRep from passed in paramiter to the the callers CIMDateTimeRep
-effectivly copies value of one CIMDateTime to another. All data in held in 
+effectivly copies value of one CIMDateTime to another. All data in held in
 CIMDateTimeRep
 */
 CIMDateTime& CIMDateTime::operator=(const CIMDateTime& x)
@@ -661,7 +660,7 @@ void CIMDateTime::clear()
     _rep->set_minutes("00");
     _rep->set_hours("00");
     _rep->set_days("00");
-    _rep->set_utcOffSet(String(":000"));        
+    _rep->set_utcOffSet(String(":000"));
    //cout << "end of the clear method" << endl << endl;
 
 }
@@ -707,25 +706,25 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
              "Incorrect Format - CIMDateTime object dosen't have decimal point in position 14");
         return false;
     }
-	
+
 
 
      // Check to see if other characters are digits or astrisks (*)
 
     for (Uint32 i = 0; i < CIMDateTimeRep::FORMAT_LENGTH; i++){
-	    if (i != DOT_OFFSET && i != SIGN_OFFSET && !isdigit(dateTimeStr[i]) && (String::compare(dateTimeStr.subString(i,1),"*") != 0)){
+	    if (i != DOT_OFFSET && i != SIGN_OFFSET && !dateTimeStr[i].isDigit() && (String::compare(dateTimeStr.subString(i,1),"*") != 0)){
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                     "CIMdateTime object has an incorrect format.");
             return false;
         }
     }
-	       
+
 
     // Check to see if the month and day are in range (date only):
 
     String buffer;
     Field ans;
-    
+
     if (!isInterval)
     {
       //get year
@@ -745,7 +744,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
               return false;
           }
       }
-     
+
 	    // Get the month:
         buffer = dateTimeStr.subString(4,2);
         ans = fieldcheck(buffer, _rep->month);
@@ -756,7 +755,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
             return false;           // month field has both wildcards and digits
         }
 
-        else if (ans == ONLY_DIGITS) {          // month field has only digits                         
+        else if (ans == ONLY_DIGITS) {          // month field has only digits
             long month = atoi(buffer.getCString());
 
             // Allow for zero month - default value processing
@@ -774,9 +773,9 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
               return false;
           }
         }
- 
 
-	    // Get the day:                    
+
+	    // Get the day:
 
         buffer = dateTimeStr.subString(6,2);
         ans = fieldcheck(buffer, _rep->days);
@@ -786,12 +785,12 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
             return false;           // month field has both wildcards and digits
         }
 
-        else if (ans == ONLY_DIGITS) {          // month field has only digits                         
-       
+        else if (ans == ONLY_DIGITS) {          // month field has only digits
+
 	        long day = atoi(buffer.getCString());
 
-            // Allow for zero day - 0 "day" values are only allowed for default object 
-            /*ATTN: this does not check for the number of days in a 
+            // Allow for zero day - 0 "day" values are only allowed for default object
+            /*ATTN: this does not check for the number of days in a
             particular month
             */
             if (day == 0 || day > 31){
@@ -809,7 +808,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           }
         }
 
-        //get UTC off set   for a Time Stamp 
+        //get UTC off set   for a Time Stamp
 
         buffer = dateTimeStr.subString(21,4);
         _rep->utcOffSet = buffer;
@@ -820,7 +819,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
                 "CIMDateTime - Format of the is incorrect. UTC offset should not have \
                           a wild card in it.");
             return false;
-        }          
+        }
 
     }  //end of if(!interval)
 
@@ -839,7 +838,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           if (!restOfFields(8,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                   "CIMDateTime - Format of the object is incorrect. All fields after day field \
-                            should be wild cards."); 
+                            should be wild cards.");
               return false;
           }
         }
@@ -871,7 +870,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         return false;           // hour field has both wildcards and digits
      }
 
-    else if (ans == ONLY_DIGITS) {          // hour field has only digits   
+    else if (ans == ONLY_DIGITS) {          // hour field has only digits
         long hours = atoi(buffer.getCString());
 
         if (hours > 23) {
@@ -879,19 +878,19 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
                    "CIMDateTime - Format of the object is incorrect. Hour value is out of range");
             return false;
         }
-	        
+
     }
 
     else if (ans == ONLY_WILD_CARDS) {
           if (!restOfFields(10,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the object is incorrect. All fields after the hour field \
-                            should be wild cards."); 
+                            should be wild cards.");
               return false;
           }
      }
 
-                               
+
    //cout << "this is after getting hours" << endl;
 
     buffer = dateTimeStr.subString(10,2);
@@ -903,7 +902,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         return false;           // minutes field has both wildcards and digits
     }
 
-    else if (ans == ONLY_DIGITS) {          // minutes field has only digits  
+    else if (ans == ONLY_DIGITS) {          // minutes field has only digits
         long minutes = atoi(buffer.getCString());
 
         if (minutes > 59) {
@@ -918,14 +917,14 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           if (!restOfFields(12,dateTimeStr)){
               Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the object is incorrect. All fields after the minute \
-                            field should be wild cards."); 
+                            field should be wild cards.");
               return false;
           }
       }
 
 
 
-    // cout << "before getting seconds" << endl;                                     
+    // cout << "before getting seconds" << endl;
 
     buffer = dateTimeStr.subString(12,2);
     ans = fieldcheck(buffer, _rep->seconds);
@@ -944,7 +943,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
                    "CIMDateTime - Format of the object is incorrect.Minute value is out of range");
             return false;
         }
-	        
+
     }
     else if (ans == ONLY_WILD_CARDS) {
           if (!restOfFields(14,dateTimeStr)){
@@ -964,17 +963,17 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
                 "CIMDateTime - Format of micro seconds field is incorrect");
         return false;
     }
-         
+
 
     memcpy(_rep->data, str, sizeof(_rep->data));
-      
+
     return true;
 
 }
 
 
 
-/* If a field has a wild card then all the fields with lower significance 
+/* If a field has a wild card then all the fields with lower significance
     should have wild cards. This method makes sure of this.
 */
 Boolean CIMDateTime::restOfFields(Uint32 start_position,const String & inStr)
@@ -1007,14 +1006,14 @@ void CIMDateTime::set(const String & str)
 converts object to UTC then it calculates the number of microseconds in the converted object
 */
 Uint64 CIMDateTime::toMicroSeconds()
-{    
-     
+{
+
     CIMDateTime un_norm;
     //un_norm._rep = new CIMDateTimeRep();
     un_norm._rep->copy(_rep);
 
     un_norm.convertToUTC();
-                                                                                    
+
     const Uint64 norm_micSec = un_norm._toMicroSeconds();
 
     return (norm_micSec);
@@ -1049,25 +1048,25 @@ Uint64 CIMDateTime::_toMicroSeconds()
     else{
         mic = 0;
     }
-    
+
 
     if (_rep->seconds.find('*') == PEG_NOT_FOUND) {
-        sec = atol(_rep->seconds.getCString()) * 1000000;     
+        sec = atol(_rep->seconds.getCString()) * 1000000;
     }
 
-    if (_rep->minutes.find('*') == PEG_NOT_FOUND) {  
+    if (_rep->minutes.find('*') == PEG_NOT_FOUND) {
         min = atol(_rep->minutes.getCString()) * _ONE_MINUTE;
     }
-    
+
     if (_rep->hours.find('*') == PEG_NOT_FOUND) {
         hor = (atol(_rep->hours.getCString())) * _ONE_HOUR;
     }
-         
+
 
  //cout << "this is what the object holds year - " << _rep->year << " months - " << /
     // _rep->month << " - days  " << _rep->days << endl << "hour - " << _rep->hours << endl;
 // cout << "minute - " << _rep->minutes << endl;
-   
+
 
     if (!isInterval()) {
 
@@ -1080,7 +1079,7 @@ Uint64 CIMDateTime::_toMicroSeconds()
         if (_rep->year.find('*') == PEG_NOT_FOUND) {
             yea_num = atol(_rep->year.getCString());
         }
-        
+
 
         Uint64 yea_400 = yea_num/400;
         Uint64 day_400  = yea_400 * 146097;
@@ -1107,18 +1106,18 @@ Uint64 CIMDateTime::_toMicroSeconds()
                 leap_next = 0;
             }
         }
-     
+
 
         /*lp is 0 for non leap years and 1 for leap years
         */
-        if ((((count%4 == 0) && (count%100 != 0)) || (count%400 == 0))) { 
+        if ((((count%4 == 0) && (count%100 != 0)) || (count%400 == 0))) {
             lp = 1;
            //cout << "months are being calculated for a leap year" << endl;
         }
 
 
         if (_rep->month.find('*') == PEG_NOT_FOUND) {
- 
+
             //get number of days eqivalent to number of months in the object and multipy by number of
             //micro seconds in a day
             switch (atol(_rep->month.getCString())) { //months can't be equal to zero
@@ -1146,7 +1145,7 @@ Uint64 CIMDateTime::_toMicroSeconds()
             case 8:
                 mon = ((212+lp) * _ONE_DAY);
                 break;
-            case 9: 
+            case 9:
                 mon = ((243+lp) * _ONE_DAY);
                 break;
             case 10:
@@ -1161,7 +1160,7 @@ Uint64 CIMDateTime::_toMicroSeconds()
             default:
                // cout << "error calculating months" << endl;
                // cout << "this is data " << (String)_rep->data << endl;
-                throw InvalidDateTimeFormatException();        
+                throw InvalidDateTimeFormatException();
                 Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                               "Code should never reach this point in \
                               CIMDateTime::_toMicroSecdonds() ");
@@ -1169,16 +1168,16 @@ Uint64 CIMDateTime::_toMicroSeconds()
             }
         } // end of if(!interval) block
 
-   
-              
+
+
         day_rem = (count_le * 366) + (count_r * 365);
-        Uint64 yea = (day_rem+day_400) * _ONE_DAY;  
-                                
-               
+        Uint64 yea = (day_rem+day_400) * _ONE_DAY;
+
+
         if (_rep->days.find('*') == PEG_NOT_FOUND) {
             day = ((atol(_rep->days.getCString()))-1) * _ONE_DAY;   //time stamp "days" go from 1-31 ther is no zero
         }
-        day += yea; // not sure why this is needed but yea doesn't hold it's vlaue outside of 
+        day += yea; // not sure why this is needed but yea doesn't hold it's vlaue outside of
                     //the if!(interval) block
 
         //y_dd = yea/PEGASUS_UINT64_LITERAL(86400000000);  //this is just here to illistate need for "day+=yea"
@@ -1190,14 +1189,14 @@ Uint64 CIMDateTime::_toMicroSeconds()
         if (_rep->days.find('*') == PEG_NOT_FOUND) {
             day = (atol(_rep->days.getCString())) * _ONE_DAY;
         }
-    } 
+    }
 
 
     // Uint32 y_dd = yea/PEGASUS_UINT64_LITERAL(86400000000);   //this is just here to illistate need for "day+=yea"
    // cout << " this is right before the addition and year is " << y_dd << endl;
 
-    date = mic+sec+min+hor+day+mon; //yea is not include becaue it is included in the day value of TimeStamps 
-                                                     
+    date = mic+sec+min+hor+day+mon; //yea is not include becaue it is included in the day value of TimeStamps
+
     return date;
 }
 
@@ -1211,13 +1210,13 @@ Boolean operator==(const CIMDateTime& x, const CIMDateTime& y)
 }
 
 
- 
-/* converts Time Stamps to their UTC (GMT) representation. For Intervals 
+
+/* converts Time Stamps to their UTC (GMT) representation. For Intervals
     it does nothing.
 */
 void CIMDateTime::convertToUTC()
 {
- 
+
     if (isInterval()) {
         return;    //no conversion should not be done on Intervals
     }
@@ -1228,7 +1227,7 @@ void CIMDateTime::convertToUTC()
 
    // Uint32 unnor = un_normNum/PEGASUS_UINT64_LITERAL(1000000000);
    // Uint32 runnor = un_normNum%PEGASUS_UINT64_LITERAL(1000000000);
-   
+
     // get UTC offSet and change it in microseconds
     String utcOS = _rep->utcOffSet.subString(1,3);
     Uint32 offSet = atol((utcOS).getCString());
@@ -1238,7 +1237,7 @@ void CIMDateTime::convertToUTC()
     MessageLoaderParms parmsOv("Common.CIMDateTime.UTC_OVERFLOW",
                                "overflow has occured during conversion to UTC");
     MessageLoaderParms parmsUn("Common.CIMDateTime.UTC_UNDERFLOW",
-                               "underflow has occured during conversion to UTC"); 
+                               "underflow has occured during conversion to UTC");
 
     char 		sign;   // Get the sign and UTC offset.
     sign = _rep->data[21];
@@ -1247,7 +1246,7 @@ void CIMDateTime::convertToUTC()
     //will effect the CIMDateTime value
 
     if (_rep->minutes.find('*') == PEG_NOT_FOUND) {
-        if ( sign == '-' ) {  
+        if ( sign == '-' ) {
             if (_TEN_THOUSAND_YEARS < (un_normNum + (offSet_hor + offSet_min))){
                // cout << " this is value " << this->toString() << endl;
                 throw DateTimeOutOfRangeException(parmsOv);
@@ -1265,7 +1264,7 @@ void CIMDateTime::convertToUTC()
     //if the hours section has no wild cards but the minutes section does then only on hour
     //position will be effected by the uct off Set
     else if (_rep->hours.find('*') == PEG_NOT_FOUND) {
-        if ( sign == '-' ) {     
+        if ( sign == '-' ) {
             if (_TEN_THOUSAND_YEARS < (un_normNum + (offSet_hor))){
                 throw DateTimeOutOfRangeException(parmsOv);
             }
@@ -1300,7 +1299,7 @@ Boolean CIMDateTime::isInterval() const
     const Uint32 	SIGN_OFFSET = 21;
 
     Boolean isInterval = strcmp(&_rep->data[SIGN_OFFSET], ":000") == 0 ;
-    
+
     return isInterval;
 }
 
@@ -1312,23 +1311,23 @@ Boolean CIMDateTime::isInterval() const
 Boolean CIMDateTime::equal (const CIMDateTime & x) const
 {
     if ((x.isInterval() && !this->isInterval()) || (!x.isInterval() && this->isInterval())) {
-        throw TypeMismatchException(); 
+        throw TypeMismatchException();
     }
 
     CIMDateTime current = CIMDateTime((String)_rep->data);
     CIMDateTime compare = CIMDateTime((String)x._rep->data);  // not sure why all this is needed but const has somthing to do with it
-   
+
     Uint32 spl_pos = current.getHighestWildCardPosition(compare);
 
     current.insert_WildCard(spl_pos);
     compare.insert_WildCard(spl_pos);
-    
+
     if (current.toMicroSeconds() == compare.toMicroSeconds()) {
         return true;
     }
-    else   
-        return false;  
-    
+    else
+        return false;
+
 }
 
 
@@ -1336,8 +1335,8 @@ Boolean CIMDateTime::equal (const CIMDateTime & x) const
 /*subtacts two CIMDateTime objects of like types
 */
 Sint64 CIMDateTime::getDifference(const CIMDateTime & startTime, const CIMDateTime & finishTime)
-{  
- 
+{
+
     CIMDateTime sta = startTime;
     CIMDateTime fin = finishTime;
     CIMDateTime sta_norm;
@@ -1355,10 +1354,10 @@ Sint64 CIMDateTime::getDifference(const CIMDateTime & startTime, const CIMDateTi
 
     Uint32 splat_pos;
     splat_pos = sta.getHighestWildCardPosition(fin);
- 
+
     sta.insert_WildCard(splat_pos);
     fin.insert_WildCard(splat_pos);
-                                                                            
+
     startT_num = sta.toMicroSeconds();
     finishT_num = fin.toMicroSeconds();
 
@@ -1366,11 +1365,11 @@ Sint64 CIMDateTime::getDifference(const CIMDateTime & startTime, const CIMDateTi
 
     return diff_num;
  }
-    
 
 
 
-/*  checks to make sure the format of a particular field in the DateTime string is correct. 
+
+/*  checks to make sure the format of a particular field in the DateTime string is correct.
     Returns
         ONLY_WILD_CARDS - field contains all wild cards
         SOME_WILD_CARDS - field contains some wild cards (error)
@@ -1380,7 +1379,7 @@ CIMDateTime::Field CIMDateTime::fieldcheck(const String & in_p, String & rep_fie
 {
     Uint32 post;
     rep_field = in_p;
- 
+
     post = in_p.find("*");
     if (post == PEG_NOT_FOUND) {
         return ONLY_DIGITS;
@@ -1403,13 +1402,13 @@ CIMDateTime::Field CIMDateTime::fieldcheck(const String & in_p, String & rep_fie
 /* This method does not change the value of object, it only converts the
     representation form one time zone to the time zone specified.
     @param cdt Time Stamp object that will be converted
-    @param utc uct-offset in minutes that represents the time zone  to be 
+    @param utc uct-offset in minutes that represents the time zone  to be
     converted to
-    Returns a copy of the calling object modified to represent the same 
+    Returns a copy of the calling object modified to represent the same
     time in a different time zone.
 */
 void CIMDateTime::setUtcOffSet(Sint32 utc)
-{    
+{
     if(this->isInterval()){
         return;
     }
@@ -1417,17 +1416,17 @@ void CIMDateTime::setUtcOffSet(Sint32 utc)
     MessageLoaderParms parmsOv("Common.CIMDateTime.UTC_OVERFLOW",
                                "overflow has occured durring convertion to UTC");
     MessageLoaderParms parmsUn("Common.CIMDateTime.UTC_UNDERFLOW",
-                               "underflow has occured durring convertion to UTC"); 
+                               "underflow has occured durring convertion to UTC");
 
-    // convert CIMDateTime to microseconds.   
+    // convert CIMDateTime to microseconds.
     Uint64 cdt_MicroSec = this->toMicroSeconds();
-    Uint32 offSet = abs(utc);                                
+    Uint32 offSet = abs(utc);
     Uint64 offSet_hor = (offSet/60) * _ONE_HOUR;
     Uint64 offSet_min = (offSet%60) * _ONE_MINUTE;
-    Uint64 cdt_MicroSecSum = 0;          
+    Uint64 cdt_MicroSecSum = 0;
     String sgn_offset;
-    
-    //Add (if utc is - ) or subtract (if utc is +) utc to/from DateTime.         
+
+    //Add (if utc is - ) or subtract (if utc is +) utc to/from DateTime.
     if (utc >= 0) {
         if (cdt_MicroSec < (offSet_hor + offSet_min)) {
             throw DateTimeOutOfRangeException(parmsOv);
@@ -1444,8 +1443,8 @@ void CIMDateTime::setUtcOffSet(Sint32 utc)
         sgn_offset = "-";
     }
 
-        
-    //Create new DateTime from sum of old DateTime and UTC and set UCT of new Date time. 
+
+    //Create new DateTime from sum of old DateTime and UTC and set UCT of new Date time.
     CIMDateTime ans = CIMDateTime(cdt_MicroSecSum, false);
 
     char utcBuff [5];
@@ -1454,7 +1453,7 @@ void CIMDateTime::setUtcOffSet(Sint32 utc)
     Boolean res = ans._rep->set_utcOffSet(utc_str);
 
     if (res) {
-        this->_rep->copy(ans._rep);   //  set_utcOffSet worked 
+        this->_rep->copy(ans._rep);   //  set_utcOffSet worked
         return;
     }
     else{
@@ -1466,20 +1465,20 @@ void CIMDateTime::setUtcOffSet(Sint32 utc)
 
 
 
-/* finds the Wild Card in the most significant position and returns 
+/* finds the Wild Card in the most significant position and returns
     that position
-    @param cDT_s gets searched along with calling object to find the 
+    @param cDT_s gets searched along with calling object to find the
     wild card in the most significant
     position
 */
 Uint32 CIMDateTime::getHighestWildCardPosition(const CIMDateTime & cDT_s)
 {
-       
+
     Uint32 spot_s = cDT_s.toString().find('*'); //since this return a Uint32 and PEG_NOT_FOUND=-1 can't do a
     Uint32 spot_f = this->toString().find('*');  // straight compare
 
-    
-    if (spot_s == PEG_NOT_FOUND && spot_f == PEG_NOT_FOUND) {   //start time have more wild cards then finish time 
+
+    if (spot_s == PEG_NOT_FOUND && spot_f == PEG_NOT_FOUND) {   //start time have more wild cards then finish time
        return PEG_NOT_FOUND;
     }
     else if (spot_f == PEG_NOT_FOUND) {
@@ -1487,7 +1486,7 @@ Uint32 CIMDateTime::getHighestWildCardPosition(const CIMDateTime & cDT_s)
     }
     else if (spot_s == PEG_NOT_FOUND) {
          return spot_f;
-    }        
+    }
     else{
         if (spot_f < spot_s) {
             return spot_f;
@@ -1504,14 +1503,14 @@ Uint32 CIMDateTime::getHighestWildCardPosition(const CIMDateTime & cDT_s)
 /*inserts wild cards into CIMDateTime object.
     @param index - position to start placing wild card characters
     @param cdt - object to be modified
-    Returns a copy of calling object with wild cards starting at 
-    position index 
+    Returns a copy of calling object with wild cards starting at
+    position index
     @exception InvalidDateTimeFormatException because of invalid index
-    (see rules for wild cards) 
+    (see rules for wild cards)
 */
 void CIMDateTime::insert_WildCard(Uint32 ind)
 {
- 
+
     Uint32 index = ind;
     if (ind > 20) {
        index = 21;
@@ -1522,14 +1521,14 @@ void CIMDateTime::insert_WildCard(Uint32 ind)
         CIMDateTime cur = CIMDateTime(this->toString());
         return;
     }
-    
+
     String splat = String("**************.******");
     String cdtStr = this->toString();
     String final;
-    if (index != PEG_NOT_FOUND) {                                    
+    if (index != PEG_NOT_FOUND) {
         String str_cdtStr = cdtStr.subString(0, index);
         String sub_splat = splat.subString(index, (21-index));
-    
+
         //build result
         String cdt_Splat = str_cdtStr.append(sub_splat);
         final = cdt_Splat.append(this->_rep->utcOffSet);
@@ -1542,7 +1541,7 @@ void CIMDateTime::insert_WildCard(Uint32 ind)
    CIMDateTime ans = CIMDateTime(final);
    this->_rep->copy(ans._rep);
    return;
- 
+
 }
 
 
@@ -1552,15 +1551,15 @@ CIMDateTime CIMDateTime::operator+(const CIMDateTime & cDT) const
     CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
     CIMDateTime opt_cDT = cDT;
     Sint32 utc;
-    Boolean isInt = this->isInterval(); 
+    Boolean isInt = this->isInterval();
 
     // only interval+interval and timeStamp+interval are allowed. Therefor second operand must be interval
     if (!opt_cDT.isInterval()) {
-        throw TypeMismatchException(); 
+        throw TypeMismatchException();
     }
 
     Uint32 splat_pos = cur_cDT.getHighestWildCardPosition(opt_cDT);
- 
+
     Uint64 opt_num = opt_cDT.toMicroSeconds();
     Uint64 cur_num = cur_cDT.toMicroSeconds();
 
@@ -1579,16 +1578,16 @@ CIMDateTime CIMDateTime::operator+(const CIMDateTime & cDT) const
 
 
 
- 
+
 CIMDateTime & CIMDateTime::operator+=(const CIMDateTime & cDT)
 {
     CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
     CIMDateTime opt_cDT = cDT;
 
     CIMDateTime sum_cdt = cur_cDT + opt_cDT;
-    
+
     _rep->copy(sum_cdt._rep);
-     
+
      return *this;
 }
 
@@ -1606,7 +1605,7 @@ CIMDateTime CIMDateTime::operator-(const CIMDateTime & cDT) const
 
     // only I-I, T-I and T-T are allowed
     if (cur_isIn && !opt_isIn) {
-        throw TypeMismatchException(); 
+        throw TypeMismatchException();
     }
 
     Uint64 opt_num = opt_cDT.toMicroSeconds();
@@ -1631,7 +1630,7 @@ CIMDateTime CIMDateTime::operator-(const CIMDateTime & cDT) const
 
     Uint32 splat_pos = cur_cDT.getHighestWildCardPosition(opt_cDT);
     ans_cdt.insert_WildCard(splat_pos);
-    
+
      return ans_cdt;
 }
 
@@ -1656,7 +1655,7 @@ CIMDateTime & CIMDateTime::operator-=(const CIMDateTime & cDT)
 CIMDateTime CIMDateTime::operator*(Uint64 num) const
 {
     CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
-    
+
     if (!this->isInterval()){
         throw TypeMismatchException();
     }
@@ -1668,7 +1667,7 @@ CIMDateTime CIMDateTime::operator*(Uint64 num) const
 
     CIMDateTime dummy;
     Uint32 splat_pos = cur_cDT.getHighestWildCardPosition(dummy);
- 
+
     prod_cdt.insert_WildCard(splat_pos);
 
     return prod_cdt;
@@ -1679,10 +1678,10 @@ CIMDateTime CIMDateTime::operator*(Uint64 num) const
 
 CIMDateTime & CIMDateTime::operator*=(Uint64 num)
 {
-    CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));  
+    CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
 
     CIMDateTime prod_cdt = cur_cDT * num;
-                                      
+
     _rep->copy(prod_cdt._rep);
 
      return *this;
@@ -1693,7 +1692,7 @@ CIMDateTime & CIMDateTime::operator*=(Uint64 num)
 
 CIMDateTime CIMDateTime::operator/(Uint64 num) const
 {
-    CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));   
+    CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
 
     if (!(this->isInterval())){
         MessageLoaderParms parmsD("Common.CIMDateTime.INVAID_OPERATION_DIV_INT",
@@ -1706,12 +1705,12 @@ CIMDateTime CIMDateTime::operator/(Uint64 num) const
                                  "Can not divide CIMDateTime by zero");
         throw Exception(parmsZ);
     }
-   
+
     Uint64 cur_num = cur_cDT.toMicroSeconds();
     Uint64 prod = cur_num/num;
 
     CIMDateTime prod_cdt = CIMDateTime(prod, true);
-    CIMDateTime dummy; 
+    CIMDateTime dummy;
 
     Uint32 splat_pos = cur_cDT.getHighestWildCardPosition(CIMDateTime(dummy));
     prod_cdt.insert_WildCard(splat_pos);
@@ -1722,12 +1721,12 @@ CIMDateTime CIMDateTime::operator/(Uint64 num) const
 
 
 CIMDateTime & CIMDateTime::operator/=(Uint64 num)
-{    
+{
     CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
 
     CIMDateTime ans = cur_cDT/num;
     _rep->copy(ans._rep);
-   
+
      return *this;
 }
 
@@ -1739,11 +1738,11 @@ Uint64 CIMDateTime::operator/(const CIMDateTime & cDT) const
     CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
     CIMDateTime opt_cDT = cDT;
 
-    
+
     if (!cur_cDT.isInterval() || !opt_cDT.isInterval()) {
         MessageLoaderParms parmsMM("Common.CIMDateTime.INVAID_OPERATION_DIV_TS",
                              "Can not divide two CIMDateTime objects if one of them is a TimeStamp");
-        throw TypeMismatchException(parmsMM); 
+        throw TypeMismatchException(parmsMM);
     }
 
     Uint64 opt_num = opt_cDT.toMicroSeconds();
@@ -1765,14 +1764,14 @@ Uint64 CIMDateTime::operator/(const CIMDateTime & cDT) const
 
 Boolean CIMDateTime::operator<(const CIMDateTime & cDT) const
 {
-    
+
     CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
     CIMDateTime opt_cDT = cDT;
 
     if ((!cur_cDT.isInterval() && opt_cDT.isInterval()) || (cur_cDT.isInterval() && !opt_cDT.isInterval())) {
         MessageLoaderParms parms("Common.CIMDateTime.INVAID_OPERATION_COMP_DIF",
                              "Trying to compare CIMDateTime objects of differing types");
-        throw TypeMismatchException(parms); 
+        throw TypeMismatchException(parms);
     }
 
     Uint32 splat_pos = cur_cDT.getHighestWildCardPosition(opt_cDT);
@@ -1804,7 +1803,7 @@ Boolean CIMDateTime::operator<=(const CIMDateTime & cDT) const
        return false;
    }
 }
-   
+
 
 
 
@@ -1836,7 +1835,7 @@ Boolean CIMDateTime::operator>=(const CIMDateTime & cDT) const
 }
 
 
-    
+
 Boolean CIMDateTime::operator!=(const CIMDateTime & cDT) const
 {
     CIMDateTime cur = CIMDateTime((String)(this->_rep->data));
@@ -1849,6 +1848,6 @@ Boolean CIMDateTime::operator!=(const CIMDateTime & cDT) const
     }
 }
 
- 
+
 
 PEGASUS_NAMESPACE_END

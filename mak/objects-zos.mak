@@ -12,11 +12,7 @@ _TMP_O = $(PEGASUS_PLATFORM).o
 # prelinker support
 
 ifdef PEGASUS_ZOS_PROGRAM_OBJECT
-ifdef PEGASUS_DEBUG
-FLAGS = -g -W c,XPLINK
-else
-FLAGS = -O2 -W c,XPLINK
-endif
+FLAGS = $(PR_FLAGS)
 endif
 
 $(OBJ_DIR)/%.o: %.cpp $(ERROR)

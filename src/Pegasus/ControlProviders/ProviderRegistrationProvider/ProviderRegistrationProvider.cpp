@@ -232,7 +232,7 @@ void ProviderRegistrationProvider::getInstance(
     }
     catch(CIMException& e)
     {
-	throw CIMException(CIM_ERR_FAILED, e.getMessage());
+	throw (e);
     }
 
     handler.deliver(instance);
@@ -276,7 +276,7 @@ void ProviderRegistrationProvider::enumerateInstances(
     }
     catch(CIMException& e)
     {
-	throw CIMException(CIM_ERR_FAILED, e.getMessage());
+	throw (e);
     }
 
     handler.deliver(enumInstances);
@@ -320,7 +320,7 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
     }
     catch(CIMException& e)
     {
-	throw CIMException(CIM_ERR_FAILED, e.getMessage());
+	throw (e);
     }
 
     handler.deliver(enumInstanceNames);
@@ -404,7 +404,7 @@ void ProviderRegistrationProvider::modifyInstance(
     }
     catch(CIMException& e)
     {
-	throw CIMException(CIM_ERR_FAILED, e.getMessage());
+	throw (e);
     }
 
     // complete processing the request
@@ -581,7 +581,7 @@ void ProviderRegistrationProvider::createInstance(
     }
     catch(CIMException& e)
     {
-	throw CIMException(CIM_ERR_FAILED, e.getMessage());
+	throw (e);
     }
 
     handler.deliver(returnReference);
@@ -639,7 +639,7 @@ void ProviderRegistrationProvider::deleteInstance(
     }
     catch(CIMException& e)
     {
-	throw CIMException(CIM_ERR_FAILED, e.getMessage());
+	throw (e);
     }
 
     // complete processing the request

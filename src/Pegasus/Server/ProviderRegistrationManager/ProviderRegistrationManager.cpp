@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Provider/OperationFlag.h>
@@ -1300,7 +1301,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             // add the instance to the hash table by using _moduleKey
             //
             instances.append(instance);
-            _addInstancesToTable(_moduleKey, instances);
+            _addInitialInstancesToTable(_moduleKey, instances);
     	}
 
         //
@@ -1336,7 +1337,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             // add the instance to the hash table by using _providerKey
             //
             instances.append(instance);
-            _addInstancesToTable(_providerKey, instances);
+            _addInitialInstancesToTable(_providerKey, instances);
     	}
 
         //
@@ -1380,7 +1381,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			    capabilityKey = _generateKey(namespaces[k], 
 						className, INS_PROVIDER); 
 			    instances.append(instance);
-			    _addInstancesToTable(capabilityKey, instances);
+			    _addInitialInstancesToTable(capabilityKey, instances);
 			}
 			break;
 		    }
@@ -1400,7 +1401,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
                             capabilityKey = _generateKey(namespaces[k], 
                                                 className, ASSO_PROVIDER); 
                             instances.append(instance);
-                            _addInstancesToTable(capabilityKey, instances);
+                            _addInitialInstancesToTable(capabilityKey, instances);
                         }
 			break;
 		    }
@@ -1438,7 +1439,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 			    }
 			    
 			    // Add the entry to the table
-			    _addInstancesToTable(capabilityKey, instances);
+			    _addInitialInstancesToTable(capabilityKey, instances);
 			}	
 
 			break;
@@ -1482,7 +1483,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 					className, "{}", MET_PROVIDER);
 
 				instances.append(instance);
-				_addInstancesToTable(capabilityKey, instances);	 
+				_addInitialInstancesToTable(capabilityKey, instances);	 
 			    }
 			    else
 			    {
@@ -1493,7 +1494,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 				    capabilityKey = _generateKey(namespaces[k],
 					className, supportedMethods[n], MET_PROVIDER);
 				    instances.append(instance);
-				    _addInstancesToTable(capabilityKey, instances);
+				    _addInitialInstancesToTable(capabilityKey, instances);
 				}
 			    }
 			}
@@ -2497,6 +2498,39 @@ void ProviderRegistrationManager::_addInstancesToTable(
 	//ATTN-YZ-P3-20020301:Is this proper exception 
 	PEG_METHOD_EXIT();
         throw CIMException(CIM_ERR_FAILED, "Can not insert element to the table ");
+    }
+    PEG_METHOD_EXIT();
+}
+
+void ProviderRegistrationManager::_addInitialInstancesToTable(
+    const String & key,
+    const Array<CIMInstance> & instances)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+		     "ProviderRegistrationManager::_addInitialInstancesToTable");
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = " + key);
+
+    ProviderRegistrationTable* elementInfo = 0;
+
+    try
+    {
+	elementInfo = new ProviderRegistrationTable(instances);
+    }
+
+    catch (Exception& e)
+    {
+	delete elementInfo;
+	PEG_METHOD_EXIT();
+	return;
+    }
+ 
+    if (!_registrationTable->table.insert(key,elementInfo))
+    {
+	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                      "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
+	Logger::put(Logger::STANDARD_LOG, "ProviderRegistrationManager", Logger::WARNING,
+                "The CIM Repository in namespace root/PG_InterOp has been corrupted.");
+	PEG_METHOD_EXIT();
     }
     PEG_METHOD_EXIT();
 }

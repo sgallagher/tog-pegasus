@@ -141,6 +141,9 @@ private:
 	void _addInstancesToTable(const String & key,
 		const Array<CIMInstance> & instances); 
 
+	void _addInitialInstancesToTable(const String & key,
+		const Array<CIMInstance> & instances); 
+
 	void _addClassNamespaceInfoToTable(const String & instanceID,
 		const String & namespaceName, const String & className, 
 		const Array<String> & supportedMethods);

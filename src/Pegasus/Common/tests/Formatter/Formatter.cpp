@@ -32,12 +32,43 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+#define DDD(X) // X
+//#define DDD(X) X
+
 int main()
 {
     String str = 
 	Formatter::format("\\$dollar\\$ X=$0, Y=$1, Z=$2, X=$0", 88, "Hello World", 7.5);
 
-    // cout << "str[" << str << "]" << endl;
+     DDD(cout << "str[" << str << "]" << endl;)
+
+     // test for Uint32 expressions.
+
+    Uint32 test = 99;
+    Uint32 big = 32999;
+
+    String str2 = Formatter::format("test $0 big $1", test, big);
+    DDD(cout << "str2[" << str2 << "]" << endl;)
+
+    assert(Formatter::format("[TRUE$0]", test) == "[TRUE99]");
+
+    // Test for booleans.
+    Boolean flag = true;
+    Boolean flag2 = false;
+
+    String str3 = Formatter::format(" TRUE $0 FALSE $1 FALSE $2",
+				     flag, !flag, flag2);
+
+    assert(Formatter::format("TRUE$0", flag ) == "TRUEtrue");
+    assert(Formatter::format("FALSE$0", flag2 ) == "FALSEfalse");
+
+    DDD(cout << "str3[" << str3 << "]" << endl;)
+
+    // Test for 64 bit integer
+    {
+	 Sint64 big = 32999;
+
+    }
 
     cout << "+++++ passed all tests" << endl;
 

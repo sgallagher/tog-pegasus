@@ -42,6 +42,21 @@ String Formatter::Arg::toString() const
 	    return buffer;
 	}
 
+	case UINTEGER:
+	{
+	    char buffer[32];
+	    sprintf(buffer, "%u", _integer);
+	    return buffer;
+	}
+
+	case BOOLEAN:
+	{
+	    //char buffer[32];
+	    //buffer = (_boolean ? "true": "false");
+	    //return buffer;
+	    return  (_boolean ? "true": "false");
+	}
+
 	case REAL:
 	{
 	    char buffer[32];

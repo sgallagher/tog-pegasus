@@ -37,6 +37,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+CIMOMHandle::CIMOMHandle(void)
+    : _service(0), _cimom(0)
+{
+}
+
 CIMOMHandle::CIMOMHandle(MessageQueueService * service)
     : _service(service), _cimom(0)
 {
@@ -46,7 +51,7 @@ CIMOMHandle::CIMOMHandle(MessageQueueService * service)
 
     if((_service == 0) || (_cimom == 0))
     {
-	throw NullPointer();
+	ThrowUnitializedHandle();
     }
 }
 
@@ -62,6 +67,7 @@ CIMOMHandle & CIMOMHandle::operator=(const CIMOMHandle & handle)
     }
 
     _service = handle._service;
+    _cimom = handle._cimom;
 
     return(*this);
 }
@@ -75,6 +81,11 @@ CIMClass CIMOMHandle::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     // encode request
     CIMGetClassRequestMessage * request =
 	new CIMGetClassRequestMessage(
@@ -138,6 +149,11 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMEnumerateClassesRequestMessage * request =
 	new CIMEnumerateClassesRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -173,6 +189,11 @@ Array<String> CIMOMHandle::enumerateClassNames(
     const String& className,
     Boolean deepInheritance)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMEnumerateClassNamesRequestMessage * request =
 	new CIMEnumerateClassNamesRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -201,6 +222,11 @@ void CIMOMHandle::createClass(
     const String& nameSpace,
     const CIMClass& newClass)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMCreateClassRequestMessage * request =
 	new CIMCreateClassRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -225,6 +251,11 @@ void CIMOMHandle::modifyClass(
     const String& nameSpace,
     const CIMClass& modifiedClass)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMModifyClassRequestMessage * request =
 	new CIMModifyClassRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -249,6 +280,11 @@ void CIMOMHandle::deleteClass(
     const String& nameSpace,
     const String& className)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     // encode request
     CIMDeleteClassRequestMessage * request =
 	new CIMDeleteClassRequestMessage(
@@ -278,6 +314,11 @@ CIMInstance CIMOMHandle::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     // encode request
     CIMGetInstanceRequestMessage * request =
 	new CIMGetInstanceRequestMessage(
@@ -342,6 +383,11 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     // encode request
     CIMEnumerateInstancesRequestMessage * request =
 	new CIMEnumerateInstancesRequestMessage(
@@ -411,6 +457,11 @@ Array<CIMReference> CIMOMHandle::enumerateInstanceNames(
     const String& nameSpace,
     const String& className)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     // encode request
     CIMEnumerateInstanceNamesRequestMessage * request =
 	new CIMEnumerateInstanceNamesRequestMessage(
@@ -463,6 +514,11 @@ CIMReference CIMOMHandle::createInstance(
     const String& nameSpace,
     const CIMInstance& newInstance)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMCreateInstanceRequestMessage * request =
 	new CIMCreateInstanceRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -491,6 +547,11 @@ void CIMOMHandle::modifyInstance(
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMModifyInstanceRequestMessage * request =
 	new CIMModifyInstanceRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -519,6 +580,11 @@ void CIMOMHandle::deleteInstance(
     const String& nameSpace,
     const CIMReference& instanceName)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMDeleteInstanceRequestMessage * request =
 	new CIMDeleteInstanceRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -543,6 +609,11 @@ Array<CIMInstance> CIMOMHandle::execQuery(
     const String& queryLanguage,
     const String& query)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMExecQueryRequestMessage * request =
 	new CIMExecQueryRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -576,6 +647,11 @@ Array<CIMObject> CIMOMHandle::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMAssociatorsRequestMessage * request =
 	new CIMAssociatorsRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -620,6 +696,11 @@ Array<CIMReference> CIMOMHandle::associatorNames(
     const String& role,
     const String& resultRole)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMAssociatorNamesRequestMessage * request =
 	new CIMAssociatorNamesRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -659,6 +740,11 @@ Array<CIMObject> CIMOMHandle::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMReferencesRequestMessage * request =
 	new CIMReferencesRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -697,6 +783,11 @@ Array<CIMReference> CIMOMHandle::referenceNames(
     const String& resultClass,
     const String& role)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMReferenceNamesRequestMessage * request =
 	new CIMReferenceNamesRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -728,6 +819,11 @@ CIMValue CIMOMHandle::getProperty(
     const CIMReference& instanceName,
     const String& propertyName)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMGetPropertyRequestMessage * request =
 	new CIMGetPropertyRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -758,6 +854,11 @@ void CIMOMHandle::setProperty(
     const String& propertyName,
     const CIMValue& newValue)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     CIMSetPropertyRequestMessage * request =
 	new CIMSetPropertyRequestMessage(
 	    XmlWriter::getNextMessageId(),
@@ -790,6 +891,11 @@ CIMValue CIMOMHandle::invokeMethod(
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters)
 {
+    if((_service == 0) || (_cimom == 0))
+    {
+	ThrowUnitializedHandle();
+    }
+
     Message* request = new CIMInvokeMethodRequestMessage(
 	XmlWriter::getNextMessageId(),
 	nameSpace,

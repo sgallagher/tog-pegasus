@@ -48,6 +48,9 @@ class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
 public:
     /** */
+    CIMOMHandle(void);
+
+	/** */
     CIMOMHandle(MessageQueueService * service);
 
     /** */

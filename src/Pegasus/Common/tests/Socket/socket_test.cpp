@@ -77,6 +77,7 @@ void test_dispatch(monitor_2_entry* entry)
   unsigned char buf[256];
   memset(&buf, 0, 256);
   Sint32 bytes = entry->get_sock().read((void *)&buf, 255);
+  entry->set_state(IDLE);
   bytes = entry->get_sock().write(&OK, 4);
   cmd_rx++;
   entry->set_accept((void*)cmd_rx.value());

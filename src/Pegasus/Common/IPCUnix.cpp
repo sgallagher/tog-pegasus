@@ -304,8 +304,12 @@ Condition::Condition()
 #else
   _cond_mutex = Mutex(PTHREAD_MUTEX_TIMED_NP);
 #endif
-#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-  // ATTN - HP-UX can not deal with this assignment
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+  // ATTN - HP-UX can not deal with the non-static structure assignment
+  // Also, the (PEGASUS_COND_TYPE) cast seems to break the HP-UX compile
+  PEGASUS_COND_TYPE tmpCond = PTHREAD_COND_INITIALIZER;
+  memcpy(&_condition, &tmpCond, sizeof(PEGASUS_COND_TYPE));
+#else
   _condition = (PEGASUS_COND_TYPE) PTHREAD_COND_INITIALIZER;
 #endif
   _owner = 0;

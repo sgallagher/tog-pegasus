@@ -40,20 +40,20 @@ PEGASUS_NAMESPACE_BEGIN
 
 enum CQLOperation
 {
-    CQL_EQ,		         // Equal                  =
-    CQL_NE,             // Not equal              <>
-    CQL_LT,		         // Less than			     <
-    CQL_LE,		         // Less than or equal	  <=
-    CQL_GT,		         // Greater than			  >
-    CQL_GE,             // Greater than or equal  >=
-    CQL_ADD,		      // Addition			        +
-    CQL_SUB,            // Subtraction			     -
-    CQL_MUTIPLY,	      // Multiplication 		  *
-    CQL_DIV,		      // Division               /
-    CQL_IS_NULL,	      //
-    CQL_IS_NOT_NULL,	   //
-    CQL_ISA,		      //	
-    CQL_LIKE		      //	
+  CQL_EQ,          // Equal                  =
+  CQL_NE,          // Not equal              <>
+  CQL_LT,	   // Less than		     <
+  CQL_LE,	   // Less than or equal     <=
+  CQL_GT,	   // Greater than	     >
+  CQL_GE,          // Greater than or equal  >=
+  CQL_ADD,	   // Addition		     +
+  CQL_SUB,         // Subtraction	     -
+  CQL_MUTIPLY,	   // Multiplication 	     *
+  CQL_DIV,         // Division               /
+  CQL_IS_NULL      //
+  CQL_IS_NOT_NULL, //
+  CQL_ISA,         //	
+  CQL_LIKE	   //	
 };
                        
 

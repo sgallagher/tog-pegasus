@@ -144,4 +144,35 @@ void CQLTermRep::applyContext(QueryContext& inContext,
    }
 }
 
+Boolean CQLTermRep::operator==(const CQLTermRep& rhs)const
+{
+  PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::operator==()");
+  
+ for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
+    {
+      if(_FactorOperators[i] != rhs._FactorOperators[i])
+	{
+	  PEG_METHOD_EXIT();
+	  return false;
+	}
+    }
+
+  for(Uint32 i = 0; i < _Factors.size(); ++i)
+    {
+      if(_Factors[i] != rhs._Factors[i])
+	{
+	  PEG_METHOD_EXIT();
+	  return false;
+	}
+    }
+ 
+  PEG_METHOD_EXIT();
+  return true;
+}
+
+Boolean CQLTermRep::operator!=(const CQLTermRep& rhs)const
+{
+  return (!operator==(rhs));
+}
+
 PEGASUS_NAMESPACE_END

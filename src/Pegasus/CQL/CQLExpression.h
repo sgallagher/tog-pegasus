@@ -114,8 +114,8 @@ class PEGASUS_CQL_LINKAGE CQLExpression
       
       @param  - CI - the CIMInstance to be evaluated.
       @param  - QueryCtx - The QueryContext used to access the repository.
-      @return - CQLSyntaxErrorException
-      @throw  - None.
+      @return - The resolved CQLValue.
+      @throw  - CQLSyntaxErrorException.
       <I><B>Experimental Interface</B></I><BR>
   */
   CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
@@ -184,9 +184,11 @@ class PEGASUS_CQL_LINKAGE CQLExpression
   Array<TermOpType> getOperators()const;
   
   /** 
-      
-            
-      @param  - None.
+      Calling applyContext function for every internal object.  This
+      will fully qualify the Chained Identifiers within all the CQLValue objects.
+          
+      @param  - inContext - Query Context used to access the repository.
+      @param  - inCid - Chained Identifier used for standalone symbolic constants.  
       @return - None.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
@@ -195,30 +197,30 @@ class PEGASUS_CQL_LINKAGE CQLExpression
 		    CQLChainedIdentifier inCid = CQLChainedIdentifier());
   
   /** 
-      Contructs CQLTermRep default object.
+      Assignment operation.
       
-      @param  - None.
-      @return - None.
+      @param  - rhs - CQLExpression to be assigned.
+      @return - Assigned value.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
   CQLExpression& operator=(const CQLExpression& rhs);
   
   /** 
-      Contructs CQLTermRep default object.
+      Compare to CQLExpressions for equality
       
-      @param  - None.
-      @return - None.
+      @param  - expr - rightside value of operation
+      @return - true or false.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
   Boolean operator==(const CQLExpression& expr)const;
    
   /** 
-      Contructs CQLTermRep default object.
+      Compare to CQLExpressions for non-equality
       
-      @param  - None.
-      @return - None.
+      @param  - expr - rightside value of operation
+      @return - true or false.
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */

@@ -210,6 +210,26 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       <I><B>Experimental Interface</B></I><BR>
   */ 
   CQLTerm& operator=(const CQLTerm& rhs);
+  
+  /** 
+      Compare to CQLTerms for equality
+      
+      @param  - rhs - rightside value of operation
+      @return - true or false.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean operator==(const CQLTerm& rhs)const;
+  
+  /** 
+      Compare to CQLTerms for non-equality
+      
+      @param  - rhs - rightside value of operation
+      @return - true or false.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean operator!=(const CQLTerm& rhs)const;
 
   
   friend class CQLFactory;

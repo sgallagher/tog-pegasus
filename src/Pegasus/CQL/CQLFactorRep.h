@@ -40,97 +40,66 @@
 
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
-//class PEGASUS_CQL_LINKAGE CQLExpression;
-//class PEGASUS_CQL_LINKAGE CQLFunction;
 class PEGASUS_CQL_LINKAGE CQLValue;
 class PEGASUS_CQL_LINKAGE CQLScope;
 class PEGASUS_CQL_LINKAGE QueryContext;
 
-/**  The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.
-         This class evaluates the object to get a CQLValue.
-       If it contains a CQLValue, it will resolve the CQLValue. 
-  */
-
 class PEGASUS_CQL_LINKAGE CQLFactorRep
 {
-  public:
-   CQLFactorRep():_simpleValue(false){}
+ public:
 
-    CQLFactorRep(const CQLValue& inCQLVal);
+  CQLFactorRep():_simpleValue(false){}
+  
+  CQLFactorRep(const CQLValue& inCQLVal);
+  
+  CQLFactorRep(const CQLExpression& inCQLExp);
+  
+  CQLFactorRep(const CQLFunction& inCQLFunc);
 
-    CQLFactorRep(const CQLExpression& inCQLExp);
-
-    CQLFactorRep(const CQLFunction& inCQLFunc);
-    CQLFactorRep(const CQLFactorRep* rep);
-
-    ~CQLFactorRep(){}
-
-    /** 
-           The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.
-           This method evaluates the object to get a CQLValue.
-           If it contains a CQLValue, it will resolve the CQLValue by calling the
-    resolve method
-           on the CQLValue object. 
-    
-           If it contains a CQLFunction this method will invoke the getValue method
-    on 
-           CQLFunction, and the returned value will already be resolved.
-    
-           If it contains a CQLExpression this method will invoke the getValue
-    method on 
-           CQLExpression, and the returned value will already be resolved.
-    
-      */
-
-   CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
-
-   Boolean isSimple()const;
-
-   Boolean isSimpleValue()const;
-
-   CQLValue getValue()const;
-
-   CQLFunction getCQLFunction()const;
-
-   CQLExpression getCQLExpression()const;
-
-   String toString()const;
-
-   void applyContext(QueryContext& inContext,
-                     CQLChainedIdentifier& inCid);
-
-   Boolean operator==(const CQLFactorRep& rep)const;
-
-   Boolean operator!=(const CQLFactorRep& rep)const;
-
-   friend class CQLFactory;
-
-  private:
-
-   enum ContainedObjectType {EXPRESSION, FUNCTION, VALUE};
-
-    CQLExpression _CQLExp;
-
-    CQLValue _CQLVal;
-
-    CQLFunction _CQLFunct;
-
-    /** if _invert is TRUE, multiply by -1 to invert the value.
-      */
-
-    Boolean _invert;
-    Boolean _simpleValue;
-
-    ContainedObjectType _containedType;
-    
+  CQLFactorRep(const CQLFactorRep* rep);
+  
+  ~CQLFactorRep(){}
+  
+  CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
+  
+  Boolean isSimple()const;
+  
+  Boolean isSimpleValue()const;
+  
+  CQLValue getValue()const;
+  
+  CQLFunction getCQLFunction()const;
+  
+  CQLExpression getCQLExpression()const;
+  
+  String toString()const;
+  
+  void applyContext(QueryContext& inContext,
+		    CQLChainedIdentifier& inCid);
+  
+  Boolean operator==(const CQLFactorRep& rep)const;
+  
+  Boolean operator!=(const CQLFactorRep& rep)const;
+  
+  friend class CQLFactory;
+  
+ private:
+  
+  enum ContainedObjectType {EXPRESSION, FUNCTION, VALUE};
+  
+  CQLExpression _CQLExp;
+  
+  CQLValue _CQLVal;
+  
+  CQLFunction _CQLFunct;
+  
+  Boolean _invert;
+  
+  Boolean _simpleValue;
+  
+  ContainedObjectType _containedType;
 };
-/*
-#ifndef PEGASUS_ARRAY_T
-#define PEGASUS_ARRAY_T CQLFactorRep
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-#endif
-*/
+
 PEGASUS_NAMESPACE_END
 
-#endif /* CQLFACTOR_H_HEADER */
+#endif /* CQLFACTORREP_H_HEADER */

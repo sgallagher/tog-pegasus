@@ -118,4 +118,13 @@ CQLTerm& CQLTerm::operator=(const CQLTerm& rhs)
   return *this;
 }
 
+Boolean CQLTerm::operator==(const CQLTerm& rhs)const
+{
+  return (_rep == rhs._rep);
+}
+Boolean CQLTerm::operator!=(const CQLTerm& rhs)const
+{
+  return (!operator==(rhs));                                                                                
+}
+
 PEGASUS_NAMESPACE_END

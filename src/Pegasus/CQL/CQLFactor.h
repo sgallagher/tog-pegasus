@@ -50,68 +50,210 @@ class PEGASUS_CQL_LINKAGE CQLScope;
 class PEGASUS_CQL_LINKAGE QueryContext;
 
 /**  The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.
-       This class evaluates the object to get a CQLValue.
-       If it contains a CQLValue, it will resolve the CQLValue. 
-  */
+     This class evaluates the object to get a CQLValue.
+     If it contains a CQLValue, it will resolve the CQLValue. 
+*/
 
 class PEGASUS_CQL_LINKAGE CQLFactor
 {
-  public:
-   CQLFactor();
+ public:
 
-    CQLFactor(const CQLValue& inCQLVal);
-
-    CQLFactor(const CQLExpression& inCQLExp);
-
-    CQLFactor(const CQLFunction& inCQLFunc);
-    CQLFactor(const CQLFactor& inCQLFact);
-
-    ~CQLFactor();
-
-    /** 
-           The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.
-           This method evaluates the object to get a CQLValue.
-           If it contains a CQLValue, it will resolve the CQLValue by calling the
-    resolve method
-           on the CQLValue object. 
+  /** 
+      Contructs CQLFactor default object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLFactor();
+  
+  /** 
+      Contructs CQLFactor from a CQLValue.
+      
+      @param  - inCQLVal - The CQLValue used to construct the CQLFactor.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLFactor(const CQLValue& inCQLVal);
+  
+  /** 
+      Contructs CQLFactor from a CQLExpression object.
+      
+      @param  - inCQLExp - The CQLExpression used to construct the CQLFactor.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLFactor(const CQLExpression& inCQLExp);
+  
+  /** 
+      Contructs CQLFactor from a CQLFunction object.
+      
+      @param  - inCQLFunc - The CQLFunction used to construct the CQLFactor.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLFactor(const CQLFunction& inCQLFunc);
+  
+  /** 
+      Contructs CQLFactor from a CQLFactor object (copy-constructor).
+      
+      @param  - inCQLFact - The CQLFactor used to construct the CQLFactor.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLFactor(const CQLFactor& inCQLFact);
+  
+  /** 
+      Destroyes the CQLFactor object.
+      
+      @param  - None.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  ~CQLFactor();
+  
+  /** 
+      The CQLFactor could contain a CQLValue, CQLExpression or CQLFunction.
+      This method evaluates the object to get a CQLValue.
+      If it contains a CQLValue, it will resolve the CQLValue by calling the
+      resolve method
+      on the CQLValue object. 
+      
+      If it contains a CQLFunction this method will invoke the getValue method
+      on 
+      CQLFunction, and the returned value will already be resolved.
     
-           If it contains a CQLFunction this method will invoke the getValue method
-    on 
-           CQLFunction, and the returned value will already be resolved.
-    
-           If it contains a CQLExpression this method will invoke the getValue
-    method on 
-           CQLExpression, and the returned value will already be resolved.
-    
-      */
+      If it contains a CQLExpression this method will invoke the getValue
+      method on 
+      CQLExpression, and the returned value will already be resolved. 
+      
+      @param  - CI - The CIMInstance to be evaluated.
+      @param  - QueryCtx - The QueryContext contains specific information about the query.
+      @return - The primitive CQLValue.
+      @throw  - CQLSyntaxErrorException.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
+  
+  /** 
+      Will return true if the object has only one CQLValue object within it..
+      
+      @param  - None.
+      @return - true or false.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean isSimple()const;
+  
+  /** 
+      Will return true if the object has only one CQLValue object within it.
+      
+      @param  - None.
+      @return - true or false.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean isSimpleValue()const;
+  
+  /** 
+      Retrieves the CQLValue from the CQLFactor object.
+      NOTE: If CQLValue has not been set for this object, a 
+      default object will be returned.
 
-   CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
+      @param  - None.
+      @return - The CQLValue.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLValue getValue()const;
+  
+  /** 
+      Retrieves the CQLFunciton from the CQLFactor object.
+      NOTE: If CQLFunction has not been set for this object, a 
+      default object will be returned.
+      
+      @param  - None.
+      @return - The CQLFucntion
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLFunction getCQLFunction()const;
+  
+  /** 
+      Retrieves the CQLExpression from the CQLFactor object.
+      NOTE: If CQLExpression has not been set for this object, a 
+      default object will be returned.
+      
+      @param  - None.
+      @return - The CQLFucntion
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLExpression getCQLExpression()const;
+  
+  /** 
+      Returns a string representation of the object.
+      
+      @param  - None.
+      @return - A string
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  String toString()const;
+  
+  /** 
+      Calling applyContext function for every internal object.  This
+      will fully qualify the Chained Identifiers within all the CQLValue objects.
+      
+      @param  - inContext - Query Context used to access the repository.
+      @param  - inCid - Chained Identifier used for standalone symbolic constants.
+      @return - None.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  void applyContext(QueryContext& inContext,
+		    CQLChainedIdentifier& inCid);
 
-   Boolean isSimple()const;
-
-   Boolean isSimpleValue()const;
-
-   CQLValue getValue()const;
-
-   CQLFunction getCQLFunction()const;
-
-   CQLExpression getCQLExpression()const;
-
-   String toString()const;
-
-   void applyContext(QueryContext& inContext,
-                     CQLChainedIdentifier& inCid);
-
-   CQLFactor& operator=(const CQLFactor& rhs);
-
-   Boolean operator==(const CQLFactor& factor)const;
-
-   Boolean operator!=(const CQLFactor& factor)const;
-
-   friend class CQLFactory;
-  private:
-
-    CQLFactorRep *_rep;
+  /** 
+      Assignment operation
+      
+      @param  - rhs - CQLFactor to be assigned
+      @return - the assigned value.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  CQLFactor& operator=(const CQLFactor& rhs);
+  
+  /** 
+      Compare to CQLFactors for equality
+      
+      @param  - expr - rightside value of operation
+      @return - true or false.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean operator==(const CQLFactor& factor)const;
+  
+  /** 
+      Compare to CQLFactors for non-equality
+      
+      @param  - expr - rightside value of operation
+      @return - true or false.
+      @throw  - None.
+      <I><B>Experimental Interface</B></I><BR>
+  */
+  Boolean operator!=(const CQLFactor& factor)const;
+  
+  friend class CQLFactory;
+ private:
+  
+  CQLFactorRep *_rep;
 };
 
 #ifndef PEGASUS_ARRAY_T

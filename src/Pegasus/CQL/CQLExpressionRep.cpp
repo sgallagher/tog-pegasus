@@ -33,68 +33,88 @@
 #include <Pegasus/CQL/CQLExpressionRep.h>
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/CQL/QueryContext.h>
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)
 {
-   _CQLTerms.append(theTerm);
-
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::CQLExpressionRep()");
+  _CQLTerms.append(theTerm);
+  PEG_METHOD_EXIT();
 }
 
 CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep) 
 {
-   _TermOperators = rep->_TermOperators;
-   _CQLTerms = rep->_CQLTerms;
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::CQLExpressionRep()");
+
+  _TermOperators = rep->_TermOperators;
+  _CQLTerms = rep->_CQLTerms;
+
+  PEG_METHOD_EXIT();
 }
 
-CQLExpressionRep::~CQLExpressionRep(){
+CQLExpressionRep::~CQLExpressionRep()
+{
 
 }
 CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
 {
-   CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::resolveValue()");
 
-   for(Uint32 i = 0; i < _TermOperators.size(); ++i)
-   {
+  CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
+  
+  for(Uint32 i = 0; i < _TermOperators.size(); ++i)
+    {
       switch(_TermOperators[i])
-      {/*
-         case plus:
-            returnVal = returnVal + 
-                        _CQLTerms[i+1].resolveValue(CI,QueryCtx);
-            break;
-         case minus:
-            returnVal = returnVal - 
-                        _CQLTerms[i+1].resolveValue(CI,QueryCtx);
-            break;
-       */
-         default:
-            throw(1);
-      }
-   }
-   return returnVal;
+	{/*
+	   case plus:
+	   returnVal = returnVal + 
+	   _CQLTerms[i+1].resolveValue(CI,QueryCtx);
+	   break;
+	   case minus:
+	   returnVal = returnVal - 
+	   _CQLTerms[i+1].resolveValue(CI,QueryCtx);
+	   break;
+	 */
+	default:
+	  throw(1);
+	}
+    }
+  
+  PEG_METHOD_EXIT();
+  return returnVal;
 }
 
 void CQLExpressionRep::appendOperation(const TermOpType theTermOpType, const CQLTerm& theTerm)
 {
-   _TermOperators.append(theTermOpType);
-   _CQLTerms.append(theTerm);
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::appendOperation()");
+
+  _TermOperators.append(theTermOpType);
+  _CQLTerms.append(theTerm);
+
+  PEG_METHOD_EXIT();
 }
 
 String CQLExpressionRep::toString()const
 {
-   String returnStr;
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::toString()");
 
-   if(_CQLTerms.size() > 0){
-   	returnStr.append(_CQLTerms[0].toString());
-   	for(Uint32 i = 0; i < _TermOperators.size(); ++i)
-   	{
-      		returnStr.append(_TermOperators[i] == plus ? String(" + ") : String(" - "));
-      		returnStr.append(_CQLTerms[i+1].toString());
-   	}
-   }
-   return returnStr;
+  String returnStr;
+
+  if(_CQLTerms.size() > 0){
+    returnStr.append(_CQLTerms[0].toString());
+    for(Uint32 i = 0; i < _TermOperators.size(); ++i)
+      {
+	returnStr.append(_TermOperators[i] == plus ? String(" + ") : String(" - "));
+	returnStr.append(_CQLTerms[i+1].toString());
+      }
+  }
+
+  PEG_METHOD_EXIT();
+  return returnStr;
 }
+
 
 Boolean CQLExpressionRep::isSimple()const
 {
@@ -103,9 +123,17 @@ Boolean CQLExpressionRep::isSimple()const
 
 Boolean CQLExpressionRep::isSimpleValue()const
 {
-   if(_CQLTerms.size() == 1) 
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::isSimpleValue()");
+
+  if(_CQLTerms.size() == 1) 
+    {
+      PEG_METHOD_EXIT();
       return _CQLTerms[0].isSimpleValue();
-   return false;
+    }
+  
+  PEG_METHOD_EXIT();
+  
+  return false;
 }
 
 Array<CQLTerm> CQLExpressionRep::getTerms()const
@@ -121,18 +149,51 @@ Array<TermOpType> CQLExpressionRep::getOperators()const
 void CQLExpressionRep::applyContext(QueryContext& inContext,
                                     CQLChainedIdentifier& inCid)
 {
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::applyContext()");
+
   for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
   {
     _CQLTerms[i].applyContext(inContext, inCid);
   }
+
+  PEG_METHOD_EXIT();
 }
 
-Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep)const{
-	return true;
+Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep)const
+{
+  PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::operator==()");
+
+  if(_isSimple != rep._isSimple)
+    {
+      PEG_METHOD_EXIT();
+      return false;
+    }
+
+  for(Uint32 i = 0; i < _TermOperators.size(); ++i)
+    {
+      if(_TermOperators[i] != rep._TermOperators[i])
+	{
+	  PEG_METHOD_EXIT();
+	  return false;
+	}
+    }
+
+  for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
+    {
+      if(_CQLTerms[i] != rep._CQLTerms[i])
+	{
+	  PEG_METHOD_EXIT();
+	  return false;
+	}
+    }
+  
+  PEG_METHOD_EXIT();
+  return true;
 }
 
-Boolean CQLExpressionRep::operator!=(const CQLExpressionRep& rep)const{
-	return (!operator==(rep));
+Boolean CQLExpressionRep::operator!=(const CQLExpressionRep& rep)const
+{
+  return (!operator==(rep));
 }
 
 PEGASUS_NAMESPACE_END

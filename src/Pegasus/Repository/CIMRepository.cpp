@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMRepository.cpp,v $
+// Revision 1.3  2001/02/19 01:47:17  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.2  2001/02/18 19:02:17  mike
 // Fixed CIM debacle
 //
@@ -562,10 +565,10 @@ CIMClass CIMRepository::getClass(
 
     // Load the class:
 
-    CIMClass classDecl;
-    _LoadObject(path, classDecl);
+    CIMClass cimClass;
+    _LoadObject(path, cimClass);
 
-    return CIMClass(classDecl);
+    return CIMClass(cimClass);
 }
 
 CIMInstance CIMRepository::getInstance(

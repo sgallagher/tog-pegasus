@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: GetInstance.cpp,v $
+// Revision 1.3  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.2  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
 //
@@ -57,8 +60,8 @@ int main(int argc, char** argv)
 
 	CIMReference reference;
 	CIMReference::instanceNameToReference(instanceName, reference);
-	CIMInstance instanceDecl = client.getInstance(NAMESPACE, reference);
-	instanceDecl.print();
+	CIMInstance cimInstance = client.getInstance(NAMESPACE, reference);
+	cimInstance.print();
     }
     catch(Exception& e)
     {

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
+// Revision 1.6  2001/02/19 01:47:17  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.5  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
 //
 // Revision 1.4  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
@@ -489,10 +492,10 @@ Array<Sint8>& XmlWriter::appendQualifierNameParameter(
 Array<Sint8>& XmlWriter::appendClassParameter(
     Array<Sint8>& out,
     const char* parameterName,
-    const CIMConstClass& classDecl)
+    const ConstCIMClass& cimClass)
 {
     Array<Sint8> tmp;
-    classDecl.toXml(tmp);
+    cimClass.toXml(tmp);
     return formatIParamValueElement(out, parameterName, tmp);
 }
 

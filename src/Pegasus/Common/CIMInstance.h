@@ -23,11 +23,14 @@
 // Author:
 //
 // $Log: CIMInstance.h,v $
+// Revision 1.2  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -68,16 +71,17 @@ PEGASUS_NAMESPACE_BEGIN
 ////////////////////////////////////////////////////////////////////////////////
 
 class CIMConstInstance;
-/** Class CIMInstance	- The CIMInstance class represents the instance of 
-a CIM class in Pegasus. It is used manipulate instances and the 
-characteristics of instances
 
+/** Class CIMInstance	- The CIMInstance class represents the instance of 
+    a CIM class in Pegasus. It is used manipulate instances and the 
+    characteristics of instances
 */ 
 class PEGASUS_COMMON_LINKAGE CIMInstance
 {
 public:
+
     /** Constructor - Create a CIM Instance object.
-    @return  Instance created
+	@return  Instance created
     */
     CIMInstance() : _rep(0)
     {
@@ -299,6 +303,12 @@ private:
 	    throw UnitializedHandle();
     }
 
+    String getInstanceName(ConstCIMClass& cimClass) const
+    {
+	_checkRep();
+	return _rep->getInstanceName(cimClass);
+    }
+
     CIMInstanceRep* _rep;
     friend class CIMConstInstance;
 };
@@ -426,6 +436,12 @@ public:
     CIMInstance clone() const
     {
 	return CIMInstance(_rep->clone());
+    }
+
+    String getInstanceName(ConstCIMClass& cimClass) const
+    {
+	_checkRep();
+	return _rep->getInstanceName(cimClass);
     }
 
 private:

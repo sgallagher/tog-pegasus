@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlReader.h,v $
+// Revision 1.3  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.2  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
 //
@@ -295,11 +298,11 @@ public:
 
     static Boolean getClassElement(
 	XmlParser& parser, 
-	CIMClass& classDecl);
+	CIMClass& cimClass);
 
     static Boolean getInstanceElement(
 	XmlParser& parser, 
-	CIMInstance& instanceDecl);
+	CIMInstance& cimInstance);
 
     static void getObject(XmlParser& parser, CIMClass& x)
     {

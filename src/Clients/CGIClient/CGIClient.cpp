@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CGIClient.cpp,v $
+// Revision 1.15  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.14  2001/02/18 23:28:14  karl
 // add namespace stuff. Not finished
 //
@@ -30,7 +33,7 @@
 // Fixed CIM debacle
 //
 // Revision 1.12  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
 //
 // Revision 1.11  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -401,7 +404,7 @@ void PrintQualifiers(OBJECT& object)
     and type of the CIMMethod in each entry
     @param Classdecl - Class for which methods to be output
 */
-void PrintClassMethods(CIMClass& classDecl)
+void PrintClassMethods(CIMClass& cimClass)
 {
     cout << "<h2>Methods:</h2>\n";
     // Create the table
@@ -411,9 +414,9 @@ void PrintClassMethods(CIMClass& classDecl)
     cout << "<th>CIMType</th>\n";
     cout << "</tr>\n";
 
-    for (Uint32 i = 0, n = classDecl.getMethodCount(); i < n; i++)
+    for (Uint32 i = 0, n = cimClass.getMethodCount(); i < n; i++)
     {
-	CIMMethod method = classDecl.getMethod(i);
+	CIMMethod method = cimClass.getMethod(i);
 	CIMType type = method.getType();
 
 	cout << "<tr>\n";
@@ -441,17 +444,17 @@ void PrintClassMethods(CIMClass& classDecl)
 */
 void PrintClass(
     const String& nameSpace,
-    CIMClass& classDecl,
+    CIMClass& cimClass,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    PrintHTMLHead("GetClass", classDecl.getClassName());
+    PrintHTMLHead("GetClass", cimClass.getClassName());
     
     if (includeQualifiers)
-	PrintQualifiers(classDecl);
-    PrintObjectProperties(nameSpace, classDecl,includeClassOrigin);
-    PrintClassMethods(classDecl);
+	PrintQualifiers(cimClass);
+    PrintObjectProperties(nameSpace, cimClass,includeClassOrigin);
+    PrintClassMethods(cimClass);
 
     cout << "</body>\n" << "</html>\n";
 }
@@ -468,14 +471,14 @@ void PrintClass(
 */
 void PrintInstance(
 const String& nameSpace,
-    CIMInstance& instanceDecl,
+    CIMInstance& cimInstance,
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    PrintHTMLHead("GetInstance", instanceDecl.getClassName());
-    PrintQualifiers(instanceDecl);
-    PrintObjectProperties(nameSpace, instanceDecl, localOnly);
+    PrintHTMLHead("GetInstance", cimInstance.getClassName());
+    PrintQualifiers(cimInstance);
+    PrintObjectProperties(nameSpace, cimInstance, localOnly);
 
     cout << "</body>\n" << "</html>\n";
 }
@@ -530,10 +533,10 @@ static void GetClass(const CGIQueryString& qs)
 	HostInfo hostinfo;
 	client.connect(hostinfo.getHostName(), hostinfo.getHostPort());
 
-	CIMClass classDecl = client.getClass(nameSpace, className,
+	CIMClass cimClass = client.getClass(nameSpace, className,
 	    localOnly, includeQualifiers, includeClassOrigin);
 
-	PrintClass(nameSpace, classDecl,localOnly, includeQualifiers, 
+	PrintClass(nameSpace, cimClass,localOnly, includeQualifiers, 
 	    includeClassOrigin);
     }
      catch(Exception& e)
@@ -582,10 +585,10 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 	CIMClient client;
 	client.connect("localhost", 8888);
 	// get the class
-	CIMClass classDecl = client.getClass(
+	CIMClass cimClass = client.getClass(
 	    nameSpace, className, false, true, true);
 	// 
-	Uint32 pos = classDecl.findProperty(propertyName);
+	Uint32 pos = cimClass.findProperty(propertyName);
 
 	if (pos == Uint32(-1))
 	{
@@ -593,7 +596,7 @@ static void GetPropertyDeclaration(const CGIQueryString& qs)
 	    return;
 	}
 	// Now Get the property
-	CIMProperty property = classDecl.getProperty(pos);
+	CIMProperty property = cimClass.getProperty(pos);
 
 	PrintPropertyDeclaration(property);
     }
@@ -1032,10 +1035,10 @@ static void GetInstance(const CGIQueryString& qs)
 	CIMClient client;
 	client.connect("localhost", 8888);
           
-	CIMInstance instanceDecl = client.getInstance(nameSpace, 
+	CIMInstance cimInstance = client.getInstance(nameSpace, 
 	    referenceName, localOnly, includeClassOrigin, includeClassOrigin);
 
-	PrintInstance(nameSpace, instanceDecl, localOnly, includeQualifiers, 
+	PrintInstance(nameSpace, cimInstance, localOnly, includeQualifiers, 
 		includeClassOrigin); }
     catch(Exception& e)
     {

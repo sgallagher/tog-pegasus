@@ -23,11 +23,14 @@
 // Author:
 //
 // $Log: CIMInstanceRep.cpp,v $
+// Revision 1.2  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.1  2001/02/18 18:39:06  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -127,14 +130,14 @@ void CIMInstanceRep::resolve(
     // First obtain the class:
     //----------------------------------------------------------------------
 
-    CIMConstClass classDecl = 
+    ConstCIMClass cimClass = 
 	context->lookupClassDecl(nameSpace, _className);
 
-    if (!classDecl)
+    if (!cimClass)
 	throw NoSuchClass(_className);
 
 #if 0
-    if (!classDecl._rep->_resolved)
+    if (!cimClass._rep->_resolved)
 	throw ClassNotResolved(_className);
 #endif
 
@@ -142,7 +145,7 @@ void CIMInstanceRep::resolve(
     // Disallow instantiation of abstract classes.
     //----------------------------------------------------------------------
 
-    if (classDecl.isAbstract())
+    if (cimClass.isAbstract())
 	throw InstantiatedAbstractClass();
 
     //----------------------------------------------------------------------
@@ -154,7 +157,7 @@ void CIMInstanceRep::resolve(
 	nameSpace,
 	CIMScope::CLASS,
 	false,
-	classDecl._rep->_qualifiers);
+	cimClass._rep->_qualifiers);
 
     //----------------------------------------------------------------------
     // First iterate the properties of this instance and verify that
@@ -162,18 +165,18 @@ void CIMInstanceRep::resolve(
     // Also set the class origin.
     //----------------------------------------------------------------------
 
-    String classOrigin = classDecl.getClassName();
+    String classOrigin = cimClass.getClassName();
 
     for (Uint32 i = 0, n = _properties.getSize(); i < n; i++)
     {
 	CIMProperty& property = _properties[i];
 
-	Uint32 pos = classDecl.findProperty(property.getName());
+	Uint32 pos = cimClass.findProperty(property.getName());
 
 	if (pos == Uint32(-1))
 	    throw NoSuchProperty(property.getName());
 
-	property.resolve(context, nameSpace, true, classDecl.getProperty(pos));
+	property.resolve(context, nameSpace, true, cimClass.getProperty(pos));
         property.setClassOrigin(classOrigin);
     }
 
@@ -183,9 +186,9 @@ void CIMInstanceRep::resolve(
     // to true.
     //----------------------------------------------------------------------
 
-    for (Uint32 i = 0, m = 0, n = classDecl.getPropertyCount(); i < n; i++)
+    for (Uint32 i = 0, m = 0, n = cimClass.getPropertyCount(); i < n; i++)
     {
-	CIMConstProperty property = classDecl.getProperty(i);
+	CIMConstProperty property = cimClass.getProperty(i);
 	const String& name = property.getName();
 
 	// See if this instance already contains a property with this name:
@@ -295,6 +298,11 @@ void CIMInstanceRep::print() const
     toXml(tmp);
     tmp.append('\0');
     std::cout << tmp.getData() << std::endl;
+}
+
+String CIMInstanceRep::getInstanceName(ConstCIMClass& cimClass) const
+{
+    return String();
 }
 
 PEGASUS_NAMESPACE_END

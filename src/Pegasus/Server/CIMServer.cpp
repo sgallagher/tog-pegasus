@@ -23,11 +23,14 @@
 // Author: Mike Brasher
 //
 // $Log: CIMServer.cpp,v $
+// Revision 1.4  2001/02/19 01:47:17  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.3  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
 //
 // Revision 1.2  2001/02/18 03:56:01  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
 //
 // Revision 1.1  2001/02/16 02:08:26  mike
 // Renamed several classes
@@ -493,11 +496,11 @@ void ServerHandler::handleGetClass(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    CIMConstClass classDecl;
+    ConstCIMClass cimClass;
     
     try
     {
-	classDecl = _dispatcher->getClass(
+	cimClass = _dispatcher->getClass(
 	    nameSpace,
 	    className,
 	    localOnly,
@@ -518,7 +521,7 @@ void ServerHandler::handleGetClass(
     }
 
     Array<Sint8> body;
-    classDecl.toXml(body);
+    cimClass.toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetClass", body);
@@ -571,11 +574,11 @@ void ServerHandler::handleGetInstance(
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
-    CIMConstInstance instanceDecl;
+    CIMConstInstance cimInstance;
     
     try
     {
-	instanceDecl = _dispatcher->getInstance(
+	cimInstance = _dispatcher->getInstance(
 	    nameSpace,
 	    instanceName,
 	    includeQualifiers,
@@ -596,7 +599,7 @@ std::cout << e.getMessage() << std::endl;
     }
 
     Array<Sint8> body;
-    instanceDecl.toXml(body);
+    cimInstance.toXml(body);
 
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetInstance", body);
@@ -1012,19 +1015,19 @@ void ServerHandler::handleCreateClass(
     // <!ATTLIST IPARAMVALUE %CIMName;>
     //--------------------------------------------------------------------------
 
-    CIMClass classDecl;
+    CIMClass cimClass;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	if (strcmp(name, "NewClass") == 0)
-	    XmlReader::getClassElement(parser, classDecl);
+	    XmlReader::getClassElement(parser, cimClass);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
     try
     {
-	_dispatcher->createClass(nameSpace, classDecl);
+	_dispatcher->createClass(nameSpace, cimClass);
     }
     catch (CimException& e)
     {
@@ -1065,19 +1068,19 @@ void ServerHandler::handleModifyClass(
     // <!ATTLIST IPARAMVALUE %CIMName;>
     //--------------------------------------------------------------------------
 
-    CIMClass classDecl;
+    CIMClass cimClass;
 
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	if (strcmp(name, "ModifiedClass") == 0)
-	    XmlReader::getClassElement(parser, classDecl);
+	    XmlReader::getClassElement(parser, cimClass);
 
 	XmlReader::expectEndTag(parser, "IPARAMVALUE");
     }
 
     try
     {
-	_dispatcher->modifyClass(nameSpace, classDecl);
+	_dispatcher->modifyClass(nameSpace, cimClass);
     }
     catch (CimException& e)
     {

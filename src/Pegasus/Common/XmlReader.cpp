@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: XmlReader.cpp,v $
+// Revision 1.3  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.2  2001/02/16 02:06:07  mike
 // Renamed many classes and headers.
 //
@@ -2436,7 +2439,7 @@ Boolean XmlReader::getMethodElement(XmlParser& parser, CIMMethod& method)
 //
 //------------------------------------------------------------------------------
 
-Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& classDecl)
+Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& cimClass)
 {
     XmlEntry entry;
 
@@ -2447,22 +2450,22 @@ Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& classDecl)
 
     String superClass = getSuperClassAttribute(parser.getLine(), entry,"CLASS");
 
-    classDecl = CIMClass(name, superClass);
+    cimClass = CIMClass(name, superClass);
 
     // Get QUALIFIER elements:
 
-    getQualifierElements(parser, classDecl);
+    getQualifierElements(parser, cimClass);
 
     // Get PROPERTY elements:
 
-    GetPropertyElements(parser, classDecl);
+    GetPropertyElements(parser, cimClass);
 
     // Get METHOD elements:
 
     CIMMethod method;
 
     while (getMethodElement(parser, method))
-	classDecl.addMethod(method);	
+	cimClass.addMethod(method);	
 
     // Get CLASS end tag:
 
@@ -2483,7 +2486,7 @@ Boolean XmlReader::getClassElement(XmlParser& parser, CIMClass& classDecl)
 
 Boolean XmlReader::getInstanceElement(
     XmlParser& parser, 
-    CIMInstance& instanceDecl)
+    CIMInstance& cimInstance)
 {
     XmlEntry entry;
 
@@ -2493,15 +2496,15 @@ Boolean XmlReader::getInstanceElement(
     String className = getClassNameAttribute(
 	parser.getLine(), entry, "INSTANCE");
 
-    instanceDecl = CIMInstance(className);
+    cimInstance = CIMInstance(className);
 
     // Get QUALIFIER elements:
 
-    getQualifierElements(parser, instanceDecl);
+    getQualifierElements(parser, cimInstance);
 
     // Get PROPERTY elements:
 
-    GetPropertyElements(parser, instanceDecl);
+    GetPropertyElements(parser, cimInstance);
 
     // Get INSTANCE end tag:
 

@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Dispatcher.cpp,v $
+// Revision 1.5  2001/02/19 01:47:17  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.4  2001/02/18 19:02:18  mike
 // Fixed CIM debacle
 //
@@ -84,12 +87,12 @@ CIMInstance Dispatcher::getInstance(
 
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 
-    CIMInstance instanceDecl = provider->getInstance(nameSpace, instanceName, 
+    CIMInstance cimInstance = provider->getInstance(nameSpace, instanceName, 
 	localOnly, includeQualifiers, includeClassOrigin);
 
     // ATTN: Need code here to fill out the class?
 
-    return instanceDecl;
+    return cimInstance;
 }
 
 void Dispatcher::deleteClass(
@@ -306,23 +309,23 @@ CIMProvider* Dispatcher::_lookupProviderForClass(
     // Look up the class:
     //----------------------------------------------------------------------
 
-    CIMClass classDecl = _repository->getClass(nameSpace, className);
+    CIMClass cimClass = _repository->getClass(nameSpace, className);
 
-    if (!classDecl)
+    if (!cimClass)
 	throw CimException(CimException::INVALID_CLASS);
 
-    // classDecl.print();
+    // cimClass.print();
 
     //----------------------------------------------------------------------
     // Get the provider qualifier:
     //----------------------------------------------------------------------
 
-    Uint32 pos = classDecl.findQualifier("provider");
+    Uint32 pos = cimClass.findQualifier("provider");
 
     if (pos == Uint32(-1))
 	throw CimException(CimException::FAILED);
 
-    CIMQualifier q = classDecl.getQualifier(pos);
+    CIMQualifier q = cimClass.getQualifier(pos);
     String providerId;
     q.getValue().get(providerId);
 

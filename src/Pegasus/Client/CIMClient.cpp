@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: CIMClient.cpp,v $
+// Revision 1.3  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.2  2001/02/18 19:02:16  mike
 // Fixed CIM debacle
 //
@@ -69,7 +72,7 @@ PEGASUS_NAMESPACE_BEGIN
 struct GetClassResult
 {
     CimException::Code code;
-    CIMClass classDecl;
+    CIMClass cimClass;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +84,7 @@ struct GetClassResult
 struct GetInstanceResult
 {
     CimException::Code code;
-    CIMInstance instanceDecl;
+    CIMInstance cimInstance;
 };
 
 //STUB{
@@ -475,16 +478,16 @@ int ClientHandler::handleGetClassResponse(XmlParser& parser, Uint32 messageId)
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
-	CIMClass classDecl;
+	CIMClass cimClass;
 
-	if (!XmlReader::getClassElement(parser, classDecl))
+	if (!XmlReader::getClassElement(parser, cimClass))
 	    throw XmlValidationError(parser.getLine(),"expected CLASS element");
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
 	_getClassResult = new GetClassResult;
 	_getClassResult->code = CimException::SUCCESS;
-	_getClassResult->classDecl = classDecl;
+	_getClassResult->cimClass = cimClass;
 	_blocked = false;
 	return 0;
     }
@@ -522,9 +525,9 @@ int ClientHandler::handleGetInstanceResponse(
     }
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
-	CIMInstance instanceDecl;
+	CIMInstance cimInstance;
 
-	if (!XmlReader::getInstanceElement(parser, instanceDecl))
+	if (!XmlReader::getInstanceElement(parser, cimInstance))
 	{
 	    throw XmlValidationError(
 		parser.getLine(), "expected INSTANCE element");
@@ -534,7 +537,7 @@ int ClientHandler::handleGetInstanceResponse(
 
 	_getInstanceResult = new GetInstanceResult;
 	_getInstanceResult->code = CimException::SUCCESS;
-	_getInstanceResult->instanceDecl = instanceDecl;
+	_getInstanceResult->cimInstance = cimInstance;
 	_blocked = false;
 	return 0;
     }
@@ -855,10 +858,10 @@ int ClientHandler::handleEnumerateClassesResponse(
     else if (XmlReader::testStartTag(parser, entry, "IRETURNVALUE"))
     {
 	Array<CIMClass> classDecls;
-	CIMClass classDecl;
+	CIMClass cimClass;
 
-	while (XmlReader::getClassElement(parser, classDecl))
-	    classDecls.append(classDecl);
+	while (XmlReader::getClassElement(parser, cimClass))
+	    classDecls.append(cimClass);
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");
 
@@ -1199,7 +1202,7 @@ CIMClass CIMClient::getClass(
 	throw TimedOut();
 
     GetClassResult* result = handler->_getClassResult;
-    CIMClass classDecl = result->classDecl;
+    CIMClass cimClass = result->cimClass;
     CimException::Code code = result->code;
     delete result;
     handler->_getClassResult = 0;
@@ -1207,7 +1210,7 @@ CIMClass CIMClient::getClass(
     if (code != CimException::SUCCESS)
 	throw CimException(code);
 
-    return classDecl;
+    return cimClass;
 }
 
 CIMInstance CIMClient::getInstance(
@@ -1251,7 +1254,7 @@ CIMInstance CIMClient::getInstance(
 	throw TimedOut();
 
     GetInstanceResult* result = handler->_getInstanceResult;
-    CIMInstance instanceDecl = result->instanceDecl;
+    CIMInstance cimInstance = result->cimInstance;
     CimException::Code code = result->code;
     delete result;
     handler->_getInstanceResult = 0;
@@ -1259,7 +1262,7 @@ CIMInstance CIMClient::getInstance(
     if (code != CimException::SUCCESS)
 	throw CimException(code);
 
-    return instanceDecl;
+    return cimInstance;
 }
 
 void CIMClient::deleteClass(

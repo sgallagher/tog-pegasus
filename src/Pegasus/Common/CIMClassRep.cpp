@@ -23,11 +23,14 @@
 // Author:
 //
 // $Log: CIMClassRep.cpp,v $
+// Revision 1.2  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.1  2001/02/18 18:39:05  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -235,7 +238,7 @@ void CIMClassRep::resolve(
 	// First check to see if the super-class really exists:
 	//----------------------------------------------------------------------
 
-	CIMConstClass superClass 
+	ConstCIMClass superClass 
 	    = context->lookupClassDecl(nameSpace, _superClassName);
 
 	if (!superClass)
@@ -532,6 +535,14 @@ Boolean CIMClassRep::identical(const CIMClassRep* x) const
 	return false;
 
     return true;
+}
+
+void CIMClassRep::getKeyNames(Array<String>& keyNames) const
+{
+    for (Uint32 i = 0, n = getPropertyCount(); i < n; i++)
+    {
+	CIMConstProperty property = getProperty(i);
+    }
 }
 
 PEGASUS_NAMESPACE_END

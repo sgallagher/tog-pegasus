@@ -23,11 +23,14 @@
 // Author:
 //
 // $Log: CIMClass.h,v $
+// Revision 1.2  2001/02/19 01:47:16  mike
+// Renamed names of the form CIMConst to ConstCIM.
+//
 // Revision 1.1  2001/02/18 18:39:05  mike
 // new
 //
 // Revision 1.2  2001/02/18 03:56:00  mike
-// Changed more class names (e.g., ConstClassDecl -> CIMConstClass)
+// Changed more class names (e.g., ConstClassDecl -> ConstCIMClass)
 //
 // Revision 1.1  2001/02/16 02:06:06  mike
 // Renamed many classes and headers.
@@ -58,7 +61,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMConstClass;
+class ConstCIMClass;
 
 /** The CIMClass class is used to represent CIM classes in Pegasus.  In CIM, 
     a class object may be a class or an associator.  A CIM class must contain a 
@@ -376,7 +379,7 @@ public:
     @parm Class object for the class to be compared
     @return True if the classes are identical
     */
-    Boolean identical(const CIMConstClass& x) const;
+    Boolean identical(const ConstCIMClass& x) const;
     /// CIMMethod clone - ATTN:
     CIMClass clone() const
     {
@@ -396,35 +399,35 @@ private:
     }
 
     CIMClassRep* _rep;
-    friend class CIMConstClass;
+    friend class ConstCIMClass;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// CIMConstClass
+// ConstCIMClass
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_COMMON_LINKAGE CIMConstClass
+class PEGASUS_COMMON_LINKAGE ConstCIMClass
 {
 public:
 
-    CIMConstClass() : _rep(0)
+    ConstCIMClass() : _rep(0)
     {
 
     }
 
-    CIMConstClass(const CIMConstClass& x)
-    {
-	Inc(_rep = x._rep);
-    }
-
-    CIMConstClass(const CIMClass& x)
+    ConstCIMClass(const ConstCIMClass& x)
     {
 	Inc(_rep = x._rep);
     }
 
-    CIMConstClass& operator=(const CIMConstClass& x)
+    ConstCIMClass(const CIMClass& x)
+    {
+	Inc(_rep = x._rep);
+    }
+
+    ConstCIMClass& operator=(const ConstCIMClass& x)
     {
 	if (x._rep != _rep)
 	{
@@ -434,7 +437,7 @@ public:
 	return *this;
     }
 
-    CIMConstClass& operator=(const CIMClass& x)
+    ConstCIMClass& operator=(const CIMClass& x)
     {
 	if (x._rep != _rep)
 	{
@@ -446,14 +449,14 @@ public:
 
     // Throws IllegalName if className argument not legal CIM identifier.
 
-    CIMConstClass(
+    ConstCIMClass(
 	const String& className, 
 	const String& superClassName = String())
     {
 	_rep = new CIMClassRep(className, superClassName);
     }
 
-    ~CIMConstClass()
+    ~ConstCIMClass()
     {
 	Dec(_rep);
     }
@@ -550,7 +553,7 @@ public:
 	_rep->print();
     }
 
-    Boolean identical(const CIMConstClass& x) const
+    Boolean identical(const ConstCIMClass& x) const
     {
 	x._checkRep();
 	_checkRep();

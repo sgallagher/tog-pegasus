@@ -171,7 +171,7 @@ CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
 // extracts X509 certficate information and pass that on to client application
 // callback function.
 //
-int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
+extern "C" int prepareForCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 {
     PEG_METHOD_ENTER(TRC_SSL, "prepareForCallback()");
 

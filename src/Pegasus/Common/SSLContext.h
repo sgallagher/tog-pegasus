@@ -51,6 +51,7 @@ class SSLSocket;
 class CIMServer;
 class CIMxmlIndicationHandler;
 class SSLCertificateInfo;
+extern "C" int prepareForCallback(int, X509_STORE_CTX*);
 
 // Pegasus-defined SSL certificate verification callback
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);

@@ -12,8 +12,8 @@ FORCE:
 
 buildDoc_ContinueOnError:
 	@if $(DOCXX) --version > /dev/null 2>&1; \
-then @$(MAKE) --directory=$(ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_HTML_DIR) buildDoc;\
-else @$(ECHO) "Warning: API documentation not generated.  $(DOCXX) command not found."; fi
+then $(MAKE) --directory=$(ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_HTML_DIR) buildDoc;\
+else $(ECHO) "Warning: API documentation not generated.  $(DOCXX) command not found."; fi
 
 buildDoc:
 	@$(RMDIRHIER) $(PEGASUS_HTML_DIR)

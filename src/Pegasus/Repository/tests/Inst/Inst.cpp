@@ -29,6 +29,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <iostream>
 #include <cassert>
 #include <Pegasus/Repository/InstanceIndexFile.h>
@@ -43,7 +44,8 @@ void _Test01()
 {
     String indexPath (tmpDir);
     indexPath += "/X.idx";
-    const char* PATH = indexPath.allocateCString ();
+    ArrayDestroyer <char> ipd (indexPath.allocateCString ());
+    const char* PATH = ipd.getPointer ();
     Uint32 index;
     Uint32 size;
     Uint32 freeCount = 0;
@@ -167,15 +169,14 @@ void _Test01()
             assert(freeFlags[i] == 0);
         }
     }
-
-    delete [] PATH;
 }
 
 void _Test02()
 {
     String instancesPath (tmpDir);
     instancesPath += "/X.instances";
-    const char* PATH = instancesPath.allocateCString ();
+    ArrayDestroyer <char> ipd (instancesPath.allocateCString ());
+    const char* PATH = ipd.getPointer ();
 
     //
     // Append some instances:
@@ -280,8 +281,6 @@ void _Test02()
     assert(memcmp(data.getData(), "AAAAAAAACCCCCCCC", 16) == 0);
     assert(data.size() == 2 * 8);
     data.clear();
-
-    delete [] PATH;
 }
 
 int main(int argc, char** argv)

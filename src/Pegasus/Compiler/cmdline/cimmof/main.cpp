@@ -43,6 +43,7 @@
 #include <qycmutiltyUtility.H>
 #include "vfyptrs.cinc"
 #include <stdio.h>
+#include "OS400ConvertChar.h"
 #endif
 
 PEGASUS_USING_STD;
@@ -80,8 +81,18 @@ main(int argc, char ** argv) {
     }
   #pragma disable_handler
 
+    // Convert the args to ASCII
+    for(Uint32 i = 0;i< argc;++i)
+    {
+	EtoA(argv[i]);
+    }
+
   // check what environment we are running in, native or qsh
-    if( getenv("SHLVL") == NULL ){  // native mode
+    if( getenv(
+#pragma convert(37)
+	       "SHLVL"
+#pragma convert(0)
+	       ) == NULL ){  // native mode
 	// Check to ensure the user is authorized to use the command,
 	// suppress diagnostic message, send escape message
 	if(FALSE == ycmCheckCmdAuthorities(1)){
@@ -230,18 +241,26 @@ main(int argc, char ** argv) {
   // This will allow PTFs to monitor for this message.
   if (ret != 0)
   {
+#pragma convert(37)
       message_t    message_;	// Message information
       cmd_msg_t    cmdMSG;
       memset((char *)&cmdMSG, ' ', sizeof(cmd_msg_t) ); // init to blanks
       memcpy(cmdMSG.commandName, "QYCMMOFL", 7);
-      memcpy(cmdMSG.message, msg_.getCString(), sizeof(msg_.getCString()) );
+      CString asc = msg_.getCString();
+      const char * ebcdic = (const char *)asc;
+      AtoE((char *)ebcdic);
+      memcpy(cmdMSG.message, ebcdic, sizeof(ebcdic) );
       memcpy(message_.MsgId, "CPDDF83", 7);
       memcpy(message_.MsgData, (char *)&cmdMSG, sizeof(cmd_msg_t));
       message_.MsgLen = sizeof(cmd_msg_t);
       memcpy(message_.MsgType, "*DIAG     ", 10); 
       ycmSend_Message(&message_);
 
-      ycmSend_Message_Escape(CPFDF81_RC, "03", "QYCMMOFL");
+      ycmSend_Message_Escape(CPFDF81_RC,
+			     "03",
+			     "QYCMMOFL"
+			     );
+#pragma convert(0)
   }
 #endif
 

@@ -64,6 +64,16 @@ struct optspec {
   int needsvalue;
 };
 
+// Wrap this around the PEGASUS_HOME define for OS/400
+#ifdef PEGASUS_OS_OS400
+#pragma convert(37)
+#endif
+
 #define PEGASUS_HOME "PEGASUS_HOME"
+
+#ifdef PEGASUS_OS_OS400
+#pragma convert(0)
+#endif
+
 #define ROOTCIMV2 "root/cimv2"
 #endif

@@ -206,7 +206,17 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   if (cmdlinedata.is_local()) {
     char *peghome = getenv(PEGASUS_HOME);
     if (peghome) {
+#if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+	char home[256] = {0};
+	if (strlen(peghome) < 256)
+	{
+	    strcpy(home, peghome);
+	    EtoA(home);
+	}
+	cmdlinedata.set_repository_name(home);
+#else
       cmdlinedata.set_repository_name(peghome);
+#endif
     } else {
 #if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
       // Default to the shipped OS/400 CIM directory so that
@@ -286,7 +296,8 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     #ifdef PEGASUS_OS_OS400  
     	// check if we are in qsh, if we are NOT running in a qsh environment then
       // send and escape message,
-      // if we ARE then call ycmServerIsActive without the quiet option 
+      // if we ARE then call ycmServerIsActive without the quiet option
+#pragma convert(37)
       if( getenv("SHLVL") == NULL ){  // native mode
 	  if(ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL, 1)) {
 	      // previous call's message was suppressed,
@@ -301,8 +312,9 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	      // diagnostic message, lets return
 	      return CPFDF81_RC;
 	  }
-      } 
-    #endif 
+      }
+#pragma convert(0) 
+#endif 
     break;
   default: cmdlinedata.reset_is_local();
   }
@@ -414,7 +426,14 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	    // ATTN: P3 BB Mar 2001  No way to close the trace stream
 	    // or to delete the ostream object.  It's OK for now because
 	    // the program terminates when we're done with the stream.
+#if defined(PEGASUS_OS_OS400)
+            CString tempPath = s.getCString();
+	    const char * tmp = tempPath;
+	    AtoE((char *)tmp);
+	    ofstream *tracefile = new ofstream(tmp,PEGASUS_STD(_CCSID_T(1208)));
+#else
 	    ofstream *tracefile = new ofstream(s.getCString());
+#endif
 	    if (tracefile && *tracefile)
 	      cmdlinedata.set_traceos(*tracefile);
 	  }

@@ -2087,12 +2087,18 @@ Message * JMPIProviderManager::handleInitializeProviderRequest(const Message * m
 
 Message * JMPIProviderManager::handleUnsupportedRequest(const Message * message) throw()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "JMPIProviderManager::handleUnsupportedRequest");
+  PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "JMPIProviderManager::handleUnsupportedRequest");
+    CIMRequestMessage* request =
+        dynamic_cast<CIMRequestMessage *>(const_cast<Message *>(message));
+    PEGASUS_ASSERT(request != 0 );
+
+    CIMResponseMessage* response = request->buildResponse();
+    response->cimException =
+        PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
     PEG_METHOD_EXIT();
-
-    // a null response implies unsupported or unknown operation
-    return(0);
+    return response;
 }
 
 ProviderName JMPIProviderManager::_resolveProviderName(

@@ -3394,7 +3394,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 				requestCopy->operationContext.insert(*(providerInfo.providerIdContainer.get()));
 
 			CIMException checkClassException;
-			if (request->deepInheritance && !request->propertyList.isNull())
+			if (request->deepInheritance && request->propertyList.isNull())
 			{
 				// If this class has a provider
 				CIMClass cimClassLocal;

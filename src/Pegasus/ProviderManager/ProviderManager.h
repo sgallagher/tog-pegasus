@@ -31,10 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Pair.h>
-
-// temp
-#include <Pegasus/Common/CIMNamedInstance.h>
+#include <Pegasus/Common/IPC.h>
 
 #include <Pegasus/ProviderManager/Lockable.h>
 #include <Pegasus/ProviderManager/Provider.h>
@@ -49,12 +46,12 @@ public:
 
 public:
     Provider getProvider(const String & fileName, const String & providerName);
-    Boolean isProviderLoaded(const String & providerName, Provider & _provider);
 
-    void shutdownAllProviders(const String & providerName, const String & className);
+    void loadProvider(const String & fileName, const String & providerName);
+    void unloadProvider(const String & fileName, const String & providerName);
 
 protected:
-    //CIMOMHandle _cimom;
+    Mutex _mutex;
     Array<Provider> _providers;
 
 };

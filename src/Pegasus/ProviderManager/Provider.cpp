@@ -35,17 +35,11 @@ PEGASUS_NAMESPACE_BEGIN
 Provider::Provider(const String & name, const String & path)
     : ProviderFacade(0), _module(path, name)
 {
-    //PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "Provider::Provider");
-    //PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "name = " + name + "; path = " + path);
-    //PEG_METHOD_EXIT();
 }
 
 Provider::Provider(const Provider & p)
     : ProviderFacade(p._module.getProvider()), _module(p._module)
 {
-    //PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "Provider::Provider");
-    //PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "name = " + name + "; path = " + path);
-    //PEG_METHOD_EXIT();
 }
 
 Provider::~Provider(void)
@@ -85,28 +79,4 @@ void Provider::terminate(void)
     _module.unload();
 }
 
-void Provider::terminateProvider(void)
-{
-    // NOTE: yield before a potentially lengthy operation.
-    pegasus_yield();
-
-    ProviderFacade::terminate();
-
-    // NOTE: yield before a potentially lengthy operation.
-    pegasus_yield();
-
-    if(_provider != 0)
-    {
-        delete _provider;
-
-        _provider = 0;
-    }
-}
-
-void Provider::unloadModule(void)
-{
-    _module.unloadModule();
-}
-
 PEGASUS_NAMESPACE_END
-

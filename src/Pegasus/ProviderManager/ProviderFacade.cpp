@@ -44,7 +44,7 @@ inline T * getInterface(CIMBaseProvider * provider)
 
     if(p == 0)
     {
-	throw CIMException(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
+        throw CIMException(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
     }
 
     return(p);
@@ -79,11 +79,11 @@ void ProviderFacade::getInstance(
 
     // forward request
     provider->getInstance(
-	context,
-	instanceReference,
-	flags,
-	propertyList,
-	handler);
+        context,
+        instanceReference,
+        flags,
+        propertyList,
+        handler);
 
     // ATTN: how persistent should the facade be? that is, should the provider attempt
     // to resolve client requests when a provider does not explicity support an
@@ -102,10 +102,10 @@ void ProviderFacade::getInstance(
 
     if(provider != 0)
     {
-	// forward request
-	provider->getInstance(context, instanceReference, flags, propertyList, handler);
+    // forward request
+    provider->getInstance(context, instanceReference, flags, propertyList, handler);
 
-	return;
+    return;
     }
     }
     catch(...)
@@ -120,10 +120,10 @@ void ProviderFacade::getInstance(
 
     if(provider != 0)
     {
-	// forward request
-	provider->enumerateInstances(context, instanceReference, flags, propertyList, handler);
+    // forward request
+    provider->enumerateInstances(context, instanceReference, flags, propertyList, handler);
 
-	return;
+    return;
     }
     }
     catch(...)
@@ -151,11 +151,11 @@ void ProviderFacade::enumerateInstances(
 
     // forward request
     provider->enumerateInstances(
-	context,
-	classReference,
-	flags,
-	propertyList,
-	handler);
+        context,
+        classReference,
+        flags,
+        propertyList,
+        handler);
 
     // try enumerateInstanceNames and getInstance if not supported
 }
@@ -169,9 +169,9 @@ void ProviderFacade::enumerateInstanceNames(
 
     // forward request
     provider->enumerateInstanceNames(
-	context,
-	classReference,
-	handler);
+        context,
+        classReference,
+        handler);
 
     // try enumerateInstances if not supported
 }
@@ -188,12 +188,12 @@ void ProviderFacade::modifyInstance(
 
     // forward request
     provider->modifyInstance(
-	context,
-	instanceReference,
-	instanceObject,
-	flags,
-	propertyList,
-	handler);
+        context,
+        instanceReference,
+        instanceObject,
+        flags,
+        propertyList,
+        handler);
 }
 
 void ProviderFacade::createInstance(
@@ -206,10 +206,10 @@ void ProviderFacade::createInstance(
 
     // forward request
     provider->createInstance(
-	context,
-	instanceReference,
-	instanceObject,
-	handler);
+        context,
+        instanceReference,
+        instanceObject,
+        handler);
 }
 
 void ProviderFacade::deleteInstance(
@@ -221,9 +221,9 @@ void ProviderFacade::deleteInstance(
 
     // forward request
     provider->deleteInstance(
-	context,
-	instanceReference,
-	handler);
+        context,
+        instanceReference,
+        handler);
 }
 
 void ProviderFacade::getClass(
@@ -295,15 +295,15 @@ void ProviderFacade::associators(
 
     // forward request
     provider->associators(
-	context,
-	objectName,
-	associationClass,
-	resultClass,
-	role,
-	resultRole,
-	flags,
-	propertyList,
-	handler);
+        context,
+        objectName,
+        associationClass,
+        resultClass,
+        role,
+        resultRole,
+        flags,
+        propertyList,
+        handler);
 }
 
 void ProviderFacade::associatorNames(
@@ -319,13 +319,13 @@ void ProviderFacade::associatorNames(
 
     // forward request
     provider->associatorNames(
-	context,
-	objectName,
-	associationClass,
-	resultClass,
-	role,
-	resultRole,
-	handler);
+        context,
+        objectName,
+        associationClass,
+        resultClass,
+        role,
+        resultRole,
+        handler);
 }
 
 void ProviderFacade::references(
@@ -341,13 +341,13 @@ void ProviderFacade::references(
 
     // forward request
     provider->references(
-	context,
-	objectName,
-	resultClass,
-	role,
-	flags,
-	propertyList,
-	handler);
+        context,
+        objectName,
+        resultClass,
+        role,
+        flags,
+        propertyList,
+        handler);
 }
 
 void ProviderFacade::referenceNames(
@@ -361,11 +361,11 @@ void ProviderFacade::referenceNames(
 
     // forward request
     provider->referenceNames(
-	context,
-	objectName,
-	resultClass,
-	role,
-	handler);
+        context,
+        objectName,
+        resultClass,
+        role,
+        handler);
 }
 
 void ProviderFacade::getProperty(
@@ -380,10 +380,10 @@ void ProviderFacade::getProperty(
 
     // forward request
     provider->getProperty(
-	context,
-	objectName,
-	propertyName,
-	handler);
+    context,
+    objectName,
+    propertyName,
+    handler);
     */
 
     // NOTE: Use the CIMInstanceProvider interface until CIMPropertyProvider is supported
@@ -398,22 +398,22 @@ void ProviderFacade::getProperty(
     SimpleResponseHandler<CIMInstance> instanceHandler;
 
     getInstance(
-	context,
-	instanceReference,
-	flags,
-	propertyList,
-	instanceHandler);
+        context,
+        instanceReference,
+        flags,
+        propertyList,
+        instanceHandler);
 
     if(instanceHandler._objects.size())
     {
-	CIMInstance instance = instanceHandler._objects[0];
-	
-	Uint32 pos = instance.findProperty(propertyName);
-	
-	if(pos != PEG_NOT_FOUND)
-	{
-	    handler.deliver(instance.getProperty(pos).getValue());
-	}
+        CIMInstance instance = instanceHandler._objects[0];
+
+        Uint32 pos = instance.findProperty(propertyName);
+
+        if(pos != PEG_NOT_FOUND)
+        {
+            handler.deliver(instance.getProperty(pos).getValue());
+        }
     }
 
     handler.complete();
@@ -432,11 +432,11 @@ void ProviderFacade::setProperty(
 
     // forward request
     provider->setProperty(
-	context,
-	objectName,
-	propertyName,
-	newValue,
-	handler);
+    context,
+    objectName,
+    propertyName,
+    newValue,
+    handler);
     */
 
     // NOTE: Use the CIMInstanceProvider interface until CIMPropertyProvider is supported
@@ -455,12 +455,12 @@ void ProviderFacade::setProperty(
     SimpleResponseHandler<CIMInstance> instanceHandler;
 
     modifyInstance(
-	context,
-	instanceReference,
-	instance,
-	flags,
-	propertyList,
-	instanceHandler);
+        context,
+        instanceReference,
+        instance,
+        flags,
+        propertyList,
+        instanceHandler);
 
     handler.complete();
 }
@@ -477,7 +477,7 @@ void ProviderFacade::invokeMethod(
 
     // forward request
     provider->invokeMethod(context, objectReference, methodName,
-	inParameters, outParameters, handler);
+        inParameters, outParameters, handler);
 }
 
 void ProviderFacade::executeQuery(
@@ -517,11 +517,11 @@ void ProviderFacade::createSubscription(
 
     // forward request
     provider->createSubscription(
-	context,
-	subscriptionName,
-	classNames,
-	propertyList,
-	repeatNotificationPolicy);
+        context,
+        subscriptionName,
+        classNames,
+        propertyList,
+        repeatNotificationPolicy);
 }
 
 void ProviderFacade::modifySubscription(
@@ -535,11 +535,11 @@ void ProviderFacade::modifySubscription(
 
     // forward request
     provider->modifySubscription(
-	context,
-	subscriptionName,
-	classNames,
-	propertyList,
-	repeatNotificationPolicy);
+        context,
+        subscriptionName,
+        classNames,
+        propertyList,
+        repeatNotificationPolicy);
 }
 
 void ProviderFacade::deleteSubscription(
@@ -551,9 +551,9 @@ void ProviderFacade::deleteSubscription(
 
     // forward request
     provider->deleteSubscription(
-	context,
-	subscriptionName,
-	classNames);
+        context,
+        subscriptionName,
+        classNames);
 }
 
 PEGASUS_NAMESPACE_END

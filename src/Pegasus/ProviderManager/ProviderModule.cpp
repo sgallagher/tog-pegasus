@@ -23,7 +23,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:
-//              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//      Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //		Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,9 @@ ProviderModule::ProviderModule(const String & fileName, const String & providerN
 
 ProviderModule::ProviderModule(const ProviderModule & pm)
     : _fileName(pm._fileName),
-      _providerName(pm._providerName),
-      _library(pm._library),
-      _provider(pm._provider)
+    _providerName(pm._providerName),
+    _library(pm._library),
+    _provider(pm._provider)
 {
 }
 
@@ -61,24 +61,24 @@ void ProviderModule::load(void)
 
     if(_library == 0)
     {
-	// ATTN: does unload() need to be called?
-	
-	String errorString = "Cannot load library, error: " + System::dynamicLoadError();
-	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+        // ATTN: does unload() need to be called?
+
+        String errorString = "Cannot load library, error: " + System::dynamicLoadError();
+        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
     }
 
     // find libray entry point
     CIMBaseProvider * (*createProvider)(const String &) = 0;
 
     createProvider = (CIMBaseProvider * (*)(const String &))System::loadDynamicSymbol(
-	_library, "PegasusCreateProvider");
+        _library, "PegasusCreateProvider");
 
     if(createProvider == 0)
     {
-	unload();
+        unload();
 
-	String errorString = "entry point not found.";
-	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+        String errorString = "entry point not found.";
+        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
     }
 
     // invoke the provider entry point
@@ -86,19 +86,19 @@ void ProviderModule::load(void)
 
     if(provider == 0)
     {
-	unload();
+        unload();
 
-	String errorString = "entry point returned null.";
-	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+        String errorString = "entry point returned null.";
+        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
     }
 
     // test for the appropriate interface
     if(dynamic_cast<CIMBaseProvider *>(provider) == 0)
     {
-	unload();
+        unload();
 
-	String errorString = "provider is not a CIMBaseProvider.";
-	throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
+        String errorString = "provider is not a CIMBaseProvider.";
+        throw Exception("ProviderLoadFailure (" + _fileName + ":" + _providerName + "):" + errorString);
     }
 
     // save provider handle
@@ -109,28 +109,22 @@ void ProviderModule::load(void)
 
 void ProviderModule::unload(void)
 {
+    /*
+    // ATTN: cannot determine if provider is stack or heap based allocated.
+    // the provider should delete, if necessary, during CIMBaseProvider::terminate()
     if(_provider != 0)
     {
-	delete _provider;
+        delete _provider;
 
-	_provider = 0;
+        _provider = 0;
     }
+    */
 
     if(_library != 0)
     {
-	System::unloadDynamicLibrary(_library);
+        System::unloadDynamicLibrary(_library);
 
-	_library = 0;
-    }
-}
-
-void ProviderModule::unloadModule(void)
-{
-    if(_library != 0)
-    {
-	System::unloadDynamicLibrary(_library);
-
-	_library = 0;
+        _library = 0;
     }
 }
 

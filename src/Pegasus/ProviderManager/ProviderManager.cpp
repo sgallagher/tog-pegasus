@@ -32,6 +32,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
+#include "MutexLock.h"
+
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderManager::ProviderManager(void)
@@ -43,13 +45,13 @@ ProviderManager::~ProviderManager(void)
     // terminate all providers
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-	try
-	{
-	    _providers[i].terminate();
-	}
-	catch(...)
-	{
-	}
+        try
+        {
+            _providers[i].terminate();
+        }
+        catch(...)
+        {
+        }
     }
 }
 
@@ -57,20 +59,32 @@ Provider ProviderManager::getProvider(
     const String & fileName,
     const String & providerName)
 {
-    //PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
-    //PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "fileName = " + fileName + "; providerName = " + providerName);
+    MutexLock lock(_mutex);
 
     // check list for requested provider and return if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-	if(String::equalNoCase(providerName, _providers[i].getName()))
-	{
-	    return(_providers[i]);
-	}
+        if(String::equalNoCase(providerName, _providers[i].getName()))
+        {
+            return(_providers[i]);
+        }
     }
+
+    loadProvider(fileName, providerName);
+
+    return(getProvider(fileName, providerName));
+}
+
+void ProviderManager::loadProvider(
+    const String & fileName,
+    const String & providerName)
+{
+    MutexLock lock(_mutex);
 
     // create provider module
     Provider provider(providerName, fileName);
+
+    // ATTN: need optimization - create CIMOMHandle once
 
     // create a CIMOMHandle
     MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
@@ -88,56 +102,24 @@ Provider ProviderManager::getProvider(
 
     // add provider to list
     _providers.append(provider);
-
-    //PEG_METHOD_EXIT();
-
-    // recurse to get the provider as it resides in the array (rather than the local instance)
-    return(getProvider(fileName, providerName));
 }
 
-Boolean ProviderManager::isProviderLoaded(
-    const String & providerName,
-    Provider & _provider)
+void ProviderManager::unloadProvider(
+    const String & fileName,
+    const String & providerName)
 {
+    MutexLock lock(_mutex);
+
     // check list for requested provider and return if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-	if(String::equalNoCase(providerName, _providers[i].getName()))
-	{
-	    _provider = _providers[i];
-	    _providers.remove(i);
-	    return(true);
-	}
+        if(String::equalNoCase(providerName, _providers[i].getName()))
+        {
+            _providers[i].terminate();
+
+            _providers.remove(i);
+        }
     }
-
-    return(false);
-}
-
-void ProviderManager::shutdownAllProviders(const String & providerName, const String & className)
-{
-    /*
-    //
-    // For each provider in the list, call its terminate() method, skipping
-    // the specified provider.
-    //
-    Uint32 numProviders = _providers.size();
-
-    Uint32 index = 0;
-
-    while(numProviders > 0)
-    {
-	if(String::equalNoCase(providerName, _providers[index].getProviderName()))
-	{
-	    stopProvider(providerName);
-	}
-	else
-	{
-	    index++;
-	}
-	
-	numProviders--;
-    }
-    */
 }
 
 // ATTN: disabled temporarily
@@ -151,36 +133,36 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
     // check provider list every 30 seconds for providers to unload
     for(Uint32 timeout = 0; true; timeout += 30)
     {
-	thread->sleep(30000);
+    thread->sleep(30000);
 
-	// check each provider for timeouts less than the current timeout
-	//for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
+    // check each provider for timeouts less than the current timeout
+    //for(Uint32 i = 0, n = _this->_providers.size(); i < n; i++)
 
-	// start with highest entry to prevent out-of-bounds
-	// exception in case a removed entry - Markus
+    // start with highest entry to prevent out-of-bounds
+    // exception in case a removed entry - Markus
 
-	for(Uint32 i = _this->_providers.size(); i > 0;)
-	{
-	    // We want to count down to 0, but Uint32 will never go < 0
-	    i--;
+    for(Uint32 i = _this->_providers.size(); i > 0;)
+    {
+        // We want to count down to 0, but Uint32 will never go < 0
+        i--;
 
-	    // get provider timeout
+        // get provider timeout
 
-	    #if defined(PEGASUS_OS_HPUX)
-	    Uint32 provider_timeout = 0xffffffff;
-	    #else
-	    Uint32 provider_timeout = 30;
-	    #endif
+        #if defined(PEGASUS_OS_HPUX)
+        Uint32 provider_timeout = 0xffffffff;
+        #else
+        Uint32 provider_timeout = 30;
+        #endif
 
-	    if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
-	    {
-		PEGASUS_STD(cout) << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getProviderName() << PEGASUS_STD(endl);
-		void * mypr = (void *)_this->_providers[i].getProvider();
+        if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
+        {
+        PEGASUS_STD(cout) << "unloading provider for " << _this->_providers[i].getClassName() << " in " << _this->_providers[i].getProviderName() << PEGASUS_STD(endl);
+        void * mypr = (void *)_this->_providers[i].getProvider();
 
-		_this->_providers[i].getProvider()->terminate();
-		_this->_providers.remove(i);
-	    }
-	}
+        _this->_providers[i].getProvider()->terminate();
+        _this->_providers.remove(i);
+        }
+    }
     }
 
     PEGASUS_STD(cout) << "provider monitor stopped" << PEGASUS_STD(endl);

@@ -233,6 +233,17 @@ ifdef PEGASUS_CLIENT_TRACE_ENABLE
   DEFINES+= -DPEGASUS_CLIENT_TRACE_ENABLE
 endif
 
+# do not compile trace code. sometimes it causes problems debugging
+ifdef PEGASUS_REMOVE_TRACE
+	DEFINES+= -DPEGASUS_REMOVE_TRACE
+endif
+
+
+# use monitor_2
+ifdef PEGASUS_MONITOR2
+DEFINES+= -DPEGASUS_MONITOR2
+endif
+
 # setup function to enable SLP functions in the Pegasus standard compile
 # Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.  
 ifdef PEGASUS_ENABLE_SLP

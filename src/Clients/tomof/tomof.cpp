@@ -89,17 +89,19 @@ public:
 	_nameSpace = nameSpace;
     }
     // enumerate - Executes the enumerate
-    void enumerate(CIMName& className, Boolean deepInheritance)
+    Boolean enumerate(CIMName& className, Boolean deepInheritance)
     {
-    	/*cout << "enumerate function " << className 
-	    << " namespace " << _nameSpace
-	    << endl;*/
-	// put try around this
-	_classNameList =  _cli.enumerateClassNames(
-	    _nameSpace, className, deepInheritance);
-	//cout << "enum finished " << _classNameList.size() << endl;
+        try
+        {
+            _classNameList =  _cli.enumerateClassNames(
+                _nameSpace, className, deepInheritance);
+        }
+        catch(Exception &e)
+        {
+            cout << "Exception " << e.getMessage() << " on enumerateClassNames open. Terminating." << endl;
+            return false;
+        }
     }
-
     /* filter - Filters the list against a defined pattern using the
         glob type filter.
        NOTICE: This method no longer performs glob-style matching.  The
@@ -115,23 +117,19 @@ public:
     */
     void filter(String& pattern)
     {
-	// Filter the list in accordance with the pattern
-	//cout << "Filter Start " << _classNameList.size() << endl;
-	Array<CIMName> tmp;
-	for (Uint32 i = 0; i < _classNameList.size(); i++)
-	{
-	   /* cout << "Loop in filter " << i << " " 
-		<<  _classNameList[i] << " pattern " 
-		<<  pattern
-		<< " Return is " << String::equalNoCase(_classNameList[i], pattern)
-	        << " size " <<  _classNameList.size()
-		<< endl; */
+    	// Filter the list in accordance with the pattern
+        if (pattern == "*")
+        {
+            return;
+        }
+    	Array<CIMName> tmp;
+    	for (Uint32 i = 0; i < _classNameList.size(); i++)
+    	{
             if (String::equalNoCase(_classNameList[i].getString(), pattern))
-		tmp.append(_classNameList[i]);
-	}
-	_classNameList.swap(tmp);
-      }
-	//cout << "Filter finished " << _classNameList.size() << endl;
+                tmp.append(_classNameList[i]);
+    	}
+    	_classNameList.swap(tmp);
+    }
 
     /* getIndex - Get the current index in the list.  This is used with
         next and start functions to get entries in the list one by one.
@@ -307,7 +305,7 @@ void GetOptions(
     char** argv,
     const String& pegasusHome)
 {
-    const char* tmpDir = getenv ("PEGASUS_TMP");
+    const char* tmpDir = getenv ("PEGASUS_HOME");
     if (tmpDir == NULL)
     {
         tmpDir = ".";
@@ -335,6 +333,8 @@ void GetOptions(
          {"instances", "false", false, Option::BOOLEAN, 0, 0, "i", 
                       "If set, show the instances"},
 
+         {"noClass", "false", false, Option::BOOLEAN, 0, 0, "nc", 
+                      "If set, bypass the class display completely"},
          {"all", "false", false, Option::BOOLEAN, 0, 0, "a", 
                       "If set, show qualifiers, classes, and instances"},
 
@@ -378,18 +378,22 @@ void printHelp(char* name, OptionManager om)
     header.append(" -parameters [class]");
     header.append("  - Generate MOF output from the repository or client\n");
 
-    String trailer = "\nAssumes  PEGASUS_HOME for repository unless -r specified";
-    trailer.append("\nClient location assumesIf class only that class mof is output.");
+    String trailer = "\nAssumes  using repository interface and repository at\n";
+    trailer.append("PEGASUS_HOME for repository unless -r specified");
+    trailer.append("\nIf [class] exists only that class mof is output.");
 
-    trailer.append("\nIf class only that class mof is output.");
+    trailer.append("\nIf no parameters set, it outputs nothing");
     trailer.append("\nExamples:");
-    trailer.append("\n  tomof CIM_DOOR - Shows mof for CIM_Door");
-    trailer.append("\n  tomof *door* - Shows mof for classes with 'door' in name.");
-    trailer.append("\n  tomof -o *software* - Lists Class names with 'door' in name.");
+    trailer.append("\n  tomof - Returns only help/usage information");
+    trailer.append("\n  tomof * - Returns information on all classes, etc.");
+    trailer.append("\n  tomof CIM_DOOR - Shows mof for CIM_Door from default namespace");
+    //trailer.append("\n  tomof *door* - Shows mof for classes with 'door' in name.");
+    //trailer.append("\n  tomof -o *software* - Lists Class names with 'door' in name.");
     trailer.append("\n  tomof - outputs mof for all classes");
     trailer.append("\n  tomof -c - outputs mof for all classes using client interface.");
     trailer.append("\n  tomof -q - Outputs mof for qualifiers and classes");
 
+    trailer.append("\n  tomof -s - Outputs summary count of classes and optionally instances. Does not deliver lists");
     om.printOptionsHelpTxt(header, trailer);
 }
 
@@ -418,6 +422,11 @@ int main(int argc, char** argv)
 
     OptionManager om;
 
+    Boolean argsFound = false;
+    if (argc > 1)
+    {
+        argsFound = true;
+    }
     try
     {
         GetOptions(om, argc, argv, pegasusHome);
@@ -447,13 +456,14 @@ int main(int argc, char** argv)
     Boolean showOnlyNames = om.isTrue("onlynames");
 
 
+    Boolean doNotShowClasses = om.isTrue("noClass");
+
     // Check for namespace flag and set namespace
     String localNameSpace;
     if(om.lookupValue("namespace", localNameSpace))
     {
         cout << "Namespace = " << localNameSpace << endl;
     }
-
 
     // Check for the show qualifiers flag
     Boolean showQualifiers = om.isTrue("qualifiers");
@@ -483,41 +493,50 @@ int main(int argc, char** argv)
         if(argc < 2)
         singleClass = false;
 
-    // Build the classList from the input parameters
-    Array<String> classList;
+    // Build the inputClassList from the remaining input parameters
+    Array<String> inputClassList;
 
     if(argc > 1)
     {
-        // while there are entries in the argv list
+        // while there are entries in the argv list collect them
         for(int i = 1; i < argc; i++)
-            classList.append(argv[i]);
+            inputClassList.append(argv[i]);
     }
     else
-        classList.append("*");
+    {
+        // Do output if any arguments but only print help if there is no args.
+        if (argsFound)
+        {
+            inputClassList.append("*");
+        }
+        else
+        {
+            printHelp(argv[0], om);
+            exit (0);
+        }
+    }
 
     if(verbose)
     {
         if(verbose) cout << "Class list is ";
-        for(Uint32 i = 0 ; i < classList.size(); i++)
+        for(Uint32 i = 0 ; i < inputClassList.size(); i++)
         {
-            if(verbose) cout << classList[i] << " ";
+            if(verbose) cout << inputClassList[i] << " ";
         }
         cout << endl;
     }
 
     // Test to determine if we have a filter pattern to limit classes displayed
-    String pattern;
-    Boolean doWildCard = false;
+    //String pattern;
+    //Boolean doWildCard = false;
 
-    // if "Client" set, open a connected and set 
+    // if client request set in options, set isClient variable accordingly
     Boolean isClient = om.isTrue("client");
 
     // Determine if output is XML or MOF 
     Boolean isXMLOutput = om.isTrue("xml");
 
     // Check for repository path flag and set repository directory
-    // ATTN: P4 Defer Apr 2002KS Clean this up so the priority is better defined.
-    // Should probably also put under directory functions also
     String location = "";
 
     if(om.lookupValue("location", location))
@@ -526,29 +545,33 @@ int main(int argc, char** argv)
 
     }
 
-    const char* tmp = getenv("PEGASUS_HOME");
-
-
-    // Need to set the location value
-    // clientCommonDefs::operationType _ot;
     clientRepositoryInterface clRepository; // the repository interface object
     clientRepositoryInterface::_repositoryType rt;
 
     if(isClient)
     {
-        cout << "Calling Client interface " << endl;
         location = "localhost:5988";
         rt = clientRepositoryInterface::REPOSITORY_INTERFACE_CLIENT;
     }
     else
     {
-        cout << "Calling Repository interface " << endl;
         rt = clientRepositoryInterface::REPOSITORY_INTERFACE_LOCAL;
+
+        const char* tmp = getenv("PEGASUS_HOME");
+
+        if (strlen(tmp) == 0 && location == "." )
+            ErrorExit("Error, PEGASUS_HOME not set and repository option not used");
+
         location.append("/repository");
-        location = location;
+
+        if (!FileSystem::exists(location) || FileSystem::isDirectoryEmpty(location))
+        {
+            cout << "Error. " << location << " does not exist or is empty." << endl;
+            exit(1);
+        }
     }
 
-    // How do we set a context that would be either client or repository
+    // Set a context for either client or repository access.
     // Test to determine if we have proper location, etc. for opening
 
     if(verbose)
@@ -557,19 +580,18 @@ int main(int argc, char** argv)
         << " at " << location << endl;
     }
 
-    // Create the repository object
+    // Create the repository and client objects
     CIMRepository repository(location);
     CIMClient client;
 
     // if client mode, do client connection, else do repository connection
     try
     {
-        cout << "Execute .init on location " << location << endl;
         clRepository.init(rt, location);
     }
     catch(Exception &e)
     {
-        // add message here
+        cout << "Exception " << e.getMessage() << " on repository open. Terminating." << endl;
         return false;
     }
     // Get the complete class name list	before we start anything else
@@ -616,160 +638,121 @@ int main(int argc, char** argv)
             ErrorExit(e.getMessage());
         }
     }
-    // Show classes from the list of input classes
-    for(Uint32 i = 0; i < classList.size(); i++)
+
+    // Setup clasname list object
+    classNameList list(nameSpace, clRepository);
+
+    // Enumerate all classnames from namespace
+    if (!list.enumerate(CIMName(),true))
+        ErrorExit("Class Enumeration failed");
+
+    //Filter list for input patterns
+    for(Uint32 i = 0; i < inputClassList.size(); i++)
+        list.filter(inputClassList[i]);
+    
+    // get size for summary
+    classCount = list.size();
+
+    Boolean localOnly = true;
+    Boolean includeQualifiers = true;
+    Boolean includeClassOrigin = true;
+
+    if (!summary || !doNotShowClasses)
     {
-        try
+        if(showOnlyNames)
         {
-            Boolean localOnly = true;
-            Boolean includeQualifiers = true;
-            Boolean includeClassOrigin = true;
-
-            classNameList list(nameSpace, clRepository);
-
-            CIMName temp;
-            list.enumerate(temp,true);
-
-            // Filter to this class specification
-            list.filter(classList[i]);
-            classCount = list.size();
-
-            if(showOnlyNames)
+            for(Uint32 j = 0; j < list.size(); j++)
+                cout << "Class " << list.next() << endl;
+        }
+        else
+        {
+            // Print out the MOF for those found
+            for(Uint32 j = 0; j < list.size(); j++)
             {
-                for(Uint32 j = 0; j < list.size(); j++)
-                    cout << "Class " << list.next();
-            }
-            if(!summary)
-            {
-                // Print out the MOF for those found
-                for(Uint32 j = 0; j < list.size(); j++)
+                CIMName nextClass = list.next();
+                CIMClass cimClass;
+                try
                 {
-
-                    CIMClass cimClass = clRepository.getClass(nameSpace, list.next(),
-                                                              localOnly, includeQualifiers, includeClassOrigin);
-
-                    // Note we get and print ourselves rather than use the generic printMof
-                    if(isXMLOutput)
-                        XmlWriter::printClassElement(cimClass, cout);
-                    else
-                    {
-                        Array<Sint8> x;
-                        MofWriter::appendClassElement(x, cimClass);
-
-                        x.append('\0');
-
-                        mofFormat(cout, x.getData(), 4);
-                    }
+                    cimClass = clRepository.getClass(nameSpace, nextClass,
+                                                          localOnly, includeQualifiers, includeClassOrigin);
+                }
+                catch(Exception& e)
+                {
+                    // ErrorExit(e.getMessage());
+                    cout << "Class get error " << e.getMessage() << " Class " << nextClass << endl;
+                }
+                // Note we get and print ourselves rather than use the generic printMof
+                if(isXMLOutput)
+                    XmlWriter::printClassElement(cimClass, cout);
+                else
+                {
+                    Array<Sint8> x;
+                    MofWriter::appendClassElement(x, cimClass);
+    
+                    x.append('\0');
+    
+                    mofFormat(cout, x.getData(), 4);
                 }
             }
         }
-        catch(Exception& e)
-        {
-            // ErrorExit(e.getMessage());
-            cout << "Class get error " << e.getMessage() << " Class " << classList[i];
-        }
-    }
-
     // Note that we can do this so we get all instances or just the given class
-
+    }
+    list.start();
     if(showInstances | showAll)
     {
-        for(Uint32 i = 0; i < classList.size(); i++)
+        // try Block around basic instance processing
+        for(Uint32 j = 0; j < list.size(); j++)
         {
-            // Get Class Names
-            Array<CIMName> classNames;
-
-            // try Block around basic instance processing
+            CIMName className = list.next();
+            //cout << "Instances for " << className << endl;
             try
             {
                 Boolean deepInheritance = true;
                 Boolean localOnly = false;
                 Boolean includeClassOrigin = false;
                 Boolean includeQualifiers = false;
-
-                CIMName className;
-
-                //	classNames = clRepository.enumerateClassNames(
-                //		nameSpace, className, deepInheritance);
-                // Start with List from class enum
-                classNameList myClassNameList(nameSpace, clRepository);
-
-                CIMName temp;
-                myClassNameList.enumerate(temp,true);
-
-                // Filter to this class specification
-                myClassNameList.filter(classList[i]);
-                classCount = myClassNameList.size();
-
+    
                 if(showOnlyNames)
                 {
-                    for(Uint32 j = 0; j < myClassNameList.size(); j++)
-                    {
-                        Array<CIMObjectPath> instanceNames;
-                        instanceNames = clRepository.enumerateInstanceNames(nameSpace,
-                                                                            className);
-                        for(Uint32 j = 0; j < instanceNames.size(); j++)
-                            cout << "Instance " << instanceNames[i].toString();
-                    }
+                    Array<CIMObjectPath> instanceNames;
+                    instanceNames = clRepository.enumerateInstanceNames(nameSpace,
+                                                                        className);
+                    for(Uint32 j = 0; j < instanceNames.size(); j++)
+                        cout << "Instance " << instanceNames[j].toString();
                 }
                 else    // Process complete instances
                 {
-                    // Process classlist to enumerate and print instances
-                    for(Uint32 j = 0; j < myClassNameList.size(); j++)
+                // Process inputClasslist to enumerate and print instances
+                    Array<CIMInstance> namedInstances;
+                    namedInstances = clRepository.enumerateInstances(nameSpace,
+                                                                     className,
+                                                                     deepInheritance,
+                                                                     localOnly,
+                                                                     includeQualifiers,
+                                                                     includeClassOrigin);
+
+                    // Process and output each instance
+                    for(Uint32 k = 0; k < namedInstances.size(); k++)
                     {
-                        Array<CIMInstance> namedInstances;
-                        namedInstances = clRepository.enumerateInstances(nameSpace,
-                                                                         className,
-                                                                         deepInheritance,
-                                                                         localOnly,
-                                                                         includeQualifiers,
-                                                                         includeClassOrigin);
-                        // const CIMPropertyList& propertyList = CIMPropertyList());
-
-                        // Process and output each instance
-                        for(Uint32 k = 0; k < namedInstances.size(); k++)
+                        CIMInstance instance = namedInstances[k];
+                        if(isXMLOutput)
+                            XmlWriter::printInstanceElement(instance, cout);
+                        else
                         {
+                            Array<Sint8> x;
+                            MofWriter::appendInstanceElement(x, instance);
 
-                            CIMInstance instance = namedInstances[i];
-                            if(isXMLOutput)
-                                XmlWriter::printInstanceElement(instance, cout);
-                            else
-                            {
-                                Array<Sint8> x;
-                                MofWriter::appendInstanceElement(x, instance);
+                            x.append('\0');
 
-                                x.append('\0');
-
-                                mofFormat(cout, x.getData(), 4);
-                            }
+                            mofFormat(cout, x.getData(), 4);
                         }
                     }
                 }
             }
             catch(Exception& e)
             {
-                cout << "Error Class Name Enumeration:" << endl;
-                cout << e.getMessage() << endl;
+                cout << "Error Instance Enumeration:" << e.getMessage() << endl;
             }
-
-            // Get instances for each class
-            /*  Double check.  Think this just for delete now.
-            try
-            {
-                for(Uint32 i = 0; i < classNames.size(); i++)
-                {
-                    // Enumerate the Instances of this class
-                    // ENUM and DISPLAY CODE HERE
-                    //ATTN: KS P3 17 APR 2002 Instance display incomplete
-                    cout << "WORK In Process" << endl;
-                }
-            }
-            catch(Exception& e)
-            {
-                cout << "Error Instance Enumeration:" << endl;
-                cout << e.getMessage() << endl;
-            }
-            */
         }
     }
 

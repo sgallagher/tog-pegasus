@@ -145,8 +145,15 @@ public:
 
       void handleProcessIndicationRequest(
 	 CIMProcessIndicationRequestMessage* request);
-
-protected:
+      
+      static void _forwardToServiceCallBack(AsyncOpNode *, 
+					    MessageQueue *,
+					    void *);
+      static void _forwardToModuleCallBack(AsyncOpNode *, 
+					   MessageQueue *, 
+					   void *);
+      
+   protected:
 
       Boolean _lookupInternalProvider(
         const String& nameSpace,

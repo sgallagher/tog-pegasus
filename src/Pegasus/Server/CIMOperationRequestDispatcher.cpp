@@ -242,6 +242,33 @@ String CIMOperationRequestDispatcher::_lookupAssociationProvider(
     return(String::EMPTY);
 }
 
+
+
+void CIMOperationRequestDispatcher::_forwardToServiceCallBack(AsyncOpNode *op, 
+							      MessageQueue *q,
+							      void *parm)
+{
+   CIMOperationRequestDispatcher *service = 
+      static_cast<CIMOperationRequestDispatcher *>(q);
+
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+      ((static_cast<AsyncLegacyOperationStart *>(asyncRequest))->get_action());
+   CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
+      ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
+   PEGASUS_ASSERT(response != 0);
+   // ensure that the destination queue is in response->dest
+   response->dest = (Uint32)parm;
+   service->SendForget(response);
+   delete asyncRequest;
+   delete asyncReply;
+   op->release();
+   service->return_op(op);
+}
+
+
+
 void CIMOperationRequestDispatcher::_forwardRequestToService(
     const String& serviceName,
     CIMRequestMessage* request,
@@ -264,17 +291,43 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 	    request,
 	    this->getQueueId());
 
-    AsyncReply * asyncReply = SendWait(asyncRequest);
-    PEGASUS_ASSERT(asyncReply != 0);
+    SendAsync(op, 
+	      serviceIds[0],
+	      CIMOperationRequestDispatcher::_forwardToServiceCallBack,
+	      this,
+	      (void *)request->queueIds.top());
+    
 
-    response = reinterpret_cast<CIMResponseMessage *>
-        ((static_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
-    PEGASUS_ASSERT(response != 0);
+//    AsyncReply * asyncReply = SendWait(asyncRequest);
+//    PEGASUS_ASSERT(asyncReply != 0);
+    
 
-    delete asyncReply;
-    delete asyncRequest;
+//    delete asyncReply;
+//    delete asyncRequest;
 
     PEG_METHOD_EXIT();
+}
+
+void CIMOperationRequestDispatcher::_forwardToModuleCallBack(AsyncOpNode *op, 
+							     MessageQueue *q, 
+							     void *parm)
+{
+   CIMOperationRequestDispatcher *service = 
+      static_cast<CIMOperationRequestDispatcher *>(q);
+   
+   AsyncRequest *asyncRequest = static_cast<AsyncRequest *>(op->get_request());
+   AsyncReply *asyncReply = static_cast<AsyncReply *>(op->get_response());
+   CIMRequestMessage *request = reinterpret_cast<CIMRequestMessage *>
+      ((static_cast<AsyncModuleOperationStart *>(asyncRequest))->get_action());
+   CIMResponseMessage *response = reinterpret_cast<CIMResponseMessage *>
+      ((static_cast<AsyncModuleOperationResult *>(asyncReply))->get_result());
+   PEGASUS_ASSERT(response != 0);
+   response->dest = (Uint32)parm;
+   service->SendForget(response);
+   delete asyncRequest;
+   delete asyncReply;
+   op->release();
+   service->return_op(op);
 }
 
 void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
@@ -302,17 +355,23 @@ void CIMOperationRequestDispatcher::_forwardRequestToControlProvider(
 	    controlProviderName,
 	    request);
 
-    AsyncReply * moduleControllerReply = SendWait(moduleControllerRequest);
-    PEGASUS_ASSERT(moduleControllerReply != 0);
 
-    response = reinterpret_cast<CIMResponseMessage *>
-        ((static_cast<AsyncModuleOperationResult *>(moduleControllerReply))->
-            get_result());
-    PEGASUS_ASSERT(response != 0);
+    SendAsync(op, 
+	      serviceIds[0],
+	      CIMOperationRequestDispatcher::_forwardToModuleCallBack,
+	      this,
+	      (void *)request->queueIds.top());
 
-    delete moduleControllerReply;
-    delete moduleControllerRequest;
+//    AsyncReply * moduleControllerReply = SendWait(moduleControllerRequest);
+//    PEGASUS_ASSERT(moduleControllerReply != 0);
 
+//     response = reinterpret_cast<CIMResponseMessage *>
+//         ((static_cast<AsyncModuleOperationResult *>(moduleControllerReply))->
+//             get_result());
+//     PEGASUS_ASSERT(response != 0);
+
+//     delete moduleControllerReply;
+//     delete moduleControllerRequest;
     PEG_METHOD_EXIT();
 }
 
@@ -583,8 +642,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
             serviceName, controlProviderName, requestCopy, response);
       }
 
-      _enqueueResponse(request, response);
-
       PEG_METHOD_EXIT();
       return;
    }
@@ -599,8 +656,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -742,8 +797,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
             serviceName, controlProviderName, requestCopy, response);
       }
 
-      _enqueueResponse(request, response);
-
       PEG_METHOD_EXIT();
       return;
    }
@@ -758,7 +811,6 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -894,7 +946,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
             serviceName, controlProviderName, requestCopy, response);
       }
 
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -955,7 +1006,6 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1096,8 +1146,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
             serviceName, controlProviderName, requestCopy, response);
       }
 
-      _enqueueResponse(request, response);
-
       PEG_METHOD_EXIT();
       return;
    }
@@ -1113,7 +1161,6 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1307,8 +1354,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             serviceName, controlProviderName, requestCopy, response);
       }
 
-      _enqueueResponse(request, response);
-
       PEG_METHOD_EXIT();
       return;
    }
@@ -1323,8 +1368,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1421,8 +1464,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             serviceName, controlProviderName, requestCopy, response);
       }
 
-      _enqueueResponse(request, response);
-
       PEG_METHOD_EXIT();
       return;
    }
@@ -1437,8 +1478,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1519,8 +1558,6 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1609,8 +1646,6 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
-      _enqueueResponse(request, response);
-
       PEG_METHOD_EXIT();
       return;
    }
@@ -1694,8 +1729,6 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1782,8 +1815,6 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
 
-      _enqueueResponse(request, response);
-
       PEG_METHOD_EXIT();
       return;
    }
@@ -1864,8 +1895,6 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -1984,8 +2013,6 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;
@@ -2330,8 +2357,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
             serviceName, controlProviderName, requestCopy, response);
       }
 
-      _enqueueResponse(request, response);
-
       PEG_METHOD_EXIT();
       return;
    }
@@ -2347,8 +2372,6 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
       _forwardRequestToService(
           PEGASUS_SERVICENAME_PROVIDERMANAGER_CPP, requestCopy, response);
-
-      _enqueueResponse(request, response);
 
       PEG_METHOD_EXIT();
       return;

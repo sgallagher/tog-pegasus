@@ -205,7 +205,7 @@ will be deleted.
 21. (KS) 7 March 2002 - Correct error in qualifier propagation processing in
     qualifierlist.resolve. Temporarily remove the DEFAULT setup on the
     Compiler qualifier generation. Add tests for resolve processing.
-
+    
 22. (Roger Kumpf - HP) 8 Mar 2002 - Simplified CIMClient API construction.
     Previously, the client application constructed a client API using:
 
@@ -234,6 +234,10 @@ will be deleted.
     NOTE:  Client applications are affected and must be updated with this
     change.  I've already updated all the clients that are checked in and
     included in the Pegasus build.
+    
+    
+23. (KS) 8 March 2002 - Correct error in compiler that caused length field
+    of fixed length arrays to be lost.
 
 -------------------------------------------------------------------
 Version 1.06 working towards 1.1 Started 13 December 2001

@@ -6,6 +6,8 @@ Code Freeze in Preperation for V2 Release
 From here forward, We are fixing bugs.
 TAG: Version_1_10
 
+1. (Ramnath Ravindran - HP) 10 June 2002 - Commented out" #define          PEGASUS_HAVE_TEMPLATE_SPECIALIZATION" in Platform_TRU64_ALPHA_DECCXX.h.
+
 -----------------------------------------------------------------
 Version 1.09 - Started 5 April 2002
 TAG: Version_1_09.

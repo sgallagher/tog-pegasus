@@ -311,17 +311,17 @@ void ShutdownService::_shutdownCimomServices()
 
 void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 {
-    MessageQueue* queue = 
-        MessageQueue::lookup(serviceName);
 
-    if (queue == 0)
-    {
-        // service not found, just return
-        return;
-    }
-
-    MessageQueueService * _service = dynamic_cast<MessageQueueService *>(queue);
-    Uint32 _queueId = _service->getQueueId();
+   MessageQueueService* _mqs = static_cast<MessageQueueService*>(_controller);
+   
+   Uint32 _queueId = _mqs->find_service(*_client_handle, String(serviceName));
+   
+   
+   if (queueId == 0)
+   {
+      // service not found, just return
+      return;
+   }
 
     // send a stop, start, and CLOSE << Wed Oct 15 08:51:57 2003 mdd >>
     CimServiceStop* stop_message = new CimServiceStop(_service->get_next_xid(),

@@ -41,6 +41,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class PEGASUS_SERVER_LINKAGE ProviderRegistration
+{
+public:
+
+};
+
 class PEGASUS_SERVER_LINKAGE ProviderRegistrar
 {
 public:
@@ -48,6 +54,9 @@ public:
     virtual ~ProviderRegistrar(void);
 
     ProviderName findProvider(const ProviderName & providerName);
+
+    //ProviderName findProvider(const CIMObjectPath & reference);
+
     Boolean insertProvider(const ProviderName & providerName);
     Boolean removeProvider(const ProviderName & providerName);
 

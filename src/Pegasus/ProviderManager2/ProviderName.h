@@ -53,10 +53,10 @@ public:
     */
     ProviderName(
         const String & objectName,
-        const String & logicalName = String::EMPTY,
-        const String & physicalName = String::EMPTY,
-        const String & interfaceName = String::EMPTY,
-        const Uint32 capabilities = 0);
+        const String & logicalName,
+        const String & physicalName,
+        const String & interfaceName,
+        const Uint32 capabilities);
 
     ~ProviderName(void);
 

@@ -37,57 +37,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE InternalProviderName
-{
-public:
-    InternalProviderName(void);
-    //InternalProviderName(const String & s);
-    /*
-    physicalName - the fully qualified name to the physical component that is responsible for providing
-        for the object named in objectName.
-
-    logicalName - the logical name associated with the physical component. It is possible for one physical
-        component to have one or more logical components.
-
-    objectName - the relative or fully qualified CIM object name of interest.
-    */
-    InternalProviderName(
-        const String & objectName,
-        const String & logicalName,
-        const String & physicalName,
-        const String & interfaceName,
-        const Uint32 capabilities);
-
-    ~InternalProviderName(void);
-
-    //String toString(void) const;
-
-    String getObjectName(void) const;
-    void setObjectName(const String & objectName);
-
-    String getLogicalName(void) const;
-    void setLogicalName(const String & logicalName);
-
-    String getPhysicalName(void) const;
-    void setPhysicalName(const String & physicalName);
-
-    String getInterfaceName(void) const;
-    void setInterfaceName(const String & interfaceName);
-
-    Uint32 getCapabilitiesMask(void) const;
-    void setCapabilitiesMask(const Uint32 capabilities);
-
-private:
-    String _physicalName;
-    String _interfaceName;
-
-    String _logicalName;
-    String _objectName;
-
-    Uint32 _capabilities;
-
-};
-
 class PEGASUS_SERVER_LINKAGE ProviderType
 {
 public:

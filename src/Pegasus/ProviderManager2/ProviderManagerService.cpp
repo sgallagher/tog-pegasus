@@ -44,118 +44,105 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// ATTN: this section is a temporary solution to populate the list of enabled
-// provider managers for a given distribution. it includes another temporary
-// solution for converting a generic file name into a file name useable by
-// each platform.
+class ProviderManagerContainer
+{
+public:
+    ProviderManagerContainer(const String & name, const String & path) : _name(name), _module(path)
+    {
+        _module.load();
+
+        _manager = _module.getProviderManager(_name);
+    }
+
+    ~ProviderManagerContainer(void)
+    {
+        _module.unload();
+    }
+
+    String & getName(void)
+    {
+        return(_name);
+    }
+
+    ProviderManager & getProviderManager(void)
+    {
+        return(*_manager);
+    }
+
+private:
+    String _name;
+    ProviderManagerModule _module;
+    ProviderManager * _manager;
+
+};
+
+static Array<ProviderManagerContainer> _providerManagers;
 
 // BEGIN TEMP SECTION
-String _resolveFileName(const String & fileName)
+class ProviderManagerRegistration
 {
-    String temp;
+public:
+    ProviderManagerRegistration(const String & physicalName, const String & logicalName, const String & interfaceName)
+    {
+        #if defined(PEGASUS_OS_TYPE_WINDOWS)
+        _physicalName = physicalName + String(".dll");
+        #elif defined(PEGASUS_OS_HPUX) && defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+        _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+        _physicalName.append(String("/lib") + physical + String(".sl"));
+        #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+        _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+        _physicalName.append(String("/lib") + physical + String(".so"));
+        #elif defined(PEGASUS_OS_OS400)
+        _physicalName = physicalName;
+        #else
+        _physicalName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+        _physicalName.append(String("/lib") + physical + String(".so"));
+        #endif
 
-    #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    temp = fileName + String(".dll");
-    #elif defined(PEGASUS_OS_HPUX) && defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    temp.append(String("/lib") + fileName + String(".sl"));
-    #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-    temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    temp.append(String("/lib") + fileName + String(".so"));
-    #elif defined(PEGASUS_OS_OS400)
-    temp = fileName;
-    #else
-    temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    temp.append(String("/lib") + fileName + String(".so"));
-    #endif
+        _logicalName = logicalName;
 
-    return(temp);
-}
+        _interfaceName = interfaceName;
+    }
 
-Array<Pair<String, String> > _initializeFileNames(void)
-{
-    Array<Pair<String, String> > temp;
+    const String & getPhysicalName(void) const
+    {
+        return(_physicalName);
+    }
 
-    #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
-    #if defined(PEGASUS_OS_OS400)
-    temp.append(Pair<String, String>(_resolveFileName("QSYS/QYCMDFTPVM"), String("DEFAULT")));
-    #else
-    temp.append(Pair<String, String>(_resolveFileName("DefaultProviderManager"), String("DEFAULT")));
-    #endif
-    #endif
+    const String & getLogicalName(void) const
+    {
+        return(_logicalName);
+    }
 
-    #if defined(ENABLE_CMPI_PROVIDER_MANAGER)
-    #if defined(PEGASUS_OS_OS400)
-    temp.append(Pair<String, String>(_resolveFileName("QSYS/QYCMCMPIPM"), String("CMPI")));
-    #else
-    temp.append(Pair<String, String>(_resolveFileName("CMPIProviderManager"), String("CMPI")));
-    #endif
-    #endif
+    const String & getInterfaceName(void) const
+    {
+        return(_interfaceName);
+    }
 
-    return(temp);
-}
+private:
+    String _physicalName;
+    String _logicalName;
+    String _interfaceName;
 
-static const Array<Pair<String,String> > _fileNames = _initializeFileNames();
+};
 // END TEMP SECTION
 
 inline Boolean _isSupportedRequestType(const Message * message)
 {
-    Boolean rc = false;
+    // ATTN: needs implementation
 
-    if(message == 0)
-    {
-        return(rc);
-    }
+    // for now, assume all requests are valid
 
-    /*
-    // ATTN : need to determine valid request message types
-    // before enabling.
-
-    switch(message->getType())
-    {
-    case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-    case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-    case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-    case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-    case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-    case CIM_EXEC_QUERY_REQUEST_MESSAGE:
-    case CIM_ASSOCIATORS_REQUEST_MESSAGE:
-    case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
-    case CIM_REFERENCES_REQUEST_MESSAGE:
-    case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
-    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
-    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
-    case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
-    case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_MODIFY_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
-    case CIM_ENABLE_INDICATIONS_REQUEST_MESSAGE:
-    case CIM_DISABLE_INDICATIONS_REQUEST_MESSAGE:
-    case CIM_DISABLE_MODULE_REQUEST_MESSAGE:
-    case CIM_ENABLE_MODULE_REQUEST_MESSAGE:
-    case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-    case CIM_CONSUME_INDICATION_REQUEST_MESSAGE:
-        rc = true;
-
-        break;
-    default:
-        rc = false;
-
-        break;
-    }
-    */
-
-    rc = true;
-
-    return(rc);
+    return(true);
 }
 
 inline Boolean _isSupportedResponseType(const Message * message)
 {
-    Boolean rc = false;
+    // ATTN: needs implementation
 
-    return(rc);
+    // for now, assume all responses are invalid
+
+    return(false);
 }
 
 ProviderManagerService::ProviderManagerService(void)
@@ -168,39 +155,47 @@ ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * pro
 {
     SetProviderRegistrationManager(providerRegistrationManager);
 
-    for(Uint32 i = 0, n = _fileNames.size(); i < n; i++)
+    // ATTN: this section is a temporary solution to populate the list of enabled
+    // provider managers for a given distribution. it includes another temporary
+    // solution for converting a generic file name into a file name useable by
+    // each platform.
+
+    // BEGIN TEMP SECTION
+    Array<ProviderManagerRegistration> registrations;
+
+    //#if defined(PEGASUS_OS_OS400)
+    //registrations.append(ProviderManagerRegistration("QSYS/??????????", "INTERNAL", "INTERNAL"));
+    //#else
+    //registrations.append(ProviderManagerRegistration("InternalProviderManager", "DEFAULT", "INTERNAL"));
+    //#endif
+
+    #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
+    #if defined(PEGASUS_OS_OS400)
+    registrations.append(ProviderManagerRegistration("QSYS/QYCMDFTPVM", "DEFAULT", "C++Default"));
+    #else
+    registrations.append(ProviderManagerRegistration("DefaultProviderManager", "DEFAULT", "C++Default"));
+    #endif
+    #endif
+
+    #if defined(ENABLE_CMPI_PROVIDER_MANAGER)
+    #if defined(PEGASUS_OS_OS400)
+    registrations.append(ProviderManagerRegistration("QSYS/QYCMCMPIPM", "CMPI", "CMPI"));
+    #else
+    registrations.append(ProviderManagerRegistration("CMPIProviderManager", "CMPI", "CMPI"));
+    #endif
+    #endif
+    // END TEMP SECTION
+
+    for(Uint32 i = 0, n = registrations.size(); i < n; i++)
     {
-        String message;
-
-        message = "ProviderManagerService::ProviderManagerService() loading " +
-            _fileNames[i].first + "(" + _fileNames[i].second + ")";
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, message);
-
         try
         {
-            ProviderManagerModule module(_fileNames[i].first);
+            ProviderManagerContainer container(registrations[i].getLogicalName(), registrations[i].getPhysicalName());
 
-            if(module.load() == false)
-            {
-                throw 0;    // ATTN: inefficient
-            }
-
-            ProviderManager * manager = module.getProviderManager(_fileNames[i].second);
-
-            if(manager == 0)
-            {
-                throw 0;    // ATTN: inefficient
-            }
-
-            _providerManagers.append(Pair<ProviderManager *, ProviderManagerModule>(manager, module));
+            _providerManagers.append(container);
         }
         catch(...)
         {
-            message = "ProviderManagerService::ProviderManagerService() exception loading " +
-                _fileNames[i].first + "(" + _fileNames[i].second + ")";
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, message);
         }
     }
 }
@@ -421,9 +416,19 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
 
     Message * response = 0;
 
+    // get namespace and class name from message
+
+    ProviderName name(
+        String::EMPTY,
+        String::EMPTY,
+        String::EMPTY,
+        String::EMPTY,
+        0);
+
     // find provider manager
-    // ATTN: implement efficient lookup
-    ProviderManager * manager = _providerManagers[0].first;
+    name = findProvider(name);
+
+    // find provider manager for provider interface
 
     try
     {
@@ -431,7 +436,7 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
             "ProviderManagerService::handleCimRequest() passing control to provider manager.");
 
         // forward request
-        response = manager->processMessage(request);
+        response = _providerManagers[0].getProviderManager().processMessage(request);
     }
     catch(...)
     {

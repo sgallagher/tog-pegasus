@@ -87,7 +87,7 @@ private:
     SafeQueue<AsyncOpNode *> _outgoingQueue;
 
 private:
-    Array<Pair<ProviderManager *, ProviderManagerModule> > _providerManagers;
+    //Array<Pair<ProviderManager *, ProviderManagerModule> > _providerManagers;
 
 };
 

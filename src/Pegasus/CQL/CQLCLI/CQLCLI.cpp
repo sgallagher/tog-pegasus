@@ -58,10 +58,6 @@ PEGASUS_USING_STD;
 FILE *CQL_in;
 int CQL_parse();
 
-PEGASUS_NAMESPACE_BEGIN
-CQLParserState* globalParserState = 0;
-PEGASUS_NAMESPACE_END
-
 
 Boolean cqlcli_verbose = false;
 

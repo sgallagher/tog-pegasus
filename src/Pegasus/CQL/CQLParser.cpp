@@ -47,7 +47,7 @@ extern void CQL_restart (FILE *input_file);
 
 PEGASUS_NAMESPACE_BEGIN
 
-CQLParserState* globalParserState = 0;
+CQLParserState* CQL_globalParserState = 0;
 static Mutex CQL_mutex;
 
 void CQLParser::parse(
@@ -67,32 +67,32 @@ void CQLParser::parse(
     statement.clear();
     CQL_restart (0);
 
-    globalParserState = new CQLParserState;
-    globalParserState->error = false;
-    globalParserState->text = text;
-    globalParserState->textSize = strlen(text) + 1;
-    globalParserState->offset = 0;
-    globalParserState->currentTokenPos = 0;
-    globalParserState->tokenCount = 0;
-    globalParserState->currentRule = String::EMPTY;
-    globalParserState->statement = &statement;
+    CQL_globalParserState = new CQLParserState;
+    CQL_globalParserState->error = false;
+    CQL_globalParserState->text = text;
+    CQL_globalParserState->textSize = strlen(text) + 1;
+    CQL_globalParserState->offset = 0;
+    CQL_globalParserState->currentTokenPos = 0;
+    CQL_globalParserState->tokenCount = 0;
+    CQL_globalParserState->currentRule = String::EMPTY;
+    CQL_globalParserState->statement = &statement;
 
     CQL_parse();
 
-    if (globalParserState->error)
+    if (CQL_globalParserState->error)
     {
-	String errorMessage = globalParserState->errorMessage;
+	String errorMessage = CQL_globalParserState->errorMessage;
 	cleanup();
-	Uint32 position = globalParserState->currentTokenPos;
-	Uint32 token = globalParserState->tokenCount;
-	String rule = globalParserState->currentRule;
-	delete globalParserState;
+	Uint32 position = CQL_globalParserState->currentTokenPos;
+	Uint32 token = CQL_globalParserState->tokenCount;
+	String rule = CQL_globalParserState->currentRule;
+	delete CQL_globalParserState;
         PEG_METHOD_EXIT();
 	throw CQLSyntaxErrorException(errorMessage,token,position,rule);
     }
 
     cleanup();
-    delete globalParserState;
+    delete CQL_globalParserState;
     PEG_METHOD_EXIT();
 }
 
@@ -128,7 +128,7 @@ void CQLParser::cleanup()
     PEG_METHOD_ENTER(TRC_CQL,"CQLParser::cleanup");
 
 
-    Array<char*>& arr = globalParserState->outstandingStrings;
+    Array<char*>& arr = CQL_globalParserState->outstandingStrings;
 
     for (Uint32 i = 0, n = arr.size(); i < n; i++)
 	delete [] arr[i];
@@ -145,8 +145,8 @@ PEGASUS_USING_PEGASUS;
 int CQL_error(const char* errorMessage)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQL_error");
-    globalParserState->error = true;
-    globalParserState->errorMessage = errorMessage;
+    CQL_globalParserState->error = true;
+    CQL_globalParserState->errorMessage = errorMessage;
 
     //
     //  flex does not automatically flush the input buffer in case of error
@@ -165,7 +165,7 @@ int CQLInput(char* buffer, int& numRead, int numRequested)
     // be one or more; this is fixed checked beforehand by CQLParser::parse()).
     //
     int remaining = 
-	globalParserState->textSize - globalParserState->offset - 1;
+	CQL_globalParserState->textSize - CQL_globalParserState->offset - 1;
 
     if (remaining == 0)
     {
@@ -178,10 +178,10 @@ int CQLInput(char* buffer, int& numRead, int numRequested)
 	numRequested = remaining;
 
     memcpy(buffer, 
-	globalParserState->text + globalParserState->offset, 
+	CQL_globalParserState->text + CQL_globalParserState->offset, 
 	numRequested);
 
-    globalParserState->offset += numRequested;
+    CQL_globalParserState->offset += numRequested;
     numRead = numRequested;
 
 

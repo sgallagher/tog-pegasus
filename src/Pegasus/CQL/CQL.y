@@ -34,7 +34,7 @@ extern int CQL_error(const char *err);
 
 PEGASUS_NAMESPACE_BEGIN
                                                                                 
-extern CQLParserState* globalParserState;
+extern CQLParserState* CQL_globalParserState;
 Array<CQLPredicate> _arglist;
 
 enum CQLType { Id, CId, Val, Func, Fact, Trm, Expr, SPred, Pred, Str };
@@ -210,7 +210,7 @@ PEGASUS_NAMESPACE_END
 	/**
 		The general pattern:  We construct small objects first (CQLIdentifiers, CQLValues etc) which
 		get forwared to more complex rules where more complex objects are made.  Eventually we have constructed
-		a top level CQLPredicate that gets added to the globalParserState select statement.
+		a top level CQLPredicate that gets added to the CQL_globalParserState select statement.
 
 		Along the way we keep track of which rule we are processing so that any errors encountered are specific
 		enough to actually do us some good.
@@ -223,7 +223,7 @@ PEGASUS_NAMESPACE_END
 /* CQLIdentifier */
 identifier  : IDENTIFIER 
              { 
-		 globalParserState->currentRule = "identifier";
+		 CQL_globalParserState->currentRule = "identifier";
                  sprintf(msg,"BISON::identifier\n");
 		 printf_(msg);
 	
@@ -236,7 +236,7 @@ identifier  : IDENTIFIER
 
 class_name : identifier  
              {
-		 globalParserState->currentRule = "class_name";
+		 CQL_globalParserState->currentRule = "class_name";
                  sprintf(msg,"BISON::class_name = %s\n", (const char *)($1->getName().getString().getCString())); 
 		 printf_(msg);
 		$$ = $1;
@@ -245,7 +245,7 @@ class_name : identifier
 
 class_path : class_name 
              { 
-		globalParserState->currentRule = "class_path";
+		CQL_globalParserState->currentRule = "class_path";
                  sprintf(msg,"BISON::class_path\n"); 
 		 printf_(msg);
 		 $$ = $1;
@@ -271,7 +271,7 @@ scoped_property : SCOPED_PROPERTY
 			   			- "A::class.prop#'OK'
 			   			- "A::class.prop[4]"
 							*/
-							globalParserState->currentRule = "scoped_property";
+							CQL_globalParserState->currentRule = "scoped_property";
 							sprintf(msg,"BISON::scoped_property = %s\n",CQL_lval.strValue);
 							printf_(msg);
 
@@ -289,7 +289,7 @@ literal_string : STRING_LITERAL
 		/*
 		   We make sure the literal is valid UTF8, then make a String
 		*/
-		globalParserState->currentRule = "literal_string";
+		CQL_globalParserState->currentRule = "literal_string";
                 sprintf(msg,"BISON::literal_string-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
 
@@ -306,7 +306,7 @@ literal_string : STRING_LITERAL
 					MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
 							   String("Bad UTF8 encountered parsing rule $0 in position $1."),
 							   String("literal_string"),
-							   globalParserState->currentTokenPos)
+							   CQL_globalParserState->currentTokenPos)
 						 );
 		}
              }
@@ -315,7 +315,7 @@ literal_string : STRING_LITERAL
 /* CQLValue */
 binary_value : BINARY 
 	       { 
-		   globalParserState->currentRule = "binary_value->BINARY";
+		   CQL_globalParserState->currentRule = "binary_value->BINARY";
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
 
@@ -326,7 +326,7 @@ binary_value : BINARY
                }
              | NEGATIVE_BINARY 
                { 
-		   globalParserState->currentRule = "binary_value->NEGATIVE_BINARY";
+		   CQL_globalParserState->currentRule = "binary_value->NEGATIVE_BINARY";
                    sprintf(msg,"BISON::binary_value-> %s\n",CQL_lval.strValue); 
 		   printf_(msg);
 
@@ -340,7 +340,7 @@ binary_value : BINARY
 /* CQLValue */
 hex_value : HEXADECIMAL 
             { 
-		globalParserState->currentRule = "hex_value->HEXADECIMAL";
+		CQL_globalParserState->currentRule = "hex_value->HEXADECIMAL";
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
 
@@ -351,7 +351,7 @@ hex_value : HEXADECIMAL
             }
           | NEGATIVE_HEXADECIMAL 
             { 
-		globalParserState->currentRule = "hex_value->NEGATIVE_HEXADECIMAL";
+		CQL_globalParserState->currentRule = "hex_value->NEGATIVE_HEXADECIMAL";
                 sprintf(msg,"BISON::hex_value-> %s\n",CQL_lval.strValue); 
 		printf_(msg);
 
@@ -365,7 +365,7 @@ hex_value : HEXADECIMAL
 /* CQLValue */
 decimal_value : INTEGER 
                 { 
-		    globalParserState->currentRule = "decimal_value->INTEGER";
+		    CQL_globalParserState->currentRule = "decimal_value->INTEGER";
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
 
@@ -376,7 +376,7 @@ decimal_value : INTEGER
                 }
               | NEGATIVE_INTEGER 
                 { 
-		    globalParserState->currentRule = "decimal_value->NEGATIVE_INTEGER";
+		    CQL_globalParserState->currentRule = "decimal_value->NEGATIVE_INTEGER";
                     sprintf(msg,"BISON::decimal_value-> %s\n",CQL_lval.strValue); 
 		    printf_(msg);
 
@@ -390,7 +390,7 @@ decimal_value : INTEGER
 /* CQLValue */
 real_value : REAL 
              { 
-		 globalParserState->currentRule = "real_value->REAL";
+		 CQL_globalParserState->currentRule = "real_value->REAL";
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
                  $$ = new CQLValue(CQL_lval.strValue, CQLValue::Real);
@@ -400,7 +400,7 @@ real_value : REAL
              }
            | NEGATIVE_REAL 
              { 
-		 globalParserState->currentRule = "real_value->NEGATIVE_REAL";
+		 CQL_globalParserState->currentRule = "real_value->NEGATIVE_REAL";
                  sprintf(msg,"BISON::real_value-> %s\n",CQL_lval.strValue); 
 		 printf_(msg);
                  $$ = new CQLValue(CQL_lval.strValue, CQLValue::Real, false);
@@ -413,7 +413,7 @@ real_value : REAL
 /* CQLValue */
 literal : literal_string 
           {
-	      globalParserState->currentRule = "literal->literal_string";
+	      CQL_globalParserState->currentRule = "literal->literal_string";
               sprintf(msg,"BISON::literal->literal_string\n");
 	      printf_(msg);
               $$ = new CQLValue(*$1);
@@ -423,35 +423,35 @@ literal : literal_string
           }
         | decimal_value
           {
-	      globalParserState->currentRule = "literal->decimal_value";
+	      CQL_globalParserState->currentRule = "literal->decimal_value";
               sprintf(msg,"BISON::literal->decimal_value\n");
 	      printf_(msg);
 
           }
         | binary_value
           {
-              globalParserState->currentRule = "literal->binary_value";
+              CQL_globalParserState->currentRule = "literal->binary_value";
               sprintf(msg,"BISON::literal->binary_value\n");
 	      printf_(msg);
 
           }
         | hex_value
           {
-              globalParserState->currentRule = "literal->hex_value";
+              CQL_globalParserState->currentRule = "literal->hex_value";
               sprintf(msg,"BISON::literal->hex_value\n");
 	      printf_(msg);
 
           }
         | real_value
           {
-              globalParserState->currentRule = "literal->real_value";
+              CQL_globalParserState->currentRule = "literal->real_value";
               sprintf(msg,"BISON::literal->real_value\n");
 	      printf_(msg);
 
           }
         | _TRUE
           {
-	      globalParserState->currentRule = "literal->_TRUE";
+	      CQL_globalParserState->currentRule = "literal->_TRUE";
               sprintf(msg,"BISON::literal->_TRUE\n");
 	      printf_(msg);
 
@@ -462,7 +462,7 @@ literal : literal_string
           }
         | _FALSE
           {
-	      globalParserState->currentRule = "literal->_FALSE";
+	      CQL_globalParserState->currentRule = "literal->_FALSE";
               sprintf(msg,"BISON::literal->_FALSE\n");
 	      printf_(msg);
 
@@ -476,7 +476,7 @@ literal : literal_string
 /* String */
 array_index : expr
               {
-		  globalParserState->currentRule = "array_index->expr";
+		  CQL_globalParserState->currentRule = "array_index->expr";
                   sprintf(msg,"BISON::array_index->expr\n");
 		  printf_(msg);
 
@@ -491,7 +491,7 @@ array_index : expr
 /* String */
 array_index_list : array_index
                    {
-		       globalParserState->currentRule = "array_index_list->array_index";
+		       CQL_globalParserState->currentRule = "array_index_list->array_index";
                        sprintf(msg,"BISON::array_index_list->array_index\n");
 		       printf_(msg);
  		       $$ = $1;
@@ -501,7 +501,7 @@ array_index_list : array_index
 /* void* */
 chain : literal
         {
-            globalParserState->currentRule = "chain->literal";
+            CQL_globalParserState->currentRule = "chain->literal";
             sprintf(msg,"BISON::chain->literal\n");
 	    printf_(msg);
 
@@ -510,7 +510,7 @@ chain : literal
         }
       | LPAR expr RPAR
         {
-	    globalParserState->currentRule = "chain-> ( expr )";
+	    CQL_globalParserState->currentRule = "chain-> ( expr )";
             sprintf(msg,"BISON::chain-> ( expr )\n");
 	    printf_(msg);
 
@@ -519,7 +519,7 @@ chain : literal
         }
       | identifier
         {
-	   globalParserState->currentRule = "chain->identifier";
+	   CQL_globalParserState->currentRule = "chain->identifier";
            sprintf(msg,"BISON::chain->identifier\n");
 	   printf_(msg);
 
@@ -528,7 +528,7 @@ chain : literal
         }
       | identifier HASH literal_string
         {
-	    globalParserState->currentRule = "chain->identifier#literal_string";
+	    CQL_globalParserState->currentRule = "chain->identifier#literal_string";
             sprintf(msg,"BISON::chain->identifier#literal_string\n");
 	    printf_(msg);
 
@@ -540,7 +540,7 @@ chain : literal
         }
       | scoped_property
         {
-	    globalParserState->currentRule = "chain->scoped_property";
+	    CQL_globalParserState->currentRule = "chain->scoped_property";
 	    sprintf(msg,"BISON::chain-> scoped_property\n");
 	    printf_(msg);
 
@@ -549,7 +549,7 @@ chain : literal
         }
       | identifier LPAR arg_list RPAR
         {
-	    globalParserState->currentRule = "chain->identifier( arg_list )";
+	    CQL_globalParserState->currentRule = "chain->identifier( arg_list )";
             sprintf(msg,"BISON::chain-> identifier( arg_list )\n");
 	    printf_(msg);
             chain_state = CQLFUNCTION;
@@ -559,7 +559,7 @@ chain : literal
         }
       | chain DOT scoped_property
         {
-	    globalParserState->currentRule = "chain->chain.scoped_property";
+	    CQL_globalParserState->currentRule = "chain->chain.scoped_property";
 	    sprintf(msg,"BISON::chain-> chain DOT scoped_property : chain_state = %d\n",chain_state);
 	    printf_(msg);
 
@@ -583,7 +583,7 @@ chain : literal
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
 							   String("chain.scoped_property"),
-                                                           globalParserState->currentTokenPos)
+                                                           CQL_globalParserState->currentTokenPos)
                                                  );
             }
 
@@ -591,7 +591,7 @@ chain : literal
         }
       | chain DOT identifier
         {
-	    globalParserState->currentRule = "chain->chain.identifier";
+	    CQL_globalParserState->currentRule = "chain->chain.identifier";
             sprintf(msg,"BISON::chain->chain.identifier : chain_state = %d\n",chain_state);
 	    printf_(msg);
 
@@ -613,7 +613,7 @@ chain : literal
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
 							   String("chain.identifier"),
-                                                           globalParserState->currentTokenPos)
+                                                           CQL_globalParserState->currentTokenPos)
                                                  );
             }
 	    chain_state = CQLCHAINEDIDENTIFIER;
@@ -621,7 +621,7 @@ chain : literal
         }
       | chain DOT identifier HASH literal_string
         {
-	    globalParserState->currentRule = "chain->chain.identifier#literal_string";
+	    CQL_globalParserState->currentRule = "chain->chain.identifier#literal_string";
             sprintf(msg,"BISON::chain->chain.identifier#literal_string : chain_state = %d\n",chain_state);
 	    printf_(msg);
 
@@ -650,7 +650,7 @@ chain : literal
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier while parsing rule $0 in position $1."),
 							   String("chain.identifier#literal_string"),
-                                                           globalParserState->currentTokenPos)
+                                                           CQL_globalParserState->currentTokenPos)
                                                  );
             }
                                                                                                         
@@ -659,7 +659,7 @@ chain : literal
         }
       | chain LBRKT array_index_list RBRKT
         {
-	    globalParserState->currentRule = "chain->chain[ array_index_list ]";
+	    CQL_globalParserState->currentRule = "chain->chain[ array_index_list ]";
             sprintf(msg,"BISON::chain->chain[ array_index_list ] : chain_state = %d\n",chain_state);
 	    printf_(msg);
 	
@@ -694,7 +694,7 @@ chain : literal
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_CHAINID_OR_IDENTIFIER_OR_VALUE"),
                                                            String("Chain state not a CQLIdentifier or a CQLChainedIdentifier or a CQLValue while parsing rule $0 in position $1."),
 							   String("chain->chain[ array_index_list ]"),
-                                                           globalParserState->currentTokenPos)
+                                                           CQL_globalParserState->currentTokenPos)
                                                  );
 	    }
         }
@@ -702,7 +702,7 @@ chain : literal
 
 concat : chain
          {
-	     globalParserState->currentRule = "concat->chain";
+	     CQL_globalParserState->currentRule = "concat->chain";
              sprintf(msg,"BISON::concat->chain\n");
 	     printf_(msg);
 
@@ -710,7 +710,7 @@ concat : chain
          }
        | concat DBL_PIPE chain
          {
-	     globalParserState->currentRule = "concat->concat || chain";
+	     CQL_globalParserState->currentRule = "concat->concat || chain";
              sprintf(msg,"BISON::concat||chain\n");
 	     printf_(msg);
 
@@ -727,7 +727,7 @@ concat : chain
 
 factor : concat
 	 {
-	     globalParserState->currentRule = "factor->concat";
+	     CQL_globalParserState->currentRule = "factor->concat";
              sprintf(msg,"BISON::factor->concat\n");
 	     printf_(msg);
 
@@ -737,14 +737,14 @@ factor : concat
          {
 	      add enum instead of _invert to CQLFactor,has to be either nothing, + or -
               get the factor and set the optype appropriately
-	     globalParserState->currentRule = "concat->PLUS concat"; 
+	     CQL_globalParserState->currentRule = "concat->PLUS concat"; 
              printf("BISON::factor->PLUS concat\n");
              $$ = new CQLFactor(*(CQLValue*)$2);
          }
        | MINUS concat
          {
               get the factor and set the optype appropriately 
-	     globalParserState->currentRule = "concat->MINUS concat";
+	     CQL_globalParserState->currentRule = "concat->MINUS concat";
              printf("BISON::factor->MINUS concat\n");
              CQLValue *tmp = (CQLValue*)$2;
              tmp->invert();
@@ -754,7 +754,7 @@ factor : concat
 
 term : factor
        {
-	   globalParserState->currentRule = "term->factor";
+	   CQL_globalParserState->currentRule = "term->factor";
            sprintf(msg,"BISON::term->factor\n");
 	   printf_(msg);
 
@@ -764,14 +764,14 @@ term : factor
        {
 	    get factor out of $1, get factor out of $3, appendoperation, then construct predicate and forward it 
            printf("BISON::term->term STAR factor\n");
-	   globalParserState->currentRule = "term->term STAR factor";
+	   CQL_globalParserState->currentRule = "term->term STAR factor";
            $1->appendOperation(mult, *$3);
            $$ = $1;
        }
      | term DIV factor
        {
             get factor out of $1, get factor out of $3, appendoperation, then construct predicate and forward it 
-	   globalParserState->currentRule = "term->term DIV factor";
+	   CQL_globalParserState->currentRule = "term->term DIV factor";
            printf("BISON::term->term DIV factor\n");
            $1->appendOperation(divide, *$3);
            $$ = $1;
@@ -780,7 +780,7 @@ term : factor
 
 arith : term
         {
-	    globalParserState->currentRule = "arith->term";
+	    CQL_globalParserState->currentRule = "arith->term";
             sprintf(msg,"BISON::arith->term\n");
 	    printf_(msg);
 
@@ -791,7 +791,7 @@ arith : term
      /* | arith PLUS term
         {
 	     get term out of $1, get term out of $3, appendoperation, then construct predicate and forward it
-	    globalParserState->currentRule = "arith->arith PLUS term";
+	    CQL_globalParserState->currentRule = "arith->arith PLUS term";
             printf("BISON::arith->arith PLUS term\n");
             $1->appendOperation(TERM_ADD, *$3);
             $$ = $1;
@@ -799,7 +799,7 @@ arith : term
       | arith MINUS term
         {
 	    get term out of $1, get term out of $3, appendoperation, then construct predicate and forward it 
-	    globalParserState->currentRule = "arith->arith MINUS term";
+	    CQL_globalParserState->currentRule = "arith->arith MINUS term";
             printf("BISON::arith->arith MINUS term\n");
 	    $1->appendOperation(TERM_SUBTRACT, *$3);
             $$ = $1;
@@ -808,7 +808,7 @@ arith : term
 
 value_symbol : HASH literal_string
                {
-	  	   globalParserState->currentRule = "value_symbol->#literal_string";
+	  	   CQL_globalParserState->currentRule = "value_symbol->#literal_string";
                    sprintf(msg,"BISON::value_symbol->#literal_string\n");
                    printf_(msg);
 
@@ -824,7 +824,7 @@ value_symbol : HASH literal_string
 
 arith_or_value_symbol : arith
                         {
-			    globalParserState->currentRule = "arith_or_value_symbol->arith";
+			    CQL_globalParserState->currentRule = "arith_or_value_symbol->arith";
                             sprintf(msg,"BISON::arith_or_value_symbol->arith\n");
 			    printf_(msg);
 
@@ -833,7 +833,7 @@ arith_or_value_symbol : arith
                       | value_symbol
                         {
 			    /* make into predicate */
-			    globalParserState->currentRule = "arith_or_value_symbol->value_symbol";
+			    CQL_globalParserState->currentRule = "arith_or_value_symbol->value_symbol";
                             sprintf(msg,"BISON::arith_or_value_symbol->value_symbol\n");
 			    printf_(msg);
 
@@ -844,42 +844,42 @@ arith_or_value_symbol : arith
 
 comp_op : _EQ 
           {
-	      globalParserState->currentRule = "comp_op->_EQ";
+	      CQL_globalParserState->currentRule = "comp_op->_EQ";
               sprintf(msg,"BISON::comp_op->_EQ\n");
 	      printf_(msg);
 	      $$ = EQ;
           }
         | _NE
           {
-	      globalParserState->currentRule = "comp_op->_NE";
+	      CQL_globalParserState->currentRule = "comp_op->_NE";
               sprintf(msg,"BISON::comp_op->_NE\n");
 	      printf_(msg);
 	      $$ = NE;
           }
         | _GT 
           {
-	      globalParserState->currentRule = "comp_op->_GT";
+	      CQL_globalParserState->currentRule = "comp_op->_GT";
               sprintf(msg,"BISON::comp_op->_GT\n");
 	      printf_(msg);
 	      $$ = GT;
           }
         | _LT
           {
- 	      globalParserState->currentRule = "comp_op->_LT";
+ 	      CQL_globalParserState->currentRule = "comp_op->_LT";
               sprintf(msg,"BISON::comp_op->_LT\n");
 	      printf_(msg);
 	      $$ = LT;
           }
         | _GE
           {
-	      globalParserState->currentRule = "comp_op->_GE";
+	      CQL_globalParserState->currentRule = "comp_op->_GE";
               sprintf(msg,"BISON::comp_op->_GE\n");
 	      printf_(msg);
 	      $$ = GE;
           }
         | _LE
           {
-	      globalParserState->currentRule = "comp_op->_LE";
+	      CQL_globalParserState->currentRule = "comp_op->_LE";
               sprintf(msg,"BISON::comp_op->_LE\n");
 	      printf_(msg);
 	      $$ = LE;
@@ -888,7 +888,7 @@ comp_op : _EQ
 
 comp : arith
        {
-	   globalParserState->currentRule = "comp->arith";
+	   CQL_globalParserState->currentRule = "comp->arith";
            sprintf(msg,"BISON::comp->arith\n");
 	   printf_(msg);
 
@@ -896,7 +896,7 @@ comp : arith
        }
      | arith IS NOT _NULL
        {
-	   globalParserState->currentRule = "comp->arith IS NOT _NULL";
+	   CQL_globalParserState->currentRule = "comp->arith IS NOT _NULL";
            sprintf(msg,"BISON::comp->arith IS NOT _NULL\n");
 	   printf_(msg);
 
@@ -907,7 +907,7 @@ comp : arith
        }
      | arith IS _NULL
        {
-	   globalParserState->currentRule = "comp->arith IS _NULL";
+	   CQL_globalParserState->currentRule = "comp->arith IS _NULL";
            sprintf(msg,"BISON::comp->arith IS _NULL\n");
 	   printf_(msg);
 
@@ -918,7 +918,7 @@ comp : arith
        }
      | arith comp_op arith_or_value_symbol
        {
-	   globalParserState->currentRule = "comp->arith comp_op arith_or_value_symbol";
+	   CQL_globalParserState->currentRule = "comp->arith comp_op arith_or_value_symbol";
            sprintf(msg,"BISON::comp->arith comp_op arith_or_value_symbol\n");
 	   printf_(msg);
 	   if($1->isSimple() && $3->isSimple()){
@@ -937,13 +937,13 @@ comp : arith
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE"),
                                                            String("The CQLSimplePredicate is not simple while parsing rule $0 in position $1."),
 							   String("comp->arith comp_op arith_or_value_symbol"),
-                                                           globalParserState->currentTokenPos)
+                                                           CQL_globalParserState->currentTokenPos)
                                                  );
 	   }
        }
      | value_symbol comp_op arith
        {
-	   globalParserState->currentRule = "comp->value_symbol comp_op arith";
+	   CQL_globalParserState->currentRule = "comp->value_symbol comp_op arith";
            sprintf(msg,"BISON::comp->value_symbol comp_op arith\n");
 	   printf_(msg);
 
@@ -963,14 +963,14 @@ comp : arith
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE"),
                                                            String("The CQLSimplePredicate is not simple while parsing rule $0 in position $1."),
                                                            String("comp->value_symbol comp_op arith"),
-                                                           globalParserState->currentTokenPos)
+                                                           CQL_globalParserState->currentTokenPos)
                                                  );
 
 	   }
        }
      | value_symbol comp_op value_symbol
        {
-		globalParserState->currentRule = "comp->value_symbol comp_op value_symbol";
+		CQL_globalParserState->currentRule = "comp->value_symbol comp_op value_symbol";
 		sprintf(msg,"BISON::comp->value_symbol comp_op value_symbol\n");
            	printf_(msg);
                                                                                                                                                              
@@ -984,7 +984,7 @@ comp : arith
        }
      | arith _ISA identifier
        {
-	   globalParserState->currentRule = "comp->arith _ISA identifier";
+	   CQL_globalParserState->currentRule = "comp->arith _ISA identifier";
 	   /* make sure $1 isSimple(), get its expression, make simplepred->predicate */
            sprintf(msg,"BISON::comp->arith _ISA identifier\n");
 	   printf_(msg);
@@ -998,7 +998,7 @@ comp : arith
        }
      | arith _LIKE literal_string
        {
-	   globalParserState->currentRule = "comp->arith _LIKE literal_string";
+	   CQL_globalParserState->currentRule = "comp->arith _LIKE literal_string";
            sprintf(msg,"BISON::comp->arith _LIKE literal_string\n");
 	   printf_(msg);
 
@@ -1012,7 +1012,7 @@ comp : arith
 ;
 expr_factor : comp
               {
-		  globalParserState->currentRule = "expr_factor->comp";
+		  CQL_globalParserState->currentRule = "expr_factor->comp";
                   sprintf(msg,"BISON::expr_factor->comp\n");
 	          printf_(msg);
 
@@ -1020,7 +1020,7 @@ expr_factor : comp
               }
             | NOT comp
               {
-		  globalParserState->currentRule = "expr_factor->NOT comp";
+		  CQL_globalParserState->currentRule = "expr_factor->NOT comp";
                   sprintf(msg,"BISON::expr_factor->NOT comp\n");
 	 	  printf_(msg);
 
@@ -1031,7 +1031,7 @@ expr_factor : comp
 
 expr_term : expr_factor
             {
-	        globalParserState->currentRule = "expr_term->expr_factor";
+	        CQL_globalParserState->currentRule = "expr_term->expr_factor";
                 sprintf(msg,"BISON::expr_term->expr_factor\n");
 		printf_(msg);
 
@@ -1039,7 +1039,7 @@ expr_term : expr_factor
             }
           | expr_term _AND expr_factor
             {
-		globalParserState->currentRule = "expr_term->expr_term AND expr_factor";
+		CQL_globalParserState->currentRule = "expr_term->expr_term AND expr_factor";
 		sprintf(msg,"BISON::expr_term->expr_term AND expr_factor\n");
 		printf_(msg);
 
@@ -1054,7 +1054,7 @@ expr_term : expr_factor
 
 expr : expr_term 
        {
-	  globalParserState->currentRule = "expr->expr_term";
+	  CQL_globalParserState->currentRule = "expr->expr_term";
           sprintf(msg,"BISON::expr->expr_term\n");
 	  printf_(msg);
 
@@ -1062,7 +1062,7 @@ expr : expr_term
        }
      | expr _OR expr_term
        {
-	   globalParserState->currentRule = "expr->expr OR expr_term";
+	   CQL_globalParserState->currentRule = "expr->expr OR expr_term";
            sprintf(msg,"BISON::expr->expr OR expr_term\n");
 	   printf_(msg);
 	   $$ = new CQLPredicate();
@@ -1077,7 +1077,7 @@ expr : expr_term
 arg_list : {;}
          | STAR
            {
-	       globalParserState->currentRule = "arg_list->STAR";
+	       CQL_globalParserState->currentRule = "arg_list->STAR";
                sprintf(msg,"BISON::arg_list->STAR\n");
 	       printf_(msg);
 
@@ -1093,7 +1093,7 @@ arg_list : {;}
            }
          | expr
 	   {
-		   globalParserState->currentRule = "arg_list->arg_list_sub->expr";
+		   CQL_globalParserState->currentRule = "arg_list->arg_list_sub->expr";
                    sprintf(msg,"BISON::arg_list_sub->expr\n");
                    printf_(msg);
 
@@ -1154,40 +1154,40 @@ arg_list_tail : {;}
 */
 from_specifier : class_path
                  {
-		     globalParserState->currentRule = "from_specifier->class_path";
+		     CQL_globalParserState->currentRule = "from_specifier->class_path";
                      sprintf(msg,"BISON::from_specifier->class_path\n");
 		     printf_(msg);
 
-		     globalParserState->statement->appendClassPath(*$1);
+		     CQL_globalParserState->statement->appendClassPath(*$1);
                  } 
 
 		| class_path AS identifier
 		  {
-			globalParserState->currentRule = "from_specifier->class_path AS identifier";
+			CQL_globalParserState->currentRule = "from_specifier->class_path AS identifier";
 			sprintf(msg,"BISON::from_specifier->class_path AS identifier\n");
 			printf_(msg);
 
 			CQLIdentifier _class(*$1);
 			String _alias($3->getName().getString());
-			globalParserState->statement->insertClassPathAlias(_class,_alias);
-			globalParserState->statement->appendClassPath(_class);
+			CQL_globalParserState->statement->insertClassPathAlias(_class,_alias);
+			CQL_globalParserState->statement->appendClassPath(_class);
 		  }
 		| class_path identifier
 		  {
-			globalParserState->currentRule = "from_specifier->class_path identifier";
+			CQL_globalParserState->currentRule = "from_specifier->class_path identifier";
 			sprintf(msg,"BISON::from_specifier->class_path identifier\n");
 			printf_(msg);
 
 			CQLIdentifier _class(*$1);
                         String _alias($2->getName().getString());
-                        globalParserState->statement->insertClassPathAlias(_class,_alias);
-                        globalParserState->statement->appendClassPath(_class);
+                        CQL_globalParserState->statement->insertClassPathAlias(_class,_alias);
+                        CQL_globalParserState->statement->appendClassPath(_class);
 		  }
 ;
 
 from_criteria : from_specifier
                 {
-		    globalParserState->currentRule = "from_criteria->from_specifier";
+		    CQL_globalParserState->currentRule = "from_criteria->from_specifier";
                     sprintf(msg,"BISON::from_criteria->from_specifier\n");
 		    printf_(msg);
                 }
@@ -1195,7 +1195,7 @@ from_criteria : from_specifier
 
 star_expr : STAR
             {
-		globalParserState->currentRule = "star_expr->STAR";
+		CQL_globalParserState->currentRule = "star_expr->STAR";
                 sprintf(msg,"BISON::star_expr->STAR\n");
 		printf_(msg);
 
@@ -1204,7 +1204,7 @@ star_expr : STAR
             }
 	  | chain DOT STAR
 	    {
-		globalParserState->currentRule = "star_expr->chain.*";
+		CQL_globalParserState->currentRule = "star_expr->chain.*";
 		sprintf(msg,"BISON::star_expr->chain.*\n");
                 printf_(msg);
 		CQLChainedIdentifier* _tmp = (CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier));
@@ -1220,12 +1220,12 @@ star_expr : STAR
 
 selected_entry : expr 
                  {
-		     globalParserState->currentRule = "selected_entry->expr";
+		     CQL_globalParserState->currentRule = "selected_entry->expr";
                      sprintf(msg,"BISON::selected_entry->expr\n");
 		     printf_(msg);
 		     if($1->isSimpleValue()){
 		        CQLChainedIdentifier *_cid = (CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier));
-		        globalParserState->statement->appendSelectIdentifier(*_cid);
+		        CQL_globalParserState->statement->appendSelectIdentifier(*_cid);
 		     }else{
 			/* error */
 			String _msg("selected_entry->expr : $1 is not a simple value");
@@ -1234,22 +1234,22 @@ selected_entry : expr
                                         MessageLoaderParms(String("CQL.CQL_y.NOT_SIMPLE_VALUE"),
                                                            String("The CQLPredicate is not a simple value while parsing rule $0 in position $1."),
                                                            String("selected_entry->expr"),
-                                                           globalParserState->currentTokenPos)
+                                                           CQL_globalParserState->currentTokenPos)
                                                  );	
 		     }
                  }
                | star_expr
                  {
-		     globalParserState->currentRule = "selected_entry->star_expr";
+		     CQL_globalParserState->currentRule = "selected_entry->star_expr";
                      sprintf(msg,"BISON::selected_entry->star_expr\n");
 		     printf_(msg);
-		     globalParserState->statement->appendSelectIdentifier(*$1);
+		     CQL_globalParserState->statement->appendSelectIdentifier(*$1);
                  }
 ;
 
 select_list : selected_entry select_list_tail
             {
-		globalParserState->currentRule = "select_list->selected_entry select_list_tail";
+		CQL_globalParserState->currentRule = "select_list->selected_entry select_list_tail";
                 sprintf(msg,"BISON::select_list->selected_entry select_list_tail\n");
 		printf_(msg);
             }
@@ -1258,7 +1258,7 @@ select_list : selected_entry select_list_tail
 select_list_tail : {;} /* empty */
                  | COMMA selected_entry select_list_tail
                    {
-		       globalParserState->currentRule = "select_list_tail->COMMA selected_entry select_list_tail";
+		       CQL_globalParserState->currentRule = "select_list_tail->COMMA selected_entry select_list_tail";
                        sprintf(msg,"BISON::select_list_tail->COMMA selected_entry select_list_tail\n");
 		       printf_(msg);
                    }
@@ -1266,26 +1266,26 @@ select_list_tail : {;} /* empty */
 
 search_condition : expr
                    {
-			globalParserState->currentRule = "search_condition->expr";
+			CQL_globalParserState->currentRule = "search_condition->expr";
                         sprintf(msg,"BISON::search_condition->expr\n");
 			printf_(msg);
-			globalParserState->statement->setPredicate(*$1);
+			CQL_globalParserState->statement->setPredicate(*$1);
                    }
 ;
 
 optional_where : {}
                | WHERE search_condition
                  {
-		     globalParserState->currentRule = "optional_where->WHERE search_condition";
+		     CQL_globalParserState->currentRule = "optional_where->WHERE search_condition";
                      sprintf(msg,"BISON::optional_where->WHERE search_condition\n");
 		     printf_(msg);
-		     globalParserState->statement->setHasWhereClause();
+		     CQL_globalParserState->statement->setHasWhereClause();
                  }
 ;
 
 select_statement : SELECT select_list FROM from_criteria optional_where 
                    {
-		       globalParserState->currentRule = "select_statement";
+		       CQL_globalParserState->currentRule = "select_statement";
                        sprintf(msg,"select_statement\n\n");
 		       printf_(msg);
 				 cleanup();

@@ -29,6 +29,7 @@
 //
 // Modified By:
 //     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//     Heather Sterling, IBM (hsterl@us.ibm.com) for PEP#187
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,8 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Security/Authentication/AuthenticationManager.h>
 #include <Pegasus/Server/Linkage.h>
+
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -64,7 +67,8 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
       /** Constructor. */
       HTTPAuthenticatorDelegator(
 	 Uint32 operationMessageQueueId,
-	 Uint32 exportMessageQueueId);
+	 Uint32 exportMessageQueueId,
+	 CIMRepository* repository);
 
       /** Destructor. */
       ~HTTPAuthenticatorDelegator();
@@ -107,6 +111,9 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
       Uint32 _exportMessageQueueId;
 
       AutoPtr<AuthenticationManager> _authenticationManager; //PEP101
+
+private:
+	CIMRepository* _repository;
 };
 
 PEGASUS_NAMESPACE_END

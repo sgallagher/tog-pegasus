@@ -165,4 +165,16 @@ void   AuthenticationInfoRep::setExportConnection(Boolean exportConnection)
     PEG_METHOD_EXIT();
 }
 
+//PEP187
+void AuthenticationInfoRep::setClientCertificate(SSLCertificateInfo* clientCertificate)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "AuthenticationInfoRep::setClientCertificate");
+
+    _clientCertificate = clientCertificate;
+
+    PEG_METHOD_EXIT();
+}
+
+
 PEGASUS_NAMESPACE_END

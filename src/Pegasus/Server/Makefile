@@ -43,7 +43,8 @@ LIBRARIES = \
 	ConfigSettingProvider \
 	UserAuthProvider \
 	ProviderRegistrationProvider\
-	NamespaceProvider
+	NamespaceProvider \
+	CertificateProvider
 
 ifdef PEGASUS_ENABLE_SLP
 LIBRARIES += \

@@ -140,7 +140,6 @@ class PEGASUS_COMMON_LINKAGE abstract_socket : public Sharable
       virtual Boolean isPeerVerificationEnabled(void) = 0;
       virtual SSLCertificateInfo* getPeerCertificate(void) = 0; 
       virtual Boolean isCertificateVerified(void) = 0;  
-      virtual Boolean addTrustedClient(const char* username) = 0;
 
    private:
 
@@ -199,7 +198,6 @@ class empty_socket_rep : public abstract_socket
       Boolean isPeerVerificationEnabled(void) { return false;}
       SSLCertificateInfo* getPeerCertificate(void) { return NULL; } 
       Boolean isCertificateVerified(void) { return 0;}    
-      Boolean addTrustedClient(const char* username) { return false;}   
 
    private:
       empty_socket_rep(int);
@@ -256,7 +254,6 @@ class bsd_socket_rep : public abstract_socket
       virtual Boolean isPeerVerificationEnabled(void);
       virtual SSLCertificateInfo* getPeerCertificate(void); 
       virtual Boolean isCertificateVerified(void);    
-      virtual Boolean addTrustedClient(const char* username);       
 
    private:
 
@@ -341,7 +338,6 @@ public:
   Boolean isPeerVerificationEnabled(void);
   SSLCertificateInfo* getPeerCertificate(void); 
   Boolean isCertificateVerified(void);    
-  Boolean addTrustedClient(const char* username); 
 
     void set_close_on_exec(void);
       

@@ -313,6 +313,20 @@ public:
         _rep->setExportConnection(exportConnection);
     }
 
+	//PEP187
+    SSLCertificateInfo* getClientCertificate()
+	{
+	    _checkRep();
+        return _rep->getClientCertificate();
+	}
+
+	//PEP187
+	void setClientCertificate(SSLCertificateInfo* clientCertificate)
+	{
+        _checkRep();
+        _rep->setClientCertificate(clientCertificate);
+	}
+
 private:
 
     AuthenticationInfo(AuthenticationInfoRep* rep) : _rep(rep)

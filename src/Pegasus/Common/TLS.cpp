@@ -91,7 +91,8 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConne
     // 
     // Create a new callback info for each new connection
     // 
-    _SSLCallbackInfo = new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction());
+    _SSLCallbackInfo = new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction(),
+										   _SSLContext->getCRLStore());
 
     if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo)) 
     {
@@ -418,141 +419,6 @@ Boolean SSLSocket::isCertificateVerified()
     return _certificateVerified; 
 }
 
-#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-
-static Mutex _trustStoreMutex;
-
-Boolean SSLSocket::addTrustedClient(const char* username) 
-{
-    PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::addTrustedClient()");
-
-    // check whether we have authority to automatically update truststore
-    if (!_SSLContext->isTrustStoreAutoUpdateEnabled())
-    {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Cannot add client certificate: enableSSLTrustStoreAutoUpdate is disabled.");
-        return false;
-    }
-
-	// check whether the credentials match those in sslTrustStoreUserName
-	if (strcmp(username, (const char*)_SSLContext->getTrustStoreUserName().getCString()) != 0)
-	{
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Cannot add client certificate: User credentials do not match sslTrustStoreUserName.");
-        return false;
-	}
-
-    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to add client certificate to truststore.");
-
-    X509 *client_cert = SSL_get_peer_certificate(_SSLConnection);
-
-    if (client_cert != NULL)
-    {
-        unsigned long hashVal = X509_subject_name_hash(client_cert);
-
-        String trustStore = _SSLContext->getTrustStore();
-    
-        if (trustStore == String::EMPTY || String::equal(trustStore, "none"))
-        {
-            // bail if we cannot find the truststore directory
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Cannot add client -- truststore directory invalid.");
-            return false;
-        }
-        
-        Uint32 index = 0;
-
-        //The files are looked up by the CA subject name hash value. 
-        //If more than one CA certificate with the same name hash value exist, 
-        //the extension must be different (e.g. 9d66eef0.0, 9d66eef0.1 etc)
-        char hashBuffer[32];
-        sprintf(hashBuffer, "%x", hashVal);
-
-        String hashString = "";
-        for (int j = 0; j < 32; j++) 
-        {
-            if (hashBuffer[j] != '\0') 
-            {
-               hashString.append(hashBuffer[j]);
-            } 
-            else
-            {
-                break; // end of hash string
-            }
-        }
-        
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Searching for files like " + hashString);
-
-        //Lock the truststore directory before we search for the certificate and write to the directory
-        //no need to unlock the truststore later, it gets unlocked when it goes out of scope
-        AutoMutex lock(_trustStoreMutex);
-
-        FileSystem::translateSlashes(trustStore); 
-        if (FileSystem::isDirectory(trustStore) && FileSystem::canWrite(trustStore)) 
-        {
-            Array<String> trustedCerts;
-            if (FileSystem::getDirectoryContents(trustStore, trustedCerts)) 
-            {
-                Uint32 count = trustedCerts.size();
-                for (Uint32 i = 0; i < count; i++)
-                {
-                    if (String::compare(trustedCerts[i], hashString, hashString.size()) == 0) 
-                    {
-                       index++;
-                    }
-                }
-            } 
-            else
-            {
-                String errorMsg = "Cannot add client certificate to truststore: could not open truststore directory.";
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, errorMsg);
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, "$0", errorMsg);
-                return false;
-            }
-        } 
-        else
-        {
-            String errorMsg = "Cannot add client certificate to truststore: Truststore directory DNE or does not have write privileges.";
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, errorMsg);
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING, "$0", errorMsg);
-            return false;
-        }
-        
-        //create new file with subject_hash.index in trust directory
-        //copy client certificate into this file
-        //now we trust this client and no longer need to check local OS credentials
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Attempting to add trusted client to " + trustStore);
-        
-        char filename[1024];
-        sprintf(filename, "%s/%s.%d", 
-                (const char*)trustStore.getCString(),
-                (const char*)hashString.getCString(), 
-                index);
-        
-        //use the ssl functions to write out the client x509 certificate
-        //TODO: add some error checking here
-        BIO* outFile = BIO_new(BIO_s_file());
-        BIO_write_filename(outFile, filename);
-        int i = PEM_write_bio_X509(outFile, client_cert);
-        BIO_free_all(outFile);
-
-        char subject[256];
-        X509_NAME_oneline(X509_get_subject_name(client_cert), subject, 256);
-        String subjectName = String(subject);
-
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "Client certificate added to truststore: subjectName $0", subjectName);
-
-        X509_free(client_cert);
-    }
-
-    PEG_METHOD_EXIT();
-    return true;
-}
-#else
-Boolean SSLSocket::addTrustedClient(const char* username) 
-{
-	return false;
-}
-#endif
-
 
 //
 // MP_Socket (Multi-purpose Socket class
@@ -700,15 +566,6 @@ Boolean MP_Socket::isCertificateVerified()
     return false;
 }
 
-Boolean MP_Socket::addTrustedClient(const char* username)
-{
-    if (_isSecure)
-    {
-        return (_sslsock->addTrustedClient(username));
-    }
-    return false;
-}
-
 PEGASUS_NAMESPACE_END
 
 #else
@@ -772,8 +629,6 @@ Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
 SSLCertificateInfo* MP_Socket::getPeerCertificate() { return NULL; }
 
 Boolean MP_Socket::isCertificateVerified() { return false; }
-
-Boolean MP_Socket::addTrustedClient(const char* username) { return false; }
 
 PEGASUS_NAMESPACE_END
 

@@ -378,11 +378,6 @@ Boolean bsd_socket_rep::isCertificateVerified(void)
     return false;
 }
 
-Boolean bsd_socket_rep::addTrustedClient(const char* username)
-{
-    return false;
-}
-
 void bsd_socket_rep::set_close_on_exec(void)
 {
    #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -459,7 +454,6 @@ class ssl_socket_rep : public bsd_socket_rep
       virtual Boolean isPeerVerificationEnabled(void);
       virtual SSLCertificateInfo* getPeerCertificate(void); 
       virtual Boolean isCertificateVerified(void);
-      virtual Boolean addTrustedClient(const char* username);   
 
       const char* get_err_string(void);
 
@@ -631,11 +625,6 @@ SSLCertificateInfo* ssl_socket_rep::getPeerCertificate(void)
 Boolean ssl_socket_rep::isCertificateVerified(void)
 {
    return _internal_socket->isCertificateVerified();
-}
-
-Boolean ssl_socket_rep::addTrustedClient(const char* username)
-{
-   return _internal_socket->addTrustedClient(username);
 }
 
 const char* ssl_socket_rep::get_err_string(void)
@@ -857,11 +846,6 @@ SSLCertificateInfo* pegasus_socket::getPeerCertificate(void)
 Boolean pegasus_socket::isCertificateVerified(void)
 {
    return _rep->isCertificateVerified();
-}
-
-Boolean pegasus_socket::addTrustedClient(const char* username)
-{
-   return _rep->addTrustedClient(username);
 }
 
 void pegasus_socket::set_close_on_exec(void)

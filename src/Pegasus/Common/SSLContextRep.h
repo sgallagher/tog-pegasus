@@ -79,10 +79,6 @@ public:
     @param keyPath  server key file path
     @param verifyCert  function pointer to a certificate verification
     call back function.
-	@param trustStoreAutoUpdate indicates that the server can automatically add certificates
-	to the truststore if they are sent with valid sslTrustStoreUserName credentials
-	@param trustStoreUserName the user to associate the truststore with; this is basically
-	a workaround to providers that require a username and will be addressed post 2.4
     @param randomFile  file path of a random file that is used as a seed
     for random number generation by OpenSSL.
 
@@ -92,9 +88,8 @@ public:
         const String& trustStore,
         const String& certPath = String::EMPTY,
         const String& keyPath = String::EMPTY,
+		const String& crlPath = String::EMPTY,
         SSLCertificateVerifyFunction* verifyCert = NULL,
-        Boolean trustStoreAutoUpdate = false,
-		String trustStoreUserName = String::EMPTY,
         const String& randomFile = String::EMPTY);
 
     SSLContextRep(const SSLContextRep& sslContextRep);
@@ -109,11 +104,11 @@ public:
 
     String getKeyPath() const;
 
+	String getCRLPath() const;
+
+	X509_STORE* getCRLStore() const;
+
     Boolean isPeerVerificationEnabled() const;
-
-    Boolean isTrustStoreAutoUpdateEnabled() const;
-
-	String getTrustStoreUserName() const;
 
     SSLCertificateVerifyFunction* getSSLCertificateVerifyFunction() const;
 
@@ -138,14 +133,15 @@ private:
     String _trustStore;
     String _certPath;
     String _keyPath;
+	String _crlPath;
     String _randomFile;
     SSL_CTX * _sslContext;
 
     Boolean _verifyPeer;
-    Boolean _trustStoreAutoUpdate;
-	String _trustStoreUserName;
 
     SSLCertificateVerifyFunction* _certificateVerifyFunction;
+
+	X509_STORE* _crlStore;
 
     /*
        Mutex containing the SSL locks.

@@ -138,6 +138,15 @@ public:
 
     void setExportConnection(Boolean exportConnection);
 
+	//PEP187
+    SSLCertificateInfo* getClientCertificate()
+	{
+        return _clientCertificate;
+	}
+
+	//PEP187
+	void setClientCertificate(SSLCertificateInfo* clientCertificate);
+
 private:
 
     /** Constructors  */
@@ -159,6 +168,7 @@ private:
 #endif
 
     Boolean _exportConnection;
+	SSLCertificateInfo* _clientCertificate;
 };
 
 PEGASUS_NAMESPACE_END

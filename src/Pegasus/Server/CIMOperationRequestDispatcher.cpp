@@ -43,6 +43,7 @@
 //				 Seema Gupta (gseema@in.ibm.com for PEP135)
 //               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//               Heather Sterling, IBM (hsterl@us.ibm.com), PEP#187
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -615,6 +616,25 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 				      PEGASUS_MODULENAME_NAMESPACEPROVIDER,
 				      PEGASUS_QUEUENAME_CONTROLSERVICE);
 
+	//PEP187
+	_routing_table.insert_record(PEGASUS_CLASSNAME_CERTIFICATE,
+								 PEGASUS_NAMESPACENAME_CERTIFICATE,
+								 DynamicRoutingTable::INTERNAL,
+								 0,
+								 static_cast<MessageQueueService *>
+								 (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+								 PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
+								 service = PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+	//PEP187
+	_routing_table.insert_record(PEGASUS_CLASSNAME_CRL,
+								 PEGASUS_NAMESPACENAME_CERTIFICATE,
+								 DynamicRoutingTable::INTERNAL,
+								 0,
+								 static_cast<MessageQueueService *>
+								 (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+								 PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
+								 service = PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 
 #ifdef PEGASUS_HAS_PERFINST

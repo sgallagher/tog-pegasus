@@ -2,7 +2,7 @@ ROOT = ../../../../
 
 include $(ROOT)/mak/config.mak
 
-DIRS = Client GetInstance EnumInstNames InvokeMethod InvokeMethod2 EnumInstances DeleteNamespace SSLClientVerification
+DIRS = Client GetInstance EnumInstNames InvokeMethod InvokeMethod2 EnumInstances DeleteNamespace
 
 DIRS_SLP = \
     slp

@@ -100,8 +100,6 @@ public:
 
     SSLCertificateInfo* getPeerCertificate();
 
-    Boolean addTrustedClient(const char* username);
-
 private:
 
     SSL * _SSLConnection;
@@ -160,8 +158,6 @@ public:
     SSLCertificateInfo* getPeerCertificate();
 
     Boolean isCertificateVerified();
-
-    Boolean addTrustedClient(const char* username);
 
     union {
         Uint32    _socket;

@@ -78,11 +78,9 @@ static struct ConfigPropertyRow properties[] =
     {"sslKeyFilePath", "file.pem", 0, 0, 0, 1}, 
     {"sslTrustStore", "", 0, 0, 0, 1}, 
     {"exportSSLTrustStore", "indication_trust.pem", 0, 0, 0, 1},
+	{"crlStore", "indication_trust.pem", 0, 0, 0, 1},
     {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
 	{"sslTrustStoreUserName", "", 0, 0, 0, 1},
-#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
-#endif
 #ifdef PEGASUS_OS_OS400
     {"enableNamespaceAuthorization", "true", 0, 0, 0, 1},
 #else
@@ -121,11 +119,9 @@ SecurityPropertyOwner::SecurityPropertyOwner()
     _keyFilePath.reset(new ConfigProperty());
     _trustStore.reset(new ConfigProperty());
     _exportSSLTrustStore.reset(new ConfigProperty());
+	_crlStore.reset(new ConfigProperty());
     _sslClientVerificationMode.reset(new ConfigProperty());
     _sslTrustStoreUserName.reset(new ConfigProperty());
-#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE    
-    _enableSSLTrustStoreAutoUpdate.reset(new ConfigProperty());
-#endif
     _enableRemotePrivilegedUserAccess.reset(new ConfigProperty());
     _enableSubscriptionsForNonprivilegedUsers.reset(new ConfigProperty());
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
@@ -252,6 +248,20 @@ void SecurityPropertyOwner::initialize()
             _exportSSLTrustStore->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(
+			    properties[i].propertyName, 
+                "crlStore"))
+        {  
+            _crlStore->propertyName = properties[i].propertyName;
+            _crlStore->defaultValue = properties[i].defaultValue;
+            _crlStore->currentValue = properties[i].defaultValue;
+            _crlStore->plannedValue = properties[i].defaultValue;
+            _crlStore->dynamic = properties[i].dynamic;
+            _crlStore->domain = properties[i].domain;
+            _crlStore->domainSize = properties[i].domainSize;
+            _crlStore->externallyVisible = properties[i].externallyVisible;
+
+        } 
+        else if (String::equalNoCase(
             properties[i].propertyName, "sslClientVerificationMode")) 
         {
             _sslClientVerificationMode->propertyName = properties[i].propertyName;
@@ -275,20 +285,6 @@ void SecurityPropertyOwner::initialize()
             _sslTrustStoreUserName->domainSize = properties[i].domainSize;
             _sslTrustStoreUserName->externallyVisible = properties[i].externallyVisible;
         }
-#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-        else if (String::equalNoCase(
-            properties[i].propertyName, "enableSSLTrustStoreAutoUpdate")) 
-        {
-            _enableSSLTrustStoreAutoUpdate->propertyName = properties[i].propertyName;
-            _enableSSLTrustStoreAutoUpdate->defaultValue = properties[i].defaultValue;
-            _enableSSLTrustStoreAutoUpdate->currentValue = properties[i].defaultValue;
-            _enableSSLTrustStoreAutoUpdate->plannedValue = properties[i].defaultValue;
-            _enableSSLTrustStoreAutoUpdate->dynamic = properties[i].dynamic;
-            _enableSSLTrustStoreAutoUpdate->domain = properties[i].domain;
-            _enableSSLTrustStoreAutoUpdate->domainSize = properties[i].domainSize;
-            _enableSSLTrustStoreAutoUpdate->externallyVisible = properties[i].externallyVisible;
-        }
-#endif
         else if (String::equalNoCase(
             properties[i].propertyName, "enableRemotePrivilegedUserAccess"))
         {
@@ -390,6 +386,10 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {
         return _exportSSLTrustStore.get();
     }
+	else if (String::equalNoCase(_crlStore->propertyName, name))
+    {
+        return _crlStore.get();
+    }
     else if (String::equalNoCase(
                  _sslClientVerificationMode->propertyName, name))
     {
@@ -400,13 +400,6 @@ struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     {
         return _sslTrustStoreUserName.get();
     }
-#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-    else if (String::equalNoCase(
-                 _enableSSLTrustStoreAutoUpdate->propertyName, name))
-    {
-        return _enableSSLTrustStoreAutoUpdate.get();
-    }
-#endif
     else if (String::equalNoCase(
                  _enableRemotePrivilegedUserAccess->propertyName, name))
     {
@@ -715,7 +708,8 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
          return false;
     }
     else if (String::equalNoCase(_trustStore->propertyName, name) ||
-             String::equalNoCase(_exportSSLTrustStore->propertyName, name))
+             String::equalNoCase(_exportSSLTrustStore->propertyName, name) || 
+			 String::equalNoCase(_crlStore->propertyName, name))
     {
         //
         // Allow the exportSSLTrustStore and sslTrustStore file paths to be empty
@@ -766,15 +760,6 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
             return true;
         }
     }
-#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-    else if (String::equalNoCase(_enableSSLTrustStoreAutoUpdate->propertyName, name))
-    {
-        if(String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
-#endif
     else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
     {
         if(String::equal(value, "true") || String::equal(value, "false"))

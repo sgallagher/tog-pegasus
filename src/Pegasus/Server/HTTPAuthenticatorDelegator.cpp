@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Thread.h>
 #include "HTTPAuthenticatorDelegator.h"
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/FileSystem.h>
  
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -55,11 +56,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
-    Uint32 exportMessageQueueId)
+    Uint32 exportMessageQueueId,
+	CIMRepository* repository)
    : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR,
           MessageQueue::getNextQueueId()),
     _operationMessageQueueId(operationMessageQueueId),
-    _exportMessageQueueId(exportMessageQueueId)
+    _exportMessageQueueId(exportMessageQueueId),
+	_repository(repository)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
@@ -339,36 +342,118 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // In this case, no further attempts to authenticate the client are made
         authenticated = httpMessage->authInfo->isAuthenticated();
 
-        // If the request is a regular CIMOperation request that was authenticated
-        // via SSL, append the username associated with trusted clients.
-        // This is used in the OperationContext later in the transaction.
-        // Do not append for export requests.
+        // If the request was authenticated via SSL, append the username to the IdentityContainer
         String cimOperation;
         if (authenticated && 
 			(String::equal(httpMessage->authInfo->getAuthType(), AuthenticationInfoRep::AUTH_TYPE_SSL)) &&
 			HTTPMessage::lookupHeader(headers, "CIMOperation", cimOperation, true))
         {
-            String trustStoreUserName = configManager->getCurrentValue("sslTrustStoreUserName");
-            
-            // This should have been verified before server startup; perform an extra check
-            // in case this strategy changes.
-            if (System::isSystemUser((const char*)trustStoreUserName.getCString()))
-            {
+			PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "HTTPAuthDelegator was authenticated via SSL");
+
+			//PEP187
+			String trustStore = configManager->getCurrentValue("sslTrustStore");
+
+			if (FileSystem::isDirectory(trustStore)) 
+			{
+				//get the authenticated client certificate
+				SSLCertificateInfo* clientCertificate = httpMessage->authInfo->getClientCertificate();
+				
+				if (!clientCertificate) 
+				{
+					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "HTTPAuthDelegator auth error");
+					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_ERROR","Authorization error");
+					String msg(MessageLoader::getMessage(msgParms));
+					_sendHttpError(queueId,
+								   HTTP_STATUS_BADREQUEST,
+								   String::EMPTY,
+								   msg);
+					PEG_METHOD_EXIT();
+					return;
+				}
+				 
+				//get certificate properties
+				String issuerName = clientCertificate->getIssuerName();
+				char serialNumber[256];
+				sprintf(serialNumber, "%ld", clientCertificate->getSerialNumber());
+
+				//ATTN: Use certificate provider constants
+				String truststoreType = (httpMessage->authInfo->isExportConnection() ? String("3") : String("2"));
+	
+				//construct the corresponding PG_SSLCertificate instance
+				Array<CIMKeyBinding> keyBindings;
+				keyBindings.append(CIMKeyBinding("IssuerName", issuerName, CIMKeyBinding::STRING));
+				keyBindings.append(CIMKeyBinding("SerialNumber", serialNumber, CIMKeyBinding::STRING));
+				keyBindings.append(CIMKeyBinding("TruststoreType", truststoreType, CIMKeyBinding::NUMERIC));
+	
+				CIMObjectPath cimObjectPath("localhost",
+											PEGASUS_NAMESPACENAME_CERTIFICATE,
+											PEGASUS_CLASSNAME_CERTIFICATE,
+											keyBindings);
+	
+				PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Certificate COP: " + cimObjectPath.toString());
+			   
+                CIMInstance cimInstance;
+				CIMValue value;
+				Uint32 pos;
+				String userName = String::EMPTY;
+	
+				//attempt to get the username registered to the certificate
+				try 
+				{
+					cimInstance = _repository->getInstance(PEGASUS_NAMESPACENAME_CERTIFICATE, cimObjectPath);
+					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "HTTPAuthDelegator gotciminstance");
+					
+				} catch (CIMException& e)
+				{
+					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "The certificate used for authentication cannot be located in the repository.");
+					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE","The certificate used for authentication cannot be located in the repository.");
+					String msg(MessageLoader::getMessage(msgParms));
+					_sendHttpError(queueId,
+								   HTTP_STATUS_BADREQUEST,
+								   String::EMPTY,
+								   msg);
+					PEG_METHOD_EXIT();
+					return;
+				}
+
+                pos = cimInstance.findProperty("RegisteredUserName");
+					
+				if (pos != PEG_NOT_FOUND && !(value = cimInstance.getProperty(pos).getValue()).isNull())
+				{
+					value.get(userName);
+					httpMessage->authInfo->setAuthenticatedUser(userName);
+
+					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "User name for certificate is " + userName);
+					Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+								"HTTPAuthenticatorDelegator - Setting the trusted client certificate to $0", userName);
+				} else
+				{
+					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "No username associated with certificate.");
 				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-							"HTTPAuthenticatorDelegator - Setting the trusted client certificate to $0", trustStoreUserName);
-                httpMessage->authInfo->setAuthenticatedUser(trustStoreUserName);
-            } 
-            else 
-            {
-                MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_ERROR","Authorization error");
+								"No username associated with certificate.");
+					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_ERROR","No username associated with certificate.");
                 String msg(MessageLoader::getMessage(msgParms));
                 _sendHttpError(queueId,
                                HTTP_STATUS_BADREQUEST,
                                String::EMPTY,
                                msg);
-            }
-        }
-    }
+					PEG_METHOD_EXIT();
+					return;
+				}
+
+			} else
+			{
+				//trustStore is a single CA file, lookup username
+				//user was already verified as a valid system user during server startup
+				String trustStoreUserName = configManager->getCurrentValue("sslTrustStoreUserName");
+                httpMessage->authInfo->setAuthenticatedUser(trustStoreUserName);
+			}
+		}
+
+	} //end enableAuthentication
+
+	PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4, "Exited authentication loop");
+
 
 // l10n start
    AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;

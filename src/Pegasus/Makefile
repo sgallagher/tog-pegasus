@@ -24,6 +24,7 @@ DIRS = \
     ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
     ControlProviders/NamespaceProvider \
+    ControlProviders/CertificateProvider \
     HandlerService \
     IndicationService \
     ManagedClient \

@@ -36,7 +36,16 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Linkage.h>
 
+#ifdef PEGASUS_HAS_SSL
+#include <openssl/ssl.h>
+#else
+#define X509_STORE void
+#endif
+
+//ATTN: Move this to cpp file
+#ifdef PEGASUS_HAS_SSL
 typedef struct x509_store_ctx_st X509_STORE_CTX;
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -68,7 +77,8 @@ public:
 	// index to the application-specific data in the SSL connection object
     static const int SSL_CALLBACK_INDEX;
 
-    SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert);  
+    SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert,
+					X509_STORE* crlStore = NULL);  
 
     ~SSLCallbackInfo(); 
 
@@ -77,6 +87,8 @@ private:
     SSLCertificateVerifyFunction* verifyCertificateCallback;
 
     SSLCertificateInfo* _peerCertificate;
+
+	X509_STORE* _crlStore;
 
     friend class SSLSocket;
 
@@ -312,26 +324,23 @@ public:
     */
     String getKeyPath() const;
 
+	//PEP187
+	/** Gets the certificate revocation list path of the SSLContext object.
+    @return a string containing the crl path
+    */
+    String getCRLPath() const;
+
+	//PEP187
+	/** Gets the certificate revocation store of the SSLContext object.
+    @return a string containing the crl store
+    */
+    X509_STORE* getCRLStore() const;
+
     /** Returns whether peer verification is ON of OFF
-    Corresponds to what the SSL_CTX_set_verify
+    Corresponds to what the SSL_CTX_set_verify is set to
     @return true if verification is on; false otherwise
     */
     Boolean isPeerVerificationEnabled() const;
-
-#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-    /** Returns whether enableSSLTrustStoreAutoUpdate is ON or OFF
-    If on, untrusted certificates sent with privileged credentials will
-    be automatically added to the server's truststore
-    @return true if auto update is on; false otherwise
-    */
-    Boolean isTrustStoreAutoUpdateEnabled() const;
-#endif
-
-	/** Returns the username associated with the truststore, if applicable
-	This is currently necessary for OperationContext
-	@return the username associated with the truststore or String::EMPTY if not applicable
-	*/
-	String getTrustStoreUserName() const;
 
     /** Returns the verification callback associated with this context.  This may be NULL.
     @return the verification callback function 
@@ -358,52 +367,31 @@ public:
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
 
-	/** Constructor for a SSLContextRep object.
-    @param trustStore  trust store file path
-    @param certPath  server certificate file path
-    @param keyPath  server key file path
+
+	//PEP187
+	/** Constructor for a SSLContext object. This constructor is intended
+    to be used by the CIMServer or CIMClient.
+    @param trustStore file path of the trust store.
+    @param certPath  file path of the server certificate.
+    @param keyPath  file path of the private key. 
+	@param crlPath file path of the certificate revocation list.
     @param verifyCert  function pointer to a certificate verification
-    call back function.
-    @param trustStoreUserName the user to associate the truststore with; this is basically
-	a workaround to providers that require a username and will be addressed post 2.4
+    call back function.  A null pointer indicates that no callback is
+    requested for certificate verification.
     @param randomFile  file path of a random file that is used as a seed
     for random number generation by OpenSSL.
 
-    @exception SSLException  exception indicating failure to create a context.
+    @exception SSLException indicates failure to create an SSL context.
     */
     SSLContext(
         const String& trustStore,
         const String& certPath,
         const String& keyPath,
+		const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
-		String trustStoreUserName,
         const String& randomFile);
 
-#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
-	/** Constructor for a SSLContextRep object.
-    @param trustStore  trust store file path
-    @param certPath  server certificate file path
-    @param keyPath  server key file path
-    @param verifyCert  function pointer to a certificate verification
-    call back function.
-	@param trustStoreAutoUpdate indicates that the server can automatically add certificates
-	to the truststore if they are sent with valid sslTrustStoreUserName credentials
-	@param trustStoreUserName the user to associate the truststore with; this is basically
-	a workaround to providers that require a username and will be addressed post 2.4
-    @param randomFile  file path of a random file that is used as a seed
-    for random number generation by OpenSSL.
-
-    @exception SSLException  exception indicating failure to create a context.
-    */
-    SSLContext(
-        const String& trustStore,
-        const String& certPath,
-        const String& keyPath,
-        SSLCertificateVerifyFunction* verifyCert,
-        Boolean trustStoreAutoUpdate,
-		String trustStoreUserName,
-        const String& randomFile);
-#endif
+private:
 
     SSLContext();
 

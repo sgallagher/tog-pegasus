@@ -168,6 +168,8 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
    sprintf(buffer, "%u", type);
 
    checkObjectManager();
+//cout << "this is cimtime for "<< type <<" - "<<sd->cimomTime[type] <<endl;
+//cout << "this is providertime for " << sd->providerTime[type] << endl;
 
    CIMDateTime cimom_time = toDateTime(sd->cimomTime[type]);
    CIMDateTime provider_time = toDateTime(sd->providerTime[type]);
@@ -204,19 +206,20 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type)
 
 CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
 {
-
         //break millisecond value into days, hours, minutes, seconds and milliseconds
         //turn each number into a string and append them to each other
 
-        Sint64 ndays = floor (date/86400000000);        //one day = 8.64*10^10 millisecond
-        Sint64 rem = date % 86400000000;                //rem_1 is remander of above operation
+   	const Sint64 oneDay = Sint64(864) * 100000000;
+
+        Sint64 ndays = date/oneDay;        //one day = 8.64*10^10 millisecond
+        Sint64 rem = date % oneDay;                //rem_1 is remander of above operation
         char buf_day[8];
         sprintf(buf_day,"%08d",ndays);
 
 String test = String(buf_day);
 
 
-        Sint64 nhour = floor (rem/3600000000);  //one hour = 3.6*10^9 milliseconds
+        Sint64 nhour = rem/3600000000;  //one hour = 3.6*10^9 milliseconds
         Sint64 rem_2 = rem%3600000000;    //rem_2 is remander of above operation
         char buf_hour[2];
         sprintf(buf_hour,"%02d",nhour);
@@ -225,7 +228,7 @@ String hour = String(buf_hour);
 String dh = test.append(String(buf_hour));
 //printf("this is test now after append\n");// %s\n", test.getCString());
 
-        Sint64 nmin = floor (rem_2/60000000);  // one minute = 6*10^7
+        Sint64 nmin = rem_2/60000000;  // one minute = 6*10^7
         Sint64 rem_3 = rem_2%60000000;
         char buf_minute[2];
         sprintf(buf_minute,"%02d",nmin);
@@ -233,7 +236,7 @@ String dh = test.append(String(buf_hour));
 String dhm = dh.append(String(buf_minute));
 //printf("after second append this is test %s\n", test.getCString());
 
-        Sint64 nsecond = floor (rem_3/1000000); //one second = 10^6 milliseconds
+        Sint64 nsecond = rem_3/1000000; //one second = 10^6 milliseconds
         char buf_second[2];
         sprintf(buf_second,"%02d",nsecond);
 
@@ -249,6 +252,7 @@ String dhms = dhm.append(String(buf_second));
 
 String dhmsm = dhms.append(String(buf_milsec));
 	CIMDateTime ans(dhmsm);
+//cout<<"this is being passed back for toDateTime" << ans.toString() << endl;
 
         return ans;
 

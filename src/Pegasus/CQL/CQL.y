@@ -114,7 +114,7 @@ PEGASUS_NAMESPACE_END
 %type <_string> array_index
 %type <_string> array_index_list
 %type <_node> chain
-%type <_value> concat
+%type <_predicate> concat
 %type <_factor> factor
 %type <_term> term
 %type <_expression> arith
@@ -324,6 +324,7 @@ chain : literal
         {
             printf("BISON::chain->literal\n");
             chain_state = CQLVALUE;
+	    $$ = _factory.makeObject($1,Predicate);  
         }
       | LPAR expr RPAR
         {
@@ -335,34 +336,44 @@ chain : literal
         {
             printf("BISON::chain->identifier\n");
            chain_state = CQLIDENTIFIER;
+	   $$ = _factory.makeObject($1,Predicate);
         }
       | identifier HASH literal_string
         {
             printf("BISON::chain->identifier#literal_string\n");
             String tmp = $1->getName().getString();
             tmp.append("#").append(*$3);
-            $$ = new CQLIdentifier(tmp);
+            $1 = new CQLIdentifier(tmp);
+   	    $$ = _factory.makeObject($1,Predicate);
 	    chain_state = CQLIDENTIFIER;
         }
       | scoped_property
         {
 	    printf("BISON::chain-> scoped_property\n");
             chain_state = CQLIDENTIFIER;
-	    $$ = $1;
+	    $$ = _factory.makeObject($1,Predicate);
         }
       | identifier LPAR arg_list RPAR
         {
             printf("BISON::chain-> identifier( arg_list )\n");
             chain_state = CQLFUNCTION;
+	    
         }
       | chain DOT scoped_property
         {
 	    printf("BISON::chain-> chain DOT scoped_property\n");
+	    CQLChainedIdentifier * _cid;
+	    CQLIdentifier *_id;
 	    if(chain_state == CQLIDENTIFIER){
-                $$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
-                ((CQLChainedIdentifier*)$$)->append(*$3);
+	        _id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
+                _cid = new CQLChainedIdentifier(*_id);
+                _cid->append(*$3);
+		$$ = _factory.makeObject(_cid,Predicate);
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
-		    ((CQLChainedIdentifier*)$$)->append(*$3);
+		_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
+		_cid->append(*$3);
+		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
+		$$ = $1;
 	    }else{
 		/* error */
             }
@@ -372,32 +383,45 @@ chain : literal
       | chain DOT identifier
         {
             printf("BISON::chain->chain.identifier\n");
+            CQLChainedIdentifier * _cid;
+	    CQLIdentifier *_id;
             if(chain_state == CQLIDENTIFIER){
-		$$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
-		((CQLChainedIdentifier*)$$)->append(*$3);
+		_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
+                _cid = new CQLChainedIdentifier(*_id);
+                _cid->append(*$3);
+                $$ = _factory.makeObject(_cid,Predicate);
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
-                ((CQLChainedIdentifier*)$$)->append(*(CQLIdentifier*)$3);
+                _cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
+                _cid->append(*$3);
+                _factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
+                $$ = $1;
             }else{
                 /* error */
             }
-                                                                                                        
-            chain_state = CQLCHAINEDIDENTIFIER;
+	    chain_state = CQLCHAINEDIDENTIFIER;
 
         }
       | chain DOT identifier HASH literal_string
         {
             printf("BISON::chain->chain.identifier#literal_string\n");
+	    CQLChainedIdentifier *_cid;
+	    CQLIdentifier *_id;
             if(chain_state == CQLIDENTIFIER){
-                $$ = new CQLChainedIdentifier(*(CQLIdentifier*)$1);
+		_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));	
+                _cid = new CQLChainedIdentifier(*_id);
                 String tmp($3->getName().getString());
 		tmp.append("#").append(*$5);
-                CQLIdentifier *tmpid = new CQLIdentifier(tmp);
-                ((CQLChainedIdentifier*)$$)->append(*tmpid);
+                _id = new CQLIdentifier(tmp);
+                _cid->append(*_id);
+		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
+                $$ = $1;
             }else if(chain_state == CQLCHAINEDIDENTIFIER){
+		_cid =  ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
 		String tmp($3->getName().getString());
                 tmp.append("#").append(*$5);
-                CQLIdentifier *tmpid = new CQLIdentifier(tmp);
-                ((CQLChainedIdentifier*)$1)->append(*tmpid);
+                _id = new CQLIdentifier(tmp);
+                _cid->append(*_id);
+		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
 		$$ = $1;
             }else{
                 /* error */
@@ -409,17 +433,24 @@ chain : literal
       | chain LBRKT array_index_list RBRKT
         {
             printf("BISON::chain->chain[ array_index_list ]\n");
+	    CQLChainedIdentifier *_cid;
+	    CQLIdentifier *_id;
             if(chain_state == CQLIDENTIFIER){
-                CQLIdentifier tmpid = *(CQLIdentifier*)$1;
-		String tmp = tmpid.getName().getString();
+		_id = ((CQLIdentifier*)(_factory.getObject($1,Predicate,Identifier)));
+		String tmp = _id->getName().getString();
 		tmp.append("[").append(*$3).append("]");
-		$$  = new CQLIdentifier(tmp);
+		_id  = new CQLIdentifier(tmp);
+		_cid = new CQLChainedIdentifier(*_id);
+		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
+                $$ = $1;		
 	    }else if(chain_state == CQLCHAINEDIDENTIFIER){
-	        CQLChainedIdentifier tmpcid = *(CQLChainedIdentifier*)$1;
-		CQLIdentifier tmpid = tmpcid.getLastIdentifier();
+		_cid = ((CQLChainedIdentifier*)(_factory.getObject($1,Predicate,ChainedIdentifier)));
+		CQLIdentifier tmpid = _cid->getLastIdentifier();
 		String tmp = tmpid.getName().getString();
                 tmp.append("[").append(*$3).append("]");
-		tmpcid.append(*(new CQLIdentifier(tmp)));
+		_cid->append(*(new CQLIdentifier(tmp)));
+		_factory.setObject(((CQLPredicate*)$1),_cid,ChainedIdentifier);
+                $$ = $1;
 	    }else{
 		/* error */
 	    }
@@ -428,27 +459,14 @@ chain : literal
 
 concat : chain
          {
+/* forward predicate in all cases */
              printf("BISON::concat->chain\n");
-	     if(chain_state == CQLVALUE){
-		$$ = ((CQLValue*)$1);
-	     }
-	     else if(chain_state == CQLIDENTIFIER){
-		$$ = new CQLValue(*((CQLIdentifier*)$1));
-             }
-	     else if(chain_state == CQLCHAINEDIDENTIFIER){
-		 $$ = new CQLValue(*((CQLChainedIdentifier*)$1));
-             }
-	     else if(chain_state == CQLPREDICATE){
-
-             }
-	     else if(chain_state == CQLFUNCTION){
-
-             }
+		$$ = ((CQLPredicate*)$1);
          }
        | concat DBL_PIPE chain
          {
 	/* check isSimpleValue() on both predicates, then extract the left factors of each, create a new term with || operator, and then
-	   create up the chain to a predicate and return that predicate */
+	   create up the chain to a predicate and return that predicate 
              printf("BISON::concat||chain\n");
 	     if(chain_state == CQLVALUE){
 		if(((CQLValue*)$3)->getValueType() == String_type){
@@ -458,7 +476,7 @@ concat : chain
         	        }
 
 		}
-             }
+             }*/
          }
 ;
 
@@ -475,21 +493,21 @@ factor : concat
 		$$ = new CQLFactor(*(CQLValue*)$1);
 	     }
          }         
-       | PLUS concat
+      /* | PLUS concat
          {
-	     /* add enum instead of _invert to CQLFactor,has to be either nothing, + or - */
-             /* get the factor and set the optype appropriately */
+	      add enum instead of _invert to CQLFactor,has to be either nothing, + or -
+              get the factor and set the optype appropriately 
              printf("BISON::factor->PLUS concat\n");
              $$ = new CQLFactor(*(CQLValue*)$2);
          }
        | MINUS concat
          {
-             /* get the factor and set the optype appropriately */
+              get the factor and set the optype appropriately 
              printf("BISON::factor->MINUS concat\n");
              CQLValue *tmp = (CQLValue*)$2;
              tmp->invert();
 	     $$ = new CQLFactor(*tmp);
-         }
+         }*/
 ;
 
 term : factor
@@ -497,20 +515,20 @@ term : factor
            printf("BISON::term->factor\n");
            $$ = new CQLTerm(*$1);
        }
-     | term STAR factor
+    /* | term STAR factor
        {
-	   /* get factor out of $1, get factor out of $3, appendoperation, then construct predicate and forward it */
+	    get factor out of $1, get factor out of $3, appendoperation, then construct predicate and forward it 
            printf("BISON::term->term STAR factor\n");
            $1->appendOperation(mult, *$3);
            $$ = $1;
        }
      | term DIV factor
        {
-           /* get factor out of $1, get factor out of $3, appendoperation, then construct predicate and forward it */
+            get factor out of $1, get factor out of $3, appendoperation, then construct predicate and forward it 
            printf("BISON::term->term DIV factor\n");
            $1->appendOperation(divide, *$3);
            $$ = $1;
-       }
+       }*/
 ;
 
 arith : term
@@ -646,7 +664,7 @@ expr_factor : comp
               }
             | NOT comp
               {
-                 /* NOT the predicate then forward */
+                 /* NOT(set _invert on CQLPredicate) the predicate then forward */
                   printf("BISON::expr_factor->NOT comp\n");
               }
 ;
@@ -708,8 +726,20 @@ arg_list_tail : {;}
 
 from_specifier : class_path
                  {
+			/* call CQLSelectStatement::appendClassPath(...) */
                      printf("BISON::from_specifier->class_path\n");
                  } 
+
+		| class_path AS identifier
+		  {
+			/*globalParserState->statement->insertClassPathAlias();
+			globalParserState->statement->appendClassPath();*/
+		  }
+		| class_path identifier
+		  {
+			/*globalParserState->statement->insertClassPathAlias();
+                        globalParserState->statement->appendClassPath();*/
+		  }
 ;
 
 from_criteria : from_specifier
@@ -720,16 +750,19 @@ from_criteria : from_specifier
 
 star_expr : STAR
             {
+		/* make CQLChainedId from * and forward */
                 printf("BISON::star_expr->STAR\n");
             }
 ;
-
+/* make this grammer a node type */
 selected_entry : expr 
                  {
+		/* make sure $1 is a simpleValue(), if yes, get its ChainedIdentifier, call CQLSS::appendSelectIdentifier(..) */
                      printf("BISON::selected_entry->expr\n");
                  }
                | star_expr
                  {
+		/* call CQLSS::appendSelectIdentifier(..) */
                      printf("BISON::selected_entry->star_expr\n");
                  }
 ;
@@ -749,6 +782,7 @@ select_list_tail : {;} /* empty */
 
 search_condition : expr
                    {
+		/*CQLSelectStatement::setPredicate($1) */
                        printf("BISON::search_condition->expr\n");
                    }
 ;

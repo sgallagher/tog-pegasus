@@ -146,18 +146,34 @@ inline void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
    int errorcode;
   
    gettimeofday(&start,NULL);
-   start.tv_usec += (milliseconds * 1000);
+   now.tv_sec = start.tv_sec;
+   now.tv_usec = start.tv_usec;
    
-   do 
+   start.tv_usec += (milliseconds * 1000);
+   if (start.tv_usec < now.tv_usec)
+      start.tv_sec++;
+
+   while(1)
    {
       errorcode = pthread_mutex_trylock(&_mutex.mut);
-      gettimeofday(&now, NULL);
-   } while (errorcode == EBUSY && 
-	    ((now.tv_usec < start.tv_usec) || (now.tv_sec <= start.tv_sec ))) ;
-
-   if (errorcode)
-   {
-      throw(TimeOut(_mutex.owner));
+      if (errorcode == 0 )
+	 break;
+      
+      if(errorcode == EBUSY)
+      {
+	 gettimeofday(&now, NULL);
+	 if ( now.tv_sec > start.tv_sec || 
+	      now.tv_sec >= start.tv_sec && 
+	      now.tv_usec >= start.tv_usec )
+	 {
+	    throw TimeOut(pegasus_thread_self());
+	 }
+	 pegasus_yield();
+	 continue;
+      }
+      if( errorcode == EDEADLK )
+	 throw Deadlock(pegasus_thread_self());
+      throw WaitFailed(pegasus_thread_self());
    }
 }
 
@@ -322,9 +338,11 @@ inline void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
       if( retcode == -1 && errno != EAGAIN )
 	 throw IPCException(pegasus_thread_self());
       gettimeofday(&now, NULL);
-      if ( now.tv_usec >= start.tv_usec && 
+      if ( now.tv_sec > start.tv_sec || 
+	   now.tv_usec >= start.tv_usec && 
 	   now.tv_sec >= start.tv_sec )
 	 throw TimeOut(pegasus_thread_self());
+      pegasus_yield();
    }
 }
 

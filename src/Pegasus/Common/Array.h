@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.13  2001/03/04 21:41:44  bob
+// Commented out forward declaration of "const Class String": it caused compiler
+// errors.
+//
 // Revision 1.12  2001/02/26 10:13:24  karl
 // documentation changes
 //
@@ -635,7 +639,8 @@ inline Boolean Equal(const T& x, const T& y)
     return x == y;
 }
 
-const class String;
+//const class String;  grb 02Mar01
+class String;
 
 PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
 

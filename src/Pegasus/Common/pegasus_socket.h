@@ -108,7 +108,9 @@ public:
   
   pegasus_socket(void);
   pegasus_socket(socket_factory *);
+ #ifdef PEGASUS_HAS_SSL
   pegasus_socket(socket_factory *, SSLContext *);
+ #endif
   pegasus_socket(abstract_socket *);
   pegasus_socket(const pegasus_socket& s);
   ~pegasus_socket(void);

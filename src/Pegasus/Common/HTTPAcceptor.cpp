@@ -719,10 +719,11 @@ void pegasus_acceptor::bind()
   else if( _sslcontext != 0 ) {
 #ifdef PEGASUS_HAS_SSL
     ssl_socket_factory sf;
+    pegasus_socket temp(&sf, _sslcontext);
 #else
     bsd_socket_factory sf;
+    pegasus_socket temp(&sf);
 #endif
-    pegasus_socket temp(&sf, _sslcontext);
     _listener = temp;
     _listener.socket(PF_INET, SOCK_STREAM, 0);
   }

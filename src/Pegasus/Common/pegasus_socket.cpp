@@ -805,11 +805,12 @@ pegasus_socket::pegasus_socket(socket_factory *factory)
   // _only_ for non-SSL sockets.
     _rep = factory->make_socket();
 }
-
+#ifdef PEGASUS_HAS_SSL
 pegasus_socket::pegasus_socket(socket_factory *factory, SSLContext *ctx)
 {
     _rep = factory->make_socket(ctx);
 }
+#endif
 
 pegasus_socket::pegasus_socket(const pegasus_socket& s)
 {

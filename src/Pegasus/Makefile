@@ -57,9 +57,11 @@ DIRS += \
 	ProviderManager2/CMPIR/daemon
 endif
 
-ifdef ENABLE_JMPI_PROVIDER_MANAGER
-DIRS += \
-	ProviderManager2/JMPI
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+   ifdef ENABLE_JMPI_PROVIDER_MANAGER
+      DIRS += \
+         ProviderManager2/JMPI
+   endif
 endif
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC

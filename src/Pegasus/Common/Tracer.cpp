@@ -141,19 +141,19 @@ void Tracer::_trace(
     {
 	Logger::put(Logger::DEBUG_LOG,"Tracer",Logger::WARNING,"$0 $1",
            _LOG_MSG1,_LOG_MSG3); 
-     }
-     else
-     {
-         if (_isTraceEnabled(traceComponent,traceLevel))
-         {
+    }
+    else
+    {
+        if (_isTraceEnabled(traceComponent,traceLevel))
+        {
 	    message = new char[ strlen(fileName) + 
 		_STRLEN_MAX_UNSIGNED_INT + 6 ];
             sprintf(message,"[%s:%d]: ",fileName,lineNum);
 
             _trace(traceComponent,message,fmt,argList); 
 	    delete []message;
-         }
-     }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -178,7 +178,7 @@ void Tracer::_traceBuffer(
 
             strncpy( tmpBuf, data, size );
             tmpBuf[size] = '\0';
-            _trace(traceComponent,"",tmpBuf);
+            trace(traceComponent,traceLevel,"%s",tmpBuf);
 
             delete []tmpBuf;
         }
@@ -204,19 +204,15 @@ void Tracer::_traceBuffer(
     {
         if ( _isTraceEnabled( traceComponent, traceLevel ) )
         {
-            char* message = new char[ strlen(fileName) +
-                _STRLEN_MAX_UNSIGNED_INT + 6 ];
             char* tmpBuf = new char[size+1];
 
-            sprintf(message,"[%s:%d]: ",fileName,lineNum);
             strncpy( tmpBuf, data, size );
             tmpBuf[size] = '\0';
-            _trace(traceComponent,message,tmpBuf);
+            trace(fileName,lineNum,traceComponent,traceLevel,"%s",tmpBuf);
 
             delete []tmpBuf;
-            delete []message;
-         }
-     }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

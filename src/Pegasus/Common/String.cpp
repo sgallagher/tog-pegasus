@@ -471,7 +471,7 @@ void String::toLower()
     UniStr = UniStr.toLower();
     utf16str = (Char16 *)UniStr.getTerminatedBuffer();
     assign(utf16str);
-    delete utf16str;
+    //delete utf16str;
 #else
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {
@@ -873,17 +873,19 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 
     os << utf8str;
 
-#elif defined(PEGASUS_HAS_ICU)
+/*#elif defined(PEGASUS_HAS_ICU)
+
     char *buf = NULL;
     UnicodeString UniStr((const UChar *)str.getChar16Data(), (int32_t)str.size());
 
     Uint32 bufsize = UniStr.extract(0,0,buf);
     buf = new char[bufsize+1];
     UniStr.extract(0,bufsize,buf);
-
+	cout << "strlen(buf) == " << strlen(buf) << endl;
     os << buf;
-
+    os.flush();
     delete [] buf;
+  */
 #else
 
 

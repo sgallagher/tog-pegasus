@@ -83,7 +83,13 @@ Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String & h
 	if(i != PEG_NOT_FOUND){ // extract and store language and quality
 		if(isValid(hdr.subString(0,i), validate_length)){
 			language_tag = hdr.subString(0,i);
-			hdr.remove(0,i+3);  // remove everything but the quality value
+			if(hdr.size() > i + 3)
+				hdr.remove(0,i+3);  // remove everything but the quality value
+			else{
+				MessageLoaderParms parms("Common.LanguageParser.INVALID_QUALITY_VALUE",
+									 "AcceptLanguage contains an invalid quality value");
+				throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));	
+			}
 		}
 		else{
 			//l10n

@@ -76,7 +76,6 @@ inline Boolean _isSupportedResponseType(const Message * message)
 }
 
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
-CIMRepository* ProviderManagerService::_repository=NULL;
 Uint32 ProviderManagerService::_indicationServiceQueueId = PEG_NOT_FOUND;
 
 ProviderManagerService::ProviderManagerService(void)

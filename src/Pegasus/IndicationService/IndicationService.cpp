@@ -457,6 +457,7 @@ void IndicationService::_initialize (void)
     noProviderSubscriptions.clear ();
 
     String condition;
+    String query;
     String queryLanguage;
     CIMPropertyList propertyList;
     Array <ProviderClassList> indicationProviders;
@@ -479,7 +480,7 @@ void IndicationService::_initialize (void)
         _getCreateParams 
             (activeSubscriptions [i].getPath ().getNameSpace (),
             activeSubscriptions [i], indicationSubclasses, indicationProviders,
-            propertyList, sourceNameSpace, condition, queryLanguage);
+            propertyList, sourceNameSpace, condition, query, queryLanguage);
 
         if (indicationProviders.size () == 0)
         {
@@ -537,7 +538,7 @@ void IndicationService::_initialize (void)
 // l10n end     
 
         _sendCreateRequests (indicationProviders, sourceNameSpace,
-            propertyList, condition, queryLanguage,
+            propertyList, condition, query, queryLanguage,
             activeSubscriptions [i], 
             AcceptLanguages(acceptLangs), // l10n
             ContentLanguages(contentLangs),  // 110n
@@ -725,6 +726,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             //
             Uint16 subscriptionState;
             String condition;
+            String query;
             String queryLanguage;
             CIMPropertyList requiredProperties;
             CIMNamespaceName sourceNameSpace;
@@ -753,7 +755,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     _getCreateParams (request->nameSpace, instance,
                         indicationSubclasses, indicationProviders, 
                         requiredProperties, sourceNameSpace, condition, 
-                        queryLanguage);
+                        query, queryLanguage);
 
                     if (indicationProviders.size () == 0)
                     {
@@ -778,10 +780,10 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                     // l10n 
                     _sendCreateRequests (indicationProviders, 
                         sourceNameSpace, requiredProperties, condition, 
-                        queryLanguage, instance,
-  						acceptLangs, 
-						contentLangs,
-						request,
+                        query, queryLanguage, instance,
+                        acceptLangs, 
+                        contentLangs,
+                        request,
                         indicationSubclasses,
                         userName, request->authType); 
 
@@ -1434,6 +1436,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 CIMPropertyList requiredProperties;
                 CIMNamespaceName sourceNameSpace;
                 String condition;
+                String query;
                 String queryLanguage;
                 Array <CIMName> indicationSubclasses;
         
@@ -1449,7 +1452,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     _getCreateParams (request->nameSpace, instance,
                         indicationSubclasses, indicationProviders, 
                         requiredProperties, sourceNameSpace, condition, 
-                        queryLanguage);
+                        query, queryLanguage);
     
                     if (indicationProviders.size () == 0)
                     {
@@ -1541,6 +1544,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
 // l10n                    
                     _sendCreateRequests (indicationProviders, 
                         sourceNameSpace, requiredProperties, condition, 
+                        query,
                         queryLanguage,
                         instance,
                         acceptLangs, 
@@ -2228,6 +2232,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     {
         CIMPropertyList requiredProperties;
         String condition;
+        String query;
         String queryLanguage;
 
         //
@@ -2241,7 +2246,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             _getCreateParams 
                 (newSubscriptions [i].getPath ().getNameSpace (), 
                 newSubscriptions [i], indicationSubclasses,
-                requiredProperties, sourceNameSpace, condition, queryLanguage);
+                requiredProperties, sourceNameSpace, condition,
+                query, queryLanguage);
 
             //
             //  NOTE: These Create or Modify requests are not associated with a
@@ -2295,7 +2301,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 // l10n
                     _sendModifyRequests (indicationProviders,
                         sourceNameSpace, 
-                        requiredProperties, condition, queryLanguage,
+                        requiredProperties, condition, query, queryLanguage,
                         newSubscriptions [i],
                         AcceptLanguages(acceptLangs),
                         ContentLanguages(contentLangs), 
@@ -2310,7 +2316,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 // l10n                
                     _sendCreateRequests (indicationProviders,
                         sourceNameSpace, requiredProperties, condition, 
-                        queryLanguage, newSubscriptions [i], 
+                        query, queryLanguage, newSubscriptions [i], 
                         AcceptLanguages(acceptLangs), 
                         ContentLanguages(contentLangs),  
                         request,
@@ -2361,6 +2367,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     {
         CIMPropertyList requiredProperties;
         String condition;
+        String query;
         String queryLanguage;
 
         //
@@ -2417,7 +2424,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         (formerSubscriptions [i].getPath ().getNameSpace (),
                         formerSubscriptions [i], indicationSubclasses,
                         requiredProperties, sourceNameSpace, condition, 
-                        queryLanguage);
+                        query, queryLanguage);
 
                     //
                     //  If class list contains only the class name from the 
@@ -2454,7 +2461,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 // l10n                    
                         _sendModifyRequests (indicationProviders,
                             sourceNameSpace, 
-                            requiredProperties, condition, queryLanguage, 
+                            requiredProperties, condition,
+                            query, queryLanguage, 
                             formerSubscriptions [i], 
                             AcceptLanguages(acceptLangs),
                             ContentLanguages(contentLangs),    
@@ -2750,6 +2758,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
 
             CIMPropertyList requiredProperties;
             String condition;
+            String query;
             String queryLanguage;
 
             for (Uint32 s = 0; s < subscriptions.size (); s++)
@@ -2760,7 +2769,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 _getCreateParams 
                     (instance.getPath ().getNameSpace (), instance, 
                      indicationSubclasses, requiredProperties, sourceNameSpace,
-                     condition, queryLanguage);
+                     condition, query, queryLanguage);
     
                 //
                 //  NOTE: These Create requests are not associated with a
@@ -2798,7 +2807,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 //
                 _sendCreateRequests (indicationProviders,
                     sourceNameSpace, requiredProperties, condition, 
-                    queryLanguage, instance,
+                    query, queryLanguage, instance,
                     AcceptLanguages (acceptLangs), 
                     ContentLanguages (contentLangs),  
                     request,
@@ -4870,23 +4879,24 @@ void IndicationService::_getCreateParams (
     CIMPropertyList & propertyList,
     CIMNamespaceName & sourceNameSpace,
     String & condition,
+    String & query,
     String & queryLanguage)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getCreateParams");
 
-    String filterQuery;
     WQLSelectStatement selectStatement;
     CIMName indicationClassName;
     condition = String::EMPTY;
+    query = String::EMPTY;
     queryLanguage = String::EMPTY;
 
     //
     //  Get filter properties
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance, 
-        nameSpaceName, filterQuery, sourceNameSpace, queryLanguage);
-    selectStatement = _getSelectStatement (filterQuery);
+        nameSpaceName, query, sourceNameSpace, queryLanguage);
+    selectStatement = _getSelectStatement (query);
     
     //
     //  Get indication class name from filter query (FROM clause)
@@ -4921,7 +4931,7 @@ void IndicationService::_getCreateParams (
         //
         if (selectStatement.hasWhereClause ())
         {
-            condition = _getCondition (filterQuery);
+            condition = _getCondition (query);
         }
     }
 
@@ -4935,22 +4945,23 @@ void IndicationService::_getCreateParams (
     CIMPropertyList & propertyList,
     CIMNamespaceName & sourceNameSpace,
     String & condition,
+    String & query,
     String & queryLanguage)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_getCreateParams");
 
-    String filterQuery;
     WQLSelectStatement selectStatement;
     condition = String::EMPTY;
+    query = String::EMPTY;
     queryLanguage = String::EMPTY;
 
     //
     //  Get filter properties
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance, 
-        nameSpaceName, filterQuery, sourceNameSpace, queryLanguage);
-    selectStatement = _getSelectStatement (filterQuery);
+        nameSpaceName, query, sourceNameSpace, queryLanguage);
+    selectStatement = _getSelectStatement (query);
     
     //
     //  Get property list from filter query (FROM and WHERE 
@@ -4966,7 +4977,7 @@ void IndicationService::_getCreateParams (
     //
     if (selectStatement.hasWhereClause ())
     {
-        condition = _getCondition (filterQuery);
+        condition = _getCondition (query);
     }
 
     //
@@ -5051,6 +5062,7 @@ void IndicationService::_sendCreateRequests
      const CIMNamespaceName & nameSpace,
      const CIMPropertyList & propertyList,
      const String & condition,
+     const String & query,
      const String & queryLanguage,
      const CIMInstance & subscription,
      const AcceptLanguages & acceptLangs,
@@ -5175,6 +5187,7 @@ void IndicationService::_sendCreateRequests
                 propertyList,
                 repeatNotificationPolicy,
                 condition,
+                query,
                 queryLanguage,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,
@@ -5221,6 +5234,7 @@ void IndicationService::_sendModifyRequests
      const CIMNamespaceName & nameSpace,
      const CIMPropertyList & propertyList,
      const String & condition,
+     const String & query,
      const String & queryLanguage,
      const CIMInstance & subscription,
      const AcceptLanguages & acceptLangs,
@@ -5304,6 +5318,7 @@ void IndicationService::_sendModifyRequests
                 propertyList,
                 repeatNotificationPolicy,
                 condition,
+                query,
                 queryLanguage,
                 QueueIdStack (_providerManager, getQueueId ()),
                 authType,

@@ -1100,6 +1100,7 @@ void CIMMessageSerializer::_serializeCIMCreateSubscriptionRequestMessage(
     XmlWriter::appendValueElement(out, message->repeatNotificationPolicy);
 
     XmlWriter::appendValueElement(out, message->condition);
+    XmlWriter::appendValueElement(out, message->query);
     XmlWriter::appendValueElement(out, message->queryLanguage);
 }
 
@@ -1130,6 +1131,7 @@ void CIMMessageSerializer::_serializeCIMModifySubscriptionRequestMessage(
     XmlWriter::appendValueElement(out, message->repeatNotificationPolicy);
 
     XmlWriter::appendValueElement(out, message->condition);
+    XmlWriter::appendValueElement(out, message->query);
     XmlWriter::appendValueElement(out, message->queryLanguage);
 }
 

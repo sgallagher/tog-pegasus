@@ -1278,6 +1278,7 @@ public:
         const CIMPropertyList & propertyList_,
         const Uint16 repeatNotificationPolicy_,
         const String & condition_,
+        const String & query_,
         const String & queryLanguage_,
         QueueIdStack queueIds_,
         const String & authType_ = String::EMPTY,
@@ -1296,6 +1297,7 @@ public:
         propertyList (propertyList_),
         repeatNotificationPolicy (repeatNotificationPolicy_),
         condition (condition_),
+        query (query_),
         queryLanguage (queryLanguage_),
         authType(authType_),
         userName(userName_)
@@ -1308,6 +1310,7 @@ public:
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
     String condition;
+    String query;
     String queryLanguage;
     String authType;
     String userName;
@@ -1326,6 +1329,7 @@ public:
         const CIMPropertyList & propertyList_,
         const Uint16 repeatNotificationPolicy_,
         const String & condition_,
+        const String & query_,
         const String & queryLanguage_,
         QueueIdStack queueIds_,
         const String & authType_ = String::EMPTY,
@@ -1344,6 +1348,7 @@ public:
         propertyList (propertyList_),
         repeatNotificationPolicy (repeatNotificationPolicy_),
         condition (condition_),
+        query (query_),
         queryLanguage (queryLanguage_),
         authType(authType_),
         userName(userName_)
@@ -1356,6 +1361,7 @@ public:
     CIMPropertyList propertyList;
     Uint16 repeatNotificationPolicy;
     String condition;
+    String query;
     String queryLanguage;
     String authType;
     String userName;

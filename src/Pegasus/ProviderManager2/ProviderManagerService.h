@@ -84,7 +84,7 @@ protected:
 
     virtual void _handle_async_request(AsyncRequest * request);
 
-    static CIMRepository* _repository;
+    CIMRepository* _repository;
 
 private:
     //static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL handleServiceOperation(void * arg) throw();

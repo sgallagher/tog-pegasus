@@ -67,15 +67,10 @@ JMPIProviderManager::JMPIProviderManager(Mode m)
    mode=m;
    if (getenv("JMPI_TRACE")) _jmpi_trace=1;
    else _jmpi_trace=0;
-   String repositoryRootPath =
-	ConfigManager::getHomedPath(
-	ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
-   _repository = new CIMRepository(repositoryRootPath);
 }
 
 JMPIProviderManager::~JMPIProviderManager(void)
 {
-    delete _repository;
 }
 
 Boolean JMPIProviderManager::insertProvider(const ProviderName & name, 
@@ -1325,37 +1320,6 @@ int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstanc
     return 0;
 }
 
-String JMPIProviderManager::getFilter(CIMInstance &subscription)
-{
-   try {
-   CIMValue filterValue = subscription.getProperty (subscription.findProperty
-        ("Filter")).getValue ();
-   CIMObjectPath filterReference;
-   filterValue.get(filterReference);
-   CIMNamespaceName ns("root/PG_InterOp");
-
-   _repository->read_lock ();
-   CIMInstance filter=_repository->getInstance(ns,filterReference);
-   _repository->read_unlock ();
-
-   CIMValue queryValue = filter.getProperty (filter.findProperty
-        ("Query")).getValue ();
-   String query;
-   queryValue.get(query);
-   return query;
-   }
-   catch (CIMException &e) {
-      _repository->read_unlock ();
-      cout<<"??? JMPIProviderManager::getFilter"<<e.getCode()<<" "<<e.getMessage()<<" ???"<<endl;
-      abort();
-  }
-   catch (...) {
-      _repository->read_unlock ();
-      cout<<"??? What Happend ???"<<endl;
-      abort();
-   }
-}
-
 Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * message) throw()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "DefaultProviderManager::handleCreateSubscriptionRequest");
@@ -1414,7 +1378,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 	CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(*context);
         CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
-	   getFilter(request->subscriptionInstance),
+	   request->query,
 	   request->queryLanguage);
 	srec->eSelx=eSelx;
         CMPI_ThreadContext thr(&pr.broker,&eCtx);

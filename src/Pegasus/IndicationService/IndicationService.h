@@ -611,6 +611,7 @@ private:
                                            subscription
         @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
+        @param   query                 Output filter query
         @param   queryLanguage         Output query language in which the filter
                                            query is expressed
      */
@@ -622,6 +623,7 @@ private:
         CIMPropertyList & propertyList,
         CIMNamespaceName & sourceNameSpace,
         String & condition,
+        String & query,
         String & queryLanguage);
 
     /**
@@ -636,6 +638,7 @@ private:
                                            subscription
         @param   sourceNameSpace       Output source namespace for filter query
         @param   condition             Output condition part of the filter query
+        @param   query                 Output filter query
         @param   queryLanguage         Output query language in which the filter
                                            query is expressed
      */
@@ -646,6 +649,7 @@ private:
         CIMPropertyList & propertyList,
         CIMNamespaceName & sourceNameSpace,
         String & condition,
+        String & query,
         String & queryLanguage);
 
     /**
@@ -688,6 +692,7 @@ private:
         @param   propertyList          the properties referenced by the
                                            subscription
         @param   condition             the condition part of the filter query
+        @param   query                 the filter query
         @param   queryLanguage         the query language in which the filter
                                            query is expressed
         @param   subscription          the subscription to be created
@@ -708,6 +713,7 @@ private:
         const CIMNamespaceName & nameSpace,
         const CIMPropertyList & propertyList,
         const String & condition,
+        const String & query,
         const String & queryLanguage,
         const CIMInstance & subscription,
         const AcceptLanguages & acceptLangs,
@@ -739,6 +745,7 @@ private:
         @param   propertyList          the properties referenced by the
                                            subscription
         @param   condition             the condition part of the filter query
+        @param   query                 the filter query
         @param   queryLanguage         the query language in which the filter
                                            query is expressed
         @param   subscription          the subscription to be modified
@@ -755,6 +762,7 @@ private:
         const CIMNamespaceName & nameSpace,
         const CIMPropertyList & propertyList,
         const String & condition,
+        const String & query,
         const String & queryLanguage,
         const CIMInstance & subscription,
         const AcceptLanguages & acceptLangs,

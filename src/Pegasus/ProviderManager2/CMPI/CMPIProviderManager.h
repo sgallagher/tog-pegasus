@@ -39,7 +39,6 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 
 #include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
 
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
@@ -90,8 +89,6 @@ public:
 
 protected:
     Mode mode;
-    CIMRepository *_repository;
-    String getFilter(CIMInstance &subscription);
 
     Message * handleUnsupportedRequest(const Message * message);
 

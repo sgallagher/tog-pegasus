@@ -14,7 +14,6 @@ LIBRARIES = \
     pegcommon \
 	pegprovider \
 	pegprovidermanager \
-        pegrepository \
         pegconfig \
         pegwql
 

@@ -108,7 +108,6 @@ CMPIProviderManager::CMPIProviderManager(Mode m)
    mode=m;
    if (getenv("CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
-   _repository = ProviderManagerService::_repository;
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)
@@ -1429,34 +1428,6 @@ int LocateIndicationProviderNames(const CIMInstance& pInstance, const CIMInstanc
     return 0;
 }
 
-String CMPIProviderManager::getFilter(CIMInstance &subscription)
-{
-   try {
-   CIMValue filterValue = subscription.getProperty (subscription.findProperty
-        ("Filter")).getValue ();
-   CIMObjectPath filterReference;
-   filterValue.get(filterReference);
-   CIMNamespaceName ns("root/PG_InterOp");
-
-   CIMInstance filter=_repository->getInstance(ns,filterReference);
-
-   CIMValue queryValue = filter.getProperty (filter.findProperty
-        ("Query")).getValue ();
-   String query;
-   queryValue.get(query);
-   return query;
-   }
-   catch (CIMException &e) {
-      cout<<"??? CMPIProviderManager::getFilter"<<e.getCode()<<" "<<e.getMessage()<<" ???"<<endl;
-      abort();
-  }
-   catch (...) {
-      cout<<"??? What Happend ???"<<endl;
-      abort();
-   }
-   return String::EMPTY;
-}
-
 Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "CMPIProviderManager::handleCreateSubscriptionRequest");
@@ -1515,7 +1486,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(*context);
         CMPI_SelectExp *eSelx=new CMPI_SelectExp(*context,
-        getFilter(request->subscriptionInstance),
+        request->query,
         request->queryLanguage);
         srec->eSelx=eSelx;
         CMPI_ThreadContext thr(&pr.broker,&eCtx);

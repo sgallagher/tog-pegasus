@@ -381,7 +381,7 @@ void test04()
     {
         CIMInstance newInstance;
     
-        newInstance = class1.createInstance(true, true, CIMPropertyList());
+        newInstance = class1.buildInstance(true, true, CIMPropertyList());
     
         if(verbose) {
     		XmlWriter::printInstanceElement(newInstance);
@@ -397,7 +397,7 @@ void test04()
     // Test with include qualifiers false. Should be no qualifiers in result
     //
     {
-        CIMInstance newInstance = class1.createInstance(false, true, CIMPropertyList());
+        CIMInstance newInstance = class1.buildInstance(false, true, CIMPropertyList());
     
         assert(newInstance.getQualifierCount() == 0);
         assert(newInstance.getPropertyCount() == class1.getPropertyCount());
@@ -411,7 +411,7 @@ void test04()
         Array<CIMName> pl1Array;
         CIMPropertyList pl1(pl1Array);
     
-        CIMInstance newInstance = class1.createInstance(false, true, pl1);
+        CIMInstance newInstance = class1.buildInstance(false, true, pl1);
     
         assert(newInstance.getQualifierCount() == 0);
         assert(newInstance.getPropertyCount() == 0);
@@ -427,7 +427,7 @@ void test04()
         pl1Array.append("ratio");
         pl1.set(pl1Array);
     
-        CIMInstance newInstance = class1.createInstance(false, true, pl1);
+        CIMInstance newInstance = class1.buildInstance(false, true, pl1);
     
         if(verbose) {
             cout << "Test with one property in new instance" << endl;
@@ -451,7 +451,7 @@ void test04()
         pl1Array.append("ratio");
         pl1.set(pl1Array);
     
-        CIMInstance newInstance = class1.createInstance(false, true, pl1);
+        CIMInstance newInstance = class1.buildInstance(false, true, pl1);
     
         if(verbose) {
             cout << "Test with one property in new instance" << endl;

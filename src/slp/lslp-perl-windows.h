@@ -45,6 +45,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <io.h>
+#include <time.h>
 
 PEGASUS_USING_STD;
 

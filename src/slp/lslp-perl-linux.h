@@ -60,16 +60,16 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-typedef char int8;
-typedef	unsigned char uint8;
-typedef uint8 byte;
-typedef short int16;
-typedef unsigned short uint16;
-typedef int int32;
-typedef unsigned int uint32;
-typedef long long int64;
-typedef unsigned long long uint64;
-typedef uint32 BOOL;
+typedef char int8; 
+typedef	unsigned char uint8; 
+typedef uint8 byte; 
+typedef short int16; 
+typedef unsigned short uint16; 
+typedef int int32; 
+typedef unsigned int uint32; 
+typedef long long int64; 
+typedef unsigned long long uint64; 
+typedef int BOOL; 
 
 #define _LSLP_SLEEP(m) usleep((m) * 1000)
 #define SOCKET int

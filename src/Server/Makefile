@@ -8,7 +8,7 @@ LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegprotocol$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegserver$(LIB_SUFFIX) \
     $(LIB_DIR)/$(LIB_PREFIX)pegprovider$(LIB_SUFFIX) \
-    $(LIB_DIR)/$(LIB_PREFIX)lslp-perl-lib$(LIB_SUFFIX)		
+    $(LIB_DIR)/$(LIB_PREFIX)slp$(LIB_SUFFIX)		
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

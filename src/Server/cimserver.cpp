@@ -75,6 +75,7 @@
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
+#include <slp/slp.h>
 
 
 
@@ -346,18 +347,49 @@ int main(int argc, char** argv)
     // try loop to bind the address, and run the server
     try
     {
+        String serviceURL;
+	serviceURL.assign("service:cim.pegasus://");
+	char *host_name = slp_get_host_name();
+	serviceURL += host_name;
+	serviceURL += ":";
+	serviceURL += address;
+	char *url = serviceURL.allocateCString();
+	free(host_name);
+
 	Selector selector;
 	CIMServer server(&selector, pegasusHome);
-	server.setSLP(useSLP);
 
 	// bind throws an exception of the bind fails
 	server.bind(address);
 	delete [] address;
-	server.runForever();
+
+	slp_client *discovery = NULL;
+	if(useSLP)
+	  discovery = new slp_client();
+
+	time_t last = 0;
+	while( 1 )
+	{
+	  if(useSLP  ) 
+	  {
+	    int success, failure;
+	    
+	    if(  (time(NULL) - last ) > 60 ) 
+	    {
+	      if( discovery != NULL && url != NULL )
+		discovery->srv_reg_all(url,  
+				       "(namespace=root/cimv20)",
+				       "service:cim.pegasus", 
+				       "DEFAULT", 
+				       3600) ;
+	      time(&last);
+	    }
+	  }
+	  server.runForever();
+	}
 
 	Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
 	    "Normal Termination");
-
     }
     catch(Exception& e)
     {

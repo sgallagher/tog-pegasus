@@ -78,18 +78,14 @@ public:
     */
     void runForever();
     void killServer() { _dieNow = 1 ; }
-    void setSLP(Boolean useSLP) { _useSLP = useSLP ; }
-    void setServiceURL(String &url);
 
 private:
 
     String _rootPath;
     String _repositoryRootPath;
-    String _serviceURL;   // will change this to an array<String> when we modularize channels mdday
     Selector* _selector;
     ChannelAcceptor* _acceptor;
     int _dieNow;
-    Boolean _useSLP;
 };
 
 PEGASUS_NAMESPACE_END

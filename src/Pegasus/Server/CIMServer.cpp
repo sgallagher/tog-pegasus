@@ -42,7 +42,6 @@
 #include <Pegasus/Protocol/Handler.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Server/Dispatcher.h>
-#include <Pegasus/Common/lslp-perl-lib.h>
 #include <Pegasus/Common/String.h>
 
 
@@ -73,7 +72,7 @@ static const Uint32 _M_POST_LEN = sizeof(_M_POST) - 1;
 // the norm sends out a POST instead of an M_POST
 static const char _POST[] = "POST";
 static const Uint32 _POST_LEN = sizeof(_POST) - 1;
-static LSLP_LIB_DAADVERT *slp_das;
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1592,7 +1591,7 @@ const char REPOSITORY[] = "/repository";
 CIMServer::CIMServer(
     Selector* selector,
     const String& rootPath)
-  : _rootPath(rootPath), _dieNow(0), _useSLP(1)
+  : _rootPath(rootPath), _dieNow(0)
 
 {
     // -- Save the selector or create a new one:
@@ -1649,14 +1648,6 @@ void CIMServer::bind(const char* address)
   // not the best place to build the service url, but it works for now
   // because the address string is accessible  mdday
 
-  if(_useSLP == true) {
-    char *host_name = lslp_lib_get_host_name();
-    _serviceURL.assign("service:cim.pegasus://");
-    _serviceURL += host_name;
-    _serviceURL += ":";
-    _serviceURL += address;
-  }
-
   if (!_acceptor->bind(address))
     throw CannotBindToAddress(address);
   
@@ -1671,32 +1662,8 @@ void CIMServer::bind(const char* address)
 
 void CIMServer::runForever()
 {
-
-  time_t last = 0;
-  char *url;
-  if(! (_serviceURL.size() ) || (NULL ==  (url = _serviceURL.allocateCString())))
-    _useSLP = false;
-  
-  while( ! _dieNow ) 
-    {
-      _selector->select(5000);
-      if(_useSLP  ) 
-	{
-	  int success, failure;
-	  if(  (time(NULL) - last ) > 60 ) 
-	    {
-	      lslp_lib_srv_reg_all("pegasus_cim_server", 
-				   url, 
-				   "(namespace=root/cimv20)", 
-				   "service:cim.pegasus", 
-				   "DEFAULT", 
-				   70, 
-				   &success, 
-				   &failure);
-	      time(&last);
-	    }
-	}
-    }
+  if( ! _dieNow )
+    _selector->select(5000);
 }
 
 PEGASUS_NAMESPACE_END

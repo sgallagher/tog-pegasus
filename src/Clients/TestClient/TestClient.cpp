@@ -30,10 +30,10 @@
 #include <cassert>
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/lslp-perl-lib.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Stopwatch.h>
+#include <slp/slp.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -456,8 +456,6 @@ void PrintHelp(const char* arg0)
 int main(int argc, char** argv)
 {
 
-  LSLP_LIB_SRVRPLY *replies = NULL, *thisReply = NULL;
-
   // char connection[50] = "localhost:5988";
   char *address_string = NULL;
   
@@ -527,58 +525,39 @@ int main(int argc, char** argv)
     cout << "SLP " << (useSLP ? "true" : "false") << endl;
     Array<String> connectionList;
     if (argc > 1)
-	for (Uint32 i = 1; i < argc; i++)
+	for (Sint32 i = 1; i < argc; i++)
 	    connectionList.append(argv[i]);
 
     // substitute the default only if noslp and no params
     if(useSLP == false && argc < 2)
       connectionList.append("localhost:5988");
 
-    if (useSLP && ( lslp_lib_init("pegasus_cim_client", 
-			    "239.255.255.253",   
-			    "0.0.0.0", 
-			    427, NULL )) ) // try slp
-    { 
-	cout << "passed lslp_lib_init" << endl;
-	replies = (LSLP_LIB_SRVRPLY *)lslp_lib_converge_srv_req("pegasus_cim_client",
-								"service:cim.pegasus",
-								"(namespace=*)",
-								"DEFAULT");
-	if(replies != NULL) 
+    if( useSLP )
+      {
+	slp_client *discovery = new slp_client();
+	if(discovery != NULL)
 	  {
-	    thisReply = replies->next;
-	    cout << "Test SLP" << endl;
-	    while  ((! thisReply->isHead) && (thisReply != NULL) ) 
+	    discovery->converge_srv_req( "service:cim.pegasus",
+					"(namespace=*)",
+					"DEFAULT" ) ;
+
+	    struct rply_list *replies = discovery->get_response( );
+	    while( replies != NULL )
 	      {
-		//connection = (address_string = 
-		//lslp_lib_get_addr_string_from_url(thisReply->url) );
-		connectionList.append(
-		    lslp_lib_get_addr_string_from_url(thisReply->url));
-		thisReply = thisReply->next;
-		//cout << "SLP returned " << connection << endl;
+		connectionList.append( slp_get_addr_string_from_url( replies->url ) ) ;
+		delete replies;
+		replies = discovery->get_response( ) ;
 	      }
+	    delete discovery;
 	  }
-    }
+      }
+
+
     cout << "Connection List size " << connectionList.size() << endl;
     for (Uint32 i = 0; i < connectionList.size(); i++)
 	cout << "Connection " << i << " address " << connectionList[i] << 
 						    endl; 
-    //exit (0);
-    /*
-    if( thisReply != NULL && ( ! thisReply->isHead ) )
-      {
-	// reinitialize the connection string
-	connection = (address_string = lslp_lib_get_addr_string_from_url(thisReply->url) );
-	thisReply = thisReply->next;
-      }
-    else
-	// get next cmd line argument if one exists.
-	if (argc > argvIndex)
-	    connection = argv[argvIndex++];
-	else
-	  connection = NULL;
 
-    */
     
     for (Uint32 i = 0; i < connectionList.size(); i++)
     {
@@ -638,7 +617,6 @@ int main(int argc, char** argv)
       
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
-    lslp_lib_deinit("pegasus_cim_client");
     return 0;
 }
 

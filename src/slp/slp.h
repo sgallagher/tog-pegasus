@@ -1,0 +1,229 @@
+//%/////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2001 The Open Group, BMC Software, IBM
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in 
+// all copies or substantial portions of the Software.
+//
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Mike Day (mdday@us.ibm.com)
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+#ifndef SLP_H_INCLUDED
+#define SLP_H_INCLUDED
+
+#include <typeinfo>
+#include <Pegasus/Common/Config.h>
+
+#ifdef _WIN32
+#include "lslp-perl-windows.h"
+#endif	/* win 32 */
+
+#ifdef __linux__
+#include "lslp-perl-linux.h"
+#endif
+
+#include "lslp-perl.h"
+
+PEGASUS_NAMESPACE_BEGIN
+
+
+/* typedef unsigned char Uint8; */
+/* typedef char Sint8; */
+/* typedef unsigned short Uint16; */
+/* typedef short Sint16; */
+/* typedef unsigned int Uint32; */
+/* typedef int Sint32; */
+/* typedef float Real32; */
+/* typedef double Real64; */
+/* typedef PEGASUS_UINT64 Uint64; */
+/* typedef PEGASUS_SINT64 Sint64; */
+
+
+PEGASUS_EXPORT  Sint8 *slp_get_host_name(void) ;
+
+#ifdef _WIN32
+PEGASUS_EXPORT int gethostbyname_r(const char *name, 
+				   struct hostent *resultbuf, 
+				   char *buf, 
+				   size_t bufsize, 
+				   struct hostent **result, 
+				   int *errno) ;
+#endif
+
+
+PEGASUS_EXPORT Sint8 *slp_get_addr_string_from_url(const Sint8 *url)  ;
+
+PEGASUS_EXPORT Boolean get_addr_from_url(const Sint8 *url, struct sockaddr_in *addr ) ;
+
+
+#define DA_SRVTYPE "service:directory-agent:\0"
+#define DA_SRVTYPELEN 25
+#define DA_SCOPE "DEFAULT\0"
+#define DA_SCOPELEN 8
+
+
+#define TYPE_UNKKNOWN 0
+#define TYPE_DA_LIST 1
+#define TYPE_RPLY_LIST 2
+
+
+
+template<class L> class PEGASUS_EXPORT slp2_list {
+
+ private: 
+  struct list_rep;
+  L *_rep;
+  slp2_list *_next;
+  slp2_list *_prev;
+  slp2_list *_cur;
+  Boolean _isHead ;
+  int _count;
+  // unlink this node from whichever list it is on
+  inline void unlink( void  ) { _prev->_next = _next; _next->_prev = _prev; }
+  // insert this node into list owned by head 
+  inline void insert(slp2_list & head) {  _prev = head; 
+                      _next = head._next; 
+		     head._next->_prev = this; 
+		     head._next = this;   
+                     head._count++; }
+public:
+  slp2_list(Boolean head = true) :  _rep(NULL), _isHead(head), _count(0) { _next = this; _prev = this; _cur = this;}
+  ~slp2_list() { empty_list() ; }
+  void insert(L *);
+  void empty_list( void ) ;
+  L *remove( void ) ;
+  L *next( L * ); // poor man's iterators 
+  L *prev( L * );
+  int count(void);
+} ;
+
+struct PEGASUS_EXPORT da_list
+{
+  
+  ~da_list();
+  Sint8 function;
+  Uint16 err;
+  Uint32 stateless_boot;
+  Sint8 *url;
+  Sint8 *scope;
+  Sint8 *attr;
+  Sint8 *spi;
+  Sint8 auth_blocks;
+  Sint8 *auth;
+  Sint8 remote[16]; 
+} ;
+
+struct PEGASUS_EXPORT rply_list
+{
+  ~rply_list();
+  Sint8 function;
+  Uint16 err;
+  Uint16 lifetime;
+  Sint8 *url;
+  Sint8 auth_blocks;
+  Sint8 *auth;
+  Sint8 remote[16];
+} ;
+
+
+class PEGASUS_EXPORT slp_client 
+{
+
+public: 
+  slp_client(const Sint8 *target_addr = "239.255.255.253",
+	     const Sint8 *local_addr = "0.0.0.0", 
+	     Uint16 target_port = 427, 
+	     const Sint8 *spi = NULL);
+  ~slp_client();
+  
+  inline void set_convergence(Sint8 convergence) { _convergence = convergence ; } 
+  inline void set_port(Sint16 port) { _target_port = port ; }
+  void set_target_addr(const Sint8 *addr);
+  void set_local_interface( const Sint8 *iface); 
+  inline void set_timout_retry(Uint32 t_sec, 
+			       Uint32 t_usec, 
+			       Sint8 retries, 
+			       Uint8 ttl) { _tv.tv_sec = t_sec; _tv.tv_usec = t_usec;
+					    _retries = retries; _ttl = ttl; }
+
+  void set_spi(const Sint8 *spi) ;
+  rply_list *slp_client::get_response( void );
+  int find_das(const Sint8 *predicate, 
+	       const Sint8 *scopes) ;
+  int converge_srv_req( const Sint8 *type, 
+			const Sint8 *predicate, 
+			const Sint8 *scopes) ;
+  void srv_req( const Sint8 *type, 
+		const Sint8 *predicate, 
+		const Sint8 *scopes);
+
+  Boolean srv_reg( Sint8 *url,
+		Sint8 *attributes,
+		Sint8 *service_type,
+		Sint8 *scopes,
+		   Sint16 lifetime);
+  
+  int srv_reg_all( Sint8 *url,
+		   Sint8 *attributes,
+		   Sint8 *service_type,
+		   Sint8 *scopes,
+		   Sint16 lifetime) ;
+  
+ private:
+  Uint16 _pr_buf_len;
+  Uint16 _buf_len;
+  Sint8 _version;
+  Uint16 _xid;
+  Uint16 _target_port;
+  Uint32 _target_addr;
+  Uint32 _local_addr;
+  Sint8 *_spi;
+  Sint8 *_pr_buf;
+  Sint8 *_msg_buf;
+  Sint8 _err_buf[255];
+  struct timeval _tv;
+  int _retries;
+  int _ttl;
+  int  _convergence;
+  void *_crypto_context;
+#ifdef _WIN32
+  static int _winsock_count ;
+  static WSADATA _wsa_data;
+#endif
+  slp2_list<da_list> das;
+  slp2_list<rply_list> replies;
+
+  //  void free_list( template<class L>slp2_list &list ) ;
+  void prepare_pr_buf(const Sint8 *address);
+  Boolean prepare_query(Uint16 xid,
+		     const Sint8 *service_type,
+		     const Sint8 *scopes, 
+		     const Sint8 *predicate  ) ;
+  void decode_reply(struct sockaddr_in *remote ) ;
+  void decode_srvrply(struct sockaddr_in *remote) ;
+  void decode_daadvert(struct sockaddr_in *remote) ;
+  Boolean send_rcv_udp(void) ;
+} ;
+
+PEGASUS_NAMESPACE_END
+
+#endif // slp_h_included

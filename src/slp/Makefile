@@ -8,11 +8,11 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = 
 
-LIBRARY = lslp-perl-lib
+LIBRARY = slp
 
 PRE_DEPEND_INCLUDES = -I./depends
 
-SOURCES = lslp-perl-lib.cpp
+SOURCES = slp.cpp
 
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 

@@ -8,7 +8,7 @@ Summary: PEGASUS CIMOM for Linux
 Name: pegasus
 Autoreqprov:  on
 Version: 1.0
-Release: 1
+Release: 2
 Group: Systems Management/Base
 Copyright: MIT Public Licence
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
@@ -62,15 +62,16 @@ cp -a $RPM_BUILD_ROOT/usr/pegasus-1.0/lib/* $RPM_BUILD_ROOT/usr/lib
 
 # Copy the schema
 
-mkdir -p $RPM_BUILD_ROOT/etc/pegasus/mof
-mkdir -p $RPM_BUILD_ROOT/etc/pegasus/repository
-cp -a $PEGASUS_ROOT/Schemas/CIM25/*.mof $RPM_BUILD_ROOT/etc/pegasus/mof
+mkdir -p $RPM_BUILD_ROOT/var/lib/pegasus/mof
+mkdir -p $RPM_BUILD_ROOT/var/lib/pegasus/repository
+cp -a $PEGASUS_ROOT/Schemas/CIM25/*.mof $RPM_BUILD_ROOT/var/lib/pegasus/mof
 
 #
 mkdir -p $RPM_BUILD_ROOT/etc/rc.d/
 cp $PEGASUS_ROOT/rpm/pegasus $RPM_BUILD_ROOT/etc/rc.d/
 
 mkdir -p $RPM_BUILD_ROOT/var/pegasus/log
+mkdir -p $RPM_BUILD_ROOT/var/lib/pegasus
 mkdir -p $RPM_BUILD_ROOT/etc/pegasus
 touch $RPM_BUILD_ROOT/etc/pegasus/pegasus.conf
 
@@ -109,11 +110,14 @@ cp $PEGASUS_ROOT/src/Pegasus/getoopt/*.h $RPM_BUILD_ROOT/usr/include/Pegasus/get
 make clean
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
 
-
 %post
 ldconfig
+cimmof -R/var/lib/pegasus -I/var/lib/pegasus/mof -nroot /var/lib/pegasus/mof/CIM_Core25.mof
+cimmof -R/var/lib/pegasus -I/var/lib/pegasus/mof -nroot/cimv2 /var/lib/pegasus/mof/CIM_Schema25.mof
 sbin/insserv etc/init.d/pegasus
+echo "please add the path /usr/lib/pegasus to the ld.so.conf"
 %postun
+rm -rf /var/lib/pegasus/repository
 sbin/insserv etc/init.d
 
 %files devel
@@ -157,17 +161,20 @@ sbin/insserv etc/init.d
 %dir %attr(-,root,root) /usr/lib
 %dir %attr(-,root,root) /usr/include
 %dir %attr(-,root,root) /var/pegasus/log
-%dir %attr(-,root,root) /etc/pegasus/mof
-%dir %attr(-,root,root) /etc/pegasus/repository
+%dir %attr(-,root,root) /var/lib/pegasus
+%dir %attr(-,root,root) /var/lib/pegasus/mof
+%dir %attr(-,root,root) /var/lib/pegasus/repository
 
 %config %attr(-,root,root) /etc/pegasus/pegasus.conf
 %config %attr(-,root,root) /etc/rc.d/pegasus
 
 %attr(-,root,root) /usr/lib/libCIMxmlIndicationHandler.so
 %attr(-,root,root) /usr/lib/libConfigSettingProvider.so
+%attr(-,root,root) /usr/lib/libDisplayConsumer.so
 %attr(-,root,root) /usr/lib/libDynLib.so
 %attr(-,root,root) /usr/lib/libHelloWorldProvider.so
-#%attr(-,root,root) /usr/lib/libMyProvider.so
+%attr(-,root,root) /usr/lib/libMyProvider.so
+%attr(-,root,root) /usr/lib/libOperatingSystemProvider.so
 %attr(-,root,root) /usr/lib/libSampleIndicationProvider.so
 %attr(-,root,root) /usr/lib/libSampleInstanceProvider.so
 %attr(-,root,root) /usr/lib/lib__NamespaceProvider.so
@@ -186,25 +193,25 @@ sbin/insserv etc/init.d
 %attr(-,root,root) /usr/lib/libpegserver.so
 %attr(-,root,root) /usr/lib/libsendmailIndicationHandler.so
 %attr(-,root,root) /usr/lib/libslp.so
+%attr(-,root,root) /usr/lib/libsnmpIndicationHandler.so
 
 %attr(-,root,root) /usr/bin/cimconfig
 %attr(-,root,root) /usr/bin/cimmof
 %attr(-,root,root) /usr/bin/cimserver
 %attr(-,root,root) /usr/bin/wbemexec
 
-%attr(-,root,root) /etc/pegasus/mof/CIM_Application25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Core25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Core25_Add.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Device25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Events25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Metrics25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Network25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Physical25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Policy25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Schema25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_Support25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_System25.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_System25_Add.mof
-%attr(-,root,root) /etc/pegasus/mof/CIM_User25.mof
-
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Application25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Core25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Core25_Add.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Device25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Events25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Metrics25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Network25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Physical25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Policy25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Schema25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_Support25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_System25.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_System25_Add.mof
+%attr(-,root,root) /var/lib/pegasus/mof/CIM_User25.mof
 

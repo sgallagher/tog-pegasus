@@ -37,7 +37,7 @@ test "$START_PEGASUS" = yes || exit 0
 #      rc_reset         clear local rc status (overall remains)
 #      rc_exit          exit appropriate to overall rc status
 
-export PEGASUS_HOME=/etc/pegasus
+export PEGASUS_HOME=/var/lib/pegasus
 
 # First reset status of this service
 rc_reset
@@ -48,8 +48,10 @@ case "$1" in
 	## the echo return value is set appropriate.
 
 	#startproc /usr/bin/cimserver
-        export PEGASUS_HOME=/etc/pegasus
-        cimserver -logdir /var/pegasus -d 
+        #export PEGASUS_HOME=/var/lib/pegasus
+	#handle that we cannot specify the location of the configuration
+	ln -sf /etc/pegasus/pegasus.conf /var/lib/pegasus/pegasus.conf
+        cimserver -D /var/lib/pegasus -d logdir=/var/pegasus/logs
 
 	# Remember status and be verbose
 	rc_status -v

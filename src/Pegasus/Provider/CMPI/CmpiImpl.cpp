@@ -108,16 +108,16 @@ CmpiProviderBase* CmpiBaseMI::getProviderBase()
 }
 
 CmpiStatus CmpiBaseMI::initialize(const CmpiContext& ctx) {
-   return CmpiStatus(CMPI_RC_OK); 
+   return CmpiStatus(CMPI_RC_OK);
 }
 
-CmpiStatus CmpiBaseMI::cleanup(CmpiContext& ctx) { 
+CmpiStatus CmpiBaseMI::cleanup(CmpiContext& ctx) {
     cerr << "cleaning up provider" << endl;
-   return CmpiStatus(CMPI_RC_OK); 
+   return CmpiStatus(CMPI_RC_OK);
 }
 
 int CmpiBaseMI::isUnloadable() const {
-   return 1; 
+   return 1;
 }
 
 //---------------------------------------------------
@@ -129,7 +129,7 @@ int CmpiBaseMI::isUnloadable() const {
 CMPIStatus CmpiInstanceMI::driveEnumInstanceNames
    (CMPIInstanceMI* mi,CMPIContext* eCtx, CMPIResult* eRslt,
     CMPIObjectPath* eCop)
-{  
+{
   try {
    CmpiContext ctx(eCtx);
    CmpiResult rslt(eRslt);
@@ -1161,7 +1161,7 @@ static const char * _nullkeys[] = {0};
 
 void CmpiInstance::setPropertyFilter(const char** properties, const char** keys) {
   if (keys==0) keys = _nullkeys;
-  CMPIStatus rc=getEnc()->ft->setPropertyFilter(getEnc(),(char**)properties, 
+  CMPIStatus rc=getEnc()->ft->setPropertyFilter(getEnc(),(char**)properties,
 						 (char**)keys);
   if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
@@ -1201,12 +1201,12 @@ CmpiStatus::CmpiStatus() {
    st.msg=NULL;
 }
 
-CmpiStatus::CmpiStatus(CMPIrc rcp) {
+CmpiStatus::CmpiStatus(const CMPIrc rcp) {
    st.rc=rcp;
    st.msg=NULL;
 }
 
-CmpiStatus::CmpiStatus(CMPIStatus stat) {
+CmpiStatus::CmpiStatus(const CMPIStatus stat) {
    st=stat;
 }
 
@@ -1863,19 +1863,19 @@ CmpiProviderBase::~CmpiProviderBase() {
 }
 
 void CmpiProviderBase::
-  incUseCount() 
+  incUseCount()
 {
   useCount++;
 }
 
 int CmpiProviderBase::
-  decUseCount() 
+  decUseCount()
 {
   return --useCount;
 }
 
 void CmpiProviderBase::
-  setBaseMI(CmpiBaseMI* aBaseMI) 
+  setBaseMI(CmpiBaseMI* aBaseMI)
 {
   baseMI = aBaseMI;
 }

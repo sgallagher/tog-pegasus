@@ -25,11 +25,10 @@
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#include <Pegasus/Common/Config.h>
+#include <Pegasus/suballoc/suballoc.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <sys/types.h>
-#include <Pegasus/suballoc/suballoc.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
 #include <unistd.h>

@@ -59,12 +59,12 @@ CQLFactor::CQLFactor(const CQLValue& inCQLVal)
 	_rep = new CQLFactorRep(inCQLVal);
 }
 
-CQLFactor::CQLFactor(CQLExpression& inCQLExp)
+CQLFactor::CQLFactor(const CQLExpression& inCQLExp)
 {
 	_rep = new CQLFactorRep(inCQLExp);
 }
 
-CQLFactor::CQLFactor(CQLFunction& inCQLFunc)
+CQLFactor::CQLFactor(const CQLFunction& inCQLFunc)
 {
 	_rep = new CQLFactorRep(inCQLFunc);
 }
@@ -75,7 +75,7 @@ CQLFactor::~CQLFactor(){
 	}
 }
 
-CQLValue CQLFactor::getValue()
+CQLValue CQLFactor::getValue()const
 {
    	return _rep->getValue();
 }
@@ -84,26 +84,26 @@ CQLValue CQLFactor::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
 	return _rep->resolveValue(CI, QueryCtx);
 }
-Boolean CQLFactor::isSimple()
+Boolean CQLFactor::isSimple()const
 {
         return _rep->isSimple();
 }
-Boolean CQLFactor::isSimpleValue()
+Boolean CQLFactor::isSimpleValue()const
 {
 	return _rep->isSimpleValue();
 }
 
-CQLFunction CQLFactor::getCQLFunction()
+CQLFunction CQLFactor::getCQLFunction()const
 {
    return _rep->getCQLFunction();
 }
 
-CQLExpression CQLFactor::getCQLExpression()
+CQLExpression CQLFactor::getCQLExpression()const
 {
    return _rep->getCQLExpression();
 }
 
-String CQLFactor::toString()
+String CQLFactor::toString()const
 {
 	return _rep->toString();
 }
@@ -123,10 +123,10 @@ CQLFactor& CQLFactor::operator=(const CQLFactor& rhs){
 	return *this;
 }
 
-Boolean CQLFactor::operator==(const CQLFactor& factor){
+Boolean CQLFactor::operator==(const CQLFactor& factor)const{
 	return (_rep == factor._rep);
 }
-Boolean CQLFactor::operator!=(const CQLFactor& factor){
+Boolean CQLFactor::operator!=(const CQLFactor& factor)const{
 	return (!operator==(factor));                                                                                
 }
 

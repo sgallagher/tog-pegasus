@@ -59,9 +59,9 @@ class PEGASUS_CQL_LINKAGE CQLFactor
 
     CQLFactor(const CQLValue& inCQLVal);
 
-    CQLFactor(CQLExpression& inCQLExp);
+    CQLFactor(const CQLExpression& inCQLExp);
 
-    CQLFactor(CQLFunction& inCQLFunc);
+    CQLFactor(const CQLFunction& inCQLFunc);
     CQLFactor(const CQLFactor& inCQLFact);
 
     ~CQLFactor();
@@ -85,26 +85,26 @@ class PEGASUS_CQL_LINKAGE CQLFactor
 
    CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
 
-   Boolean isSimple();
+   Boolean isSimple()const;
 
-   Boolean isSimpleValue();
+   Boolean isSimpleValue()const;
 
-   CQLValue getValue();
+   CQLValue getValue()const;
 
-   CQLFunction getCQLFunction();
+   CQLFunction getCQLFunction()const;
 
-   CQLExpression getCQLExpression();
+   CQLExpression getCQLExpression()const;
 
-   String toString();
+   String toString()const;
 
    void applyContext(QueryContext& inContext,
                      CQLChainedIdentifier& inCid);
 
    CQLFactor& operator=(const CQLFactor& rhs);
 
-   Boolean operator==(const CQLFactor& factor);
+   Boolean operator==(const CQLFactor& factor)const;
 
-   Boolean operator!=(const CQLFactor& factor);
+   Boolean operator!=(const CQLFactor& factor)const;
 
    friend class CQLFactory;
   private:

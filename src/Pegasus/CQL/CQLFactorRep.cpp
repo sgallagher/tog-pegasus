@@ -63,21 +63,21 @@ CQLFactorRep::CQLFactorRep(const CQLValue& inCQLVal)
    _containedType = VALUE;
 }
 
-CQLFactorRep::CQLFactorRep(CQLExpression& inCQLExp)
+CQLFactorRep::CQLFactorRep(const CQLExpression& inCQLExp)
 {
    _CQLExp = inCQLExp;
    _simpleValue = false;
    _containedType = EXPRESSION;
 }
 
-CQLFactorRep::CQLFactorRep(CQLFunction& inCQLFunc)
+CQLFactorRep::CQLFactorRep(const CQLFunction& inCQLFunc)
 {
    _CQLFunct = inCQLFunc;
    _simpleValue = false;
    _containedType = FUNCTION;
 }
 
-CQLValue CQLFactorRep::getValue()
+CQLValue CQLFactorRep::getValue()const
 {
    return _CQLVal;
 }
@@ -100,27 +100,27 @@ CQLValue CQLFactorRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
    }
 }
 
-Boolean CQLFactorRep::isSimple()
+Boolean CQLFactorRep::isSimple()const
 {
    return _simpleValue;
 }
 
-Boolean CQLFactorRep::isSimpleValue()
+Boolean CQLFactorRep::isSimpleValue()const
 {
    return _simpleValue;
 }
 
-CQLFunction CQLFactorRep::getCQLFunction()
+CQLFunction CQLFactorRep::getCQLFunction()const
 {
    return _CQLFunct;
 }
 
-CQLExpression CQLFactorRep::getCQLExpression()
+CQLExpression CQLFactorRep::getCQLExpression()const
 {
    return _CQLExp;
 }
 
-String CQLFactorRep::toString()
+String CQLFactorRep::toString()const
 {
   if(_containedType == VALUE){
     return _CQLVal.toString();
@@ -154,10 +154,10 @@ void CQLFactorRep::applyContext(QueryContext& inContext,
    return;
 }
 
-Boolean CQLFactorRep::operator==(const CQLFactorRep& rep){
+Boolean CQLFactorRep::operator==(const CQLFactorRep& rep)const{
 	  return true;
 }
-Boolean CQLFactorRep::operator!=(const CQLFactorRep& rep){
+Boolean CQLFactorRep::operator!=(const CQLFactorRep& rep)const{
 	return (!operator==(rep));
 }
 PEGASUS_NAMESPACE_END

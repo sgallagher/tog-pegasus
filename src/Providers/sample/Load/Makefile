@@ -43,7 +43,6 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(SAMPLEPROVIDERNS)" ClientTest.mof
 	@ $(ECHO) +++++ Registering Sample Providers  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" SampleProviderSchemaR.mof
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" AssociationProviderR.mof
 	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(SAMPLEPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
@@ -74,7 +73,6 @@ repositoryServer:
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" ClientTest.mof
 	@ $(ECHO) +++++ Registering SampleProvider schema Providers  ...
 	@ cimmof "-n$(INTEROPNS)" SampleProviderSchemaR.mof
-	@ cimmof "-n$(INTEROPNS)" AssociationProviderR.mof
 	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" TST_Family.mof
 	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...

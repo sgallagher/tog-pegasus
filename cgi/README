@@ -2,6 +2,9 @@
 The Pegasus WEB Demonstration
 
 $Log: README,v $
+Revision 1.4  2001/02/26 10:39:08  karl
+Correct text
+
 Revision 1.3  2001/02/19 21:43:30  karl
 namespace creation
 
@@ -24,10 +27,16 @@ having to have a permanent path the the $PEGASUS_HOME$/bin directory when
 Apache is executing.
 
 This demonstrations uses the HTML pages in htdocs as forms to generate CGI
-requests through the WEB Server.  These requests are services by the Pegasus
-CGIClient.exe program (located in cgi).   This program, in turn converts the
-CGI forms input to Pegasus CIM Operations as Pegasus Client Operations and
-passes them to the Pegasus CIM Server.
+requests through the WEB Server.  These requests are serviced by the Pegasus
+CGIClient.exe program (copied to cgi-bin with the Makefile in this directory).
+CGIClient, in turn converts the CGI forms input to Pegasus CIM Operations C++
+calls. The Pegasus client library converts the calls to XML conformant with
+the DMTF CIM Operations over HTTP defintions and passes them to the Pegasus
+CIM Server.
+
+The CIM server responses in XML are converted back to C++ responses at the CGI
+client (part of the SDK code) and CGI client then make HTML pages out of the
+responses and passes them back to the WEB server.
 
 NOTE: Today, the Pegasus CIM server and the WEB server must be in the same
 machine because CGIClient fixes the address and port of the CIM server as
@@ -37,9 +46,9 @@ machine because CGIClient fixes the address and port of the CIM server as
 
 This will be modified in the future.
 
-To use this demonstration, you must have a you must add definitions to your
-web server. For example, in Apace, the followingdefintions to httpd.conf would
-workd if the %PEGASUS_ROOT% was D:/tog/pegasus.
+To use this demonstration, you must  add definitions to your web server. For
+example, in Apache, the following defintions in httpd.conf would word if the
+%PEGASUS_ROOT% was D:/tog/pegasus.
 
     ScriptAlias /pegasus/cgi-bin "D:/tog/pegasus/cgi/cgi-bin"
     Alias /pegasus/icons "D:/tog/pegasus/cgi/icons"
@@ -66,4 +75,5 @@ Then go to your browser and type in this URL:
     Thus if the browser is on the same machine, enter localhost/pegasus
 
 This demonstration can be used either locally or from a remote browser
+
 

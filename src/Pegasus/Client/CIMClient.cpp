@@ -1376,7 +1376,9 @@ void CIMClient::connect(
 
 #ifndef PEGASUS_REMOVE_DEPRECATED
 void CIMClient::connect(
-    const String& address
+    const String& address,
+    const String& userName,
+    const String& password
 )
 {
     Uint32 index = address.find (':');
@@ -1389,12 +1391,14 @@ void CIMClient::connect(
     }
     else
         throw InvalidLocatorException (address);
-    _rep->connect (host, portNumber, String::EMPTY, String::EMPTY);
+    _rep->connect (host, portNumber, userName, password);
 }
 
 void CIMClient::connect(
     const String& address,
-    const SSLContext& sslContext
+    const SSLContext& sslContext,
+    const String& userName,
+    const String& password
 )
 {
     Uint32 index = address.find (':');
@@ -1407,7 +1411,7 @@ void CIMClient::connect(
     }
     else
         throw InvalidLocatorException (address);
-    _rep->connect (host, portNumber, sslContext, String::EMPTY, String::EMPTY);
+    _rep->connect (host, portNumber, sslContext, userName, password);
 }
 #endif
 

@@ -173,7 +173,7 @@ public:
         </PRE>
     */
     void connect(
-        const String& address
+        const String& address,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
     );
@@ -203,7 +203,7 @@ public:
     */
     void connect(
         const String& address,
-        const SSLContext& sslContext
+        const SSLContext& sslContext,
         const String& userName = String::EMPTY,
         const String& password = String::EMPTY
     );

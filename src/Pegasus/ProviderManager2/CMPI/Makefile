@@ -20,4 +20,4 @@ SOURCES = \
 	CMPIProviderManagerMain.cpp \
 	CMPIProviderManager.cpp
 
-include $(PEGASUS_ROOT)/mak/library.mak
+include $(ROOT)/mak/library.mak

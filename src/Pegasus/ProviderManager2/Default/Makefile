@@ -26,4 +26,4 @@ SOURCES = \
 	OperationResponseHandler.cpp \
 	SimpleResponseHandler.cpp
 
-include $(PEGASUS_ROOT)/mak/library.mak
+include $(ROOT)/mak/library.mak

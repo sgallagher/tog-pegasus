@@ -350,7 +350,7 @@ int main(int argc, char **argv)
    
    delete Q_server;  
    
-   return(1);
+   return(0);
 }
 
 

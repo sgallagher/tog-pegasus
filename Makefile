@@ -54,6 +54,13 @@ removetestrepository: FORCE
 	@ $(MAKE) -SC test/wetest removerepository
 	@ $(MAKE) -SC src/Clients/benchmarkTest/Load removerepository
 
+all: messages 
+
+messages: rootbundle
+
+rootbundle: 
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
+
 # the collections of tests that we run with the server active.
 # For now, these are centralized and do not include startup
 # and shutdown of the server.

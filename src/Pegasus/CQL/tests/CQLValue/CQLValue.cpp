@@ -336,16 +336,11 @@ void drive_resolve_primitive()
          ci5(String(
          "CIM_OperatingSystem.CIM_EnabledLogicalElement::TimeOfLastStateChange"));
 
-   CQLChainedIdentifier 
-         ci6(String(
-         "CIM_OperatingSystem.CIM_ComputerSystem::TimeOfLastStateChange"));
+
    
    CQLChainedIdentifier 
          ci7(String("CIM_OperatingSystem"));
 
-   CQLChainedIdentifier 
-         ci8(String(
-         "CIM_OperatingSystem.CIM_EnabledLogicalElement::CSCreationClassName"));
 
    CQLChainedIdentifier 
          ci9(String(
@@ -359,9 +354,9 @@ void drive_resolve_primitive()
    CQLValue a3(ci3);
    CQLValue a4(ci4);
    CQLValue a5(ci5);
-   CQLValue a6(ci6);
+
    CQLValue a7(ci7);
-   CQLValue a8(ci8);
+
    CQLValue a9(ci9);
    CQLValue a10(ci10);
 
@@ -371,7 +366,7 @@ void drive_resolve_primitive()
       a4.resolve(_i1, _query);
       a5.resolve(_i1, _query);
       a7.resolve(_i1, _query);
-      a8.resolve(_i1, _query);
+
 
 
    try
@@ -384,15 +379,6 @@ void drive_resolve_primitive()
       assert(1);
    }
 
-   try
-   {
-      a6.resolve(_i1, _query);
-      assert(0);
-   }
-   catch(...)
-   {
-      assert(1);
-   }
 
    try
    {
@@ -410,7 +396,6 @@ void drive_resolve_primitive()
    assert(a4 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
    assert(a5 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
    assert(a7 == CQLValue(_i1));
-   assert(a8.getValueType() == CQLIgnore_type);
 
    }
    catch(Exception & e)

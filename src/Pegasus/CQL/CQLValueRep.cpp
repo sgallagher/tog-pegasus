@@ -53,6 +53,7 @@ PEGASUS_USING_STD;
 
 CQLValueRep::CQLValueRep()
 {
+   _valueType = Null_type;
 	_theValue._S = NULL;
 }
 CQLValueRep::~CQLValueRep()
@@ -381,7 +382,8 @@ void CQLValueRep::resolve(CIMInstance CI, QueryContext& inQueryCtx)
 
       // We need to do special processing on property if the 
       // property is scoped. 
-
+// TODO: We should be able to delete this code.
+/*
       if(Idstrings[index].isScoped())
       {
          // This property is scoped. 
@@ -405,6 +407,7 @@ void CQLValueRep::resolve(CIMInstance CI, QueryContext& inQueryCtx)
          {
             throw(1);
          }
+
       }
       // Verifing that embedded properties are scoped.
       else if(isEmbedded)
@@ -412,7 +415,7 @@ void CQLValueRep::resolve(CIMInstance CI, QueryContext& inQueryCtx)
 
          throw(1);
       }
-
+*/
       // This is a short cut for wildcard special charactor.
       // Since no further processing is necessary for this case.
       if(Idstrings[index].isWildcard())
@@ -610,13 +613,16 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
    if(!_validate(x))
    {
       throw(1);
-   }  
+   } 
+
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      throw(1);
+   }
  
    switch(_valueType)
    {
-      case Null_type:
-         return x._valueType == Null_type;
-         break;
       case Boolean_type:
       {
          if(x._valueType == Boolean_type)
@@ -748,16 +754,19 @@ Boolean CQLValueRep::operator!=(const CQLValueRep& x)
 
 Boolean CQLValueRep::operator<=(const CQLValueRep& x)
 {
-if(!_validate(x))
+   if(!_validate(x))
    {
       throw(1);
    }  
+
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      throw(1);
+   }
  
    switch(_valueType)
    {
-      case Null_type:
-         return x._valueType == Null_type;
-         break;
       case Boolean_type:
       {
          if(x._valueType == Boolean_type)
@@ -867,16 +876,19 @@ if(!_validate(x))
 
 Boolean CQLValueRep::operator>=(const CQLValueRep& x)
 {
-if(!_validate(x))
+   if(!_validate(x))
    {
       throw(1);
    }  
  
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      throw(1);
+   }
+
    switch(_valueType)
    {
-      case Null_type:
-         return x._valueType == Null_type;
-         break;
       case Boolean_type:
       {
          if(x._valueType == Boolean_type)
@@ -991,11 +1003,14 @@ if(!_validate(x))
       throw(1);
    }  
  
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      throw(1);
+   }
+
    switch(_valueType)
    {
-      case Null_type:
-         return false;
-         break;
       case Boolean_type:
       {
          if(x._valueType == Boolean_type)
@@ -1110,11 +1125,14 @@ Boolean CQLValueRep::operator>(const CQLValueRep& x)
       throw(1);
    }  
  
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      throw(1);
+   }
+
    switch(_valueType)
    {
-      case Null_type:
-         return false;
-         break;
       case Boolean_type:
       {
          if(x._valueType == Boolean_type)
@@ -1230,11 +1248,14 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
       throw(1);
    } 
 
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      return CQLValueRep();
+   }
+
    switch(_valueType)
    {
-      case Null_type:
-         throw(1);
-         break;
       case Boolean_type:
          throw(1);
          break;
@@ -1312,13 +1333,14 @@ CQLValueRep CQLValueRep::operator-(const CQLValueRep& x)
    {
       throw(1);
    } 
-
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      return CQLValueRep();
+   }
     
    switch(_valueType)
    {
-      case Null_type:
-         throw(1);
-         break;
       case Boolean_type:
          throw(1);
          break;
@@ -1397,12 +1419,14 @@ CQLValueRep CQLValueRep::operator*(const CQLValueRep& x)
       throw(1);
    } 
 
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      return CQLValueRep();
+   }
     
    switch(_valueType)
    {
-      case Null_type:
-         throw(1);
-         break;
       case Boolean_type:
          throw(1);
          break;
@@ -1480,12 +1504,15 @@ CQLValueRep CQLValueRep::operator/(const CQLValueRep& x)
    {
       throw(1);
    } 
-    
+   
+   if(x._valueType == Null_type ||
+      _valueType == Null_type)
+   {
+      return CQLValueRep();
+   }
+ 
    switch(_valueType)
    {
-      case Null_type:
-         throw(1);
-         break;
       case Boolean_type:
          throw(1);
          break;
@@ -1821,12 +1848,6 @@ Boolean CQLValueRep::_validate(const CQLValueRep& x)
 {
    switch(_valueType)
    {
-      case Null_type:
-         if(x._valueType != Null_type)
-         {
-            return false;
-         }
-         break;
       case Boolean_type:
          if(x._valueType != Boolean_type)
          {

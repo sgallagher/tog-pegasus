@@ -4,6 +4,13 @@ CHANGE LOG FOR PEGASUS
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch (Work in PRogress)
 
+1. (Mike Brasher) Fixed bug with XML generation (was not generating
+   PARAMETER.REFERENCE constructs for references).
+
+2. (Mike Brasher) Reworked server communication into new module scheme.
+
+3. (Mike Brasher) Implemented sample WebClient and WebServer application
+   to test new scheme.
 
 ---------------------------------------------------------------------------
 Version 0.99.x (Fixes to version 0.99) in Process

@@ -188,6 +188,7 @@ public:
     */
 
     virtual void initialize(CIMOMHandle& cimomHandle);
+	virtual void terminate(void);
 };
 
 PEGASUS_NAMESPACE_END

@@ -157,6 +157,9 @@ void EmailListenerDestination::_sendViaEmail(
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
 
     String exceptionStr;
+    FILE * mailFilePtr;
+    FILE * filePtr;
+    char mailFile[TEMP_NAME_LEN];
 
     // Check for proper execute permissions for sendmail
     if (access(SENDMAIL_CMD, X_OK) < 0)
@@ -182,40 +185,22 @@ void EmailListenerDestination::_sendViaEmail(
     }
 
     // open a temporary file to hold the indication mail message
-    _filePtr = fopen(tmpnam(_mailFile), "a");
-    if (_filePtr == NULL)
-    {
-        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
-            "fopen of %s failed: %s.", _mailFile,
-	    strerror(errno));
-
-	MessageLoaderParms parms(
-	    "Handler.EmailListenerDestination.EmailListenerDestination._MSG_FAILED_TO_OPEN_THE_FILE",
-	    "fopen of $0 failed: $1.",
-	    _mailFile,
-	    strerror(errno));
-
-        exceptionStr.append(MessageLoader::getMessage(parms));
-
-        PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
-    }
+    _openFile(&filePtr, mailFile);
 
     try
     {
-	_buildMailHeader(mailTo, mailCc, mailSubject);
+	_buildMailHeader(mailTo, mailCc, mailSubject, filePtr);
 
 	// write indication text to the file
-	_writeStrToFile(formattedText);
+	_writeStrToFile(formattedText, filePtr);
 
-	fclose(_filePtr);
+	fclose(filePtr);
 
     }
     catch (CIMException &c)
     {
-	fclose(_filePtr);
-	unlink(_mailFile);
+	fclose(filePtr);
+	unlink(mailFile);
 
 	PEG_METHOD_EXIT();
 	return;
@@ -224,17 +209,17 @@ void EmailListenerDestination::_sendViaEmail(
     try
     {
 	// send the message
-	_sendMsg();
+	_sendMsg(mailFile);
     }
     catch (CIMException &c)
     {
-	unlink(_mailFile);
+	unlink(mailFile);
 
 	PEG_METHOD_EXIT();
 	return;
     }
 
-    unlink(_mailFile);
+    unlink(mailFile);
 
     PEG_METHOD_EXIT();
 
@@ -256,7 +241,8 @@ void EmailListenerDestination::_sendViaEmail(
 void EmailListenerDestination::_buildMailHeader(
     const Array<String> & mailTo,
     const Array<String> & mailCc,
-    const String & mailSubject)
+    const String & mailSubject,
+    FILE * filePtr)
 {
     PEG_METHOD_ENTER (TRC_IND_HANDLER,
 	"EmailListenerDestination::_buildMailHeader");
@@ -279,7 +265,7 @@ void EmailListenerDestination::_buildMailHeader(
     // Write the mailToStr to file
     mailHdrStr.append("To: ");
     mailHdrStr.append(mailToStr);
-    _writeStrToFile(mailHdrStr);
+    _writeStrToFile(mailHdrStr, filePtr);
 
     String mailCcStr = _buildMailAddrStr(mailCc); 
 
@@ -288,7 +274,7 @@ void EmailListenerDestination::_buildMailHeader(
 
     mailHdrStr.append("Cc: ");
     mailHdrStr.append(mailCcStr);
-    _writeStrToFile(mailHdrStr);
+    _writeStrToFile(mailHdrStr, filePtr);
 
     // build from string 
     String fromStr = String::EMPTY;
@@ -298,13 +284,13 @@ void EmailListenerDestination::_buildMailHeader(
     fromStr.append(System::getFullyQualifiedHostName ());
 
     // Write the fromStr to file
-    _writeStrToFile(fromStr);
+    _writeStrToFile(fromStr, filePtr);
 
     // Write the mailSubject string to file
     String mailSubjectStr = String::EMPTY;
     mailSubjectStr.append("Subject: ");
     mailSubjectStr.append(mailSubject);
-    _writeStrToFile(mailSubjectStr);
+    _writeStrToFile(mailSubjectStr, filePtr);
 
     PEG_METHOD_EXIT();
 }
@@ -333,14 +319,15 @@ String EmailListenerDestination::_buildMailAddrStr(
 }
 
 void EmailListenerDestination::_writeStrToFile(
-    const String & mailHdrStr)
+    const String & mailHdrStr,
+    FILE * filePtr)
 {
     PEG_METHOD_ENTER (TRC_IND_HANDLER,
 	"EmailListenerDestination::_writeStrToFile");
 
     String exceptionStr;
 
-    if (fprintf(_filePtr, "%s\n", (const char *)mailHdrStr.getCString()) < 0)
+    if (fprintf(filePtr, "%s\n", (const char *)mailHdrStr.getCString()) < 0)
     {
         Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Failed to write the %s to the file: %s.",
@@ -363,7 +350,8 @@ void EmailListenerDestination::_writeStrToFile(
     PEG_METHOD_EXIT();
 }
 
-void EmailListenerDestination::_sendMsg()
+void EmailListenerDestination::_sendMsg(
+    char * mailFile)
 {
     PEG_METHOD_ENTER (TRC_IND_HANDLER,
 	"EmailListenerDestination::_sendMsg");
@@ -374,17 +362,17 @@ void EmailListenerDestination::_sendMsg()
     struct stat statBuf;
 
     // Checks the existence of the temp mail file
-    if (!System::exists(_mailFile))
+    if (!System::exists(mailFile))
     {
         Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
             "File %s does not exist: %s.",
-	    _mailFile,
+	    mailFile,
 	    strerror(errno));
 
 	MessageLoaderParms parms(
 	    "Handler.EmailListenerDestination.EmailListenerDestination._MSG_FILE_DOES_NOT_EXIST",
 	    "File $0 does not exist: $1.",
-	    _mailFile,
+	    mailFile,
 	    strerror(errno));
 
         exceptionStr.append(MessageLoader::getMessage(parms));
@@ -396,17 +384,17 @@ void EmailListenerDestination::_sendMsg()
 
     // Checks the length of the file since a zero length file causes
     // problems for sendmail()
-    if (stat(_mailFile, &statBuf) !=0)
+    if (stat(mailFile, &statBuf) !=0)
     {
         Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
             "Can not get file %s status: %s.",
-	    _mailFile,
+	    mailFile,
 	    strerror(errno));
 
 	MessageLoaderParms parms(
 	    "Handler.EmailListenerDestination.EmailListenerDestination._MSG_CAN_NOT_GET_FILE_STATUS",
 	    "Can not get file $0 status: $1.",
-	    _mailFile,
+	    mailFile,
 	    strerror(errno));
 
         exceptionStr.append(MessageLoader::getMessage(parms));
@@ -420,12 +408,12 @@ void EmailListenerDestination::_sendMsg()
     {
         Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
             "File %s does not contain any data.",
-	    _mailFile);
+	    mailFile);
 
 	MessageLoaderParms parms(
 	    "Handler.EmailListenerDestination.EmailListenerDestination._MSG_FILE_DOES_NOT_CONTAIN_DATA",
 	    "File $0 does not contain any data.",
-	    _mailFile);
+	    mailFile);
 
         exceptionStr.append(MessageLoader::getMessage(parms));
 
@@ -435,7 +423,7 @@ void EmailListenerDestination::_sendMsg()
     }
 
     sprintf(sendmailCmd, "%s %s %s", SENDMAIL_CMD, 
-	    SENDMAIL_CMD_OPTS, _mailFile);
+	    SENDMAIL_CMD_OPTS, mailFile);
 
     // Open the pipe to send the message
     if ((sendmailPtr = popen(sendmailCmd, "r")) == NULL)
@@ -490,6 +478,37 @@ void EmailListenerDestination::_sendMsg()
     PEG_METHOD_EXIT();
 }
 
+void EmailListenerDestination::_openFile(
+    FILE **filePtr,
+    char * mailFile)
+{
+    PEG_METHOD_ENTER (TRC_IND_HANDLER,
+	"EmailListenerDestination::_openFile");
+
+    String exceptionStr;
+
+    *filePtr = fopen(tmpnam(mailFile), "w");
+    if (*filePtr == NULL)
+    {
+        Tracer::trace(TRC_IND_HANDLER, Tracer::LEVEL4,
+            "fopen of %s failed: %s.", mailFile,
+	    strerror(errno));
+
+	MessageLoaderParms parms(
+	    "Handler.EmailListenerDestination.EmailListenerDestination._MSG_FAILED_TO_OPEN_THE_FILE",
+	    "fopen of $0 failed: $1.",
+	    mailFile,
+	    strerror(errno));
+
+        exceptionStr.append(MessageLoader::getMessage(parms));
+
+        PEG_METHOD_EXIT();
+
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
+    }
+
+    PEG_METHOD_EXIT();
+}
 
 // This is the dynamic entry point into this dynamic module. The name of
 // this handler is "EmailListenerDestination" which is appended to "PegasusCreateHandler_"

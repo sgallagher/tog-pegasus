@@ -100,12 +100,14 @@ private:
         @param  mailTo         the addresses of the To: field 
         @param  mailCc         the addresses of the Cc: field 
         @param  mailSubject    the Subject: field of the mail message 
+        @param  filePtr        the pointer to the temporary file 
     */
 
     void _buildMailHeader(
 	const Array<String> & mailTo,
 	const Array<String> & mailCc,
-	const String & mailSubject);
+	const String & mailSubject,
+	FILE * filePtr);
 
     /**
         Build the mail address string from address array 
@@ -121,17 +123,28 @@ private:
         Write the mail header string to file 
 
         @param  mailHdrStr     the header string to be written to the file
+        @param  filePtr        the pointer to the temporary file 
     */
     void _writeStrToFile(
-	const String & mailHdrStr);
+	const String & mailHdrStr,
+	FILE * filePtr);
 
     /**
         Sends the indication via e-mail by opening a pipe to sendmail() 
-    */
-    void _sendMsg();
 
-    FILE * _filePtr;
-    char _mailFile[TEMP_NAME_LEN];
+        @param  mailFile       The temporary file name 
+    */
+    void _sendMsg(char * mailFile);
+
+    /**
+	Opens a temporary file to hold the indication mail message
+
+        @param  filePtr     the address of the pointer to the open file 
+        @param  mailFile    the temporary file name 
+    */
+    void _openFile(
+	FILE **filePtr,
+	char * mailFile);
 
 };
 

@@ -1,5 +1,8 @@
 /*
 	$Log: interfaces.dxx,v $
+	Revision 1.3  2001/02/06 17:02:13  karl
+	rearrange documentation for interfaces
+	
 	Revision 1.2  2001/02/02 18:48:20  karl
 	Doc++ expansion
 	
@@ -21,8 +24,17 @@ required by the broker.
 
 Pegasus has effectivly implemented the same operations and data defintions across all of these interfaces with minor differences because of the special characteristics of each interface.
 
-<B>Client Interface</B>
+<B>Implementing the CIM over HTTP Operations</B>
+The core operations implemented in Pegasus are based entirely on the CIM operations over HTTP definitions by the DMTF in CIM Operations over HTTP specificaiton.
 
+The creation of all Pegasus interfaces is based on this core was a key objective in the design of Pegasus. These operations provide the creation, deletion, manipulation of CIM classes and objects and their components.
+
+Pegasus implements these operations as methods in the Pegasus class Operations The interfaces for this class and methods is defined in the header file operations.h.
+
+<B>Client Interface</B>
+In Pegasus the client is a separate component that can communicate with the Pegasus server either through the WBEM CIM/XML protocol or directly through the Pegasus Client C++ Interfaces.
+
+The Client interfaces are an extension of the Pegasus Operations interfaces with some specific methods added for client/server communication control.
 
 <B>Provider Interface</B>
 
@@ -50,7 +62,6 @@ The repository interface isused by the CIMOM to  interface with implementations 
 retrieve provide persistence for class and instance information. 
 
 A prototype implementation of both a class and instance provider is provided with Pegasus (ATTN: SEE ALSO). However, it is expected that this will be replaced in many installations.
-
 .
 */
 

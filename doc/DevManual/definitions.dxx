@@ -1,5 +1,8 @@
 /*
 	$Log: definitions.dxx,v $
+	Revision 1.5  2001/02/06 17:02:13  karl
+	rearrange documentation for interfaces
+	
 	Revision 1.4  2001/02/05 14:14:00  karl
 	doc++ extension for respository
 	
@@ -17,7 +20,7 @@
 /** @name Definition of Terms
 This section provides definitions of terms and concepts used in the specification of the  DMTF CIM and WBEM specifications and of the Pegasus Managability Services Broker and its implementation.
 
-<B>Namespace</B>\Label{NAMESPACE} - TBD definition of Namespace
+<B>Namespace</B>\Label{NAMESPACE} - An object that defines a scope within which object keys must be unique.
 
 <B>CIMOM</B> \Label{CIMOM} = TBD Definition of Namespace
 
@@ -29,7 +32,7 @@ This section provides definitions of terms and concepts used in the specificatio
 
 <B>CIM INSTANCE</B> \Label{CIMINSTANCE} - ATTN:
 
-<B>METHOD</B> \Label{METHOD} - ATTN:
+
 
 <B>MOF</B> \Label{MOF} - MOF is the standard language used to define elements of the Common Information Model (CIM). The MOF language specifies syntax for defining CIM classes and instances. Compilation of MOF files provides developers and administrators with a simple and fast technique for modifying the CIM Repository. For more information about MOF, see the DMTF web page at http://www.dmtf.org.
 
@@ -116,10 +119,13 @@ only defined qualifiers be used, and that the list of qualifiers be extended onl
 
 Meta schema<B>Meta schema</B> \Label{Meta schema} -  The schema of the meta model. Method A declaration of a signature; that is, the method name, return type and parameters, and, in the case of a concrete class, may imply an implementation.
 
-<B>Model</B> \Label{Model} - A set of classes, properties and associations that allows the expression of information about a specific domain. For example, a Network may consist of Network Devices and Logical Networks. The Network Devices may have attachment associations to each other, and may have member associations to Logical Networks.
+<B>METHOD</B> \Label{METHOD} - Methods represent the behavior relevant for a class. A method is defined as an operation together with its signature. The signature consists of a possibly empty list of parameters and a return type.
 
-<B>Model Path</B> \Label{Model Path} -  A reference to an object within a namespace.
-Namespace An object that defines a scope within which object keys must be unique.
+A declaration of a signature; that is, the method name, return type and parameters, and, in the case of a concrete class, may imply an implementation.
+
+<B>Model</B> \Label{MODEL} - A set of classes, properties and associations that allows the expression of information about a specific domain. For example, a Network may consist of Network Devices and Logical Networks. The Network Devices may have attachment associations to each other, and may have member associations to Logical Networks.
+
+<B>Model Path</B> \Label{Model Path} -  A reference to an object within a namespace. Namespace An object that defines a scope within which object keys must be unique.
 
 <B>Namespath Path</B> \Label{Namespath Path} -  A reference to a namespace within an implementation that is capable of hosting CIM objects.
 
@@ -152,7 +158,7 @@ Namespace An object that defines a scope within which object keys must be unique
 //@{
 
 /** @name NAMESPACE. 
-Defintion of thamespace.
+Defintion of the namespace.
 */
 
 

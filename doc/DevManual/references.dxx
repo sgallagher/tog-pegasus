@@ -1,5 +1,8 @@
 /*
 	$Log: references.dxx,v $
+	Revision 1.2  2001/02/06 17:02:13  karl
+	rearrange documentation for interfaces
+	
 	Revision 1.1  2001/01/24 14:18:49  karl
 	import Dev Doc Files
 	
@@ -15,5 +18,20 @@ NOTE: documents we must reference include:
 	<LI>DMTF Specifications
 	<LI>
 </UL/
+
+
+
+The following is some test tags to find problems and techniquest in DOC++
+There is the label FOO
+
+\Label{"FOO"}
+
+Here is the reference to Pegasus, the top fo the document
+\Ref{Pegasus}
+
+Here is a reference to the label FOO
+\Ref{"FOO"}
+{@link "FOO" "FOO"}
+End of all this
 
 */

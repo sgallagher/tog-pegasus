@@ -1,6 +1,9 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
 	$Log: PegasusDoc.dxx,v $
+	Revision 1.8  2001/02/06 17:02:13  karl
+	rearrange documentation for interfaces
+	
 	Revision 1.7  2001/02/05 14:14:00  karl
 	doc++ extension for respository
 	
@@ -33,7 +36,7 @@ This file defines the document strucuture and provides the introduction
 <P>Version 1.5, 01/02/02</P>
 <P>Version 1.6  01/04/02 - Clean up the API defintions. and Add repository section.
 
-An open source implementation of the manageability environment defined by the DMTF WBEM standards.
+Pegasus is an open source implementation of the manageability environment defined by the DMTF WBEM standards.
 
 <B>This Document</B>
 
@@ -55,8 +58,6 @@ available to interface with Pegasus as providers, consumers, and services.
 This is not an internals manual for Pegasus.  The Internals for Pegasus developers will be defined in a separate manual that is also available from The Open Group (\URL{http://www.opengroup.org/Management}.
 
 NOTE: This a working document today.  It is revised frequently as we learn more about the documentation system and stabilize the Pegasus interfaces.  We apologize for the existing insonsistencies and errors in this working version of the document.
-
-
 
 This version of the Pegasus User Manual was created at \today
 */
@@ -115,19 +116,27 @@ Table stuff to see if it worksl
 	//@}
     //@Include: Interfaces.dxx
        //@{
+	    //@Include: CIMOperations.dxx
+	        //@{
+		    //@Include: ..\..\src\Pegasus\Common\Operations.h
+		//@}
 	    //@Include: ClientInterfaces.dxx   
 		//@{    
-		    //@Include: ..\..\src\Pegasus\Common\operations.h
+		    //@Include: ..\..\src\Pegasus\Client\Client.h
 		//@}
     	   //@Include: ProviderInterfaces.dxx
     	 
     	   //@Include: ServiceInterfaces.dxx
     	   //@Include: RepositoryInterfaces.dxx
+    	   	//@{
+		    //@Include: ..\..\src\Pegasus\Repository\Repository.h
+		//@}
        //@}
-    //@Include: references.dxx
+    
     //@Include: ProviderWriting.dxx
     //@Include: definitions.dxx
     //@Include: Examples.dxx
+    //@Include: references.dxx
     //@Include: FAQ.dxx
 //@}
 

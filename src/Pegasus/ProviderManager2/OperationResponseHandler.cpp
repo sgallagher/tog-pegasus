@@ -338,7 +338,7 @@ void GetInstanceResponseHandler::deliver(const CIMInstance & cimInstance)
 
 void GetInstanceResponseHandler::complete(void)
 {
-    if(SimpleInstanceResponseHandler::size() != 0)
+    if(SimpleInstanceResponseHandler::size() == 0)
     {
         MessageLoaderParms message(
             "Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED",
@@ -537,7 +537,7 @@ void CreateInstanceResponseHandler::deliver(const CIMObjectPath & cimObjectPath)
 
 void CreateInstanceResponseHandler::complete(void)
 {
-    if(SimpleObjectPathResponseHandler::size() != 0)
+    if(SimpleObjectPathResponseHandler::size() == 0)
     {
         MessageLoaderParms message(
             "Server.OperationResponseHandler.TOO_FEW_OBJECTS_DELIVERED",

@@ -1563,7 +1563,7 @@ void CIMOMHandle::modifyInstance(
       new CIMModifyInstanceRequestMessage(
 	 XmlWriter::getNextMessageId(),
 	 nameSpace,
-	 CIMInstance(),
+	 modifiedInstance,
 	 includeQualifiers,
 	 propertyList,
 	 QueueIdStack(_rep->get_qid(), _rep->get_output_qid()));

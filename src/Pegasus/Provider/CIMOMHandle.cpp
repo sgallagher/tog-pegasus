@@ -124,7 +124,6 @@ class cimom_handle_op_semaphore
       cimom_handle_op_semaphore(CIMOMHandle::_cimom_handle_rep *rep)
 	 :_rep(rep)
       {
-	 _rep->protect();
 	 _rep->update_idle_timer();
 	 (_rep->_pending_operation)++;
       }
@@ -133,7 +132,6 @@ class cimom_handle_op_semaphore
 	 if(_rep)
 	 {
 	    (_rep->_pending_operation)--;
-	    _rep->unprotect();
 	 }
       }
    private:
@@ -256,7 +254,7 @@ Boolean CIMOMHandle::_cimom_handle_rep::pending_operation(void)
 
 Boolean CIMOMHandle::_cimom_handle_rep::unload_ok(void)
 {
-   if( _no_unload.value() || _pending_operation.value())
+   if( _no_unload.value() || _pending_operation.value() )
       return false;
    return true;
 }
@@ -324,12 +322,12 @@ Uint32 CIMOMHandle::_cimom_handle_rep::get_qid(void)
 
 void CIMOMHandle::_cimom_handle_rep::protect(void)
 {
-   _no_unload = 1;
+   _no_unload++;
 }
 
 void CIMOMHandle::_cimom_handle_rep::unprotect(void)
 {
-   _no_unload = 0;
+   _no_unload--;
 }
 
 void CIMOMHandle::_cimom_handle_rep::handleEnqueue(void)
@@ -425,7 +423,7 @@ CIMOMHandle::_cimom_handle_rep::_dispatch(void *parm)
 	    CIMOMHandle::_cimom_handle_rep *myself = 
 	       static_cast<CIMOMHandle::_cimom_handle_rep *>(me);
 	    target->enqueue(dp->_msg);
-	    (myself->_pending_operation)--;
+//	    (myself->_pending_operation)--;
 	 }
       }
       catch(...)

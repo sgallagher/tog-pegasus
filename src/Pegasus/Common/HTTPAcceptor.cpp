@@ -235,7 +235,6 @@ void HTTPAcceptor::_bind()
    {
       _rep->address.sin_addr.s_addr = inet_addr(_inet_address);
       cout << "binding to " << _inet_address << endl;
-      
    }
    else 
    {
@@ -261,6 +260,23 @@ void HTTPAcceptor::_bind()
       throw BindFailedException("Failed to create socket");
    }
 
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+   int sock_flags;
+ if( (sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
+   {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_GETFD) failed");
+   }
+   else
+   {
+      sock_flags |= FD_CLOEXEC;
+      if (fcntl(_rep->socket, F_SETFD, sock_flags) < 0)
+      {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_SETFD) failed");
+      }
+   }
+#endif 
    //
    // Set the socket option SO_REUSEADDR to reuse the socket address so
    // that we can rebind to a new socket using the same address when we
@@ -442,6 +458,28 @@ void HTTPAcceptor::_acceptConnection()
    }
    
 #endif
+
+
+
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+   int sock_flags;
+ if( (sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
+   {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_GETFD) failed");
+   }
+   else
+   {
+      sock_flags |= FD_CLOEXEC;
+      if (fcntl(socket, F_SETFD, sock_flags) < 0)
+      {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                        "HTTPAcceptor: fcntl(F_SETFD) failed");
+      }
+   }
+#endif 
+
+
    // Create a new conection and add it to the connection list:
 
    MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);

@@ -56,7 +56,7 @@ ProviderManager *my_instance = 0;
 
 
 ProviderManager::ProviderManager(void)
-   : _idle_timeout(300), _unload_idle_flag(1)
+   : _idle_timeout(30), _unload_idle_flag(1)
 {
    my_instance = this;
    
@@ -531,7 +531,7 @@ void ProviderManager::unload_idle_providers(void) throw()
    if(first.tv_sec == 0)
       gettimeofday(&first, NULL);
    gettimeofday(&now, NULL);
-   if(((now.tv_sec - first.tv_sec) > 60 ) && ( (now.tv_sec - last.tv_sec) > 60)) 
+   if(((now.tv_sec - first.tv_sec) > 30 ) && ( (now.tv_sec - last.tv_sec) > 30)) 
    {
       gettimeofday(&last, NULL);
       if(_unload_idle_flag.value() == 1 )

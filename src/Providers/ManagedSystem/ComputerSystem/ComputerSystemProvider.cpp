@@ -209,6 +209,8 @@ PEGASUS_THREAD_CDECL PEGASUS_THREAD_RETURN test_cimom_handle(void *parm)
       pegasus_sleep(1000);
       
    }
+   threads_running--;
+   
    exit_thread((PEGASUS_THREAD_RETURN)1);
    return(PEGASUS_THREAD_RETURN)0;
 }

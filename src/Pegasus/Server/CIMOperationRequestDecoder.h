@@ -67,7 +67,7 @@ public:
 
     void handleHTTPMessage(HTTPMessage* httpMessage);
 
-    void CIMOperationRequestDecoder::handleMethodCall(
+    void handleMethodCall(
 	Uint32 queueId,
 	Sint8* content);
 

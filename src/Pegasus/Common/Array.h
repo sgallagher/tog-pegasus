@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Array.h,v $
+// Revision 1.5  2001/02/05 03:40:28  mike
+// new documentation
+//
 // Revision 1.4  2001/02/05 02:49:45  mike
 // Added new line and reformatted some comments.
 //
@@ -38,14 +41,6 @@
 //
 //END_HISTORY
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// Array.h
-//
-//	Simple array template implementation.
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_Array_h
 #define Pegasus_Array_h
 
@@ -58,28 +53,25 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// ArrayRep<T>
-//
-// 	The ArrayRep object represents the array size, capacity, reference
-//	count and elements in one contiguous chunk of memory. The elements 
-//	follow immediately after the end of the ArrayRep structure in memory. 
-//	The union is used to force 64 bit alignment of these elements.
-//
-////////////////////////////////////////////////////////////////////////////////
-
+/** @name ArrayRep<T>
+    The ArrayRep object represents the array size, capacity, reference
+    count and elements in one contiguous chunk of memory. The elements 
+    follow immediately after the end of the ArrayRep structure in memory. 
+    The union is used to force 64 bit alignment of these elements. This is
+    a private class and should not be accessed directly by the user.
+*/
 template<class T>
 struct ArrayRep
 {
     Uint32 size;
     Uint32 capacity;
 
-    // This union forces the first element (which follows this structure
-    // in memory) to be aligned on a 64 bit boundary. It is a requirement
-    // that even an array of characters be aligned for any purpose (as malloc()
-    // does). That way, arrays of characters can be used for alignement
-    // sensitive data.
+    /** This union forces the first element (which follows this structure
+	in memory) to be aligned on a 64 bit boundary. It is a requirement
+	that even an array of characters be aligned for any purpose (as malloc()
+	does). That way, arrays of characters can be used for alignement
+	sensitive data.
+    */
 
     union
     {
@@ -87,23 +79,37 @@ struct ArrayRep
 	Uint64 alignment;
     };
 
+    /// Obtains a pointer to the first element in the array.
     T* data() { return (T*)(this + 1); }
 
+    /// Same as method above but returns a constant pointer.
     const T* data() const { return (const T*)(this + 1); }
 
+    /** Creates a clone of the current object and sets the reference
+	count to one.
+    */
     ArrayRep* clone() const;
 
-    // Create and initialize a ArrayRep instance. Set the reference count to
-    // one so the caller need not bother incrementing it. Note that the
-    // memory for the elements is unitialized and must be initialized by
-    // the caller.
+    /** Create and initialize a ArrayRep instance. Set the reference count 
+	to one so the caller need not bother incrementing it. Note that the
+	memory for the elements is unitialized and must be initialized by
+	the caller.
+    */
 
     static ArrayRep* create(Uint32 size);
 
+    /// Increments the reference count of this object.
     static void inc(const ArrayRep* rep_);
 
+
+    /** Decrements the reference count of this object. If the reference count
+	falls to zero, the object is disposed of.
+    */
     static void dec(const ArrayRep* rep_);
 
+    /** Gets a pointer to a single instance which is created for each class
+	to represent an empty array (zero-size).
+    */
     static ArrayRep* getNullRep();
 };
 
@@ -188,32 +194,36 @@ PEGASUS_COMMON_LINKAGE void ThrowOutOfBounds();
 
 class Value;
 
-/**
-Array Class
-Property data types are limited to the intrinsic data types, or arrays of such.
-Structured types are constructed by designing new classes. If the Property is an
-array property, the corresponding variant type is simply the array equivalent
-(fixed or variable length) of the variant for the underlying intrinsic type.
-ATTN: This not complete.
+/** @name Array Class
+    This clas is used to represent arrays of intrinsic data types in CIM. And
+    it is also used by the implementation to represent arrays of other kinds of
+    objects (e.g., it is used to implement the String class). However, the user 
+    will only use it directly to manipulate arrays of CIM data types.
 */
 template<class T>
 class Array
 {
 public:
 
-    /// Constructor - ATTN:
+    /// Default constructor.
     Array();
 
-    /// Constructor - ATTN:
+    /// Copy Constructor.
     Array(const Array<T>& x);
 
-    /// Constructor - ATTN:
+    /** Constructs an array with size elements. The elements are
+	initialized with their copy constructor.
+    */
     Array(Uint32 size);
 
-    /// Constructor - ATTN:
+    /** Constructs an array with size elements. The elements are
+    	initialized with x.
+    */
     Array(Uint32 size, const T& x);
 
-    /// Constructor - ATTN:
+    /** Constructs an array with size elements. The values come from
+	the items pointer.
+    */
     Array(const T* items, Uint32 size);
 
     Array(ArrayRep<T>* rep)
@@ -221,18 +231,19 @@ public:
 	Rep::inc(_rep = rep);
     }
 
-    /// Destructor - ATTN:
+    /// Destructs the objects, freeing any resources.
     ~Array();
 
+    /// Assignment operator.
     Array<T>& operator=(const Array<T>& x);
 
-    /** method clear
-	ATTN:
+    /** Clears the contents of the array. After calling this, getSize()
+	returns zero.
     */
     void clear();
 
-    /** method reserve
-	ATTN:
+    /** Reserves memory for capacity elements. Notice that this does not
+	change the size of the array (getSize() will return what it did before.
     */
     void reserve(Uint32 capacity)
     {
@@ -240,59 +251,79 @@ public:
 	    _reserveAux(capacity);
     }
 
-    /** method grow
-	ATTN:
+    /** Make the size of the array grow by size elements (new size will be
+	getSize() + size). The new elements (there are size of them) are 
+	initialized with x.
     */
     void grow(Uint32 size, const T& x);
 
-    /** method swap
-	ATTN:
-    */
+    /// Swaps the contents of two arrays.
     void swap(Array<T>& x);
 
-    /// Method getSize - ATTN:
+    /// Returns the number of elements in the array.
     Uint32 getSize() const { return _rep->size; }
 
-    /// Method getData - ATTN
-    const T* getData() const { return _rep->data(); }
+    /// Returns a pointer to the first element of the array.
+    const T* getData() const 
+    { 
+	return _rep->data(); 
+    }
 
+    /** Returns the element at the index given by the pos argument. Returns
+	a reference to that element so that it may be modified.
+    */
     T& operator[](Uint32 pos);
 
+    /** Same as the above method except that this is the version called
+	on const arrays. The return value cannot be modified since it
+	is constant.
+    */
     const T& operator[](Uint32 pos) const;
 
-    /** method append
-	ATTN:
+    /** Appends an element to the end of the array. This increases the size
+	of the array by one.
     */
     void append(const T& x);
 
-    /// Method append - ATTN:
+    /// Appends size elements at x to the end of this array.
     void append(const T* x, Uint32 size);
 
-    /// Method appendArray  - ATTN:
+    /** Appends one array to another. The size of this array grows by the
+	size of the other.
+    */
     void appendArray(const Array<T>& x)
     {
 	append(x.getData(), x.getSize());
     }
 
-    /** method prepend -
-        ATTN:
+    /** Appends one element to the beginning of the array. This increases
+	the size by one.
     */
     void prepend(const T& x);
 
+    /** Appends size elements to the array starting at the memory address
+	given by x. The array grows by size elements.
+    */
     void prepend(const T* x, Uint32 size);
 
+    /** Inserts the element at the given index in the array. Subsequent 
+	elements are moved down. The size of the array grows by one.
+    */
     void insert(Uint32 pos, const T& x);
 
+    /** Inserts size elements at x into the array at the given position.
+	Subsequent elements are moved down. The size of the array grows
+	by size elements.
+    */
     void insert(Uint32 pos, const T* x, Uint32 size);
 
-    /** method insert
-	ATTN: 
+    /** Removes the element at the given position from the array. The
+	size of the array shrinks by one. 
     */
-
     void remove(Uint32 pos);
 
-    /** method remove
-	ATTN:
+    /** Removes size elements starting at the given position. The size of
+	the array shrinks by size elements.
     */
     void remove(Uint32 pos, Uint32 size);
 

@@ -23,8 +23,11 @@
 // Author:
 //
 // $Log: CGIQueryString.cpp,v $
-// Revision 1.1  2001/01/14 19:50:35  mike
-// Initial revision
+// Revision 1.2  2001/02/05 03:40:28  mike
+// new documentation
+//
+// Revision 1.1.1.1  2001/01/14 19:50:35  mike
+// Pegasus import
 //
 //
 //END_HISTORY
@@ -69,7 +72,7 @@ static void _ExpandCGIQueryValue(char* value)
 
 static void _ParseCGIQueryString(
     char* queryString, 
-    Array <CGIQueryString::Entry>& entries)
+    Array<CGIQueryString::Entry>& entries)
 {
     // First split about the '&' characters:
 

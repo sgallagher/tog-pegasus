@@ -9,8 +9,8 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL
 LIBRARY = pegcommon
 
 SOURCES = \
-    Array.cpp \
     CGIQueryString.cpp \
+    Array.cpp \
     Char16.cpp \
     ClassDecl.cpp \
     ClassDeclRep.cpp \

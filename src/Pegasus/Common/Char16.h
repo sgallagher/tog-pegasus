@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: Char16.h,v $
+// Revision 1.3  2001/02/05 03:40:28  mike
+// new documentation
+//
 // Revision 1.2  2001/01/30 23:39:00  karl
 // Add doc++ Documentation to header files
 //
@@ -32,17 +35,6 @@
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Char16.h
-//
-//     	The Char16 class represents a CIM sixteen bit character (char16).
-//	This class is a trivial wrapper for a sixteen bit integer. It is used
-//	as the element type in the String class (used to represent the CIM
-//	string type).
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_Char16_h
 #define Pegasus_Char16_h
 
@@ -50,28 +42,37 @@
 #include <Pegasus/Common/Config.h>
 
 PEGASUS_NAMESPACE_BEGIN
-/**
-    The Char16 class represents a CIM sixteen bit character (char16).
-	This class is a trivial wrapper for a sixteen bit integer. It is used
-	as the element type in the String class (used to represent the CIM
-	string type).
+
+/** The Char16 class represents a CIM sixteen bit character (char16).
+    This class is a trivial wrapper for a sixteen bit integer. It is used
+    as the element type in the String class (used to represent the CIM
+    string type). Ordinarily Uint16 could be used; however, a distinguishable
+    type was needed for the purposes of function overloaded which occurs in
+    the Value class.
 */
 class PEGASUS_COMMON_LINKAGE Char16 
 {
 public:
+
     /// Constructor Char16
     Char16() : _code(0) { }
+
     /// Constructor Char16
     Char16(Uint16 x) : _code(x) { }
+
     /// Constructor Char16
     Char16(const Char16& x) : _code(x._code) { }
+
     /// Constructor Char16
     Char16& operator=(Uint16 x) { _code = x; return *this; }
+
     /// Constructor Char16
     Char16& operator=(const Char16& x) {_code = x._code; return *this;}
-    ///
+
+    /// Implicit converter from Char16 to Uint16
     operator Uint16() const { return _code; }
-    ///
+
+    /// Accessor for internal code member
     Uint16 getCode() const { return _code; }
 
 private:
@@ -94,8 +95,9 @@ inline Boolean operator==(char x, const Char16& y)
     return x == y.getCode();
 }
 
-PEGASUS_COMMON_LINKAGE std::ostream& operator<<(
-    std::ostream& os, const Char16& x);
+PEGASUS_COMMON_LINKAGE std::ostream& operator<<( 
+    std::ostream& os, 
+    const Char16& x);
 
 PEGASUS_NAMESPACE_END
 

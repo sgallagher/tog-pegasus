@@ -23,17 +23,15 @@
 // Author:
 //
 // $Log: CGIQueryString.h,v $
-// Revision 1.1  2001/01/14 19:50:35  mike
-// Initial revision
+// Revision 1.2  2001/02/05 03:40:28  mike
+// new documentation
+//
+// Revision 1.1.1.1  2001/01/14 19:50:35  mike
+// Pegasus import
 //
 //
 //END_HISTORY
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// CGIUtils.h
-//
-////////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CGIUtils_h
 #define Pegasus_CGIUtils_h
@@ -44,9 +42,33 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** The CGIQueryString class is used to parse and extract the fields from
+    the CGI QUERY_STRING environment variable which is set by the Web Server
+    and passed to the CGI program. The value of that environment variable
+    may be passed to the constructor. Methods are provided for getting the
+    names and values of each field.
+*/
+
 class PEGASUS_COMMON_LINKAGE CGIQueryString
 {
 public:
+
+    /// Constructs from the value of the QUERY_STRING environment variable.
+    CGIQueryString(char* queryString);
+
+    /// Returns the number of fields.
+    Uint32 getCount() const { return _entries.getSize(); }
+
+    /// Returns the name of the ith field.
+    const char* getName(Uint32 i) const { return _entries[i].name; }
+
+    /// Returns the value of the ith field.
+    const char* getValue(Uint32 i) const { return _entries[i].value; }
+
+    /// Returns the value of the field with the given name.
+    const char* findValue(const char* name) const;
+
+private:
 
     struct Entry
     {
@@ -54,19 +76,11 @@ public:
 	char *value;
     };
 
-    CGIQueryString(char* queryString);
-
-    Uint32 getCount() const { return _entries.getSize(); }
-
-    const char* getName(Uint32 i) const { return _entries[i].name; }
-
-    const char* getValue(Uint32 i) const { return _entries[i].value; }
-
-    const char* findValue(const char* name) const;
-
-private:
-
     Array<Entry> _entries;
+
+    friend static void _ParseCGIQueryString(
+	char* queryString, 
+	Array<Entry>& entries);
 };
 
 PEGASUS_NAMESPACE_END

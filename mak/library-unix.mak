@@ -61,6 +61,11 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
     ## DYNAMIC_LIBRARIES must be defined appropriately in the
     ## libraries.mak file that includes this file
     ##
+
+    ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
+	rm -f $(FULL_LIB)
+    endif
+
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(EXTRA_LIBRARIES)
 
     ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)

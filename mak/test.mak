@@ -1,10 +1,8 @@
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
-    DIFF = mu compare
     REDIRECTERROR = 2>&1
 else
     STRIPCRS =
-    DIFF = diff
     REDIRECTERROR = 2>&1
 endif
 

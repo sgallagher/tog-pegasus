@@ -1364,7 +1364,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
                 nameSpace,
                 className);
 
-        /*
+#if 0 
         hasProvider = providerInfo.hasProvider;
 
         if(hasProvider)
@@ -1376,7 +1376,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
 
             //*has_no_query = providerInfo.hasNoQuery;
         }
-        */
+#endif        
     }
 
     PEG_TRACE_STRING(

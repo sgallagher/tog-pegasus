@@ -10,4 +10,3 @@ XMLSCRIPTS += CreateInstance53001
 endif
 
 include $(ROOT)/test/configend.mak
-install:

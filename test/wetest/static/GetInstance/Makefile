@@ -14,4 +14,3 @@ XMLSCRIPTS += GetInstance52004
 endif
 
 include $(ROOT)/test/configend.mak
-install:

@@ -60,4 +60,3 @@ XMLSCRIPTS = \
 
 
 include $(ROOT)/test/configend.mak
-install:

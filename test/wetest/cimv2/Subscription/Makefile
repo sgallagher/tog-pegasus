@@ -105,4 +105,3 @@ removeclasses:
 	@wbemexec $(WBEMEXECOPTIONS) DeleteHandler09.xml
 
 include $(ROOT)/test/configend.mak
-install:

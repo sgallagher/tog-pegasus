@@ -35,4 +35,3 @@ XmlScriptDefects: DeepLocalFT51006 \
 	          DeepLocalTT51004
 
 include $(ROOT)/test/configend.mak
-install:

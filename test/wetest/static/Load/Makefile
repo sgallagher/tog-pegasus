@@ -58,4 +58,3 @@ messages:
 poststarttests:
 
 general:
-install:

@@ -10,4 +10,3 @@ XMLSCRIPTS = \
    SetProperty82300
 
 include $(ROOT)/test/configend.mak
-install:

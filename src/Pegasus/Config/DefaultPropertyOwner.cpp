@@ -58,6 +58,7 @@ static struct ConfigPropertyRow properties[] =
     {"install", "false", 0, 0, 0},
     {"remove", "false", 0, 0, 0},
     {"slp", "false", 0, 0, 0},
+    {"SSL", "false", 0, 0, 0},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

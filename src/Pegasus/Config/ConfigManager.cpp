@@ -107,6 +107,7 @@ struct PropertyList ConfigManager::properties[] =
     {"install",             (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"remove",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"SSL",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"requireAuthentication", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"requireAuthorization",  (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"httpAuthType",        (ConfigPropertyOwner* )ConfigManager::securityOwner},
@@ -504,6 +505,10 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
             else if (!strcmp(option,"slp"))
             {
                 _initPropertyWithCommandLineOption("slp=true");
+            }
+            else if (!strcmp(option,"SSL"))
+            {
+                _initPropertyWithCommandLineOption("SSL=true");
             }
             else
             {

@@ -12,7 +12,7 @@ DOC_HEAD = PegasusDoc.dxx
 all:
 	$(RM) $(DOC_OUTPUT)/*	
 	gawk --file=PegasusDocTOC.awk $(DOC_HEAD) >PegasusDocTOC.htm
-	docxx --dir $(DOC_OUTPUT)  --verbose -H $(DOCHEAD)
+	docxx --dir $(DOC_OUTPUT)  --verbose -H $(DOC_HEAD)
 	mu copy *.gif $(DOC_OUTPUT)
 	mu copy *.htm $(DOC_OUTPUT)
 	mu copy *.css $(DOC_OUTPUT)
@@ -22,4 +22,4 @@ clean:
 
 depend:
 
-tests:  
+tests:

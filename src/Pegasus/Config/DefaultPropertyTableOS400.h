@@ -42,9 +42,6 @@
     {"enableAssociationTraversal", "true", 0, 0, 0, 1},
     {"enableIndicationService", "false", 0, 0, 0, 1},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
-#endif
 
 #endif /* Pegasus_DefaultPropertyTableOS400_h */

@@ -223,10 +223,12 @@ private:
 
     AutoPtr<struct ConfigProperty>      _exportSSLTrustStore; //PEP101
 
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
     AutoPtr<struct ConfigProperty>      _sslClientVerificationMode; //PEP101
+	
+	AutoPtr<struct ConfigProperty>      _sslTrustStoreUserName; //PEP101
+
+#ifdef PEGASUS_USE_AUTOMATIC_TRUSTSTORE_UPDATE
     AutoPtr<struct ConfigProperty>      _enableSSLTrustStoreAutoUpdate; //PEP101
-    AutoPtr<struct ConfigProperty>      _sslTrustStoreUserName; //PEP101
 #endif
 
     AutoPtr<struct ConfigProperty>      _enableSubscriptionsForNonprivilegedUsers; //PEP101

@@ -44,10 +44,7 @@
     {"enableAssociationTraversal", "false"},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},
-#ifdef PEGASUS_USE_SSL_CLIENT_VERIFICATION
-    {"sslClientVerificationMode", "disabled", 0, 0, 0, 1},
-    {"enableSSLTrustStoreAutoUpdate", "false", 0, 0, 0, 1},
-#endif
+    {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
 #endif

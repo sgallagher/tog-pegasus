@@ -187,10 +187,10 @@ int main(int argc, char** argv)
             int out_loop =1;
             Uint64 co = 1;
             while (co <20) {
-                Uint64 num_day =   86400000000*co;
+                Uint64 num_day =   PEGASUS_UINT64_LITERAL(86400000000)*co;
                 CIMDateTime cdt1 = CIMDateTime(num_day, true);
 
-                if (cdt1.toMicroSeconds() != (86400000000*co)){     
+                if (cdt1.toMicroSeconds() != (PEGASUS_UINT64_LITERAL(86400000000)*co)){     
                     assert(false);
                 }
                 co = co +2;
@@ -207,21 +207,21 @@ int main(int argc, char** argv)
    
         CIMDateTime cdt1 = CIMDateTime("00000001000000.123456:000");
         Uint64 re1 = cdt1.toMicroSeconds();
-        if (re1 != 86400123456) {
+        if ((re1 != PEGASUS_UINT64_LITERAL(86400123456))) {
             assert(false);                                                 
         }
                                                                      
 
         CIMDateTime cdt2 = CIMDateTime("00000101000000.123456+000");
         Uint64 re2 = cdt2.toMicroSeconds();
-        if (re2 != 123456) {
+        if ((re2 != 123456)) {
             assert(false);
         }
 
         CIMDateTime cdt3 = CIMDateTime("00000000030000.123456:000");
         Uint64 re3 = cdt3.toMicroSeconds();
-        Uint64 comp = ((Uint64)3600000000*3)+123456;
-        if(comp != re3){
+        Uint64 comp = (PEGASUS_UINT64_LITERAL(3600000000)*3)+123456;
+        if ((comp != re3)) {
             assert(false);                                              
         }
 
@@ -236,8 +236,8 @@ int main(int argc, char** argv)
         }  */   
 
       
-        Uint64 real =  8640000000000000;
-        Uint64 fake =  8637408000000000;
+        Uint64 real =  PEGASUS_UINT64_LITERAL(8640000000000000);
+        Uint64 fake =  PEGASUS_UINT64_LITERAL(8637408000000000);
 
         CIMDateTime realC = CIMDateTime(real, false);
         CIMDateTime fakeC = CIMDateTime(fake, false);
@@ -836,8 +836,8 @@ int main(int argc, char** argv)
  
   //testing for operator+
 
-  Uint64 tfo_n = 123456732445;
-  Uint64 tfo_nA = 6789143423;
+  Uint64 tfo_n = PEGASUS_UINT64_LITERAL(123456732445);
+  Uint64 tfo_nA = PEGASUS_UINT64_LITERAL(6789143423);
   CIMDateTime tfo_nCDT = CIMDateTime(tfo_n, true);
   CIMDateTime tfo_nACDT = CIMDateTime(tfo_nA, true);
   Uint64 sum_n = tfo_n + tfo_nA;
@@ -848,8 +848,8 @@ int main(int argc, char** argv)
   }
 
   
-  Uint64 tfo_n2 = 1235764732445;
-  Uint64 tfo_nA2 = 6789143423;
+  Uint64 tfo_n2 = PEGASUS_UINT64_LITERAL(1235764732445);
+  Uint64 tfo_nA2 = PEGASUS_UINT64_LITERAL(6789143423);
   CIMDateTime tfo_nCDT2 = CIMDateTime(tfo_n2, false);
   CIMDateTime tfo_nACDT2 = CIMDateTime(tfo_nA2, true);
   Uint64 sum_n2 = tfo_n2 + tfo_nA2;
@@ -860,8 +860,8 @@ int main(int argc, char** argv)
   }
 
   
-  Uint64 tfo_n3 = 123456732445134;
-  Uint64 tfo_nA3 = 678947563423;
+  Uint64 tfo_n3 = PEGASUS_UINT64_LITERAL(123456732445134);
+  Uint64 tfo_nA3 = PEGASUS_UINT64_LITERAL(678947563423);
   CIMDateTime tfo_nCDT3 = CIMDateTime(tfo_n3, false);
   CIMDateTime tfo_nACDT3 = CIMDateTime(tfo_nA3, true);
   Uint64 sum_n3 = tfo_n3 + tfo_nA3;
@@ -872,8 +872,8 @@ int main(int argc, char** argv)
   }
 
  
-  Uint64 tfo_n4 = 123456732445134;
-  Uint64 tfo_nA4 = 678947563423;
+  Uint64 tfo_n4 = PEGASUS_UINT64_LITERAL(123456732445134);
+  Uint64 tfo_nA4 = PEGASUS_UINT64_LITERAL(678947563423);
   CIMDateTime tfo_nCDT4 = CIMDateTime(tfo_n4, false);
   CIMDateTime tfo_nACDT4 = CIMDateTime(tfo_nA4, true);
   Uint64 sum_n4 = tfo_n4 + tfo_nA4;
@@ -957,8 +957,8 @@ int main(int argc, char** argv)
  // "testing the operator- 
 
  
- Uint64 tfo_m = 123456732445;
- Uint64 tfo_mA = 6789143423;
+ Uint64 tfo_m = PEGASUS_UINT64_LITERAL(123456732445);
+ Uint64 tfo_mA = PEGASUS_UINT64_LITERAL(6789143423);
  CIMDateTime tfo_mCDT = CIMDateTime(tfo_m, true);
  CIMDateTime tfo_mACDT = CIMDateTime(tfo_mA, true);
  Uint64 sum_m = tfo_m - tfo_mA;
@@ -969,8 +969,8 @@ int main(int argc, char** argv)
  }   
 
  
- Uint64 tfo_m2 = 12357647324458;
- Uint64 tfo_mA2 = 6789143423;
+ Uint64 tfo_m2 = PEGASUS_UINT64_LITERAL(12357647324458);
+ Uint64 tfo_mA2 = PEGASUS_UINT64_LITERAL(6789143423);
  CIMDateTime tfo_mCDT2 = CIMDateTime(tfo_m2, false);
  CIMDateTime tfo_mACDT2 = CIMDateTime(tfo_mA2, true);
  Uint64 dif_m2 = tfo_m2 - tfo_mA2;
@@ -981,8 +981,8 @@ int main(int argc, char** argv)
  }
 
 
- Uint64 tfo_m3 = 12357647324458;
- Uint64 tfo_mA3 = 6789143423;
+ Uint64 tfo_m3 = PEGASUS_UINT64_LITERAL(12357647324458);
+ Uint64 tfo_mA3 = PEGASUS_UINT64_LITERAL(6789143423);
  CIMDateTime tfo_mCDT3 = CIMDateTime(tfo_m3, false);
  CIMDateTime tfo_mACDT3 = CIMDateTime(tfo_mA3, false);
  Uint64 dif_m3 = tfo_m3 - tfo_mA3;
@@ -994,8 +994,8 @@ int main(int argc, char** argv)
  
 
 
- Uint64 tfo_m4 = 123576473244426265;
- Uint64 tfo_mA4 = 6789143423435;
+ Uint64 tfo_m4 = PEGASUS_UINT64_LITERAL(123576473244426265);
+ Uint64 tfo_mA4 = PEGASUS_UINT64_LITERAL(6789143423435);
  CIMDateTime mCDT4 = CIMDateTime(tfo_m4, false);
  CIMDateTime tfo_mACDT4 = CIMDateTime(tfo_mA4, false);
  Uint64 dif_m4 = tfo_m4 - tfo_mA4;

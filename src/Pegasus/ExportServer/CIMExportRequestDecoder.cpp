@@ -30,6 +30,7 @@
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Dave Rosckes (rosckes@us.ibm.com)
+//				Seema Gupta (gseema@in.ibm.com for PEP135)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -715,7 +716,10 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
 	if (cimmsg != NULL)
 	{
-		cimmsg->contentLanguages = httpContentLanguages;			
+		cimmsg->contentLanguages = httpContentLanguages;
+		cimmsg->operationContext.insert(IdentityContainer(userName));
+		cimmsg->operationContext.insert(ContentLanguageListContainer(httpContentLanguages));
+		cimmsg->operationContext.insert(AcceptLanguageListContainer(AcceptLanguages::EMPTY));
 	}
 	else
 	{

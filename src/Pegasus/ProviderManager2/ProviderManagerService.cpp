@@ -33,6 +33,7 @@
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
 //              Amit K Arora (amita@in.ibm.com) for PEP-101
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Seema Gupta (gseema@in.ibm.com for PEP135)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -286,12 +287,16 @@ void ProviderManagerService::handleCimRequest(
         (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
 	(request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
     {
-        // Handle CIMOperationRequestMessage and
-        // CIMExportIndicationRequestMessage
+        // Handle CIMOperationRequestMessage and CIMExportIndicationRequestMessage
+		// The provider ID container is already added to operationcontext in CIMOperationRequestDispacther
+		// for all instance, method , association and indication providers under PEP135 , so no need to add it again .
+		// So add it only for ExportIndicationRequestMessage
 
-        // Add provider information to OperationContext for the ProviderManager
-        ProviderIdContainer pidc = _getProviderIdContainer(request);
-        request->operationContext.insert(pidc);
+		if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+		{
+		    ProviderIdContainer pidc = _getProviderIdContainer(request);
+            request->operationContext.insert(pidc);
+		}
 
         response = _providerManagerRouter->processMessage(request);
     }

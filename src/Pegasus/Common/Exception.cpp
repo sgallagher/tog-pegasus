@@ -32,6 +32,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Sushma Fernandes , Hewlett-Packard Company
 //                (sushma_fernandes@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for bug# 1593
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,9 +70,7 @@ Exception::Exception(const MessageLoaderParms& msgParms)
 
 Exception::Exception()
 {
-    _rep = new ExceptionRep();
-    _rep->message = String::EMPTY;
-    _rep->contentLanguages = ContentLanguages::EMPTY;  // l10n
+    _rep = NULL;
 }
 
 Exception::~Exception()

@@ -25,7 +25,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Seema Gupta (gseema@in.ibm.com)
+//				
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@
 #include <iostream>
 #include <Pegasus/Compiler/mofCompilerOptions.h>
 #include "cmdlineExceptions.h"
+#include "cmdline.h" 
 #include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Compiler/parserExceptions.h>
 
@@ -128,17 +130,17 @@ main(int argc, char ** argv) {
   } catch (ArgumentErrorsException &e) {
     cerr << e.getMessage() << endl;
     help(cerr);
-    ret =  -2;
+    ret =  PEGASUS_CIMMOF_CIM_EXCEPTION;
   } catch (CmdlineNoRepository &e) {
     cerr << e.getMessage() << endl;
-    ret = -3;
+    ret = PEGASUS_CIMMOF_CMDLINE_NOREPOSITORY;
   } catch (CIMException &e) {
   	//l10n
     //cerr << "Unexpected condition: " << e.getMessage() << endl;
     parms.msg_id = "Compiler.cmdline.cimmof.main.UNEXPECTED_CONDITION";
     parms.default_msg = "Unexpected condition: ";
     cerr << MessageLoader::getMessage(parms) << e.getMessage() << endl;
-    ret = -4;
+    ret = PEGASUS_CIMMOF_UNEXPECTED_CONDITION;
   }
   if (ret) {
     if (ret > 0) {
@@ -184,6 +186,7 @@ main(int argc, char ** argv) {
     parms.default_msg = "Failed to set DefaultNamespacePath.";
     cerr << MessageLoader::getMessage(parms) << endl;
     // ATTN: P3 BB 2001 Did not set namespace.  We may need to log an error here.
+	ret = PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH;
     return ret;
   }
   if (filespecs.size())    // user specified command line args
@@ -197,14 +200,14 @@ main(int argc, char ** argv) {
 		parms.default_msg = "Lexer error: ";
 	    //msg_ = String("Lexer error: ").append(e.getMessage());
 	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-	    ret = -5;
+	    ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
 	} catch(Exception &e) {
 		//l10n
 		parms.msg_id = "Compiler.cmdline.cimmof.main.PARSING_ERROR";
 		parms.default_msg = "Parsing error: ";
 	    //msg_ = String("Parsing error: ").append(e.getMessage());
 	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-	    ret = -6;
+	    ret = PEGASUS_CIMMOF_PARSING_ERROR;
 	}
       } else {
 	  //l10n
@@ -216,7 +219,7 @@ main(int argc, char ** argv) {
           parms.arg0 = filespecs[i];
 	  //msg_ = String("Can't open file ").append(filespecs[i]);
 	  msg_ = MessageLoader::getMessage(parms);
-          ret = -7;
+          ret = PEGASUS_CIMMOF_BAD_FILENAME;
       }
     }
   else {
@@ -228,14 +231,14 @@ main(int argc, char ** argv) {
 	parms.default_msg = "Lexer error: ";
 	    //msg_ = String("Lexer error: ").append(e.getMessage());
 	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-        ret = -5;
+        ret = PEGASUS_CIMMOF_PARSER_LEXER_ERROR ;
     } catch(Exception &e) {
     	//l10n
     	parms.msg_id = "Compiler.cmdline.cimmof.main.GENERAL_EXCEPTION";
     	parms.default_msg = "Compiler general exception: ";
 	    //msg_ = String("Compiler general exception: ").append(e.getMessage());
 	    msg_ = MessageLoader::getMessage(parms).append(e.getMessage());
-        ret = -8;
+        ret = PEGASUS_CIMMOF_COMPILER_GENERAL_EXCEPTION;
     }
   }
   cerr << msg_ << endl;

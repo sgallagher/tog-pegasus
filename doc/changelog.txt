@@ -35,6 +35,9 @@ TAG: Version_1_09.
 5. (DME) 7 April 2002 Update master result file for MOF Compiler CLI tests.
                       Update master result file of wbemexec CLI tests.
 
+6. (Ramnath Ravindran - Compaq) 8 Apr 2002 - Modified a libraries.mak file in the 	src/Pegasus/Security/Authentication/tests directory in order to fix the 
+	build on Tru64.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

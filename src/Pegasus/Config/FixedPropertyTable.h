@@ -30,10 +30,8 @@
 #ifndef Pegasus_FixedPropertyTable_h
 #define Pegasus_FixedPropertyTable_h
 
-#ifdef PEGASUS_PLATFORM_LINUX_IA64_GNU
-#include "FixedPropertyTableLinuxIA64.h"
-#elif PEGASUS_PLATFORM_LINUX_IX86_GNU
-#include "FixedPropertyTableLinuxIA32.h"
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#include "FixedPropertyTableLinux.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC
 #include "FixedPropertyTableHpux.h"
 #else

@@ -214,7 +214,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/tmp/cimxml.socket"
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
-# if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+# if defined(PEGASUS_OS_HPUX)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
@@ -223,7 +223,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 #  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/wbem/localauth"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/var/opt/wbem/cimxml.socket"
-# elif defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
+# elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/cache/pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE

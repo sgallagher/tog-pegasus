@@ -23,17 +23,29 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_DefaultPropertyTable_h
-#define Pegasus_DefaultPropertyTable_h
+#ifndef Pegasus_DefaultPropertyTableLinux_h
+#define Pegasus_DefaultPropertyTableLinux_h
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "DefaultPropertyTableLinux.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "DefaultPropertyTableHpux.h"
+
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"httpPort", "5988", 0, 0, 0},
+    {"httpsPort", "5989", 0, 0, 0},
+    {"enableHttpConnection", "false", 0, 0, 0},
+    {"enableHttpsConnection", "true", 0, 0, 0},
+    {"home", "./", 0, 0, 0},
+    {"daemon", "true", 0, 0, 0},
+    {"install", "false", 0, 0, 0},
+    {"remove", "false", 0, 0, 0},
+    {"slp", "false", 0, 0, 0},
+    {"SSL", "false", 0, 0, 0},
+    {"enableAssociationTraversal", "false", 0, 0, 0},
+    {"enableIndicationService", "true", 0, 0, 0},
+    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0},
+    {"enableClientCertification", "false", 0, 0, 0}
 #else
     {"httpPort", "5988", 0, 0, 0},
     {"httpsPort", "5989", 0, 0, 0},
@@ -41,6 +53,8 @@
     {"enableHttpsConnection", "false", 0, 0, 0},
     {"home", "./", 0, 0, 0},
     {"daemon", "true", 0, 0, 0},
+    {"install", "false", 0, 0, 0},
+    {"remove", "false", 0, 0, 0},
     {"slp", "false", 0, 0, 0},
     {"SSL", "false", 0, 0, 0},
     {"enableAssociationTraversal", "true", 0, 0, 0},
@@ -49,4 +63,5 @@
     {"enableClientCertification", "false", 0, 0, 0}
 #endif
 
-#endif /* Pegasus_DefaultPropertyTable_h */
+
+#endif /* Pegasus_DefaultPropertyTableLinux_h */

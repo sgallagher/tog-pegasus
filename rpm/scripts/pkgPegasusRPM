@@ -1,0 +1,53 @@
+#!/bin/bash
+echo "============================================================"
+echo "=                                                          ="
+echo "=     pkgPegasusRPM                                        ="
+echo "=                                                          ="
+echo "=     This script sets the Pegasus environment variables,  ="
+echo "=      and packages Pegasus into a Red Hat rpm.            ="
+echo "=                                                          ="
+echo "=     Ouput is logged to /var/log/pegasus/build.log.       ="
+echo "============================================================"
+echo ;
+
+BUILD_LOG=/var/log/pegasus/build.log
+mkdir -p /var/log/pegasus
+rm -f $BUILD_LOG >/dev/null 2>&1
+echo `date` >$BUILD_LOG 2>&1
+
+
+cd $PEGASUS_ROOT
+
+
+### Find out where we have  RPM SOURCES, SPECS, and Packages
+export RPM_NAME="openpegasus.org-wbem-2.2"
+if [ -e /etc/redhat-release ]; then
+	export RPM_PACKAGE_DIR="/usr/src/redhat"
+else
+	# we will probably need to differentiate SPEC_FILES based on distros
+	# as well as package directories
+        export RPM_NAME="pegasus-wbem-2.2"
+	export RPM_PACKAGE_DIR="/usr/src/packages"
+fi
+
+
+if cp $PEGASUS_ROOT/rpm/$RPM_NAME.spec $RPM_PACKAGE_DIR/SPECS; then
+  echo "Copied spec file"
+else
+  echo "Spec file missing ???"
+  exit
+fi
+
+echo "Start building ...."
+
+
+cd $PEGASUS_ROOT
+#make clean
+#make
+if rpmbuild -bb $RPM_PACKAGE_DIR/SPECS/$RPM_NAME.spec >>$BUILD_LOG 2>&1; then
+  echo "Package built as $RPM_PACKAGE_DIR/RPMS/$RPM_NAME.rpm"
+else
+  echo "Build error !"
+fi
+
+

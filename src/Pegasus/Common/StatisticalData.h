@@ -99,6 +99,7 @@ StatisticalData::current()->addToValue(contentLength, \
 #define STAT_PROVIDEREND
 #define STAT_PROVIDEREND_REP
 #define STAT_COPYDISPATCHER
+#define STAT_COPYDISPATCHER_REP
 #define STAT_BYTESREAD
 #define STAT_SERVERTIME
 #endif

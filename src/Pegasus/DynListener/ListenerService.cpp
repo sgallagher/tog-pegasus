@@ -34,7 +34,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/IPC.h>
 

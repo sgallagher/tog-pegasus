@@ -40,7 +40,6 @@
 #include "DynamicConsumerFacade.h"
 
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/MessageLoader.h>
 
 

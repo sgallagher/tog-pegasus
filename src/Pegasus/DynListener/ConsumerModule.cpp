@@ -38,7 +38,6 @@
 
 #include "ConsumerModule.h"
 
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Tracer.h>

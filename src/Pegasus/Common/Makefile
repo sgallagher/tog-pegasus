@@ -69,7 +69,6 @@ SOURCES = \
     CIMValue.cpp \
     Config.cpp \
     DeclContext.cpp \
-    Destroyer.cpp \
     Dir.cpp \
     DQueue.cpp \
     DynamicLibrary.cpp \

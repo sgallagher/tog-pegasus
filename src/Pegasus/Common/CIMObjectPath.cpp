@@ -43,7 +43,6 @@
 #include "CIMObjectPath.h"
 #include "Indentor.h"
 #include "CIMName.h"
-#include "Destroyer.h"
 #include "XmlWriter.h"
 #include "XmlReader.h"
 #include "ArrayInternal.h"

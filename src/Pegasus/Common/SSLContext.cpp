@@ -53,7 +53,6 @@
 #else
 #define SSL_CTX void
 #endif // end of PEGASUS_HAS_SSL
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>

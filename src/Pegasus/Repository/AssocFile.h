@@ -25,8 +25,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_AssocTable_h
-#define Pegasus_AssocTable_h
+#ifndef Pegasus_AssocFile_h
+#define Pegasus_AssocFile_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -36,7 +36,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /** Maintains all associations for a given namesspace.
 */
-class PEGASUS_REPOSITORY_LINKAGE AssocTable
+class PEGASUS_REPOSITORY_LINKAGE AssocFile
 {
 public:
 
@@ -93,8 +93,12 @@ public:
  	const String& resultClass,
  	const String& role,
 	Array<String>& referenceNames);
+
+private:
+
+    AssocFile() { /* private */ }
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_AssocTable_h */
+#endif /* Pegasus_AssocFile_h */

@@ -1,0 +1,89 @@
+
+Development Conventions
+=======================
+
+1.  Indent by increments of four.
+
+2.  Use "char* x" rather than "char *x".
+
+3.  Put opening brace on a line by itself.
+
+4.  ThisIsAClassName - no underscores.
+
+5.  thisIsAMethodName() - no underscores.
+
+6.  Lines should not span more than 80 columns.
+
+7.  When methods span more than 80 columns, do this:
+
+	void MyClass::myMethod(
+	    const char* someReallyLongName,
+	    const char* someOtherReallyLongName);
+
+8.  Use const whenever possible.
+
+9.  Use const methods whenever possible.
+
+10. Braces must be aligned with control keyword:
+
+	for(...)
+	{
+	}
+
+    Not this:
+
+	for (...)
+	  {
+	  }
+
+11. No spaces after names:
+
+	Not "void f ()" but "void f()".
+
+12. Avoid this:
+
+	callingMyFunction(blah,
+		          blah2,
+			  blah3);
+
+    Do this:
+
+	callingMyFunction(
+	    blah,
+	    blah2,
+	    blah3);
+
+13. Avoid this:
+
+	int        x;
+	float      y;
+
+14. Use 0 and not NULL.
+
+15. Don't commit anything that breaks the build (try a clean slate
+    checkout and build).
+
+16. Files should take advantage of case and avoid underscores.
+    Files should have the same name as the class (and same case).
+
+17. Separate functions with blank lines.
+
+    class X
+    {
+    public:
+
+	void f();
+
+	void g();
+    };
+
+18. No warnings should be committed.
+
+19. Test big changes on at least Windows and Unix (or Linux)
+
+20. Move SLP out of Common.
+
+21. Changes must work on all platforms. Commits must not break any
+    platform.
+
+22. No binaries may be committed to repository.

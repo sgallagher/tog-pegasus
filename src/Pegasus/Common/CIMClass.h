@@ -112,7 +112,6 @@ public:
 	association class include pointers, or references, to the two (or
 	more) instances. All CIM classes can be included in one or more
 	associations.
-	ATTN: Move the association definition elsewhere
 	@return  Boolean True if this CIM class belongs to an association;
 	otherwise, false.
     */

@@ -168,7 +168,8 @@ VOID WINAPI cimserver_service_start(DWORD argc, LPTSTR *argv)
   DWORD specificError;
   pegasus_status.dwServiceType = SERVICE_WIN32;
   pegasus_status.dwCurrentState = SERVICE_START_PENDING;
-  pegasus_status.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN ;
+  pegasus_status.dwControlsAccepted 
+      = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN ;
   pegasus_status.dwWin32ExitCode = 0;
   pegasus_status.dwServiceSpecificExitCode = 0;
   pegasus_status.dwCheckPoint = 0;

@@ -1,4 +1,6 @@
 
+    -	Consider eliminating const CIM element classes.
+
     -   Support for NULL property lists (in interface and protocol).
 
     -   Rename tests (prepend "Test" to each test).

@@ -388,6 +388,47 @@ void CIMRepository::createClass(
     _SaveObject(classFilePath, newClass);
 }
 
+/*------------------------------------------------------------------------------
+
+    This routine does the following:
+
+    	1.  Creates two entries in the association file for each relationship
+	    formed by this new assocation instance. A binary association
+	    (one with two references) ties two instances together. Suppose
+	    there are two instances: I1 and I2. Then two entries are created:
+
+		I2 -> I1
+		I1 -> I2
+
+	    For a ternary relationship, six entries will be created. Suppose
+	    there are three instances: I1, I2, and I3:
+
+		I1 -> I2
+		I1 -> I3
+		I2 -> I1
+		I2 -> I3
+		I3 -> I1
+		I3 -> I2
+
+	    So for an N-ary relationship, there will be 2*N entries created.
+
+	2.  Verifies that the association instance refers to real objects.
+	    (note that an association reference may refer to either an instance
+	    or a class). Throws an exception if one of the references does not
+	    refer to a valid object.
+
+------------------------------------------------------------------------------*/
+
+void CIMRepository::_createAssociationEntries(
+    const String& nameSpace, 
+    const CIMConstClass& cimClass, 
+    const CIMInstance& cimInstance)
+{
+    // -- Validate that the references are valid (that they refer to real
+    // -- objects) and that the type they reference is compatible with the
+    // -- type of the value.
+}
+
 void CIMRepository::createInstance(
     const String& nameSpace,
     CIMInstance& newInstance) 
@@ -406,6 +447,14 @@ void CIMRepository::createInstance(
     if (_getInstanceIndex(nameSpace, instanceName, className, dummyIndex, true))
     {
 	throw PEGASUS_CIM_EXCEPTION(ALREADY_EXISTS, instanceName.toString());
+    }
+
+    // -- Handle if association:
+
+    if (cimClass.isAssociation())
+    {
+	_createAssociationEntries(nameSpace, 
+	    cimClass, newInstance);
     }
 
     // -- Get common base (of instance file and index file):

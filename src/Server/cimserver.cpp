@@ -187,8 +187,8 @@ void PrintHelp(const char* arg0)
 //////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-  
     // on Windows NT if there are no command-line options, run as a service
+
     if (argc == 1 )
       cim_server_service(argc, argv) ;
   
@@ -334,7 +334,8 @@ int main(int argc, char** argv)
 		address,
 		(pegasusIOTrace ? " Tracing": " "));
 
-    Boolean useSLP;
+    Boolean useSLP = false;;
+
     if(om.valueEquals("slp", "true")) 
       useSLP = true;
 
@@ -352,7 +353,7 @@ int main(int argc, char** argv)
     {
 	Selector selector;
 	CIMServer server(&selector, pegasusHome);
-	server.setSLP(useSLP );
+	server.setSLP(useSLP);
 
 	// bind throws an exception of the bind fails
 	server.bind(address);

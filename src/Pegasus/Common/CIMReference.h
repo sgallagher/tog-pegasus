@@ -574,6 +574,22 @@ public:
     */
     Uint32 makeHashCode() const;
 
+    /** Check whether this reference refers to an instance (if it does, the
+	class must have key bindings).
+    */
+    Boolean isInstanceName() const
+    {
+	return _keyBindings.size() != 0;
+    }
+
+    /** Check whether this reference refers to an class (if not it is an
+	instance).
+    */
+    Boolean isClassName() const 
+    {
+	return !isInstanceName();
+    }
+
 private:
 
     void nameSpaceToXml(Array<Sint8>& out) const;

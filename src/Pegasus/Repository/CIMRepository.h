@@ -260,6 +260,11 @@ private:
 	const String& className,
 	Uint32 index) const;
 
+    void _createAssociationEntries(
+	const String& nameSpace, 
+	const CIMConstClass& cimClass, 
+	const CIMInstance& cimInstance);
+
     String _repositoryRoot;
     RepositoryDeclContext* _context;
     NameSpaceManager _nameSpaceManager;

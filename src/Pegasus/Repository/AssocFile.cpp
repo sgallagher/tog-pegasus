@@ -29,7 +29,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
-#include "AssocTable.h"
+#include "AssocFile.h"
 
 PEGASUS_USING_STD;
 
@@ -75,7 +75,7 @@ static void _WriteLine(
     os << line << endl;
 }
 
-void AssocTable::append(
+void AssocFile::append(
     const String& path,
     const String& assocInstanceName,
     const String& assocClassName,
@@ -109,7 +109,7 @@ void AssocTable::append(
     _WriteLine(os, fields);
 }
 
-Boolean AssocTable::containsObject(
+Boolean AssocFile::containsObject(
     const String& path,
     const String& objectName)
 {
@@ -133,7 +133,7 @@ Boolean AssocTable::containsObject(
     return false;
 }
 
-Boolean AssocTable::deleteAssociation(
+Boolean AssocFile::deleteAssociation(
     const String& path,
     const String& assocInstanceName)
 {
@@ -184,7 +184,7 @@ Boolean AssocTable::deleteAssociation(
     return found;
 }
 
-Boolean AssocTable::getAssociatorNames(
+Boolean AssocFile::getAssociatorNames(
     const String& path,
     const String& objectName,
     const String& assocClass,
@@ -221,7 +221,7 @@ Boolean AssocTable::getAssociatorNames(
     return found;
 }
 
-Boolean AssocTable::getReferenceNames(
+Boolean AssocFile::getReferenceNames(
     const String& path,
     const String& objectName,
     const String& resultClass,

@@ -101,11 +101,14 @@ Uint32 CIMInstanceRep::getPropertyCount() const
     return _properties.size();
 }
 
+
 void CIMInstanceRep::resolve(
     DeclContext* context,
     const String& nameSpace,
     CIMConstClass& cimClassOut)
 {
+    // ATTN: Verify that references are initialized.
+
 #if 0
     if (_resolved)
 	throw InstanceAlreadyResolved();

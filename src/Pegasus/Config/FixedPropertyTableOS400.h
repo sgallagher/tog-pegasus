@@ -23,42 +23,38 @@
 //
 //==============================================================================
 //
-// Author: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
+// Author: David Rosckes (rosckes@us.ibm.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
-//              Heather Sterling, IBM (hsterl@us.ibm.com)
+// Modified By: Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_DefaultPropertyTableHpux_h
-#define Pegasus_DefaultPropertyTableHpux_h
-
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"httpPort", "5988", 0, 0, 0, 1},
-    {"httpsPort", "5989", 0, 0, 0, 1},
-    {"enableHttpConnection", "false", 0, 0, 0, 1},
-    {"enableHttpsConnection", "true", 0, 0, 0, 1},
-    {"home", "./", 0, 0, 0, 1},
-    {"daemon", "true", 0, 0, 0, 1},
-    {"slp", "false", 0, 0, 0, 1},
-    {"enableAssociationTraversal", "false", 0, 0, 0, 1},
-    {"enableIndicationService", "true", 0, 0, 0, 1},
-    // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", 0, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableSSLClientVerification", "false", 0, 0, 0, 1}
-#else
-    {"httpPort", "5988", 0, 0, 0, 1},
-    {"httpsPort", "5989", 0, 0, 0, 1},
-    {"enableHttpConnection", "true", 0, 0, 0, 1},
-    {"enableHttpsConnection", "false", 0, 0, 0, 1},
-    {"home", "./", 0, 0, 0, 1},
-    {"daemon", "true", 0, 0, 0, 1},
-    {"slp", "false", 0, 0, 0, 1},
-    {"enableAssociationTraversal", "true", 0, 0, 0, 1},
-    {"enableIndicationService", "true", 0, 0, 0, 1},
-    {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableSSLClientVerification", "false", 0, 0, 0, 1}
+    {"enableAuthentication",                     "true"},
+    {"enableRemotePrivilegedAccess",             "true"},
+    {"enableNamespaceAuthorization",             "true"},
+    {"enableHttpConnection",                     "true"},
+    // Do not fix the daemon property.  Otherwise, daemon=true cannot
+    // be passed on the CIMOM command line.
+    // Note: fixing the daemon property to true could
+    // lead to an infintite loop of QYCMCIMOM jobs being submitted.
+//  {"daemon",                                   "false"},
+    {"enableIndicationService",                  "false"},
+    // The following properties are not supported by OS400        
+    {"providerDir",                              "lib"},        
+    {"logdir",                                   "./logs"},     
+    {"usePAMAuthentication",                     "false"},      
+    {"passwordFilePath",                         "cimserver.passwd"},
+    {"sslCertificateFilePath",                   "server.pem"},
+    {"sslKeyFilePath",                           "file.pem"},
+    {"sslTrustFilePath",                         "client.pem"},
+    {"enableSSLClientVerification",              "false"},
+    {"enableSubscriptionsForNonprivilegedUsers", "true"},
+    {"httpsPort",                                "5989"},
+    {"enableHttpsConnection",                    "false"},
+    {"slp",                                      "false"},
 #endif
 
-#endif /* Pegasus_DefaultPropertyTableHpux_h */
+#if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
+    {"bogus", "MyBogusValue"} // Remove this line if others are added
+#endif

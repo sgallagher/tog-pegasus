@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //
@@ -133,7 +134,6 @@ static struct OwnerEntry _properties[] =
     {"daemon",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"tempLocalAuthDir",    (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"enableClientCertification", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableAssociationTraversal", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableIndicationService", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
@@ -145,6 +145,7 @@ static struct OwnerEntry _properties[] =
     {"sslCertificateFilePath", (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslKeyFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
     {"sslTrustFilePath",      (ConfigPropertyOwner* )ConfigManager::securityOwner},
+    {"enableSSLClientVerification", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", (ConfigPropertyOwner* )ConfigManager::securityOwner},
 #endif
@@ -875,23 +876,23 @@ String ConfigManager::getHomedPath(const String& value)
     Uint32 token=0;
     do {
       if (( pos = temp.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
-	pos = temp.size();
-	token = 0;
+    pos = temp.size();
+    token = 0;
       }
       else {
-	  token = 1;
+      token = 1;
       }
       if  (System::is_absolute_path((const char *)temp.subString(0,pos).getCString())) 
       {
-	homedPath.append(temp.subString(0,pos));
+    homedPath.append(temp.subString(0,pos));
       } else
          homedPath.append( _pegasusHome + "/" + temp.subString(0, pos));
 
       if (token == 1)
-	homedPath.append(FileSystem::getPathDelimiter());
-      temp.remove(0,pos+token);	
+    homedPath.append(FileSystem::getPathDelimiter());
+      temp.remove(0,pos+token); 
     }
-    while ( temp.size() > 0 );	
+    while ( temp.size() > 0 );  
    
   }
   return homedPath;

@@ -25,7 +25,7 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:
+// Modified By: Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@
     {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableClientCertification", "false", 0, 0, 0, 1}
+    {"enableSSLClientVerification", "false", 0, 0, 0, 1}
 #else
     {"logLevel", "INFORMATION"},
     {"httpPort", "5988", 0, 0, 0, 1},
@@ -72,7 +72,7 @@
     {"enableRemotePrivilegedUserAccess", "true", 0, 0, 0, 1},
     {"maximumEnumerationBreadth", "50", 0, 0, 0, 1},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
-    {"enableClientCertification", "false", 0, 0, 0, 1}
+    {"enableSSLClientVerification", "false", 0, 0, 0, 1}
 #endif
 
 

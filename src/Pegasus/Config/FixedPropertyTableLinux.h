@@ -25,7 +25,7 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By:
+// Modified By: Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@
     {"remove",              "false"},
     {"slp",                 "false"},
     {"enableAuthentication", "true"},
-    {"enableClientCertification", "false"},
+    {"enableSSLClientVerification", "false"},
     {"httpAuthType",        "Basic"},
     {"repositoryIsDefaultInstanceProvider", "false"},
     {"usePAMAuthentication", "true"},

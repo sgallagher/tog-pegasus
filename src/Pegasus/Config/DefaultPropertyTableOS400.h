@@ -23,35 +23,25 @@
 //
 //==============================================================================
 //
-// Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
+// Author: David Rosckes (rosckes@us.ibm.com)
 //
-// Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//               Heather Sterling, IBM (hsterl@us.ibm.com)
+// Modified By: Heather Sterling, IBM (hsterl@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_DefaultPropertyTable_h
-#define Pegasus_DefaultPropertyTable_h
+#ifndef Pegasus_DefaultPropertyTableOS400_h
+#define Pegasus_DefaultPropertyTableOS400_h
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "DefaultPropertyTableLinux.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "DefaultPropertyTableHpux.h"
-#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-#include "DefaultPropertyTableOS400.h"
-#else
     {"httpPort", "5988", 0, 0, 0, 1},
     {"httpsPort", "5989", 0, 0, 0, 1},
     {"enableHttpConnection", "true", 0, 0, 0, 1},
     {"enableHttpsConnection", "false", 0, 0, 0, 1},
-    {"home", "./", 0, 0, 0, 1},
-    {"daemon", "true", 0, 0, 0, 1},
+    {"home", "/QIBM/UserData/OS400/CIM", 0, 0, 0, 1},
+    {"daemon", "false", 0, 0, 0, 1},
     {"slp", "false", 0, 0, 0, 1},
     {"enableAssociationTraversal", "true", 0, 0, 0, 1},
-    {"enableIndicationService", "true", 0, 0, 0, 1},
-    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
+    {"enableIndicationService", "false", 0, 0, 0, 1},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, 0, 0, 0, 1},
     {"enableSSLClientVerification", "false", 0, 0, 0, 1}
-#endif
 
-#endif /* Pegasus_DefaultPropertyTable_h */
+#endif /* Pegasus_DefaultPropertyTableOS400_h */

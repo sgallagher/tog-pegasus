@@ -13,7 +13,7 @@ DIRS = \
 	LocalizedProvider/msg
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS = \
+DIRS += \
 	CMPI/FilesAndDirectories \
 	CMPI/FilesAndDirectories/tests
 endif

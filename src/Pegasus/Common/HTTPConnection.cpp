@@ -111,7 +111,7 @@ static const char headerTerminator[] = CRLF CRLF;
 static const Sint8 chunkLineTerminator[] = CRLF;
 static const Sint8 chunkTerminator[] = CRLF;
 static const Sint8 chunkBodyTerminator[] = CRLF;
-static const Sint8 trailerTerminator[] = CRLF CRLF;
+static const Sint8 trailerTerminator[] = CRLF;
 static const Sint8 chunkExtensionTerminator[] = ";";
 
 // string sizes
@@ -750,9 +750,6 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						if (httpDescription.size() != 0)
 							trailer << _mpostPrefix << headerNameDescription << 
 								headerNameTerminator << httpDescription << headerLineTerminator;
-
-						// terminate the header
-						trailer << headerLineTerminator;
 					}
 
 					// now add chunkBodyTerminator
@@ -1320,22 +1317,11 @@ void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
 			// is there an optional trailer ?
       if (remainderLength > chunkBodyTerminatorLength)
       {
-        // must be a trailer here. The way we are going to look for the
-        // end of the trailer is to go to the end of the message and back up
-        // chunkBodyTerminatorLength bytes. This should put us right at the
-        // trailer terminator start. There must be at least the trailer
-				// terminator plus the chunk body terminator.
-
-        if (remainderLength <
-            chunkBodyTerminatorLength + trailerTerminatorLength)
-          _throwEventFailure(HTTP_STATUS_BADREQUEST, 
-														 "missing bytes in transfer encoding");
-
         Uint32 trailerLength =  remainderLength - chunkBodyTerminatorLength;
         Uint32 trailerOffset = _transferEncodingChunkOffset;
         Sint8 *trailerStart = messageStart + trailerOffset; 
         Sint8 *trailerTerminatorStart = trailerStart + trailerLength - 
-          trailerTerminatorLength;
+					trailerTerminatorLength;
 
         // no trailer terminator before end of chunk body ?
         if (strncmp(trailerTerminatorStart, trailerTerminator, 

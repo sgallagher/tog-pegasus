@@ -218,66 +218,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
       {
 	 break;
       }
-      catch(Deadlock & )
-      {
-	 cout << "Deadlock Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-      catch(AlreadyLocked & )
-      {
-	 cout << "Already Locked Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-      
-      catch(TimeOut & )
-      {
-	 cout << "TimeOut Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-
-      catch(Permission & )
-      {
-	 cout << "Permission Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-
-      catch(WaitFailed & )
-      {
-	 cout << "WaitFailed Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-
-      catch(TooManyReaders & )
-      {
-	 cout << "TooManyReaders Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-
-      catch(ListFull & )
-      {
-	 cout << "ListFull Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-
-      catch(ListClosed & )
-      {
-	 cout << "ListClosed Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-
-      catch(ModuleClosed & )
-      {
-	 cout << "ModuleClosed Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-
-      catch(IPCException & )
-      {
-//	 << Tue Apr 23 10:21:17 2002 mdd >>
-	 cout << "IPC Exception in MessageQueueService::_req_proc" << endl;
-	 abort();
-      }
-      
       if( operation )
       {
 	 operation->_thread_ptr = myself;

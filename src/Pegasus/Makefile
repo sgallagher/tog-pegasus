@@ -45,6 +45,7 @@ DIRS = \
     IndicationService/tests \
     ControlProviders/ProviderRegistrationProvider/tests \
     Listener/tests \
-    Consumer/tests
+    Consumer/tests \
+	ProviderManager/tests
 
 include $(ROOT)/mak/recurse.mak

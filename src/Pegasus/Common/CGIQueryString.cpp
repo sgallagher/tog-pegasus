@@ -28,7 +28,11 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <unistd.h>
+#endif
+
 #include <cstdio>
 #include <cstdlib>
 #include "CGIQueryString.h"

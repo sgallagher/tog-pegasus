@@ -134,7 +134,7 @@ ProcessProvider::~ProcessProvider()
 void ProcessProvider::createInstance(const OperationContext &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-                    ResponseHandler<CIMObjectPath> &handler)
+                    ObjectPathResponseHandler &handler)
 
 {
   // Current not implemented, but could be done by
@@ -155,7 +155,7 @@ void ProcessProvider::createInstance(const OperationContext &context,
 
 void ProcessProvider::deleteInstance(const OperationContext &context,
                     const CIMObjectPath           &instanceReference,
-                    ResponseHandler<void> &handler)
+                    ResponseHandler &handler)
 
 {
   // Currently not implemented, but could be done with kill
@@ -180,7 +180,7 @@ void ProcessProvider::enumerateInstances(
 	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
     // cout << "ProcessProvider::enumerateInstances()" << endl;
 
@@ -231,7 +231,7 @@ void ProcessProvider::enumerateInstances(
 
 void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
                             const CIMObjectPath &ref,
-                            ResponseHandler<CIMObjectPath> &handler)
+                            ObjectPathResponseHandler &handler)
 {
     // cout << "ProcessProvider::enumerateInstanceNames()" << endl;
 
@@ -292,7 +292,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
                  const CIMObjectPath           &instanceName,
                  const Uint32                  flags,
                  const CIMPropertyList        &propertyList,
-                 ResponseHandler<CIMInstance> &handler)
+                 InstanceResponseHandler &handler)
 {	
   // cout << "ProcessProvider::getInstance(" << instanceName << ")" << endl;
 
@@ -437,7 +437,7 @@ void ProcessProvider::modifyInstance(const OperationContext &context,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
 		    const CIMPropertyList        &propertyList,
-                    ResponseHandler<void> &handler)
+                    ResponseHandler &handler)
 {
   // Could be supported in the future for certain properties
   throw CIMNotSupportedException(String::EMPTY);

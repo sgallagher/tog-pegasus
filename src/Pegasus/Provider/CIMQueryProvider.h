@@ -71,7 +71,7 @@ public:
 	const CIMNamespaceName & nameSpace,
 	const String & queryLanguage,
 	const String & query,
-	ResponseHandler<CIMObject> & handler) = 0;
+	ObjectResponseHandler & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

@@ -52,7 +52,7 @@ void IndicationProvider::terminate(void)
 {
 }
 
-void IndicationProvider::enableIndications(ResponseHandler<CIMIndication> & handler)
+void IndicationProvider::enableIndications(IndicationResponseHandler & handler)
 {
     handler.processing();
 

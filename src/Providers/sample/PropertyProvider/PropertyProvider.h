@@ -50,14 +50,14 @@ public:
 		const OperationContext & context,
 		const CIMObjectPath & instanceReference,
 		const String & propertyName,
-		ResponseHandler<CIMValue> & handler);
+		ValueResponseHandler & handler);
 
 	virtual void setProperty(
 		const OperationContext & context,
 		const CIMObjectPath & instanceReference,
 		const String & propertyName,
 		const CIMValue & newValue,
-		ResponseHandler<CIMValue> & handler);
+		ResponseHandler & handler);
 
 protected:
 	Array<CIMObjectPath> _instanceNames;

@@ -52,7 +52,7 @@ void SNMPIndicationProvider::terminate(void)
 {
 }
 
-void SNMPIndicationProvider::enableIndications(ResponseHandler<CIMIndication> & handler)
+void SNMPIndicationProvider::enableIndications(IndicationResponseHandler & handler)
 {
     handler.processing();
 

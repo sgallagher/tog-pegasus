@@ -128,7 +128,7 @@ PARAMETERS        :
 void ProcessStatProvider::createInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-                    ResponseHandler<CIMObjectPath> &handler)
+                    ObjectPathResponseHandler &handler)
 
 {
   // There is no useful meaning to creating an instance
@@ -149,7 +149,7 @@ PARAMETERS        :
 */
 void ProcessStatProvider::deleteInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceReference,
-                    ResponseHandler<void> &handler)
+                    ResponseHandler &handler)
 
 {
   // There is no useful meaning to deleting an instance
@@ -175,7 +175,7 @@ void ProcessStatProvider::enumerateInstances(
 	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
   // cout << "ProcessStatProvider::enumerateInstances()" << endl;
 
@@ -221,7 +221,7 @@ PARAMETERS        :
 */
 void ProcessStatProvider::enumerateInstanceNames(const OperationContext &ctx,
                             const CIMObjectPath &ref,
-                            ResponseHandler<CIMObjectPath> &handler)
+                            ObjectPathResponseHandler &handler)
 {
   // cout << "ProcessStatProvider::enumerateInstanceNames()" << endl;
 
@@ -270,7 +270,7 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
                  const CIMObjectPath           &instanceName,
                  const Uint32                  flags,
                  const CIMPropertyList        &propertyList,
-                 ResponseHandler<CIMInstance> &handler)
+                 InstanceResponseHandler &handler)
 {	
   // cout << "ProcessStatProvider::getInstance()" << endl;
 
@@ -419,7 +419,7 @@ void ProcessStatProvider::modifyInstance(const OperationContext       &context,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
 		    const CIMPropertyList        &propertyList,
-                    ResponseHandler<void> &handler)
+                    ResponseHandler &handler)
 {
   // There is no useful meaning for this operation
   // on this class

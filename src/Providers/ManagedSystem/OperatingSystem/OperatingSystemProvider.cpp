@@ -58,7 +58,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
 				     const CIMObjectPath& ref,
 				     const Uint32 flags,
 				     const CIMPropertyList& propertyList,
-				     ResponseHandler<CIMInstance> &handler)
+				     InstanceResponseHandler &handler)
 {
     Array<KeyBinding> keys;
     CIMInstance instance;
@@ -161,7 +161,7 @@ OperatingSystemProvider::enumerateInstances(
 			        const CIMObjectPath& ref,
 			        const Uint32 flags,
 			        const CIMPropertyList& propertyList,
-			        ResponseHandler<CIMInstance>& handler)
+			        InstanceResponseHandler& handler)
 {
     String className;
     CIMInstance instance;
@@ -199,7 +199,7 @@ void
 OperatingSystemProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			  	const CIMObjectPath &ref,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
     CIMObjectPath newref;
     String className;
@@ -238,7 +238,7 @@ OperatingSystemProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
     throw CIMNotSupportedException("OperatingSystemProvider "
                        "does not support modifyInstance");
@@ -249,7 +249,7 @@ OperatingSystemProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
     throw CIMNotSupportedException("OperatingSystemProvider "
                        "does not support createInstance");
@@ -259,7 +259,7 @@ void
 OperatingSystemProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
     throw CIMNotSupportedException("OperatingSystemProvider "
                        "does not support deleteInstance");
@@ -486,8 +486,7 @@ void OperatingSystemProvider::invokeMethod(
     				const CIMObjectPath& objectReference,
 				const CIMName& methodName,
 				const Array<CIMParamValue>& inParameters,
-				Array<CIMParamValue>& outParameters,
-				ResponseHandler<CIMValue>& handler)
+				MethodResultResponseHandler& handler)
 {
     throw CIMNotSupportedException("OperatingSystemProvider "
                        "does not support invokeMethod");

@@ -51,7 +51,7 @@ public:
 		const String & nameSpace,
 		const String & queryLanguage,
 		const String & query,
-		ResponseHandler<CIMObject> & handler);
+		ObjectResponseHandler & handler);
 
 protected:
 

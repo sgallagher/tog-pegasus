@@ -59,35 +59,35 @@ class SoftwareElementProvider : public CIMInstanceProvider
 			       const CIMObjectPath& ref,
 			       const Uint32 flags,
 			       const CIMPropertyList& propertyList,
-			       ResponseHandler<CIMInstance>& handler) = 0;
+			       InstanceResponseHandler& handler) = 0;
 
       virtual void enumerateInstances(
 	    		       const OperationContext& context,
 			       const CIMObjectPath& ref,
 			       const Uint32 flags,
 			       const CIMPropertyList& propertyList,
-			       ResponseHandler<CIMInstance>& handler) = 0;
+			       InstanceResponseHandler& handler) = 0;
 
       virtual void enumerateInstanceNames(
 	    			const OperationContext& context,
 				const CIMObjectPath &ref,
-				ResponseHandler<CIMObjectPath>& handler) = 0;
+				ObjectPathResponseHandler& handler) = 0;
 
       virtual void modifyInstance(const OperationContext& context,
 				  const CIMObjectPath& ref,
 				  const CIMInstance& instanceObject,
 				  const Uint32 flags,
 				  const CIMPropertyList& propertyList,
-				  ResponseHandler<void>& handler) = 0;
+				  ResponseHandler& handler) = 0;
 
       virtual void createInstance(const OperationContext& context,
 				  const CIMObjectPath& ref,
 				  const CIMInstance& instanceObject,
-				  ResponseHandler<CIMObjectPath>& handler) = 0;
+				  ObjectPathResponseHandler& handler) = 0;
 
       virtual void deleteInstance(const OperationContext& context,
 				  const CIMObjectPath& ref,
-				  ResponseHandler<void>& handler) = 0;
+				  ResponseHandler& handler) = 0;
 
       virtual void initialize(CIMOMHandle& handle) = 0;
       virtual void terminate(void) = 0;

@@ -18,9 +18,10 @@ SOURCES = \
 	MutexLock.cpp \
 	Lockable.cpp \
 	SafeQueue.cpp \
+	SimpleResponseHandler.cpp \
 	ProviderAdapter.cpp \
-    ProviderModule.cpp \
-    ProviderFacade.cpp \
+	ProviderModule.cpp \
+	ProviderFacade.cpp \
 	Provider.cpp \
 	ProviderManager.cpp \
 	OperationResponseHandler.cpp \

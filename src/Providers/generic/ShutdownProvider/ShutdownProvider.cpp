@@ -86,8 +86,7 @@ public:
             const CIMObjectPath & objectReference,
             const String & methodName,
             const Array<CIMParamValue> & inParameters,
-            Array<CIMParamValue> & outParameters,
-            ResponseHandler<CIMValue> & handler)
+            MethodResultResponseHandler & handler)
     {
         // Begin processing the request
         handler.processing();

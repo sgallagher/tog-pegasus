@@ -57,19 +57,19 @@ public:
 		const CIMObjectPath & ref,
 		const Uint32 flags,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	virtual void enumerateInstances(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
 		const Uint32 flags,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
-		ResponseHandler<CIMObjectPath> & handler);
+		ObjectPathResponseHandler & handler);
 
 	virtual void modifyInstance(
 		const OperationContext & context,
@@ -77,18 +77,18 @@ public:
 		const CIMInstance & obj,
 		const Uint32 flags,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	virtual void createInstance(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
 		const CIMInstance & obj,
-		ResponseHandler<CIMObjectPath> & handler);
+		ObjectPathResponseHandler & handler);
 
 	virtual void deleteInstance(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	// CIMIndicationProvider interface
 	virtual void provideIndication(
@@ -97,7 +97,7 @@ public:
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	virtual void updateIndication(
 		const OperationContext & context,
@@ -105,18 +105,18 @@ public:
 		const CIMDateTime & minimumInterval,
 		const CIMDateTime & maximumInterval,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	virtual void cancelIndication(
 		const OperationContext & context,
 		const CIMObjectPath & classReference,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	virtual void checkIndication(
 		const OperationContext & context,
 		const CIMObjectPath & classReference,
 		const Array<String> & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
        virtual void enableIndication(
                 const OperationContext & context,
@@ -131,14 +131,14 @@ public:
                 const String & condition,
                 const String & queryLanguage,
                 const CIMInstance & subscription,
-                ResponseHandler<CIMInstance> & handler);
+                InstanceResponseHandler & handler);
 
         virtual void disableIndication(
                 const OperationContext & context,
                 const String & nameSpace,
                 const Array<String> & classNames,
                 const CIMInstance & subscription,
-                ResponseHandler<CIMInstance> & handler);
+                InstanceResponseHandler & handler);
 
         virtual void modifyIndication(
                 const OperationContext & context,
@@ -153,7 +153,7 @@ public:
                 const String & condition,
                 const String & queryLanguage,
                 const CIMInstance & subscription,
-                ResponseHandler<CIMInstance> & handler);
+                InstanceResponseHandler & handler);
 
 
 protected:

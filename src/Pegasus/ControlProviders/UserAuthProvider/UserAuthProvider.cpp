@@ -54,7 +54,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
 
@@ -121,7 +121,7 @@ void UserAuthProvider::createInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
     const CIMInstance & myInstance,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::createInstance");
 
@@ -315,7 +315,7 @@ void UserAuthProvider::createInstance(
 void UserAuthProvider::deleteInstance(
     const OperationContext & context,
     const CIMObjectPath& myInstance,
-    ResponseHandler<void> & handler)
+    ResponseHandler & handler)
 {
     CIMValue                userName ;
     String                  userNameStr;
@@ -494,7 +494,7 @@ void UserAuthProvider::modifyInstance(
     const CIMInstance& modifiedIns,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<void> & handler)
+    ResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::modifyInstance");
 
@@ -609,7 +609,7 @@ void UserAuthProvider::enumerateInstances(
     const CIMObjectPath & ref,
     const Uint32 flags,
     const CIMPropertyList& propertyList,
-    ResponseHandler<CIMInstance> & handler)
+    InstanceResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::enumerateInstances");
 
@@ -683,7 +683,7 @@ void UserAuthProvider::enumerateInstances(
 void UserAuthProvider::enumerateInstanceNames(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::enumerateInstanceNames");
 
@@ -810,8 +810,7 @@ void UserAuthProvider::invokeMethod(
     const CIMObjectPath & ref,
     const CIMName & methodName,
     const Array<CIMParamValue> & inParams,
-    Array<CIMParamValue> & outParams,
-    ResponseHandler<CIMValue> & handler)
+    MethodResultResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::invokeMethod");
 

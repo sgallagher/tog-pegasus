@@ -1364,10 +1364,6 @@ void ProviderManagerService::handleReferencesRequest(AsyncOpNode *op, const Mess
             flags = flags | ~OperationFlag::LOCAL_ONLY |
                 ~OperationFlag::DEEP_INHERITANCE;
 
-            //CIMPropertyList propertyList(request->propertyList);
-
-            //SimpleResponseHandler<CIMObjectPath> handler;
-
             STAT_GETSTARTTIME;
 
             provider.references(
@@ -1749,8 +1745,6 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
         // ATTN: propagate namespace
         instanceReference.setNameSpace(request->nameSpace);
 
-        Array<CIMParamValue> outParameters;
-
         // forward request
         STAT_GETSTARTTIME;
 
@@ -1759,11 +1753,7 @@ void ProviderManagerService::handleInvokeMethodRequest(AsyncOpNode *op, const Me
             instanceReference,
             request->methodName,
             request->inParameters,
-            outParameters,
             handler);
-
-        // ATTN-RK-P1-20020502: This needs to go through the response handler
-        response->outParameters = outParameters;
 
         STAT_PMS_PROVIDEREND;
     }
@@ -1812,7 +1802,7 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
-    OperationResponseHandler<CIMIndication> handler(request, response);
+    OperationResponseHandler handler(request, response);
 
     try
     {
@@ -1898,7 +1888,7 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
-    OperationResponseHandler<CIMIndication> handler(request, response);
+    OperationResponseHandler handler(request, response);
 
     try
     {
@@ -1983,7 +1973,7 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
-    OperationResponseHandler<CIMIndication> handler(request, response);
+    OperationResponseHandler handler(request, response);
 
     try
     {
@@ -2122,7 +2112,7 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
     // preserve message key
     response->setKey(request->getKey());
 
-    OperationResponseHandler<CIMIndication> handler(request, response);
+    OperationResponseHandler handler(request, response);
 
     try
     {

@@ -48,7 +48,7 @@ public:
     virtual void terminate(void);
 
     // CIMInstanceProvider interface
-    virtual void enableIndications(ResponseHandler<CIMIndication> & handler);
+    virtual void enableIndications(IndicationResponseHandler & handler);
     virtual void disableIndications(void);
 
     virtual void createSubscription(

@@ -56,7 +56,7 @@ void LinuxInterruptProvider::getInstance(const OperationContext& context,
 					 const CIMObjectPath& ref,
 					 const Uint32 flags,
 					 const CIMPropertyList& propertyList,
-					 ResponseHandler<CIMInstance>& handler)
+					 InstanceResponseHandler& handler)
 {
    InterruptData interruptData;
    InterruptData *curInterrupt;
@@ -95,7 +95,7 @@ LinuxInterruptProvider::enumerateInstances(
 			        const CIMObjectPath& ref, 
 			        const Uint32 flags, 
 			        const CIMPropertyList& propertyList,
-			        ResponseHandler<CIMInstance>& handler )
+			        InstanceResponseHandler& handler )
 {
    InterruptData interruptData;
    InterruptData* curInterrupt;
@@ -118,7 +118,7 @@ LinuxInterruptProvider::enumerateInstances(
 void LinuxInterruptProvider::enumerateInstanceNames(
       					const OperationContext& context,
 			  		const CIMObjectPath& ref,
-			  		ResponseHandler<CIMObjectPath>& handler)
+			  		ObjectPathResponseHandler& handler)
 {
    InterruptData interruptData;
    InterruptData* curInterrupt;
@@ -145,7 +145,7 @@ void LinuxInterruptProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxInterruptProvider::modifyInstance called" << endl;
    throw CIMNotSupportedException(INTERRUPTCLASSNAME"::modifyInstance");
@@ -155,7 +155,7 @@ void LinuxInterruptProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    cout << "LinuxInterruptProvider::createInstance called" << endl;
    throw CIMNotSupportedException(INTERRUPTCLASSNAME"::createInstance");
@@ -164,7 +164,7 @@ void LinuxInterruptProvider::createInstance(
 void LinuxInterruptProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxInterruptProvider::deleteInstance called" << endl;
    throw CIMNotSupportedException(INTERRUPTCLASSNAME"::deleteInstance");

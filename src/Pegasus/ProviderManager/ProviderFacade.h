@@ -74,19 +74,19 @@ public:
         const CIMObjectPath & instanceReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler);
+        InstanceResponseHandler & handler);
 
     virtual void enumerateInstances(
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler);
+        InstanceResponseHandler & handler);
 
     virtual void enumerateInstanceNames(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     virtual void modifyInstance(
         const OperationContext & context,
@@ -94,18 +94,18 @@ public:
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<void> & handler);
+        ResponseHandler & handler);
 
     virtual void createInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     virtual void deleteInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        ResponseHandler<void> & handler);
+        ResponseHandler & handler);
 
     // CIMClassProvider interface
     virtual void getClass(
@@ -113,36 +113,36 @@ public:
         const CIMObjectPath & classReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMClass> & handler);
+        ClassResponseHandler & handler);
 
     virtual void enumerateClasses(
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const Uint32 flags,
-        ResponseHandler<CIMClass> & handler);
+        ClassResponseHandler & handler);
 
     virtual void enumerateClassNames(
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const Uint32 flags,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     virtual void modifyClass(
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const CIMClass & classObject,
-        ResponseHandler<void> & handler);
+        ResponseHandler & handler);
 
     virtual void createClass(
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const CIMClass & classObject,
-        ResponseHandler<void> & handler);
+        ResponseHandler & handler);
 
     virtual void deleteClass(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        ResponseHandler<void> & handler);
+        ResponseHandler & handler);
 
     // CIMAssociationProvider interface
     virtual void associators(
@@ -154,7 +154,7 @@ public:
         const String & resultRole,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMObject> & handler);
+        ObjectResponseHandler & handler);
 
     virtual void associatorNames(
         const OperationContext & context,
@@ -163,7 +163,7 @@ public:
         const CIMName & resultClass,
         const String & role,
         const String & resultRole,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     virtual void references(
         const OperationContext & context,
@@ -172,28 +172,28 @@ public:
         const String & role,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMObject> & handler);
+        ObjectResponseHandler & handler);
 
     virtual void referenceNames(
         const OperationContext & context,
         const CIMObjectPath & objectName,
         const CIMName & resultClass,
         const String & role,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     // CIMPropertyProvider interface
     virtual void getProperty(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMName & propertyName,
-        ResponseHandler<CIMValue> & handler);
+        ValueResponseHandler & handler);
 
     virtual void setProperty(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMName & propertyName,
         const CIMValue & newValue,
-        ResponseHandler<CIMValue> & handler);
+        ResponseHandler & handler);
 
     // CIMMethodProviderFacade
     virtual void invokeMethod(
@@ -201,8 +201,7 @@ public:
         const CIMObjectPath & objectReference,
         const CIMName & methodName,
         const Array<CIMParamValue> & inParameters,
-        Array<CIMParamValue> & outParameters,
-        ResponseHandler<CIMValue> & handler);
+        MethodResultResponseHandler & handler);
 
     // CIMQueryProvider interface
     virtual void executeQuery(
@@ -210,11 +209,11 @@ public:
         const CIMNamespaceName & nameSpace,
         const String & queryLanguage,
         const String & query,
-        ResponseHandler<CIMObject> & handler);
+        ObjectResponseHandler & handler);
 
     // CIMIndicationProvider interface
     virtual void enableIndications(
-        ResponseHandler<CIMIndication> & handler);
+        IndicationResponseHandler & handler);
 
     virtual void disableIndications(void);
 
@@ -241,7 +240,7 @@ public:
     virtual void handleIndication(
         const OperationContext & context,
         const CIMInstance & indication,
-        ResponseHandler<void> & handler)
+        ResponseHandler & handler)
     {
     }
 

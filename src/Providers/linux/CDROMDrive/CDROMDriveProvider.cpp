@@ -57,7 +57,7 @@ void LinuxCDROMDriveProvider::getInstance(const OperationContext& context,
 					  const CIMObjectPath& ref,
 					  const Uint32 flags,
 					  const CIMPropertyList& propertyList,
-					  ResponseHandler<CIMInstance>& handler)
+					  InstanceResponseHandler& handler)
 {
    CDROMDriveData diskdriveData;
    MediaAccessDeviceInformation *curCDROMDrive;
@@ -97,7 +97,7 @@ LinuxCDROMDriveProvider::enumerateInstances(
 			        const CIMObjectPath& ref, 
 			        const Uint32 flags, 
 			        const CIMPropertyList& propertyList,
-			        ResponseHandler<CIMInstance>& handler )
+			        InstanceResponseHandler& handler )
 {
    CDROMDriveData diskdriveData;
    MediaAccessDeviceInformation *curCDROMDrive;
@@ -121,7 +121,7 @@ void
 LinuxCDROMDriveProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    CDROMDriveData diskdriveData;
    MediaAccessDeviceInformation *curCDROMDrive;
@@ -149,7 +149,7 @@ LinuxCDROMDriveProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 		          	const Uint32 flags, 
 		          	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxCDROMDriveProvider::modifyInstance called" << endl;
    throw CIMNotSupportedException(CDROMDRIVECLASSNAME"::modifyInstance");
@@ -160,7 +160,7 @@ LinuxCDROMDriveProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    cout << "LinuxCDROMDriveProvider::createInstance called" << endl;
    throw CIMNotSupportedException(CDROMDRIVECLASSNAME"::createInstance");
@@ -170,7 +170,7 @@ void
 LinuxCDROMDriveProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxCDROMDriveProvider::deleteInstance called" << endl;
    throw CIMNotSupportedException(CDROMDRIVECLASSNAME"::deleteInstance");

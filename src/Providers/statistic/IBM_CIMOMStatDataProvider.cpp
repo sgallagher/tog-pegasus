@@ -61,7 +61,7 @@ void IBM_CIMOMStatDataProvider::getInstance(
 	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
         const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
@@ -92,7 +92,7 @@ void IBM_CIMOMStatDataProvider::enumerateInstances(
 	const CIMObjectPath & classReference,
 	const Uint32 flags,
         const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
     // begin processing the request
 	handler.processing();
@@ -111,7 +111,7 @@ void IBM_CIMOMStatDataProvider::enumerateInstances(
 void IBM_CIMOMStatDataProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -132,7 +132,7 @@ void IBM_CIMOMStatDataProvider::modifyInstance(
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
         const CIMPropertyList & propertyList,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
 {
 	throw CIMNotSupportedException("StatisticalData::modifyInstance");
 }
@@ -141,7 +141,7 @@ void IBM_CIMOMStatDataProvider::createInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	throw CIMNotSupportedException("StatisticalData::createInstance");
 }
@@ -149,7 +149,7 @@ void IBM_CIMOMStatDataProvider::createInstance(
 void IBM_CIMOMStatDataProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
 {
 throw CIMNotSupportedException("StatisticalData::deleteInstance");
 }

@@ -54,7 +54,7 @@ void ProcessIndicationProvider::terminate (void)
 }
 
 void ProcessIndicationProvider::enableIndications (
-    ResponseHandler <CIMIndication> & handler)
+    IndicationResponseHandler & handler)
 {
 //cout << "enable ProcessIndicationProvider" << endl;
     handler.processing ();

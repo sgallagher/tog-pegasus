@@ -29,7 +29,7 @@
 
 #include "HelloWorldProvider.h"
 
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #include <Pegasus/Provider/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
@@ -146,7 +146,7 @@ void HelloWorldProvider::getInstance(
 	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	// synchronously get references
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
@@ -178,7 +178,7 @@ void HelloWorldProvider::enumerateInstances(
 	const CIMObjectPath & ref,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -214,7 +214,7 @@ void HelloWorldProvider::enumerateInstances(
 void HelloWorldProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -251,7 +251,7 @@ void HelloWorldProvider::modifyInstance(
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
         // ATTN: Partial modification is not yet supported by this provider
         if ((flags & OperationFlag::PARTIAL_INSTANCE) ||
@@ -299,7 +299,7 @@ void HelloWorldProvider::createInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	// synchronously get references
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
@@ -331,7 +331,7 @@ void HelloWorldProvider::createInstance(
 void HelloWorldProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	// synchronously get references
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
@@ -367,7 +367,7 @@ void HelloWorldProvider::provideIndication(
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	handler.processing();
 }
@@ -378,7 +378,7 @@ void HelloWorldProvider::updateIndication(
 	const CIMDateTime & minimumInterval,
 	const CIMDateTime & maximumInterval,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	handler.processing();
 }
@@ -386,7 +386,7 @@ void HelloWorldProvider::updateIndication(
 void HelloWorldProvider::cancelIndication(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	handler.complete();
 }
@@ -395,7 +395,7 @@ void HelloWorldProvider::checkIndication(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
 	const Array<String> & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	throw CIMNotSupportedException("HelloWorldProvider::checkIndication");
 }
@@ -404,7 +404,7 @@ Array<CIMObjectPath> HelloWorldProvider::_enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference)
 {
-	SimpleResponseHandler<CIMObjectPath> handler;
+	SimpleObjectPathResponseHandler handler;
 
 	enumerateInstanceNames(context, classReference, handler);
 
@@ -424,7 +424,7 @@ void HelloWorldProvider::enableIndication(
         const String & condition,
         const String & queryLanguage,
         const CIMInstance & subscription,
-        ResponseHandler<CIMInstance> & handler)
+        InstanceResponseHandler & handler)
 {
 }
 
@@ -434,7 +434,7 @@ void HelloWorldProvider::disableIndication(
         const String & nameSpace,
         const Array<String> & classNames,
         const CIMInstance & subscription,
-        ResponseHandler<CIMInstance> & handler)
+        InstanceResponseHandler & handler)
 {
 }
 
@@ -451,7 +451,7 @@ void HelloWorldProvider::modifyIndication(
         const String & condition,
         const String & queryLanguage,
         const CIMInstance & subscription,
-        ResponseHandler<CIMInstance> & handler)
+        InstanceResponseHandler & handler)
 {
 }
 

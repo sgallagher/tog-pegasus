@@ -74,7 +74,7 @@ public:
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMName & propertyName,
-	ResponseHandler<CIMValue> & handler) = 0;
+	ValueResponseHandler & handler) = 0;
 
     /**
     Instructs the provider to set the value specified by the propertyName parameter of the
@@ -100,7 +100,7 @@ public:
 	const CIMObjectPath & instanceReference,
 	const CIMName & propertyName,
 	const CIMValue & newValue,
-	ResponseHandler<CIMValue> & handler) = 0;
+	ResponseHandler & handler) = 0;
 
 };
 

@@ -63,7 +63,7 @@ public:
     virtual void handleIndication(
 	const OperationContext & context,
 	const CIMInstance & indication,
-	ResponseHandler<void> & handler) = 0;
+	ResponseHandler & handler) = 0;
 
     // ATTN: The following method is only for testing purposes.
     virtual void handleIndication(

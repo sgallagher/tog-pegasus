@@ -51,7 +51,7 @@
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Provider/OperationFlag.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -105,7 +105,7 @@ public:
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ResponseHandler<CIMObjectPath> & handler);
+	ObjectPathResponseHandler & handler);
 
     /**
     Deletes the specified instance. In the namespace provider, this deletes
@@ -118,7 +118,7 @@ public:
     virtual void deleteInstance(
 	const OperationContext & context,
         const CIMObjectPath& instanceName,
-	ResponseHandler<void> & handler);
+	ResponseHandler & handler);
 
     /**
     Returns the instance based on instanceName.
@@ -135,7 +135,7 @@ public:
         const CIMObjectPath& instanceName,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler);
+	InstanceResponseHandler & handler);
 
     /**
     Modify instance based on modifiedInstance.
@@ -155,7 +155,7 @@ public:
         const CIMInstance& modifiedIns,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "");
     }
@@ -175,7 +175,7 @@ public:
 	const CIMObjectPath & ref,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler);
+	InstanceResponseHandler & handler);
 
     /**
     Enumerates all the config property names.
@@ -188,7 +188,7 @@ public:
     virtual void enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     /**
     Standard initialization function for the provider.

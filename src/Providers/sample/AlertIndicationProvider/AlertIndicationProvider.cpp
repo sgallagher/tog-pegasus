@@ -54,7 +54,7 @@ void AlertIndicationProvider::terminate (void)
 }
 
 void AlertIndicationProvider::enableIndications (
-    ResponseHandler <CIMIndication> & handler)
+    IndicationResponseHandler & handler)
 {
 //cout << "enable AlertIndicationProvider" << endl;
     handler.processing ();

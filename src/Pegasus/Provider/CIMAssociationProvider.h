@@ -81,7 +81,7 @@ public:
 	const String & resultRole,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMObject> & handler) = 0;
+	ObjectResponseHandler & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -105,7 +105,7 @@ public:
 	const CIMName & resultClass,
 	const String & role,
 	const String & resultRole,
-	ResponseHandler<CIMObjectPath> & handler) = 0;
+	ObjectPathResponseHandler & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -130,7 +130,7 @@ public:
 	const String & role,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMObject> & handler) = 0;
+	ObjectResponseHandler & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -150,7 +150,7 @@ public:
 	const CIMObjectPath & objectName,
 	const CIMName & resultClass,
 	const String & role,
-	ResponseHandler<CIMObjectPath> & handler) = 0;
+	ObjectPathResponseHandler & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

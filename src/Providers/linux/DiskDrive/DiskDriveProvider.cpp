@@ -57,7 +57,7 @@ void LinuxDiskDriveProvider::getInstance(const OperationContext& context,
 					 const CIMObjectPath& ref,
 					 const Uint32 flags,
 					 const CIMPropertyList& propertyList,
-					 ResponseHandler<CIMInstance>& handler)
+					 InstanceResponseHandler& handler)
 {
    DiskDriveData diskdriveData;
    MediaAccessDeviceInformation *curDiskDrive;
@@ -97,7 +97,7 @@ LinuxDiskDriveProvider::enumerateInstances(
 				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
-				ResponseHandler<CIMInstance>& handler )
+				InstanceResponseHandler& handler )
 {
    DiskDriveData diskdriveData;
    MediaAccessDeviceInformation *curDiskDrive;
@@ -121,7 +121,7 @@ void
 LinuxDiskDriveProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    DiskDriveData diskdriveData;
    MediaAccessDeviceInformation *curDiskDrive;
@@ -149,7 +149,7 @@ LinuxDiskDriveProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxDiskDriveProvider::modifyInstance called" << endl;
    throw CIMNotSupportedException(DISKDRIVECLASSNAME"::modifyInstance");
@@ -160,7 +160,7 @@ LinuxDiskDriveProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    cout << "LinuxDiskDriveProvider::createInstance called" << endl;
    throw CIMNotSupportedException(DISKDRIVECLASSNAME"::createInstance");
@@ -170,7 +170,7 @@ void
 LinuxDiskDriveProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxDiskDriveProvider::deleteInstance called" << endl;
    throw CIMNotSupportedException(DISKDRIVECLASSNAME"::deleteInstance");

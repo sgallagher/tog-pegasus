@@ -64,33 +64,33 @@ class LinuxIOPortProvider : public CIMInstanceProvider
 		       const CIMObjectPath& ref,
 		       const Uint32 flags,
 		       const CIMPropertyList& propertyList,
-		       ResponseHandler<CIMInstance>& handler );
+		       InstanceResponseHandler& handler );
 
       void enumerateInstances(const OperationContext& context,
 			      const CIMObjectPath& ref,
 			      const Uint32 flags,
 			      const CIMPropertyList& propertyList,
-			      ResponseHandler<CIMInstance>& handler );
+			      InstanceResponseHandler& handler );
 
       void enumerateInstanceNames(const OperationContext& context,
 			          const CIMObjectPath& ref,
-			          ResponseHandler<CIMObjectPath>& handler );
+			          ObjectPathResponseHandler& handler );
 
       void modifyInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
-		          ResponseHandler<void>& handler );
+		          ResponseHandler& handler );
 
       void createInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
-		          ResponseHandler<CIMObjectPath>& handler );
+		          ObjectPathResponseHandler& handler );
 
       void deleteInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
-		          ResponseHandler<void>& handler );
+		          ResponseHandler& handler );
 
       void initialize(CIMOMHandle& handle);
       void terminate(void);

@@ -114,8 +114,7 @@ public:
 	const CIMObjectPath & objectReference,
 	const CIMName & methodName,
 	const Array<CIMParamValue> & inParameters,
-	Array<CIMParamValue> & outParameters,
-	ResponseHandler<CIMValue> & handler) = 0;
+	MethodResultResponseHandler & handler) = 0;
 
 };
 

@@ -37,16 +37,16 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static ResponseHandler<CIMIndication> * _handler = 0; 
+static IndicationResponseHandler * _handler = 0; 
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
 
 void _generateIndication (
-    ResponseHandler <CIMIndication> * handler,
+    IndicationResponseHandler * handler,
     const CIMName methodName);
 
 void _generateIndication (
-    ResponseHandler <CIMIndication> & handler,
+    IndicationResponseHandler & handler,
     const CIMName methodName);
 
 RT_IndicationProvider::RT_IndicationProvider (void) throw ()
@@ -66,7 +66,7 @@ void RT_IndicationProvider::terminate (void)
 }
 
 void RT_IndicationProvider::enableIndications (
-    ResponseHandler <CIMIndication> & handler)
+    IndicationResponseHandler & handler)
 {
     _enabled = true;
     _handler = &handler;
@@ -77,7 +77,7 @@ cout << "enable RT_IndicationProvider" << " _handler = " << _handler << endl;
 }
 
 void _generateIndication (
-    ResponseHandler <CIMIndication> * handler,
+    IndicationResponseHandler * handler,
     const CIMName methodName)
 {
     if (_enabled)
@@ -111,7 +111,7 @@ void _generateIndication (
 }
 
 void _generateIndication (
-    ResponseHandler <CIMIndication> & handler,
+    IndicationResponseHandler & handler,
     const CIMName methodName)
 {
     if (_enabled)
@@ -184,8 +184,7 @@ void RT_IndicationProvider::invokeMethod(
         const CIMObjectPath & objectReference,
         const CIMName & methodName,
         const Array<CIMParamValue> & inParameters,
-        Array<CIMParamValue> & outParameters,
-        ResponseHandler<CIMValue> & handler)
+        MethodResultResponseHandler & handler)
 {
 cout << "invokeMethod RT_IndicationProvider" << endl;
         Boolean sendIndication = false;

@@ -82,6 +82,7 @@ SOURCES = \
     Pair.cpp \
     Queue.cpp \
     Resolver.cpp \
+    ResponseHandler.cpp \
     Service.cpp \
     Sharable.cpp \
     Socket.cpp \

@@ -52,8 +52,7 @@ void MethodProvider::invokeMethod(
 	const CIMObjectPath & objectReference,
 	const CIMName & methodName,
 	const Array<CIMParamValue> & inParameters,
-	Array<CIMParamValue> & outParameters,
-	ResponseHandler<CIMValue> & handler)
+	MethodResultResponseHandler & handler)
 {
 	// convert a fully qualified reference into a local reference
 	// (class name and keys only).
@@ -81,8 +80,9 @@ void MethodProvider::invokeMethod(
 			{
 			  outString.append(", " + replyName + "!");
 			}
-		      outParameters.append( CIMParamValue( "Place", CIMValue( 
-					     String("From Neverland") ) ) );
+		      handler.deliverParamValue(
+                          CIMParamValue( "Place",
+                                         CIMValue(String("From Neverland")) ) );
 		      handler.deliver( CIMValue( outString ) );
 		     
 		    }

@@ -55,7 +55,7 @@ public:
 		const String & resultRole,
 		const Uint32 flags,
 		const CIMPropertyList & propertyList,
-		ResponseHandler<CIMObject> & handler);
+		ObjectResponseHandler & handler);
 
 	virtual void associatorNames(
 		const OperationContext & context,
@@ -64,7 +64,7 @@ public:
 		const String & resultClass,
 		const String & role,
 		const String & resultRole,
-		ResponseHandler<CIMObjectPath> & handler);
+		ObjectPathResponseHandler & handler);
 
 	virtual void references(
 		const OperationContext & context,
@@ -73,14 +73,14 @@ public:
 		const String & role,
 		const Uint32 flags,
 		const CIMPropertyList & propertyList,
-		ResponseHandler<CIMObject> & handler);
+		ObjectResponseHandler & handler);
 
 	virtual void referenceNames(
 		const OperationContext & context,
 		const CIMObjectPath & objectName,
 		const String & resultClass,
 		const String & role,
-		ResponseHandler<CIMObjectPath> & handler);
+		ObjectPathResponseHandler & handler);
 
 protected:
 

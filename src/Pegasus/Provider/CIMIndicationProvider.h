@@ -54,7 +54,7 @@ public:
 
     /** ATTN:
     */
-    virtual void enableIndications(ResponseHandler<CIMIndication> & handler) = 0;
+    virtual void enableIndications(IndicationResponseHandler & handler) = 0;
 
     /** ATTN:
     */

@@ -55,8 +55,7 @@ void ShutdownProvider::invokeMethod(
     const CIMObjectPath & objectReference,
     const CIMName & methodName,
     const Array<CIMParamValue> & inParameters,
-    Array<CIMParamValue> & outParameters,
-    ResponseHandler<CIMValue> & handler)
+    MethodResultResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownProvider::invokeMethod()");
 

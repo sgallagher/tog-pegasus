@@ -71,7 +71,7 @@ public:
         const CIMObjectPath & classReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMClass> & handler) = 0;
+        ClassResponseHandler & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -89,7 +89,7 @@ public:
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const Uint32 flags,
-        ResponseHandler<CIMClass> & handler) = 0;
+        ClassResponseHandler & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -107,7 +107,7 @@ public:
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const Uint32 flags,
-        ResponseHandler<CIMObjectPath> & handler) = 0;
+        ObjectPathResponseHandler & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -125,7 +125,7 @@ public:
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const CIMClass & classObject,
-        ResponseHandler<void> & handler) = 0;
+        ResponseHandler & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -143,7 +143,7 @@ public:
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const CIMClass & classObject,
-        ResponseHandler<void> & handler) = 0;
+        ResponseHandler & handler) = 0;
 
     /**
     @param contex contains security and locale information relevant for the lifetime
@@ -158,7 +158,7 @@ public:
     virtual void deleteClass(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        ResponseHandler<void> & handler) = 0;
+        ResponseHandler & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

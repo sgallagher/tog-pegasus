@@ -30,8 +30,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMInstance.h>
 
-#include <Pegasus/Provider/ResponseHandler.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
+#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 
 PEGASUS_USING_PEGASUS;
 
@@ -43,14 +43,15 @@ int main(void)
 {
     // instantiate the primary response handler types
     {
-        ResponseHandler<void> handler = SimpleResponseHandler<void>();
+        SimpleResponseHandler concreteHandler;
+        ResponseHandler& handler = concreteHandler;
 
         handler.processing();
         handler.complete();
     }
 
     {
-        ResponseHandler<CIMObject> handler = SimpleResponseHandler<CIMObject>();
+        SimpleObjectResponseHandler handler = SimpleObjectResponseHandler();
 
         handler.processing();
         handler.deliver(CIMObject());
@@ -58,7 +59,7 @@ int main(void)
     }
 
     {
-        SimpleResponseHandler<CIMClass> handler = SimpleResponseHandler<CIMClass>();
+        SimpleClassResponseHandler handler = SimpleClassResponseHandler();
 
         handler.processing();
         handler.deliver(CIMClass());
@@ -66,7 +67,7 @@ int main(void)
     }
 
     {
-        SimpleResponseHandler<CIMInstance> handler = SimpleResponseHandler<CIMInstance>();
+        SimpleInstanceResponseHandler handler = SimpleInstanceResponseHandler();
 
         handler.processing();
         handler.deliver(CIMInstance());
@@ -74,7 +75,7 @@ int main(void)
     }
 
     {
-        SimpleResponseHandler<CIMObjectPath> handler = SimpleResponseHandler<CIMObjectPath>();
+        SimpleObjectPathResponseHandler handler = SimpleObjectPathResponseHandler();
 
         handler.processing();
         handler.deliver(CIMObjectPath());
@@ -82,9 +83,11 @@ int main(void)
     }
 
     {
-        SimpleResponseHandler<CIMValue> handler = SimpleResponseHandler<CIMValue>();
+        SimpleMethodResultResponseHandler handler = SimpleMethodResultResponseHandler();
 
         handler.processing();
+        handler.deliverParamValue(CIMParamValue("param1", String("p1")));
+        handler.deliverParamValue(CIMParamValue("param2", String("p2")));
         handler.deliver(CIMValue());
         handler.complete();
     }

@@ -62,7 +62,7 @@ void PropertyProvider::getProperty(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const String & propertyName,
-	ResponseHandler<CIMValue> & handler)
+	ValueResponseHandler & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
@@ -96,7 +96,7 @@ void PropertyProvider::setProperty(
 	const CIMObjectPath & instanceReference,
 	const String & propertyName,
 	const CIMValue & newValue,
-	ResponseHandler<CIMValue> & handler)
+	ResponseHandler & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).

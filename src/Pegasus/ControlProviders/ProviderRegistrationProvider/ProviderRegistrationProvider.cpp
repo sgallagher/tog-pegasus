@@ -202,7 +202,7 @@ void ProviderRegistrationProvider::getInstance(
     const CIMObjectPath & instanceReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<CIMInstance> & handler)
+    InstanceResponseHandler & handler)
 {
 
     if(!String::equalNoCase(instanceReference.getNameSpace(),
@@ -248,7 +248,7 @@ void ProviderRegistrationProvider::enumerateInstances(
     const CIMObjectPath & classReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<CIMInstance> & handler)
+    InstanceResponseHandler & handler)
 {
     if(!String::equalNoCase(classReference.getNameSpace(),
       	                    PEGASUS_NAMESPACENAME_INTEROP))
@@ -290,7 +290,7 @@ void ProviderRegistrationProvider::enumerateInstances(
 void ProviderRegistrationProvider::enumerateInstanceNames(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     if(!String::equalNoCase(classReference.getNameSpace(),
       	                    PEGASUS_NAMESPACENAME_INTEROP))
@@ -339,7 +339,7 @@ void ProviderRegistrationProvider::modifyInstance(
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<void> & handler)
+        ResponseHandler & handler)
 {
     // get userName and only privileged user can execute this operation
     String userName;
@@ -417,7 +417,7 @@ void ProviderRegistrationProvider::createInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
     const CIMInstance & instanceObject,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     // get userName and only privileged user can execute this operation
     String userName;
@@ -603,7 +603,7 @@ void ProviderRegistrationProvider::createInstance(
 void ProviderRegistrationProvider::deleteInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
-    ResponseHandler<void> & handler)
+    ResponseHandler & handler)
 {
     // get userName and only privileged user can execute this operation
     String userName;
@@ -661,8 +661,7 @@ void ProviderRegistrationProvider::invokeMethod(
     const CIMObjectPath & objectReference,
     const CIMName & methodName,
     const Array<CIMParamValue> & inParameters,
-    Array<CIMParamValue> & outParameters,
-    ResponseHandler<CIMValue> & handler)
+    MethodResultResponseHandler & handler)
 {
     // get userName and only privileged user can execute this operation
     String userName;

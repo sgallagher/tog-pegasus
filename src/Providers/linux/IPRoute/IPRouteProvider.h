@@ -87,7 +87,7 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
 		       const CIMObjectPath& ref,
 		       const Uint32 flags,
 		       const CIMPropertyList& propertyList,
-		       ResponseHandler<CIMInstance>& handler );
+		       InstanceResponseHandler& handler );
 
       /** Returns filled instances for all instances of the CIM class detected
        *  on the system. */
@@ -95,14 +95,14 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
 			      const CIMObjectPath& ref,
 			      const Uint32 flags,
 			      const CIMPropertyList& propertyList,
-			      ResponseHandler<CIMInstance>& handler );
+			      InstanceResponseHandler& handler );
 
       /** Produces a list of references to all instances of the CIM class
        *  detected on the system, but does not fill the instances
        *  themselves. */
       void enumerateInstanceNames(const OperationContext& context,
 			          const CIMObjectPath& ref,
-			          ResponseHandler<CIMObjectPath>& handler );
+			          ObjectPathResponseHandler& handler );
 
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
@@ -111,20 +111,20 @@ class LinuxIPRouteProvider : public CIMInstanceProvider
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
-		          ResponseHandler<void>& handler );
+		          ResponseHandler& handler );
 
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void createInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
-		          ResponseHandler<CIMObjectPath>& handler );
+		          ObjectPathResponseHandler& handler );
 
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void deleteInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
-		          ResponseHandler<void>& handler );
+		          ResponseHandler& handler );
 
       void initialize(CIMOMHandle& handle);
       void terminate(void);

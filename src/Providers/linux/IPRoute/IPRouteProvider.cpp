@@ -60,7 +60,7 @@ LinuxIPRouteProvider::getInstance(const OperationContext& context,
 				  const CIMObjectPath& ref,
 				  const Uint32 flags,
 				  const CIMPropertyList& propertyList,
-				  ResponseHandler<CIMInstance>& handler)
+				  InstanceResponseHandler& handler)
 {
    Array<KeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
@@ -128,7 +128,7 @@ LinuxIPRouteProvider::enumerateInstances(
 				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
-				ResponseHandler<CIMInstance>& handler)
+				InstanceResponseHandler& handler)
 {
    unsigned int i;
 
@@ -148,7 +148,7 @@ void
 LinuxIPRouteProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			        const CIMObjectPath& ref,
-			        ResponseHandler<CIMObjectPath>& handler )
+			        ObjectPathResponseHandler& handler )
 {
    unsigned int i;
 
@@ -176,7 +176,7 @@ LinuxIPRouteProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    throw CIMNotSupportedException(IPROUTECLASSNAME"::modifyInstance");
 }
@@ -186,7 +186,7 @@ LinuxIPRouteProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    throw CIMNotSupportedException(IPROUTECLASSNAME"::createInstance");
 }
@@ -194,7 +194,7 @@ LinuxIPRouteProvider::createInstance(
 void 
 LinuxIPRouteProvider::deleteInstance(const OperationContext& context,
 			  	     const CIMObjectPath& ref,
-			  	     ResponseHandler<void>& handler )
+			  	     ResponseHandler& handler )
 {
    throw CIMNotSupportedException(IPROUTECLASSNAME"::deleteInstance");
 }

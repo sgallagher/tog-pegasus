@@ -52,7 +52,7 @@ LinuxPCIControllerProvider::getInstance(const OperationContext& context,
 					const CIMObjectPath& ref,
 					const Uint32 flags,
 					const CIMPropertyList& propertyList,
-					ResponseHandler<CIMInstance>& handler)
+					InstanceResponseHandler& handler)
 {
    PCIControllerData *dptr1, *dptr2;
    Array<KeyBinding> keys = ref.getKeyBindings();
@@ -102,7 +102,7 @@ LinuxPCIControllerProvider::enumerateInstances(
 				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
-				ResponseHandler<CIMInstance>& handler )
+				InstanceResponseHandler& handler )
 {
    PCIControllerData *dptr1, *dptr2;
 
@@ -126,7 +126,7 @@ void
 LinuxPCIControllerProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    PCIControllerData *dptr1, *dptr2;
 
@@ -154,7 +154,7 @@ LinuxPCIControllerProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    throw CIMNotSupportedException(classname + "::modifyInstance");
 }
@@ -164,7 +164,7 @@ LinuxPCIControllerProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    throw CIMNotSupportedException(classname + "::createInstance");
 }
@@ -173,7 +173,7 @@ void
 LinuxPCIControllerProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    throw CIMNotSupportedException(classname + "::deleteInstance");
 }

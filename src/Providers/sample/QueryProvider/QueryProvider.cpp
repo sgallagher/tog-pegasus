@@ -52,7 +52,7 @@ void QueryProvider::executeQuery(
 	const String & nameSpace,
 	const String & queryLanguage,
 	const String & query,
-	ResponseHandler<CIMObject> & handler)
+	ObjectResponseHandler & handler)
 {
 	throw CIMNotSupportedException("QueryProvider::executeQuery");
 }

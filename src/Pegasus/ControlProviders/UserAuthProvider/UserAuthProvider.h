@@ -55,7 +55,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/Security/UserManager/UserExceptions.h>
 
@@ -111,7 +111,7 @@ public:
         const CIMObjectPath& instanceName,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
     {
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, "");
     }
@@ -128,7 +128,7 @@ public:
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ResponseHandler<CIMObjectPath> & handler);
+	ObjectPathResponseHandler & handler);
 
     /**
     Deletes the specified instance.
@@ -140,7 +140,7 @@ public:
     virtual void deleteInstance(
 	const OperationContext & context,
         const CIMObjectPath& myInstance,
-	ResponseHandler<void> & handler);
+	ResponseHandler & handler);
 
 
     /**
@@ -158,7 +158,7 @@ public:
         const CIMInstance& modifiedIns,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<void> & handler);
+        ResponseHandler & handler);
 
     /**
     Enumerates instances.
@@ -175,7 +175,7 @@ public:
         const CIMObjectPath & ref,
         const Uint32 flags,
         const CIMPropertyList& propertyList,
-        ResponseHandler<CIMInstance> & handler);
+        InstanceResponseHandler & handler);
 
     /**
     Enumerates all the user names.
@@ -183,7 +183,7 @@ public:
     virtual void enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     /**
        Invoke Method, used to modify user's password
@@ -193,8 +193,7 @@ public:
         const CIMObjectPath & ref,
         const CIMName & methodName,
         const Array<CIMParamValue> & inParams,
-        Array<CIMParamValue> & outParams,
-        ResponseHandler<CIMValue> & handler);
+        MethodResultResponseHandler & handler);
 
     /**
     Standard initialization function for the provider.  This method should

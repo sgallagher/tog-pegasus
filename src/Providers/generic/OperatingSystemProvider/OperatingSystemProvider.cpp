@@ -31,7 +31,7 @@
 
 #include <Pegasus/Common/Config.h>
 
-#include <Pegasus/Provider/SimpleResponseHandler.cpp>
+#include <Pegasus/ProviderManager/SimpleResponseHandler.cpp>
 
 #include "OperatingSystemProvider.h"
 #include "OperatingSystem.h"
@@ -60,7 +60,7 @@ void OperatingSystemProvider::getInstance(
 	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	handler.processing();
 
@@ -86,7 +86,7 @@ void OperatingSystemProvider::enumerateInstances(
 	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	handler.processing();
 
@@ -152,7 +152,7 @@ void OperatingSystemProvider::enumerateInstances(
 void OperatingSystemProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -192,7 +192,7 @@ void OperatingSystemProvider::modifyInstance(
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
 {
 	throw CIMNotSupportedException("OperatingSystem::modifyInstance");
 }
@@ -201,7 +201,7 @@ void OperatingSystemProvider::createInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	throw CIMNotSupportedException("OperatingSystem::createInstance");
 }
@@ -209,7 +209,7 @@ void OperatingSystemProvider::createInstance(
 void OperatingSystemProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
 {
 	throw CIMNotSupportedException("OperatingSystem::deleteInstance");
 }
@@ -218,7 +218,7 @@ Array<CIMInstance> OperatingSystemProvider::_enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference)
 {
-	SimpleResponseHandler<CIMInstance> handler;
+	SimpleInstanceResponseHandler handler;
 
 	enumerateInstances(context, classReference, 0xffffffff, CIMPropertyList(), handler);
 
@@ -229,7 +229,7 @@ Array<CIMObjectPath> OperatingSystemProvider::_enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference)
 {
-	SimpleResponseHandler<CIMObjectPath> handler;
+	SimpleObjectPathResponseHandler handler;
 
 	enumerateInstanceNames(context, classReference, handler);
 

@@ -126,7 +126,7 @@ void CMPIAdapter::getInstance(
         const CIMObjectPath & instanceReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler)
+        InstanceResponseHandler & handler)
 {
    cerr<<"--- TestProvider::getInstance"<<endl;
    handler.processing();
@@ -136,7 +136,7 @@ void CMPIAdapter::getInstance(
 void CMPIAdapter::deleteInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        ResponseHandler<CIMInstance> & handler)
+        InstanceResponseHandler & handler)
 {
    cerr<<"--- TestProvider::deleteInstances"<<endl;
    //handler.processing();
@@ -147,7 +147,7 @@ void CMPIAdapter::createInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        ResponseHandler<CIMObjectPath> & handler)
+        ObjectPathResponseHandler & handler)
 {
    cerr<<"--- TestProvider::createInstances"<<endl;
    //handler.processing();
@@ -160,7 +160,7 @@ void CMPIAdapter::modifyInstance(
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler)
+        InstanceResponseHandler & handler)
 {
    cerr<<"--- TestProvider::modifyInstances"<<endl;
    handler.processing();
@@ -172,7 +172,7 @@ void CMPIAdapter::enumerateInstances(
         const CIMObjectPath & classReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler)
+        InstanceResponseHandler & handler)
 {
    cerr<<"--- TestProvider::enumerateInstances"<<endl;
    handler.processing();
@@ -182,7 +182,7 @@ void CMPIAdapter::enumerateInstances(
 void CMPIAdapter::enumerateInstanceNames(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        ResponseHandler<CIMObjectPath> & handler)
+        ObjectPathResponseHandler & handler)
 {
    cerr<<"--- TestProvider::enumerateInstanceNames"<<endl;
    handler.processing();
@@ -202,7 +202,7 @@ void CMPIAdapter::associators(
         const String & resultRole,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMObject> & handler)
+        ObjectResponseHandler & handler)
 {
    cerr<<"--- TestProvider::associators"<<endl;
    handler.processing();
@@ -216,7 +216,7 @@ void CMPIAdapter::associatorNames(
         const String & resultClass,
         const String & role,
         const String & resultRole,
-        ResponseHandler<CIMObjectPath> & handler)
+        ObjectPathResponseHandler & handler)
 {
    cerr<<"--- TestProvider::associatorNames"<<endl;
    handler.processing();
@@ -230,7 +230,7 @@ void CMPIAdapter::references(
         const String & role,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMObject> & handler)
+        ObjectResponseHandler & handler)
 {
    cerr<<"--- TestProvider::references"<<endl;
    handler.processing();
@@ -242,7 +242,7 @@ void CMPIAdapter::referenceNames(
         const CIMObjectPath & objectName,
         const String & resultClass,
         const String & role,
-        ResponseHandler<CIMObjectPath> & handler)
+        ObjectPathResponseHandler & handler)
 {
    cerr<<"--- TestProvider::referenceNames"<<endl;
    handler.processing();
@@ -257,8 +257,7 @@ void CMPIAdapter::invokeMethod(
         const CIMObjectPath & objectReference,
         const String & methodName,
         const Array<CIMParamValue> & inParameters,
-        Array<CIMParamValue> & outParameters,
-        ResponseHandler<CIMValue> & handler)
+        MethodResultResponseHandler & handler)
 {
    cerr<<"--- TestProvider::invokeMethod"<<endl;
    handler.processing();

@@ -64,7 +64,7 @@
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Provider/OperationFlag.h>
 
 PEGASUS_USING_STD;
@@ -235,7 +235,7 @@ void NamespaceProvider::createInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::createInstance()");
 
@@ -327,7 +327,7 @@ void NamespaceProvider::createInstance(
 void NamespaceProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceName,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::deleteInstance");
 
@@ -415,7 +415,7 @@ void NamespaceProvider::getInstance(
 	const CIMObjectPath & instanceName,
         const Uint32 flags,
         const CIMPropertyList & properatyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::getInstance");
 
@@ -514,7 +514,7 @@ void NamespaceProvider::enumerateInstances(
 	const CIMObjectPath & ref,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
     {
        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "NamespaceProvider::enumerateInstances()");
 
@@ -598,7 +598,7 @@ void NamespaceProvider::enumerateInstances(
 void NamespaceProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-        ResponseHandler<CIMObjectPath> & handler)
+        ObjectPathResponseHandler & handler)
     {
 
 	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,

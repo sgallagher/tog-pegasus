@@ -55,7 +55,7 @@
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Provider/OperationFlag.h>
 
 PEGASUS_USING_STD;
@@ -86,7 +86,7 @@ void ConfigSettingProvider::getInstance(
         const CIMObjectPath& instanceName,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::getInstance()");
 
@@ -168,7 +168,7 @@ void ConfigSettingProvider::modifyInstance(
         const CIMInstance& modifiedIns,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::modifyInstance()");
 
@@ -370,7 +370,7 @@ void ConfigSettingProvider::enumerateInstances(
 	const CIMObjectPath & ref,
 	const Uint32 flags,
         const CIMPropertyList& propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::enumerateInstances()");
 
@@ -439,7 +439,7 @@ void ConfigSettingProvider::enumerateInstances(
 void ConfigSettingProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-        ResponseHandler<CIMObjectPath> & handler)
+        ObjectPathResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONFIG,
             "ConfigSettingProvider::enumerateInstanceNames()");

@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #include <Pegasus/Provider/OperationFlag.h>
 
 #include <Pegasus/Common/CIMDateTime.h>
@@ -142,7 +142,7 @@ void PG_TestPropertyTypes::getInstance(
 	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	// synchronously get references
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
@@ -191,7 +191,7 @@ void PG_TestPropertyTypes::enumerateInstances(
 	const CIMObjectPath & ref,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 
 	// ensure the Namespace is valid
@@ -226,7 +226,7 @@ void PG_TestPropertyTypes::enumerateInstances(
 void PG_TestPropertyTypes::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 
 	// ensure the Namespace is valid
@@ -269,7 +269,7 @@ void PG_TestPropertyTypes::modifyInstance(
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
 {
 	// ATTN: This provider does not yet support partial modification
 	if (!propertyList.isNull())
@@ -314,7 +314,7 @@ void PG_TestPropertyTypes::createInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	// synchronously get references
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
@@ -387,7 +387,7 @@ void PG_TestPropertyTypes::createInstance(
 void PG_TestPropertyTypes::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
 {
 	// synchronously get references
 	Array<CIMObjectPath> references = _enumerateInstanceNames(context, instanceReference);
@@ -424,7 +424,7 @@ void PG_TestPropertyTypes::getProperty(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const String & propertyName,
-	ResponseHandler<CIMValue> & handler)
+	ValueResponseHandler & handler)
 {
 	throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -434,7 +434,7 @@ void PG_TestPropertyTypes::setProperty(
 	const CIMObjectPath & instanceReference,
 	const String & propertyName,
 	const CIMValue & newValue,
-	ResponseHandler<CIMValue> & handler)
+	ResponseHandler & handler)
 {
 	throw CIMException(CIM_ERR_NOT_SUPPORTED);
 }
@@ -443,7 +443,7 @@ Array<CIMObjectPath> PG_TestPropertyTypes::_enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference)
 {
-	SimpleResponseHandler<CIMObjectPath> handler;
+	SimpleObjectPathResponseHandler handler;
 
 	enumerateInstanceNames(context, classReference, handler);
 

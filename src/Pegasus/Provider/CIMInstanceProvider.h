@@ -147,7 +147,7 @@ public:
         const CIMObjectPath & instanceReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler) = 0;
+        InstanceResponseHandler & handler) = 0;
 
     /**
     \Label{enumerateInstances}
@@ -213,7 +213,7 @@ public:
         const CIMObjectPath & classReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler) = 0;
+        InstanceResponseHandler & handler) = 0;
 
     /**
     \Label{enumerateInstanceNames}
@@ -268,7 +268,7 @@ public:
     virtual void enumerateInstanceNames(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        ResponseHandler<CIMObjectPath> & handler) = 0;
+        ObjectPathResponseHandler & handler) = 0;
 
     /**
     \Label{modifyInstance}
@@ -333,7 +333,7 @@ public:
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<void> & handler) = 0;
+        ResponseHandler & handler) = 0;
 
     /**
     \Label{createInstance}
@@ -375,7 +375,7 @@ public:
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        ResponseHandler<CIMObjectPath> & handler) = 0;
+        ObjectPathResponseHandler & handler) = 0;
 
     /**
     \Label{deleteInstance}
@@ -401,7 +401,7 @@ public:
     virtual void deleteInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        ResponseHandler<void> & handler) = 0;
+        ResponseHandler & handler) = 0;
 };
 
 PEGASUS_NAMESPACE_END

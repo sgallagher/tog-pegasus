@@ -52,19 +52,19 @@ public:
 		const CIMObjectPath & ref,
 		const Uint32 flags,
 		const CIMPropertyList & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	virtual void enumerateInstances(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
 		const Uint32 flags,
 		const CIMPropertyList & propertyList,
-		ResponseHandler<CIMInstance> & handler);
+		InstanceResponseHandler & handler);
 
 	virtual void enumerateInstanceNames(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
-		ResponseHandler<CIMObjectPath> & handler);
+		ObjectPathResponseHandler & handler);
 
 	virtual void modifyInstance(
 		const OperationContext & context,
@@ -72,18 +72,18 @@ public:
 		const CIMInstance & obj,
 		const Uint32 flags,
 		const CIMPropertyList & propertyList,
-		ResponseHandler<void> & handler);
+		ResponseHandler & handler);
 
 	virtual void createInstance(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
 		const CIMInstance & obj,
-		ResponseHandler<CIMObjectPath> & handler);
+		ObjectPathResponseHandler & handler);
 
 	virtual void deleteInstance(
 		const OperationContext & context,
 		const CIMObjectPath & ref,
-		ResponseHandler<void> & handler);
+		ResponseHandler & handler);
 
 protected:
 	Array<CIMInstance> _enumerateInstances(

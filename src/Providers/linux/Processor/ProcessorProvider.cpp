@@ -58,7 +58,7 @@ LinuxProcessorProvider::getInstance(const OperationContext& context,
 				    const CIMObjectPath& ref,
 				    const Uint32 flags,
 				    const CIMPropertyList& propertyList,
-				    ResponseHandler<CIMInstance>& handler)
+				    InstanceResponseHandler& handler)
 {
    ProcessorData processorData;
    ProcessorInformation* curProcessor;
@@ -99,7 +99,7 @@ LinuxProcessorProvider::enumerateInstances(
 				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
-				ResponseHandler<CIMInstance>& handler )
+				InstanceResponseHandler& handler )
 {
    ProcessorData processorData;
    ProcessorInformation* curProcessor;
@@ -123,7 +123,7 @@ void
 LinuxProcessorProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    ProcessorData processorData;
    ProcessorInformation* curProcessor;
@@ -151,7 +151,7 @@ void LinuxProcessorProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags, 
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxProcessorProvider::modifyInstance called" << endl;
    throw CIMNotSupportedException(PROCESSORCLASSNAME "::modifyInstance");
@@ -162,7 +162,7 @@ LinuxProcessorProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    cout << "LinuxProcessorProvider::createInstance called" << endl;
    throw CIMNotSupportedException(PROCESSORCLASSNAME "::createInstance");
@@ -171,7 +171,7 @@ LinuxProcessorProvider::createInstance(
 void LinuxProcessorProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxProcessorProvider::deleteInstance called" << endl;
    throw CIMNotSupportedException(PROCESSORCLASSNAME "::deleteInstance");

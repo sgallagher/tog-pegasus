@@ -51,7 +51,7 @@ public:
     virtual void terminate (void);
 
     // CIMIndicationProvider interface
-    virtual void enableIndications (ResponseHandler <CIMIndication> & handler);
+    virtual void enableIndications (IndicationResponseHandler & handler);
     virtual void disableIndications (void);
 
     virtual void createSubscription (
@@ -79,8 +79,7 @@ public:
          const CIMObjectPath & objectReference,
          const CIMName & methodName,
          const Array<CIMParamValue> & inParameters,
-         Array<CIMParamValue> & outParameters,
-         ResponseHandler<CIMValue> & handler);
+         MethodResultResponseHandler & handler);
 
 protected:
 

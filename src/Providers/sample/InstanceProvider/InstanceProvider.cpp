@@ -79,7 +79,7 @@ void InstanceProvider::getInstance(
 	const CIMObjectPath & instanceReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
@@ -113,7 +113,7 @@ void InstanceProvider::enumerateInstances(
 	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler)
+	InstanceResponseHandler & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -131,7 +131,7 @@ void InstanceProvider::enumerateInstances(
 void InstanceProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	// begin processing the request
 	handler.processing();
@@ -152,7 +152,7 @@ void InstanceProvider::modifyInstance(
 	const CIMInstance & instanceObject,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
@@ -185,7 +185,7 @@ void InstanceProvider::createInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	const CIMInstance & instanceObject,
-	ResponseHandler<CIMObjectPath> & handler)
+	ObjectPathResponseHandler & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
@@ -222,7 +222,7 @@ void InstanceProvider::createInstance(
 void InstanceProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
-	ResponseHandler<void> & handler)
+	ResponseHandler & handler)
 {
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).

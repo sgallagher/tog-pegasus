@@ -31,7 +31,7 @@
 
 #include "ProviderMessageFacade.h"
 #include <Pegasus/Provider/OperationFlag.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Tracer.h>
@@ -168,7 +168,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 
 	CIMPropertyList propertyList(request->propertyList);
 
-	SimpleResponseHandler<CIMInstance> handler;
+	SimpleInstanceResponseHandler handler;
 
 	// forward request
 	getInstance(
@@ -248,7 +248,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
 	CIMPropertyList propertyList(request->propertyList);
 
-	SimpleResponseHandler<CIMInstance> handler;
+	SimpleInstanceResponseHandler handler;
 
 	enumerateInstances(
 	    context,
@@ -311,7 +311,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
-	SimpleResponseHandler<CIMObjectPath> handler;
+	SimpleObjectPathResponseHandler handler;
 
 	enumerateInstanceNames(
 	    context,
@@ -374,7 +374,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	// add the user name to the context
 	context.insert(IdentityContainer(request->userName));
 
-	SimpleResponseHandler<CIMObjectPath> handler;
+	SimpleObjectPathResponseHandler handler;
 
 	// forward request
 	createInstance(
@@ -458,7 +458,7 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 
 	CIMPropertyList propertyList(request->propertyList);
 
-	SimpleResponseHandler<void> handler;
+	SimpleResponseHandler handler;
 
 	// forward request
 	modifyInstance(
@@ -518,7 +518,7 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 
 	context.insert(IdentityContainer(request->userName));
 
-	SimpleResponseHandler<void> handler;
+	SimpleResponseHandler handler;
 
 	// forward request
 	deleteInstance(
@@ -736,7 +736,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	// ATTN: propagate namespace
 	instanceReference.setNameSpace(request->nameSpace);
 
-	SimpleResponseHandler<CIMValue> handler;
+	SimpleMethodResultResponseHandler handler;
 
 	// forward request
 	invokeMethod(
@@ -744,18 +744,19 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
 	    instanceReference,
 	    request->methodName,
 	    request->inParameters,
-	    outParameters,
 	    handler);
 
 	// error? provider claims success, but did not deliver a CIMValue.
-	if(handler.getObjects().size() == 0)
-	{
+        // ATTN-RK-20020903: Can the return value be null?
+	//if(handler.getReturnValue().isNull())
+	//{
 //	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
 // << Mon Apr 29 12:41:15 2002 mdd >>
-	    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
-	}
+	//    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+	//}
 
-	returnValue = handler.getObjects()[0];
+	outParameters = handler.getParamValues();
+	returnValue = handler.getReturnValue();
     }
     catch(CIMException & e)
     {

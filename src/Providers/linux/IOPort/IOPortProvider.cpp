@@ -58,7 +58,7 @@ LinuxIOPortProvider::getInstance(const OperationContext& context,
 				 const CIMObjectPath& ref,
 				 const Uint32 flags,
 				 const CIMPropertyList& propertyList,
-				 ResponseHandler<CIMInstance>& handler)
+				 InstanceResponseHandler& handler)
 {
    Array<KeyBinding> keys = ref.getKeyBindings();
    Uint32 i;
@@ -117,7 +117,7 @@ LinuxIOPortProvider::enumerateInstances(
 				const CIMObjectPath& ref, 
 				const Uint32 flags, 
 				const CIMPropertyList& propertyList,
-				ResponseHandler<CIMInstance>& handler)
+				InstanceResponseHandler& handler)
 {
    IOPortInformation* located_port;
    String className;
@@ -157,7 +157,7 @@ void
 LinuxIOPortProvider::enumerateInstanceNames(
       				const OperationContext& context,
 				const CIMObjectPath& ref,
-				ResponseHandler<CIMObjectPath>& handler )
+				ObjectPathResponseHandler& handler )
 {
    IOPortInformation* located_port;
    String className;
@@ -201,7 +201,7 @@ LinuxIOPortProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxIOPortProvider::modifyInstance called" << endl;
    throw CIMNotSupportedException(IOPORTCLASSNAME "::modifyInstance");
@@ -212,7 +212,7 @@ LinuxIOPortProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    cout << "LinuxIOPortProvider::createInstance called" << endl;
    throw CIMNotSupportedException(IOPORTCLASSNAME "::createInstance");
@@ -222,7 +222,7 @@ void
 LinuxIOPortProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "LinuxIOPortProvider::deleteInstance called" << endl;
    throw CIMNotSupportedException(IOPORTCLASSNAME"::deleteInstance");

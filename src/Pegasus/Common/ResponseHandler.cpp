@@ -31,4 +31,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+ResponseHandler::~ResponseHandler()
+{
+}
+
 PEGASUS_NAMESPACE_END

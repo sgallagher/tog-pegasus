@@ -60,35 +60,35 @@ public:
   void createInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
-                    ResponseHandler<CIMObjectPath> &handler);
+                    ObjectPathResponseHandler &handler);
 
   void deleteInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceReference,
-                    ResponseHandler<void> &handler);
+                    ResponseHandler &handler);
 
   void enumerateInstances(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
-	ResponseHandler<CIMInstance> & handler);
+	InstanceResponseHandler & handler);
 
   void enumerateInstanceNames(const OperationContext        &context,
                             const CIMObjectPath            &ref,
-                            ResponseHandler<CIMObjectPath> &handler);
+                            ObjectPathResponseHandler &handler);
 
   void getInstance(const OperationContext       &context,
                  const CIMObjectPath           &instanceName,
                  const Uint32                  flags,
                  const CIMPropertyList        &propertyList,
-                 ResponseHandler<CIMInstance> &handler);
+                 InstanceResponseHandler &handler);
 
   void modifyInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
 		    const CIMPropertyList        &propertyList,
-                    ResponseHandler<void> &handler);
+                    ResponseHandler &handler);
 
   void initialize(CIMOMHandle&);
 

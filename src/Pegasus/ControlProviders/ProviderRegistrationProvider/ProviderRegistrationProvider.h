@@ -89,19 +89,19 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
         const CIMObjectPath & instanceReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler);
+        InstanceResponseHandler & handler);
 
     virtual void enumerateInstances(
         const OperationContext & context,
         const CIMObjectPath & classReference,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<CIMInstance> & handler);
+        InstanceResponseHandler & handler);
 
     virtual void enumerateInstanceNames(
         const OperationContext & context,
         const CIMObjectPath & classReference,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     virtual void modifyInstance(
         const OperationContext & context,
@@ -109,18 +109,18 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
         const CIMInstance & instanceObject,
         const Uint32 flags,
         const CIMPropertyList & propertyList,
-        ResponseHandler<void> & handler);
+        ResponseHandler & handler);
 
     virtual void createInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance & instanceObject,
-        ResponseHandler<CIMObjectPath> & handler);
+        ObjectPathResponseHandler & handler);
 
     virtual void deleteInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceReference,
-        ResponseHandler<void> & handler);
+        ResponseHandler & handler);
 
     // CIMMethodProvider interface
     virtual void invokeMethod(
@@ -128,8 +128,7 @@ ProviderRegistrationProvider & operator=(const ProviderRegistrationProvider & ha
         const CIMObjectPath & objectReference,
         const CIMName & methodName,
         const Array<CIMParamValue> & inParameters,
-        Array<CIMParamValue> & outParameters,
-        ResponseHandler<CIMValue> & handler);
+        MethodResultResponseHandler & handler);
 
 protected:
 

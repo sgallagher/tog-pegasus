@@ -59,7 +59,7 @@ DebianSoftwareElementProvider::getInstance(
 			  	const CIMObjectPath& ref,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	InstanceResponseHandler& handler )
 {
    Uint32 i;
    Array<KeyBinding> keys = ref.getKeyBindings();
@@ -138,7 +138,7 @@ DebianSoftwareElementProvider::enumerateInstances(
 			  const CIMObjectPath& ref,
 			  const Uint32 flags,
 			  const CIMPropertyList& propertyList,
-			  ResponseHandler<CIMInstance>& handler )
+			  InstanceResponseHandler& handler )
 {
    DebianPackageManagerData packageManager(DEFAULT_DEBIAN_DATABASE);
    PackageInformation* curPackage;
@@ -167,7 +167,7 @@ void
 DebianSoftwareElementProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    DebianPackageManagerData packageManager(DEFAULT_DEBIAN_DATABASE);
    PackageInformation* curPackage;
@@ -202,7 +202,7 @@ DebianSoftwareElementProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "DebianSoftwareElementProvider::modifyInstance called" << endl;
    throw CIMNotSupportedException(DEBIANCLASSNAME "::modifyInstance");
@@ -213,7 +213,7 @@ DebianSoftwareElementProvider::createInstance(
       			  	const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
    cout << "DebianSoftwareElementProvider::createInstance called" << endl;
    throw CIMNotSupportedException(DEBIANCLASSNAME "::createInstance");
@@ -223,7 +223,7 @@ void
 DebianSoftwareElementProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
    cout << "DebianSoftwareElementProvider::deleteInstance called" << endl;
    throw CIMNotSupportedException(DEBIANCLASSNAME "::deleteInstance");

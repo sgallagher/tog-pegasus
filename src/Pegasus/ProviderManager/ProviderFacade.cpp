@@ -32,7 +32,7 @@
 #include "ProviderFacade.h"
 
 #include <Pegasus/Provider/OperationFlag.h>
-#include <Pegasus/Provider/SimpleResponseHandler.h>
+#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 
 #include <Pegasus/Common/Destroyer.h>
 
@@ -74,7 +74,7 @@ void ProviderFacade::getInstance(
     const CIMObjectPath & instanceReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<CIMInstance> & handler)
+    InstanceResponseHandler & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -146,7 +146,7 @@ void ProviderFacade::enumerateInstances(
     const CIMObjectPath & classReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<CIMInstance> & handler)
+    InstanceResponseHandler & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -164,7 +164,7 @@ void ProviderFacade::enumerateInstances(
 void ProviderFacade::enumerateInstanceNames(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -183,7 +183,7 @@ void ProviderFacade::modifyInstance(
     const CIMInstance & instanceObject,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<void> & handler)
+    ResponseHandler & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -201,7 +201,7 @@ void ProviderFacade::createInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
     const CIMInstance & instanceObject,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -216,7 +216,7 @@ void ProviderFacade::createInstance(
 void ProviderFacade::deleteInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
-    ResponseHandler<void> & handler)
+    ResponseHandler & handler)
 {
     CIMInstanceProvider * provider = getInterface<CIMInstanceProvider>(_provider);
 
@@ -232,7 +232,7 @@ void ProviderFacade::getClass(
     const CIMObjectPath & classReference,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<CIMClass> & handler)
+    ClassResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::getClass");
 }
@@ -241,7 +241,7 @@ void ProviderFacade::enumerateClasses(
     const OperationContext & context,
     const CIMObjectPath & classReference,
     const Uint32 flags,
-    ResponseHandler<CIMClass> & handler)
+    ClassResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClasses");
 }
@@ -250,7 +250,7 @@ void ProviderFacade::enumerateClassNames(
     const OperationContext & context,
     const CIMObjectPath & classReference,
     const Uint32 flags,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::enumerateClassNames");
 }
@@ -259,7 +259,7 @@ void ProviderFacade::modifyClass(
     const OperationContext & context,
     const CIMObjectPath & classReference,
     const CIMClass & classObject,
-    ResponseHandler<void> & handler)
+    ResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::modifyClass");
 }
@@ -268,7 +268,7 @@ void ProviderFacade::createClass(
     const OperationContext & context,
     const CIMObjectPath & classReference,
     const CIMClass & classObject,
-    ResponseHandler<void> & handler)
+    ResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::createClass");
 }
@@ -276,7 +276,7 @@ void ProviderFacade::createClass(
 void ProviderFacade::deleteClass(
     const OperationContext & context,
     const CIMObjectPath & classReference,
-    ResponseHandler<void> & handler)
+    ResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::deleteClass");
 }
@@ -290,7 +290,7 @@ void ProviderFacade::associators(
     const String & resultRole,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<CIMObject> & handler)
+    ObjectResponseHandler & handler)
 {
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
@@ -314,7 +314,7 @@ void ProviderFacade::associatorNames(
     const CIMName & resultClass,
     const String & role,
     const String & resultRole,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
@@ -336,7 +336,7 @@ void ProviderFacade::references(
     const String & role,
     const Uint32 flags,
     const CIMPropertyList & propertyList,
-    ResponseHandler<CIMObject> & handler)
+    ObjectResponseHandler & handler)
 {
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
@@ -356,7 +356,7 @@ void ProviderFacade::referenceNames(
     const CIMObjectPath & objectName,
     const CIMName & resultClass,
     const String & role,
-    ResponseHandler<CIMObjectPath> & handler)
+    ObjectPathResponseHandler & handler)
 {
     CIMAssociationProvider * provider = getInterface<CIMAssociationProvider>(_provider);
 
@@ -373,7 +373,7 @@ void ProviderFacade::getProperty(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
     const CIMName & propertyName,
-    ResponseHandler<CIMValue> & handler)
+    ValueResponseHandler & handler)
 {
     // NOTE: CIMPropertyProvider interface not supported yet
     /*
@@ -396,7 +396,7 @@ void ProviderFacade::getProperty(
 
     propertyList.append(propertyName);
 
-    SimpleResponseHandler<CIMInstance> instanceHandler;
+    SimpleInstanceResponseHandler instanceHandler;
 
     getInstance(
         context,
@@ -425,7 +425,7 @@ void ProviderFacade::setProperty(
     const CIMObjectPath & instanceReference,
     const CIMName & propertyName,
     const CIMValue & newValue,
-    ResponseHandler<CIMValue> & handler)
+    ResponseHandler & handler)
 {
     // NOTE: CIMPropertyProvider interface not supported yet
     /*
@@ -453,7 +453,7 @@ void ProviderFacade::setProperty(
 
     propertyList.append(propertyName);
 
-    ResponseHandler<void> instanceHandler;
+    SimpleResponseHandler instanceHandler;
 
     modifyInstance(
         context,
@@ -471,8 +471,7 @@ void ProviderFacade::invokeMethod(
     const CIMObjectPath & objectReference,
     const CIMName & methodName,
     const Array<CIMParamValue> & inParameters,
-    Array<CIMParamValue> & outParameters,
-    ResponseHandler<CIMValue> & handler)
+    MethodResultResponseHandler & handler)
 {
     CIMMethodProvider * provider = getInterface<CIMMethodProvider>(_provider);
 
@@ -482,7 +481,6 @@ void ProviderFacade::invokeMethod(
         objectReference,
         methodName,
         inParameters,
-        outParameters,
         handler);
 }
 
@@ -491,12 +489,12 @@ void ProviderFacade::executeQuery(
     const CIMNamespaceName & nameSpace,
     const String & queryLanguage,
     const String & query,
-    ResponseHandler<CIMObject> & handler)
+    ObjectResponseHandler & handler)
 {
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "CIMQueryProvider::*");
 }
 
-void ProviderFacade::enableIndications(ResponseHandler<CIMIndication> & handler)
+void ProviderFacade::enableIndications(IndicationResponseHandler & handler)
 {
     CIMIndicationProvider * provider = getInterface<CIMIndicationProvider>(_provider);
 

@@ -34,7 +34,7 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/ProviderException.h>
-#include <Pegasus/Provider/ResponseHandler.h>
+#include <Pegasus/Common/ResponseHandler.h>
 #include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -84,7 +84,7 @@ void ComputerSystemProvider::getInstance(
     const CIMObjectPath& ref,
     const Uint32 flags,
     const CIMPropertyList& propertyList,
-    ResponseHandler<CIMInstance> &handler)
+    InstanceResponseHandler &handler)
 {
     String className = ref.getClassName();
     _checkClass(className);
@@ -139,7 +139,7 @@ void ComputerSystemProvider::enumerateInstances(
 			        const CIMObjectPath& ref,
 			        const Uint32 flags,
 			        const CIMPropertyList& propertyList,
-			        ResponseHandler<CIMInstance>& handler)
+			        InstanceResponseHandler& handler)
 {
     String className = ref.getClassName();
     _checkClass(className);
@@ -160,7 +160,7 @@ void ComputerSystemProvider::enumerateInstances(
 void ComputerSystemProvider::enumerateInstanceNames(
       				const OperationContext& context,
 			  	const CIMObjectPath &ref,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
     String className = ref.getClassName();
     _checkClass(className);
@@ -196,7 +196,7 @@ ComputerSystemProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
     throw CIMNotSupportedException(String::EMPTY);
 }
@@ -206,7 +206,7 @@ ComputerSystemProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	ResponseHandler<CIMObjectPath>& handler )
+			  	ObjectPathResponseHandler& handler )
 {
     throw CIMNotSupportedException(String::EMPTY);
 }
@@ -215,7 +215,7 @@ void
 ComputerSystemProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<void>& handler )
+			  	ResponseHandler& handler )
 {
     throw CIMNotSupportedException(String::EMPTY);
 }

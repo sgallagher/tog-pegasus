@@ -25,6 +25,8 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <sys/types.h>
@@ -33,6 +35,7 @@
 #include <unistd.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Logger.h>
 #include <except.h>
 
 #include "qycmjobjobJob.H"
@@ -95,6 +98,9 @@ int cimserver_fork(void)
 					    YCMJOB_CCSID_37,
 					    YCMJOB_THREAD_YES))
   {  // QYCMCIMOM Server Failed on Submit Job
+     Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+		 "cimserver_os400::cimserver_fork() - SBMJOB failed to start the QYCMCIMOM server program!!");
+
      std::string errCode = rc5;
      std::string srvName = cppServ;
      std::string replacementData = errCode + srvName;
@@ -109,8 +115,7 @@ int cimserver_fork(void)
      // save the job log
      system ("QSYS/CHGJOB JOB(*) LOG(4 00 *SECLVL)");
 
-     // TODO: remove the printf
-     printf("cimserver_os400::cimserver_fork() - SBMJOB failed to start the QYCMCIMOM server program!!\n");
+
      return(-1);	// -1 indicates to QYCMCIMOM that the server failed to start
   }
 
@@ -140,26 +145,16 @@ void CancelHandler (_CNL_Hndlr_Parms_T *cancelParms)
 ////////////////////////////////////////////////////
 int cimserver_initialize(void)
 {
-    // This is where we swap ourselves to QSYS, and so on.
-    // Don't check IOSYSCFG and ALLOBJ auth. of user here.
-    // Do any other iSeries specific garp here....such
-    // as job parameters...see MC code for example
+
 
    // setup cancel handler to make sure job log gets saved if we exit abnormally
    // TODO:  this is currently commented out because it causes build errors -
    //        it compiles just fine though.  Hopefully this problem will be fixed
    //        (it's a known problem) and we can uncomment this #pragma. 
 //   #pragma cancel_handler (CancelHandler, NULL)
- try  {
+    try {
 
-   //////////////////////////////////////////
-   // ??? TODO: DO WE NEED TO GET THE JOB NUMBER AND TRACE IT OUT ??????
-   ////////////////////////////////////////// 
-
-   //////////////////////////////////////////
-   // TODO: NEED TO SWAP TO QSYS
-   ////////////////////////////////////////// 
-
+   system ("QSYS/CHGJOB JOB(*) LOG(4 00 *SECLVL)");
    //////////////////////////////////////////
    // Change Job API call
    // Change the server type to QICM_CIMOM
@@ -189,10 +184,10 @@ int cimserver_initialize(void)
  }
   catch (...)
   {
-    //  TODO: hook to Pegasus trace - is it set up yet?
-    printf("cimerver_os400::cimserver_os400_setup() - caught unknown exception\n");
-    system ("QSYS/CHGJOB JOB(*) LOG(4 00 *SECLVL)");
-    return(-1);
+      Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+		  "cimerver_os400::cimserver_os400_setup() - caught unknown exception\n");
+
+      return(-1);
   }
 
    // TODO:  this is currently commented out because it causes build errors -
@@ -246,11 +241,9 @@ int cimserver_kill(void)
                          ycmCTLCIMID);
       message.joblogIt(UserError,ycmMessage::Diagnostic);
 
-      // save the job log
-      system ("QSYS/CHGJOB JOB(*) LOG(4 00 *SECLVL)");
+      Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+		  "cimserver_os400::cimserver_kill - FAILED to end the QYCMCIMOM job!!");
 
-      //TODO: remove the printf
-      printf("cimserver_os400::cimserver_kill - FAILED to end the QYCMCIMOM job!!\n");
       return -1; // Note: this return code is ignored by the CIMOM server.
     }
   }

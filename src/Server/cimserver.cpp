@@ -36,6 +36,8 @@
 //                (carolann_graves@hp.com)
 //		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
+// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -264,13 +266,16 @@ void shutdownCIMOM(Uint32 timeoutValue)
     }
     catch(Exception& e)
     {
+#ifdef PEGASUS_OS_OS400
+	Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+		    "Unable to connect to CIM Server.  CIM Server may not be running." );
+	// The server job may still be active but not responding.
+	// Kill the job if it exists.
+	cimserver_kill();
+	exit(1);
+#else
         PEGASUS_STD(cerr) << "Unable to connect to CIM Server." << PEGASUS_STD(endl);
         PEGASUS_STD(cerr) << "CIM Server may not be running." << PEGASUS_STD(endl);
-#ifdef PEGASUS_OS_OS400
-        // The server job may still be active but not responding.
-        // Kill the job if it exists.
-	cimserver_kill();
-	return;
 #endif
         exit(0);
     }
@@ -310,6 +315,21 @@ void shutdownCIMOM(Uint32 timeoutValue)
     }
     catch(CIMException& e)
     {
+#ifdef PEGASUS_OS_OS400
+
+	if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
+	{
+	    Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+		    "Failed to shutdown server: $0", "The repository may be empty.");
+	}
+	else
+	{
+	    Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+			"Failed to shutdown server: $0", e.getMessage());
+	}
+	// Kill the server job.
+	cimserver_kill();
+#else
         PEGASUS_STD(cerr) << "Failed to shutdown server: ";
         if (e.getCode() == CIM_ERR_INVALID_NAMESPACE)
         {
@@ -320,12 +340,9 @@ void shutdownCIMOM(Uint32 timeoutValue)
         {
             PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
         }
-#ifdef PEGASUS_OS_OS400
-        // Kill the server job.
-	cimserver_kill();
-	return;
 #endif
         exit(1);
+
     }
     catch(Exception& e)
     {
@@ -611,7 +628,12 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
+#ifdef PEGASUS_OS_OS400
+	Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+			"$0: $1",argv[0] ,e.getMessage());
+#else
         cerr << argv[0] << ": " << e.getMessage() << endl;
+#endif
         exit(1);
     }
 
@@ -648,7 +670,8 @@ int main(int argc, char** argv)
         // Might be more logical to clean before set.
         // ATTN: Need tool to completely disable logging.
 
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
+!defined(PEGASUS_OS_OS400)
         Logger::setHomeDirectory(logsDirectory);
 #endif
 
@@ -663,9 +686,11 @@ int main(int argc, char** argv)
             
             shutdownCIMOM(timeoutValue);
 
-            cout << "CIM Server stopped." << endl;
 #ifdef PEGASUS_OS_OS400
-	    return(0);
+	    Logger::put(Logger::ERROR_LOG, "", Logger::INFORMATION,
+			"CIM Server stopped.");  
+#else
+            cout << "CIM Server stopped." << endl;
 #endif
             exit(0);
         }
@@ -679,7 +704,8 @@ int main(int argc, char** argv)
         httpsPort = configManager->getCurrentValue("httpsPort");
 
         // Leave this in until people get familiar with the logs.
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
+!defined(PEGASUS_OS_OS400)
         cout << "Logs Directory = " << logsDirectory << endl;
 #endif
 
@@ -728,7 +754,13 @@ int main(int argc, char** argv)
     }
     catch (UnrecognizedConfigProperty e)
     {
-        cout << "Error: " << e.getMessage() << endl;
+
+#ifdef PEGASUS_OS_OS400
+	Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+		    "Error: $0",e.getMessage());  
+#else
+	cout << "Error: " << e.getMessage() << endl;
+#endif
     }
 
     Uint32 portNumber;
@@ -763,7 +795,8 @@ int main(int argc, char** argv)
     }
 
     // Put out startup up message.
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
+!defined(PEGASUS_OS_OS400)
     cout << PEGASUS_NAME << PEGASUS_VERSION <<
 	 " on port " << address << endl;
     cout << "Built " << __DATE__ << " " << __TIME__ << endl;
@@ -779,20 +812,29 @@ int main(int argc, char** argv)
     {
         if(-1 == cimserver_fork())
 #ifndef PEGASUS_OS_OS400
-          exit(-1);
+	{
+	    exit(-1);
+	}
 #else
-          return(-1);
+	{
+            return(-1);
+	}
 	else
-	  return(0);
+	{
+	    return(0);
+	}
 #endif
+	
     }
 
 #ifdef PEGASUS_OS_OS400
     // Special server initialization code for OS/400.
     if (cimserver_initialize() != 0)
     {
-       // do some logging here!
-       exit(-1);
+	// do some logging here!
+	Logger::put(Logger::ERROR_LOG, "", Logger::SEVERE,
+		    "CIM Server failed to initialize");  
+	exit(-1);
     } 
 #endif
 
@@ -838,9 +880,19 @@ int main(int argc, char** argv)
 
 	// bind throws an exception if the bind fails
 #ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifdef PEGASUS_OS_OS400
+	Logger::put(Logger::STANDARD_LOG, "", Logger::INFORMATION,
+		    "Binding to domain socket"); 
+#else
 	cout << "Binding to domain socket" << endl;
+#endif
 #elif !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#ifdef PEGASUS_OS_OS400
+	Logger::put(Logger::STANDARD_LOG, "", Logger::INFORMATION,
+		    "Binding to domain socket"); 
+#else
 	cout << "Binding to " << address << endl;
+#endif
 #endif
 
 	server.bind(portNumber);
@@ -870,7 +922,8 @@ int main(int argc, char** argv)
             fclose(pid_file);
         }
 #endif
-#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
+!defined(PEGASUS_OS_OS400)
 	cout << "Started. " << endl;
 #endif
 
@@ -929,7 +982,12 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
+#ifdef PEGASUS_OS_OS400
+	Logger::put(Logger::STANDARD_LOG, "", Logger::INFORMATION,
+		    "Error: $0", e.getMessage()); 
+#else
 	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
+#endif
 
 	//
         // notify parent process (if there is a parent process) to terminate

@@ -49,7 +49,7 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
   CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
+  CIMSERVER_STOP_SERVICE = ps -ef | grep cimserver | grep -v grep | awk '{print "kill -9 "$$2 |"/bin/bash"}'
   SLEEP = sleep 5
   MUEXE = mu
   COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
@@ -59,7 +59,7 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
   CIMSERVER_START_SERVICE = cimserver
-  CIMSERVER_STOP_SERVICE = /bin/ps -ef | /bin/grep cimserver | /bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/bin/bash"}'
+  CIMSERVER_STOP_SERVICE = ps -ef | grep cimserver | grep -v grep | awk '{print "kill -9 "$$2 |"/bin/bash"}'
   SLEEP = sleep 5
   MUEXE = mu
   COPYMU = cp -f src/utils/mu/$(MUEXE) $(BIN_DIR)/$(MUEXE)
@@ -71,7 +71,7 @@ error:
 	@ echo "Specify desired makefile option (i.e., build, rebuild)"
 
 buildmu:
-	$(MAKE) --directory=src/utils/mu -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
 	$(MKDIR) $(BIN_DIR)
 	$(COPYMU)
 
@@ -84,8 +84,8 @@ all: buildmu
 	$(MAKE)  -f Makefile all
 
 doc:
-	$(MAKE) --directory=doc/ProviderSpec -f Makefile
-	$(MAKE) --directory=doc/DevManual -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/ProviderSpec -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/DevManual -f Makefile
 
 clean:
 	$(MAKE) -f Makefile clean
@@ -98,17 +98,17 @@ repositoryServer:
 	$(SLEEP)
 	$(MAKE) -f Makefile repositoryServer
 	$(MAKE) -f Makefile testrepositoryServer
-		
+
 prestarttests: 
 	$(CIMSERVER_STOP_SERVICE)
 	$(SLEEP)
 	$(MAKE) -f Makefile repository
 	$(MAKE) -f Makefile testrepository
 	$(MAKE) -f Makefile tests
-	$(MAKE) --directory=src/Server -f Makefile install
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install
 
 poststarttests:
-	$(MAKE) --directory=test/wetest -f Makefile clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP)
 	$(MAKE) -f Makefile poststarttests
@@ -116,7 +116,7 @@ poststarttests:
 tests: $(TESTS)
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 	$(CIMSERVER_STOP_SERVICE)
-	$(MAKE) --directory=src/Server -f Makefile uninstall
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile uninstall
 endif
 	@ echo Finished Tests
 

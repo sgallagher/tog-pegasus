@@ -24,7 +24,7 @@ poststarttests:
 	@sleep 5 
 	@ echo $(MOF_PATH)
 	$(MAKE) repositoryServer
-	@ diffscript $(REPOSITORY_DIR) root#cimv2/classes
-	@ diffscript $(REPOSITORY_DIR) root#PG_Internal/classes
-	@ diffscript $(REPOSITORY_DIR) root#PG_InterOp/classes
+	@ ./diffscript $(REPOSITORY_DIR) root#cimv2/classes
+	@ ./diffscript $(REPOSITORY_DIR) root#PG_Internal/classes
+	@ ./diffscript $(REPOSITORY_DIR) root#PG_InterOp/classes
 

@@ -56,7 +56,7 @@ removetestrepository: FORCE
 # and shutdown of the server.
 
 activetests: FORCE
-	$(MAKE) --directory=pegasus/test -f Makefile clean
-	TestClient
-	Client
-	$(MAKE) --directory=test -f Makefile tests
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test -f Makefile clean
+	$(PEGASUS_ROOT)/bin/TestClient
+	$(PEGASUS_ROOT)/bin/Client
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test -f Makefile tests

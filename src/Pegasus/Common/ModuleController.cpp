@@ -32,22 +32,90 @@
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
-
-
-pegasus_module::pegasus_module(const String & id )
-   : _controller(0), _name(id), _reference_count(0) 
+ 
+pegasus_module::pegasus_module(ModuleController *controller, 
+			       const String &id, 
+			       void *module_address,
+			       Boolean (*receive_message)(Message *),
+			       void (*async_callback)(Uint32, Message *),
+			       void (*shutdown_notify)(Uint32 code))
 {
-
+   _rep = new module_rep(controller, 
+			 id, 
+			 module_address, 
+			 receive_message,
+			 async_callback,
+			 shutdown_notify);
 }
 
-pegasus_module::~pegasus_module(void)
+pegasus_module::pegasus_module(const pegasus_module & mod)
 {
-   _reference_count--;
-   if( _reference_count.value() )
-      return;
+   mod._rep->reference();
+   _rep = mod._rep;
+}
+
+ 
+
+pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
+{
+   (mod._rep->reference());
+   if ( _rep->reference_count() == 0 )
+      delete _rep;
+   _rep = mod._rep;
+   return *this;
+}
+
+Boolean pegasus_module::operator== (const pegasus_module *mod) const
+{
+   if(mod->_rep == _rep)
+      return true;
+   return false;
+}
+
+
+Boolean pegasus_module::operator== (const pegasus_module & mod) const 
+{
+   if( mod._rep == _rep )
+      return true;
+   return false;
    
 }
+      
+Boolean pegasus_module::operator == (const String &  mod) const 
+{
+   if(_rep->get_name() == mod)
+      return true;
+   return false;
+}
 
+
+Boolean pegasus_module::operator == (const void *mod) const
+{
+   if ( (reinterpret_cast<const pegasus_module *>(mod))->_rep == _rep)
+      return true;
+   return false;
+}
+
+const String & pegasus_module::get_name(void) const
+{
+   return _rep->get_name();
+}
+
+
+
+
+Boolean pegasus_module::query_interface(const String & class_id,  
+					void **object_ptr) const 
+{
+   PEGASUS_ASSERT(object_ptr != NULL);
+   if( class_id == _rep->get_name())
+   {
+      *object_ptr = _rep->get_module_address();
+      return true;
+   }
+   *object_ptr = NULL;
+   return false;
+}
 
 
 PEGASUS_NAMESPACE_END

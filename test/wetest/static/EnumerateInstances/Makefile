@@ -5,7 +5,15 @@ include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = EnumerateInstances51003
 
-ifeq ($(OS),HPUX)
+# Note: this is done because the server on windows returns 3 digits
+# for the exponent of a real32 or real64, while other platforms return 2.
+ifeq ($(OS_TYPE),windows)
+XMLSCRIPTS += \
+              EnumerateInstancesAlt51000 \
+	      DeepLocalTFAlt51005 \
+	      DeepLocalFFAlt51007 \
+              DeepLocalTFAlt51008
+else
 XMLSCRIPTS += \
               EnumerateInstances51000 \
 	      DeepLocalTF51005 \

@@ -155,9 +155,9 @@ void IndicationService::handleEnqueue(Message* message)
 	default:
             //
             //  A message type not supported by the Indication Service
-            //  ATTN-CAKG-P2-20020326: Should a CIM_ERR_NOT_SUPPORTED
-            //  response be returned??
+            //  Should not reach here
             //
+            PEGASUS_ASSERT (true);
 	    break;
     }
 
@@ -273,8 +273,8 @@ void IndicationService::_initialize (void)
     
         //
         //  Send Create request message to each provider
-        //  ATTN-CAKG-P3-20020315: These Create requests are not associated 
-        //  with a user request, so there is no associated authType or userName
+        //  NOTE: These Create requests are not associated with a user request,
+        //  so there is no associated authType or userName
         //  The Creator from the subscription instance is used for userName,
         //  and authType is not set
         //
@@ -603,7 +603,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
     }
 
     //
-    //  ATTN-CAKG-P1-20020425: Response must be sent once create response
+    //  FUTURE: Response should be sent only after Create response
     //  has been received
     //
     CIMCreateInstanceResponseMessage* response =
@@ -1157,7 +1157,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
     }
 
     //
-    //  ATTN-CAKG-P1-20020425: Response must be sent once Create or Delete
+    //  FUTURE: Response should be sent only after Create or Delete
     //  response has been received
     //
     CIMModifyInstanceResponseMessage* response =
@@ -1296,7 +1296,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
     }
 
     //
-    //  ATTN-CAKG-P1-20020425: Response must be sent once delete response has 
+    //  FUTURE: Response should be sent only after Delete response has 
     //  been received
     //
     CIMDeleteInstanceResponseMessage* response =
@@ -1339,7 +1339,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             request->queueIds.copyAndPop());
 
     String filterQuery;
-    Array <String> propertyList;
+    Array <String> propertyNames;
+    CIMPropertyList propertyList;
     Boolean match;
 
     Array <CIMNamedInstance> matchedSubscriptions;
@@ -1357,18 +1358,19 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             indication);
 
         for (Uint8 i = 0; i < indication.getPropertyCount(); i++)
-            propertyList.append(indication.getProperty(i).getName());
+            propertyNames.append(indication.getProperty(i).getName());
 
         //
-        //  ATTN: Check if property list contains all properties of class
+        //  Check if property list contains all properties of class
         //  If so, set to null
         //
+        propertyList = _checkPropertyList (propertyNames, request->nameSpace, 
+            indication.getClassName ());
 
         Array <String> nameSpaces;
         nameSpaces.append (request->nameSpace);
         matchedSubscriptions = _getMatchingSubscriptions(
-            indication.getClassName (), nameSpaces, 
-            CIMPropertyList (propertyList));
+            indication.getClassName (), nameSpaces, propertyList);
 
         for (Uint8 i = 0; i < matchedSubscriptions.size(); i++)
         {
@@ -1472,18 +1474,16 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                      _queueId);
 
                 //
-                //  ATTN-CAKG-P1-20020424: Temporarily commented out - causing 
-                //  core dumps
+                //  ATTN-CAKG-P1-20020426: Need to SendAsync instead of 
+                //  SendForget, so the callback can implement the subscription's
+                //  On Fatal Error Policy if message to handler was not 
+                //  successful
                 //
-/*
                  SendForget(async_req);
-*/
 
                 //
                 //  ATTN-CAKG-P1-20020326: Check for error - implement 
                 //  subscription's OnFatalErrorPolicy
-                //  How do we determine that the handler failed, since 
-                //  we don't get a response??
                 //
 
                  //response = reinterpret_cast<CIMProcessIndicationResponseMessage *>
@@ -1618,9 +1618,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 requiredProperties, sourceNameSpace, condition, queryLanguage);
 
             //
-            //  ATTN-CAKG-P3-20020315: These Create or Modify requests are not 
-            //  associated with a user request, so there is no associated 
-            //  authType or userName
+            //  NOTE: These Create or Modify requests are not associated with a
+            //  user request, so there is no associated authType or userName
             //  The Creator from the subscription instance is used for 
             //  userName, and authType is not set
             //
@@ -1688,9 +1687,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //
         for (Uint8 i = 0; i < formerSubscriptions.size (); i++)
         {
-            //  ATTN-CAKG-P3-20020315: These Delete or Modify requests are not 
-            //  associated with a user request, so there is no associated 
-            //  authType or userName
+            //  NOTE: These Delete or Modify requests are not associated with a
+            //  user request, so there is no associated authType or userName
             //  The Creator from the subscription instance is used for userName,
             //  and authType is not set
             CIMInstance instance = formerSubscriptions [i].getInstance ();
@@ -1754,9 +1752,10 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         }
 
         //
-        //  ATTN: Should alert always be sent, or only in the case 
-        //  that there are no other providers that can satisfy any
-        //  of the subscription indication subclasses??
+        //  NOTE: When a provider that was previously serving a subscription 
+        //  no longer serves the subscription due to a provider registration 
+        //  change, an alert is always sent, even if there are still other 
+        //  providers serving the subscription
         //
 
         //
@@ -1800,9 +1799,16 @@ void IndicationService::_handleNotifyProviderTerminationRequest
         providerSubscriptions = _getProviderSubscriptions (providers [i]);
     
         //
-        //  ATTN: Should alert always be sent, or only in the case 
-        //  that there are no other providers that can satisfy any
-        //  of the subscription indication subclasses??
+        //  ATTN-CAKG-P2-20020426: For each subscription, if the terminated 
+        //  provider was the only provider serving the subscription, 
+        //  implement the subscription's On Fatal Error Policy
+        //
+
+        //
+        //  NOTE: When a provider that was previously serving a subscription 
+        //  no longer serves the subscription due to a provider termination, 
+        //  an alert is always sent, even if there are still other providers 
+        //  serving the subscription
         //
     
         //
@@ -1844,8 +1850,8 @@ Boolean IndicationService::_handleError (
     if (errorPolicyValue == _ERRORPOLICY_DISABLE)
     {
         //
-        //  ATTN-CAKG-P2-20020329: Failure Trigger Time Interval should be 
-        //  allowed to pass before implementing On Fatal Error Policy
+        //  FUTURE: Failure Trigger Time Interval should be allowed to pass 
+        //  before implementing On Fatal Error Policy
         //
         //  Set the Subscription State to disabled
         //
@@ -1855,8 +1861,8 @@ Boolean IndicationService::_handleError (
     else if (errorPolicyValue == _ERRORPOLICY_REMOVE)
     {
         //
-        //  ATTN-CAKG-P2-20020329: Failure Trigger Time Interval should be 
-        //  allowed to pass before implementing On Fatal Error Policy
+        //  FUTURE: Failure Trigger Time Interval should be allowed to pass 
+        //  before implementing On Fatal Error Policy
         //
         //  Delete the subscription
         //
@@ -4248,7 +4254,8 @@ Boolean IndicationService::_sendCreateRequests
     }
 
     //
-    //  ATTN-CAKG-P1-20020326: Temporarily returning true (for testing purposes)
+    //  FUTURE: Should only return true if at least one provider accepted
+    //  the subscription
     //
     //Boolean result = (accepted > 0);
     Boolean result = true;
@@ -4778,17 +4785,11 @@ void IndicationService::_sendAlerts (
                 handler_request,
                 _queueId);
 
-        //
-        //  ATTN-CAKG-P1-20020424: Temporarily commented out - causing 
-        //  core dumps
-        //
-/*
 	SendAsync(op, 
 		  _handlerService, 
 		  IndicationService::_sendAlertsCallBack,
 		  this, 
 		  (void *)_handler);
-*/
 
 	// <<< Fri Apr  5 06:24:14 2002 mdd >>>
 	// AsyncReply *async_reply = SendWait(async_req);

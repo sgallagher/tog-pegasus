@@ -611,13 +611,14 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
 	//
         if (FileSystem::exists(fileName))
         {
-            if (!FileSystem::canRead(fileName))
+            if (FileSystem::canRead(fileName))
             {
-                return false;
+                return true;
             }
          }
 
-        return true;
+         return false;
+
     }
     else if (String::equalNoCase(_enableRemotePrivilegedUserAccess->propertyName, name))
     {

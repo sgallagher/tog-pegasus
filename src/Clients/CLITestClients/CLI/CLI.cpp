@@ -161,20 +161,17 @@ int main(int argc, char** argv)
     }
 
     //****** Show the args diagnostic display
-    if (strcmp(argv[1],"displayargs") == 0)
+    if (argc > 1 && strcmp( argv[1],"displayargs") == 0)
     {
         cout << "argc = " << argc << endl;
         for (int i = 0; i < argc; i++)
             cout << "argv[" << i << "] = " << argv[i] << endl;
     }
 
-
     try
     {
         String testHome = ".";
         GetOptions(om, argc, argv, testHome);
-        //om.print();
-
 
 		opts.location =   "localhost:5988";
 		opts.nameSpace = "root/cimv2";

@@ -53,8 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"repositoryIsDefaultInstanceProvider", "true", 0, 0, 0, 1},
-    {"enableBinaryRepository", "false", 0, 0, 0, 1},  // PEP 164
-    {"removeDescriptionQualifiers", "false", 0, 0, 0, 1}  // PEP 164
+    {"enableBinaryRepository", "false", 0, 0, 0, 1}  // PEP 164
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -65,7 +64,6 @@ RepositoryPropertyOwner::RepositoryPropertyOwner()
 {
     _repositoryIsDefaultInstanceProvider = new ConfigProperty;
     _enableBinaryRepository = new ConfigProperty; // PEP 164
-    _removeDescriptionQualifiers = new ConfigProperty; // PEP 164
 }
 
 /** Destructor  */
@@ -73,7 +71,6 @@ RepositoryPropertyOwner::~RepositoryPropertyOwner()
 {
     delete _repositoryIsDefaultInstanceProvider;
     delete _enableBinaryRepository;  // PEP 164
-    delete _removeDescriptionQualifiers; // PEP 164
 }
 
 
@@ -111,18 +108,6 @@ void RepositoryPropertyOwner::initialize()
             _enableBinaryRepository->domainSize = properties[i].domainSize;
             _enableBinaryRepository->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
-            properties[i].propertyName, "removeDescriptionQualifiers")) // PEP 164
-        {
-            _removeDescriptionQualifiers->propertyName = properties[i].propertyName;
-            _removeDescriptionQualifiers->defaultValue = properties[i].defaultValue;
-            _removeDescriptionQualifiers->currentValue = properties[i].defaultValue;
-            _removeDescriptionQualifiers->plannedValue = properties[i].defaultValue;
-            _removeDescriptionQualifiers->dynamic = properties[i].dynamic;
-            _removeDescriptionQualifiers->domain = properties[i].domain;
-            _removeDescriptionQualifiers->domainSize = properties[i].domainSize;
-            _removeDescriptionQualifiers->externallyVisible = properties[i].externallyVisible;
-        }
     }
 }
 
@@ -138,11 +123,6 @@ struct ConfigProperty* RepositoryPropertyOwner::_lookupConfigProperty(
             _enableBinaryRepository->propertyName, name)) // PEP 164
     {
         return _enableBinaryRepository;
-    }
-    else if (String::equalNoCase(
-            _removeDescriptionQualifiers->propertyName, name)) // PEP 164
-    {
-        return _removeDescriptionQualifiers;
     }
     else
     {
@@ -287,13 +267,6 @@ Boolean RepositoryPropertyOwner::isValid(const String& name, const String& value
         }
     }
     else if (String::equalNoCase(_enableBinaryRepository->propertyName, name)) // PEP 164
-    {
-        if(String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
-    else if (String::equalNoCase(_removeDescriptionQualifiers->propertyName, name)) // PEP 164
     {
         if(String::equal(value, "true") || String::equal(value, "false"))
         {

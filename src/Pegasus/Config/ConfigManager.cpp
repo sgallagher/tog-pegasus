@@ -139,7 +139,6 @@ static struct OwnerEntry _properties[] =
 #endif
     {"repositoryIsDefaultInstanceProvider", (ConfigPropertyOwner* )ConfigManager::repositoryOwner},
     {"enableBinaryRepository", (ConfigPropertyOwner* )ConfigManager::repositoryOwner}, // PEP 164
-    {"removeDescriptionQualifiers", (ConfigPropertyOwner* )ConfigManager::repositoryOwner}, // PEP 164
     {"shutdownTimeout",     (ConfigPropertyOwner* )ConfigManager::shutdownOwner},
     {"repositoryDir",       (ConfigPropertyOwner* )ConfigManager::fileSystemOwner},
     {"providerDir",         (ConfigPropertyOwner* )ConfigManager::providerDirOwner},

@@ -49,8 +49,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_EXPORT int removeDescription=-1;
-
 void BinaryStreamer::encode(Array<Sint8>& out, const CIMClass& cls)
 {
    toBin(out, cls);
@@ -668,12 +666,7 @@ void BinaryStreamer::toBin(Array<Sint8>& out, const CIMQualifier& qual)
    CIMName name=rep->getName();
    append(out,name);
 
-   if (removeDescription>0 && name=="description") {
-      CIMValue val(CIMTYPE_STRING,false);
-      val.set(String("*REMOVED*"));
-      toBin(out,val);
-   }
-   else toBin(out,rep->getValue());
+   toBin(out,rep->getValue());
 
    toBin(out,rep->getFlavor());
 

@@ -207,7 +207,6 @@ private:
     */
     struct ConfigProperty*      _repositoryIsDefaultInstanceProvider;
     struct ConfigProperty*      _enableBinaryRepository;  // PEP 164
-    struct ConfigProperty*      _removeDescriptionQualifiers; // PEP 164
 
 };
 

@@ -99,11 +99,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 static const Uint32 _MAX_FREE_COUNT = 16;
 static int binaryMode = -1; // PEP 164
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-PEGASUS_IMPORT int removeDescription; // PEP 164
-#else
-extern int removeDescription; // PEP 164
-#endif
 
 //
 //  The following _xx functions are local to the repository implementation
@@ -468,11 +463,6 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
        streamer=new AutoStreamer(new XmlStreamer(),0xff);
        ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
-    }
-
-    if (removeDescription==-1) { // PEP 164
-       removeDescription = (ConfigManager::getInstance()->getCurrentValue(
-        "removeDescriptionQualifiers") == "true");
     }
 
     _context = new RepositoryDeclContext(this);

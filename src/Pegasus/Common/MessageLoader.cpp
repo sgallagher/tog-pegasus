@@ -423,11 +423,11 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 	void MessageLoader::initPegasusMsgHome(){
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #pragma convert(37)
-		const char* env = getenv("PEGASUS_HOME");
+		const char* env = getenv("PEGASUS_MSG_HOME");
 		EtoA(env);
 #pragma convert(0)
 #else
-		const char* env = getenv("PEGASUS_HOME");
+		const char* env = getenv("PEGASUS_MSG_HOME");
 #endif
 #ifdef PEGASUS_DEFAULT_MESSAGE_SOURCE
 		if(System::is_absolute_path(
@@ -439,21 +439,23 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		else
 		{
 		    if(env != NULL)
+		    {
 			pegasus_MSG_HOME = env;
-
-			pegasus_MSG_HOME.append(PEGASUS_DEFAULT_MESSAGE_SOURCE);
 			pegasus_MSG_HOME.append('/');
+                    }
+		    pegasus_MSG_HOME.append(PEGASUS_DEFAULT_MESSAGE_SOURCE);
+		    pegasus_MSG_HOME.append('/');
 		}
 #else
     		if (env != NULL)
 		{
 			pegasus_MSG_HOME = env;
-			pegasus_MSG_HOME.append("/msg/");
+			pegasus_MSG_HOME.append("/");
     		}
 		else
 		{
-			pegasus_MSG_HOME = "msg/";
- 		}	
+			// Will use current working directory
+		}	
 #endif 
 		checkDefaultMsgLoading();
 	}

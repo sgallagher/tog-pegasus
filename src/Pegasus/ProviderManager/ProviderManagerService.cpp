@@ -200,6 +200,9 @@ void ProviderManagerService::_lookupProviderForAssocClass(
         << " nameSpace = " << objectPath.getNameSpace().getString()
         << "; className = " << objectPath.getClassName().getString()  << PEGASUS_STD(endl);*/
 
+    // Bugzilla 194 - Problem defined and the following is temporary patch to create either
+    // NULL objects for result and assoc classes unless there is a valid input.
+    
     CIMName myAssocClassName;
     if (assocClassName.size() != 0)
         myAssocClassName = assocClassName;

@@ -64,6 +64,8 @@ int main(int argc, char** argv)
 
 	// class1.print();
 	// class2.print();
+
+	delete context;
     }
     catch (Exception& e)
     {

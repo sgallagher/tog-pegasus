@@ -199,6 +199,8 @@ void test01()
  
     Uint32 i = cinstance1;
     assert( cinstance1 != 0 );
+
+    delete context;
 }
 
 void test02()

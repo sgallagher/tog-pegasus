@@ -65,6 +65,7 @@ public:
 	String nameSpace);
 
 protected:
+
     CIMHandler* _lookupHandlerForClass(
 	const String& nameSpace,
 	const String& className);

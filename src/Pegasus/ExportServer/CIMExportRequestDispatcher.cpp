@@ -101,15 +101,23 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
     CIMStatusCode errorCode = CIM_ERR_SUCCESS;
     String errorDescription;
 
+    // REVIEW: CIMIndicationConsumer implementation is tied to provider
+    // interface which makes it unsuable by stand-alone listeners
+    // which aren't CIMOMs and don't have provider interfaces.
+
     CIMIndicationConsumer* consumer = _lookupConsumer(request->url);
     
     if (consumer)
+    {
     	consumer->handleIndication(
-	context,
-	request->url, 
-	request->indicationInstance);
+	    context,
+	    request->url, 
+	    request->indicationInstance);
+    }
     else
+    {
 	throw CIMException(CIM_ERR_FAILED);
+    }
 
     CIMExportIndicationResponseMessage* response = 
 	new CIMExportIndicationResponseMessage(
@@ -120,6 +128,10 @@ void CIMExportRequestDispatcher::_handleExportIndicationRequest(
 
     _enqueueResponse(request, response);
 }
+
+// REVIEW: this implementation ties the CIMExportRequestDispatcher
+// to the CIMOM so that it cannot be used in a standalone listener.
+// This belongs in the indication processor.
 
 void CIMExportRequestDispatcher::handleIndication(
     CIMInstance& indicationHandlerInstance,
@@ -182,7 +194,11 @@ CIMHandler* CIMExportRequestDispatcher::_lookupHandlerForClass(
     return handler;
 }
 
-CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(const String& url)
+// REVIEW: Why must consumer be dynamically loaded? It makes sense in
+// the case in which they are provider (then let the provider manager do it).
+
+CIMIndicationConsumer* CIMExportRequestDispatcher::_lookupConsumer(
+    const String& url)
 {
     //ATTN: How to get NAMESPACE? Defining just to proceed further.
     String NAMESPACE = "root/cimv2";

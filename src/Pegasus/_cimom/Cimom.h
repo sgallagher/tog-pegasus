@@ -222,11 +222,6 @@ inline Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
    return _modules.count();
 }
 
-
-
-
-
-
 PEGASUS_NAMESPACE_END
 
 #endif // CIMOM_include

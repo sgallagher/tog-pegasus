@@ -32,6 +32,7 @@
 // Modified By:
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
+//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,6 +57,7 @@ typedef void SSL_Context;
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 // REVIEW: Figure out how this works (note to myself)?
 
@@ -108,7 +110,7 @@ private:
     Sint32 _socket;
     SSLContext * _SSLContext;
 
-	SSLCallbackInfo* _SSLCallbackInfo;
+    AutoPtr<SSLCallbackInfo> _SSLCallbackInfo;
     Boolean _certificateVerified;
     Boolean _exportConnection;
 };

@@ -34,10 +34,10 @@
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
+//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SSLContextRep.h>
@@ -93,10 +93,10 @@ SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConne
     // 
     // Create a new callback info for each new connection
     // 
-    _SSLCallbackInfo = new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction(),
-										   _SSLContext->getCRLStore());
+    _SSLCallbackInfo.reset(new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction(),
+										   _SSLContext->getCRLStore()));
 
-    if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo)) 
+    if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo.get())) 
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "--->SSL: Set callback info");
     }
@@ -128,11 +128,6 @@ SSLSocket::~SSLSocket()
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::~SSLSocket()");
 
     SSL_free(_SSLConnection);
-
-    if (_SSLCallbackInfo) 
-    {
-        delete _SSLCallbackInfo;
-    }
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Deleted SSL socket");
 
@@ -408,7 +403,7 @@ Boolean SSLSocket::isPeerVerificationEnabled()
 
 SSLCertificateInfo* SSLSocket::getPeerCertificate() 
 { 
-    if (_SSLCallbackInfo) 
+    if (_SSLCallbackInfo.get()) 
     {
         return (_SSLCallbackInfo->_peerCertificate);
     }

@@ -37,13 +37,13 @@
 //              Dan Gorey (djgorey@us.ibm.com)
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/HTTPConnection.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/Exception.h>
@@ -310,7 +310,7 @@ void CIMExportClient::exportIndication(
    CIMExportIndicationResponseMessage* response = 
       (CIMExportIndicationResponseMessage*)message;
     
-   Destroyer<CIMExportIndicationResponseMessage> destroyer(response);
+   AutoPtr<CIMExportIndicationResponseMessage> ap(response);
 
    PEG_METHOD_EXIT();
 }
@@ -378,7 +378,7 @@ Message* CIMExportClient::_doRequest(
                 delete response;
                 PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Client Exception Message received.");
 
-                Destroyer<Exception> d(clientException);
+                AutoPtr<Exception> d(clientException);
 
                 //
                 // Determine and throw the specific class of client exception

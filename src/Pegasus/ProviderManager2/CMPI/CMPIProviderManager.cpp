@@ -31,6 +31,7 @@
 //
 // Modified By:	Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Robert Kieninger (kieningr@de.ibm.com) for Bugzilla 2320
+//              Josephine Eskaline Joyce(jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +48,6 @@
 
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>

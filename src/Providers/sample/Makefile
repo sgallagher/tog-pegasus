@@ -4,6 +4,9 @@ ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = HelloWorldProvider
+DIRS = \
+	InstanceProvider \
+	IndicationProvider \
+	HelloWorldProvider
 
 include $(ROOT)/mak/recurse.mak

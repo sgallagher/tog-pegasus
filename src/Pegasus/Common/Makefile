@@ -37,7 +37,6 @@ SOURCES = \
     CIMClassRep.cpp \
     CIMDateTime.cpp \
     CIMFlavor.cpp \
-    CIMIndication.cpp \
     CIMInstance.cpp \
     CIMInstanceRep.cpp \
     CIMMessage.cpp \
@@ -84,6 +83,7 @@ SOURCES = \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
     Indentor.cpp \
+    IndicationFormatter.cpp \
     IPC.cpp \
     Logger.cpp \
     Memory.cpp \
@@ -132,14 +132,6 @@ SOURCES_SLP = Attribute.cpp \
 
 ifdef PEGASUS_ENABLE_SLP
   SOURCES += $(SOURCES_SLP)
-endif
-
-ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
-    SOURCES += IndicationFormatter.cpp
-else 
-    ifdef PEGASUS_ENABLE_EMAIL_HANDLER
-      SOURCES += IndicationFormatter.cpp
-    endif
 endif
 
 ifeq ($(OS),linux)

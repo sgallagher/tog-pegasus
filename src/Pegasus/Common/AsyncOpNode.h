@@ -102,7 +102,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       virtual void notify(const void *key,
 			  OperationContext *context,
 			  Uint32 flag,
-			  Uint32 state) throw(IPCException) = 0;
+			  Uint32 state,
+			  ResponseHandlerType type) throw(IPCException);
 
       virtual void put_req_context(OperationContext *context) throw(IPCException) = 0;
       virtual void put_proc_context(OperationContext *context) throw(IPCException)= 0;

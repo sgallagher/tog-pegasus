@@ -49,7 +49,8 @@ Boolean OperatingSystem::getCSName(String& csName)
 //ATTN-SLC-P2-18-Apr-02: need to implement CSName key for Windows OS BZ#42
 
     // how get fully qualified machine name in Windows?
-    return false;
+    csName.assign("Unknown");
+    return true;
 }
 
 Boolean OperatingSystem::getName(String& osName)
@@ -59,7 +60,8 @@ Boolean OperatingSystem::getName(String& osName)
     // could set to some string based on OSType calculated below
     // see OS provider in generic directory.
     // would be nice to only do it once for both properties
-    return false;
+    osName.assign("Unknown");
+    return true;
 }
 
 Boolean OperatingSystem::getCaption(String& caption)

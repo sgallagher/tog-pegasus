@@ -41,7 +41,9 @@
 
 #include "lslp-perl.h"
 
+PEGASUS_USING_STD;
 
+PEGASUS_NAMESPACE_BEGIN
 
 #define LSLP_LIB_HANDLE_SIGNATURE "liBsLpHanDLe\0"
 #define LSLP_LIB_HANDLE_SIGNATURE_LEN 13
@@ -1252,3 +1254,5 @@ int main(int argc, char *argv[])
 
 #endif
 
+
+PEGASUS_NAMESPACE_END

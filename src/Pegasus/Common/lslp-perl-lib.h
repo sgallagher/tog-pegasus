@@ -29,9 +29,9 @@
 
 #include<Pegasus/Common/Config.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
+
 
   typedef int BOOL ;
   typedef char int8;
@@ -122,6 +122,6 @@ PEGASUS_EXPORT int8 *lslp_lib_get_host_name(void);
 PEGASUS_EXPORT BOOL lslp_lib_get_addr_from_url(const int8 *url, struct sockaddr_in *addr ) ;
 PEGASUS_EXPORT int8 *lslp_lib_get_addr_string_from_url(const int8 *url) ;
 
-#ifdef __cplusplus
-}
-#endif
+
+
+PEGASUS_NAMESPACE_END

@@ -30,7 +30,7 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By:
-//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090,#2657
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -221,13 +221,6 @@ MessageQueueService::MessageQueueService(const char *name,
       _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 0,
 				    create_time, destroy_time, deadlock_time);  
       
-      _polling_thread = new Thread(polling_routine, 
-			           reinterpret_cast<void *>(&_polling_list), 
-			           false);
-      while (!_polling_thread->run())
-      {
-         pegasus_yield();
-      }
    }
    _service_count++;
 
@@ -268,9 +261,11 @@ MessageQueueService::~MessageQueueService(void)
 
       _stop_polling++;
       _polling_sem.signal();
-      _polling_thread->join();
-      delete _polling_thread;
-      _polling_thread = 0;
+	  if (_polling_thread) {
+      	_polling_thread->join();
+      	delete _polling_thread;
+      	_polling_thread = 0;
+	  }
       _meta_dispatcher->_shutdown_routed_queue();
       delete _meta_dispatcher;
       _meta_dispatcher = 0;
@@ -641,7 +636,15 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 {
    if (_incoming_queue_shutdown.value() > 0 )
       return false;
-   
+   if (_polling_thread == NULL)  {
+      _polling_thread = new Thread(polling_routine, 
+			           reinterpret_cast<void *>(&_polling_list), 
+			           false);
+      while (!_polling_thread->run())
+      {
+         pegasus_yield();
+      }
+	}
 // ATTN optimization remove the message checking altogether in the base 
 // << Mon Feb 18 14:02:20 2002 mdd >>
    op->lock();

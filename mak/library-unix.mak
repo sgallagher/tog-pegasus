@@ -43,6 +43,12 @@ ifeq ($(COMPILER),ibm)
   LINK_OUT = -o
 endif
 
+ifeq ($(COMPILER),CC)
+  LINK_COMMAND = CC
+  LINK_ARGUMENTS = -G -KPIC -mt -h lib$(LIBRARY).so
+  LINK_OUT = -o
+endif
+
 FULL_LIB=$(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX)
 
 ## Rule for all UNIX library builds

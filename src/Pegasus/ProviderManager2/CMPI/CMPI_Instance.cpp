@@ -147,19 +147,23 @@ extern "C" {
             cp.setValue(v);
          }
          catch (TypeMismatchException &e) {
-            cerr<<"-+- TypeMisMatch exception for: "<<name<<endl;
-      if (getenv("CMPI_CHECKTYPES")!=NULL) {
+#ifdef PEGASUS_DEBUG
+           cerr<<"-+- TypeMisMatch exception for: "<<name<<endl;
+           if (getenv("CMPI_CHECKTYPES")!=NULL) {
                cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
-         abort();
-      }
+               abort();
+            }
+#endif
             CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
          }
          catch (Exception &e) {
+#ifdef PEGASUS_DEBUG
             cerr<<"-+- "<<e.getMessage()<<" exception for: "<<name<<endl;
-      if (getenv("CMPI_CHECKTYPES")!=NULL) {
-            cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
-         abort();
-      }
+            if (getenv("CMPI_CHECKTYPES")!=NULL) {
+               cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
+               abort();
+            }
+#endif
             CMReturnWithString(CMPI_RC_ERR_FAILED,
          reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
          }

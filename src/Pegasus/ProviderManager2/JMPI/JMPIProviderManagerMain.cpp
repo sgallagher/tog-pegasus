@@ -42,7 +42,9 @@ extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
 {
     if(String::equalNoCase(providerManagerName, "JMPI"))
     {
+#ifdef PEGASUS_DEBUG
         cerr<<"--- JMPI Provider Manager activated"<<endl;
+#endif
         return(new JMPIProviderManager(JMPIProviderManager::CMPI_MODE));
     }
     return(0);

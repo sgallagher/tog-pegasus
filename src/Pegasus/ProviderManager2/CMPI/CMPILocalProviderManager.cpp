@@ -363,7 +363,9 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getRemoteProvider(
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
     catch (Exception e) {
+#ifdef PEGASUS_DEBUG
        cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
+#endif
        PEG_METHOD_EXIT();
         throw;
    }
@@ -395,7 +397,9 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getProvider(
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
     catch (Exception e) {
+#ifdef PEGASUS_DEBUG
        cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
+#endif
        PEG_METHOD_EXIT();
         throw;
    }

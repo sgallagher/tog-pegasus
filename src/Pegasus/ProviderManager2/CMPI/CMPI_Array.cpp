@@ -96,9 +96,13 @@ extern "C" {
             dta[pos+1].value=*val;
             CMReturn(CMPI_RC_OK);
          }
-         cout<<"--- arraySetElementAt(): CMPI_RC_ERR_TYPE_MISMATCH is "
-            <<(void*)(long)type<<" should be "<<(void*)(long)dta->type<<endl;
-         CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
+	 else {
+	    char msg[512];
+	    sprintf(msg,"arraySetElementAt(): CMPI_RC_ERR_TYPE_MISMATCH. Is %p - should be %p",
+               (void*)(long)type,(void*)(long)dta->type);
+            CMReturnWithString(CMPI_RC_ERR_TYPE_MISMATCH,
+	         reinterpret_cast<CMPIString*>(new CMPI_Object(msg)));
+	 }
       }
       CMReturn(CMPI_RC_ERR_NOT_FOUND);
    }

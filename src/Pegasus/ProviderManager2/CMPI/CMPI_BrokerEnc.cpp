@@ -397,7 +397,9 @@ extern "C" {
    static CMPIString* mbEncGetMessage(CMPIBroker *mb, const char *msgId, const char *defMsg,
                CMPIStatus* rc, unsigned int count, ...) {
       MessageLoaderParms parms(msgId,defMsg);
+#ifdef PEGASUS_DEBUG
       cerr<<"::: mbEncGetMessage() count: "<<count<<endl;
+#endif
       int err=0;
       if (rc) rc->rc=CMPI_RC_OK;
 

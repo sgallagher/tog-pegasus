@@ -181,7 +181,7 @@ JMPIjvm::~JMPIjvm() {
 }
 
 int JMPIjvm::cacheIDs(JNIEnv *env) {
-   if (trace)
+   if (JMPIjvm::trace)
       cout<<" --- cacheIDs()"<<endl;
    if (methodInitDone==1) return JNI_TRUE;
    if (methodInitDone==-1) return JNI_FALSE;
@@ -208,7 +208,7 @@ int JMPIjvm::cacheIDs(JNIEnv *env) {
           staticMethodNames[k].methodName,staticMethodNames[k].signature))==NULL) return 0;
    }
 //   cerr<<"--- cacheIDs() done"<<endl;
-   if (trace)
+   if (JMPIjvm::trace)
       cout<<" --- cacheIDs() ok"<<endl;
    methodInitDone=1;
    return JNI_TRUE;
@@ -220,7 +220,7 @@ static void throwCIMException(JNIEnv *env,char *e) {
 
 int JMPIjvm::destroyJVM()
 {
-   if (trace)
+   if (JMPIjvm::trace)
       cerr<<"--- JPIjvm::destroyJVM()\n";
    #ifdef JAVA_DESTROY_VM_WORKS
    if (jvm!=NULL) {
@@ -243,17 +243,23 @@ int JMPIjvm::initJVM()
    char classpath[1024]="-Djava.class.path=";
    JNIEnv *env;
 
+
+#ifdef PEGASUS_DEBUG
    if (getenv("JMPI_TRACE")) trace=1;
    else trace=0;
+#else
+   trace=0;
+#endif
 
-   if (trace)
+   if (JMPIjvm::trace)
       cout<<"--- JPIjvm::initJVM()\n";
    jv.initRc=0;
 
    envcp=getenv("CLASSPATH");
    if (envcp==NULL) {
       jv.initRc=1;
-      cerr<<"--- jmpiJvm::initJVM(): No PEGASUS_PROVIDER_CLASSPATH environment variable found\n";
+      if (JMPIjvm::trace)
+         cerr<<"--- jmpiJvm::initJVM(): No PEGASUS_PROVIDER_CLASSPATH environment variable found\n";
       return -1;
    }
 
@@ -266,7 +272,8 @@ int JMPIjvm::initJVM()
 
    res=JNI_CreateJavaVM(&jvm,(void**)&env,&vm_args);
    if (res!=0) {
-      cerr<<"Can not create Java VM"<<endl;
+      if (JMPIjvm::trace)
+         cerr<<"Can not create Java VM"<<endl;
       exit(1);
    }
    jv.jvm=jvm;
@@ -325,6 +332,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
 
    scls=getGlobalClassRef(env,(const char*)cln.getCString());
    if (env->ExceptionCheck()) {
+   if (JMPIjvm::trace)
       cerr<<"--- Provider "<<cn<<" not found"<<endl;
       return NULL;
    }
@@ -334,6 +342,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, String jar, String cln,
    jobject lProv=env->NewObject(*cls,id);
    gProv=(jobject)env->NewGlobalRef(lProv);
    if (env->ExceptionCheck()) {
+   if (JMPIjvm::trace)
       cerr<<"--- Unable to instantiate provider "<<cn<<endl;
       return NULL;
    }
@@ -351,6 +360,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
 
    scls=getGlobalClassRef(env,cn);
    if (env->ExceptionCheck()) {
+   if (JMPIjvm::trace)
       cerr<<"--- Provider "<<cn<<" not found"<<endl;
       return NULL;
    }
@@ -360,6 +370,7 @@ jobject JMPIjvm::getProvider(JNIEnv *env, const char *cn, jclass *cls)
    jobject lProv=env->NewObject(*cls,id);
    gProv=(jobject)env->NewGlobalRef(lProv);
    if (env->ExceptionCheck()) {
+   if (JMPIjvm::trace)
       cerr<<"--- Unable to instantiate provider "<<cn<<endl;
       return NULL;
    }
@@ -376,7 +387,7 @@ void JMPIjvm::checkException(JNIEnv *env)
       String msg=String::EMPTY,id=String::EMPTY;
 
       jthrowable err=env->ExceptionOccurred();
-      if (trace)
+      if (JMPIjvm::trace)
          env->ExceptionDescribe();
       if (env->IsInstanceOf(err,JMPIjvm::jv.CIMExceptionClassRef)) {
          env->ExceptionClear();
@@ -395,7 +406,7 @@ void JMPIjvm::checkException(JNIEnv *env)
                msg=String(cp);
                env->ReleaseStringUTFChars(jMsg,cp);
             }
-	    if (trace)
+	    if (JMPIjvm::trace)
                cerr<<"--- throwing Pegasus exception: "<<code<<" "<<id<<" ("<<msg<<")"<<endl;
             throw CIMException((CIMStatusCode)code,id+" ("+msg+")");
 	 }
@@ -1017,7 +1028,8 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent
       }
    }
    else {
-      cout<<"_deliverEvent() "<<name<<" not found"<<endl;
+   if (JMPIjvm::trace)
+      cerr<<"_deliverEvent() "<<name<<" not found"<<endl;
    }
 }
 
@@ -1310,9 +1322,11 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMInstance__1setProperty
          if (cp.getType()==cv->getType())
             cp.setValue(*cv);
          else {
+         if (JMPIjvm::trace)
             cerr<<"!!! CIMInstance.setProperty - Wrong type of CIMValue (instance name:"
-             <<ci->getClassName().getString()<<", property name: "<<str<<")";
-            cerr<<"!!! CIMInstance.setProperty : "<<cp.getType()<<" <> "<<cv->getType()<<endl;
+              <<ci->getClassName().getString()<<", property name: "<<str<<")";
+          if (JMPIjvm::trace)
+             cerr<<"!!! CIMInstance.setProperty : "<<cp.getType()<<" <> "<<cv->getType()<<endl;
             throw CIMException(CIM_ERR_FAILED, String("Type mismatch"));
          }
          ci->removeProperty(pos);

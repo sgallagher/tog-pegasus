@@ -92,8 +92,10 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
     _cimom_handle=&cimom;
     JvmVector *jv;
+#ifdef PEGASUS_DEBUG
     if (JMPIjvm::trace)
        cerr<<"--- JMPIProvider::Initialize()"<<endl;
+#endif
 
     JNIEnv *env=JMPIjvm::attachThread(&jv);
     

@@ -58,6 +58,7 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ResponseHandler.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_USING_STD;
 
@@ -122,9 +123,14 @@ void ConfigSettingProvider::getInstance(
              (!kbArray[0].getName().equal (PROPERTY_NAME)))
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(
+            //l10n
+            //throw PEGASUS_CIM_EXCEPTION(
+                //CIM_ERR_INVALID_PARAMETER,
+                //"Invalid instance name");
+            throw PEGASUS_CIM_EXCEPTION_L(
                 CIM_ERR_INVALID_PARAMETER,
-                "Invalid instance name");
+                MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.INVALID_INSTANCE_NAME",
+                				   "Invalid instance name"));
         }
 
         keyValue.assign(kbArray[0].getValue());
@@ -142,9 +148,15 @@ void ConfigSettingProvider::getInstance(
         catch (UnrecognizedConfigProperty& ucp)
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(
+            //l10n
+            //throw PEGASUS_CIM_EXCEPTION(
+                //CIM_ERR_NOT_FOUND,
+                //String("Configuration property \"") + keyValue + "\"");
+            throw PEGASUS_CIM_EXCEPTION_L(
                 CIM_ERR_NOT_FOUND,
-                String("Configuration property \"") + keyValue + "\"");
+                MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.CONFIG_PROPERTY_NOT_FOUND",
+                			       "Configuration property \"$0\"", 
+                			       keyValue));
         }
 
         if (propertyInfo.size() >= 5)
@@ -224,9 +236,15 @@ void ConfigSettingProvider::modifyInstance(
              (!kbArray[0].getName().equal (PROPERTY_NAME)))
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(
+            //l10n
+            //throw PEGASUS_CIM_EXCEPTION(
+                //CIM_ERR_INVALID_PARAMETER,
+                //"Invalid instance name");
+            throw PEGASUS_CIM_EXCEPTION_L(
                 CIM_ERR_INVALID_PARAMETER,
-                "Invalid instance name");
+                MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.INVALID_INSTANCE_NAME",
+                				   "Invalid instance name"));
+                
         }
 
         String configPropertyName = kbArray[0].getValue();
@@ -235,8 +253,12 @@ void ConfigSettingProvider::modifyInstance(
         if (propertyList.isNull())
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                        "Modification of entire instance");
+            //l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                                        //"Modification of entire instance");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                  MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.MODIFICATION_OF_ENTIRE_INSTANCE",
+                                     "Modification of entire instance"));
         }
 
         Boolean currentValueModified = false;
@@ -256,9 +278,14 @@ void ConfigSettingProvider::modifyInstance(
             else
             {
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                    String("Modification of property \"") + 
-                        propertyName.getString() + "\"");
+                //l10n
+                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                    //String("Modification of property \"") + 
+                        //propertyName.getString() + "\"");
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                		MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.MODIFICATION_NOT_SUPPORTED",
+                    	"Modification of property \"$0\"", 
+                        propertyName.getString()));
             }
         }
 
@@ -326,9 +353,14 @@ void ConfigSettingProvider::modifyInstance(
                 {
                     handler.complete();
                     PEG_METHOD_EXIT();
-                    throw PEGASUS_CIM_EXCEPTION(
+                    //l10n
+                    //throw PEGASUS_CIM_EXCEPTION(
+                        //CIM_ERR_FAILED,
+                        //"Failed to update the current value.");
+                    throw PEGASUS_CIM_EXCEPTION_L(
                         CIM_ERR_FAILED,
-                        "Failed to update the current value.");
+                        MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.UPDATE_CURRENT_VALUE_FAILED",
+                        				   "Failed to update the current value."));
                 }
             }
 
@@ -342,9 +374,14 @@ void ConfigSettingProvider::modifyInstance(
                 {
 		    handler.complete();
                     PEG_METHOD_EXIT();
-                    throw PEGASUS_CIM_EXCEPTION(
+                    //l10n
+                    //throw PEGASUS_CIM_EXCEPTION(
+                        //CIM_ERR_FAILED,
+                        //"Failed to update the planned value.");
+                    throw PEGASUS_CIM_EXCEPTION_L(
                         CIM_ERR_FAILED,
-                        "Failed to update the planned value.");
+                        MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.UPDATE_PLANNED_VALUE_FAILED",
+                        				   "Failed to update the planned value."));
                 }
             }
         }
@@ -363,10 +400,16 @@ void ConfigSettingProvider::modifyInstance(
         catch (UnrecognizedConfigProperty& ucp)
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(
+            //l10n
+            //throw PEGASUS_CIM_EXCEPTION(
+                //CIM_ERR_NOT_FOUND,
+                //String("Configuration property \"") +
+                    //configPropertyName + "\"");
+            throw PEGASUS_CIM_EXCEPTION_L(
                 CIM_ERR_NOT_FOUND,
-                String("Configuration property \"") +
-                    configPropertyName + "\"");
+                MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.CONFIG_PROPERTY_NOT_FOUND",
+                			       "Configuration property \"$0\"", 
+                			       configPropertyName));
         }
 
         handler.complete();
@@ -554,8 +597,12 @@ void ConfigSettingProvider::_verifyAuthorization(const String& userName)
         if ( System::isPrivilegedUser(userName) == false )
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
-                "Must be a privileged user to do this CIM operation.");
+            //l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED,
+                //"Must be a privileged user to do this CIM operation.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
+                MessageLoaderParms("ControlProviders.ConfigSettingProvider.ConfigSettingProvider.USER_NOT_PRIVILEGED",
+                				   "Must be a privileged user to do this CIM operation."));
         }
 
         PEG_METHOD_EXIT();

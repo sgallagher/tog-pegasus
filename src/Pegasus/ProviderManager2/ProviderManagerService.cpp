@@ -432,11 +432,14 @@ void ProviderManagerService::handleCimRequest(AsyncOpNode * op, const Message * 
     Message * response = 0;
 
     // get the responsible provider Manager
-    ProviderManager *pm=locateProviderManager(message);
-      if (pm) {
-       response = pm->processMessage(request);
+    ProviderManager * pm = locateProviderManager(message);
+
+    if(pm)
+    {
+        response = pm->processMessage(request);
     }
-    else {
+    else
+    {
        // no provider manager found ...
     }
 
@@ -462,7 +465,7 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 {
     String nameSpace;
     String className;
-    Uint32 type=ProviderType::INSTANCE;
+    Uint32 type = ProviderType::INSTANCE;
 
     switch(message->getType())
     {
@@ -542,7 +545,8 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 
             nameSpace = p->nameSpace.getString();
             className = p->assocClass.getString();
- 	    type=ProviderType::ASSOCIATION;
+ 	
+            type = ProviderType::ASSOCIATION;
         }
 
         break;
@@ -554,8 +558,10 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 
             nameSpace = p->nameSpace.getString();
             className = p->assocClass.getString();
+
             std::cout<<"--- className: "<<className<<std::endl;
- 	    type=ProviderType::ASSOCIATION;
+ 	
+            type = ProviderType::ASSOCIATION;
         }
 
         break;
@@ -566,8 +572,9 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
             PEGASUS_ASSERT(p != 0);
 
             nameSpace = p->nameSpace.getString();
-	    className = p->resultClass.getString();
-  	    type=ProviderType::ASSOCIATION;
+            className = p->resultClass.getString();
+  	
+            type = ProviderType::ASSOCIATION;
        }
 
         break;
@@ -578,8 +585,9 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
             PEGASUS_ASSERT(p != 0);
 
             nameSpace = p->nameSpace.getString();
-	    className = p->resultClass.getString();
- 	    type=ProviderType::ASSOCIATION;
+            className = p->resultClass.getString();
+ 	
+            type = ProviderType::ASSOCIATION;
        }
 
         break;
@@ -590,7 +598,9 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
             PEGASUS_ASSERT(p != 0);
 
             nameSpace = p->nameSpace.getString();
-	    type=ProviderType::METHOD;
+            className = p->instanceName.getClassName().getString();
+	
+            type = ProviderType::METHOD;
         }
 
         break;
@@ -601,10 +611,14 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 
             PEGASUS_ASSERT(p != 0);
             nameSpace = p->nameSpace.getString();
-	    std::cout<<"--- nameSpace: "<<nameSpace<<std::endl;
+
+            std::cout<<"--- nameSpace: "<<nameSpace<<std::endl;
+
             className = p->classNames[0].getString();
-	    std::cout<<"--- className: "<<className<<std::endl;
-	    type=ProviderType::INDICATION;
+	
+            std::cout<<"--- className: "<<className<<std::endl;
+
+            type = ProviderType::INDICATION;
         }
 
         break;

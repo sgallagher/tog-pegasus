@@ -298,13 +298,13 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        count = 0;
        while(count<validateSize)
        {
-	   UTF8_NEXT(validateContent,count,currentChar);
 	   if (!(String::isUTF8((char *)&validateContent[count])))
 	   {
 	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "unsupported-Content-Type",
 			     String("Invalid UTF-8 character detected."));
 	       return; 
 	   }
+	   UTF8_NEXT(validateContent,count,currentChar);
        }
    }
 

@@ -195,17 +195,21 @@ Triad<String, String, String> _getProviderRegPair(
 
     String fileName;
 
-    #ifdef PEGASUS_OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
     fileName = location + String(".dll");
-    #elif defined(PEGASUS_OS_HPUX)
+#elif defined(PEGASUS_OS_HPUX)
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
-    fileName.append(String("/lib") + location + String(".1"));
-    #elif defined(PEGASUS_OS_OS400)
+# ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+    fileName.append(String("/lib") + location + String(".sl"));
+# else
+    fileName.append(String("/lib") + location + String(".so"));
+# endif
+#elif defined(PEGASUS_OS_OS400)
     fileName = location;
-    #else
+#else
     fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
     fileName.append(String("/lib") + location + String(".so"));
-    #endif
+#endif
 
     PEG_METHOD_EXIT();
 
@@ -286,17 +290,21 @@ void ProviderManagerService::_lookupProviderForAssocClass(
 
         String fileName;
 
-        #ifdef PEGASUS_OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
         fileName = Location + String(".dll");
-        #elif defined(PEGASUS_OS_HPUX)
+#elif defined(PEGASUS_OS_HPUX)
         fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+# ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
         fileName.append(String("/lib") + Location + String(".sl"));
-        #elif defined(PEGASUS_OS_OS400)
+# else
+        fileName.append(String("/lib") + Location + String(".so"));
+# endif
+#elif defined(PEGASUS_OS_OS400)
         fileName = Location;
-        #else
+#else
         fileName = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
         fileName.append(String("/lib") + Location + String(".so"));
-        #endif
+#endif
 
         providerNames.append(providerName);
         Locations.append(fileName);

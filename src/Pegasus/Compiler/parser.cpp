@@ -92,8 +92,8 @@ using namespace ParserExceptions;
 #endif /* PEGASUS_HAVE_NAMESPACES */
 
 //----------------------------------------------------------------
-// Log where an error occured.  This is pretty lame, so it needs a
-// FIXME
+// ATTN: P2 BB 2001 Log where an error occured.  This is lame, so it needs work
+// 
 //----------------------------------------------------------------
 void
 parser::log_parse_error(char *token, char *errmsg) const {

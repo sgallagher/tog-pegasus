@@ -249,7 +249,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	  cmdlinedata.set_trace();
 	  const String &s = arg.optarg();
 	  if (s != "") {
-	    // FIXME:  This leaves no way to close the trace stream
+	    // ATTN: P3 BB Mar 2001  No way to close the trace stream
 	    // or to delete the ostream object.  It's OK for now because
 	    // the program terminates when we're done with the stream.
 	    char* tmp = s.allocateCString();
@@ -264,7 +264,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	break;
       case FILELIST: {
 	int stat = process_filelist(arg.optarg(), cmdlinedata);
-	// FIXME:  throw an exception
+	// ATTN: P1 BB 2001 On Process filelist error should throw an exception
 	if (stat != 1) {
 	  return stat;
 	}

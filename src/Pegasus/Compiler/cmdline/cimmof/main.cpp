@@ -83,7 +83,7 @@ main(int argc, char ** argv) {
     p->setDefaultNamespacePath(NAMESPACE_ROOT);
   } else {
     cerr << "Failed to set DefaultNamespacePath." << endl;
-    // FIXME:  We may need to log an error here.
+    // ATTN: P3 BB 2001 Did not set namespace.  We may need to log an error here.
     return ret;
   }
   if (filespecs.size())    // user specified command line args

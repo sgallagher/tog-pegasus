@@ -999,45 +999,55 @@ Boolean XmlReader::getStringValueElement(
 //----------------------------------------------------------------------------
 //
 // getPropertyValue
-//     Use: Decode property value from getPropertyResponse
-//     Expect (ERROR|IRETURNVALUE).!ELEMENT VALUE (#PCDATA)>
+//     Use: Decode property value from SetProperty request and
+//     GetProperty response.
 //
-//	PropertyValue:
-//	<!ELEMENT VALUE>
+//     PropertyValue is one of:
 //
-//	<!ELEMENT VALUE.ARRAY (VALUE*)>
+//         <!ELEMENT VALUE (#PCDATA)>
 //
-//	<!ELEMENT VALUE.REFERENCE (CLASSPATH|LOCALCLASSPATH|CLASSNAME|
+//         <!ELEMENT VALUE.ARRAY (VALUE*)>
+//
+//         <!ELEMENT VALUE.REFERENCE (CLASSPATH|LOCALCLASSPATH|CLASSNAME|
 //                           INSTANCEPATH|LOCALINSTANCEPATH|INSTANCENAME)>
+//
+//         <!ELEMENT VALUE.REFARRAY (VALUE.REFERENCE*)>
 //
 //----------------------------------------------------------------------------
 Boolean XmlReader::getPropertyValue(
     XmlParser& parser, 
     CIMValue& cimValue)
 {
-    //ATTN: Test for Element value type
-    CIMType type = CIMType::STRING;
+    // Can not test for value type, so assume String
+    const CIMType type = CIMType::STRING;
 
+    // Test for VALUE element
     if (XmlReader::getValueElement(parser, type, cimValue))
     {
-	//cout << "DEBUG xmlReader::getPropertyValue " << __LINE__
-	//    << " CimValue = " << cimValue.toString << endl;
 	return true;
     }
 
-    //Test for Element.array value
-    if(XmlReader::getValueArrayElement(parser, type, cimValue))
+    // Test for VALUE.ARRAY element
+    if (XmlReader::getValueArrayElement(parser, type, cimValue))
+    {
        return true;
+    }
 
-    // Test for Value.reference type
+    // Test for VALUE.REFERENCE element
     CIMReference reference;
-    if(XmlReader::getValueReferenceElement(parser, reference))
+    if (XmlReader::getValueReferenceElement(parser, reference))
     {
         cimValue.set(reference);
         return true;
     }
 
-   return false;
+    // Test for VALUE.REFARRAY element
+    if (XmlReader::getValueReferenceArrayElement(parser, cimValue))
+    {
+       return true;
+    }
+
+    return false;
 }
 
 //------------------------------------------------------------------------------

@@ -801,10 +801,8 @@ CIMGetPropertyResponseMessage* CIMOperationResponseDecoder::_decodeGetPropertyRe
 
 	if (!XmlReader::getPropertyValue(parser, cimValue))
 	{
-            // ATTN: Don't know what type of CIMValue to expect
-	    throw XmlValidationError(
-		parser.getLine(),
-                "expected VALUE, VALUE.ARRAY, or VALUE.REFERENCE element");
+            // No value given; not much we can do but assume String value
+            cimValue.setNullValue(CIMType::STRING, false);
 	}
 
 	XmlReader::testEndTag(parser, "IRETURNVALUE");

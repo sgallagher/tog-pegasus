@@ -1933,7 +1933,10 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
         }
         else if (CompareNoCase(name, "NewValue") == 0)
         {
-            XmlReader::getPropertyValue(parser, propertyValue);
+            if (!XmlReader::getPropertyValue(parser, propertyValue))
+            {
+                propertyValue.setNullValue(CIMType::STRING, false);
+            }
             duplicateParameter = gotNewValue;
             gotNewValue = true;
         }

@@ -272,10 +272,11 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
     Boolean filterable = isFilterable(inCI, childNode);
 
     // If the instance is filterable, and the child node has children,
-    // then the child is assumed to be an embedded instance, and we
-    // need to recurse to apply the projection on the embedded instance.
+    // or is wildcarded, then the child is assumed to be an embedded instance,
+    // and we need to recurse to apply the projection on the embedded instance.
     // (the check for embedded instance is done in the recursive call)
-    if (filterable && childNode->firstChild.get() != NULL)
+    if (filterable && 
+        (childNode->firstChild.get() != NULL || childNode->wildcard))
     {
       // We need to project on an embedded instance property. The steps are to
       // remove the embedded instance property from the instance passed in,
@@ -332,6 +333,14 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
   }
 */
 
+  if (nodeVal.isArray() && 
+      (node->firstChild.get() != NULL || node->wildcard))
+  {
+    // NOTE - since we are blocking projection of array elements, we can
+    // assume that if we get here we are projecting a whole array.
+    throw Exception("TEMP MSG: applyProjection - not allowed to project properties on whole arrays");
+  }
+
   CIMObject nodeObj;
 // ATTN - UNCOMMENT when emb objs are supported 
 // nodeVal.get(nodeObj);
@@ -360,10 +369,11 @@ void CQLSelectStatementRep::applyProjection(PropertyNode* node,
     Boolean filterable = isFilterable(nodeInst, curChild);
 
     // If the embedded instance is filterable, and the child node has children,
-    // then the child is assumed to be an embedded instance, and we
-    // need to recurse to apply the projection on the child embedded instance.
+    // or is wildcarded, then the child is assumed to be an embedded instance,
+    // and we need to recurse to apply the projection on the embedded instance.
     // (the check for embedded instance is done in the recursive call)
-    if (filterable && curChild->firstChild.get() != NULL)
+    if (filterable && 
+        (curChild->firstChild.get() != NULL || curChild->wildcard))
     {
       // We need to project on an embedded instance property. The steps are to
       // remove the embedded instance property from the current instance,
@@ -434,7 +444,7 @@ Boolean CQLSelectStatementRep::isFilterable(const  CIMInstance& inst,
     {
       if (_ctx->isSubClass(node->scope, inst.getClassName()))
       {
-        // The instance's class is a subclass or of the required scope.
+        // The instance's class is a subclass of the required scope.
         filterable = true;
       }
     }
@@ -471,7 +481,7 @@ void CQLSelectStatementRep::removeUnneededProperties(CIMInstance& inst,
   //  are required)
   //
   // SELECT fromclass.* FROM fromclass
-  // (this that all the properties on class fromclass are required
+  // (this means that all the properties on class fromclass are required
   //  to be on the instance being projected, not including any
   //  properties on a subclass of fromclass)
 

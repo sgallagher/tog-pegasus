@@ -2006,34 +2006,40 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
 
     response->dest = request->queueIds.top();
 
-    // ATTN-YZ-P2-20020821: Hack: in order to continue indication work 
-    static EnableIndicationsResponseHandler handler(request, response, this);
+
+    EnableIndicationsResponseHandler *handler = 
+       new EnableIndicationsResponseHandler(request, response, this);
 
     try
     {
-	// get the provider file name and logical name
-	Triad<String, String, String> triad =
-	    _getProviderRegPair(request->provider, request->providerModule);
+       // get the provider file name and logical name
+       Triad<String, String, String> triad =
+	  _getProviderRegPair(request->provider, request->providerModule);
+	  
+       // get cached or load new provider module
+       Provider provider =
+	  providerManager.getProvider(triad.first, triad.second, triad.third);
 
-	// get cached or load new provider module
-	Provider provider =
-            providerManager.getProvider(triad.first, triad.second, triad.third);
+       provider.enableIndications(*handler);
 
-        provider.enableIndications(handler);
+
+       // if no exception, store the handler so it is persistent for as 
+       // long as the provider has indications enabled. 
+       _insertEntry(provider, handler);
     }
     catch(CIMException & e)
     {
-        handler.setStatus(e.getCode(), e.getMessage());
+       response->cimException = CIMException(e);
     }
     catch(Exception & e)
     {
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+       response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
     }
     catch(...)
     {
-        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
     }
-
+       
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -2077,18 +2083,20 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
             providerManager.getProvider(triad.first, triad.second, triad.third);
 
         provider.disableIndications();
+	delete _removeEntry(_generateKey(provider));
     }
+
     catch(CIMException & e)
     {
-        handler.setStatus(e.getCode(), e.getMessage());
+       response->cimException = CIMException(e);
     }
     catch(Exception & e)
     {
-        handler.setStatus(CIM_ERR_FAILED, e.getMessage());
+       response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
     }
     catch(...)
     {
-        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
     }
 
     AsyncLegacyOperationResult *async_result =
@@ -2308,5 +2316,57 @@ void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, cons
 
     _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
 }
+
+
+void ProviderManagerService::_insertEntry (
+    const Provider & provider,
+    const EnableIndicationsResponseHandler *handler)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "ProviderManagerService::_insertEntry");
+
+    String tableKey = _generateKey 
+        (provider);
+    
+    _responseTable.insert (tableKey, const_cast<EnableIndicationsResponseHandler *>(handler));
+//cout << "Entry inserted: " << tableKey << endl;
+
+    PEG_METHOD_EXIT ();
+}
+
+
+EnableIndicationsResponseHandler * ProviderManagerService::_removeEntry(
+   const String & key)
+{
+   PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+		     "ProviderManagerService::_removeEntry");
+   EnableIndicationsResponseHandler *ret = 0;
+   
+   _responseTable.lookup(key, ret);
+   PEG_METHOD_EXIT ();
+   return ret;
+}
+
+
+String ProviderManagerService::_generateKey (
+    const Provider & provider)
+{
+    String tableKey;
+
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+                      "ProviderManagerService::_generateKey");
+
+    //
+    //  Append provider key values to key
+    //
+    String providerName = provider.getName();
+    String providerFileName = provider.getModule().getFileName();
+    tableKey.append (providerName);
+    tableKey.append (providerFileName);
+
+    PEG_METHOD_EXIT ();
+    return tableKey;
+}
+
 
 PEGASUS_NAMESPACE_END

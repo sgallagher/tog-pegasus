@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -45,8 +45,16 @@
 
 #include <Pegasus/ProviderManager/SafeQueue.h>
 #include <Pegasus/Server/Linkage.h>
-
+#include <Pegasus/ProviderManager/OperationResponseHandler.h>
+#include <Pegasus/Common/HashTable.h>
+#include <Pegasus/ProviderManager/Provider.h>
+#include <Pegasus/Common/Constants.h>
 PEGASUS_NAMESPACE_BEGIN
+
+typedef HashTable<String, 
+		  EnableIndicationsResponseHandler *,
+		  EqualFunc<String>, 
+		  HashFunc<String> > IndicationResponseTable;
 
 class ProviderRegistrationManager;
 
@@ -124,13 +132,48 @@ protected:
     void handleEnableModuleRequest(AsyncOpNode *op, const Message *message) throw();
     void handleStopAllProvidersRequest(AsyncOpNode *op, const Message *message) throw();
 
+
+    /**
+        Inserts an entry into the enabled indication providers table.
+
+        @param   provider              the provider instance
+        @param   handler               pointer to the indication response handler
+    */
+
+      void _insertEntry(
+	 const Provider & provider,
+	 const EnableIndicationsResponseHandler *handler);
+
+    /**
+        Generates a String key from by combining the provider and provider
+	module names.
+
+        @param   provider              the provider instance
+
+        @return  the generated key
+     */
+
+
+      EnableIndicationsResponseHandler * _removeEntry(
+	 const String & key);
+      
+      
+
+      String _generateKey (
+	 const Provider & provider);
+      
 protected:
 
     SafeQueue<AsyncOpNode *> _incomingQueue;
     //SafeQueue<Message *> _outgoingQueue;
 
     ProviderRegistrationManager * _providerRegistrationManager;
-
+    /** Table holding indication response handlers, one for each provider
+	that has indications enabled.
+    */
+    
+    IndicationResponseTable _responseTable;
+    
 };
 
 PEGASUS_NAMESPACE_END

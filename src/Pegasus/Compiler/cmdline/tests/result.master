@@ -2,51 +2,123 @@
 cimmofl -xml ValidMof1.mof
  
 cimmofl -E ValidMof1.mof
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
+
+
  
 cimmofl -R. ValidMof1.mof
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
+
+
  
-cimmofl -xml ValidMof2.mof
+cimmofl -ntest -R. -xml ValidMof2.mof
  
-cimmofl -R. ValidMof2.mof
+cimmofl -ntest -R. ValidMof2.mof
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
+
+
  
 cimmofl -R. ValidMof3.mof
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
+
+
  
 cimmofl -R. ValidMof4.mof
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
+
+
+ 
+cimmofl -R. ValidMof4a.mof
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
+
+
+ 
+cimmofl -R. ValidMof4b.mof
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
+
+
  
 cimmofl -R. ValidMof5.mof
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
+
+
  
 cimmofl -h
+Usage: cimmofl [ -h ] [ --help ] [ --version ] [ -E ] [ -w ]
+               [ -uc ] [ -aE | -aV | -aEV ]
+               [ -I path ] [ -n namespace ] [ --namespace namespace ]
+               [ --xml ] [ --trace ]
+               [ -R repositorydir ] [ --CIMRepository repositorydir ] 
+               [ -N repositoryname ] [ -M repositorymode] 
+               <mof_file1 mof_file2...>
+Options : 
+    -aE             - Allow Experimental Schema changes
+    -aEV            - Allow both Experimental and Version Schema changes
+    -aV             - Allow both Major and Down Revision Schema changes
+    --CIMRepository - Specify the repository directory
+    -E              - Syntax check only
+    -h, --help      - Display this help message
+    -I              - Specify an include path
+    -n              - Override default CIM Repository namespace (root/cimv2)
+    --namespace     - Override default CIM Repository namespace (root/cimv2)
+    -R              - Specify the repository directory
+    -N              - Specify the repository name - defaults to "repository"
+    -M              - Repository mode [XML, BIN] - defaults to "XML"
+    --trace         - Trace to file (default to stdout)
+    -uc             - Allow update of an existing class definition
+    --version       - Display CIM Server version
+    -w              - Suppress warning messages
+    --xml           - Output XML only, to stdout. Do not update repository
 
-MofCompiler version 1.1.00
 
-Usage: cimmof -hEw -Ipath -Rrepository -ffile
-  -h, --help -- show this help.
-  -E -- syntax check only.
-  -w -- suppress warnings.
-  -Rrepository -- specify the repository path (cimmofl) or hostname:portnumber (cimmof)
-  --CIMRepository=repository -- specify repository path or hostname:portnumber.
-  -Ipath -- specify an include path.
-  -ffile -- specify file containing a list of MOFs to compile.
- --file=file -- specify file containing list of MOFs.
- -npath -- override the default CIMRepository namespace.
- --namespace=path -- override default CIMRepository namespace.
- --xml -- output XML only, to stdout.  Do not update repository.
- --trace or --trace=ttracefile -- trace to file (default to stdout).
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.
  
 cimmofl --help
+Usage: cimmofl [ -h ] [ --help ] [ --version ] [ -E ] [ -w ]
+               [ -uc ] [ -aE | -aV | -aEV ]
+               [ -I path ] [ -n namespace ] [ --namespace namespace ]
+               [ --xml ] [ --trace ]
+               [ -R repositorydir ] [ --CIMRepository repositorydir ] 
+               [ -N repositoryname ] [ -M repositorymode] 
+               <mof_file1 mof_file2...>
+Options : 
+    -aE             - Allow Experimental Schema changes
+    -aEV            - Allow both Experimental and Version Schema changes
+    -aV             - Allow both Major and Down Revision Schema changes
+    --CIMRepository - Specify the repository directory
+    -E              - Syntax check only
+    -h, --help      - Display this help message
+    -I              - Specify an include path
+    -n              - Override default CIM Repository namespace (root/cimv2)
+    --namespace     - Override default CIM Repository namespace (root/cimv2)
+    -R              - Specify the repository directory
+    -N              - Specify the repository name - defaults to "repository"
+    -M              - Repository mode [XML, BIN] - defaults to "XML"
+    --trace         - Trace to file (default to stdout)
+    -uc             - Allow update of an existing class definition
+    --version       - Display CIM Server version
+    -w              - Suppress warning messages
+    --xml           - Output XML only, to stdout. Do not update repository
 
-MofCompiler version 1.1.00
 
-Usage: cimmof -hEw -Ipath -Rrepository -ffile
-  -h, --help -- show this help.
-  -E -- syntax check only.
-  -w -- suppress warnings.
-  -Rrepository -- specify the repository path (cimmofl) or hostname:portnumber (cimmof)
-  --CIMRepository=repository -- specify repository path or hostname:portnumber.
-  -Ipath -- specify an include path.
-  -ffile -- specify file containing a list of MOFs to compile.
- --file=file -- specify file containing list of MOFs.
- -npath -- override the default CIMRepository namespace.
- --namespace=path -- override default CIMRepository namespace.
- --xml -- output XML only, to stdout.  Do not update repository.
- --trace or --trace=ttracefile -- trace to file (default to stdout).
+Warning: Use of cimmofl can corrupt the CIM Server Repository.
+         cimmofl should only be used under very controlled situations.
+         cimmof is the recommended OpenPegasus MOF compiler.

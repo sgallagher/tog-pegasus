@@ -41,6 +41,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 #include <Pegasus/ProviderManager/ProviderManager.h>
 #include <Pegasus/ProviderManager/Provider.h>
@@ -125,8 +126,11 @@ Triad<String, String, String> _getProviderRegPair(
             "OperationalStatus not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+	//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     //
@@ -143,8 +147,11 @@ Triad<String, String, String> _getProviderRegPair(
                 "Provider blocked.");
 
             PEG_METHOD_EXIT();
-
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider blocked.");
+			//l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_ACCESS_DENIED, "provider blocked.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, MessageLoaderParms(
+            			"ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
+            			"provider blocked."));
         }
     }
 
@@ -157,8 +164,11 @@ Triad<String, String, String> _getProviderRegPair(
             "Provider name not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     pInstance.getProperty(pos).getValue().get(providerName);
@@ -175,8 +185,11 @@ Triad<String, String, String> _getProviderRegPair(
             "Provider location not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     pmInstance.getProperty(pos).getValue().get(location);
@@ -246,8 +259,11 @@ void ProviderManagerService::_lookupProviderForAssocClass(
             " className " + objectPath.getClassName().getString());
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     for(Uint32 i=0,n=pInstances.size(); i<n; i++)
@@ -344,8 +360,11 @@ Triad<String, String, String> ProviderManagerService::_lookupMethodProviderForCl
             "Provider registration not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     Triad<String, String, String> triad;
@@ -369,8 +388,11 @@ Triad<String, String, String> ProviderManagerService::_lookupConsumerProvider(
 		    "Provider registration not found.");
    
    PEG_METHOD_EXIT();
-   
-   throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+   //l10n
+   //throw CIMException(CIM_ERR_FAILED, "provider lookup failed.");
+   throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
    Triad<String, String, String> triad;
    triad = _getProviderRegPair(pInstance, pmInstance);
    
@@ -400,8 +422,11 @@ Triad<String, String, String> ProviderManagerService::_lookupProviderForClass(
             "Provider registration not found.");
 
         PEG_METHOD_EXIT();
-
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+		//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "provider lookup failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.PROVIDER_LOOKUP_FAILED",
+        					"provider lookup failed."));
     }
 
     Triad<String, String, String> triad;
@@ -1371,10 +1396,19 @@ void ProviderManagerService::handleExecuteQueryRequest(AsyncOpNode *op, const Me
 
     Array<CIMObject> cimObjects;
 
+//l10n
+    //CIMExecQueryResponseMessage * response =
+        //new CIMExecQueryResponseMessage(
+        //request->messageId,
+        //PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        //request->queueIds.copyAndPop(),
+        //cimObjects);
     CIMExecQueryResponseMessage * response =
         new CIMExecQueryResponseMessage(
         request->messageId,
-        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.NOT_IMPLEMENTED",
+        					"not implemented")),
         request->queueIds.copyAndPop(),
         cimObjects);
 
@@ -2022,11 +2056,20 @@ void ProviderManagerService::handleSetPropertyRequest(AsyncOpNode *op, const Mes
     PEGASUS_ASSERT(request != 0 && async != 0);
 
     // create response message
-    CIMSetPropertyResponseMessage * response =
+    //l10n
+    //CIMSetPropertyResponseMessage * response =
+        //new CIMSetPropertyResponseMessage(
+        //request->messageId,
+        //PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        //request->queueIds.copyAndPop());
+	CIMSetPropertyResponseMessage * response =
         new CIMSetPropertyResponseMessage(
         request->messageId,
-        PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+        					"ProviderManager.ProviderManagerService.NOT_IMPLEMENTED",
+        					"not implemented")),
         request->queueIds.copyAndPop());
+
 
     PEGASUS_ASSERT(response != 0);
 
@@ -2677,13 +2720,21 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-       response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+			//l10n
+       //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       											"ProviderManager.ProviderManagerService.INTERNAL_ERROR",
+       											"Internal Error"));
     }
     catch(...)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: Unknown");
-       response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+		//l10n
+       //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       											"ProviderManager.ProviderManagerService.UNKNOWN_ERROR",
+       											"Unknown Error"));
     }
        
     AsyncLegacyOperationResult *async_result =
@@ -2758,13 +2809,21 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: " + e.getMessage());
-       response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+			//l10n
+       //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       											"ProviderManager.ProviderManagerService.INTERNAL_ERROR",
+       											"Internal Error"));
     }
     catch(...)
     {
        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			"Exception: Unknown");
-       response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+			//l10n
+       //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+       response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+       											"ProviderManager.ProviderManagerService.UNKNOWN_ERROR",
+       											"Unknown Error"));
     }
 
     AsyncLegacyOperationResult *async_result =
@@ -2840,7 +2899,11 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
         if(_providerRegistrationManager->setProviderModuleStatus
             (moduleName, operationalStatus) == false)
         {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+        	//l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
+            				"set module status failed."));
         }
     }
 
@@ -2871,8 +2934,12 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
         if(_providerRegistrationManager->setProviderModuleStatus
             (moduleName, operationalStatus) == false)
         {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"set module status failed.");
+        	//l10n
+            //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+		//"set module status failed.");
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
+            				"set module status failed."));
         }
     }
 
@@ -2952,7 +3019,11 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     if(_providerRegistrationManager->setProviderModuleStatus
         (moduleName, operationalStatus) == false)
     {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+    	//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "set module status failed.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
+            				"set module status failed."));
     }
 
     CIMEnableModuleResponseMessage * response =
@@ -3099,13 +3170,22 @@ void ProviderManagerService::handleConsumeIndicationRequest(AsyncOpNode *op,
    {
       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 		       "Exception: " + e.getMessage());
-      response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+		       //l10n
+      //response->cimException = CIMException(CIM_ERR_FAILED, "Internal Error");
+      response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+      			"ProviderManager.ProviderManagerService.INTERNAL_ERROR",
+      			"Internal Error"));
+      
    }
    catch(...)
    {
       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 		       "Exception: Unknown");
-      response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+		       //l10n
+      //response->cimException = CIMException(CIM_ERR_FAILED, "Unknown Error");
+      response->cimException = CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+      			"ProviderManager.ProviderManagerService.UNKNOWN_ERROR",
+      			"Unknown Error"));
    }
 
    AsyncLegacyOperationResult *async_result = 

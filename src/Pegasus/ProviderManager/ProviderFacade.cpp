@@ -37,6 +37,7 @@
 #include <Pegasus/ProviderManager/SimpleResponseHandler.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Destroyer.h>
+#include <Pegasus/Common/MessageLoader.h> //l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -65,7 +66,11 @@ inline T * getInterface(CIMProvider * provider)
 
     if(p == 0)
     {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
+    	//l10n
+        //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
+        					"ProviderManager.ProviderFacade.INVALID_PROVIDER_INTERFACE",
+        					"Invalid provider interface."));
     }
 
     return(p);
@@ -221,7 +226,8 @@ void ProviderFacade::getClass(
     ClassResponseHandler & handler)
 {
    op_counter ops(&_current_operations);
-    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::getClass");
+   throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ProviderFacade::getClass");
+   
 }
 
 void ProviderFacade::enumerateClasses(

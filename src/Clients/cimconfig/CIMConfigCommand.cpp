@@ -364,14 +364,14 @@ static const char PROPERTY_VALUE_ALREADY_UNSET_KEY [] =
 //static const char VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = 
 	//"Clients.CIMConfig.CIMConfigCommand.VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING";
 
-static const char PLANNED_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING [] = "Planned value of properties can not be listed because the CIM server is not running.";
-static const char PLANNED_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = "Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING";
+static const char PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING [] = "Planned value of properties can not be listed because the CIM server is not running.";
+static const char PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = "Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING";
 
-static const char CURRENT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING [] = "Current value of properties can not be listed because the CIM server is not running.";
-static const char CURRENT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = "Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING";
+static const char CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING [] = "Current value of properties can not be listed because the CIM server is not running.";
+static const char CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = "Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING";
 
-static const char DEFAULT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING [] = "Default value of properties can not be listed because the CIM server is not running.";
-static const char DEFAULT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = "Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING";
+static const char DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING [] = "Default value of properties can not be listed because the CIM server is not running.";
+static const char DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING_KEY [] = "Clients.CIMConfig.CIMConfigCommand.DEFAULT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING";
 
 static const char NO_PROPERTIES_FOUND_IN_FILE [] = 
 	"No configuration properties found in the configuration file.";
@@ -449,13 +449,7 @@ CIMConfigCommand::CIMConfigCommand ()
     */
     String usage;
     usage.reserveCapacity(200);
-    //l10n
-    //localize usage keyword:
-    //MessageLoaderParms parms("Clients.CLI.USAGE_STRING","usage: ");
-    //String USAGE_L = MessageLoader::getMessage(parms);
-    //usage.append(USAGE_L);
     usage.append(USAGE);
-    //l10n end
     
     usage.append(COMMAND_NAME);
 #ifdef PEGASUS_OS_OS400
@@ -496,7 +490,25 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
 #endif
+	
+//l10n localize usage
+#ifdef PEGASUS_HAS_ICU
+	
+	#ifdef PEGASUS_OS_OS400
+		
+		MessageLoaderParms menuparms("Clients.CIMConfig.CIMConfigComand.MENU.PEGASUS_OS_OS400",usage);
+		menuparms.msg_src_path = MSG_PATH;
+		usage = MessageLoader::getMessage(menuparms);
+	
+	#else
+		
+		MessageLoaderParms menuparms("Clients.CIMConfig.CIMConfigComand.MENU.STANDARD",usage);
+		menuparms.msg_src_path = MSG_PATH;
+		usage = MessageLoader::getMessage(menuparms);
+		
+	#endif
 
+#endif
     setUsage (usage);
 }
 
@@ -1487,8 +1499,8 @@ Uint32 CIMConfigCommand::execute (
                         //outPrintWriter << "Current value of properties can not be " <<
                             //"listed because the CIM server is not running." << endl;
                         outPrintWriter << localizeMessage(MSG_PATH,
-                        								  CURRENT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING_KEY,
-                        								  CURRENT_VALUES_CANNNOT_BE_LISTED_CIM_NOT_RUNNING)
+                        								  CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING_KEY,
+                        								  CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING)
                         								  << endl;
                         break;
                     }

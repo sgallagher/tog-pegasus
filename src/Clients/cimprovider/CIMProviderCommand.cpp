@@ -562,11 +562,6 @@ CIMProviderCommand::CIMProviderCommand ()
     */
     String usage;
     usage.reserveCapacity(200);
-    //l10n
-    //localize usage keyword:
-    //MessageLoaderParms parms("Clients.CLI.USAGE_STRING","usage: ");
-    //String USAGE_L = MessageLoader::getMessage(parms);
-    //usage.append(USAGE_L);
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
 
@@ -601,6 +596,25 @@ CIMProviderCommand::CIMProviderCommand ()
     usage.append("                   -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_STATUS);
     usage.append(" | -").append(OPTION_MODULE).append(" module ] \n");
+#endif
+
+//l10n localize usage
+#ifdef PEGASUS_HAS_ICU
+	
+	#ifdef PEGASUS_OS_OS400
+	
+		MessageLoaderParms menuparms("Clients.cimprovider.CIMProviderComand.MENU.PEGASUS_OS_OS400",usage);
+		menuparms.msg_src_path = MSG_PATH;
+		usage = MessageLoader::getMessage(menuparms);
+	
+	#else
+		
+		MessageLoaderParms menuparms("Clients.cimprovider.CIMProviderComand.MENU.STANDARD",usage);
+		menuparms.msg_src_path = MSG_PATH;
+		usage = MessageLoader::getMessage(menuparms);
+		
+	#endif
+
 #endif
 
     setUsage (usage);

@@ -70,7 +70,9 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 
     // Get the system date and time
     mSysTime = time(NULL);
-    tmval = gmtime(&mSysTime);
+
+    // Get the localtime
+    tmval = localtime(&mSysTime);
     gettimeofday(&tv,&tz);
 
     // Initialize the year 

@@ -22,7 +22,8 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: Sushma Fernandes (Hewlett-Packard Company)
+//              sushma_fernandes@hp.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +32,11 @@
 #include "System.h"
 #include "Logger.h"
 #include "System.h"
+#include "Destroyer.h"
+
+#ifdef PEGASUS_OS_HPUX
+    #include <syslog.h>
+#endif
 
 PEGASUS_USING_STD;
 
@@ -44,7 +50,11 @@ const Uint32 Logger::FATAL = (1 << 4);
 
 LoggerRep* Logger::_rep = 0;
 String Logger::_homeDirectory = ".";
+
+// FUTURE-SF-P3-20020517 : This may need to be configurable. At least needs 
+// to be set to 0xFF by default always.
 Uint32 Logger::_severityMask = 0xFF;      // Set all on by default
+
 Uint32 Logger::_writeControlMask = 0xF;   // Set all on by default
 
 /* _allocLogFileName. Allocates the name from a name set.
@@ -174,16 +184,42 @@ void Logger::put(
 	// NUM_LEVELS = 5
 	int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
 
-	const char* tmp = "";
-	if (severity & Logger::TRACE) tmp =       "TRACE   ";
-	if (severity & Logger::INFORMATION) tmp = "INFO    ";
-	if (severity & Logger::WARNING) tmp =     "WARNING ";
-	if (severity & Logger::SEVERE) tmp =      "SEVERE  ";
-	if (severity & Logger::FATAL) tmp =       "FATAL   ";
+        String logMsg = Formatter::format(formatString,
+                arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+        ArrayDestroyer<char> logMsgCString(logMsg.allocateCString());
 
-       _rep->logOf(logFileType) << System::getCurrentASCIITime() << " " << tmp
-	   << Formatter::format(formatString,
-	   arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9) << endl;
+        #ifdef PEGASUS_OS_HPUX
+            // FUTURE-SF-P3-20020517 : Use the Syslog on HP-UX. Eventually only 
+            // certain messages will go to the Syslog and others to the 
+            // Pegasus Logger.
+            Uint32 syslogLevel = LOG_DEBUG;
+
+            // Map the log levels.
+            if (severity & Logger::TRACE) syslogLevel =       LOG_DEBUG;
+            if (severity & Logger::INFORMATION) syslogLevel = LOG_INFO;
+            if (severity & Logger::WARNING) syslogLevel =     LOG_WARNING;
+            if (severity & Logger::SEVERE) syslogLevel =      LOG_ERR;
+            if (severity & Logger::FATAL) syslogLevel =       LOG_CRIT;
+  
+            // Open the syslog.
+            // Ignore the systemId and open the log as cimserver
+            openlog("cimserver", LOG_PID|LOG_CONS, LOG_DAEMON);
+
+            // Log the message
+            syslog(syslogLevel, "%s", logMsgCString.getPointer());
+
+            // Close the syslog.
+            closelog();
+       #else
+	    const char* tmp = "";
+	    if (severity & Logger::TRACE) tmp =       "TRACE   ";
+	    if (severity & Logger::INFORMATION) tmp = "INFO    ";
+            if (severity & Logger::WARNING) tmp =     "WARNING ";
+	    if (severity & Logger::SEVERE) tmp =      "SEVERE  ";
+	    if (severity & Logger::FATAL) tmp =       "FATAL   ";
+                _rep->logOf(logFileType) << System::getCurrentASCIITime() 
+                 << " " << tmp << logMsgCString.getPointer() << endl;
+       #endif
 
     }
 }

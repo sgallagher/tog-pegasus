@@ -196,6 +196,15 @@ TAG: Version_1_09.
     Moved method implementations from header file to source file.  Marked
     the _CString class for internal use only.
 
+35. (Sushma Fernandes - HP) 9 May 2002 - Updated the Logger to log to 
+    syslog on the HP-UX platform.
+
+36. (Sushma Fernandes - HP) 9 May 2002 - Fixed the method 
+    CIMDateTime::getCurrentDateTime() to return local time instead of UTC.
+    Updated the CIMDateTime::getDifference() method to compute the difference
+    between two local times. Also updated the getDifference to compute the 
+    difference between two intervals.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

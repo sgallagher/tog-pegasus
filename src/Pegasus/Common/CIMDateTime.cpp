@@ -257,14 +257,19 @@ Boolean CIMDateTime::isInterval()
     return isInterval;
 }
 
-Real64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
+Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
 {
     const char*         startDateTimeCString;
     const char*         finishDateTimeCString;
     char*               dateTimeOnly;
     struct tm           tmvalStart;
     struct tm           tmvalFinish;
-    Real64              differenceInSeconds = 0;
+    Sint64              differenceInSeconds = 0;
+    time_t		timeStartInSeconds;
+    time_t 		timeFinishInSeconds;
+    char 		sign;
+    Uint32 		offset;
+    char 		buffer[4];
 
     //
     // Get the dates in CString form
@@ -275,7 +280,78 @@ Real64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     //
     // Check if the startTime or finishTime are intervals
     //
-    if (startTime.isInterval() || finishTime.isInterval())
+    if (startTime.isInterval() && finishTime.isInterval())
+    {
+        char 		intervalBuffer[9];
+	Uint32		startIntervalDays;
+	Uint32		startIntervalHours;
+	Uint32 		startIntervalMinutes;
+	Uint32		startIntervalSeconds; 
+	Uint32		finishIntervalDays;
+	Uint32		finishIntervalHours;
+	Uint32 		finishIntervalMinutes;
+	Uint32		finishIntervalSeconds; 
+	Uint64		startIntervalInSeconds; 
+	Uint64		finishIntervalInSeconds; 
+	Sint64		intervalDifferenceInSeconds; 
+
+        // Parse the start time interval and get the days, minutes, hours
+        // and seconds
+
+        // Extract the days.
+        sprintf(intervalBuffer, "%8.8s", startDateTimeCString);
+        startIntervalDays   = atoi(intervalBuffer);
+
+        // Extract the Hour.
+        sprintf(intervalBuffer, "%2.2s", startDateTimeCString + 8);
+        startIntervalHours   = atoi(intervalBuffer);
+
+        // Extract the Minutes.
+        sprintf(intervalBuffer, "%2.2s", startDateTimeCString + 10);
+        startIntervalMinutes = atoi(intervalBuffer);
+
+        // Extract the Seconds.
+        sprintf(intervalBuffer, "%2.2s", startDateTimeCString + 12);
+        startIntervalSeconds = atoi(intervalBuffer);
+
+        // Parse the finish time interval and get the days, minutes, hours
+        // and seconds
+
+        // Extract the days.
+        sprintf(intervalBuffer, "%8.8s", finishDateTimeCString);
+        finishIntervalDays   = atoi(intervalBuffer);
+
+        // Extract the Hour.
+        sprintf(intervalBuffer, "%2.2s", finishDateTimeCString + 8);
+        finishIntervalHours   = atoi(intervalBuffer);
+
+        // Extract the Minutes.
+        sprintf(intervalBuffer, "%2.2s", finishDateTimeCString + 10);
+        finishIntervalMinutes = atoi(intervalBuffer);
+
+        // Extract the Seconds.
+        sprintf(intervalBuffer, "%2.2s", finishDateTimeCString + 12);
+        finishIntervalSeconds = atoi(intervalBuffer);
+
+        // Convert all values to seconds and compute the start and finish
+        // intervals in seconds.
+        startIntervalInSeconds = (Uint64)((startIntervalDays*86400) +
+                                          (startIntervalHours*3600) +
+                                          (startIntervalMinutes*60) +
+                                           startIntervalSeconds) ;
+
+        finishIntervalInSeconds = (Uint64)((finishIntervalDays*86400) +
+                                           (finishIntervalHours*3600) +
+                                           (finishIntervalMinutes*60) + 
+                                            finishIntervalSeconds) ;
+
+        // Get the difference.
+        intervalDifferenceInSeconds =(Sint64)(finishIntervalInSeconds -
+                                              startIntervalInSeconds);
+
+        return intervalDifferenceInSeconds;
+    }
+    else if ( startTime.isInterval() || finishTime.isInterval() )
     {
         throw BadFormat();
     }
@@ -295,10 +371,52 @@ Real64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
     dateTimeOnly[DATE_TIME_LENGTH] = 0;
     formatDateTime( dateTimeOnly, &tmvalFinish );
 
+    // Convert local time to seconds since the epoch
+    timeStartInSeconds  = mktime(&tmvalStart);
+    timeFinishInSeconds = mktime(&tmvalFinish);
+
+    // Convert start time to UTC
+    // Get the sign and UTC offset.
+    sign = startDateTimeCString[21];
+    sprintf(buffer, "%3.3s",  startDateTimeCString + 22);
+    offset = atoi(buffer);
+
+    if ( sign == '+' )
+    {
+        // Convert the offset from minutes to seconds and subtract it from
+        // Start time
+        timeStartInSeconds = timeStartInSeconds - ( offset * 60 );
+    }
+    else
+    {
+        // Convert the offset from minutes to seconds and add it to
+        // Start time
+        timeStartInSeconds = timeStartInSeconds + (offset * 60);
+    }
+
+    // Convert finish time to UTC
+    // Get the sign and UTC offset.
+    sign = finishDateTimeCString[21];
+    sprintf(buffer, "%3.3s",  finishDateTimeCString + 22);
+    offset = atoi(buffer);
+
+    if ( sign == '+' )
+    {
+        // Convert the offset from minutes to seconds and subtract it from
+        // finish time
+        timeFinishInSeconds = timeFinishInSeconds - ( offset * 60 );
+    }
+    else
+    {
+        // Convert the offset from minutes to seconds and add it to
+        // finish time
+        timeFinishInSeconds = timeFinishInSeconds + (offset * 60);
+    }
+
     //
     // Get the difference between the two times
     //
-    differenceInSeconds = difftime( mktime(&tmvalFinish), mktime(&tmvalStart));
+    differenceInSeconds = (Sint64) difftime( timeFinishInSeconds, timeStartInSeconds );
 
     delete []dateTimeOnly;
     return differenceInSeconds;

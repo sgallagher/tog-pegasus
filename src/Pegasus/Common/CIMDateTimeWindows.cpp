@@ -75,7 +75,8 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
 
    ::memset(&time, 0, sizeof(time));
 
-   ::GetSystemTime(&time);
+   // Get the local time
+   ::GetLocalTime(&time);
 
    std::stringstream ss;
 

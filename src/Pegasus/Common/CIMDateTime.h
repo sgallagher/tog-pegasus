@@ -187,7 +187,9 @@ public:
     static CIMDateTime getCurrentDateTime();
 
     /**
-    Get the difference between two CIMDateTimes.
+    Get the difference between two CIMDateTimes. This function computes the 
+    difference between two datetimes or between two intervals. The result 
+    is truncated and returned as the number of seconds.
 
     @param startTime     Contains the start time.
 
@@ -198,7 +200,7 @@ public:
     @throws BadFormat
 
     */
-    static Real64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
+    static Sint64 getDifference(CIMDateTime startTime, CIMDateTime finishTime);
  
     /**
     Checks whether the datetime is an interval.

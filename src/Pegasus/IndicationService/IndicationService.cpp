@@ -4002,7 +4002,7 @@ Boolean IndicationService::_getTimeRemaining (
             //  Get current date time, and calculate Subscription Time Remaining
             //
             CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-            Real64 difference = CIMDateTime::getDifference
+            Sint64 difference = CIMDateTime::getDifference
                 (startTime, currentDateTime);
             PEGASUS_ASSERT (difference >= 0);
             if (((Sint64) duration - difference) >= 0)

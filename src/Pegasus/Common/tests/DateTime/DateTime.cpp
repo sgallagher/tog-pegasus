@@ -86,25 +86,28 @@ int main(int argc, char** argv)
     // Tests for getCurrentDateTime and getDifference.
     //
     CIMDateTime         startTime, finishTime;
-    Real64              differenceInSeconds;
+    Sint64              differenceInSeconds;
 
     //
     // Call getCurrentDateTime
     //
-    startTime = CIMDateTime::getCurrentDateTime();
-    finishTime = CIMDateTime::getCurrentDateTime();
+    //startTime = CIMDateTime::getCurrentDateTime();
+    //finishTime = CIMDateTime::getCurrentDateTime();
+
+    // Set the start and finish times
+    startTime.set("20020507170000.000000-480");
+    finishTime.set("20020507170000.000000-300");
 
     //
     // Call getDifference
     //
     try 
     {
-        differenceInSeconds = CIMDateTime::getDifference( startTime, finishTime );
+        differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
     }
     catch(BadFormat &e)
     {
     }
-
 
     if (verbose)
     {
@@ -113,17 +116,114 @@ int main(int argc, char** argv)
         cout << "Finish date time is : " << finishTime << endl;
     }
 
-    if (startTime == finishTime)
+    assert ( differenceInSeconds == -10800 );
+
+    // Set the start and finish times
+    startTime.clear();
+    finishTime.clear();
+    finishTime.set("20020507170000.000000-480");
+    startTime.set("20020507170000.000000-300");
+
+    //
+    // Call getDifference
+    //
+    try 
     {
-        assert ( differenceInSeconds == 0 );
+        differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
+    }
+    catch(BadFormat &e)
+    {
     }
 
+    if (verbose)
+    {
+        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+        cout << "Start date time is  : " << startTime << endl;
+        cout << "Finish date time is : " << finishTime << endl;
+    }
+
+    assert ( differenceInSeconds == 10800 );
+
+    // Set the start and finish times
+    startTime.clear();
+    startTime.set("20020507170000.000000+330");
+    finishTime.clear(); 
+    finishTime.set("20020507170000.000000-480");
+
+    //
+    // Call getDifference
+    //
+    try 
+    {
+        differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
+    }
+    catch(BadFormat &e)
+    {
+    }
+
+    if (verbose)
+    {
+        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+        cout << "Start date time is  : " << startTime << endl;
+        cout << "Finish date time is : " << finishTime << endl;
+    }
+
+    assert ( differenceInSeconds == 48600 );
+
+    // Set the start and finish times
+    startTime.clear();
+    finishTime.clear(); 
+    finishTime.set("20020507170000.000000+330");
+    startTime.set("20020507170000.000000-480");
+
+    //
+    // Call getDifference
+    //
+    try 
+    {
+        differenceInSeconds = CIMDateTime::getDifference(startTime,finishTime);
+    }
+    catch(BadFormat &e)
+    {
+    }
+
+    if (verbose)
+    {
+        cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
+        cout << "Start date time is  : " << startTime << endl;
+        cout << "Finish date time is : " << finishTime << endl;
+    }
+
+    assert ( differenceInSeconds == -48600 );
+
     // Check for interval
-    CIMDateTime testInterval;
-    testInterval.set("20020412175729.000000:000");
+    CIMDateTime 	 startInterval;
+    CIMDateTime		 finishInterval;
+    Sint64      	 intervalDifferenceInSeconds;
 
-    assert ( testInterval.isInterval() == true );
+    startInterval.set  ("00000001010100.000000:000");
+    finishInterval.set ("00000001010200.000000:000");
 
+    if (verbose)
+    {
+        cout << "Format              : ddddddddhhmmss.mmmmmm:000" << endl;
+        cout << "Start interval is   : " << startInterval << endl;
+        cout << "Finish interval is  : " << finishInterval << endl;
+    }
+
+    intervalDifferenceInSeconds = CIMDateTime::getDifference
+                                     (startInterval, finishInterval);
+
+    assert ( startInterval.isInterval() == true );
+    assert ( intervalDifferenceInSeconds == 60 );
+
+    try 
+    {
+        CIMDateTime::getDifference(startInterval, finishTime);
+    }
+    catch (BadFormat& bfe)
+    {
+    }
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

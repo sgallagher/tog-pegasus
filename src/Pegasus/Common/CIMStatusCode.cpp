@@ -27,6 +27,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,10 +78,7 @@ static const char* _cimMessages[] =
 
     "CIM_ERR_METHOD_NOT_AVAILABLE: The extrinsic method could not be executed",
 
-    "CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist",
-    
-    // NOTE - the message below must always be last
-    "The CIM status code associated with this error is not recognized" 
+    "CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist"
 };
 
 // l10n - keys for cimstatus messages
@@ -120,17 +118,14 @@ static const char* _cimMessageKeys[] =
 
     "Common.CIMStatusCode.CIM_ERR_METHOD_NOT_AVAILABLE",
 
-    "Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND",
-
-    // NOTE: the message key below must always be last
-    "Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE",
+    "Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND"
 };
 
-// l10n TOD0 - the first func should go away when all Pegasus is globalized
+// l10n TODO - the first func should go away when all Pegasus is globalized
 
 const char* cimStatusCodeToString(CIMStatusCode code)
 {
-    if (Uint32(code) <= CIM_ERR_METHOD_NOT_FOUND)
+    if (Uint32(code) < (sizeof(_cimMessageKeys)/sizeof(_cimMessageKeys[0])))
 	return _cimMessages[Uint32(code)];
 
     return "Unrecognized CIM status code";
@@ -140,50 +135,50 @@ const char* cimStatusCodeToString(CIMStatusCode code)
 String cimStatusCodeToString(CIMStatusCode code,
 			     const ContentLanguages& contentLanguages)
 {
-  AcceptLanguages acceptLanguages;
+    MessageLoaderParms parms;
 
-  Uint32 tempCode;
+    if (Uint32(code) < (sizeof(_cimMessageKeys)/sizeof(_cimMessageKeys[0])))
+    {
+        parms = MessageLoaderParms(
+            _cimMessageKeys[Uint32(code)], _cimMessages[Uint32(code)]);
+    }
+    else
+    {
+        parms = MessageLoaderParms(
+            "Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE",
+            "Unrecognized CIM status code \"$0\"", Uint32(code));
+    }
 
-  if (Uint32(code) <= CIM_ERR_METHOD_NOT_FOUND) 
-  {
-    tempCode = (Uint32)code;
-  }
-  else
-  {
-    tempCode = CIM_ERR_METHOD_NOT_FOUND + 1;
-  }
+    if (contentLanguages.size() > 0)
+    {
+        //build AcceptLanguages from contentLanguages, use in getMessage
+        parms.acceptlanguages =
+            AcceptLanguages(contentLanguages.getLanguageElement(0).getTag());
+    }
 
-  MessageLoaderParms parms(_cimMessageKeys[tempCode], _cimMessages[tempCode]);
-  if (contentLanguages.size() == 0) //use AcceptLanguages::EMPTY
-  {
     return MessageLoader::getMessage(parms);
-  } 
-  else
-  {
-    //build AcceptLanguages from contentLanguages, use in getMessage
-    parms.acceptlanguages = AcceptLanguages(contentLanguages.getLanguageElement(0).getTag());
-    return MessageLoader::getMessage(parms);
-  }
 }
 
 // l10n 
 ContentLanguages cimStatusCodeToString_Thread(String & message, CIMStatusCode code)
 {
-  Uint32 tempCode;
+    MessageLoaderParms parms;
 
-  if (Uint32(code) <= CIM_ERR_METHOD_NOT_FOUND) 
-  {
-    tempCode = (Uint32)code;
-  }
-  else
-  {
-    tempCode = CIM_ERR_METHOD_NOT_FOUND + 1;
-  }
+    if (Uint32(code) < (sizeof(_cimMessageKeys)/sizeof(_cimMessageKeys[0])))
+    {
+        parms = MessageLoaderParms(
+            _cimMessageKeys[Uint32(code)], _cimMessages[Uint32(code)]);
+    }
+    else
+    {
+        parms = MessageLoaderParms(
+            "Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE",
+            "Unrecognized CIM status code \"$0\"", Uint32(code));
+    }
 
-  MessageLoaderParms parms(_cimMessageKeys[tempCode], _cimMessages[tempCode]); 
-  //parms.useThreadLocale = true;
-  message = MessageLoader::getMessage(parms);
-  return parms.contentlanguages;
+    //parms.useThreadLocale = true;
+    message = MessageLoader::getMessage(parms);
+    return parms.contentlanguages;
 }
 
 PEGASUS_NAMESPACE_END

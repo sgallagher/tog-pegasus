@@ -97,7 +97,12 @@ en:table {
         
         Common.CIMStatusCode.CIM_ERR_METHOD_NOT_FOUND:string {"CIM_ERR_METHOD_NOT_FOUND: The specified extrinsic method does not exist."}
 
-	Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE:string {"The CIM status code associated with this error is not recognized."}
+        /**
+        * @version 2.4
+        * @note : 
+        *        Substitution {0} is a status code (an integer).
+        */
+	Common.CIMStatusCode.UNRECOGNIZED_STATUS_CODE:string {"Unrecognized CIM status code \"{0}\"."}
 
 
         // ==========================================================

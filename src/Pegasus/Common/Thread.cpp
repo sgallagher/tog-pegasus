@@ -52,9 +52,6 @@ void thread_data::default_delete(void * data)
 
 Boolean Thread::_signals_blocked = false;
 // l10n
-PEGASUS_THREAD_KEY_TYPE Thread::_platform_thread_key;
-Boolean Thread::_key_initialized = false;
-Boolean Thread::_key_error = false;
 
 
 // l10n

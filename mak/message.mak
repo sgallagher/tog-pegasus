@@ -31,7 +31,7 @@ ifdef ICU_ROOT
 
 $(MSG_DIR)/$(MSG_PACKAGE)_root.res: $(MSG_PACKAGE)_root.rb $(ERROR)
 	$(MKDIRHIER) $(MSG_DIR)
-	$(MSG_COMPILE) -d $(MSG_DIR) $(MSG_FLAGS) $(MSG_PACKAGE)_root.rb
+	$(MSG_COMPILE) -p $(MSG_PACKAGE) -d $(MSG_DIR) $(MSG_FLAGS) $(MSG_PACKAGE)_root.rb
 	@ $(ECHO)
 
 $(MSG_PACKAGE)_root.rb: $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt $(ERROR)
@@ -40,7 +40,7 @@ $(MSG_PACKAGE)_root.rb: $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt $(ERROR)
 
 $(MSG_DIR)/%.res: %.txt $(ERROR)
 	$(MKDIRHIER) $(MSG_DIR)
-	$(MSG_COMPILE) -d $(MSG_DIR) $(MSG_FLAGS) $*.txt
+	$(MSG_COMPILE) -p $(MSG_PACKAGE) -d $(MSG_DIR) $(MSG_FLAGS) $*.txt
 	@ $(ECHO)
 
 endif
@@ -117,7 +117,7 @@ ifdef ICU_ROOT
 
 $(MSG_DIR)/$(MSG_PACKAGE)_root.res: $(MSG_PACKAGE)_root.rb $(ERROR)
 	$(MKDIRHIER) $(MSG_DIR)
-	$(MSG_COMPILE) -d $(MSG_DIR) $(MSG_FLAGS) $(MSG_PACKAGE)_root.rb
+	$(MSG_COMPILE) -p $(MSG_PACKAGE) -d $(MSG_DIR) $(MSG_FLAGS) $(MSG_PACKAGE)_root.rb
 	@ $(ECHO)
 
 $(MSG_PACKAGE)_root.rb: $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt $(ERROR)
@@ -126,7 +126,7 @@ $(MSG_PACKAGE)_root.rb: $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt $(ERROR)
 
 $(MSG_DIR)/%.res: %.txt $(ERROR)
 	$(MKDIRHIER) $(MSG_DIR)
-	$(MSG_COMPILE) -d $(MSG_DIR) $(MSG_FLAGS) $*.txt
+	$(MSG_COMPILE) -p $(MSG_PACKAGE) -d $(MSG_DIR) $(MSG_FLAGS) $*.txt
 	@ $(ECHO)
 
 endif

@@ -207,6 +207,21 @@ Boolean Equal(const Array<PEGASUS_ARRAY_T>& x, const Array<PEGASUS_ARRAY_T>& y)
     return true;
 }
 
+template<class T>
+Boolean Contains(const Array<T>& a, const T& x)
+{
+    Uint32 n = a.size();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+	if (a[i] == x)
+	    return true;
+    }
+
+    return false;
+}
+
+#ifdef PEGASUS_INTERNALONLY
 template<class PEGASUS_ARRAY_T>
 void BubbleSort(Array<PEGASUS_ARRAY_T>& x) 
 {
@@ -228,7 +243,9 @@ void BubbleSort(Array<PEGASUS_ARRAY_T>& x)
 	}
     }
 }
+#endif
 
+#if 0 // Determine need for these functions
 template<class PEGASUS_ARRAY_T>
 void Unique(Array<PEGASUS_ARRAY_T>& x) 
 {
@@ -243,26 +260,13 @@ void Unique(Array<PEGASUS_ARRAY_T>& x)
     x.swap(result);
 }
 
-template<class T>
-Boolean Contains(const Array<T>& a, const T& x)
-{
-    Uint32 n = a.size();
-
-    for (Uint32 i = 0; i < n; i++)
-    {
-	if (a[i] == x)
-	    return true;
-    }
-
-    return false;
-}
-
 template<class PEGASUS_ARRAY_T>
 void Print(Array<PEGASUS_ARRAY_T>& x)
 {
     for (Uint32 i = 0, n = x.size(); i < n; i++)
 	PEGASUS_STD(cout) << x[i] << PEGASUS_STD(endl);
 }
+#endif
 
 #define PEGASUS_ARRAY_T Boolean
 #include <Pegasus/Common/ArrayInter.h>

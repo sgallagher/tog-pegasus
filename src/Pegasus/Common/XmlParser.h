@@ -63,10 +63,18 @@ public:
 	SEMANTIC_ERROR
     };
 
+
     XmlException(
 	Code code, 
 	Uint32 lineNumber,
 	const String& message = String());
+	
+	
+    XmlException(
+	Code code, 
+	Uint32 lineNumber,
+	MessageLoaderParms& msgParms);
+
 
     XmlException::Code getCode() const { return _code; }
 
@@ -80,6 +88,7 @@ class PEGASUS_COMMON_LINKAGE XmlValidationError : public XmlException
 public:
 
     XmlValidationError(Uint32 lineNumber, const String& message);
+    XmlValidationError(Uint32 lineNumber, MessageLoaderParms& msgParms);     
 };
 
 class PEGASUS_COMMON_LINKAGE XmlSemanticError : public XmlException
@@ -87,6 +96,7 @@ class PEGASUS_COMMON_LINKAGE XmlSemanticError : public XmlException
 public:
 
     XmlSemanticError(Uint32 lineNumber, const String& message);
+    XmlSemanticError(Uint32 lineNumber, MessageLoaderParms& msgParms);    
 };
 
 struct XmlAttribute

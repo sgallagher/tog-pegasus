@@ -92,303 +92,304 @@ void Exception::setContentLanguages(const ContentLanguages& langs)
 } 
 
 // l10n TODO - finish the commented out constructors below 
-
+/*
 IndexOutOfBoundsException::IndexOutOfBoundsException()
     : Exception("index out of bounds")
 {
 }
-
-/*
-IndexOutOfBoundsException::IndexOutOfBoundsException()
-    : Exception(MessageLoaderParms("key","index out of bounds"))
-{
-}
 */
 
+IndexOutOfBoundsException::IndexOutOfBoundsException()
+    : Exception(MessageLoaderParms("Common.Exception.IndexOutOfBoundsException","index out of bounds"))
+{
+}
+
+/*
 AlreadyExistsException::AlreadyExistsException(const String& message)
     : Exception("already exists: " + message)
 {
 }
+*/
 
-/*
 AlreadyExistsException::AlreadyExistsException(const String& message)
-    : Exception(MessageLoaderParms("key1",
-    								"already exists: $0",
-DON'T FORGET THE $0 for the rest of these!    								
+    : Exception(MessageLoaderParms("Common.Exception.AlreadyExistsException",
+    								"already exists: $0",    								
     								 message))
 {
 }
 
-AlreadyExistsException::AlreadyExistsException(const MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms("key2",
+AlreadyExistsException::AlreadyExistsException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.AlreadyExistsException",
     								"already exists: "))
 {
-	_rep->message.append(MessageLoader.getMessage(msgParms));
+	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
-*/
 
+/*
 InvalidNameException::InvalidNameException(const String& name)
     : Exception("invalid CIM name: " + name)
 {
 }
+*/
 
-/*
 InvalidNameException::InvalidNameException(const String& message)
-    : Exception(MessageLoaderParms("key1",
-    								"invalid CIM name: ",
+    : Exception(MessageLoaderParms("Common.Exception.InvalidNameException",
+    								"invalid CIM name: $0",
     								 message))
 {
 }
 
-InvalidNameException::InvalidNameException(const MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms("key2",
+InvalidNameException::InvalidNameException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.InvalidNameException",
     								"invalid CIM name: "))
 {
-	_rep->message.append(MessageLoader.getMessage(msgParms));
+	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
-*/
 
+/*
 InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
     : Exception("invalid CIM namespace name: " + name)
 {
 }
+*/
 
-/*
+
 InvalidNamespaceNameException::InvalidNamespaceNameException(const String& name)
-    : Exception(MessageLoaderParms("key1",
-    								"invalid CIM namespace name: ",
+    : Exception(MessageLoaderParms("Common.Exception.InvalidNamespaceNameException",
+    								"invalid CIM namespace name: $0",
     								 name))
 {
 }
 
-InvalidNamespaceNameException::InvalidNamespaceNameException(const MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms("key2",
+InvalidNamespaceNameException::InvalidNamespaceNameException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.InvalidNamespaceNameException",
     								"invalid CIM namespace name: "))
 {
-	_rep->message.append(MessageLoader.getMessage(msgParms));
+	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
-*/
 
+/*
 UninitializedObjectException::UninitializedObjectException()
     : Exception("uninitialized object")
 {
 }
+*/
 
-/*
 UninitializedObjectException::UninitializedObjectException()
-    : Exception(MessageLoaderParms("key1",
+    : Exception(MessageLoaderParms("Common.Exception.UninitializedObjectException",
     								"uninitialized object"))
 {
 }
-*/
 
+/*
 TypeMismatchException::TypeMismatchException()
     : Exception("type mismatch")
 {
 }
+*/
 
-/*
 TypeMismatchException::TypeMismatchException()
-    : Exception(MessageLoaderParms("key1",
+    : Exception(MessageLoaderParms("Common.Exception.TypeMismatchException",
     								"type mismatch"))
 {
 }
-*/
 
+/*
 DynamicCastFailedException::DynamicCastFailedException()
     : Exception("dynamic cast failed")
 {
 }
+*/
 
-/*
 DynamicCastFailedException::DynamicCastFailedException()
-    : Exception(MessageLoaderParms("key1",
+    : Exception(MessageLoaderParms("Common.Exception.DynamicCastFailedException",
     								"dynamic cast failed"))
 {
 }
-*/
 
+/*
 InvalidDateTimeFormatException::InvalidDateTimeFormatException()
     : Exception("invalid datetime format")
 {
 }
+*/
 
-/*
 InvalidDateTimeFormatException::InvalidDateTimeFormatException()
-    : Exception(MessageLoaderParms("key1",
+    : Exception(MessageLoaderParms("Common.Exception.InvalidDateTimeFormatException",
     								"invalid datetime format"))
 {
 }
-*/
 
+/*
 MalformedObjectNameException::MalformedObjectNameException(
     const String& objectName)
     : Exception("malformed object name: " + objectName)
 {
 }
+*/
 
-/*
 MalformedObjectNameException::MalformedObjectNameException(const String& message)
-    : Exception(MessageLoaderParms("key1",
-    								"malformed object name: ",
+    : Exception(MessageLoaderParms("Common.Exception.MalformedObjectNameException",
+    								"malformed object name: $0",
     								 message))
 {
 }
 
-MalformedObjectNameException::MalformedObjectNameException(const MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms("key2",
+MalformedObjectNameException::MalformedObjectNameException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.MalformedObjectNameException",
     								"malformed object name: "))
 {
-	_rep->message.append(MessageLoader.getMessage(msgParms));
+	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
-*/
 
+/*
 BindFailedException::BindFailedException(const String& message)
     : Exception("Bind failed: " + message)
 {
 }
+*/
 
-/*
 BindFailedException::BindFailedException(const String& message)
-    : Exception(MessageLoaderParms("key1",
-    								"Bind failed: ",
+    : Exception(MessageLoaderParms("Common.Exception.BindFailedException",
+    								"Bind failed: $0",
     								 message))
 {
 }
 
-BindFailedException::BindFailedException(const MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms("key2",
+BindFailedException::BindFailedException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.BindFailedException",
     								"Bind failed: "))
 {
-	_rep->message.append(MessageLoader.getMessage(msgParms));
+	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
-*/
 
+/*
 InvalidLocatorException::InvalidLocatorException(const String& locator)
     : Exception("Invalid locator: " + locator)
 {
 }
+*/
 
-/*
 InvalidLocatorException::InvalidLocatorException(const String& message)
-    : Exception(MessageLoaderParms("key1",
-    								"Invalid locator: ",
+    : Exception(MessageLoaderParms("Common.Exception.InvalidLocatorException",
+    								"Invalid locator: $0",
     								 message))
 {
 }
 
-InvalidLocatorException::InvalidLocatorException(const MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms("key2",
+InvalidLocatorException::InvalidLocatorException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.InvalidLocatorException",
     								"Invalid locator: "))
 {
-	_rep->message.append(MessageLoader.getMessage(msgParms));
+	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
-*/
 
+/*
 CannotCreateSocketException::CannotCreateSocketException()
     : Exception("Cannot create socket")
 {
 }
+*/
 
-/*
 CannotCreateSocketException::CannotCreateSocketException()
-    : Exception(MessageLoaderParms("key1",
+    : Exception(MessageLoaderParms("Common.Exception.CannotCreateSocketException",
     								"Cannot create socket"))
 {
 }
-*/
 
-CannotConnectException::CannotConnectException(const String& message)
+
+CannotConnectException::CannotConnectException(const String& message)//???
     : Exception(message)
 {
 }
-/*
-CannotConnectException::CannotConnectException(const MessageLoaderParms& msgParms)
+
+
+CannotConnectException::CannotConnectException(MessageLoaderParms& msgParms)
     : Exception(msgParms)
 {
 }
-*/
 
+/*
 AlreadyConnectedException::AlreadyConnectedException()
     : Exception("already connected")
 {
 }
+*/
 
-/*
 AlreadyConnectedException::AlreadyConnectedException()
-    : Exception(MessageLoaderParms("key1",
+    : Exception(MessageLoaderParms("Common.Exception.AlreadyConnectedException",
     								"already connected"))
 {
 }
-*/
 
+/*
 NotConnectedException::NotConnectedException()
     : Exception("not connected")
 {
 }
+*/
 
-/*
 NotConnectedException::NotConnectedException()
-    : Exception(MessageLoaderParms("key1",
+    : Exception(MessageLoaderParms("Common.Exception.NotConnectedException",
     								"not connected"))
 {
 }
-*/
 
+/*
 ConnectionTimeoutException::ConnectionTimeoutException()
     : Exception("connection timed out")
 {
 }
+*/
 
-/*
 ConnectionTimeoutException::ConnectionTimeoutException()
-    : Exception(MessageLoaderParms("key1",
+    : Exception(MessageLoaderParms("Common.Exception.ConnectionTimeoutException",
     								"connection timed out"))
 {
 }
-*/
 
+/*
 SSLException::SSLException(const String& message)
     : Exception("SSL Exception: " + message)
 {
 }
+*/
 
-/*
 SSLException::SSLException(const String& message)
-    : Exception(MessageLoaderParms("key1",
-    								"SSL Exception: " ,
+    : Exception(MessageLoaderParms("Common.Exception.SSLException",
+    								"SSL Exception: $0" ,
     								 message))
 {
 }
 
-SSLException::SSLException(const MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms("key2",
+SSLException::SSLException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.SSLException",
     								"SSL Exception: " ))
 {
-	_rep->message.append(MessageLoader.getMessage(msgParms));
+	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
-*/
 
+/*
 DateTimeOutOfRangeException::DateTimeOutOfRangeException(const String& message)
     : Exception("DateTime is out of range : " + message)
 {
 }
+*/
 
-/*
 DateTimeOutOfRangeException::DateTimeOutOfRangeException(const String& message)
-    : Exception(MessageLoaderParms("key1",
-    								"DateTime is out of range : " ,
+    : Exception(MessageLoaderParms("Common.Exception.DateTimeOutOfRangeException",
+    								"DateTime is out of range : $0" ,
     								 message))
 {
 }
 
-DateTimeOutOfRangeException::DateTimeOutOfRangeException(const MessageLoaderParms& msgParms)
-    : Exception(MessageLoaderParms("key2",
+DateTimeOutOfRangeException::DateTimeOutOfRangeException(MessageLoaderParms& msgParms)
+    : Exception(MessageLoaderParms("Common.Exception.DateTimeOutOfRangeException",
     								"DateTime is out of range : " ))
 {
-	_rep->message.append(MessageLoader.getMessage(msgParms));
+	_rep->message.append(MessageLoader::getMessage(msgParms));
 }
-*/
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -92,6 +92,7 @@
 #include <cstring>
 #include "XmlParser.h"
 #include "Logger.h"
+#include "ExceptionRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -225,6 +226,30 @@ static const char* _xmlMessages[] =
     "Semantic error"
 };
 
+static const char* _xmlKeys[] = 
+{
+	"Common.XmlParser.BAD_START_TAG",
+    "Common.XmlParser.BAD_END_TAG",
+    "Common.XmlParser.BAD_ATTRIBUTE_NAME",
+    "Common.XmlParser.EXPECTED_EQUAL_SIGN",
+    "Common.XmlParser.BAD_ATTRIBUTE_VALUE",
+    "Common.XmlParser.MINUS_MINUS_IN_COMMENT",
+    "Common.XmlParser.UNTERMINATED_COMMENT",
+    "Common.XmlParser.UNTERMINATED_CDATA",
+    "Common.XmlParser.UNTERMINATED_DOCTYPE",
+    "Common.XmlParser.TOO_MANY_ATTRIBUTES",
+    "Common.XmlParser.MALFORMED_REFERENCE",
+    "Common.XmlParser.EXPECTED_COMMENT_OR_CDATA",
+    "Common.XmlParser.START_END_MISMATCH",
+    "Common.XmlParser.UNCLOSED_TAGS", 
+    "Common.XmlParser.MULTIPLE_ROOTS",
+    "Common.XmlParser.VALIDATION_ERROR",
+    "Common.XmlParser.SEMANTIC_ERROR"
+};
+
+// l10n TODO replace _formMessage with the commented one and uncomment
+// the new constructors
+/*
 static String _formMessage(Uint32 code, Uint32 line, const String& message)
 {
     String result = _xmlMessages[Uint32(code) - 1];
@@ -242,6 +267,34 @@ static String _formMessage(Uint32 code, Uint32 line, const String& message)
 
     return result;
 }
+*/
+
+static MessageLoaderParms _formMessage(Uint32 code, Uint32 line, const String& message)
+{
+    String dftMsg = _xmlMessages[Uint32(code) - 1];
+    String key = _xmlKeys[Uint32(code) - 1];
+	String msg = message;
+
+    dftMsg.append(": on line $0");
+    if (message.size())
+    {
+    	msg = ":" + msg;
+    	dftMsg.append("$1");
+    }    
+
+    return MessageLoaderParms(key, dftMsg, line ,msg);
+}
+
+static MessageLoaderParms _formPartialMessage(Uint32 code, Uint32 line)
+{
+    String dftMsg = _xmlMessages[Uint32(code) - 1];
+    String key = _xmlKeys[Uint32(code) - 1];
+
+    dftMsg.append(": on line $0");
+ 
+    return MessageLoaderParms(key, dftMsg, line);
+}
+
 
 XmlException::XmlException(
     XmlException::Code code, 
@@ -251,6 +304,17 @@ XmlException::XmlException(
 {
 
 }
+
+
+XmlException::XmlException(
+    XmlException::Code code, 
+    Uint32 lineNumber,
+    MessageLoaderParms& msgParms) 
+    : Exception(_formPartialMessage(code, lineNumber))
+{
+	_rep->message.append(MessageLoader::getMessage(msgParms));
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -266,6 +330,16 @@ XmlValidationError::XmlValidationError(
 
 }
 
+
+XmlValidationError::XmlValidationError(
+    Uint32 lineNumber,
+    MessageLoaderParms& msgParms)
+    : XmlException(XmlException::VALIDATION_ERROR, lineNumber, msgParms)
+{
+
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // XmlSemanticError
@@ -279,6 +353,16 @@ XmlSemanticError::XmlSemanticError(
 {
 
 }
+
+
+XmlSemanticError::XmlSemanticError(
+    Uint32 lineNumber,
+    MessageLoaderParms& msgParms)
+    : XmlException(XmlException::SEMANTIC_ERROR, lineNumber, msgParms)
+{
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //

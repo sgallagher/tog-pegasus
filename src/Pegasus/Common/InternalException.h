@@ -101,11 +101,11 @@ class PEGASUS_COMMON_LINKAGE NullPointer : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];    
+    static const char KEY[];     
 
-    NullPointer() : Exception(MSG) { }
+    //NullPointer() : Exception(MSG) { }
 
-//  NullPointer() : Exception(MessageLoaderParms(KEY, MSG)) { }    
+    NullPointer() : Exception(MessageLoaderParms(KEY, MSG)) { }    
 };
 
 // ATTN: P3  KS documentation Required
@@ -114,14 +114,14 @@ class PEGASUS_COMMON_LINKAGE UndeclaredQualifier : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];   
 
-    UndeclaredQualifier(const String& qualifierName)
-	: Exception(MSG + qualifierName) { }
+    //UndeclaredQualifier(const String& qualifierName)
+	//: Exception(MSG + qualifierName) { }
 
 // NOTE - MSG needs to have a $0 arg for all the substitution cases	
-//  UndeclaredQualifier(const String& qualifierName) 
-//	: Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }  	
+  UndeclaredQualifier(const String& qualifierName) 
+	: Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }  	
 };
 
 // ATTN: P3  KS documentation Required
@@ -129,19 +129,19 @@ class PEGASUS_COMMON_LINKAGE BadQualifierScope : public Exception
 {
 public:
 
-    static const char MSG[];
-//  static const char KEY[];     
+    static const char MSG[]; 
+    static const char KEY[];     
 
-    BadQualifierScope(const String& qualifierName, const String& scopeString)
-	: Exception(MSG + qualifierName + String(" scope=") + scopeString) { }
+    //BadQualifierScope(const String& qualifierName, const String& scopeString)
+	//: Exception(MSG + qualifierName + String(" scope=") + scopeString) { }
 
-/*	
+	
 	BadQualifierScope(const String& qualifierName, const String& scopeString)
 						 : Exception(MessageLoaderParms(KEY, 
 														MSG,
 														qualifierName,
 														scopeString)) { }	
-*/														
+														
 };
 
 // ATTN: P3  KS documentation Required
@@ -150,13 +150,13 @@ class PEGASUS_COMMON_LINKAGE BadQualifierOverride : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    BadQualifierOverride(const String& qualifierName)
-	: Exception(MSG + qualifierName) { }
+    //BadQualifierOverride(const String& qualifierName)
+	//: Exception(MSG + qualifierName) { }
 	
-//  BadQualifierOverride(const String& qualifierName)
-//  : Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }	
+    BadQualifierOverride(const String& qualifierName)
+    : Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }	
 };
 
 class PEGASUS_COMMON_LINKAGE BadQualifierType : public Exception
@@ -164,13 +164,13 @@ class PEGASUS_COMMON_LINKAGE BadQualifierType : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    BadQualifierType(const String& qualifierName)
-	: Exception(MSG + qualifierName) { }
+    //BadQualifierType(const String& qualifierName)
+	//: Exception(MSG + qualifierName) { }
 	
-//  BadQualifierType(const String& qualifierName) 
-//	: Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }		
+    BadQualifierType(const String& qualifierName) 
+	: Exception(MessageLoaderParms(KEY, MSG, qualifierName)) { }		
 };
 
 // ATTN: P3  KS documentation Required
@@ -179,13 +179,13 @@ class PEGASUS_COMMON_LINKAGE ClassAlreadyResolved : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    ClassAlreadyResolved(const String& className)
-	: Exception(MSG + className) { }
+    //ClassAlreadyResolved(const String& className)
+	//: Exception(MSG + className) { }
 	
-//  ClassAlreadyResolved(const String& className) 
-//	: Exception(MessageLoaderParms(KEY, MSG, className)) { }		
+    ClassAlreadyResolved(const String& className) 
+	: Exception(MessageLoaderParms(KEY, MSG, className)) { }		
 };
 
 // ATTN: P3  KS documentation Required
@@ -194,13 +194,13 @@ class PEGASUS_COMMON_LINKAGE ClassNotResolved : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    ClassNotResolved(const String& className)
-	: Exception(MSG + className) { }
+    //ClassNotResolved(const String& className)
+	//: Exception(MSG + className) { }
 	
-//  ClassNotResolved(const String& className) 
-//	: Exception(MessageLoaderParms(KEY, MSG, className)) { }		
+    ClassNotResolved(const String& className) 
+	: Exception(MessageLoaderParms(KEY, MSG, className)) { }		
 };
 
 // ATTN: P3  KS documentation Required
@@ -209,13 +209,13 @@ class PEGASUS_COMMON_LINKAGE InstanceAlreadyResolved : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    InstanceAlreadyResolved()
-     : Exception(MSG) { }
+    //InstanceAlreadyResolved()
+    // : Exception(MSG) { }
      
-//  InstanceAlreadyResolved() 
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }	     
+    InstanceAlreadyResolved() 
+	: Exception(MessageLoaderParms(KEY, MSG)) { }	     
 };
 
 // ATTN: P3  KS documentation Required
@@ -224,13 +224,13 @@ class PEGASUS_COMMON_LINKAGE InstantiatedAbstractClass : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    InstantiatedAbstractClass(const String& className)
-     : Exception(MSG + className) { }
+    //InstantiatedAbstractClass(const String& className)
+     //: Exception(MSG + className) { }
      
-//  InstantiatedAbstractClass(const String& className) 
-//	: Exception(MessageLoaderParms(KEY, MSG, className)) { }	     
+    InstantiatedAbstractClass(const String& className) 
+	: Exception(MessageLoaderParms(KEY, MSG, className)) { }	     
 };
 
 // ATTN: P3  KS documentation Required
@@ -239,13 +239,13 @@ class PEGASUS_COMMON_LINKAGE NoSuchProperty : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    NoSuchProperty(const String& propertyName)
-	: Exception(MSG + propertyName) { }
+    //NoSuchProperty(const String& propertyName)
+	//: Exception(MSG + propertyName) { }
 	
-//  NoSuchProperty(const String& propertyName) 
-//	: Exception(MessageLoaderParms(KEY, MSG, propertyName)) { }	
+    NoSuchProperty(const String& propertyName) 
+	: Exception(MessageLoaderParms(KEY, MSG, propertyName)) { }	
 };
 
 // ATTN: P3  KS documentation Required
@@ -254,12 +254,12 @@ class PEGASUS_COMMON_LINKAGE NoSuchFile : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
+   // NoSuchFile(const String& fileName) : Exception(MSG + fileName) { }
     
-//  NoSuchFile(const String& fileName) 
-//	: Exception(MessageLoaderParms(KEY, MSG, fileName)) { }    
+    NoSuchFile(const String& fileName) 
+	: Exception(MessageLoaderParms(KEY, MSG, fileName)) { }    
 };
 
 // ATTN: P3  KS documentation Required
@@ -268,12 +268,12 @@ class PEGASUS_COMMON_LINKAGE FileNotReadable : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    FileNotReadable(const String& fileName) : Exception(MSG + fileName) { }
+    //FileNotReadable(const String& fileName) : Exception(MSG + fileName) { }
     
-//  FileNotReadable(const String& fileName) 
-//	: Exception(MessageLoaderParms(KEY, MSG, fileName)) { }     
+    FileNotReadable(const String& fileName) 
+	: Exception(MessageLoaderParms(KEY, MSG, fileName)) { }     
 };
 
 // ATTN: P3  KS documentation Required
@@ -282,12 +282,12 @@ class PEGASUS_COMMON_LINKAGE CannotRemoveDirectory : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    CannotRemoveDirectory(const String& path) : Exception(MSG + path) { }
+    //CannotRemoveDirectory(const String& path) : Exception(MSG + path) { }
     
-//  CannotRemoveDirectory(const String& path) 
-//	: Exception(MessageLoaderParms(KEY, MSG, path)) { }     
+    CannotRemoveDirectory(const String& path) 
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }     
 };
 
 // ATTN: P3  KS documentation Required
@@ -296,11 +296,11 @@ class PEGASUS_COMMON_LINKAGE CannotRemoveFile : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    CannotRemoveFile(const String& path) : Exception(MSG + path) { }
-//  CannotRemoveFile(const String& path)  
-//	: Exception(MessageLoaderParms(KEY, MSG, path)) { }         
+    //CannotRemoveFile(const String& path) : Exception(MSG + path) { }
+    CannotRemoveFile(const String& path)  
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }         
 };
 
 // ATTN: P3  KS documentation Required
@@ -309,11 +309,11 @@ class PEGASUS_COMMON_LINKAGE CannotRenameFile : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    CannotRenameFile(const String& path) : Exception(MSG + path) { }
-//  CannotRenameFile(const String& path)  
-//	: Exception(MessageLoaderParms(KEY, MSG, path)) { }      
+    //CannotRenameFile(const String& path) : Exception(MSG + path) { }
+    CannotRenameFile(const String& path)  
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }      
 };
 
 // ATTN: P3  KS documentation Required
@@ -322,12 +322,12 @@ class PEGASUS_COMMON_LINKAGE NoSuchDirectory : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    NoSuchDirectory(const String& directoryName)
-	: Exception(MSG + directoryName) { }
-//  NoSuchDirectory(const String& directoryName)  
-//	: Exception(MessageLoaderParms(KEY, MSG, directoryName)) { }  	
+    //NoSuchDirectory(const String& directoryName)
+	//: Exception(MSG + directoryName) { }
+    NoSuchDirectory(const String& directoryName)  
+	: Exception(MessageLoaderParms(KEY, MSG, directoryName)) { }  	
 };
 
 // ATTN: P3  KS documentation Required
@@ -336,12 +336,12 @@ class PEGASUS_COMMON_LINKAGE CannotCreateDirectory : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    CannotCreateDirectory(const String& path)
-	: Exception(MSG + path) { }
-//  CannotCreateDirectory(const String& path)  
-//	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	
+    //CannotCreateDirectory(const String& path)
+	//: Exception(MSG + path) { }
+    CannotCreateDirectory(const String& path)  
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	
 };
 
 // ATTN: P3  KS documentation Required
@@ -350,12 +350,12 @@ class PEGASUS_COMMON_LINKAGE CannotOpenFile : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    CannotOpenFile(const String& path)
-	: Exception(MSG + path) { }
-//  CannotOpenFile(const String& path)  
-//	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	
+    //CannotOpenFile(const String& path)
+	//: Exception(MSG + path) { }
+    CannotOpenFile(const String& path)  
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	
 };
 
 // ATTN: P3  KS documentation Required
@@ -364,11 +364,11 @@ class PEGASUS_COMMON_LINKAGE NotImplemented : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    NotImplemented(const String& method) : Exception(MSG + method) { }
-//  NotImplemented(const String& method)  
-//	: Exception(MessageLoaderParms(KEY, MSG, method)) { }      
+   // NotImplemented(const String& method) : Exception(MSG + method) { }
+    NotImplemented(const String& method)  
+	: Exception(MessageLoaderParms(KEY, MSG, method)) { }      
 };
 
 class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception
@@ -376,11 +376,11 @@ class PEGASUS_COMMON_LINKAGE StackUnderflow : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    StackUnderflow() : Exception(MSG) { }
-//  StackUnderflow()  
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }      
+    //StackUnderflow() : Exception(MSG) { }
+    StackUnderflow()  
+	: Exception(MessageLoaderParms(KEY, MSG)) { }      
 };
 
 class PEGASUS_COMMON_LINKAGE StackOverflow : public Exception
@@ -388,11 +388,11 @@ class PEGASUS_COMMON_LINKAGE StackOverflow : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    StackOverflow() : Exception(MSG) { }
-//  StackOverflow()  
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    //StackOverflow() : Exception(MSG) { }
+    StackOverflow()  
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE QueueUnderflow : public Exception
@@ -400,11 +400,11 @@ class PEGASUS_COMMON_LINKAGE QueueUnderflow : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    QueueUnderflow() : Exception(MSG) { }
-//  QueueUnderflow()  
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    //QueueUnderflow() : Exception(MSG) { }
+    QueueUnderflow()  
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
@@ -412,11 +412,11 @@ class PEGASUS_COMMON_LINKAGE BadFormat : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    BadFormat() : Exception(MSG) { }
-//  BadFormat()  
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }   
+    //BadFormat() : Exception(MSG) { }
+    BadFormat()  
+	: Exception(MessageLoaderParms(KEY, MSG)) { }   
 };
 
 class PEGASUS_COMMON_LINKAGE BadlyFormedCGIQueryString : public Exception
@@ -424,11 +424,11 @@ class PEGASUS_COMMON_LINKAGE BadlyFormedCGIQueryString : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    BadlyFormedCGIQueryString() : Exception(MSG) { }
-//  BadlyFormedCGIQueryString()  
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    //BadlyFormedCGIQueryString() : Exception(MSG) { }
+    BadlyFormedCGIQueryString()  
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE DynamicLoadFailed : public Exception
@@ -436,13 +436,13 @@ class PEGASUS_COMMON_LINKAGE DynamicLoadFailed : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    DynamicLoadFailed(const String& libraryName)
-	: Exception(MSG + libraryName) { }
+    //DynamicLoadFailed(const String& libraryName)
+	//: Exception(MSG + libraryName) { }
 	
-//  DynamicLoadFailed(const String& libraryName)  
-//	: Exception(MessageLoaderParms(KEY, MSG, libraryName)) { }  		
+    DynamicLoadFailed(const String& libraryName)  
+	: Exception(MessageLoaderParms(KEY, MSG, libraryName)) { }  		
 };
 
 class PEGASUS_COMMON_LINKAGE DynamicLookupFailed : public Exception
@@ -450,12 +450,12 @@ class PEGASUS_COMMON_LINKAGE DynamicLookupFailed : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    DynamicLookupFailed(const String& symbolName)
-	: Exception(MSG + symbolName) { }
-//  DynamicLookupFailed(const String& symbolName)  
-//	: Exception(MessageLoaderParms(KEY, MSG, symbolName)) { }  		
+    //DynamicLookupFailed(const String& symbolName)
+	//: Exception(MSG + symbolName) { }
+    DynamicLookupFailed(const String& symbolName)  
+	: Exception(MessageLoaderParms(KEY, MSG, symbolName)) { }  		
 };
 
 class PEGASUS_COMMON_LINKAGE CannotOpenDirectory : public Exception
@@ -463,11 +463,11 @@ class PEGASUS_COMMON_LINKAGE CannotOpenDirectory : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    CannotOpenDirectory(const String& path) : Exception(MSG + path) { }
-//  CannotOpenDirectory(const String& path)  
-//	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	    
+    //CannotOpenDirectory(const String& path) : Exception(MSG + path) { }
+    CannotOpenDirectory(const String& path)  
+	: Exception(MessageLoaderParms(KEY, MSG, path)) { }  	    
 };
 
 class PEGASUS_COMMON_LINKAGE ParseError : public Exception
@@ -475,11 +475,11 @@ class PEGASUS_COMMON_LINKAGE ParseError : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    ParseError(const String& message) : Exception(MSG + message) { }
-//  ParseError(const String& message)  
-//	: Exception(MessageLoaderParms(KEY, MSG, message)) { }  	    
+    //ParseError(const String& message) : Exception(MSG + message) { }
+    ParseError(const String& message)  
+	: Exception(MessageLoaderParms(KEY, MSG, message)) { }  	    
 };
 
 class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
@@ -487,11 +487,11 @@ class PEGASUS_COMMON_LINKAGE MissingNullTerminator : public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    MissingNullTerminator() : Exception(MSG) { }
-//  MissingNullTerminator()  
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }  	    
+    //MissingNullTerminator() : Exception(MSG) { }
+    MissingNullTerminator()  
+	: Exception(MessageLoaderParms(KEY, MSG)) { }  	    
 };
 
 //l10n start
@@ -501,11 +501,11 @@ class PEGASUS_COMMON_LINKAGE MalformedLanguageHeader: public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    MalformedLanguageHeader(const String& error) : Exception(MSG + error) { }
-//  MalformedLanguageHeader(const String& error)  
-//	: Exception(MessageLoaderParms(KEY, MSG, error)) { }      
+    //MalformedLanguageHeader(const String& error) : Exception(MSG + error) { }
+    MalformedLanguageHeader(const String& error)  
+	: Exception(MessageLoaderParms(KEY, MSG, error)) { }      
 };
 
 
@@ -514,11 +514,11 @@ class PEGASUS_COMMON_LINKAGE InvalidAcceptLanguageHeader: public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    InvalidAcceptLanguageHeader(const String& error) : Exception(MSG + error) { }
-//  InvalidAcceptLanguageHeader(const String& error)  
-//	: Exception(MessageLoaderParms(KEY, MSG, error)) { }          
+    //InvalidAcceptLanguageHeader(const String& error) : Exception(MSG + error) { }
+    InvalidAcceptLanguageHeader(const String& error)  
+	: Exception(MessageLoaderParms(KEY, MSG, error)) { }          
 };
 
 class PEGASUS_COMMON_LINKAGE InvalidContentLanguageHeader: public Exception
@@ -526,11 +526,11 @@ class PEGASUS_COMMON_LINKAGE InvalidContentLanguageHeader: public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    InvalidContentLanguageHeader(const String& error) : Exception(MSG + error) { }
-//  InvalidContentLanguageHeader(const String& error)  
-//	: Exception(MessageLoaderParms(KEY, MSG, error)) { }       
+    //InvalidContentLanguageHeader(const String& error) : Exception(MSG + error) { }
+    InvalidContentLanguageHeader(const String& error)  
+	: Exception(MessageLoaderParms(KEY, MSG, error)) { }       
 };
 
 //l10n end
@@ -540,11 +540,11 @@ class PEGASUS_COMMON_LINKAGE InvalidAuthHeader: public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    InvalidAuthHeader() : Exception(MSG) { }
-//  InvalidAuthHeader()  
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    //InvalidAuthHeader() : Exception(MSG) { }
+    InvalidAuthHeader()  
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE UnauthorizedAccess: public Exception
@@ -552,11 +552,11 @@ class PEGASUS_COMMON_LINKAGE UnauthorizedAccess: public Exception
 public:
 
     static const char MSG[];
-//  static const char KEY[];     
+    static const char KEY[];     
 
-    UnauthorizedAccess() : Exception(MSG) { }
-//  UnauthorizedAccess()  
-//	: Exception(MessageLoaderParms(KEY, MSG)) { }       
+    //UnauthorizedAccess() : Exception(MSG) { }
+    UnauthorizedAccess()  
+	: Exception(MessageLoaderParms(KEY, MSG)) { }       
 };
 
 class PEGASUS_COMMON_LINKAGE IncompatibleTypesException : public Exception

@@ -1,11 +1,11 @@
 // ===================================================================
-// Title:       Network 2.8
+// Title:       Network 2.8.1
 // Filename:    CIM_Network28.mof
-// Version:     2.8
+// Version:     2.8.1
 // Release:     Final
-// Date:        Jan 26, 2004
+// Date:        February 20, 2004
 // ===================================================================
-// Copyright 1998-2003 Distributed Management Task Force, Inc. (DMTF).
+// Copyright 1998-2004 Distributed Management Task Force, Inc. (DMTF).
 // All rights reserved.
 // DMTF is a not-for-profit association of industry members dedicated
 // to promoting enterprise and systems management and interoperability.
@@ -129,6 +129,13 @@
 // IPsec Security Associations
 // ==================================================================
 #pragma include ("Network28_IPsec.mof")
+
+// ==================================================================
+// VLAN Model
+// ==================================================================
+#pragma include ("Network28_VLAN.mof")
+
+
 
 // ===================================================================
 // end of file

@@ -5,6 +5,9 @@ instance of PG_ProviderModule
 {
    Name = "IBM_CIMOMStatDataProviderModule";
    Location = "IBM_CIMOMStatDataProvider";
+// For OS/400, the next line should be uncommented, and
+// the preceding line commented out.
+// Location = "QSYS/QYCMSTATPV"; 
    Vendor = "IBM";
    Version = "2.0.0";
    InterfaceType = "C++Default";

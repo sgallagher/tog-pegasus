@@ -164,7 +164,7 @@ public:
 	    class which does not have any representation in the class repository.
 	    @exception CIMException(CIM_ERR_INVALID_CLASS)
 	*/
-       Array<String> CIMOperationRequestDispatcher::_getSubClassNames(
+       Array<String> _getSubClassNames(
 	    String& nameSpace,
 	    String& className) throw(CIMException);
        

@@ -884,6 +884,11 @@ int main(int argc, char** argv)
 		 cerr << argv[0] << ": " << e.getMessage() << endl;
 		 exit(1);
     }
+    catch (Exception& e)
+    {
+		 cerr << argv[0] << ": " << e.getMessage() << endl;
+		 exit(1);
+    }
 
     // Check to see if user asked for help (-h otpion):
     if (om.valueEquals("help", "true"))
@@ -1037,12 +1042,12 @@ int main(int argc, char** argv)
 #endif
 			if (om.isTrue("local"))
 			{
-			     cout << "Using local connection mechanism " << endl;
+			     cout << "Using local SSL connection mechanism " << endl;
      			     client.connectLocal(sslcontext);
 			}
 			else 
 			{
-                            cout << "connecting to " << connectionList[i] << endl;
+                            cout << "connecting to " << connectionList[i] << " using SSL" << endl;
 		            client.connect(connectionList[i], sslcontext, userName, password);
                         }
 		      }

@@ -370,6 +370,13 @@ void CQLValueRep::resolve(CIMInstance CI, QueryContext& inQueryCtx)
       // and additional identifiers need processing.
       ++index;
    }
+
+   // Symbolic Constant processing
+   if(_CQLChainId.getLastIdentifier().isSymbolicConstant())
+     {
+      _resolveSymbolicConstant(inQueryCtx);
+     return;
+   }
    
    // Now we will loop through the remaining CQLIdentifiers, 
    // and process each one.
@@ -452,106 +459,7 @@ void CQLValueRep::resolve(CIMInstance CI, QueryContext& inQueryCtx)
          propertyIndex = CI.findProperty(Idstrings[index].getName());
          propObj = CI.getProperty(propertyIndex);
 
-         // Process special charactors.
-         if(Idstrings[index].isSymbolicConstant())
-         {  
-            // We have a symbolic constant (ex. propName#OK)
-            // We need to retrieve the ValueMap and Values Qualifiers for 
-            // the property if the exist.
-            qualIndex = queryPropObj.findQualifier(CIMName("ValueMap"));
-
-            if(qualIndex == PEG_NOT_FOUND)
-            {
-               // This property can not be processed with a symbolic constant.
-               throw(1);
-            }
-            valueMap = queryPropObj.getQualifier(qualIndex).getValue();
-            qualIndex = queryPropObj.findQualifier(CIMName("Values"));
-
-            if(qualIndex == PEG_NOT_FOUND)
-            {
-               // This property does not have a Values Qualifier,
-               // therefore the valueMap must be the list of symbolic constants.
-               
-               valueMap.get(valueMapArray);
-
-               // We will loop through the list of Symbolic constants to 
-               // determine if we have a match with the Symbolic constant
-               // defined in the CQLIdentifier.
-               for(Uint32 i = 0; i < valueMapArray.size(); ++i)
-               {
-                  if(valueMapArray[i] == 
-                        Idstrings[index].getSymbolicConstantName())
-                  {
-                     matchFound = true;
-                     matchIndex = i;
-                     break;
-                  }
-               }
-               if(matchFound == false)
-               {
-                  // The symbolic constant provided is not valid
-                  // for this property.
-                  throw(1);
-               }
-
-               // The symbolic constant defined in the CQLIdentifier is 
-               // valid for this property. Now we need to set the value.
-
-               // Set primitive
-               _setValue(CIMValue(Idstrings[index].getSymbolicConstantName()));
-               return;
-            }
-            else
-            {
-               // The qualifier Values is defined for the property.
-               // valueMap must be a list of #'s.
-               
-               values = queryPropObj.getQualifier(qualIndex).getValue();
-   
-               valueMap.get(valueMapArray);
-               values.get(valuesArray);
-
-               // We will loop through the list of Symbolic constants to 
-               // determine if we have a match with the Symbolic constant
-               // defined in the CQLIdentifier.
-               for(Uint32 i = 0; i < valuesArray.size(); ++i)
-               {
-                  if(valuesArray[i] == Idstrings[index].getSymbolicConstantName())
-                  {
-                     matchFound = true;
-                     matchIndex = i;
-                     break;
-                  }
-               }
-               if(matchFound == false)
-               {
-                  // The symbolic constant provided is not valid
-                  // for this property.
-                  throw(1);
-               }
-
-               // The symbolic constant defined in the CQLIdentifier is 
-               // valid for this property. Now we need to determine if the 
-               // property matches the symbolic constant defined by 
-               // CQLIdentifier.               
-               if(valueMapArray[matchIndex] == propObj.getValue().toString())
-               {
-                  // Set Primitive
-                  _setValue(propObj.getValue());
-                  return;
-               }
-               else
-               {
-                  // Set the Ignore_type
-                  _valueType = CQLIgnore_type;
-                  _isResolved = true;
-                  return;
-   
-               }
-            }
-         }
-         else if(Idstrings[index].isArray())
+         if(Idstrings[index].isArray())
          {
             // We have an array property.  All we need to do
             // Is get the index defined by CQLIdentifier.
@@ -2185,6 +2093,124 @@ void CQLValueRep::applyContext(QueryContext& _ctx,
    else
    {
       _CQLChainId.applyContext(_ctx);        
+   }
+}
+
+void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx)
+{
+   Array<String> valueMapArray;     // Value Map Qualifier for property
+   Array<String> valuesArray;       // Values Qualifier for property
+   CIMName className;
+   CQLIdentifier lid = _CQLChainId.getLastIdentifier();
+   CIMClass QueryClass;
+   CIMValue valueMap;               // CIMValue for Value Map Qualifiers
+   CIMValue values;                 // CIMValue for Values Qualifiers
+   Boolean matchFound = false;      // Indicator for match Qualifier
+   Uint32 matchIndex;               // Placeholder for matched Qualifier
+
+   if(lid.isScoped())
+   {
+      className = lid.getScope();
+   }
+   else
+   {
+      className = _CQLChainId[0].getName();
+   }
+
+   QueryClass = inQueryCtx.getClass(className);
+
+   Uint32 propertyIndex = 
+         QueryClass.findProperty(lid.getName());
+
+   if(propertyIndex == PEG_NOT_FOUND)
+   {
+      throw(1);
+   }
+
+   CIMProperty queryPropObj = QueryClass.getProperty(propertyIndex);
+
+   // We have a symbolic constant (ex. propName#OK)
+   // We need to retrieve the ValueMap and Values Qualifiers for 
+   // the property if the exist.
+   Uint32 qualIndex = queryPropObj.findQualifier(CIMName("ValueMap"));
+
+   if(qualIndex == PEG_NOT_FOUND)
+   {
+      // This property can not be processed with a symbolic constant.
+      throw(1);
+   }
+
+   valueMap = queryPropObj.getQualifier(qualIndex).getValue();
+   qualIndex = queryPropObj.findQualifier(CIMName("Values"));
+
+   if(qualIndex == PEG_NOT_FOUND)
+   {
+      // This property does not have a Values Qualifier,
+      // therefore the valueMap must be the list of symbolic constants.
+               
+      valueMap.get(valueMapArray);
+
+      // We will loop through the list of Symbolic constants to 
+      // determine if we have a match with the Symbolic constant
+      // defined in the CQLIdentifier.
+      for(Uint32 i = 0; i < valueMapArray.size(); ++i)
+      {
+         if(valueMapArray[i] == 
+              lid.getSymbolicConstantName())
+         {
+            matchFound = true;
+            matchIndex = i;
+            break;
+         }
+      }
+      if(matchFound == false)
+      {
+         // The symbolic constant provided is not valid
+         // for this property.
+         throw(1);
+      }
+
+      // The symbolic constant defined in the CQLIdentifier is 
+      // valid for this property. Now we need to set the value.
+      // Set primitive
+      _setValue(CIMValue(lid.getSymbolicConstantName()));
+      return;
+   }
+   else
+   {
+      // The qualifier Values is defined for the property.
+      // valueMap must be a list of #'s.
+               
+      values = queryPropObj.getQualifier(qualIndex).getValue();
+   
+      valueMap.get(valueMapArray);
+      values.get(valuesArray);
+
+      // We will loop through the list of Symbolic constants to 
+      // determine if we have a match with the Symbolic constant
+      // defined in the CQLIdentifier.
+      for(Uint32 i = 0; i < valuesArray.size(); ++i)
+      {
+         if(valuesArray[i] == lid.getSymbolicConstantName())
+	 {
+            matchFound = true;
+            matchIndex = i;
+            break;
+         }
+      }
+      if(matchFound == false)
+      {
+         // The symbolic constant provided is not valid
+         // for this property.
+         throw(1);
+      }
+
+      CString cStr = valueMapArray[matchIndex].getCString();
+      char *endP;
+
+      // Set Primitive
+      _setValue(CIMValue(Uint64(strtoul((const char*)cStr,&endP,10))));
+      return;
    }
 }
 

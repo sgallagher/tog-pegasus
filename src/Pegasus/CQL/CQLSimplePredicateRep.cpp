@@ -169,30 +169,31 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
 {
    CQLIdentifier _id;
 
-   if(_leftSide.isSimpleValue())
-   {
-      _id = _leftSide.getTerms()[0].getFactors()[0].
-                     getValue().getChainedIdentifier().getLastIdentifier();
+   _id = _leftSide.getTerms()[0].getFactors()[0].
+                  getValue().getChainedIdentifier().getLastIdentifier();
 
-      if(_id.isSymbolicConstant())
+   if(_leftSide.isSimpleValue() &&
+      _id.isSymbolicConstant() &&
+         _id.getName().getString().size() == 0)
+   {
+      // We have a standalone symbolic constant.
+      if(!isSimple() && 
+         _rightSide.isSimpleValue() &&
+         _rightSide.getTerms()[0].getFactors()[0].
+                getValue().getChainedIdentifier().getLastIdentifier().
+                getName().getString().size() > 0)
       {
-         if(_id.getName().getString().size() == 0)
-         {
-            // We have a standalone symbolic constant.
-            if(!isSimple() && _rightSide.isSimpleValue())
-            {
-               // We need to add context to the symbolic constant
-            /*   _leftSide.applyContext(queryContext,
-                  _rightSide.getTerms()[0].getFactors()[0].
-                     getValue().getChainedIdentifier());
-*/
-            }
-            else
-            {
-               // There is no valid context for the symbolic constant
-               throw(Exception(String("CQLSimplePredicateRep::applyContext -- standalone symbolic constant error")));
-            }
-         }
+         _rightSide.applyContext(queryContext);
+
+         // We need to add context to the symbolic constant
+         _leftSide.applyContext(queryContext,
+                                _rightSide.getTerms()[0].getFactors()[0].
+                                getValue().getChainedIdentifier());               
+      }
+      else
+      {
+         // There is no valid context for the symbolic constant
+         throw(Exception(String("CQLSimplePredicateRep::applyContext -- standalone symbolic constant error")));
       }
    }
    else
@@ -202,30 +203,29 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
 
    if (!isSimple())
    {
-      if(_rightSide.isSimpleValue())
-      {
-         _id = _rightSide.getTerms()[0].getFactors()[0].
+      _id = _rightSide.getTerms()[0].getFactors()[0].
                      getValue().getChainedIdentifier().getLastIdentifier();
 
-         if(_id.isSymbolicConstant())
+      if(_rightSide.isSimpleValue() &&
+         _id.isSymbolicConstant() &&
+         _id.getName().getString().size() == 0)
+      {
+         // We have a standalone symbolic constant.
+         if(!isSimple() && 
+            _leftSide.isSimpleValue() &&
+            _leftSide.getTerms()[0].getFactors()[0].
+                   getValue().getChainedIdentifier().getLastIdentifier().
+                   getName().getString().size() > 0)
          {
-            if(_id.getName().getString().size() == 0)
-            {
-               // We have a standalone symbolic constant.
-               if(_leftSide.isSimpleValue())
-               {
-                  // We need to add context to the symbolic constant
-               /*   _rightSide.applyContext(queryContext,
-                     _leftSide.getTerms()[0].getFactors()[0].
-                        getValue().getChainedIdentifier());
-   */
-               }
-               else
-               {
-                  // There is no valid context for the symbolic constant
-                  throw(Exception(String("CQLSimplePredicateRep::applyContext -- standalone symbolic constant error")));
-               }
-            }
+            // We need to add context to the symbolic constant
+            _rightSide.applyContext(queryContext,
+                                   _leftSide.getTerms()[0].getFactors()[0].
+                                   getValue().getChainedIdentifier());               
+         }
+         else
+         {
+            // There is no valid context for the symbolic constant
+            throw(Exception(String("CQLSimplePredicateRep::applyContext -- standalone symbolic constant error")));
          }
       }
       else

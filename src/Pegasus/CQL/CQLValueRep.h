@@ -304,9 +304,9 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    friend class CQLFactory; 
    friend class CQLValue;
   private:
-    Boolean _areClassesInline(CIMClass c1,CIMClass c2, QueryContext& in);
+   Boolean _areClassesInline(CIMClass c1,CIMClass c2, QueryContext& in);
    Boolean _validate(const CQLValueRep& x);
-   
+   void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx);
    void _setValue(CIMValue cv, Uint64 Index = 0);
 
    union TheValue

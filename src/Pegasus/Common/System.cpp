@@ -93,4 +93,51 @@ Sint32 System::strcasecmp(const char* s1, const char* s2)
     return 0;
 }
 
+// Return the just the file name from the path into basename
+char *System::extract_file_name(const char *fullpath, char *basename)
+{
+  char *p;
+  char buff[2048];
+  if (fullpath == NULL)
+    {
+      basename[0] = '\0';
+      return basename;
+    }
+  strcpy(buff, fullpath);
+  for(p = buff + strlen(buff); p >= buff; p--)
+    {
+      if (*p == '\\' || *p == '/')
+        {
+          strcpy(basename, p+1);
+          return basename;
+        }
+    }
+  strcpy(basename, fullpath);
+  return basename;
+}
+
+// Return the just the path to the file name into dirname
+char *System::extract_file_path(const char *fullpath, char *dirname)
+{
+  char *p;
+  char buff[2048];
+  if (fullpath == NULL)
+    {
+      dirname[0] = '\0';
+      return dirname;
+    }
+  strcpy(buff, fullpath);
+  for(p = buff + strlen(buff); p >= buff; p--)
+    {
+      if (*p == '\\' || *p == '/')
+        {
+          strncpy(dirname, buff, p+1 - buff);
+          dirname[p+1 - buff] = '\0';
+          return dirname;
+        }
+    }
+  strcpy(dirname, fullpath);
+  return dirname;
+}
+
 PEGASUS_NAMESPACE_END

@@ -61,6 +61,8 @@ PEGASUS_USING_STD;
 void cim_server_service(int argc, char **argv ) { return; }  
 unsigned int cimserver_remove_nt_service(void) { return(0) ; }
 unsigned int cimserver_install_nt_service(String &pegasusHome ) { return(0) ; }
+unsigned int cimserver_start_nt_service(void) { return(0) ; }
+unsigned int cimserver_stop_nt_service(void) { return(0) ; }
 
 // notify parent process to terminate so user knows that cimserver
 // is ready to serve CIM requests. If this plateform needs to implement

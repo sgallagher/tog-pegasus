@@ -366,6 +366,29 @@ void FileSystem::translateSlashes(String& path)
     }
 }
 
+// Return the just the base name from the path.
+String  FileSystem::extractFileName(const String& path)
+{
+  char *p_path = new char[path.size() + 1];
+  String basename = System::extract_file_name((const char *)path.getCString(), p_path);
+  
+  delete [] p_path;
+  
+  return basename;
+}
+
+// Return just the path to the file or directory into path
+String FileSystem::extractFilePath(const String& path)
+{
+  char *p_path = new char[path.size() + 1];
+  String newpath = System::extract_file_path((const char *)path.getCString(), p_path);
+  
+  delete [] p_path;
+  
+  return newpath;
+}
+
+
 Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
 {
     line.clear();

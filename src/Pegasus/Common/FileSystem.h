@@ -288,6 +288,14 @@ public:
     */
     static String getAbsolutePath(const char* path, const String& filename);
 
+    /** Return the just the filename to the file name into base.
+    */
+    static String extractFileName(const String& base);
+
+    /** Return the just the path to the file name into path.
+    */
+    static String extractFilePath(const String& path);
+
 private:
 
     FileSystem() { }

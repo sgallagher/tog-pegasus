@@ -214,6 +214,8 @@ void PrintHelp(const char* arg0)
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     usage.append ("    -install    - installs pegasus as a Windows NT Service\n");
     usage.append ("    -remove     - removes pegasus as a Windows NT Service\n");
+    usage.append ("    -start    - starts pegasus as a Windows NT Service\n");
+    usage.append ("    -stop     - stops pegasus as a Windows NT Service\n");
 #endif
     usage.append ("  configProperty=value\n");
     usage.append ("                - sets CIM Server configuration property\n");
@@ -384,6 +386,7 @@ int main(int argc, char** argv)
     pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
 #endif
 
+#ifndef PEGASUS_OS_TYPE_WINDOWS
     //
     // Get environment variables:
     //
@@ -395,7 +398,11 @@ int main(int argc, char** argv)
     }
 
     FileSystem::translateSlashes(pegasusHome);
+#else
 
+  // windows only
+  setHome(pegasusHome);
+#endif
     // on Windows NT if there are no command-line options, run as a service
 
     if (argc == 1 )
@@ -470,7 +477,8 @@ int main(int argc, char** argv)
                 //
                 // Check to see if user asked for shutdown (-s option):
                 //
-                else if (*option == OPTION_SHUTDOWN)
+                else if (*option == OPTION_SHUTDOWN &&
+                        (strlen(option) == 1))
                 {
                     //
                     // check to see if user is root
@@ -537,12 +545,15 @@ int main(int argc, char** argv)
         //
         // Check to see if we should (can) install as a NT service
         //
-
         if (String::equal(configManager->getCurrentValue("install"), "true"))
         {
-            if( 0 != cimserver_install_nt_service( pegasusHome ))
+            if(cimserver_install_nt_service())
             {
                 cout << "\nPegasus installed as NT Service";
+                exit(0);
+            }
+            else
+            {
                 exit(0);
             }
         }
@@ -553,9 +564,46 @@ int main(int argc, char** argv)
 
         if (String::equal(configManager->getCurrentValue("remove"), "true"))
         {
-            if( 0 != cimserver_remove_nt_service() )
+            if(cimserver_remove_nt_service())
             {
                 cout << "\nPegasus removed as NT Service";
+                exit(0);
+            }
+            else
+            {
+                exit(0);
+            }
+
+        }
+
+        //
+        // Check to see if we should (can) start as a NT service
+        //
+        if (String::equal(configManager->getCurrentValue("start"), "true"))
+        {
+            if(cimserver_start_nt_service())
+            {
+                cout << "\nPegasus started as NT Service";
+                exit(0);
+            }
+            else
+            {
+                exit(0);
+            }
+        }
+
+        //
+        // Check to see if we should (can) stop as a NT service
+        //
+        if (String::equal(configManager->getCurrentValue("stop"), "true"))
+        {
+            if(cimserver_stop_nt_service())
+            {
+                cout << "\nPegasus stopped as NT Service";
+                exit(0);
+            }
+            else
+            {
                 exit(0);
             }
         }

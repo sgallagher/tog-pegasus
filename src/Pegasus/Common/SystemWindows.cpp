@@ -286,4 +286,12 @@ Boolean System::truncateFile(
     return true;
 }
 
+// Is absolute path?
+Boolean System::is_absolute_path(const char *path)
+{
+  char full[_MAX_PATH];
+ 
+  return (strcasecmp(_fullpath( full, path, _MAX_PATH ), path) == 0) ? true : false;
+}
+
 PEGASUS_NAMESPACE_END

@@ -167,8 +167,16 @@ String::String()
 
 String::String(const String& str)
 {
+  if (str._rep != NULL)
+  {
     _rep = new StringRep(*str._rep);
+  }
+  else
+  {
+    _rep = new StringRep();
+  }
 }
+
 
 String::String(const String& str, Uint32 n)
 {

@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/FileSystem.h>
 
 #include "ConfigExceptions.h"
 #include "ConfigManager.h"
@@ -129,6 +130,8 @@ static struct OwnerEntry _properties[] =
     {"daemon",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"install",             (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"remove",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"start",             (ConfigPropertyOwner* )ConfigManager::defaultOwner},
+    {"stop",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"SSL",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"tempLocalAuthDir",    (ConfigPropertyOwner* )ConfigManager::defaultOwner},
@@ -610,6 +613,14 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
             {
                 _initPropertyWithCommandLineOption("remove=true");
             }
+            else if (!strcmp(option,"start"))
+            {
+                _initPropertyWithCommandLineOption("start=true");
+            }
+            else if (!strcmp(option,"stop"))
+            {
+                _initPropertyWithCommandLineOption("stop=true");
+            }
             else
 #endif
             {
@@ -830,20 +841,22 @@ Get the homed path for a given property.
 */
 String ConfigManager::getHomedPath(const String& value)
 {
-    String homedPath = String::EMPTY;
+  String homedPath = String::EMPTY;
+  
+  if ( value != String::EMPTY )
+  {
+    if ( System::is_absolute_path((const char *)value.getCString()) )
+      {
+        return value; 
+      }
 
-    if ( value != String::EMPTY )
-    {
-	if ( value.subString(0,1) == "/" )
-	{
-	    return value; 
-        }
-        //
-        // Get the pegasusHome and prepend it
-        //
-        homedPath= _pegasusHome + "/" + value;
-    }
-    return homedPath;
+    //
+    // Get the pegasusHome and prepend it
+    //
+    homedPath = _pegasusHome + "/" + value;
+  }
+
+  return homedPath;
 }
      
 PEGASUS_NAMESPACE_END

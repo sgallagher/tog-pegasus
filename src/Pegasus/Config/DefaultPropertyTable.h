@@ -43,6 +43,8 @@
     {"daemon", "true", 0, 0, 0},
     {"install", "false", 0, 0, 0},
     {"remove", "false", 0, 0, 0},
+    {"start", "false", 0, 0, 0},
+    {"stop", "false", 0, 0, 0},
     {"slp", "false", 0, 0, 0},
     {"SSL", "false", 0, 0, 0},
     {"enableAssociationTraversal", "true", 0, 0, 0},

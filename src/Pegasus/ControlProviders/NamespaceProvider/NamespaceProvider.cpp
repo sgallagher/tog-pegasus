@@ -51,6 +51,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -94,7 +95,7 @@ void NamespaceProvider::createInstance(
        //
        // check if the class name requested is correct
        //
-       if (!instanceReference.equalClassName(CLASSNAME))
+       if (!CIMName::equal(instanceReference.getClassName(), CLASSNAME))
        {
 	   PEG_METHOD_EXIT();
 	   throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
@@ -317,7 +318,7 @@ void NamespaceProvider::getInstance(
         //
         // check if the class name requested is correct
         //
-        if (!instanceName.equalClassName(CLASSNAME))
+        if (!CIMName::equal(instanceName.getClassName(), CLASSNAME))
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,

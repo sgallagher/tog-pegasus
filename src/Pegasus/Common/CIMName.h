@@ -31,7 +31,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -62,7 +61,7 @@ public:
 	@return Returns true if the given name is legal. Throws
 	NullPointer exception if name argument is null.
     */
-    static Boolean legal(const Char16* name);
+    static Boolean legal(const Char16* name) throw();
 
     /** legal - Determine if the name string input is legal as
 	defnined in the CIMName class definition
@@ -70,19 +69,13 @@ public:
 	@return Returns true if the given name is legal. Throws
 	NullPointer exception if name argument is null.
     */
-    static Boolean legal(const String& name)
-    {
-	return legal(name.getData());
-    }
+    static Boolean legal(const String& name) throw();
 
     /** equal - Compares two names.
 	@return Return true if the two names are equal. CIM names are
 	case insensitive and so it this method.
     */
-    static Boolean equal(const String& name1, const String& name2)
-    {
-	return String::equalNoCase(name1, name2);
-    }
+    static Boolean equal(const String& name1, const String& name2) throw();
 
 private:
 

@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 
@@ -131,8 +132,8 @@ void test01()
 	r1.setHost(hostName);
 	r1.setNameSpace(nameSpace);
 	r1.setClassName(className);
-	assert(r1.equalClassName("TENNISPLAYER"));
-	assert(!r1.equalClassName("blob"));
+	assert(CIMName::equal(r1.getClassName(), "TENNISPLAYER"));
+	assert(!CIMName::equal(r1.getClassName(), "blob"));
 
 
 	String newHostName = r1.getHost();

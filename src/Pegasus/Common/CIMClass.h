@@ -118,17 +118,6 @@ public:
     */
     const String& getClassName() const;
         
-    /** equalClassName compares Name of the class with a String. This test
-        performs a comparison of the classname component of the object
-	with a String.	Note that this function was included specifically
-	because the equality compare is not just a straight comparison
-	because classnames are case independent.
-	@param classname String containing the name for comparison
-	@return True if it is the same class name (equalNoCase compare passes)
-	or false if not.
-    */
-    const Boolean equalClassName(const String& classname) const;
-
     const CIMObjectPath& getPath() const;
 
     /** getSuperClassName - Gets the name of the Parent
@@ -400,8 +389,6 @@ public:
     Boolean isAbstract() const;
 
     const String& getClassName() const;
-
-    const Boolean equalClassName(const String& classname) const;
 
     const CIMObjectPath& getPath() const;
 

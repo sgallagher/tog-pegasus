@@ -28,16 +28,16 @@
 
 #include <cctype>
 #include "CIMName.h"
-#include "Destroyer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean CIMName::legal(const Char16* name)
+Boolean CIMName::legal(const Char16* name) throw()
 {
     const Char16* p = name;
 
     if (!p)
-	throw NullPointer();
+        return false;
+	//throw NullPointer();  // No apparent need for an exception here
 
     if (!*p || !(isalpha(*p) || *p == '_'))
 	return false;
@@ -56,6 +56,16 @@ Boolean CIMName::legal(const Char16* name)
     }
 
     return true;
+}
+
+Boolean CIMName::legal(const String& name) throw()
+{
+    return legal(name.getData());
+}
+
+Boolean CIMName::equal(const String& name1, const String& name2) throw()
+{
+    return String::equalNoCase(name1, name2);
 }
 
 PEGASUS_NAMESPACE_END

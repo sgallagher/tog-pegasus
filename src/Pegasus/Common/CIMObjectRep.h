@@ -59,11 +59,6 @@ public:
 	return _reference.getClassName();
     }
 
-    const Boolean equalClassName(const String& classname) const
-    {
-	return (String::equalNoCase(classname, _reference.getClassName()));
-    }
-
     const CIMObjectPath& getPath() const
     {
 	return _reference;

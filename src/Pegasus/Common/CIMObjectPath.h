@@ -459,13 +459,6 @@ public:
      */
     const String& getClassName() const;
 
-    /** equalClassName - Tests the classname component against the
-        String provided.  Note that classnames are case independent.
-        @classname - String for name to test
-        @return Boolean true if equal (noCase).
-    */
-    const Boolean equalClassName(const String& classname) const;
-
     /** Sets the classname component of the CIMObjectPath object to the input
         parameter.
         @param className String containing the className.

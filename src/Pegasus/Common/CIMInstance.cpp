@@ -96,13 +96,6 @@ const String& CIMInstance::getClassName() const
     return _rep->getClassName();
 }
 
-const Boolean CIMInstance::equalClassName(const String& classname) const
-{
-    _checkRep();
-    return _rep->equalClassName(classname);
-
-}
-
 const CIMObjectPath& CIMInstance::getPath() const
 {
     _checkRep();
@@ -314,12 +307,6 @@ const String& CIMConstInstance::getClassName() const
 {
     _checkRep();
     return _rep->getClassName();
-}
-
-const Boolean CIMConstInstance::equalClassName(const String& classname) const
-{
-    _checkRep();
-    return _rep->equalClassName(classname);
 }
 
 const CIMObjectPath& CIMConstInstance::getPath() const

@@ -808,11 +808,6 @@ const String& CIMObjectPath::getClassName() const
     return _rep->_className;
 }
 
-const Boolean CIMObjectPath::equalClassName(const String& classname) const
-{
-    return (String::equalNoCase(classname, CIMObjectPath::getClassName()));
-}
-
 void CIMObjectPath::setClassName(const String& className) throw(IllegalName)
 {
     if (!CIMName::legal(className))

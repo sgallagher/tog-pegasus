@@ -23,6 +23,9 @@
 // Author:
 //
 // $Log: InstanceIndexFile.cpp,v $
+// Revision 1.2  2001/02/17 00:34:53  bob
+// Added <cstdlib> for strtol on linux
+//
 // Revision 1.1  2001/02/13 07:08:06  mike
 // new
 //
@@ -38,6 +41,7 @@
 #include <fstream>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <cstdlib>    // for strtol on linux
 #include "InstanceIndexFile.h"
 
 using namespace std;

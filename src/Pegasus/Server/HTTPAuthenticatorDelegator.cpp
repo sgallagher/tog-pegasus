@@ -417,8 +417,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	if (sa)
 	{
 	    Uint32 sendAction = 0;  // 0 - continue, 1 = send success, 2 = send response
-	     // The following is processing to unwrap (decrypt) the request from the
-	     // client when using kerberos authentication.
+	    // The following is processing to unwrap (decrypt) the request from the
+	    // client when using kerberos authentication.
 	    sa->unwrapRequestMessage(httpMessage->message, contentLength,
 				     authenticated, sendAction);
 	    if (sendAction)  // send success or send response
@@ -430,15 +430,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 				   String::EMPTY,
 				   "Authorization header error");
 		}
-
-		if (sendAction == 1)  // Send success
+		else
 		{
-		    _sendSuccess(queueId, httpMessage->message.getData());
-		}
+		    if (sendAction == 1)  // Send success
+		    {
+			_sendSuccess(queueId,
+				     String(httpMessage->message.getData(), httpMessage->message.size()));
+		    }
 
-		if (sendAction == 2)  // Send response
-		{
-		    _sendResponse(queueId, httpMessage->message);
+		    if (sendAction == 2)  // Send response
+		    {
+			_sendResponse(queueId, httpMessage->message);
+		    }
 		}
 
 		PEG_METHOD_EXIT();

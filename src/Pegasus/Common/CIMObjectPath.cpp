@@ -280,7 +280,7 @@ Boolean CIMKeyBinding::equal(CIMValue value)
             break;
         }
     }
-    catch (...)  // Just catch Exception?
+    catch (Exception&)
     {
         return false;
     }

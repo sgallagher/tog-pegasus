@@ -173,8 +173,11 @@ void test01()
     assert(class1.getPropertyCount() == 1);
     CIMProperty cp = class1.getProperty( class1.findProperty("message"));
 
-    class1.print();
-    class1.printMof();
+	if(verbose)
+	{
+		class1.print();
+		class1.printMof();
+	}
 
     Array<Sint8> out;
     class1.toMof(out);
@@ -206,6 +209,8 @@ void test01()
     }
     catch(OutOfBounds& e)
     {
+		if(verbose)
+			cout << "Exception: " << e.getMessage() << endl;
     }
 
     const CIMClass c4("MyClass", "YourClass");
@@ -222,6 +227,8 @@ void test01()
     }
     catch(OutOfBounds& e)
     {
+		if(verbose)
+			cout << "Exception: " << e.getMessage() << endl;
     }
 
     try
@@ -230,7 +237,10 @@ void test01()
     }
     catch(OutOfBounds& e)
     {
+		if(verbose)
+			cout << "Exception: " << e.getMessage() << endl;
     }
+
 	if(verbose) {
 		c5.print();
 	}
@@ -256,6 +266,8 @@ void test01()
     }
     catch (OutOfBounds& e)
     {
+		if(verbose)
+			cout << "Exception: " << e.getMessage() << endl;
     }
 
     assert(!c4.existsProperty("count"));
@@ -274,8 +286,13 @@ void test01()
     }
     catch(OutOfBounds& e)
     {
+		if(verbose)
+			cout << "Exception: " << e.getMessage() << endl;
     }
-    cout << "All tests" << endl;
+	if(verbose)
+	{
+		cout << "All tests" << endl;
+	}
 }
 
 int main(int argc, char** argv)

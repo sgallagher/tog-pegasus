@@ -1226,9 +1226,16 @@ cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
 CIMObjectPath *
 cimmofParser::newReference(const objectName &oname)
 {
+  String nameSpaceString = oname.handle();
+  CIMNamespaceName nameSpace;
+  if (nameSpaceString != String::EMPTY)
+  {
+    nameSpace = nameSpaceString;
+  }
+
   CIMObjectPath *ref = 0;
   try {
-    ref = new CIMObjectPath(oname.host(), oname.handle(), oname.className(),
+    ref = new CIMObjectPath(oname.host(), nameSpace, oname.className(),
 			   oname.KeyBindings());
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;

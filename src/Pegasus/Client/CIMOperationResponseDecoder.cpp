@@ -1030,7 +1030,7 @@ CIMEnumerateInstanceNamesResponseMessage* CIMOperationResponseDecoder::_decodeEn
 	        {
 	            CIMObjectPath r(
 		        String::EMPTY,
-		        String::EMPTY,
+		        CIMNamespaceName(),
 		        className,
 		        keyBindings);
 	            instanceNames.append(r);

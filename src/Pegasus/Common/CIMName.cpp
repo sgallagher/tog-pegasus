@@ -249,11 +249,6 @@ void CIMNamespaceName::clear()
 Boolean CIMNamespaceName::legal(const String& name)
 {
     Uint32 length = name.size();
-    if (length == 0)
-    {
-        return true;  // ATTN: Should be "false"
-    }
-
     Uint32 index = 0;
 
     // Skip a leading '/' because the CIM specification is ambiguous

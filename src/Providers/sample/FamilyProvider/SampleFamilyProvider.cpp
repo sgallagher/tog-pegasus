@@ -167,7 +167,7 @@ Array<CIMInstance> _filterReferenceNames(
     CDEBUG("_filterReferenceNames. objName= " << objectName.toString() << " resultClass= " << resultClass << " role= " << role);
     CIMObjectPath targetReference = CIMObjectPath(
     String(),
-    String(),
+    CIMNamespaceName(),
     objectName.getClassName(),
     objectName.getKeyBindings());
 
@@ -409,7 +409,7 @@ void SampleFamilyProvider::getInstance(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 
@@ -590,7 +590,7 @@ void SampleFamilyProvider::modifyInstance(
 	
     CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		myClass,
 		instanceReference.getKeyBindings());
 	
@@ -657,7 +657,7 @@ void SampleFamilyProvider::createInstance(
 	
     CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		myClass,
 		instanceReference.getKeyBindings());
 	
@@ -730,7 +730,7 @@ void SampleFamilyProvider::deleteInstance(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		instanceReference.getClassName(),
 		instanceReference.getKeyBindings());
 	
@@ -814,7 +814,7 @@ void SampleFamilyProvider::associators(
     CIMName myClass = objectName.getClassName();
 	CIMObjectPath localObjectName = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		objectName.getClassName(),
 		objectName.getKeyBindings());
 
@@ -874,7 +874,7 @@ void SampleFamilyProvider::associatorNames(
 
     CIMObjectPath localObjectName = CIMObjectPath(
         String(),
-        String(),
+        CIMNamespaceName(),
         objectName.getClassName(),
         objectName.getKeyBindings());
 

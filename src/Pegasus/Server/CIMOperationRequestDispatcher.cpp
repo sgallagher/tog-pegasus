@@ -686,7 +686,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     // the referencname calls must put the result class here.
     tmp = _repository->referenceNames(
             nameSpace,
-            CIMObjectPath(String::EMPTY, String::EMPTY,className),
+            CIMObjectPath(String::EMPTY, CIMNamespaceName(), className),
             assocClass,
             role);
    // returns the list of possible association classes for this target.

@@ -1895,7 +1895,7 @@ Array<CIMObject> CIMRepository::associators(
         {
             CIMObjectPath tmpRef = names[i];
             tmpRef.setHost(String());
-            tmpRef.setNameSpace(String());
+            tmpRef.setNameSpace(CIMNamespaceName());
 
             CIMClass cimClass = getClass(
                 tmpNameSpace,
@@ -1913,7 +1913,7 @@ Array<CIMObject> CIMRepository::associators(
         {
             CIMObjectPath tmpRef = names[i];
             tmpRef.setHost(String());
-            tmpRef.setNameSpace(String());
+            tmpRef.setNameSpace(CIMNamespaceName());
 
             CIMInstance cimInstance = getInstance(
                 tmpNameSpace,
@@ -2052,7 +2052,7 @@ Array<CIMObject> CIMRepository::references(
 
         CIMObjectPath tmpRef = names[i];
         tmpRef.setHost(String());
-        tmpRef.setNameSpace(String());
+        tmpRef.setNameSpace(CIMNamespaceName());
 
         //
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly

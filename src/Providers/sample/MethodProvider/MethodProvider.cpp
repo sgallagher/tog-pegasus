@@ -59,7 +59,7 @@ void MethodProvider::invokeMethod(
 	// (class name and keys only).
 	CIMObjectPath localReference = CIMObjectPath(
 		String(),
-		String(),
+		CIMNamespaceName(),
 		objectReference.getClassName(),
 		objectReference.getKeyBindings());
 

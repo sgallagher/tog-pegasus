@@ -185,7 +185,14 @@ void _getKeyValue (
 
        String cnsName;
        propertyValue.get(cnsName);
-       childNamespaceName = CIMNamespaceName (cnsName);
+       if (cnsName == String::EMPTY)
+       {
+           childNamespaceName = CIMNamespaceName();
+       }
+       else
+       {
+           childNamespaceName = CIMNamespaceName(cnsName);
+       }
 
        isRelativeName = !(childNamespaceName.isNull());
 
@@ -202,8 +209,14 @@ void _getKeyValue (
        if ((kbArray.size() == 1) &&
                 (kbArray[0].getName() == NAMESPACE_PROPERTYNAME))
        {
-           childNamespaceName = CIMNamespaceName (kbArray[0].getValue());
-	   isRelativeName = !(childNamespaceName.isNull());
+           String childNamespaceString = kbArray[0].getValue();
+
+           if (childNamespaceString != String::EMPTY)
+           {
+               childNamespaceName = childNamespaceString;
+           }
+
+           isRelativeName = !(childNamespaceName.isNull());
        }
        else
        {

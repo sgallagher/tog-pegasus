@@ -296,7 +296,7 @@ CIMObjectPath CIMInstanceRep::buildPath(
 	}
     }
 
-    return CIMObjectPath(String(), String(), className, keyBindings);
+    return CIMObjectPath(String(), CIMNamespaceName(), className, keyBindings);
 }
 
 PEGASUS_NAMESPACE_END

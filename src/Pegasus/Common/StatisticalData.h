@@ -34,7 +34,7 @@
 #define STATISTICAL_DATA_H
 
 #include <Pegasus/Common/Config.h>
-#include <iostream.h>
+#include <iostream>
 #include <cstring>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/IPC.h>

@@ -224,19 +224,13 @@ void test02()
 // Test CIMKeyBinding constructor (CIMValue variety) and equal(CIMValue) method
 void test03()
 {
-    Boolean exceptionFlag = false;
-    try
-    {
-        CIMKeyBinding kb0("test0", Real32(3.14159));
-    }
-    catch (TypeMismatchException&)
-    {
-        exceptionFlag = true;
-    }
-    assert(exceptionFlag);
+    CIMKeyBinding kb0("test0", Real32(3.14159));
+    assert(kb0.equal(Real32(3.14159)));
+    assert(!kb0.equal(Real32(3.141593)));
 
     CIMKeyBinding kb1("test1", String("3.14159"), CIMKeyBinding::NUMERIC);
-    assert(!kb1.equal(Real32(3.14159)));
+    assert(kb1.equal(Real32(3.14159)));
+    assert(!kb1.equal(String("3.14159")));
 
     CIMKeyBinding kb2("test2", Uint32(1000));
     assert(kb2.equal(Uint32(1000)));
@@ -272,7 +266,7 @@ void test03()
     assert(kb7.equal(CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.FIRST=\"Patrick\",LAST=\"Rafter\"")));
     assert(!kb7.equal(CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"")));
 
-    exceptionFlag = false;
+    Boolean exceptionFlag = false;
     try
     {
         CIMKeyBinding kb8("test8", Array<Uint32>());
@@ -298,6 +292,10 @@ void test03()
     assert(!kb10.equal(String("100")));
 
     CIMKeyBinding kb11("test11", String("+100"), CIMKeyBinding::NUMERIC);
+    assert(!kb11.equal(Uint64(100)));  // Unsigned ints may not start with "+"
+    assert(!kb11.equal(Uint32(100)));
+    assert(!kb11.equal(Uint16(100)));
+    assert(!kb11.equal(Uint8(100)));
     assert(kb11.equal(Sint64(100)));
     assert(kb11.equal(Sint32(100)));
     assert(kb11.equal(Sint16(100)));

@@ -186,10 +186,7 @@ CIMKeyBinding::CIMKeyBinding(const CIMName& name, const String& value, Type type
 
 CIMKeyBinding::CIMKeyBinding(const CIMName& name, const CIMValue& value)
 {
-    // ATTN-RK-20020920: Verify that real numbers cannot be keys
-    if (value.isArray() ||
-        (value.getType() == CIMTYPE_REAL32) ||
-        (value.getType() == CIMTYPE_REAL64))
+    if (value.isArray())
     {
         throw TypeMismatchException();
     }
@@ -261,10 +258,7 @@ void CIMKeyBinding::setType(CIMKeyBinding::Type type)
 
 Boolean CIMKeyBinding::equal(CIMValue value)
 {
-    // ATTN-RK-20020920: Verify that real numbers cannot be keys
-    if (value.isArray() ||
-        (value.getType() == CIMTYPE_REAL32) ||
-        (value.getType() == CIMTYPE_REAL64))
+    if (value.isArray())
     {
         return false;
     }

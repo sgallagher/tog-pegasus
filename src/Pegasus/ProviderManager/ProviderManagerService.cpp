@@ -753,7 +753,7 @@ void ProviderManagerService::handleSetPropertyRequest(const Message * message)
 
 void ProviderManagerService::handleInvokeMethodRequest(const Message * message)
 {
-        CIMValue cimValue(0);
+        CIMValue returnValue;
         Array<CIMParamValue> outParameters;
         Status status;
         CIMInstance cimInstance;
@@ -801,6 +801,8 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message)
             {
                 throw CIMException(CIM_ERR_NOT_FOUND);
             }
+
+            returnValue = handler._objects[0];
         }
         catch(CIMException & e)
         {
@@ -822,7 +824,7 @@ void ProviderManagerService::handleInvokeMethodRequest(const Message * message)
                 CIMStatusCode(status.getCode()),
                 status.getMessage(),
                 request->queueIds.copyAndPop(),
-                cimValue,
+		returnValue,
                 outParameters,
                 request->methodName);
 

@@ -57,7 +57,7 @@ public:
         DDD(cout << _CIMXMLINDICATIONHANDLER << "~CIMxmlIndicationHandler()" << endl;)
     }
 
-    void initialize()
+    void initialize(CIMRepository* repository)
     {
         DDD(cout << _CIMXMLINDICATIONHANDLER << "initialize()" << endl;)
     }

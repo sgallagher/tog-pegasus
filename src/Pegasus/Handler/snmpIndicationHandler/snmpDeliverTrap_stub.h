@@ -29,47 +29,22 @@
 
 #include <iostream>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Selector.h>
-#include <Pegasus/ExportClient/CIMExportClient.h>
-#include <Pegasus/Handler/CIMHandler.h>
-#include <Pegasus/Repository/CIMRepository.h>
+
+#include "snmpDeliverTrap.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-PEGASUS_USING_STD;
-
-//#define DDD(X) X
-#define DDD(X) // X
-
-DDD(static const char* _SNMPINDICATIONHANDLER = "snmpIndicationHandler::";)
-
-class PEGASUS_HANDLER_LINKAGE snmpIndicationHandler: public CIMHandler
+class snmpDeliverTrap_stub : public snmpDeliverTrap
 {
 public:
-
-    CIMRepository* _repository;
-
-    snmpIndicationHandler()
-    {
-        DDD(cout << _SNMPINDICATIONHANDLER << "snmpIndicationHandler()" << endl;)
-    }
-
-    virtual ~snmpIndicationHandler()
-    {
-        DDD(cout << _SNMPINDICATIONHANDLER << "~snmpIndicationHandler()" << endl;)
-    }
-
-    void initialize(CIMRepository* repository);
-
-    void terminate()
-    {
-        DDD(cout << _SNMPINDICATIONHANDLER << "terminate()" << endl;)
-    }
-
-    void handleIndication(
-	CIMInstance& indicationHandlerInstance, 
-	CIMInstance& indicationInstance, 
-	String nameSpace);
+    void deliverTrap(
+        const String& trapOid, 
+        const String& enterprise, 
+        const String& destination, 
+        const String& trapType,
+        Array<String>& vbOids,
+        Array<String>& vbTypes,
+        Array<String>& vbValues);
 };
 
 PEGASUS_NAMESPACE_END

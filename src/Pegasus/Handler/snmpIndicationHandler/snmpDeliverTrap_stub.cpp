@@ -30,13 +30,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include "snmpDeliverTrap_emanate.h"
+#include "snmpDeliverTrap_stub.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
 
-void snmpDeliverTrap_emanate::deliverTrap(const String& trapOid,
+void snmpDeliverTrap_stub::deliverTrap(const String& trapOid,
     const String& enterprise,
     const String& destination,
     const String& trapType,
@@ -44,44 +44,7 @@ void snmpDeliverTrap_emanate::deliverTrap(const String& trapOid,
     Array<String>& vbTypes,
     Array<String>& vbValues)
 {
-    int            fifo_fd;
-    struct stat    sbuf;
-
-    trapHeader myTrapHeader;
-    trapHeader myTrapData;
-
-    cout << "NITIN: calling deliverTrap()" << endl;
-
-    if (stat(_SNMP_FIFO, &sbuf) == -1) 
-        cout << "The fifo is not opened by EMANATE subagent" << endl;
-    else
-    {
-        if ((fifo_fd = open (_SNMP_FIFO, O_WRONLY|O_NONBLOCK)) == -1) 
-            cout << "The fifo is not opened for reading. Subagent is not running" << endl;
-        else
-        {
-            strcpy(myTrapHeader.destination, destination.allocateCString());
-            strcpy(myTrapHeader.snmpType, "SNMPV2");
-            strcpy(myTrapHeader.enterprise, enterprise.allocateCString());
-            strcpy(myTrapHeader.trapOid, trapOid.allocateCString());
-            myTrapHeader.variable_packets =  vbOids.size();
-
-            if (write(fifo_fd, &myTrapHeader, sizeof(myTrapHeader)) <=0)
-                cout << "Error in writing" << endl;
-            else
-            {
-                for(int packets = 0; packets<vbOids.size(); packets++)
-                {
-                    trapData myTrapData;
-                    strcpy(myTrapData.vbOid, vbOids[packets].allocateCString());
-                    strcpy(myTrapData.vbType, vbTypes[packets].allocateCString());
-                    strcpy(myTrapData.vbValue, vbValues[packets].allocateCString());
-                    write(fifo_fd, &myTrapData, sizeof(myTrapData));
-                }
-            }
-        }
-        close (fifo_fd);
-    }
+    //ATTN: Code to implement SNMP specific delivery mechanism.
 }
 
 PEGASUS_NAMESPACE_END

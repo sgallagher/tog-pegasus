@@ -31,6 +31,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Selector.h>
 #include <Pegasus/Handler/CIMHandler.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 #ifdef PEGASUS_OS_HPUX
 # include <unistd.h>
@@ -62,7 +63,7 @@ public:
         DDD(cout << _SENDMAILINDICATIONHANDLER << "~sendmailIndicationHandler()" << endl;)
     }
 
-    void initialize()
+    void initialize(CIMRepository* repository)
     {
         DDD(cout << _SENDMAILINDICATIONHANDLER << "initialize()" << endl;)
     }

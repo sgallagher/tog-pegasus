@@ -32,6 +32,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -57,7 +58,7 @@ public:
     // These are the method to initialize and terminate handler. Actual need and
     // implementation way these methods are yet to be finalized.
 
-    virtual void initialize() = 0;
+    virtual void initialize(CIMRepository* repository) = 0;
     virtual void terminate() = 0;
 };
 

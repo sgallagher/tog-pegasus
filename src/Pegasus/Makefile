@@ -22,8 +22,10 @@ DIRS = \
     Provider2 \
     ExportServer \
     Server \
+    Subscription \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
+    Handler/snmpIndicationHandler \
     Common/tests \
     Config/tests \
     Repository/tests \

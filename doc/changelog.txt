@@ -142,6 +142,14 @@ repository implementation.
     CIMOperationRequestDispatcher.cpp/SystemUnix.cpp to ProviderModule.cpp and included 
     it in a method that returns provider file path name.
 
+28. (Nitin Upasani - HP) 12 Oct 2001 - Implementation of SNMP Indication Handler. 
+    This handler extracts MappingStrings qualifier from class definition and converts it 
+    into SNMP specific trap data. The trap structure is defined in a abstract class in 
+    snmpDeliverTrap.h file. Every one has his or her own SNMP agent, which will talk with 
+    master agent to deliver the trap or may have some other mechanism. Extending 
+    snmpDeliverTrap class and deliverTrap method will help to implement specific trap 
+    delivery mechanism. 
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

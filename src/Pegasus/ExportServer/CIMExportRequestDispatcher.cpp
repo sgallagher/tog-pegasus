@@ -175,7 +175,7 @@ CIMHandler* CIMExportRequestDispatcher::_lookupHandlerForClass(
 	if (!handler)
 	    throw CIMException(CIM_ERR_FAILED);
 
-	handler->initialize();
+	handler->initialize(_repository);
     }
 
     return handler;

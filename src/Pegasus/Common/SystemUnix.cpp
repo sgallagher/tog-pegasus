@@ -178,7 +178,8 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     void* handle = shl_load(fileName, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
 
     Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
-                  "After loading lib %s, error code is %d", fileName, errno);
+                  "After loading lib %s, error code is %d", fileName, 
+                  (handle == (void *)0)?errno:0);
 
     PEG_FUNC_EXIT(TRC_OS_ABSTRACTION, METHOD_NAME);
     return DynamicLibraryHandle(handle);

@@ -191,9 +191,9 @@ void testAuthenticationFailure_3()
 
     AuthenticationInfo* authInfo = new AuthenticationInfo(true);
 
-    String userPass = testUser;
+    String userPass = guestUser;
     userPass.append(":");
-    userPass.append(guestPassword);
+    userPass.append(invalidPassword);
 
     authHeader.append(encodeUserPass(userPass));
 
@@ -223,7 +223,7 @@ void testAuthenticationFailure_4()
 
     AuthenticationInfo* authInfo = new AuthenticationInfo(true);
 
-    String userPass = testUser;
+    String userPass = invalidUser;
     userPass.append(":");
     userPass.append(invalidPassword);
 
@@ -286,8 +286,9 @@ int main()
     try
     {
 #ifdef DEBUG
-        Tracer::setTraceFile("/tmp/trace");
+        Tracer::setTraceFile("./Authentication.trc");
         Tracer::setTraceComponents("all");
+        Tracer::setTraceLevel(Tracer::LEVEL4);
 #endif
 
         ConfigManager* configManager = ConfigManager::getInstance();

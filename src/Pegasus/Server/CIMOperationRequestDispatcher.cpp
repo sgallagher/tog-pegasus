@@ -1127,7 +1127,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     CIMRequestMessage* request,
     OperationAggregate* poA)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
 
     Array<Uint32> serviceIds;
@@ -1206,7 +1206,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
     const String& controlProviderName,
     CIMRequestMessage* request)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToProviderManager");
 
     Array<Uint32> serviceIds;
@@ -1296,7 +1296,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
 void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
     OperationAggregate* poA)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation");
     CIMAssociatorNamesResponseMessage * toResponse =
 	(CIMAssociatorNamesResponseMessage *) poA->getResponse(0);
@@ -1339,7 +1339,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
 void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
     OperationAggregate* poA)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleReferencesResponseAggregation");
 
     CIMAssociatorsResponseMessage * toResponse =
@@ -1389,7 +1389,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
 void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
     OperationAggregate* poA)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleReferencesResponseAggregation");
 
     CIMReferencesResponseMessage * toResponse =
@@ -1442,7 +1442,7 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
 void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
                         OperationAggregate* poA)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation");
     CIMReferenceNamesResponseMessage * toResponse =
 	(CIMReferenceNamesResponseMessage *) poA->getResponse(0);
@@ -1488,7 +1488,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
 void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponseAggregation(
     OperationAggregate* poA)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponseAggregation");
     CIMEnumerateInstanceNamesResponseMessage * toResponse =
 	(CIMEnumerateInstanceNamesResponseMessage *) poA->getResponse(0);
@@ -1525,7 +1525,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponseAggregat
 */
 void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(OperationAggregate* poA)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesResponse");
 
     CIMEnumerateInstancesResponseMessage * toResponse =
@@ -3582,6 +3582,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 #ifdef NEWASSOCREGISTRATION
                 // Insert the resultclass name to limit the provider to this class.
                 requestCopy->assocClass =  providerInfo[i]._className;
+                requestCopy->objectName.setClassName(providerInfo[i]._className);
 #else
                 requestCopy->objectName.setClassName(providerInfo[i]._className);
 
@@ -3854,6 +3855,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 #ifdef NEWASSOCREGISTRATION
                 // Insert the resultclass name to limit the provider to this class.
                 requestCopy->assocClass =  providerInfo[i]._className;
+                requestCopy->objectName.setClassName(providerInfo[i]._className);
 #else
                 requestCopy->objectName.setClassName(providerInfo[i]._className);
 
@@ -4122,6 +4124,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 #ifdef NEWASSOCREGISTRATION
                 // Insert the resultclass name to limit the provider to this class.
                 requestCopy->resultClass =  providerInfo[i]._className;
+                requestCopy->objectName.setClassName(providerInfo[i]._className);
 #else
                 requestCopy->objectName.setClassName(providerInfo[i]._className);
 #endif
@@ -4387,6 +4390,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 #ifdef NEWASSOCREGISTRATION
                 // Insert the resultclass name to limit the provider to this class.
                 requestCopy->resultClass =  providerInfo[i]._className;
+                requestCopy->objectName.setClassName(providerInfo[i]._className);
 #else
                 requestCopy->objectName.setClassName(providerInfo[i]._className);
 #endif

@@ -1005,7 +1005,7 @@ void CIMDateTime::set(const String & str)
 /*public rapper for _toMicroSeconds
 converts object to UTC then it calculates the number of microseconds in the converted object
 */
-Uint64 CIMDateTime::toMicroSeconds()
+Uint64 CIMDateTime::toMicroSeconds() const
 {
 
     CIMDateTime un_norm;

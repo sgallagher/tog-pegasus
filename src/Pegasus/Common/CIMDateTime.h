@@ -252,7 +252,7 @@ public:
         @exception DateTimeOutOfRangeException if value overflow occurs during 
         conversion to UTC (internal operation).
     */
-    Uint64 toMicroSeconds();
+    Uint64 toMicroSeconds() const;
 
      /** Adds two CIMDateTime objects and returns a CIMDateTime object that
          represents the sum.

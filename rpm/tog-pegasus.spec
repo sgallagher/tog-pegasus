@@ -1,4 +1,4 @@
-#%2003////////////////////////////////////////////////////////////////////////
+#%2005////////////////////////////////////////////////////////////////////////
 #
 # Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 # Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -30,19 +30,19 @@
 #
 # tog-pegasus.spec
 #
-# Package spec for PEGASUS 2.4
+# Package spec for PEGASUS 2.5
 #
 %define srcRelease 1
 Summary: OpenPegasus WBEM Services for Linux
 Name: tog-pegasus
-Version: 2.4RC1
+Version: 2.5.Beta
 Release: 1
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{srcRelease}.tar.gz
 Requires: openssl >= 0.9.6 lsb >= 1.3
-Provides: cimserver tog-pegasus-2.4
+Provides: cimserver tog-pegasus-2.5
 BuildRequires: openssl-devel >= 0.9.6
 
 %description
@@ -56,7 +56,7 @@ sources.
 Summary:      The OpenPegasus Software Development Kit
 Group:        Systems Management/Base
 Autoreq: 0
-Requires: tog-pegasus >= 2.4
+Requires: tog-pegasus >= 2.5
 
 %description sdk
 The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the OpenPegasus WBEM
@@ -227,10 +227,18 @@ install -D -m 0755  $PEGASUS_HOME/lib/libpegwql.so.1    $RPM_BUILD_ROOT%PEGASUS_
 install -D -m 0755  $PEGASUS_HOME/lib/libCMPIProviderManager.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libCMPIProviderManager.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libcmpiCppImpl.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libcmpiCppImpl.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libDefaultProviderManager.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libDefaultProviderManager.so.1 
+install -D -m 0755  $PEGASUS_HOME/lib/libCertificateProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libCertificateProvider.so.1 
+install -D -m 0755  $PEGASUS_HOME/lib/libpegqueryexpression.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegqueryexpression.so.1
+install -D -m 0755  $PEGASUS_HOME/lib/libpegcql.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegcql.so.1
+install -D -m 0755  $PEGASUS_HOME/lib/libpegquerycommon.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegquerycommon.so.1
+install -D -m 0755  $PEGASUS_HOME/lib/libCIMQueryCapabilitiesProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libCIMQueryCapabilitiesProvider.so.1
+install -D -m 0755  $PEGASUS_HOME/lib/libInteropProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libInteropProvider.so.1
+install -D -m 0755  $PEGASUS_HOME/lib/libCIMOMStatDataProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libCIMOMStatDataProvider.so.1
 
 install -D -m 0755  $PEGASUS_HOME/lib/libComputerSystemProvider.so.1    $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libComputerSystemProvider.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libOSProvider.so.1    $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libOSProvider.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libProcessProvider.so.1    $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libProcessProvider.so.1
+
 
 #
 # CIM schema
@@ -862,6 +870,14 @@ fi
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libCMPIProviderManager.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libcmpiCppImpl.so.1
 %attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libDefaultProviderManager.so.1
+
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libCertificateProvider.so.1
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegqueryexpression.so.1
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegcql.so.1
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegquerycommon.so.1
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libCIMQueryCapabilitiesProvider.so.1
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libInteropProvider.so.1
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libCIMOMStatDataProvider.so.1
 %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libComputerSystemProvider.so.1
 %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libOSProvider.so.1
 %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libProcessProvider.so.1

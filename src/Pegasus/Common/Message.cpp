@@ -266,11 +266,11 @@ void Message::endServer()
 	// if there is an error in the CIMOM no time is added to the count
 	catch (InvalidDateTimeFormatException e) 
 	{_totTi = 0;
-	throw e;
+//	throw e;
 	}
 	catch (DateTimeOutOfRangeException e) 
 	{_totTi =0;
-	throw e;
+//	throw e;
 	}		
 
 	totServerTime = _totTi;

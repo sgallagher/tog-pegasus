@@ -25,7 +25,7 @@
 //
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1519
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,35 +50,6 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 const char COLON = ':';
-
-/*
-    Password file header information
-*/
-static const char* PasswordFileHeader [] = {
-    "########################################################################",
-    "##                                                                    ##",
-    "##                  CIM Server Password file                          ##",
-    "##                                                                    ##",
-    "########################################################################",
-    " ",    
-    "########################################################################",
-    "#                                                                      #",
-    "# This is the password file for the CIMOM. The username/passowrd       #",
-    "# in this file are loaded in to CIMOM by the User Manager Provider.    #",
-    "# CIMOM updates this file with the changes .                           #",
-    "#                                                                      #",
-    "# The password file stores the user information in username:password   #",
-    "# format in order to be compatible with Apache's htpasswd generated    #",
-    "# password file.                                                       #",
-    "#                                                                      #",
-    "# The user must not edit this file, instead use                        #",
-    "# cimuser CLI to make any changes to the CIMOM user information.       #",
-    "#                                                                      #",
-    "########################################################################",
-    " "
-};
-
-static const int HEADER_SIZE = sizeof(PasswordFileHeader)/sizeof(PasswordFileHeader[0]);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -230,14 +201,6 @@ void PasswordFile::load (PasswordTable& passwordTable)
         }
 
         //
-        // Skip comment lines
-        //
-        if (*p == '#')
-        {
-            continue;
-        }
-
-        //
         // Get the userName
         //
         String userName = String::EMPTY;
@@ -374,17 +337,6 @@ void PasswordFile::save (PasswordTable& passwordTable)
     }
 	
     ofs.clear();
-
-    //
-    // Write password file header information
-    //
-    
-    for (int index = 0; index < HEADER_SIZE; index++)
-    {
-        ofs << PasswordFileHeader[index] << endl;
-    }
-
-    ofs << endl; 
 
     //
     // Save user names and passwords to the new file

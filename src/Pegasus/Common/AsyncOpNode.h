@@ -189,9 +189,11 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       // << Tue Jun  4 16:44:09 2002 mdd >>
       // debug artifact 
       Uint32 _source_queue;
-      
-      //<< Tue Jun  4 16:44:24 2002 mdd >>
-
+      // << Fri Jul 19 08:41:45 2002 mdd >>
+      // debugging utility
+      // careful - wipes out current value of *buf
+      void print_to_buffer(Sint8 **buf);
+      String &print_to_string(void);
 };
 
 

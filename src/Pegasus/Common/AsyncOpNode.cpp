@@ -140,4 +140,41 @@ void AsyncOpNode::_reset(unlocked_dq<AsyncOpNode> *dst_q)
    return;
 }
 
+void AsyncOpNode::print_to_buffer(Sint8 **buf)
+{
+   if(buf == NULL)
+      return;
+   
+   static Sint8 work_buf[4096];
+   snprintf(work_buf, 4096, "AsyncOpNode %p\n" \
+	    "\trq %d; rp %d; state %d; flags %d; op_dst q %p\n" \
+	    "\tcallback node %p; callback rp q %p; callback ptr %p\n" \
+	    "\tcallback parm %p; callback handle %p; callback notify %p\n" \
+	    "\tcallback rq q %p; service %p; thread %p\n\n",
+	    this, _request.count(), _response.count(), 
+	    _state, _flags, _op_dest, _callback_node, _callback_response_q,
+	    _callback_ptr, _callback_parameter, _callback_handle, _callback_notify,
+	    _callback_request_q, _service_ptr, _thread_ptr);
+   *buf = strdup(work_buf);
+   return;
+   
+}
+
+String &AsyncOpNode::print_to_string(void)
+{
+   static Sint8 work_buf[4096];
+   snprintf(work_buf, 4096, "AsyncOpNode %p\n" \
+	    "\trq %d; rp %d; state %d; flags %d; op_dst q %p\n" \
+	    "\tcallback node %p; callback rp q %p; callback ptr %p\n" \
+	    "\tcallback parm %p; callback handle %p; callback notify %p\n" \
+	    "\tcallback rq q %p; service %p; thread %p\n\n",
+	    this, _request.count(), _response.count(), 
+	    _state, _flags, _op_dest, _callback_node, _callback_response_q,
+	    _callback_ptr, _callback_parameter, _callback_handle, _callback_notify,
+	    _callback_request_q, _service_ptr, _thread_ptr);
+   String *ret = new String(work_buf);
+   
+   return *ret;
+}
+
 PEGASUS_NAMESPACE_END

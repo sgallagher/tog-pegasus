@@ -11,7 +11,12 @@ LIBRARY = pegexportclient
 LIBRARIES = \
     $(LIB_DIR)/$(LIB_PREFIX)pegcommon$(LIB_SUFFIX)
 
-DYNAMIC_LIBRARIES = -lpegcommon
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+DYNAMIC_LIBRARIES = \
+    $(LIB_DIR)/$(LIB_PREFIX)pegcommon.x
+else
+ DYNAMIC_LIBRARIES = -lpegcommon
+endif
 
 PRE_DEPEND_INCLUDES = -I./depends
 

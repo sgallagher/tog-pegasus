@@ -30,7 +30,6 @@ DIRS = \
     String \
     StrToInstName \
     TimeValue \
-    Tracer \
     ValidateClass \
     Value \
     XmlDump \
@@ -46,5 +45,6 @@ DIRS = \
 ifeq ($(OS),linux)
 DIRS += IPC Thread
 endif
+#    Tracer \
 
 include $(ROOT)/mak/recurse.mak

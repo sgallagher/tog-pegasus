@@ -124,15 +124,18 @@ void BinaryStreamer::append(Array<Sint8>& out, Boolean b)
 
 CIMObjectPath BinaryStreamer::extractObjectPath(const Sint8 *ar, Uint32 & pos)
 {
-   Uint16 sl=*(Uint16*)(ar+pos);
+   Uint16 sl; //=*(Uint16*)(ar+pos);
+   memcpy( &sl, ar + pos, sizeof (Uint16));
    Uint32 ppos=pos+=sizeof(Uint16);
+
    pos+=sl;
    return CIMObjectPath(String(((char*)(ar+ppos)),sl));
 }
 
 CIMName BinaryStreamer::extractName(const Sint8 *ar, Uint32 & pos)
 {
-   Uint16 sl=*(Uint16*)(ar+pos);
+   Uint16 sl; //=*(Uint16*)(ar+pos);
+   memcpy(&sl, ar + pos, sizeof (Uint16)); 
    Uint32 ppos=pos+=sizeof(Uint16);
    if (sl) {
       pos+=sl;
@@ -143,14 +146,16 @@ CIMName BinaryStreamer::extractName(const Sint8 *ar, Uint32 & pos)
 
 Uint16 BinaryStreamer::extractUint16(const Sint8 *ar, Uint32 & pos)
 {
-   Uint16 ui=*(Uint16*)(ar+pos);
+   Uint16 ui; //=*(Uint16*)(ar+pos);
+   memcpy (&ui, ar + pos, sizeof (Uint16));
    pos+=sizeof(Uint16);
    return ui;
 }
 
 CIMType BinaryStreamer::extractType(const Sint8 *ar, Uint32 & pos)
 {
-   Uint16 ui=*(Uint16*)(ar+pos);
+   Uint16 ui; //=*(Uint16*)(ar+pos);
+   memcpy( &ui, ar + pos, sizeof (Uint16));
    pos+=sizeof(Uint16);
    CIMType t=(CIMType)ui;
    return t;
@@ -158,7 +163,8 @@ CIMType BinaryStreamer::extractType(const Sint8 *ar, Uint32 & pos)
 
 Uint32 BinaryStreamer::extractUint32(const Sint8 *ar, Uint32 & pos)
 {
-   Uint32 ui=*(Uint32*)(ar+pos);
+   Uint32 ui; //=*(Uint32*)(ar+pos);
+   memcpy ( &ui, ar + pos, sizeof(Uint32));
    pos+=sizeof(Uint32);
    return ui;
 }
@@ -959,7 +965,8 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
             case CIMTYPE_STRING: {
                   Array<String> sar;
                   for (Uint32 i=0; i<as; i++) {
-                     Uint32 sl=*(Uint32*)(ar+pos);
+                     Uint32 sl; //=*(Uint32*)(ar+pos);
+		     memcpy( &sl, ar+pos, sizeof(Uint32));
                      pos+=sizeof(Uint32);
                      sar.append(String(((char*)(ar+pos)),sl));
                      pos+=sl;
@@ -970,7 +977,8 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
             case CIMTYPE_DATETIME: {
                   Array<CIMDateTime> dar;
                   for (Uint32 i=0; i<as; i++) {
-                     Uint32 sl=*(Uint32*)(ar+pos);
+                     Uint32 sl; //=*(Uint32*)(ar+pos);
+		     memcpy( &sl, ar + pos, sizeof(Uint32));		    
                      pos+=sizeof(Uint32);
                      dar.append(CIMDateTime(String(((Char16*)(ar+pos)),sl)));
                      pos+=sl*sizeof(Char16);
@@ -981,7 +989,8 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
             case CIMTYPE_REFERENCE: {
                   Array<CIMObjectPath> rar;
                   for (Uint32 i=0; i<as; i++) {
-                     Uint32 sl=*(Uint32*)(ar+pos);
+                     Uint32 sl; //=*(Uint32*)(ar+pos);
+		     memcpy( &sl, ar + pos, sizeof(Uint32));
                      pos+=sizeof(Uint32);
                      rar.append(CIMObjectPath(String(((Char16*)(ar+pos)),sl)));
                      pos+=sl*sizeof(Char16);
@@ -1049,21 +1058,24 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
                pos+=sizeof(Real64);
                break;
             case CIMTYPE_STRING: {
-                  Uint32 sl=*(Uint32*)(ar+pos);
+                  Uint32 sl; //=*(Uint32*)(ar+pos);
+		  memcpy( &sl, ar + pos, sizeof(Uint32));
                   pos+=sizeof(Uint32);
                   val.set(String(((char*)(ar+pos)),sl));
                   pos+=sl;
                }
                break;
             case CIMTYPE_DATETIME: {
-                  Uint32 dtl=*(Uint32*)(ar+pos);
+                  Uint32 dtl; //=*(Uint32*)(ar+pos);
+		  memcpy( &dtl, ar + pos, sizeof (Uint32));
                   pos+=sizeof(Uint32);
                   val.set(CIMDateTime(String(((Char16*)(ar+pos)),dtl)));
                   pos+=dtl*sizeof(Char16);
                }
                break;
             case CIMTYPE_REFERENCE: {
-                  Uint32 rfl=*(Uint32*)(ar+pos);
+                  Uint32 rfl; //=*(Uint32*)(ar+pos);
+		  memcpy( &rfl, ar + pos, sizeof (Uint32));
                   pos+=sizeof(Uint32);
                   val.set(CIMObjectPath(String(((Char16*)(ar+pos)),rfl)));
                   pos+=rfl*sizeof(Char16);

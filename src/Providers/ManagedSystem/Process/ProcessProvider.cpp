@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -153,9 +153,9 @@ void ProcessProvider::createInstance(const OperationContext &context,
 
 void ProcessProvider::deleteInstance(const OperationContext &context,
                     const CIMObjectPath           &instanceReference,
-                    ResponseHandler<CIMInstance> &handler)
+                    ResponseHandler<void> &handler)
 
-{ 
+{
   // Currently not implemented, but could be done with kill
   throw NotSupported(String::EMPTY);
 }
@@ -179,7 +179,7 @@ void ProcessProvider::enumerateInstances(
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
-{   
+{
     // cout << "ProcessProvider::enumerateInstances()" << endl;
 
     int pIndex;
@@ -234,7 +234,7 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
     int pIndex;
     Process _p;
     String className;
-    
+
     // Validate the classname
     className = ref.getClassName();
     _checkClass(className);
@@ -266,7 +266,7 @@ void ProcessProvider::enumerateInstanceNames(const OperationContext &ctx,
         keyBindings.append(KeyBinding(PROPERTY_CS_NAME,
                                       csName,
                                       KeyBinding::STRING));
-    
+
         keyBindings.append(KeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
 		                      CLASS_CIM_OPERATING_SYSTEM,
                                       KeyBinding::STRING));
@@ -421,7 +421,7 @@ void ProcessProvider::getInstance(const OperationContext &ctx,
   // any duplicates (e.g., two Handles, no OSName)
   if(keysFound != (1<<NUMKEYS_UNIX_PROCESS)-1)
     throw InvalidParameter("Bad object name");
-	    
+	
   /* Find the instance.  First convert the instance id which is the */
   /* process handle to an integer.  This is necessary because the   */
   /* handle is the process id on HP-UX which must be passed to      */
@@ -462,7 +462,7 @@ void ProcessProvider::modifyInstance(const OperationContext &context,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
 		    const CIMPropertyList        &propertyList,
-                    ResponseHandler<CIMInstance> &handler)
+                    ResponseHandler<void> &handler)
 {
   // Could be supported in the future for certain properties
   throw NotSupported(String::EMPTY);
@@ -475,7 +475,7 @@ DESCRIPTION       : Initializes the provider.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             : 
+NOTES             :
 PARAMETERS        :
 ================================================================================
 */
@@ -483,13 +483,13 @@ void ProcessProvider::initialize(CIMOMHandle &ch)
 {
    // cout << "ProcessProvider::initialize()" << endl;
   _cimomHandle = ch;
-  
+
   // call platform-specific routine to get values
   Process _p;
   _hostName = _p.getCSName();
   _osName = _p.getOSName();
   return;
-  
+
 }  /* initialize */
 
 /*
@@ -499,7 +499,7 @@ DESCRIPTION       : Terminates the provider.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             : 
+NOTES             :
 PARAMETERS        :
 ================================================================================
 */
@@ -516,12 +516,12 @@ void ProcessProvider::terminate()
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
-// NOTES             : 
+// NOTES             :
 // PARAMETERS        : className, Process
 // ================================================================================
 
 CIMInstance ProcessProvider::_constructInstance(const String &className,
-                                                const Process &_p) 
+                                                const Process &_p)
 {
   String s;
   Array<String> as;
@@ -688,8 +688,8 @@ NAME              : _getOSName
 DESCRIPTION       : Call uname() and get the operating system name.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 String &ProcessProvider::_getOSName()
@@ -707,7 +707,7 @@ NAME              : _getCSName
 DESCRIPTION       : return the hostname.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
+POST-CONDITIONS   :
 NOTES             :
 ================================================================================
 */
@@ -726,7 +726,7 @@ DESCRIPTION       : tests the argument for valid classname,
                   : throws exception if not
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
+POST-CONDITIONS   :
 NOTES             :
 ================================================================================
 */

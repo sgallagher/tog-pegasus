@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -63,7 +63,7 @@ public:
 
   void deleteInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceReference,
-                    ResponseHandler<CIMInstance> &handler);
+                    ResponseHandler<void> &handler);
 
   void enumerateInstances(
 	const OperationContext & context,
@@ -81,13 +81,13 @@ public:
                  const Uint32                  flags,
                  const CIMPropertyList        &propertyList,
                  ResponseHandler<CIMInstance> &handler);
-                 
+
   void modifyInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceName,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
 		    const CIMPropertyList        &propertyList,
-                    ResponseHandler<CIMInstance> &handler);
+                    ResponseHandler<void> &handler);
 
   void initialize(CIMOMHandle&);
 

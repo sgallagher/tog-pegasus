@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -105,38 +105,38 @@ class ComputerSystemProvider: public CIMInstanceProvider
 
       //-- CIMInstanceProvider methods
 
-      void getInstance(const OperationContext& context, 
-		       const CIMObjectPath& ref, 
-		       const Uint32 flags, 
+      void getInstance(const OperationContext& context,
+		       const CIMObjectPath& ref,
+		       const Uint32 flags,
 		       const CIMPropertyList& propertyList,
 		       ResponseHandler<CIMInstance>& handler);
 
-      void enumerateInstances(const OperationContext& context, 
-			      const CIMObjectPath& ref, 
+      void enumerateInstances(const OperationContext& context,
+			      const CIMObjectPath& ref,
 			      const Uint32 flags,
 			      const CIMPropertyList& propertyList,
 			      ResponseHandler<CIMInstance>& handler);
 
-      void enumerateInstanceNames(const OperationContext& context, 
+      void enumerateInstanceNames(const OperationContext& context,
 			          const CIMObjectPath& ref,
 			          ResponseHandler<CIMObjectPath>& handler);
-   
+
       void modifyInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
-		          ResponseHandler<CIMInstance>& handler );
+		          ResponseHandler<void>& handler );
 
       void createInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
 		          ResponseHandler<CIMObjectPath>& handler );
- 
+
       void deleteInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
-		          ResponseHandler<CIMInstance>& handler );
- 
+		          ResponseHandler<void>& handler );
+
       void initialize(CIMOMHandle& handle);
       void terminate(void);
 

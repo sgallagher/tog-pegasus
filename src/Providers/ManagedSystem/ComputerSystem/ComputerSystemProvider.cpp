@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -135,9 +135,9 @@ void ComputerSystemProvider::getInstance(
 }
 
 void ComputerSystemProvider::enumerateInstances(
-      				const OperationContext& context, 
-			        const CIMObjectPath& ref, 
-			        const Uint32 flags, 
+      				const OperationContext& context,
+			        const CIMObjectPath& ref,
+			        const Uint32 flags,
 			        const CIMPropertyList& propertyList,
 			        ResponseHandler<CIMInstance>& handler)
 {
@@ -189,19 +189,19 @@ void ComputerSystemProvider::enumerateInstanceNames(
     return;
 }
 
-void 
+void
 ComputerSystemProvider::modifyInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
 			  	const CIMInstance& instanceObject,
-			  	const Uint32 flags, 
+			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
     throw NotSupported(String::EMPTY);
 }
 
-void 
+void
 ComputerSystemProvider::createInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
@@ -211,11 +211,11 @@ ComputerSystemProvider::createInstance(
     throw NotSupported(String::EMPTY);
 }
 
-void 
+void
 ComputerSystemProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
     throw NotSupported(String::EMPTY);
 }
@@ -233,7 +233,7 @@ void ComputerSystemProvider::terminate(void)
 }
 
 
-CIMInstance ComputerSystemProvider::_buildInstance(const String& className) 
+CIMInstance ComputerSystemProvider::_buildInstance(const String& className)
 {
     CIMInstance instance(className);
     CIMProperty p;

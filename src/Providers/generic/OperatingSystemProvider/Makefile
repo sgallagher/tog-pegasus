@@ -1,9 +1,6 @@
-ROOT = ../../../..
-include ../../libraries.mak
+include $(PEGASUS_ROOT)/mak/config.mak
 
 DIR = Providers/generic/OperatingSystemProvider
-
-include $(ROOT)/mak/config.mak
 
 LIBRARY = OperatingSystemProvider
 

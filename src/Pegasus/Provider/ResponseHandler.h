@@ -397,6 +397,17 @@ inline void ResponseHandler<CIMInstance>::deliver(const Array<CIMInstance> & obj
     }
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandlerRep<CIMInstance> * ResponseHandler<CIMInstance>::getRep(void) const
+{
+    if(_rep == 0)
+    {
+        throw UninitializedHandle();
+    }
+
+    return(_rep);
+}
+
 //
 // template specialization for ResponseHandler<CIMIndication>
 //
@@ -487,6 +498,17 @@ inline void ResponseHandler<CIMIndication>::deliver(const Array<CIMIndication> &
     {
         getRep()->deliver(objects[i]);
     }
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandlerRep<CIMIndication> * ResponseHandler<CIMIndication>::getRep(void) const
+{
+    if(_rep == 0)
+    {
+        throw UninitializedHandle();
+    }
+
+    return(_rep);
 }
 
 //
@@ -581,6 +603,17 @@ inline void ResponseHandler<CIMValue>::deliver(const Array<CIMValue> & objects)
     }
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandlerRep<CIMValue> * ResponseHandler<CIMValue>::getRep(void) const
+{
+    if(_rep == 0)
+    {
+        throw UninitializedHandle();
+    }
+
+    return(_rep);
+}
+
 //
 // template specialization for ResponseHandler<CIMObjectPath>
 //
@@ -673,6 +706,16 @@ inline void ResponseHandler<CIMObjectPath>::deliver(const Array<CIMObjectPath> &
     }
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline ResponseHandlerRep<CIMObjectPath> * ResponseHandler<CIMObjectPath>::getRep(void) const
+{
+    if(_rep == 0)
+    {
+        throw UninitializedHandle();
+    }
+
+    return(_rep);
+}
 
 PEGASUS_NAMESPACE_END
 

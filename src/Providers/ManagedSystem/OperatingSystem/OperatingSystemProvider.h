@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -49,16 +49,16 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       //-- CIMInstanceProvider methods
       /** Given a reference to an instance of the CIM class, fills in the data
        *  elements of the class with the details gleaned from the system. */
-      void getInstance(const OperationContext& context, 
-		       const CIMObjectPath& ref, 
-		       const Uint32 flags, 
+      void getInstance(const OperationContext& context,
+		       const CIMObjectPath& ref,
+		       const Uint32 flags,
 		       const CIMPropertyList& propertyList,
 		       ResponseHandler<CIMInstance>& handler);
 
       /** Returns filled instances for all instances of the CIM class detected
        *  on the system. */
-      void enumerateInstances(const OperationContext& context, 
-			      const CIMObjectPath& ref, 
+      void enumerateInstances(const OperationContext& context,
+			      const CIMObjectPath& ref,
 			      const Uint32 flags,
 			      const CIMPropertyList& propertyList,
 			      ResponseHandler<CIMInstance>& handler);
@@ -66,10 +66,10 @@ class OperatingSystemProvider: public CIMInstanceProvider,
       /** Produces a list of references to all instances of the CIM class
        *  detected on the system, but does not fill the instances
        *  themselves. */
-      void enumerateInstanceNames(const OperationContext& context, 
+      void enumerateInstanceNames(const OperationContext& context,
 			          const CIMObjectPath& ref,
 			          ResponseHandler<CIMObjectPath>& handler);
-   
+
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void modifyInstance(const OperationContext& context,
@@ -77,7 +77,7 @@ class OperatingSystemProvider: public CIMInstanceProvider,
 		          const CIMInstance& instanceObject,
 		          const Uint32 flags,
 		          const CIMPropertyList& propertyList,
-		          ResponseHandler<CIMInstance>& handler );
+		          ResponseHandler<void>& handler );
 
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
@@ -85,13 +85,13 @@ class OperatingSystemProvider: public CIMInstanceProvider,
 		          const CIMObjectPath& ref,
 		          const CIMInstance& instanceObject,
 		          ResponseHandler<CIMObjectPath>& handler );
- 
+
       /** Currently unimplemented in the Pegasus source, this is a no-op
        *  here. */
       void deleteInstance(const OperationContext& context,
 		          const CIMObjectPath& ref,
-		          ResponseHandler<CIMInstance>& handler );
- 
+		          ResponseHandler<void>& handler );
+
       void initialize(CIMOMHandle& handle);
       void terminate(void);
 
@@ -105,12 +105,12 @@ class OperatingSystemProvider: public CIMInstanceProvider,
    private:
       // store off for future use
       CIMOMHandle _cimomhandle;
-      
-      // Builds a filled-in instance. 
+
+      // Builds a filled-in instance.
       CIMInstance _build_instance(const CIMObjectPath &objectReference);
 
-      // Builds a reference (a set of Key,Value pairs) 
-      CIMObjectPath _fill_reference(const String &nameSpace, 
+      // Builds a reference (a set of Key,Value pairs)
+      CIMObjectPath _fill_reference(const String &nameSpace,
 			           const String &className);
 };
 

@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -87,7 +87,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     // doesn't seem as though this code will handle duplicate keys,
     // but it appears as though the CIMOM strips those out for us.
     // Despite test cases, don't get invoked with 2 keys of the same
-    // name.   
+    // name.
 
     if (!os.getCSName(csName))
     {
@@ -106,7 +106,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
          keyName = keys[ii].getName();
 
          if (String::equalNoCase(keyName, "CSCreationClassName") &&
-       	    String::equalNoCase(keys[ii].getValue(), 
+       	    String::equalNoCase(keys[ii].getValue(),
                                 CSCREATIONCLASSNAME))
          {
               keyCount--;
@@ -117,7 +117,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
               keyCount--;
          }
          else if (String::equalNoCase(keyName, "CreationClassName") &&
- 	         String::equalNoCase(keys[ii].getValue(), 
+ 	         String::equalNoCase(keys[ii].getValue(),
                                      STANDARDOPERATINGSYSTEMCLASS))
          {
               keyCount--;
@@ -142,7 +142,7 @@ OperatingSystemProvider::getInstance(const OperationContext& context,
     DEBUG("losp-> getInstance got the right keys");
 
     handler.processing();
-    
+
     //-- fill 'er up...
     instance = _build_instance(ref);
 
@@ -168,10 +168,10 @@ OperatingSystemProvider::enumerateInstances(
     CIMObjectPath newref;
 
     className = ref.getClassName();
-    
-    // only return instances when enumerate on our subclass, CIMOM 
-    // will call us as natural part of recursing through subtree on 
-    // enumerate - if we return instances on enumerate of our superclass, 
+
+    // only return instances when enumerate on our subclass, CIMOM
+    // will call us as natural part of recursing through subtree on
+    // enumerate - if we return instances on enumerate of our superclass,
     // there would be dups
     if (String::equalNoCase(className, EXTENDEDOPERATINGSYSTEMCLASS))
     {
@@ -204,9 +204,9 @@ OperatingSystemProvider::enumerateInstanceNames(
     CIMObjectPath newref;
     String className;
 
-    // only return instances when enumerate on our subclass, CIMOM 
-    // will call us as natural part of recursing through subtree on 
-    // enumerate - if we return instances on enumerate of our superclass, 
+    // only return instances when enumerate on our subclass, CIMOM
+    // will call us as natural part of recursing through subtree on
+    // enumerate - if we return instances on enumerate of our superclass,
     // there would be dups
     className = ref.getClassName();
     if (String::equalNoCase(className, STANDARDOPERATINGSYSTEMCLASS))
@@ -223,7 +223,7 @@ OperatingSystemProvider::enumerateInstanceNames(
 
     // so we know it is for EXTENDEDOPERATINGSYSTEMCLASS
     handler.processing();
-    // in terms of the class we use, want to set to what was requested 
+    // in terms of the class we use, want to set to what was requested
     newref = _fill_reference(ref.getNameSpace(), className);
     handler.deliver(newref);
     handler.complete();
@@ -238,7 +238,7 @@ OperatingSystemProvider::modifyInstance(
 			  	const CIMInstance& instanceObject,
 			  	const Uint32 flags,
 			  	const CIMPropertyList& propertyList,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
     throw NotSupported("OperatingSystemProvider "
                        "does not support modifyInstance");
@@ -259,7 +259,7 @@ void
 OperatingSystemProvider::deleteInstance(
       				const OperationContext& context,
 			  	const CIMObjectPath& ref,
-			  	ResponseHandler<CIMInstance>& handler )
+			  	ResponseHandler<void>& handler )
 {
     throw NotSupported("OperatingSystemProvider "
                        "does not support deleteInstance");
@@ -270,7 +270,7 @@ void OperatingSystemProvider::initialize(CIMOMHandle& handle)
    _cimomhandle = handle;  // save off for future use
 
    // call platform-specific routines to get certain values
-   
+
 }
 
 
@@ -326,7 +326,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
     {
         instance.addProperty(CIMProperty("InstallDate", cimDateTimeValue));
     }
-    
+
     if (os.getStatus(stringValue))
     {
         instance.addProperty(CIMProperty("Status", stringValue));
@@ -361,7 +361,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
     {
         instance.addProperty(CIMProperty("CurrentTimeZone", sint16Value));
     }
-    
+
     if (os.getNumberOfLicensedUsers(uint32Value))
     {
         instance.addProperty(CIMProperty("NumberOfLicensedUsers",uint32Value));
@@ -376,7 +376,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
     {
         instance.addProperty(CIMProperty("NumberOfProcesses", uint32Value));
     }
- 
+
     if (os.getMaxNumberOfProcesses(uint32Value))
     {
         instance.addProperty(CIMProperty("MaxNumberOfProcesses", uint32Value));
@@ -421,7 +421,7 @@ OperatingSystemProvider::_build_instance(const CIMObjectPath& objectReference)
     {
         instance.addProperty(CIMProperty("MaxProcessMemorySize", uint64Value));
     }
-    
+
     if (os.getDistributed(booleanValue))
     {
         instance.addProperty(CIMProperty("Distributed", booleanValue));
@@ -473,7 +473,7 @@ OperatingSystemProvider::_fill_reference(const String &nameSpace,
  	                   CSCREATIONCLASSNAME,
 			   KeyBinding::STRING));
     keys.append(KeyBinding("CSName", csName, KeyBinding::STRING));
-    keys.append(KeyBinding("CreationClassName", STANDARDOPERATINGSYSTEMCLASS, 
+    keys.append(KeyBinding("CreationClassName", STANDARDOPERATINGSYSTEMCLASS,
         KeyBinding::STRING));
     keys.append(KeyBinding("Name", name, KeyBinding::STRING));
 

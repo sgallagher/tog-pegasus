@@ -9,7 +9,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -149,9 +149,9 @@ PARAMETERS        :
 */
 void ProcessStatProvider::deleteInstance(const OperationContext       &context,
                     const CIMObjectPath           &instanceReference,
-                    ResponseHandler<CIMInstance> &handler)
+                    ResponseHandler<void> &handler)
 
-{ 
+{
   // There is no useful meaning to deleting an instance
   // of this class
   throw NotSupported(String::EMPTY);
@@ -176,7 +176,7 @@ void ProcessStatProvider::enumerateInstances(
 	const Uint32 flags,
 	const CIMPropertyList & propertyList,
 	ResponseHandler<CIMInstance> & handler)
-{   
+{
   // cout << "ProcessStatProvider::enumerateInstances()" << endl;
 
   Process _p;
@@ -226,7 +226,7 @@ void ProcessStatProvider::enumerateInstanceNames(const OperationContext &ctx,
   int pIndex;
   Process _p;
   String className;
-    
+
   /* Validate the classname.  */
   className = ref.getClassName();
   _checkClass(className);
@@ -255,7 +255,7 @@ void ProcessStatProvider::enumerateInstanceNames(const OperationContext &ctx,
     keyBindings.append(KeyBinding(PROPERTY_CS_NAME,
                                   csName,
                                   KeyBinding::STRING));
-    
+
     keyBindings.append(KeyBinding(PROPERTY_OS_CREATION_CLASS_NAME,
                                   CLASS_CIM_OPERATING_SYSTEM,
                                   KeyBinding::STRING));
@@ -414,7 +414,7 @@ void ProcessStatProvider::getInstance(const OperationContext &ctx,
   // any duplicates (e.g., two Handles, no OSName)
   if(keysFound != (1<<NUMKEYS_UNIX_PROCESS_STAT)-1)
     throw InvalidParameter("Bad object name");
-	    
+	
   /* Find the instance.  First convert the instance id which is the */
   /* process handle to an integer.  This is necessary because the   */
   /* handle is the process id on HP-UX which must be passed to      */
@@ -455,7 +455,7 @@ void ProcessStatProvider::modifyInstance(const OperationContext       &context,
                     const CIMInstance            &instanceObject,
 		    const Uint32                 flags,
 		    const CIMPropertyList        &propertyList,
-                    ResponseHandler<CIMInstance> &handler)
+                    ResponseHandler<void> &handler)
 {
   // There is no useful meaning for this operation
   // on this class
@@ -469,7 +469,7 @@ DESCRIPTION       : Initializes the provider.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             : 
+NOTES             :
 PARAMETERS        :
 ================================================================================
 */
@@ -483,7 +483,7 @@ void ProcessStatProvider::initialize(CIMOMHandle &ch)
   _hostName = _p.getCSName();
   _osName = _p.getOSName();
 
-  return;  
+  return;
 }  /* initialize */
 
 /*
@@ -493,7 +493,7 @@ DESCRIPTION       : Terminates the provider.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             : 
+NOTES             :
 PARAMETERS        :
 ================================================================================
 */
@@ -511,12 +511,12 @@ void ProcessStatProvider::terminate()
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
 // POST-CONDITIONS   :
-// NOTES             : 
+// NOTES             :
 // PARAMETERS        : className, Process
 // ================================================================================
 
 CIMInstance ProcessStatProvider::_constructInstance(const String &className,
-                                         const Process &_p) 
+                                         const Process &_p)
 {
   String s;
   Uint32 i32;
@@ -616,7 +616,7 @@ CIMInstance ProcessStatProvider::_constructInstance(const String &className,
 //    uint64 RealSpace
   if (_p.getRealSpace(i64))
     inst.addProperty(CIMProperty(PROPERTY_REAL_SPACE,i64));
- 
+
   return inst;
 }
 
@@ -627,8 +627,8 @@ NAME              : _getOSName
 DESCRIPTION       : Call uname() and get the operating system name.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 String &ProcessStatProvider::_getOSName()
@@ -646,7 +646,7 @@ NAME              : _getCSName
 DESCRIPTION       : return the hostname.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
+POST-CONDITIONS   :
 NOTES             :
 ================================================================================
 */
@@ -666,7 +666,7 @@ DESCRIPTION       : tests the argument for valid classname,
                   : throws exception if not
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
+POST-CONDITIONS   :
 NOTES             :
 ================================================================================
 */

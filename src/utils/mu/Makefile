@@ -36,6 +36,7 @@ endif
 
 SOURCES = \
     $(PLATFORM_SOURCES) \
+    DependCmd.cpp \
     PwdCmd.cpp \
     CompareCmd.cpp \
     MoveCmd.cpp \
@@ -44,7 +45,6 @@ SOURCES = \
     EchoCmd.cpp \
     MkDirHierCmd.cpp \
     RmDirHierCmd.cpp \
-    DependCmd.cpp \
     RmCmd.cpp \
     Files.cpp \
     mu.cpp \

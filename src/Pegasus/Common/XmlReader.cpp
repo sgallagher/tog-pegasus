@@ -711,17 +711,8 @@ Boolean XmlReader::stringToSignedInteger(
             if (!isxdigit(*p))
                 return false;
 
-            // Find the first non-zero digit so we have something to negate
-            while (*p == '0')
-                p++;
-
-            // If all the digits are zero, the result is zero
-            if (!*p)
-                return true;
-
             // Build the Sint64 as a negative number, regardless of the
             // eventual sign (negative numbers can be bigger than positive ones)
-            x = -Sint64(_hexCharToNumeric(*p++));
 
             // Add on each digit, checking for overflow errors
             while (isxdigit(*p))
@@ -773,7 +764,6 @@ Boolean XmlReader::stringToSignedInteger(
 
     // Build the Sint64 as a negative number, regardless of the
     // eventual sign (negative numbers can be bigger than positive ones)
-    x = -(*p++ - '0');
 
     // Add on each digit, checking for overflow errors
     while (isdigit(*p))
@@ -924,7 +914,7 @@ CIMValue XmlReader::stringToValue(
 
 // The Specification for the Representation of CIM in XML does not indicate
 // that a default value should be used when a VALUE element is empty.
-//#if 0
+//#if 0  ATTN-RK-P3-20020321: Take this code out when null qualifiers are fixed
     // If strlen == 0, set to default value for type
 
     if (strlen(valueString)==0) 
@@ -1425,11 +1415,8 @@ Uint32 XmlReader::getFlavor(
     Boolean translatable = getCimBooleanAttribute(
 	lineNumber, entry, tagName, "TRANSLATABLE", false, false);
 
-    // ATTN: KS P1 5 Mar 2002 Should this not be CIMFlavor::DEFAULTS??
-    //Uint32 flavor = CIMFlavor::DEFAULTS;
-    // ATTN-RK-P1-20020307: No, Karl.  If you initialize to the defaults,
-    // you have to unset the default flavors that don't apply.  The code
-    // below only adds qualifiers.
+    // Start with CIMFlavor::NONE.  Defaults are specified in the
+    // getCimBooleanAttribute() calls above.
     Uint32 flavor = CIMFlavor::NONE;
 
     if (overridable)

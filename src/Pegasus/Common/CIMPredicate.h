@@ -86,14 +86,10 @@ class PEGASUS_COMMON_LINKAGE Predicate: public KeyBinding
       }
 
    private:
-      void evaluate(Predicate& predicate, KeyBinding& key_binding);
+      void evaluate(KeyBinding& key);
       ExpressionOperator _op;
       Boolean _truth_value;
 
-      friend Boolean evaluate(LogicalOperator operator, 
-			      Array<Predicate> predicate, 
-			      CIMReference reference);
- 
 } ;
 
 

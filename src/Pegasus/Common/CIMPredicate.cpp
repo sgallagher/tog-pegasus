@@ -38,20 +38,6 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 
-[-+][0-9]+                  |
-[-+]"0"[xX]{hexdigit}+      { 
-                              filterlval.filter_int = strtol(filtertext, (char **) 0, 0) ;
-                              return VAL_INT;
-                            }
-
-[0-9]+                      |
-"0"[xX]{hexdigit}+          { 
-                              filterlval.filter_int = strtoul(filtertext, (char **) 0, 0);
-                              return VAL_INT;
-                            }
-
-enum ExpressionOperator { EQUAL, NE, GT, GTE, LT, LTE, PRESENT };
-
 // evaluation 
 //-----------------------------------------
 // p_name p_op p_val, r_name r_val 
@@ -90,16 +76,12 @@ static Boolean evaluate_int(String ref, ExpressionOperator op, String pred)
 {
    
    char *ref_string = ref.allocateCString();
-   char *pred_string = pred.allocateCString();
-   if(ref_string == NULL || pred_string == NULL)
-   {
-      if(ref_string != NULL)
-	 free(ref_string);
-      else
-	 if(pred_string != NULL)
-	    free(pred_string);
+   if(ref_string == NULL)
       return false;
-   }
+   
+   char *pred_string = pred.allocateCString();
+   if (pred_string == NULL)
+      return false;
    
    if(*ref_string == '+' || *ref_string == '-' || 
       *pred_string == '+' || *pred_string == '-')
@@ -155,14 +137,28 @@ static Boolean evaluate_int(String ref, ExpressionOperator op, String pred)
    return false;
 }
 
-static Boolean evaluate_bool(String ref)
+static Boolean evaluate_bool(String ref, ExpressionOperator op, String pred)
 {
+
    
-   String temp = "true";
-   return(String::equalNoCast(temp, ref));
+   switch(op) 
+   {
+      case EQUAL:
+	 return(String::equalNoCase(ref, pred));
+      case NE:
+	 if(true == String::equalNoCase(ref, pred))
+	    return(false);
+	 return(true);
+      case GT:
+      case GTE:
+      case LT:
+      case LTE:
+      case PRESENT:
+      default:
+	 break;
+   }
+   return false;
 }
-
-
 
 Predicate::Predicate(void) : KeyBinding() { }
 
@@ -171,9 +167,13 @@ Predicate::Predicate(const Predicate& x)
 
 Predicate(const KeyBinding& x, ExpressionOperator op = Equal, Boolean truth = true)
 {
-   KeyBinding::operator=(x);
-   _op = op;
-   _truth = truth;
+   if(this != &x)
+   {
+      KeyBinding::operator=(x);
+      _op = op;
+      _truth = truth;
+   }
+   
 }
 
 Predicate::Predicate(const String& name, 
@@ -185,11 +185,42 @@ Predicate::Predicate(const String& name,
 
 Predicate& Predicate::operator=(const Predicate& x)
 {
-   KeyBinding::operator=(x);
-   _op = x._op;
-   _truth_value = x._truth_value;
+   if(this != &x)
+   {
+      KeyBinding::operator=(x);
+      _op = x._op;
+      _truth_value = x._truth_value;
+   }
    return *this;
 }
+
+void Predicate::evaluate(KeyBinding& key)
+{
+   _truth_value = false;
+   if(true == CIMName::equal(this->getName() , key.getName()))
+   { 
+      Type type;
+      if((type = this->getType()) == key.getType())
+      {
+	 switch(type)
+	 {
+	    case BOOLEAN:
+	       _truth_value = evaluate_bool(key.getValue(), _op, this->getValue());
+	       break;
+	    case STRING:
+	       _truth_value = evaluate_string(key.getValue(), _op, this->getValue());
+	       break;
+	    case NUMERIC:
+	       _truth_value = evaluate_int(key.getValue(), _op, this->getValue());
+	       break;
+	    default:
+	       break;
+	 }
+      }
+   }
+}
+
+
 
 
 

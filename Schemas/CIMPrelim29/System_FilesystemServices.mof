@@ -1,0 +1,924 @@
+// ===================================================================
+// Title:  NAS File System Services
+// $State: Exp $
+// $Date: 2004/08/04 14:02:12 $
+// $Source: /cvs/MSB/pegasus/Schemas/CIMPrelim29/Attic/System_FilesystemServices.mof,v $
+// $Revision: 1.1 $
+// ===================================================================
+//#pragma inLine ("Includes/copyright.inc")
+// Copyright 1998-2004 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.
+// DMTF is a not-for-profit association of industry members dedicated
+// to promoting enterprise and systems management and interoperability.
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members,
+// provided that correct attribution is given.
+// As DMTF specifications may be revised from time to time,
+// the particular version and release date should always be noted.
+// 
+// Implementation of certain elements of this standard or proposed
+// standard may be subject to third party patent rights, including
+// provisional patent rights (herein "patent rights"). DMTF makes
+// no representations to users of the standard as to the existence
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or
+// claimants, nor for any incomplete or inaccurate identification or
+// disclosure of such rights, owners or claimants. DMTF shall have no
+// liability to any party, in any manner or circumstance, under any
+// legal theory whatsoever, for failure to recognize, disclose, or
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product,
+// protocols or testing procedures. DMTF shall have no liability to
+// any party implementing such standard, whether such implementation
+// is foreseeable or not, nor to any patent owner or claimant, and shall
+// have no liability or responsibility for costs or losses incurred if
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the
+// standard from any and all claims of infringement by a patent owner
+// for such implementations.
+// 
+// For information about patents held by third-parties which have
+// notified the DMTF that, in their opinion, such patent may relate to
+// or impact implementations of DMTF standards, visit
+// http://www.dmtf.org/about/policies/disclosures.php.
+//#pragma inLine
+// ===================================================================
+// Description: The NAS FileSystem Services Model defines the
+//              FileSystemConfigurationService class, its methods and
+//              associated settings and capabilities classes.
+//              These support creating FileSystems that reside on a
+//              single StorageExtent.
+// 
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.9 Preliminary Company Review
+// CR1446 - Update FileSystemConfigurationService,
+//          DefaultElementCapabilities, FileSystemSetting,
+//          FileSystemCapabilities, and added
+//          DefaultElementCapabilities.
+// CR1465 - Corrected compile errors and warnings.  
+//
+// ==================================================================
+// 
+// Change Log for v2.9 Preliminary
+// CR1325 - Definitions needed to support methods to create or modify
+//          a FileSystem using a FileSystemConfigurationService.
+//          Created this file.
+// 
+// ==================================================================
+
+#pragma locale ("en_US")
+
+
+// ===================================================================
+// FileSystemConfigurationService
+// ===================================================================
+
+   [Experimental, Version ( "2.8.1000" ), Description (
+       "This service allows the active management of a NAS Head or "
+       "other FileSystem Server. It allows jobs to be started for the "
+       "creation, modification, and deletion of FileSystems (that "
+       "derive from CIM_LocalFileSystem).")]
+class CIM_FileSystemConfigurationService : CIM_Service {
+      [Description (
+          "Start a job to create a FileSystem on a StorageExtent. If "
+          "the operation completes successfully and did not require a "
+          "long-running ConcreteJob, it will return 0. If 4096/0x1000 "
+          "is returned, a ConcreteJob will be started to create the "
+          "element. A Reference to the ConcreteJob will be returned in "
+          "the output parameter Job. If any other value is returned, "
+          "the job will not be started, and no action will be taken. \n"
+          "This method MUST return a CIM_Error representing that a "
+          "single named property of a setting (or other) parameter "
+          "(either reference or embedded object) has an invalid value "
+          "or that an invalid combination of named properties of a "
+          "setting (or other) parameter (either reference or embedded "
+          "object) has been requested. \n"
+          "The parameter TheElement will contain a Reference to the "
+          "FileSystem if this operation completed successfully. \n"
+          "The StorageExtent to use is specified by the InExtent "
+          "parameter. If this is NULL, a default StorageExtent will be "
+          "created in a vendor-specific way and used. One way to "
+          "create the default StorageExtent is to use one of the "
+          "canned settings supported by the "
+          "StorageConfigurationService hosted by the host hosting the "
+          "FileSystemConfigurationService. \n"
+          "The desired settings for the FileSystem are specified by "
+          "the Goal parameter. Goal is an element of class "
+          "CIM_FileSystemSetting, or a derived class, encoded as a "
+          "string-valued embedded object parameter; this allows the "
+          "client to specify the properties desired for the file "
+          "system. The Goal parameter includes information that can be "
+          "used by the vendor to compute the size of the FileSystem. "
+          "If the StorageExtent specified here cannot support the goal "
+          "size, an appropriate error value will be returned, and no "
+          "action will be taken. \n"
+          "A ResidesOnExtent association is created between the "
+          "created FileSystem and the StorageExtent used for it."), 
+       ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "..", "4096",
+          "4098..32767", "32768..65535" }, 
+       Values { "Job Completed with No Error", "Not Supported",
+          "Unknown", "Timeout", "Failed", "Invalid Parameter",
+          "StorageExtent is not big enough to satisfy the request.",
+          "StorageExtent specified by default cannot be created.",
+          "DMTF Reserved", "Method Parameters Checked - Job Started",
+          "Method Reserved", "Vendor Specific" }]
+   uint32 CreateFileSystem( 
+         [IN, Description (
+             "A end user relevant name for the FileSystem being "
+             "created. If NULL, a system-supplied default name can be "
+             "used. The value will be stored in the 'ElementName' "
+             "property for the created element.")]
+      string ElementName, 
+         [IN ( false ), OUT, Description (
+             "Reference to the job (may be null if job completed).")]
+      CIM_ConcreteJob REF Job, 
+         [IN, Description (
+             "The requirements for the FileSystem element to maintain. "
+             "This is an element of class CIM_FileSystemSetting, or a "
+             "derived class, encoded as a string-valued embedded "
+             "instance parameter; this allows the client to specify "
+             "the properties desired for the file system. If NULL or "
+             "the empty string, the FileSystemConfigurationService "
+             "will use a vendor-specific default Goal obtained by "
+             "using the FileSystemCapabilities element specified by "
+             "the DefaultElementCapabilities association to obtain a "
+             "default FileSystemSetting element."), 
+          EmbeddedInstance ( "CIM_FileSystemSetting" )]
+      string Goal, 
+         [IN, Description (
+             "The StorageExtent on which the created FileSystem will "
+             "reside. If this is NULL, a default StorageExtent will be "
+             "created in a vendor-specific way and used. One way to "
+             "create the default StorageExtent is to use one of the "
+             "default settings supported by the "
+             "StorageConfigurationService on the same hosting "
+             "ComputerSystem as the FileSystemConfigurationService.")]
+      CIM_StorageExtent REF InExtent, 
+         [IN, OUT, Description (
+             "The newly created FileSystem.")]
+      CIM_FileSystem REF TheElement); 
+
+      [Description (
+          "Start a job to modify a previously created FileSystem. If "
+          "the operation completes successfully and did not require a "
+          "long-running ConcreteJob, it will return 0. If 4096/0x1000 "
+          "is returned, a ConcreteJob will be started to modify the "
+          "element. A Reference to the ConcreteJob will be returned in "
+          "the output parameter Job. If any other value is returned, "
+          "either the job will not be started, or if started, no "
+          "action will be taken. \n"
+          "This method MUST return a CIM_Error representing that a "
+          "single named property of a setting (or other) parameter "
+          "(either reference or embedded object) has an invalid value "
+          "or that an invalid combination of named properties of a "
+          "setting (or other) parameter (either reference or embedded "
+          "object) has been requested. \n"
+          "The parameter TheElement specifies the FileSystem to be "
+          "modified. This element MUST be associated via "
+          "ElementSettingData with a FileSystemSetting which is in "
+          "turn associated via SettingGeneratedByCapabilities to a "
+          "FileSystemCapabilities supported by this "
+          "FileSystemConfigurationService. \n"
+          "The desired settings for the FileSystem are specified by "
+          "the Goal parameter. Goal is an element of class "
+          "CIM_FileSystemSetting, or a derived class, encoded as a "
+          "string-valued embedded instance parameter; this allows the "
+          "client to specify the properties desired for the file "
+          "system. The Goal parameter includes information that can be "
+          "used by the vendor to compute the required size of the "
+          "FileSystem. If the operation would result in a change in "
+          "the size of the file system, the StorageExtent identified "
+          "by the ResidesOnExtent association will be used to "
+          "determine how to implement the change. If the StorageExtent "
+          "cannot be expanded to support the goal size, an appropriate "
+          "error value will be returned, and no action will be taken. "
+          "If the operation succeeds, the ResidesOnExtent association "
+          "might reference a different StorageExtent."), 
+       ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "..", "4096",
+          "4098..32767", "32768..65535" }, 
+       Values { "Job Completed with No Error", "Not Supported",
+          "Unknown", "Timeout", "Failed", "Invalid Parameter",
+          "FileSystem In Use, cannot Modify",
+          "Cannot satisfy new Goal.", "DMTF Reserved",
+          "Method Parameters Checked - Job Started", "Method Reserved",
+          "Vendor Specific" }]
+   uint32 ModifyFileSystem( 
+         [IN, Description (
+             "A end user relevant name for the FileSystem being "
+             "modified. If NULL, then the name will not be changed. If "
+             "not NULL, this parameter will supply a new name for the "
+             "FileSystem element.")]
+      string ElementName, 
+         [IN ( false ), OUT, Description (
+             "Reference to the job (may be null if job completed).")]
+      CIM_ConcreteJob REF Job, 
+         [IN, Description (
+             "The requirements for the FileSystem element to maintain. "
+             "This is an element of class CIM_FileSystemSetting, or a "
+             "derived class, encoded as a string-valued embedded "
+             "instance parameter; this allows the client to specify "
+             "the properties desired for the file system. If NULL or "
+             "the empty string, the FileSystem service attributes will "
+             "not be changed. If not NULL, this parameter will supply "
+             "new settings that replace or are merged with the current "
+             "settings of the FileSystem element."), 
+          EmbeddedInstance ( "CIM_FileSystemSetting" )]
+      string Goal, 
+         [IN, Description (
+             "The FileSystem element to modify.")]
+      CIM_FileSystem REF TheElement, 
+         [IN, Description (
+             "An enumerated integer that specifies the action to take "
+             "if the FileSystem is still in use when this request is "
+             "made. This option is only relevant if the FileSystem "
+             "must be made unavailable while the request is being "
+             "executed."), 
+          ValueMap { "2", "3", "4", "..", "0x1000..0xFFFF" }, 
+          Values { "Do Not Execute Request",
+             "Wait for specified time, "
+             "then Execute Request Immediately",
+             "Try to Quiesce for specified time, then Execute Request "
+              "Immediately", "DMTF Reserved", "Vendor Defined" }]
+      uint16 InUseOptions, 
+         [IN, Description (
+             "An integer that indicates the time (in seconds) that the "
+             "provider must wait before performing the request on this "
+             "FileSystem. If WaitTime is not zero, the method will "
+             "create a job, if supported by the provider, and return "
+             "immediately. If the provider does not support "
+             "asynchronous jobs, there is a possibility that the "
+             "client could time-out before the job is completed. \n"
+             "The combination of InUseOptions = '4' and WaitTime ='0' "
+             "(the default) is interpreted as 'Wait (forever) until "
+             "Quiescence, then Execute Request' and will be performed "
+             "asynchronously if possible."), 
+          Units ( "seconds" )]
+      uint32 WaitTime); 
+
+      [Description (
+          "Start a job to delete a FileSystem. If the FileSystem "
+          "cannot be deleted, no action will be taken, and the Return "
+          "Value will be 4097/0x1001. If the method completed "
+          "successfully and did not require a long-running "
+          "ConcreteJob, it will return 0. If 4096/0x1000 is returned, "
+          "a ConcreteJob will be started to delete the FileSystem. A "
+          "Reference to the ConcreteJob will be returned in the output "
+          "parameter Job."), 
+       ValueMap { "0", "1", "2", "3", "4", "5", "6", "..", "0x1000",
+          "0x1001..0x7FFF", "0x8000.." }, 
+       Values { "Job Completed with No Error", "Not Supported",
+          "Unknown", "Timeout", "Failed, Unspecified Reasons",
+          "Invalid Parameter", "FileSystem in use, Failed",
+          "DMTF Reserved", "Method Parameters Checked - Job Started",
+          "Method Reserved", "Vendor Specific" }]
+   uint32 DeleteFileSystem( 
+         [IN ( false ), OUT, Description (
+             "Reference to the job (may be null if job completed).")]
+      CIM_ConcreteJob REF Job, 
+         [IN, Description (
+             "An element or association that uniquely identifies the "
+             "FileSystem to be deleted.")]
+      CIM_ManagedElement REF TheFileSystem, 
+         [IN, Description (
+             "An enumerated integer that specifies the action to take "
+             "if the FileSystem is still in use when this request is "
+             "made."), 
+          ValueMap { "2", "3", "4", "..", "0x1000..0xFFFF" }, 
+          Values { "Do Not Delete",
+             "Wait for specified time, then Delete Immediately",
+             "Attempt Quiescence for specified time, "
+             "then Delete Immediately", "DMTF Reserved",
+             "Vendor Defined" }]
+      uint16 InUseOptions, 
+         [IN, Description (
+             "An integer that indicates the time (in seconds) that the "
+             "provider must wait before deleting this FileSystem. If "
+             "WaitTime is not zero, the method will create a job, if "
+             "supported by the provider, and return immediately. If "
+             "the provider does not support asynchronous jobs, there "
+             "is a possibility that the client could time-out before "
+             "the job is completed. \n"
+             "The combination of InUseOptions = '4' and WaitTime ='0' "
+             "(the default) is interpreted as 'Wait (forever) until "
+             "Quiescence, then Delete Filesystem' and will be "
+             "performed asynchronously if possible."), 
+          Units ( "seconds" )]
+      uint32 WaitTime); 
+};
+
+// ===================================================================
+// FileSystemConfigurationCapabilities
+// ===================================================================
+   [Experimental, Version ( "2.8.1000" ), Description (
+       "FileSystemConfigurationCapabilities specifies the capability "
+       "of a FileSystemConfigurationService to support the specified "
+       "methods.")]
+class CIM_FileSystemConfigurationCapabilities : CIM_Capabilities {
+
+      [Description (
+          "An array of enumerated values that indicates the set of "
+          "actual file system implementation types that this "
+          "FileSystemConfigurationService can support in its "
+          "Capabilities. For each file system type listed here, there "
+          "MUST be at least one FileSystemCapabilities element."), 
+       ValueMap { "0", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+          "11", "12", "13", "..", "0x8000.." }, 
+       Values { "Unknown", "UFS", "HFS", "FAT", "FAT16", "FAT32",
+          "NTFS4", "NTFS5", "XFS", "AFS", "EXT2", "EXT3", "REISERFS",
+          "DMTF Reserved", "Vendor Defined" }, Read]
+   uint16 SupportedActualFileSystemTypes[];
+
+      [Description (
+          "An array of methods of this Service that are supported as "
+          "synchronous methods."), 
+       ValueMap { "2", "3", "4", "5", "6", "..", "0x8000.." }, 
+       Values { "CreateFileSystem", "DeleteFileSystem",
+          "ModifyFileSystem", "CreateGoal", "GetRequiredStorageSize",
+          "DMTF Reserved", "Vendor Defined" }, Read]
+   uint16 SupportedSynchronousMethods[];
+
+      [Description (
+          "An array of methods of this Service that are supported as "
+          "asynchronous methods."), 
+       ValueMap { "2", "3", "4", "5", "6", "..", "0x8000.." }, 
+       Values { "CreateFileSystem", "DeleteFileSystem",
+          "ModifyFileSystem", "CreateGoal", "GetRequiredStorageSize",
+          "DMTF Reserved", "Vendor Defined" }, Read]
+   uint16 SupportedAsynchronousMethods[];
+
+      [Description (
+          "An enumerated value that indicates the state of "
+          "availability in which the Service can create the file "
+          "system. The choices include 'Mounted' and 'Unmounted'. If "
+          "'Mounted', the mount-point will be at a vendor-specific "
+          "default LogicalFile, and a MountedElement association will "
+          "be surfaced."), 
+       ValueMap { "0", "2", "3", "..", "0x8000.." }, 
+       Values { "Unknown", "Mounted", "Unmounted", "DMTF Reserved",
+          "Vendor Defined" }, Read]
+   uint16 InitialAvailability;
+};
+
+// ===================================================================
+// SettingAssociatedToCapabilities
+// ===================================================================
+   [Association, Experimental, Version ( "2.8.1000" ), Description (
+       "SettingAssociatedToCapabilities represents the association "
+       "between Capabilities and supported SettingData data.")]
+class CIM_SettingAssociatedToCapabilities {
+
+      [Key, Description (
+          "The Capabilities element that supports the SettingData.")]
+   CIM_Capabilities REF Capabilities;
+
+      [Key, Description (
+          "The SettingData object supported by the Capabilities.")]
+   CIM_SettingData REF SettingData;
+};
+
+// ===================================================================
+// SettingGeneratedByCapabilities
+// ===================================================================
+   [Association, Experimental, Version ( "2.8.1000" ), Description (
+       "SettingGeneratedByCapabilities represents the association "
+       "between a Capabilities element and a SettingData element that "
+       "was created with support from that Capabilities element.")]
+class CIM_SettingGeneratedByCapabilities : CIM_Dependency {
+
+      [Key, Override ( "Antecedent" ), Max ( 1 ), Description (
+          "The Capabilities element that originated this Dependent.")]
+   CIM_Capabilities REF Antecedent;
+
+      [Key, Override ( "Dependent" ), Description (
+          "The SettingData object that was generated by the "
+          "Capabilities element.")]
+   CIM_SettingData REF Dependent;
+};
+
+// ===================================================================
+// FileSystemSetting
+// ===================================================================
+   [Experimental, Version ( "2.8.1000" ), Description (
+       "The FileSystemSetting describes the attribute values set when "
+       "creating a FileSystem by a FileSystemConfigurationService. "
+       "These settings can be associated via the ElementSettingData "
+       "association with the created FileSystem. If the setting is "
+       "associated via SettingAssociatedToCapabilities to a "
+       "FileSystemCapabilities, it is one of the canned settings "
+       "supported by this capabilities instance. A setting can also be "
+       "an embedded instance parameter to a method (for instance, when "
+       "used as a Goal parameter). \n"
+       "A NULL value for a property in a canned setting indicates "
+       "support for a vendor-specific default. A NULL value for a "
+       "property when the setting is used as a Goal parameter to a "
+       "method indicates that the client does not care what value that "
+       "property will have on creation and will accept any "
+       "vendor-supplied default. When used with a FileSystem, a NULL "
+       "value for a property must be interpreted as \"Unknown\". The "
+       "ActualFileSystemType property cannot have a default value in "
+       "any context. If this Setting is associated with a "
+       "FileSystemCapabilities element via "
+       "SettingAssociatedToCapabilities, the value of "
+       "ActualFileSystemType in the Setting and the Capabilities MUST "
+       "match. \n"
+       "This class also supports persistence and recoverability of a "
+       "FileSystem and its contained elements as defined in CIM 2.8 "
+       "for the use of DatabaseStorageArea.")]
+class CIM_FileSystemSetting : CIM_SettingData {
+
+      [Description (
+          "An enumerated value that indicates the file system "
+          "implementation type supported by this Setting. This "
+          "property MUST exist and have a value."), 
+       ValueMap { "0", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+          "11", "12", "13", "..", "0x8000.." }, 
+       Values { "Unknown", "UFS", "HFS", "FAT", "FAT16", "FAT32",
+          "NTFS4", "NTFS5", "XFS", "AFS", "EXT2", "EXT3", "REISERFS",
+          "DMTF Reserved", "Vendor Defined" }, Read, 
+       ModelCorrespondence { 
+          "CIM_FileSystemCapabilities.ActualFileSystemType" }]
+   uint16 ActualFileSystemType = 0;
+
+      [Description (
+          "An enumerated value that specifies if the FileSystem "
+          "supports or enforces sharing of data extents between "
+          "objects."), 
+       ValueMap { "0", "1", "2", "3", "..", "0x8000.." }, 
+       Values { "Unknown", "No Sharing", "Sharing Possible/Optional",
+          "Sharing Enforced", "DMTF Reserved", "Vendor Defined" }, Read]
+   uint16 DataExtentsSharing = 0;
+
+      [Description (
+          "An enumerated value that specifies if this FileSystem can "
+          "be a target for synchronization with or mirror of another "
+          "FileSystem, or if it cannot be a target."), 
+       ValueMap { "0", "1", "2", "3", "4", "5", "..", "0x8000.." }, 
+       Values { "Unknown", "Can be a Primary only",
+          "Can be a Mirror only", "Can be a Synchronization Target",
+          "Can be a Backup Target", "Write Once", "DMTF Reserved",
+          "Vendor Defined" }, Read]
+   uint16 CopyTarget = 0;
+
+      [Description (
+          "An enumerated value that specifies how this FileSystem "
+          "supports the case of characters in the Filename. Note that "
+          "the host and the service may support multiple conflicting "
+          "features, but each FileSystem must be configured with only "
+          "one of the supported features."), 
+       ValueMap { "0", "1", "2", "3", "4", "5", "..", "0x8000.." }, 
+       Values { "Unknown", "Case-sensitive",
+          "Case-forced to upper case", "Case-forced to lower-case",
+          "Case-indifferent but lost",
+          "Case-indifferent but preserved", "DMTF Reserved",
+          "Vendor Defined" }, Read]
+   uint16 FilenameCaseAttributes = 0;
+
+      [Description (
+          "An array of enumerated values that specifies the set of "
+          "object types that this FileSystem supports. This array is "
+          "associated with a number of correspondingly indexed "
+          "properties that specify the size and number of such "
+          "objects. \n"
+          "When used as a goal, the client needs to specify only the "
+          "subset of objects that they wish to specify; when used in a "
+          "Setting associated with the FileSystem, this should contain "
+          "all the types that the provider knows about; when used in a "
+          "Setting associated with a Capabilities, this may only "
+          "contain the types that the client can modify."), 
+       ValueMap { "2", "3", "4", "5", "6", "7", "..", "0x8000.." }, 
+       Values { "inodes", "files", "directories", "links", "devices",
+          "files/directories", "DMTF Reserved", "Vendor Defined" },
+       Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.NumberOfObjects",
+          "CIM_FileSystemSetting.NumberOfObjectsMax",
+          "CIM_FileSystemSetting.NumberOfObjectsMin",
+          "CIM_FileSystemSetting.ObjectSize",
+          "CIM_FileSystemSetting.ObjectSizeMax",
+          "CIM_FileSystemSetting.ObjectSizeMin" }]
+   uint16 ObjectTypes[];
+
+      [Description (
+          "An array of integers that specifies the minimum number of "
+          "objects (corresponding to the entry in the ObjectTypes "
+          "array) that this FileSystem MUST be able to contain. A "
+          "value of 0 implies that there is no specific minimum "
+          "associated with this setting."), 
+       Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.ObjectTypes" }]
+   uint64 NumberOfObjectsMin[];
+
+      [Description (
+          "An array of integers that specifies the maximum number of "
+          "objects (corresponding to the entry in the ObjectTypes "
+          "array) that this FileSystem MUST be able to contain. A "
+          "value of 0 implies that there is no specific maximum "
+          "associated with this setting."), 
+       Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.ObjectTypes" }]
+   uint64 NumberOfObjectsMax[] ;
+
+      [Description (
+          "An array of integers that specifies the number of objects "
+          "(corresponding to the entry in the ObjectTypes array) that "
+          "this FileSystem will \"normally\" contain. A value of 0 "
+          "implies that there is no specific number associated with "
+          "this setting. When the Setting is associated with a "
+          "FileSystemCapabilities element, this is the default; When "
+          "the Setting is associated with a FileSystem element, this "
+          "is the expected value; When the Setting is used as an "
+          "embedded parameter to a method this is the goal."), 
+       Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.ObjectTypes" }]
+   uint64 NumberOfObjects[];
+
+      [Description (
+          "An array of integers that specifies the size of objects "
+          "(corresponding to the entry in the ObjectTypes array) that "
+          "this FileSystem will \"normally\" contain. A value of 0 "
+          "implies that there is no specific number associated with "
+          "this setting. When the Setting is associated with a "
+          "FileSystemCapabilities element, this is the default; When "
+          "the Setting is associated with a FileSystem element, this "
+          "is the expected value; When the Setting is used as an "
+          "embedded parameter to a method this is the goal."), 
+       Units ( "Bytes" ), Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.ObjectTypes" }]
+   uint64 ObjectSize[];
+
+      [Description (
+          "An array of integers that specifies the minimum size of "
+          "objects (corresponding to the entry in the ObjectTypes "
+          "array) that this FileSystem will \"normally\" contain. A "
+          "value of 0 implies that there is no specific minimum "
+          "associated with this setting."), 
+       Units ( "Bytes" ), Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.ObjectTypes" }]
+   uint64 ObjectSizeMin[];
+
+      [Description (
+          "An array of integers that specifies the maximum size of "
+          "objects (corresponding to the entry in the ObjectTypes "
+          "array) that this FileSystem will \"normally\" contain. A "
+          "value of 0 implies that there is no specific maximum "
+          "associated with this setting."), 
+       Units ( "Bytes" ), Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.ObjectTypes" }]
+   uint64 ObjectSizeMax[];
+
+      [Description (
+          "An array of enumerated integers representing the filename "
+          "stream formats that the file system can support for access. "
+          "The interpretation of these stream formats can be specific "
+          "to vendors, or provided by some standard. But even within "
+          "those constraints, the interpretation could be "
+          "locale-specific or version-specific. For instance, "
+          "Bytestream is locale-specific and is interpreted as ASCII "
+          "for NFS v2 and v3 but UTF-8 in NFS v4. This additional "
+          "information will normally be provided in the setting for "
+          "the protocol used to access an element of this file system."), 
+       ValueMap { "1", "2", "3", "4", "5", "6", "7", "8", "..",
+          "0x8000.." }, 
+       Values { "ASCII", "WideChar", "MBCS", "UTF-8", "UNICODE UCS-16",
+          "UNICODE UCS-32", "CIFS Client-interpreted", "Bytestream",
+          "DMTF Reserved", "Vendor Defined" }, Read,
+          ArrayType ( "Indexed" )]
+   uint16 FilenameStreamFormats[] ;
+
+      [Description (
+          "An array of enumerated values that specify the filename "
+          "formats supported on this FileSystem for naming files. Some "
+          "common formats are: \n"
+          "a) DOS 8.3 \n"
+          "b) VMS 'name.extension;version' where the extension "
+          "specifies a file type \n"
+          "c) Unix name (file type is not specified in the name) \n"
+          "d) Windows 'name{.ext}*' where any of the exts can specify "
+          "a file type \n"
+          "For each entry in this array there is an associated maximum "
+          "length for the name and an associated reserved set of "
+          "characters. \n"
+          "The interpretation of the maximum length of the name as "
+          "well as the FilenameReservedCharacterSet string is "
+          "vendor-specific."), 
+       ValueMap { "1", "2", "3", "4", "..", "0x8000.." }, 
+       Values { "DOS8.3", "Unix", "VMS", "Windows LongNames",
+          "DMTF Reserved", "Vendor Defined" }, Read,
+          ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.FilenameLengthMax",
+          "CIM_FileSystemSetting.FilenameReservedCharacterSet" }]
+   uint16 FilenameFormats[] ;
+
+      [Description (
+          "An array of integers that specify the maximum number of "
+          "characters in a filename corresponding to an entry in the "
+          "FilenameFormats property. \n"
+          "An entry of '0xFFFF' (the largest 16-bit integer) is "
+          "interpreted as an indefinite length."), 
+       Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.FilenameFormats" }]
+   uint16 FilenameLengthMax[] ;
+
+      [Description (
+          "An array of strings that specifies the characters that may "
+          "not appear in the name of any file contained by this "
+          "FileSystem corresponding to the entry in the "
+          "FilenameFormats property. \n"
+          "Note: It is not clear exactly how this works with the "
+          "FilenameStreamFormats property above, since the format "
+          "implicitly specifies the set of allowed characters."), 
+       Read, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.FilenameFormats" }]
+   String FilenameReservedCharacterSet[];
+
+      [Description (
+          "An array of enumerated values that represent the locking "
+          "semantics that the FileSystem can support for controlled "
+          "access. A file system can support more than one locking "
+          "model. Just because a file system supports more than one "
+          "model does not imply that it supports them simultaneously "
+          "for an element."), 
+       ValueMap { "1", "2", "3", "4", "5", "6", "7", "8", "..",
+          "0x8000.." }, 
+       Values { "NLM/NFSv3", "NFSv4 Share Reservations",
+          "NFSv4 Byte-range locking", "NFSv4 Delegations",
+          "CIFS Sharing locks", "CIFS Byte-range locks",
+          "CIFS Exclusive/Batch oplocks", "CIFS Level II oplocks",
+          "DMTF Reserved", "Vendor Defined" }, Read,
+          ArrayType ( "Indexed" )]
+   uint16 SupportedLockingSemantics[] ;
+
+      [Description (
+          "An array of enumerated values that represent the "
+          "authorization protocols that the FileSystem will support "
+          "for access to objects by users, groups, accounts, etc. A "
+          "FileSystem can support more than one authorization "
+          "protocol."), 
+       ValueMap { "1", "2", "3", "4", "5", "..", "0x8000.." }, 
+       Values { "Posix Permissions", "Posix ACLs", "NFSv4 ACLs",
+          "NTFS4", "NTFS5", "DMTF Reserved", "Vendor Defined" }, Read,
+       ArrayType ( "Indexed" )]
+   uint16 SupportedAuthorizationProtocols[] ;
+
+      [Description (
+          "An array of enumerated values that represent the "
+          "authentication protocols that the FileSystem will support "
+          "for access to objects by users, groups, accounts, etc.. \n"
+          "An entry of '0' is not allowed. \n"
+          "A FileSystem can support more than one authentication "
+          "protocol."), 
+       ValueMap { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+          "11", "..", "0x8000.." }, 
+       Values { "AUTH_NONE", "AUTH_SYS", "AUTH_DH", "AUTH_KRB4",
+          "AUTH_KRB5", "RPCSEC_GSS LIPKEY", "RPCSEC_GSS SPKM-3",
+          "RPCSEC_GSS Challenge-Response", "NTLM v1", "NTLM v2",
+          "Plain Text", "DMTF Reserved", "Vendor Defined" }, Read,
+       ArrayType ( "Indexed" )]
+   uint16 SupportedAuthenticationProtocols[];
+
+      [Description (
+          "An array of enumerated values representing the persistence "
+          "attributes of the FileSystem. A value of \"Persistent\" "
+          "indicates that the FileSystem supports persistence, can be "
+          "preserved through an orderly shutdown and could be "
+          "protected. A value of \"Temporary\" indicates that the "
+          "FileSystem supports non-persistence, may not be protected "
+          "and may not survive a shutdown. A value of \"External\" "
+          "indicates that the FileSystem could controlled outside of "
+          "the operating environment and may need to be protected by "
+          "specialized means. A value of \"Other\" is provided to "
+          "allow for additional persistence types, to be described in "
+          "the corresponding entry of the OtherPersistenceTypes "
+          "property, and is expected to be rarely, if ever, used."), 
+       ValueMap { "0", "1", "2", "3", "4", "5.." }, 
+       Values { "Unknown", "Other", "Persistent", "Temporary",
+          "External", "DMTF Reserved" }, ArrayType ( "Indexed" ), 
+       ModelCorrespondence { 
+          "CIM_FileSystemSetting.OtherPersistenceTypes",
+          "CIM_FileSystem.PersistenceType" }]
+   uint16 PersistenceTypes[];
+
+      [Description (
+          "An array of strings describing the persistence attributes "
+          "where the corresponding entry in the PersistenceTypes "
+          "property has a value of \"Other\". This value is ignored in "
+          "all other cases."), 
+       ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_FileSystemSetting.PersistenceTypes",
+          "CIM_FileSystem.OtherPersistenceType" }]
+   string OtherPersistenceTypes[];
+};
+
+
+// ===================================================================
+// FileSystemCapabilities
+// ===================================================================
+   [Version ( "2.8.1000" ), Description (
+       "FileSystemCapabilities specifies the combination of properties "
+       "that a FileSystemService can support when creating or "
+       "maintaining FileSystems. Each supported combination of "
+       "properties is specified by a FileSystemSetting that is "
+       "associated with the FileSystemCapabilities element via "
+       "ElementSettingData. \n"
+       "A FileSystemCapabilities element specifies the properties "
+       "supported when using it. \n"
+       "This class provides a CreateGoal method that can be used to "
+       "create a FileSystemSetting element that can be used as a goal "
+       "for creating or modifying a filesystem. This class also "
+       "supports persistence and recoverability of a FileSystem and "
+       "its contained elements as defined in CIM 2.8 for the use of "
+       "DatabaseStorageArea.")]
+class CIM_FileSystemCapabilities : CIM_Capabilities {
+
+      [Deprecated { "CIM_FileSystemSetting.PersistenceTypes" }, 
+       Description (
+          "An array of enumerated values representing the persistence "
+          "capabilities of the FileSystem. A value of \"Persistent\" "
+          "indicates that the FileSystem supports persistence, can be "
+          "preserved through an orderly shutdown and could be "
+          "protected. A value of \"Temporary\" indicates that the "
+          "FileSystem supports non-persistence, may not be protected "
+          "and may not survive a shutdown. A value of \"External\" "
+          "indicates that the FileSystem could controlled outside of "
+          "the operating environment and may need to be protected by "
+          "specialized means. A value of \"Other\" is provided to "
+          "allow for additional persistence types, to be described in "
+          "the OtherPersistenceType attribute, and is expected to be "
+          "rarely, if ever, used."), 
+       ValueMap { "1", "2", "3", "4" }, 
+       Values { "Other", "Persistent", "Temporary", "External" },
+       ArrayType ( "Indexed" ), 
+       ModelCorrespondence { 
+          "CIM_FileSystemCapabilities.SupportedPersistenceTypes",
+          "CIM_FileSystem.PersistenceType" }]
+   uint16 SupportedPersistenceTypes[];
+
+      [Deprecated { "CIM_FileSystemSetting.OtherPersistenceTypes" }, 
+       Description (
+          "An array of strings describing the persistence capabilities "
+          "where the corresponding entry in SupportedPersistenceTypes "
+          "has a value of \"Other\". This value is ignored in all "
+          "other cases."), 
+       ArrayType ( "Indexed" ), 
+       ModelCorrespondence { 
+          "CIM_FileSystemCapabilities.SupportedPersistenceTypes",
+          "CIM_FileSystem.OtherPersistenceType" }]
+   string SupportedOtherPersistenceTypes[];
+
+      [Experimental, Description (
+          "An enumerated value that indicates the file system "
+          "implementation type supported by this Capabilities."), 
+       ValueMap { "0", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+          "11", "12", "13", "..", "0x8000.." }, 
+       Values { "Unknown", "UFS", "HFS", "FAT", "FAT16", "FAT32",
+          "NTFS4", "NTFS5", "XFS", "AFS", "EXT2", "EXT3", "REISERFS",
+          "DMTF Reserved", "Vendor Defined" }, Read, 
+       ModelCorrespondence { 
+          "CIM_FileSystemSetting.ActualFileSystemType" }]
+   uint16 ActualFileSystemType = 0;
+
+      [Experimental, Description (
+          "An array of property names of the Setting that this "
+          "Capabilities element supports. The Object-related "
+          "parameters are not specified because they must always be "
+          "supported even if not used."), 
+       ValueMap { "2", "3", "4", "5", "6", "7", "8", "9", "10", "..",
+          "0x8000.." }, 
+       Values { "DataExtentsSharing", "CopyTarget",
+          "FilenameCaseAttributes", "FilenameStreamFormats",
+          "FilenameFormats", "LockingSemantics",
+          "AuthorizationProtocols", "AuthenticationProtocols",
+          "Persistence", "DMTF Reserved", "Vendor Defined" }, Read]
+   uint16 SupportedProperties[] ;
+
+      [Experimental, Description (
+          "Start a job to create a supported FileSystemSetting from a "
+          "FileSystemSetting provided by the caller. If the operation "
+          "completes successfully and did not require a long-running "
+          "ConcreteJob, it will return 0. If 4096/0x1000 is returned, "
+          "a ConcreteJob will be started to create the element. A "
+          "Reference to the ConcreteJob will be returned in the output "
+          "parameter Job. \n"
+          "This method MAY return a CIM_Error representing that a "
+          "single named property of a setting (or other) parameter "
+          "(either reference or embedded object) has an invalid value "
+          "or that an invalid combination of named properties of a "
+          "setting (or other) parameter (either reference or embedded "
+          "object) has been requested. \n"
+          "If the input TemplateGoal is NULL or the empty string, this "
+          "method returns a default FileSystemSetting that is "
+          "supported by this FileSystemCapabilities. \n"
+          "The output is returned as the SupportedGoal parameter. Both "
+          "TemplateGoal and SupportedGoal are embedded objects and do "
+          "not exist in the provider but are maintained by the client. "
+          "\nIf the TemplateGoal specifies values that cannot be "
+          "supported this method MUST return an appropriate error and "
+          "should return a best match for a SupportedGoal."), 
+       ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+          "10", "..", "4097", "4098..32767", "32768..65535" }, 
+       Values { "Job Completed with No Error", "Not Supported",
+          "Unknown", "Timeout", "Failed", "Invalid Parameter",
+          "TemplateGoal is not well-formed",
+          "TemplateGoal cannot be satisfied exactly",
+          "StorageSetting cannot be used with ActualFileSystemType",
+          "StorageSetting cannot be used with CopyTarget",
+          "StorageSetting cannot be used with ObjectType",
+          "DMTF Reserved", "Method Parameters Checked - Job Started",
+          "Method Reserved", "Vendor Specific" }]
+   uint16 CreateGoal( 
+         [IN ( false ), OUT, Description (
+             "Reference to the job (may be null if job completed).")]
+      CIM_ConcreteJob REF Job, 
+         [IN, Description (
+             "TemplateGoal is an element of class "
+             "CIM_FileSystemSetting, or a derived class, encoded as a "
+             "string-valued embedded object parameter, that is used as "
+             "the template to be matched ."), 
+          EmbeddedInstance ( "CIM_FileSystemSetting" )]
+      string TemplateGoal, 
+         [IN ( false ), OUT, Description (
+             "SupportedGoal is an element of class "
+             "CIM_FileSystemSetting, or a derived class, encoded as a "
+             "string-valued embedded object parameter, that is used to "
+             "return the best supported match to the TemplateGoal."), 
+          EmbeddedInstance ( "CIM_FileSystemSetting" )]
+      string SupportedGoal); 
+
+
+      [Experimental, Description (
+          "This method returns the \"expected\" size of StorageExtent "
+          "that would support a file system specified by the input "
+          "FileSystemGoal parameter assuming that the other settings "
+          "for the StorageExtent are specified by the ExtentSetting "
+          "parameter. \n"
+          "If the input FileSystemGoal or the ExtentSetting are NULL, "
+          "this method returns a value computed by using the default "
+          "FileSystemSetting or some vendor-specific canned "
+          "StorageSetting. \n"
+          "A value of 0 is returned if this method is not able to "
+          "determine a reasonable size or does not restrict sizes "
+          "based on setting information."), 
+       Units ( "Bytes" )]
+   uint64 GetRequiredStorageSize( 
+         [IN, Description (
+             "FileSystemGoal is an element of class "
+             "CIM_FileSystemSetting, or a derived class, encoded as a "
+             "string-valued embedded object parameter, that is used to "
+             "specify the settings for the FileSystem to be created."), 
+          EmbeddedInstance ( "CIM_FileSystemSetting" )]
+      string FileSystemGoal, 
+         [IN, Description (
+             "ExtentSetting is an element of class CIM_StorageSetting, "
+             "or a derived class, encoded as a string-valued embedded "
+             "object parameter, that is used to specify the settings "
+             "of the StorageExtent to be used for this FileSystem."), 
+          EmbeddedInstance ( "CIM_StorageSetting" )]
+      string ExtentSetting, 
+         [OUT, Description (
+             "A number that indicates the size of the storage extent "
+             "that this FileSystem is expected to need. A value of 0 "
+             "indicates that there is no expected size."), 
+          Units ( "Bytes" )]
+      uint64 ExpectedSize, 
+         [OUT, Description (
+             "A number that indicates the size of the smallest storage "
+             "extent that would support the specified FileSystem. A "
+             "value of 0 indicates that there is no minimum size."), 
+          Units ( "Bytes" )]
+      uint64 MinimumSizeAcceptable, 
+         [OUT, Description (
+             "A number that indicates the size of the largest storage "
+             "extent that would be usable for the specified "
+             "FileSystem. A value of 0 indicates that there is no "
+             "maximum size."), 
+          Units ( "Bytes" )]
+      uint64 MaximumSizeUsable); 
+};
+
+// ===================================================================
+// DefaultElementCapabilities
+// ===================================================================
+   [Association, Version ( "2.8.1000" ), Description (
+       "An association between a CIM_ManagedElement and a "
+       "CIM_Capabilities element that specifies that the managed "
+       "element uses the other as a default. The CIM_Capabilities "
+       "element MUST be associated to the CIM_ManagedElement by "
+       "CIM_ElementCapabilities as well.")]
+class CIM_DefaultElementCapabilities {
+
+      [Key, Description (
+          "The CIM_ManagedElement for which this Capabilities element "
+          "is a default.")]
+   CIM_ManagedElement REF ManagedElement;
+
+      [Key, Max ( 1 ), Description (
+          "The CIM_Capabilities that is the default Capabilities "
+          "element for the associated CIM_ManagedElement.")]
+   CIM_Capabilities REF Capabilities;
+};
+
+// ===================================================================
+// end of file
+// ===================================================================

@@ -1,0 +1,514 @@
+// ===================================================================
+// Title:  Network ChannelExtender
+// $State: Exp $
+// $Date: 2004/08/04 14:02:12 $
+// $Source: /cvs/MSB/pegasus/Schemas/CIMPrelim29/Attic/Network_ChannelExtender.mof,v $
+// $Revision: 1.1 $
+// ===================================================================
+//#pragma inLine ("Includes/copyright.inc")
+// Copyright 1998-2004 Distributed Management Task Force, Inc. (DMTF).
+// All rights reserved.
+// DMTF is a not-for-profit association of industry members dedicated
+// to promoting enterprise and systems management and interoperability.
+// DMTF specifications and documents may be reproduced for uses
+// consistent with this purpose by members and non-members,
+// provided that correct attribution is given.
+// As DMTF specifications may be revised from time to time,
+// the particular version and release date should always be noted.
+// 
+// Implementation of certain elements of this standard or proposed
+// standard may be subject to third party patent rights, including
+// provisional patent rights (herein "patent rights"). DMTF makes
+// no representations to users of the standard as to the existence
+// of such rights, and is not responsible to recognize, disclose, or
+// identify any or all such third party patent right, owners or
+// claimants, nor for any incomplete or inaccurate identification or
+// disclosure of such rights, owners or claimants. DMTF shall have no
+// liability to any party, in any manner or circumstance, under any
+// legal theory whatsoever, for failure to recognize, disclose, or
+// identify any such third party patent rights, or for such party's
+// reliance on the standard or incorporation thereof in its product,
+// protocols or testing procedures. DMTF shall have no liability to
+// any party implementing such standard, whether such implementation
+// is foreseeable or not, nor to any patent owner or claimant, and shall
+// have no liability or responsibility for costs or losses incurred if
+// a standard is withdrawn or modified after publication, and shall be
+// indemnified and held harmless by any party implementing the
+// standard from any and all claims of infringement by a patent owner
+// for such implementations.
+// 
+// For information about patents held by third-parties which have
+// notified the DMTF that, in their opinion, such patent may relate to
+// or impact implementations of DMTF standards, visit
+// http://www.dmtf.org/about/policies/disclosures.php.
+//#pragma inLine
+// ===================================================================
+// Description: The Network Model extends the management concepts to
+//              represent protocol interfaces and network/protocol
+//              services.  This file defines Channel Extender
+//              concepts.
+// 
+//              The object classes below are listed in an order that
+//              avoids forward references. Required objects, defined
+//              by other working groups, are omitted.
+// ==================================================================
+// Change Log for v2.9
+// CR1346 - Introduces class definitions for Channel Extenders
+//
+// ===================================================================
+
+#pragma Locale ("en_US")
+
+
+
+// ==================================================================
+// ProtocolEndpointStatistics
+// ==================================================================
+   [Experimental, Version ("2.8.1000"), Description (
+       "ProtocolEndpointStatistics is the statistics class for the "
+       "Protocol Endpoint.") ]
+class CIM_ProtocolEndpointStatistics : CIM_StatisticalData {
+
+      [Description (
+          "The total number of input PDUs (Protocol Data Unit) "
+          "received from interfaces, including those received in "
+          "error."),
+       Counter ]
+   uint32 ReceivedPDUs;
+
+      [Description (
+          "The number of input PDUs (Protocol Data Unit) "
+          "discarded due to errors in their headers."),
+       Counter ]
+   uint32 ReceivedPDUHeaderErrors;
+
+      [Description (
+          "The number of input PDUs (Protocol Data Unit) discarded "
+          "because the address in their header was not a valid "
+          "address to be received at this entity."),
+       Counter ]
+   uint32 ReceivedPDUAddressErrors;
+
+      [Description (
+          "The total number of PDUs (Protocol Data Unit) sent to "
+          "interfaces for transmission."),
+       Counter ]
+   uint32 SentPDUs;
+};
+
+
+// ==================================================================
+// TCPStatisticalData
+// ==================================================================
+   [Experimental, Version ("2.8.1000"), Description (
+       "TCPStatisticalData is the statistics class for a TCP"
+       "connection group which belongs to the transport layer "
+       "of the ComputerSystem or more granular to TCP NetworkPipe.")]
+class CIM_TCPStatisticalData : CIM_StatisticalData {
+
+      [Description (
+          "The number of times TCP connections have made a direct "
+          "transition to the SYN_SENT state from the CLOSED state."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpActiveOpens"} ]
+   uint32 ActiveOpenConnections;
+
+      [Description (
+          "The number of times TCP connections have made a direct "
+          "transition to the SYN_RCVD state from the LISTEN state."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpPassiveOpens"} ]
+   uint32 PassiveOpenConnections;
+
+      [Description (
+          "The number of times TCP connections have made a direct "
+          "transition to the CLOSED state from either the SYN_SENT "
+          "state or the SYN_RCVD state, plus the number of times "
+          "TCP connections have made a direct transition to the  "
+          "LISTEN state from the SYN_RCVD state."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpAttemptFails"} ]
+   uint32 AttemptsFails;
+
+      [Description (
+          "The number of times TCP connections have made a direct "
+          "transition to the CLOSED state from either the "
+          "ESTABLISHED state or the CLOSE_WAIT state."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpEstabResets"} ]
+   uint32 EstablishedResets;
+
+      [Description (
+          "The number of TCP connections for which the current "
+          "state is either ESTABLISHED or CLOSE_ WAIT."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpCurrEstab"} ]
+   uint32 EstablishedConnections;
+
+      [Description (
+          "The total number of segments received in error  "
+          "(e.g., bad TCP checksums)."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpInSegs"} ]
+   uint32 ReceivedSegments;
+
+      [Description (
+          "The total number of segments sent, including those "
+          "on current connections but excluding those containing "
+          "only retransmitted octets."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpOutSegs"} ]
+   uint32 SentSegments;
+
+      [Description (
+          "The total number of segments retransmitted - that is, "
+          "the number of TCP segments transmitted containing one "
+          "or more previously transmitted octets."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpRetransSegs"} ]
+   uint32 RetransmittedSegments;
+
+      [Description (
+          "The total number of segments received in error (e.g., "
+          "bad TCP checksums)."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpInErrs"} ]
+   uint32 ReceivedSegmentsInError;
+
+      [Description (
+          "The number of TCP segments sent containing the RST "
+          "flag."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpOutRsts"} ]
+   uint32 SentResetSegments;
+};
+// ==================================================================
+// TCPEndpointStatistics
+// ==================================================================
+   [Experimental, Version ("2.8.1000"), Description (
+       "TCPEndpointStatistics is the statistics for the TCP "
+       "Protocol Endpoint.") ]
+class CIM_TCPEndpointStatistics : CIM_ProtocolEndpointStatistics {
+
+      [Description (
+          "The total number of segments received in error (e.g., "
+          "bad TCP checksums)."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpInErrs"} ]
+   uint32 ReceivedSegmentsInError;
+
+      [Description (
+          "The number of TCP segments sent containing the RST "
+          "flag."), 
+       Counter,
+       MappingStrings {"MIB.IETF|TCP-MIB.tcpOutRsts"} ]
+   uint32 SentResetSegments;
+};
+
+// ==================================================================
+// TCPSettings
+// ==================================================================
+   [Experimental, Version ("2.8.1000"), Description (
+       "TCPSettings defines settings for a single TCPProtocolEndpoint "
+       "or a group of TCPProtocolEndpoints which belongs to the  "
+       "transport layer of the ComputerSystem or more granular to the "
+       "TCP NetworkPipe. TCPSettings class defines the attributes that "
+       "affect the behavior of TCPProtocolEndpoint(s).  The attributes "
+       "are tied to the TCPProtocolEndpoint(s) though an "
+       "ElementSettingData association.") ]
+class CIM_TCPSettings : CIM_SettingData {
+
+      [Description (
+          "The Algorithm used to determine the timeout value used "
+          "for retransmitting unacknowledged octets. "
+          "(1) Other - none of the following "
+          "(2) constant - a constant rto "
+          "(3) rsre - MIL-STD-1778, Appendix B "
+          "(4) vanj - Van Jacobson's Algorithm."), 
+        ValueMap {"1", "2", "3", "4"}, 
+        Values {"Other", "Constant", "Rsre", "Vanj"},
+        MappingStrings {"MIB.IETF|TCP-MIB.tcpRtoAlgorithm"}]
+   uint16 RetransmissionTimeoutAlgorithm;
+
+      [Description (
+          "The minimum value permitted by a TCP implementation for "
+          "the retransmission timeout, measured in milliseconds.  "
+          "More refined semantics for objects of this type depend "
+          "upon the algorithm used to determine the retransmission "
+          "timeout.  In particular, when the timeout algorithm is "
+          "rsre (3), an object of this type has the semantics of "
+          "the LBOUND quantity described in RFC 793."),
+        Units ("MilliSeconds"),
+        MappingStrings {"MIB.IETF|TCP-MIB.tcpRtoMin"} ]
+   uint16 RetransmissionTimeoutMin;
+
+      [Description (
+          "The maximum value permitted by a TCP implementation for "
+          "the retransmission timeout, measured in milliseconds.  "
+          "More refined semantics for objects of this type depend "
+          "upon the algorithm used to determine the retransmission "
+          "timeout.  In particular, when the timeout algorithm is "
+          "rsre (3), an object of this type has the semantics of "
+          "the UBOUND quantity described in RFC 793."),		  
+        Units ("MilliSeconds"),
+        MappingStrings {"MIB.IETF|TCP-MIB.tcpRtoMax"} ]
+   uint16 RetransmissionTimeoutMax;
+};
+
+// ==================================================================
+// IPSettings
+// ==================================================================
+   [Experimental, Version ("2.8.1000"), Description (
+       "IPSettings class defines the attributes that affect the "
+       "behavior of an IPProtocolEndpoint.  The attributes are tied "
+       "to the IPProtocolEndpoint though an ElementSettingData "
+       "association.  This class may also be used to specify the "
+       "default settings for all IPProtocolEndpoint instances "
+       "created on a ComputerSystem though an ElementSettingData "
+       "association to the ComputerSystem.  Processes that create "
+       "new instances of IPProtocolEndpoint and the associated "
+       "setting data should check for a IPSettings instance "
+       "associated with the ComputerSystem and should only create a "
+       "new instance of IPSettings specific to the "
+       "IPProtocolEndpoint if the default settings need to be "
+       "overridden for the specific IPProtocolEndpoint instance.") ]
+class CIM_IPSettings : CIM_SettingData {
+
+   	  [Write, Description (
+             "Time in seconds to keep an IP fragment in memory."),
+           Units ("Seconds"),
+           MappingStrings {"MIB.IETF|IP-MIB.ipReasmTimeout"} ]
+   uint32 FragmentationTimeout;
+
+   	  [Write, Description (
+             "Set the default time-to-live value of outgoing "
+             "packets."),
+           Units ("Seconds"), MinValue (1), MaxValue (255),
+           MappingStrings {"MIB.IETF|IP-MIB.ipDefaultTTL"}  ]
+   uint32 DefaultTimeToLive;
+
+          [Write, Description (
+             "This property enables IP forwarding."),
+           MappingStrings {"MIB.IETF|IP-MIB.ipForwarding"} ]
+   boolean EnableIPForwarding;
+};
+
+// ==================================================================
+// IPEndpointStatistics
+// ==================================================================
+   [Experimental, Version ("2.8.1000"), Description (
+       "CIM_IPEndpointStatistics records the statistics for an "
+       "associated CIM_IPProtocolEndpoint.") ]
+class CIM_IPEndpointStatistics : CIM_ProtocolEndpointStatistics {
+
+      [Override ("ReceivedPDUs"), Description (
+          "The total number of input datagrams received from "
+          "interfaces, including those received in error."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipInReceives"} ]
+   uint32 ReceivedPDUs;
+
+      [Override ("ReceivedPDUHeaderErrors"), Description (
+          "The number of input datagrams discarded due to errors in "
+          "their IP headers, including bad checksums, version "
+          "number mismatch, other format errors, time-to-live "
+          "exceeded, errors discovered in processing their IP "
+          "options, etc."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipInHdrErrors"} ]
+   uint32 ReceivedPDUHeaderErrors;
+
+      [Override ("ReceivedPDUAddressErrors"), Description (
+          "The number of input datagrams discarded because the IP "
+          "address in their IP header's destination field was not a "
+          "valid address to be received at this entity.  This count "
+          "includes invalid addresses (e.g., 0.0.0.0) and addresses "
+          "of unsupported Classes (e.g., Class E).  For entities "
+          "which are not IP routers and therefore do not forward "
+          "datagrams, this counter includes datagrams discarded "
+          "because the destination address was not a local "
+          "address."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipInAddrErrors"} ]
+   uint32 ReceivedPDUAddressErrors;
+
+      [Description (
+          "The number of input datagrams for which this entity was "
+          "not their final IP destination, as a result of which an "
+          "attempt was made to find a route to forward them to that "
+          "final destination.  In entities which do not act as IP "
+          "routers, this counter will include only those packets "
+          "which were Source-Routed via this entity, and the "
+          "Source-Route option processing was successful."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipForwDatagrams"} ]
+   uint32 ReceivedPDUForwards;
+
+      [Description (
+          "The number of locally-addressed datagrams received "
+          "successfully but discarded because of an unknown or "
+          "unsupported protocol."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipInUnknownProtos"} ]
+   uint32 ReceivedPDUUnknownProtocolErrors;
+
+      [Description (
+          "The number of input IP datagrams for which no problems "
+          "were encountered to prevent their continued processing, "
+          "but which were discarded (e.g., for lack of buffer "
+          "space).  Note that this counter does not include any "
+          "datagrams discarded while awaiting re-assembly."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipInDiscards"} ]
+   uint32 ReceivedPDUDiscards;
+
+      [Description (
+          "The total number of input datagrams successfully "
+          "delivered to IP user-protocols (including ICMP)."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipInDelivers"} ]
+   uint32 PDUDelivers;
+
+      [Override ("SentPDUs"), Description (
+          "The total number of IP datagrams which local IP "
+          "user-protocols (including ICMP) supplied to IP in "
+          "requests for transmission.  Note that this counter does "
+          "not include any datagrams counted in ipForwDatagrams."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipOutRequests"} ]
+   uint32 SentPDUs;
+
+      [Description (
+          "The number of output IP datagrams for which no problem "
+          "was encountered to prevent their transmission to their "
+          "destination, but which were discarded (e.g., for lack of "
+          "buffer space).  Note that this counter would include "
+          "datagrams counted in ipForwDatagrams if any such packets "
+          "met this (discretionary) discard criterion."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipOutDiscards"} ]
+   uint32 SentPDUDiscards;
+
+      [Description (
+          "The number of IP datagrams discarded because no route "
+          "could be found to transmit them to their destination.  "
+          "Note that this counter includes any packets counted in "
+          "ipForwDatagrams which meet this 'no-route' criterion.  "
+          "Note that this includes any datagrams which a host "
+          "cannot route because all of its default routers are "
+          "down."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipOutNoRoutes"} ]
+   uint32 SentPDUNoRouteErrors;
+
+      [Description (
+          "The number of IP fragments received which needed to be "
+          "reassembled at this entity."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipReasmReqds"} ]
+   uint32 ReassemblyRequired;
+
+      [Description (
+          "The number of IP datagrams successfully re-assembled."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipReasmOKs"} ]
+   uint32 ReassembledPackets;
+
+      [Description (
+          "The number of failures detected by the IP re-assembly "
+          "algorithm (for whatever reason: timed out, errors, "
+          "etc).  Note that this is not necessarily a count of "
+          "discarded IP fragments since some algorithms (notably "
+          "the algorithm in RFC 815) can lose track of the number "
+          "of fragments by combining them as they are received."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipReasmFails"} ]
+   uint32 ReassemblyFailed;
+
+      [Description (
+          "The number of IP datagrams that have been successfully "
+          "fragmented at this entity."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipFragOKs"} ]
+   uint32 Fragmentation;
+
+      [Description (
+          "The number of IP datagrams that have been discarded "
+          "because they needed to be fragmented at this entity but "
+          "could not be, e.g., because their Don't Fragment flag "
+          "was set."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipFragFails"} ]
+   uint32 FragmentationFails;
+
+      [Description (
+          "The number of IP datagram fragments that have been "
+          "generated as a result of fragmentation at this entity."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipFragCreates"} ]
+   uint32 FragmentedPDUsCreates;
+
+      [Description (
+          "The number of routing entries which were chosen to be "
+          "discarded even though they are valid.  One possible "
+          "reason for discarding such an entry could be to free-up "
+          "buffer space for other routing entries."),
+       Counter,
+       MappingStrings {"MIB.IETF|IP-MIB.ipRoutingDiscards"} ]
+   uint32 RouteEntriesDiscards;
+};
+
+
+// ==================================================================
+// FCIPSettings
+// ==================================================================
+   [Experimental, Version ("2.8.1000"), Description (
+       "FCIPSettings class defines the attributes that affect the "
+       "behavior of an Fibre Channel ProtocolEndpoint.  The "
+       "attributes are tied to the Fibre Channel ProtocolEndpoint "
+       "though an ElementSettingData association.  This class may "
+       "also be used to specify the default settings for all Fibre "
+       "Channel ProtocolEndpoint instances created on a "
+       "ComputerSystem though an ElementSettingData association to "
+       "the ComputerSystem.  Processes that create new instances of "
+       "Fibre Channel ProtocolEndpoint  and the associated setting "
+       "data should check for a FCIPSettings instance associated "
+       "with the ComputerSystem and should only create a new "
+       "instance of FCIPSettings specific to the Fibre Channel "
+       "ProtocolEndpoint if the default settings need to be "
+       "overridden for the specific Fibre Channel ProtocolEndpoint "
+       "instance.") ]
+class CIM_FCIPSettings : CIM_SettingData {
+
+     [Write, Description (
+          "Identify the types of FCIP SOF values to be carried on "
+          "the connection.  "
+          "(1) Class F "
+          "(2) Class 2 "
+          "(3) Class 3 "
+          "(4) Class 4."), 
+       ValueMap {"1", "2", "3", "4"}, 
+       Values {"SOF(F)", "SOF(2)", "SOF(3)", "SOF(4)"},
+       MappingStrings {"Fibre Channel Over TCP/IP (FCIP) Draft.IETF|Section 8.1" } ]
+   uint16 ConnectionUsageFlags;
+
+    [Write, Description (
+          "Timeout to wait for echoed FCIP Special Frame bytes."), 
+       Units ("Seconds"), MinValue (90),
+       MappingStrings {"Fibre Channel Over TCP/IP (FCIP) Draft.IETF|Section 8.1"} ]
+   uint32 SpecialFrameTimeout = 90;
+
+     [Write, Description (
+          "FC Keep Alive Timeout value to be applied to the new "
+          "TCP Connection."),
+       Units ("Seconds"),
+       MappingStrings {"Fibre Channel Over TCP/IP (FCIP) Draft.IETF|Section 8.1"} ]
+   uint32 KeepAliveTimeout;
+
+
+};
+
+
+// ===================================================================
+// end of file
+// ===================================================================

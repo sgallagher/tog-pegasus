@@ -167,13 +167,13 @@ void slp_service_agent::_init(void)
 
    _initialized = 0;
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-   _lib_fileName.append("slp_client.dll");
+   _lib_fileName.append("pegslp_client.dll");
 #elif defined(PEGASUS_OS_HPUX)
-   _lib_fileName.append("slp_client.sl");
+   _lib_fileName.append("pegslp_client.sl");
 #elif defined(PEGASUS_OS_OS400)
-   _lib_fileName.append("slp_client");
+   _lib_fileName.append("pegslp_client");
 #else
-   _lib_fileName.append("libslp_client.so");
+   _lib_fileName.append("libpegslp_client.so");
 #endif
    _lib_handle = System::loadDynamicLibrary((const char *)_lib_fileName.getCString());
 

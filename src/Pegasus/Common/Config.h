@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: Config.h,v $
+// Revision 1.3  2001/04/13 18:20:51  mike
+// Ported so Solaris.
+// Fixed memory leaks.
+//
 // Revision 1.2  2001/04/11 00:39:18  mike
 // More porting
 //
@@ -47,6 +51,14 @@
 # include <Pegasus/Common/ConfigUnix.h>
 #else
 # error "Unsupported platform"
+#endif
+
+#if defined(sparc)
+# define PEGASUS_OS_SOLARIS
+#elif defined(linux)
+# define PEGASUS_OS_LINUX
+#elif defined(_WIN32)
+# define PEGASUS_OS_WIN32
 #endif
 
 #endif  /* Pegasus_Config_h */

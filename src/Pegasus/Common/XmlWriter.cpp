@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: XmlWriter.cpp,v $
+// Revision 1.10  2001/04/13 18:20:51  mike
+// Ported so Solaris.
+// Fixed memory leaks.
+//
 // Revision 1.9  2001/04/08 01:13:22  mike
 // Changed "ConstCIM" to "CIMConst"
 //
@@ -165,6 +169,8 @@ void XmlWriter::appendLocalNameSpaceElement(
     {
 	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
     }
+
+    delete [] tmp;
 
     out << "</LOCALNAMESPACEPATH>\n";
 }

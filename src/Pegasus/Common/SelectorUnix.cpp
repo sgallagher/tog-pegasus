@@ -23,6 +23,10 @@
 // Author: Michael E. Brasher
 //
 // $Log: SelectorUnix.cpp,v $
+// Revision 1.3  2001/04/13 18:20:51  mike
+// Ported so Solaris.
+// Fixed memory leaks.
+//
 // Revision 1.2  2001/04/11 19:53:22  mike
 // More porting
 //
@@ -120,9 +124,9 @@ Boolean Selector::select(Uint32 milliseconds)
 	memcpy(&_rep->active_wr_fd_set, &_rep->wr_fd_set, sizeof(fd_set));
 	memcpy(&_rep->active_ex_fd_set, &_rep->ex_fd_set, sizeof(fd_set));
 
-	const Uint32 SEC = milliseconds / 1000;
-	const Uint32 USEC = (milliseconds % 1000) * 1000;
-	struct timeval tv = { SEC, USEC };
+	const Uint32 seconds = milliseconds / 1000;
+	const Uint32 microseconds = (milliseconds % 1000) * 1000;
+	struct timeval tv = { seconds, microseconds };
 
 	count = select_wrapper(
 	    FD_SETSIZE, 

@@ -23,6 +23,10 @@
 // Author: Michael E. Brasher
 //
 // $Log: TCPChannelUnix.cpp,v $
+// Revision 1.3  2001/04/13 18:20:51  mike
+// Ported so Solaris.
+// Fixed memory leaks.
+//
 // Revision 1.2  2001/04/12 09:57:39  mike
 // Post Channel Port to Linux
 //
@@ -357,7 +361,14 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
     // Accept the connection (populate the address):
 
     sockaddr_in address;
-    unsigned int n = sizeof(address);
+
+#if defined(PEGASUS_OS_SOLARIS)
+    int n;
+#elif defined (PEGASUS_OS_LINUX)
+    unsigned int n;
+#endif
+    n = sizeof(address);
+
     Sint32 slaveDesc = accept(_desc, (struct sockaddr*)&address, &n);
 
     if (slaveDesc < 0)

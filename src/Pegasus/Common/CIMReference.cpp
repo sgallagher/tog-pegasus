@@ -23,6 +23,10 @@
 // Author:
 //
 // $Log: CIMReference.cpp,v $
+// Revision 1.4  2001/04/13 18:20:51  mike
+// Ported so Solaris.
+// Fixed memory leaks.
+//
 // Revision 1.3  2001/03/04 21:57:34  bob
 // Changed print methods to take a stream instead of hardcoded cout
 //
@@ -221,6 +225,8 @@ void CIMReference::localNameSpaceToXml(Array<Sint8>& out) const
 	out << "<NAMESPACE NAME=\"" << p << "\"/>\n";
     }
 
+    delete [] tmp;
+
     out << "</LOCALNAMESPACEPATH>\n";
 }
 
@@ -333,6 +339,7 @@ void CIMReference::instanceNameToReference(
     // Convert to a C String first:
 
     char* p = instanceName.allocateCString();
+    ArrayDestroyer<char> tmp(p);
 
     // Extract the class name:
 

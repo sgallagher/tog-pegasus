@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMName.h>
 
 #include <Pegasus/Server/Linkage.h>
 
@@ -58,7 +59,8 @@ public:
         const String & logicalName,
         const String & physicalName,
         const String & interfaceName,
-        const Uint32 capabilities);
+        const Uint32 capabilities,
+        const CIMName & method=CIMName());
 
     ~ProviderName(void);
 
@@ -79,6 +81,9 @@ public:
     Uint32 getCapabilitiesMask(void) const;
     void setCapabilitiesMask(const Uint32 capabilities);
 
+    CIMName getMethodName(void) const;
+    void setMethodName(const CIMName & method);
+
 private:
     String _physicalName;
     String _interfaceName;
@@ -87,6 +92,8 @@ private:
     String _objectName;
 
     Uint32 _capabilities;
+    
+    CIMName _method;
 
 };
 

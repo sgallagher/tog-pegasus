@@ -446,22 +446,28 @@ ProviderManager* ProviderManagerService::locateProviderManager(const Message *me
 {
     CIMNamespaceName nameSpace;
     CIMName className;
+    CIMName method;
 
     const CIMOperationRequestMessage * p =
        dynamic_cast<const CIMOperationRequestMessage *>(message);
 
     if (p) {
        nameSpace=p->nameSpace;
+       
        if (p->providerType==ProviderType::ASSOCIATION)
           className=((CIMAssociatorsRequestMessage*)p)->assocClass;
        else className=p->className;
-
+       
+       if (p->providerType==ProviderType::METHOD)
+          method=((CIMInvokeMethodRequestMessage*)p)->methodName;
+       
        ProviderName name(
            CIMObjectPath(String::EMPTY, nameSpace, className).toString(),
            String::EMPTY,
            String::EMPTY,
            String::EMPTY,
-           p->providerType);
+           p->providerType,
+           method);
        // find provider manager
        name = ProviderRegistrar().findProvider(name,false);
        it=name.getInterfaceName();

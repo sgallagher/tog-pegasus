@@ -281,45 +281,60 @@ ProviderName ProviderRegistrar::findProvider(const ProviderName & providerName, 
        case ProviderType_INSTANCE:
           if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
                 provider,providerModule,0)) {
-              if (test) checkBlocked(providerModule);
-	      return ProviderName(providerName.getObjectName(),
-	            provider.getProperty(provider.findProperty
+             if (test) checkBlocked(providerModule);
+	          return ProviderName(providerName.getObjectName(),
+	             provider.getProperty(provider.findProperty
                        ("Name")).getValue ().toString (),
-		    providerModule.getProperty(providerModule.findProperty
+		          providerModule.getProperty(providerModule.findProperty
                        ("Location")).getValue().toString(),
-	            providerModule.getProperty(providerModule.findProperty
+	             providerModule.getProperty(providerModule.findProperty
                        ("InterfaceType")).getValue().toString(),
-		    ProviderType::INSTANCE);
+		          ProviderType::INSTANCE);
           }
           break;
        case ProviderType_ASSOCIATION:
           if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
                 provider,providerModule,1)) {
-              if (test) checkBlocked(providerModule);
-	      return ProviderName(providerName.getObjectName(),
-	            provider.getProperty(provider.findProperty
+             if (test) checkBlocked(providerModule);
+	          return ProviderName(providerName.getObjectName(),
+	             provider.getProperty(provider.findProperty
                        ("Name")).getValue ().toString (),
-		    providerModule.getProperty(providerModule.findProperty
+		          providerModule.getProperty(providerModule.findProperty
                        ("Location")).getValue().toString(),
-	            providerModule.getProperty(providerModule.findProperty
+	             providerModule.getProperty(providerModule.findProperty
                        ("InterfaceType")).getValue().toString(),
-		    ProviderType::ASSOCIATION);
+		          ProviderType::ASSOCIATION);
           }
           break;
        case ProviderType_QUERY:
           if (_prm->lookupInstanceProvider(objectName.getNameSpace(),objectName.getClassName(),
                 provider,providerModule,0,&hasNoQuery)) {
-	      return ProviderName(providerName.getObjectName(),
-	            provider.getProperty(providerModule.findProperty
+             if (test) checkBlocked(providerModule);
+	          return ProviderName(providerName.getObjectName(),
+	             provider.getProperty(provider.findProperty
                        ("Name")).getValue ().toString (),
-		    providerModule.getProperty(providerModule.findProperty
+		          providerModule.getProperty(providerModule.findProperty
                        ("Location")).getValue().toString(),
-	            providerModule.getProperty(providerModule.findProperty
+	             providerModule.getProperty(providerModule.findProperty
                        ("InterfaceType")).getValue().toString(),
-		    ProviderType::INSTANCE);
+		          ProviderType::INSTANCE);
           }
           break;
-       default:
+        case ProviderType_METHOD:
+          if (_prm->lookupMethodProvider(objectName.getNameSpace(),objectName.getClassName(),
+                providerName.getMethodName(),provider,providerModule)) {
+             if (test) checkBlocked(providerModule);
+	          return ProviderName(providerName.getObjectName(),
+	             provider.getProperty(provider.findProperty
+                       ("Name")).getValue ().toString (),
+		          providerModule.getProperty(providerModule.findProperty
+                       ("Location")).getValue().toString(),
+	             providerModule.getProperty(providerModule.findProperty
+                       ("InterfaceType")).getValue().toString(),
+		          ProviderType::METHOD);
+          }
+          break;
+      default:
           temp = _lookupProvider(objectName);
     }
     

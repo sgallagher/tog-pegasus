@@ -42,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PPM_LINKAGE ProviderType
 {
 public:
-    // these constants have the same value as those in DynamicRoutingTable.
+    // these constants have the same value as those defined in Registration Manager.
     
     #define ProviderType_CLASS 0x00000001
 

@@ -1694,7 +1694,8 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             String::EMPTY,
             String::EMPTY,
             String::EMPTY,
-            0);
+            ProviderType::METHOD,
+            request->methodName);
 
         // resolve provider name
         name = _resolveProviderName(name);
@@ -2221,7 +2222,7 @@ Message * DefaultProviderManager::handleEnableIndicationsRequest(const Message *
 	      request->providerModule.findProperty("Location")).getValue().toString());
 
        ProviderName name(String::EMPTY,
-               request->provider.getProperty(request->providerModule.findProperty
+               request->provider.getProperty(request->provider.findProperty
                    ("Name")).getValue ().toString (),
 	       physicalName,
                request->providerModule.getProperty(request->providerModule.findProperty
@@ -2309,7 +2310,7 @@ Message * DefaultProviderManager::handleDisableIndicationsRequest(const Message 
 	         request->providerModule.findProperty("Location")).getValue().toString());
 
        ProviderName name(String::EMPTY,
-               request->provider.getProperty(request->providerModule.findProperty
+               request->provider.getProperty(request->provider.findProperty
                    ("Name")).getValue ().toString (),
 	       physicalName,
                request->providerModule.getProperty(request->providerModule.findProperty
@@ -2643,10 +2644,9 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
-        providerManager.unloadProvider(_pInstances[i].getProperty(
-	                                  request->providerModule.findProperty
-                                          ("Name")).getValue ().toString (),
-                                       physicalName);
+        providerManager.unloadProvider(physicalName,_pInstances[i].getProperty(
+	                                  _pInstances[i].findProperty
+                                          ("Name")).getValue().toString());
     }
 
     if(!disableProviderOnly)

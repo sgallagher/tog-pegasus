@@ -95,7 +95,8 @@ ProviderName::ProviderName(
     const String & logicalName,
     const String & physicalName,
     const String & interfaceName,
-    const Uint32 capabilities)
+    const Uint32 capabilities,
+    const CIMName & method)
     : _capabilities(capabilities)
 {
     // ATTN: validate arguments ???
@@ -106,6 +107,8 @@ ProviderName::ProviderName(
     _physicalName = physicalName;
 
     _interfaceName = interfaceName;
+    
+    _method = method;
 }
 
 ProviderName::~ProviderName(void)
@@ -177,6 +180,17 @@ Uint32 ProviderName::getCapabilitiesMask(void) const
 void ProviderName::setCapabilitiesMask(const Uint32 capabilities)
 {
     _capabilities = capabilities;
+}
+
+
+CIMName ProviderName::getMethodName(void) const
+{
+    return(_method);
+}
+
+void ProviderName::setMethodName(const CIMName & method)
+{
+    _method = method;
 }
 
 PEGASUS_NAMESPACE_END

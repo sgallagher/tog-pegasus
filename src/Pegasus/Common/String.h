@@ -421,12 +421,16 @@ public:
     */
     static const String EMPTY;
 
-private:
+    static Uint32 _pegasusMin(Uint32 x, Uint32 y) 
+    {
+	return x < y ? x : y; 
+    }
 
-    static Uint32 _min(Uint32 x, Uint32 y) { return x < y ? x : y; }
+private:
 
     Array<Char16> _rep;
 };
+
 
 /** String operator ==. Test for equality between two strings of any of the
     types String or char*.

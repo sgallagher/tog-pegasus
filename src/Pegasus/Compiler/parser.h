@@ -1,0 +1,108 @@
+//BEGIN_LICENSE
+//
+// Copyright (c) 2000 The Open Group, BMC Software, Tivoli Systems, IBM
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+//
+//END_LICENSE
+//BEGIN_HISTORY
+//
+// Author: Bob Blair (bblair@bmc.com)
+//
+// $Log: parser.h,v $
+// Revision 1.1  2001/02/16 23:59:09  bob
+// Initial checkin
+//
+//
+//
+//END_HISTORY
+//
+// Header for a class to generate CIMValue objects from string values
+//
+//
+//
+// This is a generic parser class from which controllers for particular
+// yacc parsers can be derived.  It keeps enough state information that
+// you should be able to get by without a reentrant parser.  You should
+// compile both parser and lexer with a C++ compiler, although there
+// is no need to generate a C++ lexer.
+//
+// The include file and compile-from-string techniques used here are
+// supported only by bison and flex.
+//
+
+#ifndef _PARSER_H_
+#define _PARSER_H_
+
+#include <stack>
+#include <list>
+#include <cstdio>
+#include <string>
+#include <Pegasus/Common/Config.h>
+
+using namespace std;
+
+struct bufstate {
+	void *buffer_state; // the YY_BUFFER_STATE of the stacked context
+	string filename;    // the name of the file open in the stacked context
+	int    lineno;      // the line number of the file
+};
+
+class PEGASUS_COMPILER_LINKAGE  parser {
+ private:
+  unsigned int _buffer_size;   // the value of the YY_BUFFER_SIZE macro
+  stack<bufstate *, list<bufstate *> > _include_stack;  // a stack of YY_BUFFER_STATEs
+  string _current_filename; // name of the file being parsed
+  unsigned int _lineno;     // current line number in the file 
+ protected:
+  void push_statebuff(bufstate *statebuff) { _include_stack.push(statebuff); }
+  bufstate *pop_statebuff();
+ public:
+
+  // Constructor, destructor
+  parser() : _buffer_size(16384), _lineno(0) {;}
+  virtual ~parser() {;}
+
+  virtual int parse() = 0;    // call the parser main yy_parse()
+  virtual int wrap();         // handle the end of the current stream
+
+  int setInputBufferFromName(const string &filename); // start parsing this file
+  virtual int setInputBuffer(const FILE *f) = 0;  // start parsing this handle
+  //  int setInputBuffer(const char *buf);   // start parsing this string
+  virtual int setInputBuffer(void *buffstate) = 0; // start parsing this buffer
+
+  // given a file stream, treat it as an include file
+  virtual int enterInlineInclude(const FILE *f) = 0;
+  virtual int wrapCurrentBuffer() = 0;
+
+  unsigned int get_buffer_size() { return _buffer_size; }
+  void set_buffer_size(unsigned int siz) { _buffer_size = siz; }
+
+  // We keep track of the filename associated with the current input
+  // buffer so we can report on it.
+  void set_current_filename(const string &filename)
+  	{ _current_filename = filename; }
+  const string &get_current_filename() const { return _current_filename; }
+
+  // Ditto the line number
+  void set_lineno(int n) { _lineno = n; }
+  void increment_lineno() { ++_lineno; }
+  unsigned int get_lineno() const { return _lineno; }
+
+  // This is the main entry point for parser error logging
+  virtual void log_parse_error(char *token, char *errmsg) const;
+};
+#endif

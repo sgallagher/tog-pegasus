@@ -878,82 +878,83 @@ CIMInstance InteropProvider::_buildInstanceCIMObjectManager(
             "InteropProvider::_buildInstanceCIMObjectManager");
 
     // Try to get the current object.  If true then it is already created.
+    CIMInstance instance;
     if (_getInstanceCIMObjectManager(includeQualifiers,includeClassOrigin,propertyList))
     {
-        PEG_METHOD_EXIT();
-        return(instanceOfCIMObjectManager);
+        instance = instanceOfCIMObjectManager.clone();
     }
-    //
-    // No instance in the repository. Build new instance and save it.
-    //
-    CIMInstance instance = _buildInstanceSkeleton(CIM_OBJECTMANAGER_CLASSNAME);
-
-    _fixInstanceCommonKeys(instance);
-
-    _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,CIM_OBJECTMANAGER_CLASSNAME.getString());
-
-    _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME,buildObjectManagerName());
-
-    _setPropertyValue(instance, CIMName("ElementName"), String("Pegasus"));
-
-    //
-    //Description property this object manager instance
-    // default is Pegasus CIM_Server Version.
-    // Provided undocumented option to get this from the environment.
-    // This should probably be removed or documented.
-    //
-    String description;
-    char * envDescription;
-    envDescription = getenv("PEGASUS_CIMOM_DESCRIPTION");
-
-    description = (envDescription) ?
-        envDescription :
-        "Pegasus " + String(PEGASUS_PRODUCT_NAME) + " Version " +
-            String(PEGASUS_PRODUCT_VERSION);
-
-    _setPropertyValue(instance, CIMName("Description"), description);
-
-    //Property GatherStatisticalData. Initially this is set to false
-    // and can then be modified by a modify instance on the instance.
+    else
+    {
+        //
+        // No instance in the repository. Build new instance and save it.
+        //
+        CIMInstance instance = _buildInstanceSkeleton(CIM_OBJECTMANAGER_CLASSNAME);
     
-    Boolean gatherStatDataFlag = false;
+        _fixInstanceCommonKeys(instance);
+    
+        _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,CIM_OBJECTMANAGER_CLASSNAME.getString());
+        _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME,buildObjectManagerName());
+        _setPropertyValue(instance, CIMName("ElementName"), String("Pegasus"));
+    
+        //
+        //Description property this object manager instance
+        // default is Pegasus CIM_Server Version.
+        // Provided undocumented option to get this from the environment.
+        // This should probably be removed or documented.
+        //
+        String description;
+        char * envDescription;
+        envDescription = getenv("PEGASUS_CIMOM_DESCRIPTION");
+    
+        description = (envDescription) ?
+            envDescription :
+            "Pegasus " + String(PEGASUS_PRODUCT_NAME) + " Version " +
+                String(PEGASUS_PRODUCT_VERSION);
+    
+        _setPropertyValue(instance, CIMName("Description"), description);
+    
+        //Property GatherStatisticalData. Initially this is set to false
+        // and can then be modified by a modify instance on the instance.
+        
+        Boolean gatherStatDataFlag = false;
+    
+        _setPropertyValue(instance, OM_GATHERSTATISTICALDATA, Boolean(gatherStatDataFlag));
+    
+        // ATTN: This one is a problem KS rethink this.
+        // the following is a temporary hack to set the value of the statistics
+        // gathering function dynamically.  We simply get the correct value
+        // and call the internal method to set it each time this object is
+        // built.
+    #ifndef PEGASUS_DISABLE_PERFINST
+        StatisticalData* sd = StatisticalData::current();
+        sd->setCopyGSD(gatherStatDataFlag);
+    #endif
+    
+        // write instance to the repository
+        CIMObjectPath instancePath;
+        // Add the instance path to this if necessary ATTN ATTN:
+        try
+        {
+            instancePath = _repository->createInstance(_operationNamespace,
+                           instance );
+        }
+        catch(CIMException& e)
+        {
+            // ATTN: KS generate log error if this not possible
+            PEG_METHOD_EXIT();
+            throw e;
+        }
+        catch(Exception& e)
+        {
+            // ATTN: Generate log error.
+            PEG_METHOD_EXIT();
+            throw e;
+        }
+        instance.setPath(instancePath);
 
-    _setPropertyValue(instance, OM_GATHERSTATISTICALDATA, Boolean(gatherStatDataFlag));
-
-    // ATTN: This one is a problem KS rethink this.
-    // the following is a temporary hack to set the value of the statistics
-    // gathering function dynamically.  We simply get the correct value
-    // and call the internal method to set it each time this object is
-    // built.
-#ifndef PEGASUS_DISABLE_PERFINST
-    StatisticalData* sd = StatisticalData::current();
-    sd->setCopyGSD(gatherStatDataFlag);
-#endif
-
-    // write instance to the repository
-    CIMObjectPath instancePath;
-    // Add the instance path to this if necessary ATTN ATTN:
-    try
-    {
-        instancePath = _repository->createInstance(_operationNamespace,
-                       instance );
+        // Save this instance for other requests
+        instanceOfCIMObjectManager = instance.clone();
     }
-    catch(CIMException& e)
-    {
-        // ATTN: KS generate log error if this not possible
-        PEG_METHOD_EXIT();
-        throw e;
-    }
-    catch(Exception& e)
-    {
-        // ATTN: Generate log error.
-        PEG_METHOD_EXIT();
-        throw e;
-    }
-    instance.setPath(instancePath);
-    CDEBUG("CIMObjectMgr path = " << instancePath.toString());
-    // Save this instance for other requests
-    instanceOfCIMObjectManager = instance.clone();
     instance.filter(includeQualifiers, includeClassOrigin, propertyList);
     PEG_METHOD_EXIT();
     return(instance);
@@ -1850,8 +1851,8 @@ void InteropProvider::enumerateInstances(
     InstanceResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::enumerateInstances()");
-        // Verify that ClassName is correct and get value
 
+        // Verify that ClassName is correct and get value
         targetClass classEnum  = _verifyValidClassInput(ref.getClassName());    
         
         // operation namespace needed internally to get class.

@@ -24,6 +24,7 @@
 // Author: Markus Mueller (markus_mueller@de.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+// 	      : Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,6 +53,7 @@ typedef siginfo_t PEGASUS_SIGINFO_T;
 # define PEGASUS_SIGHUP   SIGHUP
 # define PEGASUS_SIGABRT  SIGABRT
 # define PEGASUS_SIGPIPE  SIGPIPE
+# define PEGASUS_SIGUSR1  SIGUSR1
 
 #else // PEGASUS_HAS_SIGNALS
 

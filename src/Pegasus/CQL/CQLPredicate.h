@@ -104,14 +104,46 @@ variable is set to TRUE
 class PEGASUS_CQL_LINKAGE CQLPredicate
 {
   public:
+    /**
+        Default constructor
+
+        @param  -  None.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     CQLPredicate();
-    
+
+    /**
+        Constructor. Using this constructor sets isSimple() to true.
+                                                                                                                   
+        @param  -  inSimplePredicate.
+        @param  -  inVerted. Defaults to false.  This is a logical NOT of this predicate
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */    
     CQLPredicate(const CQLSimplePredicate & inSimplePredicate, Boolean inVerted = false);
 
+    /**
+        Constructor. Using this constructor sets isSimple() to false.
+                                                                                                                   
+        @param  -  inPredicate.
+        @param  -  inVerted. Defaults to false.  This is a logical NOT of this predicate
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     CQLPredicate(const CQLPredicate & inPredicate, Boolean inVerted = false);
 
-//   CQLPredicate(const CQLPredicate& inPredicate);
-
+    /**
+        Destructor
+                                                                                                                   
+        @param  - None.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
    ~CQLPredicate();
     /**  
       CQLExpressions: 
@@ -141,39 +173,154 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
         The result of the evaluation is and then inverted if the _invert member
     variable is set to TRUE
         and then returned to the caller.
-    
+
+   @param  - CI. Instance to evaluate query against.
+   @param  - QueryCtx. Query Context
+   @return - Boolean.
+   @throws - None.
+   <I><B>Experimental Interface</B></I><BR>   
+ 
       */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
 
+    /**
+        Returns true if this CQLPredicate does not contain other CQLPredicates, false otherwise.
+                                                                                                                   
+        @param  - None.
+        @return - Boolean.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     Boolean isTerminal()const;
 
+    /**
+	Returns true if this predicate has been inverted (NOT), false otherwise	
+
+        @param  - None.
+        @return - Boolean.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     Boolean getInverted()const;
 
+    /**
+        Sets the inverted flag.  Logically NOTting this predicate.
+                                                                                                                   
+        @param  - None.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     void setInverted();
 
+    /**
+	Appends a predicate to the predicate array. This method should only
+        be called by Bison.
 
+        @param  - inPredicate.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     void appendPredicate(const CQLPredicate& inPredicate);
-    /** Appends a predicate to the predicate array. This method should only
-            be called by Bison.
-        */
+
+    /**
+        Appends a predicate to the predicate array. This method should only
+        be called by Bison.
+                                                                                                                   
+        @param  - inPredicate.
+        @param  - inBooleanOperator
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     void appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator);
 
+    /**
+        Appends a SimplePredicate to the predicate array. This method should only
+        be called by Bison.
+
+        NOTE: THIS METHOD IS NOT IMPLEMENTED
+                                                                                                                   
+        @param  - inSimplePredicate.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     void appendPredicate(CQLSimplePredicate inSimplePredicate, BooleanOpType inBooleanOperator);
   
+    /**
+        Gets the CQLPredicates contained within this CQLPredicate.
+                                                                                                                   
+        @param  - None.
+        @return - Array<CQLPredicate>. 
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     Array<CQLPredicate> getPredicates()const;
   
+     /**
+        Gets the CQLSimplePredicate contained within this CQLPredicate. Only valid
+        if this isSimple() = true.
+                                                                                                                   
+        @param  - None.
+        @return - CQLSimplePredicate.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     CQLSimplePredicate getSimplePredicate()const;
     
+     /**
+        Gets the Operators for this CQLPredicate.
+        Given P1 AND P2 OR P3, this would return [AND][OR]
+                                                                                                                   
+        @param  - None.
+        @return - Array<BooleanOpType>.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     Array<BooleanOpType> getOperators()const;
-
+    
+     /**
+        This method normalizes the CQLChainedIdentifier so that properties that require
+        scoping are scoped.
+                                                                                                                   
+        @param  - queryContext.
+        @return - None.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     void applyContext(QueryContext& queryContext);
 
+     /**
+        Returns true if this CQLPredicate contains no CQLPredicates, ie. only has one SimplePredicate.                                                                                                                   
+        @param  - None.
+        @return - Boolean.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     Boolean isSimple()const;
 
+     /**
+        Returns true if its SimplePredicate object tree only contains a CQLValue.
+                                                                                                                   
+        @param  - None.
+        @return - Boolean.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     Boolean isSimpleValue()const;
 
     String toString()const;
 
+     /**
+        Operator=
+                                                                                                                   
+        @param  - rhs. Right hand side of assignment operator.
+        @return - CQLPredicate&.
+        @throws - None.
+        <I><B>Experimental Interface</B></I><BR>
+    */
     CQLPredicate& operator=(const CQLPredicate& rhs);
 
     friend class CQLFactory;

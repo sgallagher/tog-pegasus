@@ -38,14 +38,15 @@
 #else
 # error "Unsupported platform"
 #endif
-
+#include <Pegasus/Common/internal_dq.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 
-
-PEGASUS_NAMESPACE_BEGIN
 #define PEG_SEM_READ 1
 #define PEG_SEM_WRITE 2
+
+PEGASUS_NAMESPACE_BEGIN
+
 
 //%///////////////// ----- IPC related functions ------- //////////////////////
 // ----- NOTE - these functions are PRIMITIVES that MUST be implemented
@@ -63,7 +64,7 @@ void PEGASUS_EXPORT exit_crit(PEGASUS_CRIT_TYPE *crit);
 PEGASUS_THREAD_TYPE PEGASUS_EXPORT pegasus_thread_self(void);
 void PEGASUS_EXPORT exit_thread(PEGASUS_THREAD_RETURN rc);
 void PEGASUS_EXPORT sleep(int ms);
-int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz);
+
 
 
 //%//////// -------- IPC Exception Classes -------- ///////////////////////////////
@@ -126,133 +127,6 @@ class PEGASUS_EXPORT TooManyReaders: public IPCException
    private:
       TooManyReaders();
 };
-
-//-----------------------------------------------------------------
-// internal (unprotected) doubly linked list template
-//-----------------------------------------------------------------
-template<class L> class PEGASUS_EXPORT internal_dq {
-   private: 
-      L *_rep;
-      internal_dq *_next;
-      internal_dq  *_prev;
-      Boolean _isHead ;
-      int _count;
-
-      // unlink this node from whichever list it is on
-      inline void unlink( void  ) 
-      { 
-	 _prev->_next = _next; 
-	 _next->_prev = _prev; 
-      }
-    
-      inline void insert_first(internal_dq & head) 
-      { 
-	 _prev = head; 
-	 _next = head._next; 
-	 head._next->_prev = this; 
-	 head._next = this;   
-	 head._count++; 
-      }
-
-      inline void insert_last(internal_dq & head)
-      {
-	 _next = head;
-	 _prev = head._prev;
-	 head._prev->next = this;
-	 head._prev = this;
-	 head._count++;
-      }
-
-      inline L *remove( void )
-      {
-	 L *ret = NULL;
-	
-	 if( _count > 0 ) {
-	    internal_dq *temp = _next;
-	    temp->unlink();
-	    ret = temp->_rep;
-	    // unhinge ret from temp so it doesn't get destroyed 
-	    temp->_rep = NULL ;
-	    delete temp;
-	    _count--;
-	 }
-	 return(ret);
-      }
-
-      friend class Condition;
-
-   public:
-    
-      internal_dq(Boolean head = true) :  _rep(NULL), _isHead(head), _count(0) 
-      { 
-	 _next = this; 
-	 _prev = this; 
-      }
-      ~internal_dq() 
-      {  
-	 this->empty_list(); 
-      }
-      inline void insert_first(L *element) 
-      {
-	 internal_dq *ins = new internal_dq(false);
-	 ins->_rep = element;
-	 ins->_prev = this;
-	 ins->_next = this->_next;
-	 this->_next->_prev = ins;
-	 this->_next = ins;
-	 _count++;
-      }
-      inline void insert_last(L *element) 
-      {
-	 internal_dq *ins = new internal_dq(false);
-	 ins->_rep = element;
-	 ins->_next = this;
-	 ins->_prev = this->_prev;
-	 this->_prev->_next = ins;
-	 this->_prev = ins;
-	 _count++;
-      }
-      inline void empty_list( void )
-      {
-	 if( _count > 0) {
-	    while( _count > 0 ) {
-	       internal_dq<L> *temp = _next;
-	       temp->unlink();
-	       if(temp->_rep != NULL)
-		  delete temp->_rep;
-	       delete temp;
-	       _count--;
-	    }
-	    PEGASUS_ASSERT(_count == 0);
-	 }
-	 return;
-      }
-
-      inline L *remove(void *key)
-      {
-	 L *ret = NULL;
-	 
-	 if( _count > 0 ) {
-	    internal_dq *temp = _next;
-	    while ( temp->_isHead == false ) {
-	       if( temp->_rep == key ) {
-		  temp->unlink();
-		  ret = temp->_rep;
-		  temp->_rep = NULL;
-		  delete temp;
-		  _count--;
-		  break;
-	       }
-	       temp = temp->_next;
-	    }
-	 }
-	 return(ret); 
-      }
-      inline int count(void) { return _count ; }
-} ;
-
-
-
 
 //%////////////////////////////////////////////////////////////////////////////
 class PEGASUS_EXPORT Mutex

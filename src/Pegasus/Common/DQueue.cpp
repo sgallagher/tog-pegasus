@@ -30,6 +30,6 @@
 #include "DQueue.h"
 
 PEGASUS_NAMESPACE_BEGIN
-const int PEG_DQUEUE_FIRST = 0;
-const int PEG_DQUEUE_LAST = 1;
+//const int PEG_DQUEUE_FIRST = 0;
+//const int PEG_DQUEUE_LAST = 1;
 PEGASUS_NAMESPACE_END

@@ -33,7 +33,7 @@
 #include <sys/timeb.h> 
 #include <errno.h>
 
-int gettimeofday(struct timeval *tv, struct timezone *tz);
+
 
 typedef CRITICAL_SECTION  PEGASUS_CRIT_TYPE;
 typedef HANDLE  PEGASUS_SEMAPHORE_TYPE;
@@ -107,3 +107,4 @@ struct timezone
       int tz_dsttime;
 };
 
+int PEGASUS_EXPORT gettimeofday(struct timeval *tv, struct timezone *tz);

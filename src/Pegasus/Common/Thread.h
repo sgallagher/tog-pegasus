@@ -42,11 +42,6 @@ class PEGASUS_COMMON_LINKAGE cleanup_handler
    public:
       cleanup_handler( void (*routine)(void *), void *arg  ) : _routine(routine), _arg(arg)  {}
       ~cleanup_handler()  {; }
-
-   private:
-      void execute(void) { _routine(_arg); } 
-      cleanup_handler();
-      void (*_routine)(void *);
       inline Boolean operator==(const void *key) const
       { 
 	 if(key == (void *)_routine) 
@@ -57,6 +52,11 @@ class PEGASUS_COMMON_LINKAGE cleanup_handler
       {
 	 return(operator==((const void *)b._routine));
       }
+   private:
+      void execute(void) { _routine(_arg); } 
+      cleanup_handler();
+      void (*_routine)(void *);
+
       void *_arg; 
       PEGASUS_CLEANUP_HANDLE _cleanup_buffer;
       friend class DQueue<class cleanup_handler>;

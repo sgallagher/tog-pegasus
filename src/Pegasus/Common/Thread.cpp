@@ -45,7 +45,6 @@ void thread_data::default_delete(void * data)
       ::operator delete(data); 
 }
 
-
 Boolean Thread::_signals_blocked = false;
 
 // for non-native implementations

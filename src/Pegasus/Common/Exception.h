@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%////////////-*-c++-*-//////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM
 //
@@ -692,6 +692,25 @@ class PEGASUS_COMMON_LINKAGE BufferTooSmall
  private:
   BufferTooSmall(void);
 };
+
+
+class PEGASUS_COMMON_LINKAGE ListFull
+{
+   public:
+      ListFull(Uint32 count)
+      {
+	 _capacity = count;
+      }
+      Uint32 get_capacity(void) 
+      {
+	 return _capacity;
+      }
+   private:
+      ListFull(void *);
+      Uint32 _capacity;
+};
+
+
 
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
 

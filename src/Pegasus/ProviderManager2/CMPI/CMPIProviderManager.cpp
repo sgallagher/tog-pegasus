@@ -2140,17 +2140,8 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     PEGASUS_ASSERT(request != 0);
 
     // get provider module name
-    String moduleName;
-    CIMInstance mInstance = request->providerModule;
-    Uint32 pos = mInstance.findProperty(CIMName ("Name"));
-
-    if(pos != PEG_NOT_FOUND)
-    {
-        mInstance.getProperty(pos).getValue().get(moduleName);
-    }
-
     Boolean disableProviderOnly = request->disableProviderOnly;
-
+	
     Array<Uint16> operationalStatus;
     // Assume success.
     operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_STOPPED);
@@ -2159,14 +2150,18 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
     // Unload providers
     //
     Array<CIMInstance> _pInstances = request->providers;
+	/* The CIMInstances on request->providers array is completly _different_ than
+	   the request->providerModule CIMInstance. Hence  */
+
     String physicalName=_resolvePhysicalName(request->providerModule.getProperty(
               request->providerModule.findProperty("Location")).getValue().toString());
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
+		Uint32 pos = _pInstances[i].findProperty("Name");
         providerManager.unloadProvider(_pInstances[i].getProperty(
-                                          request->providerModule.findProperty
-                                          ("Name")).getValue ().toString (),
+											_pInstances[i].findProperty("Name")
+										).getValue ().toString (), 
                                        physicalName);
     }
 

@@ -112,7 +112,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-#ifdef PEGASUS_LEGACY_API
+#ifndef PEGASUS_REMOVE_DEPRECATED
 typedef CIMKeyBinding KeyBinding;
 typedef Array<CIMKeyBinding> KeyBindingArray;
 #endif

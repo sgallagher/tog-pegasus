@@ -472,7 +472,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator>=(
     const String& str1,
     const String& str2);
 
-#ifdef PEGASUS_LEGACY_API
+#ifndef PEGASUS_REMOVE_DEPRECATED
 /** Compare two strings but ignore any case differences.
 */
 PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);

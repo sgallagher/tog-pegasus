@@ -33,7 +33,7 @@
 #include "Array.h"
 #include "InternalException.h"
 #include <iostream>
-#ifdef PEGASUS_LEGACY_API
+#ifndef PEGASUS_REMOVE_DEPRECATED
 #include "System.h"  // for strcasecmp
 #endif
 
@@ -748,7 +748,7 @@ Boolean operator>=(const String& str1, const String& str2)
     return String::compare(str1, str2) >= 0;
 }
 
-#ifdef PEGASUS_LEGACY_API
+#ifndef PEGASUS_REMOVE_DEPRECATED
 int CompareNoCase(const char* s1, const char* s2)
 {
     return System::strcasecmp(s1, s2);

@@ -5,21 +5,21 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *               					                    
- *  Copyright (c) 2001 - 2003  IBM                                          
- *  Copyright (c) 2000 - 2003 Michael Day                                    
- *                                                                           
- *  Permission is hereby granted, free of charge, to any person obtaining a  
+ *
+ *  Copyright (c) 2001 - 2003  IBM 
+ *  Copyright (c) 2000 - 2003 Michael Day
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation 
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- *  and/or sell copies of the Software, and to permit persons to whom the     
- *  Software is furnished to do so, subject to the following conditions:       
- * 
- *  The above copyright notice and this permission notice shall be included in 
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -38,9 +38,9 @@
 
 /* prototypes and globals go here */
   void filtererror(int8 *, ...);
-  
+
   int32 filterlex(void);
-  
+
 int32 filterparse(void);
 void filter_close_lexer(uint32 handle);
 uint32 filter_init_lexer(int8 *s);
@@ -55,7 +55,7 @@ uint32 filter_init_lexer(int8 *s);
 
 %}
 
-%name-prefix="filter" 
+%name-prefix="filter"
 /* definitions for ytab.h */
 
 %union {
@@ -66,8 +66,8 @@ uint32 filter_init_lexer(int8 *s);
 
 
 %token<filter_int> L_PAREN R_PAREN OP_AND OP_OR OP_NOT OP_EQU OP_GT OP_LT OP_PRESENT OP_APPROX
-%token<filter_int> VAL_INT VAL_BOOL 
-%token<filter_string> OPERAND 
+%token<filter_int> VAL_INT VAL_BOOL
+%token<filter_string> OPERAND
 
 /* typecast the non-terminals */
 
@@ -77,14 +77,14 @@ uint32 filter_init_lexer(int8 *s);
 
 /* grammar */
 
-filter_list: filter 
-         | filter_list filter 
+filter_list: filter
+         | filter_list filter
          ;
 
-filter: filter_open filter_op filter_list filter_close { 
+filter: filter_open filter_op filter_list filter_close {
             if(NULL != ($$ = lslpAllocFilter($2))) {
 	      $$->nestingLevel = nesting_level;
-	      if(! _LSLP_IS_EMPTY(&reducedFilters) ) { 
+	      if(! _LSLP_IS_EMPTY(&reducedFilters) ) {
 		lslpLDAPFilter *temp = (lslpLDAPFilter *)reducedFilters.next;
 		while(! _LSLP_IS_HEAD(temp)) {
 		  if(temp->nestingLevel == nesting_level + 1) {
@@ -98,17 +98,17 @@ filter: filter_open filter_op filter_list filter_close {
 	      } else { lslpFreeFilter($$) ; $$ = NULL ; }
             }
          }
-       
-         | filter_open expression filter_close { 
+
+         | filter_open expression filter_close {
 	   $$ = $2;
 	   if($2 != NULL) {
 	     $2->nestingLevel = nesting_level;
-	     _LSLP_INSERT_BEFORE((filterHead *)$2, &reducedFilters) ; 
+	     _LSLP_INSERT_BEFORE((filterHead *)$2, &reducedFilters) ;
 	   }
 	 }
          ;
 
-filter_open: L_PAREN { nesting_level++; } 
+filter_open: L_PAREN { nesting_level++; }
          ;
 
 filter_close: R_PAREN { nesting_level--; }
@@ -128,7 +128,7 @@ expression: OPERAND OP_PRESENT {      /* presence test binds to single operand *
 		 _LSLP_INSERT(attr, &($$->attrs));
 	       } else { lslpFreeFilter($$); $$ = NULL; }
 	     }
-         }     
+         }
 
          | OPERAND exp_operator VAL_INT  {  /* must be an int or a bool */
 	   /* remember to touch up the token values to match the enum in lslp.h */
@@ -136,7 +136,7 @@ expression: OPERAND OP_PRESENT {      /* presence test binds to single operand *
 	     lslpAttrList *attr = lslpAllocAttr($1, integer, &($3), sizeof($3));
 	     if(attr != NULL) {
 	       _LSLP_INSERT(attr, &($$->attrs));
-	     } else { lslpFreeFilter($$); $$ = NULL ; } 
+	     } else { lslpFreeFilter($$); $$ = NULL ; }
 	   }
 	 }
 
@@ -146,7 +146,7 @@ expression: OPERAND OP_PRESENT {      /* presence test binds to single operand *
 	     lslpAttrList *attr = lslpAllocAttr($1, bool_type, &($3), sizeof($3));
 	     if(attr != NULL) {
 	       _LSLP_INSERT(attr, &($$->attrs));
-	     } else { lslpFreeFilter($$); $$ = NULL ; } 
+	     } else { lslpFreeFilter($$); $$ = NULL ; }
 	   }
 	 }
 
@@ -155,7 +155,7 @@ expression: OPERAND OP_PRESENT {      /* presence test binds to single operand *
 	     lslpAttrList *attr = lslpAllocAttr($1, string, $3, (int16)strlen($3) + 1 );
 	     if(attr != NULL) {
 	       _LSLP_INSERT(attr, &($$->attrs));
-	     } else { lslpFreeFilter($$); $$ = NULL ; } 
+	     } else { lslpFreeFilter($$); $$ = NULL ; }
 	   }
 	 }
 
@@ -168,22 +168,22 @@ exp_operator: OP_EQU
          { $$ = filterlval.filter_int; }
          ;
 
-%% 
+%%
 
 
-lslpLDAPFilter *lslpAllocFilter(int operator)
+lslpLDAPFilter *lslpAllocFilter(int filterOperator)
 {
   lslpLDAPFilter *filter = (lslpLDAPFilter *)calloc(1, sizeof(lslpLDAPFilter));
   if(filter  != NULL) {
     filter->next = filter->prev = filter;
-    if(operator == head) {
+    if(filterOperator == head) {
       filter->isHead = TRUE;
     } else {
       filter->children.next = filter->children.prev = &(filter->children);
       filter->children.isHead = 1;
       filter->attrs.next = filter->attrs.prev = &(filter->attrs);
       filter->attrs.isHead = 1;
-      filter->operator = operator;
+      filter->_operator = filterOperator;
     }
   }
   return(filter);
@@ -216,7 +216,7 @@ void lslpFreeFilterList(lslpLDAPFilter *head, BOOL static_flag)
     _LSLP_UNLINK(temp);
     lslpFreeFilter(temp);
   }
-  
+
   if( static_flag == TRUE)
     lslpFreeFilter(head);
   return;
@@ -252,6 +252,6 @@ lslpLDAPFilter *_lslpDecodeLDAPFilter(int8 *filter)
     }
   }
   lslpCleanUpFilterList();
-  
-  return(temp);	
+
+  return(temp);
 }

@@ -103,20 +103,33 @@ void test01()
 	// flavors for this one should be disableoverride, but tosubclass 
 	CIMQualifierDecl key("key",Boolean(true),(CIMScope::PROPERTY + CIMScope::REFERENCE),
 	  CIMFlavor::TOSUBCLASS);
+	// Flavor is the defaults. overridable and tosubclass.
     CIMValue v1(CIMType::UINT32, false);
     CIMQualifierDecl q3("q3",v1,CIMScope::CLASS);
+
+	// Flavor should be tosubclass but not overridable
+    CIMQualifierDecl q4("q4",String(),CIMScope::CLASS, 
+		CIMFlavor::TOSUBCLASS);
+
+	// Flavor should be tosubclass but not overridable
+    CIMQualifierDecl q5("q5",String(),CIMScope::CLASS, 
+		CIMFlavor::TOSUBCLASS);
 
 	if(verbose)
 	{
 		q1.print();
 		q2.print();
 		q3.print();
+		q4.print();
+		q5.print();
 		key.print();
 	}
 
     context->addQualifierDecl(NAMESPACE, q1);
     context->addQualifierDecl(NAMESPACE, q2);
     context->addQualifierDecl(NAMESPACE, q3);
+    context->addQualifierDecl(NAMESPACE, q4);
+    context->addQualifierDecl(NAMESPACE, q5);
     context->addQualifierDecl(NAMESPACE, key);
 
 	CIMProperty keyProperty("keyProperty", Boolean(true));
@@ -129,6 +142,10 @@ void test01()
 	if(verbose)	cout << "Create Class2 " << endl;
 
 	class2
+        .addQualifier(CIMQualifier("Abstract", Boolean(true)))
+		.addQualifier(CIMQualifier("q1", "Hello"))
+		.addQualifier(CIMQualifier("q4", "Goodby"))
+		.addQualifier(CIMQualifier("q5", "Goodby"))
 		.addProperty(CIMProperty(keyProperty))
 	;
     
@@ -143,8 +160,9 @@ void test01()
         .addQualifier(CIMQualifier("Abstract", Boolean(true)))
         .addQualifier(CIMQualifier("q1", "Hello"))
 		.addQualifier(CIMQualifier("q3", Uint32(55)))
+		.addQualifier(CIMQualifier("q5", "Goodby"))
 
-	.addProperty(CIMProperty("message", String("Hello")))
+	// .addProperty(CIMProperty(keyProperty))
 	.addProperty(CIMProperty("count", Uint32(77)))
 	// .addProperty(CIMProperty("ref1", Reference("MyClass.key1=\"fred\"")))
 	.addMethod(CIMMethod("isActive", CIMType::BOOLEAN)
@@ -178,6 +196,15 @@ void test01()
     {
         cerr << "Test01 - Resolution Error " << e.getMessage() << endl;
     }
+	// Test results	in superclass
+	assert(class2.existsQualifier("Abstract"));
+
+	// assert results in subclass
+	assert(class1.existsQualifier("Abstract"));
+	assert(class1.existsQualifier("q1"));
+	assert(class1.existsQualifier("q3"));
+	assert(class1.existsQualifier("q4"));
+	assert(class1.existsQualifier("q5"));
 }
 /* Test for qualifier and properties resolved to subclass from superclass
 	This is a major test of resolution of attributes from a superclass to

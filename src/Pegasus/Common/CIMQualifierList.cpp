@@ -159,7 +159,7 @@ void CIMQualifierList::resolve(
 		// CIM schema.
 
 		// Move the flavor from declaration
-		// Always sets a flavor since the flavor since cannot be set on creation.
+		// Always sets flavor to the declaration flavor.
 		q.setFlavor(qd.getFlavor());	
 //#if 0
 		Uint32 pos = inheritedQualifiers.find(q.getName());
@@ -167,12 +167,19 @@ void CIMQualifierList::resolve(
 		//cout << "KSTEST Qualifier resolve inherit test " << q.getName() 
 		//<< " Inherited Position = " << pos << endl;
 
-		// If qualifier found and not overridable, throw exception.
+		// Test for Qualifier found in SuperClass. If found and qualifier
+		// is not overridable, Must be identical.
+		// Thus - abstract (not Overridable and restricted) can be found in subclasses
+		// I can have nonabstracts below abstracts. No propagation.
+		// Association (notOverridable and tosubclass) can be found in subclasses but
+		// cannot be changed. No non-aswsociatons below associations..
+		// Throw exception if DisableOverride and tosubclass and different value
 		if (pos != PEG_NOT_FOUND)
 		{
 			CIMConstQualifier iq = inheritedQualifiers.getQualifier(pos);
-			if (!qd.isFlavor(CIMFlavor::OVERRIDABLE))
-				throw BadQualifierOverride(q.getName());
+			if (!qd.isFlavor(CIMFlavor::OVERRIDABLE) && qd.isFlavor(CIMFlavor::TOSUBCLASS))
+				if(!q.identical(iq))
+					throw BadQualifierOverride(q.getName());
 		}
 //#endif
     } 					// end of this objects qualifier loop
@@ -194,7 +201,6 @@ void CIMQualifierList::resolve(
 			// HACK to avoid propagating the "Abstract" Qualifier to subclasses
 		//if (CIMName::equal(iq.getName(), "Abstract"))
 			//   continue;
-		//cout << "KSTEST resolve pre Propagate " << iq.getName() << " true= " << true 
 		//<< " flavor= " << iq.getFlavor()
 		//<< " TOSUBCLASS " << (iq.getFlavor() && CIMFlavor::TOSUBCLASS) << endl;
 		

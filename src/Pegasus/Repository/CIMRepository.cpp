@@ -2711,6 +2711,8 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
 
     // The resultClass parameter implies subclasses, so retrieve them
     Array<CIMName> resultClassList;
+
+	try {
     if (!resultClass.isNull())
     {
         _nameSpaceManager.getSubClassNames(
@@ -2761,6 +2763,14 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
             // Ignore error! It's okay not to have references.
         }
     }
+	}
+	catch (CIMException exception) {
+		if(exception.getCode() == CIM_ERR_INVALID_CLASS) {
+			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, exception.getMessage());
+		}
+		else
+			throw exception;
+	}
 
     Array<CIMObjectPath> result;
 

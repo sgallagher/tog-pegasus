@@ -3880,6 +3880,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                            checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
+		if(checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+			checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+
         CIMAssociatorsResponseMessage* response =
             new CIMAssociatorsResponseMessage(
                 request->messageId,
@@ -4150,6 +4153,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                            checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
+		if(checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+			checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+
         CIMAssociatorNamesResponseMessage* response =
             new CIMAssociatorNamesResponseMessage(
                 request->messageId,
@@ -4414,6 +4420,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                            checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
+		if(checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+			checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+
         CIMReferencesResponseMessage* response =
             new CIMReferencesResponseMessage(
                 request->messageId,
@@ -4680,6 +4689,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                            checkClassException);
     if (checkClassException.getCode() != CIM_ERR_SUCCESS)
     {
+		if(checkClassException.getCode() == CIM_ERR_INVALID_CLASS)
+			checkClassException = PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, request->objectName.toString());
+
         CIMReferenceNamesResponseMessage* response =
             new CIMReferenceNamesResponseMessage(
                 request->messageId,

@@ -515,7 +515,7 @@ int errcode;
       uint32 *intp;
       struct sockaddr_in *sin;
 		  addr_list = (SOCKET_ADDRESS_LIST *)output_buf;
-      *list = (uint32 *) malloc(sizeof(SOCKET_ADDRESS) * addr_list->iAddressCount + 1) ;
+      *list = (uint32 *) malloc(sizeof(SOCKET_ADDRESS) * (addr_list->iAddressCount + 1)) ;
       addr = addr_list->Address;
       
       for( interfaces = 0, intp = *list, sin = (struct sockaddr_in *)addr->lpSockaddr ; 

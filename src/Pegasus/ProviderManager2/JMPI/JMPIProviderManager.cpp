@@ -30,6 +30,7 @@
 // Author:      Adrian Schuur, schuur@de.ibm.com 
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +40,6 @@
 
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Logger.h>

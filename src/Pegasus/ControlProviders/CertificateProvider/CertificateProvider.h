@@ -29,6 +29,8 @@
 //
 // Author: Heather Sterling (hsterl@us.ibm.com), PEP#187
 //
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//
 //%////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CertificateProvider_h
@@ -53,7 +55,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/OperationContext.h>
 
 #include <Pegasus/Repository/CIMRepository.h>

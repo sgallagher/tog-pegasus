@@ -1,0 +1,20 @@
+CHANGE LOG FOR PEGASUS
+
+
+
+------------------------------------------------------------------------
+21 May 2001  Version 0.97
+
+1. Added methods in CIMClass, CIMInstance, for existance of properties,
+qualifiers, methods.
+2. Add methods in CIMClass, CIMInstance to remove properties, qualifier,
+methods.
+3. Added CIMmethod and CIMProperty in CIMMethod to text for existance of
+qualifiers and to
+remove qualifiers.
+4. Ported to AIX. NOTE: This port was done using an earlier version of the AIX
+compiler.  It probably imposed more limitations than would be required with
+the current compiler.
+
+--------------------------------------------------------------------------
+

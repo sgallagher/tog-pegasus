@@ -716,7 +716,6 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	CIMMessage * cimmsg = dynamic_cast<CIMMessage *>(request);
 	if (cimmsg != NULL)
 	{
-		cimmsg->contentLanguages = httpContentLanguages;
 		cimmsg->operationContext.insert(IdentityContainer(userName));
 		cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
 		cimmsg->operationContext.set(AcceptLanguageListContainer(AcceptLanguages::EMPTY));

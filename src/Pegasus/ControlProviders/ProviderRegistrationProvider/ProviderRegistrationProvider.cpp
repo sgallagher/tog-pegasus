@@ -1209,7 +1209,7 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
 	        QueueIdStack(_service->getQueueId()));
 
 // l10n
-        termination_req->acceptLanguages = al;
+        termination_req->operationContext.set(AcceptLanguageListContainer(al));
 
         // create request envelope
         AsyncLegacyOperationStart * asyncRequest =

@@ -33,9 +33,14 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-CIMClass CreateG()
+CIMClass CreateX()
 {
-    CIMClass graphic("G");
+    // class X
+    // {
+    //     [key] string color;
+    // };
+
+    CIMClass graphic("X");
 
     CIMProperty color("color", String());
     color.addQualifier(CIMQualifier("key", true));
@@ -46,14 +51,20 @@ CIMClass CreateG()
 
 CIMClass CreateAssocClass()
 {
+    // class Assoc
+    // {
+    //     X ref ref1;
+    //     X ref ref2;
+    // };
+
     CIMClass assocClass("Assoc");
     assocClass.addQualifier(CIMQualifier("Association", true));
 
-    CIMProperty ref1("ref1", CIMReference(), 0, "G");
+    CIMProperty ref1("ref1", CIMReference(), 0, "X");
     ref1.addQualifier(CIMQualifier("key", true));
     assocClass.addProperty(ref1);
 
-    CIMProperty ref2("ref2", CIMReference(), 0, "G");
+    CIMProperty ref2("ref2", CIMReference(), 0, "X");
     ref2.addQualifier(CIMQualifier("key", true));
     assocClass.addProperty(ref2);
 
@@ -62,17 +73,23 @@ CIMClass CreateAssocClass()
 
 CIMInstance CreateAssocInstance()
 {
-    CIMInstance assocInstance("G");
+    // instance of Assoc
+    // {
+    //     ref1 = "X.color=\"red\"";
+    //     ref2 = "X.color=\"green\"";
+    // };
+
+    CIMInstance assocInstance("X");
 
     // ATTN-1: It should not be necessary to specify the reference
     // class name when specifying an instance property!
 
     CIMProperty ref1(
-	"ref1", CIMReference("G.color=\"red\""), 0, "G");
+	"ref1", CIMReference("X.color=\"red\""), 0, "X");
     assocInstance.addProperty(ref1);
 
     CIMProperty ref2(
-	"ref2", CIMReference("G.color=\"green\""), 0, "G");
+	"ref2", CIMReference("X.color=\"green\""), 0, "X");
     assocInstance.addProperty(ref2);
 
     return assocInstance;
@@ -80,7 +97,7 @@ CIMInstance CreateAssocInstance()
 
 void test01()
 {
-    CIMClass graphic = CreateG();
+    CIMClass graphic = CreateX();
     CIMClass assocClass = CreateAssocClass();
     CIMInstance assocInstance = CreateAssocInstance();
     CIMReference instanceName = assocInstance.getInstanceName(assocClass);

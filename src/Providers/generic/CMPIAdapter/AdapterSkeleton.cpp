@@ -87,6 +87,11 @@ void CMPIAdapter::initialize(CIMOMHandle& cimomHandle)
         ConfigManager::getInstance()->getCurrentValue("providerDir"));
     _libraryName.append(
         String("/lib") + _providerName + String(".sl"));
+    #elif defined(PEGASUS_OS_DARWIN)
+    _libraryName = ConfigManager::getHomedPath(
+        ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    _libraryName.append(
+        String("/lib") + _providerName + String(".dylib")); 
     #else
     _libraryName = ConfigManager::getHomedPath(
         ConfigManager::getInstance()->getCurrentValue("providerDir"));

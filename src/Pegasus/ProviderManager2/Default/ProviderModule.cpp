@@ -61,6 +61,8 @@ ProviderModule::ProviderModule(const String & fileName, const String & interface
             String("lib")+interfaceName+String("Adapter.sl");
         #elif defined(PEGASUS_OS_OS400)
         _interfaceFileName=interfaceName+String("Adapter");
+        #elif defined(PEGASUS_OS_DARWIN)
+        _interfaceFileName= String("lib")+interfaceName+String("Adapter.dylib");           
         #else
         _interfaceFileName= String("lib")+interfaceName+String("Adapter.so");
         #endif
@@ -97,6 +99,8 @@ ProviderModule::ProviderModule(const String & fileName,
             _interfaceFileName = String("lib") + _interfaceName + String(".sl");
             #elif defined(PEGASUS_OS_OS400)
             _interfaceFileName = _interfaceName;
+            #elif defined(PEGASUS_OS_DARWIN)
+            _interfaceFileName = String("lib") + _interfaceName + String(".dylib");
             #else
             _interfaceFileName = String("lib") + _interfaceName + String(".so");
             #endif

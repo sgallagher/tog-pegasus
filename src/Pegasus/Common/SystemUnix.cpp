@@ -58,7 +58,7 @@
 #  include <string.h> 
 #endif 
 
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) 
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) 
 #include <crypt.h> 
 #endif
 
@@ -445,7 +445,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
     // ATTN: Should this method indicate success/failure?
-#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS)
+#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_DARWIN)
     dlclose(libraryHandle);
 #endif
 

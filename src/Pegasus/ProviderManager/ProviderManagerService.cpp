@@ -226,6 +226,8 @@ Triad<String, String, String> _getProviderRegPair(
 # endif
 #elif defined(PEGASUS_OS_OS400)
     fileName = location;
+#elif defined(PEGASUS_OS_DARWIN)
+    fileName.append(String("lib") + location + String(".dylib"));
 #else
     fileName.append(String("lib") + location + String(".so"));
 #endif
@@ -329,6 +331,8 @@ void ProviderManagerService::_lookupProviderForAssocClass(
 # endif
 #elif defined(PEGASUS_OS_OS400)
         fileName = Location;
+#elif defined(PEGASUS_OS_DARWIN)
+        fileName = String("lib") + Location + String(".dylib");
 #else
         fileName = String("lib") + Location + String(".so");
 #endif

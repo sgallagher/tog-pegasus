@@ -40,6 +40,8 @@
 #include "ConfigFileDirZos.h"
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
 #include "ConfigFileDirAix.h"
+#elif PEGASUS_PLATFORM_DARWIN_PPC_GNU
+#include "ConfigFileDirDarwin.h"
 #else
 /**
     Default file name for the current configuration.

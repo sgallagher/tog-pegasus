@@ -23,7 +23,7 @@
 //
 // Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +39,7 @@ PEGASUS_NAMESPACE_BEGIN
 AuthenticationInfoRep::AuthenticationInfoRep(Boolean flag)
     : 
     _authUser(String::EMPTY),
+    _authPassword(String::EMPTY),
     _authChallenge(String::EMPTY),
     _authSecret(String::EMPTY),
     _privileged(false),
@@ -88,6 +89,16 @@ void   AuthenticationInfoRep::setAuthenticatedUser(const String& userName)
         TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthenticatedUser");
 
     _authUser = userName;
+
+    PEG_METHOD_EXIT();
+}
+
+void   AuthenticationInfoRep::setAuthenticatedPassword(const String& password)
+{
+    PEG_METHOD_ENTER(
+        TRC_AUTHENTICATION, "AuthenticationInfoRep::setAuthenticatedPassword");
+
+    _authPassword = password;
 
     PEG_METHOD_EXIT();
 }

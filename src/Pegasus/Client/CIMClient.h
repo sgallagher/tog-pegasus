@@ -29,6 +29,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,8 +55,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class CIMClientInterface;
 
-class CIMClientRep;
 
 /** This class provides the interface that a client uses to communicate
     with a CIM Server.
@@ -516,7 +517,7 @@ public:
 
 private:
 
-    CIMClientRep* _rep;
+    CIMClientInterface* _rep;
 };
 
 PEGASUS_NAMESPACE_END

@@ -19,6 +19,7 @@ LIBRARIES = \
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
+	CIMClientRep.cpp \
     CIMClient.cpp \
     CIMOperationRequestEncoder.cpp \
     CIMOperationResponseDecoder.cpp \

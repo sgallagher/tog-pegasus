@@ -21,9 +21,9 @@
 //
 //==============================================================================
 //
-// Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+// Author:  Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -169,6 +169,24 @@ public:
         _rep->setAuthenticatedUser(userName); 
     }
 
+    /** Get the previously authenticated password
+        @return the authenticated password
+    */
+    String getAuthenticatedPassword() const 
+    { 
+        _checkRep();
+        return _rep->getAuthenticatedPassword(); 
+    }
+
+    /** Sets the authenticated password
+        @param password - string containing the authenticated password
+    */
+    void   setAuthenticatedPassword(const String& password)
+    { 
+        _checkRep();
+        _rep->setAuthenticatedPassword(password); 
+    }
+    
     /** Get the authentication challenge that was sent to the client
         @return string containing the authentication challenge
     */

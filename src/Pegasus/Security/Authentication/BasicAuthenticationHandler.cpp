@@ -23,7 +23,7 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Jair Santos, Hewlett-Packard Company(jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -123,12 +123,19 @@ Boolean BasicAuthenticationHandler::authenticate(
     }
 #endif
 
+#ifdef PEGASUS_WMIMAPPER
+    authenticated = true;
+
+    authInfo->setAuthenticatedUser(userName);
+    authInfo->setAuthenticatedPassword(password);
+#else
     authenticated = _basicAuthenticator->authenticate(userName, password);
 
     if (authenticated)
     {
         authInfo->setAuthenticatedUser(userName);
     }
+#endif
 
     PEG_METHOD_EXIT();
 

@@ -23,7 +23,7 @@
 //
 // Author:  Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Jair Santos, Hewlett-Packard Company(jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,6 +69,13 @@ public:
     } 
 
     void   setAuthenticatedUser(const String& userName);
+
+    String getAuthenticatedPassword() const 
+    { 
+        return _authPassword;
+    } 
+
+    void   setAuthenticatedPassword(const String& password);
 
     String getAuthChallenge() const 
     { 
@@ -122,6 +129,7 @@ private:
     AuthenticationInfoRep& operator=(const AuthenticationInfoRep& x);
 
     String  _authUser;
+    String  _authPassword;
     String  _authChallenge;
     String  _authSecret;
     Boolean _privileged;

@@ -25,18 +25,15 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
-// Modified By: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
-//
-// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company
-//              (sushma_fernandes@hp.com)
-//
-// Modified By : Chip Vincent (cvincent@us.ibm.com)
+//                  (sushma_fernandes@hp.com)
+//              Chip Vincent (cvincent@us.ibm.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +51,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/AcceptLanguages.h>  // l10n
 #include <Pegasus/Common/ContentLanguages.h>  // l10n
 
@@ -134,6 +132,7 @@ public:
     }
 
     QueueIdStack queueIds;
+    OperationContext operationContext;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage

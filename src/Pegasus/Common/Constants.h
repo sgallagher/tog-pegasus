@@ -135,6 +135,11 @@ static const CIMName PEGASUS_CLASSNAME_NAMESPACE            =
 static const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR    = 
     CIMName ("Creator");
 
+// l10n    
+static const CIMName PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS = 
+    CIMName ("AcceptLanguages"); 
+static const CIMName PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS = 
+    CIMName ("ContentLanguages");  
 
 //
 // CIM Namespace Names

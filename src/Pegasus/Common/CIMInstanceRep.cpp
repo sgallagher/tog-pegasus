@@ -129,6 +129,7 @@ void CIMInstanceRep::resolve(
             //  Allow addition of Creator property to Indication Subscription,
             //  Filter and Handler instances
             //
+// l10n add language property support           
             if (!(((className.equal 
                     (CIMName (PEGASUS_CLASSNAME_INDSUBSCRIPTION))) ||
                 (className.equal 
@@ -136,8 +137,12 @@ void CIMInstanceRep::resolve(
                 (className.equal 
                     (CIMName (PEGASUS_CLASSNAME_INDHANDLER_SNMP))) ||
                 (className.equal (CIMName (PEGASUS_CLASSNAME_INDFILTER)))) &&
+                ((property.getName ().equal 
+                    (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CREATOR))) ||
                 (property.getName ().equal 
-                    (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)))))
+                    (CIMName (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS))) ||
+                (property.getName ().equal 
+                    (CIMName (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS))))))
             {
 	        throw NoSuchProperty(property.getName().getString ());
             }

@@ -164,6 +164,7 @@ void Logger::_putInternal(
     const Uint32 logComponent, // TODO: Support logComponent mask in future release 
     Uint32 logLevel,
     const String& formatString,
+    const String& messageId,  // l10n
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
     const Formatter::Arg& arg2,
@@ -182,24 +183,52 @@ void Logger::_putInternal(
 	if (!_rep)
 	   _rep = new LoggerRep(_homeDirectory);
 
-	// Get the logLevel String
-	// This converts bitmap to string based on highest order
-	// bit set
-	// ATTN: KS Fix this more efficiently.
-	static const char* svNames[] = 
-	{
+		// Get the logLevel String
+		// This converts bitmap to string based on highest order
+		// bit set
+		// ATTN: KS Fix this more efficiently.
+		static const char* svNames[] = 
+		{
 	    "TRACE   ",
 	    "INFO    ",
 	    "WARNING ",
 	    "SEVERE  ",
 	    "FATAL   "
-	};
-	// NUM_LEVELS = 5
-	int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
+		};
+		// NUM_LEVELS = 5
+		int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
 
-        String logMsg = Formatter::format(formatString,
-                arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-
+// l10n start
+        // The localized message to be sent to the system log.
+		String localizedMsg;
+         
+		// If the caller specified a messageId, then load the localized
+		// message in the locale of the server process.                		
+		if (messageId != String::EMPTY)
+		{
+			// A message ID was specified.  Use the MessageLoader.			
+			MessageLoaderParms msgParms(messageId, formatString);
+			msgParms.useProcessLocale = true;
+			msgParms.arg0 = arg0;
+			msgParms.arg1 = arg1;
+			msgParms.arg2 = arg2;
+			msgParms.arg3 = arg3;
+			msgParms.arg4 = arg4;
+			msgParms.arg5 = arg5;
+			msgParms.arg6 = arg6;
+			msgParms.arg7 = arg7;
+			msgParms.arg8 = arg8;
+			msgParms.arg9 = arg9;
+																		
+			localizedMsg = MessageLoader::getMessage(msgParms);				
+		}
+		else
+		{  // No message ID.  Use the Pegasus formatter  
+		  	localizedMsg = Formatter::format(formatString,
+                arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);			
+		}
+// l10n end		
+	
 #if defined(PEGASUS_USE_SYSLOGS)
            
             // Open the syslog.
@@ -207,7 +236,10 @@ void Logger::_putInternal(
 	    System::openlog(systemId);
 
             // Log the message
-	    System::syslog(logLevel,(const char*)logMsg.getCString());
+	    System::syslog(logLevel,(const char*)localizedMsg.getCString());
+// l10n TODO uncomment this line	    
+//	    System::syslog(logLevel,(const char*)localizedMsg.getCStringUTF8());	    
+	    
 
             // Close the syslog.
 	    System::closelog();
@@ -217,7 +249,7 @@ void Logger::_putInternal(
 	    // Prepend the systemId to the incoming message
 	    String messageString(systemId);
 	    messageString.append(": ");
-	    messageString.append(logMsg);
+	    messageString.append(localizedMsg);  // l10n - TODO need to send as UTF-8
 
 	    const char* tmp = "";
 	    if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
@@ -225,8 +257,10 @@ void Logger::_putInternal(
             if (logLevel & Logger::WARNING) tmp =     "WARNING ";
 	    if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
 	    if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
-                _rep->logOf(logFileType) << System::getCurrentASCIITime() 
-                 << " " << tmp << messageString << endl;
+                _rep->logOf(logFileType) << System::getCurrentASCIITime()
+                 << " " << tmp << messageString.getCString() << endl;
+// l10n - TODO uncomment this                 
+//               << " " << tmp << messageString.getCStringUTF8() << endl;
 
        #endif
     }
@@ -246,7 +280,7 @@ void Logger::put(
 		 const Formatter::Arg& arg6,
 		 const Formatter::Arg& arg7,
 		 const Formatter::Arg& arg8,
-		 const Formatter::Arg& arg9)
+		 const Formatter::Arg& arg9)	
 {
     Uint32 logComponent = 0;
 
@@ -256,6 +290,8 @@ void Logger::put(
 			logComponent,
 			logLevel,
 			formatString,
+//l10n
+			String::EMPTY,
 			arg0,
 			arg1,
 			arg2,
@@ -265,7 +301,46 @@ void Logger::put(
 			arg6,
 			arg7,
 			arg8,
-			arg9);
+			arg9);		
+}
+
+// l10n
+void Logger::put_l(
+		 LogFileType logFileType,
+		 const String& systemId,
+		 Uint32 logLevel,
+		 const String& messageId,  // l10n		 
+		 const String& formatString,
+		 const Formatter::Arg& arg0,
+		 const Formatter::Arg& arg1,
+		 const Formatter::Arg& arg2,
+		 const Formatter::Arg& arg3,
+		 const Formatter::Arg& arg4,
+		 const Formatter::Arg& arg5,
+		 const Formatter::Arg& arg6,
+		 const Formatter::Arg& arg7,
+		 const Formatter::Arg& arg8,
+		 const Formatter::Arg& arg9)			
+{
+    Uint32 logComponent = 0;
+
+    Logger::_putInternal(
+			logFileType,
+			systemId,
+			logComponent,
+			logLevel,
+			formatString,
+			messageId,
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+			arg7,
+			arg8,
+			arg9);		
 }
 
 void Logger::trace(
@@ -282,7 +357,7 @@ void Logger::trace(
 		   const Formatter::Arg& arg6,
 		   const Formatter::Arg& arg7,
 		   const Formatter::Arg& arg8,
-		   const Formatter::Arg& arg9)
+		   const Formatter::Arg& arg9)	
 {
     Uint32 logLevel = Logger::TRACE;
 
@@ -292,6 +367,8 @@ void Logger::trace(
 			logComponent,
 			logLevel,
 			formatString,
+// l10n
+			String::EMPTY,
 			arg0,
 			arg1,
 			arg2,
@@ -301,7 +378,46 @@ void Logger::trace(
 			arg6,
 			arg7,
 			arg8,
-			arg9);
+			arg9);			
+}
+
+// l10n
+void Logger::trace_l(
+		   LogFileType logFileType,
+		   const String& systemId,
+		   const Uint32 logComponent,
+		   const String& messageId,		   
+		   const String& formatString,
+		   const Formatter::Arg& arg0,
+		   const Formatter::Arg& arg1,
+		   const Formatter::Arg& arg2,
+		   const Formatter::Arg& arg3,
+		   const Formatter::Arg& arg4,
+		   const Formatter::Arg& arg5,
+		   const Formatter::Arg& arg6,
+		   const Formatter::Arg& arg7,
+		   const Formatter::Arg& arg8,
+		   const Formatter::Arg& arg9)	
+{
+    Uint32 logLevel = Logger::TRACE;
+
+    Logger::_putInternal(
+			logFileType,
+			systemId,
+			logComponent,
+			logLevel,
+			formatString,
+			messageId,
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+			arg5,
+			arg6,
+			arg7,
+			arg8,
+			arg9);			
 }
 
 void Logger::setHomeDirectory(const String& homeDirectory)

@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Formatter.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/MessageLoader.h>  // l10n
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -106,6 +107,45 @@ public:
 		    const Formatter::Arg& arg8 = Formatter::Arg(),
 		    const Formatter::Arg& arg9 = Formatter::Arg());
 
+// l10n
+    /** put_l - Puts a localized message to the defined log file
+	@param logFileType - Type of log file (Trace, etc.)
+	@param systemId  - ID of the system generating the log entry within 
+	Pegasus. This is user defined but generally breaks down into major
+	Pegasus components.
+	@param level logLevel of the log entry. To be used both t0
+	mark the log entry and tested against a mask to determine if log 
+	entry should be written.
+	@param messageId Message ID of the format string to load from 
+	the resource bundle. 
+	@param formatString	Default format definition string. See the 
+	Formatter for details.  This will be used as the default format string
+	in case the resource bundle cannot be found.
+	@param Arg0 - Arg 9 - Up to 9 arguments representing the variables
+	that go into the log entry.
+    <pre>
+    Logger::put(Logger::TRACE_LOG, "CIMServer", Logger::WARNING,
+	"X=$0, Y=$1, Z=$2", 88,  "Hello World", 7.5);
+    </pre>
+    */
+    static void put_l(
+    		LogFileType logFileType,
+		    const String& systemId,
+		    Uint32 logLevel,
+            const String& messageId,		    
+		    const String& formatString,
+		    const Formatter::Arg& arg0 = Formatter::Arg(),
+		    const Formatter::Arg& arg1 = Formatter::Arg(),
+		    const Formatter::Arg& arg2 = Formatter::Arg(),
+		    const Formatter::Arg& arg3 = Formatter::Arg(),
+		    const Formatter::Arg& arg4 = Formatter::Arg(),
+		    const Formatter::Arg& arg5 = Formatter::Arg(),
+		    const Formatter::Arg& arg6 = Formatter::Arg(),
+		    const Formatter::Arg& arg7 = Formatter::Arg(),
+		    const Formatter::Arg& arg8 = Formatter::Arg(),
+		    const Formatter::Arg& arg9 = Formatter::Arg());
+
+
     // _trace - puts a message to the define log.  Should only be used
     // for trace type logs  
     static void trace(
@@ -123,6 +163,28 @@ public:
 		       const Formatter::Arg& arg7 = Formatter::Arg(),
 		       const Formatter::Arg& arg8 = Formatter::Arg(),
 		       const Formatter::Arg& arg9 = Formatter::Arg());
+
+
+// l10n
+    // trace - puts a localized message to the log.  Should only be used
+    // for trace type logs  
+    static void trace_l(
+		       LogFileType logFileType,
+		       const String& systemId,
+		       const Uint32 logComponent,
+               const String& messageId,		       
+		       const String& formatString,
+		       const Formatter::Arg& arg0 = Formatter::Arg(),
+		       const Formatter::Arg& arg1 = Formatter::Arg(),
+		       const Formatter::Arg& arg2 = Formatter::Arg(),
+		       const Formatter::Arg& arg3 = Formatter::Arg(),
+		       const Formatter::Arg& arg4 = Formatter::Arg(),
+		       const Formatter::Arg& arg5 = Formatter::Arg(),
+		       const Formatter::Arg& arg6 = Formatter::Arg(),
+		       const Formatter::Arg& arg7 = Formatter::Arg(),
+		       const Formatter::Arg& arg8 = Formatter::Arg(),
+		       const Formatter::Arg& arg9 = Formatter::Arg());
+
 
     /** setHomeDirectory
     */
@@ -156,6 +218,7 @@ private:
 		    const Uint32 logComponent,
 		    Uint32 logLevel,
 		    const String& formatString,
+            const String& messageId,  // l10n
 		    const Formatter::Arg& arg0 = Formatter::Arg(),
 		    const Formatter::Arg& arg1 = Formatter::Arg(),
 		    const Formatter::Arg& arg2 = Formatter::Arg(),

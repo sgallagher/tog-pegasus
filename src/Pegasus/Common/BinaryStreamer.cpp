@@ -1010,23 +1010,38 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
 
             switch (type) {
             case CIMTYPE_BOOLEAN:
-               val.set(*(Boolean*)(ar+pos));
+	       Boolean b;
+	       memcpy(&b, ar + pos, sizeof(Boolean));
+               //val.set(*(Boolean*)(ar+pos));
+	       val.set(b);
                pos++;
                break;
             case CIMTYPE_SINT8:
-               val.set(*(Sint8*)(ar+pos));
+	       Sint8 sint;
+	       memcpy( &b, ar + pos, sizeof(Sint8));
+               //val.set(*(Sint8*)(ar+pos));
+	       val.set(sint);
                pos++;
                break;
             case CIMTYPE_UINT8:
-               val.set(*(Uint8*)(ar+pos));
+	       Uint8 uint;
+               //val.set(*(Uint8*)(ar+pos));
+	       memcpy(&uint, ar + pos, sizeof(Uint8));
+	       val.set(uint);
                pos++;
                break;
             case CIMTYPE_UINT16:
-               val.set(*(Uint16*)(ar+pos));
+	       Uint16 uint16;
+               //val.set(*(Uint16*)(ar+pos));
+	       memcpy( &uint16, ar + pos, sizeof(Uint16));
+	       val.set(uint16);
                pos+=sizeof(Uint16);
                break;
             case CIMTYPE_SINT16:
-               val.set(*(Sint16*)(ar+pos));
+	       Sint16 sint16;
+               //val.set(*(Sint16*)(ar+pos));
+	       memcpy( &sint16, ar + pos, sizeof(Sint16));
+	       val.set(sint16);
                pos+=sizeof(Sint16);
                break;
             case CIMTYPE_CHAR16:
@@ -1034,27 +1049,45 @@ CIMValue BinaryStreamer::extractValue(const Array<Sint8>& in, Uint32 & pos)
                pos+=sizeof(Char16);
                break;
             case CIMTYPE_UINT32:
-               val.set(*(Uint32*)(ar+pos));
+	       Uint32 uint32;
+	       memcpy ( &uint32, ar + pos, sizeof(Uint32));
+               //val.set(*(Uint32*)(ar+pos));
+	       val.set( uint32 );
                pos+=sizeof(Uint32);
                break;
             case CIMTYPE_SINT32:
-               val.set(*(Sint32*)(ar+pos));
+	       Sint32 sint32;
+	       memcpy ( &sint32, ar + pos, sizeof(Sint32));
+               //val.set(*(Sint32*)(ar+pos));
+	       val.set ( sint32 );
                pos+=sizeof(Sint32);
                break;
             case CIMTYPE_REAL32:
-               val.set(*(Real32*)(ar+pos));
+	       Real32 real32;
+	       memcpy ( &real32, ar + pos, sizeof(Real32));
+               //val.set(*(Real32*)(ar+pos));
+	       val.set ( real32 );
                pos+=sizeof(Real32);
                break;
             case CIMTYPE_UINT64:
-               val.set(*(Uint64*)(ar+pos));
+	       Uint64 uint64;
+	       memcpy ( &uint64, ar + pos, sizeof(Uint64));
+               //val.set(*(Uint64*)(ar+pos));
+	       val.set( uint64 );
                pos+=sizeof(Uint64);
                break;
             case CIMTYPE_SINT64:
-               val.set(*(Sint64*)(ar+pos));
+	       Sint64 sint64;
+	       memcpy( &sint64, ar + pos, sizeof(Sint64));
+               //val.set(*(Sint64*)(ar+pos));
+	       val.set( sint64 );
                pos+=sizeof(Sint64);
                break;
             case CIMTYPE_REAL64:
-               val.set(*(Real64*)(ar+pos));
+	       Real64 real64;
+	       memcpy ( &real64, ar + pos, sizeof(Real64));
+               //val.set(*(Real64*)(ar+pos));
+		val.set( real64 );
                pos+=sizeof(Real64);
                break;
             case CIMTYPE_STRING: {

@@ -3,6 +3,9 @@ CHANGE LOG FOR PEGASUS
 Version 1.1.1 - 3 August 2001 -  Development Branch (Work in Progress)
 		current working dev branch of build
 
+1. (Karl) 6 Aug - extend ToMof functions. The MOF for a class can now be
+	seen as part of CGIclient class displays.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

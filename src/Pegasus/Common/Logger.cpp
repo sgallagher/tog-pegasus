@@ -243,9 +243,7 @@ void Logger::_putInternal(
 	    System::openlog(systemId);
 
             // Log the message
-	    System::syslog(logLevel,(const char*)localizedMsg.getCString());
-// l10n TODO uncomment this line	    
-//	    System::syslog(logLevel,(const char*)localizedMsg.getCStringUTF8());	    
+	    System::syslog(logLevel,(const char*)localizedMsg.getCStringUTF8());	    
 	    
 
             // Close the syslog.
@@ -256,7 +254,7 @@ void Logger::_putInternal(
 	    // Prepend the systemId to the incoming message
 	    String messageString(systemId);
 	    messageString.append(": ");
-	    messageString.append(localizedMsg);  // l10n - TODO need to send as UTF-8
+	    messageString.append(localizedMsg);  // l10n 
 
 	    const char* tmp = "";
 	    if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
@@ -265,9 +263,7 @@ void Logger::_putInternal(
 	    if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
 	    if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
                 _rep->logOf(logFileType) << System::getCurrentASCIITime()
-                 << " " << tmp << messageString.getCString() << endl;
-// l10n - TODO uncomment this                 
-//               << " " << tmp << messageString.getCStringUTF8() << endl;
+               << " " << tmp << messageString.getCStringUTF8() << endl;
 
        #endif
     }

@@ -1125,6 +1125,9 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
 
    do 
    { 
+      if(dir == 0 )
+	 break;
+      
     // make sure we get only dirs that start with [0-9]
     if (*dir->d_name < '0' || *dir->d_name > '9')
     {

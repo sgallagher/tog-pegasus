@@ -849,8 +849,7 @@ Boolean System::changeFilePermissions(const char* path, mode_t mode)
 
 void System::openlog(const String ident)
 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
     // ATTN: Hard-code the "cimserver" identifier until the infrastructure
     // is set up to pass this as the "ident" string.
     //::openlog(ident.getCString(), LOG_PID|LOG_CONS, LOG_DAEMON);
@@ -863,7 +862,7 @@ void System::openlog(const String ident)
 
 void System::syslog(Uint32 severity, const char *data)
 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 
     // FUTURE-SF-P3-20020517 : Use the Syslog on HP-UX. Eventually only 
     // certain messages will go to the Syslog and others to the 
@@ -929,8 +928,8 @@ void System::syslog(Uint32 severity, const char *data)
 
 void System::closelog()
 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
-
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+ 
     ::closelog();
 
 #endif

@@ -142,12 +142,12 @@ public:
 	/**
 	 * Equality based on case INSENSITIVE comparison of the language tags
 	 */
-	Boolean operator==(const LanguageElement rhs);
+	Boolean operator==(const LanguageElement rhs)const;
 	
 	/**
 	 * Inequality based on case INSENSITIVE comparison of the language tags
 	 */
-	Boolean operator!=(const LanguageElement rhs);
+	Boolean operator!=(const LanguageElement rhs)const;
 	
 	/**
 	 * Writes the String representation of this object to the stream

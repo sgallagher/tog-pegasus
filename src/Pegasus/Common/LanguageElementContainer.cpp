@@ -126,7 +126,7 @@ void LanguageElementContainer::clear(){
 	itr_index = 0;	
 }
 
-Boolean LanguageElementContainer::operator==(const LanguageElementContainer rhs){
+Boolean LanguageElementContainer::operator==(const LanguageElementContainer rhs)const{
 	if(container.size() != rhs.size()) return false;
 	for(int i = 0; i < container.size(); i++){
 		if(container[i] != rhs.getLanguageElement(i)) 
@@ -135,7 +135,7 @@ Boolean LanguageElementContainer::operator==(const LanguageElementContainer rhs)
 	return true;
 }
 
-Boolean LanguageElementContainer::operator!=(const LanguageElementContainer rhs){
+Boolean LanguageElementContainer::operator!=(const LanguageElementContainer rhs)const{
 	if(container.size() != rhs.size()) return true;
 	for(int i = 0; i < container.size(); i++){
 		if(container[i] != rhs.getLanguageElement(i)) 

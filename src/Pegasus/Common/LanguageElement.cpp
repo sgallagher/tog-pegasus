@@ -116,11 +116,11 @@ String LanguageElement::toString() const{
 	return buildLanguageTag();
 }
 
-Boolean LanguageElement::operator==(const LanguageElement rhs){
+Boolean LanguageElement::operator==(const LanguageElement rhs)const{
 	return String::equalNoCase(getLanguageTag(), rhs.getLanguageTag());		
 }
 
-Boolean LanguageElement::operator!=(const LanguageElement rhs){
+Boolean LanguageElement::operator!=(const LanguageElement rhs)const{
 	return (!String::equalNoCase(getLanguageTag(),rhs.getLanguageTag()));
 }
 

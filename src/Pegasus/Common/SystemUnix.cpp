@@ -164,6 +164,16 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 #endif
 }
 
+String System::DynamicLoadError() {
+#ifdef PEGASUS_OS_HPUX
+    return String();
+#else
+    String dlerr = dlerror();
+    return dlerr;
+#endif
+}
+
+
 DynamicSymbolHandle System::loadDynamicSymbol(
     DynamicLibraryHandle libraryHandle,
     const char* symbolName)

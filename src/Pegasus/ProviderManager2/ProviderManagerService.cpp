@@ -38,10 +38,55 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
-
 #include <Pegasus/Common/Destroyer.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+// ATTN: this section is a temporary solution to populate the list of enabled
+// provider managers for a given distribution. it includes another temporary
+// solution for converting a generic file name into a file name useable by
+// each platform.
+
+// BEGIN TEMP SECTION
+String _resolveFileName(const String & fileName)
+{
+    String temp;
+
+    #if defined(PEGASUS_OS_TYPE_WINDOWS)
+    temp = fileName + String(".dll");
+    #elif defined(PEGASUS_OS_HPUX) && defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+    temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    temp.append(String("/lib") + fileName + String(".sl"));
+    #elif defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+    temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    temp.append(String("/lib") + fileName + String(".so"));
+    #elif defined(PEGASUS_OS_OS400)
+    temp = fileName;
+    #else
+    temp = ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("providerDir"));
+    temp.append(String("/lib") + fileName + String(".so"));
+    #endif
+
+    return(temp);
+}
+
+Array<Pair<String, String> > _initializeFileNames(void)
+{
+    Array<Pair<String, String> > temp;
+
+    #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
+    temp.append(Pair<String, String>(_resolveFileName("DefaultProviderManager"), String("DEFAULT")));
+    #endif
+
+    #if defined(ENABLE_CMPI_PROVIDER_MANAGER)
+    temp.append(Pair<String, String>(_resolveFileName("CMPIProviderManager"), String("CMPI")));
+    #endif
+
+    return(temp);
+}
+
+static const Array<Pair<String,String> > _fileNames = _initializeFileNames();
+// END TEMP SECTION
 
 inline Boolean _isSupportedRequestType(const Message * message)
 {
@@ -111,59 +156,48 @@ ProviderManagerService::ProviderManagerService(void)
 ProviderManagerService::ProviderManagerService(ProviderRegistrationManager * providerRegistrationManager)
     : MessageQueueService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)
 {
-    #if defined(ENABLE_DEFAULT_PROVIDER_MANAGER)
-    try
+    for(Uint32 i = 0, n = _fileNames.size(); i < n; i++)
     {
-        ProviderManagerModule module("DefaultProviderManager");
+        String message;
 
-        // ATTN: ensure module loaded
-        module.load();
+        message = "ProviderManagerService::ProviderManagerService() loading " +
+            _fileNames[i].first + "(" + _fileNames[i].second + ")";
 
-        // ATTN: ensure entry point returned valid response
-        ProviderManager * manager = module.getProviderManager("Default");
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, message);
 
-        // ATTN: only set the hacked/cached provider registration manager pointer after the module
-        // has loaded.
-        manager->setProviderRegistrationManager(providerRegistrationManager);
+        try
+        {
+            ProviderManagerModule module(_fileNames[i].first);
 
-        _providerManagers.append(Pair<ProviderManager *, ProviderManagerModule>(manager, module));
+            if(module.load() == false)
+            {
+                throw 0;    // ATTN: inefficient
+            }
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "ProviderManagerService::ProviderManagerService() loaded DEFAULT provider manager.");
+            ProviderManager * manager = module.getProviderManager(_fileNames[i].second);
+
+            if(manager == 0)
+            {
+                throw 0;    // ATTN: inefficient
+            }
+
+            // ATTN: only set the hacked/cached provider registration manager pointer after the
+            // DEFAULT provider manager is loaded.
+            if(String::equalNoCase(_fileNames[i].second, "DEFAULT"))
+            {
+                manager->setProviderRegistrationManager(providerRegistrationManager);
+            }
+
+            _providerManagers.append(Pair<ProviderManager *, ProviderManagerModule>(manager, module));
+        }
+        catch(...)
+        {
+            message = "ProviderManagerService::ProviderManagerService() exception loading " +
+                _fileNames[i].first + "(" + _fileNames[i].second + ")";
+
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, message);
+        }
     }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "ProviderManagerService::ProviderManagerService() failed to load DEFAULT provider manager.");
-    }
-    #endif
-
-    #if defined(ENABLE_CMPI_PROVIDER_MANAGER)
-    try
-    {
-        ProviderManagerModule module("CMPIProviderManager");
-
-        // ATTN: ensure module loaded
-        module.load();
-
-        // ATTN: ensure entry point returned valid response
-        ProviderManager * manager = module.getProviderManager("CMPI");
-
-        // ATTN: only set the hacked/cached provider registration manager pointer after the module
-        // has loaded.
-        // manager->setProviderRegistrationManager(providerRegistrationManager);
-
-        _providerManagers.append(Pair<ProviderManager *, ProviderManagerModule>(manager, module));
-
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "ProviderManagerService::ProviderManagerService() loaded CMPI provider manager.");
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "ProviderManagerService::ProviderManagerService() failed to load CMPI provider manager.");
-    }
-    #endif
 }
 
 ProviderManagerService::~ProviderManagerService(void)

@@ -52,11 +52,13 @@ ProviderManager::~ProviderManager(void)
     {
         try
         {
-            //_providers[i].terminate();
-	    providerName = _providers[i].getName();
-	    fileName = _providers[i].getModule().getFileName();
+            _providers[i]->terminate();
 
+	    providerName = _providers[i]->getName();
+	    fileName = _providers[i]->getModule().getFileName();
 	    unloadProvider(fileName, providerName);
+
+            delete _providers[i];
         }
         catch(...)
         {
@@ -72,9 +74,9 @@ Provider ProviderManager::getProvider(
     // check list for requested provider and return if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-        if(String::equalNoCase(providerName, _providers[i].getName()))
+        if(String::equalNoCase(providerName, _providers[i]->getName()))
         {
-            return(_providers[i]);
+            return(*_providers[i]);
         }
     }
 
@@ -88,6 +90,7 @@ void ProviderManager::loadProvider(
     const String & providerName,
     const String & interfaceName)
 {
+
     MutexLock lock(_mutex);
 
     //_loadProvider(fileName, providerName, interfaceName);
@@ -100,7 +103,7 @@ void ProviderManager::loadProvider(
     // check list for requested provider and do nothing if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-        if(String::equalNoCase(providerName, _providers[i].getName()))
+        if(String::equalNoCase(providerName, _providers[i]->getName()))
         {
             return;
         }
@@ -114,8 +117,8 @@ void ProviderManager::loadProvider(
     refCount = refCount + 1;
 
     // create provider module
-    Provider provider(providerName, fileName, interfaceName, refCount);
-
+    Provider* provider =
+        new Provider(providerName, fileName, interfaceName, refCount);
 
     // ATTN: need optimization - create CIMOMHandle once
 
@@ -131,7 +134,7 @@ void ProviderManager::loadProvider(
     CIMOMHandleInternal _cimom(service);
 
     // initialize provider
-    provider.initialize(_cimom);
+    provider->initialize(_cimom);
 
     // if module is already in the array, remove the old module, add the new module in 
     if (refCount > 1)
@@ -142,7 +145,7 @@ void ProviderManager::loadProvider(
     else
     {
 	// module is not in the array, create the module and add it in the array
-	ProviderModule module(fileName, refCount);
+	ProviderModule* module = new ProviderModule(fileName, refCount);
     	_modules.append(module);
     } 
     _providers.append(provider);
@@ -168,9 +171,9 @@ void ProviderManager::unloadProvider(
     // check list for requested provider and return if found
     for(Uint32 i = 0, n = _providers.size(); i < n; i++)
     {
-        if(String::equalNoCase(providerName, _providers[i].getName()))
+        if(String::equalNoCase(providerName, _providers[i]->getName()))
         {
-            Provider provider(_providers[i]);
+            Provider* provider = _providers[i];
 
             _providers.remove(i);
 
@@ -183,13 +186,14 @@ void ProviderManager::unloadProvider(
  	    // otherwise, terminate and unload
 	    if (refCount > 1)
 	    {
-		provider.terminate();
+		provider->terminate();
     	    }
 	    else
 	    {
-            	provider.terminate();
-		provider.getModule().unloadModule();
+            	provider->terminate();
+		provider->getModule().unloadModule();
 	    }
+            delete provider;
 	    
 	    // update reference count
 	    _updateRefCount(fileName, refCount - 1);
@@ -213,9 +217,8 @@ void ProviderManager::shutdownAllProviders(void)
     {
 	try
 	{
-	    //_providers[0].terminateProvider();
-	    _providers[0].terminate();
-
+	    _providers[0]->terminate();
+            delete _providers[0];
 	    _providers.remove(0);
             numProviders--;
 	}
@@ -230,9 +233,9 @@ void ProviderManager::_getRefCount(const String & fileName, Uint32 & refCount)
 {
     for(Uint32 i = 0, n = _modules.size(); i < n; i++)
     {
-	if(String::equalNoCase(fileName, _modules[i].getFileName()))
+	if(String::equalNoCase(fileName, _modules[i]->getFileName()))
 	{
-	    refCount = _modules[i].getRefCount();
+	    refCount = _modules[i]->getRefCount();
 
 	    return;
 	}
@@ -243,16 +246,17 @@ void ProviderManager::_updateRefCount(const String & fileName, const Uint32 & re
 {
     for(Uint32 i = 0, n = _modules.size(); i < n; i++)
     {
-	if(String::equalNoCase(fileName, _modules[i].getFileName()))
+	if(String::equalNoCase(fileName, _modules[i]->getFileName()))
 	{
 	    // remove the module from array
+            delete _modules[i];
 	    _modules.remove(i);
 
 	    // if reference count is none zero, update the array
 	    if ( refCount > 0 )
 	    {
 	    	// Add the module to the array
-	    	ProviderModule module(fileName, refCount);
+	    	ProviderModule* module = new ProviderModule(fileName, refCount);
 	    	_modules.append(module);
 	    }
 	    return;
@@ -295,12 +299,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::monitorThread(void *
         if((provider_timeout != 0xffffffff) && (provider_timeout <= timeout))
         {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Unloading provider for " + _this->_providers[i].getClassName() +
-                " in " + _this->_providers[i].getProviderName());
-        void * mypr = (void *)_this->_providers[i].getProvider();
+            "Unloading provider for " + _this->_providers[i]->getClassName() +
+                " in " + _this->_providers[i]->getProviderName());
+        void * mypr = (void *)_this->_providers[i]->getProvider();
 
-        _this->_providers[i].getProvider()->terminate();
-        _this->_providers.remove(i);
+        _this->_providers[i]->getProvider()->terminate();
+        delete _this->_providers[i];
+        _this->_providers->remove(i);
         }
     }
     }

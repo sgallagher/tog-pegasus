@@ -545,7 +545,7 @@ String System::getHostName()
 
 String System::getFullyQualifiedHostName ()
 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_LINUX)
     char hostName [PEGASUS_MAXHOSTNAMELEN];
     struct hostent *he;
     String fqName;
@@ -555,7 +555,7 @@ String System::getFullyQualifiedHostName ()
         return String::EMPTY;
     }
 
-    if (he = gethostbyname (hostName))
+    if ((he = gethostbyname (hostName)))
     {
        strcpy (hostName, he->h_name);
     }

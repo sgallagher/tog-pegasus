@@ -33,7 +33,7 @@ instance of PG_ProviderCapabilities
 
 instance of PG_ProviderCapabilities 
 {
-   ProviderModuleName = "OperatingSystemProvider";
+   ProviderModuleName = "OperatingSystemModule";
    ProviderName = "PG_OperatingSystemProvider";
    CapabilityID = "2";
    ClassName = "PG_OperatingSystem";

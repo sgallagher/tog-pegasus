@@ -19,13 +19,9 @@
 	come first, then application of prior qualifiers fail.
 	Checking this should be moved to class resolution.
 
-    (B) Rework resolve() scheme (add clone() methods).
-
     (A) Implement instances.
 
     (A) Providers.
-
-    (A) Figure out whether you really need _resolved flags.
 
     ------------------------------------------------------------------------
 
@@ -47,16 +43,7 @@
 
     (B) Add validNamespace() method and use it.
 
-    (B) Finish Pegasus-CGI interface:
-
-	Add GetMethod.cgi.
-	Add propagated and class-origin columns.
-	Add flavor column to qualifiers.
-
     ------------------------------------------------------------------------
-
-    (C) Implement Strings that point to preallocated char* that will
-        remain in scope?
 
     (C) Suppress error message printed by ACE caused by constructing an 
         address from a non existent host.

@@ -1,17 +1,13 @@
 
 Broker:
 
-    + Resolution of classes and qualifiers (resolve() method).
-    + Protocol implementation (client and server sides).
     + Implement instances.
-    + Provider dispatching (work out provider interfaces).
-    + Dynamic loading of providers (work out provider registration).
-    + Tcl client (sits atop C++ client).
-    + Process service configuration (daemonization).
+    + Provider registration.
+    + Daemonization.
     + MOF parser integration.
     + MOF command line tool (mofcomp).
-    + Port to Windows 2000.
     + Basic associations.
+    * Tcl client (sits atop C++ client).
     * Port to other platforms.
     * Threading framework.
     * Event management.
@@ -30,9 +26,11 @@ Broker:
     - Out-of-process repository.
     - Inter-CIM Server communication.
     - Internationalization
+    - Remove ACE
     
 Consumers:
     + Object browser.
+    * Jave client.
     * Object editor.
     * Event browser.
 
@@ -42,3 +40,7 @@ Providers:
     * Tcl providers.
     * Bourne shell providers.
 
+
+Misc:
+    + DOC++ make rules.
+    + Documenation.

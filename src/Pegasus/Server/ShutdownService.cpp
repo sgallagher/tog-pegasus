@@ -47,6 +47,7 @@
 #if defined(PEGASUS_OS_TYPE_UNIX)
 #include <sys/types.h>
 #endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -80,6 +81,7 @@ ShutdownService::ShutdownService(CIMServer* cimserver)
     //
     _id = peg_credential_types::MODULE;
 
+
     //
     // get module controller
     //
@@ -93,6 +95,7 @@ ShutdownService::ShutdownService(CIMServer* cimserver)
 /** Destructor. */
 ShutdownService::~ShutdownService()
 {
+
 }
 
 /**
@@ -385,8 +388,16 @@ void ShutdownService::_shutdownProviders()
 
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
-	Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-		    "ShutdownService::_shutdownProviders - CIM provider shutdown exception has occurred.");
+      // l10n
+
+	Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		      "Server.ShutdownService.CIM_PROVIDER_SHUTDOWN",
+		      "$0 - CIM provider shutdown exception has occurred.",
+		      "ShutdownService::_shutdownProviders");
+
+	// Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+	//    "ShutdownService::_shutdownProviders - CIM provider shutdown exception has occurred.");
+
         CIMException e = response->cimException;
         delete stopRequest;
         delete asyncRequest;

@@ -47,6 +47,9 @@
 
 #include <Pegasus/Repository/CIMRepository.h>
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -139,7 +142,14 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
                   capabilityKey, providerCapability))
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
+
+	    // l10n
+
+            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					  MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
+							     CAPABILITY_NOT_REGISTERED));
         }
 
         Array<CIMInstance> instances = providerCapability->getInstances();
@@ -149,8 +159,16 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (pos == PEG_NOT_FOUND)
         {
             PEG_METHOD_EXIT();
-    	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"Missing ProviderName which is key in PG_ProviderCapabilities class.");
+
+    	    // l10n
+
+	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+	    // "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+
+    	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					  MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME",
+							     "Missing ProviderName which is key in PG_ProviderCapabilities class."));
+
         }
 
         //
@@ -166,8 +184,16 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (pos2 == PEG_NOT_FOUND)
         {
             PEG_METHOD_EXIT();
-    	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+    	    
+	    // l10n
+
+	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+	    // "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+
+    	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					  MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME",
+							     "Missing ProviderModuleName which is key in PG_ProviderCapabilities class."));
+
         }
 
         instances[0].getProperty(pos2).getValue().get(providerModuleName);
@@ -188,7 +214,15 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (!_registrationTable->table.lookup(_providerKey, _provider))
         {
             PEG_METHOD_EXIT();
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+
+	    // l10n
+	    
+	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					  MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+							     PROVIDER_NOT_FOUND));
+
         }
 
         Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -200,7 +234,14 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
         if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
         {
             PEG_METHOD_EXIT();
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+
+	    // l10n
+
+	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					  MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+							     MODULE_NOT_FOUND));
         }
 
         Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
@@ -258,8 +299,15 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	if (pos == PEG_NOT_FOUND)
     	{
             PEG_METHOD_EXIT();
-    	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"Missing ProviderName which is key in PG_ProviderCapabilities class.");
+
+	    // l10n
+
+    	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+	    // "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+
+    	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					  MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME",
+							     "Missing ProviderName which is key in PG_ProviderCapabilities class."));
     	}
 
 	instances[0].getProperty(pos).getValue().get(providerName);
@@ -272,8 +320,15 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	if (pos2 == PEG_NOT_FOUND)
     	{
             PEG_METHOD_EXIT();
-    	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		"Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+
+	    // l10n
+
+    	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+	    // "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+
+    	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					  MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME",
+							     "Missing ProviderModuleName which is key in PG_ProviderCapabilities class."));
     	}
 
     	instances[0].getProperty(pos2).getValue().get(providerModuleName);
@@ -301,8 +356,15 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	    if (pos == PEG_NOT_FOUND)
     	    {
                 PEG_METHOD_EXIT();
-    	    	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		    "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+
+		// l10n
+
+    	    	// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+		// "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					      MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME",
+								 "Missing ProviderName which is key in PG_ProviderCapabilities class."));
     	    }
 
 	    instances[0].getProperty(pos).getValue().get(providerName);
@@ -315,15 +377,28 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     	    if (pos2 == PEG_NOT_FOUND)
     	    {
                 PEG_METHOD_EXIT();
-    	    	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-		    "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+
+		// l10n
+
+    	    	// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+		// "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					      MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME",
+								 "Missing ProviderModuleName which is key in PG_ProviderCapabilities class."));
     	    }
     	    instances[0].getProperty(pos2).getValue().get(providerModuleName);
 	}
 	else
 	{
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
+            // l10n
+
+	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
+
+	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					  MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
+							     CAPABILITY_NOT_REGISTERED));
+
 	}
 	
     }
@@ -344,7 +419,14 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     if (!_registrationTable->table.lookup(_providerKey, _provider))
     {
         PEG_METHOD_EXIT();
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+
+	// l10n
+
+	// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+
+	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+				      MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+							 PROVIDER_NOT_FOUND));
     }
 
     Array<CIMInstance> providerInstances = _provider->getInstances();
@@ -356,7 +438,14 @@ Boolean ProviderRegistrationManager::lookupMethodProvider(
     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
         PEG_METHOD_EXIT();
-	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+
+	// l10n
+	
+	// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+	
+	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+				      MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+							 MODULE_NOT_FOUND));
     }
     
     Array<CIMInstance> providerModuleInstances = _providerModule->getInstances();
@@ -463,7 +552,15 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     if (! _registrationTable->table.lookup(capabilityKey, providerCapability))
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
+
+        // l10n
+
+	// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
+
+	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+				      MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
+							 CAPABILITY_NOT_REGISTERED));
+
     }
 
     Array<CIMInstance> instances = providerCapability->getInstances();
@@ -497,8 +594,15 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     	if (pos2 == PEG_NOT_FOUND)
     	{
             PEG_METHOD_EXIT();
-    	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-	        "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+
+    	    // l10n 
+
+	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+	    // "Missing ProviderName which is key in PG_ProviderCapabilities class.");
+
+    	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					  MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_PROVIDERNAME",
+							     "Missing ProviderName which is key in PG_ProviderCapabilities class."));
     	}
 	instances[i].getProperty(pos2).getValue().get(providerName);
 
@@ -510,8 +614,15 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
     	if (pos3 == PEG_NOT_FOUND)
     	{
             PEG_METHOD_EXIT();
-    	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-	        "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+
+    	    // l10n
+
+	    // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+	    // "Missing ProviderModuleName which is key in PG_ProviderCapabilities class.");
+
+    	    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+					  MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.MISSING_MODULENAME",
+							     "Missing ProviderModuleName which is key in PG_ProviderCapabilities class."));
     	}
 	instances[i].getProperty(pos3).getValue().get(providerModuleName);
 
@@ -534,7 +645,14 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    if (!_registrationTable->table.lookup(_providerKey, _provider))
     	    {
                 PEG_METHOD_EXIT();
-        	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+
+		// l10n
+
+        	// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					      MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+								 PROVIDER_NOT_FOUND));
     	    }
 	    
 	    //
@@ -543,7 +661,14 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     	    {
                 PEG_METHOD_EXIT();
-        	throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+
+		// l10n
+		
+		// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+		
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					      MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+								 MODULE_NOT_FOUND));
     	    }
 	    
 	    _providerInstances = _provider->getInstances();
@@ -595,7 +720,14 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
 	    	    if (!_registrationTable->table.lookup(_providerKey, _provider))
     	    	    {
                         PEG_METHOD_EXIT();
-        		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+
+			// l10n
+
+        		// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, PROVIDER_NOT_FOUND);
+
+			throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+						      MessageLoaderParms(PROVIDER_NOT_FOUND_KEY,
+									 PROVIDER_NOT_FOUND));
     	    	     }
 	    
 	    	     _providerInstances = _provider->getInstances();
@@ -606,7 +738,15 @@ Boolean ProviderRegistrationManager::getIndicationProviders(
             	     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
             	     {
                          PEG_METHOD_EXIT();
-                         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+		
+			 // l10n
+			 
+			 // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, MODULE_NOT_FOUND);
+			 
+			 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+						       MessageLoaderParms(MODULE_NOT_FOUND_KEY,
+									  MODULE_NOT_FOUND));
+
             	     }
 
             	     _providerModuleInstances = _providerModule->getInstances();
@@ -1025,7 +1165,13 @@ Array<Uint16> ProviderRegistrationManager::getProviderModuleStatus(
 
     if (!_registrationTable->table.lookup(_moduleKey, _providerModule))
     {
-    	throw (CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND));
+      // l10n
+
+      // throw (CIMException(CIM_ERR_FAILED, MODULE_NOT_FOUND));
+
+      MessageLoaderParms mlp(MessageLoaderParms(MODULE_NOT_FOUND_KEY, MODULE_NOT_FOUND));
+
+      throw (CIMException(CIM_ERR_FAILED, mlp));
     }
     
     instances = _providerModule->getInstances();
@@ -1604,8 +1750,16 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 		// the provider module class is not registered
 		//
                 PEG_METHOD_EXIT();
-		throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_ProviderModule class"
-			" needs to be registered before register the PG_Provider class");
+
+		// l10n
+
+		// throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_ProviderModule class"
+		// " needs to be registered before register the PG_Provider class");
+
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					      MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_MODULE",
+								 "PG_ProviderModule class"
+								 " needs to be registered before register the PG_Provider class"));
 	    }
 	}	
 
@@ -1926,8 +2080,16 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 	    else
 	    {
                 // the provider class was not registered
-                throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_Provider class needs "
-                   "to be registered before register the Provider capabilities class");
+
+	      // l10n
+
+	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "PG_Provider class needs "
+	      //  "to be registered before register the Provider capabilities class");
+
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+					      MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.PG_PROVIDER_CLASS",
+								 "PG_Provider class needs "
+								 "to be registered before register the Provider capabilities class"));
 	    }
 	}
 
@@ -2501,7 +2663,14 @@ void ProviderRegistrationManager::_addInstancesToTable(
                       "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
 	//ATTN-YZ-P3-20020301:Is this proper exception 
 	PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Can not insert element to the table ");
+
+	// l10n
+
+        // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Can not insert element to the table ");
+	
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
+				      MessageLoaderParms("Server.ProviderRegistrationManager.ProviderRegistrationManager.CAN_NOT_INSERT_ELEMENT",
+							 "Can not insert element to the table "));
     }
     PEG_METHOD_EXIT();
 }
@@ -2532,8 +2701,17 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
     {
 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                       "Exception:: Attempt to add duplicate entry to provider reistration hash table.");
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                "The CIM Repository in namespace root/PG_InterOp has been corrupted.");
+
+
+	// l10n
+
+	// Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+        //        "The CIM Repository in namespace root/PG_InterOp has been corrupted.");
+
+	Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+		      "Server.ProviderRegistrationManager.ProviderRegistrationManager.REPOSITORY_CORRUPTED",
+		      "The CIM Repository in namespace root/PG_InterOp has been corrupted.");
+
 	PEG_METHOD_EXIT();
     }
     PEG_METHOD_EXIT();

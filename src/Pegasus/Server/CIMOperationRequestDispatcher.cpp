@@ -46,6 +46,10 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Formatter.h>
 #include <Pegasus/Server/reg_table.h>
+
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
@@ -1919,9 +1923,18 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 	 break;
 
      default :
-	 Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-         "CIMOperationRequestDispatcher::handleEnqueue - Case: $0 not valid",
-		     request->getType());
+
+       // l10n
+
+	 Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		       "Server.CIMOperationRequestDispatcher.HANDLE_ENQUEUE",
+		       "$0 - Case: $1 not valid",
+		       "CIMOperationRequestDispatcher::handleEnqueue",
+		       request->getType());
+
+       //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+       //"CIMOperationRequestDispatcher::handleEnqueue - Case: $0 not valid",
+       //     request->getType());
    }
 
    delete request;
@@ -2910,11 +2923,20 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
            Formatter::format("ERROR Enumerate to Broad for  class $0. Limit = $1. Request = $2",
                className.getString(), _maximumEnumerateBreadth, providerCount));
 
+       // l10n
+
        CIMEnumerateInstancesResponseMessage* response =
          new CIMEnumerateInstancesResponseMessage( request->messageId,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate request too Broad"),
+            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, 
+                       MessageLoaderParms("Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD","Enumerate request too Broad")),
             request->queueIds.copyAndPop(),
             Array<CIMInstance>());
+
+       // CIMEnumerateInstancesResponseMessage* response =
+       // new CIMEnumerateInstancesResponseMessage( request->messageId,
+       //  PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate request too Broad"),
+       //   request->queueIds.copyAndPop(),
+       //   Array<CIMInstance>());
 
       STAT_COPYDISPATCHER
 
@@ -3211,11 +3233,20 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
            "ERROR Enumerate to Broad for  class $0. Limit = $1. Request = $2",
                className.getString(), _maximumEnumerateBreadth, providerCount));
 
+
+       // l10n
+
        CIMEnumerateInstanceNamesResponseMessage* response =
          new CIMEnumerateInstanceNamesResponseMessage( request->messageId,
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate request too Broad"),
+            PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDispatcher.ENUM_REQ_TOO_BROAD","Enumerate request too Broad")),
             request->queueIds.copyAndPop(),
             Array<CIMObjectPath>());
+
+       // CIMEnumerateInstanceNamesResponseMessage* response =
+       // new CIMEnumerateInstanceNamesResponseMessage( request->messageId,
+       //  PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Enumerate request too Broad"),
+       //   request->queueIds.copyAndPop(),
+       //   Array<CIMObjectPath>());
 
       STAT_COPYDISPATCHER
 
@@ -3423,8 +3454,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
    // ATTN: Drop this code after we agree in Arch team.
    if (!_enableAssociationTraversal)
    {
+
        CIMException cimException =
-           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Associators");
+	 PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Associators");
 
        CIMAssociatorsResponseMessage* response =
            new CIMAssociatorsResponseMessage(request->messageId,
@@ -3698,7 +3730,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
    if (!_enableAssociationTraversal)
    {
        CIMException cimException =
-           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "AssociatorNames");
+       PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "AssociatorNames");
 
        CIMAssociatorNamesResponseMessage* response =
            new CIMAssociatorNamesResponseMessage( request->messageId,
@@ -3968,8 +4000,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
    // ATTN: Remove this code.
    if (!_enableAssociationTraversal)
    {
-       CIMException cimException =
-           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "References");
+     CIMException cimException =
+       PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "References");
        ///////Array<CIMObject> cimObjects;
 
        CIMReferencesResponseMessage* response =
@@ -4239,8 +4271,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
    // work.
    if (!_enableAssociationTraversal)
    {
-       CIMException cimException =
-           PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ReferenceNames");
+     
+     CIMException cimException =
+       PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ReferenceNames");
 
        CIMReferenceNamesResponseMessage* response =
            new CIMReferenceNamesResponseMessage( request->messageId,
@@ -4960,9 +4993,10 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::handleExecQueryRequest");
-
+   
    CIMException cimException =
-       PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ExecQuery");
+     PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "ExecQuery");
+
    Array<CIMObject> cimObjects;
 
    CIMExecQueryResponseMessage* response =
@@ -5099,8 +5133,14 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       return;
    }
 
+   // l10n
+   
    CIMException cimException =
-       PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Provider not available");
+     PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.CIMOperationRequestDispatcher.PROVIDER_NOT_AVAILABLE","Provider not available"));
+
+   // CIMException cimException =
+   // PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Provider not available");
+
    CIMValue retValue(1);
    Array<CIMParamValue> outParameters;
 
@@ -5166,9 +5206,16 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       catch (XmlSemanticError e)
       {
          PEG_METHOD_EXIT();
-	 throw PEGASUS_CIM_EXCEPTION(
-	    CIM_ERR_INVALID_PARAMETER,
-	    String("Malformed ") + cimTypeToString (type) + " value");
+
+	 // l10n 
+
+	 // throw PEGASUS_CIM_EXCEPTION(
+	 // CIM_ERR_INVALID_PARAMETER,
+	 // String("Malformed ") + cimTypeToString (type) + " value");
+
+	 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, MessageLoaderParms("Server.CIMOperationRequestDispatcher.CIM_ERR_INVALID_PARAMETER",
+									"Malformed $0 value", cimTypeToString (type)));
+
       }
 
       for (Uint32 k=0; k<charPtrArray.size(); k++)
@@ -5191,9 +5238,16 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
       catch (XmlSemanticError e)
       {
          PEG_METHOD_EXIT();
-	 throw PEGASUS_CIM_EXCEPTION(
-	    CIM_ERR_INVALID_PARAMETER,
-	    String("Malformed ") + cimTypeToString (type) + " value");
+
+	 // l10n
+
+	 // throw PEGASUS_CIM_EXCEPTION(
+	 // CIM_ERR_INVALID_PARAMETER,
+	 // String("Malformed ") + cimTypeToString (type) + " value");
+
+	 throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, MessageLoaderParms("Server.CIMOperationRequestDispatcher.CIM_ERR_INVALID_PARAMETER",
+			       "Malformed $0 value", cimTypeToString (type)));
+
       }
    }
 

@@ -35,6 +35,9 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/Tracer.h>
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -182,7 +185,13 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
 	{
 	   // << Mon Apr 29 12:40:36 2002 mdd >>
 //	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
-	   cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+
+	  // l10n
+
+	  cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+
+	  // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+
 	}
 
 	// save returned instance
@@ -198,7 +207,10 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message) th
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+      // l10n
+      
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
@@ -264,7 +276,10 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+      // l10n
+      
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
@@ -325,7 +340,10 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+      // l10n
+
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
@@ -383,7 +401,11 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	{
 //	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, String::EMPTY);
 	   // << Mon Apr 29 12:40:57 2002 mdd >>
-	    cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+	  
+	  // l10n
+
+	  cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+	  // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
 	}
 
 	// save returned instance name
@@ -399,7 +421,10 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+      // l10n
+      
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
@@ -467,7 +492,10 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+      // l10n
+      
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      //  cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
@@ -524,7 +552,10 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+      // l10n
+      
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message
@@ -549,12 +580,21 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) t
 
     Array<CIMObject> cimObjects;
 
+    // l10n
+
     CIMExecQueryResponseMessage * response =
 	new CIMExecQueryResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
+
+    // CIMExecQueryResponseMessage * response =
+    // new CIMExecQueryResponseMessage(
+    //    request->messageId,
+    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+    //    request->queueIds.copyAndPop(),
+    //    cimObjects);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -571,12 +611,21 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) th
 
     Array<CIMObject> cimObjects;
 
+    // l10n
+
     CIMAssociatorsResponseMessage * response =
 	new CIMAssociatorsResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
+
+    // CIMAssociatorsResponseMessage * response =
+    // new CIMAssociatorsResponseMessage(
+    //    request->messageId,
+    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+    //    request->queueIds.copyAndPop(),
+    //    cimObjects);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -593,12 +642,21 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
 
     Array<CIMObjectPath> cimReferences;
 
+    // l10n
+
     CIMAssociatorNamesResponseMessage * response =
 	new CIMAssociatorNamesResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
 	    cimReferences);
+
+    // CIMAssociatorNamesResponseMessage * response =
+    // new CIMAssociatorNamesResponseMessage(
+    //    request->messageId,
+    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+    //    request->queueIds.copyAndPop(),
+    //    cimReferences);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -615,12 +673,21 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) thr
 
     Array<CIMObject> cimObjects;
 
+    // l10n
+
     CIMReferencesResponseMessage * response =
 	new CIMReferencesResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
 	    cimObjects);
+
+    // CIMReferencesResponseMessage * response =
+    // new CIMReferencesResponseMessage(
+    //    request->messageId,
+    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+    //    request->queueIds.copyAndPop(),
+    //    cimObjects);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -637,12 +704,21 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
 
     Array<CIMObjectPath> cimReferences;
 
+    // l10n
+
     CIMReferenceNamesResponseMessage * response =
 	new CIMReferenceNamesResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop(),
 	    cimReferences);
+
+    // CIMReferenceNamesResponseMessage * response =
+    // new CIMReferenceNamesResponseMessage(
+    //    request->messageId,
+    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+    //    request->queueIds.copyAndPop(),
+    //    cimReferences);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -659,13 +735,22 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) th
 
     CIMValue cimValue;
 
+    // l10n
+
     // create response message
     CIMGetPropertyResponseMessage * response =
 	new CIMGetPropertyResponseMessage(
 	request->messageId,
-	PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	request->queueIds.copyAndPop(),
 	cimValue);
+
+    // CIMGetPropertyResponseMessage * response =
+    // new CIMGetPropertyResponseMessage(
+    //request->messageId,
+    //PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+    //request->queueIds.copyAndPop(),
+    //cimValue);
 
     // preserve message key
     response->setKey(request->getKey());
@@ -680,12 +765,20 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message) th
 
     PEGASUS_ASSERT(request != 0);
 
+    // l10n
+
     // create response message
     CIMSetPropertyResponseMessage * response =
 	new CIMSetPropertyResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
 	    request->queueIds.copyAndPop());
+
+    // CIMSetPropertyResponseMessage * response =
+    // new CIMSetPropertyResponseMessage(
+    //    request->messageId,
+    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
+    //    request->queueIds.copyAndPop());
 
     // preserve message key
     response->setKey(request->getKey());
@@ -756,7 +849,10 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message) t
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+      // l10n
+      
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
     }
 
     // create response message

@@ -52,6 +52,9 @@
 #include <Pegasus/Common/StatisticalData.h>
 #include "CIMOperationRequestDecoder.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -503,8 +506,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
       if (!XmlReader::getMessageStartTag(
 	     parser, messageId, protocolVersion))
       {
-	 throw XmlValidationError(
-	    parser.getLine(), "expected MESSAGE element");
+
+	// l10n
+
+	// throw XmlValidationError(
+	//  parser.getLine(), "expected MESSAGE element");
+
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				   "expected $0 element", "MESSAGE");
+
+	throw XmlValidationError(parser.getLine(), mlParms);
+				 
+			       
       }
 
       // Validate that the protocol version in the header matches the XML
@@ -610,8 +623,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
 	 if (!XmlReader::getLocalNameSpacePathElement(parser, nameSpace))
 	 {
-	    throw XmlValidationError(parser.getLine(), 
-				     "expected LOCALNAMESPACEPATH element");
+
+	   // l10n
+
+	   // throw XmlValidationError(parser.getLine(), 
+	   // "expected LOCALNAMESPACEPATH element");
+
+	   MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				      "expected $0 element", "LOCALNAMESPACEPATH");
+
+	   throw XmlValidationError(parser.getLine(),mlParms);
+				    
+			       
 	 }
 
          // The Specification for CIM Operations over HTTP reads:
@@ -743,8 +766,14 @@ void CIMOperationRequestDecoder::handleMethodCall(
                   queueId, parser, messageId, nameSpace, authType, userName);
             else
             {
-               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                  String("Unrecognized intrinsic method: ") + cimMethodName);
+	      // l10n
+
+	      // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+	      // String("Unrecognized intrinsic method: ") + cimMethodName);
+
+	      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms("Server.CIMOperationRequestDecoder.UNRECOGNIZED_INSTRINSIC_METHOD",
+									     "Unrecognized intrinsic method: $0", cimMethodName));
+
             }
          }
          catch (CIMException& e)
@@ -829,8 +858,18 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    parser.putBack(entry);
 	    if (!XmlReader::getLocalInstancePathElement(parser, reference))
 	    {
-	       throw XmlValidationError(parser.getLine(),
-					"expected LOCALINSTANCEPATH element");
+
+	      // l10n
+
+	      // throw XmlValidationError(parser.getLine(),
+	      // "expected LOCALINSTANCEPATH element");
+	      
+	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+					 "expected $0 element", "LOCALINSTANCEPATH");
+
+	      throw XmlValidationError(parser.getLine(),mlParms);
+
+				       
 	    }
 	 }
 	 //
@@ -842,14 +881,23 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	    parser.putBack(entry);
 	    if (!XmlReader::getLocalClassPathElement(parser, reference))
 	    {
-	       throw XmlValidationError(parser.getLine(),
-					"expected LOCALCLASSPATH element");
+	      // l10n
+
+	      // throw XmlValidationError(parser.getLine(),
+	      // "expected LOCALCLASSPATH element");
+
+	      MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+					 "expected $0 element", "LOCALCLASSPATH");
+
+	      throw XmlValidationError(parser.getLine(),mlParms);
+
 	    }
 	 }
 	 else
 	 {
-	    throw XmlValidationError(parser.getLine(),
-				     MISSING_ELEMENT_LOCALPATH);
+	   throw XmlValidationError(parser.getLine(), MISSING_ELEMENT_LOCALPATH);
+	   // this throw is not updated with MLP because MISSING_ELEMENT_LOCALPATH
+	   // is a hardcoded variable, not a message
 	 }
 
          // The Specification for CIM Operations over HTTP reads:
@@ -952,8 +1000,16 @@ void CIMOperationRequestDecoder::handleMethodCall(
       }
       else
       {
-	 throw XmlValidationError(parser.getLine(), 
-				  "expected IMETHODCALL or METHODCALL element");
+	// l10n
+
+	// throw XmlValidationError(parser.getLine(), 
+	// "expected IMETHODCALL or METHODCALL element");
+
+	MessageLoaderParms mlParms("Server.CIMOperationRequestDecoder.EXPECTED_ELEMENT",
+				   "expected $0 element", "IMETHODCALL or METHODCALL");
+
+	throw XmlValidationError(parser.getLine(),mlParms);
+			       
       }
 
       // Expect </SIMPLEREQ>

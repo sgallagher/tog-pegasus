@@ -41,6 +41,9 @@
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -64,8 +67,13 @@ void ShutdownProvider::invokeMethod(
     if ( inParameters.size() < 2 )
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
-                                    "Input parameters are not valid.");
+
+	// l10n
+
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, MessageLoaderParms("Server.ShutdownProvider.INPUT_NOT_VALID","Input parameters are not valid."));
+
+        // throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
+	//		     "Input parameters are not valid.");
     }
 
     Boolean force = false;
@@ -94,8 +102,13 @@ void ShutdownProvider::invokeMethod(
             else
             {
                 PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
-                                    "Input parameters are not valid.");
+
+		// l10n
+		
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER, MessageLoaderParms("Server.ShutdownProvider.INPUT_NOT_VALID","Input parameters are not valid."));
+		
+		// throw PEGASUS_CIM_EXCEPTION( CIM_ERR_INVALID_PARAMETER,
+		//		     "Input parameters are not valid.");
             }
         }
     }

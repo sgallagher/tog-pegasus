@@ -74,6 +74,10 @@
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/ProviderRegistrationProvider.h>
 #include <Pegasus/ControlProviders/NamespaceProvider/NamespaceProvider.h>
 #include <Pegasus/ProviderManager/ProviderManager.h>
+
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -128,6 +132,7 @@ CIMServer::CIMServer(Monitor* monitor)
     {
         PEG_METHOD_EXIT();
 	throw NoSuchDirectory(repositoryRootPath);
+
     }
 #endif
 
@@ -315,7 +320,13 @@ void CIMServer::bind()
 
     if (_acceptors.size() == 0)
     {
-        throw BindFailedException("No CIM Server connections are enabled.");
+      // l10n
+      
+      // throw BindFailedException("No CIM Server connections are enabled.");
+
+      MessageLoaderParms mlp = MessageLoaderParms("Server.CIMServer.BIND_FAILED","No CIM Server connections are enabled.");
+      
+      throw BindFailedException(mlp);
     }
 
     for (Uint32 i=0; i<_acceptors.size(); i++)

@@ -170,16 +170,6 @@ void TracePropertyOwner::initialize()
             _traceFilePath->externallyVisible = properties[i].externallyVisible;
         }
     }
-    if (_traceFilePath->defaultValue != String::EMPTY)
-    {
-        String pegasusHome = ConfigManager::getPegasusHome();
-
-	// Set the file path to  $PEGASUS_HOME directory 
-        _traceFilePath->defaultValue = pegasusHome + String("/") + 
-                                          _traceFilePath->defaultValue;
-        _traceFilePath->currentValue = _traceFilePath->defaultValue;
-        _traceFilePath->plannedValue = _traceFilePath->defaultValue;
-    }
 
     if (_traceLevel->defaultValue != String::EMPTY)
     {
@@ -294,7 +284,8 @@ void TracePropertyOwner::initCurrentValue(
     {
         if (_traceFilePath->currentValue != String::EMPTY && value != String::EMPTY)
         {
-            CString fileName = _traceFilePath->currentValue.getCString();
+            CString fileName = ConfigManager::getHomedPath(
+                _traceFilePath->currentValue).getCString();
 	    if (Tracer::isValidFileName(fileName))
 	    { 
                 Uint32 retCode = Tracer::setTraceFile(fileName);
@@ -330,7 +321,8 @@ void TracePropertyOwner::initCurrentValue(
         if (_traceFilePath->currentValue != String::EMPTY && 
             _traceComponents->currentValue != String::EMPTY)
         {
-            CString fileName = _traceFilePath->currentValue.getCString();
+            CString fileName = ConfigManager::getHomedPath(
+                _traceFilePath->currentValue).getCString();
 	    if (Tracer::isValidFileName(fileName))
 	    { 
                 Uint32 retCode = Tracer::setTraceFile(fileName);

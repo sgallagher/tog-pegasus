@@ -51,10 +51,11 @@ int main()
 	ConfigManager* _config;
 
 	_config = ConfigManager::getInstance();
+        _config->useConfigFiles = true;
 
 	_config->mergeConfigFiles();
 
-	_config->getAllPropertyNames(all);
+	_config->getAllPropertyNames(all, true);
 
 	for (Uint32 i = 0; i < all.size(); i++)
 	{

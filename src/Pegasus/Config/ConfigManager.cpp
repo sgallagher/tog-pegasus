@@ -205,14 +205,15 @@ const String ConfigManager::PEGASUS_HOME_DEFAULT  = ".";
 
 String ConfigManager::_pegasusHome = PEGASUS_HOME_DEFAULT;
 
-/** 
-Initialize ConfigManager instance 
-*/
+//
+// Initialize ConfigManager instance 
+//
 ConfigManager* ConfigManager::_instance = 0;
 
 
 /** Constructor. */
-ConfigManager::ConfigManager ()
+ConfigManager::ConfigManager()
+    : useConfigFiles(false)
 {
     //
     // Initialize the instance variables
@@ -227,8 +228,8 @@ ConfigManager::ConfigManager ()
 
 
 /** 
-    Construct the singleton instance ConfigManager and return 
-    a pointer to that instance.
+    Get a reference to the singleton ConfigManager instance.  If no
+    ConfigManager instance exists, construct one.
 */
 ConfigManager* ConfigManager::getInstance() 
 {
@@ -239,6 +240,47 @@ ConfigManager* ConfigManager::getInstance()
     return _instance;
 }
 
+
+/** 
+    Initialize the current value of a config property
+*/
+Boolean ConfigManager::initCurrentValue(
+    const String& propertyName,
+    const String& propertyValue)
+{
+    ConfigPropertyOwner* propertyOwner = 0;
+
+    //
+    // get property owner object from the config table.
+    //
+    if (!_propertyTable->ownerTable.lookup(propertyName, propertyOwner))
+    {
+        throw UnrecognizedConfigProperty(propertyName); 
+    }
+
+    if (propertyOwner->isValid(propertyName, propertyValue))
+    {
+        //
+        // update the value with the property owner
+        //
+        propertyOwner->initCurrentValue(propertyName, propertyValue);
+
+        if (useConfigFiles)
+        {
+            //
+            // update the value in the current config file
+            //
+            return (_configFileHandler->updateCurrentValue(
+                propertyName, propertyValue, false));
+        }
+    }
+    else
+    {
+        throw InvalidPropertyValue(propertyName, propertyValue);
+    }
+
+    return true;
+}
 
 /** 
 Update current value of a property.
@@ -287,14 +329,17 @@ Boolean ConfigManager::updateCurrentValue(
             }
         }
 
-        //
-        // update the new value in the current config file
-        //
-        if (!_configFileHandler->updateCurrentValue(name, value, unset))
+        if (useConfigFiles)
         {
-            // Failed to update the current value, so roll back.
-            propertyOwner->updateCurrentValue(name, prevValue);
-            return 0;
+            //
+            // update the new value in the current config file
+            //
+            if (!_configFileHandler->updateCurrentValue(name, value, unset))
+            {
+                // Failed to update the current value, so roll back.
+                propertyOwner->updateCurrentValue(name, prevValue);
+                return false;
+            }
         }
     }
     catch (NonDynamicConfigProperty& ndcp)
@@ -310,7 +355,7 @@ Boolean ConfigManager::updateCurrentValue(
         throw ucp;
     }
 
-    return 1;
+    return true;
 }
 
 
@@ -361,14 +406,17 @@ Boolean ConfigManager::updatePlannedValue(
             }
         }
 
-        //
-        // update the new value in the planned config file
-        //
-        if (!_configFileHandler->updatePlannedValue(name, value, unset))
+        if (useConfigFiles)
         {
-            // Failed to update the planned value, so roll back.
-            propertyOwner->updatePlannedValue(name, prevValue);
-            return 0;
+            //
+            // update the new value in the planned config file
+            //
+            if (!_configFileHandler->updatePlannedValue(name, value, unset))
+            {
+                // Failed to update the planned value, so roll back.
+                propertyOwner->updatePlannedValue(name, prevValue);
+                return false;
+            }
         }
     }
     catch (NonDynamicConfigProperty& ndcp)
@@ -384,7 +432,7 @@ Boolean ConfigManager::updatePlannedValue(
         throw ucp;
     }
 
-    return 1;
+    return true;
 }
 
 
@@ -518,24 +566,33 @@ void ConfigManager::getPropertyInfo(
 /** 
 Get a list of all property names.
 */
-void ConfigManager::getAllPropertyNames(Array<String>& propertyNames)
+void ConfigManager::getAllPropertyNames(
+    Array<String>& propertyNames,
+    Boolean includeHiddenProperties)
 {
     Array<String> propertyInfo;
     propertyNames.clear();
 
     for (OwnerTable::Iterator i = _propertyTable->ownerTable.start(); i; i++)
     {
-        //
-        // Check if property is to be externally visible or not.
-        // If the property should not be externally visible do not list the
-        // property information.
-        //
-        propertyInfo.clear();
-        getPropertyInfo(i.key(), propertyInfo);
-
-        if ( propertyInfo[5] == STRING_TRUE )
+        if (includeHiddenProperties)
         {
             propertyNames.append(i.key());
+        }
+        else
+        {
+            //
+            // Check if property is to be externally visible or not.
+            // If the property should not be externally visible do not list the
+            // property information.
+            //
+            propertyInfo.clear();
+            getPropertyInfo(i.key(), propertyInfo);
+
+            if (propertyInfo[5] == STRING_TRUE)
+            {
+                propertyNames.append(i.key());
+            }
         }
     }
 }
@@ -549,6 +606,8 @@ void ConfigManager::mergeConfigFiles(
     const String& currentFile, 
     const String& plannedFile)
 {
+    PEGASUS_ASSERT(useConfigFiles);
+
     try
     {
         _configFileHandler.reset(new ConfigFileHandler(currentFile, plannedFile));
@@ -584,6 +643,8 @@ with the properties in the default current config file.
 */
 void ConfigManager::mergeConfigFiles()
 {
+    PEGASUS_ASSERT(useConfigFiles);
+
     try
     {
         _configFileHandler.reset(new ConfigFileHandler());
@@ -656,6 +717,8 @@ load config properties from the file
 */
 void ConfigManager::_loadConfigProperties()
 {
+    PEGASUS_ASSERT(useConfigFiles);
+
     //
     // copy the contents of planned config file over
     // the current config file
@@ -737,55 +800,22 @@ in the command line.
 Boolean ConfigManager::_initPropertyWithCommandLineOption(
     const String& option) 
 {
-    ConfigPropertyOwner* propertyOwner = 0;
-
-    String propertyName = String::EMPTY;
-    String propertyValue = String::EMPTY;
-
-    String configOption = option;
-
-    Uint32 pos = configOption.find('=');
+    Uint32 pos = option.find('=');
     if (pos == PEG_NOT_FOUND)
     {
         //
         // The property value was not specified
         //
-        throw UnrecognizedConfigProperty(configOption); 
+        throw UnrecognizedConfigProperty(option); 
     }
 
     //
     // Get the property name and value
     //
-    propertyName.append(configOption.subString(0, pos));
-    propertyValue.append(configOption.subString(pos+1));
+    String propertyName = option.subString(0, pos);
+    String propertyValue = option.subString(pos+1);
 
-    //
-    // get property owner object from the config table.
-    //
-    if (!_propertyTable->ownerTable.lookup(propertyName, propertyOwner))
-    {
-        throw UnrecognizedConfigProperty(propertyName); 
-    }
-
-    if (propertyOwner->isValid(propertyName, propertyValue))
-    {
-        //
-        // update the value with the property owner
-        //
-        propertyOwner->initCurrentValue(propertyName, propertyValue);
-
-        //
-        // update the value in the current config file
-        //
-        return (_configFileHandler->updateCurrentValue(
-            propertyName, propertyValue, false));
-    }
-    else
-    {
-        throw InvalidPropertyValue(propertyName, propertyValue);
-    }
-
-    return 0;
+    return initCurrentValue(propertyName, propertyValue);
 }
 
 /** 

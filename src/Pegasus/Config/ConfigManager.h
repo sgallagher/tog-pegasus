@@ -75,8 +75,10 @@ class PEGASUS_CONFIG_LINKAGE ConfigManager
 
 private:
 
-    // This is meant to be a singleton, so the constructor
-    // and the destructor are made private
+    /**
+        Refers to the singleton ConfigManager instance.  If no ConfigManager
+        instance has been constructed, this value is null.
+     */
     static ConfigManager* _instance;
 
 
@@ -139,15 +141,6 @@ public:
     */
     static const String PEGASUS_HOME_DEFAULT;
 
-    /**
-    Constants representing the command line options.
-    */
-    static const char OPTION_TRACE;
-
-    static const char OPTION_LOG_TRACE;
-
-    static const char OPTION_DAEMON;
-
 
     /**
     Property Owners
@@ -170,12 +163,39 @@ public:
     static FileSystemPropertyOwner*   fileSystemOwner; 
 
     static ProviderDirPropertyOwner*	providerDirOwner;
+
+    /**
+        Boolean indicating whether configuration data should be read from
+        and persisted to configuration files.  If true, all operations are
+        functional and updates are written to the configuration files.  If
+        false, the ConfigManager does not read to or write from configuration
+        files.  In this case, methods that specifically implicate
+        configuration files must not be used.  The default value is false.
+     */
+    Boolean useConfigFiles;
+
     /** 
-    Construct the singleton instance of the ConfigManager and return a 
-    pointer to that instance.
+        Get a reference to the singleton ConfigManager instance.  If no
+        ConfigManager instance exists, construct one.
     */
     static ConfigManager* getInstance();
 
+
+    /** 
+    Initialize the current value of a config property.
+
+    @param  propertyName  The name of the property to initialize (e.g.,
+                          "httpPort").
+    @param  propertyValue The initial value of the property.
+    @return true if the property found and initialized, else false.
+
+    @exception UnrecognizedConfigProperty  if property is not defined.
+    @exception InvalidPropertyValue  if property value is not valid.
+    */
+    Boolean initCurrentValue(
+        const String& name,
+        const String& value);
+        //throw (InvalidPropertyValue, UnrecognizedConfigProperty);
 
     /** 
     Update current value of a property.
@@ -286,8 +306,13 @@ public:
     Get a list of all the property names.
 
     @param propertyNames  List containing all the property names.
+    @param includeHiddenProperties  Boolean indicating whether hidden
+                                    properties should be included in the
+                                    returned list.
     */
-    void getAllPropertyNames(Array<String>& propertyNames);
+    void getAllPropertyNames(
+        Array<String>& propertyNames,
+        Boolean includeHiddenProperties);
 
     /** 
     Merges the config properties from the specified configuration files.

@@ -112,7 +112,6 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/ShutdownService.h>
-#include <Pegasus/Common/Destroyer.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -746,6 +745,7 @@ int cimserver_run( int argc, char** argv, Boolean shutdownOption )
     // Get an instance of the Config Manager.
     //
     configManager = ConfigManager::getInstance();
+    configManager->useConfigFiles = true;
 
 #ifdef PEGASUS_OS_OS400
     // In a special startup case for IBM OS400, when the server is

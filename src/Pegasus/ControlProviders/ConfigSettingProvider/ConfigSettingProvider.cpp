@@ -439,7 +439,7 @@ void ConfigSettingProvider::enumerateInstances(
 
         try
         {
-            _configManager->getAllPropertyNames(propertyNames);
+            _configManager->getAllPropertyNames(propertyNames, false);
 
 
             for (Uint32 i = 0; i < propertyNames.size(); i++)
@@ -521,7 +521,7 @@ void ConfigSettingProvider::enumerateInstanceNames(
 
         try
         {
-            _configManager->getAllPropertyNames(propertyNames);
+            _configManager->getAllPropertyNames(propertyNames, false);
 
             Uint32 size = propertyNames.size();
 

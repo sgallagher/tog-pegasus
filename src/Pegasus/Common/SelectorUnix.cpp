@@ -38,10 +38,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-# define SOCKET_ERROR -1
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +124,7 @@ Boolean Selector::select(Uint32 milliseconds)
 
 	if (count == 0)
 	    return false;
-	else if (count == SOCKET_ERROR)
+	else if (count == -1)
 	{
 	    count = 0;
 	    return false;

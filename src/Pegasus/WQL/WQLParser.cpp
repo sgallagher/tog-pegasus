@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
-
+#include <Pegasus/Common/IPC.h>
 #include <iostream>
 #include "WQLParser.h"
 #include "WQLParserState.h"
@@ -49,12 +49,15 @@ extern void WQL_restart (FILE *input_file);
 PEGASUS_NAMESPACE_BEGIN
 
 WQLParserState* globalParserState = 0;
+static Mutex WQL_mutex;
 
 void WQLParser::parse(
     const char* text,
     WQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
+    
+	 AutoMutex mtx(WQL_mutex);
 
     if (!text)
     {

@@ -4304,7 +4304,6 @@ QueryExpression IndicationService::_getQueryExpression (const String& filterQuer
   try
   {
     RepositoryQueryContext ctx(ns, _cimRepository);
-    AutoMutex autoMut(_mutex);  // guards the WQL/CQL parser
     QueryExpression queryExpression(queryLanguage, filterQuery, ctx);
     PEG_METHOD_EXIT ();
     return queryExpression;

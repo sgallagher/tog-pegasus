@@ -35,7 +35,7 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
-
+#include <Pegasus/Common/IPC.h>
 #include <iostream>
 #include "CQLParser.h"
 #include "CQLParserState.h"
@@ -48,13 +48,16 @@ extern void CQL_restart (FILE *input_file);
 PEGASUS_NAMESPACE_BEGIN
 
 CQLParserState* globalParserState = 0;
+static Mutex CQL_mutex;
 
 void CQLParser::parse(
     const char* text,
     CQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLParser::parse");
-
+	 
+	 AutoMutex mtx(CQL_mutex);
+	 
     if (!text)
     {
         PEG_METHOD_EXIT();

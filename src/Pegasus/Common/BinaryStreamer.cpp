@@ -386,7 +386,7 @@ CIMInstance BinaryStreamer::extractInstance(const Array<char>& in, Uint32 & pos,
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integraty failure: "+
          be.message+" - Accessing instance: "+path);
    }
-   return CIMInstance();
+   PEGASUS_UNREACHABLE( return CIMInstance(); )
 }
 
 
@@ -468,7 +468,7 @@ CIMQualifierDecl BinaryStreamer::extractQualifierDecl(const Array<char>& in, Uin
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integraty failure: "+
          be.message+" - Accessing instance: "+path);
    }
-   return CIMQualifierDecl();
+   PEGASUS_UNREACHABLE( return CIMQualifierDecl(); )
 }
 
 
@@ -556,7 +556,7 @@ CIMMethod BinaryStreamer::extractMethod(const Array<char>& in, Uint32 & pos)
        throw BinException(BINREP_METHOD,String("CIMMethod subtype version ")+
           CIMValue(preamble->version()).toString()+" not supported ");
    }
-   return CIMMethod();
+   PEGASUS_UNREACHABLE( return CIMMethod(); )
 }
 
 
@@ -634,7 +634,7 @@ CIMParameter BinaryStreamer::extractParameter(const Array<char>& in, Uint32 &pos
        throw BinException(BINREP_PARAMETER,String("CIMParameter subtype version ")+
           CIMValue(preamble->version()).toString()+" not supported ");
    }
-   return CIMParameter();
+   PEGASUS_UNREACHABLE( return CIMParameter(); )
 }
 
 
@@ -715,7 +715,7 @@ CIMProperty BinaryStreamer::extractProperty(const Array<char>& in, Uint32 &pos)
        throw BinException(BINREP_PROPERTY,String("CIMProperty subtype version ")+
           CIMValue(preamble->version()).toString()+" not supported ");
    }
-   return CIMProperty();
+   PEGASUS_UNREACHABLE( return CIMProperty(); )
 }
 
 
@@ -812,7 +812,7 @@ CIMQualifier BinaryStreamer::extractQualifier(const Array<char>& in, Uint32 & po
        throw BinException(BINREP_QUALIFIER,String("CIMQualifier subtype version ")+
           CIMValue(preamble->version()).toString()+" not supported ");
    }
-   return CIMQualifier();
+   PEGASUS_UNREACHABLE( return CIMQualifier(); )
 }
 
 

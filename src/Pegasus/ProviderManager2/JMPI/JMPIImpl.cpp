@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -137,7 +137,7 @@ const METHOD_STRUCT instanceMethodNames[]={
 /*32*/ { 19,"cInst",         "()I" },
 /*33*/ { 13,"<init>",        "(ILjava/lang/String;)V" },
 /*34*/ { 13,"getCode",       "()I" },
-/*35*/ { 12,"<init>",        "(I)V" },
+/*35*/ { 24,"<init>",        "(I)V" },
 /*36*/ { 25,"<init>",        "(I)V" },
 /*37*/ { 26,"<init>",        "(I)V" },
 /*38*/ { 28,"<init>",        "(I)V" },
@@ -1071,7 +1071,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1newInstance
 JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMClass__1getName
    (JNIEnv *jEnv, jobject jThs, jint jCls) {
    CIMClass *cls=(CIMClass*)jCls;
-   
+
    try {
       const String &cn=cls->getClassName().getString();
       jstring str=jEnv->NewStringUTF(cn.getCString());
@@ -1641,7 +1641,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMObjectPath__1getKeys
       default:
          throwCIMException(jEnv,"+++ unsupported type: ");
       }
-      
+
       CIMProperty *cp;
       if(t!=CIMKeyBinding::REFERENCE)
          cp=new CIMProperty(n,*cv);
@@ -2609,7 +2609,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(bo);
             int s=bo.size();
             jobjectArray jbooleanA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[1],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jbooleanA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jbooleanA, i,
                   jEnv->NewObject(classRefs[1],instanceMethodIDs[1],bo[i]));
             return jbooleanA;
          }
@@ -2619,7 +2619,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(s8);
             int s=s8.size();
             jobjectArray jbyteA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[2],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jbyteA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jbyteA, i,
                jEnv->NewObject(classRefs[2],instanceMethodIDs[2],s8[i]));
             return jbyteA;
          }
@@ -2629,7 +2629,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(u8);
             int s=u8.size();
             jobjectArray jshortA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[8],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jshortA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jshortA, i,
                jEnv->NewObject(classRefs[8],instanceMethodIDs[8],u8[i]));
             return jshortA;
          }
@@ -2639,7 +2639,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(s16);
             int s=s16.size();
             jobjectArray jshortA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[3],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jshortA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jshortA, i,
                jEnv->NewObject(classRefs[3],instanceMethodIDs[3],s16[i]));
             return jshortA;
          }
@@ -2649,7 +2649,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(u16);
             int s=u16.size();
             jobjectArray jintA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[9],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jintA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jintA, i,
                jEnv->NewObject(classRefs[9],instanceMethodIDs[9],u16[i]));
             return jintA;
          }
@@ -2669,7 +2669,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(u32);
             int s=u32.size();
             jobjectArray jlongA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[10],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jlongA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jlongA, i,
                jEnv->NewObject(classRefs[10],instanceMethodIDs[10],u32[i]));
             return jlongA;
          }
@@ -2679,7 +2679,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(s64);
             int s=s64.size();
             jobjectArray jlongA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[5],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jlongA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jlongA, i,
                jEnv->NewObject(classRefs[5],instanceMethodIDs[5],s64[i]));
             return jlongA;
          }
@@ -2702,7 +2702,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(r64);
             int s=r64.size();
             jobjectArray jdoubleA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[7],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jdoubleA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jdoubleA, i,
                jEnv->NewObject(classRefs[7],instanceMethodIDs[7],r64[i]));
             return jdoubleA;
          }
@@ -2712,7 +2712,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
             cv->get(str);
             int s=str.size();
             jobjectArray jstringA=(jobjectArray)jEnv->NewObjectArray(s,classRefs[22],0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jstringA, i, 
+            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jstringA, i,
                jEnv->NewStringUTF(str[i].getCString()));
             return jstringA;
          }

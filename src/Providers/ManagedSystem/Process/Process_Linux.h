@@ -93,7 +93,7 @@ typedef struct peg_proc_status {
 
 int file2str(char *directory, char *myFile, char *ret, int cap);
 void parseProcStatm(char* inputFileString, peg_proc_t* P);
-void parseProcStat(char* inputFileString, peg_proc_t* P);
+Boolean parseProcStat(char* inputFileString, peg_proc_t* P);
 void parseProcStatus (char* inputFileString, peg_proc_t* P);
 Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid);
 

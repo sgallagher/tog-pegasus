@@ -416,10 +416,15 @@ NOTES             :
 */
 Boolean Process::getProcessTTY(String& s) const
 {
+  char buf[100];
+
   if( pInfo.pst_tty == -1 )
     s = "?";
   else
-    s.assign(" " + pInfo.pst_tty);
+  { 
+    sprintf(buf,"%d",pInfo.pst_tty);
+    s.assign(buf);
+  }
   return true;
 }
 
@@ -694,7 +699,9 @@ NOTES             :
 */
 Boolean Process::getParentProcessID(String& s) const
 {
-  s.assign(" " + pInfo.pst_ppid);
+  char buf[100];
+  sprintf(buf,"%d",pInfo.pst_ppid);
+  s.assign(buf);
   return true;
 }
 
@@ -980,13 +987,20 @@ DESCRIPTION       : parses data from within /proc/X/stat extracting for proc X
 ASSUMPTIONS       : 
 PRE-CONDITIONS    :
 POST-CONDITIONS   : 
-NOTES             : 
+NOTES             : returns true upon successful stat read
 ================================================================================
 */
-void parseProcStat(char* inputFileString, peg_proc_t* P) {
+Boolean  parseProcStat(char* inputFileString, peg_proc_t* P) {
     int num;
     long not_used;
     char* tmp = strrchr(inputFileString, ')');
+    if( ! tmp )
+    {
+	    // Process must have died on us, rendering the reading of 
+	    // /proc/X/stat impossible. So let's get outta here.
+	    return false;
+    }
+
     *tmp = '\0';			
     memset(P->pst_ucomm, 0, sizeof P->pst_ucomm);	
     sscanf(inputFileString, "%d (%15c", &P->pst_pid, P->pst_ucomm); /* ucomm[16] in kernel */
@@ -1003,7 +1017,8 @@ void parseProcStat(char* inputFileString, peg_proc_t* P) {
        &P->pst_start, &P->pst_vmmsize);
     
     if (P->pst_tty == 0)
-	P->pst_tty = -1;  /* the old notty val, update elsewhere bef. moving to 0 */
+	P->pst_tty = -1; 
+    return true;
 }
 
 
@@ -1029,8 +1044,11 @@ void parseProcStatus (char* inputFileString, peg_proc_t* P) {
     memset(P->pst_ucomm, 0, sizeof P->pst_ucomm);
     sscanf (inputFileString, "Name:\t%15c", P->pst_ucomm);
     tmp = strchr(P->pst_ucomm,'\n');
-    *tmp='\0';
+    if(tmp)
+       *tmp='\0';
+
     tmp = strstr (inputFileString,"State");
+    if(tmp)
     sscanf (tmp, "State:\t%c", &P->pst_stat);
 
     tmp = strstr (inputFileString,"Pid:");
@@ -1040,21 +1058,21 @@ void parseProcStatus (char* inputFileString, peg_proc_t* P) {
         &P->pst_pid,
         &P->pst_ppid
     );
-    else cerr << "sscanf failed. PG_UnixProcess" << endl;
+//    else cerr << "sscanf failed. PG_UnixProcess" << endl;
 
     tmp = strstr (inputFileString,"Uid:");
     if(tmp) sscanf (tmp,
         "Uid:\t%d",
         &P->pst_uid
     );
-    else cerr << "sscanf failed. PG_UnixProcess" << endl;
+//    else cerr << "sscanf failed. PG_UnixProcess" << endl;
 
     tmp = strstr (inputFileString,"Gid:");
     if(tmp) sscanf (tmp,
         "Gid:\t%d",
         &P->pst_gid
     );
-    else cerr << "sscanf failed. PG_UnixProcess" << endl;
+//    else cerr << "sscanf failed. PG_UnixProcess" << endl;
 
     tmp = strstr (inputFileString,"VmSize:");
     if(tmp) sscanf (tmp,
@@ -1142,7 +1160,11 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
     if (procDir) closedir(procDir);
     return false;
   }
-  parseProcStat(buffer, P);
+  if( ! parseProcStat(buffer, P) )
+  {
+    if (procDir) closedir(procDir);
+    return false;
+  }
 
   if ((file2str(path, "statm", buffer, sizeof buffer)) != -1 )
     parseProcStatm(buffer, P);
@@ -1151,7 +1173,13 @@ Boolean get_proc(peg_proc_t* P, int &pIndex , Boolean find_by_pid)
     parseProcStatus(buffer, P);
 
   if ((file2str(path, "cmdline", buffer, sizeof buffer)) != -1)
+  {
 	  P->pst_cmd.assign(buffer);
+  }
+  else
+  {
+	  P->pst_cmd.assign(P->pst_ucomm);
+  }
 
   if (procDir) closedir(procDir);
 

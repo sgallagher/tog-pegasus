@@ -99,6 +99,7 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 
 Thread::~Thread()
 {
+   empty_tsd();
    if( (! _is_detached) && (_handle.thid != 0))
    {
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM

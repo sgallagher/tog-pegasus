@@ -478,7 +478,7 @@ template<class L> L *DQueue<L>::reference(const L *key)
       L *ret = static_cast<L *>(Base::next(0));
       while(ret != 0)
       {
-	 if(ret->operator==(key))
+	 if(ret->operator==(*key))
 	    return ret;
 	 ret = static_cast<L *>(Base::next(static_cast<const void *>(ret)));
       }
@@ -620,7 +620,7 @@ template<class L> L *AsyncDQueue<L>::_remove_no_lock(const L *key) throw(IPCExce
    L *ret = static_cast<L *>(Base::next(0));
    while(ret != 0)
    {
-      if(ret->operator==(key))
+      if(ret->operator==(*key))
       {
 	 return static_cast<L *>(Base::remove(static_cast<const void *>(ret)));
       }
@@ -1064,7 +1064,7 @@ template<class L> L *AsyncDQueue<L>::reference(const L *key) throw(IPCException)
       L *ret = static_cast<L *>(Base::next(0));
       while(ret != 0)
       {
-	 if(ret->operator==(key))
+	 if(ret->operator==(*key))
 	    return ret;
 	 ret = static_cast<L *>(Base::next(static_cast<const void *>(ret)));
       }

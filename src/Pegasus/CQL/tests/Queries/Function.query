@@ -218,6 +218,7 @@ select * FROM CQL_TestElement where ObjectPath() = ObjectPath(CQL_TestElement)
 # instanceToReference
 #############
 select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference(CQL_TestElement)
+select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference()
 
 #############
 # currentDateTime

@@ -126,19 +126,6 @@ class PEGASUS_COMMON_LINKAGE Message
 
       }
 
-      Message(const Message & msg)
-      {
-	 if( this != &msg)
-	 {
-	    _type = msg._type;
-	    _key = msg._key;
-	    _routing_code = msg._routing_code;
-	    _mask = msg._mask;
-	    _next = _prev = _async = 0;
-	    dest = msg.dest;
-	 }
-      }
-
       Message & operator = ( const Message & msg)
       {
 	 if (this != &msg)
@@ -152,7 +139,7 @@ class PEGASUS_COMMON_LINKAGE Message
 	 }
 	 return *this;
       }
-      
+
 
       virtual ~Message();
 
@@ -414,18 +401,18 @@ enum MessageType
     ASYNC_ASYNC_OP_START,
     ASYNC_ASYNC_OP_RESULT,
     ASYNC_ASYNC_LEGACY_OP_START,
-    ASYNC_ASYNC_LEGACY_OP_RESULT, 
-    
+    ASYNC_ASYNC_LEGACY_OP_RESULT,
+
     ASYNC_FIND_SERVICE_Q,
     ASYNC_FIND_SERVICE_Q_RESULT,
     ASYNC_ENUMERATE_SERVICE,
     ASYNC_ENUMERATE_SERVICE_RESULT,
-    
+
     ASYNC_REGISTERED_MODULE,
     ASYNC_DEREGISTERED_MODULE,
     ASYNC_FIND_MODULE_IN_SERVICE,
     ASYNC_FIND_MODULE_IN_SERVICE_RESPONSE,
-    
+
     ASYNC_ASYNC_MODULE_OP_START,
     ASYNC_ASYNC_MODULE_OP_RESULT,
 

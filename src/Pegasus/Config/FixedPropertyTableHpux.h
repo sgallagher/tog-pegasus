@@ -46,7 +46,7 @@
     {"daemon",              "true"},
     {"slp",                 "false"},
     {"enableAuthentication", "true"},
-    {"enableAssociationTraversal", "false"},
+    {"enableAssociationTraversal", "true"},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},
     {"sslClientVerificationMode", "disabled"},

@@ -46,7 +46,7 @@
     {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableAssociationTraversal", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},

@@ -41,6 +41,9 @@
 #include <cstdio>
 #include <cctype>
 #include <ctime>
+#if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
+#include <unistd.h>
+#endif
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
@@ -139,8 +142,11 @@ void CIMServer::_init(void)
 
     String repositoryRootPath = String::EMPTY;
 
-    // -- Save the monitor or create a new one:
 
+#if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
+    chdir( PEGASUS_CORE_DIR );
+#endif
+    // -- Save the monitor or create a new one:
     repositoryRootPath =
 	    ConfigManager::getHomedPath(ConfigManager::getInstance()->getCurrentValue("repositoryDir"));
 

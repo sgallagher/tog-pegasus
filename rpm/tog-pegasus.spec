@@ -663,11 +663,7 @@ fi
 
 # SDK Documentation
 #
-%dir %attr(555,root,root) /opt/tog-pegasus/html
-%dir %attr(555,root,root) /opt/tog-pegasus/html/DefaultC++
-%attr(444,root,root) /opt/tog-pegasus/html/index.html
-%attr(444,root,root) /opt/tog-pegasus/html/DefaultC++/*.html
-%attr(444,root,root) /opt/tog-pegasus/html/DefaultC++/*.gif
+%attr(-,root,root) /opt/tog-pegasus/html
 
 %files test
 

@@ -272,13 +272,7 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Documentation"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(HTML_DIRS), $(ECHO-E) \
-              "%dir %attr($(Pr_xr_xr_x),root,root) $(PEGASUS_HTML_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_HTML_DIR)/index.html"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(HTML_DIRS),\
-              $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_HTML_DIR)/$(i)/*.html" >> $(PEGASUS_RPM_SPEC_FILE_PATH);\
-              $(ECHO-E) "%attr($(Pr__r__r__),root,root) $(PEGASUS_HTML_DIR)/$(i)/*.gif" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr(-,root,root) $(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 removeSampleProviderNamespace:

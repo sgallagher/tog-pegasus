@@ -172,7 +172,6 @@ static void TestClassOperations(CIMClient& client, Boolean ActiveTest,
     // CreateClass:
 
     CIMClass c1(testClass, "CIM_ManagedElement");
-    c1.addQualifier(CIMQualifier("abstract", Boolean(true)));
     c1.addProperty(CIMProperty("count", Uint32(99)));
     c1.addProperty(CIMProperty("ratio", Real64(66.66)));
     c1.addProperty(CIMProperty("message", String("Hello World")));

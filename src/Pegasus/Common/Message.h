@@ -255,7 +255,7 @@ class PEGASUS_COMMON_LINKAGE Message
           return ret;
       }
 
-      static CIMOperationType convertMessageTypetoCIMOpType(const Uint32 type);
+      static CIMOperationType convertMessageTypetoCIMOpType(Uint32 type);
 
       virtual void print(
 	  PEGASUS_STD(ostream)& os, 

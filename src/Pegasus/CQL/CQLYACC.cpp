@@ -1262,7 +1262,7 @@ break;
 case 52:
 #line 769 "CQL.y"
 {
-		sprintf(msg,"BISON::comp->value_symbol comp_op arith\n");
+		sprintf(msg,"BISON::comp->value_symbol comp_op value_symbol\n");
            	printf_(msg);
                                                                                                                                                              
                 CQLExpression* _exp1 = (CQLExpression*)(_factory.makeObject(yyvsp[-2]._value, Expression));

@@ -813,7 +813,7 @@ String CQLSelectStatementRep::toString()
         s.append(_ctx->getFromString());
 
         if(_hasWhereClause){
-                s.append(" WHERE ");
+                s.append("WHERE ");
                 s.append(_predicate.toString());
         }
         return s;

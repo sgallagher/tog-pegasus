@@ -767,7 +767,7 @@ comp : arith
        }
      | value_symbol comp_op value_symbol
        {
-		sprintf(msg,"BISON::comp->value_symbol comp_op arith\n");
+		sprintf(msg,"BISON::comp->value_symbol comp_op value_symbol\n");
            	printf_(msg);
                                                                                                                                                              
                 CQLExpression* _exp1 = (CQLExpression*)(_factory.makeObject($1, Expression));

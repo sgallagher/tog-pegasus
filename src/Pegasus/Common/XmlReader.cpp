@@ -34,6 +34,7 @@
 //              Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3103
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -59,6 +60,7 @@
 #endif
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
@@ -1600,9 +1602,9 @@ CIMValue XmlReader::stringToValue(
                 
             // First we need to create a new "temporary" XmlParser that is
             // just the value of the Embedded Object in String representation.
-            char* tmp_buffer = new char[strlen(valueString) + 1];
-            strcpy(tmp_buffer, valueString);
-            XmlParser tmp_parser(tmp_buffer);
+            AutoArrayPtr<char> tmp_buffer(new char[strlen(valueString) + 1]);
+            strcpy(tmp_buffer.get(), valueString);
+            XmlParser tmp_parser(tmp_buffer.get());
 
             // The next bit of logic constructs a CIMObject from the Embedded Object String.
             // It is similar to the method XmlReader::getValueObjectElement().
@@ -1631,7 +1633,7 @@ CIMValue XmlReader::stringToValue(
 
             }
             // Ok, now we can delete the storage for the temporary XmlParser.
-            delete [] tmp_buffer;
+            tmp_buffer.reset();
         }
         return CIMValue(x);
     }

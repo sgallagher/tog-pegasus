@@ -93,3 +93,11 @@
 
     33. Clean up warnings on NT.
 
+    34. Use Linkage.h files everywhere.
+
+    35. Need to add notifiers (using message queue observer scheme).
+
+    36. Need to define services's interface to CIMOM.
+
+    37.	Finalize the client interface (SDK).
+

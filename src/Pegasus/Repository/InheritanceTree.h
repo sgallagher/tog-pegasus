@@ -195,7 +195,7 @@ public:
 
     /** Returns true if class1 is a subclass of class2.
     */
-    Boolean isSubClass(const String& class1, const String& class2);
+    Boolean isSubClass(const String& class1, const String& class2) const;
 
     /** Get the names of all superclasses of this class (direct and indirect).
     */

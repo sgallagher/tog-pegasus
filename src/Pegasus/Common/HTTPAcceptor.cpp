@@ -28,8 +28,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include "Config.h"
+#include <iostream>
 #include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -47,6 +47,7 @@
 #endif
 
 #include "Socket.h"
+#include "TLS.h"
 #include "HTTPAcceptor.h"
 #include "HTTPConnection.h"
 
@@ -74,7 +75,16 @@ struct HTTPAcceptorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue)
-    : _monitor(monitor), _outputMessageQueue(outputMessageQueue), _rep(0)
+    : _monitor(monitor), _outputMessageQueue(outputMessageQueue), _rep(0),
+      _sslcontext(NULL)
+{
+    Socket::initializeInterface();
+}
+
+HTTPAcceptor::HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue,
+                           SSLContext * sslcontext)
+    : _monitor(monitor), _outputMessageQueue(outputMessageQueue), _rep(0),
+      _sslcontext(sslcontext)
 {
     Socket::initializeInterface();
 }
@@ -332,8 +342,16 @@ void HTTPAcceptor::_acceptConnection()
 
     // Create a new conection and add it to the connection list:
 
+    MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
+    if (mp_socket->accept() < 0) {
+	if (getenv("PEGASUS_TRACE"))
+	    cerr <<"HTTPAcceptor: SSL_accept() failed" << endl;
+
+	return;
+    }
+
     HTTPConnection* connection = new HTTPConnection(
-	_monitor, socket, this, _outputMessageQueue);
+	_monitor, mp_socket, this, _outputMessageQueue);
 
     // Solicit events on this new connection's socket:
 

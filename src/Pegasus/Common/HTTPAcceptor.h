@@ -34,6 +34,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/TLS.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,6 +53,9 @@ public:
 	    created by this acceptor.
     */
     HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue);
+
+    HTTPAcceptor(Monitor* monitor, MessageQueue* outputMessageQueue, 
+                 SSLContext * sslcontext);
 
     /** Destructor. */
     ~HTTPAcceptor();
@@ -96,6 +100,8 @@ private:
     Monitor* _monitor;
     MessageQueue* _outputMessageQueue;
     HTTPAcceptorRep* _rep;
+
+    SSLContext * _sslcontext;
     Uint32  _portNumber;
 };
 

@@ -27,8 +27,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include "Config.h"
+#include <iostream>
 #include "Socket.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -46,6 +46,7 @@
 #endif
 
 #include "Socket.h"
+#include "TLS.h"
 #include "HTTPConnector.h"
 #include "HTTPConnection.h"
 
@@ -136,7 +137,14 @@ struct HTTPConnectorRep
 ////////////////////////////////////////////////////////////////////////////////
 
 HTTPConnector::HTTPConnector(Monitor* monitor)
-    : _monitor(monitor)
+    : _monitor(monitor), _sslcontext(NULL)
+{
+    _rep = new HTTPConnectorRep;
+    Socket::initializeInterface();
+}
+
+HTTPConnector::HTTPConnector(Monitor* monitor, SSLContext * sslcontext)
+    : _monitor(monitor), _sslcontext(sslcontext)
 {
     _rep = new HTTPConnectorRep;
     Socket::initializeInterface();
@@ -239,7 +247,12 @@ HTTPConnection* HTTPConnector::connect(
 
     // Create HTTPConnection object:
 
-    HTTPConnection* connection = new HTTPConnection(_monitor, socket,
+    MP_Socket * mp_socket = new MP_Socket(socket, _sslcontext);
+    if (mp_socket->connect() < 0) {
+	throw CannotConnect(locator);
+    }
+    
+    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
 	this, outputMessageQueue);
 
     // Solicit events on this new connection's socket:

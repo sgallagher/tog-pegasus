@@ -163,7 +163,10 @@ CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
          default: ;
       }
    }
-
+   else if (type ==CMPI_instance) 
+	{
+		v.set(*((CIMInstance*) data->inst->hdl));
+	}
    else switch (type) {
       case CMPI_ref:      v.set(*((CIMObjectPath*)data->ref->hdl)); break;
       case CMPI_dateTime: v.set(*((CIMDateTime*)data->dateTime->hdl)); break;

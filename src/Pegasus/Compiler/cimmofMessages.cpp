@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By:  Gerarda Marquez (gmarquez@us.ibm.com)
+//               -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,6 +100,12 @@ static String _cimmofMessages[] = {
   " implementation, that means it cannot be changed.",
   "Error adding an instance: %1", // ADD_INSTANCE_ERROR
   "Error: %1", // GENERAL_ERROR
+  "Warning:  Class %1 was not added or updated: %2",                    //CLASS_NOT_UPDATED   
+  "Class has the same version",											//SAME_VERSION
+  "Experimental update not allowed (set appropriate compiler option)",	//NO_EXPERIMENTAL_UPDATE
+  "Version update not allowed (set appropriate compiler option)",		//NO_VERSION_UPDATE
+  "Class update not allowed (set appropriate compiler option)",		    //NO_CLASS_UPDATE
+  "Invalid version format in mof class or repository class (valid format is m.n.u)", //INVALID_VERSION_FORMAT
   ""
 };
 

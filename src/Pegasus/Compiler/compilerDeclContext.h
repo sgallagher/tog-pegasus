@@ -25,6 +25,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +77,10 @@ public RepositoryDeclContext {
 
   void               addInstance        (const CIMNamespaceName &nameSpace,
 					 CIMInstance &x);
+
+  void               modifyClass           (const CIMNamespaceName &nameSpace,
+					 CIMClass &x);
+
  private:
   CIMRepository *_cimRepository;
   compilerCommonDefs::operationType _ot;

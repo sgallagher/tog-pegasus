@@ -23,10 +23,14 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By:  Gerarda Marquez (gmarquez@us.ibm.com)
+//               -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+
+#ifndef _CIMMOFMESSAGES_H_
+#define _CIMMOFMESSAGES_H_
 
 //
 // cimmofMessages:  an interface that hides the underlying
@@ -86,6 +90,12 @@ class cimmofMessages {
     INSTANCE_EXISTS_WARNING,
     ADD_INSTANCE_ERROR,
     GENERAL_ERROR,
+    CLASS_NOT_UPDATED,
+    SAME_VERSION,
+    NO_EXPERIMENTAL_UPDATE,
+    NO_VERSION_UPDATE,
+    NO_CLASS_UPDATE,
+    INVALID_VERSION_FORMAT,
     END
   };
   typedef Array<String> arglist;
@@ -97,3 +107,5 @@ class cimmofMessages {
 };
 
 PEGASUS_NAMESPACE_END
+
+#endif

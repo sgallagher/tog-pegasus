@@ -25,6 +25,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -102,6 +104,12 @@ cimmofClient::getClass(const CIMNamespaceName &nameSpace,
 				    const CIMName &className) const
 {
     return (_client->getClass(nameSpace, className));
+}
+
+void
+cimmofClient::modifyClass(const CIMNamespaceName &nameSpace, CIMClass &Class) const
+{
+    _client->modifyClass(nameSpace, Class);
 }
 
 void

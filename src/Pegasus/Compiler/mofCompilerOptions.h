@@ -23,7 +23,8 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By:
+// Modified By: Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +76,9 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Boolean         _emit_xml;
   compilerCommonDefs::operationType _ot;
   Boolean         _trace;
+  Boolean	  _update_class;
+  Boolean	  _allow_experimental;
+  Boolean	  _allow_version;
 #ifdef PEGASUS_OS_OS400
   Boolean         _quiet;
 #endif
@@ -121,6 +125,15 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_trace() { _trace = true; }
   void reset_trace() { _trace = false; }
   Boolean trace() const { return _trace; }
+  void set_update_class() { _update_class = true; }
+  void reset_update_class() { _update_class = false; }
+  Boolean update_class() const { return _update_class; }
+  void set_allow_experimental() { _allow_experimental = true; }
+  void reset_allow_experimental() { _allow_experimental = false; }
+  Boolean allow_experimental() const { return _allow_experimental; }
+  void set_allow_version() { _allow_version = true; }
+  void reset_allow_version() { _allow_version = false; }
+  Boolean allow_version() const { return _allow_version; }
 #ifdef PEGASUS_OS_OS400
   void set_quiet() { _quiet = true; }
   void reset_quiet() { _quiet = false; }

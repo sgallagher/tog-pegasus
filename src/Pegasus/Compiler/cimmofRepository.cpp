@@ -25,6 +25,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -105,6 +107,15 @@ cimmofRepository::getClass(const CIMNamespaceName &nameSpace,
 {
   // Don't catch errors: pass them up to the requester
   return _context->lookupClass(nameSpace, classname);
+}
+
+int 
+cimmofRepository::modifyClass(const CIMNamespaceName &nameSpace, 
+                           CIMClass *classdecl)
+{
+  // Don't catch errors: pass them up to the requester
+  _context->modifyClass( nameSpace,  *classdecl);
+  return 0;
 }
 
 void 

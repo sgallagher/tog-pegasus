@@ -25,6 +25,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -88,6 +90,9 @@ class PEGASUS_COMPILER_LINKAGE cimmofClient {
   virtual CIMClass getClass(
       const CIMNamespaceName &nameSpace, 
       const CIMName &className) const;
+  virtual void modifyClass(
+      const CIMNamespaceName &nameSpace, 
+      CIMClass &Class) const;
   virtual void createNameSpace(const CIMNamespaceName &nameSpace) const;
 };
 

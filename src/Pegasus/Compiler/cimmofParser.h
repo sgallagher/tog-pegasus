@@ -25,6 +25,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +56,7 @@
 #include "parser.h"
 #include "mofCompilerOptions.h"
 #include "cimmofRepositoryInterface.h"
+#include "cimmofMessages.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Compiler/compilerCommonDefs.h>
@@ -77,6 +80,10 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   //either throw us out or retry depending on user preference
   void maybeThrowParseError(const String &msg) const;
   void maybeThrowLexerError(const String &msg) const;
+
+  //Processing to determine if class should be updated
+  Boolean updateClass(const CIMClass &classdecl, cimmofMessages::MsgCode &updateMessage, Boolean &classExist);
+  Boolean verifyVersion(const String &version, int &iM, int &iN, int &iU);
 
   // Here are the members added by this specialization
   const mofCompilerOptions *_cmdline;

@@ -27,6 +27,8 @@
 //                  1. add comment line to xml output.  aug 2001
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +41,7 @@
 // Implementation of methods of cimmofParser class
 //
 //
+#include <cctype>
 #include <Pegasus/Common/Config.h>
 #include "cimmofParser.h"
 #include <cstring>
@@ -50,6 +53,10 @@
 #include "valueFactory.h"
 #include "cimmofMessages.h"
 #include <Pegasus/Common/XmlWriter.h>
+
+#define CHAR_PERIOD '.'
+#define EXPERIMENTAL "Experimental"
+#define VERSION "Version"
 
 PEGASUS_USING_PEGASUS;
 
@@ -542,14 +549,50 @@ cimmofParser::addClass(CIMClass *classdecl)
     return ret; 
   }
   try {
-   _repository.addClass(getNamespacePath(), *classdecl);
+   Boolean classExist;
+   cimmofMessages::MsgCode updateMessage;
+   // Determine if class can be updated or added. Class is updated or
+   // added based on the compiler options specified.
+   if (updateClass(*classdecl, updateMessage, classExist))
+   {
+      if (classExist)
+      {
+        _repository.modifyClass(getNamespacePath(), *classdecl);
+      }
+      else 
+      {
+        _repository.addClass(getNamespacePath(), *classdecl);
+      }
+   }
+   else
+   {
+      if (updateMessage == cimmofMessages::NO_CLASS_UPDATE)
+      {
+         // This was added to maintain backward compatibility of messages seen by
+         // the user.
+         cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
+			     arglist);
+      }
+      else
+      {
+          arglist.append(cimmofMessages::msgCodeToString(updateMessage));
+          cimmofMessages::getMessage(message, cimmofMessages::CLASS_NOT_UPDATED,
+                     				 arglist);
+      }
+      wlog(message);
+   }
   } catch(AlreadyExistsException) {
     //ATTN: P1 2001 BB  We should be able to modify the class through the compiler
+    // 04/26/2003 GM  See cimmofParser::updateClass() for info on why modify was not 
+    // done here
     cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 			       arglist);
     wlog(message);
   } catch (CIMException &e) {
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
+      // 04/26/2003 GM  See cimmofParser::updateClass() for info on why modify 
+      // was not done here. This where cimmofl and cimmof fell into prior to 
+      // changes above 
       cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
 				 arglist);
       wlog(message);
@@ -1268,3 +1311,449 @@ cimmofParser::maybeThrowLexerError(const String &msg) const
   // lexer written as it is now),
   throw LexerError(msg);
 }
+
+//--------------------------------------------------------------------
+// Update class
+//--------------------------------------------------------------------
+Boolean 
+cimmofParser::updateClass(const CIMClass &classdecl, 
+                          cimmofMessages::MsgCode &updateMessage, 
+                          Boolean &classExist)
+{
+  classExist = true;
+  
+  Boolean ret = true;
+  Boolean iExperimental = false;
+  Boolean rExperimental = false;
+  String iVersion;  /* format of version is m.n.u */
+  int iM = -1;   /* Major id  */
+  int iN = -1;   /* Minor id  */
+  int iU = -1;   /* Update id */
+  String rVersion;  /* format of version is m.n.u */
+  int rM = -1;   /* Major id  */
+  int rN = -1;   /* Minor id  */
+  int rU = -1;   /* Update id */
+
+  Sint32 idx;
+  CIMClass cRep;
+
+
+  // This function was created to implement PEP #43. It allows updates
+  // to the repository.  PEP #43 only allows updates to leaf classes.
+  // Superclasses and classes that have subclasses cannot be updated.
+  // Please reference PEP #43 for more information.
+
+  // Note: Updating the class was not done when an "class already exists
+  // exception" in cimmofParser::addClass() occurs because when it gets  
+  // to the catch the class has been fully populated (it has inherited  
+  // all the properties and qualifiers from the superclass).  This means 
+  // that the Version and Experimental qualifers were propagated to child 
+  // class.  This made checking whether a version or experimental change
+  // would occur difficult. This class, cimmofParser::updateClass(), will
+  // get the class, if it exists, from the repository and save off the
+  // version and experimental qualifiers so that it can be compared with
+  // qualifiers of the class in the mof files.  It it finds the class and
+  // the class cannot be updated, cimmofParser::addClass() will be notified 
+  // that the class exists and send the same message that it has sent 
+  // in the past.  In cases when the class cannot be modified due to that
+  // the allow experimental and allow version options have not be specified 
+  // then an appropriate message will also be sent to cimmofParser::addClass().
+
+  // Note on Experimental qualifier:
+  // With the implementation of PEP #43 Experimental classes cannot be
+  // added to the repository unless the -aE option is specified in the 
+  // cimmof/cimmofl CLIs. 
+
+  // Note on Version qualifier:
+  // Classes that cause a Major update (the m in m.n.u is changed) will 
+  // require that the -aV option be specified.  Classes that cause a
+  // Down Revision will also require that the -aV option be specified.
+  // If the version of the class in the mof file has the same version
+  // as the class in the repository the class will not be updated.   
+  // Classes with the same version are considered the same.
+  // The version specified in the Version qualifier will be checked for
+  // a valid format.  A valid version format is m.n.u (m is major, n is minor,
+  // and u is update).  Examples of valid version are 2, 2.7, 2.7.0
+
+  // Get the class from the repository
+  try
+  {
+    cRep = _repository.getClass(getNamespacePath(), classdecl.getClassName());
+  }
+  catch (CIMException &e) 
+  {
+    if (e.getCode() == CIM_ERR_NOT_FOUND) 
+    {
+        classExist = false;
+    }
+    else
+    if (e.getCode() == CIM_ERR_INVALID_CLASS) 
+    {
+        /* Note:  this is where cimmofl and cimmof fall into */
+        classExist = false;
+    }
+    else 
+    {
+        throw e;
+    } 
+  }
+
+  // Get the experimental qualifier from the input class 
+  idx = classdecl.findQualifier(EXPERIMENTAL);
+  if (idx >= 0) 
+  {
+      CIMConstQualifier iExp = classdecl.getQualifier(idx);
+      CIMValue iExpVal = iExp.getValue();
+      iExpVal.get(iExperimental);
+  }
+
+  // Get the version qualifier from the input class
+  idx = classdecl.findQualifier(VERSION);
+  // A version was found for the input class
+  if (idx >= 0) 
+  {
+      CIMConstQualifier iVer = classdecl.getQualifier(idx);
+      CIMValue iVerVal = iVer.getValue();
+      iVerVal.get(iVersion);
+  }
+
+  // Get experimental and version qualifiers from the repository class
+  if (classExist)
+  {
+      // Get the experimental qualifier from the repository class
+      idx = cRep.findQualifier(EXPERIMENTAL);
+      if (idx >= 0) 
+      {
+          CIMQualifier rExp = cRep.getQualifier(idx);
+          CIMValue rExpVal = rExp.getValue();
+          rExpVal.get(rExperimental);
+      }
+
+      // Get the version qualifier from the repository class
+      idx = cRep.findQualifier(VERSION);
+      if (idx >= 0) 
+      {
+          CIMQualifier rVer = cRep.getQualifier(idx);
+          CIMValue rVal = rVer.getValue();
+          rVal.get(rVersion);              
+      }
+  }
+
+  // Verify version format specified in the Version qualifier of mof class  
+  if (!verifyVersion(iVersion, iM, iN, iU))  
+  {
+       updateMessage = cimmofMessages::INVALID_VERSION_FORMAT;
+       return false; 
+  }
+
+  // Verify version format specified in the Version qualifier of repository class  
+  if (!verifyVersion(rVersion, rM, rN, rU))  
+  {
+       updateMessage = cimmofMessages::INVALID_VERSION_FORMAT;
+       return false;  
+  }
+
+  //
+  // The following code was modeled after the algorithm in PEP 43.
+  //
+
+  if (!classExist)
+  {
+      // Will create an experimental class in the repository
+      if (iExperimental)  
+      {
+          if (!_cmdline->allow_experimental()) 
+          {
+              /* PEP43: ID = 1 */
+              //printf("ID=1 (NoAction): Does Not Exist. -aE not set.\n");
+              updateMessage = cimmofMessages::NO_EXPERIMENTAL_UPDATE;
+              return false;  
+          }
+          else
+          {
+              /* PEP43: ID = 2 */
+              //printf("ID=2 (CreateClass): Does Not Exist. -aE set.\n");
+          }
+      }
+      else
+      {
+          /* PEP43: ID = 3 */
+          //printf("ID=3 (CreateClass): Does Not Exist. Not Experimental.\n");
+      }
+  }
+  else
+  {
+      if (!_cmdline->update_class())
+      {
+          /* PEP43: ID = 4 */
+          //printf("ID=4 (NoAction): Exists. -uC not set.\n");
+          updateMessage = cimmofMessages::NO_CLASS_UPDATE;
+          return false;  
+      }
+
+      // Will create an experimental class in the repository
+      if (!rExperimental && iExperimental)   /* FALSE->TRUE */
+      {
+          if (!_cmdline->allow_experimental()) 
+          {
+              /* PEP43: ID = 5 */
+              //printf("ID=5 (NoAction): Exists. -aE not set.\n");
+              updateMessage = cimmofMessages::NO_EXPERIMENTAL_UPDATE;
+              return false;  
+          }
+ 
+          // Some examples:
+          // Requires minor and update ids in repository and mof to be set with the 
+          // exception of the major id
+          // 2.7.0->NULL (ex. repository has 2.7.0 and mof has no version)
+          // 2.7.0->3.x.x or 2.7.0->1.x.x (Major Update)
+          // 2.7.0->2.6.x                 (Down Revision of minor id)
+          // 2.7.1->2.7.0                 (Down Revision of update id)
+          if ((rM >= 0  &&  iM < 0) ||                     /* remove version (Version->NULL) */
+              (iM != rM  &&  rM >= 0) ||                   /* Major Update (up or down)      */
+              (iN < rN  &&  rN >= 0 && iN >= 0) ||         /* Down Revision of minor id      */
+              (iU < rU  &&  rU >= 0 && iU >= 0 && rN==iU)) /* Down Revision of update id     */
+
+          {
+              if (!_cmdline->allow_version())
+              {
+                  /* PEP43: ID = 6 */
+                  //printf("ID=6 (No Action): Exists. -aV not set.\n");
+                  updateMessage = cimmofMessages::NO_VERSION_UPDATE;
+                  return false;  
+              }
+              else
+              {
+                  /* ID = 7 */
+                  //printf("ID=7: (ModifyClass): Exists. -aEV set. (Major Update, Down Revision, Version->NULL)\n");
+                  
+              }
+          }
+          else
+          {
+             // Some examples:
+             // NULL->x.x.x (ex. repository has no version and mof has x.x.x)
+             // 2.7.0->2.8.x   (minor update of minor id )
+             // 2.7.0->2.7.1   (minor update of update id )
+             // 2.7.9->2.8.0   (minor update of both minor and update id)
+             if ((rM < 0)  ||              /* add a version (NULL->Any) */
+                 (iN > rN && rN >= 0) ||   /* minor update of minor id  */
+                 (iU > rU && rU >= 0))     /* minor update of update id */
+             {
+                 /* PEP43: ID = 8 */
+                 //printf("ID=8 (ModifyClass): Exists. -aE set. (Minor Update, NULL->Any)\n");
+                 
+             }
+             else
+             {
+                 // Some examples:
+                 // 2.7.0->2.7.0 (ex. repository has 2.7.0 and mof has 2.7.0)
+                 // 2    ->2.0.0 or 2.0.0->2   (equates to same version)
+                 // 2.7  ->2.7.0 or 2.7.0->2.7 (equates to same version)
+                 /* PEP43: ID = 9 --> Same Version */
+                 //printf("ID=9 (NoAction): Exists. Same Version.\n");
+                 updateMessage = cimmofMessages::SAME_VERSION;
+                 return false;
+                 
+             }
+          }
+      }
+      else
+      {
+          // Will not create an experimental class in the repository or 
+          // class in the repository is already experimental
+          if ((rExperimental && iExperimental) ||        /* TRUE->TRUE */
+              (!iExperimental))                          /* Any->FALSE */
+          {
+              // See above for examples...ID=6
+              if ((rM >= 0  &&  iM < 0) ||                     /* remove version (Version->NULL) */
+                  (iM != rM  &&  rM >= 0) ||                   /* Major Update (up or down)      */
+                  (iN < rN  &&  rN >= 0 && iN >= 0) ||         /* Down Revision of minor id      */
+                  (iU < rU  &&  rU >= 0 && iU >= 0 && rN==iU)) /* Down Revision of update id     */
+              {
+                  if (!_cmdline->allow_version())
+                  {
+                      /* PEP43: ID = 10 */
+                      //printf("ID=10 (NoAction): Exists. -aV not set.\n");
+                      updateMessage = cimmofMessages::NO_VERSION_UPDATE;
+                      return false;  
+                  }
+                  else
+                  {
+                      /* ID = 11 */
+                      //printf("ID=11 (ModifyClass): Exists. -aV set. (Major Update, Down Revision, Version->NULL)\n");
+                      
+                  }
+              }              
+              else
+              {
+                 // See above for examples...ID=8
+                 if ((rM < 0)  ||              /* add a version (NULL->Any) */
+                     (iN > rN && rN >= 0) ||   /* minor update of minor id  */
+                     (iU > rU && rU >= 0))     /* minor update of update id */
+                 {
+                     /* PEP43: ID = 12 */
+                     //printf("ID=12 (ModifyClass): Exists: (Minor Update, NULL->Any)\n");
+                     
+                 }
+                 else
+                 {
+                     /* PEP43: ID = 13 --> Same Version */
+                     // See above for examples...ID=9
+                     //printf("ID=13 (NoAction): Exists. Same Version.\n");
+                     updateMessage = cimmofMessages::SAME_VERSION;
+                     return false;
+                     
+                 }
+              }
+          }
+      }
+  }
+
+  return ret;
+}
+
+Boolean 
+cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
+{
+  Boolean ret = true;
+
+  int pos  = -1;
+  int posM = -1;   /* Major  */
+  int posN = -1;   /* Minor  */
+  int posU = -1;   /* Update */
+  
+  // Parse the input version
+  if (version.size())
+  {
+      // If "V" specified as first character go ahead and ignore
+      if (isdigit(version[0]))
+      {
+          pos = 0;
+          posM = version.find(0, CHAR_PERIOD);
+      }
+      else
+      {
+          pos = 1;
+          if (String::equalNoCase(version.subString(0,1), "V"))
+          {
+              posM = version.find(1, CHAR_PERIOD);
+          }
+          else
+          {
+              // First character is unknown.
+              // Examples of invalid version:  ".2.7", ".", "..", "...", "AB"  
+              return false;
+          }
+      }
+ 
+      // Find the second and possible third period
+      if (posM >=0)
+      { 
+          posN = version.find(posM+1, CHAR_PERIOD);  
+      }
+      if (posN >= 0)
+      {
+          posU = version.find(posN+1, CHAR_PERIOD); 
+      }
+
+      // There should be no additional identifiers after the update identifier
+      if (posU >= 0)
+      {
+          // Examples of invalid version:  "2.7.0.", "2.7.0.1", "2.7.0.a", "2.7.0.1."
+          return false;
+      }
+
+      // Check for trailing period
+      if ((posM >=0 && posM+1 == (int)version.size()) ||
+          (posN >=0 && posN+1 == (int)version.size()) || 
+          (posU >=0 && posU+1 == (int)version.size()))
+      {
+          // Examples of invalid version:  "2.", "2.7.", "V.", "9.."
+          return false;
+      }
+
+      // Major identifier is not specified
+      if (((pos > 0) && (posM < 0) && (!version.subString(pos).size())) ||
+          ((pos > 0) && (posM >= 0) && (posM <= pos)))
+      {
+          // Examples of invalid version: "V.2.7", "V"
+          return false;
+      }   
+
+      // Check Major identifier for invalid format
+      int endM = posM;
+      if (posM < 0)
+      {
+         endM = version.size();
+      }
+      for (int i = pos; i < endM; i++)
+      {
+           if (!isdigit(version[i]))
+           {
+               // Example of invalid version:  "1B.2D.3F"
+               return false;
+           }
+      }
+
+      // Minor identifier is not specified
+      if (posM+1 == posN)
+      {
+          // Example of invalid version:  "2..9"
+          return false;
+      }
+
+      // Check Minor identifier for invalid format
+      if (posM > 0)
+      {
+          int endN = posN;
+          if (posN < 0)
+          {
+              endN = version.size();
+          }
+          for (int i = posM+1; i < endN; i++)
+          {
+               if (!isdigit(version[i]))
+               {
+                   // Example of invalid version:  "99.CD", "11.2D.3F"
+                   return false;
+               }
+          }
+      }
+
+      // Check Update identifier for invalid format
+      if (posN > 0)
+      {
+          for (int i = posN+1; i < (int)version.size(); i++)
+          {
+               if (!isdigit(version[i]))
+               {
+                    // Example of invalid version: "99.88.EF", "11.22.3F"
+                    return false;
+               }
+          }
+      }
+
+      // Set major, minor, and update values as integers
+      if (posM >= 0)
+      {
+          iM = atoi((const char*)(version.subString(pos, posM).getCString()));
+          if (posN >= 0)
+          {
+              iN = atoi((const char*)(version.subString(posM+1, posN).getCString()));
+              iU = atoi((const char*)(version.subString(posN+1).getCString()));
+          }
+          else
+          {
+              iN = atoi((const char*)(version.subString(posM+1).getCString()));
+          }
+      }
+      else
+      {
+          iM = atoi((const char*)(version.subString(pos).getCString()));
+      }
+  }
+
+  return ret;
+}
+

@@ -26,6 +26,8 @@
 // Modified By:  Bob Blair (bblair@bmc.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Gerarda Marquez (gmarquez@us.ibm.com)
+//              -- PEP 43 changes
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -101,6 +103,19 @@ compilerDeclContext::addInstance(const CIMNamespaceName &nameSpace,
 {
   if (_ot == compilerCommonDefs::USE_REPOSITORY)
     _repository->createInstance(nameSpace, x);
+}
+
+void
+compilerDeclContext::modifyClass(const CIMNamespaceName &nameSpace, CIMClass &x)
+{
+  if (_ot != compilerCommonDefs::USE_REPOSITORY)
+  {
+    _classes.append(x);
+  }
+  else
+  {
+    _repository->modifyClass(nameSpace, x);
+  }
 }
 
 const CIMClass *

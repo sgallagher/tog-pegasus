@@ -377,7 +377,7 @@ void IndicationService::handleEnqueue(Message* message)
     }
 
 #ifdef PEGASUS_INDICATION_PERFINST
-    stopWatch.stop()
+    stopWatch.stop();
 
     Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
         "%s: %.3f seconds", MessageTypeToString(message->getType()), stopWatch.getElapsed());

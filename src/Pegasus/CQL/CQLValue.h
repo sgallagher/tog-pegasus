@@ -207,7 +207,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
         </pre>
     */
  
-    CQLValue operator+(const CQLValue& x);
+    //CQLValue operator+(const CQLValue& x);
 
     /** This overload operator (-) subtracts the value of CQLValue
           objects and performs type checking and Uint64 handling.
@@ -220,7 +220,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
         </pre>
     */
  
-    CQLValue operator-(const CQLValue& x);
+    //CQLValue operator-(const CQLValue& x);
 
     /** This overload operator (*) multiplies the values of CQLValue
           objects and performs type checking and Uint64 handling.
@@ -233,7 +233,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
         </pre>
     */
 
-    CQLValue operator*(const CQLValue& x);
+    //CQLValue operator*(const CQLValue& x);
 
     /** This overload operator (*) divides the values of CQLValue
           objects and performs type checking and Uint64 handling.
@@ -246,7 +246,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
         </pre>
     */
 
-    CQLValue operator/(const CQLValue& x);
+    //CQLValue operator/(const CQLValue& x);
 
     /** Accessor for getting the type of the CQLValue.
     

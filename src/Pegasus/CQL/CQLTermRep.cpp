@@ -60,7 +60,7 @@ CQLValue CQLTermRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
    for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
    {
       switch(_FactorOperators[i])
-      {
+      {/*
          case mult:
             returnVal = returnVal * 
                         _Factors[i+1].resolveValue(CI,QueryCtx);
@@ -73,6 +73,7 @@ CQLValue CQLTermRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
             returnVal = returnVal + 
                         _Factors[i+1].resolveValue(CI,QueryCtx);
             break;
+       */
          default:
             throw(1);
       }

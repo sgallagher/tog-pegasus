@@ -178,7 +178,7 @@ Boolean CQLValue::operator>(const CQLValue& x)
    return _rep->operator>(x._rep);
 }
 
-
+/*
 CQLValue CQLValue::operator+(const CQLValue& x)
 {
    return CQLValue(_rep->operator+(x._rep));
@@ -200,7 +200,7 @@ CQLValue CQLValue::operator/(const CQLValue& x)
 {
    return CQLValue(_rep->operator/(x._rep));
 }
-
+*/
 //##ModelId=40FC3F6F0302
 CQLValue::CQLValueType CQLValue::getValueType()
 {

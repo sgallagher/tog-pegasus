@@ -143,12 +143,12 @@ CQLValueRep::CQLValueRep(const CQLValueRep* val)
       }
       case CQLValue::CIMInstance_type:  
       {
-         _theValue._IN = new CIMInstance(*val->_theValue._IN);
+         _theValue._IN = new CIMInstance(val->_theValue._IN->clone());
          break;
       }
       case CQLValue::CIMClass_type:  
       {
-         _theValue._CL = new CIMClass(*val->_theValue._CL);
+         _theValue._CL = new CIMClass(val->_theValue._CL->clone());
          break;
       }
       default:
@@ -245,14 +245,14 @@ CQLValueRep::CQLValueRep(const String& inString)
 
 CQLValueRep::CQLValueRep(const CIMInstance& inInstance)
 {
-   _theValue._IN = new CIMInstance(inInstance);
+   _theValue._IN = new CIMInstance(inInstance.clone());
    _valueType = CQLValue::CIMInstance_type;
    _isResolved = true;
 }
 
 CQLValueRep::CQLValueRep(const CIMClass& inClass)
 {
-   _theValue._CL = new CIMClass(inClass);
+   _theValue._CL = new CIMClass(inClass.clone());
    _valueType = CQLValue::CIMClass_type;
    _isResolved = true;
 }
@@ -301,7 +301,7 @@ CQLValueRep::CQLValueRep(Real64 inReal)
 
 void CQLValueRep::resolve(CIMInstance& CI, QueryContext& inQueryCtx)
 {   
-   if(_isResolved)
+   if(_CQLChainId.size() == 0)
    {
       return;
    }
@@ -360,7 +360,7 @@ void CQLValueRep::resolve(CIMInstance& CI, QueryContext& inQueryCtx)
    {
       // A class was passed in with no property indicated.
       // Set the instance passed in, as a primitive.
-      _theValue._IN = (CIMInstance *) new CIMInstance(CI);
+      _theValue._IN = (CIMInstance *) new CIMInstance(CI.clone());
       _valueType = CQLValue::CIMInstance_type;
       _isResolved = true;
       return; // Done.
@@ -428,7 +428,7 @@ void CQLValueRep::resolve(CIMInstance& CI, QueryContext& inQueryCtx)
       // Since no further processing is necessary for this case.
       if(Idstrings[index].isWildcard())
       {  
-         _theValue._IN = new CIMInstance(CI);
+         _theValue._IN = new CIMInstance(CI.clone());
          _valueType = CQLValue::CIMInstance_type;
          _isResolved = true;
          return;
@@ -496,10 +496,10 @@ CQLValueRep& CQLValueRep::operator=(const CQLValueRep& rhs){
          			_theValue._OP = new CIMObjectPath(rhs.getReference());
          			break;
       			case CQLValue::CIMInstance_type:
-         			_theValue._IN = new CIMInstance(rhs.getInstance());
+         			_theValue._IN = new CIMInstance(rhs.getInstance().clone());
          			break;
       			case CQLValue::CIMClass_type:
-         			_theValue._CL = new CIMClass(rhs.getClass());
+         			_theValue._CL = new CIMClass(rhs.getClass().clone());
          			break;
 			case CQLValue::Boolean_type:
       			case CQLValue::Sint64_type:
@@ -825,7 +825,7 @@ Boolean CQLValueRep::operator>(const CQLValueRep& x)
    return true;
 }
 
-
+/*
 CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
 {
    
@@ -912,7 +912,6 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
          break;
    }
 
-   // control should never reach here
    return x;
 }
 
@@ -1000,7 +999,7 @@ CQLValueRep CQLValueRep::operator-(const CQLValueRep& x)
          throw(Exception(String("CQLValueRep::operator-")));
          break;
    }
-   // control should never reach here
+   
    return x;
 }
 
@@ -1090,7 +1089,7 @@ CQLValueRep CQLValueRep::operator*(const CQLValueRep& x)
          throw(Exception(String("CQLValueRep::operator*")));
          break;
    }
-   // control should never reach here
+   
    return x;
 }
 
@@ -1180,10 +1179,10 @@ CQLValueRep CQLValueRep::operator/(const CQLValueRep& x)
          throw(Exception(String("CQLValueRep::operator/")));
          break;
    }
-   // control should never reach here
+   
    return x;
 }
-
+*/
 //##ModelId=40FC3F6F0302
 CQLValue::CQLValueType CQLValueRep::getValueType()
 {

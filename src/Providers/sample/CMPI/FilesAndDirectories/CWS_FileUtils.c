@@ -34,7 +34,11 @@
 #include <Pegasus/ProviderManager2/CMPI/cmpidt.h>
 #include <Pegasus/ProviderManager2/CMPI/cmpift.h>
 #include <Pegasus/ProviderManager2/CMPI/cmpimacs.h>
+
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 #include <unistd.h>
+#endif
+
 #include <string.h>
 
 

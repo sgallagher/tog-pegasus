@@ -45,6 +45,18 @@ typedef struct {
 
 #include "cwssimdata.c"
 
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+char * dirname(char *path) {
+	char drive[_MAX_DRIVE];
+	char *dir = (char *)malloc(_MAX_DIR*sizeof(char));
+	char fname[_MAX_FNAME];
+	char ext[_MAX_EXT];
+
+	_splitpath( path, drive, dir, fname, ext);
+	return dir;
+}
+#endif
+
 int locateFile(const char *fn) 
 {
    int i;

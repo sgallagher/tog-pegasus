@@ -35,7 +35,9 @@
 #include <Pegasus/ProviderManager2/CMPI/cmpift.h>
 #include <Pegasus/ProviderManager2/CMPI/cmpimacs.h>
 #include <string.h>
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 #include <libgen.h>
+#endif
 
 #define LOCALCLASSNAME "CWS_DirectoryContainsFile"
 #define DIRECTORYCLASS "CWS_Directory"

@@ -47,9 +47,17 @@
 #define CWS_TYPE_DIR   'd'
 #define CWS_TYPE_PLAIN 'f'
 
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#define SINT64 __int64
+#define strcasecmp _stricmp
+char * dirname(char *path);
+#else
+#define SINT64 long long
+#endif
+
 struct _CWS_FILE {
   char      cws_name[CWS_MAXPATH];
-  long long cws_size;
+  SINT64 cws_size;
   time_t    cws_ctime;
   time_t    cws_mtime;
   time_t    cws_atime;

@@ -71,6 +71,7 @@ print "<title>PegasusDocumentTOC</title>"
 print "<base target=\"main\">"
 print "</head>"
 print "<body bgcolor=\"#FF9966\">"
+print "<p align=\"center\"><img border=\"0\" src=\"pegicon2.GIF\" width=\"100\" height=\"100\"></p>"
 print "<p>&nbsp;</p>"
 print "<p><b><font size=\"5\">Contents</font></b></p>"
 print "<TABLE>"
@@ -87,7 +88,7 @@ print "<TABLE>"
   	print
   	print "<!--Diagnostic " x " " lvl[x] " " nme[x] "-->"
   	if (lvl[x] != 0){
-  		ft = "<FONT SIZE= \"-"lvl[x] "\"> "
+  		ft = "<FONT SIZE=\"-"lvl[x] "\"> "
   		nft = "</FONT>"
   		}
   	else {
@@ -95,8 +96,8 @@ print "<TABLE>"
   		nft = ""
   		}
   	print "<TR><TD VALIGN=TOP>"
-  	print "<IMG ALT=""o"" BORDER=0 SRC=icon1.gif>" ist(lvl[x])" <A NAME=" nme[x] "></A>"
-  	print "<A HREF=" nme[x] ".html><B>"  ft flnme[x] nft " </B></A></TD><TD><BR>"
+  	print ist(lvl[x])"<IMG ALT=\"o\" BORDER=0 SRC=icon1.gif>" " <A NAME=" nme[x] "></A>"
+  	print "<A HREF=" nme[x] ".html><B>"  ft flnme[x] nft "</B></A></TD><TD><BR>"
   	print "</TD></TR>"
   	print	
   	}

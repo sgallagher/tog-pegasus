@@ -54,7 +54,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define IDLE_LIMIT 100
+#define IDLE_LIMIT 300
 
 class ProviderRegistrationManager;
 class ProviderManager;

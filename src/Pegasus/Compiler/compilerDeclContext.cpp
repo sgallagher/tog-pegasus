@@ -51,12 +51,7 @@ compilerDeclContext::lookupQualifierDecl(const String &nameSpace,
       return *pTheQualifier;
   }
   if (_repository && (_ot != compilerCommonDefs::IGNORE_REPOSITORY)) {
-    try {
       return _repository->getQualifier(nameSpace, qualifierName);
-    } catch (Exception &e) {
-      // FIXME:  catch the NOT_FOUND condition.  Don't catch others.
-      // ignore.  It either isn't there or something's broken.
-    }
   }
   return CIMQualifierDecl();
 }
@@ -72,11 +67,7 @@ compilerDeclContext::lookupClass(const String &nameSpace,
       return *pTheClass;
   }
   if (_repository && _ot != compilerCommonDefs::IGNORE_REPOSITORY) {
-    try {
       return _repository->getClass(nameSpace, className);
-    } catch(Exception &e) {
-      // ignore failure to find.  FIXME:  pass others on.
-    }
   }
   return CIMClass();
 }

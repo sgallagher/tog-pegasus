@@ -67,6 +67,7 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   String       _repository;
   String                _namespacePath;
   Boolean         _syntax_only;
+  Boolean         _is_local;
   Boolean         _suppress_warnings;
   Boolean         _suppress_all_messages;
   Boolean         _emit_xml;
@@ -79,6 +80,7 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   mofCompilerOptions() : _repository(String::EMPTY), 
     _namespacePath(""),
     _syntax_only(false),
+    _is_local(false),
     _suppress_warnings(false),
     _suppress_all_messages(false),
     _emit_xml(false),
@@ -102,6 +104,9 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   void set_syntax_only() { _syntax_only = true; }
   void reset_syntax_only() { _syntax_only = false; }
   Boolean syntax_only() const { return _syntax_only; }
+  void set_is_local() { _is_local = true; }
+  void reset_is_local() { _is_local = false; }
+  Boolean is_local() const { return _is_local; }
   void set_suppress_warnings() { _suppress_warnings = true; }
   void reset_suppress_warnings() { _suppress_warnings = false; }
   Boolean suppress_warnings() const { return _suppress_warnings; }

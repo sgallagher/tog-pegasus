@@ -75,13 +75,6 @@ class CQLSimplePredicate
     ExpressionOpType _operator;
 
 };
-/*
-#ifndef PEGASUS_ARRAY_T
-#define PEGASUS_ARRAY_T CQLSimplePredicate
-#include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-#endif
-*/
 PEGASUS_NAMESPACE_END
 
 #endif 

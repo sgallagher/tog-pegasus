@@ -31,10 +31,10 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//		Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//				Barbara Packard, Hewlett-Packard Company (barbara_packard@hp.com)
-//				Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
-//
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Barbara Packard, Hewlett-Packard Company (barbara_packard@hp.com)
+//              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,14 +52,6 @@
 #include <WMIMapper/PegServer/WMIMapperUserInfoContainer.h>
 #include <WMIMapper/PegServer/CIMServer.h>
 #include <Pegasus/Server/Linkage.h>
-
-#include <WMIMapper/WMIProvider/WMIInstanceProvider.h>
-#include <WMIMapper/WMIProvider/WMIClassProvider.h>
-#include <WMIMapper/WMIProvider/WMIAssociatorProvider.h>
-#include <WMIMapper/WMIProvider/WMIReferenceProvider.h>
-#include <WMIMapper/WMIProvider/WMIQualifierProvider.h>
-#include <WMIMapper/WMIProvider/WMIMethodProvider.h>
-#include <WMIMapper/WMIProvider/WMIQueryProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

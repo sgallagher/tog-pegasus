@@ -36,6 +36,7 @@
 //               Barbara Packard, Hewlett-Packard Company
 //                   (barbara_packard@hp.com)
 //               Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//               Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,22 @@
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// Need to include these before the WMI Provider headers
+#include <atlbase.h>
+#include <comdef.h>
+#include <wbemcli.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// WMI Provider interface headers
+#include <WMIMapper/WMIProvider/WMIInstanceProvider.h>
+#include <WMIMapper/WMIProvider/WMIClassProvider.h>
+#include <WMIMapper/WMIProvider/WMIAssociatorProvider.h>
+#include <WMIMapper/WMIProvider/WMIReferenceProvider.h>
+#include <WMIMapper/WMIProvider/WMIQualifierProvider.h>
+#include <WMIMapper/WMIProvider/WMIMethodProvider.h>
+#include <WMIMapper/WMIProvider/WMIQueryProvider.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -111,9 +111,9 @@ public:
 
 	    // get property "name"
 	    CIMProperty myProperty = myInstance.getProperty(i);
-	    // get value from property "name"
-	    // This is new namespace name.
 
+	    // get value from property "name"
+	    // This is new namespace name. 
 	    CIMValue myValue = myProperty.getValue();
 
 	    CIMType myType = myValue.getType();
@@ -233,7 +233,8 @@ public:
 // NOTE: The name of the provider must be correct to be loadable.
 
 extern "C" PEGASUS_EXPORT CIMProvider*
-	PegasusCreateProvider___NamespaceProvider() {
+	PegasusCreateProvider___NamespaceProvider() 
+{
    PEGASUS_STD(cout) << "Called PegasusCreateProvider___NamespaceProvider" <<
    PEGASUS_STD(endl);
     return new __NamespaceProvider;

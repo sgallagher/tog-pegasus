@@ -342,10 +342,18 @@ void ProviderRegistrationProvider::modifyInstance(
         ResponseHandler<CIMInstance> & handler)
 {
     // get userName and only privileged user can execute this operation
-    IdentityContainer container = context.get(CONTEXT_IDENTITY);
-    String userName = container.getUserName();
+    String userName;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        userName = container.getUserName();
+    }
+    catch (...)
+    {
+        userName = String::EMPTY;
+    }
 
-    if (!System::isPrivilegedUser(userName)) 
+    if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName)) 
     {
 	throw CIMException (CIM_ERR_ACCESS_DENIED,
 	    "You must have superuser privilege to modify the registration."); 	
@@ -412,10 +420,18 @@ void ProviderRegistrationProvider::createInstance(
     ResponseHandler<CIMObjectPath> & handler)
 {
     // get userName and only privileged user can execute this operation
-    IdentityContainer container = context.get(CONTEXT_IDENTITY);
-    String userName = container.getUserName();
+    String userName;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        userName = container.getUserName();
+    }
+    catch (...)
+    {
+        userName = String::EMPTY;
+    }
 
-    if (!System::isPrivilegedUser(userName)) 
+    if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName)) 
     {
 	throw CIMException (CIM_ERR_ACCESS_DENIED,
 	    "You must have superuser privilege to register providers."); 	
@@ -582,10 +598,18 @@ void ProviderRegistrationProvider::deleteInstance(
     ResponseHandler<CIMInstance> & handler)
 {
     // get userName and only privileged user can execute this operation
-    IdentityContainer container = context.get(CONTEXT_IDENTITY);
-    String userName = container.getUserName();
+    String userName;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        userName = container.getUserName();
+    }
+    catch (...)
+    {
+        userName = String::EMPTY;
+    }
 
-    if (!System::isPrivilegedUser(userName)) 
+    if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName)) 
     {
 	throw CIMException (CIM_ERR_ACCESS_DENIED,
 	    "You must have superuser privilege to unregister providers."); 	
@@ -633,10 +657,18 @@ void ProviderRegistrationProvider::invokeMethod(
     ResponseHandler<CIMValue> & handler)
 {
     // get userName and only privileged user can execute this operation
-    IdentityContainer container = context.get(CONTEXT_IDENTITY);
-    String userName = container.getUserName();
+    String userName;
+    try
+    {
+        IdentityContainer container = context.get(CONTEXT_IDENTITY);
+        userName = container.getUserName();
+    }
+    catch (...)
+    {
+        userName = String::EMPTY;
+    }
 
-    if (!System::isPrivilegedUser(userName)) 
+    if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName)) 
     {
 	throw CIMException (CIM_ERR_ACCESS_DENIED,
 	    "You must have superuser privilege to disable or enable providers."); 	

@@ -34,6 +34,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CIMIndication
+# include "ArrayInter.h"
+#undef PEGASUS_ARRAY_T
+
 // REVIEW: delete this class. CIM indications are represented using
 // CIMInstance objects.
 

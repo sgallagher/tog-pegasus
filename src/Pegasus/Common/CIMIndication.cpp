@@ -30,4 +30,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define PEGASUS_ARRAY_T CIMIndication
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 PEGASUS_NAMESPACE_END

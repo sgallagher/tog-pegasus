@@ -37,6 +37,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T ProviderManagerModule
+#include <Pegasus/Common/ArrayInter.h>
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 

@@ -51,7 +51,7 @@
     {"sslCertificateFilePath", "/etc/pegasus/server.pem"},
     {"sslKeyFilePath",      "/etc/pegasus/file.pem"},
     {"sslTrustFilePath",      "/etc/pegasus/client.pem"},
-    {"repositoryDir",       "/var/pegasus/repository"},
+    {"repositoryDir",       "/var/lib/pegasus/repository"},
     {"providerDir",         "/usr/lib/pegasus/providers:/usr/lib/openwbem/cimpiproviders:/usr/lib/cmpi"},
 #endif
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)

@@ -86,6 +86,12 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier
 
 };
 
+#ifndef PEGASUS_ARRAY_T
+#define PEGASUS_ARRAY_T CQLChainedIdentifier
+#include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+#endif
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CQLChainedIdentifier_h */

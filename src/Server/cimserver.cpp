@@ -101,7 +101,7 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/ShutdownService.h>
 #include <Pegasus/Common/Destroyer.h>
-#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX)
+#if !defined(PEGASUS_OS_ZOS) && ! defined(PEGASUS_OS_HPUX) && ! defined(PEGASUS_NO_SLP)
 #include <slp/slp.h>
 #endif
 

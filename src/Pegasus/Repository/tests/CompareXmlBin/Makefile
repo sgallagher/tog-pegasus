@@ -103,6 +103,8 @@ install:
 
 clean: local-clean
 
+messages:
+
 repo_clean: 
 	  $(RMREPOSITORY) $(REPO_DIR)/$(REPO_XML)
 	  $(RMREPOSITORY) $(REPO_DIR)/$(REPO_BIN)

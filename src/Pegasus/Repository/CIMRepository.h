@@ -268,8 +268,9 @@ private:
 	const CIMReference& instanceName);
 
     String _repositoryRoot;
-    RepositoryDeclContext* _context;
     NameSpaceManager _nameSpaceManager;
+protected:
+    RepositoryDeclContext* _context;
 };
 
 PEGASUS_NAMESPACE_END

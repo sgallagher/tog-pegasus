@@ -36,6 +36,9 @@
 
 #include "SecureBasicAuthenticator.h"
 
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#endif
 
 PEGASUS_USING_STD;
 
@@ -99,6 +102,14 @@ Boolean SecureBasicAuthenticator::authenticate(
 
     Boolean authenticated = false;
 
+#ifdef PEGASUS_OS_OS400
+    // Use OS400 APIs to do user name and password verification
+    int os400auth =
+      ycmVerifyUserAuthorization((const char*)userName.getCString(),
+				 (const char*)password.getCString());
+    if (os400auth == TRUE) 
+	authenticated = true;
+#else
     //
     // Check if the user is a valid system user
     //
@@ -128,6 +139,7 @@ Boolean SecureBasicAuthenticator::authenticate(
         PEG_METHOD_EXIT();
         throw e;
     }
+#endif
 
     PEG_METHOD_EXIT();
 

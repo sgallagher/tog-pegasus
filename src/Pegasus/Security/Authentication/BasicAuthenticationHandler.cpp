@@ -115,6 +115,14 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     String password = decodedStr.subString(pos + 1);
 
+#ifdef PEGASUS_OS_OS400
+    // OS400 APIs require user profile to be uppercase
+    for(int i=0; i < userName.size(); i++)
+    {
+	userName[i] = toupper(userName[i]);
+    }
+#endif
+
     authenticated = _basicAuthenticator->authenticate(userName, password);
 
     if (authenticated)

@@ -49,6 +49,9 @@
 #include "AuthorizationHandler.h"
 #include "UserExceptions.h"
 
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#endif
 
 PEGASUS_USING_STD;
 
@@ -366,6 +369,18 @@ Boolean AuthorizationHandler::verifyAuthorization(
         }
     }
 
+#ifdef PEGASUS_OS_OS400
+    if (readOperation || writeOperation)
+    {
+	// Use OS/400 Application Administration to do cim operation verification
+	int os400auth =
+	  ycmVerifyFunctionAuthorization((const char*)userName.getCString(),
+					 (const char*)(nameSpace.getString()).getCString(),
+					 (const char*)(cimMethodName.getString()).getCString());
+	if (os400auth == TRUE) 
+	    authorized = true;
+    }
+#else
     //
     // Get the authorization of the specified user and namespace
     //
@@ -393,6 +408,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
     {
         authorized = true;
     }
+#endif
 
     PEG_METHOD_EXIT();
 

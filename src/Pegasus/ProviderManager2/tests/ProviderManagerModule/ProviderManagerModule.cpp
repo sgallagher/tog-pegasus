@@ -30,23 +30,13 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 #include <Pegasus/ProviderManager2/ProviderManagerModule.h>
 
-PEGASUS_NAMESPACE_BEGIN
-
-#define PEGASUS_ARRAY_T ProviderManagerModule
-#include <Pegasus/Common/ArrayInter.h>
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-PEGASUS_NAMESPACE_END
-
-PEGASUS_USING_PEGASUS;
-
 #include <iostream>
 
+PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -154,7 +144,13 @@ int main(int argc, char** argv)
 {
     const char * verbose = getenv("PEGASUS_TEST_VERBOSE");
 
+    // Use "bin" directory for Windows, to be consistent with the default
+    // providerDir value in Config/ProviderDirPropertyOwner.cpp.
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+    fileName=String(getenv("PEGASUS_HOME"))+String("/bin/")+FILE_NAME;
+#else
     fileName=String(getenv("PEGASUS_HOME"))+String("/lib/")+FILE_NAME;
+#endif
     
     Test1();
     Test2();

@@ -40,7 +40,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_PPM_LINKAGE TestProviderManager : public ProviderManager
+class TestProviderManager : public ProviderManager
 {
 public:
     TestProviderManager(void);

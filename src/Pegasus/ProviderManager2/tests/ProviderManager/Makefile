@@ -6,15 +6,14 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_PPM_INTERNAL -DPEGASUS_INTERNALONLY
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 LIBRARY = TestProviderManager
 
 LIBRARIES = \
     pegcommon \
 	pegprovider \
-	pegprovidermanager \
-	pegprm
+	pegprovidermanager
 
 SOURCES = \
 	TestProviderManagerMain.cpp \

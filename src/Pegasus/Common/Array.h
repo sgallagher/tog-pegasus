@@ -161,7 +161,8 @@ void BubbleSort(Array<PEGASUS_ARRAY_T>& x)
 }
 #endif
 
-#if 0 // Determine need for these functions
+#if 0
+// Determine need for these functions
 template<class PEGASUS_ARRAY_T>
 void Unique(Array<PEGASUS_ARRAY_T>& x) 
 {

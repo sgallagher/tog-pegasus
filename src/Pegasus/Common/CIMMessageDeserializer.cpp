@@ -554,6 +554,23 @@ void CIMMessageDeserializer::_deserializeOperationContext(
         XmlReader::expectEndTag(parser, "PGOCSFC");
     }
 
+    if (XmlReader::testStartTag(parser, entry, "PGOCSFQ"))
+    {
+        String filterQuery;
+        String queryLanguage;
+        CIMNamespaceName nameSpace;
+
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(filterQuery);
+        XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
+        genericValue.get(queryLanguage);
+        _deserializeCIMNamespaceName(parser, nameSpace);
+        operationContext.insert(
+            SubscriptionFilterQueryContainer(
+                filterQuery, queryLanguage, nameSpace));
+        XmlReader::expectEndTag(parser, "PGOCSFQ");
+    }
+
     if (XmlReader::testStartTag(parser, entry, "PGOCSIN"))
     {
         Array<CIMObjectPath> subscriptionInstanceNames;

@@ -582,6 +582,21 @@ void CIMMessageSerializer::_serializeOperationContext(
 
     try
     {
+        const SubscriptionFilterQueryContainer container =
+            operationContext.get(SubscriptionFilterQueryContainer::NAME);
+
+        XmlWriter::append(out, "<PGOCSFQ>\n");
+        XmlWriter::appendValueElement(out, container.getFilterQuery());
+        XmlWriter::appendValueElement(out, container.getQueryLanguage());
+        _serializeCIMNamespaceName(out, container.getSourceNameSpace());
+        XmlWriter::append(out, "</PGOCSFQ>\n");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
         const SubscriptionInstanceNamesContainer container =
             operationContext.get(SubscriptionInstanceNamesContainer::NAME);
 

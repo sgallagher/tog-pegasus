@@ -540,6 +540,116 @@ SubscriptionFilterConditionContainer::SubscriptionFilterConditionContainer()
 }
 
 //
+// SubscriptionFilterQueryContainer
+//
+
+class SubscriptionFilterQueryContainerRep
+{
+public:
+  String filterQuery;
+  String queryLanguage;
+  CIMNamespaceName sourceNameSpace;
+};
+
+const String SubscriptionFilterQueryContainer::NAME =
+    "SubscriptionFilterQueryContainer";
+    
+SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer
+    (const OperationContext::Container & container)
+{
+    const SubscriptionFilterQueryContainer * p =
+        dynamic_cast<const SubscriptionFilterQueryContainer *>(&container);
+    
+    if(p == 0)
+    {
+        throw DynamicCastFailedException();
+    }
+    
+    _rep = new SubscriptionFilterQueryContainerRep();
+    _rep->filterQuery = p->_rep->filterQuery;
+    _rep->queryLanguage = p->_rep->queryLanguage;
+    _rep->sourceNameSpace = p->_rep->sourceNameSpace;
+}   
+
+SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer
+    (const SubscriptionFilterQueryContainer & container)
+{
+    _rep = new SubscriptionFilterQueryContainerRep();
+    _rep->filterQuery = container._rep->filterQuery;
+    _rep->queryLanguage = container._rep->queryLanguage;
+    _rep->sourceNameSpace = container._rep->sourceNameSpace;
+}
+
+SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer(
+    const String & filterQuery,
+    const String & queryLanguage,
+    const CIMNamespaceName & sourceNameSpace)
+{   
+    _rep = new SubscriptionFilterQueryContainerRep();
+    _rep->filterQuery = filterQuery;
+    _rep->queryLanguage = queryLanguage;
+    _rep->sourceNameSpace = sourceNameSpace;
+}
+
+SubscriptionFilterQueryContainer::~SubscriptionFilterQueryContainer
+    (void)
+{
+    delete _rep;
+}
+SubscriptionFilterQueryContainer &
+    SubscriptionFilterQueryContainer::operator=(
+    const SubscriptionFilterQueryContainer & container)
+{
+    if (this == &container)
+    {
+        return (*this);
+    }
+
+    _rep->filterQuery = container._rep->filterQuery;
+    _rep->queryLanguage = container._rep->queryLanguage;
+    _rep->sourceNameSpace = container._rep->sourceNameSpace;
+
+    return (*this);
+}
+
+String SubscriptionFilterQueryContainer::getName(void) const
+{   
+    return(NAME);
+}
+
+OperationContext::Container * SubscriptionFilterQueryContainer::clone(void) const
+{  
+    return(new SubscriptionFilterQueryContainer(_rep->filterQuery,
+                                                _rep->queryLanguage,
+                                                _rep->sourceNameSpace));
+}
+
+void SubscriptionFilterQueryContainer::destroy(void)
+{   
+    delete this;
+}
+
+String SubscriptionFilterQueryContainer::getFilterQuery(void) const
+{
+    return(_rep->filterQuery);
+}
+
+String SubscriptionFilterQueryContainer::getQueryLanguage(void) const
+{
+    return(_rep->queryLanguage);
+}
+
+CIMNamespaceName SubscriptionFilterQueryContainer::getSourceNameSpace(void) const
+{
+    return(_rep->sourceNameSpace);
+}
+
+// Unimplemented, hidden constructor not intended for actual use
+SubscriptionFilterQueryContainer::SubscriptionFilterQueryContainer()
+{
+}
+
+//
 // TimeoutContainer
 //
 

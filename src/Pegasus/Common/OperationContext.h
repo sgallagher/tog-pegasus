@@ -334,6 +334,99 @@ private:
     SubscriptionFilterConditionContainer();    // Unimplemented
 };
 
+
+class SubscriptionFilterQueryContainerRep;
+
+/** The SubscriptionFilterQueryContainer class contains a query filter string and
+    a query language string.  The query filter contains the whole SELECT statement
+    from the filter associated with the subscription.  This is different than
+    the filter condition string in SubscriptionFilterConditionContainer, which
+    only contains the WHERE clause of the filter.  The query language string
+    contains the language of the filter (eg. "WQL", "CIM:CQL"). 
+
+    <pre>
+    This container may be used by providers that wish to filter indications.
+    The query filter and query langauge strings may used to constuct a QueryExpression
+    object for parsing and evaluation.
+    </pre>
+*/
+class PEGASUS_COMMON_LINKAGE SubscriptionFilterQueryContainer
+    : virtual public OperationContext::Container
+{
+public:
+    /** The name of this container.  This is set to "SubscriptionFilterQueryContainer".
+    */
+    static const String NAME;
+
+    /** Copy constructor.
+    @param container The container to be copied. It must be of type 
+    SubscriptionFilterQueryContainer.
+    @exception DynamicCastFailedException If the parameter is not the correct type.
+    */
+    SubscriptionFilterQueryContainer
+        (const OperationContext::Container & container);
+
+    /** Copy constructor
+    @param container The container to be copied. 
+    */
+    SubscriptionFilterQueryContainer
+        (const SubscriptionFilterQueryContainer & container);
+
+    /** Constructor
+    @param filterQuery String containing the query filter.
+    @param queryLanguage String containing the language of the query filter.
+    */
+    SubscriptionFilterQueryContainer
+      (const String & filterQuery,
+       const String & queryLanguage,
+       const CIMNamespaceName & sourceNameSpace);
+
+    /** Destructor
+    */
+    virtual ~SubscriptionFilterQueryContainer(void);
+
+    /** Assignment
+    @param container Container from which to assign.
+    */
+    SubscriptionFilterQueryContainer & operator=
+        (const SubscriptionFilterQueryContainer & container);
+
+    /** Returns the name of this container. 
+    @return Name of this container.
+    */
+    virtual String getName(void) const;
+
+    /** Creates a duplicate of this container.
+    @return Pointer to the cloned container.
+    */
+    virtual OperationContext::Container * clone(void) const;
+
+    /** Deletes this container. 
+    */
+    virtual void destroy(void);
+
+    /** Returns the query filter string.
+    @return The query filter string.    
+    */
+    String getFilterQuery(void) const;
+
+    /** Returns the query language string.
+    @return The query language string.    
+    */
+    String getQueryLanguage(void) const;
+
+    /** Returns the source namespace for the filter.
+    @return The source namespace.    
+    */
+    CIMNamespaceName getSourceNameSpace(void) const;
+
+protected:
+    SubscriptionFilterQueryContainerRep* _rep;
+
+private:
+    SubscriptionFilterQueryContainer();    // Unimplemented
+};
+
     /**REVIEWERS: Insert class description here.
     */
 class SubscriptionInstanceNamesContainerRep;

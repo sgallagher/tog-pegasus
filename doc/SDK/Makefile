@@ -40,7 +40,7 @@ buildCMPIDoc:
 	@$(RMDIRHIER) $(PEGASUS_HTML_DIR)/CMPI
 	@$(MKDIRHIER) $(PEGASUS_HTML_DIR)/CMPI
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile doc
-	$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/CMPI -H -v -k CMPI/Interface.dxx
+	$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/CMPI -H -v CMPI/Interface.dxx
 	@sed -e "s/Hierarchy of Classes/Hierarchy of CMPI Classes/" $(PEGASUS_HTML_DIR)/CMPI/HIER.html >  $(PEGASUS_HTML_DIR)/CMPI/Interface.html
 	@$(COPY) CMPI/ClassHier.html $(PEGASUS_HTML_DIR)/CMPI/ClassHier.html
 

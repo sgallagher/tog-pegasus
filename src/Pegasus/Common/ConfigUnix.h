@@ -43,12 +43,10 @@
 #define PEGASUS_REPOSITORY_LINKAGE /* empty */
 #define PEGASUS_PROTOCOL_LINKAGE /* empty */
 #define PEGASUS_SERVER_LINKAGE /* empty */
-#define PEGASUS_CLIENT_LINKAGE /* empty */
 #define PEGASUS_COMPILER_LINKAGE /* empty */
 #define PEGASUS_GETOOPT_LINKAGE /* empty */
 #define PEGASUS_PROVIDER_LINKAGE /* empty */
 #define PEGASUS_CMDLINE_LINKAGE /* empty */
 #define PEGASUS_HANDLER_LINKAGE /* empty */
-#define PEGASUS_EXPORTCLIENT_LINKAGE /* empty */
 
 #endif  /* Pegasus_ConfigUnix_h */

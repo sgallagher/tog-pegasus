@@ -644,6 +644,42 @@ public:
     UnexpectedFailure() : Exception(MSG) { }
 };
 
+class PEGASUS_COMMON_LINKAGE FailedToConnect : public Exception
+{
+public:
+
+    static const char MSG[];
+
+    FailedToConnect() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE AlreadyConnected: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    AlreadyConnected() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE NotConnected: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    NotConnected() : Exception(MSG) { }
+};
+
+class PEGASUS_COMMON_LINKAGE TimedOut: public Exception
+{
+public:
+
+    static const char MSG[];
+
+    TimedOut() : Exception(MSG) { }
+};
+
 PEGASUS_COMMON_LINKAGE void ThrowUnitializedHandle();
 
 PEGASUS_NAMESPACE_END

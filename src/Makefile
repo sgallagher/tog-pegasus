@@ -8,7 +8,7 @@ include $(ROOT)/mak/recurse.mak
 
 rebuild: clean depend all repository config
 
-world: depend all repository
+world: depend all repository config
 	$(MAKE) -s tests
 
 repository:

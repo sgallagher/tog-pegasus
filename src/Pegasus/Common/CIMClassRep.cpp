@@ -180,7 +180,6 @@ void CIMClassRep::resolve(
     if (_resolved)
 	throw ClassAlreadyResolved(_reference.getClassName());
 #endif
-
     if (!context)
 	throw NullPointer();
 
@@ -189,7 +188,6 @@ void CIMClassRep::resolve(
 	//----------------------------------------------------------------------
 	// First check to see if the super-class really exists:
 	//----------------------------------------------------------------------
-
 	CIMConstClass superClass
 	    = context->lookupClass(nameSpace, _superClassName);
 

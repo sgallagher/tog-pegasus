@@ -107,6 +107,8 @@ static CMPIInstance* mbGetInstance(CMPIBroker *mb, CMPIContext *ctx,
 		  CM_IncludeQualifiers(flgs),
 		  CM_ClassOrigin(flgs),
 		  *props);
+      if (ci.getPath().getKeyBindings().size()==0)
+		   ci.setPath(qop);
       delete props;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return (CMPIInstance*)new CMPI_Object(new CIMInstance(ci));

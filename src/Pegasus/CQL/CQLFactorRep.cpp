@@ -82,7 +82,7 @@ CQLValue CQLFactorRep::getValue()const
    return _CQLVal;
 }
 
-CQLValue CQLFactorRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
+CQLValue CQLFactorRep::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
 {
 
    if(_containedType == EXPRESSION)

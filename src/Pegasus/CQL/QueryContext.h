@@ -57,7 +57,7 @@ class PEGASUS_CQL_LINKAGE QueryContext
 
 	virtual ~QueryContext();
 
-        virtual CIMClass getClass(const CIMName& inClassName) = 0;
+        virtual CIMClass getClass(const CIMName& inClassName)const  = 0;
 
 	virtual Array<CIMName> enumerateClassNames(const CIMName& inClassName) = 0;
 
@@ -69,7 +69,7 @@ class PEGASUS_CQL_LINKAGE QueryContext
 
         void insertClassPath(const CQLIdentifier& inIdentifier, String inAlias = String::EMPTY);
 
-        CQLIdentifier findClass(const String& inAlias);
+        CQLIdentifier findClass(const String& inAlias) const;
 
         Array<CQLIdentifier> getFromList() const;
 	

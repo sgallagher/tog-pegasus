@@ -83,7 +83,7 @@ class PEGASUS_CQL_LINKAGE CQLFactor
     
       */
 
-   CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
+   CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
 
    Boolean isSimple()const;
 

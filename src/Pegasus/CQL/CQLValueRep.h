@@ -122,7 +122,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
            - class aliasing
      */
 
-    void resolve(CIMInstance& CI, QueryContext& inQueryCtx);
+    void resolve(const CIMInstance& CI, const QueryContext& inQueryCtx);
 
     CQLValueRep& operator=(const CQLValueRep& rhs);
 
@@ -199,7 +199,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
         </pre>
     */
  
-    // CQLValueRep operator+(const CQLValueRep x);
+     CQLValueRep operator+(const CQLValueRep x);
 
     /** This overload operator (-) subtracts the value of CQLValue
           objects and performs type checking and Uint64 handling.
@@ -301,7 +301,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
   private:
    Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,QueryContext& in);
    Boolean _validate(const CQLValueRep& x);
-   void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx);
+   void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx);
    void _setValue(CIMValue cv, Uint64 Index = 0);
 
    union TheValue

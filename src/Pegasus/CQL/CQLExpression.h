@@ -81,7 +81,7 @@ class PEGASUS_CQL_LINKAGE CQLExpression
       */
     ~CQLExpression();
 
-    CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
+    CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
 
     /** The appendOperation is used by Bison.
           It is invoked 0 or more times for the CQLExpression, and

@@ -65,7 +65,7 @@ RepositoryQueryContext& RepositoryQueryContext::operator=(const RepositoryQueryC
   return *this;
 }
 
-CIMClass RepositoryQueryContext::getClass(const CIMName& inClassName)
+CIMClass RepositoryQueryContext::getClass(const CIMName& inClassName) const
 {
   /* Hardcoded defaults */
   Boolean localOnly = false;

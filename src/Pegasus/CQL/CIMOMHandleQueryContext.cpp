@@ -64,16 +64,17 @@ CIMOMHandleQueryContext& CIMOMHandleQueryContext::operator=(const CIMOMHandleQue
   return *this;
 }
 
-CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName)
+CIMClass CIMOMHandleQueryContext::getClass(const CIMName& inClassName) const
 {
   /* Hardcoded defaults */
   Boolean localOnly = false;
   Boolean includeQualifiers = true;
   Boolean includeClassOrigin = false;
+  CIMOMHandle tmp = _CH;
 
   // ATTN - constructing OperationContext from scratch may be a problem
   // once security is added to that object
-  CIMClass _class = _CH.getClass(OperationContext(),
+  CIMClass _class = tmp.getClass(OperationContext(),
 				 getNamespace(),
 				 inClassName,
 				 localOnly,

@@ -130,7 +130,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
            - class aliasing
      */
 
-    void resolve(CIMInstance CI, QueryContext& inQueryCtx);
+    void resolve(const CIMInstance& CI,const  QueryContext& inQueryCtx);
 
     CQLValue& operator=(const CQLValue& rhs);
 
@@ -207,7 +207,7 @@ class PEGASUS_CQL_LINKAGE CQLValue
         </pre>
     */
  
-    //CQLValue operator+(const CQLValue& x);
+    CQLValue operator+(const CQLValue& x);
 
     /** This overload operator (-) subtracts the value of CQLValue
           objects and performs type checking and Uint64 handling.

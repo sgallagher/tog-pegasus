@@ -80,7 +80,7 @@ CQLValue CQLFactor::getValue()const
    	return _rep->getValue();
 }
 
-CQLValue CQLFactor::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
+CQLValue CQLFactor::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
 {
 	return _rep->resolveValue(CI, QueryCtx);
 }

@@ -126,7 +126,7 @@ class PEGASUS_CQL_LINKAGE CQLFunction
         and then actually executes the function.
         Returns a CQLValue object that has already been resolved.
       */
-    CQLValue resolveValue(CIMInstance CI, QueryContext& queryCtx);
+    CQLValue resolveValue(const CIMInstance& CI, const QueryContext& queryCtx);
     
    Array<CQLPredicate> getParms()const;
    

@@ -119,7 +119,7 @@ CQLFunctionRep::CQLFunctionRep(const CQLFunctionRep* rep)
 CQLFunctionRep::~CQLFunctionRep(){
 }
 
-CQLValue CQLFunctionRep::resolveValue(CIMInstance CI, QueryContext& queryCtx)
+CQLValue CQLFunctionRep::resolveValue(const CIMInstance& CI,const QueryContext& queryCtx)
 {
    switch(_funcOpType)
    {
@@ -301,7 +301,22 @@ CQLValue CQLFunctionRep::stringToNumeric(const CIMInstance& CI, const QueryConte
 
 CQLValue CQLFunctionRep::upperCase(const CIMInstance& CI, const QueryContext& queryCtx)
 {
-   return CQLValue(Uint64(0));
+  if(_parms.size() > 1)
+    {
+      throw(Exception(String("CQLFunctionRep::upperCase -- too many predicates")));
+    }
+
+  CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().resolveValue(CI,queryCtx);
+
+  if(cqlVal.getValueType() != CQLValue::String_type)
+    {
+      throw(Exception(String("CQLFunctionRep::upperCase -- not a String")));
+    }
+
+  String tmpStr = cqlVal.getString();
+  tmpStr.toUpper();
+
+  return CQLValue(tmpStr);
 }
 
 CQLValue CQLFunctionRep::numericToString(const CIMInstance& CI, const QueryContext& queryCtx)

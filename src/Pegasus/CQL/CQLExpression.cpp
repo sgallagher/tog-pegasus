@@ -64,7 +64,7 @@ CQLExpression::~CQLExpression(){
 		delete _rep;
 }
 
-CQLValue CQLExpression::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
+CQLValue CQLExpression::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
 {
 	return _rep->resolveValue(CI,QueryCtx);
 }

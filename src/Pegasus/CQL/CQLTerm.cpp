@@ -65,7 +65,7 @@ CQLTerm::~CQLTerm(){
                 delete _rep;
 }
 
-CQLValue CQLTerm::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
+CQLValue CQLTerm::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
 {
 	return _rep->resolveValue(CI,QueryCtx);
 }

@@ -135,7 +135,7 @@ void QueryContext::insertClassPath(const CQLIdentifier& inIdentifier, String inA
   }
 }
 
-CQLIdentifier QueryContext::findClass(const String& inAlias)
+CQLIdentifier QueryContext::findClass(const String& inAlias)const
 {
 	// look for alias match
 	CQLIdentifier _class;

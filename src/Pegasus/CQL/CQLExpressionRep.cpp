@@ -51,14 +51,14 @@ CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep)
 CQLExpressionRep::~CQLExpressionRep(){
 
 }
-CQLValue CQLExpressionRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
+CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
 {
    CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
 
    for(Uint32 i = 0; i < _TermOperators.size(); ++i)
    {
       switch(_TermOperators[i])
-      {
+      {/*
          case plus:
             returnVal = returnVal + 
                         _CQLTerms[i+1].resolveValue(CI,QueryCtx);
@@ -67,6 +67,7 @@ CQLValue CQLExpressionRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
             returnVal = returnVal - 
                         _CQLTerms[i+1].resolveValue(CI,QueryCtx);
             break;
+       */
          default:
             throw(1);
       }

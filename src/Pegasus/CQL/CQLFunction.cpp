@@ -59,7 +59,7 @@ CQLFunction::~CQLFunction(){
 		delete _rep;
 }
 
-CQLValue CQLFunction::resolveValue(CIMInstance CI, QueryContext& queryCtx)
+CQLValue CQLFunction::resolveValue(const CIMInstance& CI, const QueryContext& queryCtx)
 {
 	return _rep->resolveValue(CI,queryCtx);
 }

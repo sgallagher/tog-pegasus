@@ -53,7 +53,7 @@ CQLTermRep::CQLTermRep(const CQLTermRep* rep){
 CQLTermRep::~CQLTermRep(){
 }
 
-CQLValue CQLTermRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
+CQLValue CQLTermRep::resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx)
 {
    CQLValue returnVal = _Factors[0].resolveValue(CI,QueryCtx);
 
@@ -69,11 +69,12 @@ CQLValue CQLTermRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
             returnVal = returnVal / 
                         _Factors[i+1].resolveValue(CI,QueryCtx);
             break;
+       */
          case concat:
             returnVal = returnVal + 
                         _Factors[i+1].resolveValue(CI,QueryCtx);
             break;
-       */
+       
          default:
             throw(1);
       }

@@ -299,7 +299,7 @@ CQLValueRep::CQLValueRep(Real64 inReal)
    _isResolved = true;
 }
 
-void CQLValueRep::resolve(CIMInstance& CI, QueryContext& inQueryCtx)
+void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx)
 {   
    if(_CQLChainId.size() == 0)
    {
@@ -316,7 +316,6 @@ void CQLValueRep::resolve(CIMInstance& CI, QueryContext& inQueryCtx)
    CIMClass ScopeClass;             // CIMClass for the scope of Identifier
    CIMClass QueryClass;             // CIMClass for the current query
 
-   CIMProperty propObj;             // Property object to be processed
    CIMProperty queryPropObj;        // Property object used for verification
 
    Uint32 qualIndex;                // Counter for looping through qualifiers
@@ -458,7 +457,7 @@ void CQLValueRep::resolve(CIMInstance& CI, QueryContext& inQueryCtx)
          // We will retrieve the property from the instance,
          // that will be used to set the primitive later in processing.
          propertyIndex = CI.findProperty(Idstrings[index].getName());
-         propObj = CI.getProperty(propertyIndex);
+        CIMConstProperty propObj = CI.getProperty(propertyIndex);
 
          if(Idstrings[index].isArray())
          {
@@ -825,7 +824,7 @@ Boolean CQLValueRep::operator>(const CQLValueRep& x)
    return true;
 }
 
-/*
+
 CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
 {
    
@@ -915,7 +914,7 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
    return x;
 }
 
-
+/*
 CQLValueRep CQLValueRep::operator-(const CQLValueRep& x)
 {
    if(!_validate(x))  
@@ -1794,7 +1793,7 @@ void CQLValueRep::applyContext(QueryContext& _ctx,
    }
 }
 
-void CQLValueRep::_resolveSymbolicConstant(QueryContext& inQueryCtx)
+void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
 {
    Array<String> valueMapArray;     // Value Map Qualifier for property
    Array<String> valuesArray;       // Values Qualifier for property

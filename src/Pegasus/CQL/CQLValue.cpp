@@ -128,7 +128,7 @@ CQLValue::CQLValue(CQLValueRep rhs)
    _rep = new CQLValueRep(&rhs);
 }
 
-void CQLValue::resolve(CIMInstance CI, QueryContext& inQueryCtx)
+void CQLValue::resolve(const CIMInstance& CI,const QueryContext& inQueryCtx)
 {   
    _rep->resolve(CI, inQueryCtx);
 }
@@ -178,13 +178,13 @@ Boolean CQLValue::operator>(const CQLValue& x)
    return _rep->operator>(x._rep);
 }
 
-/*
+
 CQLValue CQLValue::operator+(const CQLValue& x)
 {
    return CQLValue(_rep->operator+(x._rep));
 }
 
-
+/*
 CQLValue CQLValue::operator-(const CQLValue& x)
 {
    return CQLValue(_rep->operator-(x._rep));

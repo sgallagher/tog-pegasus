@@ -507,7 +507,7 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
     try
     {
          classNames = _repository->enumerateClassNames(
-             nameSpace, String::EMPTY, true);
+             nameSpace, CIMName(), true);
     }
     catch(CIMException& exception) {}
     catch(Exception& exception) {}

@@ -211,6 +211,12 @@ int main(int argc, char** argv)
 
         // move any other input parameters left to the extraParams List
 		CheckCommonOptionValues(om, argv, opts);
+
+        /* note that this is in error since it assumes a fixed
+           number of parameters will be used for all of the commands
+           It needs to be expanded to allow for a variable minimum
+           number of commands before it picks up any extras
+        */
         if (argc > 2)
         {
             for (Uint32 i = 2 ; i < argc ; i++ )
@@ -237,8 +243,6 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 
-    
-    
     // if there is still an arg1, assume it is the command name.
     if (argc > 1)
     {
@@ -519,7 +523,12 @@ int main(int argc, char** argv)
                     opts.objectName = argv[2];
                     opts.inputObjectName = argv[2];
                     opts.methodName = CIMName(argv[3]);
-                    if (argc >= 4)
+
+                    // If there are any extra arguments they must be parameters
+                    // These parameters  can be used in addtion to parameters
+                    // ifrom the -ip option setting. Parameters found here must
+                    // be key=value pairs or they will generate an exception.
+                    if (argc > 4)
                     {
                         // get input params from command line
 						for (Sint32 i = 4 ; i < argc; i++)

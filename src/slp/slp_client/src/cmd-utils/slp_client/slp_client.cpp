@@ -1386,7 +1386,7 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
   reply = alloc_slp_msg(FALSE);
   if(reply == NULL) abort();
   reply->hdr.ver = _LSLP_GETVERSION(bptr);
-  reply->type = reply->hdr.msgid = _LSLP_GETFUNCTION(bptr);
+  reply->type = (msgTypes) (reply->hdr.msgid = _LSLP_GETFUNCTION(bptr));
   reply->hdr.len = purported_len;
   reply->hdr.flags = _LSLP_GETFLAGS(bptr);
   reply->hdr.nextExt = _LSLP_GETNEXTEXT(bptr);
@@ -1405,7 +1405,7 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
       
       total_len += 4;
       bptr += 4;
-      reply->msg.attrRep.attrList = (uint8 *)calloc(1, reply->msg.attrRep.attrListLen + 1);
+      reply->msg.attrRep.attrList = (int8 *)calloc(1, reply->msg.attrRep.attrListLen + 1);
       if(reply->msg.attrRep.attrList == NULL) abort();
       memcpy(reply->msg.attrRep.attrList, bptr, reply->msg.attrRep.attrListLen);
       /* ignore auth blocks, they will be deprecated in next version of protocol */ 
